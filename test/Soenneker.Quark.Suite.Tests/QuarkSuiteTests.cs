@@ -1,4 +1,4 @@
-﻿using Soenneker.Tests.FixturedUnit;
+using Soenneker.Tests.FixturedUnit;
 using Xunit;
 
 namespace Soenneker.Quark.Suite.Tests;
