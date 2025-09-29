@@ -1,16 +1,21 @@
+@using Soenneker.Extensions.String
 
 @namespace Soenneker.Quark
 @inject IThemeProvider ThemeProvider
 
-<style>
-    @GetBootstrapVariableOverrides()
-</style>
+@if (_bootstrapOverrides.HasContent())
+{
+    <style>
+        @_bootstrapOverrides
+    </style>
+}
 
-<div @attributes="AdditionalAttributes" >
+<div @attributes="AdditionalAttributes">
     @ChildContent
 </div>
 
 @code {
+    private string? _bootstrapOverrides;
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
@@ -18,17 +23,16 @@
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
-    private string GetBootstrapVariableOverrides()
+    protected override void OnParametersSet()
     {
         try
         {
-            return ThemeProvider.GenerateRootCss();
+            _bootstrapOverrides = ThemeProvider.GenerateRootCss();
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error generating Bootstrap variable overrides: {ex.Message}");
-            return string.Empty;
+            _bootstrapOverrides = null;
         }
     }
-
 }

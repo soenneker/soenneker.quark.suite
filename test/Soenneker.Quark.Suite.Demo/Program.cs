@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Web;
@@ -30,14 +31,20 @@ public sealed class Program
                 BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
             });
 
-        builder.Services.AddEmptyThemeProviderAsScoped();
+            //builder.Services.AddEmptyThemeProviderAsScoped();
 
-        // Register all Quark services using the suite registrar
-        builder.Services.AddQuarkSuiteAsScoped();
+            var theme = new Theme { BootstrapCards = new BootstrapCardsCssVariables { CardBorderColor = "#FFFFFF" } };
+
+            var provider = new ThemeProvider { CurrentTheme = "Default", Themes = new Dictionary<string, Theme> { { "Default", theme } } };
+
+            builder.Services.AddThemeProviderAsScoped(provider);
+
+            // Register all Quark services using the suite registrar
+            builder.Services.AddQuarkSuiteAsScoped();
 
             var host = builder.Build();
 
-            var jsRuntime = (IJSRuntime) host.Services.GetService(typeof(IJSRuntime))!;
+            var jsRuntime = (IJSRuntime)host.Services.GetService(typeof(IJSRuntime))!;
 
             SetGlobalLogger(jsRuntime);
 

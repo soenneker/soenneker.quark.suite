@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -47,6 +48,7 @@ public static class BootstrapCssGenerator
     public static string GenerateRootCss(params object?[] cssVariablesObjects)
     {
         var map = GenerateCssVariables(cssVariablesObjects);
+
         if (map.Count == 0)
             return string.Empty;
 
@@ -64,9 +66,48 @@ public static class BootstrapCssGenerator
             sb.Append(kvp.Value);                  // value
             sb.Append(";\n".AsSpan());
         }
-        sb.Append('}');
+        sb.Append("}\n\n".AsSpan());
+
+        // Generate component-specific overrides to match Bootstrap's component classes
+        // Group variables by component type
+        var componentGroups = map.GroupBy(kvp => GetComponentFromVariable(kvp.Key));
+        
+        foreach (var group in componentGroups)
+        {
+            var component = group.Key;
+            if (string.IsNullOrEmpty(component)) continue;
+
+            // Target the same component class that Bootstrap uses
+            sb.Append($".{component} {{\n".AsSpan());
+            foreach (var kvp in group)
+            {
+                sb.Append("  ".AsSpan());
+                sb.Append(kvp.Key);                    // "--bs-"
+                sb.Append(": ".AsSpan());
+                sb.Append(kvp.Value);                  // value
+                sb.Append(";\n".AsSpan());
+            }
+            sb.Append("}\n\n".AsSpan());
+        }
 
         return sb.ToStringAndDispose();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string GetComponentFromVariable(string variableName)
+    {
+        // Extract component name from CSS variable
+        // e.g., "--bs-card-border-color" -> "card"
+        if (variableName.StartsWith("--bs-"))
+        {
+            var withoutPrefix = variableName.Substring(5); // Remove "--bs-"
+            var firstDash = withoutPrefix.IndexOf('-');
+            if (firstDash > 0)
+            {
+                return withoutPrefix.Substring(0, firstDash);
+            }
+        }
+        return string.Empty;
     }
 
     // -------- internals --------

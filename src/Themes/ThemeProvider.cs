@@ -139,6 +139,7 @@ public sealed class ThemeProvider : IThemeProvider
     public string GenerateRootCss()
     {
         var currentTheme = GetCurrentTheme();
+
         if (currentTheme == null)
             return string.Empty;
 
