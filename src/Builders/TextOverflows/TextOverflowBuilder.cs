@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Soenneker.Quark.Builders.Abstract;
-using Soenneker.Quark.Builders.Utils;
+using Soenneker.Quark;
 using Soenneker.Quark.Enums;
 using Soenneker.Utils.PooledStringBuilders;
 
 using TextOverflowEnum = Soenneker.Quark.Enums.TextOverflowKeyword;
 
-namespace Soenneker.Quark.Builders.TextOverflows;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// High-performance text-overflow builder with fluent API for chaining rules.

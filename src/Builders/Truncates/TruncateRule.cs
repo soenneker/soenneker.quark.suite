@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Truncates;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single truncate rule with optional BreakpointType.

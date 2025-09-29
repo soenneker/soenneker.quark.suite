@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.Interactions;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified interaction utility with fluent API and Bootstrap-first approach.

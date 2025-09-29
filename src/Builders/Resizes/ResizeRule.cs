@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Resizes;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single resize rule with optional BreakpointType.

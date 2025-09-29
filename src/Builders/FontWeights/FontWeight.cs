@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.FontWeights;
+namespace Soenneker.Quark;
 
 public static class FontWeight
 {

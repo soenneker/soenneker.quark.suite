@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.ObjectFits;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified object-fit utility with fluent API and Bootstrap-first approach.

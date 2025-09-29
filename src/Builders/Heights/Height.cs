@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.Heights;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified height utility with fluent API and Bootstrap-first approach.

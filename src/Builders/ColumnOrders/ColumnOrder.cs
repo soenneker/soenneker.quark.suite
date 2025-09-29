@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.ColumnOrders;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified column order utility with fluent API and Bootstrap-first approach.

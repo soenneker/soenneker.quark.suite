@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.AspectRatios;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single aspect ratio rule with optional BreakpointType.

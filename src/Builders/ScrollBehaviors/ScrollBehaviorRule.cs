@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.ScrollBehaviors;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single scroll behavior rule with optional BreakpointType.

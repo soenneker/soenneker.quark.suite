@@ -5,10 +5,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 
 using Soenneker.Utils.PooledStringBuilders;
-using Soenneker.Quark.Builders.Abstract;
-using Soenneker.Quark.Builders.Utils;
+using Soenneker.Quark;
+using Soenneker.Quark;
 
-namespace Soenneker.Quark.Builders.Widths;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified width builder with fluent API for chaining width rules.

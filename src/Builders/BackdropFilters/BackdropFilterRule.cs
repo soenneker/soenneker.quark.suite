@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.BackdropFilters;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single backdrop filter rule with optional BreakpointType.

@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.ColumnSizes;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified column size utility with fluent API and Bootstrap-first approach.

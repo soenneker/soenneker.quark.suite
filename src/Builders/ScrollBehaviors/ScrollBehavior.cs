@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.ScrollBehaviors;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified scroll behavior utility with fluent API and Bootstrap-first approach.

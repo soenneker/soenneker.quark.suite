@@ -1,7 +1,8 @@
 
+
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.ColumnOffsets;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a column offset rule with optional breakpoint.

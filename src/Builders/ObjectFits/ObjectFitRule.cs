@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.ObjectFits;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single object-fit rule with optional BreakpointType.

@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.BorderRadiuses;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified border radius utility with fluent API and Bootstrap-first approach.

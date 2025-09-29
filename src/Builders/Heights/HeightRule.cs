@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Heights;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single height rule with optional BreakpointType.

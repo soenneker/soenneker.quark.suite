@@ -1,7 +1,8 @@
 
+
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.ColumnSizes;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a column size rule with optional breakpoint.

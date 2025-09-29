@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-namespace Soenneker.Quark.DatePickers.Abstract;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Provides initialization for DatePicker resources (eg. CSS) and lifetime management.

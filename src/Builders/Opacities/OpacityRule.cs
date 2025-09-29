@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Opacities;
+namespace Soenneker.Quark;
 
 internal readonly record struct OpacityRule(int Value, BreakpointType? breakpoint);
 

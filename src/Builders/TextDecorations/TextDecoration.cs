@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.TextDecorations;
+namespace Soenneker.Quark;
 
 public static class TextDecoration
 {

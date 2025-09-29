@@ -1,4 +1,4 @@
-using Soenneker.Quark.Variables.Bootstrap;
+using Soenneker.Quark;
 
 namespace Soenneker.Quark;
 

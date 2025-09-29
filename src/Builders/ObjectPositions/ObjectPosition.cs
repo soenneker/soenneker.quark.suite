@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.ObjectPositions;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified object position utility with fluent API and Bootstrap-first approach.

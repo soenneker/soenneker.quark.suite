@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Widths;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single width rule with optional BreakpointType.

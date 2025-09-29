@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Sizes;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single size rule.

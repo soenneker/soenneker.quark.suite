@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Cursors;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single cursor rule with optional BreakpointType.

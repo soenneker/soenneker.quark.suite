@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.TextWraps;
+namespace Soenneker.Quark;
 
 public static class TextWrap
 {

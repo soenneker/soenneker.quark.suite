@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Floats;
+namespace Soenneker.Quark;
 
 internal record FloatRule(string Value, BreakpointType? breakpoint);
 

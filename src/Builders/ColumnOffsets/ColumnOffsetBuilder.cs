@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Soenneker.Quark.Builders.Abstract;
-using Soenneker.Quark.Builders.Utils;
+using Soenneker.Quark;
 using Soenneker.Quark.Enums;
 using Soenneker.Utils.PooledStringBuilders;
 
-namespace Soenneker.Quark.Builders.ColumnOffsets;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified column offset builder with fluent API for chaining column offset rules.

@@ -1,7 +1,8 @@
 
+
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.ColumnOrders;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a column order rule with optional breakpoint.

@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.TextOverflows;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified text overflow utility with fluent API and Bootstrap-first approach.

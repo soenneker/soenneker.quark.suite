@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.BackdropFilters;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified backdrop filter utility with fluent API and Bootstrap-first approach.

@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.Opacities;
+
+namespace Soenneker.Quark;
 
 public static class Opacity
 {

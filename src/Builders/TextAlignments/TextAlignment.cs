@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.TextAlignments;
+namespace Soenneker.Quark;
 
 public static class TextAlignment
 {

@@ -1,7 +1,7 @@
 using Soenneker.Quark.Enums;
 
 
-namespace Soenneker.Quark.Builders.Borders;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single border rule with optional BreakpointType.

@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Sizes;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Size utility with fluent API and Bootstrap-first approach.

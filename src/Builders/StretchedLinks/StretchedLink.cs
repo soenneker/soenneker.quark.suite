@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.StretchedLinks;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified stretched link utility with fluent API and Bootstrap-first approach.

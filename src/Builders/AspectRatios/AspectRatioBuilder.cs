@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Soenneker.Quark.Builders.Abstract;
-using Soenneker.Quark.Builders.Utils;
 using Soenneker.Quark.Enums;
 using Soenneker.Utils.PooledStringBuilders;
 
-namespace Soenneker.Quark.Builders.AspectRatios;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified aspect ratio builder with fluent API for chaining aspect ratio rules.

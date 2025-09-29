@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.PositionOffsets;
+
+namespace Soenneker.Quark;
 
 public static class PositionOffset
 {

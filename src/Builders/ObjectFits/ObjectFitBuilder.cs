@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Soenneker.Quark.Builders.Abstract;
-using Soenneker.Quark.Builders.Utils;
+using Soenneker.Quark;
 using Soenneker.Quark.Enums;
 using Soenneker.Utils.PooledStringBuilders;
 
-namespace Soenneker.Quark.Builders.ObjectFits;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified object-fit builder with fluent API for chaining object-fit rules.

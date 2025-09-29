@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.Transforms;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified transform utility with fluent API and Bootstrap-first approach.

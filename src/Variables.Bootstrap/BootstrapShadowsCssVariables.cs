@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Variables.Bootstrap;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Bootstrap's shadow CSS variables

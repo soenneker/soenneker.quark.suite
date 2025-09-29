@@ -2,13 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Soenneker.Extensions.String;
-using Soenneker.Quark.Builders.Abstract;
-using Soenneker.Quark.Builders.Utils;
 using Soenneker.Quark.Enums;
 using Soenneker.Utils.PooledStringBuilders;
 
 
-namespace Soenneker.Quark.Builders.Colors;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// High-performance generic color builder.

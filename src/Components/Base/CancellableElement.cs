@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
-using Soenneker.Quark.Components.Base.Abstract;
+using Soenneker.Quark;
 
-namespace Soenneker.Quark.Components.Base;
+namespace Soenneker.Quark;
 
 ///<inheritdoc cref="ICancellableElement"/>
 public abstract class CancellableElement : CancellableComponent, ICancellableElement

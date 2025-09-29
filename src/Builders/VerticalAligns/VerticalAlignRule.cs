@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.VerticalAligns;
+namespace Soenneker.Quark;
 
 internal readonly record struct VerticalAlignRule(string Value, BreakpointType? breakpoint);
 

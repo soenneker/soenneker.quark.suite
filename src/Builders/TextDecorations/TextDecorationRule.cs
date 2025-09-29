@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.TextDecorations;
+namespace Soenneker.Quark;
 
 internal readonly record struct TextDecorationRule(string Value, BreakpointType? breakpoint);
 

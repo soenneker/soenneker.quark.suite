@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.ClipPaths;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single clip path rule with optional BreakpointType.

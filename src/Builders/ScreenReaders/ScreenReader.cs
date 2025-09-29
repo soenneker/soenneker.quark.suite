@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.ScreenReaders;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified screen reader utility with fluent API and Bootstrap-first approach.

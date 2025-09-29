@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Positions;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified position utility with fluent API and Bootstrap-first approach.

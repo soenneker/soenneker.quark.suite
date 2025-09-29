@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using Soenneker.Utils.PooledStringBuilders;
 using Soenneker.Extensions.String;
 
-namespace Soenneker.Quark.Variables.Bootstrap.Utils;
+namespace Soenneker.Quark;
 
 /// <summary>Generates Bootstrap CSS custom properties with low allocations.</summary>
 public static class BootstrapCssGenerator

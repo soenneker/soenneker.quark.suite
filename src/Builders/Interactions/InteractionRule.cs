@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Interactions;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single interaction rule with optional BreakpointType.

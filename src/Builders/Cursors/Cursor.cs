@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.Cursors;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified cursor utility with fluent API and Bootstrap-first approach.

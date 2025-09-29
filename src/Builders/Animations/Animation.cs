@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.Animations;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified animation utility with fluent API and Bootstrap-first approach.

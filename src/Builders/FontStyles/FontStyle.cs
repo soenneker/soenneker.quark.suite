@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.FontStyles;
+namespace Soenneker.Quark;
 
 public static class FontStyle
 {

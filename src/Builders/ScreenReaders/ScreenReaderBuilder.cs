@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Soenneker.Quark.Builders.Abstract;
-using Soenneker.Quark.Builders.Utils;
+using Soenneker.Quark;
 using Soenneker.Quark.Enums;
 
 using Soenneker.Utils.PooledStringBuilders;
 
-namespace Soenneker.Quark.Builders.ScreenReaders;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified screen reader builder with fluent API for chaining screen reader rules.

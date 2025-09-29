@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.LineHeights;
+namespace Soenneker.Quark;
 
 public static class LineHeight
 {

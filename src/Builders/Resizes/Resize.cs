@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.Resizes;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified resize utility with fluent API and Bootstrap-first approach.

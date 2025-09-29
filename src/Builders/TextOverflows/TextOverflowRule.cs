@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.TextOverflows;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single text overflow rule with optional BreakpointType.

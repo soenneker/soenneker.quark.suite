@@ -1,3 +1,4 @@
-namespace Soenneker.Quark.Components.Base.Abstract;
+
+namespace Soenneker.Quark;
 
 public interface ICancellableElement : ICancellableComponent, IElement;

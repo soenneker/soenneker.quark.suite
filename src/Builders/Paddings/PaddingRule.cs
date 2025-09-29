@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Paddings;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single padding rule with optional BreakpointType.

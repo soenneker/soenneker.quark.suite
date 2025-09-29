@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.ScreenReaders;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single screen reader rule with optional BreakpointType.

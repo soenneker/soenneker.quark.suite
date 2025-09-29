@@ -1,8 +1,5 @@
 using Soenneker.Extensions.String;
-using Soenneker.Quark.Builders.Abstract;
-using Soenneker.Quark.Builders.Colors;
-using Soenneker.Quark.Builders.Heights;
-using Soenneker.Quark.Builders.Widths;
+using Soenneker.Quark;
 using System;
 using System.Collections.Generic;
 

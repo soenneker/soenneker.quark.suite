@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Margins;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified margin utility with fluent API and Bootstrap-first approach.

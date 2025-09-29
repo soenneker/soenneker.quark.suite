@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.ColumnOffsets;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified column offset utility with fluent API and Bootstrap-first approach.

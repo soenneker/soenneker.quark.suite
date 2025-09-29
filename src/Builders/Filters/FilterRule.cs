@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Filters;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single filter rule with optional BreakpointType.

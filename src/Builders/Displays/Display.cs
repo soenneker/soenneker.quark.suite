@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Displays;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified display utility with fluent API and Bootstrap-first approach.

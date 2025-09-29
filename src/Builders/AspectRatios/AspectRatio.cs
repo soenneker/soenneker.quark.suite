@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.AspectRatios;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified aspect ratio utility with fluent API and Bootstrap-first approach.

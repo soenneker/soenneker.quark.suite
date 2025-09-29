@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace Soenneker.Quark.Variables.Bootstrap.Utils;
+namespace Soenneker.Quark;
 
 internal readonly struct Accessor
 {

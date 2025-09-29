@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
+using Soenneker.Quark;
 
 namespace Soenneker.Quark;
 

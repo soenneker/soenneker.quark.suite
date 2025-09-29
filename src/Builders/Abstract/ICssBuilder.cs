@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.Abstract;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Interface for CSS builders that can generate CSS classes and styles.

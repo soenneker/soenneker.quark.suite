@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Soenneker.Quark.Builders.Abstract;
+using Soenneker.Quark;
 using Soenneker.Quark.Enums;
 using Soenneker.Utils.PooledStringBuilders;
 
-namespace Soenneker.Quark.Builders.Scales;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Scale builder with fluent API for chaining scale rules.

@@ -1,6 +1,6 @@
 using Intellenum;
 
-namespace Soenneker.Quark;
+namespace Soenneker.Quark.Enums;
 
 [Intellenum<string>]
 public sealed partial class IconAnimation

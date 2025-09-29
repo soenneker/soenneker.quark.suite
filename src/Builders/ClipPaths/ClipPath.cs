@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.ClipPaths;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified clip path utility with fluent API and Bootstrap-first approach.

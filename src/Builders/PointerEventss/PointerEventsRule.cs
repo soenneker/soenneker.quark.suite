@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.PointerEventss;
+namespace Soenneker.Quark;
 
 internal readonly record struct PointerEventsRule(string Value, BreakpointType? breakpoint);
 

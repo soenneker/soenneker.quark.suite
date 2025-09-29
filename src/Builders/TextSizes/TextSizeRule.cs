@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.TextSizes;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single text size rule with optional BreakpointType.

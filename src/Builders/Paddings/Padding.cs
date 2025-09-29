@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Paddings;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified padding utility with fluent API and Bootstrap-first approach.

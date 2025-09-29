@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.Filters;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified filter utility with fluent API and Bootstrap-first approach.

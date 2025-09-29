@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.Transitions;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified transition utility with fluent API and Bootstrap-first approach.

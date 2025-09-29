@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.Truncates;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified truncate utility with fluent API and Bootstrap-first approach.

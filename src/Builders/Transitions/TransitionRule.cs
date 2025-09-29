@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Transitions;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single transition rule with optional BreakpointType.

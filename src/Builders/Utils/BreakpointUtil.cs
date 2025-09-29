@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Utils;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Shared utilities for converting BreakpointTypes to CSS class tokens.

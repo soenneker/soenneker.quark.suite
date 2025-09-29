@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.Clearfix;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified clearfix utility with fluent API and Bootstrap-first approach.

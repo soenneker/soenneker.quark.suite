@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.Gaps;
+
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Simplified gap utility with fluent API and Bootstrap-first approach.

@@ -1,4 +1,5 @@
-namespace Soenneker.Quark.Builders.TextBreaks;
+
+namespace Soenneker.Quark;
 
 public static class TextBreak
 {

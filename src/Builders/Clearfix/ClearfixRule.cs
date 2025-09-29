@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Clearfix;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single clearfix rule with optional BreakpointType.

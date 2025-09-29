@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.VerticalAligns;
+namespace Soenneker.Quark;
 
 public static class VerticalAlign
 {

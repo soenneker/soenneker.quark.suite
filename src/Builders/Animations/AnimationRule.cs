@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Animations;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single animation rule with optional BreakpointType.

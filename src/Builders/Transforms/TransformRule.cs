@@ -1,6 +1,6 @@
 using Soenneker.Quark.Enums;
 
-namespace Soenneker.Quark.Builders.Transforms;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a single transform rule with optional BreakpointType.
