@@ -1,0 +1,129 @@
+@page "/dateedits"
+@using Microsoft.Extensions.Logging
+@using Soenneker.Quark.Enums
+
+@inject ILogger<Index> Logger
+
+<div class="container mt-4">
+    <h1>Soenneker.Quark.DateEdits Demo</h1>
+    <p>This page demonstrates the DateEdit component functionality.</p>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h3>Basic Date Input</h3>
+            <DateEdit Date="@basicDate" DateChanged="@((DateTime? value) => basicDate = value)" Placeholder="Select a date" />
+            <p class="mt-2">Selected date: @basicDate?.ToString("yyyy-MM-dd")</p>
+        </div>
+
+        <div class="col-md-6">
+            <h3>Date and Time Input</h3>
+            <DateEdit Date="@dateTimeValue" DateChanged="@((DateTime? value) => dateTimeValue = value)" InputMode="DateInputMode.DateTime" Placeholder="Select date and time" />
+            <p class="mt-2">Selected date/time: @dateTimeValue?.ToString("yyyy-MM-dd HH:mm")</p>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h3>Month Input</h3>
+            <DateEdit Date="@monthValue" DateChanged="@((DateTime? value) => monthValue = value)" InputMode="DateInputMode.Month" Placeholder="Select month" />
+            <p class="mt-2">Selected month: @monthValue?.ToString("yyyy-MM")</p>
+        </div>
+
+        <div class="col-md-6">
+            <h3>Date with Min/Max</h3>
+            <DateEdit Date="@restrictedDate" DateChanged="@((DateTime? value) => restrictedDate = value)" Min="@(DateTime.Today)" Max="@(DateTime.Today.AddDays(30))" Placeholder="Select date (next 30 days)" />
+            <p class="mt-2">Selected date: @restrictedDate?.ToString("yyyy-MM-dd")</p>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h3>Disabled Date Input</h3>
+            <DateEdit Date="@(DateTime.Today)" Disabled="true" />
+            <p class="mt-2">This input is disabled</p>
+        </div>
+
+        <div class="col-md-6">
+            <h3>ReadOnly Date Input</h3>
+            <DateEdit Date="@(DateTime.Today)" ReadOnly="true" />
+            <p class="mt-2">This input is read-only</p>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h3>Required Date Input</h3>
+            <DateEdit Date="@requiredDate" DateChanged="@((DateTime? value) => requiredDate = value)" Required="true" Placeholder="Required field" />
+            <p class="mt-2">Selected date: @requiredDate?.ToString("yyyy-MM-dd")</p>
+        </div>
+
+        <div class="col-md-6">
+            <h3>Date with Step</h3>
+            <DateEdit Date="@stepDate" DateChanged="@((DateTime? value) => stepDate = value)" Step="7" Placeholder="Weekly intervals" />
+            <p class="mt-2">Selected date: @stepDate?.ToString("yyyy-MM-dd")</p>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h3>DateOnly Input</h3>
+            <DateEdit DateOnly="@dateOnlyValue" DateOnlyChanged="@((DateOnly? value) => dateOnlyValue = value)" Placeholder="Select a date (DateOnly)" />
+            <p class="mt-2">Selected DateOnly: @dateOnlyValue?.ToString("yyyy-MM-dd")</p>
+        </div>
+
+        <div class="col-md-6">
+            <h3>DateOnly with Min/Max</h3>
+            <DateEdit DateOnly="@restrictedDateOnly" 
+                     DateOnlyChanged="@((DateOnly? value) => restrictedDateOnly = value)" 
+                     MinDateOnly="@(System.DateOnly.FromDateTime(DateTime.Today))" 
+                     MaxDateOnly="@(System.DateOnly.FromDateTime(DateTime.Today.AddDays(30)))" 
+                     Placeholder="Select date (next 30 days)" />
+            <p class="mt-2">Selected DateOnly: @restrictedDateOnly?.ToString("yyyy-MM-dd")</p>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <h3>Event Handling</h3>
+            <DateEdit Date="@eventDate" 
+                     DateChanged="@((DateTime? value) => eventDate = value)"
+                     OnChange="OnDateChange" 
+                     OnInput="OnDateInput" 
+                     Placeholder="Watch events in console" />
+            <p class="mt-2">Selected date: @eventDate?.ToString("yyyy-MM-dd")</p>
+            <p>Last change event: @lastChangeEvent</p>
+            <p>Last input event: @lastInputEvent</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    private DateTime? basicDate;
+    private DateTime? dateTimeValue;
+    private DateTime? monthValue;
+    private DateTime? restrictedDate;
+    private DateTime? requiredDate;
+    private DateTime? stepDate;
+    private DateTime? eventDate;
+    private DateOnly? dateOnlyValue;
+    private DateOnly? restrictedDateOnly;
+    private string lastChangeEvent = "None";
+    private string lastInputEvent = "None";
+
+    protected override void OnInitialized()
+    {
+        Logger.LogInformation("DateEdit demo page initialized");
+    }
+
+    private void OnDateChange(ChangeEventArgs e)
+    {
+        lastChangeEvent = $"Change: {e?.Value} at {DateTime.Now:HH:mm:ss}";
+        Logger.LogInformation("Date change event: {Value}", e?.Value);
+    }
+
+    private void OnDateInput(ChangeEventArgs e)
+    {
+        lastInputEvent = $"Input: {e?.Value} at {DateTime.Now:HH:mm:ss}";
+        Logger.LogInformation("Date input event: {Value}", e?.Value);
+    }
+}

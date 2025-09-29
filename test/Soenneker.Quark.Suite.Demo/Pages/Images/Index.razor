@@ -1,0 +1,112 @@
+@page "/images"
+@using Microsoft.Extensions.Logging
+
+@inject ILogger<Index> Logger
+
+<div class="container mt-4">
+    <h1>Soenneker.Quark.Images Demo</h1>
+    <p>This page demonstrates the Image component functionality.</p>
+    
+    <hr />
+    
+    <h2>Basic Image</h2>
+    <p>Simple image with default styling:</p>
+    <Image Source="https://picsum.photos/300/200" Alt="Random image" />
+    
+    <hr />
+    
+    <h2>Fluid Image</h2>
+    <p>Image that takes up the full width of its container:</p>
+    <div style="max-width: 500px;">
+        <Image Source="https://picsum.photos/800/400" Alt="Fluid image" Fluid="true" />
+    </div>
+    
+    <hr />
+    
+    <h2>Lazy Loading</h2>
+    <p>Image with lazy loading enabled:</p>
+    <Image Source="https://picsum.photos/400/300" Alt="Lazy loaded image" Lazy="true" />
+    
+    <hr />
+    
+    <h2>Custom Dimensions</h2>
+    <p>Image with custom width and height:</p>
+    <Image Source="https://picsum.photos/250/150" Alt="Custom sized image" Width="250" Height="150" />
+    
+    <hr />
+    
+    <h2>Responsive Images</h2>
+    <p>Image with srcset for different screen sizes:</p>
+    <Image Source="https://picsum.photos/400/300" 
+           Alt="Responsive image" 
+           SrcSet="https://picsum.photos/200/150 200w, https://picsum.photos/400/300 400w, https://picsum.photos/800/600 800w"
+           Sizes="(max-width: 600px) 200px, (max-width: 1200px) 400px, 800px" />
+    
+    <hr />
+    
+    <h2>Custom CSS Classes</h2>
+    <p>Image with custom CSS classes:</p>
+    <Image Source="https://picsum.photos/300/200" 
+           Alt="Custom styled image" 
+           Class="rounded shadow" />
+    
+    <hr />
+    
+    <h2>Image with Event Handlers</h2>
+    <p>Image with load and error event handlers:</p>
+    <Image Source="https://picsum.photos/300/200" 
+           Alt="Image with events" 
+           OnLoad="OnImageLoad"
+           OnError="OnImageError" />
+    
+    @if (!string.IsNullOrEmpty(loadMessage))
+    {
+        <div class="alert alert-success mt-2">@loadMessage</div>
+    }
+    
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger mt-2">@errorMessage</div>
+    }
+    
+    <hr />
+    
+    <h2>Image Gallery</h2>
+    <p>Multiple images in a responsive grid:</p>
+    <div class="row">
+        @for (int i = 1; i <= 6; i++)
+        {
+            var imageSource = $"https://picsum.photos/300/200?random={i}";
+            var imageAlt = $"Gallery image {i}";
+            <div class="col-md-4 mb-3">
+                <Image Source="@imageSource" 
+                       Alt="@imageAlt" 
+                       Class="img-fluid rounded" />
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private string? loadMessage;
+    private string? errorMessage;
+
+    protected override void OnInitialized()
+    {
+        Logger.LogInformation("Image demo page initialized");
+    }
+
+    private void OnImageLoad(ProgressEventArgs args)
+    {
+        loadMessage = "Image loaded successfully!";
+        errorMessage = null;
+        StateHasChanged();
+    }
+
+    private void OnImageError(ErrorEventArgs args)
+    {
+        errorMessage = "Failed to load image!";
+        loadMessage = null;
+        StateHasChanged();
+    }
+}

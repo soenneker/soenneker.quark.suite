@@ -1,0 +1,181 @@
+@page "/checks"
+@using Microsoft.Extensions.Logging
+
+@inject ILogger<Index> Logger
+
+<img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" />
+<h1>Soenneker.Quark.Checks demo</h1>
+<p>This page demonstrates the Check component - a checkbox input wrapper.</p>
+<br />
+
+<hr />
+
+<h2>Basic Checkbox</h2>
+<div class="form-check">
+    <Check @bind-Checked="isChecked1" />
+    <label class="form-check-label" for="check1">
+        Basic checkbox
+    </label>
+</div>
+<p>Checked: @isChecked1</p>
+
+<br />
+
+<h2>Different Colors</h2>
+<div class="form-check">
+    <Check @bind-Checked="isChecked2" Color="@Color.Primary" />
+    <label class="form-check-label">
+        Primary
+    </label>
+</div>
+<div class="form-check">
+    <Check @bind-Checked="isChecked3" Color="@Color.Secondary" />
+    <label class="form-check-label">
+        Secondary
+    </label>
+</div>
+<div class="form-check">
+    <Check @bind-Checked="isChecked4" Color="@Color.Success" />
+    <label class="form-check-label">
+        Success
+    </label>
+</div>
+<div class="form-check">
+    <Check @bind-Checked="isChecked5" Color="@Color.Danger" />
+    <label class="form-check-label">
+        Danger
+    </label>
+</div>
+
+<br />
+
+<h2>Different Sizes</h2>
+<div class="form-check">
+    <Check @bind-Checked="isChecked6" Size="@Size.Small" />
+    <label class="form-check-label">
+        Small
+    </label>
+</div>
+<div class="form-check">
+    <Check @bind-Checked="isChecked7" Size="@Size.Default" />
+    <label class="form-check-label">
+        Default
+    </label>
+</div>
+<div class="form-check">
+    <Check @bind-Checked="isChecked8" Size="@Size.Large" />
+    <label class="form-check-label">
+        Large
+    </label>
+</div>
+
+<br />
+
+<h2>Disabled Checkbox</h2>
+<div class="form-check">
+    <Check @bind-Checked="isChecked9" Disabled="true" />
+    <label class="form-check-label">
+        Disabled checkbox
+    </label>
+</div>
+
+<br />
+
+<h2>Indeterminate Checkbox</h2>
+<div class="form-check">
+    <Check @bind-Checked="isChecked10" Indeterminate="true" />
+    <label class="form-check-label">
+        Indeterminate checkbox
+    </label>
+</div>
+
+<br />
+
+<h2>Event Handling</h2>
+<div class="form-check">
+    <Check @bind-Checked="isChecked11" OnChange="HandleChange" />
+    <label class="form-check-label">
+        Checkbox with change event
+    </label>
+</div>
+<p>Last change event: @lastChangeEvent</p>
+
+<br />
+
+<h2>Validation</h2>
+<p>This example requires the checkbox to be checked.</p>
+
+<ValidationsContainer @ref="validations" Model="@demoModel">
+    <Validation ValidationAction="ValidateTerms">
+        <div class="form-check">
+            <Check @bind-Checked="demoModel.TermsAccepted" />
+            <label class="form-check-label">
+                I accept the terms
+            </label>
+        </div>
+        <ValidationError Class="mt-2" />
+    </Validation>
+
+    <div class="mt-2">
+        <button class="btn btn-primary" @onclick="Submit">Submit</button>
+        <span class="ms-2">@submitResult</span>
+    </div>
+</ValidationsContainer>
+
+@code{
+    private bool isChecked1 = false;
+    private bool isChecked2 = false;
+    private bool isChecked3 = false;
+    private bool isChecked4 = false;
+    private bool isChecked5 = false;
+    private bool isChecked6 = false;
+    private bool isChecked7 = false;
+    private bool isChecked8 = false;
+    private bool isChecked9 = true;
+    private bool isChecked10 = false;
+    private bool isChecked11 = false;
+    private string lastChangeEvent = "None";
+
+    private ValidationsContainer? validations;
+
+    private class DemoModel
+    {
+        public bool TermsAccepted { get; set; }
+    }
+
+    private DemoModel demoModel = new();
+    private string submitResult = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        Logger.LogInformation("Checks demo page initialized");
+    }
+
+    private void HandleChange(ChangeEventArgs args)
+    {
+        lastChangeEvent = $"Value: {args.Value}, Type: {args.Value?.GetType().Name}";
+    }
+
+    private void ValidateTerms(ValidatorEventArgs args)
+    {
+        bool isChecked = args.Value is bool b ? b : demoModel.TermsAccepted;
+        if (!isChecked)
+        {
+            args.Status = ValidationStatus.Error;
+            args.ErrorText = "You must accept the terms.";
+        }
+        else
+        {
+            args.Status = ValidationStatus.Success;
+        }
+    }
+
+    private async Task Submit()
+    {
+        if (validations is null)
+            return;
+
+        bool ok = await validations.Validate();
+        submitResult = ok ? "Submitted!" : "Please fix validation errors.";
+    }
+}

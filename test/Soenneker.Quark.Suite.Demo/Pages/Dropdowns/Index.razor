@@ -1,0 +1,131 @@
+@page "/dropdowns"
+@using Microsoft.Extensions.Logging
+@using Soenneker.Quark.Dropdowns
+
+@inject ILogger<Index> Logger
+
+<img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" />
+<h1>Soenneker.Quark.Dropdowns demo</h1>
+<p>This page demonstrates the dropdown components functionality.</p>
+<br />
+
+<hr />
+
+<h2>Basic Dropdown</h2>
+<Dropdown>
+    <DropdownToggle>
+        Dropdown button
+    </DropdownToggle>
+    <DropdownMenu>
+        <DropdownItem>Action</DropdownItem>
+        <DropdownItem>Another action</DropdownItem>
+        <DropdownItem>Something else here</DropdownItem>
+    </DropdownMenu>
+</Dropdown>
+
+<br /><br />
+
+<h2>Dropdown with Links</h2>
+<Dropdown>
+    <DropdownToggle>
+        Dropdown with Links
+    </DropdownToggle>
+    <DropdownMenu>
+        <DropdownItem Href="#" IsLink="true">Action</DropdownItem>
+        <DropdownItem Href="#" IsLink="true">Another action</DropdownItem>
+        <DropdownDivider />
+        <DropdownItem Href="#" IsLink="true">Something else here</DropdownItem>
+    </DropdownMenu>
+</Dropdown>
+
+<br /><br />
+
+<h2>Right-Aligned Dropdown</h2>
+<Dropdown RightAligned="true">
+    <DropdownToggle>
+        Right-aligned dropdown
+    </DropdownToggle>
+    <DropdownMenu>
+        <DropdownItem>Action</DropdownItem>
+        <DropdownItem>Another action</DropdownItem>
+        <DropdownItem>Something else here</DropdownItem>
+    </DropdownMenu>
+</Dropdown>
+
+<br /><br />
+
+<h2>Split Button Dropdown</h2>
+<Dropdown IsGroup="true">
+    <button type="button" class="btn btn-primary">Split button</button>
+    <DropdownToggle IsSplit="true">
+        <span class="visually-hidden">Toggle Dropdown</span>
+    </DropdownToggle>
+    <DropdownMenu>
+        <DropdownItem>Action</DropdownItem>
+        <DropdownItem>Another action</DropdownItem>
+        <DropdownItem>Something else here</DropdownItem>
+        <DropdownDivider />
+        <DropdownItem>Separated link</DropdownItem>
+    </DropdownMenu>
+</Dropdown>
+
+<br /><br />
+
+<h2>Dropdown with Active Item</h2>
+<Dropdown>
+    <DropdownToggle>
+        Dropdown with Active Item
+    </DropdownToggle>
+    <DropdownMenu>
+        <DropdownItem>Regular item</DropdownItem>
+        <DropdownItem Active="true">Active item</DropdownItem>
+        <DropdownItem>Another regular item</DropdownItem>
+    </DropdownMenu>
+</Dropdown>
+
+<br /><br />
+
+<h2>Disabled Dropdown</h2>
+<Dropdown Disabled="true">
+    <DropdownToggle Disabled="true">
+        Disabled dropdown
+    </DropdownToggle>
+    <DropdownMenu>
+        <DropdownItem>This won't show</DropdownItem>
+    </DropdownMenu>
+</Dropdown>
+
+<br /><br />
+
+<h2>Dropdown with Click Events</h2>
+<Dropdown>
+    <DropdownToggle Clicked="OnDropdownToggleClicked">
+        Clickable Dropdown
+    </DropdownToggle>
+    <DropdownMenu>
+        <DropdownItem Clicked="OnItemClicked">Click me!</DropdownItem>
+        <DropdownItem Clicked="OnItemClicked">Click me too!</DropdownItem>
+    </DropdownMenu>
+</Dropdown>
+
+<p>Last clicked: @_lastClicked</p>
+
+@code{
+    private string _lastClicked = "None";
+
+    protected override void OnInitialized()
+    {
+    }
+
+    private void OnDropdownToggleClicked(MouseEventArgs e)
+    {
+        _lastClicked = "Toggle clicked";
+        StateHasChanged();
+    }
+
+    private void OnItemClicked(MouseEventArgs e)
+    {
+        _lastClicked = DateTime.Now.ToString("HH:mm:ss");
+        StateHasChanged();
+    }
+}

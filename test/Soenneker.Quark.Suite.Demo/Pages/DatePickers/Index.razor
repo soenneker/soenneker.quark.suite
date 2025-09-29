@@ -1,0 +1,66 @@
+@page "/datepickers"
+@using Microsoft.Extensions.Logging
+
+@inject ILogger<Index> Logger
+
+<section class="mb-4 mb-md-5">
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="demo-card p-4 p-md-4 h-100">
+                <h3 class="card-title">DateOnly</h3>
+                <p class="section-subtitle mb-3">Simple date selection with a lightweight UI.</p>
+                <div class="mb-2">
+                    <label class="form-label">Pick a date</label>
+                    <DatePicker @bind-Value="_dateOnly" />
+                </div>
+                <div class="value-chip mt-2"><span class="dot"></span><span>Value: @_dateOnly?.ToString("yyyy-MM-dd")</span></div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="demo-card p-4 p-md-4 h-100">
+                <h3 class="card-title">DateTime</h3>
+                <p class="section-subtitle mb-3">Choose both date and time in one control.</p>
+                <div class="mb-2">
+                    <label class="form-label">Pick a date and time</label>
+                    <DateTimePicker @bind-Value="_dateTime" />
+                </div>
+                <div class="value-chip mt-2"><span class="dot"></span><span>Value: @_dateTime?.ToString("yyyy-MM-dd HH:mm:ss")</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+@code{
+    private DateOnly? _dateOnly = DateOnly.FromDateTime(DateTime.Today);
+    private DateTime? _dateTime = DateTime.Now;
+
+    private DateOnly? _validatedDate;
+    private DateTime? _validatedDateTime;
+
+    private void ValidateDate(ValidatorEventArgs e)
+    {
+        if (_validatedDate is null)
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Date is required.";
+        }
+        else
+        {
+            e.Status = ValidationStatus.Success;
+        }
+    }
+
+    private void ValidateDateTime(ValidatorEventArgs e)
+    {
+        if (_validatedDateTime is null)
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Date/time is required.";
+        }
+        else
+        {
+            e.Status = ValidationStatus.Success;
+        }
+    }
+}

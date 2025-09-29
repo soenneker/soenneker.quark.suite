@@ -1,0 +1,256 @@
+@page "/memoedits"
+@using Microsoft.Extensions.Logging
+
+@inject ILogger<Index> Logger
+
+<div class="demo-container">
+    <img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" style="width: 64px; height: 64px;" />
+    <h1>Soenneker.Quark.MemoEdits Demo</h1>
+    <p>This page demonstrates the MemoEdit component - a multi-line text input control with various customization options.</p>
+    
+    <hr />
+
+    <div class="demo-section">
+        <h2>Basic Usage</h2>
+        <h3>Default MemoEdit</h3>
+        <MemoEdit @bind-Value="basicValue" Placeholder="Enter your text here..." />
+        <p><strong>Value:</strong> @basicValue</p>
+    </div>
+
+    <div class="demo-section">
+        <h2>Size Variations</h2>
+        <h3>Small Size</h3>
+        <MemoEdit @bind-Value="smallValue" Size="Size.Small" Placeholder="Small memo edit..." />
+        
+        <h3>Large Size</h3>
+        <MemoEdit @bind-Value="largeValue" Size="Size.Large" Placeholder="Large memo edit..." />
+    </div>
+
+    <div class="demo-section">
+        <h2>Color Variations</h2>
+        <h3>Primary Color</h3>
+        <MemoEdit @bind-Value="primaryValue" Color="Color.Primary" Placeholder="Primary color memo..." />
+        
+        <h3>Success Color</h3>
+        <MemoEdit @bind-Value="successValue" Color="Color.Success" Placeholder="Success color memo..." />
+        
+        <h3>Warning Color</h3>
+        <MemoEdit @bind-Value="warningValue" Color="Color.Warning" Placeholder="Warning color memo..." />
+        
+        <h3>Danger Color</h3>
+        <MemoEdit @bind-Value="dangerValue" Color="Color.Danger" Placeholder="Danger color memo..." />
+    </div>
+
+    <div class="demo-section">
+        <h2>Row Configuration</h2>
+        <h3>2 Rows</h3>
+        <MemoEdit @bind-Value="rows2Value" Rows="2" Placeholder="2 rows memo..." />
+        
+        <h3>5 Rows</h3>
+        <MemoEdit @bind-Value="rows5Value" Rows="5" Placeholder="5 rows memo..." />
+        
+        <h3>8 Rows</h3>
+        <MemoEdit @bind-Value="rows8Value" Rows="8" Placeholder="8 rows memo..." />
+    </div>
+
+    <div class="demo-section">
+        <h2>Auto Resize</h2>
+        <MemoEdit @bind-Value="autoResizeValue" AutoResize="true" Placeholder="This memo edit will resize as you type..." />
+    </div>
+
+    <div class="demo-section">
+        <h2>Validation Features</h2>
+        <h3>Required Field</h3>
+        <MemoEdit @bind-Value="requiredValue" Required="true" Placeholder="This field is required..." />
+        
+        <h3>Max Length (100 characters)</h3>
+        <MemoEdit @bind-Value="maxLengthValue" MaxLength="100" Placeholder="Maximum 100 characters allowed..." />
+        <p><small>Characters: @(maxLengthValue?.Length ?? 0)/100</small></p>
+        
+        <h3>Min Length (10 characters)</h3>
+        <MemoEdit @bind-Value="minLengthValue" MinLength="10" Placeholder="Minimum 10 characters required..." />
+    </div>
+
+    <div class="demo-section">
+        <h2>State Variations</h2>
+        <h3>Disabled</h3>
+        <MemoEdit @bind-Value="disabledValue" Disabled="true" Placeholder="This memo edit is disabled..." />
+        
+        <h3>Read Only</h3>
+        <MemoEdit @bind-Value="readOnlyValue" ReadOnly="true" Placeholder="This memo edit is read only..." />
+    </div>
+
+    <div class="demo-section">
+        <h2>Event Handling</h2>
+        <h3>With Change Event</h3>
+        <MemoEdit @bind-Value="changeValue" OnChange="OnChangeHandler" Placeholder="Type to see change events..." />
+        <p><strong>Last Change:</strong> @lastChangeTime</p>
+        
+        <h3>With Input Event</h3>
+        <MemoEdit @bind-Value="inputValue" OnInput="OnInputHandler" Placeholder="Type to see input events..." />
+        <p><strong>Last Input:</strong> @lastInputTime</p>
+    </div>
+
+    <div class="demo-section">
+        <h2>Form Integration Example</h2>
+        <div class="form-example">
+            <h3>Contact Form</h3>
+            <div class="form-group">
+                <label>Message:</label>
+                <MemoEdit @bind-Value="contactMessage" 
+                          Rows="4" 
+                          Required="true" 
+                          MaxLength="500" 
+                          Color="Color.Primary"
+                          Placeholder="Enter your message here..." />
+            </div>
+            <div class="form-group">
+                <label>Additional Notes:</label>
+                <MemoEdit @bind-Value="additionalNotes" 
+                          Rows="3" 
+                          AutoResize="true"
+                          Color="@Color.Secondary"
+                          Placeholder="Any additional notes..." />
+            </div>
+            <button class="btn btn-primary" OnClick="SubmitForm">
+                Submit
+            </button>
+            <p><strong>Form Status:</strong> <span class="@GetStatusClass()">@formStatus</span></p>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Character Counter</h2>
+        <MemoEdit @bind-Value="counterValue" 
+                  MaxLength="200" 
+                  OnInput="OnCounterInput" 
+                  Placeholder="Type to see character counter..." />
+        <div class="char-counter @GetCounterClass()">
+            @(counterValue?.Length ?? 0)/200
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Pre-filled Content</h2>
+        <MemoEdit @bind-Value="prefilledValue" 
+                  Rows="6" 
+                  Color="Color.Info"
+                  Placeholder="This has pre-filled content..." />
+        <button class="btn btn-primary" OnClick="LoadSampleContent" style="margin-top: 10px;">
+            Load Sample Content
+        </button>
+    </div>
+</div>
+
+@code {
+    private string? basicValue;
+    private string? smallValue;
+    private string? largeValue;
+    private string? primaryValue;
+    private string? successValue;
+    private string? warningValue;
+    private string? dangerValue;
+    private string? rows2Value;
+    private string? rows5Value;
+    private string? rows8Value;
+    private string? autoResizeValue;
+    private string? requiredValue;
+    private string? maxLengthValue;
+    private string? minLengthValue;
+    private string? patternValue;
+    private string? disabledValue = "This is disabled content";
+    private string? readOnlyValue = "This is read-only content";
+    private string? changeValue;
+    private string? inputValue;
+    private string? contactMessage;
+    private string? additionalNotes;
+    private string? counterValue;
+    private string? prefilledValue = "This is some pre-filled content that demonstrates how the MemoEdit component can display existing text.";
+    private string? formStatus = "Ready to submit";
+    
+    private DateTime lastChangeTime;
+    private DateTime lastInputTime;
+
+    protected override void OnInitialized()
+    {
+        Logger.LogInformation("MemoEdits demo page initialized");
+    }
+
+    private void OnChangeHandler(ChangeEventArgs e)
+    {
+        lastChangeTime = DateTime.Now;
+        Logger.LogInformation("MemoEdit change event fired at {Time}", lastChangeTime);
+    }
+
+    private void OnInputHandler(ChangeEventArgs e)
+    {
+        lastInputTime = DateTime.Now;
+        Logger.LogInformation("MemoEdit input event fired at {Time}", lastInputTime);
+    }
+
+    private void OnCounterInput(ChangeEventArgs e)
+    {
+        // This could be used for real-time validation or UI updates
+        StateHasChanged();
+    }
+
+    private void SubmitForm()
+    {
+        if (string.IsNullOrWhiteSpace(contactMessage))
+        {
+            formStatus = "Message is required!";
+            return;
+        }
+
+        if (contactMessage.Length < 10)
+        {
+            formStatus = "Message must be at least 10 characters long!";
+            return;
+        }
+
+        formStatus = $"Form submitted successfully at {DateTime.Now:HH:mm:ss}! Message: {contactMessage.Substring(0, Math.Min(50, contactMessage.Length))}...";
+        
+        // Reset form
+        contactMessage = string.Empty;
+        additionalNotes = string.Empty;
+    }
+
+    private void LoadSampleContent()
+    {
+        prefilledValue = @"This is a sample of longer content that demonstrates how the MemoEdit component handles multi-line text.
+
+It includes:
+- Multiple paragraphs
+- Line breaks
+- Various text formatting
+
+The component automatically handles:
+• Resizing
+• Scrolling when needed
+• Proper text wrapping
+
+You can edit this content to see how the component behaves with different amounts of text.";
+    }
+
+    private string GetStatusClass()
+    {
+        return formStatus switch
+        {
+            "Ready to submit" => "status-ready",
+            var status when status.Contains("error", StringComparison.OrdinalIgnoreCase) => "status-error",
+            var status when status.Contains("success", StringComparison.OrdinalIgnoreCase) => "status-success",
+            _ => "status-ready"
+        };
+    }
+
+    private string GetCounterClass()
+    {
+        var length = counterValue?.Length ?? 0;
+        return length switch
+        {
+            var l when l > 180 => "danger",
+            var l when l > 160 => "warning",
+            _ => ""
+        };
+    }
+}

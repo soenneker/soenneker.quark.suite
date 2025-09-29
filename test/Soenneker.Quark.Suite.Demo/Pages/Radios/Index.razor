@@ -1,0 +1,227 @@
+@page "/radios"
+@using Microsoft.Extensions.Logging
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject ILogger<Index> Logger
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-4">
+                <img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" class="mb-3" style="max-width: 200px;" />
+                <h1>Soenneker.Quark.Radios Demo</h1>
+                <p class="lead">Comprehensive examples with forms and various states</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Basic Usage -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Basic Usage</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Simple radio button group with manual state management</p>
+                    
+                    <div class="form-check">
+                        <Radio Name="basicGroup" Value="Option1" Checked="@(_basicSelected == "Option1")" OnClick="@(() => SelectBasic("Option1"))" />
+                        <label class="form-check-label">Option 1</label>
+                    </div>
+                    <div class="form-check">
+                        <Radio Name="basicGroup" Value="Option2" Checked="@(_basicSelected == "Option2")" OnClick="@(() => SelectBasic("Option2"))" />
+                        <label class="form-check-label">Option 2</label>
+                    </div>
+                    <div class="form-check">
+                        <Radio Name="basicGroup" Value="Option3" Checked="@(_basicSelected == "Option3")" OnClick="@(() => SelectBasic("Option3"))" />
+                        <label class="form-check-label">Option 3</label>
+                    </div>
+
+                    <div class="mt-3">
+                        <small class="text-muted">Selected: <strong>@_basicSelected</strong></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disabled States -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Disabled States</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Examples of disabled radio buttons</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Notification Preferences</label>
+                        <div class="form-check">
+                            <Radio Name="notifications" Value="Email" Checked="@(_notificationPreference == "Email")" 
+                                   OnClick="@(() => _notificationPreference = "Email")" />
+                            <label class="form-check-label">Email</label>
+                        </div>
+                        <div class="form-check">
+                            <Radio Name="notifications" Value="SMS" Checked="@(_notificationPreference == "SMS")" 
+                                   OnClick="@(() => _notificationPreference = "SMS")" />
+                            <label class="form-check-label">SMS</label>
+                        </div>
+                        <div class="form-check">
+                            <Radio Name="notifications" Value="Push" Checked="@(_notificationPreference == "Push")" 
+                                   OnClick="@(() => _notificationPreference = "Push")" Disabled="true" />
+                            <label class="form-check-label text-muted">Push (Coming Soon)</label>
+                        </div>
+                        <div class="form-check">
+                            <Radio Name="notifications" Value="None" Checked="@(_notificationPreference == "None")" 
+                                   OnClick="@(() => _notificationPreference = "None")" Disabled="true" />
+                            <label class="form-check-label text-muted">None (Disabled)</label>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <small class="text-muted">Selected: <strong>@_notificationPreference</strong></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Handling Examples -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Event Handling</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Radio buttons with different event handling patterns</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Color Preference</label>
+                        <div class="form-check">
+                            <Radio Name="colors" Value="Red" Checked="@(_colorPreference == "Red")" 
+                                   OnClick="@(() => SelectColor("Red"))" />
+                            <label class="form-check-label">Red</label>
+                        </div>
+                        <div class="form-check">
+                            <Radio Name="colors" Value="Green" Checked="@(_colorPreference == "Green")" 
+                                   OnClick="@(() => SelectColor("Green"))" />
+                            <label class="form-check-label">Green</label>
+                        </div>
+                        <div class="form-check">
+                            <Radio Name="colors" Value="Blue" Checked="@(_colorPreference == "Blue")" 
+                                   OnClick="@(() => SelectColor("Blue"))" />
+                            <label class="form-check-label">Blue</label>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <small class="text-muted">Selected: <strong>@_colorPreference</strong></small>
+                        <br />
+                        <small class="text-muted">Last clicked: <strong>@_lastClicked</strong></small>
+                        <br />
+                        <small class="text-muted">Click count: <strong>@_clickCount</strong></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Radio Groups -->
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Dynamic Radio Groups</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Radio buttons generated dynamically from data</p>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Programming Languages</label>
+                            @foreach (var language in _programmingLanguages)
+                            {
+                                <div class="form-check">
+                                    <Radio Name="languages" Value="@language" 
+                                           Checked="@(_selectedLanguage == language)" 
+                                           OnClick="@(() => SelectLanguage(language))" />
+                                    <label class="form-check-label">@language</label>
+                                </div>
+                            }
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Frameworks</label>
+                            @foreach (var framework in _frameworks)
+                            {
+                                <div class="form-check">
+                                    <Radio Name="frameworks" Value="@framework" 
+                                           Checked="@(_selectedFramework == framework)" 
+                                           OnClick="@(() => SelectFramework(framework))" />
+                                    <label class="form-check-label">@framework</label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <small class="text-muted">Selected Language: <strong>@_selectedLanguage</strong></small>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted">Selected Framework: <strong>@_selectedFramework</strong></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string _basicSelected = "Option2";
+    private string _notificationPreference = "Email";
+    private string _colorPreference = "";
+    private string _lastClicked = "";
+    private int _clickCount = 0;
+    private string _selectedLanguage = "";
+    private string _selectedFramework = "";
+
+    private readonly List<string> _programmingLanguages = new()
+    {
+        "C#", "JavaScript", "Python", "Java", "TypeScript", "Go", "Rust"
+    };
+
+    private readonly List<string> _frameworks = new()
+    {
+        "Blazor", "React", "Vue.js", "Angular", "ASP.NET Core", "Node.js", "Django"
+    };
+
+    protected override void OnInitialized()
+    {
+    }
+
+    private void SelectBasic(string value)
+    {
+        _basicSelected = value;
+        StateHasChanged();
+    }
+
+    private void SelectColor(string color)
+    {
+        _colorPreference = color;
+        _lastClicked = color;
+        _clickCount++;
+        StateHasChanged();
+    }
+
+    private void SelectLanguage(string language)
+    {
+        _selectedLanguage = language;
+        StateHasChanged();
+    }
+
+    private void SelectFramework(string framework)
+    {
+        _selectedFramework = framework;
+        StateHasChanged();
+    }
+}

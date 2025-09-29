@@ -1,0 +1,210 @@
+@page "/divs/demo"
+
+<PageTitle>Quark Divs Demo</PageTitle>
+
+<h1>Quark Divs Demo</h1>
+
+<div class="demo-section">
+    <h2>Basic Properties</h2>
+    
+    <Div Id="basic-div" 
+         Class="demo-box" 
+         Style="background-color: lightblue; padding: 10px; margin: 5px;"
+         Title="This is a basic div with properties">
+        Basic div with Id, Class, Style, and Title
+    </Div>
+</div>
+
+<div class="demo-section">
+    <h2>CSS Display Properties</h2>
+    
+    <Div Display="Display.Block" Class="demo-box">
+        Display: Block
+    </Div>
+    
+    <Div Display="Display.Inline" Class="demo-box">
+        Display: Inline
+    </Div>
+    
+    <Div Display="Display.Flex" Class="demo-box">
+        Display: Flex
+    </Div>
+    
+    <Div Visibility="Visibility.Visible" Class="demo-box">
+        This div is hidden
+    </Div>
+    
+    <Div Float="Float.Left" Class="demo-box">
+        Float: Left
+    </Div>
+    
+    <Div Float="Float.Right" Class="demo-box">
+        Float: Right
+    </Div>
+    
+    <Div TextColor="Color.Primary" Class="demo-box">
+	    Text color: Primary
+    </Div>
+	
+    <Div TextColor="@("#FFFFFF")" Class="demo-box">
+	    Text color: #FFFFFF
+    </Div>
+
+    <Div VerticalAlign="VerticalAlign.Top" Class="demo-box">
+        Vertical Align: Top
+    </Div>
+    
+@*     <Div TextOverflow="TextOverflow.Ellipsis" 
+         Style="width: 200px; white-space: nowrap; overflow: hidden;"
+         Class="demo-box">
+        This is a very long text that should be truncated with ellipsis
+    </Div> *@
+    
+    <Div BoxShadow="BoxShadow.Base" Class="demo-box">
+        Box Shadow: Inset
+    </Div>
+</div>
+
+<div class="demo-section">
+    <h2>Event Handling</h2>
+    
+    <Div Class="demo-box interactive" 
+         OnClick="OnDivClick"
+         OnDoubleClick="OnDivDoubleClick"
+         OnMouseOver="OnDivMouseOver"
+         OnMouseOut="OnDivMouseOut"
+         OnKeyDown="OnDivKeyDown"
+         OnFocus="OnDivFocus"
+         OnBlur="OnDivBlur"
+         TabIndex="0">
+        Interactive div - try clicking, hovering, or focusing!
+    </Div>
+    
+    <div class="event-log">
+        <h3>Event Log:</h3>
+        <ul>
+            @foreach (string log in EventLogs)
+            {
+                <li>@log</li>
+            }
+        </ul>
+        <button @onclick="ClearLogs">Clear Logs</button>
+    </div>
+</div>
+
+<div class="demo-section">
+    <h2>Nested Content</h2>
+    
+    <Div Class="demo-box">
+        <h3>Parent Div</h3>
+        <Div Class="demo-box nested">
+            <p>Nested div with content</p>
+            <Div Class="demo-box deeply-nested">
+                Deeply nested div
+            </Div>
+        </Div>
+    </Div>
+</div>
+
+<div class="demo-section">
+    <h2>Custom Attributes</h2>
+    
+    <Div Class="demo-box" 
+         data-custom="custom-value"
+         data-test="test-attribute"
+         aria-label="Custom labeled div">
+        Div with custom data attributes and ARIA label
+    </Div>
+</div>
+
+<style>
+    .demo-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    
+    .demo-box {
+        border: 2px solid #333;
+        padding: 10px;
+        margin: 5px;
+        border-radius: 3px;
+    }
+    
+    .interactive {
+        background-color: #f0f0f0;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .interactive:hover {
+        background-color: #e0e0e0;
+    }
+    
+    .nested {
+        background-color: #f9f9f9;
+        margin-left: 20px;
+    }
+    
+    .deeply-nested {
+        background-color: #f5f5f5;
+        margin-left: 20px;
+    }
+    
+    .event-log {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #f8f8f8;
+        border-radius: 3px;
+    }
+    
+    .event-log ul {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+</style>
+
+@code {
+    private List<string> EventLogs = new();
+
+    private void OnDivClick(MouseEventArgs e)
+    {
+        EventLogs.Add($"Click at ({e.ClientX}, {e.ClientY})");
+    }
+
+    private void OnDivDoubleClick(MouseEventArgs e)
+    {
+        EventLogs.Add($"Double click at ({e.ClientX}, {e.ClientY})");
+    }
+
+    private void OnDivMouseOver(MouseEventArgs e)
+    {
+        EventLogs.Add($"Mouse over at ({e.ClientX}, {e.ClientY})");
+    }
+
+    private void OnDivMouseOut(MouseEventArgs e)
+    {
+        EventLogs.Add($"Mouse out at ({e.ClientX}, {e.ClientY})");
+    }
+
+    private void OnDivKeyDown(KeyboardEventArgs e)
+    {
+        EventLogs.Add($"Key down: {e.Key}");
+    }
+
+    private void OnDivFocus(FocusEventArgs e)
+    {
+        EventLogs.Add("Div focused");
+    }
+
+    private void OnDivBlur(FocusEventArgs e)
+    {
+        EventLogs.Add("Div blurred");
+    }
+
+    private void ClearLogs()
+    {
+        EventLogs.Clear();
+    }
+}

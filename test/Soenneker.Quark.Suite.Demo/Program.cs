@@ -31,7 +31,10 @@ public sealed class Program
                 BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
             });
 
-            builder.Services.AddEmptyThemeProviderAsScoped();
+        builder.Services.AddEmptyThemeProviderAsScoped();
+
+        // Register all Quark services using the suite registrar
+        builder.Services.AddQuarkSuiteAsScoped();
 
             WebAssemblyHost host = builder.Build();
 

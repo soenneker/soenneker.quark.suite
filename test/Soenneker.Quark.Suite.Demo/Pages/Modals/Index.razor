@@ -1,0 +1,194 @@
+@page "/modals"
+@using Microsoft.Extensions.Logging
+@using Soenneker.Quark.Enums
+
+@inject ILogger<Index> Logger
+
+<div class="container mt-4">
+    <h1>Soenneker.Quark.Modals Demo</h1>
+    <p>This page demonstrates the modal component functionality.</p>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Basic Modal</h3>
+            <Button Class="btn-primary" OnClick="@(() => ShowBasicModal = true)">Show Basic Modal</Button>
+        </div>
+        
+        <div class="col-md-6">
+            <h3>Large Modal</h3>
+            <Button Class="btn-success" OnClick="@(() => ShowLargeModal = true)">Show Large Modal</Button>
+        </div>
+    </div>
+    
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <h3>Centered Modal</h3>
+            <Button Class="btn-info" OnClick="@(() => ShowCenteredModal = true)">Show Centered Modal</Button>
+        </div>
+        
+        <div class="col-md-6">
+            <h3>Static Backdrop Modal</h3>
+            <Button Class="btn-warning" OnClick="@(() => ShowStaticModal = true)">Show Static Modal</Button>
+        </div>
+    </div>
+    
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <h3>Scrollable Modal</h3>
+            <Button Class="btn-secondary" OnClick="@(() => ShowScrollableModal = true)">Show Scrollable Modal</Button>
+        </div>
+        
+        <div class="col-md-6">
+            <h3>New Components Modal</h3>
+            <Button Class="btn-dark" OnClick="@(() => ShowNewComponentsModal = true)">Show New Components Modal</Button>
+        </div>
+    </div>
+</div>
+
+<!-- Basic Modal -->
+<Modal @bind-Visible="ShowBasicModal" Size="@Size.Default">
+    <ModalHeader>
+        <ModalTitle Scale="@Scale.S5">Basic Modal</ModalTitle>
+        <ModalCloseButton />
+    </ModalHeader>
+    <ModalBody>
+        <p>This is a basic modal with default settings.</p>
+        <p>You can close it by clicking the X button, clicking outside the modal, or pressing the ESC key.</p>
+    </ModalBody>
+    <ModalFooter>
+        <Button Type="@ButtonType.Button" Class="btn-secondary" OnClick="@(() => ShowBasicModal = false)">Close</Button>
+        <Button Type="@ButtonType.Button" Class="btn-primary" OnClick="@(() => ShowBasicModal = false)">Save changes</Button>
+    </ModalFooter>
+</Modal>
+
+<!-- Large Modal -->
+<Modal @bind-Visible="ShowLargeModal" Size="@Size.Large">
+    <ModalHeader>
+        <ModalTitle Scale="@Scale.S4">Large Modal</ModalTitle>
+        <ModalCloseButton />
+    </ModalHeader>
+    <ModalBody>
+        <p>This is a large modal using the Large size variant.</p>
+        <p>Large modals have more width and are useful for displaying more content.</p>
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Column 1</h5>
+                <p>Some content in the first column.</p>
+            </div>
+            <div class="col-md-6">
+                <h5>Column 2</h5>
+                <p>Some content in the second column.</p>
+            </div>
+        </div>
+    </ModalBody>
+    <ModalFooter>
+        <Button Type="@ButtonType.Button" Class="btn-secondary" OnClick="@(() => ShowLargeModal = false)">Close</Button>
+        <Button Type="@ButtonType.Button" Class="btn-primary" OnClick="@(() => ShowLargeModal = false)">Save changes</Button>
+    </ModalFooter>
+</Modal>
+
+<!-- Centered Modal -->
+<Modal @bind-Visible="ShowCenteredModal" Size="@Size.Default" Centered="true">
+    <ModalHeader>
+        <ModalTitle Scale="@Scale.S5">Centered Modal</ModalTitle>
+        <ModalCloseButton />
+    </ModalHeader>
+    <ModalBody>
+        <p>This modal is vertically centered on the page.</p>
+        <p>The Centered property makes the modal appear in the middle of the viewport.</p>
+    </ModalBody>
+    <ModalFooter>
+        <Button Type="@ButtonType.Button" Class="btn-secondary" OnClick="@(() => ShowCenteredModal = false)">Close</Button>
+        <Button Type="@ButtonType.Button" Class="btn-primary" OnClick="@(() => ShowCenteredModal = false)">Save changes</Button>
+    </ModalFooter>
+</Modal>
+
+<!-- Static Backdrop Modal -->
+<Modal @bind-Visible="ShowStaticModal" Size="@Size.Default" Static="true">
+    <ModalHeader>
+        <ModalTitle Scale="@Scale.S5">Static Backdrop Modal</ModalTitle>
+        <ModalCloseButton />
+    </ModalHeader>
+    <ModalBody>
+        <p>This modal has a static backdrop.</p>
+        <p>You cannot close it by clicking outside the modal - you must use the close button or programmatically close it.</p>
+    </ModalBody>
+    <ModalFooter>
+        <Button Type="@ButtonType.Button" Class="btn-secondary" OnClick="@(() => ShowStaticModal = false)">Close</Button>
+        <Button Type="@ButtonType.Button" Class="btn-primary" OnClick="@(() => ShowStaticModal = false)">Save changes</Button>
+    </ModalFooter>
+</Modal>
+
+<!-- Scrollable Modal -->
+<Modal @bind-Visible="ShowScrollableModal" Size="@Size.Default" Scrollable="true">
+    <ModalHeader>
+        <ModalTitle Scale="@Scale.S5">Scrollable Modal</ModalTitle>
+        <ModalCloseButton />
+    </ModalHeader>
+    <ModalBody>
+        <p>This modal is scrollable when content overflows.</p>
+        @for (int i = 1; i <= 50; i++)
+        {
+            <p>This is line @i of content to demonstrate scrolling.</p>
+        }
+        <p>You can scroll through all this content within the modal.</p>
+    </ModalBody>
+    <ModalFooter>
+        <Button Type="@ButtonType.Button" Class="btn-secondary" OnClick="@(() => ShowScrollableModal = false)">Close</Button>
+        <Button Type="@ButtonType.Button" Class="btn-primary" OnClick="@(() => ShowScrollableModal = false)">Save changes</Button>
+    </ModalFooter>
+</Modal>
+
+<!-- New Components Modal -->
+<Modal @bind-Visible="ShowNewComponentsModal" Size="@Size.Large">
+    <ModalHeader>
+        <ModalTitle Scale="@Scale.S3">New Modal Components</ModalTitle>
+        <ModalCloseButton />
+    </ModalHeader>
+    <ModalBody>
+        <p>This modal demonstrates the new separate <code>ModalTitle</code> and <code>ModalCloseButton</code> components!</p>
+        
+        <h5>Key Features:</h5>
+        <ul>
+            <li><strong>ModalTitle:</strong> Separate component with configurable heading size (S1-S6)</li>
+            <li><strong>ModalCloseButton:</strong> Reusable close button that automatically detects parent modal</li>
+            <li><strong>Flexible Layout:</strong> You can now arrange header content however you want</li>
+        </ul>
+        
+        <div class="alert alert-info mt-3">
+            <h6>Before vs After:</h6>
+            <p><strong>Old way:</strong> ModalHeader with ModalTitle and ShowCloseButton parameters</p>
+            <p><strong>New way:</strong> ModalHeader as container + separate ModalTitle and ModalCloseButton components</p>
+        </div>
+        
+        <h5>Different Title Sizes:</h5>
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Small Title (S6):</h6>
+                <ModalTitle Scale="@Scale.S6">Small Modal Title</ModalTitle>
+            </div>
+            <div class="col-md-6">
+                <h6>Large Title (S2):</h6>
+                <ModalTitle Scale="@Scale.S2">Large Modal Title</ModalTitle>
+            </div>
+        </div>
+    </ModalBody>
+    <ModalFooter>
+        <Button Type="@ButtonType.Button" Class="btn-secondary" OnClick="@(() => ShowNewComponentsModal = false)">Close</Button>
+        <Button Type="@ButtonType.Button" Class="btn-primary" OnClick="@(() => ShowNewComponentsModal = false)">Got it!</Button>
+    </ModalFooter>
+</Modal>
+
+@code {
+    private bool ShowBasicModal = false;
+    private bool ShowLargeModal = false;
+    private bool ShowCenteredModal = false;
+    private bool ShowStaticModal = false;
+    private bool ShowScrollableModal = false;
+    private bool ShowNewComponentsModal = false;
+
+    protected override void OnInitialized()
+    {
+        Logger.LogInformation("Modal demo page initialized");
+    }
+}

@@ -1,0 +1,204 @@
+@page "/textedits"
+@using Microsoft.Extensions.Logging
+
+@inject ILogger<Index> Logger
+
+<img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" />
+<h1>Soenneker.Quark.TextEdits demo</h1>
+<p>This page demonstrates some of the common usages for the TextEdit component with validation support.</p>
+<br />
+
+<hr />
+
+<h2>Basic TextEdit</h2>
+<div class="mb-3">
+    <label for="basicInput" class="form-label">Basic Input (Standard binding)</label>
+    <TextEdit Id="basicInput" 
+              Placeholder="Enter some text..." 
+              @bind-Value="_basicValue" />
+    <small class="form-text text-muted">Current value: @_basicValue</small>
+</div>
+
+<div class="mb-3">
+    <label for="expressionInput" class="form-label">Expression Tree Binding</label>
+    <TextEdit Id="expressionInput" 
+              Placeholder="Uses expression tree..." 
+              @bind-Value="_expressionValue" />
+    <small class="form-text text-muted">Current value: @_expressionValue</small>
+</div>
+
+<hr />
+
+<h2>TextEdit with Validation</h2>
+<ValidationsContainer Model="_validationModel">
+    <div class="mb-3">
+        <label for="validatedInput" class="form-label">Required Field</label>
+        <Validation ValidationAction="@ValidateRequired">
+            <TextEdit Id="validatedInput" 
+                      Placeholder="This field is required..." 
+                      @bind-Value="_validationModel.RequiredField" />
+            <ValidationError />
+        </Validation>
+    </div>
+    
+    <div class="mb-3">
+        <label for="emailInput" class="form-label">Email Field</label>
+        <Validation ValidationAction="@ValidateEmail">
+            <TextEdit Id="emailInput" 
+                      Placeholder="Enter a valid email..." 
+                      @bind-Value="_validationModel.EmailField" />
+            <ValidationError />
+        </Validation>
+    </div>
+    
+    <div class="mb-3">
+        <label for="patternInput" class="form-label">Phone Number (Pattern Validation)</label>
+        <Validation UsePattern="true" PatternString="^[\d\s\-\(\)\+]+$">
+            <TextEdit Id="patternInput" 
+                      Placeholder="Enter phone number..." 
+                      @bind-Value="_validationModel.PhoneField" />
+            <ValidationError />
+        </Validation>
+    </div>
+</ValidationsContainer>
+
+<hr />
+
+<h2>Form with Multiple Validations</h2>
+<ValidationsContainer @ref="_validationsRef" Model="_formModel">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="firstName" class="form-label">First Name</label>
+                <Validation ValidationAction="@ValidateRequired">
+                    <TextEdit Id="firstName" 
+                              Placeholder="First name..." 
+                              @bind-Value="_formModel.FirstName" />
+                    <ValidationError />
+                </Validation>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="lastName" class="form-label">Last Name</label>
+                <Validation ValidationAction="@ValidateRequired">
+                    <TextEdit Id="lastName" 
+                              Placeholder="Last name..." 
+                              @bind-Value="_formModel.LastName" />
+                    <ValidationError />
+                </Validation>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        <label for="company" class="form-label">Company</label>
+        <Validation ValidationAction="@ValidateCompany">
+            <TextEdit Id="company" 
+                      Placeholder="Company name..." 
+                      @bind-Value="_formModel.Company" />
+            <ValidationError />
+        </Validation>
+    </div>
+    
+    <button type="button" class="btn btn-primary" @onclick="ValidateAll">Validate All Fields</button>
+    <button type="button" class="btn btn-secondary" @onclick="ClearAll">Clear All</button>
+</ValidationsContainer>
+
+@code{
+    private string _basicValue = string.Empty;
+    private string _expressionValue = string.Empty;
+    
+    private ValidationModel _validationModel = new();
+    private FormModel _formModel = new();
+    
+    private ValidationsContainer? _validationsRef;
+
+    protected override void OnInitialized()
+    {
+    }
+    
+    private void ValidateRequired(ValidatorEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.Value?.ToString()))
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "This field is required.";
+        }
+        else
+        {
+            e.Status = ValidationStatus.Success;
+        }
+    }
+    
+    private void ValidateEmail(ValidatorEventArgs e)
+    {
+        var email = e.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Email is required.";
+        }
+        else if (!email.Contains("@") || !email.Contains("."))
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Please enter a valid email address.";
+        }
+        else
+        {
+            e.Status = ValidationStatus.Success;
+        }
+    }
+    
+    private void ValidateCompany(ValidatorEventArgs e)
+    {
+        var company = e.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(company))
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Company name is required.";
+        }
+        else if (company.Length < 2)
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Company name must be at least 2 characters.";
+        }
+        else
+        {
+            e.Status = ValidationStatus.Success;
+        }
+    }
+    
+    private async Task ValidateAll()
+    {
+        if (_validationsRef is not null)
+        {
+            await _validationsRef.Validate();
+        }
+    }
+    
+    private async Task ClearAll()
+    {
+        if (_validationsRef is not null)
+        {
+            await _validationsRef.ClearAll();
+        }
+        
+        _formModel = new FormModel();
+        await InvokeAsync(StateHasChanged);
+    }
+    
+    public class ValidationModel
+    {
+        public string RequiredField { get; set; } = string.Empty;
+        public string EmailField { get; set; } = string.Empty;
+        public string PhoneField { get; set; } = string.Empty;
+    }
+    
+    public class FormModel
+    {
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string Company { get; set; } = string.Empty;
+    }
+}

@@ -1,0 +1,168 @@
+@page "/listgroups"
+@using Microsoft.Extensions.Logging
+
+@inject ILogger<Index> Logger
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold text-primary">ListGroup Components</h1>
+                <p class="lead text-muted">Professional, minimalistic, and visually stunning list groups built with Bootstrap 5</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Basic Example -->
+        <div class="col-lg-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Basic List Group</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-muted">A simple static list group with clean styling.</p>
+                    <ListGroup>
+                        <ListGroupItem>First item</ListGroupItem>
+                        <ListGroupItem>Second item</ListGroupItem>
+                        <ListGroupItem>Third item</ListGroupItem>
+                        <ListGroupItem Disabled="true">Disabled item</ListGroupItem>
+                    </ListGroup>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flush Example -->
+        <div class="col-lg-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">Flush List Group</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-muted">Remove borders and rounded corners for edge-to-edge appearance.</p>
+                    <ListGroup Flush="true">
+                        <ListGroupItem>Flush item 1</ListGroupItem>
+                        <ListGroupItem>Flush item 2</ListGroupItem>
+                        <ListGroupItem>Flush item 3</ListGroupItem>
+                    </ListGroup>
+                </div>
+            </div>
+        </div>
+
+        <!-- Selectable Example -->
+        <div class="col-lg-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">Selectable List Group</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-muted">Click items to select them. Selected: <strong>@selectedItem</strong></p>
+                    <ListGroup Mode="ListGroupMode.Selectable" @bind-SelectedItem="selectedItem">
+                        <ListGroupItem ItemName="option1">Option 1</ListGroupItem>
+                        <ListGroupItem ItemName="option2">Option 2</ListGroupItem>
+                        <ListGroupItem ItemName="option3">Option 3</ListGroupItem>
+                        <ListGroupItem ItemName="option4" Disabled="true">Disabled Option</ListGroupItem>
+                    </ListGroup>
+                </div>
+            </div>
+        </div>
+
+        <!-- Multiple Selection -->
+        <div class="col-lg-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">Multiple Selection</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-muted">Select multiple items. Count: <strong>@(selectedItems?.Count ?? 0)</strong></p>
+                    <ListGroup Mode="ListGroupMode.Selectable" SelectionMode="ListGroupSelectionMode.Multiple" @bind-SelectedItems="selectedItems">
+                        <ListGroupItem ItemName="multi1">Multi Item 1</ListGroupItem>
+                        <ListGroupItem ItemName="multi2">Multi Item 2</ListGroupItem>
+                        <ListGroupItem ItemName="multi3">Multi Item 3</ListGroupItem>
+                        <ListGroupItem ItemName="multi4">Multi Item 4</ListGroupItem>
+                    </ListGroup>
+                </div>
+            </div>
+        </div>
+
+        <!-- Color Variants -->
+        <div class="col-lg-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">Color Variants</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-muted">Different color themes for list items.</p>
+                    <ListGroup>
+                        <ListGroupItem class="list-group-item-primary">Primary Item</ListGroupItem>
+                        <ListGroupItem class="list-group-item-success">Success Item</ListGroupItem>
+                        <ListGroupItem class="list-group-item-danger">Danger Item</ListGroupItem>
+                        <ListGroupItem class="list-group-item-warning">Warning Item</ListGroupItem>
+                        <ListGroupItem class="list-group-item-info">Info Item</ListGroupItem>
+                    </ListGroup>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scrollable Example -->
+        <div class="col-lg-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="card-title mb-0">Scrollable List Group</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-muted">Long list with scrollable content.</p>
+                    <ListGroup Scrollable="true">
+                        @for (int i = 1; i <= 15; i++)
+                        {
+                            <ListGroupItem>Scrollable Item @i</ListGroupItem>
+                        }
+                    </ListGroup>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Content -->
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-gradient text-white" style="background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);">
+                    <h5 class="card-title mb-0">Custom Content Example</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-muted">Rich content with headings, text, and badges.</p>
+                    <ListGroup>
+                        <ListGroupItem>
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">List group item heading</h6>
+                                <small class="text-muted">3 days ago</small>
+                            </div>
+                            <p class="mb-1">Some placeholder content in a paragraph.</p>
+                            <small>And some small print.</small>
+                        </ListGroupItem>
+                        <ListGroupItem>
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Another list group item</h6>
+                                <small class="text-muted">1 week ago</small>
+                            </div>
+                            <p class="mb-1">More placeholder content with additional details.</p>
+                            <small>Additional small print information.</small>
+                        </ListGroupItem>
+                        <ListGroupItem>
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Third list group item</h6>
+                                <small class="text-muted">2 weeks ago</small>
+                            </div>
+                            <p class="mb-1">Final example with comprehensive content.</p>
+                            <small>Final small print details.</small>
+                        </ListGroupItem>
+                    </ListGroup>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string selectedItem = "option1";
+    private List<string>? selectedItems = new List<string>();
+}
