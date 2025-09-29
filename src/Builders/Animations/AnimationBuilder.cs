@@ -59,8 +59,8 @@ public sealed class AnimationBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        AnimationRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new AnimationRule(last.Animation, breakpoint);
         return this;
     }
@@ -75,12 +75,12 @@ public sealed class AnimationBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            AnimationRule rule = _rules[i];
-            string cls = GetAnimationClass(rule.Animation);
+            var rule = _rules[i];
+            var cls = GetAnimationClass(rule.Animation);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
             if (bp.Length != 0)
                 cls = InsertBreakpointType(cls, bp);
 
@@ -103,8 +103,8 @@ public sealed class AnimationBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            AnimationRule rule = _rules[i];
-            string? animationValue = GetAnimationValue(rule.Animation);
+            var rule = _rules[i];
+            var animationValue = GetAnimationValue(rule.Animation);
 
             if (animationValue is null)
                 continue;
@@ -150,14 +150,14 @@ public sealed class AnimationBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string InsertBreakpointType(string className, string bp)
     {
-        int dashIndex = className.IndexOf('-');
+        var dashIndex = className.IndexOf('-');
         if (dashIndex > 0)
         {
-            int len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
+            var len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
             return string.Create(len, (className, dashIndex, bp), static (dst, s) =>
             {
                 s.className.AsSpan(0, s.dashIndex).CopyTo(dst);
-                int idx = s.dashIndex;
+                var idx = s.dashIndex;
                 dst[idx++] = '-';
                 s.bp.AsSpan().CopyTo(dst[idx..]);
                 idx += s.bp.Length;
@@ -168,7 +168,7 @@ public sealed class AnimationBuilder : ICssBuilder
         return string.Create(bp.Length + 1 + className.Length, (className, bp), static (dst, s) =>
         {
             s.bp.AsSpan().CopyTo(dst);
-            int idx = s.bp.Length;
+            var idx = s.bp.Length;
             dst[idx++] = '-';
             s.className.AsSpan().CopyTo(dst[idx..]);
         });

@@ -56,8 +56,8 @@ public sealed class SizeBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            SizeRule rule = _rules[i];
-            string cls = GetSizeClass(rule.Size);
+            var rule = _rules[i];
+            var cls = GetSizeClass(rule.Size);
             if (cls.Length == 0)
                 continue;
 
@@ -80,8 +80,8 @@ public sealed class SizeBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            SizeRule rule = _rules[i];
-            string? sizeValue = GetSizeValue(rule.Size);
+            var rule = _rules[i];
+            var sizeValue = GetSizeValue(rule.Size);
 
             if (sizeValue is null)
                 continue;

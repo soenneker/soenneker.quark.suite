@@ -69,8 +69,8 @@ public sealed class PaddingBuilder : ICssBuilder
     private PaddingBuilder AddRule(ElementSideType side)
     {
         // Use last size & BreakpointType if present; default to ScaleType.S0Value when absent
-        string size = _rules.Count > 0 ? _rules[^1].Size : ScaleType.S0Value;
-        BreakpointType? bp = _rules.Count > 0 ? _rules[^1].breakpoint : null;
+        var size = _rules.Count > 0 ? _rules[^1].Size : ScaleType.S0Value;
+        var bp = _rules.Count > 0 ? _rules[^1].breakpoint : null;
 
         if (_rules.Count > 0 && _rules[^1].Side == ElementSideType.All)
         {
@@ -108,8 +108,8 @@ public sealed class PaddingBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        PaddingRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new PaddingRule(last.Size, last.Side, breakpoint);
         return this;
     }
@@ -125,14 +125,14 @@ public sealed class PaddingBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            PaddingRule rule = _rules[i];
+            var rule = _rules[i];
 
-            string sizeTok = GetSizeToken(rule.Size);
+            var sizeTok = GetSizeToken(rule.Size);
             if (sizeTok.Length == 0)
                 continue;
 
-            string sideTok = GetSideToken(rule.Side); // "", "t", "e", "b", "s", "x", "y"
-            string bpTok = BreakpointUtil.GetBreakpointToken(rule.breakpoint); // "", "sm", "md", ...
+            var sideTok = GetSideToken(rule.Side); // "", "t", "e", "b", "s", "x", "y"
+            var bpTok = BreakpointUtil.GetBreakpointToken(rule.breakpoint); // "", "sm", "md", ...
 
             if (!first) sb.Append(' ');
             else first = false;
@@ -169,8 +169,8 @@ public sealed class PaddingBuilder : ICssBuilder
         {
             for (var i = 0; i < _rules.Count; i++)
             {
-                PaddingRule rule = _rules[i];
-                string? sizeVal = GetSizeValue(rule.Size);
+                var rule = _rules[i];
+                var sizeVal = GetSizeValue(rule.Size);
                 if (sizeVal is null)
                     continue;
 

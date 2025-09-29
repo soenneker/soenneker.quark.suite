@@ -161,7 +161,7 @@
 
     public Task NotifyInputChanged<T>(T newValue, bool overrideNewValue = false)
     {
-        object? newValidationValue = overrideNewValue ? (object?)newValue : _input?.ValidationValue;
+        var newValidationValue = overrideNewValue ? (object?)newValue : _input?.ValidationValue;
         _lastKnownValue = newValidationValue;
 
         if (EditContext is not null && _hasFieldIdentifier)
@@ -184,7 +184,7 @@
 
     public ValidationStatus Validate()
     {
-        object value = _input?.ValidationValue ?? _lastKnownValue ?? string.Empty;
+        var value = _input?.ValidationValue ?? _lastKnownValue ?? string.Empty;
         return Validate(value);
     }
 
@@ -192,7 +192,7 @@
     {
         if (_input is not null && !_input.Disabled)
         {
-            IValidationHandler? handler = GetValidationHandler();
+            var handler = GetValidationHandler();
             handler?.Validate(this, newValidationValue);
         }
 
@@ -201,7 +201,7 @@
 
     public Task<ValidationStatus> ValidateAsync()
     {
-        object value = _input?.ValidationValue ?? _lastKnownValue ?? string.Empty;
+        var value = _input?.ValidationValue ?? _lastKnownValue ?? string.Empty;
         return ValidateAsync(value);
     }
 
@@ -217,11 +217,11 @@
 
             _cts = new CancellationTokenSource();
 
-            CancellationToken token = _cts.Token;
+            var token = _cts.Token;
 
             try
             {
-                IValidationHandler? handler = GetValidationHandler();
+                var handler = GetValidationHandler();
                 if (handler is not null)
                 {
                     token.ThrowIfCancellationRequested();
@@ -238,7 +238,7 @@
 
     private IValidationHandler? GetValidationHandler()
     {
-        Type? type = DetermineHandlerType();
+        var type = DetermineHandlerType();
         return type is not null ? ValidationHandlerFactory.Create(type) : null;
     }
 

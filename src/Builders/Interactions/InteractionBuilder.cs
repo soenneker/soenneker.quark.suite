@@ -61,8 +61,8 @@ public sealed class InteractionBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        InteractionRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new InteractionRule(last.UserSelect, last.PointerEvents, breakpoint);
         return this;
     }
@@ -77,13 +77,13 @@ public sealed class InteractionBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            InteractionRule rule = _rules[i];
-            string userSelectClass = GetUserSelectClass(rule.UserSelect);
-            string pointerEventsClass = GetPointerEventsClass(rule.PointerEvents);
+            var rule = _rules[i];
+            var userSelectClass = GetUserSelectClass(rule.UserSelect);
+            var pointerEventsClass = GetPointerEventsClass(rule.PointerEvents);
 
             if (userSelectClass.Length > 0)
             {
-                string bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
+                var bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
                 if (bp.Length != 0)
                     userSelectClass = InsertBreakpointType(userSelectClass, bp);
 
@@ -95,7 +95,7 @@ public sealed class InteractionBuilder : ICssBuilder
 
             if (pointerEventsClass.Length > 0)
             {
-                string bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
+                var bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
                 if (bp.Length != 0)
                     pointerEventsClass = InsertBreakpointType(pointerEventsClass, bp);
 
@@ -119,9 +119,9 @@ public sealed class InteractionBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            InteractionRule rule = _rules[i];
-            string? userSelectValue = GetUserSelectValue(rule.UserSelect);
-            string? pointerEventsValue = GetPointerEventsValue(rule.PointerEvents);
+            var rule = _rules[i];
+            var userSelectValue = GetUserSelectValue(rule.UserSelect);
+            var pointerEventsValue = GetPointerEventsValue(rule.PointerEvents);
 
             if (userSelectValue is not null)
             {
@@ -196,14 +196,14 @@ public sealed class InteractionBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string InsertBreakpointType(string className, string bp)
     {
-        int dashIndex = className.IndexOf('-');
+        var dashIndex = className.IndexOf('-');
         if (dashIndex > 0)
         {
-            int len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
+            var len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
             return string.Create(len, (className, dashIndex, bp), static (dst, s) =>
             {
                 s.className.AsSpan(0, s.dashIndex).CopyTo(dst);
-                int idx = s.dashIndex;
+                var idx = s.dashIndex;
                 dst[idx++] = '-';
                 s.bp.AsSpan().CopyTo(dst[idx..]);
                 idx += s.bp.Length;
@@ -214,7 +214,7 @@ public sealed class InteractionBuilder : ICssBuilder
         return string.Create(bp.Length + 1 + className.Length, (className, bp), static (dst, s) =>
         {
             s.bp.AsSpan().CopyTo(dst);
-            int idx = s.bp.Length;
+            var idx = s.bp.Length;
             dst[idx++] = '-';
             s.className.AsSpan().CopyTo(dst[idx..]);
         });

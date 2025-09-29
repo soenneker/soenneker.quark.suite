@@ -77,8 +77,8 @@ public sealed class PositionBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        PositionRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new PositionRule(last.Position, breakpoint);
         return this;
     }
@@ -94,13 +94,13 @@ public sealed class PositionBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            PositionRule rule = _rules[i];
+            var rule = _rules[i];
 
-            string baseClass = GetPositionClass(rule.Position);
+            var baseClass = GetPositionClass(rule.Position);
             if (baseClass.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.breakpoint);
             if (bp.Length != 0)
                 baseClass = InsertBreakpointType(baseClass, bp);
 
@@ -126,7 +126,7 @@ public sealed class PositionBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            PositionRule rule = _rules[i];
+            var rule = _rules[i];
             if (rule.Position.Length == 0)
                 continue;
 
@@ -167,16 +167,16 @@ public sealed class PositionBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string InsertBreakpointType(string className, string bp)
     {
-        int dashIndex = className.IndexOf('-');
+        var dashIndex = className.IndexOf('-');
         if (dashIndex > 0)
         {
             // length = prefix + "-" + bp + remainder
-            int len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
+            var len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
             return string.Create(len, (className, dashIndex, bp), static (dst, s) =>
             {
                 // prefix
                 s.className.AsSpan(0, s.dashIndex).CopyTo(dst);
-                int idx = s.dashIndex;
+                var idx = s.dashIndex;
 
                 // "-" + bp
                 dst[idx++] = '-';
@@ -192,7 +192,7 @@ public sealed class PositionBuilder : ICssBuilder
         return string.Create(bp.Length + 1 + className.Length, (className, bp), static (dst, s) =>
         {
             s.bp.AsSpan().CopyTo(dst);
-            int idx = s.bp.Length;
+            var idx = s.bp.Length;
             dst[idx++] = '-';
             s.className.AsSpan().CopyTo(dst[idx..]);
         });

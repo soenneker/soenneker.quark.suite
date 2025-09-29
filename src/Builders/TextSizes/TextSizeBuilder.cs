@@ -67,8 +67,8 @@ public sealed class TextSizeBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        TextSizeRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new TextSizeRule(last.Size, bp);
         return this;
     }
@@ -84,13 +84,13 @@ public sealed class TextSizeBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            TextSizeRule rule = _rules[i];
+            var rule = _rules[i];
 
-            string sizeClass = GetSizeClass(rule.Size);
+            var sizeClass = GetSizeClass(rule.Size);
             if (sizeClass.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
             if (bp.Length != 0)
                 sizeClass = InsertBreakpointType(sizeClass, bp);
 
@@ -116,9 +116,9 @@ public sealed class TextSizeBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            TextSizeRule rule = _rules[i];
+            var rule = _rules[i];
 
-            string? sizeValue = GetSizeValue(rule.Size);
+            var sizeValue = GetSizeValue(rule.Size);
             if (sizeValue is null)
                 continue;
 
@@ -172,16 +172,16 @@ public sealed class TextSizeBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string InsertBreakpointType(string className, string bp)
     {
-        int dashIndex = className.IndexOf('-');
+        var dashIndex = className.IndexOf('-');
         if (dashIndex > 0)
         {
             // length = prefix + "-" + bp + remainder
-            int len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
+            var len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
             return string.Create(len, (className, dashIndex, bp), static (dst, s) =>
             {
                 // prefix
                 s.className.AsSpan(0, s.dashIndex).CopyTo(dst);
-                int idx = s.dashIndex;
+                var idx = s.dashIndex;
 
                 // "-" + bp
                 dst[idx++] = '-';
@@ -197,7 +197,7 @@ public sealed class TextSizeBuilder : ICssBuilder
         return string.Create(bp.Length + 1 + className.Length, (className, bp), static (dst, s) =>
         {
             s.bp.AsSpan().CopyTo(dst);
-            int idx = s.bp.Length;
+            var idx = s.bp.Length;
             dst[idx++] = '-';
             s.className.AsSpan().CopyTo(dst[idx..]);
         });

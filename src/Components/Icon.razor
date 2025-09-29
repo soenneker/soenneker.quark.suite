@@ -1,7 +1,7 @@
-@namespace Soenneker.Quark
 @using System.Runtime.CompilerServices
 @using Soenneker.Extensions.String
 
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
 <i @attributes="BuildAttributes()" ></i>
@@ -10,7 +10,7 @@
     public override string? ThemeKey { get; set; } = "Icon";
 
     [Parameter]
-    public string? IconName { get; set; } // "camera" or "fa-camera"
+    public string? Name { get; set; } // "camera" or "fa-camera"
 
     // Classic FA weights: fa-regular, fa-solid, fa-light, fa-thin, fa-duotone, fa-brands
     // (If you prefer geometry+weight, you can keep passing e.g. "fa-regular")
@@ -40,6 +40,9 @@
     [Parameter]
     public IconFlip? Flip { get; set; }
 
+    [Parameter]
+    public IconAnimation? IconAnimation { get; set; }
+
     protected override Dictionary<string, object> BuildAttributes()
     {
         Attributes = base.BuildAttributes();
@@ -47,14 +50,14 @@
         // Always include the FA base class first for predictability
         AppendToClassAttr(Attributes, "fa");
 
-        string styleClass = GetFamilyAndStyleClass(Family, IconStyle);
+        var styleClass = GetFamilyAndStyleClass(Family, IconStyle);
 
         if (styleClass.HasContent())
             AppendToClassAttr(Attributes, styleClass);
 
         // Icon name (normalize to fa-*)
-        if (IconName.HasContent())
-            AppendToClassAttr(Attributes, NormalizeIconName(IconName!));
+        if (Name.HasContent())
+            AppendToClassAttr(Attributes, NormalizeIconName(Name!));
 
         // Helpers (size, spin, rotations, animations)
         if (IconSize is not null && IconSize != IconSize.None)
@@ -80,8 +83,8 @@
 
     private static string GetFamilyAndStyleClass(IconFamily? family, IconStyle? weight)
     {
-        string fam = family?.Value ?? string.Empty; // e.g., "fa-sharp", "fa-jelly-duo"
-        string w = weight?.Value ?? string.Empty; // e.g., "fa-regular", "fa-solid"
+        var fam = family?.Value ?? string.Empty; // e.g., "fa-sharp", "fa-jelly-duo"
+        var w = weight?.Value ?? string.Empty; // e.g., "fa-regular", "fa-solid"
 
         // Brands: ignore family completely
         if (w == "fa-brands")

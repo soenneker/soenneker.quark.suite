@@ -64,8 +64,8 @@ public class CompositeValidator : BaseQuarkValidator
     /// <inheritdoc/>
     protected override async Task<bool> ValidateValueAsync(object value, CancellationToken cancellationToken = default)
     {
-        IEnumerable<Task<bool>> tasks = _validators.Select(validator => validator.ValidateAsync(value, cancellationToken));
-        bool[] results = await Task.WhenAll(tasks);
+        var tasks = _validators.Select(validator => validator.ValidateAsync(value, cancellationToken));
+        var results = await Task.WhenAll(tasks);
         return results.All(result => result);
     }
 

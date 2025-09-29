@@ -54,8 +54,8 @@ public sealed class ScreenReaderBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        ScreenReaderRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new ScreenReaderRule(last.Type, breakpoint);
         return this;
     }
@@ -70,12 +70,12 @@ public sealed class ScreenReaderBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            ScreenReaderRule rule = _rules[i];
-            string cls = GetScreenReaderClass(rule.Type);
+            var rule = _rules[i];
+            var cls = GetScreenReaderClass(rule.Type);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
             if (bp.Length != 0)
                 cls = InsertBreakpointType(cls, bp);
 
@@ -98,8 +98,8 @@ public sealed class ScreenReaderBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            ScreenReaderRule rule = _rules[i];
-            string? styleValue = GetScreenReaderStyle(rule.Type);
+            var rule = _rules[i];
+            var styleValue = GetScreenReaderStyle(rule.Type);
 
             if (styleValue is null)
                 continue;
@@ -141,7 +141,7 @@ public sealed class ScreenReaderBuilder : ICssBuilder
         return string.Create(bp.Length + 1 + className.Length, (className, bp), static (dst, s) =>
         {
             s.bp.AsSpan().CopyTo(dst);
-            int idx = s.bp.Length;
+            var idx = s.bp.Length;
             dst[idx++] = '-';
             s.className.AsSpan().CopyTo(dst[idx..]);
         });

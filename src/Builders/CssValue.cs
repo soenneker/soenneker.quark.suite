@@ -55,7 +55,7 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
     public static implicit operator CssValue<TBuilder>(int value)
     {
         // Check if this is a Height or Width builder by checking the type name
-        string typeName = typeof(TBuilder).Name;
+        var typeName = typeof(TBuilder).Name;
 
         return typeName switch
         {
@@ -137,7 +137,7 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
     {
         if (_value.HasContent())
         {
-            string v = _value.Trim();
+            var v = _value.Trim();
 
             if (_bootstrapThemeTokens.Contains(v))
             {

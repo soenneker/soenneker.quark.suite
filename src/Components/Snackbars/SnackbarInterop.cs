@@ -14,7 +14,7 @@ public sealed class SnackbarInterop : ISnackbarInterop
 
     public SnackbarInterop(IResourceLoader resourceLoader)
     {
-        IResourceLoader resourceLoader1 = resourceLoader;
+        var resourceLoader1 = resourceLoader;
 
         _cssInitializer = new AsyncSingleton(async (token, arg) =>
         {

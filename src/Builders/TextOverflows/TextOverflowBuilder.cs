@@ -89,8 +89,8 @@ public sealed class TextOverflowBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        TextOverflowRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
 
         // Re-create the rule preserving its text-overflow value using the string value.
         _rules[lastIdx] = new TextOverflowRule(last.Value, bp);
@@ -108,14 +108,14 @@ public sealed class TextOverflowBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            TextOverflowRule rule = _rules[i];
+            var rule = _rules[i];
 
             // Only Clip/Ellipsis map to a Bootstrap class; keywords don't.
-            string baseClass = GetTextOverflowClass(rule.Value);
+            var baseClass = GetTextOverflowClass(rule.Value);
             if (baseClass.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
             if (bp.Length != 0)
                 baseClass = InsertBreakpointType(baseClass, bp);
 
@@ -139,10 +139,10 @@ public sealed class TextOverflowBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            TextOverflowRule rule = _rules[i];
+            var rule = _rules[i];
 
             // Always use the string value (covers Clip/Ellipsis and any keyword values)
-            string value = rule.Value;
+            var value = rule.Value;
 
             if (string.IsNullOrEmpty(value))
                 continue;
@@ -177,16 +177,16 @@ public sealed class TextOverflowBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string InsertBreakpointType(string className, string bp)
     {
-        int dashIndex = className.IndexOf('-');
+        var dashIndex = className.IndexOf('-');
         if (dashIndex > 0)
         {
             // length = prefix + "-" + bp + remainder
-            int len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
+            var len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
             return string.Create(len, (className, dashIndex, bp), static (dst, s) =>
             {
                 // prefix
                 s.className.AsSpan(0, s.dashIndex).CopyTo(dst);
-                int idx = s.dashIndex;
+                var idx = s.dashIndex;
 
                 // "-" + bp
                 dst[idx++] = '-';
@@ -202,7 +202,7 @@ public sealed class TextOverflowBuilder : ICssBuilder
         return string.Create(bp.Length + 1 + className.Length, (className, bp), static (dst, s) =>
         {
             s.bp.AsSpan().CopyTo(dst);
-            int idx = s.bp.Length;
+            var idx = s.bp.Length;
             dst[idx++] = '-';
             s.className.AsSpan().CopyTo(dst[idx..]);
         });

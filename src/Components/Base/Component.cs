@@ -257,7 +257,7 @@ public abstract class Component : CoreComponent, IComponent
         // Apply theme styles first (lowest precedence)
         ApplyThemeStyles();
 
-        int guess = 14 + (Attributes?.Count ?? 0);
+        var guess = 14 + (Attributes?.Count ?? 0);
         var attrs = new Dictionary<string, object>(guess);
 
         var cls = new PooledStringBuilder(64);
@@ -344,9 +344,9 @@ public abstract class Component : CoreComponent, IComponent
 
             if (Attributes is not null)
             {
-                foreach (KeyValuePair<string, object> kv in Attributes)
+                foreach (var kv in Attributes)
                 {
-                    string keyLower = kv.Key?.ToLowerInvariant() ?? string.Empty;
+                    var keyLower = kv.Key?.ToLowerInvariant() ?? string.Empty;
 
                     switch (keyLower)
                     {
@@ -443,7 +443,7 @@ public abstract class Component : CoreComponent, IComponent
 
     private static EventCallback<TArgs> Compose<TArgs>(ComponentBase owner, Func<TArgs, Task> ours, EventCallback<TArgs> users)
     {
-        EventCallback<TArgs> usersCopy = users; // stabilize
+        var usersCopy = users; // stabilize
         return EventCallback.Factory.Create<TArgs>(owner, async e =>
         {
             await ours(e);
@@ -570,8 +570,8 @@ public abstract class Component : CoreComponent, IComponent
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void EnsureClassAttr(IDictionary<string, object> attrs, string token)
     {
-        attrs.TryGetValue("class", out object? clsObj);
-        string cls = EnsureClass(clsObj?.ToString(), token);
+        attrs.TryGetValue("class", out var clsObj);
+        var cls = EnsureClass(clsObj?.ToString(), token);
 
         if (cls.Length > 0)
             attrs["class"] = cls;
@@ -583,8 +583,8 @@ public abstract class Component : CoreComponent, IComponent
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void AppendToClassAttr(IDictionary<string, object> attrs, string token)
     {
-        attrs.TryGetValue("class", out object? clsObj);
-        string cls = AppendToClass(clsObj?.ToString(), token);
+        attrs.TryGetValue("class", out var clsObj);
+        var cls = AppendToClass(clsObj?.ToString(), token);
 
         if (cls.Length > 0)
             attrs["class"] = cls;
@@ -623,7 +623,7 @@ public abstract class Component : CoreComponent, IComponent
         if (fullDecl.IsNullOrWhiteSpace())
             return;
 
-        attrs.TryGetValue("style", out object? styleObj);
+        attrs.TryGetValue("style", out var styleObj);
         var existing = styleObj?.ToString();
 
         if (existing.IsNullOrEmpty())
@@ -645,12 +645,12 @@ public abstract class Component : CoreComponent, IComponent
             return;
 
         // Get the current theme name
-        string? themeName = ThemeProvider.CurrentTheme;
+        var themeName = ThemeProvider.CurrentTheme;
 
         if (themeName.IsNullOrEmpty())
             return;
 
-        if (ThemeProvider.Themes.TryGetValue(themeName, out Theme? theme))
+        if (ThemeProvider.Themes.TryGetValue(themeName, out var theme))
         {
             ApplyThemeToComponent(theme);
         }
@@ -659,7 +659,7 @@ public abstract class Component : CoreComponent, IComponent
     private void ApplyThemeToComponent(Theme theme)
     {
         // Get the appropriate component options based on component name
-        ComponentOptions? componentOptions = GetComponentOptionsFromTheme(theme);
+        var componentOptions = GetComponentOptionsFromTheme(theme);
 
         if (componentOptions == null)
             return;
@@ -744,6 +744,6 @@ public abstract class Component : CoreComponent, IComponent
             return null;
         }
 
-        return ThemeProvider.ComponentOptions.TryGetValue(ThemeKey, out Func<Theme, ComponentOptions?>? getter) ? getter(theme) : null;
+        return ThemeProvider.ComponentOptions.TryGetValue(ThemeKey, out var getter) ? getter(theme) : null;
     }
 }

@@ -33,9 +33,9 @@ public static class BootstrapCssGenerator
             return new Dictionary<string, string>(0);
 
         var result = new Dictionary<string, string>(64);
-        for (int i = 0; i < cssVariablesObjects.Length; i++)
+        for (var i = 0; i < cssVariablesObjects.Length; i++)
         {
-            object? obj = cssVariablesObjects[i];
+            var obj = cssVariablesObjects[i];
             if (obj is null) continue;
             AddCssVariables(obj, result);
         }
@@ -46,17 +46,17 @@ public static class BootstrapCssGenerator
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string GenerateRootCss(params object?[] cssVariablesObjects)
     {
-        Dictionary<string, string> map = GenerateCssVariables(cssVariablesObjects);
+        var map = GenerateCssVariables(cssVariablesObjects);
         if (map.Count == 0)
             return string.Empty;
 
         // quick capacity guess to reduce growths
-        int cap = 16 + map.Count * 32;
+        var cap = 16 + map.Count * 32;
         using var sb = new PooledStringBuilder(cap);
 
         sb.Append(":root {\n".AsSpan());
 
-        foreach (KeyValuePair<string, string> kvp in map)
+        foreach (var kvp in map)
         {
             sb.Append("  ".AsSpan());
             sb.Append(kvp.Key);                    // "--bs-�"
@@ -74,11 +74,11 @@ public static class BootstrapCssGenerator
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void AddCssVariables(object source, Dictionary<string, string> target)
     {
-        Accessor[] accessors = GetOrBuildAccessors(source.GetType());
-        for (int i = 0; i < accessors.Length; i++)
+        var accessors = GetOrBuildAccessors(source.GetType());
+        for (var i = 0; i < accessors.Length; i++)
         {
-            ref readonly Accessor acc = ref accessors[i];
-            string? val = acc.Getter(source);
+            ref readonly var acc = ref accessors[i];
+            var val = acc.Getter(source);
             if (!string.IsNullOrEmpty(val))
                 target[acc.CssName] = val!;
         }
@@ -86,15 +86,15 @@ public static class BootstrapCssGenerator
 
     private static Accessor[] GetOrBuildAccessors(Type type)
     {
-        if (_accessorCache.TryGetValue(type, out Accessor[]? cached))
+        if (_accessorCache.TryGetValue(type, out var cached))
             return cached;
 
-        PropertyInfo[] props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
         var list = new List<Accessor>(props.Length);
 
-        for (int i = 0; i < props.Length; i++)
+        for (var i = 0; i < props.Length; i++)
         {
-            PropertyInfo p = props[i];
+            var p = props[i];
 
             // only string props; reduces boxing/conversion and keeps the fast path simple
             if (p.PropertyType != typeof(string))
@@ -104,26 +104,26 @@ public static class BootstrapCssGenerator
             if (attr is null)
                 continue;
 
-            string cssName = attr.GetName();
+            var cssName = attr.GetName();
 
             if (cssName.IsNullOrEmpty())
                 continue;
 
-            Func<object, string?> getter = CompileStringGetter(type, p);
+            var getter = CompileStringGetter(type, p);
             list.Add(new Accessor(cssName, getter));
         }
 
-        Accessor[] result = list.Count == 0 ? [] : list.ToArray();
+        var result = list.Count == 0 ? [] : list.ToArray();
         _accessorCache[type] = result;
         return result;
     }
 
     private static Func<object, string?> CompileStringGetter(Type declaringType, PropertyInfo prop)
     {
-        ParameterExpression obj = Expression.Parameter(typeof(object), "o");
-        UnaryExpression cast = Expression.Convert(obj, declaringType);
-        MemberExpression access = Expression.Property(cast, prop);
-        UnaryExpression body = Expression.Convert(access, typeof(string));
+        var obj = Expression.Parameter(typeof(object), "o");
+        var cast = Expression.Convert(obj, declaringType);
+        var access = Expression.Property(cast, prop);
+        var body = Expression.Convert(access, typeof(string));
         return Expression.Lambda<Func<object, string?>>(body, obj).Compile();
     }
 }

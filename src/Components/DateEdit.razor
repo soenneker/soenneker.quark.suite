@@ -165,7 +165,7 @@
 	{
 		if (Color is not null && !Color.Value.IsEmpty)
 		{
-			string v = Color.Value.ToString().Trim();
+			var v = Color.Value.ToString().Trim();
 
 			if (Color.Value.IsCssClass)
 			{
@@ -200,13 +200,13 @@
 
 	protected override Dictionary<string, object> BuildAttributes()
 	{
-		Dictionary<string, object> attributes = base.BuildAttributes();
+		var attributes = base.BuildAttributes();
 
 		// Add DateEdit-specific attributes
 		var baseClasses = "form-control";
-		string? colorClass = GetColorClass();
-		string? sizeClass = GetSizeClass();
-		string? validationClass = GetValidationClass();
+		var colorClass = GetColorClass();
+		var sizeClass = GetSizeClass();
+		var validationClass = GetValidationClass();
 
 		if (colorClass != null)
 			baseClasses = $"{baseClasses} {colorClass}";
@@ -222,7 +222,7 @@
 		// Handle custom CSS colors
 		if (Color is not null && !Color.Value.IsEmpty && !Color.Value.IsCssClass)
 		{
-			string v = Color.Value.ToString().Trim();
+			var v = Color.Value.ToString().Trim();
 			attributes["style"] = $"background-color:{v};border-color:{v};";
 		}
 
@@ -230,7 +230,7 @@
 
 		if (Date.HasValue)
 		{
-			string dateString = InputMode.Value switch
+			var dateString = InputMode.Value switch
 			{
 				"date" => Date.Value.ToString("yyyy-MM-dd"),
 				"datetime-local" => Date.Value.ToString("yyyy-MM-ddTHH:mm"),
@@ -241,7 +241,7 @@
 		}
 		else if (DateOnly.HasValue)
 		{
-			string dateString = InputMode.Value switch
+			var dateString = InputMode.Value switch
 			{
 				"date" => DateOnly.Value.ToString("yyyy-MM-dd"),
 				"datetime-local" => DateOnly.Value.ToString("yyyy-MM-ddTHH:mm"),
@@ -265,7 +265,7 @@
 
 		if (Min != default)
 		{
-			string minString = InputMode.Value switch
+			var minString = InputMode.Value switch
 			{
 				"date" => Min.ToString("yyyy-MM-dd"),
 				"datetime-local" => Min.ToString("yyyy-MM-ddTHH:mm"),
@@ -276,7 +276,7 @@
 		}
 		else if (MinDateOnly != default)
 		{
-			string minString = InputMode.Value switch
+			var minString = InputMode.Value switch
 			{
 				"date" => MinDateOnly.ToString("yyyy-MM-dd"),
 				"datetime-local" => MinDateOnly.ToString("yyyy-MM-ddTHH:mm"),
@@ -288,7 +288,7 @@
 
 		if (Max != default)
 		{
-			string maxString = InputMode.Value switch
+			var maxString = InputMode.Value switch
 			{
 				"date" => Max.ToString("yyyy-MM-dd"),
 				"datetime-local" => Max.ToString("yyyy-MM-ddTHH:mm"),
@@ -299,7 +299,7 @@
 		}
 		else if (MaxDateOnly != default)
 		{
-			string maxString = InputMode.Value switch
+			var maxString = InputMode.Value switch
 			{
 				"date" => MaxDateOnly.ToString("yyyy-MM-dd"),
 				"datetime-local" => MaxDateOnly.ToString("yyyy-MM-ddTHH:mm"),

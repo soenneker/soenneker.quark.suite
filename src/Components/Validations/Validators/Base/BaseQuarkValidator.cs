@@ -27,7 +27,7 @@ public abstract class BaseQuarkValidator : IQuarkValidator
     /// <returns>True if validation passes, false otherwise.</returns>
     public virtual bool Validate(object value)
     {
-        bool result = ValidateValue(value);
+        var result = ValidateValue(value);
         _status = result ? ValidationStatus.Success : ValidationStatus.Error;
         return result;
     }
@@ -40,7 +40,7 @@ public abstract class BaseQuarkValidator : IQuarkValidator
     /// <returns>True if validation passes, false otherwise.</returns>
     public virtual async Task<bool> ValidateAsync(object value, CancellationToken cancellationToken = default)
     {
-        bool result = await ValidateValueAsync(value, cancellationToken);
+        var result = await ValidateValueAsync(value, cancellationToken);
         _status = result ? ValidationStatus.Success : ValidationStatus.Error;
         return result;
     }

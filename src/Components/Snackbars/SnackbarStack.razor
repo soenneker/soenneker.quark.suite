@@ -7,7 +7,7 @@
 <Div @attributes="BuildAttributes()" >
 	<CascadingValue Value="@this" IsFixed="true" >
 		@ChildContent
-		@foreach (SnackbarNotificationItem item in _notifications)
+		@foreach (var item in _notifications)
 		{
 			<Snackbar @key="@item.Key"
 			          Key="@item.Key"
@@ -46,7 +46,7 @@
 
 	protected override Dictionary<string, object> BuildAttributes()
 	{
-		Dictionary<string, object> attributes = base.BuildAttributes();
+		var attributes = base.BuildAttributes();
 		var classes = "snackbar-stack position-fixed p-3";
 
 		classes += Location.Value switch
@@ -122,7 +122,7 @@
 		await InvokeAsync(StateHasChanged);
 
 		// Set up auto-hide timer if delay is specified
-		int delay = item.HideDelay ?? DefaultDelay;
+		var delay = item.HideDelay ?? DefaultDelay;
 		if (delay > 0)
 		{
 			var timer = new Timer(delay);
@@ -140,7 +140,7 @@
 	private async Task HandleClosed(string key, SnackbarCloseReason reason)
 	{
 		// Cancel auto-hide timer if it exists
-		if (_autoHideTimers.TryGetValue(key, out Timer? timer))
+		if (_autoHideTimers.TryGetValue(key, out var timer))
 		{
 			timer.Dispose();
 			_autoHideTimers.Remove(key);
@@ -153,7 +153,7 @@
 
 	public override void Dispose()
 	{
-		foreach (Timer timer in _autoHideTimers.Values)
+		foreach (var timer in _autoHideTimers.Values)
 		{
 			timer.Dispose();
 		}

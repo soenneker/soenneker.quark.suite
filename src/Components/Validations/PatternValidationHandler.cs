@@ -13,7 +13,7 @@ internal sealed class PatternValidationHandler : IValidationHandler
             return;
         }
 
-        bool isMatch = ctx.Pattern.IsMatch(value?.ToString() ?? string.Empty);
+        var isMatch = ctx.Pattern.IsMatch(value?.ToString() ?? string.Empty);
         ctx.NotifyValidationStatusChanged(isMatch ? ValidationStatus.Success : ValidationStatus.Error,
             isMatch ? null : new[] { "Value does not match the required pattern." });
     }

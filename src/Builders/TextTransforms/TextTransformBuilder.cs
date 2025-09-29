@@ -59,8 +59,8 @@ public sealed class TextTransformBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        TextTransformRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new TextTransformRule(last.Value, bp);
         return this;
     }
@@ -73,8 +73,8 @@ public sealed class TextTransformBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            TextTransformRule rule = _rules[i];
-            string cls = rule.Value switch
+            var rule = _rules[i];
+            var cls = rule.Value switch
             {
                 TextTransformKeyword.LowercaseValue => _classLower,
                 TextTransformKeyword.UppercaseValue => _classUpper,
@@ -84,7 +84,7 @@ public sealed class TextTransformBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.breakpoint);
             if (bp.Length != 0)
                 cls = InsertBreakpointType(cls, bp);
 
@@ -104,8 +104,8 @@ public sealed class TextTransformBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            TextTransformRule rule = _rules[i];
-            string val = rule.Value;
+            var rule = _rules[i];
+            var val = rule.Value;
             if (string.IsNullOrEmpty(val))
                 continue;
 
@@ -124,14 +124,14 @@ public sealed class TextTransformBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string InsertBreakpointType(string className, string bp)
     {
-        int dashIndex = className.IndexOf('-');
+        var dashIndex = className.IndexOf('-');
         if (dashIndex > 0)
         {
-            int len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
+            var len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
             return string.Create(len, (className, dashIndex, bp), static (dst, s) =>
             {
                 s.className.AsSpan(0, s.dashIndex).CopyTo(dst);
-                int idx = s.dashIndex;
+                var idx = s.dashIndex;
                 dst[idx++] = '-';
                 s.bp.AsSpan().CopyTo(dst[idx..]);
                 idx += s.bp.Length;
@@ -142,7 +142,7 @@ public sealed class TextTransformBuilder : ICssBuilder
         return string.Create(bp.Length + 1 + className.Length, (className, bp), static (dst, s) =>
         {
             s.bp.AsSpan().CopyTo(dst);
-            int idx = s.bp.Length;
+            var idx = s.bp.Length;
             dst[idx++] = '-';
             s.className.AsSpan().CopyTo(dst[idx..]);
         });

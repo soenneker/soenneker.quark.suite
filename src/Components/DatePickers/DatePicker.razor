@@ -22,13 +22,13 @@
                 <button type="button" class="btn btn-sm btn-light qcal-nav" @onclick="NextMonth">›</button>
             </div>
             <div class="qcal-grid mt-2">
-                @foreach (string dow in _dayNames)
+                @foreach (var dow in _dayNames)
                 {
                     <div class="qcal-dow text-muted">@dow</div>
                 }
-                @foreach (Cell day in BuildMonthCells())
+                @foreach (var day in BuildMonthCells())
                 {
-                    string css = day.InMonth ? "qcal-day" : "qcal-day text-muted";
+                    var css = day.InMonth ? "qcal-day" : "qcal-day text-muted";
                     if (day.Date == DateOnly.FromDateTime(DateTime.Today))
                     {
                         css += " qcal-today";
@@ -109,7 +109,7 @@
             return null;
 
         var text = e.Value.ToString();
-        if (DateOnly.TryParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateOnly result))
+        if (DateOnly.TryParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
             return result;
 
         return null;
@@ -147,7 +147,7 @@
 
     private string? GetColorClass()
     {
-        bool isTheme = Color.TryGetBootstrapThemeToken(out string token);
+        var isTheme = Color.TryGetBootstrapThemeToken(out var token);
 
         if (isTheme)
             return $"form-control-{token}";
@@ -201,12 +201,12 @@
 
     protected override Dictionary<string, object> BuildAttributes()
     {
-        Dictionary<string, object> attributes = base.BuildAttributes();
+        var attributes = base.BuildAttributes();
 
         var baseClasses = "form-control quark-datepicker quark-datepicker--icon";
-        string? colorClass = GetColorClass();
-        string? sizeClass = GetSizeClass();
-        string? validationClass = GetValidationClass();
+        var colorClass = GetColorClass();
+        var sizeClass = GetSizeClass();
+        var validationClass = GetValidationClass();
 
         if (colorClass != null)
             baseClasses = $"{baseClasses} {colorClass}";
@@ -266,9 +266,9 @@
 
     private void InitializeDayNames()
     {
-        CultureInfo culture = CultureInfo.CurrentCulture;
-        DayOfWeek first = culture.DateTimeFormat.FirstDayOfWeek;
-        string[] names = culture.DateTimeFormat.AbbreviatedDayNames;
+        var culture = CultureInfo.CurrentCulture;
+        var first = culture.DateTimeFormat.FirstDayOfWeek;
+        var names = culture.DateTimeFormat.AbbreviatedDayNames;
         _dayNames = Enumerable.Range(0, 7)
             .Select(i => names[((int)first + i) % 7])
             .ToArray();
@@ -279,16 +279,16 @@
     private IEnumerable<Cell> BuildMonthCells()
     {
         var firstOfMonth = new DateOnly(_displayMonth.Year, _displayMonth.Month, 1);
-        CultureInfo culture = CultureInfo.CurrentCulture;
-        DayOfWeek startDow = culture.DateTimeFormat.FirstDayOfWeek;
-        int offset = ((int)firstOfMonth.DayOfWeek - (int)startDow + 7) % 7;
-        DateOnly gridStart = firstOfMonth.AddDays(-offset);
+        var culture = CultureInfo.CurrentCulture;
+        var startDow = culture.DateTimeFormat.FirstDayOfWeek;
+        var offset = ((int)firstOfMonth.DayOfWeek - (int)startDow + 7) % 7;
+        var gridStart = firstOfMonth.AddDays(-offset);
 
-        for (int i = 0; i < 42; i++)
+        for (var i = 0; i < 42; i++)
         {
-            DateOnly d = gridStart.AddDays(i);
-            bool inMonth = d.Month == _displayMonth.Month;
-            bool disabled = (Min.HasValue && d < Min.Value) || (Max.HasValue && d > Max.Value);
+            var d = gridStart.AddDays(i);
+            var inMonth = d.Month == _displayMonth.Month;
+            var disabled = (Min.HasValue && d < Min.Value) || (Max.HasValue && d > Max.Value);
             yield return new Cell(d, inMonth, disabled);
         }
     }

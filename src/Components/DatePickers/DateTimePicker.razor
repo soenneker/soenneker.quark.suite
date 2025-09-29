@@ -22,13 +22,13 @@
                 <button type="button" class="btn btn-sm btn-light qcal-nav" @onclick="NextMonth">›</button>
             </div>
             <div class="qcal-grid mt-2">
-                @foreach (string dow in _dayNames)
+                @foreach (var dow in _dayNames)
                 {
                     <div class="qcal-dow text-muted">@dow</div>
                 }
-                @foreach (Cell day in BuildMonthCells())
+                @foreach (var day in BuildMonthCells())
                 {
-                    string css = day.InMonth ? "qcal-day" : "qcal-day text-muted";
+                    var css = day.InMonth ? "qcal-day" : "qcal-day text-muted";
                     if (day.Date == DateOnly.FromDateTime(DateTime.Today))
                     {
                         css += " qcal-today";
@@ -137,11 +137,11 @@
         if (string.IsNullOrWhiteSpace(text))
             return null;
 
-        string normalized = text.Trim();
+        var normalized = text.Trim();
         if (normalized.Contains(' ') && !normalized.Contains('T'))
             normalized = normalized.Replace(' ', 'T');
 
-        if (DateTime.TryParse(normalized, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime result))
+        if (DateTime.TryParse(normalized, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var result))
             return result;
 
         return null;
@@ -179,7 +179,7 @@
 
     private string? GetColorClass()
     {
-        bool isTheme = Color.TryGetBootstrapThemeToken(out string token);
+        var isTheme = Color.TryGetBootstrapThemeToken(out var token);
 
         if (isTheme)
             return $"form-control-{token}";
@@ -227,7 +227,7 @@
             else
             {
                 _displayMonth = DateOnly.FromDateTime(DateTime.Today);
-                DateTime now = DateTime.Now;
+                var now = DateTime.Now;
                 _hour = now.Hour;
                 _minute = now.Minute;
                 _isAm = _hour < 12;
@@ -243,12 +243,12 @@
 
     protected override Dictionary<string, object> BuildAttributes()
     {
-        Dictionary<string, object> attributes = base.BuildAttributes();
+        var attributes = base.BuildAttributes();
 
         var baseClasses = "form-control quark-datepicker quark-datepicker--icon";
-        string? colorClass = GetColorClass();
-        string? sizeClass = GetSizeClass();
-        string? validationClass = GetValidationClass();
+        var colorClass = GetColorClass();
+        var sizeClass = GetSizeClass();
+        var validationClass = GetValidationClass();
 
         if (colorClass != null)
             baseClasses = $"{baseClasses} {colorClass}";
@@ -308,9 +308,9 @@
 
     private void InitializeDayNames()
     {
-        CultureInfo culture = CultureInfo.CurrentCulture;
-        DayOfWeek first = culture.DateTimeFormat.FirstDayOfWeek;
-        string[] names = culture.DateTimeFormat.AbbreviatedDayNames;
+        var culture = CultureInfo.CurrentCulture;
+        var first = culture.DateTimeFormat.FirstDayOfWeek;
+        var names = culture.DateTimeFormat.AbbreviatedDayNames;
         _dayNames = Enumerable.Range(0, 7)
             .Select(i => names[((int)first + i) % 7])
             .ToArray();
@@ -321,16 +321,16 @@
     private IEnumerable<Cell> BuildMonthCells()
     {
         var firstOfMonth = new DateOnly(_displayMonth.Year, _displayMonth.Month, 1);
-        CultureInfo culture = CultureInfo.CurrentCulture;
-        DayOfWeek startDow = culture.DateTimeFormat.FirstDayOfWeek;
-        int offset = ((int)firstOfMonth.DayOfWeek - (int)startDow + 7) % 7;
-        DateOnly gridStart = firstOfMonth.AddDays(-offset);
+        var culture = CultureInfo.CurrentCulture;
+        var startDow = culture.DateTimeFormat.FirstDayOfWeek;
+        var offset = ((int)firstOfMonth.DayOfWeek - (int)startDow + 7) % 7;
+        var gridStart = firstOfMonth.AddDays(-offset);
 
-        for (int i = 0; i < 42; i++)
+        for (var i = 0; i < 42; i++)
         {
-            DateOnly d = gridStart.AddDays(i);
-            bool inMonth = d.Month == _displayMonth.Month;
-            bool disabled = (Min.HasValue && d < DateOnly.FromDateTime(Min.Value)) || (Max.HasValue && d > DateOnly.FromDateTime(Max.Value));
+            var d = gridStart.AddDays(i);
+            var inMonth = d.Month == _displayMonth.Month;
+            var disabled = (Min.HasValue && d < DateOnly.FromDateTime(Min.Value)) || (Max.HasValue && d > DateOnly.FromDateTime(Max.Value));
             yield return new Cell(d, inMonth, disabled);
         }
     }
@@ -360,7 +360,7 @@
 
     private Task Commit()
     {
-        DateOnly date = _pendingDate ?? (Value.HasValue ? DateOnly.FromDateTime(Value.Value) : DateOnly.FromDateTime(DateTime.Today));
+        var date = _pendingDate ?? (Value.HasValue ? DateOnly.FromDateTime(Value.Value) : DateOnly.FromDateTime(DateTime.Today));
         var dt = new DateTime(date.Year, date.Month, date.Day, _hour, _minute, 0);
         Value = dt;
         return InvokeAsync(async () =>
@@ -407,11 +407,11 @@
     private Task OnHourInput(ChangeEventArgs e)
     {
         if (e?.Value is null) return Task.CompletedTask;
-        if (int.TryParse(e.Value.ToString(), out int v))
+        if (int.TryParse(e.Value.ToString(), out var v))
         {
             v = Math.Clamp(v, 1, 12);
             // preserve am/pm while mapping 12->0 for AM case
-            int baseHour = _isAm ? 0 : 12;
+            var baseHour = _isAm ? 0 : 12;
             _hour = (v % 12) + baseHour;
             return Commit();
         }
@@ -421,7 +421,7 @@
     private Task OnMinuteInput(ChangeEventArgs e)
     {
         if (e?.Value is null) return Task.CompletedTask;
-        if (int.TryParse(e.Value.ToString(), out int v))
+        if (int.TryParse(e.Value.ToString(), out var v))
         {
             v = ((v % 60) + 60) % 60;
             _minute = v;

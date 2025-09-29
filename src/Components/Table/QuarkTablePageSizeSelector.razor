@@ -7,7 +7,7 @@
 	<select value="@PageSize" @onchange="OnPageSizeChangedHandler" >
 		@for (var i = 0; i < PageSizeOptions.Length; i++)
 		{
-			int size = PageSizeOptions[i];
+			var size = PageSizeOptions[i];
 			<option value="@size" selected="@(size == PageSize)" >@size</option>
 		}
 	</select>
@@ -31,7 +31,7 @@
 
 	private async Task OnPageSizeChangedHandler(ChangeEventArgs e)
 	{
-		if (int.TryParse(e.Value?.ToString(), out int size) && size != PageSize)
+		if (int.TryParse(e.Value?.ToString(), out var size) && size != PageSize)
 		{
 			// First, try to use the QuarkTable if available
 			if (QuarkTable != null)

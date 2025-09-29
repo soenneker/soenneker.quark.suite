@@ -51,7 +51,7 @@ public sealed class QuarkTableContinuationTokenPaging
             throw new ArgumentException("pageNumber must be non-negative", nameof(pageNumber));
         }
 
-        if (_pageTokens.TryGetValue(pageNumber.ToString(), out string? token))
+        if (_pageTokens.TryGetValue(pageNumber.ToString(), out var token))
         {
             return token.IsNullOrEmpty() ? null : token;
         }
@@ -138,11 +138,11 @@ public sealed class QuarkTableContinuationTokenPaging
         }
 
         var knownRecords = 0;
-        int maxPage = -1;
+        var maxPage = -1;
 
-        foreach (KeyValuePair<string, int> kvp in _pageCounts)
+        foreach (var kvp in _pageCounts)
         {
-            if (int.TryParse(kvp.Key, out int pageNum))
+            if (int.TryParse(kvp.Key, out var pageNum))
             {
                 knownRecords += kvp.Value;
                 maxPage = Math.Max(maxPage, pageNum);
@@ -151,7 +151,7 @@ public sealed class QuarkTableContinuationTokenPaging
 
         if (_hasMorePages && maxPage >= 0)
         {
-            int avgRecordsPerPage = knownRecords / (maxPage + 1);
+            var avgRecordsPerPage = knownRecords / (maxPage + 1);
             return Math.Max(knownRecords + avgRecordsPerPage, (maxPage + 2) * pageSize);
         }
 
@@ -172,7 +172,7 @@ public sealed class QuarkTableContinuationTokenPaging
             throw new ArgumentException("requestedStart must be non-negative and pageSize must be positive");
         }
 
-        int requestedPage = requestedStart / pageSize;
+        var requestedPage = requestedStart / pageSize;
         _currentVirtualPage = requestedPage;
 
         // For the first page (page 0), always return null as the continuation token
@@ -182,7 +182,7 @@ public sealed class QuarkTableContinuationTokenPaging
         }
 
         // First, check if we have a direct token for the requested page
-        string? directToken = GetContinuationToken(requestedPage);
+        var directToken = GetContinuationToken(requestedPage);
         if (directToken.HasContent())
         {
             return directToken;
@@ -241,7 +241,7 @@ public sealed class QuarkTableContinuationTokenPaging
         {
             var knownRecords = 0;
 
-            foreach (int count in _pageCounts.Values)
+            foreach (var count in _pageCounts.Values)
             {
                 knownRecords += count;
             }
@@ -268,7 +268,7 @@ public sealed class QuarkTableContinuationTokenPaging
             throw new ArgumentException("pageSize must be positive", nameof(pageSize));
         }
 
-        string? directToken = GetContinuationToken(requestedPage);
+        var directToken = GetContinuationToken(requestedPage);
         if (directToken != null)
         {
             return directToken;
@@ -279,7 +279,7 @@ public sealed class QuarkTableContinuationTokenPaging
             return null;
         }
 
-        int closestPage = FindClosestPage(requestedPage);
+        var closestPage = FindClosestPage(requestedPage);
         if (closestPage >= 0)
         {
             return GetContinuationToken(closestPage);
@@ -295,14 +295,14 @@ public sealed class QuarkTableContinuationTokenPaging
     /// <returns>The closest page number, or -1 if no pages are found.</returns>
     private int FindClosestPage(int requestedPage)
     {
-        int closestPage = -1;
+        var closestPage = -1;
         var minDistance = int.MaxValue;
 
-        foreach (KeyValuePair<string, string> kvp in _pageTokens)
+        foreach (var kvp in _pageTokens)
         {
-            if (int.TryParse(kvp.Key, out int pageNum))
+            if (int.TryParse(kvp.Key, out var pageNum))
             {
-                int distance = Math.Abs(pageNum - requestedPage);
+                var distance = Math.Abs(pageNum - requestedPage);
                 
                 if (distance < minDistance || (distance == minDistance && pageNum < closestPage))
                 {

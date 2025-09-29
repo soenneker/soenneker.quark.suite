@@ -25,7 +25,7 @@ public sealed class Fixture : UnitFixture
             builder.AddSerilog(dispose: false);
         });
 
-        IConfiguration config = TestUtil.BuildConfig();
+        var config = TestUtil.BuildConfig();
         services.AddSingleton(config);
     }
 }

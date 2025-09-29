@@ -56,8 +56,8 @@ public sealed class ScaleBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            ScaleRule rule = _rules[i];
-            string cls = GetScaleClass(rule.Scale);
+            var rule = _rules[i];
+            var cls = GetScaleClass(rule.Scale);
             if (cls.Length == 0)
                 continue;
 
@@ -80,8 +80,8 @@ public sealed class ScaleBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            ScaleRule rule = _rules[i];
-            string? scaleValue = GetScaleValue(rule.Scale);
+            var rule = _rules[i];
+            var scaleValue = GetScaleValue(rule.Scale);
 
             if (scaleValue is null)
                 continue;

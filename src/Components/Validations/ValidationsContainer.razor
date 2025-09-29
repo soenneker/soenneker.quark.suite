@@ -47,7 +47,7 @@
     protected override void OnParametersSet()
     {
         // Check if EditContext was explicitly set by checking if it's not null and different from what we would create from Model
-        bool editContextExplicitlySet = EditContext is not null && (Model is null || !ReferenceEquals(Model, EditContext.Model));
+        var editContextExplicitlySet = EditContext is not null && (Model is null || !ReferenceEquals(Model, EditContext.Model));
         
         if (editContextExplicitlySet && Model is not null)
             throw new InvalidOperationException("Validations requires a Model parameter, or an EditContext parameter, but not both.");
@@ -68,7 +68,7 @@
 
     public async Task<bool> Validate()
     {
-        bool result = await TryValidate();
+        var result = await TryValidate();
 
         if (result)
         {
@@ -94,7 +94,7 @@
     {
         var validated = true;
 
-        foreach (IValidation v in _validations)
+        foreach (var v in _validations)
         {
             if (await v.ValidateAsync() == ValidationStatus.Error)
                 validated = false;

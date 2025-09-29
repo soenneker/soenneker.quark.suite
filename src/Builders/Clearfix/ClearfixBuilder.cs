@@ -43,8 +43,8 @@ public sealed class ClearfixBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        ClearfixRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new ClearfixRule(breakpoint);
         return this;
     }
@@ -59,10 +59,10 @@ public sealed class ClearfixBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            ClearfixRule rule = _rules[i];
-            string cls = _classClearfix;
+            var rule = _rules[i];
+            var cls = _classClearfix;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
             if (bp.Length != 0)
                 cls = InsertBreakpointType(cls, bp);
 
@@ -100,7 +100,7 @@ public sealed class ClearfixBuilder : ICssBuilder
         return string.Create(bp.Length + 1 + className.Length, (className, bp), static (dst, s) =>
         {
             s.bp.AsSpan().CopyTo(dst);
-            int idx = s.bp.Length;
+            var idx = s.bp.Length;
             dst[idx++] = '-';
             s.className.AsSpan().CopyTo(dst[idx..]);
         });

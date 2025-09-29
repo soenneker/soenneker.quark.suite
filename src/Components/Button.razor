@@ -78,17 +78,17 @@ else
 		Attributes.Remove("onclick");
 
 		// Determine element kind
-		bool isLink = Type == ButtonType.Link || To.HasContent();
+		var isLink = Type == ButtonType.Link || To.HasContent();
 
 		// Figure out disabled state (treat presence of "disabled" attribute as true)
-		bool isDisabled = Disabled || Loading || (Attributes is not null && Attributes.ContainsKey("disabled"));
+		var isDisabled = Disabled || Loading || (Attributes is not null && Attributes.ContainsKey("disabled"));
 
 		// Add Bootstrap button classes
 		AppendToClassAttr(Attributes, "btn");
 
         if (Color is not null && !Color.Value.IsEmpty)
         {
-            string v = Color.Value.ToString().Trim();
+            var v = Color.Value.ToString().Trim();
 
             if (Color.Value.IsCssClass)
             {
@@ -108,7 +108,7 @@ else
         }
 
 		// Add size class if not default
-		string? sizeClass = GetSizeClass();
+		var sizeClass = GetSizeClass();
 
 		if (sizeClass is not null)
 			AppendToClassAttr(Attributes, sizeClass);
@@ -158,7 +158,7 @@ else
 	protected override async Task HandleClick(MouseEventArgs args)
 	{
 		// Respect disabled state at runtime, same semantics as in BuildAttributes
-		bool isDisabled = Disabled || Loading || (Attributes is not null && Attributes.ContainsKey("disabled"));
+		var isDisabled = Disabled || Loading || (Attributes is not null && Attributes.ContainsKey("disabled"));
 		if (isDisabled)
 			return;
 

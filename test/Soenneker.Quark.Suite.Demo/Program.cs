@@ -35,7 +35,7 @@ public sealed class Program
         // Register all Quark services using the suite registrar
         builder.Services.AddQuarkSuiteAsScoped();
 
-            WebAssemblyHost host = builder.Build();
+            var host = builder.Build();
 
             var jsRuntime = (IJSRuntime) host.Services.GetService(typeof(IJSRuntime))!;
 

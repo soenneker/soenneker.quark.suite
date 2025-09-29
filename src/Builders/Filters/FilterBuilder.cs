@@ -72,8 +72,8 @@ public sealed class FilterBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        FilterRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new FilterRule(last.Filter, breakpoint);
         return this;
     }
@@ -88,12 +88,12 @@ public sealed class FilterBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            FilterRule rule = _rules[i];
-            string cls = GetFilterClass(rule.Filter);
+            var rule = _rules[i];
+            var cls = GetFilterClass(rule.Filter);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
             if (bp.Length != 0)
                 cls = InsertBreakpointType(cls, bp);
 
@@ -116,8 +116,8 @@ public sealed class FilterBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            FilterRule rule = _rules[i];
-            string? filterValue = GetFilterValue(rule.Filter);
+            var rule = _rules[i];
+            var filterValue = GetFilterValue(rule.Filter);
 
             if (filterValue is null)
                 continue;
@@ -175,14 +175,14 @@ public sealed class FilterBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string InsertBreakpointType(string className, string bp)
     {
-        int dashIndex = className.IndexOf('-');
+        var dashIndex = className.IndexOf('-');
         if (dashIndex > 0)
         {
-            int len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
+            var len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
             return string.Create(len, (className, dashIndex, bp), static (dst, s) =>
             {
                 s.className.AsSpan(0, s.dashIndex).CopyTo(dst);
-                int idx = s.dashIndex;
+                var idx = s.dashIndex;
                 dst[idx++] = '-';
                 s.bp.AsSpan().CopyTo(dst[idx..]);
                 idx += s.bp.Length;
@@ -193,7 +193,7 @@ public sealed class FilterBuilder : ICssBuilder
         return string.Create(bp.Length + 1 + className.Length, (className, bp), static (dst, s) =>
         {
             s.bp.AsSpan().CopyTo(dst);
-            int idx = s.bp.Length;
+            var idx = s.bp.Length;
             dst[idx++] = '-';
             s.className.AsSpan().CopyTo(dst[idx..]);
         });

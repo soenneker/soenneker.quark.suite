@@ -40,7 +40,7 @@ public class SimpleValidator : IQuarkValidator
     /// <returns>True if valid, false otherwise.</returns>
     public bool Validate(object value)
     {
-        bool isValid = _validate(value);
+        var isValid = _validate(value);
         Status = isValid ? ValidationStatus.Success : ValidationStatus.Error;
         return isValid;
     }
@@ -53,7 +53,7 @@ public class SimpleValidator : IQuarkValidator
     /// <returns>True if valid, false otherwise.</returns>
     public Task<bool> ValidateAsync(object value, CancellationToken cancellationToken = default)
     {
-        bool isValid = _validate(value);
+        var isValid = _validate(value);
         Status = isValid ? ValidationStatus.Success : ValidationStatus.Error;
         return Task.FromResult(isValid);
     }
