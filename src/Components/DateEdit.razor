@@ -1,0 +1,327 @@
+@using System.Linq.Expressions
+@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Extensions.String
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Colors
+@using Soenneker.Quark.Enums
+s.Colors
+@using Soenneker.Quark.Builders.Sizes
+@using Soenneker.Quark.Components.Validations
+@using Soenneker.Quark.Enums
+
+@inherits Soenneker.Quark.Element
+@implements Soenneker.Quark.IValidationInput
+
+<input type="@InputMode" @attributes="BuildAttributes()" />
+
+@code {
+	public override string? ThemeKey { get; set; } = "DateEdit";
+
+	[Parameter]
+	public DateTime? Date { get; set; }
+
+	[Parameter]
+	public Expression<Func<DateTime>>? DateExpression { get; set; }
+
+	[Parameter]
+	public DateOnly? DateOnly { get; set; }
+
+	[Parameter]
+	public Expression<Func<DateOnly>>? DateOnlyExpression { get; set; }
+
+	[Parameter]
+	public string? Placeholder { get; set; }
+
+	[Parameter]
+	public bool Disabled { get; set; }
+
+	[Parameter]
+	public bool ReadOnly { get; set; }
+
+	[Parameter]
+	public bool Required { get; set; }
+
+	[Parameter]
+	public DateTime Min { get; set; }
+
+	[Parameter]
+	public DateTime Max { get; set; }
+
+	[Parameter]
+	public DateOnly MinDateOnly { get; set; }
+
+	[Parameter]
+	public DateOnly MaxDateOnly { get; set; }
+
+	[Parameter]
+	public int Step { get; set; } = 1;
+
+	[Parameter]
+	public DateInputMode InputMode { get; set; } = DateInputMode.Date;
+
+	[Parameter]
+	public CssValue<ColorBuilder>? Color { get; set; }
+
+	[Parameter]
+	public CssValue<SizeBuilder>? Size { get; set; } = Builders.Sizes.Size.Default;
+
+	[Parameter]
+	public EventCallback<DateTime?> DateChanged { get; set; }
+
+	[Parameter]
+	public EventCallback<DateOnly?> DateOnlyChanged { get; set; }
+
+	[Parameter]
+	public EventCallback<ChangeEventArgs> OnChange { get; set; }
+
+	[Parameter]
+	public EventCallback<ChangeEventArgs> OnInput { get; set; }
+
+	[CascadingParameter]
+	public Validation? ParentValidation { get; set; }
+
+	public object? ValidationValue => Date ?? (object?)DateOnly;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender && ParentValidation is not null)
+		{
+			if (DateExpression is not null)
+			{
+				await ParentValidation.InitializeInputExpression(DateExpression);
+			}
+			else if (DateOnlyExpression is not null)
+			{
+				await ParentValidation.InitializeInputExpression(DateOnlyExpression);
+			}
+
+			await ParentValidation.InitializeInput(this);
+		}
+
+		await base.OnAfterRenderAsync(firstRender);
+	}
+
+	private async Task HandleInput(ChangeEventArgs e)
+	{
+		var value = e?.Value?.ToString();
+		
+		if (DateExpression is not null || Date.HasValue || DateChanged.HasDelegate)
+		{
+			if (DateTime.TryParse(value, out var dateValue))
+			{
+				Date = dateValue;
+			}
+			await DateChanged.InvokeIfHasDelegate(Date);
+		}
+		else if (DateOnlyExpression is not null || DateOnly.HasValue || DateOnlyChanged.HasDelegate)
+		{
+			if (System.DateOnly.TryParse(value, out var dateOnlyValue))
+			{
+				DateOnly = dateOnlyValue;
+			}
+			await DateOnlyChanged.InvokeIfHasDelegate(DateOnly);
+		}
+
+		if (OnInput.HasDelegate)
+			await OnInput.InvokeIfHasDelegate(e);
+
+		if (ParentValidation is not null)
+		{
+			var validationValue = Date?.ToString() ?? DateOnly?.ToString() ?? string.Empty;
+			await ParentValidation.NotifyInputChanged(validationValue);
+		}
+	}
+
+	private async Task HandleChange(ChangeEventArgs e)
+	{
+		var value = e?.Value?.ToString();
+		
+		if (DateExpression is not null || Date.HasValue || DateChanged.HasDelegate)
+		{
+			if (DateTime.TryParse(value, out var dateValue))
+			{
+				Date = dateValue;
+			}
+			await DateChanged.InvokeIfHasDelegate(Date);
+		}
+		else if (DateOnlyExpression is not null || DateOnly.HasValue || DateOnlyChanged.HasDelegate)
+		{
+			if (System.DateOnly.TryParse(value, out var dateOnlyValue))
+			{
+				DateOnly = dateOnlyValue;
+			}
+			await DateOnlyChanged.InvokeIfHasDelegate(DateOnly);
+		}
+
+		await OnChange.InvokeIfHasDelegate(e);
+
+		if (ParentValidation is not null)
+		{
+			var validationValue = Date?.ToString() ?? DateOnly?.ToString() ?? string.Empty;
+			await ParentValidation.NotifyInputChanged(validationValue);
+		}
+	}
+
+	private string GetInputModeString()
+	{
+		return InputMode.Value;
+	}
+
+	private string? GetColorClass()
+	{
+		if (Color is not null && !Color.Value.IsEmpty)
+		{
+			string v = Color.Value.ToString().Trim();
+
+			if (Color.Value.IsCssClass)
+			{
+				if (v.StartsWith("form-control-", StringComparison.Ordinal))
+					return v;
+				else
+					return $"form-control-{v}";
+			}
+		}
+
+		return null;
+	}
+
+	private string? GetSizeClass()
+	{
+		if (Size != null && !Size.Value.IsEmpty)
+			return $"form-control-{Size.Value}";
+
+		return null;
+	}
+
+	private string? GetValidationClass()
+	{
+		if (ParentValidation?.Status == ValidationStatus.Error)
+			return "is-invalid";
+
+		if (ParentValidation?.Status == ValidationStatus.Success)
+			return "is-valid";
+
+		return null;
+	}
+
+	protected override Dictionary<string, object> BuildAttributes()
+	{
+		Dictionary<string, object> attributes = base.BuildAttributes();
+
+		// Add DateEdit-specific attributes
+		var baseClasses = "form-control";
+		string? colorClass = GetColorClass();
+		string? sizeClass = GetSizeClass();
+		string? validationClass = GetValidationClass();
+
+		if (colorClass != null)
+			baseClasses = $"{baseClasses} {colorClass}";
+
+		if (sizeClass != null)
+			baseClasses = $"{baseClasses} {sizeClass}";
+
+		if (validationClass != null)
+			baseClasses = $"{baseClasses} {validationClass}";
+
+		AppendToClassAttr(attributes, baseClasses);
+
+		// Handle custom CSS colors
+		if (Color is not null && !Color.Value.IsEmpty && !Color.Value.IsCssClass)
+		{
+			string v = Color.Value.ToString().Trim();
+			attributes["style"] = $"background-color:{v};border-color:{v};";
+		}
+
+		attributes["type"] = GetInputModeString();
+
+		if (Date.HasValue)
+		{
+			string dateString = InputMode.Value switch
+			{
+				"date" => Date.Value.ToString("yyyy-MM-dd"),
+				"datetime-local" => Date.Value.ToString("yyyy-MM-ddTHH:mm"),
+				"month" => Date.Value.ToString("yyyy-MM"),
+				_ => Date.Value.ToString("yyyy-MM-dd")
+			};
+			attributes["value"] = dateString;
+		}
+		else if (DateOnly.HasValue)
+		{
+			string dateString = InputMode.Value switch
+			{
+				"date" => DateOnly.Value.ToString("yyyy-MM-dd"),
+				"datetime-local" => DateOnly.Value.ToString("yyyy-MM-ddTHH:mm"),
+				"month" => DateOnly.Value.ToString("yyyy-MM"),
+				_ => DateOnly.Value.ToString("yyyy-MM-dd")
+			};
+			attributes["value"] = dateString;
+		}
+
+		if (Placeholder.HasContent())
+			attributes["placeholder"] = Placeholder;
+
+		if (Disabled)
+			attributes["disabled"] = true;
+
+		if (ReadOnly)
+			attributes["readonly"] = true;
+
+		if (Required)
+			attributes["required"] = true;
+
+		if (Min != default)
+		{
+			string minString = InputMode.Value switch
+			{
+				"date" => Min.ToString("yyyy-MM-dd"),
+				"datetime-local" => Min.ToString("yyyy-MM-ddTHH:mm"),
+				"month" => Min.ToString("yyyy-MM"),
+				_ => Min.ToString("yyyy-MM-dd")
+			};
+			attributes["min"] = minString;
+		}
+		else if (MinDateOnly != default)
+		{
+			string minString = InputMode.Value switch
+			{
+				"date" => MinDateOnly.ToString("yyyy-MM-dd"),
+				"datetime-local" => MinDateOnly.ToString("yyyy-MM-ddTHH:mm"),
+				"month" => MinDateOnly.ToString("yyyy-MM"),
+				_ => MinDateOnly.ToString("yyyy-MM-dd")
+			};
+			attributes["min"] = minString;
+		}
+
+		if (Max != default)
+		{
+			string maxString = InputMode.Value switch
+			{
+				"date" => Max.ToString("yyyy-MM-dd"),
+				"datetime-local" => Max.ToString("yyyy-MM-ddTHH:mm"),
+				"month" => Max.ToString("yyyy-MM"),
+				_ => Max.ToString("yyyy-MM-dd")
+			};
+			attributes["max"] = maxString;
+		}
+		else if (MaxDateOnly != default)
+		{
+			string maxString = InputMode.Value switch
+			{
+				"date" => MaxDateOnly.ToString("yyyy-MM-dd"),
+				"datetime-local" => MaxDateOnly.ToString("yyyy-MM-ddTHH:mm"),
+				"month" => MaxDateOnly.ToString("yyyy-MM"),
+				_ => MaxDateOnly.ToString("yyyy-MM-dd")
+			};
+			attributes["max"] = maxString;
+		}
+
+		if (Step > 1)
+			attributes["step"] = Step;
+
+		// Wire input/change events
+		attributes["oninput"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleInput);
+		attributes["onchange"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleChange);
+
+		return attributes;
+	}
+}

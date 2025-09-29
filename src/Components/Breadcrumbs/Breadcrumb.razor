@@ -1,0 +1,33 @@
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Colors
+@inherits Soenneker.Quark.Element
+
+<nav aria-label="breadcrumb" @attributes="BuildAttributes()">
+    <OrderedList Class="breadcrumb">
+        @ChildContent
+    </OrderedList>
+</nav>
+
+@code {
+	public override string? ThemeKey { get; set; } = "Breadcrumb";
+
+    [Parameter]
+    public CssValue<ColorBuilder> Color { get; set; } = Builders.Colors.Color.Light;
+
+    [Parameter]
+    public bool Large { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+
+        var baseClasses = "breadcrumb";
+
+        if (Large)
+            baseClasses = $"{baseClasses} breadcrumb-lg";
+
+        AppendToClassAttr(attributes, baseClasses);
+
+        return attributes;
+    }
+}

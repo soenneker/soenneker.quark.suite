@@ -1,0 +1,158 @@
+@using System.Linq.Expressions
+@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Extensions.String
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Colors
+@using Soenneker.Quark.Builders.Sizes
+@using Soenneker.Quark.Components.Validations
+
+@inherits Soenneker.Quark.Element
+@implements Soenneker.Quark.IValidationInput
+
+<Div Class="form-check form-switch" @attributes="BuildWrapperAttributes()" >
+    <input type="checkbox" @attributes="BuildInputAttributes()" />
+    @if (Label.HasContent())
+    {
+        <Label Class="form-check-label" >@Label</Label>
+    }
+</Div>
+
+@code {
+	public override string? ThemeKey { get; set; } = "Switch";
+
+    [Parameter]
+    public bool Checked { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public string? Label { get; set; }
+
+    [Parameter]
+    public CssValue<ColorBuilder>? Color { get; set; }
+
+    [Parameter]
+    public CssValue<SizeBuilder>? Size { get; set; } = Builders.Sizes.Size.Default;
+
+    [Parameter]
+    public EventCallback<bool> CheckedChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnChange { get; set; }
+
+    [CascadingParameter]
+    public Validation? ParentValidation { get; set; }
+
+    [Parameter]
+    public Expression<Func<bool>>? CheckedExpression { get; set; }
+
+    public object? ValidationValue => Checked;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && ParentValidation is not null)
+        {
+            if (CheckedExpression is not null)
+                await ParentValidation.InitializeInputExpression(CheckedExpression);
+
+            await ParentValidation.InitializeInput(this);
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private string? GetColorClass()
+    {
+        if (Color is not null && !Color.Value.IsEmpty)
+        {
+            string v = Color.Value.ToString().Trim();
+
+            if (Color.Value.IsCssClass)
+            {
+                if (v.StartsWith("form-check-input-", StringComparison.Ordinal))
+                    return v;
+                else
+                    return $"form-check-input-{v}";
+            }
+        }
+
+        return null;
+    }
+
+    private string? GetSizeClass()
+    {
+        if (Size != Builders.Sizes.Size.Default)
+            return $"form-check-input-{Size.Value}";
+        return null;
+    }
+
+    protected Dictionary<string, object> BuildWrapperAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildInputAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+
+        var baseClasses = "form-check-input";
+        string? colorClass = GetColorClass();
+        string? sizeClass = GetSizeClass();
+        string? validationClass = GetValidationClass();
+
+        if (colorClass != null)
+            baseClasses = $"{baseClasses} {colorClass}";
+
+        if (sizeClass != null)
+            baseClasses = $"{baseClasses} {sizeClass}";
+
+        if (validationClass != null)
+            baseClasses = $"{baseClasses} {validationClass}";
+
+        attributes["class"] = baseClasses;
+
+        // Handle custom CSS colors
+        if (Color is not null && !Color.Value.IsEmpty && !Color.Value.IsCssClass)
+        {
+            string v = Color.Value.ToString().Trim();
+            attributes["style"] = $"background-color:{v};border-color:{v};";
+        }
+
+        if (Checked)
+            attributes["checked"] = true;
+
+        if (Disabled)
+            attributes["disabled"] = true;
+
+        attributes["onchange"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleChange);
+
+        return attributes;
+    }
+
+    private string? GetValidationClass()
+    {
+        if (ParentValidation?.Status == ValidationStatus.Error)
+            return "is-invalid";
+        if (ParentValidation?.Status == ValidationStatus.Success)
+            return "is-valid";
+
+        return null;
+    }
+
+    private async Task HandleChange(ChangeEventArgs e)
+    {
+        if (e.Value is bool value)
+        {
+            Checked = value;
+            await CheckedChanged.InvokeIfHasDelegate(Checked);
+        }
+
+        await OnChange.InvokeIfHasDelegate(e);
+
+        if (ParentValidation is not null)
+            await ParentValidation.NotifyInputChanged(Checked);
+    }
+
+}

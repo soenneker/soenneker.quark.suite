@@ -1,0 +1,191 @@
+@using Microsoft.AspNetCore.Components.Web
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Colors
+
+@inherits Soenneker.Quark.Element
+@implements IDisposable
+
+<UnorderedListItem Class="@GetStepClasses()">
+    <Anchor Class="@GetStepLinkClasses()" OnClick="@HandleStepClick" role="tab" aria-selected="@(Active ? "true" : "false")" aria-current="@(Active ? "step" : null)" @attributes="BuildAttributes()">
+        <Div Class="@GetMarkerClasses()">
+            @if (Marker != null)
+            {
+                @Marker
+            }
+            else
+            {
+                @if (Completed)
+                {
+                    <Span>✓</Span>
+                }
+                else if (Index.HasValue)
+                {
+                    <Span>@Index.Value</Span>
+                }
+                else
+                {
+                    <Span>@CalculatedIndex</Span>
+                }
+            }
+        </Div>
+        
+        @if (Caption != null || !string.IsNullOrEmpty(Title))
+        {
+            <Div Class="@GetDescriptionClasses()">
+                @if (Caption != null)
+                {
+                    @Caption
+                }
+                else
+                {
+                    @if (!string.IsNullOrEmpty(Title))
+                    {
+                        <Div Class="step-title">@Title</Div>
+                    }
+                    @ChildContent
+                }
+            </Div>
+        }
+        else
+        {
+            @ChildContent
+        }
+    </Anchor>
+</UnorderedListItem>
+
+@code {
+	public override string? ThemeKey { get; set; } = "Step";
+
+	[Parameter]
+	public string? Name { get; set; }
+
+    private StepState? _parentStepsState;
+
+    [Parameter]
+    public int? Index { get; set; }
+
+    [Parameter]
+    public bool Completed { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public CssValue<ColorBuilder> Color { get; set; } = Builders.Colors.Color.Primary;
+
+    [Parameter]
+    public StepStatus Status { get; set; } = StepStatus.Pending;
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnStepClick { get; set; }
+
+    [Parameter]
+    public RenderFragment? Marker { get; set; }
+
+    [Parameter]
+    public RenderFragment? Caption { get; set; }
+
+    [CascadingParameter]
+    public StepState? ParentStepsState
+    {
+        get => _parentStepsState;
+        set
+        {
+            if (_parentStepsState == value)
+                return;
+
+            _parentStepsState = value;
+            StateHasChanged();
+        }
+    }
+
+    [CascadingParameter]
+    public StepsContainer? ParentSteps { get; set; }
+
+    private bool Active => _parentStepsState?.SelectedStep == Name;
+
+    private int CalculatedIndex => Index ?? ParentSteps?.IndexOfStep(Name ?? string.Empty) ?? 1;
+
+    private string GetStepClasses()
+    {
+        var classes = new List<string> { "nav-item" };
+        return string.Join(" ", classes);
+    }
+
+    private string GetStepLinkClasses()
+    {
+        var classes = new List<string>
+        {
+            "nav-link",
+            "rounded-pill",
+            "px-3",
+            "py-2",
+            "d-flex",
+            "align-items-center",
+            "gap-2",
+            "text-body-secondary"
+        };
+
+        if (Active)
+        {
+            classes.Add("active");
+            classes.Add("fw-semibold");
+        }
+        else
+        {
+            classes.Add("opacity-75");
+        }
+
+        if (Completed)
+            classes.Add("text-success");
+
+        if (Disabled)
+            classes.Add("disabled");
+
+        if (Status != StepStatus.Pending)
+            classes.Add($"step-{Status.Value}");
+
+        return string.Join(" ", classes);
+    }
+
+    private string GetMarkerClasses()
+    {
+        var classes = new List<string> { "step-marker" };
+
+        var isTheme = Color.TryGetBootstrapThemeToken(out string token);
+
+        if (isTheme)
+            classes.Add($"step-marker-{token}");
+
+        if (Active)
+            classes.Add("step-marker-active");
+
+        return string.Join(" ", classes);
+    }
+
+    private string GetDescriptionClasses()
+    {
+        return "step-description";
+    }
+
+    private async Task HandleStepClick(MouseEventArgs args)
+    {
+        await OnStepClick.InvokeAsync(args);
+
+        if (ParentSteps != null && !string.IsNullOrEmpty(Name))
+        {
+            await ParentSteps.SelectStep(Name);
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        ParentSteps?.NotifyStepInitialized(Name ?? string.Empty);
+        base.OnInitialized();
+    }
+
+    public new void Dispose()
+    {
+        ParentSteps?.NotifyStepRemoved(Name ?? string.Empty);
+    }
+}

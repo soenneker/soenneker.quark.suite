@@ -1,0 +1,68 @@
+@inherits Element
+
+@if (_visible && _status == ValidationStatus.Success)
+{
+    <Div class="@($"alert alert-success {Class}")">
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+        else if (!string.IsNullOrEmpty(SuccessText))
+        {
+            @SuccessText
+        }
+    </Div>
+}
+
+@code {
+    public override string? ThemeKey { get; set; } = "ValidationSuccess";
+
+    [CascadingParameter]
+    public ValidationsContainer? ParentValidations { get; set; }
+
+    [Parameter]
+    public new RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? SuccessText { get; set; }
+
+    [Parameter]
+    public new string? Class { get; set; }
+
+    private bool _visible;
+    private ValidationStatus _status = ValidationStatus.None;
+
+    protected override void OnInitialized()
+    {
+        if (ParentValidations is not null)
+        {
+            ParentValidations._statusChanged += OnStatusChanged;
+            ParentValidations.ClearingAll += OnClearingAll;
+        }
+    }
+
+    private void OnStatusChanged(ValidationsStatusChangedEventArgs args)
+    {
+        _status = args.Status;
+        _visible = args.Status != ValidationStatus.None;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnClearingAll()
+    {
+        _visible = false;
+        _status = ValidationStatus.None;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public override void Dispose()
+    {
+        if (ParentValidations is not null)
+        {
+            ParentValidations._statusChanged -= OnStatusChanged;
+            ParentValidations.ClearingAll -= OnClearingAll;
+        }
+    }
+}
+
+

@@ -1,0 +1,26 @@
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Scales
+@inherits Soenneker.Quark.Element
+
+<Heading Scale="@Scale" @attributes="BuildAttributes()">
+    @ChildContent
+</Heading>
+
+@code {
+    public override string? ThemeKey { get; set; } = "ModalTitle";
+
+    /// <summary>
+    /// Gets or sets the scale of the heading.
+    /// </summary>
+    [Parameter]
+    public CssValue<ScaleBuilder>? Scale { get; set; } = Builders.Scales.Scale.S5;
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+
+        AppendToClassAttr(attributes, "modal-title");
+
+        return attributes;
+    }
+}

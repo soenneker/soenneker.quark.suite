@@ -1,0 +1,93 @@
+@using Soenneker.Extensions.String
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Colors
+@inherits Soenneker.Quark.Element
+
+<CascadingValue Value="@this" IsFixed="true" >
+    <Div @attributes="BuildAttributes()" role="alert" aria-live="assertive" aria-atomic="true" >
+        <Div @attributes="GetContentAttributes()" >
+            @ChildContent
+        </Div>
+    </Div>
+</CascadingValue>
+
+@code {
+	public override string? ThemeKey { get; set; } = "Snackbar";
+
+    [Parameter]
+    public string Key { get; set; } = "";
+
+    [Parameter]
+    public bool Visible { get; set; } = true;
+
+    [Parameter]
+    public CssValue<ColorBuilder> Color { get; set; } = Builders.Colors.Color.Primary;
+
+    [Parameter]
+    public int AutoHideDelay { get; set; } = 5000;
+
+    [Parameter]
+    public EventCallback<SnackbarClosedEventArgs> Closed { get; set; }
+
+    [CascadingParameter]
+    protected SnackbarStack? ParentSnackbar { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attrs = base.BuildAttributes();
+
+        // base helpers from Component
+        EnsureClassAttr(attrs, "snackbar-item");
+
+        if (Visible)
+            EnsureClassAttr(attrs, "snackbar-slide-in");
+        else
+            EnsureClassAttr(attrs, "d-none");
+
+        // ARIA visibility
+        SetOrRemove(attrs, "aria-hidden", !Visible, "true");
+
+        // Stable key
+        if (Key.HasContent())
+            attrs["data-snackbar-key"] = Key!;
+
+        return attrs;
+    }
+
+    private Dictionary<string, object> GetContentAttributes()
+    {
+        var inner = new Dictionary<string, object>(1);
+
+        var isTheme = Color.TryGetBootstrapThemeToken(out string token);
+
+
+        string? bgClass = null;
+
+        if (isTheme)
+            bgClass = $"bg-{token}";
+
+        var cls = $"snackbar-content {bgClass} text-white rounded shadow p-3";
+        inner["class"] = cls;
+
+        return inner;
+    }
+
+    public Task Show()
+    {
+        if (Visible) return Task.CompletedTask;
+        Visible = true;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    public Task Hide() => Hide(SnackbarCloseReason.UserClosed);
+
+    protected async Task Hide(SnackbarCloseReason reason)
+    {
+        if (!Visible) return;
+
+        Visible = false;
+        await InvokeAsync(StateHasChanged);
+        await Closed.InvokeAsync(new SnackbarClosedEventArgs(Key, reason));
+    }
+
+}

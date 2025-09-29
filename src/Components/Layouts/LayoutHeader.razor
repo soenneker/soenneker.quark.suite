@@ -1,0 +1,28 @@
+@inherits Soenneker.Quark.Element
+
+<header @attributes="BuildAttributes()">
+	@ChildContent
+</header>
+
+@code {
+    public override string? ThemeKey { get; set; } = "LayoutHeader";
+
+    [Parameter]
+    public bool IsFixed { get; set; }
+
+	protected override Dictionary<string, object> BuildAttributes()
+	{
+		Dictionary<string, object> attributes = base.BuildAttributes();
+		
+		if (IsFixed)
+		{
+			AppendToClassAttr(attributes, "navbar navbar-expand bg-body shadow-sm fixed-top");
+		}
+		else
+		{
+			AppendToClassAttr(attributes, "navbar navbar-expand bg-body shadow-sm sticky-top");
+		}
+		
+		return attributes;
+	}
+}

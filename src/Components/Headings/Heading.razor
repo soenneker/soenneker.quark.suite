@@ -1,0 +1,43 @@
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Scales
+@inherits Soenneker.Quark.Element
+
+@HeadingFrag
+
+@code {
+
+    [Parameter]
+    public CssValue<ScaleBuilder>? Scale { get; set; }
+
+    public override string? ThemeKey { get; set; } = "Heading";
+
+    private static int GetHeadingLevel(CssValue<ScaleBuilder>? scale)
+    {
+        const int fallback = 3;
+        var s = scale?.ToString();
+        if (string.IsNullOrWhiteSpace(s)) return fallback;
+
+        if (s.Length >= 7 && s.AsSpan()
+                .StartsWith("scale-"))
+        {
+            int d = s[^1] - '0';
+            if ((uint)(d - 1) <= 5) return d; // 1..6
+        }
+
+        return fallback;
+    }
+
+    private RenderFragment HeadingFrag => builder =>
+    {
+        var level = GetHeadingLevel(Scale);
+        builder.OpenElement(0, $"h{level}");
+
+        var attrs = BuildAttributes();
+        if (attrs is not null)
+            builder.AddMultipleAttributes(1, attrs);
+
+        builder.AddContent(2, ChildContent);
+        builder.CloseElement();
+    };
+
+}

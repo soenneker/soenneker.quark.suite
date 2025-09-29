@@ -1,0 +1,32 @@
+@inherits Soenneker.Quark.Element
+
+<Div @attributes="BuildAttributes()">
+    @ChildContent
+</Div>
+
+@code {
+	public override string? ThemeKey { get; set; } = "FieldHelp";
+
+    /// <summary>
+    /// True if the parent Field is in horizontal mode.
+    /// </summary>
+    protected virtual bool ParentIsFieldBody => ParentFieldBody is not null;
+
+    /// <summary>
+    /// Gets or sets the reference to the parent FieldBody component.
+    /// </summary>
+    [CascadingParameter] protected FieldBody? ParentFieldBody { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+
+        var baseClasses = "field-help";
+        if (ParentIsFieldBody)
+            baseClasses += " field-help-in-body";
+
+        AppendToClassAttr(attributes, baseClasses);
+
+        return attributes;
+    }
+}

@@ -1,0 +1,187 @@
+@using System.Linq.Expressions
+@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Extensions.String
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Colors
+@using Soenneker.Quark.Builders.Sizes
+@using Soenneker.Quark.Components.Validations
+@using Soenneker.Quark.Enums
+
+@inherits Soenneker.Quark.Element
+@implements Soenneker.Quark.IValidationInput
+
+<input type="text" @attributes="BuildAttributes()" />
+
+@code {
+	public override string? ThemeKey { get; set; } = "TextEdit";
+
+	[Parameter]
+	public string? Value { get; set; }
+
+	[Parameter]
+	public Expression<Func<string>>? ValueExpression { get; set; }
+
+	[Parameter]
+	public string? Placeholder { get; set; }
+
+	[Parameter]
+	public bool Disabled { get; set; }
+
+	[Parameter]
+	public bool ReadOnly { get; set; }
+
+	[Parameter]
+	public bool Required { get; set; }
+
+	[Parameter]
+	public int MaxLength { get; set; }
+
+	[Parameter]
+	public CssValue<ColorBuilder>? Color { get; set; }
+
+	[Parameter]
+	public CssValue<SizeBuilder>? Size { get; set; } = Builders.Sizes.Size.Default;
+
+	[Parameter]
+	public EventCallback<string?> ValueChanged { get; set; }
+
+	[Parameter]
+	public EventCallback<ChangeEventArgs> OnChange { get; set; }
+
+	[Parameter]
+	public EventCallback<ChangeEventArgs> OnInput { get; set; }
+
+	[CascadingParameter]
+	public Validation? ParentValidation { get; set; }
+
+	public object? ValidationValue => Value;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender && ParentValidation is not null)
+		{
+			if (ValueExpression is not null)
+			{
+				await ParentValidation.InitializeInputExpression(ValueExpression);
+			}
+
+			await ParentValidation.InitializeInput(this);
+		}
+
+		await base.OnAfterRenderAsync(firstRender);
+	}
+
+	private async Task HandleInput(ChangeEventArgs e)
+	{
+		Value = e?.Value?.ToString();
+
+		await ValueChanged.InvokeIfHasDelegate(Value);
+
+		if (OnInput.HasDelegate)
+			await OnInput.InvokeIfHasDelegate(e);
+
+		if (ParentValidation is not null)
+			await ParentValidation.NotifyInputChanged(Value ?? string.Empty);
+	}
+
+	private async Task HandleChange(ChangeEventArgs e)
+	{
+		Value = e?.Value?.ToString();
+
+		await ValueChanged.InvokeIfHasDelegate(Value);
+		await OnChange.InvokeIfHasDelegate(e);
+
+		if (ParentValidation is not null)
+			await ParentValidation.NotifyInputChanged(Value ?? string.Empty);
+	}
+
+	private string? GetColorClass()
+	{
+		if (Color is not null && !Color.Value.IsEmpty)
+		{
+			string v = Color.Value.ToString().Trim();
+
+			if (Color.Value.IsCssClass)
+			{
+				if (v.StartsWith("form-control-", StringComparison.Ordinal))
+					return v;
+				else
+					return $"form-control-{v}";
+			}
+		}
+
+		return null;
+	}
+
+	private string? GetSizeClass()
+	{
+		if (Size != Builders.Sizes.Size.Default)
+			return $"form-control-{Size.Value}";
+
+		return null;
+	}
+
+	private string? GetValidationClass()
+	{
+		if (ParentValidation?.Status == ValidationStatus.Error)
+			return "is-invalid";
+
+		if (ParentValidation?.Status == ValidationStatus.Success)
+			return "is-valid";
+
+		return null;
+	}
+
+	protected override Dictionary<string, object> BuildAttributes()
+	{
+		Dictionary<string, object> attributes = base.BuildAttributes();
+
+		// Add TextEdit-specific attributes
+		var baseClasses = "form-control";
+		string? colorClass = GetColorClass();
+		string? sizeClass = GetSizeClass();
+		string? validationClass = GetValidationClass();
+
+		if (colorClass != null)
+			baseClasses = $"{baseClasses} {colorClass}";
+
+		if (sizeClass != null)
+			baseClasses = $"{baseClasses} {sizeClass}";
+
+		if (validationClass != null)
+			baseClasses = $"{baseClasses} {validationClass}";
+
+		AppendToClassAttr(attributes, baseClasses);
+
+		// Handle custom CSS colors
+		if (Color is not null && !Color.Value.IsEmpty && !Color.Value.IsCssClass)
+		{
+			string v = Color.Value.ToString().Trim();
+			attributes["style"] = $"background-color:{v};border-color:{v};";
+		}
+
+		if (Value.HasContent())
+			attributes["value"] = Value;
+
+		if (Placeholder.HasContent())
+			attributes["placeholder"] = Placeholder;
+
+		if (Disabled)
+			attributes["disabled"] = true;
+
+		if (ReadOnly)
+			attributes["readonly"] = true;
+
+		if (Required)
+			attributes["required"] = true;
+
+		if (MaxLength > 0)
+			attributes["maxlength"] = MaxLength;
+
+		// Wire input/change events
+		attributes["oninput"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleInput);
+		attributes["onchange"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleChange);
+
+		return attributes;
+	}
+}

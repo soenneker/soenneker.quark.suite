@@ -1,0 +1,47 @@
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Colors
+@inherits Soenneker.Quark.Element
+
+<Anchor @attributes="BuildAttributes()">
+	@ChildContent
+</Anchor>
+
+@code {
+	public override string? ThemeKey { get; set; } = "PaginationLink";
+
+    [Parameter]
+    public bool Active { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public CssValue<ColorBuilder> Color { get; set; } = Builders.Colors.Color.Primary;
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+
+        var baseClasses = "page-link";
+        if (Active)
+            baseClasses = $"{baseClasses} active";
+        if (Disabled)
+            baseClasses = $"{baseClasses} disabled";
+
+        AppendToClassAttr(attributes, baseClasses);
+
+        if (Disabled)
+        {
+            attributes["aria-disabled"] = "true";
+            attributes["tabindex"] = -1;
+        }
+        else
+        {
+            // Avoid navigation while still rendering as a link
+            attributes["href"] = attributes.ContainsKey("href") ? attributes["href"] : "javascript:void(0)";
+            attributes["role"] = attributes.GetValueOrDefault("role")?.ToString() ?? "button";
+        }
+
+        return attributes;
+    }
+}

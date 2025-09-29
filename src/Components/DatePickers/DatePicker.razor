@@ -1,0 +1,355 @@
+@using System.Globalization
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Extensions.String
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Colors
+@using Soenneker.Quark.Builders.Sizes
+@using Soenneker.Quark.Components.Validations
+@using Soenneker.Quark.DatePickers.Abstract
+@using Soenneker.Quark.Enums
+
+@inherits Soenneker.Quark.Element
+@implements Soenneker.Quark.IValidationInput
+@inject IDatePickerInterop DatePickerInterop
+
+<Div OnElementRefReady="HandleContainerRefReady" @attributes="GetContainerAttributes()">
+    <input @ref="_ref" type="text" @attributes="BuildAttributes()" />
+
+    @if (_open)
+    {
+        <Div @attributes="BuildPanelAttributes()">
+            <div class="qcal-header d-flex align-items-center justify-content-between">
+                <button type="button" class="btn btn-sm btn-light qcal-nav" @onclick="PrevMonth">‹</button>
+                <div class="qcal-title fw-semibold">@_displayMonth.ToString("MMMM yyyy", CultureInfo.CurrentUICulture)</div>
+                <button type="button" class="btn btn-sm btn-light qcal-nav" @onclick="NextMonth">›</button>
+            </div>
+            <div class="qcal-grid mt-2">
+                @foreach (string dow in _dayNames)
+                {
+                    <div class="qcal-dow text-muted">@dow</div>
+                }
+                @foreach (Cell day in BuildMonthCells())
+                {
+                    string css = day.InMonth ? "qcal-day" : "qcal-day text-muted";
+                    if (day.Date == DateOnly.FromDateTime(DateTime.Today))
+                    {
+                        css += " qcal-today";
+                    }
+                    if (Value.HasValue && day.Date == Value.Value)
+                    {
+                        css += " qcal-selected";
+                    }
+                    if (day.Disabled)
+                    {
+                        css += " disabled";
+                    }
+
+                    <button type="button" class="@css" disabled="@day.Disabled" @onclick="(() => SelectDate(day.Date))">@day.Date.Day</button>
+                }
+            </div>
+        </Div>
+    }
+</Div>
+
+@code {
+    public override string? ThemeKey { get; set; } = "DatePicker";
+
+    [Parameter]
+    public DateOnly? Value { get; set; }
+
+    [Parameter]
+    public Expression<Func<DateOnly?>>? ValueExpression { get; set; }
+
+    [Parameter]
+    public string? Placeholder { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public bool ReadOnly { get; set; }
+
+    [Parameter]
+    public bool Required { get; set; }
+
+    [Parameter]
+    public DateOnly? Min { get; set; }
+
+    [Parameter]
+    public DateOnly? Max { get; set; }
+
+    [Parameter]
+    public CssValue<ColorBuilder> Color { get; set; } = Builders.Colors.Color.Primary;
+
+    [Parameter]
+    public CssValue<SizeBuilder>? Size { get; set; } = Builders.Sizes.Size.Default;
+
+    [Parameter]
+    public EventCallback<DateOnly?> ValueChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnChange { get; set; }
+
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnInput { get; set; }
+
+    [CascadingParameter]
+    public Validation? ParentValidation { get; set; }
+
+    public object? ValidationValue => Value;
+
+    private ElementReference _ref;
+    private ElementReference _containerRef;
+    private DotNetObjectReference<OutsideCloseProxy>? _outsideRef;
+    private bool _open;
+    private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
+    private string[] _dayNames = [];
+
+    private static DateOnly? Parse(ChangeEventArgs e)
+    {
+        if (e?.Value == null)
+            return null;
+
+        var text = e.Value.ToString();
+        if (DateOnly.TryParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateOnly result))
+            return result;
+
+        return null;
+    }
+
+    private async Task HandleInput(ChangeEventArgs e)
+    {
+        Value = Parse(e);
+        await ValueChanged.InvokeIfHasDelegate(Value);
+        await OnInput.InvokeIfHasDelegate(e);
+
+        if (ParentValidation is not null)
+            await ParentValidation.NotifyInputChanged(Value);
+    }
+
+    private async Task HandleChange(ChangeEventArgs e)
+    {
+        Value = Parse(e);
+        await ValueChanged.InvokeIfHasDelegate(Value);
+        await OnChange.InvokeIfHasDelegate(e);
+
+        if (ParentValidation is not null)
+            await ParentValidation.NotifyInputChanged(Value);
+    }
+
+    private string? GetSizeClass()
+    {
+        if (Size?.ToString() == "size-sm")
+            return "form-control-sm";
+        if (Size?.ToString() == "size-lg")
+            return "form-control-lg";
+
+        return null;
+    }
+
+    private string? GetColorClass()
+    {
+        bool isTheme = Color.TryGetBootstrapThemeToken(out string token);
+
+        if (isTheme)
+            return $"form-control-{token}";
+
+        return null;
+    }
+
+    private string? GetValidationClass()
+    {
+        if (ParentValidation?.Status == ValidationStatus.Error)
+            return "is-invalid";
+
+        if (ParentValidation?.Status == ValidationStatus.Success)
+            return "is-valid";
+
+        return null;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && ParentValidation is not null)
+        {
+            await ParentValidation.InitializeInput(this);
+
+            if (ValueExpression is not null)
+            {
+                await ParentValidation.InitializeInputExpression(ValueExpression);
+            }
+        }
+
+        if (firstRender)
+        {
+            await DatePickerInterop.Initialize();
+            await DatePickerInterop.Attach(_ref);
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            _outsideRef = DotNetObjectReference.Create(new OutsideCloseProxy(this));
+            await DatePickerInterop.RegisterOutsideClose(_containerRef, _outsideRef, nameof(OutsideCloseProxy.Close));
+            InitializeDayNames();
+            if (Value.HasValue)
+                _displayMonth = new DateOnly(Value.Value.Year, Value.Value.Month, 1);
+            else
+                _displayMonth = new DateOnly(DateOnly.FromDateTime(DateTime.Today).Year, DateOnly.FromDateTime(DateTime.Today).Month, 1);
+            StateHasChanged();
+        }
+    }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+
+        var baseClasses = "form-control quark-datepicker quark-datepicker--icon";
+        string? colorClass = GetColorClass();
+        string? sizeClass = GetSizeClass();
+        string? validationClass = GetValidationClass();
+
+        if (colorClass != null)
+            baseClasses = $"{baseClasses} {colorClass}";
+        if (sizeClass != null)
+            baseClasses = $"{baseClasses} {sizeClass}";
+        if (validationClass != null)
+            baseClasses = $"{baseClasses} {validationClass}";
+
+        AppendToClassAttr(attributes, baseClasses);
+
+        if (Value.HasValue)
+            attributes["value"] = Value.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+        if (Placeholder.HasContent())
+            attributes["placeholder"] = Placeholder!;
+
+        if (Disabled)
+            attributes["disabled"] = true;
+
+        if (ReadOnly)
+            attributes["readonly"] = true;
+
+        if (Required)
+            attributes["required"] = true;
+
+        // min/max intentionally omitted for text input (handled in panel)
+
+        attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, OpenPanel);
+        attributes["onfocus"] = EventCallback.Factory.Create<FocusEventArgs>(this, OpenPanel);
+
+        attributes["oninput"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleInput);
+        attributes["onchange"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleChange);
+
+        return attributes;
+    }
+
+    private Task HandleContainerRefReady(ElementReference el)
+    {
+        _containerRef = el;
+        return Task.CompletedTask;
+    }
+
+    private Dictionary<string, object> GetContainerAttributes()
+    {
+        var attrs = new Dictionary<string, object>(2);
+        AppendToClassAttr(attrs, "position-relative d-inline-block quark-date-container");
+        return attrs;
+    }
+
+    private Dictionary<string, object> BuildPanelAttributes()
+    {
+        var attrs = new Dictionary<string, object>(4);
+        AppendToClassAttr(attrs, "quark-calendar-panel shadow-lg border rounded-3 bg-white p-3");
+        attrs["style"] = "position: absolute; top: calc(100% + .25rem); left: 0; z-index: 1080; min-width: 18rem;";
+        return attrs;
+    }
+
+    private void InitializeDayNames()
+    {
+        CultureInfo culture = CultureInfo.CurrentCulture;
+        DayOfWeek first = culture.DateTimeFormat.FirstDayOfWeek;
+        string[] names = culture.DateTimeFormat.AbbreviatedDayNames;
+        _dayNames = Enumerable.Range(0, 7)
+            .Select(i => names[((int)first + i) % 7])
+            .ToArray();
+    }
+
+    private readonly record struct Cell(DateOnly Date, bool InMonth, bool Disabled);
+
+    private IEnumerable<Cell> BuildMonthCells()
+    {
+        var firstOfMonth = new DateOnly(_displayMonth.Year, _displayMonth.Month, 1);
+        CultureInfo culture = CultureInfo.CurrentCulture;
+        DayOfWeek startDow = culture.DateTimeFormat.FirstDayOfWeek;
+        int offset = ((int)firstOfMonth.DayOfWeek - (int)startDow + 7) % 7;
+        DateOnly gridStart = firstOfMonth.AddDays(-offset);
+
+        for (int i = 0; i < 42; i++)
+        {
+            DateOnly d = gridStart.AddDays(i);
+            bool inMonth = d.Month == _displayMonth.Month;
+            bool disabled = (Min.HasValue && d < Min.Value) || (Max.HasValue && d > Max.Value);
+            yield return new Cell(d, inMonth, disabled);
+        }
+    }
+
+    private Task OpenPanel()
+    {
+        if (!_open)
+            _open = true;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private Task ClosePanel()
+    {
+        if (_open)
+            _open = false;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private sealed class OutsideCloseProxy
+    {
+        private readonly DatePicker _owner;
+        public OutsideCloseProxy(DatePicker owner) { _owner = owner; }
+
+        [JSInvokable]
+        public Task Close() => _owner.ClosePanel();
+    }
+
+    private async Task SelectDate(DateOnly date)
+    {
+        if ((Min.HasValue && date < Min.Value) || (Max.HasValue && date > Max.Value))
+            return;
+
+        Value = date;
+        await ValueChanged.InvokeIfHasDelegate(Value);
+        if (ParentValidation is not null)
+            await ParentValidation.NotifyInputChanged(Value);
+        await ClosePanel();
+    }
+
+    private Task PrevMonth()
+    {
+        _displayMonth = _displayMonth.AddMonths(-1);
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private Task NextMonth()
+    {
+        _displayMonth = _displayMonth.AddMonths(1);
+        return InvokeAsync(StateHasChanged);
+    }
+
+    protected override Task OnDisposeAsync()
+    {
+        _outsideRef?.Dispose();
+        return Task.CompletedTask;
+    }
+}
+
+

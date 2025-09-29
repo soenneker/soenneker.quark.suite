@@ -1,0 +1,78 @@
+@using Soenneker.Quark.Enums
+
+@inherits Soenneker.Quark.Element
+
+<CascadingValue Value="@this" IsFixed="true">
+    <ul @attributes="BuildAttributes()">
+        @ChildContent
+    </ul>
+</CascadingValue>
+
+@code {
+    public override string? ThemeKey { get; set; } = "ListGroup";
+
+    [Parameter]
+    public bool Flush { get; set; }
+
+    [Parameter]
+    public bool Scrollable { get; set; }
+
+    [Parameter]
+    public ListGroupMode Mode { get; set; } = ListGroupMode.Static;
+
+    [Parameter]
+    public ListGroupSelectionMode SelectionMode { get; set; } = ListGroupSelectionMode.Single;
+
+    [Parameter]
+    public string? SelectedItem { get; set; }
+
+    [Parameter]
+    public EventCallback<string> SelectedItemChanged { get; set; }
+
+    [Parameter]
+    public List<string>? SelectedItems { get; set; }
+
+    [Parameter]
+    public EventCallback<List<string>> SelectedItemsChanged { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+        
+        AppendToClassAttr(attributes, "list-group");
+        
+        if (Flush)
+            AppendToClassAttr(attributes, "list-group-flush");
+            
+        if (Scrollable)
+            AppendToClassAttr(attributes, "list-group-scrollable");
+
+        return attributes;
+    }
+
+    public async Task SelectItem(string name)
+    {
+        if (SelectionMode == ListGroupSelectionMode.Single)
+        {
+            SelectedItem = name;
+            await SelectedItemChanged.InvokeAsync(SelectedItem);
+        }
+        else
+        {
+            SelectedItems ??= new List<string>();
+
+            if (SelectedItems.Contains(name))
+            {
+                SelectedItems.Remove(name);
+            }
+            else
+            {
+                SelectedItems.Add(name);
+            }
+
+            await SelectedItemsChanged.InvokeAsync(SelectedItems);
+        }
+
+        StateHasChanged();
+    }
+}

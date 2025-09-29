@@ -1,0 +1,165 @@
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Colors
+@using Timer = System.Timers.Timer
+
+@inherits Soenneker.Quark.Element
+@inject ISnackbarInterop SnackbarInterop
+
+<Div @attributes="BuildAttributes()" >
+	<CascadingValue Value="@this" IsFixed="true" >
+		@ChildContent
+		@foreach (SnackbarNotificationItem item in _notifications)
+		{
+			<Snackbar @key="@item.Key"
+			          Key="@item.Key"
+			          Visible="@item.Visible"
+			          Color="@item.Color"
+			          AutoHideDelay="@(item.HideDelay ?? DefaultDelay)"
+			          Closed="@(async (e) => await HandleClosed(e.Key, e.CloseReason))" >
+				@if (item.Content != null)
+				{
+					@item.Content
+				}
+				else
+				{
+					@item.Message
+				}
+			</Snackbar>
+		}
+	</CascadingValue>
+</Div>
+
+@code {
+	public override string? ThemeKey { get; set; } = "SnackbarStack";
+
+	private readonly List<SnackbarNotificationItem> _notifications = [];
+	private readonly Dictionary<string, Timer> _autoHideTimers = new();
+	private bool _isInitialized;
+
+	[Parameter]
+	public SnackbarLocation Location { get; set; } = SnackbarLocation.BottomEnd;
+
+	[Parameter]
+	public int DefaultDelay { get; set; } = 5000;
+
+	[Parameter]
+	public EventCallback<SnackbarClosedEventArgs> Closed { get; set; }
+
+	protected override Dictionary<string, object> BuildAttributes()
+	{
+		Dictionary<string, object> attributes = base.BuildAttributes();
+		var classes = "snackbar-stack position-fixed p-3";
+
+		classes += Location.Value switch
+		{
+			"top" => " top-0 start-50 translate-middle-x",
+			"top-start" => " top-0 start-0",
+			"top-end" => " top-0 end-0",
+			"bottom" => " bottom-0 start-50 translate-middle-x",
+			"bottom-start" => " bottom-0 start-0",
+			"bottom-end" => " bottom-0 end-0",
+			_ => " bottom-0 end-0"
+		};
+
+		AppendToClassAttr(attributes, classes);
+		attributes["style"] = "z-index: 1055;";
+
+		return attributes;
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender && !_isInitialized)
+		{
+			await SnackbarInterop.Initialize();
+			_isInitialized = true;
+		}
+
+		await base.OnAfterRenderAsync(firstRender);
+	}
+
+	/// <summary>
+	/// Pushes the message to the stack to be shown as a snackbar.
+	/// </summary>
+	/// <param name="message">Message text.</param>
+	/// <param name="color">Message color.</param>
+	/// <param name="options">Additional message options.</param>
+	/// <returns>Returns awaitable task.</returns>
+	public async ValueTask Push(string message, CssValue<ColorBuilder>? color = null, Action<SnackbarOptions>? options = null)
+	{
+		await Push(message, null, color, options);
+	}
+
+	/// <summary>
+	/// Pushes custom content to the stack to be shown as a snackbar.
+	/// </summary>
+	/// <param name="content">Custom content template.</param>
+	/// <param name="color">Message color.</param>
+	/// <param name="options">Additional message options.</param>
+	/// <returns>Returns awaitable task.</returns>
+	public async ValueTask Push(RenderFragment content, CssValue<ColorBuilder>? color = null, Action<SnackbarOptions>? options = null)
+	{
+		await Push(null, content, color, options);
+	}
+
+	/// <summary>
+	/// Internal method to push snackbar with either message or content.
+	/// </summary>
+	private async ValueTask Push(string? message, RenderFragment? content, CssValue<ColorBuilder>? color, Action<SnackbarOptions>? options)
+	{
+		var snackbarOptions = new SnackbarOptions();
+		options?.Invoke(snackbarOptions);
+
+		var item = new SnackbarNotificationItem(snackbarOptions.Key ?? Guid.NewGuid()
+				.ToString(), message ?? "", null, // No title in simplified version
+			color ?? Color.Primary, content, // Use the content template
+			false, // No close button in simplified version
+			null, // No close text
+			false, // No action button in simplified version
+			null, // No action text
+			snackbarOptions.HideDelay);
+
+		_notifications.Add(item);
+		await InvokeAsync(StateHasChanged);
+
+		// Set up auto-hide timer if delay is specified
+		int delay = item.HideDelay ?? DefaultDelay;
+		if (delay > 0)
+		{
+			var timer = new Timer(delay);
+			timer.Elapsed += async (sender, e) =>
+			{
+				timer.Stop();
+				timer.Dispose();
+				await HandleClosed(item.Key, SnackbarCloseReason.None);
+			};
+			timer.Start();
+			_autoHideTimers[item.Key] = timer;
+		}
+	}
+
+	private async Task HandleClosed(string key, SnackbarCloseReason reason)
+	{
+		// Cancel auto-hide timer if it exists
+		if (_autoHideTimers.TryGetValue(key, out Timer? timer))
+		{
+			timer.Dispose();
+			_autoHideTimers.Remove(key);
+		}
+
+		_notifications.RemoveAll(x => x.Key == key);
+		await InvokeAsync(StateHasChanged);
+		await Closed.InvokeAsync(new SnackbarClosedEventArgs(key, reason));
+	}
+
+	public override void Dispose()
+	{
+		foreach (Timer timer in _autoHideTimers.Values)
+		{
+			timer.Dispose();
+		}
+
+		_autoHideTimers.Clear();
+	}
+
+}

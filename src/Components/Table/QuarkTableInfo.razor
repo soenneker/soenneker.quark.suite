@@ -1,0 +1,42 @@
+@inherits Element
+
+@if (ShowInfo)
+{
+    <Div Class="quark-table-info" @attributes="BuildAttributes()">
+        @if (ChildContent != null)
+        {
+            @ChildContent
+        }
+        else
+        {
+            <Span>@StartRecord-@EndRecord of @TotalRecords</Span>
+        }
+    </Div>
+}
+
+@code {
+    public override string? ThemeKey { get; set; } = "QuarkTableInfo";
+
+    [CascadingParameter]
+    private IQuarkTable? QuarkTable { get; set; }
+
+    [Parameter]
+    public bool ShowInfo { get; set; } = true;
+
+    [Parameter]
+    public int CurrentPage { get; set; } = 1;
+
+    [Parameter]
+    public int TotalRecords { get; set; }
+
+    [Parameter]
+    public int PageSize { get; set; } = 10;
+
+    // Computed properties that use QuarkTable values when available
+    private int ComputedCurrentPage => QuarkTable?.CurrentPage ?? CurrentPage;
+    private int ComputedTotalRecords => QuarkTable?.TotalRecordsCount ?? TotalRecords;
+    private int ComputedPageSize => QuarkTable?.PageSize ?? PageSize;
+
+    private int StartRecord => (ComputedCurrentPage - 1) * ComputedPageSize + 1;
+    private int EndRecord => Math.Min(ComputedCurrentPage * ComputedPageSize, ComputedTotalRecords);
+} 

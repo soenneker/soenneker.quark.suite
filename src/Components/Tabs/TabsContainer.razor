@@ -1,0 +1,46 @@
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Colors
+@inherits Soenneker.Quark.Element
+
+<Div Class="nav" @attributes="BuildAttributes()" >
+    @ChildContent
+</Div>
+
+@code {
+	public override string? ThemeKey { get; set; } = "Tabs";
+
+    [Parameter]
+    public CssValue<ColorBuilder> Color { get; set; } = Builders.Colors.Color.Primary;
+
+    [Parameter]
+    public bool Pills { get; set; }
+
+    [Parameter]
+    public bool Vertical { get; set; }
+
+    [Parameter]
+    public bool Justified { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+
+        AppendToClassAttr(attributes, "nav");
+
+        var baseClasses = "nav-tabs";
+
+        if (Pills)
+            baseClasses = "nav-pills";
+
+        AppendToClassAttr(attributes, baseClasses);
+
+        if (Vertical)
+            AppendToClassAttr(attributes, "flex-column");
+
+        if (Justified)
+            AppendToClassAttr(attributes, "nav-justified");
+
+        return attributes;
+    }
+
+}

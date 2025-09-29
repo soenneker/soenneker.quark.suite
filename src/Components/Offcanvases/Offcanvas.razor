@@ -1,0 +1,263 @@
+@using System.Threading
+@using Microsoft.AspNetCore.Components.Web
+@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Quark.Enums
+
+@inherits Soenneker.Quark.Element
+@inject IOffcanvasInterop OffcanvasInterop
+
+<CascadingValue Value="@this" IsFixed="true" >
+    <Div id="@Id" Class="@GetOffcanvasClasses()" Style="@GetOffcanvasStyles()" tabindex="-1" role="dialog" aria-modal="true" @attributes="BuildAttributes()" >
+        @ChildContent
+    </Div>
+    @if (ShowBackdrop && _backdropVisible)
+    {
+        <Div Class="@GetBackdropClass()" OnClick="HandleBackdropClick" ></Div>
+    }
+</CascadingValue>
+
+@code {
+    public override string? ThemeKey { get; set; } = "Offcanvas";
+
+    private static readonly TimeSpan _transitionDuration = TimeSpan.FromMilliseconds(350);
+
+    [Parameter]
+    public PlacementType Placement { get; set; } = PlacementType.End;
+
+    [Parameter]
+    public bool AllowScroll { get; set; }
+
+    [Parameter]
+    public bool ShowBackdrop { get; set; } = true;
+
+    [Parameter]
+    public EventCallback OnShow { get; set; }
+
+    [Parameter]
+    public EventCallback OnHide { get; set; }
+
+    [Parameter]
+    public EventCallback OnBackdropClick { get; set; }
+
+    private bool _initialized;
+    private bool _active;
+    private bool _isShowing;
+    private bool _isHiding;
+    private bool _backdropVisible;
+    private CancellationTokenSource? _transitionCancellation;
+    private readonly string _generatedId = $"offcanvas-{Guid.NewGuid():N}";
+
+    protected override void OnInitialized()
+    {
+        // Ensure we have a stable id to register with interop
+        Id ??= _generatedId;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_initialized)
+        {
+            await OffcanvasInterop.Initialize();
+            await OffcanvasInterop.Create(Id!);
+            _initialized = true;
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private string GetOffcanvasClasses()
+    {
+        var cls = "offcanvas";
+
+        switch (Placement.Value)
+        {
+            case PlacementType.StartValue:
+                cls += " offcanvas-start";
+                break;
+            case PlacementType.EndValue:
+                cls += " offcanvas-end";
+                break;
+            case PlacementType.TopValue:
+                cls += " offcanvas-top";
+                break;
+            case PlacementType.BottomValue:
+                cls += " offcanvas-bottom";
+                break;
+        }
+
+        cls += " quark-offcanvas quark-offcanvas-shadow";
+
+        if (_isShowing)
+            cls += " showing";
+
+        if (_active)
+            cls += " show";
+
+        if (_isHiding)
+            cls += " hiding";
+
+        if (!string.IsNullOrEmpty(Class))
+            cls += $" {Class}";
+
+        return cls;
+    }
+
+    private string GetOffcanvasStyles() => Style ?? string.Empty;
+
+    private string GetBackdropClass() => (_active || _isShowing) ? "offcanvas-backdrop fade show" : "offcanvas-backdrop fade";
+
+    public async Task Show()
+    {
+        if (_active || _isShowing)
+            return;
+
+        var token = StartNewTransition();
+
+        _isHiding = false;
+        _isShowing = true;
+        _backdropVisible = true;
+
+        if (!AllowScroll)
+        {
+            try
+            {
+                await OffcanvasInterop.Open(Id!, token);
+            }
+            catch
+            {
+                /* ignore */
+            }
+        }
+
+        await InvokeAsync(StateHasChanged);
+        await Task.Yield();
+
+        _active = true;
+        await InvokeAsync(StateHasChanged);
+
+        await FinalizeTransitionAsync(() =>
+        {
+            _isShowing = false;
+            return Task.CompletedTask;
+        }, OnShow, token);
+    }
+
+    public async Task Hide()
+    {
+        if (!_active && !_isShowing)
+            return;
+
+        var token = StartNewTransition();
+
+        _isShowing = false;
+        _isHiding = true;
+        _active = false;
+
+        await InvokeAsync(StateHasChanged);
+
+        await FinalizeTransitionAsync(async () =>
+        {
+            _isHiding = false;
+            _backdropVisible = false;
+
+            if (!AllowScroll)
+            {
+                try
+                {
+                    await OffcanvasInterop.Close(Id!, token);
+                }
+                catch
+                {
+                    /* ignore */
+                }
+            }
+        }, OnHide, token);
+    }
+
+    public Task RequestClose() => Hide();
+
+    private async Task HandleBackdropClick(MouseEventArgs _)
+    {
+        if (OnBackdropClick.HasDelegate)
+            await OnBackdropClick.InvokeAsync();
+        await Hide();
+    }
+
+    private CancellationToken StartNewTransition()
+    {
+        CancelActiveTransition();
+        _transitionCancellation = new CancellationTokenSource();
+        return _transitionCancellation.Token;
+    }
+
+    private void CancelActiveTransition()
+    {
+        if (_transitionCancellation is null)
+            return;
+
+        if (!_transitionCancellation.IsCancellationRequested)
+        {
+            try
+            {
+                _transitionCancellation.Cancel();
+            }
+            catch
+            {
+            }
+        }
+
+        _transitionCancellation.Dispose();
+        _transitionCancellation = null;
+    }
+
+    private void ClearTransitionCancellation()
+    {
+        if (_transitionCancellation is null)
+            return;
+
+        _transitionCancellation.Dispose();
+        _transitionCancellation = null;
+    }
+
+    private async Task FinalizeTransitionAsync(Func<Task> transitionComplete, EventCallback callback, CancellationToken token)
+    {
+        try
+        {
+            await Task.Delay(_transitionDuration, token);
+        }
+        catch (TaskCanceledException)
+        {
+            return;
+        }
+
+        ClearTransitionCancellation();
+
+        await InvokeAsync(async () =>
+        {
+            await transitionComplete();
+            StateHasChanged();
+        });
+
+        await callback.InvokeIfHasDelegate();
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (_initialized && !string.IsNullOrEmpty(Id))
+            {
+                // Ensure global overlay count is balanced if component is torn down while open
+                if (!_backdropVisible && _active) _active = false;
+                await OffcanvasInterop.Destroy(Id!);
+            }
+        }
+        catch
+        {
+            /* ignore */
+        }
+
+        CancelActiveTransition();
+    }
+
+}

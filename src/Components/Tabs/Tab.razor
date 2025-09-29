@@ -1,0 +1,53 @@
+@using Soenneker.Quark.Enums
+
+@inherits Soenneker.Quark.Element
+
+<UnorderedListItem @attributes="BuildAttributes()" >
+    <Button
+        Class="@ButtonClass"
+        Type="@ButtonType.Button"
+        @attributes="BuildButtonAttributes()" >
+        @ChildContent
+    </Button>
+</UnorderedListItem>
+
+@code {
+    public override string? ThemeKey { get; set; } = "Tab";
+
+    [Parameter]
+    public string? Target { get; set; }
+
+    [Parameter]
+    public bool Active { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    // ✅ Avoid mixed markup/C# in the attribute by precomputing
+    private string ButtonClass => Active ? "nav-link active" : "nav-link";
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+
+        attributes["role"] = "presentation";
+
+        string baseClasses = Disabled ? "nav-item disabled" : "nav-item";
+        AppendToClassAttr(attributes, baseClasses);
+
+        return attributes;
+    }
+
+    private IReadOnlyDictionary<string, object> BuildButtonAttributes()
+    {
+        return new Dictionary<string, object>
+        {
+            ["role"] = "tab",
+            ["data-bs-toggle"] = "tab",
+            ["data-bs-target"] = $"#{Target}",
+            ["aria-controls"] = Target ?? string.Empty,
+            ["aria-selected"] = Active ? "true" : "false"
+        };
+    }
+
+}

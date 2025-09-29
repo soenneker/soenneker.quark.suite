@@ -1,0 +1,617 @@
+﻿:root {
+    /* Core tones */
+    --qt-bg: #212429; /* main page bg */
+    --qt-surface: #26292f; /* table surface */
+    --qt-surface-2: #26292f; /* header surface – matches table */
+    --qt-border: #343a40; /* separators */
+    --qt-row-alt: #24272d; /* zebra alt */
+    --qt-hover: #33373f; /* row/btn hover */
+    /* Content colours */
+    --qt-text: #e9ecef; /* body text */
+    --qt-muted: #adb5bd; /* subdued */
+    --qt-heading: #ffffff; /* headings */
+    /* Accent / states (still gray, but lighter) */
+    --qt-accent: #6c757d; /* active, selected */
+    --qt-accent-hover: #868e96; /* accent hover */
+    --qt-focus-ring: rgba(173,181,189,.35);
+}
+
+/*------------------------------------------------*
+  Layout wrapper + root table element
+*------------------------------------------------*/
+.quark-table-wrapper {
+    position: relative;
+    width: 100%;
+    font: 400 0.875rem/1.4 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color: var(--qt-text);
+    background: var(--qt-bg);
+    padding: .25rem;
+    animation: qt-fade-in .25s ease-out;
+}
+
+.quark-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--qt-border);
+    border-radius: .375rem;
+    overflow: hidden;
+    background: var(--qt-surface);
+    box-shadow: 0 2px 4px rgba(0,0,0,.25);
+}
+
+/*------------------------------------------------*
+  Search positioning
+*------------------------------------------------*/
+.quark-table-with-search {
+    position: relative;
+}
+
+.quark-table-search {
+    /* reset any absolute positioning that QuarkTable injects */
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    z-index: auto !important;
+    display: flex;
+    align-items: center;
+    gap: .375rem;
+    flex: 1 1 16rem;
+}
+
+.quark-table-with-search .quark-table-search,
+.quark-table-with-search thead:first-child .quark-table-search {
+    background: var(--qt-surface-2);
+    padding: .75rem;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.quark-table-with-search thead:first-child .quark-table-search {
+    position: relative;
+    z-index: 1;
+}
+
+.quark-table-with-search .quark-table {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    margin-top: 0;
+}
+
+/* search row helpers */
+.quark-table-search-row,
+.quark-table-search-cell {
+    background: var(--qt-surface-2);
+    border-bottom: 1px solid var(--qt-border);
+}
+
+.quark-table-search-cell {
+    padding: .75rem;
+    border: none;
+}
+
+/*------------------------------------------------*
+  Head cells
+*------------------------------------------------*/
+.quark-table th {
+    padding: .5rem .75rem;
+    background: var(--qt-surface-2);
+    color: var(--qt-heading);
+    font-weight: 600;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--qt-border);
+    user-select: none;
+}
+
+    .quark-table th.quark-table-sortable {
+        position: relative;
+        cursor: pointer;
+        transition: background .15s;
+    }
+
+        .quark-table th.quark-table-sortable:hover {
+            background: var(--qt-hover);
+        }
+
+        .quark-table th.quark-table-sortable::after {
+            content: "";
+            font-size: .65em;
+            margin-left: .3rem;
+            color: var(--qt-muted);
+        }
+
+    .quark-table th.quark-table-sorted-asc::after {
+        content: "\2191";
+        color: var(--qt-accent);
+    }
+
+    .quark-table th.quark-table-sorted-desc::after {
+        content: "\2193";
+        color: var(--qt-accent);
+    }
+
+/*------------------------------------------------*
+  Body rows & cells
+*------------------------------------------------*/
+.quark-table td {
+    padding: .5rem .75rem;
+    border-bottom: 1px solid var(--qt-border);
+}
+
+.quark-table tbody tr:nth-child(even) {
+    background: var(--qt-row-alt);
+}
+
+.quark-table tbody tr {
+    transition: background .15s;
+}
+
+    .quark-table tbody tr:hover {
+        background: var(--qt-hover);
+    }
+
+    .quark-table tbody tr.selected {
+        background: var(--qt-accent);
+        color: var(--qt-heading);
+    }
+
+/*------------------------------------------------*
+  Bottom-bar & legacy controls
+*------------------------------------------------*/
+.quark-table-bottombar,
+.quark-table-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    align-items: center;
+    padding: .5rem;
+    background: var(--qt-surface-2);
+}
+
+.quark-table-bottombar {
+    justify-content: space-between;
+}
+
+.quark-table-controls {
+    border-top: 1px solid var(--qt-border);
+    border-radius: 0 0 .375rem .375rem;
+}
+
+    /* layout modifiers */
+    .quark-table-bottombar.InfoLeftPaginationRight,
+    .quark-table-controls.InfoLeftPaginationRight {
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .quark-table-bottombar.InfoRightPaginationLeft,
+    .quark-table-controls.InfoRightPaginationLeft {
+        flex-direction: row-reverse;
+        gap: 1rem;
+    }
+
+    .quark-table-bottombar.Centered,
+    .quark-table-controls.Centered {
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .quark-table-bottombar.Stacked,
+    .quark-table-controls.Stacked {
+        flex-direction: column;
+        gap: .75rem;
+        align-items: center;
+    }
+
+    /* helper children */
+    .quark-table-bottombar .quark-table-info,
+    .quark-table-controls .quark-table-info,
+    .quark-table-bottombar .quark-table-pagination,
+    .quark-table-controls .quark-table-pagination {
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+/*------------------------------------------------*
+  Search input
+*------------------------------------------------*/
+.quark-table-search-input {
+    flex: 1;
+    padding: .375rem .5rem;
+    background: var(--qt-surface);
+    border: 1px solid var(--qt-border);
+    border-radius: .25rem;
+    color: var(--qt-text);
+    transition: border .15s,box-shadow .15s;
+}
+
+    .quark-table-search-input::placeholder {
+        color: var(--qt-muted);
+    }
+
+    .quark-table-search-input:focus {
+        outline: none;
+        border-color: var(--qt-accent);
+        box-shadow: 0 0 0 2px var(--qt-focus-ring);
+    }
+
+/*------------------------------------------------*
+  Page-size selector
+*------------------------------------------------*/
+.quark-table-page-size select {
+    min-width: 3.5rem;
+    padding: .25rem .375rem;
+    cursor: pointer;
+    background: var(--qt-surface);
+    color: var(--qt-text);
+    border: 1px solid var(--qt-border);
+    border-radius: .25rem;
+    transition: border .15s,box-shadow .15s;
+}
+
+    .quark-table-page-size select:focus {
+        outline: none;
+        border-color: var(--qt-accent);
+        box-shadow: 0 0 0 2px var(--qt-focus-ring);
+    }
+
+/*------------------------------------------------*
+  Pagination footer
+*------------------------------------------------*/
+.quark-table-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    border: none;
+}
+
+.quark-table-info {
+    color: var(--qt-muted);
+    font: .875rem/1.5 system-ui;
+    font-weight: 500;
+    padding: .25rem 0;
+}
+
+.quark-table-pagination-controls {
+    display: flex;
+    gap: .25rem;
+    align-items: center;
+}
+
+.quark-table-pagination-btn {
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0 .75rem;
+    border: 1px solid var(--qt-border);
+    background: var(--qt-surface);
+    color: var(--qt-text);
+    border-radius: .375rem;
+    cursor: pointer;
+    transition: all .15s;
+    font: .875rem/2rem system-ui;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .quark-table-pagination-btn:hover:not([disabled]) {
+        background: var(--qt-hover);
+        border-color: var(--qt-accent);
+    }
+
+    .quark-table-pagination-btn:active:not([disabled]) {
+        background: var(--qt-accent);
+    }
+
+    .quark-table-pagination-btn.active {
+        background: var(--qt-accent);
+        border-color: var(--qt-accent);
+        color: var(--qt-heading);
+    }
+
+    .quark-table-pagination-btn[disabled] {
+        opacity: .5;
+        cursor: not-allowed;
+        background: var(--qt-surface);
+        border-color: var(--qt-border);
+    }
+
+/*------------------------------------------------*
+  Loader & loading states
+*------------------------------------------------*/
+.quark-table-loader,
+.quark-table-with-search .quark-table-loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+}
+
+.quark-table-with-search .quark-table-loader {
+    pointer-events: none;
+}
+
+    .quark-table-with-search .quark-table-loader .quark-table-loader-overlay {
+        pointer-events: auto;
+    }
+
+.quark-table-loader-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background: rgba(38,41,47,.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: .5rem;
+    backdrop-filter: blur(2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,.3);
+    padding: 1.5rem;
+    min-width: 120px;
+    min-height: 80px;
+}
+
+.quark-table-spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 2px solid var(--qt-border);
+    border-top: 2px solid var(--qt-accent);
+    border-radius: 50%;
+    animation: quark-table-spin 1s linear infinite;
+}
+
+@keyframes quark-table-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.quark-table-loading-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    color: var(--qt-muted);
+    background: var(--qt-surface);
+    border-radius: .375rem;
+    min-height: 8rem;
+}
+
+/*------------------------------------------------*
+  Responsive
+*------------------------------------------------*/
+.quark-table-responsive {
+    overflow-x: auto;
+    border-radius: .375rem;
+}
+
+@media(max-width:640px) {
+    .quark-table-controls,
+    .quark-table-pagination {
+        flex-direction: column;
+        gap: .5rem;
+        align-items: stretch;
+    }
+
+    .quark-table-search {
+        flex: 1 1 100%;
+    }
+
+    .quark-table-page-size {
+        align-self: flex-start;
+    }
+}
+
+/* custom scrollbar */
+.quark-table-responsive::-webkit-scrollbar {
+    height: .5rem;
+}
+
+.quark-table-responsive::-webkit-scrollbar-track {
+    background: var(--qt-surface);
+    border-radius: .25rem;
+}
+
+.quark-table-responsive::-webkit-scrollbar-thumb {
+    background: var(--qt-border);
+    border-radius: .25rem;
+}
+
+    .quark-table-responsive::-webkit-scrollbar-thumb:hover {
+        background: var(--qt-accent);
+    }
+
+/*------------------------------------------------*
+  Prefers-reduced-motion
+*------------------------------------------------*/
+@media(prefers-reduced-motion:reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}
+
+/*------------------------------------------------*
+  Print
+*------------------------------------------------*/
+@media print {
+    .quark-table-controls,
+    .quark-table-pagination {
+        display: none;
+    }
+
+    .quark-table {
+        border: 1px solid #000;
+        box-shadow: none;
+    }
+
+        .quark-table th,
+        .quark-table td {
+            border: 1px solid #000;
+        }
+
+        .quark-table th {
+            background: #f0f0f0 !important;
+        }
+}
+
+/*------------------------------------------------*
+  TopBar
+*------------------------------------------------*/
+.quark-table-topbar-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.quark-table-topbar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--qt-surface-2);
+    border-bottom: none;
+    margin: 0;
+}
+
+.quark-table-topbar-left {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.quark-table-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin-left: auto;
+}
+
+.quark-table-bar-controls {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.quark-table-topbar-left .quark-table-search {
+    flex: 1;
+    max-width: 400px;
+}
+
+/*------------------------------------------------*
+  Left and Right positioning for bars
+*------------------------------------------------*/
+.quark-table-left {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.quark-table-right {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin-left: auto;
+}
+
+/* When only right is present in bottom bar, position it to the right */
+.quark-table-bottombar.only-right {
+    justify-content: flex-end;
+}
+
+/* When only left is present in top bar, position it to the right */
+.quark-table-topbar.only-left {
+    justify-content: flex-end;
+}
+
+@media(max-width:640px) {
+    .quark-table-topbar,
+    .quark-table-bottombar {
+        flex-direction: column;
+        gap: .75rem;
+        align-items: stretch;
+    }
+
+    .quark-table-left,
+    .quark-table-right,
+    .quark-table-topbar-left,
+    .quark-table-topbar-right {
+        flex: 1 1 100%;
+        justify-content: center;
+    }
+
+        .quark-table-left .quark-table-search,
+        .quark-table-topbar-left .quark-table-search {
+            max-width: none;
+        }
+}
+
+/*------------------------------------------------*
+  No-data component
+*------------------------------------------------*/
+.quark-table-no-data {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 1rem;
+    background: var(--qt-surface);
+    border: 1px solid var(--qt-border);
+    border-radius: .375rem;
+    margin: .5rem 0;
+}
+
+.quark-table-no-data-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+    max-width: 400px;
+}
+
+.quark-table-no-data-icon {
+    color: var(--qt-muted);
+    opacity: .6;
+}
+
+.quark-table-no-data-text h4 {
+    margin: 0;
+    color: var(--qt-heading);
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.quark-table-no-data-text p {
+    margin: 0;
+    color: var(--qt-muted);
+    font-size: .875rem;
+    line-height: 1.5;
+}
+
+/*------------------------------------------------*
+  Fade-in animation keyframes
+*------------------------------------------------*/
+@keyframes qt-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-.5rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

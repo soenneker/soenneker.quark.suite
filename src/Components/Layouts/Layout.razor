@@ -1,0 +1,68 @@
+@inherits Soenneker.Quark.Element
+
+<CascadingValue Value="@this" IsFixed="true" >
+    <Div @attributes="BuildAttributes()" >
+        @if (Loading)
+        {
+            @if (LoadingTemplate is not null)
+            {
+                @LoadingTemplate
+            }
+            else
+            {
+                <Div class="@GetLoadingClass()" ></Div>
+            }
+        }
+        @ChildContent
+    </Div>
+</CascadingValue>
+
+@code {
+    public override string? ThemeKey { get; set; } = "Layout";
+
+    [Parameter]
+    public bool HasSider { get; set; }
+
+    [Parameter]
+    public bool Loading { get; set; }
+
+    [Parameter]
+    public string? LoadingClass { get; set; }
+
+    [Parameter]
+    public RenderFragment? LoadingTemplate { get; set; }
+
+    private bool _initialized;
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+
+        const string baseClasses = "d-flex flex-column min-vh-100";
+        AppendToClassAttr(attributes, baseClasses);
+
+        if (HasSider)
+            AppendToClassAttr(attributes, "flex-row");
+
+        // a11y: reflect busy state when loading overlay shown
+        SetOrRemove(attributes, "aria-busy", Loading, "true");
+
+        return attributes;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_initialized)
+        {
+            _initialized = true;
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private string GetLoadingClass()
+    {
+        return string.IsNullOrWhiteSpace(LoadingClass) ? "position-fixed top-0 start-0 w-100 h-100 bg-body bg-opacity-75" : LoadingClass!;
+    }
+
+}

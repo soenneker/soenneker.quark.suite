@@ -1,0 +1,33 @@
+@inherits Soenneker.Quark.Element
+
+<Div Class="dropdown-menu" @attributes="BuildAttributes()" >
+    @ChildContent
+</Div>
+
+@code {
+	public override string? ThemeKey { get; set; } = "BarDropdownMenu";
+
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public bool RightAligned { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+
+        var baseClass = "dropdown-menu";
+        
+        if (Visible)
+            baseClass = $"{baseClass} show";
+
+        if (RightAligned)
+            baseClass = $"{baseClass} dropdown-menu-end";
+
+        AppendToClassAttr(attributes, baseClass);
+
+        return attributes;
+    }
+
+}

@@ -1,0 +1,289 @@
+@using System.Text.RegularExpressions
+@using System.Linq.Expressions
+@using System.Threading
+@using Microsoft.AspNetCore.Components.Forms
+@using Soenneker.Extensions.String
+
+<CascadingValue Value="@this" IsFixed>
+    @ChildContent
+</CascadingValue>
+
+@implements IValidation
+
+@code {
+    private IValidationInput? _input;
+    private object? _lastKnownValue;
+    private string? _patternString;
+    private Regex? _pattern;
+    private bool _hasPattern;
+    private bool _initialized;
+    private FieldIdentifier _fieldIdentifier;
+    private bool _hasFieldIdentifier;
+    private CancellationTokenSource? _cts;
+
+    [CascadingParameter]
+    public ValidationsContainer? ParentValidations { get; set; }
+
+    [CascadingParameter]
+    public EditContext? EditContext { get; set; }
+
+    [Parameter]
+    public ValidationStatus Status { get; set; } = ValidationStatus.None;
+
+    [Parameter]
+    public EventCallback<ValidationStatus> StatusChanged { get; set; }
+
+    [Parameter]
+    public IQuarkValidator? Validator { get; set; }
+
+    [Parameter]
+    public Action<ValidatorEventArgs>? Action { get; set; }
+
+    [Parameter]
+    public Func<ValidatorEventArgs, CancellationToken, Task>? AsyncFunc { get; set; }
+
+    [Parameter]
+    public Func<string, IEnumerable<string>, string>? MessageLocalizer { get; set; }
+
+    [Parameter]
+    public bool UsePattern { get; set; }
+
+    [Parameter]
+    public string? PatternString { get; set; }
+
+    [Parameter]
+    public Type? HandlerType { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    public IEnumerable<string>? Messages { get; private set; }
+
+    public FieldIdentifier FieldIdentifier => _fieldIdentifier;
+
+    public Regex? Pattern => _pattern;
+
+    protected override Task OnInitializedAsync()
+    {
+        if (ParentValidations is not null)
+        {
+            ParentValidations.ClearingAll += OnClearingAll;
+            ParentValidations.NotifyValidationInitialized(this);
+        }
+
+        return base.OnInitializedAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        if (PatternString.HasContent())
+        {
+            await InitializeInputPattern(PatternString, string.Empty);
+        }
+    }
+
+    public void Dispose()
+    {
+        if (ParentValidations is not null)
+        {
+            ParentValidations.ClearingAll -= OnClearingAll;
+            ParentValidations.NotifyValidationRemoved(this);
+        }
+
+        _cts?.Dispose();
+        _cts = null;
+    }
+
+    public async Task InitializeInput(IValidationInput input)
+    {
+        _input = input;
+        _lastKnownValue = input.ValidationValue;
+
+        if ((ParentValidations?.Mode ?? ValidationMode.Auto) == ValidationMode.Auto && (ParentValidations?.ValidateOnLoad ?? false))
+        {
+            await ValidateAsync(input.ValidationValue!);
+        }
+
+        _initialized = true;
+    }
+
+    public async Task InitializeInputPattern<T>(string pattern, T value)
+    {
+        _lastKnownValue = value;
+
+        if (pattern.HasContent())
+        {
+            if (!_hasPattern || _patternString != pattern)
+            {
+                _patternString = pattern;
+                _pattern = new Regex(pattern);
+
+                if (_hasPattern && (ParentValidations?.Mode ?? ValidationMode.Auto) == ValidationMode.Auto && (ParentValidations?.ValidateOnLoad ?? false) &&
+                    _initialized)
+                {
+                    await NotifyInputChanged(value, true);
+                }
+            }
+
+            _hasPattern = true;
+        }
+    }
+
+    public async Task InitializeInputExpression<T>(Expression<Func<T>> expression)
+    {
+        if ((ParentValidations is not null || EditContext is not null) && expression is not null)
+        {
+            if (!_hasFieldIdentifier || (ParentValidations?.Model is not null && !ReferenceEquals(ParentValidations.Model, _fieldIdentifier.Model)) ||
+                (EditContext?.Model is not null && !ReferenceEquals(EditContext.Model, _fieldIdentifier.Model)))
+            {
+                _fieldIdentifier = FieldIdentifier.Create(expression);
+                _lastKnownValue = expression.Compile()
+                    .Invoke();
+
+                if (_hasFieldIdentifier && (ParentValidations?.Mode ?? ValidationMode.Auto) == ValidationMode.Auto &&
+                    (ParentValidations?.ValidateOnLoad ?? false) && _initialized)
+                {
+                    await NotifyInputChanged(expression.Compile()
+                        .Invoke(), true);
+                }
+
+                _hasFieldIdentifier = true;
+            }
+        }
+        else
+        {
+            _hasFieldIdentifier = false;
+        }
+    }
+
+    public Task NotifyInputChanged<T>(T newValue, bool overrideNewValue = false)
+    {
+        object? newValidationValue = overrideNewValue ? (object?)newValue : _input?.ValidationValue;
+        _lastKnownValue = newValidationValue;
+
+        if (EditContext is not null && _hasFieldIdentifier)
+        {
+            EditContext.NotifyFieldChanged(_fieldIdentifier);
+        }
+
+        if ((ParentValidations?.Mode ?? ValidationMode.Auto) == ValidationMode.Auto)
+        {
+            return ValidateAsync(newValidationValue!);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private void OnClearingAll()
+    {
+        Clear();
+    }
+
+    public ValidationStatus Validate()
+    {
+        object value = _input?.ValidationValue ?? _lastKnownValue ?? string.Empty;
+        return Validate(value);
+    }
+
+    public ValidationStatus Validate(object newValidationValue)
+    {
+        if (_input is not null && !_input.Disabled)
+        {
+            IValidationHandler? handler = GetValidationHandler();
+            handler?.Validate(this, newValidationValue);
+        }
+
+        return Status;
+    }
+
+    public Task<ValidationStatus> ValidateAsync()
+    {
+        object value = _input?.ValidationValue ?? _lastKnownValue ?? string.Empty;
+        return ValidateAsync(value);
+    }
+
+    public async Task<ValidationStatus> ValidateAsync(object newValidationValue)
+    {
+        if (_input is not null && !_input.Disabled)
+        {
+            if (_cts != null)
+            {
+                await _cts.CancelAsync();
+                _cts.Dispose();
+            }
+
+            _cts = new CancellationTokenSource();
+
+            CancellationToken token = _cts.Token;
+
+            try
+            {
+                IValidationHandler? handler = GetValidationHandler();
+                if (handler is not null)
+                {
+                    token.ThrowIfCancellationRequested();
+                    await handler.ValidateAsync(this, newValidationValue, token);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        return await Task.FromResult(Status);
+    }
+
+    private IValidationHandler? GetValidationHandler()
+    {
+        Type? type = DetermineHandlerType();
+        return type is not null ? ValidationHandlerFactory.Create(type) : null;
+    }
+
+    private Type? DetermineHandlerType()
+    {
+        if (HandlerType is null)
+        {
+            if (Validator is not null || Action is not null || AsyncFunc is not null)
+                return ValidationHandlerType.Validator;
+
+            if (UsePattern && _hasPattern)
+                return ValidationHandlerType.Pattern;
+
+            if (EditContext is not null && _hasFieldIdentifier)
+                return ParentValidations?.HandlerType ?? ValidationHandlerType.DataAnnotation;
+
+            throw new NotImplementedException("Unable to determine the validator type.");
+        }
+
+        return HandlerType;
+    }
+
+    public void Clear()
+    {
+        NotifyValidationStatusChanged(ValidationStatus.None);
+    }
+
+    public void NotifyValidationStarted()
+    {
+        ValidationStarted?.Invoke();
+    }
+
+    public void NotifyValidationStatusChanged(ValidationStatus status, IEnumerable<string>? messages = null)
+    {
+        if (Status != status || (Messages?.SequenceEqual(messages ?? Enumerable.Empty<string>()) == false))
+        {
+            Status = status;
+            Messages = messages;
+
+            ValidationStatusChanged?.Invoke(this, new ValidationStatusChangedEventArgs(status, messages));
+            InvokeAsync(StateHasChanged);
+            InvokeAsync(() => StatusChanged.InvokeAsync(status));
+            ParentValidations?.NotifyValidationStatusChanged(this);
+        }
+    }
+
+    public event Action? ValidationStarted;
+    public event EventHandler<ValidationStatusChangedEventArgs>? ValidationStatusChanged;
+}

@@ -1,0 +1,28 @@
+@inherits Soenneker.Quark.Element
+
+<strong @attributes="BuildAttributes()">
+    @ChildContent
+</strong>
+
+@code {
+    public override string? ThemeKey { get; set; } = "AlertMessage";
+
+    [CascadingParameter]
+    protected Alert? ParentAlert { get; set; }
+
+    protected override void OnInitialized()
+    {
+        ParentAlert?.NotifyHasMessage();
+        base.OnInitialized();
+    }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+        
+        // Apply notification message specific styling
+        AppendToClassAttr(attributes, "alert-message");
+        
+        return attributes;
+    }
+}

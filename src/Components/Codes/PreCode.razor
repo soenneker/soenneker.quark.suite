@@ -1,0 +1,98 @@
+@using Soenneker.Extensions.String
+@inherits Soenneker.Quark.Element
+
+<pre @attributes="BuildPreAttributes()">
+    <Code @attributes="BuildCodeAttributes()">
+        @ChildContent
+    </Code>
+</pre>
+
+@code {
+	public override string? ThemeKey { get; set; } = "PreCode";
+
+    [Parameter]
+    public string? Language { get; set; }
+
+    [Parameter]
+    public bool Highlight { get; set; } = true;
+
+    [Parameter]
+    public string? Theme { get; set; } = "default";
+
+    [Parameter]
+    public bool Scrollable { get; set; } = true;
+
+    protected virtual Dictionary<string, object> BuildPreAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+
+        // Add default Bootstrap classes for pre element
+        if (!Class.HasContent())
+        {
+            var baseClasses = "text-bg-light p-3 rounded";
+            
+            if (Scrollable)
+            {
+                baseClasses += " overflow-auto";
+            }
+
+            if (MaxHeight.HasValue)
+            {
+                attributes["style"] = $"max-height: {MaxHeight.Value}px;";
+            }
+
+            attributes["class"] = baseClasses;
+        }
+        else
+        {
+            string currentClass = Class;
+            
+            if (Scrollable && !currentClass.Contains("overflow-auto"))
+            {
+                currentClass = AppendToClass(currentClass, "overflow-auto");
+            }
+
+            attributes["class"] = currentClass;
+        }
+
+        // Add custom attributes
+        if (Attributes != null)
+        {
+            foreach (KeyValuePair<string, object> attribute in Attributes)
+            {
+                if (attribute.Key != "class" && attribute.Key != "style")
+                {
+                    attributes[attribute.Key] = attribute.Value;
+                }
+            }
+        }
+
+        return attributes;
+    }
+
+    protected virtual Dictionary<string, object> BuildCodeAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+
+        // Pass through Code component parameters
+        if (Language.HasContent())
+        {
+            attributes["Language"] = Language;
+        }
+
+        if (Theme.HasContent() && Theme != "default")
+        {
+            attributes["Theme"] = Theme;
+        }
+
+        if (Highlight)
+        {
+            attributes["Highlight"] = Highlight;
+        }
+
+        // Override the Inline parameter to false for code blocks
+        attributes["Inline"] = false;
+
+        return attributes;
+    }
+}

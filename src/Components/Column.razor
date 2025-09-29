@@ -1,0 +1,56 @@
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Abstract
+@using Soenneker.Quark.Builders.ColumnOffsets
+@using Soenneker.Quark.Builders.ColumnOrders
+@using Soenneker.Quark.Builders.ColumnSizes
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+	@ChildContent
+</div>
+
+@code {
+	public override string? ThemeKey { get; set; } = "Column";
+
+    [Parameter]
+    public CssValue<ColumnSizeBuilder>? ColumnSize { get; set; }
+
+    [Parameter]
+    public CssValue<ColumnOffsetBuilder>? ColumnOffset { get; set; }
+
+    [Parameter]
+    public CssValue<ColumnOrderBuilder>? ColumnOrder { get; set; }
+    
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Attributes = base.BuildAttributes();
+        
+        AppendToClassAttr(Attributes, "col");
+
+        // Add column-specific CSS values
+        AddColumnCss(ColumnSize);
+        AddColumnCss(ColumnOffset);
+        AddColumnCss(ColumnOrder);
+
+        return Attributes;
+    }
+
+    private void AddColumnCss<T>(CssValue<T>? cssValue) where T : class, ICssBuilder
+    {
+        if (cssValue is { IsEmpty: false })
+        {
+            var css = cssValue.Value.ToString();
+            if (!string.IsNullOrEmpty(css))
+            {
+                if (cssValue.Value.IsCssStyle)
+                {
+                    AppendStyleDeclAttr(Attributes, css);
+                }
+                else
+                {
+                    AppendToClassAttr(Attributes, css);
+                }
+            }
+        }
+    }
+}

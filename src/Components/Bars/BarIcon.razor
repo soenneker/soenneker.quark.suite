@@ -1,0 +1,29 @@
+@inherits Soenneker.Quark.Element
+
+<Div Class="b-bar-icon" @attributes="BuildAttributes()" >
+    @if (IconName is RenderFragment)
+    {
+        @(IconName as RenderFragment)
+    }
+    else if (IconName is string)
+    {
+        <Icon IconName="@(IconName as string)" />
+    }
+</Div>
+
+@code {
+    public override string? ThemeKey { get; set; } = "BarIcon";
+
+    [Parameter]
+    public object? IconName { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+
+        AppendToClassAttr(attributes, "b-bar-icon");
+
+        return attributes;
+    }
+
+}

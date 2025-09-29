@@ -1,0 +1,9 @@
+using Soenneker.Quark.Enums;
+
+namespace Soenneker.Quark.Builders.Transitions;
+
+/// <summary>
+/// Represents a single transition rule with optional BreakpointType.
+/// </summary>
+internal record TransitionRule(string Transition, BreakpointType? breakpoint = null);
+

@@ -1,0 +1,86 @@
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Colors
+@using Soenneker.Quark.Builders.Sizes
+
+@inherits Soenneker.Quark.Element
+
+<Span @attributes="BuildAttributes()" >
+    @ChildContent
+</Span>
+
+@code {
+	public override string? ThemeKey { get; set; } = "Badge";
+
+    [Parameter]
+    public BadgeType Type { get; set; } = BadgeType.Badge;
+
+    [Parameter]
+    public CssValue<ColorBuilder>? Color { get; set; }
+
+    [Parameter]
+    public CssValue<SizeBuilder>? Size { get; set; } = Builders.Sizes.Size.Default;
+
+    [Parameter]
+    public bool Rounded { get; set; }
+
+    private string? GetTypeClass()
+    {
+        if (Type == BadgeType.Pill)
+            return "rounded-pill";
+
+        if (Type == BadgeType.Dot)
+            return "badge-dot";
+
+        return null;
+    }
+
+    private string? GetColorClass()
+    {
+        if (Color is not null && !Color.Value.IsEmpty)
+        {
+            string colorValue = Color.Value.ToString();
+
+            if (!string.IsNullOrEmpty(colorValue))
+            {
+                return Color.Value.IsCssClass ? $"bg-{colorValue}" : null;
+            }
+        }
+
+        return null;
+    }
+
+    private string? GetSizeClass()
+    {
+        if (Size != null && !Size.Value.IsEmpty)
+            return $"badge-{Size.Value}";
+
+        return null;
+    }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+
+        var baseClasses = "badge";
+        string? typeClass = GetTypeClass();
+        string? colorClass = GetColorClass();
+        string? sizeClass = GetSizeClass();
+
+        if (typeClass != null)
+            baseClasses = $"{baseClasses} {typeClass}";
+
+        if (colorClass != null)
+            baseClasses = $"{baseClasses} {colorClass}";
+
+        if (sizeClass != null)
+            baseClasses = $"{baseClasses} {sizeClass}";
+
+        if (Rounded)
+            baseClasses = $"{baseClasses} rounded";
+
+        AppendToClassAttr(attributes, baseClasses);
+
+        return attributes;
+    }
+
+}

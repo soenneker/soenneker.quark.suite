@@ -1,0 +1,49 @@
+@using Soenneker.Extensions.String
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Colors
+@inherits Soenneker.Quark.Element
+
+@if (To.HasContent())
+{
+    <OrderedListItem Class="breadcrumb-item">
+        <Anchor To="@To" @attributes="BuildAttributes()">
+            @ChildContent
+        </Anchor>
+    </OrderedListItem>
+}
+else
+{
+    <OrderedListItem @attributes="BuildAttributes()">
+        @ChildContent
+    </OrderedListItem>
+}
+
+@code {
+    public override string? ThemeKey { get; set; } = "BreadcrumbItem";
+
+    [Parameter]
+    public string? To { get; set; }
+
+    [Parameter]
+    public bool Active { get; set; }
+
+    [Parameter]
+    public CssValue<ColorBuilder> Color { get; set; } = Builders.Colors.Color.Primary;
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+
+        var baseClasses = "breadcrumb-item";
+
+        if (Active)
+        {
+            baseClasses = $"{baseClasses} active";
+            attributes["aria-current"] = "page";
+        }
+
+        AppendToClassAttr(attributes, baseClasses);
+
+        return attributes;
+    }
+}

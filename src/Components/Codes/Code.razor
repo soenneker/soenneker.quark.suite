@@ -1,0 +1,76 @@
+@using Soenneker.Extensions.String
+@inherits Soenneker.Quark.Element
+
+<code @attributes="BuildAttributes()" >
+    @ChildContent
+</code>
+
+@code {
+	public override string? ThemeKey { get; set; } = "Code";
+
+    [Parameter]
+    public string? Language { get; set; }
+
+    [Parameter]
+    public bool Inline { get; set; } = false;
+
+    [Parameter]
+    public bool Highlight { get; set; } = true;
+
+    [Parameter]
+    public string? Theme { get; set; } = "default";
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Attributes = base.BuildAttributes();
+
+        // Add default Bootstrap classes for code display
+        if (!Class.HasContent())
+        {
+            if (Inline)
+            {
+                AppendToClassAttr(Attributes, "text-bg-light px-1 py-0 rounded");
+            }
+            else
+            {
+                AppendToClassAttr(Attributes, "d-block text-bg-light p-3 rounded");
+            }
+        }
+        else
+        {
+            // If class is specified, still add basic styling if not already present
+            string currentClass = Attributes.GetValueOrDefault("class")
+                ?.ToString() ?? "";
+
+            if (Inline && !currentClass.Contains("text-bg-light"))
+            {
+                AppendToClassAttr(Attributes, "text-bg-light px-1 py-0 rounded");
+            }
+            else if (!Inline && !currentClass.Contains("d-block"))
+            {
+                AppendToClassAttr(Attributes, "d-block text-bg-light p-3 rounded");
+            }
+        }
+
+        // Add language attribute for syntax highlighting
+        if (Language.HasContent())
+        {
+            Attributes["data-language"] = Language;
+        }
+
+        // Add theme attribute
+        if (Theme.HasContent() && Theme != "default")
+        {
+            Attributes["data-theme"] = Theme;
+        }
+
+        // Add highlight attribute
+        if (Highlight)
+        {
+            Attributes["data-highlight"] = "true";
+        }
+
+        return Attributes;
+    }
+
+}

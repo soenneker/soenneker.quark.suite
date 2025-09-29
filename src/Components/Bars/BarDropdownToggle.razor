@@ -1,0 +1,47 @@
+@using Microsoft.AspNetCore.Components.Web
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@inherits Soenneker.Quark.Element
+
+<Anchor @attributes="BuildAttributes()" OnClick="HandleToggle" role="button" tabindex="0">
+    @ChildContent
+</Anchor>
+
+@code {
+	public override string? ThemeKey { get; set; } = "BarDropdownToggle";
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnToggle { get; set; }
+
+    [Parameter]
+    public bool? Disabled { get; set; }
+
+    [Parameter]
+    public double Indentation { get; set; } = 1.5d;
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+
+        var baseClass = "dropdown-toggle";
+        
+        if (Disabled == true)
+            baseClass = $"{baseClass} disabled";
+
+        AppendToClassAttr(attributes, baseClass);
+
+        if (Disabled == true)
+            attributes["aria-disabled"] = "true";
+
+        return attributes;
+    }
+
+    private async Task HandleToggle(MouseEventArgs args)
+    {
+        if (Disabled != true)
+        {
+            await OnToggle.InvokeIfHasDelegate(args);
+        }
+    }
+
+}

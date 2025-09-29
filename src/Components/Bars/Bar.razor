@@ -1,0 +1,130 @@
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Colors
+@using Soenneker.Quark.Enums
+@inherits Soenneker.Quark.Element
+
+<nav @attributes="BuildAttributes()" >
+    @ChildContent
+</nav>
+
+@code {
+	public override string? ThemeKey { get; set; } = "Bar";
+
+    [Parameter]
+    public BarMode Mode { get; set; } = BarMode.Horizontal;
+
+    [Parameter]
+    public BarPlacement Placement { get; set; } = BarPlacement.Top;
+
+    [Parameter]
+    public CssValue<ColorBuilder> Color { get; set; } = Builders.Colors.Color.Light;
+
+    [Parameter]
+    public bool Expand { get; set; } = true;
+
+    [Parameter]
+    public bool Dark { get; set; }
+
+    [Parameter]
+    public bool Transparent { get; set; }
+
+    [Parameter]
+    public bool Visible { get; set; } = true;
+
+    [Parameter]
+    public BarCollapseMode CollapseMode { get; set; } = BarCollapseMode.Hide;
+
+    [Parameter]
+    public BarMenuToggleBehavior MenuToggleBehavior { get; set; } = BarMenuToggleBehavior.AllowMultipleMenus;
+
+    private string? GetModeClass()
+    {
+        return Mode.Value switch
+        {
+            BarMode.HorizontalValue => "navbar",
+            BarMode.VerticalPopoutValue => "navbar-vertical",
+            BarMode.VerticalInlineValue => "navbar-vertical",
+            BarMode.VerticalSmallValue => "navbar-vertical-small",
+            _ => "navbar"
+        };
+    }
+
+    private string? GetPlacementClass()
+    {
+        if (Placement == BarPlacement.Fixed)
+            return $"fixed-{Placement.Value}";
+
+        if (Placement == BarPlacement.Sticky)
+            return $"sticky-{Placement.Value}";
+
+        return null;
+    }
+
+    private string? GetColorClass()
+    {
+        if (Dark)
+            return "navbar-dark";
+
+        return "navbar-light";
+    }
+
+    private string? GetBackgroundClass()
+    {
+        if (Transparent)
+            return "bg-transparent";
+
+        var isClass = Color.TryGetBootstrapThemeToken(out string? token);
+
+        if (isClass)
+            return $"bg-{token}";
+
+        return null;
+    }
+
+    private string? GetCollapseClass()
+    {
+        if (!Visible)
+        {
+            return CollapseMode.Value switch
+            {
+                BarCollapseMode.HideValue => "navbar-hidden",
+                BarCollapseMode.SmallValue => "navbar-collapsed",
+                _ => "navbar-hidden"
+            };
+        }
+
+        return null;
+    }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+
+        string? baseClasses = GetModeClass();
+        string? placementClass = GetPlacementClass();
+        string? colorClass = GetColorClass();
+        string? backgroundClass = GetBackgroundClass();
+        string? collapseClass = GetCollapseClass();
+
+        if (placementClass != null)
+            baseClasses = $"{baseClasses} {placementClass}";
+
+        if (colorClass != null)
+            baseClasses = $"{baseClasses} {colorClass}";
+
+        if (backgroundClass != null)
+            baseClasses = $"{baseClasses} {backgroundClass}";
+
+        if (collapseClass != null)
+            baseClasses = $"{baseClasses} {collapseClass}";
+
+        if (Expand && Mode == BarMode.Horizontal)
+            baseClasses = $"{baseClasses} navbar-expand-lg";
+
+        if (baseClasses != null)
+            AppendToClassAttr(attributes, baseClasses);
+
+        return attributes;
+    }
+
+}

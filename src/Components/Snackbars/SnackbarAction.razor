@@ -1,0 +1,32 @@
+@using Microsoft.AspNetCore.Components.Web
+
+@inherits Soenneker.Quark.Element
+
+<Button @attributes="BuildAttributes()" @onclick:stopPropagation="true">
+	@ChildContent
+</Button>
+
+@code {
+	public override string? ThemeKey { get; set; } = "SnackbarAction";
+
+	protected override Dictionary<string, object> BuildAttributes()
+	{
+		// Start from base (already merged class/style there)
+		Dictionary<string, object> attrs = base.BuildAttributes();
+
+		// Merge class: ensure the Bootstrap close button token is present exactly once
+		attrs.TryGetValue("class", out object? classObj);
+		string cls = classObj?.ToString() ?? string.Empty;
+		cls = EnsureClass(cls, "btn-close");
+		if (cls.Length > 0)
+			attrs["class"] = cls;
+
+		// Default attributes (don't stomp user-provided values)
+		attrs.TryAdd("type", "button");
+
+		attrs.TryAdd("aria-label", "Close");
+
+		// Leave any "@onclick:stopPropagation" etc. intact so they flow through to the inner element
+		return attrs;
+	}
+}

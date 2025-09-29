@@ -1,0 +1,30 @@
+@inherits Element
+
+<Div Class="@($"quark-table-loader {(IsLoading ? "quark-table-loader-active" : "")}")" @attributes="BuildAttributes()">
+	@if (IsLoading)
+	{
+		@if (ChildContent != null)
+		{
+			@ChildContent
+		}
+		else
+		{
+			<Div Class="quark-table-loader-overlay" >
+				<Div Class="quark-table-loader-content">
+					<Div Class="quark-table-loader-default">
+						<Div Class="quark-table-spinner" ></Div>
+						<span>Loading...</span>
+					</Div>
+				</Div>
+			</Div>
+		}
+	}
+</Div>
+
+@code {
+	public override string? ThemeKey { get; set; } = "QuarkTableLoader";
+
+	[CascadingParameter(Name = "IsLoading")]
+	public bool IsLoading { get; set; }
+
+}

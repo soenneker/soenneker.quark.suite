@@ -1,0 +1,73 @@
+@using Soenneker.Extensions.String
+
+@inherits Soenneker.Quark.Element
+
+<Label @attributes="BuildAttributes()">
+    @ChildContent
+    @if (RequiredIndicator)
+    {
+        <Span Class="field-required">*</Span>
+    }
+</Label>
+
+@code {
+	public override string? ThemeKey { get; set; } = "FieldLabel";
+
+    private bool _requiredIndicator;
+
+    /// <summary>
+    /// Gets or sets the ID of an element that this label belongs to.
+    /// </summary>
+    [Parameter]
+    public string? For { get; set; }
+
+    /// <summary>
+    /// If defined, a required indicator will be shown next to the label.
+    /// </summary>
+    [Parameter]
+    public bool RequiredIndicator
+    {
+        get => _requiredIndicator;
+        set
+        {
+            _requiredIndicator = value;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// True if component is inside of a Field marked as horizontal.
+    /// </summary>
+    protected virtual bool IsHorizontal => ParentField?.Horizontal == true;
+
+    /// <summary>
+    /// Cascaded parent Field component.
+    /// </summary>
+    [CascadingParameter] protected Field? ParentField { get; set; }
+
+    protected override void OnInitialized()
+    {
+        ParentField?.RegisterChild(this);
+        base.OnInitialized();
+    }
+
+    protected override void OnDispose()
+    {
+        ParentField?.UnregisterChild(this);
+        base.OnDispose();
+    }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+
+        string baseClasses = IsHorizontal ? "col-form-label" : "form-label";
+
+        AppendToClassAttr(attributes, baseClasses);
+
+        if (For.HasContent())
+            attributes["for"] = For;
+
+        return attributes;
+    }
+}

@@ -1,0 +1,59 @@
+@inherits Element
+
+@if (_visible && _status == ValidationStatus.Error && (_messages?.Any() ?? false))
+{
+    <Div class="@($"alert alert-danger {Class}")" >
+        @foreach (string message in _messages!)
+        {
+            <Div>@message</Div>
+        }
+    </Div>
+}
+
+@code {
+    public override string? ThemeKey { get; set; } = "ValidationErrors";
+
+    [CascadingParameter]
+    public ValidationsContainer? ParentValidations { get; set; }
+
+    private bool _visible;
+    private ValidationStatus _status = ValidationStatus.None;
+    private IReadOnlyCollection<string>? _messages;
+
+    protected override void OnInitialized()
+    {
+        if (ParentValidations is not null)
+        {
+            ParentValidations._statusChanged += OnStatusChanged;
+            ParentValidations.ClearingAll += OnClearingAll;
+        }
+    }
+
+    private void OnStatusChanged(ValidationsStatusChangedEventArgs args)
+    {
+        _status = args.Status;
+        _messages = args.Messages;
+        _visible = args.Status != ValidationStatus.None;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnClearingAll()
+    {
+        _visible = false;
+        _status = ValidationStatus.None;
+        _messages = null;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+
+        if (ParentValidations is not null)
+        {
+            ParentValidations._statusChanged -= OnStatusChanged;
+            ParentValidations.ClearingAll -= OnClearingAll;
+        }
+    }
+
+}

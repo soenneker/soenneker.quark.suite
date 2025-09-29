@@ -1,0 +1,41 @@
+@using Microsoft.AspNetCore.Components.Web
+@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Quark.Enums
+
+@inherits Soenneker.Quark.Element
+
+<Button @attributes="BuildAttributes()" OnClick="HandleToggle" data-bs-toggle="collapse" data-bs-target="@Target" aria-controls="@Target" aria-expanded="false" aria-label="Toggle navigation">
+    <Span class="navbar-toggler-icon"></Span>
+</Button>
+
+@code {
+	public override string? ThemeKey { get; set; } = "BarToggler";
+
+    [Parameter]
+    public string? Target { get; set; }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnToggle { get; set; }
+
+    [Parameter]
+    public BarTogglerMode Mode { get; set; } = BarTogglerMode.Normal;
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+
+        var baseClass = "navbar-toggler";
+        
+        if (Mode == BarTogglerMode.Popout)
+            baseClass = $"{baseClass} navbar-toggler-popout";
+
+        AppendToClassAttr(attributes, baseClass);
+
+        return attributes;
+    }
+
+    private async Task HandleToggle(MouseEventArgs args)
+    {
+        await OnToggle.InvokeIfHasDelegate(args);
+    }
+}

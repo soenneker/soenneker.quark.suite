@@ -1,0 +1,49 @@
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Colors
+@using Soenneker.Quark.Builders.Sizes
+@using Soenneker.Quark.Enums
+
+@inherits Soenneker.Quark.Element
+
+<UnorderedList @attributes="BuildAttributes()">
+	@ChildContent
+</UnorderedList>
+
+@code {
+	public override string? ThemeKey { get; set; } = "Pagination";
+
+    [Parameter]
+    public CssValue<ColorBuilder> Color { get; set; } = Builders.Colors.Color.Primary;
+
+    [Parameter]
+    public CssValue<SizeBuilder>? Size { get; set; } = Builders.Sizes.Size.Default;
+
+    [Parameter]
+    public bool Vertical { get; set; }
+
+    private string? GetSizeClass()
+    {
+        if (Size != null && !Size.Value.IsEmpty)
+            return $"pagination-{Size.Value}";
+
+        return null;
+    }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+
+        var baseClasses = "pagination";
+        string? sizeClass = GetSizeClass();
+
+        if (sizeClass != null)
+            baseClasses = $"{baseClasses} {sizeClass}";
+
+        if (Vertical)
+            baseClasses = $"{baseClasses} flex-column";
+
+        AppendToClassAttr(attributes, baseClasses);
+
+        return attributes;
+    }
+}

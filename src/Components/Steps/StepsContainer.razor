@@ -1,0 +1,154 @@
+@inherits Soenneker.Quark.Element
+@inject IStepsInterop StepsInterop
+
+<CascadingValue Value="_state">
+    <CascadingValue Value="this">
+    <UnorderedList Class="@GetStepsClasses()" @attributes="BuildAttributes()">
+        @if (Items != null)
+        {
+            @Items
+        }
+        else
+        {
+            @ChildContent
+        }
+    </UnorderedList>
+
+        @if (Content != null)
+        {
+            <Div Class="@GetContentClasses()">
+                @Content
+            </Div>
+        }
+    </CascadingValue>
+</CascadingValue>
+
+@code {
+	public override string? ThemeKey { get; set; } = "Steps";
+
+    private StepState _state = new();
+    private readonly List<string> _stepItems = [];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+	    if (firstRender)
+	    {
+		    await StepsInterop.Initialize();
+	    }
+        
+	    await base.OnAfterRenderAsync(firstRender);
+    }
+
+    [Parameter]
+    public string SelectedStep
+    {
+        get => _state.SelectedStep;
+        set
+        {
+            if (value == _state.SelectedStep)
+                return;
+
+            var allowNavigation = NavigationAllowed?.Invoke(new StepNavigationContext
+            {
+                CurrentStepName = _state.SelectedStep,
+                CurrentStepIndex = IndexOfStep(_state.SelectedStep),
+                NextStepName = value,
+                NextStepIndex = IndexOfStep(value),
+            }) ?? true;
+
+            if (allowNavigation == false)
+                return;
+
+            _state = _state with { SelectedStep = value };
+            SelectedStepChanged.InvokeAsync(_state.SelectedStep);
+            StateHasChanged();
+        }
+    }
+
+    [Parameter]
+    public StepRenderMode RenderMode
+    {
+        get => _state.RenderMode;
+        set
+        {
+            _state = _state with { RenderMode = value };
+            StateHasChanged();
+        }
+    }
+
+    [Parameter]
+    public EventCallback<string> SelectedStepChanged { get; set; }
+
+    [Parameter]
+    public Func<StepNavigationContext, bool>? NavigationAllowed { get; set; }
+
+    [Parameter]
+    public RenderFragment? Items { get; set; }
+
+    [Parameter]
+    public RenderFragment? Content { get; set; }
+
+    internal void NotifyStepInitialized(string name)
+    {
+        if (!_stepItems.Contains(name))
+            _stepItems.Add(name);
+    }
+
+    internal void NotifyStepRemoved(string name)
+    {
+        if (_stepItems.Contains(name))
+            _stepItems.Remove(name);
+    }
+
+    public Task SelectStep(string stepName)
+    {
+        SelectedStep = stepName;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    public Task NextStep()
+    {
+        var selectedStepIndex = _stepItems.IndexOf(SelectedStep);
+
+        if (selectedStepIndex == _stepItems.Count - 1)
+        {
+            return Task.CompletedTask;
+        }
+
+        SelectedStep = _stepItems[selectedStepIndex + 1];
+        return InvokeAsync(StateHasChanged);
+    }
+
+    public Task PreviousStep()
+    {
+        var selectedStepIndex = _stepItems.IndexOf(SelectedStep);
+
+        if (selectedStepIndex <= 0)
+        {
+            return Task.CompletedTask;
+        }
+
+        SelectedStep = _stepItems[selectedStepIndex - 1];
+        return InvokeAsync(StateHasChanged);
+    }
+
+    internal int IndexOfStep(string name)
+    {
+        return _stepItems.IndexOf(name) + 1;
+    }
+
+    private string GetStepsClasses()
+    {
+        var classes = new List<string> { "steps", "nav", "nav-pills", "flex-wrap", "gap-2" };
+
+        if (RenderMode != StepRenderMode.Default)
+            classes.Add($"steps-{RenderMode.Value}");
+
+        return string.Join(" ", classes);
+    }
+
+    private string GetContentClasses()
+    {
+        return "tab-content mt-3";
+    }
+}

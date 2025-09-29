@@ -1,0 +1,162 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Colors
+@using Soenneker.Quark.Enums
+
+@inherits Soenneker.Quark.Element
+
+<CascadingValue Value="@this" IsFixed>
+    <Div Class="alert" @attributes="BuildAttributes()" role="alert" >
+        @if (Dismissible)
+        {
+            <Button Type="@ButtonType.Button" Class="btn-close" OnClick="HandleDismiss" aria-label="Close" ></Button>
+        }
+        @ChildContent
+    </Div>
+</CascadingValue>
+
+@code {
+	public override string? ThemeKey { get; set; } = "Alert";
+
+    // Internal state tracking for child components
+    private bool _hasMessage;
+    private bool _hasDescription;
+
+    [Parameter]
+    public CssValue<ColorBuilder>? Color { get; set; }
+
+    [Parameter]
+    public bool Dismissible { get; set; }
+
+    [Parameter]
+    public bool Visible { get; set; } = true;
+
+    [Parameter]
+    public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter]
+    public EventCallback OnDismiss { get; set; }
+    
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+
+        var baseClasses = "alert";
+
+        if (Dismissible)
+            baseClasses = $"{baseClasses} alert-dismissible";
+
+        // Add fade animation for dismissible alerts
+        if (Dismissible)
+            baseClasses = $"{baseClasses} fade";
+
+        // Add show class for dismissible alerts when visible
+        if (Dismissible && Visible)
+            baseClasses = $"{baseClasses} show";
+
+        // Add classes for child component detection
+        if (_hasMessage)
+            baseClasses = $"{baseClasses} alert-has-message";
+
+        if (_hasDescription)
+            baseClasses = $"{baseClasses} alert-has-description";
+
+        AppendToClassAttr(attributes, baseClasses);
+
+        // Handle color styling
+        if (Color is not null && !Color.Value.IsEmpty)
+        {
+            string v = Color.Value.ToString().Trim();
+
+            if (Color.Value.IsCssClass)
+            {
+                if (v.StartsWith("alert-", StringComparison.Ordinal))
+                    AppendToClassAttr(attributes, v);
+                else
+                    AppendToClassAttr(attributes, $"alert-{v}");
+            }
+            else
+            {
+                // Literal CSS value → straight style
+                if (!attributes.TryGetValue("style", out var existing))
+                    attributes["style"] = $"background-color:{v};border-color:{v};color:white;";
+                else
+                    attributes["style"] = $"{existing}background-color:{v};border-color:{v};color:white;";
+            }
+        }
+
+        if (!Visible)
+        {
+            if (!attributes.TryGetValue("style", out var existingStyle))
+                attributes["style"] = "display: none;";
+            else
+                attributes["style"] = $"{existingStyle}display: none;";
+        }
+
+        return attributes;
+    }
+
+    /// <summary>
+    /// Makes the notification visible to users by updating the display state.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public Task Show()
+    {
+        if (Visible)
+            return Task.CompletedTask;
+
+        Visible = true;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Hides the notification from users by updating the display state.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public Task Hide()
+    {
+        if (!Visible)
+            return Task.CompletedTask;
+
+        Visible = false;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Switches the notification visibility between shown and hidden states.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public Task Toggle()
+    {
+        Visible = !Visible;
+        return InvokeAsync(StateHasChanged);
+    }
+    
+    /// <summary>
+    /// Registers that a message component has been added to this notification.
+    /// </summary>
+    internal void NotifyHasMessage()
+    {
+        _hasMessage = true;
+        InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Registers that a description component has been added to this notification.
+    /// </summary>
+    internal void NotifyHasDescription()
+    {
+        _hasDescription = true;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleDismiss()
+    {
+        Visible = false;
+        StateHasChanged();
+
+        await OnDismiss.InvokeIfHasDelegate();
+        await VisibleChanged.InvokeAsync(Visible);
+    }
+
+}

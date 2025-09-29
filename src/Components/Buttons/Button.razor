@@ -1,0 +1,175 @@
+@using System.Runtime.CompilerServices
+@using Microsoft.AspNetCore.Components.Web
+@using Soenneker.Extensions.String
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Colors
+@using Soenneker.Quark.Builders.Sizes
+@using Soenneker.Quark.Enums
+
+@inherits Soenneker.Quark.Element
+@inject NavigationManager Navigation
+
+@if (Type == ButtonType.Link)
+{
+	<Anchor To="To" Attributes="BuildAttributes()" >
+		@ChildContent
+	</Anchor>
+}
+else
+{
+	<button @attributes="BuildAttributes()" @onclick="HandleClick" >
+		@if (Loading)
+		{
+			<Span Class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" ></Span>
+		}
+		@if (LoadingTemplate is not null && Loading)
+		{
+			@LoadingTemplate
+		}
+		else
+		{
+			@ChildContent
+		}
+	</button>
+}
+
+@code {
+
+	public override string? ThemeKey { get; set; } = "Button";
+
+    [Parameter]
+	public ButtonType Type { get; set; } = ButtonType.Button;
+
+	[Parameter]
+	public bool Disabled { get; set; }
+
+	[Parameter]
+	public bool Loading { get; set; }
+
+	[Parameter]
+	public RenderFragment? LoadingTemplate { get; set; }
+
+	[Parameter]
+	public string? Value { get; set; }
+
+	[Parameter]
+	public string? Form { get; set; }
+
+	[Parameter]
+	public bool AutoFocus { get; set; }
+
+	[Parameter]
+	public string? To { get; set; }
+
+	[Parameter]
+	public string? Name { get; set; }
+
+	[Parameter]
+	public CssValue<SizeBuilder>? Size { get; set; } = Builders.Sizes.Size.Default;
+
+	[Parameter]
+	public CssValue<ColorBuilder>? Color { get; set; }
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private string? GetSizeClass() => Size != Builders.Sizes.Size.Default ? $"btn-{Size.Value}" : null;
+
+	protected override Dictionary<string, object> BuildAttributes()
+	{
+		base.BuildAttributes();
+
+		// We handle click explicitly on the element; remove any composed onclick from base
+		Attributes.Remove("onclick");
+
+		// Determine element kind
+		bool isLink = Type == ButtonType.Link || To.HasContent();
+
+		// Figure out disabled state (treat presence of "disabled" attribute as true)
+		bool isDisabled = Disabled || Loading || (Attributes is not null && Attributes.ContainsKey("disabled"));
+
+		// Add Bootstrap button classes
+		AppendToClassAttr(Attributes, "btn");
+
+        if (Color is not null && !Color.Value.IsEmpty)
+        {
+            string v = Color.Value.ToString().Trim();
+
+            if (Color.Value.IsCssClass)
+            {
+                if (v.StartsWith("btn-", StringComparison.Ordinal))
+                    AppendToClassAttr(Attributes, v);
+                else
+                    AppendToClassAttr(Attributes, $"btn-{v}");
+            }
+            else
+            {
+                // Literal CSS value → straight style
+                if (!Attributes.TryGetValue("style", out var existing))
+                    Attributes["style"] = $"background-color:{v};border-color:{v};";
+                else
+                    Attributes["style"] = $"{existing}background-color:{v};border-color:{v};";
+            }
+        }
+
+		// Add size class if not default
+		string? sizeClass = GetSizeClass();
+
+		if (sizeClass is not null)
+			AppendToClassAttr(Attributes, sizeClass);
+
+		// Apply disabled visuals for anchor-style buttons
+		if (isLink && isDisabled)
+			AppendToClassAttr(Attributes, "disabled");
+
+		// Common ARIA for loading/disabled
+		if (Loading)
+			Attributes["aria-busy"] = "true";
+
+		// Only set type on real <button>
+		if (!isLink)
+			Attributes["type"] = Type.Value;
+
+		// Real disabled vs. aria-disabled
+		if (isLink)
+		{
+			// Anchor can't be truly disabled; use ARIA and remove focus
+			if (isDisabled)
+			{
+				Attributes["aria-disabled"] = "true";
+				Attributes["tabindex"] = "-1";
+				// role is already a good idea for link-as-button
+				Attributes["role"] = "button";
+			}
+			else
+				Attributes.TryAdd("role", "button");
+		}
+		else
+		{
+			if (isDisabled)
+				Attributes["disabled"] = true;
+		}
+
+		// Standard button/submit metadata
+		if (Value.HasContent()) Attributes["value"] = Value!;
+		if (Name.HasContent()) Attributes["name"] = Name!;
+		if (Form.HasContent()) Attributes["form"] = Form!;
+		if (AutoFocus) Attributes["autofocus"] = true;
+
+		// If this is acting as a link, we already render <Anchor>; nothing special beyond attrs.
+		return Attributes;
+	}
+
+	protected override async Task HandleClick(MouseEventArgs args)
+	{
+		// Respect disabled state at runtime, same semantics as in BuildAttributes
+		bool isDisabled = Disabled || Loading || (Attributes is not null && Attributes.ContainsKey("disabled"));
+		if (isDisabled)
+			return;
+
+		// Programmatic navigation if To is set (and not a hash)
+		if (To.HasContent() && !To!.StartsWith("#"))
+			Navigation.NavigateTo(To!);
+
+		await base.HandleClick(args);
+	}
+
+}

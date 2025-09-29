@@ -1,0 +1,55 @@
+@inherits Soenneker.Quark.Element
+
+<CascadingValue Value="_state">
+    <Div Class="@GetStepsContentClasses()" @attributes="BuildAttributes()">
+        @ChildContent
+    </Div>
+</CascadingValue>
+
+@code {
+	public override string? ThemeKey { get; set; } = "StepContent";
+
+    private StepContentState _state = new();
+    private readonly List<string> _stepPanels = [];
+
+    [Parameter]
+    public string SelectedPanel
+    {
+        get => _state.SelectedPanel;
+        set
+        {
+            if (value == _state.SelectedPanel)
+                return;
+
+            _state = _state with { SelectedPanel = value };
+            SelectedPanelChanged.InvokeAsync(_state.SelectedPanel);
+            StateHasChanged();
+        }
+    }
+
+    [Parameter]
+    public EventCallback<string> SelectedPanelChanged { get; set; }
+
+    internal void NotifyStepPanelInitialized(string name)
+    {
+        if (!_stepPanels.Contains(name))
+            _stepPanels.Add(name);
+    }
+
+    internal void NotifyStepPanelRemoved(string name)
+    {
+        if (_stepPanels.Contains(name))
+            _stepPanels.Remove(name);
+    }
+
+    public Task SelectPanel(string name)
+    {
+        SelectedPanel = name;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private string GetStepsContentClasses()
+    {
+        return "tab-content mt-3";
+    }
+}

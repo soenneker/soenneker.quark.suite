@@ -1,0 +1,82 @@
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()" @onmouseleave="OnMouseLeaveHandler" @onmouseenter="OnMouseEnterHandler">
+    @ChildContent
+</div>
+
+@code {
+    public override string? ThemeKey { get; set; } = "Dropdown";
+
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter]
+    public bool RightAligned { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public Direction Direction { get; set; } = Direction.Default;
+
+    [Parameter]
+    public bool IsSubmenu { get; set; }
+
+    [Parameter]
+    public bool IsGroup { get; set; }
+
+    [Parameter]
+    public string? DropdownMenuTargetId { get; set; }
+
+    private bool _shouldClose = false;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private void OnMouseLeaveHandler()
+    {
+        _shouldClose = true;
+    }
+
+    private void OnMouseEnterHandler()
+    {
+        _shouldClose = false;
+    }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+
+        var baseClasses = "dropdown";
+        
+        if (IsSubmenu)
+            baseClasses = "dropdown-submenu";
+        
+        if (IsGroup)
+            baseClasses = "btn-group";
+        
+        if (Visible)
+            baseClasses = $"{baseClasses} show";
+        
+        if (RightAligned)
+            baseClasses = $"{baseClasses} dropend";
+        
+        if (Disabled)
+            baseClasses = $"{baseClasses} disabled";
+
+        AppendToClassAttr(attributes, baseClasses);
+
+        return attributes;
+    }
+}
+

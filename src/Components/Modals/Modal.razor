@@ -1,0 +1,163 @@
+@using Microsoft.AspNetCore.Components.Web
+@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Extensions.String
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Sizes
+
+@inherits Soenneker.Quark.Element
+
+@if (Visible)
+{
+    <CascadingValue Value="@this">
+        <Div Class="@GetModalClasses()" Style="@GetModalStyles()" TabIndex="-1" OnKeyDown="HandleKeyDown" @attributes="BuildAttributes()">
+            <Div Class="@GetDialogClasses()">
+                <Div Class="modal-content">
+                    @ChildContent
+                </Div>
+            </Div>
+        </Div>
+        @if (ShowBackdrop)
+        {
+            <Div Class="modal-backdrop fade show" OnClick="HandleBackdropClick"></Div>
+        }
+    </CascadingValue>
+}
+
+@code {
+	public override string? ThemeKey { get; set; } = "Modal";
+
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter]
+    public bool ShowBackdrop { get; set; } = true;
+
+    [Parameter]
+    public bool Centered { get; set; }
+
+    [Parameter]
+    public bool Scrollable { get; set; }
+
+    [Parameter]
+    public CssValue<SizeBuilder>? Size { get; set; } = Builders.Sizes.Size.Default;
+
+    [Parameter]
+    public bool Static { get; set; }
+
+    [Parameter]
+    public EventCallback OnShow { get; set; }
+
+    [Parameter]
+    public EventCallback OnHide { get; set; }
+
+    [Parameter]
+    public EventCallback OnBackdropClick { get; set; }
+
+    private string GetModalClasses()
+    {
+        var classes = "modal fade";
+        
+        if (Visible)
+            classes += " show";
+            
+        if (Class.HasContent())
+            classes += $" {Class}";
+            
+        return classes;
+    }
+
+    private string GetDialogClasses()
+    {
+        var classes = "modal-dialog";
+        
+        if (Centered)
+            classes += " modal-dialog-centered";
+            
+        if (Scrollable)
+            classes += " modal-dialog-scrollable";
+            
+        if (Size != null && !Size.Value.IsEmpty)
+            classes += $" modal-{Size.Value}";
+            
+        return classes;
+    }
+
+    private string GetModalStyles()
+    {
+        var styles = "";
+        
+        if (Visible)
+            styles += "display: block;";
+            
+        if (Style.HasContent())
+        {
+            if (styles.HasContent())
+                styles += $" {Style}";
+            else
+                styles = Style;
+        }
+            
+        return styles;
+    }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
+        
+        attributes["role"] = "dialog";
+        attributes["aria-modal"] = "true";
+        
+        if (Static)
+            attributes["data-bs-backdrop"] = "static";
+            
+        return attributes;
+    }
+
+    protected override async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (!Static && e.Key == "Escape")
+        {
+            await Hide();
+        }
+
+        await base.HandleKeyDown(e);
+    }
+
+    private async Task HandleBackdropClick(MouseEventArgs args)
+    {
+        if (!Static)
+        {
+            await OnBackdropClick.InvokeIfHasDelegate();
+            await Hide();
+        }
+    }
+
+    public async Task Show()
+    {
+        if (!Visible)
+        {
+            Visible = true;
+
+            await VisibleChanged.InvokeIfHasDelegate(Visible);
+            await OnShow.InvokeIfHasDelegate();
+
+            StateHasChanged();
+        }
+    }
+
+    public async Task Hide()
+    {
+        if (Visible)
+        {
+            Visible = false;
+
+            await VisibleChanged.InvokeIfHasDelegate(Visible);
+            await OnHide.InvokeIfHasDelegate();
+
+            StateHasChanged();
+        }
+    }
+}

@@ -1,0 +1,110 @@
+@using System.Runtime.CompilerServices
+@using Soenneker.Extensions.String
+@using Soenneker.Quark.Builders
+@using Soenneker.Quark.Builders.Sizes
+@using Soenneker.Quark.Enums
+
+@inherits Soenneker.Quark.Element
+
+<i @attributes="BuildAttributes()" ></i>
+
+@code {
+    public override string? ThemeKey { get; set; } = "Icon";
+
+    [Parameter]
+    public string? IconName { get; set; } // "camera" or "fa-camera"
+
+    // Classic FA weights: fa-regular, fa-solid, fa-light, fa-thin, fa-duotone, fa-brands
+    // (If you prefer geometry+weight, you can keep passing e.g. "fa-regular")
+    [Parameter]
+    public IconStyle? IconStyle { get; set; }
+
+    // FA7 “Icon Family” (Classic, Sharp, SharpDuotone, Chisel, Etch, Jelly, Notdog, Slab, Thumbprint, Whiteboard…)
+    [Parameter]
+    public IconFamily? Family { get; set; }
+
+    // Optional FA size helpers (fa-xs, fa-sm, fa-lg, fa-2x …)
+    [Parameter]
+    public IconSize? IconSize { get; set; }
+
+    [Parameter]
+    public CssValue<SizeBuilder>? Size { get; set; }
+
+    [Parameter]
+    public bool SpinReverse { get; set; }
+
+    [Parameter]
+    public IconRotate? Rotate { get; set; }
+
+    [Parameter]
+    public int? RotateByDegrees { get; set; }
+
+    [Parameter]
+    public IconFlip? Flip { get; set; }
+
+    [Parameter]
+    public IconAnimation? Animation { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Attributes = base.BuildAttributes();
+
+        // Always include the FA base class first for predictability
+        AppendToClassAttr(Attributes, "fa");
+
+        string styleClass = GetFamilyAndStyleClass(Family, IconStyle);
+
+        if (styleClass.HasContent())
+            AppendToClassAttr(Attributes, styleClass);
+
+        // Icon name (normalize to fa-*)
+        if (IconName.HasContent())
+            AppendToClassAttr(Attributes, NormalizeIconName(IconName!));
+
+        // Helpers (size, spin, rotations, animations)
+        if (IconSize is not null && IconSize != IconSize.None)
+            AppendToClassAttr(Attributes, IconSize!.Value);
+
+        if (SpinReverse)
+            AppendToClassAttr(Attributes, "fa-spin-reverse");
+
+        if (Rotate is not null && Rotate != IconRotate.None)
+            AppendToClassAttr(Attributes, Rotate!.Value);
+
+        if (RotateByDegrees.HasValue)
+            AppendStyleDeclAttr(Attributes, $"--fa-rotate-angle: {RotateByDegrees.Value}deg");
+
+        if (Flip is not null && Flip != IconFlip.None)
+            AppendToClassAttr(Attributes, Flip!.Value);
+
+        if (Animation is not null && Animation != IconAnimation.None)
+            AppendToClassAttr(Attributes, Animation!.Value);
+
+        return Attributes;
+    }
+
+    private static string GetFamilyAndStyleClass(IconFamily? family, IconStyle? weight)
+    {
+        string fam = family?.Value ?? string.Empty; // e.g., "fa-sharp", "fa-jelly-duo"
+        string w = weight?.Value ?? string.Empty; // e.g., "fa-regular", "fa-solid"
+
+        // Brands: ignore family completely
+        if (w == "fa-brands")
+            return w;
+
+        // If family is empty (Classic case) → just return the weight
+        if (fam.Length == 0)
+            return w;
+
+        // If weight is duotone and family is sharp/chisel → collapse into fused token
+        if (w == "fa-duotone" && (fam == "fa-sharp" || fam == "fa-chisel"))
+            return $"{fam}-duotone";
+
+        // Otherwise: family + optional weight
+        return w.HasContent() ? $"{fam} {w}" : fam;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string NormalizeIconName(string icon) => icon.StartsWith("fa-", StringComparison.Ordinal) ? icon : $"fa-{icon}";
+
+}
