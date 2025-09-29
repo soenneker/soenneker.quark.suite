@@ -1,6 +1,5 @@
 @namespace Soenneker.Quark
 @using System.Linq.Expressions
-@using Microsoft.AspNetCore.Components.Web
 @using Soenneker.Blazor.Extensions.EventCallback
 
 @inherits Soenneker.Quark.Element
@@ -55,9 +54,10 @@
 
     private string? GetColorClass()
     {
-        var isTheme = Color.TryGetBootstrapThemeToken(out var token);
+        string? token = null;
+        var isTheme = Color.TryGetBootstrapThemeToken(out token);
 
-        if (isTheme)
+        if (isTheme && token is not null)
             return $"form-check-input-{token}";
 
         return null;
@@ -65,10 +65,17 @@
 
     private string? GetSizeClass()
     {
-        if (Size != null && !Size.Value.IsEmpty)
-            return $"form-check-input-{Size.Value}";
+        if (Size == Quark.Size.Default)
+            return null;
 
-        return null;
+        string? token = null;
+        var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+        if (isTheme && token is not null)
+            return $"form-check-input-{token}";
+
+        // SizeBuilder now generates clean tokens like "lg", "sm" without prefix
+        var sizeValue = Size?.ToString();
+        return !string.IsNullOrEmpty(sizeValue) ? $"form-check-input-{sizeValue}" : null;
     }
 
     protected override Dictionary<string, object> BuildAttributes()

@@ -514,15 +514,26 @@ public abstract class Component : CoreComponent, IComponent
     {
         if (v is { IsEmpty: false })
         {
-            var result = v.Value.ToString();
+            string? token = null;
+            var isTheme = v.Value.TryGetBootstrapThemeToken(out token);
 
-            if (!result.HasContent())
-                return;
-
-            if (v.Value.IsCssStyle)
-                AppendStyleDecl(ref styB, $"{cssProperty}: {result}");
+            if (isTheme && token is not null)
+            {
+                // Bootstrap theme token (e.g., "primary", "secondary")
+                AppendClass(ref clsB, $"{classPrefix}-{token}");
+            }
             else
-                AppendClass(ref clsB, $"{classPrefix}-{result}");
+            {
+                var result = v.Value.ToString();
+
+                if (!result.HasContent())
+                    return;
+
+                if (v.Value.IsCssStyle)
+                    AppendStyleDecl(ref styB, $"{cssProperty}: {result}");
+                else
+                    AppendClass(ref clsB, $"{classPrefix}-{result}");
+            }
         }
     }
 

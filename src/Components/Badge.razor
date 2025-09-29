@@ -14,8 +14,6 @@
     [Parameter]
     public CssValue<ColorBuilder>? Color { get; set; }
 
-    [Parameter]
-    public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
 
     [Parameter]
     public bool Rounded { get; set; }
@@ -35,24 +33,28 @@
     {
         if (Color is not null && !Color.Value.IsEmpty)
         {
-            var colorValue = Color.Value.ToString();
+            string? token = null;
+            var isTheme = Color.Value.TryGetBootstrapThemeToken(out token);
 
-            if (!string.IsNullOrEmpty(colorValue))
+            if (isTheme && token is not null)
             {
-                return Color.Value.IsCssClass ? $"bg-{colorValue}" : null;
+                // Bootstrap theme token (e.g., "primary", "secondary")
+                return $"bg-{token}";
+            }
+            else
+            {
+                var colorValue = Color.Value.ToString();
+
+                if (!string.IsNullOrEmpty(colorValue))
+                {
+                    return Color.Value.IsCssClass ? $"bg-{colorValue}" : null;
+                }
             }
         }
 
         return null;
     }
 
-    private string? GetSizeClass()
-    {
-        if (Size != null && !Size.Value.IsEmpty)
-            return $"badge-{Size.Value}";
-
-        return null;
-    }
 
     protected override Dictionary<string, object> BuildAttributes()
     {
@@ -61,16 +63,12 @@
         var baseClasses = "badge";
         var typeClass = GetTypeClass();
         var colorClass = GetColorClass();
-        var sizeClass = GetSizeClass();
 
         if (typeClass != null)
             baseClasses = $"{baseClasses} {typeClass}";
 
         if (colorClass != null)
             baseClasses = $"{baseClasses} {colorClass}";
-
-        if (sizeClass != null)
-            baseClasses = $"{baseClasses} {sizeClass}";
 
         if (Rounded)
             baseClasses = $"{baseClasses} rounded";

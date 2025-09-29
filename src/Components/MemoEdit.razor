@@ -38,7 +38,7 @@
 	public bool AutoResize { get; set; }
 
     [Parameter]
-    public CssValue<ColorBuilder> Color { get; set; } = Quark.Color.Primary;
+    public CssValue<ColorBuilder>? Color { get; set; } = Quark.Color.Primary;
 
 	[Parameter]
 	public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
@@ -54,9 +54,10 @@
 
 	private string? GetColorClass()
     {
-        var isTheme = Color.TryGetBootstrapThemeToken(out var token);
+        string? token = null;
+        var isTheme = Color?.TryGetBootstrapThemeToken(out token) == true;
 
-		if (isTheme)
+		if (isTheme && token is not null)
 			return $"form-control-{token}";
 
 		return null;
@@ -64,10 +65,15 @@
 
 	private string? GetSizeClass()
 	{
-		if (Size != Quark.Size.Default)
-			return $"form-control-{Size.Value}";
+		if (Size == Quark.Size.Default)
+			return null;
 
-		return null;
+		string? token = null;
+		var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+		if (isTheme && token is not null)
+			return $"form-control-{token}";
+
+		return Size?.ToString() != null ? $"form-control-{Size}" : null;
 	}
 
 	protected override Dictionary<string, object> BuildAttributes()

@@ -95,14 +95,25 @@
 	{
 		if (Color is not null && !Color.Value.IsEmpty)
 		{
-			var v = Color.Value.ToString().Trim();
+			string? token = null;
+			var isTheme = Color.Value.TryGetBootstrapThemeToken(out token);
 
-			if (Color.Value.IsCssClass)
+			if (isTheme && token is not null)
 			{
-				if (v.StartsWith("form-control-", StringComparison.Ordinal))
-					return v;
-				else
-					return $"form-control-{v}";
+				// Bootstrap theme token (e.g., "primary", "secondary")
+				return $"form-control-{token}";
+			}
+			else
+			{
+				var v = Color.Value.ToString().Trim();
+
+				if (Color.Value.IsCssClass)
+				{
+					if (v.StartsWith("form-control-", StringComparison.Ordinal))
+						return v;
+					else
+						return $"form-control-{v}";
+				}
 			}
 		}
 
@@ -111,10 +122,15 @@
 
 	private string? GetSizeClass()
 	{
-		if (Size != Quark.Size.Default)
-			return $"form-control-{Size.Value}";
+		if (Size == Quark.Size.Default)
+			return null;
 
-		return null;
+		string? token = null;
+		var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+		if (isTheme && token is not null)
+			return $"form-control-{token}";
+
+		return Size?.ToString() != null ? $"form-control-{Size}" : null;
 	}
 
 	private string? GetValidationClass()

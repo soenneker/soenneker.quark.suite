@@ -23,12 +23,15 @@
 
     private string? GetSizeClass()
     {
-        if (Size?.ToString() == "size-sm")
-            return "progress-sm";
+        if (Size == Quark.Size.Default)
+            return null;
 
-        if (Size?.ToString() == "size-lg")
-            return "progress-lg";
-        return null;
+        string? token = null;
+        var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+        if (isTheme && token is not null)
+            return $"progress-{token}";
+
+        return Size?.ToString() != null ? $"progress-{Size}" : null;
     }
 
     protected override Dictionary<string, object> BuildAttributes()

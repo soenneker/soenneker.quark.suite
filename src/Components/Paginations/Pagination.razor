@@ -20,10 +20,15 @@
 
     private string? GetSizeClass()
     {
-        if (Size != null && !Size.Value.IsEmpty)
-            return $"pagination-{Size.Value}";
+        if (Size == Quark.Size.Default)
+            return null;
 
-        return null;
+        string? token = null;
+        var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+        if (isTheme && token is not null)
+            return $"pagination-{token}";
+
+        return Size?.ToString() != null ? $"pagination-{Size}" : null;
     }
 
     protected override Dictionary<string, object> BuildAttributes()

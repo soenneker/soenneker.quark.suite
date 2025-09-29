@@ -1,6 +1,5 @@
 @namespace Soenneker.Quark
 @using System.Runtime.CompilerServices
-@using Microsoft.AspNetCore.Components.Web
 @using Soenneker.Extensions.String
 
 @inherits Soenneker.Quark.Element
@@ -14,7 +13,7 @@
 }
 else
 {
-	<button @attributes="BuildAttributes()" @onclick="HandleClick" >
+	<button @attributes="BuildAttributes()">
 		@if (Loading)
 		{
 			<Span Class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" ></Span>
@@ -68,14 +67,24 @@ else
 	public CssValue<ColorBuilder>? Color { get; set; }
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private string? GetSizeClass() => Size != Quark.Size.Default ? $"btn-{Size.Value}" : null;
+	private string? GetSizeClass() 
+	{
+		if (Size == Quark.Size.Default)
+			return null;
+
+		string? token = null;
+		var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+		if (isTheme && token is not null)
+			return $"btn-{token}";
+
+		// SizeBuilder now generates clean tokens like "lg", "sm" without prefix
+		var sizeValue = Size?.ToString();
+		return !string.IsNullOrEmpty(sizeValue) ? $"btn-{sizeValue}" : null;
+	}
 
 	protected override Dictionary<string, object> BuildAttributes()
 	{
 		Attributes = base.BuildAttributes();
-
-		// We handle click explicitly on the element; remove any composed onclick from base
-		Attributes.Remove("onclick");
 
 		// Determine element kind
 		var isLink = Type == ButtonType.Link || To.HasContent();
@@ -86,11 +95,19 @@ else
 		// Add Bootstrap button classes
 		AppendToClassAttr(Attributes, "btn");
 
+		string? colorToken = null;
+		var isColorTheme = Color?.TryGetBootstrapThemeToken(out colorToken) == true;
+
         if (Color is not null && !Color.Value.IsEmpty)
         {
             var v = Color.Value.ToString().Trim();
 
-            if (Color.Value.IsCssClass)
+            if (isColorTheme && colorToken is not null)
+            {
+                // Bootstrap theme token (e.g., "primary", "secondary")
+                AppendToClassAttr(Attributes, $"btn-{colorToken}");
+            }
+            else if (Color.Value.IsCssClass)
             {
                 if (v.StartsWith("btn-", StringComparison.Ordinal))
                     AppendToClassAttr(Attributes, v);

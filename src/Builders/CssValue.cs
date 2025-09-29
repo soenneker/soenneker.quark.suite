@@ -27,6 +27,16 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         "muted"
     };
 
+    private static readonly HashSet<string> _bootstrapSizeTokens = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "xs",
+        "sm",
+        "md",
+        "lg",
+        "xl",
+        "xxl"
+    };
+
     private CssValue(string value)
     {
         _value = value ?? string.Empty;
@@ -101,7 +111,7 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
     /// </summary>
     private static bool IsKnownThemeToken(string value)
     {
-        return value.HasContent() && _bootstrapThemeTokens.Contains(value);
+        return value.HasContent() && (_bootstrapThemeTokens.Contains(value) || _bootstrapSizeTokens.Contains(value));
     }
 
     public bool Equals(CssValue<TBuilder> other)
@@ -131,7 +141,7 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
 
     /// <summary>
     /// Attempts to match the value against a known Bootstrap theme token
-    /// (e.g., "primary", "secondary", etc.).
+    /// (e.g., "primary", "secondary", etc. for colors or "sm", "lg", etc. for sizes).
     /// </summary>
     public bool TryGetBootstrapThemeToken(out string? token)
     {
@@ -139,7 +149,17 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         {
             var v = _value.Trim();
 
-            if (_bootstrapThemeTokens.Contains(v))
+            // Check if this is a SizeBuilder - if so, check size tokens
+            if (typeof(TBuilder) == typeof(SizeBuilder))
+            {
+                if (_bootstrapSizeTokens.Contains(v))
+                {
+                    token = v.ToLowerInvariantFast();
+                    return true;
+                }
+            }
+            // For ColorBuilder or other builders, check color theme tokens
+            else if (_bootstrapThemeTokens.Contains(v))
             {
                 token = v.ToLowerInvariantFast();
                 return true;
@@ -149,4 +169,5 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         token = null;
         return false;
     }
+
 }

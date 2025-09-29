@@ -35,7 +35,7 @@
     [Parameter]
     public BarMenuToggleBehavior MenuToggleBehavior { get; set; } = BarMenuToggleBehavior.AllowMultipleMenus;
 
-    private string? GetModeClass()
+    private string GetModeClass()
     {
         return Mode.Value switch
         {
@@ -71,9 +71,10 @@
         if (Transparent)
             return "bg-transparent";
 
-        var isClass = Color.TryGetBootstrapThemeToken(out var token);
+        string? token = null;
+        var isClass = Color.TryGetBootstrapThemeToken(out token);
 
-        if (isClass)
+        if (isClass && token is not null)
             return $"bg-{token}";
 
         return null;

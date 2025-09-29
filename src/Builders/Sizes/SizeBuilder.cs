@@ -13,12 +13,12 @@ public sealed class SizeBuilder : ICssBuilder
     private readonly List<SizeRule> _rules = new(4);
 
     private const string _classSizeDefault = "";
-    private const string _classSizeXs = "size-xs";
-    private const string _classSizeSm = "size-sm";
-    private const string _classSizeMd = "size-md";
-    private const string _classSizeLg = "size-lg";
-    private const string _classSizeXl = "size-xl";
-    private const string _classSizeXxl = "size-xxl";
+    private const string _classSizeXs = "xs";
+    private const string _classSizeSm = "sm";
+    private const string _classSizeMd = "md";
+    private const string _classSizeLg = "lg";
+    private const string _classSizeXl = "xl";
+    private const string _classSizeXxl = "xxl";
 
     internal SizeBuilder(SizeType size)
     {

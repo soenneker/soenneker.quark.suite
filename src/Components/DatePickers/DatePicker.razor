@@ -1,7 +1,6 @@
 @namespace Soenneker.Quark
 @using System.Globalization
 @using System.Linq.Expressions
-@using Microsoft.AspNetCore.Components.Web
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Extensions.String
@@ -137,19 +136,23 @@
 
     private string? GetSizeClass()
     {
-        if (Size?.ToString() == "size-sm")
-            return "form-control-sm";
-        if (Size?.ToString() == "size-lg")
-            return "form-control-lg";
+        if (Size == Quark.Size.Default)
+            return null;
 
-        return null;
+        string? token = null;
+        var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+        if (isTheme && token is not null)
+            return $"form-control-{token}";
+
+        return Size?.ToString() != null ? $"form-control-{Size}" : null;
     }
 
     private string? GetColorClass()
     {
-        var isTheme = Color.TryGetBootstrapThemeToken(out var token);
+        string? token = null;
+        var isTheme = Color.TryGetBootstrapThemeToken(out token);
 
-        if (isTheme)
+        if (isTheme && token is not null)
             return $"form-control-{token}";
 
         return null;

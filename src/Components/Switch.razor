@@ -64,14 +64,25 @@
     {
         if (Color is not null && !Color.Value.IsEmpty)
         {
-            var v = Color.Value.ToString().Trim();
+            string? token = null;
+            var isTheme = Color.Value.TryGetBootstrapThemeToken(out token);
 
-            if (Color.Value.IsCssClass)
+            if (isTheme && token is not null)
             {
-                if (v.StartsWith("form-check-input-", StringComparison.Ordinal))
-                    return v;
-                else
-                    return $"form-check-input-{v}";
+                // Bootstrap theme token (e.g., "primary", "secondary")
+                return $"form-check-input-{token}";
+            }
+            else
+            {
+                var v = Color.Value.ToString().Trim();
+
+                if (Color.Value.IsCssClass)
+                {
+                    if (v.StartsWith("form-check-input-", StringComparison.Ordinal))
+                        return v;
+                    else
+                        return $"form-check-input-{v}";
+                }
             }
         }
 
@@ -80,9 +91,15 @@
 
     private string? GetSizeClass()
     {
-        if (Size != Quark.Size.Default)
-            return $"form-check-input-{Size.Value}";
-        return null;
+        if (Size == Quark.Size.Default)
+            return null;
+
+        string? token = null;
+        var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+        if (isTheme && token is not null)
+            return $"form-check-input-{token}";
+
+        return Size?.ToString() != null ? $"form-check-input-{Size}" : null;
     }
 
     protected Dictionary<string, object> BuildWrapperAttributes()
