@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Soenneker.DataTables.Dtos.ServerSideRequest;
-using Soenneker.Quark;
 
 namespace Soenneker.Quark;
 

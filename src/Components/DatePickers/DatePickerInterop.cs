@@ -14,7 +14,7 @@ public sealed class DatePickerInterop : IDatePickerInterop
     private readonly IResourceLoader _resourceLoader;
     private readonly AsyncSingleton _scriptInitializer;
 
-    private const string _module = "Soenneker.Quark/js/datepickerinterop.js";
+    private const string _module = "Soenneker.Quark.Suite/js/datepickerinterop.js";
     private const string _moduleName = "DatePickerInterop";
 
     public DatePickerInterop(IJSRuntime jSRuntime, IResourceLoader resourceLoader)
@@ -24,7 +24,7 @@ public sealed class DatePickerInterop : IDatePickerInterop
 
         _scriptInitializer = new AsyncSingleton(async (token, _) =>
         {
-            await _resourceLoader.LoadStyle("_content/Soenneker.Quark/css/datepicker.css", cancellationToken: token);
+            await _resourceLoader.LoadStyle("_content/Soenneker.Quark.Suite/css/datepicker.css", cancellationToken: token);
             await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token);
             return new object();
         });

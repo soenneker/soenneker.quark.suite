@@ -15,7 +15,7 @@ public sealed class OffcanvasInterop : IOffcanvasInterop
     private readonly IResourceLoader _resourceLoader;
     private readonly AsyncSingleton _scriptInitializer;
 
-    private const string _module = "Soenneker.Quark.Offcanvases/js/offcanvasinterop.js";
+    private const string _module = "Soenneker.Quark.Suite/js/offcanvasinterop.js";
     private const string _moduleName = "OffcanvasInterop";
 
     public OffcanvasInterop(IJSRuntime jsRuntime, IResourceLoader resourceLoader)
@@ -25,7 +25,7 @@ public sealed class OffcanvasInterop : IOffcanvasInterop
 
         _scriptInitializer = new AsyncSingleton(async (token, _) =>
         {
-            await _resourceLoader.LoadStyle("_content/Soenneker.Quark.Offcanvases/css/offcanvas.css", cancellationToken: token);
+            await _resourceLoader.LoadStyle("_content/Soenneker.Quark.Suite/css/offcanvas.css", cancellationToken: token);
 
             await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token);
 

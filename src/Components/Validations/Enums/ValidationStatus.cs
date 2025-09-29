@@ -1,4 +1,3 @@
-using Soenneker.Quark;
 using Intellenum;
 
 namespace Soenneker.Quark;

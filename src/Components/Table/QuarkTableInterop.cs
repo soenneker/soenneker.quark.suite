@@ -12,11 +12,9 @@ public sealed class QuarkTableInterop : IQuarkTableInterop
 
     public QuarkTableInterop(IResourceLoader resourceLoader)
     {
-        IResourceLoader resourceLoader1 = resourceLoader;
-
         _styleInitializer = new AsyncSingleton(async (token, _) =>
         {
-            await resourceLoader1.LoadStyle("_content/Soenneker.Quark.Table/css/quarktable.css", cancellationToken: token);
+            await resourceLoader.LoadStyle("_content/Soenneker.Quark.Suite/css/quarktable.css", cancellationToken: token);
 
             return new object();
         });

@@ -10,7 +10,7 @@ public sealed class StepsInterop : IStepsInterop
 {
     private readonly AsyncSingleton _cssInitializer;
 
-    private const string _cssPath = "_content/Soenneker.Quark.Steps/css/steps.css";
+    private const string _cssPath = "_content/Soenneker.Quark.Suite/css/steps.css";
 
     public StepsInterop(IResourceLoader resourceLoader)
     {

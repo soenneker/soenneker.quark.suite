@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
 
-namespace Soenneker.Quark;
+namespace Soenneker.Quark.Registrars;
 
 /// <summary>
 /// A Blazor Quark component for OffcanvasInterop.
@@ -12,7 +12,7 @@ public static class OffcanvasRegistrar
     /// <summary>
     /// Adds <see cref="IOffcanvasInterop"/> as a scoped service. <para/>
     /// </summary>
-    public static IServiceCollection AddOffcanvasAsScoped(this IServiceCollection services)
+    public static IServiceCollection AddQuarkOffcanvasAsScoped(this IServiceCollection services)
     {
         services.AddResourceLoaderAsScoped()
             .TryAddScoped<IOffcanvasInterop, OffcanvasInterop>();

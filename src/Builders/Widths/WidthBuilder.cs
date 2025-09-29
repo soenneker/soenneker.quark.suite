@@ -5,8 +5,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 
 using Soenneker.Utils.PooledStringBuilders;
-using Soenneker.Quark;
-using Soenneker.Quark;
 
 namespace Soenneker.Quark;
 

@@ -10,7 +10,7 @@ public sealed class SnackbarInterop : ISnackbarInterop
 {
     private readonly AsyncSingleton _cssInitializer;
 
-    private const string _cssPath = "_content/Soenneker.Quark.Snackbars/css/snackbar.css";
+    private const string _cssPath = "_content/Soenneker.Quark.Suite/css/snackbar.css";
 
     public SnackbarInterop(IResourceLoader resourceLoader)
     {

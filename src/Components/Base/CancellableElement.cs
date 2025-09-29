@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using Soenneker.Quark;
 
 namespace Soenneker.Quark;
 

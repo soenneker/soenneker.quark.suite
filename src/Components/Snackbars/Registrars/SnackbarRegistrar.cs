@@ -12,7 +12,7 @@ public static class SnackbarRegistrar
     /// <summary>
     /// Adds <see cref="ISnackbarInterop"/> as a scoped service.
     /// </summary>
-    public static IServiceCollection AddSnackbarAsScoped(this IServiceCollection services)
+    public static IServiceCollection AddQuarkSnackbarAsScoped(this IServiceCollection services)
     {
         services.AddResourceLoaderAsScoped().TryAddScoped<ISnackbarInterop, SnackbarInterop>();
 
