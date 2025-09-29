@@ -35,6 +35,12 @@
     [Parameter]
     public BarMenuToggleBehavior MenuToggleBehavior { get; set; } = BarMenuToggleBehavior.AllowMultipleMenus;
 
+    /// <summary>
+    /// Used for responsive collapsing. Sets the breakpoint at which the navbar will expand.
+    /// </summary>
+    [Parameter]
+    public BreakpointType? Breakpoint { get; set; }
+
     private string GetModeClass()
     {
         return Mode.Value switch
@@ -117,13 +123,28 @@
         if (collapseClass != null)
             baseClasses = $"{baseClasses} {collapseClass}";
 
-        if (Expand && Mode == BarMode.Horizontal)
-            baseClasses = $"{baseClasses} navbar-expand-lg";
+        // Apply responsive expand class based on breakpoint
+        var expandClass = GetExpandClass();
+        if (expandClass != null)
+            baseClasses = $"{baseClasses} {expandClass}";
 
         if (baseClasses != null)
             AppendToClassAttr(attributes, baseClasses);
 
         return attributes;
+    }
+
+    private string? GetExpandClass()
+    {
+        if (!Expand || Mode != BarMode.Horizontal)
+            return null;
+
+        var breakpointToken = BreakpointUtil.GetBreakpointToken(Breakpoint);
+        
+        if (string.IsNullOrEmpty(breakpointToken))
+            return "navbar-expand-lg"; // Default
+
+        return $"navbar-expand-{breakpointToken}";
     }
 
 }
