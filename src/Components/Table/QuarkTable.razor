@@ -114,13 +114,21 @@
 
     protected override async Task OnInitializedAsync()
     {
-        PageSize = Options.DefaultPageSize;
-        await QuarkTableInterop.Initialize(CancellationToken);
+        try
+        {
+            PageSize = Options.DefaultPageSize;
+            await QuarkTableInterop.Initialize(CancellationToken);
 
-        _initialized = true;
+            _initialized = true;
 
-        if (OnInitialize.HasDelegate)
-            await OnInitialize.InvokeAsync();
+            if (OnInitialize.HasDelegate)
+                await OnInitialize.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error during QuarkTable initialization: {Message}", ex.Message);
+            throw;
+        }
     }
 
     protected override async Task OnParametersSetAsync()
@@ -574,9 +582,16 @@
 
     public override async ValueTask DisposeAsync()
     {
-        await base.DisposeAsync();
+        try
+        {
+            await base.DisposeAsync();
 
-        await _debouncer.DisposeAsync();
+            await _debouncer.DisposeAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error during QuarkTable disposal: {Message}", ex.Message);
+        }
     }
 
 }

@@ -227,8 +227,11 @@
             // Update the current employees list
             _currentEmployees = employees;
 
-            // Trigger UI update
-            StateHasChanged();
+            // Only call StateHasChanged if the component is still mounted
+            if (_basicTable != null)
+            {
+                StateHasChanged();
+            }
 
             Logger.LogInformation("BasicDemo: Updated currentEmployees with {Count} records, totalRecords={TotalRecords}", _currentEmployees.Count, _totalRecords);
         }
@@ -271,4 +274,5 @@
         
         return employees;
     }
+    
 }

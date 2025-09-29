@@ -2,9 +2,8 @@ using Microsoft.AspNetCore.Components;
 using Soenneker.Utils.AtomicResources;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Quark.Components.Layouts.Abstract;
 
-namespace Soenneker.Quark.Components.Layouts;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// A base layout that provides a per-component CancellationTokenSource, lazily
