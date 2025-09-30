@@ -1,0 +1,329 @@
+@page "/sliders"
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold text-primary">Sliders</h1>
+                <p class="lead text-muted">This page demonstrates the Quark.Slider component with various configurations and use cases.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-12">
+            <div>
+                <h2>Basic Slider</h2>
+                <div class="mb-3">
+                    <Slider Value="@basicValue" OnValueChanged="HandleBasicValueChanged" />
+                </div>
+                <p class="text-muted">Current value: <strong>@basicValue</strong></p>
+            </div>
+
+            <hr />
+
+            <div>
+                <h2>Slider with Min and Max</h2>
+                <div class="mb-3">
+                    <Slider Min="0" Max="100" Value="@minMaxValue" OnValueChanged="HandleMinMaxValueChanged" />
+                </div>
+                <p class="text-muted">Current value: <strong>@minMaxValue</strong> (Range: 0-100)</p>
+            </div>
+
+            <hr />
+
+            <div>
+                <h2>Slider with Step</h2>
+                <div class="mb-3">
+                    <Slider Min="0" Max="100" Step="5" Value="@stepValue" OnValueChanged="HandleStepValueChanged" />
+                </div>
+                <p class="text-muted">Current value: <strong>@stepValue</strong> (Step: 5)</p>
+            </div>
+
+            <hr />
+
+            <div>
+                <h2>Slider Sizes</h2>
+                <div class="mb-3">
+                    <h5>Small Size</h5>
+                    <Slider Min="0" Max="100" Value="@smallValue" Size="Size.Small" OnValueChanged="HandleSmallValueChanged" />
+                    <p class="text-muted">Small slider value: <strong>@smallValue</strong></p>
+                </div>
+                <div class="mb-3">
+                    <h5>Default Size</h5>
+                    <Slider Min="0" Max="100" Value="@defaultValue" Size="Size.Default" OnValueChanged="HandleDefaultValueChanged" />
+                    <p class="text-muted">Default slider value: <strong>@defaultValue</strong></p>
+                </div>
+                <div class="mb-3">
+                    <h5>Large Size</h5>
+                    <Slider Min="0" Max="100" Value="@largeValue" Size="Size.Large" OnValueChanged="HandleLargeValueChanged" />
+                    <p class="text-muted">Large slider value: <strong>@largeValue</strong></p>
+                </div>
+            </div>
+
+            <hr />
+
+            <div>
+                <h2>Slider Colors</h2>
+                <div class="mb-3">
+                    <h5>Primary Color</h5>
+                    <Slider Min="0" Max="100" Value="@primaryValue" Color="Color.Primary" OnValueChanged="HandlePrimaryValueChanged" />
+                    <p class="text-muted">Primary slider value: <strong>@primaryValue</strong></p>
+                </div>
+                <div class="mb-3">
+                    <h5>Success Color</h5>
+                    <Slider Min="0" Max="100" Value="@successValue" Color="Color.Success" OnValueChanged="HandleSuccessValueChanged" />
+                    <p class="text-muted">Success slider value: <strong>@successValue</strong></p>
+                </div>
+                <div class="mb-3">
+                    <h5>Warning Color</h5>
+                    <Slider Min="0" Max="100" Value="@warningValue" Color="Color.Warning" OnValueChanged="HandleWarningValueChanged" />
+                    <p class="text-muted">Warning slider value: <strong>@warningValue</strong></p>
+                </div>
+                <div class="mb-3">
+                    <h5>Danger Color</h5>
+                    <Slider Min="0" Max="100" Value="@dangerValue" Color="Color.Danger" OnValueChanged="HandleDangerValueChanged" />
+                    <p class="text-muted">Danger slider value: <strong>@dangerValue</strong></p>
+                </div>
+            </div>
+
+            <hr />
+
+            <div>
+                <h2>Disabled Slider</h2>
+                <div class="mb-3">
+                    <Slider Min="0" Max="100" Value="50" Disabled="true" />
+                </div>
+                <p class="text-muted">This slider is disabled and cannot be interacted with.</p>
+            </div>
+
+            <hr />
+
+            <div>
+                <h2>Range Slider (Min/Max Values)</h2>
+                <div class="mb-3">
+                    <Slider Min="0" Max="100" Value="@rangeMin" OnValueChanged="HandleRangeMinChanged" />
+                    <p class="text-muted">Min value: <strong>@rangeMin</strong></p>
+                </div>
+                <div class="mb-3">
+                    <Slider Min="0" Max="100" Value="@rangeMax" OnValueChanged="HandleRangeMaxChanged" />
+                    <p class="text-muted">Max value: <strong>@rangeMax</strong></p>
+                </div>
+                <div class="mb-3">
+                    <p class="text-muted">Range: <strong>@rangeMin</strong> - <strong>@rangeMax</strong></p>
+                </div>
+            </div>
+
+            <hr />
+
+            <div>
+                <h2>Slider with Labels</h2>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>0</span>
+                        <span>25</span>
+                        <span>50</span>
+                        <span>75</span>
+                        <span>100</span>
+                    </div>
+                    <Slider Min="0" Max="100" Value="@labeledValue" OnValueChanged="HandleLabeledValueChanged" />
+                    <p class="text-muted">Current value: <strong>@labeledValue</strong></p>
+                </div>
+            </div>
+
+            <hr />
+
+            <div>
+                <h2>Interactive Slider Controls</h2>
+                <div class="mb-3">
+                    <Slider Min="0" Max="100" Value="@interactiveValue" OnValueChanged="HandleInteractiveValueChanged" />
+                </div>
+                <div class="mb-3">
+                    <p class="text-muted">Current value: <strong>@interactiveValue</strong></p>
+                    <Button Color="Color.Primary" Size="Size.Small" OnClick="SetToZero">Set to 0</Button>
+                    <Button Color="Color.Secondary" Size="Size.Small" OnClick="SetToFifty">Set to 50</Button>
+                    <Button Color="Color.Success" Size="Size.Small" OnClick="SetToHundred">Set to 100</Button>
+                    <Button Color="Color.Info" Size="Size.Small" OnClick="SetRandom">Random Value</Button>
+                </div>
+            </div>
+
+            <hr />
+
+            <div>
+                <h2>Slider with Custom Attributes</h2>
+                <div class="mb-3">
+                    <Slider Min="0" Max="100" Value="@customValue" 
+                            OnValueChanged="HandleCustomValueChanged"
+                            Name="customSlider"
+                            Id="customSlider"
+                            Class="custom-slider" />
+                </div>
+                <p class="text-muted">Custom slider value: <strong>@customValue</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private double basicValue = 50;
+    private double minMaxValue = 25;
+    private double stepValue = 30;
+    private double smallValue = 40;
+    private double defaultValue = 60;
+    private double largeValue = 80;
+    private double primaryValue = 35;
+    private double successValue = 65;
+    private double warningValue = 45;
+    private double dangerValue = 75;
+    private double rangeMin = 20;
+    private double rangeMax = 80;
+    private double labeledValue = 50;
+    private double interactiveValue = 25;
+    private double customValue = 55;
+
+    private async Task HandleBasicValueChanged(double value)
+    {
+        basicValue = value;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleMinMaxValueChanged(double value)
+    {
+        minMaxValue = value;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleStepValueChanged(double value)
+    {
+        stepValue = value;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleSmallValueChanged(double value)
+    {
+        smallValue = value;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleDefaultValueChanged(double value)
+    {
+        defaultValue = value;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleLargeValueChanged(double value)
+    {
+        largeValue = value;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task HandlePrimaryValueChanged(double value)
+    {
+        primaryValue = value;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleSuccessValueChanged(double value)
+    {
+        successValue = value;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleWarningValueChanged(double value)
+    {
+        warningValue = value;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleDangerValueChanged(double value)
+    {
+        dangerValue = value;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleRangeMinChanged(double value)
+    {
+        rangeMin = value;
+        if (rangeMin > rangeMax)
+        {
+            rangeMax = rangeMin;
+        }
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleRangeMaxChanged(double value)
+    {
+        rangeMax = value;
+        if (rangeMax < rangeMin)
+        {
+            rangeMin = rangeMax;
+        }
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleLabeledValueChanged(double value)
+    {
+        labeledValue = value;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleInteractiveValueChanged(double value)
+    {
+        interactiveValue = value;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleCustomValueChanged(double value)
+    {
+        customValue = value;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task SetToZero()
+    {
+        interactiveValue = 0;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task SetToFifty()
+    {
+        interactiveValue = 50;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task SetToHundred()
+    {
+        interactiveValue = 100;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task SetRandom()
+    {
+        var random = new Random();
+        interactiveValue = random.Next(0, 101);
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    protected override void OnInitialized()
+    {
+    }
+}

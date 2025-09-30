@@ -12,8 +12,8 @@ public sealed class QuarkTableContinuationTokenPaging
 {
     private readonly Dictionary<string, string> _pageTokens = new();
     private readonly Dictionary<string, int> _pageCounts = new();
-    private int _currentVirtualPage = 0;
-    private int _estimatedTotalRecords = 0;
+    private int _currentVirtualPage;
+    private int _estimatedTotalRecords;
     private bool _hasMorePages = true;
 
     /// <summary>

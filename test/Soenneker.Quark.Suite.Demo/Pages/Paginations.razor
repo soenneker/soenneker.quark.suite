@@ -1,0 +1,186 @@
+@page "/paginations"
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold text-primary">Paginations</h1>
+                <p class="lead text-muted">This page demonstrates the Quark.Pagination component with various configurations and use cases.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-12">
+            <div>
+                <h2>Basic Pagination</h2>
+                <div class="mb-3">
+                    <Pagination TotalPages="10" CurrentPage="1" OnPageChanged="HandlePageChanged" />
+                </div>
+                <p class="text-muted">Basic pagination with 10 total pages, currently on page 1.</p>
+            </div>
+
+            <hr />
+
+            <div>
+                <h2>Pagination with Different Current Pages</h2>
+                <div class="mb-3">
+                    <h5>Page 1 of 10</h5>
+                    <Pagination TotalPages="10" CurrentPage="1" OnPageChanged="HandlePageChanged" />
+                </div>
+                <div class="mb-3">
+                    <h5>Page 5 of 10</h5>
+                    <Pagination TotalPages="10" CurrentPage="5" OnPageChanged="HandlePageChanged" />
+                </div>
+                <div class="mb-3">
+                    <h5>Page 10 of 10</h5>
+                    <Pagination TotalPages="10" CurrentPage="10" OnPageChanged="HandlePageChanged" />
+                </div>
+            </div>
+
+            <hr />
+
+            <div>
+                <h2>Pagination Sizes</h2>
+                <div class="mb-3">
+                    <h5>Small Size</h5>
+                    <Pagination TotalPages="15" CurrentPage="3" Size="Size.Small" OnPageChanged="HandlePageChanged" />
+                </div>
+                <div class="mb-3">
+                    <h5>Default Size</h5>
+                    <Pagination TotalPages="15" CurrentPage="3" Size="Size.Default" OnPageChanged="HandlePageChanged" />
+                </div>
+                <div class="mb-3">
+                    <h5>Large Size</h5>
+                    <Pagination TotalPages="15" CurrentPage="3" Size="Size.Large" OnPageChanged="HandlePageChanged" />
+                </div>
+            </div>
+
+            <hr />
+
+            <div>
+                <h2>Pagination Colors</h2>
+                <div class="mb-3">
+                    <h5>Primary Color</h5>
+                    <Pagination TotalPages="8" CurrentPage="4" Color="Color.Primary" OnPageChanged="HandlePageChanged" />
+                </div>
+                <div class="mb-3">
+                    <h5>Success Color</h5>
+                    <Pagination TotalPages="8" CurrentPage="4" Color="Color.Success" OnPageChanged="HandlePageChanged" />
+                </div>
+                <div class="mb-3">
+                    <h5>Danger Color</h5>
+                    <Pagination TotalPages="8" CurrentPage="4" Color="Color.Danger" OnPageChanged="HandlePageChanged" />
+                </div>
+                <div class="mb-3">
+                    <h5>Warning Color</h5>
+                    <Pagination TotalPages="8" CurrentPage="4" Color="Color.Warning" OnPageChanged="HandlePageChanged" />
+                </div>
+            </div>
+
+            <hr />
+
+            <div>
+                <h2>Pagination with ShowFirstLast</h2>
+                <div class="mb-3">
+                    <h5>With First/Last Buttons</h5>
+                    <Pagination TotalPages="20" CurrentPage="10" ShowFirstLast="true" OnPageChanged="HandlePageChanged" />
+                </div>
+                <div class="mb-3">
+                    <h5>Without First/Last Buttons</h5>
+                    <Pagination TotalPages="20" CurrentPage="10" ShowFirstLast="false" OnPageChanged="HandlePageChanged" />
+                </div>
+            </div>
+
+            <hr />
+
+            <div>
+                <h2>Pagination with ShowPreviousNext</h2>
+                <div class="mb-3">
+                    <h5>With Previous/Next Buttons</h5>
+                    <Pagination TotalPages="15" CurrentPage="8" ShowPreviousNext="true" OnPageChanged="HandlePageChanged" />
+                </div>
+                <div class="mb-3">
+                    <h5>Without Previous/Next Buttons</h5>
+                    <Pagination TotalPages="15" CurrentPage="8" ShowPreviousNext="false" OnPageChanged="HandlePageChanged" />
+                </div>
+            </div>
+
+            <hr />
+
+            <div>
+                <h2>Interactive Pagination</h2>
+                <div class="mb-3">
+                    <Pagination TotalPages="25" CurrentPage="@currentPage" OnPageChanged="HandlePageChanged" />
+                </div>
+                <div class="mb-3">
+                    <p class="text-muted">Current page: <strong>@currentPage</strong> of 25</p>
+                    <Button Color="Color.Primary" Size="Size.Small" OnClick="GoToFirstPage">Go to First</Button>
+                    <Button Color="Color.Secondary" Size="Size.Small" OnClick="GoToLastPage">Go to Last</Button>
+                    <Button Color="Color.Info" Size="Size.Small" OnClick="GoToRandomPage">Random Page</Button>
+                </div>
+            </div>
+
+            <hr />
+
+            <div>
+                <h2>Large Pagination Example</h2>
+                <div class="mb-3">
+                    <Pagination TotalPages="100" CurrentPage="50" ShowFirstLast="true" ShowPreviousNext="true" OnPageChanged="HandlePageChanged" />
+                </div>
+                <p class="text-muted">Example with 100 pages, showing first/last and previous/next buttons.</p>
+            </div>
+
+            <hr />
+
+            <div>
+                <h2>Disabled States</h2>
+                <div class="mb-3">
+                    <h5>First Page (Previous/First disabled)</h5>
+                    <Pagination TotalPages="10" CurrentPage="1" ShowFirstLast="true" ShowPreviousNext="true" OnPageChanged="HandlePageChanged" />
+                </div>
+                <div class="mb-3">
+                    <h5>Last Page (Next/Last disabled)</h5>
+                    <Pagination TotalPages="10" CurrentPage="10" ShowFirstLast="true" ShowPreviousNext="true" OnPageChanged="HandlePageChanged" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private int currentPage = 1;
+
+    private async Task HandlePageChanged(int page)
+    {
+        currentPage = page;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task GoToFirstPage()
+    {
+        currentPage = 1;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task GoToLastPage()
+    {
+        currentPage = 25;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private async Task GoToRandomPage()
+    {
+        var random = new Random();
+        currentPage = random.Next(1, 26);
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    protected override void OnInitialized()
+    {
+    }
+}

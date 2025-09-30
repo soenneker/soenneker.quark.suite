@@ -42,6 +42,9 @@ public sealed class Program
             // Register all Quark services using the suite registrar
             builder.Services.AddQuarkSuiteAsScoped();
 
+            // Register demo services
+            builder.Services.AddScoped<Soenneker.Quark.Suite.Demo.Services.EmployeeService>();
+
             var host = builder.Build();
 
             var jsRuntime = (IJSRuntime)host.Services.GetService(typeof(IJSRuntime))!;

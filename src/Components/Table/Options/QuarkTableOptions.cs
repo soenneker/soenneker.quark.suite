@@ -23,7 +23,7 @@ public sealed class QuarkTableOptions
     /// Gets or sets whether to enable debug logging
     /// </summary>
     [JsonPropertyName("debug")]
-    public bool Debug { get; set; } = false;
+    public bool Debug { get; set; }
 
     /// <summary>
     /// Creates a clone of the current options
