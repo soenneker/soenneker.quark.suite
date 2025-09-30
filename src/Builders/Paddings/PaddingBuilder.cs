@@ -50,12 +50,12 @@ public sealed class PaddingBuilder : ICssBuilder
     public PaddingBuilder FromEnd => AddRule(ElementSideType.InlineEnd);
 
     // ----- Size chaining -----
-    public PaddingBuilder Is0 => ChainWithSize(ScaleType.S0);
-    public PaddingBuilder Is1 => ChainWithSize(ScaleType.S1);
-    public PaddingBuilder Is2 => ChainWithSize(ScaleType.S2);
-    public PaddingBuilder Is3 => ChainWithSize(ScaleType.S3);
-    public PaddingBuilder Is4 => ChainWithSize(ScaleType.S4);
-    public PaddingBuilder Is5 => ChainWithSize(ScaleType.S5);
+    public PaddingBuilder Is0 => ChainWithSize(ScaleType.Is0);
+    public PaddingBuilder Is1 => ChainWithSize(ScaleType.Is1);
+    public PaddingBuilder Is2 => ChainWithSize(ScaleType.Is2);
+    public PaddingBuilder Is3 => ChainWithSize(ScaleType.Is3);
+    public PaddingBuilder Is4 => ChainWithSize(ScaleType.Is4);
+    public PaddingBuilder Is5 => ChainWithSize(ScaleType.Is5);
 
     // ----- BreakpointType chaining -----
     public PaddingBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
@@ -68,8 +68,8 @@ public sealed class PaddingBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PaddingBuilder AddRule(ElementSideType side)
     {
-        // Use last size & BreakpointType if present; default to ScaleType.S0Value when absent
-        var size = _rules.Count > 0 ? _rules[^1].Size : ScaleType.S0Value;
+        // Use last size & BreakpointType if present; default to ScaleType.Is0Value when absent
+        var size = _rules.Count > 0 ? _rules[^1].Size : ScaleType.Is0Value;
         var bp = _rules.Count > 0 ? _rules[^1].breakpoint : null;
 
         if (_rules.Count > 0 && _rules[^1].Side == ElementSideType.All)
@@ -104,7 +104,7 @@ public sealed class PaddingBuilder : ICssBuilder
     {
         if (_rules.Count == 0)
         {
-            _rules.Add(new PaddingRule(ScaleType.S0Value, ElementSideType.All, breakpoint));
+            _rules.Add(new PaddingRule(ScaleType.Is0Value, ElementSideType.All, breakpoint));
             return this;
         }
 
@@ -247,12 +247,12 @@ public sealed class PaddingBuilder : ICssBuilder
     {
         return size switch
         {
-            ScaleType.S0Value => _token0,
-            ScaleType.S1Value => ScaleType.S1Value,
-            ScaleType.S2Value => ScaleType.S2Value,
-            ScaleType.S3Value => ScaleType.S3Value,
-            ScaleType.S4Value => ScaleType.S4Value,
-            ScaleType.S5Value => ScaleType.S5Value,
+            ScaleType.Is0Value => _token0,
+            ScaleType.Is1Value => ScaleType.Is1Value,
+            ScaleType.Is2Value => ScaleType.Is2Value,
+            ScaleType.Is3Value => ScaleType.Is3Value,
+            ScaleType.Is4Value => ScaleType.Is4Value,
+            ScaleType.Is5Value => ScaleType.Is5Value,
             "-1" => _tokenAuto, // "auto"
             _ => string.Empty
         };
@@ -294,12 +294,12 @@ public sealed class PaddingBuilder : ICssBuilder
         // Match your original rem scale and "auto"
         return size switch
         {
-            ScaleType.S0Value => "0",
-            ScaleType.S1Value => "0.25rem",
-            ScaleType.S2Value => "0.5rem",
-            ScaleType.S3Value => "1rem",
-            ScaleType.S4Value => "1.5rem",
-            ScaleType.S5Value => "3rem",
+            ScaleType.Is0Value => "0",
+            ScaleType.Is1Value => "0.25rem",
+            ScaleType.Is2Value => "0.5rem",
+            ScaleType.Is3Value => "1rem",
+            ScaleType.Is4Value => "1.5rem",
+            ScaleType.Is5Value => "3rem",
             "-1" => "auto",
             _ => null
         };

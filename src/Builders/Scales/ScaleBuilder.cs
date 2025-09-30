@@ -31,13 +31,13 @@ public sealed class ScaleBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
-    public ScaleBuilder Is0 => ChainWithScale(ScaleType.S0);
-    public ScaleBuilder Is1 => ChainWithScale(ScaleType.S1);
-    public ScaleBuilder Is2 => ChainWithScale(ScaleType.S2);
-    public ScaleBuilder Is3 => ChainWithScale(ScaleType.S3);
-    public ScaleBuilder Is4 => ChainWithScale(ScaleType.S4);
-    public ScaleBuilder Is5 => ChainWithScale(ScaleType.S5);
-    public ScaleBuilder Is6 => ChainWithScale(ScaleType.S6);
+    public ScaleBuilder Is0 => ChainWithScale(ScaleType.Is0);
+    public ScaleBuilder Is1 => ChainWithScale(ScaleType.Is1);
+    public ScaleBuilder Is2 => ChainWithScale(ScaleType.Is2);
+    public ScaleBuilder Is3 => ChainWithScale(ScaleType.Is3);
+    public ScaleBuilder Is4 => ChainWithScale(ScaleType.Is4);
+    public ScaleBuilder Is5 => ChainWithScale(ScaleType.Is5);
+    public ScaleBuilder Is6 => ChainWithScale(ScaleType.Is6);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScaleBuilder ChainWithScale(ScaleType scale)

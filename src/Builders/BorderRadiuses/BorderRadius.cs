@@ -10,7 +10,7 @@ public static class BorderRadius
     /// <summary>
     /// No border radius (0).
     /// </summary>
-    public static BorderRadiusBuilder Is0 => new(ScaleType.S0.Value);
+    public static BorderRadiusBuilder Is0 => new(ScaleType.Is0.Value);
 
     /// <summary>
     /// Small border radius (0.25rem).

@@ -37,32 +37,32 @@ public sealed class GapBuilder : ICssBuilder
     /// <summary>
     /// Chain with a new size for the next rule.
     /// </summary>
-    public GapBuilder Is0 => ChainWithSize(ScaleType.S0Value);
+    public GapBuilder Is0 => ChainWithSize(ScaleType.Is0Value);
 
     /// <summary>
     /// Chain with a new size for the next rule.
     /// </summary>
-    public GapBuilder Is1 => ChainWithSize(ScaleType.S1Value);
+    public GapBuilder Is1 => ChainWithSize(ScaleType.Is1Value);
 
     /// <summary>
     /// Chain with a new size for the next rule.
     /// </summary>
-    public GapBuilder Is2 => ChainWithSize(ScaleType.S2Value);
+    public GapBuilder Is2 => ChainWithSize(ScaleType.Is2Value);
 
     /// <summary>
     /// Chain with a new size for the next rule.
     /// </summary>
-    public GapBuilder Is3 => ChainWithSize(ScaleType.S3Value);
+    public GapBuilder Is3 => ChainWithSize(ScaleType.Is3Value);
 
     /// <summary>
     /// Chain with a new size for the next rule.
     /// </summary>
-    public GapBuilder Is4 => ChainWithSize(ScaleType.S4Value);
+    public GapBuilder Is4 => ChainWithSize(ScaleType.Is4Value);
 
     /// <summary>
     /// Chain with a new size for the next rule.
     /// </summary>
-    public GapBuilder Is5 => ChainWithSize(ScaleType.S5Value);
+    public GapBuilder Is5 => ChainWithSize(ScaleType.Is5Value);
 
     /// <summary>
     /// Apply on phone devices (portrait phones, less than 576px).
@@ -102,7 +102,7 @@ public sealed class GapBuilder : ICssBuilder
     {
         if (_rules.Count == 0)
         {
-            _rules.Add(new GapRule(ScaleType.S0Value, breakpoint));
+            _rules.Add(new GapRule(ScaleType.Is0Value, breakpoint));
             return this;
         }
 
@@ -178,12 +178,12 @@ public sealed class GapBuilder : ICssBuilder
     {
         return size switch
         {
-            ScaleType.S0Value => _classGap0,
-            ScaleType.S1Value => _classGap1,
-            ScaleType.S2Value => _classGap2,
-            ScaleType.S3Value => _classGap3,
-            ScaleType.S4Value => _classGap4,
-            ScaleType.S5Value => _classGap5,
+            ScaleType.Is0Value => _classGap0,
+            ScaleType.Is1Value => _classGap1,
+            ScaleType.Is2Value => _classGap2,
+            ScaleType.Is3Value => _classGap3,
+            ScaleType.Is4Value => _classGap4,
+            ScaleType.Is5Value => _classGap5,
             _ => string.Empty
         };
     }
@@ -193,12 +193,12 @@ public sealed class GapBuilder : ICssBuilder
     {
         return size switch
         {
-            ScaleType.S0Value => "0",
-            ScaleType.S1Value => "0.25rem",
-            ScaleType.S2Value => "0.5rem",
-            ScaleType.S3Value => "1rem",
-            ScaleType.S4Value => "1.5rem",
-            ScaleType.S5Value => "3rem",
+            ScaleType.Is0Value => "0",
+            ScaleType.Is1Value => "0.25rem",
+            ScaleType.Is2Value => "0.5rem",
+            ScaleType.Is3Value => "1rem",
+            ScaleType.Is4Value => "1.5rem",
+            ScaleType.Is5Value => "3rem",
             _ => null
         };
     }

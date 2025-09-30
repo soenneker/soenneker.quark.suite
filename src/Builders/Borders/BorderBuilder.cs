@@ -48,12 +48,12 @@ public sealed class BorderBuilder : ICssBuilder
     public BorderBuilder FromEnd => AddRule(ElementSideType.InlineEnd);
 
     // ----- Size chaining -----
-    public BorderBuilder Is0 => ChainWithSize(ScaleType.S0);
-    public BorderBuilder Is1 => ChainWithSize(ScaleType.S1);
-    public BorderBuilder Is2 => ChainWithSize(ScaleType.S2);
-    public BorderBuilder Is3 => ChainWithSize(ScaleType.S3);
-    public BorderBuilder Is4 => ChainWithSize(ScaleType.S4);
-    public BorderBuilder Is5 => ChainWithSize(ScaleType.S5);
+    public BorderBuilder Is0 => ChainWithSize(ScaleType.Is0);
+    public BorderBuilder Is1 => ChainWithSize(ScaleType.Is1);
+    public BorderBuilder Is2 => ChainWithSize(ScaleType.Is2);
+    public BorderBuilder Is3 => ChainWithSize(ScaleType.Is3);
+    public BorderBuilder Is4 => ChainWithSize(ScaleType.Is4);
+    public BorderBuilder Is5 => ChainWithSize(ScaleType.Is5);
 
     // ----- BreakpointType chaining -----
     public BorderBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
@@ -271,12 +271,12 @@ public sealed class BorderBuilder : ICssBuilder
     {
         return size switch
         {
-            ScaleType.S0Value => "0",
-            ScaleType.S1Value => "1px",
-            ScaleType.S2Value => "2px",
-            ScaleType.S3Value => "3px",
-            ScaleType.S4Value => "4px",
-            ScaleType.S5Value => "5px",
+            ScaleType.Is0Value => "0",
+            ScaleType.Is1Value => "1px",
+            ScaleType.Is2Value => "2px",
+            ScaleType.Is3Value => "3px",
+            ScaleType.Is4Value => "4px",
+            ScaleType.Is5Value => "5px",
             _ => null
         };
     }

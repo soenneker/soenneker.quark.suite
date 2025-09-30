@@ -10,37 +10,37 @@ public static class Scale
     /// <summary>
     /// Scale 0 (no scaling).
     /// </summary>
-    public static ScaleBuilder Is0 => new(ScaleType.S0);
+    public static ScaleBuilder Is0 => new(ScaleType.Is0);
 
     /// <summary>
     /// Scale 1 (normal size).
     /// </summary>
-    public static ScaleBuilder Is1 => new(ScaleType.S1);
+    public static ScaleBuilder Is1 => new(ScaleType.Is1);
 
     /// <summary>
     /// Scale 2 (2x scaling).
     /// </summary>
-    public static ScaleBuilder Is2 => new(ScaleType.S2);
+    public static ScaleBuilder Is2 => new(ScaleType.Is2);
 
     /// <summary>
     /// Scale 3 (3x scaling).
     /// </summary>
-    public static ScaleBuilder Is3 => new(ScaleType.S3);
+    public static ScaleBuilder Is3 => new(ScaleType.Is3);
 
     /// <summary>
     /// Scale 4 (4x scaling).
     /// </summary>
-    public static ScaleBuilder Is4 => new(ScaleType.S4);
+    public static ScaleBuilder Is4 => new(ScaleType.Is4);
 
     /// <summary>
     /// Scale 5 (5x scaling).
     /// </summary>
-    public static ScaleBuilder Is5 => new(ScaleType.S5);
+    public static ScaleBuilder Is5 => new(ScaleType.Is5);
 
     /// <summary>
     /// Scale 6 (6x scaling).
     /// </summary>
-    public static ScaleBuilder Is6 => new(ScaleType.S6);
+    public static ScaleBuilder Is6 => new(ScaleType.Is6);
 
     /// <summary>
     /// Create from a ScaleType enum value.

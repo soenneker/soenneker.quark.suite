@@ -55,12 +55,12 @@ public sealed class MarginBuilder : ICssBuilder
     public MarginBuilder FromEnd => AddRule(ElementSideType.InlineEnd);
 
     // ----- Size chaining -----
-    public MarginBuilder Is0 => ChainWithSize(ScaleType.S0);
-    public MarginBuilder Is1 => ChainWithSize(ScaleType.S1);
-    public MarginBuilder Is2 => ChainWithSize(ScaleType.S2);
-    public MarginBuilder Is3 => ChainWithSize(ScaleType.S3);
-    public MarginBuilder Is4 => ChainWithSize(ScaleType.S4);
-    public MarginBuilder Is5 => ChainWithSize(ScaleType.S5);
+    public MarginBuilder Is0 => ChainWithSize(ScaleType.Is0);
+    public MarginBuilder Is1 => ChainWithSize(ScaleType.Is1);
+    public MarginBuilder Is2 => ChainWithSize(ScaleType.Is2);
+    public MarginBuilder Is3 => ChainWithSize(ScaleType.Is3);
+    public MarginBuilder Is4 => ChainWithSize(ScaleType.Is4);
+    public MarginBuilder Is5 => ChainWithSize(ScaleType.Is5);
     public MarginBuilder Auto => ChainWithSize("auto");
 
     // ----- BreakpointType chaining -----
@@ -74,7 +74,7 @@ public sealed class MarginBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private MarginBuilder AddRule(ElementSideType side)
     {
-        var size = _rules.Count > 0 ? _rules[^1].Size : ScaleType.S0Value;
+        var size = _rules.Count > 0 ? _rules[^1].Size : ScaleType.Is0Value;
         var bp = _rules.Count > 0 ? _rules[^1].breakpoint : null;
 
         if (_rules.Count > 0 && _rules[^1].Side == ElementSideType.All)
@@ -108,7 +108,7 @@ public sealed class MarginBuilder : ICssBuilder
     {
         if (_rules.Count == 0)
         {
-            _rules.Add(new MarginRule(ScaleType.S0Value, ElementSideType.All, breakpoint));
+            _rules.Add(new MarginRule(ScaleType.Is0Value, ElementSideType.All, breakpoint));
             return this;
         }
 
@@ -252,12 +252,12 @@ public sealed class MarginBuilder : ICssBuilder
         {
             return size switch
             {
-                ScaleType.S0Value => _token0,
-                ScaleType.S1Value => _token1,
-                ScaleType.S2Value => _token2,
-                ScaleType.S3Value => _token3,
-                ScaleType.S4Value => _token4,
-                ScaleType.S5Value => _token5,
+                ScaleType.Is0Value => _token0,
+                ScaleType.Is1Value => _token1,
+                ScaleType.Is2Value => _token2,
+                ScaleType.Is3Value => _token3,
+                ScaleType.Is4Value => _token4,
+                ScaleType.Is5Value => _token5,
                 "auto" => _tokenAuto,
                 _ => string.Empty
             };
@@ -298,12 +298,12 @@ public sealed class MarginBuilder : ICssBuilder
         {
             return size switch
             {
-                ScaleType.S0Value => "0",
-                ScaleType.S1Value => "0.25rem",
-                ScaleType.S2Value => "0.5rem",
-                ScaleType.S3Value => "1rem",
-                ScaleType.S4Value => "1.5rem",
-                ScaleType.S5Value => "3rem",
+                ScaleType.Is0Value => "0",
+                ScaleType.Is1Value => "0.25rem",
+                ScaleType.Is2Value => "0.5rem",
+                ScaleType.Is3Value => "1rem",
+                ScaleType.Is4Value => "1.5rem",
+                ScaleType.Is5Value => "3rem",
                 "auto" => "auto",
                 _ => null
             };
