@@ -248,6 +248,20 @@
         {
             // Toggle collapsed state for vertical bars when in Small collapse mode
             _sidebarCollapsed = !_sidebarCollapsed;
+            
+            // If we're collapsing the sidebar, also collapse all dropdowns
+            if (_sidebarCollapsed)
+            {
+                _forceCollapseAll = true;
+                // Reset the flag after a delay
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(100);
+                    _forceCollapseAll = false;
+                    await InvokeAsync(StateHasChanged);
+                });
+            }
+            
             // Defer StateHasChanged to avoid re-render during event handling
             _ = InvokeAsync(StateHasChanged);
             return;

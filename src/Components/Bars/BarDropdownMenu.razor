@@ -42,16 +42,13 @@
         // Also suppress show state when force collapse is active
         if (Show && !SidebarCollapsed && !ForceCollapseAll)
             baseClass = $"{baseClass} show";
+        
+        // Always suppress show state when sidebar is collapsed to prevent panels from staying open
+        if (SidebarCollapsed)
+            baseClass = baseClass.Replace(" show", "");
 
-        if (RightAligned)
-            baseClass = $"{baseClass} dropdown-menu-end";
-
-        // For vertical mode, adjust styling; when collapsed we pop out so don't force w-100
-        if (Mode != BarMode.Horizontal)
-        {
-            if (!SidebarCollapsed)
-                baseClass = $"{baseClass} w-100";
-        }
+        // For vertical mode, let dropdowns size naturally instead of forcing w-100
+        // This allows the dropdown to have a more appropriate width when sidebar is expanded
 
         AppendToClassAttr(attributes, baseClass);
 
