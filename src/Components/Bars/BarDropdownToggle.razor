@@ -2,7 +2,7 @@
 
 @inherits Soenneker.Quark.Element
 
-<button @attributes="BuildAttributes()" data-bs-toggle="collapse" data-bs-target="#@TargetId" aria-expanded="@Expanded.ToString().ToLower()">
+<button @attributes="BuildAttributes()" data-bs-toggle="collapse" data-bs-target="#@TargetId" aria-expanded="@((!ForceCollapseAll && Expanded).ToString().ToLower())">
     @ChildContent
 </button>
 
@@ -29,6 +29,9 @@
 
     [CascadingParameter]
     public bool SidebarCollapsed { get; set; }
+    
+    [CascadingParameter]
+    public bool ForceCollapseAll { get; set; }
 
     private string TargetId => ParentDropdown?.CollapseId ?? "";
 
@@ -38,7 +41,9 @@
 
         var baseClass = "btn btn-toggle align-items-center rounded";
         
-        if (!Expanded)
+        // Force collapse if requested, otherwise use Expanded state
+        var shouldBeCollapsed = ForceCollapseAll || !Expanded;
+        if (shouldBeCollapsed)
             baseClass = $"{baseClass} collapsed";
         
         if (Disabled == true)

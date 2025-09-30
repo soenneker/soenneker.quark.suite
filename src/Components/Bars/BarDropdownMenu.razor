@@ -27,6 +27,9 @@
 
     [CascadingParameter]
     public string? CollapseParent { get; set; }
+    
+    [CascadingParameter]
+    public bool ForceCollapseAll { get; set; }
 
     protected override Dictionary<string, object> BuildAttributes()
     {
@@ -36,7 +39,8 @@
         
         // When the sidebar is collapsed, suppress initial "show" state;
         // the panel should appear only after an explicit click.
-        if (Show && !SidebarCollapsed)
+        // Also suppress show state when force collapse is active
+        if (Show && !SidebarCollapsed && !ForceCollapseAll)
             baseClass = $"{baseClass} show";
 
         if (RightAligned)

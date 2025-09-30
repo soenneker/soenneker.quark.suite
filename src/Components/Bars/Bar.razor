@@ -8,9 +8,11 @@
     <CascadingValue Value="@HandleBarTogglerClick" IsFixed="true">
         <CascadingValue Value="@_sidebarCollapsed" IsFixed="true">
             <CascadingValue Value="@_collapseGroupId" IsFixed="true">
-                <nav @attributes="BuildAttributes()">
-                    @ChildContent
-                </nav>
+                <CascadingValue Value="@_forceCollapseAll" IsFixed="true">
+                    <nav @attributes="BuildAttributes()">
+                        @ChildContent
+                    </nav>
+                </CascadingValue>
             </CascadingValue>
         </CascadingValue>
     </CascadingValue>
@@ -53,6 +55,7 @@
     public EventCallback<bool> SidebarVisibleChanged { get; set; }
     private readonly string _collapseGroupId = $"sidebar-accordion-{Guid.NewGuid():N}";
     private bool _sidebarCollapsed;
+    private bool _forceCollapseAll;
 
     /// <summary>
     /// Used for responsive collapsing. Sets the breakpoint at which the navbar will expand.
@@ -217,7 +220,8 @@
             {
                 AppendStyleDeclAttr(attributes, "width: 250px");
             }
-            AppendStyleDeclAttr(attributes, "height: 100vh");
+
+            AppendStyleDeclAttr(attributes, "height: 100%");
 
             // Ensure the vertical nav participates in layout width, not flex-grow
             AppendStyleDeclAttr(attributes, "flex: 0 0 auto");
@@ -259,6 +263,20 @@
             // For vertical bars, toggle collapsed or hidden depending on CollapseMode
             await ToggleSidebar();
         }
+        
+        // Collapse all dropdown menus when BarToggle is clicked
+        await CollapseAllDropdowns();
+    }
+    
+    private async Task CollapseAllDropdowns()
+    {
+        // Trigger collapse of all dropdowns by updating state
+        _forceCollapseAll = true;
+        StateHasChanged();
+        
+        // Reset the flag after a brief delay to allow for re-opening
+        await Task.Delay(100);
+        _forceCollapseAll = false;
     }
 
 
