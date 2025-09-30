@@ -55,12 +55,12 @@ public sealed class MarginBuilder : ICssBuilder
     public MarginBuilder FromEnd => AddRule(ElementSideType.InlineEnd);
 
     // ----- Size chaining -----
-    public MarginBuilder S0 => ChainWithSize(ScaleType.S0);
-    public MarginBuilder S1 => ChainWithSize(ScaleType.S1);
-    public MarginBuilder S2 => ChainWithSize(ScaleType.S2);
-    public MarginBuilder S3 => ChainWithSize(ScaleType.S3);
-    public MarginBuilder S4 => ChainWithSize(ScaleType.S4);
-    public MarginBuilder S5 => ChainWithSize(ScaleType.S5);
+    public MarginBuilder Is0 => ChainWithSize(ScaleType.S0);
+    public MarginBuilder Is1 => ChainWithSize(ScaleType.S1);
+    public MarginBuilder Is2 => ChainWithSize(ScaleType.S2);
+    public MarginBuilder Is3 => ChainWithSize(ScaleType.S3);
+    public MarginBuilder Is4 => ChainWithSize(ScaleType.S4);
+    public MarginBuilder Is5 => ChainWithSize(ScaleType.S5);
     public MarginBuilder Auto => ChainWithSize("auto");
 
     // ----- BreakpointType chaining -----

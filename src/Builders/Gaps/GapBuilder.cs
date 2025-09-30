@@ -37,32 +37,32 @@ public sealed class GapBuilder : ICssBuilder
     /// <summary>
     /// Chain with a new size for the next rule.
     /// </summary>
-    public GapBuilder S0 => ChainWithSize(ScaleType.S0Value);
+    public GapBuilder Is0 => ChainWithSize(ScaleType.S0Value);
 
     /// <summary>
     /// Chain with a new size for the next rule.
     /// </summary>
-    public GapBuilder S1 => ChainWithSize(ScaleType.S1Value);
+    public GapBuilder Is1 => ChainWithSize(ScaleType.S1Value);
 
     /// <summary>
     /// Chain with a new size for the next rule.
     /// </summary>
-    public GapBuilder S2 => ChainWithSize(ScaleType.S2Value);
+    public GapBuilder Is2 => ChainWithSize(ScaleType.S2Value);
 
     /// <summary>
     /// Chain with a new size for the next rule.
     /// </summary>
-    public GapBuilder S3 => ChainWithSize(ScaleType.S3Value);
+    public GapBuilder Is3 => ChainWithSize(ScaleType.S3Value);
 
     /// <summary>
     /// Chain with a new size for the next rule.
     /// </summary>
-    public GapBuilder S4 => ChainWithSize(ScaleType.S4Value);
+    public GapBuilder Is4 => ChainWithSize(ScaleType.S4Value);
 
     /// <summary>
     /// Chain with a new size for the next rule.
     /// </summary>
-    public GapBuilder S5 => ChainWithSize(ScaleType.S5Value);
+    public GapBuilder Is5 => ChainWithSize(ScaleType.S5Value);
 
     /// <summary>
     /// Apply on phone devices (portrait phones, less than 576px).

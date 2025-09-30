@@ -48,12 +48,12 @@ public sealed class BorderBuilder : ICssBuilder
     public BorderBuilder FromEnd => AddRule(ElementSideType.InlineEnd);
 
     // ----- Size chaining -----
-    public BorderBuilder S0 => ChainWithSize(ScaleType.S0);
-    public BorderBuilder S1 => ChainWithSize(ScaleType.S1);
-    public BorderBuilder S2 => ChainWithSize(ScaleType.S2);
-    public BorderBuilder S3 => ChainWithSize(ScaleType.S3);
-    public BorderBuilder S4 => ChainWithSize(ScaleType.S4);
-    public BorderBuilder S5 => ChainWithSize(ScaleType.S5);
+    public BorderBuilder Is0 => ChainWithSize(ScaleType.S0);
+    public BorderBuilder Is1 => ChainWithSize(ScaleType.S1);
+    public BorderBuilder Is2 => ChainWithSize(ScaleType.S2);
+    public BorderBuilder Is3 => ChainWithSize(ScaleType.S3);
+    public BorderBuilder Is4 => ChainWithSize(ScaleType.S4);
+    public BorderBuilder Is5 => ChainWithSize(ScaleType.S5);
 
     // ----- BreakpointType chaining -----
     public BorderBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);

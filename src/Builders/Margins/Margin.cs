@@ -10,32 +10,32 @@ public static class Margin
     /// <summary>
     /// No margin (0).
     /// </summary>
-    public static MarginBuilder S0 => new(ScaleType.S0Value);
+    public static MarginBuilder Is0 => new(ScaleType.S0Value);
 
     /// <summary>
     /// Size 1 margin (0.25rem).
     /// </summary>
-    public static MarginBuilder S1 => new(ScaleType.S1Value);
+    public static MarginBuilder Is1 => new(ScaleType.S1Value);
 
     /// <summary>
     /// Size 2 margin (0.5rem).
     /// </summary>
-    public static MarginBuilder S2 => new(ScaleType.S2Value);
+    public static MarginBuilder Is2 => new(ScaleType.S2Value);
 
     /// <summary>
     /// Size 3 margin (1rem).
     /// </summary>
-    public static MarginBuilder S3 => new(ScaleType.S3Value);
+    public static MarginBuilder Is3 => new(ScaleType.S3Value);
 
     /// <summary>
     /// Size 4 margin (1.5rem).
     /// </summary>
-    public static MarginBuilder S4 => new(ScaleType.S4Value);
+    public static MarginBuilder Is4 => new(ScaleType.S4Value);
 
     /// <summary>
     /// Size 5 margin (3rem).
     /// </summary>
-    public static MarginBuilder S5 => new(ScaleType.S5Value);
+    public static MarginBuilder Is5 => new(ScaleType.S5Value);
 
     /// <summary>
     /// Auto margin (auto).

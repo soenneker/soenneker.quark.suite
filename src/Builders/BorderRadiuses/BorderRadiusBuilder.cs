@@ -52,7 +52,7 @@ public sealed class BorderRadiusBuilder : ICssBuilder
     public BorderRadiusBuilder All => AddRule(ElementSideType.All, "");
 
     // ----- Size chaining -----
-    public BorderRadiusBuilder S0 => ChainWithSize(ScaleType.S0);
+    public BorderRadiusBuilder Is0 => ChainWithSize(ScaleType.S0);
     public BorderRadiusBuilder Small => ChainWithSize("sm");
     public BorderRadiusBuilder Default => ChainWithSize("");
     public BorderRadiusBuilder Large => ChainWithSize("lg");

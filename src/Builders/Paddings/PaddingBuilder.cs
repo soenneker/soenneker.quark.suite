@@ -50,12 +50,12 @@ public sealed class PaddingBuilder : ICssBuilder
     public PaddingBuilder FromEnd => AddRule(ElementSideType.InlineEnd);
 
     // ----- Size chaining -----
-    public PaddingBuilder S0 => ChainWithSize(ScaleType.S0);
-    public PaddingBuilder S1 => ChainWithSize(ScaleType.S1);
-    public PaddingBuilder S2 => ChainWithSize(ScaleType.S2);
-    public PaddingBuilder S3 => ChainWithSize(ScaleType.S3);
-    public PaddingBuilder S4 => ChainWithSize(ScaleType.S4);
-    public PaddingBuilder S5 => ChainWithSize(ScaleType.S5);
+    public PaddingBuilder Is0 => ChainWithSize(ScaleType.S0);
+    public PaddingBuilder Is1 => ChainWithSize(ScaleType.S1);
+    public PaddingBuilder Is2 => ChainWithSize(ScaleType.S2);
+    public PaddingBuilder Is3 => ChainWithSize(ScaleType.S3);
+    public PaddingBuilder Is4 => ChainWithSize(ScaleType.S4);
+    public PaddingBuilder Is5 => ChainWithSize(ScaleType.S5);
 
     // ----- BreakpointType chaining -----
     public PaddingBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);

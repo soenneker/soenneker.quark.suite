@@ -39,18 +39,18 @@ public sealed class ColumnSizeBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
-    public ColumnSizeBuilder S1 => ChainWithSize("1");
-    public ColumnSizeBuilder S2 => ChainWithSize("2");
-    public ColumnSizeBuilder S3 => ChainWithSize("3");
-    public ColumnSizeBuilder S4 => ChainWithSize("4");
-    public ColumnSizeBuilder S5 => ChainWithSize("5");
-    public ColumnSizeBuilder S6 => ChainWithSize("6");
-    public ColumnSizeBuilder S7 => ChainWithSize("7");
-    public ColumnSizeBuilder S8 => ChainWithSize("8");
-    public ColumnSizeBuilder S9 => ChainWithSize("9");
-    public ColumnSizeBuilder S10 => ChainWithSize("10");
-    public ColumnSizeBuilder S11 => ChainWithSize("11");
-    public ColumnSizeBuilder S12 => ChainWithSize("12");
+    public ColumnSizeBuilder Is1 => ChainWithSize("1");
+    public ColumnSizeBuilder Is2 => ChainWithSize("2");
+    public ColumnSizeBuilder Is3 => ChainWithSize("3");
+    public ColumnSizeBuilder Is4 => ChainWithSize("4");
+    public ColumnSizeBuilder Is5 => ChainWithSize("5");
+    public ColumnSizeBuilder Is6 => ChainWithSize("6");
+    public ColumnSizeBuilder Is7 => ChainWithSize("7");
+    public ColumnSizeBuilder Is8 => ChainWithSize("8");
+    public ColumnSizeBuilder Is9 => ChainWithSize("9");
+    public ColumnSizeBuilder Is10 => ChainWithSize("10");
+    public ColumnSizeBuilder Is11 => ChainWithSize("11");
+    public ColumnSizeBuilder Is12 => ChainWithSize("12");
     public ColumnSizeBuilder Auto => ChainWithSize("auto");
 
     public ColumnSizeBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);

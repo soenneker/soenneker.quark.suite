@@ -26,7 +26,7 @@ public sealed class LineHeightBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
-    public LineHeightBuilder L1 => Chain(ScaleType.S1.Value);
+    public LineHeightBuilder Is1 => Chain(ScaleType.S1.Value);
     public LineHeightBuilder Small => Chain(SizeType.Small.Value);
     public LineHeightBuilder Base => Chain("base");
     public LineHeightBuilder Large => Chain(SizeType.Large.Value);

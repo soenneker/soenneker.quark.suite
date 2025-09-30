@@ -1,4 +1,5 @@
 @using Microsoft.AspNetCore.Components.Routing
+@using Soenneker.Quark.Enums
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
@@ -12,4 +13,17 @@
 
     [Parameter]
     public string? To { get; set; }
+
+    [Parameter]
+    public Target? Target { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+
+        if (Target != null)
+            attributes["target"] = Target.Value;
+
+        return attributes;
+    }
 }
