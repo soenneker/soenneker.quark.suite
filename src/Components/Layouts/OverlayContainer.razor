@@ -1,0 +1,42 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@inject IOffcanvasCoordinator OffcanvasCoordinator
+@inject IOffcanvasInterop OffcanvasInterop
+
+<div class="@GetRootClass()" @attributes="BuildAttributes()" >
+    @ChildContent
+</div>
+
+@code {
+    public override string? ThemeKey { get; set; } = "OverlayContainer";
+
+    protected override async Task OnInitializedAsync()
+    {
+        OffcanvasCoordinator.StateChanged += HandleChanged;
+        await OffcanvasInterop.Initialize();
+        await base.OnInitializedAsync();
+    }
+
+    private void HandleChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private string GetRootClass()
+    {
+        var cls = "quark-overlay-container";
+        if (OffcanvasCoordinator.ActiveCount > 0)
+            cls += " offcanvas-open";
+        if (!string.IsNullOrEmpty(Class))
+            cls += $" {Class}";
+        return cls;
+    }
+
+    public override ValueTask DisposeAsync()
+    {
+        OffcanvasCoordinator.StateChanged -= HandleChanged;
+        return base.DisposeAsync();
+    }
+}
+
+

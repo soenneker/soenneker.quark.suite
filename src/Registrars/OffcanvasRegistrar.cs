@@ -16,6 +16,7 @@ public static class OffcanvasRegistrar
     {
         services.AddResourceLoaderAsScoped()
             .TryAddScoped<IOffcanvasInterop, OffcanvasInterop>();
+        services.TryAddScoped<IOffcanvasCoordinator, OffcanvasCoordinator>();
 
         return services;
     }

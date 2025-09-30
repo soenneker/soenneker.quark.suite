@@ -14,7 +14,8 @@
 
     @if (_open)
     {
-        <Div @attributes="BuildPanelAttributes()">
+        <div class="quark-date-backdrop" style="position: fixed; inset: 0; z-index: 1075;" @onclick="ClosePanel"></div>
+        <Div @attributes="BuildPanelAttributes()" @onclick:stopPropagation="true">
             <div class="qcal-header d-flex align-items-center justify-content-between">
                 <button type="button" class="btn btn-sm btn-light qcal-nav" @onclick="PrevMonth">‹</button>
                 <div class="qcal-title fw-semibold">@_displayMonth.ToString("MMMM yyyy", CultureInfo.CurrentUICulture)</div>
@@ -240,6 +241,7 @@
         attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, OpenPanel);
         attributes["onfocus"] = EventCallback.Factory.Create<FocusEventArgs>(this, OpenPanel);
 
+        attributes["autocomplete"] = "off";
         attributes["oninput"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleInput);
         attributes["onchange"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleChange);
 
