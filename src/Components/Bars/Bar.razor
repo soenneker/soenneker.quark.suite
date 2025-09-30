@@ -21,6 +21,7 @@
 @code {
 	public override string? ThemeKey { get; set; } = "Bar";
 
+
     [Parameter]
     public BarMode Mode { get; set; } = BarMode.Horizontal;
 
@@ -260,12 +261,18 @@
     {
         if (Mode != BarMode.Horizontal)
         {
-            // For vertical bars, toggle collapsed or hidden depending on CollapseMode
+            // Always collapse dropdowns first, then toggle sidebar after a brief delay
+            await CollapseAllDropdowns();
+            
+            // Wait just enough for dropdowns to collapse, then toggle sidebar
+            await Task.Delay(50);
             await ToggleSidebar();
         }
-        
-        // Collapse all dropdown menus when BarToggle is clicked
-        await CollapseAllDropdowns();
+        else
+        {
+            // For horizontal bars, just collapse dropdowns
+            await CollapseAllDropdowns();
+        }
     }
     
     private async Task CollapseAllDropdowns()
