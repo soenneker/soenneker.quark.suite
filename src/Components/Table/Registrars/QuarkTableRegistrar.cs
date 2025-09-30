@@ -15,9 +15,9 @@ public static class QuarkTableRegistrar
     /// </summary>
     /// <param name="services">The service collection</param>
     /// <returns>The service collection for chaining</returns>
-    public static IServiceCollection AddQuarkTable(this IServiceCollection services)
+    public static IServiceCollection AddQuarkTableAsScoped(this IServiceCollection services)
     {
-        services.AddResourceLoaderAsScoped().TryAddScoped<IQuarkTableInterop, QuarkTableInterop>();
+        services.AddResourceLoaderAsScoped().TryAddScoped<ITablesInterop, TablesInterop>();
         return services;
     }
 }

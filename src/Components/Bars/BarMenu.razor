@@ -2,7 +2,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<Div Class="collapse navbar-collapse" @attributes="BuildAttributes()" >
+<Div @attributes="BuildAttributes()" >
     @ChildContent
 </Div>
 
@@ -12,14 +12,29 @@
     [Parameter]
     public bool Right { get; set; }
 
+    [CascadingParameter]
+    public BarMode Mode { get; set; } = BarMode.Horizontal;
+
+    [CascadingParameter]
+    public bool SidebarCollapsed { get; set; }
+
+
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
 
-        var baseClass = "collapse navbar-collapse";
+        var baseClass = Mode == BarMode.Horizontal ? "collapse navbar-collapse" : "";
 
-        if (Right)
+        if (Right && Mode == BarMode.Horizontal)
             baseClass = $"{baseClass} ms-auto";
+
+        // For vertical modes, add flex-direction column
+        if (Mode != BarMode.Horizontal)
+        {
+            AppendStyleDeclAttr(attributes, "flex-direction: column; width: 100%;");
+            if (SidebarCollapsed)
+                AppendStyleDeclAttr(attributes, "gap: 0.25rem;");
+        }
 
         AppendToClassAttr(attributes, baseClass);
 

@@ -1,9 +1,20 @@
 @namespace Soenneker.Quark
-@inherits Soenneker.Quark.Element
+@using Soenneker.Blazor.Extensions.EventCallback
+@inherits Soenneker.Quark.CancellableElement
 
-<nav @attributes="BuildAttributes()" >
-    @ChildContent
-</nav>
+@inject IBarInterop BarInterop 
+
+<CascadingValue Value="@Mode" IsFixed="true">
+    <CascadingValue Value="@HandleBarTogglerClick" IsFixed="true">
+        <CascadingValue Value="@_sidebarCollapsed" IsFixed="true">
+            <CascadingValue Value="@_collapseGroupId" IsFixed="true">
+                <nav @attributes="BuildAttributes()">
+                    @ChildContent
+                </nav>
+            </CascadingValue>
+        </CascadingValue>
+    </CascadingValue>
+</CascadingValue>
 
 @code {
 	public override string? ThemeKey { get; set; } = "Bar";
@@ -35,22 +46,44 @@
     [Parameter]
     public BarMenuToggleBehavior MenuToggleBehavior { get; set; } = BarMenuToggleBehavior.AllowMultipleMenus;
 
+    [CascadingParameter]
+    public bool SidebarVisible { get; set; } = true;
+
+    [CascadingParameter]
+    public EventCallback<bool> SidebarVisibleChanged { get; set; }
+    private readonly string _collapseGroupId = $"sidebar-accordion-{Guid.NewGuid():N}";
+    private bool _sidebarCollapsed;
+
     /// <summary>
     /// Used for responsive collapsing. Sets the breakpoint at which the navbar will expand.
     /// </summary>
     [Parameter]
     public BreakpointType? Breakpoint { get; set; }
 
-    private string GetModeClass()
+    /// <summary>
+    /// Used for responsive navigation. Sets the breakpoint at which the navigation will collapse.
+    /// </summary>
+    [Parameter]
+    public BreakpointType? NavigationBreakpoint { get; set; }
+
+    protected override async Task OnInitializedAsync()
     {
-        return Mode.Value switch
+        await base.OnInitializedAsync();
+        
+        // Initialize vertical navbar styles if needed
+        if (Mode != BarMode.Horizontal)
         {
-            BarMode.HorizontalValue => "navbar",
-            BarMode.VerticalPopoutValue => "navbar-vertical",
-            BarMode.VerticalInlineValue => "navbar-vertical",
-            BarMode.VerticalSmallValue => "navbar-vertical-small",
-            _ => "navbar"
-        };
+            await BarInterop.Initialize(CancellationToken);
+        }
+    }
+
+    private string GetBaseClass()
+    {
+        if (Mode == BarMode.Horizontal)
+            return "navbar";
+        
+        // For vertical mode, don't use navbar classes to avoid collapse behavior
+        return "";
     }
 
     private string? GetPlacementClass()
@@ -86,6 +119,25 @@
         return null;
     }
 
+    private string? GetVerticalClass()
+    {
+        // For vertical mode, don't use navbar classes to avoid collapse behavior
+        return null;
+    }
+
+    private string? GetExpandClass()
+    {
+        if (!Expand || Mode != BarMode.Horizontal)
+            return null;
+
+        var breakpointToken = BreakpointUtil.GetBreakpointToken(Breakpoint);
+        
+        if (string.IsNullOrEmpty(breakpointToken))
+            return "navbar-expand-lg"; // Default
+
+        return $"navbar-expand-{breakpointToken}";
+    }
+
     private string? GetCollapseClass()
     {
         if (!Visible)
@@ -105,46 +157,109 @@
     {
         var attributes = base.BuildAttributes();
 
-        var baseClasses = GetModeClass();
+        var classes = new List<string> { GetBaseClass() };
+
+        // Add placement class
         var placementClass = GetPlacementClass();
-        var colorClass = GetColorClass();
-        var backgroundClass = GetBackgroundClass();
-        var collapseClass = GetCollapseClass();
-
         if (placementClass != null)
-            baseClasses = $"{baseClasses} {placementClass}";
+            classes.Add(placementClass);
 
+        // Add color class
+        var colorClass = GetColorClass();
         if (colorClass != null)
-            baseClasses = $"{baseClasses} {colorClass}";
+            classes.Add(colorClass);
 
+        // Add background class
+        var backgroundClass = GetBackgroundClass();
         if (backgroundClass != null)
-            baseClasses = $"{baseClasses} {backgroundClass}";
+            classes.Add(backgroundClass);
 
-        if (collapseClass != null)
-            baseClasses = $"{baseClasses} {collapseClass}";
+        // Add vertical specific class
+        var verticalClass = GetVerticalClass();
+        if (verticalClass != null)
+            classes.Add(verticalClass);
 
-        // Apply responsive expand class based on breakpoint
+        // Add expand class (horizontal only)
         var expandClass = GetExpandClass();
         if (expandClass != null)
-            baseClasses = $"{baseClasses} {expandClass}";
+            classes.Add(expandClass);
 
-        if (baseClasses != null)
-            AppendToClassAttr(attributes, baseClasses);
+        // Add collapse class (only for horizontal mode)
+        if (Mode == BarMode.Horizontal)
+        {
+            var collapseClass = GetCollapseClass();
+            if (collapseClass != null)
+                classes.Add(collapseClass);
+        }
+
+        // For vertical sidebar mode, add specific styling
+        if (Mode != BarMode.Horizontal)
+        {
+            classes.Add("d-flex");
+            classes.Add("flex-column");
+            classes.Add("flex-shrink-0");
+            classes.Add("p-3");
+            classes.Add("bg-light");
+            classes.Add("border-end");
+            
+            // Determine vertical sidebar state classes and width
+            if (!SidebarVisible)
+            {
+                classes.Add("sidebar-hidden");
+                AppendStyleDeclAttr(attributes, "width: 0px");
+            }
+            else if (CollapseMode == BarCollapseMode.Small && _sidebarCollapsed)
+            {
+                classes.Add("sidebar-collapsed");
+                AppendStyleDeclAttr(attributes, "width: 60px");
+            }
+            else
+            {
+                AppendStyleDeclAttr(attributes, "width: 250px");
+            }
+            AppendStyleDeclAttr(attributes, "height: 100vh");
+
+            // Ensure the vertical nav participates in layout width, not flex-grow
+            AppendStyleDeclAttr(attributes, "flex: 0 0 auto");
+
+            // Provide a grouping id to act as Bootstrap collapse parent so only one opens at a time
+            attributes["id"] = _collapseGroupId;
+        }
+
+        AppendToClassAttr(attributes, string.Join(" ", classes));
 
         return attributes;
     }
 
-    private string? GetExpandClass()
+
+    public async Task ToggleSidebar()
     {
-        if (!Expand || Mode != BarMode.Horizontal)
-            return null;
+        if (Mode == BarMode.Horizontal)
+        {
+            return;
+        }
 
-        var breakpointToken = BreakpointUtil.GetBreakpointToken(Breakpoint);
-        
-        if (string.IsNullOrEmpty(breakpointToken))
-            return "navbar-expand-lg"; // Default
+        if (CollapseMode == BarCollapseMode.Small)
+        {
+            // Toggle collapsed state for vertical bars when in Small collapse mode
+            _sidebarCollapsed = !_sidebarCollapsed;
+            // Defer StateHasChanged to avoid re-render during event handling
+            _ = InvokeAsync(StateHasChanged);
+            return;
+        }
 
-        return $"navbar-expand-{breakpointToken}";
+        // Fallback: toggle visibility (hide/show)
+        await SidebarVisibleChanged.InvokeIfHasDelegate(!SidebarVisible);
     }
+
+    private async Task HandleBarTogglerClick(MouseEventArgs args)
+    {
+        if (Mode != BarMode.Horizontal)
+        {
+            // For vertical bars, toggle collapsed or hidden depending on CollapseMode
+            await ToggleSidebar();
+        }
+    }
+
 
 }

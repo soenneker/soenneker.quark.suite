@@ -2,20 +2,24 @@
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Value="@this" IsFixed="true" >
-    <Div @attributes="BuildAttributes()" >
-        @if (Loading)
-        {
-            @if (LoadingTemplate is not null)
-            {
-                @LoadingTemplate
-            }
-            else
-            {
-                <Div class="@GetLoadingClass()" ></Div>
-            }
-        }
-        @ChildContent
-    </Div>
+    <CascadingValue Value="@_sidebarVisible" IsFixed="true">
+        <CascadingValue Value="@OnSidebarVisibleChanged" IsFixed="true">
+            <section @attributes="BuildAttributes()" >
+                @if (Loading)
+                {
+                    @if (LoadingTemplate is not null)
+                    {
+                        @LoadingTemplate
+                    }
+                    else
+                    {
+                        <Div class="@GetLoadingClass()" ></Div>
+                    }
+                }
+                @ChildContent
+            </section>
+        </CascadingValue>
+    </CascadingValue>
 </CascadingValue>
 
 @code {
@@ -33,17 +37,25 @@
     [Parameter]
     public RenderFragment? LoadingTemplate { get; set; }
 
+    private bool _sidebarVisible = true;
+
     private bool _initialized;
 
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
 
-        const string baseClasses = "d-flex flex-column min-vh-100";
-        AppendToClassAttr(attributes, baseClasses);
-
+        // Base layout classes - using standard Bootstrap classes
         if (HasSider)
-            AppendToClassAttr(attributes, "flex-row");
+        {
+            // For sidebar layout, use horizontal flex
+            AppendToClassAttr(attributes, "d-flex");
+        }
+        else
+        {
+            // For regular layout, use vertical flex with full height
+            AppendToClassAttr(attributes, "d-flex flex-column min-vh-100");
+        }
 
         // a11y: reflect busy state when loading overlay shown
         SetOrRemove(attributes, "aria-busy", Loading, "true");
@@ -64,6 +76,12 @@
     private string GetLoadingClass()
     {
         return string.IsNullOrWhiteSpace(LoadingClass) ? "position-fixed top-0 start-0 w-100 h-100 bg-body bg-opacity-75" : LoadingClass!;
+    }
+
+    private async Task OnSidebarVisibleChanged(bool visible)
+    {
+        _sidebarVisible = visible;
+        StateHasChanged();
     }
 
 }

@@ -8,7 +8,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Interface for the QuarkTable component
 /// </summary>
-public interface IQuarkTable : IAsyncDisposable
+public interface IQuarkTable : ICancellableElement
 {
     /// <summary>
     /// Gets the current page number

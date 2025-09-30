@@ -1,34 +1,33 @@
-
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<Div Class="dropdown" @attributes="BuildAttributes()" >
-    @ChildContent
-</Div>
+<CascadingValue Value="this">
+    <Div @attributes="BuildAttributes()">
+        @ChildContent
+    </Div>
+</CascadingValue>
 
 @code {
-	public override string? ThemeKey { get; set; } = "BarDropdown";
-
-    [Parameter]
-    public bool Visible { get; set; }
+    public override string? ThemeKey { get; set; } = "BarDropdown";
 
     [Parameter]
     public bool RightAligned { get; set; }
+
+    [CascadingParameter]
+    public BarMode Mode { get; set; } = BarMode.Horizontal;
+
+    public string CollapseId { get; } = $"collapse-{Guid.NewGuid():N}";
 
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
 
-        var baseClass = "dropdown";
-        
-        if (Visible)
-            baseClass = $"{baseClass} show";
-
-        if (RightAligned)
-            baseClass = $"{baseClass} dropdown-menu-end";
-
-        AppendToClassAttr(attributes, baseClass);
+        // For vertical mode, add specific styling
+        if (Mode != BarMode.Horizontal)
+        {
+            AppendToClassAttr(attributes, "w-100");
+        }
 
         return attributes;
     }
-
 }

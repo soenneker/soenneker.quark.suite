@@ -34,10 +34,7 @@
 	public override string? ThemeKey { get; set; } = "QuarkTable";
 
     [Inject]
-    private IQuarkTableInterop QuarkTableInterop { get; set; } = null!;
-
-    [Inject]
-    private ILogger<QuarkTable> Logger { get; set; } = null!;
+    private ITablesInterop TablesInterop { get; set; } = null!;
 
     [Parameter]
     public EventCallback OnInitialize { get; set; }
@@ -102,7 +99,6 @@
     private string _searchTerm = string.Empty;
     private string? _continuationToken;
 
-    private bool _dataChanged;
     private bool _isLoading;
     private bool _initialized;
     private bool _dataLoaded;
@@ -117,7 +113,7 @@
         try
         {
             PageSize = Options.DefaultPageSize;
-            await QuarkTableInterop.Initialize(CancellationToken);
+            await TablesInterop.Initialize(CancellationToken);
 
             _initialized = true;
 
@@ -454,7 +450,7 @@
 
         _isHandlingManualRequest = true;
         _isLoading = true;
-        _dataChanged = true;
+
         StateHasChanged();
 
         try
@@ -501,7 +497,6 @@
         finally
         {
             _isLoading = false;
-            _dataChanged = true;
             _isHandlingManualRequest = false;
 
             StateHasChanged();
@@ -545,7 +540,6 @@
 
         _isLoading = false;
         _isHandlingManualRequest = false;
-        _dataChanged = true;
 
         StateHasChanged();
     }

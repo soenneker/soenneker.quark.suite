@@ -5,12 +5,12 @@ using Soenneker.Utils.AsyncSingleton;
 
 namespace Soenneker.Quark;
 
-/// <inheritdoc cref="IQuarkTableInterop"/>
-public sealed class QuarkTableInterop : IQuarkTableInterop
+/// <inheritdoc cref="ITablesInterop"/>
+public sealed class TablesInterop : ITablesInterop
 {
     private readonly AsyncSingleton _styleInitializer;
 
-    public QuarkTableInterop(IResourceLoader resourceLoader)
+    public TablesInterop(IResourceLoader resourceLoader)
     {
         _styleInitializer = new AsyncSingleton(async (token, _) =>
         {

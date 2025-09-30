@@ -2,31 +2,62 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<aside @attributes="BuildAttributes()" >
-    @ChildContent
+<aside @attributes="BuildAttributes()" class="d-flex flex-column">
+    <CascadingValue Value="@_sidebarVisible" IsFixed="true">
+        <CascadingValue Value="@OnSidebarVisibleChanged" IsFixed="true">
+            @ChildContent
+        </CascadingValue>
+    </CascadingValue>
 </aside>
 
 @code {
     public override string? ThemeKey { get; set; } = "LayoutSider";
 
     [Parameter]
-    public bool Collapsible { get; set; }
+    public bool Visible { get; set; } = true;
+
+    [Parameter]
+    public EventCallback<bool> VisibleChanged { get; set; }
+
+    private bool _sidebarVisible = true;
 
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
-        AppendToClassAttr(attributes, "border-end bg-body position-sticky top-0");
+        
+        // Add visibility classes
+        if (!_sidebarVisible)
+        {
+            AppendToClassAttr(attributes, "sidebar-hidden");
+        }
 
-        if (Collapsible)
-            /* placeholder for user-driven collapse handling via Class */
-            _ = 0;
-
-        // sensible default width on larger screens
-        AppendStyleDeclAttr(attributes, "min-width: 240px");
-        AppendStyleDeclAttr(attributes, "max-width: 320px");
-        AppendStyleDeclAttr(attributes, "height: 100vh");
+        // Prevent aside from shrinking so content area can expand naturally
+        AppendStyleDeclAttr(attributes, "flex: 0 0 auto");
 
         return attributes;
     }
 
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        _sidebarVisible = Visible;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        
+        if (_sidebarVisible != Visible)
+        {
+            _sidebarVisible = Visible;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnSidebarVisibleChanged(bool visible)
+    {
+        _sidebarVisible = visible;
+        await VisibleChanged.InvokeAsync(visible);
+        StateHasChanged();
+    }
 }

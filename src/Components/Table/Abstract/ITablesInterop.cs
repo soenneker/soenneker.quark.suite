@@ -7,7 +7,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// A Blazor interop library for the Quark Table component
 /// </summary>
-public interface IQuarkTableInterop : IAsyncDisposable
+public interface ITablesInterop : IAsyncDisposable
 {
     /// <summary>
     /// Initializes the Quark Table interop by loading required scripts and styles.

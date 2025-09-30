@@ -12,7 +12,7 @@ public static class StepsRegistrar
     /// <summary>
     /// Adds <see cref="IStepsInterop"/> as a scoped service.
     /// </summary>
-    public static IServiceCollection AddStepsAsScoped(this IServiceCollection services)
+    public static IServiceCollection AddQuarkStepsAsScoped(this IServiceCollection services)
     {
         services.AddResourceLoaderAsScoped().TryAddScoped<IStepsInterop, StepsInterop>();
 

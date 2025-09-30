@@ -1,14 +1,13 @@
 @namespace Soenneker.Quark
-@using Soenneker.Blazor.Extensions.EventCallback
 
 @inherits Soenneker.Quark.Element
 
-<Anchor @attributes="BuildAttributes()" OnClick="HandleToggle" role="button" tabindex="0">
+<button @attributes="BuildAttributes()" data-bs-toggle="collapse" data-bs-target="#@TargetId" aria-expanded="@Expanded.ToString().ToLower()">
     @ChildContent
-</Anchor>
+</button>
 
 @code {
-	public override string? ThemeKey { get; set; } = "BarDropdownToggle";
+    public override string? ThemeKey { get; set; } = "BarDropdownToggle";
 
     [Parameter]
     public EventCallback<MouseEventArgs> OnToggle { get; set; }
@@ -19,14 +18,39 @@
     [Parameter]
     public double Indentation { get; set; } = 1.5d;
 
+    [Parameter]
+    public bool Expanded { get; set; } = false;
+
+    [CascadingParameter]
+    public BarMode Mode { get; set; } = BarMode.Horizontal;
+
+    [CascadingParameter]
+    public BarDropdown? ParentDropdown { get; set; }
+
+    [CascadingParameter]
+    public bool SidebarCollapsed { get; set; }
+
+    private string TargetId => ParentDropdown?.CollapseId ?? "";
+
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
 
-        var baseClass = "dropdown-toggle";
+        var baseClass = "btn btn-toggle align-items-center rounded";
+        
+        if (!Expanded)
+            baseClass = $"{baseClass} collapsed";
         
         if (Disabled == true)
             baseClass = $"{baseClass} disabled";
+
+        // For vertical mode, add specific styling
+        if (Mode != BarMode.Horizontal)
+        {
+            baseClass = $"{baseClass} d-flex align-items-center position-relative";
+            if (!SidebarCollapsed)
+                baseClass = $"{baseClass} w-100";
+        }
 
         AppendToClassAttr(attributes, baseClass);
 
@@ -35,13 +59,4 @@
 
         return attributes;
     }
-
-    private async Task HandleToggle(MouseEventArgs args)
-    {
-        if (Disabled != true)
-        {
-            await OnToggle.InvokeIfHasDelegate(args);
-        }
-    }
-
 }

@@ -2,20 +2,37 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<Div Class="navbar-end" @attributes="BuildAttributes()" >
+<Div @attributes="BuildAttributes()">
     @ChildContent
 </Div>
 
 @code {
 	public override string? ThemeKey { get; set; } = "BarEnd";
 
+    [CascadingParameter]
+    public BarMode Mode { get; set; } = BarMode.Horizontal;
+
+
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
 
-        AppendToClassAttr(attributes, "navbar-end");
+        var classes = new List<string>();
+
+        // For horizontal mode, add margin start auto to push to the right
+        if (Mode == BarMode.Horizontal)
+        {
+            classes.Add("navbar-nav");
+            classes.Add("ms-auto");
+        }
+        else
+        {
+            // For vertical modes, use dropdown styling for sidebar
+            classes.Add("dropdown");
+        }
+
+        AppendToClassAttr(attributes, string.Join(" ", classes));
 
         return attributes;
     }
-
 }

@@ -2,9 +2,18 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<Div Class="nav-item" @attributes="BuildAttributes()" >
-    @ChildContent
-</Div>
+@if (Mode == BarMode.Horizontal)
+{
+    <Div @attributes="BuildAttributes()" >
+        @ChildContent
+    </Div>
+}
+else
+{
+    <li @attributes="BuildAttributes()" >
+        @ChildContent
+    </li>
+}
 
 @code {
 	public override string? ThemeKey { get; set; } = "BarItem";
@@ -14,6 +23,10 @@
 
     [Parameter]
     public bool Disabled { get; set; }
+
+    [CascadingParameter]
+    public BarMode Mode { get; set; } = BarMode.Horizontal;
+
 
     protected override Dictionary<string, object> BuildAttributes()
     {
@@ -26,6 +39,12 @@
             baseClass = $"{baseClass} disabled";
 
         AppendToClassAttr(attributes, baseClass);
+
+        // For vertical modes, add width 100%
+        if (Mode != BarMode.Horizontal)
+        {
+            AppendStyleDeclAttr(attributes, "width: 100%;");
+        }
 
         return attributes;
     }

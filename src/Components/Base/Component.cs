@@ -14,233 +14,157 @@ namespace Soenneker.Quark;
 ///<inheritdoc cref="IComponent"/>
 public abstract class Component : CoreComponent, IComponent
 {
-    [Inject]
-    protected IThemeProvider? ThemeProvider { get; set; }
+    [Inject] protected IThemeProvider? ThemeProvider { get; set; }
 
-    [Inject]
-    protected ILogger<Component>? Logger { get; set; }
+    [Inject] protected ILogger<Component> Logger { get; set; } = null!;
 
-    [Parameter]
-    public string? Class { get; set; }
+    [Parameter] public string? Class { get; set; }
 
-    [Parameter]
-    public string? Style { get; set; }
+    [Parameter] public string? Style { get; set; }
 
-    [Parameter]
-    public string? Title { get; set; }
+    [Parameter] public string? Title { get; set; }
 
-    [Parameter]
-    public int? TabIndex { get; set; }
+    [Parameter] public int? TabIndex { get; set; }
 
-    [Parameter]
-    public bool Hidden { get; set; }
+    [Parameter] public bool Hidden { get; set; }
 
-    [Parameter]
-    public CssValue<DisplayBuilder>? Display { get; set; }
+    [Parameter] public CssValue<DisplayBuilder>? Display { get; set; }
 
-    [Parameter]
-    public CssValue<VisibilityBuilder>? Visibility { get; set; }
+    [Parameter] public CssValue<VisibilityBuilder>? Visibility { get; set; }
 
-    [Parameter]
-    public CssValue<FloatBuilder>? Float { get; set; }
+    [Parameter] public CssValue<FloatBuilder>? Float { get; set; }
 
-    [Parameter]
-    public CssValue<VerticalAlignBuilder>? VerticalAlign { get; set; }
+    [Parameter] public CssValue<VerticalAlignBuilder>? VerticalAlign { get; set; }
 
-    [Parameter]
-    public CssValue<TextOverflowBuilder>? TextOverflow { get; set; }
+    [Parameter] public CssValue<TextOverflowBuilder>? TextOverflow { get; set; }
 
-    [Parameter]
-    public CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
+    [Parameter] public CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
 
-    [Parameter]
-    public CssValue<MarginBuilder>? Margin { get; set; }
+    [Parameter] public CssValue<MarginBuilder>? Margin { get; set; }
 
-    [Parameter]
-    public CssValue<PaddingBuilder>? Padding { get; set; }
+    [Parameter] public CssValue<PaddingBuilder>? Padding { get; set; }
 
-    [Parameter]
-    public CssValue<PositionBuilder>? Position { get; set; }
+    [Parameter] public CssValue<PositionBuilder>? Position { get; set; }
 
-    [Parameter]
-    public CssValue<PositionOffsetBuilder>? Offset { get; set; }
+    [Parameter] public CssValue<PositionOffsetBuilder>? Offset { get; set; }
 
-    [Parameter]
-    public CssValue<TextSizeBuilder>? TextSize { get; set; }
+    [Parameter] public CssValue<TextSizeBuilder>? TextSize { get; set; }
 
-    [Parameter]
-    public CssValue<WidthBuilder>? Width { get; set; }
+    [Parameter] public CssValue<WidthBuilder>? Width { get; set; }
 
-    [Parameter]
-    public CssValue<WidthBuilder>? MinWidth { get; set; }
+    [Parameter] public CssValue<WidthBuilder>? MinWidth { get; set; }
 
-    [Parameter]
-    public CssValue<WidthBuilder>? MaxWidth { get; set; }
+    [Parameter] public CssValue<WidthBuilder>? MaxWidth { get; set; }
 
-    [Parameter]
-    public CssValue<HeightBuilder>? Height { get; set; }
+    [Parameter] public CssValue<HeightBuilder>? Height { get; set; }
 
-    [Parameter]
-    public CssValue<HeightBuilder>? MinHeight { get; set; }
+    [Parameter] public CssValue<HeightBuilder>? MinHeight { get; set; }
 
-    [Parameter]
-    public CssValue<HeightBuilder>? MaxHeight { get; set; }
+    [Parameter] public CssValue<HeightBuilder>? MaxHeight { get; set; }
 
-    [Parameter]
-    public CssValue<OverflowBuilder>? Overflow { get; set; }
+    [Parameter] public CssValue<OverflowBuilder>? Overflow { get; set; }
 
-    [Parameter]
-    public CssValue<OverflowBuilder>? OverflowX { get; set; }
+    [Parameter] public CssValue<OverflowBuilder>? OverflowX { get; set; }
 
-    [Parameter]
-    public CssValue<OverflowBuilder>? OverflowY { get; set; }
+    [Parameter] public CssValue<OverflowBuilder>? OverflowY { get; set; }
 
-    [Parameter]
-    public CssValue<ObjectFitBuilder>? ObjectFit { get; set; }
+    [Parameter] public CssValue<ObjectFitBuilder>? ObjectFit { get; set; }
 
-    [Parameter]
-    public CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
+    [Parameter] public CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
 
-    [Parameter]
-    public CssValue<TextDecorationBuilder>? TextDecorationLine { get; set; }
+    [Parameter] public CssValue<TextDecorationBuilder>? TextDecorationLine { get; set; }
 
-    [Parameter]
-    public CssValue<TextDecorationBuilder>? TextDecorationCss { get; set; }
+    [Parameter] public CssValue<TextDecorationBuilder>? TextDecorationCss { get; set; }
 
-    [Parameter]
-    public CssValue<FlexBuilder>? Flex { get; set; }
+    [Parameter] public CssValue<FlexBuilder>? Flex { get; set; }
 
-    [Parameter]
-    public CssValue<GapBuilder>? Gap { get; set; }
+    [Parameter] public CssValue<GapBuilder>? Gap { get; set; }
 
-    [Parameter]
-    public CssValue<BorderBuilder>? Border { get; set; }
+    [Parameter] public CssValue<BorderBuilder>? Border { get; set; }
 
-    [Parameter]
-    public CssValue<OpacityBuilder>? Opacity { get; set; }
+    [Parameter] public CssValue<OpacityBuilder>? Opacity { get; set; }
 
-    [Parameter]
-    public CssValue<ZIndexBuilder>? ZIndex { get; set; }
+    [Parameter] public CssValue<ZIndexBuilder>? ZIndex { get; set; }
 
-    [Parameter]
-    public CssValue<PointerEventsBuilder>? PointerEvents { get; set; }
+    [Parameter] public CssValue<PointerEventsBuilder>? PointerEvents { get; set; }
 
-    [Parameter]
-    public CssValue<UserSelectBuilder>? UserSelect { get; set; }
+    [Parameter] public CssValue<UserSelectBuilder>? UserSelect { get; set; }
 
-    [Parameter]
-    public CssValue<TextTransformBuilder>? TextTransform { get; set; }
+    [Parameter] public CssValue<TextTransformBuilder>? TextTransform { get; set; }
 
-    [Parameter]
-    public CssValue<FontWeightBuilder>? FontWeight { get; set; }
+    [Parameter] public CssValue<FontWeightBuilder>? FontWeight { get; set; }
 
-    [Parameter]
-    public CssValue<FontStyleBuilder>? FontStyle { get; set; }
+    [Parameter] public CssValue<FontStyleBuilder>? FontStyle { get; set; }
 
-    [Parameter]
-    public CssValue<LineHeightBuilder>? LineHeight { get; set; }
+    [Parameter] public CssValue<LineHeightBuilder>? LineHeight { get; set; }
 
-    [Parameter]
-    public CssValue<TextWrapBuilder>? TextWrap { get; set; }
+    [Parameter] public CssValue<TextWrapBuilder>? TextWrap { get; set; }
 
-    [Parameter]
-    public CssValue<TextBreakBuilder>? TextBreak { get; set; }
+    [Parameter] public CssValue<TextBreakBuilder>? TextBreak { get; set; }
 
-    [Parameter]
-    public CssValue<ColorBuilder>? TextColor { get; set; }
+    [Parameter] public CssValue<ColorBuilder>? TextColor { get; set; }
 
-    [Parameter]
-    public CssValue<ColorBuilder>? BackgroundColor { get; set; }
+    [Parameter] public CssValue<ColorBuilder>? BackgroundColor { get; set; }
 
-    [Parameter]
-    public CssValue<ColorBuilder>? TextBackgroundColor { get; set; }
+    [Parameter] public CssValue<ColorBuilder>? TextBackgroundColor { get; set; }
 
-    [Parameter]
-    public CssValue<AnimationBuilder>? Animation { get; set; }
+    [Parameter] public CssValue<AnimationBuilder>? Animation { get; set; }
 
-    [Parameter]
-    public CssValue<AspectRatioBuilder>? AspectRatio { get; set; }
+    [Parameter] public CssValue<AspectRatioBuilder>? AspectRatio { get; set; }
 
-    [Parameter]
-    public CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
+    [Parameter] public CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
 
-    [Parameter]
-    public CssValue<BorderRadiusBuilder>? BorderRadius { get; set; }
+    [Parameter] public CssValue<BorderRadiusBuilder>? BorderRadius { get; set; }
 
-    [Parameter]
-    public CssValue<ClearfixBuilder>? Clearfix { get; set; }
+    [Parameter] public CssValue<ClearfixBuilder>? Clearfix { get; set; }
 
-    [Parameter]
-    public CssValue<ClipPathBuilder>? ClipPath { get; set; }
+    [Parameter] public CssValue<ClipPathBuilder>? ClipPath { get; set; }
 
-    [Parameter]
-    public CssValue<CursorBuilder>? Cursor { get; set; }
+    [Parameter] public CssValue<CursorBuilder>? Cursor { get; set; }
 
-    [Parameter]
-    public CssValue<FilterBuilder>? Filter { get; set; }
+    [Parameter] public CssValue<FilterBuilder>? Filter { get; set; }
 
-    [Parameter]
-    public CssValue<InteractionBuilder>? Interaction { get; set; }
+    [Parameter] public CssValue<InteractionBuilder>? Interaction { get; set; }
 
-    [Parameter]
-    public CssValue<ObjectPositionBuilder>? ObjectPosition { get; set; }
+    [Parameter] public CssValue<ObjectPositionBuilder>? ObjectPosition { get; set; }
 
-    [Parameter]
-    public CssValue<ResizeBuilder>? Resize { get; set; }
+    [Parameter] public CssValue<ResizeBuilder>? Resize { get; set; }
 
-    [Parameter]
-    public CssValue<ScreenReaderBuilder>? ScreenReader { get; set; }
+    [Parameter] public CssValue<ScreenReaderBuilder>? ScreenReader { get; set; }
 
-    [Parameter]
-    public CssValue<ScrollBehaviorBuilder>? ScrollBehavior { get; set; }
+    [Parameter] public CssValue<ScrollBehaviorBuilder>? ScrollBehavior { get; set; }
 
-    [Parameter]
-    public CssValue<StretchedLinkBuilder>? StretchedLink { get; set; }
+    [Parameter] public CssValue<StretchedLinkBuilder>? StretchedLink { get; set; }
 
-    [Parameter]
-    public CssValue<TransformBuilder>? Transform { get; set; }
+    [Parameter] public CssValue<TransformBuilder>? Transform { get; set; }
 
-    [Parameter]
-    public CssValue<TransitionBuilder>? Transition { get; set; }
+    [Parameter] public CssValue<TransitionBuilder>? Transition { get; set; }
 
-    [Parameter]
-    public CssValue<TruncateBuilder>? Truncate { get; set; }
+    [Parameter] public CssValue<TruncateBuilder>? Truncate { get; set; }
 
-    [Parameter]
-    public EventCallback<MouseEventArgs> OnClick { get; set; }
+    [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
 
-    [Parameter]
-    public EventCallback<MouseEventArgs> OnDoubleClick { get; set; }
+    [Parameter] public EventCallback<MouseEventArgs> OnDoubleClick { get; set; }
 
-    [Parameter]
-    public EventCallback<MouseEventArgs> OnMouseOver { get; set; }
+    [Parameter] public EventCallback<MouseEventArgs> OnMouseOver { get; set; }
 
-    [Parameter]
-    public EventCallback<MouseEventArgs> OnMouseOut { get; set; }
+    [Parameter] public EventCallback<MouseEventArgs> OnMouseOut { get; set; }
 
-    [Parameter]
-    public EventCallback<KeyboardEventArgs> OnKeyDown { get; set; }
+    [Parameter] public EventCallback<KeyboardEventArgs> OnKeyDown { get; set; }
 
-    [Parameter]
-    public EventCallback<FocusEventArgs> OnFocus { get; set; }
+    [Parameter] public EventCallback<FocusEventArgs> OnFocus { get; set; }
 
-    [Parameter]
-    public EventCallback<FocusEventArgs> OnBlur { get; set; }
+    [Parameter] public EventCallback<FocusEventArgs> OnBlur { get; set; }
 
-    [Parameter]
-    public EventCallback<ElementReference> OnElementRefReady { get; set; }
+    [Parameter] public EventCallback<ElementReference> OnElementRefReady { get; set; }
 
-    [Parameter]
-    public string? Role { get; set; }
+    [Parameter] public string? Role { get; set; }
 
-    [Parameter]
-    public string? AriaLabel { get; set; }
+    [Parameter] public string? AriaLabel { get; set; }
 
-    [Parameter]
-    public string? AriaDescribedBy { get; set; }
+    [Parameter] public string? AriaDescribedBy { get; set; }
 
-    [Parameter]
-    public virtual string? ThemeKey { get; set; }
+    [Parameter] public virtual string? ThemeKey { get; set; }
 
     protected ElementReference ElementRef { get; set; }
 
@@ -360,56 +284,57 @@ public abstract class Component : CoreComponent, IComponent
 
                         case "onclick":
                             userOnClick = true;
-                            if (kv.Value is EventCallback<MouseEventArgs> userClick && OnClick.HasDelegate)
-                                attrs["onclick"] = Compose(this, HandleClick, userClick);
+                            // Prefer the component's OnClick parameter to avoid double invocation
+                            if (OnClick.HasDelegate)
+                                attrs["onclick"] = OnClick;
                             else
                                 attrs["onclick"] = kv.Value!;
                             break;
 
                         case "ondblclick":
                             userOnDblClick = true;
-                            if (kv.Value is EventCallback<MouseEventArgs> userDbl && OnDoubleClick.HasDelegate)
-                                attrs["ondblclick"] = Compose(this, HandleDoubleClick, userDbl);
+                            if (OnDoubleClick.HasDelegate)
+                                attrs["ondblclick"] = OnDoubleClick;
                             else
                                 attrs["ondblclick"] = kv.Value!;
                             break;
 
                         case "onmouseover":
                             userOnMouseOver = true;
-                            if (kv.Value is EventCallback<MouseEventArgs> userOver && OnMouseOver.HasDelegate)
-                                attrs["onmouseover"] = Compose(this, HandleMouseOver, userOver);
+                            if (OnMouseOver.HasDelegate)
+                                attrs["onmouseover"] = OnMouseOver;
                             else
                                 attrs["onmouseover"] = kv.Value!;
                             break;
 
                         case "onmouseout":
                             userOnMouseOut = true;
-                            if (kv.Value is EventCallback<MouseEventArgs> userOut && OnMouseOut.HasDelegate)
-                                attrs["onmouseout"] = Compose(this, HandleMouseOut, userOut);
+                            if (OnMouseOut.HasDelegate)
+                                attrs["onmouseout"] = OnMouseOut;
                             else
                                 attrs["onmouseout"] = kv.Value!;
                             break;
 
                         case "onkeydown":
                             userOnKeyDown = true;
-                            if (kv.Value is EventCallback<KeyboardEventArgs> userKey && OnKeyDown.HasDelegate)
-                                attrs["onkeydown"] = Compose(this, HandleKeyDown, userKey);
+                            if (OnKeyDown.HasDelegate)
+                                attrs["onkeydown"] = OnKeyDown;
                             else
                                 attrs["onkeydown"] = kv.Value!;
                             break;
 
                         case "onfocus":
                             userOnFocus = true;
-                            if (kv.Value is EventCallback<FocusEventArgs> userFocus && OnFocus.HasDelegate)
-                                attrs["onfocus"] = Compose(this, HandleFocus, userFocus);
+                            if (OnFocus.HasDelegate)
+                                attrs["onfocus"] = OnFocus;
                             else
                                 attrs["onfocus"] = kv.Value!;
                             break;
 
                         case "onblur":
                             userOnBlur = true;
-                            if (kv.Value is EventCallback<FocusEventArgs> userBlur && OnBlur.HasDelegate)
-                                attrs["onblur"] = Compose(this, HandleBlur, userBlur);
+                            if (OnBlur.HasDelegate)
+                                attrs["onblur"] = OnBlur;
                             else
                                 attrs["onblur"] = kv.Value!;
                             break;
@@ -424,7 +349,15 @@ public abstract class Component : CoreComponent, IComponent
             if (cls.Length > 0) attrs["class"] = cls.ToString();
             if (sty.Length > 0) attrs["style"] = sty.ToString();
 
-            if (!userOnClick && OnClick.HasDelegate) attrs["onclick"] = OnClick;
+            if (!userOnClick && OnClick.HasDelegate)
+            {
+                // Only add OnClick if it's not already explicitly set in the component markup
+                // Check if the OnClick was set by the Blazor framework (not programmatically)
+                if (!attrs.ContainsKey("onclick"))
+                {
+                    attrs["onclick"] = OnClick;
+                }
+            }
             if (!userOnDblClick && OnDoubleClick.HasDelegate) attrs["ondblclick"] = OnDoubleClick;
             if (!userOnMouseOver && OnMouseOver.HasDelegate) attrs["onmouseover"] = OnMouseOver;
             if (!userOnMouseOut && OnMouseOut.HasDelegate) attrs["onmouseout"] = OnMouseOut;
@@ -751,7 +684,8 @@ public abstract class Component : CoreComponent, IComponent
 
         if (ThemeKey == null)
         {
-            Logger?.LogWarning("ThemeKey is null for {type}; cannot apply theme styles.", GetType().FullName);
+            Logger?.LogWarning("ThemeKey is null for {type}; cannot apply theme styles.", GetType()
+                .FullName);
             return null;
         }
 

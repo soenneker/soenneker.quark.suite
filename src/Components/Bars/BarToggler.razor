@@ -3,8 +3,8 @@
 
 @inherits Soenneker.Quark.Element
 
-<Button @attributes="BuildAttributes()" OnClick="HandleToggle" data-bs-toggle="collapse" data-bs-target="@Target" aria-controls="@Target" aria-expanded="false" aria-label="Toggle navigation">
-    <Span class="navbar-toggler-icon"></Span>
+<Button OnClick="HandleToggle">
+    @ChildContent
 </Button>
 
 @code {
@@ -19,22 +19,48 @@
     [Parameter]
     public BarTogglerMode Mode { get; set; } = BarTogglerMode.Normal;
 
+	[CascadingParameter]
+	public BarMode BarMode { get; set; } = BarMode.Horizontal;
+
+    [CascadingParameter]
+    public Func<MouseEventArgs, Task>? BarToggleHandler { get; set; }
+
+
     protected override Dictionary<string, object> BuildAttributes()
     {
-        var attributes = base.BuildAttributes();
+        Attributes = base.BuildAttributes();
 
         var baseClass = "navbar-toggler";
         
         if (Mode == BarTogglerMode.Popout)
             baseClass = $"{baseClass} navbar-toggler-popout";
 
-        AppendToClassAttr(attributes, baseClass);
+        AppendToClassAttr(Attributes, baseClass);
 
-        return attributes;
+		// For horizontal navbars, wire up Bootstrap's collapse behavior
+		if (BarMode == BarMode.Horizontal && !string.IsNullOrWhiteSpace(Target))
+		{
+            Attributes["data-bs-toggle"] = "collapse";
+            Attributes["data-bs-target"] = Target!;
+			// aria-controls expects the id without the '#'
+			var controls = Target!.StartsWith("#") ? Target.Substring(1) : Target!;
+            Attributes["aria-controls"] = controls;
+            Attributes["type"] = "button";
+		}
+
+        return Attributes;
     }
 
     private async Task HandleToggle(MouseEventArgs args)
     {
-        await OnToggle.InvokeIfHasDelegate(args);
+        // Use cascading handler if available, otherwise use the OnToggle parameter
+        if (BarToggleHandler != null)
+        {
+            await BarToggleHandler(args);
+        }
+        else
+        {
+            await OnToggle.InvokeIfHasDelegate(args);
+        }
     }
 }

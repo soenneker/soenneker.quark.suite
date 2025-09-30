@@ -1,35 +1,56 @@
-
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<Div Class="dropdown-menu" @attributes="BuildAttributes()" >
-    @ChildContent
+<Div Class="collapse" Id="@ParentDropdown?.CollapseId" data-bs-parent="@CollapseParent" @attributes="BuildAttributes()">
+    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+        @ChildContent
+    </ul>
 </Div>
 
 @code {
-	public override string? ThemeKey { get; set; } = "BarDropdownMenu";
+    public override string? ThemeKey { get; set; } = "BarDropdownMenu";
 
     [Parameter]
-    public bool Visible { get; set; }
+    public bool Show { get; set; } = false;
 
     [Parameter]
     public bool RightAligned { get; set; }
+
+    [CascadingParameter]
+    public BarMode Mode { get; set; } = BarMode.Horizontal;
+
+    [CascadingParameter]
+    public BarDropdown? ParentDropdown { get; set; }
+
+    [CascadingParameter]
+    public bool SidebarCollapsed { get; set; }
+
+    [CascadingParameter]
+    public string? CollapseParent { get; set; }
 
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
 
-        var baseClass = "dropdown-menu";
+        var baseClass = "collapse";
         
-        if (Visible)
+        // When the sidebar is collapsed, suppress initial "show" state;
+        // the panel should appear only after an explicit click.
+        if (Show && !SidebarCollapsed)
             baseClass = $"{baseClass} show";
 
         if (RightAligned)
             baseClass = $"{baseClass} dropdown-menu-end";
 
+        // For vertical mode, adjust styling; when collapsed we pop out so don't force w-100
+        if (Mode != BarMode.Horizontal)
+        {
+            if (!SidebarCollapsed)
+                baseClass = $"{baseClass} w-100";
+        }
+
         AppendToClassAttr(attributes, baseClass);
 
         return attributes;
     }
-
 }

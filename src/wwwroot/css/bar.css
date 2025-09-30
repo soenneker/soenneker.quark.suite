@@ -1,0 +1,153 @@
+/* Sidebar visibility animations and styles */
+.sidebar-hidden {
+    transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    width: 0px !important;
+    overflow: hidden;
+    opacity: 0;
+}
+
+/* Collapsed sidebar - show only icons */
+.sidebar-collapsed {
+    transition: width 0.3s ease-in-out;
+    width: 60px !important;
+    overflow: hidden;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Hide text labels while keeping icon elements visible */
+.sidebar-collapsed .navbar-brand,
+.sidebar-collapsed .navbar-nav .nav-link,
+.sidebar-collapsed .nav .nav-link,
+.sidebar-collapsed .d-flex.align-items-center.w-100 {
+    font-size: 0; /* hide text nodes */
+}
+
+.sidebar-collapsed .btn {
+    font-size: 0; /* hide button text like dropdown toggles */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.5rem; /* keep consistent hit area */
+}
+
+/* Keep the toggler visible and centered in collapsed mode */
+.sidebar-collapsed .navbar-toggler {
+    font-size: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.sidebar-collapsed .navbar-brand i,
+.sidebar-collapsed .navbar-nav .nav-link i,
+.sidebar-collapsed .nav .nav-link i,
+.sidebar-collapsed .btn i {
+    font-size: 1rem; /* restore icon size */
+}
+
+.sidebar-collapsed .navbar-nav .nav-link,
+.sidebar-collapsed .nav .nav-link {
+    padding: 0.5rem;
+    text-align: center;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/* Popout dropdown when collapsed */
+/* Popout menu container anchored to the toggle item */
+.sidebar-collapsed .btn-toggle + .collapsing,
+.sidebar-collapsed .btn-toggle + .collapse.show {
+    position: absolute;
+    left: 60px; /* pop out to the right of collapsed sidebar */
+    top: 0;
+    min-width: 240px;
+    z-index: 1050;
+    background-color: var(--bs-body-bg, #0b2239);
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: .25rem;
+    padding: .5rem 0;
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+}
+
+/* Remove transition jank during collapsing phase in popout */
+.sidebar-collapsed .btn-toggle + .collapsing {
+    transition: none !important;
+}
+
+.sidebar-collapsed .btn-toggle-nav.list-unstyled > li > a {
+    padding: .5rem 1rem;
+    display: block;
+}
+
+.sidebar-collapsed .navbar-nav .nav-link i,
+.sidebar-collapsed .nav .nav-link i {
+    margin-right: 0;
+}
+
+/* Ensure smooth transitions for all sidebar elements */
+aside, nav {
+    transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+/* Do not force aside width when visible; it should size to its child nav */
+/* Keep hidden state only */
+
+/* Adjust main content when sidebar is hidden */
+.main-content {
+    transition: margin-left 0.3s ease-in-out;
+}
+
+.sidebar-hidden + .main-content {
+    margin-left: 0;
+}
+
+/* Make sure the toggle button is always visible */
+.navbar-toggler {
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Sidebar toggler specific styles */
+.sidebar-toggler,
+.navbar-toggler {
+    border: none;
+    background: transparent;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease-in-out;
+    color: #6c757d;
+    /* Disable Bootstrap collapse behavior */
+    pointer-events: auto !important;
+}
+
+.sidebar-toggler:hover,
+.navbar-toggler:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    color: #495057;
+}
+
+.sidebar-toggler:focus,
+.navbar-toggler:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+/* Ensure icons are visible */
+.sidebar-toggler i,
+.navbar-toggler i {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+/* Prevent Bootstrap collapse from interfering with sidebar toggle */
+.sidebar-toggler[data-bs-toggle="collapse"] {
+    pointer-events: auto !important;
+}
+
+/* Override any Bootstrap collapse behavior for sidebar */
+/* removed empty ruleset */

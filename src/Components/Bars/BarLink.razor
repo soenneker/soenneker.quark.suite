@@ -18,6 +18,10 @@
     [Parameter]
     public bool Disabled { get; set; }
 
+    [CascadingParameter]
+    public BarMode Mode { get; set; } = BarMode.Horizontal;
+
+
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
@@ -29,6 +33,20 @@
             baseClass = $"{baseClass} disabled";
 
         AppendToClassAttr(attributes, baseClass);
+
+        // For vertical modes, add specific styles
+        if (Mode != BarMode.Horizontal)
+        {
+            var verticalStyles = new List<string>();
+            verticalStyles.Add("display: flex");
+            verticalStyles.Add("align-items: center");
+            verticalStyles.Add("width: 100%");
+            verticalStyles.Add("padding: 0.75rem 1rem");
+            verticalStyles.Add("border-radius: 0");
+            verticalStyles.Add("border-bottom: 1px solid var(--bs-border-color-translucent, rgba(0, 0, 0, 0.1))");
+            
+            AppendStyleDeclAttr(attributes, string.Join("; ", verticalStyles));
+        }
 
         if (Disabled)
             attributes["aria-disabled"] = "true";
