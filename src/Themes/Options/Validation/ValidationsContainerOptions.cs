@@ -1,10 +1,10 @@
 
 namespace Soenneker.Quark;
 
-public sealed class ValidationsContainerOptions : ComponentOptions
+public sealed class ValidationsOptions : ComponentOptions
 {
-    public ValidationsContainerOptions()
+    public ValidationsOptions()
     {
-        ThemeKey = "ValidationsContainer";
+        ThemeKey = "Validations";
     }
 }

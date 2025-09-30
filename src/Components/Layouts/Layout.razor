@@ -4,7 +4,7 @@
 <CascadingValue Value="@this" IsFixed="true" >
     <CascadingValue Value="@_sidebarVisible" IsFixed="true">
         <CascadingValue Value="@OnSidebarVisibleChanged" IsFixed="true">
-            <section @attributes="BuildAttributes()" >
+            <Section @attributes="BuildAttributes()" >
                 @if (Loading)
                 {
                     @if (LoadingTemplate is not null)
@@ -17,7 +17,7 @@
                     }
                 }
                 @ChildContent
-            </section>
+            </Section>
         </CascadingValue>
     </CascadingValue>
 </CascadingValue>
@@ -26,7 +26,7 @@
     public override string? ThemeKey { get; set; } = "Layout";
 
     [Parameter]
-    public bool HasSider { get; set; }
+    public bool Sider { get; set; }
 
     [Parameter]
     public bool Loading { get; set; }
@@ -46,7 +46,7 @@
         var attributes = base.BuildAttributes();
 
         // Base layout classes - using standard Bootstrap classes
-        if (HasSider)
+        if (Sider)
         {
             // For sidebar layout, use horizontal flex
             AppendToClassAttr(attributes, "d-flex");
@@ -78,7 +78,7 @@
         return string.IsNullOrWhiteSpace(LoadingClass) ? "position-fixed top-0 start-0 w-100 h-100 bg-body bg-opacity-75" : LoadingClass!;
     }
 
-    private async Task OnSidebarVisibleChanged(bool visible)
+    private void OnSidebarVisibleChanged(bool visible)
     {
         _sidebarVisible = visible;
         StateHasChanged();

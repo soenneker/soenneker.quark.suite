@@ -1,7 +1,7 @@
 @using Microsoft.AspNetCore.Components.Forms
 
 @namespace Soenneker.Quark
-@inherits ComponentBase
+@inherits Element
 
 <CascadingValue Value="@this" IsFixed>
     <CascadingValue Value="@EditContext">
@@ -10,6 +10,8 @@
 </CascadingValue>
 
 @code {
+    public override string? ThemeKey { get; set; } = "Validations";
+
     private readonly List<IValidation> _validations = [];
 
     [Parameter]
@@ -38,9 +40,6 @@
 
     [Parameter]
     public EventCallback<ValidationsStatusChangedEventArgs> StatusChanged { get; set; }
-
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
 
     internal event Action<ValidationsStatusChangedEventArgs>? _statusChanged;
 

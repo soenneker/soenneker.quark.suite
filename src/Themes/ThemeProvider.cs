@@ -67,7 +67,7 @@ public sealed class ThemeProvider : IThemeProvider
         
         // Validation components
         ["ValidationSuccess"] = theme => theme.ValidationSuccess,
-        ["ValidationsContainer"] = theme => theme.ValidationsContainers,
+        ["Validations"] = theme => theme.Validations,
         ["ValidationErrors"] = theme => theme.ValidationErrors,
         ["ValidationError"] = theme => theme.ValidationError,
         
@@ -91,8 +91,8 @@ public sealed class ThemeProvider : IThemeProvider
         ["SnackbarAction"] = theme => theme.SnackbarActions,
         
         // Navigation components
-        ["TabsContainer"] = theme => theme.TabsContainers,
-        ["StepsContainer"] = theme => theme.StepsContainers,
+        ["Tabs"] = theme => theme.Tabs,
+        ["Steps"] = theme => theme.Steps,
         ["StepPanel"] = theme => theme.StepPanels,
         ["StepContent"] = theme => theme.StepContents,
         ["PaginationLink"] = theme => theme.PaginationLinks,

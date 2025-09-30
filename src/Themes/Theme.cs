@@ -78,15 +78,11 @@ public sealed class Theme
 
     public SpanOptions? Spans { get; set; }
 
-    public StepOptions? Steps { get; set; }
-
     public StrongOptions? Strongs { get; set; }
 
     public SwitchOptions? Switches { get; set; }
 
     public TableOptions? Tables { get; set; }
-
-    public TabOptions? Tabs { get; set; }
 
     public TextEditOptions? TextEdits { get; set; }
 
@@ -110,7 +106,7 @@ public sealed class Theme
     // Validation components
     public ValidationSuccessOptions? ValidationSuccess { get; set; }
 
-    public ValidationsContainerOptions? ValidationsContainers { get; set; }
+    public ValidationsOptions? Validations { get; set; }
 
     public ValidationErrorsOptions? ValidationErrors { get; set; }
 
@@ -149,9 +145,9 @@ public sealed class Theme
     public SnackbarActionOptions? SnackbarActions { get; set; }
 
     // Navigation components
-    public TabsContainerOptions? TabsContainers { get; set; }
+    public TabsOptions? Tabs { get; set; }
 
-    public StepsContainerOptions? StepsContainers { get; set; }
+    public StepsOptions? Steps { get; set; }
 
     public StepPanelOptions? StepPanels { get; set; }
 
