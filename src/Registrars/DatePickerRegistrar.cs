@@ -12,7 +12,7 @@ public static class DatePickerRegistrar
     /// <summary>
     /// Adds <see cref="IDatePickerInterop"/> as a scoped service. <para/>
     /// </summary>
-    public static IServiceCollection AddDatePickerAsScoped(this IServiceCollection services)
+    public static IServiceCollection AddQuarkDatePickerAsScoped(this IServiceCollection services)
     {
         services.AddResourceLoaderAsScoped().TryAddScoped<IDatePickerInterop, DatePickerInterop>();
 

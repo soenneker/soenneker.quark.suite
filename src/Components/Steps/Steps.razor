@@ -1,20 +1,20 @@
-
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@implements ISteps
 @inject IStepsInterop StepsInterop
 
 <CascadingValue Value="_state">
     <CascadingValue Value="this">
-    <UnorderedList Class="@GetStepsClasses()" @attributes="BuildAttributes()">
-        @if (Items != null)
-        {
-            @Items
-        }
-        else
-        {
-            @ChildContent
-        }
-    </UnorderedList>
+        <UnorderedList Class="@GetStepsClasses()" @attributes="BuildAttributes()">
+            @if (Items != null)
+            {
+                @Items
+            }
+            else
+            {
+                @ChildContent
+            }
+        </UnorderedList>
 
         @if (Content != null)
         {
@@ -26,19 +26,19 @@
 </CascadingValue>
 
 @code {
-	public override string? ThemeKey { get; set; } = "Steps";
+    public override string? ThemeKey { get; set; } = "Steps";
 
     private StepState _state = new();
     private readonly List<string> _stepItems = [];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-	    if (firstRender)
-	    {
-		    await StepsInterop.Initialize();
-	    }
-        
-	    await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            await StepsInterop.Initialize();
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     [Parameter]
@@ -78,17 +78,13 @@
         }
     }
 
-    [Parameter]
-    public EventCallback<string> SelectedStepChanged { get; set; }
+    [Parameter] public EventCallback<string> SelectedStepChanged { get; set; }
 
-    [Parameter]
-    public Func<StepNavigationContext, bool>? NavigationAllowed { get; set; }
+    [Parameter] public Func<StepNavigationContext, bool>? NavigationAllowed { get; set; }
 
-    [Parameter]
-    public RenderFragment? Items { get; set; }
+    [Parameter] public RenderFragment? Items { get; set; }
 
-    [Parameter]
-    public RenderFragment? Content { get; set; }
+    [Parameter] public RenderFragment? Content { get; set; }
 
     internal void NotifyStepInitialized(string name)
     {
@@ -134,7 +130,7 @@
         return InvokeAsync(StateHasChanged);
     }
 
-    internal int IndexOfStep(string name)
+    public int IndexOfStep(string name)
     {
         return _stepItems.IndexOf(name) + 1;
     }
@@ -153,4 +149,5 @@
     {
         return "tab-content mt-3";
     }
+
 }

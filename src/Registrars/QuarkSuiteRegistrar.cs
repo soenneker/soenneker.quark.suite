@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Soenneker.Quark.Registrars;
 
 namespace Soenneker.Quark;
 
@@ -8,7 +9,7 @@ public static class QuarkSuiteRegistrar
     {
         services.AddQuarkTableAsScoped()
             .AddQuarkSnackbarAsScoped()
-            .AddDatePickerAsScoped()
+            .AddQuarkDatePickerAsScoped()
             .AddQuarkStepsAsScoped()
             .AddQuarkBarAsScoped()
             .AddQuarkOffcanvasAsScoped();

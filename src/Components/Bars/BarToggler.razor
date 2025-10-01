@@ -2,6 +2,7 @@
 @using Soenneker.Blazor.Extensions.EventCallback
 
 @inherits Soenneker.Quark.Element
+@implements IBarToggler
 
 <Button OnClick="HandleToggle" @attributes="BuildAttributes()">
     @ChildContent
@@ -25,6 +26,8 @@
     [CascadingParameter]
     public Func<MouseEventArgs, Task>? BarToggleHandler { get; set; }
 
+    [Parameter]
+    public bool? Disabled { get; set; }
 
     protected override Dictionary<string, object> BuildAttributes()
     {
@@ -63,4 +66,6 @@
             await OnToggle.InvokeIfHasDelegate(args);
         }
     }
+
+
 }
