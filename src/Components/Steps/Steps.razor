@@ -137,12 +137,18 @@
 
     private string GetStepsClasses()
     {
-        var classes = new List<string> { "steps", "nav", "nav-pills", "flex-wrap", "gap-2" };
+        var attributes = new Dictionary<string, object>();
+        
+        AppendToClassAttr(attributes, "steps");
+        AppendToClassAttr(attributes, "nav");
+        AppendToClassAttr(attributes, "nav-pills");
+        AppendToClassAttr(attributes, "flex-wrap");
+        AppendToClassAttr(attributes, "gap-2");
 
         if (RenderMode != StepRenderMode.Default)
-            classes.Add($"steps-{RenderMode.Value}");
+            AppendToClassAttr(attributes, $"steps-{RenderMode.Value}");
 
-        return string.Join(" ", classes);
+        return attributes.TryGetValue("class", out var classValue) ? classValue.ToString() ?? string.Empty : string.Empty;
     }
 
     private string GetContentClasses()

@@ -32,15 +32,13 @@
     {
         var attributes = base.BuildAttributes();
 
-        var baseClasses = "progress-bar";
+        AppendToClassAttr(attributes, "progress-bar");
 
         if (Striped)
-            baseClasses = $"{baseClasses} progress-bar-striped";
+            AppendToClassAttr(attributes, "progress-bar-striped");
 
         if (Animated)
-            baseClasses = $"{baseClasses} progress-bar-animated";
-
-        AppendToClassAttr(attributes, baseClasses);
+            AppendToClassAttr(attributes, "progress-bar-animated");
 
         // Handle color styling
         if (Color is not null && !Color.Value.IsEmpty)
@@ -56,16 +54,18 @@
             }
             else
             {
-                // Literal CSS value → straight style
-                if (!attributes.TryGetValue("style", out var existing))
-                    attributes["style"] = $"background-color:{v};width: {Value}%;";
-                else
-                    attributes["style"] = $"{existing}background-color:{v};width: {Value}%;";
+                // Build style efficiently
+                var styleParts = new List<string> { $"background-color:{v}", $"width: {Value}%" };
+                
+                if (attributes.TryGetValue("style", out var existing) && !string.IsNullOrEmpty(existing?.ToString()))
+                    styleParts.Insert(0, existing.ToString()!);
+                    
+                attributes["style"] = string.Join(";", styleParts) + ";";
             }
         }
         else
         {
-            attributes["style"] = $"width: {Value}%";
+            AppendStyleDeclAttr(attributes, $"width: {Value}%");
         }
 
         return attributes;

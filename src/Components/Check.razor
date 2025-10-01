@@ -83,20 +83,19 @@
     {
         var attributes = base.BuildAttributes();
 
-        var baseClasses = "form-check-input";
+        AppendToClassAttr(attributes, "form-check-input");
+        
         var colorClass = GetColorClass();
+        if (colorClass != null)
+            AppendToClassAttr(attributes, colorClass);
+            
         var sizeClass = GetSizeClass();
-        var validationClass = GetValidationClass();
-
-        baseClasses = $"{baseClasses} {colorClass}";
-
         if (sizeClass != null)
-            baseClasses = $"{baseClasses} {sizeClass}";
-
+            AppendToClassAttr(attributes, sizeClass);
+            
+        var validationClass = GetValidationClass();
         if (validationClass != null)
-            baseClasses = $"{baseClasses} {validationClass}";
-
-        AppendToClassAttr(attributes, baseClasses);
+            AppendToClassAttr(attributes, validationClass);
 
         if (Checked)
             attributes["checked"] = true;

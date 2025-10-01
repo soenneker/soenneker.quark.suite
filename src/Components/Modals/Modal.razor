@@ -57,49 +57,49 @@
 
     private string GetModalClasses()
     {
-        var classes = "modal fade";
+        var attributes = new Dictionary<string, object>();
+        
+        AppendToClassAttr(attributes, "modal");
+        AppendToClassAttr(attributes, "fade");
         
         if (Visible)
-            classes += " show";
+            AppendToClassAttr(attributes, "show");
             
         if (Class.HasContent())
-            classes += $" {Class}";
+            AppendToClassAttr(attributes, Class!);
             
-        return classes;
+        return attributes.TryGetValue("class", out var classValue) ? classValue.ToString() ?? string.Empty : string.Empty;
     }
 
     private string GetDialogClasses()
     {
-        var classes = "modal-dialog";
+        var attributes = new Dictionary<string, object>();
+        
+        AppendToClassAttr(attributes, "modal-dialog");
         
         if (Centered)
-            classes += " modal-dialog-centered";
+            AppendToClassAttr(attributes, "modal-dialog-centered");
             
         if (Scrollable)
-            classes += " modal-dialog-scrollable";
+            AppendToClassAttr(attributes, "modal-dialog-scrollable");
             
         if (Size != null && !Size.Value.IsEmpty)
-            classes += $" modal-{Size.Value}";
+            AppendToClassAttr(attributes, $"modal-{Size.Value}");
             
-        return classes;
+        return attributes.TryGetValue("class", out var classValue) ? classValue.ToString() ?? string.Empty : string.Empty;
     }
 
     private string GetModalStyles()
     {
-        var styles = "";
+        var attributes = new Dictionary<string, object>();
         
         if (Visible)
-            styles += "display: block;";
+            AppendStyleDeclAttr(attributes, "display: block");
             
         if (Style.HasContent())
-        {
-            if (styles.HasContent())
-                styles += $" {Style}";
-            else
-                styles = Style;
-        }
+            AppendStyleDeclAttr(attributes, Style!);
             
-        return styles;
+        return attributes.TryGetValue("style", out var styleValue) ? styleValue.ToString() ?? string.Empty : string.Empty;
     }
 
     protected override Dictionary<string, object> BuildAttributes()

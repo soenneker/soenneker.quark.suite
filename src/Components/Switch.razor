@@ -112,27 +112,26 @@
     {
         var attributes = new Dictionary<string, object>();
 
-        var baseClasses = "form-check-input";
+        AppendToClassAttr(attributes, "form-check-input");
+        
         var colorClass = GetColorClass();
-        var sizeClass = GetSizeClass();
-        var validationClass = GetValidationClass();
-
         if (colorClass != null)
-            baseClasses = $"{baseClasses} {colorClass}";
-
+            AppendToClassAttr(attributes, colorClass);
+            
+        var sizeClass = GetSizeClass();
         if (sizeClass != null)
-            baseClasses = $"{baseClasses} {sizeClass}";
-
+            AppendToClassAttr(attributes, sizeClass);
+            
+        var validationClass = GetValidationClass();
         if (validationClass != null)
-            baseClasses = $"{baseClasses} {validationClass}";
-
-        attributes["class"] = baseClasses;
+            AppendToClassAttr(attributes, validationClass);
 
         // Handle custom CSS colors
         if (Color is not null && !Color.Value.IsEmpty && !Color.Value.IsCssClass)
         {
             var v = Color.Value.ToString().Trim();
-            attributes["style"] = $"background-color:{v};border-color:{v};";
+            AppendStyleDeclAttr(attributes, $"background-color:{v}");
+            AppendStyleDeclAttr(attributes, $"border-color:{v}");
         }
 
         if (Checked)

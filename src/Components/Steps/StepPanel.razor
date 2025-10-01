@@ -58,15 +58,18 @@
 
     private string GetStepPanelClasses()
     {
-        var classes = new List<string> { "tab-pane", "fade" };
+        var attributes = new Dictionary<string, object>();
+        
+        AppendToClassAttr(attributes, "tab-pane");
+        AppendToClassAttr(attributes, "fade");
 
         if (Active)
         {
-            classes.Add("show");
-            classes.Add("active");
+            AppendToClassAttr(attributes, "show");
+            AppendToClassAttr(attributes, "active");
         }
 
-        return string.Join(" ", classes);
+        return attributes.TryGetValue("class", out var classValue) ? classValue.ToString() ?? string.Empty : string.Empty;
     }
 
     protected override void OnInitialized()

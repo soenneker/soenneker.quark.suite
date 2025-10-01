@@ -107,60 +107,62 @@
 
     private string GetStepClasses()
     {
-        var classes = new List<string> { "nav-item" };
-        return string.Join(" ", classes);
+        var attributes = new Dictionary<string, object>();
+        AppendToClassAttr(attributes, "nav-item");
+        return attributes.TryGetValue("class", out var classValue) ? classValue.ToString() ?? string.Empty : string.Empty;
     }
 
     private string GetStepLinkClasses()
     {
-        var classes = new List<string>
-        {
-            "nav-link",
-            "rounded-pill",
-            "px-3",
-            "py-2",
-            "d-flex",
-            "align-items-center",
-            "gap-2",
-            "text-body-secondary"
-        };
+        var attributes = new Dictionary<string, object>();
+        
+        AppendToClassAttr(attributes, "nav-link");
+        AppendToClassAttr(attributes, "rounded-pill");
+        AppendToClassAttr(attributes, "px-3");
+        AppendToClassAttr(attributes, "py-2");
+        AppendToClassAttr(attributes, "d-flex");
+        AppendToClassAttr(attributes, "align-items-center");
+        AppendToClassAttr(attributes, "gap-2");
+        AppendToClassAttr(attributes, "text-body-secondary");
 
         if (Active)
         {
-            classes.Add("active");
-            classes.Add("fw-semibold");
+            AppendToClassAttr(attributes, "active");
+            AppendToClassAttr(attributes, "fw-semibold");
         }
         else
         {
-            classes.Add("opacity-75");
+            AppendToClassAttr(attributes, "opacity-75");
         }
 
         if (Completed)
-            classes.Add("text-success");
+            AppendToClassAttr(attributes, "text-success");
 
         if (Disabled)
-            classes.Add("disabled");
+            AppendToClassAttr(attributes, "disabled");
 
         if (Status != StepStatus.Pending)
-            classes.Add($"step-{Status.Value}");
+            AppendToClassAttr(attributes, $"step-{Status.Value}");
 
-        return string.Join(" ", classes);
+        return attributes.TryGetValue("class", out var classValue) ? classValue.ToString() ?? string.Empty : string.Empty;
     }
 
     private string GetMarkerClasses()
     {
-        var classes = new List<string> { "step-marker" };
+        var attributes = new Dictionary<string, object>();
+        
+        AppendToClassAttr(attributes, "step-marker");
 
         string? token = null;
         var isTheme = Color.TryGetBootstrapThemeToken(out token);
 
         if (isTheme && token is not null)
-            classes.Add($"step-marker-{token}");
+            AppendToClassAttr(attributes, $"step-marker-{token}");
 
         if (Active)
-            classes.Add("step-marker-active");
+            AppendToClassAttr(attributes, "step-marker-active");
 
-        return string.Join(" ", classes);
+        return attributes.TryGetValue("class", out var classValue) ? classValue.ToString() ?? string.Empty : string.Empty;
     }
 
     private string GetDescriptionClasses()

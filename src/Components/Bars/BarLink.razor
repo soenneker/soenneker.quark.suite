@@ -29,26 +29,21 @@
     {
         var attributes = base.BuildAttributes();
 
-        var baseClass = "nav-link";
+        AppendToClassAttr(attributes, "nav-link");
         if (Active)
-            baseClass = $"{baseClass} active";
+            AppendToClassAttr(attributes, "active");
         if (Disabled)
-            baseClass = $"{baseClass} disabled";
-
-        AppendToClassAttr(attributes, baseClass);
+            AppendToClassAttr(attributes, "disabled");
 
         // For vertical modes, add specific styles
         if (Mode != BarMode.Horizontal)
         {
-            var verticalStyles = new List<string>();
-            verticalStyles.Add("display: flex");
-            verticalStyles.Add("align-items: center");
-            verticalStyles.Add("width: 100%");
-            verticalStyles.Add("padding: 0.75rem 1rem");
-            verticalStyles.Add("border-radius: 0");
-            verticalStyles.Add("border-bottom: 1px solid var(--bs-border-color-translucent, rgba(0, 0, 0, 0.1))");
-            
-            AppendStyleDeclAttr(attributes, string.Join("; ", verticalStyles));
+            AppendStyleDeclAttr(attributes, "display: flex");
+            AppendStyleDeclAttr(attributes, "align-items: center");
+            AppendStyleDeclAttr(attributes, "width: 100%");
+            AppendStyleDeclAttr(attributes, "padding: 0.75rem 1rem");
+            AppendStyleDeclAttr(attributes, "border-radius: 0");
+            AppendStyleDeclAttr(attributes, "border-bottom: 1px solid var(--bs-border-color-translucent, rgba(0, 0, 0, 0.1))");
         }
 
         if (Disabled)

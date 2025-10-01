@@ -41,25 +41,28 @@
     {
         var attributes = base.BuildAttributes();
 
-        var baseClass = "btn btn-toggle align-items-center rounded";
+        AppendToClassAttr(attributes, "btn");
+        AppendToClassAttr(attributes, "btn-toggle");
+        AppendToClassAttr(attributes, "align-items-center");
+        AppendToClassAttr(attributes, "rounded");
         
         // Force collapse if requested, otherwise use Expanded state
         var shouldBeCollapsed = ForceCollapseAll || !Expanded;
         if (shouldBeCollapsed)
-            baseClass = $"{baseClass} collapsed";
+            AppendToClassAttr(attributes, "collapsed");
         
         if (Disabled == true)
-            baseClass = $"{baseClass} disabled";
+            AppendToClassAttr(attributes, "disabled");
 
         // For vertical mode, add specific styling
         if (Mode != BarMode.Horizontal)
         {
-            baseClass = $"{baseClass} d-flex align-items-center position-relative";
+            AppendToClassAttr(attributes, "d-flex");
+            AppendToClassAttr(attributes, "align-items-center");
+            AppendToClassAttr(attributes, "position-relative");
             if (!SidebarCollapsed)
-                baseClass = $"{baseClass} w-100";
+                AppendToClassAttr(attributes, "w-100");
         }
-
-        AppendToClassAttr(attributes, baseClass);
 
         if (Disabled == true)
             attributes["aria-disabled"] = "true";

@@ -24,20 +24,23 @@
     {
         var attributes = base.BuildAttributes();
 
-        var baseClass = Mode == BarMode.Horizontal ? "collapse navbar-collapse" : "";
-
-        if (Right && Mode == BarMode.Horizontal)
-            baseClass = $"{baseClass} ms-auto";
+        if (Mode == BarMode.Horizontal)
+        {
+            AppendToClassAttr(attributes, "collapse");
+            AppendToClassAttr(attributes, "navbar-collapse");
+            
+            if (Right)
+                AppendToClassAttr(attributes, "ms-auto");
+        }
 
         // For vertical modes, add flex-direction column
         if (Mode != BarMode.Horizontal)
         {
-            AppendStyleDeclAttr(attributes, "flex-direction: column; width: 100%;");
+            AppendStyleDeclAttr(attributes, "flex-direction: column");
+            AppendStyleDeclAttr(attributes, "width: 100%");
             if (SidebarCollapsed)
-                AppendStyleDeclAttr(attributes, "gap: 0.25rem;");
+                AppendStyleDeclAttr(attributes, "gap: 0.25rem");
         }
-
-        AppendToClassAttr(attributes, baseClass);
 
         return attributes;
     }
