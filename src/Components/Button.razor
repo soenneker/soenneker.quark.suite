@@ -85,16 +85,16 @@ else
 
 	protected override Dictionary<string, object> BuildAttributes()
 	{
-		Attributes = base.BuildAttributes();
+		var attributes = base.BuildAttributes();
 
 		// Determine element kind
 		var isLink = Type == ButtonType.Link || To.HasContent();
 
 		// Figure out disabled state (treat presence of "disabled" attribute as true)
-		var isDisabled = Disabled || Loading || (Attributes is not null && Attributes.ContainsKey("disabled"));
+		var isDisabled = Disabled || Loading || attributes.ContainsKey("disabled");
 
 		// Add Bootstrap button classes
-		AppendToClassAttr(Attributes, "btn");
+		AppendToClassAttr(attributes, "btn");
 
 		string? colorToken = null;
 		var isColorTheme = Color?.TryGetBootstrapThemeToken(out colorToken) == true;
@@ -106,24 +106,24 @@ else
             if (isColorTheme && colorToken is not null)
             {
                 // Bootstrap theme token (e.g., "primary", "secondary")
-                AppendToClassAttr(Attributes, $"btn-{colorToken}");
+				AppendToClassAttr(attributes, $"btn-{colorToken}");
             }
             else if (Color.Value.IsCssClass)
             {
                 if (v.StartsWith("btn-", StringComparison.Ordinal))
-                    AppendToClassAttr(Attributes, v);
+					AppendToClassAttr(attributes, v);
                 else
-                    AppendToClassAttr(Attributes, $"btn-{v}");
+					AppendToClassAttr(attributes, $"btn-{v}");
             }
             else
             {
                 // Build style efficiently
                 var styleParts = new List<string> { $"background-color:{v}", $"border-color:{v}" };
                 
-                if (Attributes.TryGetValue("style", out var existing) && !string.IsNullOrEmpty(existing?.ToString()))
+				if (attributes.TryGetValue("style", out var existing) && !string.IsNullOrEmpty(existing?.ToString()))
                     styleParts.Insert(0, existing.ToString()!);
                     
-                Attributes["style"] = string.Join(";", styleParts) + ";";
+				attributes["style"] = string.Join(";", styleParts) + ";";
             }
         }
 
@@ -131,19 +131,19 @@ else
 		var sizeClass = GetSizeClass();
 
 		if (sizeClass is not null)
-			AppendToClassAttr(Attributes, sizeClass);
+			AppendToClassAttr(attributes, sizeClass);
 
 		// Apply disabled visuals for anchor-style buttons
 		if (isLink && isDisabled)
-			AppendToClassAttr(Attributes, "disabled");
+			AppendToClassAttr(attributes, "disabled");
 
 		// Common ARIA for loading/disabled
 		if (Loading)
-			Attributes["aria-busy"] = "true";
+            attributes["aria-busy"] = "true";
 
 		// Only set type on real <button>
 		if (!isLink)
-			Attributes["type"] = Type.Value;
+            attributes["type"] = Type.Value;
 
 		// Real disabled vs. aria-disabled
 		if (isLink)
@@ -151,28 +151,28 @@ else
 			// Anchor can't be truly disabled; use ARIA and remove focus
 			if (isDisabled)
 			{
-				Attributes["aria-disabled"] = "true";
-				Attributes["tabindex"] = "-1";
+                attributes["aria-disabled"] = "true";
+                attributes["tabindex"] = "-1";
 				// role is already a good idea for link-as-button
-				Attributes["role"] = "button";
+                attributes["role"] = "button";
 			}
 			else
-				Attributes.TryAdd("role", "button");
+                attributes.TryAdd("role", "button");
 		}
 		else
 		{
 			if (isDisabled)
-				Attributes["disabled"] = true;
+                attributes["disabled"] = true;
 		}
 
 		// Standard button/submit metadata
-		if (Value.HasContent()) Attributes["value"] = Value!;
-		if (Name.HasContent()) Attributes["name"] = Name!;
-		if (Form.HasContent()) Attributes["form"] = Form!;
-		if (AutoFocus) Attributes["autofocus"] = true;
+		if (Value.HasContent()) attributes["value"] = Value!;
+		if (Name.HasContent()) attributes["name"] = Name!;
+		if (Form.HasContent()) attributes["form"] = Form!;
+		if (AutoFocus) attributes["autofocus"] = true;
 
 		// If this is acting as a link, we already render <Anchor>; nothing special beyond attrs.
-		return Attributes;
+		return attributes;
 	}
 
 	protected override async Task HandleClick(MouseEventArgs args)

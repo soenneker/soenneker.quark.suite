@@ -1,0 +1,241 @@
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@typeparam TNode
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    @if (NodeStates is not null)
+    {
+        if (Virtualize)
+        {
+            <Virtualize TItem="TreeViewNodeState<TNode>" Context="node" Items="@NodeStates.ToList()">
+                @NodeFragment(node)
+            </Virtualize>
+        }
+        else
+        {
+            @foreach (var nodeState in NodeStates)
+            {
+                @NodeFragment(nodeState)
+            }
+        }
+    }
+</div>
+
+@code {
+    public override string? ThemeKey { get; set; } = "_TreeViewNode";
+
+    [Parameter] public IEnumerable<TreeViewNodeState<TNode>>? NodeStates { get; set; }
+    [Parameter] public RenderFragment<TNode>? NodeContent { get; set; }
+    [Parameter] public IList<TNode> ExpandedNodes { get; set; } = new List<TNode>();
+    [Parameter] public EventCallback<IList<TNode>> ExpandedNodesChanged { get; set; }
+
+    [Parameter] public Func<TNode, IEnumerable<TNode>>? GetChildNodes { get; set; }
+    [Parameter] public Func<TNode, Task<IEnumerable<TNode>>>? GetChildNodesAsync { get; set; }
+    [Parameter] public Func<TNode, bool>? HasChildNodes { get; set; }
+    [Parameter] public Func<TNode, Task<bool>>? HasChildNodesAsync { get; set; }
+    [Parameter] public Func<TNode, bool>? IsDisabled { get; set; }
+
+    [Parameter] public TreeViewSelectionMode SelectionMode { get; set; }
+    [Parameter] public bool ToggleOnNodeClick { get; set; }
+    [Parameter] public bool AutoExpandAll { get; set; }
+    [Parameter] public bool Virtualize { get; set; }
+
+    [Parameter] public string ExpandIconName { get; set; } = "chevron-right";
+    [Parameter] public IconStyle? ExpandIconStyle { get; set; }
+    [Parameter] public IconSize? ExpandIconSize { get; set; }
+
+    [Parameter] public string CollapseIconName { get; set; } = "chevron-down";
+    [Parameter] public IconStyle? CollapseIconStyle { get; set; }
+    [Parameter] public IconSize? CollapseIconSize { get; set; }
+
+    [Parameter] public Action<TNode, NodeStyling>? SelectedNodeStyling { get; set; }
+    [Parameter] public Action<TNode, NodeStyling>? DisabledNodeStyling { get; set; }
+    [Parameter] public Action<TNode, NodeStyling>? NodeStyling { get; set; }
+
+    [Parameter] public EventCallback<TreeViewNodeMouseEventArgs<TNode>> ContextMenu { get; set; }
+    [Parameter] public bool ContextMenuPreventDefault { get; set; }
+
+    [CascadingParameter] public TreeView<TNode>? ParentTreeView { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+        AppendToClassAttr(attributes, "q-tree-view-node");
+        return attributes;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AutoExpandAll && NodeStates is not null)
+        {
+            foreach (var node in NodeStates)
+            {
+                if (node.HasChildren && !node.Expanded)
+                    await ToggleNode(node, true);
+            }
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (NodeStates is not null)
+        {
+            foreach (var node in NodeStates)
+            {
+                if (node.Expanded && node.HasChildren && node.Children.Count == 0)
+                {
+                    await LoadChildNodes(node);
+                }
+            }
+        }
+
+        await base.OnParametersSetAsync();
+    }
+
+    private RenderFragment NodeFragment(TreeViewNodeState<TNode> nodeState) => (__builder) =>
+    {
+        <div class="q-tree-view-node-row" @key="nodeState.Key" @oncontextmenu="(e => OnContextMenuHandler(nodeState, e))" @oncontextmenu:stopPropagation @oncontextmenu:preventDefault="@ContextMenuPreventDefault">
+            @if (nodeState.HasChildren)
+            {
+                <span class="q-tree-view-node-toggle" @onclick="(() => ToggleNode(nodeState, true))">
+                    @if (nodeState.Expanded)
+                    {
+                        <Icon Name="@CollapseIconName" IconStyle="@CollapseIconStyle" IconSize="@CollapseIconSize"/>
+                    }
+                    else
+                    {
+                        <Icon Name="@ExpandIconName" IconStyle="@ExpandIconStyle" IconSize="@ExpandIconSize"/>
+                    }
+                </span>
+            }
+
+            <_TreeViewNodeContent TNode="TNode"
+                                  NodeState="@nodeState"
+                                  NodeStyling="@NodeStyling"
+                                  SelectionMode="@SelectionMode"
+                                  SelectedNodeStyling="@SelectedNodeStyling"
+                                  DisabledNodeStyling="@DisabledNodeStyling"
+                                  OnTitleClicked="@(() => OnTitleClicked(nodeState))">
+                @NodeContent!(nodeState.Node)
+            </_TreeViewNodeContent>
+        </div>
+
+        @if (nodeState.Expanded && nodeState.HasChildren)
+        {
+            <_TreeViewNode TNode="TNode"
+                           NodeStates="@nodeState.Children"
+                           NodeContent="@NodeContent"
+                           GetChildNodes="@GetChildNodes"
+                           GetChildNodesAsync="@GetChildNodesAsync"
+                           ExpandedNodes="@ExpandedNodes"
+                           ExpandedNodesChanged="@ExpandedNodesChanged"
+                           AutoExpandAll="@AutoExpandAll"
+                           HasChildNodes="@HasChildNodes"
+                           IsDisabled="@IsDisabled"
+                           HasChildNodesAsync="@HasChildNodesAsync"
+                           NodeStyling="@NodeStyling"
+                           SelectedNodeStyling="@SelectedNodeStyling"
+                           DisabledNodeStyling="@DisabledNodeStyling"
+                           ExpandIconName="@ExpandIconName"
+                           ExpandIconStyle="@ExpandIconStyle"
+                           ExpandIconSize="@ExpandIconSize"
+                           CollapseIconName="@CollapseIconName"
+                           CollapseIconStyle="@CollapseIconStyle"
+                           CollapseIconSize="@CollapseIconSize"
+                           SelectionMode="@SelectionMode"
+                           ToggleOnNodeClick="@ToggleOnNodeClick"
+                           ContextMenu="@ContextMenu"
+                           ContextMenuPreventDefault="@ContextMenuPreventDefault"
+                           Virtualize="@Virtualize"/>
+        }
+    };
+
+    private async Task ToggleNode(TreeViewNodeState<TNode> nodeState, bool refresh)
+    {
+        var wasExpanded = nodeState.Expanded;
+        nodeState.Expanded = !nodeState.Expanded;
+
+        if (nodeState.Expanded)
+        {
+            if (!ExpandedNodes.Contains(nodeState.Node))
+            {
+                ExpandedNodes.Add(nodeState.Node);
+                if (ExpandedNodesChanged.HasDelegate)
+                    await ExpandedNodesChanged.InvokeAsync(ExpandedNodes);
+            }
+
+            // Always load children when expanding, regardless of current count
+            if (nodeState.HasChildren)
+            {
+                await LoadChildNodes(nodeState);
+            }
+        }
+        else
+        {
+            if (ExpandedNodes.Remove(nodeState.Node))
+            {
+                if (ExpandedNodesChanged.HasDelegate)
+                    await ExpandedNodesChanged.InvokeAsync(ExpandedNodes);
+            }
+        }
+
+        if (refresh)
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task LoadChildNodes(TreeViewNodeState<TNode> nodeState)
+    {
+        IEnumerable<TNode>? children = null;
+        if (GetChildNodesAsync is not null)
+            children = await GetChildNodesAsync(nodeState.Node);
+        else if (GetChildNodes is not null)
+            children = GetChildNodes(nodeState.Node);
+
+        nodeState.Children.Clear();
+        if (children is null)
+            return;
+
+        foreach (var child in children)
+        {
+            var hasChildren = await DetermineHasChildren(child);
+            var expanded = ExpandedNodes.Contains(child);
+            var disabled = DetermineIsDisabled(child);
+            nodeState.Children.Add(new TreeViewNodeState<TNode>(child, hasChildren, expanded, disabled));
+        }
+    }
+
+    private bool DetermineIsDisabled(TNode node) => IsDisabled?.Invoke(node) ?? false;
+
+    private async ValueTask<bool> DetermineHasChildren(TNode node)
+    {
+        if (HasChildNodesAsync is not null)
+            return await HasChildNodesAsync(node);
+        if (HasChildNodes is not null)
+            return HasChildNodes(node);
+        return false;
+    }
+
+    private Task OnContextMenuHandler(TreeViewNodeState<TNode> nodeState, MouseEventArgs e)
+    {
+        if (!ContextMenu.HasDelegate)
+            return Task.CompletedTask;
+
+        return ContextMenu.InvokeAsync(new TreeViewNodeMouseEventArgs<TNode>(nodeState.Node, e));
+    }
+
+    private Task OnTitleClicked(TreeViewNodeState<TNode> nodeState)
+    {
+        if (ToggleOnNodeClick && nodeState.HasChildren)
+        {
+            return ToggleNode(nodeState, true);
+        }
+
+        return Task.CompletedTask;
+    }
+
+}

@@ -5,107 +5,107 @@ namespace Soenneker.Quark;
 /// Container class for Bootstrap CSS variables.
 /// Includes colors for basic Bootstrap variable overrides and component-specific variables.
 /// </summary>
-public class BootstrapCssVariables
+public sealed class BootstrapCssVariables
 {
-    public BootstrapColorsCssVariables Colors { get; set; } = new();
+    public BootstrapColorsCssVariables? Colors { get; set; }
 
-    public BootstrapButtonCssVariables Button { get; set; } = new();
+    public BootstrapButtonCssVariables? Button { get; set; }
 
-    public BootstrapPrimaryButtonCssVariables PrimaryButton { get; set; } = new();
-    public BootstrapSecondaryButtonCssVariables SecondaryButton { get; set; } = new();
-    public BootstrapSuccessButtonCssVariables SuccessButton { get; set; } = new();
-    public BootstrapDangerButtonCssVariables DangerButton { get; set; } = new();
-    public BootstrapWarningButtonCssVariables WarningButton { get; set; } = new();
-    public BootstrapInfoButtonCssVariables InfoButton { get; set; } = new();
-    public BootstrapLightButtonCssVariables LightButton { get; set; } = new();
-    public BootstrapDarkButtonCssVariables DarkButton { get; set; } = new();
+    public BootstrapPrimaryButtonCssVariables? PrimaryButton { get; set; }
+    public BootstrapSecondaryButtonCssVariables? SecondaryButton { get; set; }
+    public BootstrapSuccessButtonCssVariables? SuccessButton { get; set; }
+    public BootstrapDangerButtonCssVariables? DangerButton { get; set; }
+    public BootstrapWarningButtonCssVariables? WarningButton { get; set; }
+    public BootstrapInfoButtonCssVariables? InfoButton { get; set; }
+    public BootstrapLightButtonCssVariables? LightButton { get; set; }
+    public BootstrapDarkButtonCssVariables? DarkButton { get; set; }
 
-    public BootstrapOutlinePrimaryButtonCssVariables OutlinePrimaryButton { get; set; } = new();
-    public BootstrapOutlineSecondaryButtonCssVariables OutlineSecondaryButton { get; set; } = new();
-    public BootstrapOutlineSuccessButtonCssVariables OutlineSuccessButton { get; set; } = new();
-    public BootstrapOutlineDangerButtonCssVariables OutlineDangerButton { get; set; } = new();
-    public BootstrapOutlineWarningButtonCssVariables OutlineWarningButton { get; set; } = new();
-    public BootstrapOutlineInfoButtonCssVariables OutlineInfoButton { get; set; } = new();
-    public BootstrapOutlineLightButtonCssVariables OutlineLightButton { get; set; } = new();
-    public BootstrapOutlineDarkButtonCssVariables OutlineDarkButton { get; set; } = new();
+    public BootstrapOutlinePrimaryButtonCssVariables? OutlinePrimaryButton { get; set; }
+    public BootstrapOutlineSecondaryButtonCssVariables? OutlineSecondaryButton { get; set; }
+    public BootstrapOutlineSuccessButtonCssVariables? OutlineSuccessButton { get; set; }
+    public BootstrapOutlineDangerButtonCssVariables? OutlineDangerButton { get; set; }
+    public BootstrapOutlineWarningButtonCssVariables? OutlineWarningButton { get; set; }
+    public BootstrapOutlineInfoButtonCssVariables? OutlineInfoButton { get; set; }
+    public BootstrapOutlineLightButtonCssVariables? OutlineLightButton { get; set; }
+    public BootstrapOutlineDarkButtonCssVariables? OutlineDarkButton { get; set; }
 
     // Alerts
-    public BootstrapAlertCssVariables Alert { get; set; } = new();
-    public BootstrapAlertPrimaryCssVariables AlertPrimary { get; set; } = new();
-    public BootstrapAlertSecondaryCssVariables AlertSecondary { get; set; } = new();
-    public BootstrapAlertSuccessCssVariables AlertSuccess { get; set; } = new();
-    public BootstrapAlertDangerCssVariables AlertDanger { get; set; } = new();
-    public BootstrapAlertWarningCssVariables AlertWarning { get; set; } = new();
-    public BootstrapAlertInfoCssVariables AlertInfo { get; set; } = new();
-    public BootstrapAlertLightCssVariables AlertLight { get; set; } = new();
-    public BootstrapAlertDarkCssVariables AlertDark { get; set; } = new();
+    public BootstrapAlertCssVariables? Alert { get; set; }
+    public BootstrapAlertPrimaryCssVariables? AlertPrimary { get; set; }
+    public BootstrapAlertSecondaryCssVariables? AlertSecondary { get; set; }
+    public BootstrapAlertSuccessCssVariables? AlertSuccess { get; set; }
+    public BootstrapAlertDangerCssVariables? AlertDanger { get; set; }
+    public BootstrapAlertWarningCssVariables? AlertWarning { get; set; }
+    public BootstrapAlertInfoCssVariables? AlertInfo { get; set; }
+    public BootstrapAlertLightCssVariables? AlertLight { get; set; }
+    public BootstrapAlertDarkCssVariables? AlertDark { get; set; }
 
     // Badges
-    public BootstrapBadgeCssVariables Badge { get; set; } = new();
-    public BootstrapBadgePrimaryCssVariables BadgePrimary { get; set; } = new();
-    public BootstrapBadgeSecondaryCssVariables BadgeSecondary { get; set; } = new();
-    public BootstrapBadgeSuccessCssVariables BadgeSuccess { get; set; } = new();
-    public BootstrapBadgeDangerCssVariables BadgeDanger { get; set; } = new();
-    public BootstrapBadgeWarningCssVariables BadgeWarning { get; set; } = new();
-    public BootstrapBadgeInfoCssVariables BadgeInfo { get; set; } = new();
-    public BootstrapBadgeLightCssVariables BadgeLight { get; set; } = new();
-    public BootstrapBadgeDarkCssVariables BadgeDark { get; set; } = new();
+    public BootstrapBadgeCssVariables? Badge { get; set; }
+    public BootstrapBadgePrimaryCssVariables? BadgePrimary { get; set; }
+    public BootstrapBadgeSecondaryCssVariables? BadgeSecondary { get; set; }
+    public BootstrapBadgeSuccessCssVariables? BadgeSuccess { get; set; }
+    public BootstrapBadgeDangerCssVariables? BadgeDanger { get; set; }
+    public BootstrapBadgeWarningCssVariables? BadgeWarning { get; set; }
+    public BootstrapBadgeInfoCssVariables? BadgeInfo { get; set; }
+    public BootstrapBadgeLightCssVariables? BadgeLight { get; set; }
+    public BootstrapBadgeDarkCssVariables? BadgeDark { get; set; }
 
     // Cards
-    public BootstrapCardCssVariables Card { get; set; } = new();
+    public BootstrapCardCssVariables? Card { get; set; }
 
     // Forms
-    public BootstrapFormControlCssVariables FormControl { get; set; } = new();
-    public BootstrapFormCheckInputCssVariables FormCheckInput { get; set; } = new();
-    public BootstrapFormSwitchInputCssVariables FormSwitchInput { get; set; } = new();
+    public BootstrapFormControlCssVariables? FormControl { get; set; }
+    public BootstrapFormCheckInputCssVariables? FormCheckInput { get; set; }
+    public BootstrapFormSwitchInputCssVariables? FormSwitchInput { get; set; }
 
     // List group
-    public BootstrapListGroupCssVariables ListGroup { get; set; } = new();
-    public BootstrapListGroupItemCssVariables ListGroupItem { get; set; } = new();
+    public BootstrapListGroupCssVariables? ListGroup { get; set; }
+    public BootstrapListGroupItemCssVariables? ListGroupItem { get; set; }
 
     // Navs & Tabs
-    public BootstrapNavLinkCssVariables NavLink { get; set; } = new();
-    public BootstrapNavTabsCssVariables NavTabs { get; set; } = new();
+    public BootstrapNavLinkCssVariables? NavLink { get; set; }
+    public BootstrapNavTabsCssVariables? NavTabs { get; set; }
 
     // Pagination
-    public BootstrapPaginationCssVariables Pagination { get; set; } = new();
-    public BootstrapPageLinkCssVariables PageLink { get; set; } = new();
+    public BootstrapPaginationCssVariables? Pagination { get; set; }
+    public BootstrapPageLinkCssVariables? PageLink { get; set; }
 
     // Progress
-    public BootstrapProgressCssVariables Progress { get; set; } = new();
-    public BootstrapProgressBarCssVariables ProgressBar { get; set; } = new();
+    public BootstrapProgressCssVariables? Progress { get; set; }
+    public BootstrapProgressBarCssVariables? ProgressBar { get; set; }
 
     // Modals
-    public BootstrapModalCssVariables Modal { get; set; } = new();
-    public BootstrapModalContentCssVariables ModalContent { get; set; } = new();
+    public BootstrapModalCssVariables? Modal { get; set; }
+    public BootstrapModalContentCssVariables? ModalContent { get; set; }
 
     // Offcanvas
-    public BootstrapOffcanvasCssVariables Offcanvas { get; set; } = new();
+    public BootstrapOffcanvasCssVariables? Offcanvas { get; set; }
 
     // Dropdowns
-    public BootstrapDropdownMenuCssVariables DropdownMenu { get; set; } = new();
-    public BootstrapDropdownItemCssVariables DropdownItem { get; set; } = new();
-    public BootstrapDropdownToggleCssVariables DropdownToggle { get; set; } = new();
+    public BootstrapDropdownMenuCssVariables? DropdownMenu { get; set; }
+    public BootstrapDropdownItemCssVariables? DropdownItem { get; set; }
+    public BootstrapDropdownToggleCssVariables? DropdownToggle { get; set; }
 
     // Breadcrumbs
-    public BootstrapBreadcrumbItemCssVariables BreadcrumbItem { get; set; } = new();
+    public BootstrapBreadcrumbItemCssVariables? BreadcrumbItem { get; set; }
 
     // Toasts
-    public BootstrapToastCssVariables Toast { get; set; } = new();
+    public BootstrapToastCssVariables? Toast { get; set; }
 
     // Tooltip & Popover
-    public BootstrapTooltipCssVariables Tooltip { get; set; } = new();
-    public BootstrapPopoverCssVariables Popover { get; set; } = new();
+    public BootstrapTooltipCssVariables? Tooltip { get; set; }
+    public BootstrapPopoverCssVariables? Popover { get; set; }
 
     // Tables
-    public BootstrapTableCssVariables Table { get; set; } = new();
-    public BootstrapTableStripedCssVariables TableStriped { get; set; } = new();
-    public BootstrapTableHoverCssVariables TableHover { get; set; } = new();
+    public BootstrapTableCssVariables? Table { get; set; }
+    public BootstrapTableStripedCssVariables? TableStriped { get; set; }
+    public BootstrapTableHoverCssVariables? TableHover { get; set; }
 
     // Accordion
-    public BootstrapAccordionCssVariables Accordion { get; set; } = new();
-    public BootstrapAccordionButtonCssVariables AccordionButton { get; set; } = new();
+    public BootstrapAccordionCssVariables? Accordion { get; set; }
+    public BootstrapAccordionButtonCssVariables? AccordionButton { get; set; }
 
     // Carousel
-    public BootstrapCarouselCssVariables Carousel { get; set; } = new();
+    public BootstrapCarouselCssVariables? Carousel { get; set; }
 }

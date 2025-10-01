@@ -19,6 +19,10 @@ public static class Color
     public static ColorBuilder Link => new("link");
     public static ColorBuilder Muted => new("muted");
 
+    public static ColorBuilder White => new("white");
+
+    public static ColorBuilder Black => new("black");
+
     public static ColorBuilder Inherit => new(GlobalKeyword.InheritValue);
     public static ColorBuilder Initial => new(GlobalKeyword.InitialValue);
     public static ColorBuilder Revert => new(GlobalKeyword.RevertValue);

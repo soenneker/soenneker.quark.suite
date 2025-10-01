@@ -1,0 +1,93 @@
+@typeparam TNode
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div class="q-tree-view-node-title">
+    @if (SelectionMode == TreeViewSelectionMode.Multiple)
+    {
+        <div class="q-tree-view-node-check">
+            <Check TValue="bool" Checked="@Checked" CheckedChanged="@OnCheckedChanged" Disabled="@NodeState.Disabled" />
+        </div>
+    }
+    <span @attributes="BuildAttributes()" @onclick="ToggleClicked" style="@GetCurrentStyle()">
+        @ChildContent
+    </span>
+</div>
+
+@code {
+    public override string? ThemeKey { get; set; } = "_TreeViewNodeContent";
+
+    [Parameter] public TreeViewNodeState<TNode> NodeState { get; set; } = null!;
+    [Parameter] public TreeViewSelectionMode SelectionMode { get; set; }
+    [Parameter] public Action<TNode, NodeStyling>? SelectedNodeStyling { get; set; }
+    [Parameter] public Action<TNode, NodeStyling>? DisabledNodeStyling { get; set; }
+    [Parameter] public Action<TNode, NodeStyling>? NodeStyling { get; set; }
+    [Parameter] public EventCallback OnTitleClicked { get; set; }
+
+    [CascadingParameter] public TreeView<TNode>? ParentTreeView { get; set; }
+    [CascadingParameter] public TreeViewState<TNode> ParentTreeViewState { get; set; } = null!;
+
+    private readonly NodeStyling _selectedNodeStyling = new() { Background = Quark.Color.Primary, TextColor = Quark.Color.White };
+    private readonly NodeStyling _disabledNodeStyling = new() { Background = Quark.Color.Light, TextColor = Quark.Color.Muted };
+    private readonly NodeStyling _nodeStyling = new() { Background = Quark.Color.Initial, TextColor = Quark.Color.Initial };
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+        AppendToClassAttr(attributes, "q-tree-view-node-content cursor-pointer");
+
+        if (Selected)
+            AppendToClassAttr(attributes, "q-tree-view-node-selected");
+        else if (NodeState?.Disabled ?? false)
+            AppendToClassAttr(attributes, "q-tree-view-node-disabled");
+
+        return attributes;
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        if (Selected)
+            SelectedNodeStyling?.Invoke(NodeState.Node, _selectedNodeStyling);
+        else if (NodeState.Disabled)
+            DisabledNodeStyling?.Invoke(NodeState.Node, _disabledNodeStyling);
+        else
+            NodeStyling?.Invoke(NodeState.Node, _nodeStyling);
+
+        return base.OnParametersSetAsync();
+    }
+
+    private string GetCurrentStyle()
+    {
+        if (Selected)
+            return _selectedNodeStyling.Style;
+        else if (NodeState.Disabled)
+            return _disabledNodeStyling.Style;
+        else
+            return _nodeStyling.Style;
+    }
+
+    private bool Selected => SelectionMode == TreeViewSelectionMode.Single && ParentTreeViewState.SelectedNode is not null && EqualityComparer<TNode>.Default.Equals(ParentTreeViewState.SelectedNode, NodeState.Node);
+    private bool Checked => SelectionMode == TreeViewSelectionMode.Multiple && ParentTreeViewState.SelectedNodes is not null && ParentTreeViewState.SelectedNodes.Contains(NodeState.Node);
+
+    private async Task ToggleClicked()
+    {
+        // Always handle expansion first (if ToggleOnNodeClick is enabled)
+        await OnTitleClicked.InvokeAsync();
+        
+        // Then handle selection (only if not disabled and not multiple selection mode)
+        if (!NodeState.Disabled && SelectionMode != TreeViewSelectionMode.Multiple)
+        {
+            ParentTreeView?.SelectNode(NodeState.Node);
+        }
+    }
+
+    private Task OnCheckedChanged(bool value)
+    {
+        if (ParentTreeView is null || NodeState.Disabled)
+            return Task.CompletedTask;
+
+        return ParentTreeView.ToggleCheckNode(NodeState.Node);
+    }
+}
+
+

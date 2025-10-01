@@ -40,6 +40,11 @@ public interface IOffcanvas : IElement
     EventCallback OnBackdropClick { get; set; }
 
     /// <summary>
+    /// Gets whether the offcanvas is currently visible.
+    /// </summary>
+    bool IsVisible { get; }
+
+    /// <summary>
     /// Shows the offcanvas.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>

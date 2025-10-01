@@ -39,6 +39,10 @@ public sealed class ColorBuilder : ICssBuilder
     public ColorBuilder Link => ChainValue("link");
     public ColorBuilder Muted => ChainValue("muted");
 
+    public ColorBuilder White => ChainValue("white");
+
+    public ColorBuilder Black => ChainValue("black");
+
     public ColorBuilder Inherit => ChainValue(GlobalKeyword.InheritValue);
     public ColorBuilder Initial => ChainValue(GlobalKeyword.InitialValue);
     public ColorBuilder Revert => ChainValue(GlobalKeyword.RevertValue);
@@ -147,10 +151,12 @@ public sealed class ColorBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string GetClass(ColorRule rule)
     {
-        // Only known theme tokens map to utility classes
         return rule.Value switch
         {
-            "primary" or "secondary" or "success" or "danger" or "warning" or "info" or "light" or "dark" or "link" or "muted" => rule.Value,
+            "primary" or "secondary" or "success" or "danger" or "warning" or "info" or
+                "light" or "dark" or "link" or "muted" or
+                "white" or "black"
+                => rule.Value,
             _ => string.Empty
         };
     }
@@ -158,10 +164,12 @@ public sealed class ColorBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string? GetStyle(ColorRule rule)
     {
-        // If not a known theme token, treat as raw CSS value
         return rule.Value switch
         {
-            "primary" or "secondary" or "success" or "danger" or "warning" or "info" or "light" or "dark" or "link" or "muted" => null,
+            "primary" or "secondary" or "success" or "danger" or "warning" or "info" or
+                "light" or "dark" or "link" or "muted" or
+                "white" or "black"
+                => null,
             _ => rule.Value
         };
     }

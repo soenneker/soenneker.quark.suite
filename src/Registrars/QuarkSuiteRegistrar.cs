@@ -10,6 +10,7 @@ public static class QuarkSuiteRegistrar
         services.AddQuarkTableAsScoped()
             .AddQuarkSnackbarAsScoped()
             .AddQuarkDatePickerAsScoped()
+            .AddQuarkTreeViewAsScoped()
             .AddQuarkStepsAsScoped()
             .AddQuarkBarAsScoped()
             .AddQuarkOffcanvasAsScoped();
