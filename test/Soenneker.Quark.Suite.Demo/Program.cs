@@ -161,7 +161,7 @@ public sealed class Program
                 Cards = new CardOptions()
             };
 
-            var provider = new ThemeProvider { CurrentTheme = "Modern", Themes = new Dictionary<string, Theme> { { "Modern", theme } } };
+            var provider = new ThemeProvider { CurrentTheme = "Default", Themes = new Dictionary<string, Theme> { { "Default", theme } } };
 
             builder.Services.AddThemeProviderAsScoped(provider);
 
