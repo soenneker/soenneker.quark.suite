@@ -58,7 +58,6 @@
         if (firstRender && !_initialized)
         {
             await OffcanvasInterop.Initialize();
-            await OffcanvasInterop.Create(Id!);
             _initialized = true;
         }
 
@@ -117,18 +116,6 @@
         _isShowing = true;
         _backdropVisible = true;
 
-        if (!AllowScroll)
-        {
-            try
-            {
-                await OffcanvasInterop.Open(Id!, token);
-            }
-            catch
-            {
-                /* ignore */
-            }
-        }
-
         await InvokeAsync(StateHasChanged);
         await Task.Yield();
 
@@ -160,17 +147,6 @@
             _isHiding = false;
             _backdropVisible = false;
 
-            if (!AllowScroll)
-            {
-                try
-                {
-                    await OffcanvasInterop.Close(Id!, token);
-                }
-                catch
-                {
-                    /* ignore */
-                }
-            }
         }, OnHide, token);
     }
 
@@ -249,7 +225,6 @@
             {
                 // Ensure global overlay count is balanced if component is torn down while open
                 if (!_backdropVisible && _active) _active = false;
-                await OffcanvasInterop.Destroy(Id!);
             }
         }
         catch

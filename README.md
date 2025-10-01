@@ -27,11 +27,10 @@ dotnet add package Soenneker.Quark.Suite
 builder.Services.AddQuarkSuiteAsScoped();
 
 var theme = new Theme { /* ... */ };
-builder.Services.AddThemeProviderAsScoped(new ThemeProvider
-{
-    CurrentTheme = "Default",
-    Themes = new() { ["Default"] = theme }
-});
+var provider = new ThemeProvider();
+provider.AddTheme(theme);
+
+builder.Services.AddThemeProviderAsScoped(provider);
 ```
 
 Include Bootstrap if not already present:

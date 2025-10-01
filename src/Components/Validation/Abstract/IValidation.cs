@@ -45,7 +45,7 @@ public interface IValidation : IDisposable
     /// <summary>
     /// Initialize or update the expression used to bind a model field for data-annotation validation.
     /// </summary>
-    Task InitializeInputExpression<T>(System.Linq.Expressions.Expression<System.Func<T>> expression);
+    Task InitializeInputExpression<T>(System.Linq.Expressions.Expression<Func<T>> expression);
 
     /// <summary>
     /// Notify that the input value has changed so validation can run in Auto mode.

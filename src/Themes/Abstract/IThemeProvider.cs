@@ -11,5 +11,5 @@ public interface IThemeProvider
 
     Dictionary<string, Func<Theme, ComponentOptions?>> ComponentOptions { get; set; }
 
-    string GenerateRootCss();
+    string? GenerateRootCss();
 }

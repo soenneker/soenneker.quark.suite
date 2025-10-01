@@ -1,4 +1,5 @@
 using System;
+using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
@@ -24,6 +25,6 @@ public sealed class CssSelectorAttribute : Attribute
     /// </summary>
     public string GetSelector()
     {
-        return string.IsNullOrEmpty(Class) ? ":root" : Class;
+        return Class.IsNullOrEmpty() ? ":root" : Class;
     }
 }

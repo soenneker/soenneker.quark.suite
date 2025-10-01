@@ -2,6 +2,8 @@ namespace Soenneker.Quark;
 
 public sealed class Theme
 {
+    public string Name { get; set; } = "Default";
+
     public AlertOptions? Alerts { get; set; }
 
     public AnchorOptions? Anchors { get; set; }
@@ -217,90 +219,5 @@ public sealed class Theme
 
     public BarBrandOptions? BarBrands { get; set; }
 
-    // Bootstrap CSS Variables
-    /// <summary>
-    /// Bootstrap color CSS variables for this theme
-    /// </summary>
-    public BootstrapColorsCssVariables? BootstrapColors { get; set; }
-
-    /// <summary>
-    /// Bootstrap typography CSS variables for this theme
-    /// </summary>
-    public BootstrapTypographyCssVariables? BootstrapTypography { get; set; }
-
-    /// <summary>
-    /// Bootstrap spacing CSS variables for this theme
-    /// </summary>
-    public BootstrapSpacingCssVariables? BootstrapSpacing { get; set; }
-
-    /// <summary>
-    /// Bootstrap border CSS variables for this theme
-    /// </summary>
-    public BootstrapBordersCssVariables? BootstrapBorders { get; set; }
-
-    /// <summary>
-    /// Bootstrap shadow CSS variables for this theme
-    /// </summary>
-    public BootstrapShadowsCssVariables? BootstrapShadows { get; set; }
-
-
-    /// <summary>
-    /// Bootstrap card CSS variables for this theme
-    /// </summary>
-    public BootstrapCardsCssVariables? BootstrapCards { get; set; }
-
-    /// <summary>
-    /// Bootstrap alert CSS variables for this theme
-    /// </summary>
-    public BootstrapAlertsCssVariables? BootstrapAlerts { get; set; }
-
-    /// <summary>
-    /// Bootstrap badge CSS variables for this theme
-    /// </summary>
-    public BootstrapBadgesCssVariables? BootstrapBadges { get; set; }
-
-    /// <summary>
-    /// Bootstrap modal CSS variables for this theme
-    /// </summary>
-    public BootstrapModalsCssVariables? BootstrapModals { get; set; }
-
-    /// <summary>
-    /// Bootstrap form CSS variables for this theme
-    /// </summary>
-    public BootstrapFormsCssVariables? BootstrapForms { get; set; }
-
-    /// <summary>
-    /// Bootstrap list group CSS variables for this theme
-    /// </summary>
-    public BootstrapListGroupCssVariables? BootstrapListGroups { get; set; }
-
-    /// <summary>
-    /// Bootstrap progress CSS variables for this theme
-    /// </summary>
-    public BootstrapProgressCssVariables? BootstrapProgress { get; set; }
-
-    /// <summary>
-    /// Bootstrap close button CSS variables for this theme
-    /// </summary>
-    public BootstrapCloseButtonsCssVariables? BootstrapCloseButtons { get; set; }
-
-    /// <summary>
-    /// Bootstrap offcanvas CSS variables for this theme
-    /// </summary>
-    public BootstrapOffcanvasCssVariables? BootstrapOffcanvas { get; set; }
-
-    /// <summary>
-    /// Bootstrap carousel CSS variables for this theme
-    /// </summary>
-    public BootstrapCarouselCssVariables? BootstrapCarousel { get; set; }
-
-    /// <summary>
-    /// Bootstrap accordion CSS variables for this theme
-    /// </summary>
-    public BootstrapAccordionCssVariables? BootstrapAccordion { get; set; }
-
-    /// <summary>
-    /// Bootstrap general CSS variables for this theme
-    /// </summary>
-    public BootstrapGeneralCssVariables? BootstrapGeneral { get; set; }
+    public BootstrapCssVariables? BootstrapCssVariables { get; set; }
 }

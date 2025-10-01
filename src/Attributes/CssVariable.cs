@@ -13,22 +13,9 @@ public sealed class CssVariableAttribute : Attribute
     /// </summary>
     public string Name { get; }
 
-    /// <summary>
-    /// The CSS class selector where this variable should be applied (e.g., ".btn-primary", ".card")
-    /// If null or empty, the variable will be applied to :root
-    /// </summary>
-    public string? Class { get; }
-
     public CssVariableAttribute(string name)
     {
         Name = name ?? throw new ArgumentNullException(nameof(name));
-        Class = null;
-    }
-
-    public CssVariableAttribute(string name, string @class)
-    {
-        Name = name ?? throw new ArgumentNullException(nameof(name));
-        Class = @class ?? throw new ArgumentNullException(nameof(@class));
     }
 
     /// <summary>
@@ -37,13 +24,5 @@ public sealed class CssVariableAttribute : Attribute
     public string GetName()
     {
         return "--" + Name;
-    }
-
-    /// <summary>
-    /// Gets the CSS selector for this variable
-    /// </summary>
-    public string GetSelector()
-    {
-        return string.IsNullOrEmpty(Class) ? ":root" : Class;
     }
 }

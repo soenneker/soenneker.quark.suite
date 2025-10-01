@@ -33,9 +33,9 @@ public sealed class QuarkTableOptions
     {
         return new QuarkTableOptions
         {
-            DefaultPageSize = this.DefaultPageSize,
-            SearchDebounceMs = this.SearchDebounceMs,
-            Debug = this.Debug
+            DefaultPageSize = DefaultPageSize,
+            SearchDebounceMs = SearchDebounceMs,
+            Debug = Debug
         };
     }
 

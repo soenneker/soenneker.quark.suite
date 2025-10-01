@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
 ///<inheritdoc cref="IThemeProvider"/>
 public sealed class ThemeProvider : IThemeProvider
 {
-    public string? CurrentTheme { get; set; }
+    public string? CurrentTheme { get; set; } = "Default";
 
     public Dictionary<string, Theme>? Themes { get; set; }
 
@@ -135,29 +136,29 @@ public sealed class ThemeProvider : IThemeProvider
         ["BarBrand"] = theme => theme.BarBrands
     };
 
+    public void AddTheme(Theme theme)
+    {
+        Themes ??= new Dictionary<string, Theme>();
+        Themes[theme.Name] = theme;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public string GenerateRootCss()
+    public string? GenerateRootCss()
     {
         var currentTheme = GetCurrentTheme();
 
-        if (currentTheme == null)
-            return string.Empty;
+        if (currentTheme?.BootstrapCssVariables == null)
+            return null;
 
-        // Compose BootstrapCssVariables from the current theme
-        var cssVariables = new BootstrapCssVariables
-        {
-            Colors = currentTheme.BootstrapColors ?? new BootstrapColorsCssVariables()
-        };
-
-        return BootstrapCssGenerator.GenerateRootCss(cssVariables);
+        return BootstrapCssGenerator.GenerateRootCss(currentTheme.BootstrapCssVariables);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private Theme? GetCurrentTheme()
     {
-        if (string.IsNullOrEmpty(CurrentTheme) || Themes == null)
+        if (CurrentTheme.IsNullOrEmpty() || Themes == null)
             return null;
 
-        return Themes.TryGetValue(CurrentTheme, out var theme) ? theme : null;
+        return Themes.GetValueOrDefault(CurrentTheme);
     }
 }
