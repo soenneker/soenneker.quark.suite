@@ -82,4 +82,3 @@ public interface IMemoEdit : IElement
     /// </summary>
     EventCallback<ChangeEventArgs> OnInput { get; set; }
 }
-

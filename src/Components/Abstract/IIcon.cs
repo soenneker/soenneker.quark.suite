@@ -57,4 +57,3 @@ public interface IIcon : IElement
     /// </summary>
     IconAnimation? IconAnimation { get; set; }
 }
-

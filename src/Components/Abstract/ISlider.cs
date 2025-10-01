@@ -47,4 +47,3 @@ public interface ISlider : IElement
     /// </summary>
     EventCallback<ChangeEventArgs> OnInput { get; set; }
 }
-

@@ -54,4 +54,3 @@ public interface ISwitch : IElement
     /// </summary>
     object? ValidationValue { get; }
 }
-

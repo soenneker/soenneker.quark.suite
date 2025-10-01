@@ -10,21 +10,10 @@ public abstract class BaseQuarkValidator : IQuarkValidator
 {
     private ValidationStatus _status = ValidationStatus.None;
 
-    /// <summary>
-    /// Gets or sets the error message for validation failures.
-    /// </summary>
     public virtual string ErrorMessage { get; set; } = string.Empty;
 
-    /// <summary>
-    /// Gets the validation status after validation.
-    /// </summary>
     public ValidationStatus Status => _status;
 
-    /// <summary>
-    /// Validates the given value synchronously.
-    /// </summary>
-    /// <param name="value">The value to validate.</param>
-    /// <returns>True if validation passes, false otherwise.</returns>
     public virtual bool Validate(object value)
     {
         var result = ValidateValue(value);
@@ -32,12 +21,6 @@ public abstract class BaseQuarkValidator : IQuarkValidator
         return result;
     }
 
-    /// <summary>
-    /// Validates the given value asynchronously.
-    /// </summary>
-    /// <param name="value">The value to validate.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>True if validation passes, false otherwise.</returns>
     public virtual async Task<bool> ValidateAsync(object value, CancellationToken cancellationToken = default)
     {
         var result = await ValidateValueAsync(value, cancellationToken);

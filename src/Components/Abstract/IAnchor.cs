@@ -17,4 +17,3 @@ public interface IAnchor : IElement
     /// </summary>
     Target? Target { get; set; }
 }
-

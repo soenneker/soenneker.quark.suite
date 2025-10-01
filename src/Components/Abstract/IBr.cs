@@ -6,4 +6,3 @@ namespace Soenneker.Quark;
 public interface IBr : IElement
 {
 }
-

@@ -44,4 +44,3 @@ public interface IRadio : IElement
     /// </summary>
     object? ValidationValue { get; }
 }
-

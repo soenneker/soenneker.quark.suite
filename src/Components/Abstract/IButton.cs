@@ -63,4 +63,3 @@ public interface IButton : IElement
     /// </summary>
     CssValue<ColorBuilder>? Color { get; set; }
 }
-

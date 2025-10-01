@@ -22,4 +22,3 @@ public interface IBadge : IElement
     /// </summary>
     bool Rounded { get; set; }
 }
-

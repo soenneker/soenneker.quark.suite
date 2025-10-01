@@ -54,4 +54,3 @@ public interface ICheck : IElement
     /// </summary>
     object? ValidationValue { get; }
 }
-

@@ -74,4 +74,3 @@ public interface ITextEdit : IElement
     /// </summary>
     object? ValidationValue { get; }
 }
-

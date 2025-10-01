@@ -84,4 +84,3 @@ public interface INumericEdit : IElement
     /// </summary>
     object? ValidationValue { get; }
 }
-

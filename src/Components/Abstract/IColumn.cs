@@ -20,4 +20,3 @@ public interface IColumn : IElement
     /// </summary>
     CssValue<ColumnOrderBuilder>? ColumnOrder { get; set; }
 }
-
