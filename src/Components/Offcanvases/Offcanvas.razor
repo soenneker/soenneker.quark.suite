@@ -5,6 +5,7 @@
 @inherits Soenneker.Quark.Element
 @implements IOffcanvas
 @inject IOffcanvasInterop OffcanvasInterop
+@inject IOffcanvasCoordinator OffcanvasCoordinator
 
 <CascadingValue Value="@this" IsFixed="true" >
     <Div id="@Id" Class="@GetOffcanvasClasses()" Style="@GetOffcanvasStyles()" tabindex="-1" role="dialog" aria-modal="true" @attributes="BuildAttributes()" >
@@ -56,6 +57,9 @@
     {
         // Ensure we have a stable id to register with interop
         Id ??= _generatedId;
+    // Register this offcanvas with the coordinator so overlay containers can react
+    if (!string.IsNullOrWhiteSpace(Id))
+        OffcanvasCoordinator.Register(Id);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -125,6 +129,8 @@
         await Task.Yield();
 
         _active = true;
+        if (!string.IsNullOrWhiteSpace(Id))
+            OffcanvasCoordinator.Enter(Id);
         await InvokeAsync(StateHasChanged);
 
         await FinalizeTransitionAsync(() =>
@@ -151,7 +157,8 @@
         {
             _isHiding = false;
             _backdropVisible = false;
-
+            if (!string.IsNullOrWhiteSpace(Id))
+                OffcanvasCoordinator.Exit(Id);
         }, OnHide, token);
     }
 
@@ -230,6 +237,8 @@
             {
                 // Ensure global overlay count is balanced if component is torn down while open
                 if (!_backdropVisible && _active) _active = false;
+                // Unregister from coordinator
+                OffcanvasCoordinator.Unregister(Id);
             }
         }
         catch

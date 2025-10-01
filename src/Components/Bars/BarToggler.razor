@@ -49,6 +49,12 @@
             Attributes["type"] = "button";
 		}
 
+        // Always render a visible hamburger icon if no custom content provided
+        if (ChildContent is null)
+        {
+            AppendToClassAttr(Attributes, "navbar-toggler-default-icon");
+        }
+
         return Attributes;
     }
 
@@ -63,6 +69,8 @@
         {
             await OnToggle.InvokeIfHasDelegate(args);
         }
+        // Also invoke the standard OnClick so explicit OnClick on the component works
+        await OnClick.InvokeIfHasDelegate(args);
     }
 
 
