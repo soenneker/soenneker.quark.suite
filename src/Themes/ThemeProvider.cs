@@ -143,35 +143,13 @@ public sealed class ThemeProvider : IThemeProvider
         if (currentTheme == null)
             return string.Empty;
 
-        var objects = new object?[]
+        // Compose BootstrapCssVariables from the current theme
+        var cssVariables = new BootstrapCssVariables
         {
-            // Core Bootstrap variables from current theme
-            currentTheme.BootstrapColors,
-            currentTheme.BootstrapTypography,
-            currentTheme.BootstrapSpacing,
-            currentTheme.BootstrapBorders,
-            currentTheme.BootstrapShadows,
-            currentTheme.BootstrapButtons,
-
-            // Component Bootstrap variables from current theme
-            currentTheme.BootstrapCards,
-            currentTheme.BootstrapAlerts,
-            currentTheme.BootstrapBadges,
-            currentTheme.BootstrapModals,
-            currentTheme.BootstrapNavigation,
-            currentTheme.BootstrapForms,
-
-            // Additional Bootstrap variables from current theme
-            currentTheme.BootstrapListGroups,
-            currentTheme.BootstrapProgress,
-            currentTheme.BootstrapCloseButtons,
-            currentTheme.BootstrapOffcanvas,
-            currentTheme.BootstrapCarousel,
-            currentTheme.BootstrapAccordion,
-            currentTheme.BootstrapGeneral
+            Colors = currentTheme.BootstrapColors ?? new BootstrapColorsCssVariables()
         };
 
-        return BootstrapCssGenerator.GenerateRootCss(objects);
+        return BootstrapCssGenerator.GenerateRootCss(cssVariables);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

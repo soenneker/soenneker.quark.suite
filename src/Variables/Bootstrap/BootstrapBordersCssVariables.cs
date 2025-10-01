@@ -4,6 +4,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap's border CSS variables
 /// </summary>
+[CssSelector]
 public sealed class BootstrapBordersCssVariables
 {
     // Border Width

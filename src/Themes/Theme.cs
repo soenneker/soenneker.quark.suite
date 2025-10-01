@@ -243,10 +243,6 @@ public sealed class Theme
     /// </summary>
     public BootstrapShadowsCssVariables? BootstrapShadows { get; set; }
 
-    /// <summary>
-    /// Bootstrap button CSS variables for this theme
-    /// </summary>
-    public BootstrapButtonsCssVariables? BootstrapButtons { get; set; }
 
     /// <summary>
     /// Bootstrap card CSS variables for this theme
@@ -269,11 +265,6 @@ public sealed class Theme
     public BootstrapModalsCssVariables? BootstrapModals { get; set; }
 
     /// <summary>
-    /// Bootstrap navigation CSS variables for this theme
-    /// </summary>
-    public BootstrapNavigationCssVariables? BootstrapNavigation { get; set; }
-
-    /// <summary>
     /// Bootstrap form CSS variables for this theme
     /// </summary>
     public BootstrapFormsCssVariables? BootstrapForms { get; set; }
@@ -281,7 +272,7 @@ public sealed class Theme
     /// <summary>
     /// Bootstrap list group CSS variables for this theme
     /// </summary>
-    public BootstrapListGroupsCssVariables? BootstrapListGroups { get; set; }
+    public BootstrapListGroupCssVariables? BootstrapListGroups { get; set; }
 
     /// <summary>
     /// Bootstrap progress CSS variables for this theme

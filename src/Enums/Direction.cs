@@ -1,28 +1,30 @@
+using Intellenum;
 
 namespace Soenneker.Quark.Enums;
 
 /// <summary>
 /// Defines the direction for dropdown placement.
 /// </summary>
-public enum Direction
+[Intellenum<string>]
+public sealed partial class Direction
 {
     /// <summary>
     /// Default direction (down).
     /// </summary>
-    Default,
+    public static readonly Direction Default = new("default");
 
     /// <summary>
     /// Dropdown appears above the trigger.
     /// </summary>
-    Up,
+    public static readonly Direction Up = new("up");
 
     /// <summary>
     /// Dropdown appears to the right of the trigger.
     /// </summary>
-    End,
+    public static readonly Direction End = new("end");
 
     /// <summary>
     /// Dropdown appears to the left of the trigger.
     /// </summary>
-    Start
+    public static readonly Direction Start = new("start");
 }

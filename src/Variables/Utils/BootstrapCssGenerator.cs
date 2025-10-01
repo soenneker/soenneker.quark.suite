@@ -1,170 +1,81 @@
-using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using Soenneker.Utils.PooledStringBuilders;
-using Soenneker.Extensions.String;
+using System.Text;
 
 namespace Soenneker.Quark;
 
-/// <summary>Generates Bootstrap CSS custom properties with low allocations.</summary>
+/// <summary>Generates simple Bootstrap CSS custom property overrides.</summary>
 public static class BootstrapCssGenerator
 {
-    private static readonly ConcurrentDictionary<Type, Accessor[]> _accessorCache = new();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Dictionary<string, string> GenerateCssVariables(object? cssVariables)
+    /// <summary>Generates Bootstrap CSS variable overrides using CssVariable attributes.</summary>
+    public static string GenerateRootCss(BootstrapCssVariables cssVariables)
     {
-        if (cssVariables is null)
-            return new Dictionary<string, string>(0);
-
-        var result = new Dictionary<string, string>(16);
-        AddCssVariables(cssVariables, result);
-        return result;
-    }
-
-    /// <summary>Later objects overwrite earlier keys.</summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Dictionary<string, string> GenerateCssVariables(params object?[] cssVariablesObjects)
-    {
-        if (cssVariablesObjects is null || cssVariablesObjects.Length == 0)
-            return new Dictionary<string, string>(0);
-
-        var result = new Dictionary<string, string>(64);
-        for (var i = 0; i < cssVariablesObjects.Length; i++)
-        {
-            var obj = cssVariablesObjects[i];
-            if (obj is null) continue;
-            AddCssVariables(obj, result);
-        }
-        return result;
-    }
-
-    /// <summary>Returns a single <c>:root { � }</c> block.</summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string GenerateRootCss(params object?[] cssVariablesObjects)
-    {
-        var map = GenerateCssVariables(cssVariablesObjects);
-
-        if (map.Count == 0)
+        if (cssVariables == null)
             return string.Empty;
 
-        // quick capacity guess to reduce growths
-        var cap = 16 + map.Count * 32;
-        using var sb = new PooledStringBuilder(cap);
+        var selectorGroups = new Dictionary<string, List<string>>();
 
-        sb.Append(":root {\n".AsSpan());
+        // Process all properties in BootstrapCssVariables that contain CSS variables
+        var cssVariablesType = cssVariables.GetType();
+        var properties = cssVariablesType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Where(p => p.PropertyType.IsClass && p.PropertyType != typeof(string));
 
-        foreach (var kvp in map)
+        foreach (var property in properties)
         {
-            sb.Append("  ".AsSpan());
-            sb.Append(kvp.Key);                    // "--bs-�"
-            sb.Append(": ".AsSpan());
-            sb.Append(kvp.Value);                  // value
-            sb.Append(";\n".AsSpan());
-        }
-        sb.Append("}\n\n".AsSpan());
-
-        // Generate component-specific overrides to match Bootstrap's component classes
-        // Group variables by component type
-        var componentGroups = map.GroupBy(kvp => GetComponentFromVariable(kvp.Key));
-        
-        foreach (var group in componentGroups)
-        {
-            var component = group.Key;
-            if (string.IsNullOrEmpty(component)) continue;
-
-            // Target the same component class that Bootstrap uses
-            sb.Append($".{component} {{\n".AsSpan());
-            foreach (var kvp in group)
+            var propertyValue = property.GetValue(cssVariables);
+            if (propertyValue != null)
             {
-                sb.Append("  ".AsSpan());
-                sb.Append(kvp.Key);                    // "--bs-"
-                sb.Append(": ".AsSpan());
-                sb.Append(kvp.Value);                  // value
-                sb.Append(";\n".AsSpan());
-            }
-            sb.Append("}\n\n".AsSpan());
-        }
-
-        return sb.ToStringAndDispose();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string GetComponentFromVariable(string variableName)
-    {
-        // Extract component name from CSS variable
-        // e.g., "--bs-card-border-color" -> "card"
-        if (variableName.StartsWith("--bs-"))
-        {
-            var withoutPrefix = variableName.Substring(5); // Remove "--bs-"
-            var firstDash = withoutPrefix.IndexOf('-');
-            if (firstDash > 0)
-            {
-                return withoutPrefix.Substring(0, firstDash);
+                ProcessCssVariableObject(propertyValue, selectorGroups);
             }
         }
-        return string.Empty;
-    }
 
-    // -------- internals --------
+        if (selectorGroups.Count == 0)
+            return string.Empty;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void AddCssVariables(object source, Dictionary<string, string> target)
-    {
-        var accessors = GetOrBuildAccessors(source.GetType());
-        for (var i = 0; i < accessors.Length; i++)
+        var css = new StringBuilder();
+        foreach (var selectorGroup in selectorGroups)
         {
-            ref readonly var acc = ref accessors[i];
-            var val = acc.Getter(source);
-            if (!string.IsNullOrEmpty(val))
-                target[acc.CssName] = val!;
-        }
-    }
-
-    private static Accessor[] GetOrBuildAccessors(Type type)
-    {
-        if (_accessorCache.TryGetValue(type, out var cached))
-            return cached;
-
-        var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-        var list = new List<Accessor>(props.Length);
-
-        for (var i = 0; i < props.Length; i++)
-        {
-            var p = props[i];
-
-            // only string props; reduces boxing/conversion and keeps the fast path simple
-            if (p.PropertyType != typeof(string))
-                continue;
-
-            var attr = p.GetCustomAttribute<CssVariableAttribute>(inherit: false);
-            if (attr is null)
-                continue;
-
-            var cssName = attr.GetName();
-
-            if (cssName.IsNullOrEmpty())
-                continue;
-
-            var getter = CompileStringGetter(type, p);
-            list.Add(new Accessor(cssName, getter));
+            css.AppendLine($"{selectorGroup.Key} {{");
+            foreach (var variable in selectorGroup.Value)
+            {
+                css.AppendLine(variable);
+            }
+            css.AppendLine("}");
         }
 
-        var result = list.Count == 0 ? [] : list.ToArray();
-        _accessorCache[type] = result;
-        return result;
+        return css.ToString().TrimEnd();
     }
 
-    private static Func<object, string?> CompileStringGetter(Type declaringType, PropertyInfo prop)
-    {
-        var obj = Expression.Parameter(typeof(object), "o");
-        var cast = Expression.Convert(obj, declaringType);
-        var access = Expression.Property(cast, prop);
-        var body = Expression.Convert(access, typeof(string));
-        return Expression.Lambda<Func<object, string?>>(body, obj).Compile();
-    }
+        private static void ProcessCssVariableObject(object cssVariableObject, Dictionary<string, List<string>> selectorGroups)
+        {
+            var type = cssVariableObject.GetType();
+
+            // Get the CssSelector attribute from the class
+            var cssSelectorAttr = type.GetCustomAttribute<CssSelectorAttribute>();
+            var selector = cssSelectorAttr?.GetSelector() ?? ":root";
+
+            // Get all properties with CssVariable attributes
+            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(p => p.PropertyType == typeof(string))
+                .Where(p => p.GetCustomAttribute<CssVariableAttribute>() != null);
+
+            foreach (var property in properties)
+            {
+                var value = property.GetValue(cssVariableObject) as string;
+                if (!string.IsNullOrEmpty(value))
+                {
+                    var attr = property.GetCustomAttribute<CssVariableAttribute>();
+                    if (attr != null)
+                    {
+                        var cssVariableName = attr.GetName();
+                        
+                        if (!selectorGroups.ContainsKey(selector))
+                            selectorGroups[selector] = new List<string>();
+                        
+                        selectorGroups[selector].Add($"  {cssVariableName}: {value};");
+                    }
+                }
+            }
+        }
 }

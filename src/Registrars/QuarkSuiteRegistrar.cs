@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using Soenneker.Quark.Registrars;
 
 namespace Soenneker.Quark;
 

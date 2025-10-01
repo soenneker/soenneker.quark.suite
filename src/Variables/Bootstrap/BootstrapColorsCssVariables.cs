@@ -4,6 +4,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap's color CSS variables
 /// </summary>
+[CssSelector]
 public sealed class BootstrapColorsCssVariables
 {
     // Basic Colors

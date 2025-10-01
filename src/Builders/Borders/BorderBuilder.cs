@@ -1,6 +1,7 @@
+using Soenneker.Quark.Enums;
+
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Soenneker.Quark.Enums;
 using Soenneker.Utils.PooledStringBuilders;
 
 

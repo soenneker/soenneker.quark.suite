@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
 
-namespace Soenneker.Quark.Registrars;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// A Blazor Quark component for OffcanvasInterop.
