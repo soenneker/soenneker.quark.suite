@@ -8,26 +8,41 @@ namespace Soenneker.Quark;
 ///<inheritdoc cref="IBarInterop"/>
 public sealed class BarInterop : IBarInterop
 {
-    private readonly AsyncSingleton _cssInitializer;
+    private readonly AsyncSingleton _horizontalBarInitializer;
+    private readonly AsyncSingleton _sidebarInitializer;
 
-    private const string _cssPath = "_content/Soenneker.Quark.Suite/css/bar.css";
+    private const string _horizontalBarCssPath = "_content/Soenneker.Quark.Suite/css/topbar.css";
+    private const string _sidebarCssPath = "_content/Soenneker.Quark.Suite/css/sidebar.css";
 
     public BarInterop(IResourceLoader resourceLoader)
     {
-        _cssInitializer = new AsyncSingleton(async (token, arg) =>
+        _horizontalBarInitializer = new AsyncSingleton(async (token, arg) =>
         {
-            await resourceLoader.LoadStyle(_cssPath, cancellationToken: token);
+            await resourceLoader.LoadStyle(_horizontalBarCssPath, cancellationToken: token);
+            return new object();
+        });
+
+        _sidebarInitializer = new AsyncSingleton(async (token, arg) =>
+        {
+            await resourceLoader.LoadStyle(_sidebarCssPath, cancellationToken: token);
             return new object();
         });
     }
 
-    public ValueTask Initialize(CancellationToken cancellationToken = default)
+    public ValueTask InitializeHorizontalBar(CancellationToken cancellationToken = default)
     {
-        return _cssInitializer.Init(cancellationToken);
+        return _horizontalBarInitializer.Init(cancellationToken);
     }
 
-    public ValueTask DisposeAsync()
+    public ValueTask InitializeSidebar(CancellationToken cancellationToken = default)
     {
-        return _cssInitializer.DisposeAsync();
+        return _sidebarInitializer.Init(cancellationToken);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _horizontalBarInitializer.DisposeAsync();
+
+        await _sidebarInitializer.DisposeAsync();
     }
 }

@@ -7,13 +7,13 @@
 @inject IOffcanvasInterop OffcanvasInterop
 @inject IOffcanvasCoordinator OffcanvasCoordinator
 
-<CascadingValue Value="@this" IsFixed="true" >
-    <Div id="@Id" Class="@GetOffcanvasClasses()" Style="@GetOffcanvasStyles()" tabindex="-1" role="dialog" aria-modal="true" @attributes="BuildAttributes()" >
+<CascadingValue Value="@this" IsFixed="true">
+    <Div id="@Id" Class="@GetOffcanvasClasses()" Style="@GetOffcanvasStyles()" tabindex="-1" role="dialog" aria-modal="true" @attributes="BuildAttributes()">
         @ChildContent
     </Div>
     @if (ShowBackdrop && _backdropVisible)
     {
-        <Div Class="@GetBackdropClass()" OnClick="HandleBackdropClick" ></Div>
+        <Div Class="@GetBackdropClass()" OnClick="HandleBackdropClick"></Div>
     }
 </CascadingValue>
 
@@ -22,23 +22,17 @@
 
     private static readonly TimeSpan _transitionDuration = TimeSpan.FromMilliseconds(350);
 
-    [Parameter]
-    public PlacementType Placement { get; set; } = PlacementType.End;
+    [Parameter] public PlacementType Placement { get; set; } = PlacementType.End;
 
-    [Parameter]
-    public bool AllowScroll { get; set; }
+    [Parameter] public bool AllowScroll { get; set; }
 
-    [Parameter]
-    public bool ShowBackdrop { get; set; } = true;
+    [Parameter] public bool ShowBackdrop { get; set; } = true;
 
-    [Parameter]
-    public EventCallback OnShow { get; set; }
+    [Parameter] public EventCallback OnShow { get; set; }
 
-    [Parameter]
-    public EventCallback OnHide { get; set; }
+    [Parameter] public EventCallback OnHide { get; set; }
 
-    [Parameter]
-    public EventCallback OnBackdropClick { get; set; }
+    [Parameter] public EventCallback OnBackdropClick { get; set; }
 
     /// <summary>
     /// Gets whether the offcanvas is currently visible.
@@ -57,9 +51,9 @@
     {
         // Ensure we have a stable id to register with interop
         Id ??= _generatedId;
-    // Register this offcanvas with the coordinator so overlay containers can react
-    if (!string.IsNullOrWhiteSpace(Id))
-        OffcanvasCoordinator.Register(Id);
+        // Register this offcanvas with the coordinator so overlay containers can react
+        if (!string.IsNullOrWhiteSpace(Id))
+            OffcanvasCoordinator.Register(Id);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

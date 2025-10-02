@@ -1,173 +1,88 @@
-using Soenneker.Extensions.String;
+using Soenneker.Quark;
 using System;
 using System.Collections.Generic;
+using Soenneker.Extensions.String;
 
-namespace Soenneker.Quark;
-
-/// <summary>
-/// Represents a CSS value that can be either a builder or a string.
-/// Provides implicit conversions for seamless usage.
-/// </summary>
-/// <typeparam name="TBuilder">The builder type that can generate CSS classes/styles</typeparam>
 public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where TBuilder : class, ICssBuilder
 {
     private readonly string _value;
 
+    // Cache generic-type checks per closed generic
+    private static readonly bool _isHeight = typeof(TBuilder) == typeof(HeightBuilder);
+    private static readonly bool _isWidth = typeof(TBuilder) == typeof(WidthBuilder);
+    private static readonly bool _isColor = typeof(TBuilder) == typeof(ColorBuilder);
+    private static readonly bool _isSize = typeof(TBuilder) == typeof(SizeBuilder);
+
     private static readonly HashSet<string> _bootstrapThemeTokens = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "primary",
-        "secondary",
-        "success",
-        "danger",
-        "warning",
-        "info",
-        "light",
-        "dark",
-        "link",
-        "muted"
-    };
+        { "primary", "secondary", "success", "danger", "warning", "info", "light", "dark", "link", "muted" };
 
-    private static readonly HashSet<string> _bootstrapSizeTokens = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "xs",
-        "sm",
-        "md",
-        "lg",
-        "xl",
-        "xxl"
-    };
+    private static readonly HashSet<string> _bootstrapSizeTokens = new(StringComparer.OrdinalIgnoreCase) { "xs", "sm", "md", "lg", "xl", "xxl" };
 
-    private CssValue(string value)
-    {
-        _value = value ?? string.Empty;
-    }
+    private CssValue(string value) => _value = value ?? string.Empty;
 
-    /// <summary>
-    /// Implicit conversion from builder to CssValue.
-    /// </summary>
-    public static implicit operator CssValue<TBuilder>(TBuilder builder)
-    {
-        return new CssValue<TBuilder>(builder.ToClass());
-    }
+    public static implicit operator CssValue<TBuilder>(TBuilder builder) => new(builder.ToClass());
 
-    /// <summary>
-    /// Implicit conversion from string to CssValue.
-    /// </summary>
-    public static implicit operator CssValue<TBuilder>(string value)
-    {
-        return new CssValue<TBuilder>(value);
-    }
+    public static implicit operator CssValue<TBuilder>(string value) => new(value);
 
-    /// <summary>
-    /// Implicit conversion from int to CssValue.
-    /// For Height and Width builders, converts to proper CSS style.
-    /// </summary>
-    public static implicit operator CssValue<TBuilder>(int value)
-    {
-        // Check if this is a Height or Width builder by checking the type name
-        var typeName = typeof(TBuilder).Name;
+    public static implicit operator CssValue<TBuilder>(int value) =>
+        _isHeight ? new($"height: {value}px") : _isWidth ? new($"width: {value}px") : new(value.ToString());
 
-        return typeName switch
-        {
-            nameof(HeightBuilder) => new CssValue<TBuilder>($"height: {value}px"),
-            nameof(WidthBuilder) => new CssValue<TBuilder>($"width: {value}px"),
-            _ => new CssValue<TBuilder>(value.ToString())
-        };
-    }
+    public static implicit operator string(CssValue<TBuilder> v) => v._value;
 
-    /// <summary>
-    /// Implicit conversion from CssValue to string.
-    /// </summary>
-    public static implicit operator string(CssValue<TBuilder> cssValue)
-    {
-        return cssValue._value;
-    }
+    public override string ToString() => _value;
 
-    /// <summary>
-    /// Returns the string representation of the CSS value.
-    /// </summary>
-    public override string ToString()
-    {
-        return _value;
-    }
+    public bool IsEmpty => string.IsNullOrEmpty(_value);
 
-    /// <summary>
-    /// Determines if this CSS value is empty.
-    /// </summary>
-    public bool IsEmpty => _value.IsNullOrEmpty();
+    public bool IsCssStyle =>
+        // style if it looks like "prop: val" OR (ColorBuilder with non-theme token)
+        (_value.IndexOf(':') >= 0) || (_isColor && !IsKnownThemeOrSizeToken(_value));
 
-    /// <summary>
-    /// Determines if this CSS value contains CSS properties (contains ':') or if the builder falls back to CSS styles.
-    /// </summary>
-    public bool IsCssStyle => _value.Contains(':') || (typeof(TBuilder) == typeof(ColorBuilder) && !IsKnownThemeToken(_value));
-
-    /// <summary>
-    /// Determines if this CSS value is a CSS class.
-    /// </summary>
     public bool IsCssClass => !IsCssStyle && !IsEmpty;
 
-    /// <summary>
-    /// Checks if the value is a known Bootstrap theme token that can generate a class.
-    /// </summary>
-    private static bool IsKnownThemeToken(string value)
+    private static bool IsKnownThemeOrSizeToken(string value)
     {
-        return value.HasContent() && (_bootstrapThemeTokens.Contains(value) || _bootstrapSizeTokens.Contains(value));
+        if (string.IsNullOrEmpty(value)) return false;
+        // For SizeBuilder, we accept size tokens; otherwise theme tokens (colors)
+        if (_isSize) return _bootstrapSizeTokens.Contains(value);
+        return _bootstrapThemeTokens.Contains(value);
     }
 
-    public bool Equals(CssValue<TBuilder> other)
-    {
-        return _value == other._value;
-    }
+    /// <summary>Does this non-empty value change generated markup (class or style)?</summary>
+    public bool AffectsMarkup => !IsEmpty; // keep simple: empty is no-op, anything else impacts attrs
 
-    public override bool Equals(object? obj)
-    {
-        return obj is CssValue<TBuilder> other && Equals(other);
-    }
+    public bool Equals(CssValue<TBuilder> other) => _value == other._value;
 
-    public override int GetHashCode()
-    {
-        return _value.GetHashCode();
-    }
+    public override bool Equals(object? obj) => obj is CssValue<TBuilder> o && Equals(o);
 
-    public static bool operator ==(CssValue<TBuilder> start, CssValue<TBuilder> end)
-    {
-        return start.Equals(end);
-    }
+    public override int GetHashCode() => StringComparer.Ordinal.GetHashCode(_value);
 
-    public static bool operator !=(CssValue<TBuilder> start, CssValue<TBuilder> end)
-    {
-        return !start.Equals(end);
-    }
+    public static bool operator ==(CssValue<TBuilder> a, CssValue<TBuilder> b) => a.Equals(b);
+    public static bool operator !=(CssValue<TBuilder> a, CssValue<TBuilder> b) => !a.Equals(b);
 
-    /// <summary>
-    /// Attempts to match the value against a known Bootstrap theme token
-    /// (e.g., "primary", "secondary", etc. for colors or "sm", "lg", etc. for sizes).
-    /// </summary>
     public bool TryGetBootstrapThemeToken(out string? token)
     {
         if (_value.HasContent())
         {
             var v = _value.Trim();
-
-            // Check if this is a SizeBuilder - if so, check size tokens
-            if (typeof(TBuilder) == typeof(SizeBuilder))
+            if (_isSize)
             {
                 if (_bootstrapSizeTokens.Contains(v))
                 {
-                    token = v.ToLowerInvariantFast();
+                    token = v;
                     return true;
                 }
             }
-            // For ColorBuilder or other builders, check color theme tokens
-            else if (_bootstrapThemeTokens.Contains(v))
+            else
             {
-                token = v.ToLowerInvariantFast();
-                return true;
+                if (_bootstrapThemeTokens.Contains(v))
+                {
+                    token = v;
+                    return true;
+                }
             }
         }
 
         token = null;
         return false;
     }
-
 }

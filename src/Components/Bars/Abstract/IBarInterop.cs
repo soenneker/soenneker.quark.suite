@@ -5,14 +5,19 @@ using System.Threading.Tasks;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Provides JavaScript interop methods for managing sidebar state and behavior.
+/// Provides JavaScript interop methods for managing bar state and behavior.
 /// </summary>
 public interface IBarInterop : IAsyncDisposable
 {
     /// <summary>
-    /// Ensures all required CSS resources for Sidebar components are loaded.
-    /// This includes loading from embedded static files.
+    /// Initializes horizontal bar (topbar) functionality.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-    ValueTask Initialize(CancellationToken cancellationToken = default);
+    ValueTask InitializeHorizontalBar(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Initializes sidebar functionality.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    ValueTask InitializeSidebar(CancellationToken cancellationToken = default);
 }

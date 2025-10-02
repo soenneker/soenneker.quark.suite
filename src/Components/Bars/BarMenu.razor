@@ -1,6 +1,7 @@
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using Soenneker.Extensions.String
 @implements IBarMenu
 
 <Div @attributes="BuildAttributes()" >
@@ -19,6 +20,9 @@
     [CascadingParameter]
     public bool SidebarCollapsed { get; set; }
 
+    [CascadingParameter]
+    public string? MenuId { get; set; }
+
 
     protected override Dictionary<string, object> BuildAttributes()
     {
@@ -28,6 +32,8 @@
         {
             AppendToClassAttr(attributes, "collapse");
             AppendToClassAttr(attributes, "navbar-collapse");
+            if (MenuId.HasContent())
+                attributes["id"] = MenuId;
             
             if (Right)
                 AppendToClassAttr(attributes, "ms-auto");

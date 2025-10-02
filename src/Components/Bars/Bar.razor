@@ -7,23 +7,24 @@
 
 @inject IBarInterop BarInterop 
 
-<CascadingValue Value="@Mode" IsFixed="true">
-    <CascadingValue Value="@HandleBarTogglerClick" IsFixed="true">
-        <CascadingValue Value="@_sidebarCollapsed" IsFixed="true">
-            <CascadingValue Value="@_collapseGroupId" IsFixed="true">
-                <CascadingValue Value="@_forceCollapseAll" IsFixed="true">
-                    <nav @attributes="BuildAttributes()">
-                        @ChildContent
-                    </nav>
+    <CascadingValue Value="@Mode" IsFixed="true">
+        <CascadingValue Value="@HandleBarTogglerClick" IsFixed="true">
+            <CascadingValue Value="@_sidebarCollapsed">
+                <CascadingValue Value="@_collapseGroupId" IsFixed="true">
+                    <CascadingValue Value="@_forceCollapseAll">
+                        <CascadingValue Value="@_menuId" IsFixed="true">
+                            <nav @attributes="BuildAttributes()">
+                                @ChildContent
+                            </nav>
+                        </CascadingValue>
+                    </CascadingValue>
                 </CascadingValue>
             </CascadingValue>
         </CascadingValue>
     </CascadingValue>
-</CascadingValue>
 
 @code {
-	public override string? ThemeKey { get; set; } = "Bar";
-
+    public override string? ThemeKey { get; set; } = "Bar";
 
     [Parameter]
     public BarMode Mode { get; set; } = BarMode.Horizontal;
@@ -58,6 +59,7 @@
     [CascadingParameter]
     public EventCallback<bool> SidebarVisibleChanged { get; set; }
     private readonly string _collapseGroupId = $"sidebar-accordion-{Guid.NewGuid():N}";
+    private readonly string _menuId = $"navbar-menu-{Guid.NewGuid():N}";
     private bool _sidebarCollapsed;
     private bool _forceCollapseAll;
 
@@ -70,11 +72,15 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        
-        // Initialize vertical navbar styles if needed
-        if (Mode != BarMode.Horizontal)
+
+        switch (Mode.Value)
         {
-            await BarInterop.Initialize(CancellationToken);
+            case BarMode.HorizontalValue:
+                await BarInterop.InitializeHorizontalBar(CancellationToken);
+                break;
+            default:
+                await BarInterop.InitializeSidebar(CancellationToken);
+                break;
         }
     }
 
@@ -111,7 +117,7 @@
         if (Transparent)
             return "bg-transparent";
 
-        string? token = null;
+        string? token;
         var isClass = Color.TryGetBootstrapThemeToken(out token);
 
         if (isClass && token is not null)
@@ -293,6 +299,4 @@
         await Task.Delay(100);
         _forceCollapseAll = false;
     }
-
-
 }

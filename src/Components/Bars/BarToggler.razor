@@ -1,11 +1,19 @@
 @namespace Soenneker.Quark
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Extensions.String
 
 @inherits Soenneker.Quark.Element
 @implements IBarToggler
 
-<Button OnClick="HandleToggle" @attributes="BuildAttributes()">
-    @ChildContent
+<Button Type="@ButtonType.Button" OnClick="HandleToggle" @attributes="BuildAttributes()">
+    @if (ChildContent is not null)
+    {
+        @ChildContent
+    }
+    else
+    {
+        <Icon Name="bars" IconStyle="@IconStyle.Solid" IconSize="@IconSize.Small" />
+    }
 </Button>
 
 @code {
@@ -26,6 +34,9 @@
     [CascadingParameter]
     public Func<MouseEventArgs, Task>? BarToggleHandler { get; set; }
 
+    [CascadingParameter]
+    public string? MenuId { get; set; }
+
     [Parameter]
     public bool? Disabled { get; set; }
 
@@ -34,26 +45,27 @@
         Attributes = base.BuildAttributes();
 
         AppendToClassAttr(Attributes, "navbar-toggler");
+        // Use only new class names
         
         if (Mode == BarTogglerMode.Popout)
             AppendToClassAttr(Attributes, "navbar-toggler-popout");
 
 		// For horizontal navbars, wire up Bootstrap's collapse behavior
-		if (BarMode == BarMode.Horizontal && !string.IsNullOrWhiteSpace(Target))
+        if (BarMode == BarMode.Horizontal)
 		{
-            Attributes["data-bs-toggle"] = "collapse";
-            Attributes["data-bs-target"] = Target!;
-			// aria-controls expects the id without the '#'
-			var controls = Target!.StartsWith("#") ? Target.Substring(1) : Target!;
-            Attributes["aria-controls"] = controls;
-            Attributes["type"] = "button";
+            // Use explicit Target if provided, otherwise use cascaded MenuId
+            var target = Target.HasContent() ? Target : MenuId.HasContent() ? $"#{MenuId}" : null;
+            
+            if (target.HasContent())
+            {
+                Attributes["data-bs-toggle"] = "collapse";
+                Attributes["data-bs-target"] = target!;
+                // aria-controls expects the id without the '#'
+                var controls = target!.StartsWith("#") ? target.Substring(1) : target!;
+                Attributes["aria-controls"] = controls;
+            }
 		}
 
-        // Always render a visible hamburger icon if no custom content provided
-        if (ChildContent is null)
-        {
-            AppendToClassAttr(Attributes, "navbar-toggler-default-icon");
-        }
 
         return Attributes;
     }
@@ -72,6 +84,5 @@
         // Also invoke the standard OnClick so explicit OnClick on the component works
         await OnClick.InvokeIfHasDelegate(args);
     }
-
 
 }

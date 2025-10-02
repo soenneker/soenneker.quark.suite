@@ -15,171 +15,163 @@ namespace Soenneker.Quark;
 public abstract class Component : CoreComponent, IComponent
 {
     [Inject] protected IThemeProvider? ThemeProvider { get; set; }
-
     [Inject] protected ILogger<Component> Logger { get; set; } = null!;
 
     [Parameter] public string? Class { get; set; }
-
     [Parameter] public string? Style { get; set; }
-
     [Parameter] public string? Title { get; set; }
-
     [Parameter] public int? TabIndex { get; set; }
-
     [Parameter] public bool Hidden { get; set; }
 
     [Parameter] public CssValue<DisplayBuilder>? Display { get; set; }
-
     [Parameter] public CssValue<VisibilityBuilder>? Visibility { get; set; }
-
     [Parameter] public CssValue<FloatBuilder>? Float { get; set; }
-
     [Parameter] public CssValue<VerticalAlignBuilder>? VerticalAlign { get; set; }
-
     [Parameter] public CssValue<TextOverflowBuilder>? TextOverflow { get; set; }
-
     [Parameter] public CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
-
     [Parameter] public CssValue<MarginBuilder>? Margin { get; set; }
-
     [Parameter] public CssValue<PaddingBuilder>? Padding { get; set; }
-
     [Parameter] public CssValue<PositionBuilder>? Position { get; set; }
-
     [Parameter] public CssValue<PositionOffsetBuilder>? Offset { get; set; }
-
     [Parameter] public CssValue<TextSizeBuilder>? TextSize { get; set; }
-
     [Parameter] public CssValue<WidthBuilder>? Width { get; set; }
-
     [Parameter] public CssValue<WidthBuilder>? MinWidth { get; set; }
-
     [Parameter] public CssValue<WidthBuilder>? MaxWidth { get; set; }
-
     [Parameter] public CssValue<HeightBuilder>? Height { get; set; }
-
     [Parameter] public CssValue<HeightBuilder>? MinHeight { get; set; }
-
     [Parameter] public CssValue<HeightBuilder>? MaxHeight { get; set; }
-
     [Parameter] public CssValue<OverflowBuilder>? Overflow { get; set; }
-
     [Parameter] public CssValue<OverflowBuilder>? OverflowX { get; set; }
-
     [Parameter] public CssValue<OverflowBuilder>? OverflowY { get; set; }
-
     [Parameter] public CssValue<ObjectFitBuilder>? ObjectFit { get; set; }
-
     [Parameter] public CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
-
     [Parameter] public CssValue<TextDecorationBuilder>? TextDecorationLine { get; set; }
-
     [Parameter] public CssValue<TextDecorationBuilder>? TextDecorationCss { get; set; }
-
     [Parameter] public CssValue<FlexBuilder>? Flex { get; set; }
-
     [Parameter] public CssValue<GapBuilder>? Gap { get; set; }
-
     [Parameter] public CssValue<BorderBuilder>? Border { get; set; }
-
     [Parameter] public CssValue<OpacityBuilder>? Opacity { get; set; }
-
     [Parameter] public CssValue<ZIndexBuilder>? ZIndex { get; set; }
-
     [Parameter] public CssValue<PointerEventsBuilder>? PointerEvents { get; set; }
-
     [Parameter] public CssValue<UserSelectBuilder>? UserSelect { get; set; }
-
     [Parameter] public CssValue<TextTransformBuilder>? TextTransform { get; set; }
-
     [Parameter] public CssValue<FontWeightBuilder>? FontWeight { get; set; }
-
     [Parameter] public CssValue<FontStyleBuilder>? FontStyle { get; set; }
-
     [Parameter] public CssValue<LineHeightBuilder>? LineHeight { get; set; }
-
     [Parameter] public CssValue<TextWrapBuilder>? TextWrap { get; set; }
-
     [Parameter] public CssValue<TextBreakBuilder>? TextBreak { get; set; }
-
     [Parameter] public CssValue<ColorBuilder>? TextColor { get; set; }
-
     [Parameter] public CssValue<ColorBuilder>? BackgroundColor { get; set; }
-
     [Parameter] public CssValue<ColorBuilder>? TextBackgroundColor { get; set; }
-
     [Parameter] public CssValue<AnimationBuilder>? Animation { get; set; }
-
     [Parameter] public CssValue<AspectRatioBuilder>? AspectRatio { get; set; }
-
     [Parameter] public CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
-
     [Parameter] public CssValue<BorderRadiusBuilder>? BorderRadius { get; set; }
-
     [Parameter] public CssValue<ClearfixBuilder>? Clearfix { get; set; }
-
     [Parameter] public CssValue<ClipPathBuilder>? ClipPath { get; set; }
-
     [Parameter] public CssValue<CursorBuilder>? Cursor { get; set; }
-
     [Parameter] public CssValue<FilterBuilder>? Filter { get; set; }
-
     [Parameter] public CssValue<InteractionBuilder>? Interaction { get; set; }
-
     [Parameter] public CssValue<ObjectPositionBuilder>? ObjectPosition { get; set; }
-
     [Parameter] public CssValue<ResizeBuilder>? Resize { get; set; }
-
     [Parameter] public CssValue<ScreenReaderBuilder>? ScreenReader { get; set; }
-
     [Parameter] public CssValue<ScrollBehaviorBuilder>? ScrollBehavior { get; set; }
-
     [Parameter] public CssValue<StretchedLinkBuilder>? StretchedLink { get; set; }
-
     [Parameter] public CssValue<TransformBuilder>? Transform { get; set; }
-
     [Parameter] public CssValue<TransitionBuilder>? Transition { get; set; }
-
     [Parameter] public CssValue<TruncateBuilder>? Truncate { get; set; }
 
     [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
-
     [Parameter] public EventCallback<MouseEventArgs> OnDoubleClick { get; set; }
-
     [Parameter] public EventCallback<MouseEventArgs> OnMouseOver { get; set; }
-
     [Parameter] public EventCallback<MouseEventArgs> OnMouseOut { get; set; }
-
     [Parameter] public EventCallback<KeyboardEventArgs> OnKeyDown { get; set; }
-
     [Parameter] public EventCallback<FocusEventArgs> OnFocus { get; set; }
-
     [Parameter] public EventCallback<FocusEventArgs> OnBlur { get; set; }
-
     [Parameter] public EventCallback<ElementReference> OnElementRefReady { get; set; }
 
     [Parameter] public string? Role { get; set; }
-
     [Parameter] public string? AriaLabel { get; set; }
-
     [Parameter] public string? AriaDescribedBy { get; set; }
-
     [Parameter] public virtual string? ThemeKey { get; set; }
 
     protected ElementReference ElementRef { get; set; }
 
+    // -------- Render gate + attribute cache --------
+    private bool _shouldRender = true;
+    private int _lastRenderKey;
+    private Dictionary<string, object>? _cachedAttrs;
+    private int _cachedAttrsKey;
+
+    protected override bool ShouldRender() => true;
+
+    protected override void OnParametersSet()
+    {
+        // Let theme push defaults before computing the render key (so the key reflects the actual values)
+        ApplyThemeStyles();
+
+        var key = ComputeRenderKey();
+        _shouldRender = key != _lastRenderKey;
+        _lastRenderKey = key;
+    }
+
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
-            return OnElementRefReady.InvokeIfHasDelegate(ElementRef);
+        {
+            _ = OnElementRefReady.InvokeIfHasDelegate(ElementRef);
+        }
 
         return Task.CompletedTask;
     }
 
+    // ---- Event handlers: default to pass-through (no visual state change) ----
+    protected virtual Task HandleClick(MouseEventArgs e)
+    {
+        _shouldRender = false;
+        return OnClick.InvokeIfHasDelegate(e);
+    }
+
+    protected virtual Task HandleDoubleClick(MouseEventArgs e)
+    {
+        _shouldRender = false;
+        return OnDoubleClick.InvokeIfHasDelegate(e);
+    }
+
+    protected virtual Task HandleMouseOver(MouseEventArgs e)
+    {
+        _shouldRender = false;
+        return OnMouseOver.InvokeIfHasDelegate(e);
+    }
+
+    protected virtual Task HandleMouseOut(MouseEventArgs e)
+    {
+        _shouldRender = false;
+        return OnMouseOut.InvokeIfHasDelegate(e);
+    }
+
+    protected virtual Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        _shouldRender = false;
+        return OnKeyDown.InvokeIfHasDelegate(e);
+    }
+
+    protected virtual Task HandleFocus(FocusEventArgs e)
+    {
+        _shouldRender = false;
+        return OnFocus.InvokeIfHasDelegate(e);
+    }
+
+    protected virtual Task HandleBlur(FocusEventArgs e)
+    {
+        _shouldRender = false;
+        return OnBlur.InvokeIfHasDelegate(e);
+    }
+
+    // -------- Attributes building (cached by render key) --------
     protected virtual Dictionary<string, object> BuildAttributes()
     {
-        // Apply theme styles first (lowest precedence)
-        ApplyThemeStyles();
+        // Always rebuild attributes to reflect dynamic state changes reliably
 
         var guess = 14 + (Attributes?.Count ?? 0);
         var attrs = new Dictionary<string, object>(guess);
@@ -284,59 +276,37 @@ public abstract class Component : CoreComponent, IComponent
 
                         case "onclick":
                             userOnClick = true;
-                            // Prefer the component's OnClick parameter to avoid double invocation
-                            if (OnClick.HasDelegate)
-                                attrs["onclick"] = OnClick;
-                            else
-                                attrs["onclick"] = kv.Value!;
+                            attrs["onclick"] = OnClick.HasDelegate ? OnClick : kv.Value!;
                             break;
 
                         case "ondblclick":
                             userOnDblClick = true;
-                            if (OnDoubleClick.HasDelegate)
-                                attrs["ondblclick"] = OnDoubleClick;
-                            else
-                                attrs["ondblclick"] = kv.Value!;
+                            attrs["ondblclick"] = OnDoubleClick.HasDelegate ? OnDoubleClick : kv.Value!;
                             break;
 
                         case "onmouseover":
                             userOnMouseOver = true;
-                            if (OnMouseOver.HasDelegate)
-                                attrs["onmouseover"] = OnMouseOver;
-                            else
-                                attrs["onmouseover"] = kv.Value!;
+                            attrs["onmouseover"] = OnMouseOver.HasDelegate ? OnMouseOver : kv.Value!;
                             break;
 
                         case "onmouseout":
                             userOnMouseOut = true;
-                            if (OnMouseOut.HasDelegate)
-                                attrs["onmouseout"] = OnMouseOut;
-                            else
-                                attrs["onmouseout"] = kv.Value!;
+                            attrs["onmouseout"] = OnMouseOut.HasDelegate ? OnMouseOut : kv.Value!;
                             break;
 
                         case "onkeydown":
                             userOnKeyDown = true;
-                            if (OnKeyDown.HasDelegate)
-                                attrs["onkeydown"] = OnKeyDown;
-                            else
-                                attrs["onkeydown"] = kv.Value!;
+                            attrs["onkeydown"] = OnKeyDown.HasDelegate ? OnKeyDown : kv.Value!;
                             break;
 
                         case "onfocus":
                             userOnFocus = true;
-                            if (OnFocus.HasDelegate)
-                                attrs["onfocus"] = OnFocus;
-                            else
-                                attrs["onfocus"] = kv.Value!;
+                            attrs["onfocus"] = OnFocus.HasDelegate ? OnFocus : kv.Value!;
                             break;
 
                         case "onblur":
                             userOnBlur = true;
-                            if (OnBlur.HasDelegate)
-                                attrs["onblur"] = OnBlur;
-                            else
-                                attrs["onblur"] = kv.Value!;
+                            attrs["onblur"] = OnBlur.HasDelegate ? OnBlur : kv.Value!;
                             break;
 
                         default:
@@ -349,21 +319,17 @@ public abstract class Component : CoreComponent, IComponent
             if (cls.Length > 0) attrs["class"] = cls.ToString();
             if (sty.Length > 0) attrs["style"] = sty.ToString();
 
-            if (!userOnClick && OnClick.HasDelegate)
-            {
-                // Only add OnClick if it's not already explicitly set in the component markup
-                // Check if the OnClick was set by the Blazor framework (not programmatically)
-                if (!attrs.ContainsKey("onclick"))
-                {
-                    attrs["onclick"] = OnClick;
-                }
-            }
+            if (!userOnClick && OnClick.HasDelegate && !attrs.ContainsKey("onclick")) attrs["onclick"] = OnClick;
             if (!userOnDblClick && OnDoubleClick.HasDelegate) attrs["ondblclick"] = OnDoubleClick;
             if (!userOnMouseOver && OnMouseOver.HasDelegate) attrs["onmouseover"] = OnMouseOver;
             if (!userOnMouseOut && OnMouseOut.HasDelegate) attrs["onmouseout"] = OnMouseOut;
             if (!userOnKeyDown && OnKeyDown.HasDelegate) attrs["onkeydown"] = OnKeyDown;
             if (!userOnFocus && OnFocus.HasDelegate) attrs["onfocus"] = OnFocus;
             if (!userOnBlur && OnBlur.HasDelegate) attrs["onblur"] = OnBlur;
+
+            // Cache the computed attributes keyed by the render key
+            _cachedAttrs = attrs;
+            _cachedAttrsKey = _lastRenderKey;
 
             return attrs;
         }
@@ -374,25 +340,114 @@ public abstract class Component : CoreComponent, IComponent
         }
     }
 
+    // ---------- Render key computation ----------
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void AddIf<T>(ref HashCode hc, CssValue<T>? v) where T : class, ICssBuilder
+    {
+        if (v.HasValue && !v.Value.IsEmpty)
+            hc.Add(v.Value); // struct add; no boxing
+    }
+
+    private int ComputeRenderKey()
+    {
+        var hc = new HashCode();
+
+        hc.Add(Class);
+        hc.Add(Style);
+        hc.Add(Title);
+        hc.Add(TabIndex);
+        hc.Add(Hidden);
+        hc.Add(Role);
+        hc.Add(AriaLabel);
+        hc.Add(AriaDescribedBy);
+
+        AddIf(ref hc, Display);
+        AddIf(ref hc, Visibility);
+        AddIf(ref hc, Float);
+        AddIf(ref hc, VerticalAlign);
+        AddIf(ref hc, TextOverflow);
+        AddIf(ref hc, BoxShadow);
+        AddIf(ref hc, Margin);
+        AddIf(ref hc, Padding);
+        AddIf(ref hc, Position);
+        AddIf(ref hc, Offset);
+        AddIf(ref hc, TextSize);
+        AddIf(ref hc, Width);
+        AddIf(ref hc, MinWidth);
+        AddIf(ref hc, MaxWidth);
+        AddIf(ref hc, Height);
+        AddIf(ref hc, MinHeight);
+        AddIf(ref hc, MaxHeight);
+        AddIf(ref hc, Overflow);
+        AddIf(ref hc, OverflowX);
+        AddIf(ref hc, OverflowY);
+        AddIf(ref hc, ObjectFit);
+        AddIf(ref hc, TextAlignment);
+        AddIf(ref hc, TextDecorationLine);
+        AddIf(ref hc, TextDecorationCss);
+        AddIf(ref hc, Flex);
+        AddIf(ref hc, Gap);
+        AddIf(ref hc, Border);
+        AddIf(ref hc, Opacity);
+        AddIf(ref hc, ZIndex);
+        AddIf(ref hc, PointerEvents);
+        AddIf(ref hc, UserSelect);
+        AddIf(ref hc, TextTransform);
+        AddIf(ref hc, FontWeight);
+        AddIf(ref hc, FontStyle);
+        AddIf(ref hc, LineHeight);
+        AddIf(ref hc, TextWrap);
+        AddIf(ref hc, TextBreak);
+        AddIf(ref hc, Animation);
+        AddIf(ref hc, AspectRatio);
+        AddIf(ref hc, BackdropFilter);
+        AddIf(ref hc, BorderRadius);
+        AddIf(ref hc, Clearfix);
+        AddIf(ref hc, ClipPath);
+        AddIf(ref hc, Cursor);
+        AddIf(ref hc, Filter);
+        AddIf(ref hc, Interaction);
+        AddIf(ref hc, ObjectPosition);
+        AddIf(ref hc, Resize);
+        AddIf(ref hc, ScreenReader);
+        AddIf(ref hc, ScrollBehavior);
+        AddIf(ref hc, StretchedLink);
+        AddIf(ref hc, Transform);
+        AddIf(ref hc, Transition);
+        AddIf(ref hc, Truncate);
+        AddIf(ref hc, TextColor);
+        AddIf(ref hc, BackgroundColor);
+        AddIf(ref hc, TextBackgroundColor);
+
+        if (Attributes is not null)
+        {
+            if (Attributes.TryGetValue("class", out var cls)) hc.Add(cls?.ToString());
+            if (Attributes.TryGetValue("style", out var sty)) hc.Add(sty?.ToString());
+            if (Attributes.TryGetValue("id", out var id)) hc.Add(id?.ToString());
+            if (Attributes.TryGetValue("role", out var role)) hc.Add(role?.ToString());
+            if (Attributes.TryGetValue("aria-label", out var al)) hc.Add(al?.ToString());
+            if (Attributes.TryGetValue("aria-describedby", out var ad)) hc.Add(ad?.ToString());
+        }
+
+        return hc.ToHashCode();
+    }
+
+    // ---------- Helpers ----------
     private static EventCallback<TArgs> Compose<TArgs>(ComponentBase owner, Func<TArgs, Task> ours, EventCallback<TArgs> users)
     {
         var usersCopy = users; // stabilize
         return EventCallback.Factory.Create<TArgs>(owner, async e =>
         {
             await ours(e);
-            await usersCopy.InvokeAsync(e); // Since it's a user attribute we shouldn't check if it has a delegate, because that'd be unusual
+            await usersCopy.InvokeAsync(e);
         });
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void AppendClass(ref PooledStringBuilder b, string s)
     {
-        if (s.IsNullOrEmpty())
-            return;
-
-        if (b.Length != 0)
-            b.Append(' ');
-
+        if (s.IsNullOrEmpty()) return;
+        if (b.Length != 0) b.Append(' ');
         b.Append(s);
     }
 
@@ -412,9 +467,7 @@ public abstract class Component : CoreComponent, IComponent
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void AppendStyleDecl(ref PooledStringBuilder b, string fullDecl)
     {
-        if (fullDecl.IsNullOrEmpty())
-            return;
-
+        if (fullDecl.IsNullOrEmpty()) return;
         if (b.Length != 0)
         {
             b.Append(';');
@@ -430,9 +483,7 @@ public abstract class Component : CoreComponent, IComponent
         if (v is { IsEmpty: false })
         {
             var s = v.Value.ToString();
-
-            if (s.Length == 0)
-                return;
+            if (s.Length == 0) return;
 
             if (v.Value.IsCssStyle)
                 AppendStyleDecl(ref styB, s);
@@ -452,15 +503,12 @@ public abstract class Component : CoreComponent, IComponent
 
             if (isTheme && token is not null)
             {
-                // Bootstrap theme token (e.g., "primary", "secondary")
                 AppendClass(ref clsB, $"{classPrefix}-{token}");
             }
             else
             {
                 var result = v.Value.ToString();
-
-                if (!result.HasContent())
-                    return;
+                if (!result.HasContent()) return;
 
                 if (v.Value.IsCssStyle)
                     AppendStyleDecl(ref styB, $"{cssProperty}: {result}");
@@ -470,103 +518,56 @@ public abstract class Component : CoreComponent, IComponent
         }
     }
 
-    protected virtual Task HandleClick(MouseEventArgs e) => OnClick.InvokeIfHasDelegate(e);
-    protected virtual Task HandleDoubleClick(MouseEventArgs e) => OnDoubleClick.InvokeIfHasDelegate(e);
-    protected virtual Task HandleMouseOver(MouseEventArgs e) => OnMouseOver.InvokeIfHasDelegate(e);
-    protected virtual Task HandleMouseOut(MouseEventArgs e) => OnMouseOut.InvokeIfHasDelegate(e);
-    protected virtual Task HandleKeyDown(KeyboardEventArgs e) => OnKeyDown.InvokeIfHasDelegate(e);
-    protected virtual Task HandleFocus(FocusEventArgs e) => OnFocus.InvokeIfHasDelegate(e);
-    protected virtual Task HandleBlur(FocusEventArgs e) => OnBlur.InvokeIfHasDelegate(e);
-
-
-    // === Attribute helpers ===
+    // === Attribute helpers (same surface as your original) ===
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static string EnsureClass(string? existing, string? toAdd)
     {
-        if (toAdd.IsNullOrEmpty())
-            return existing ?? string.Empty;
-
-        if (existing.IsNullOrEmpty())
-            return toAdd!;
-
-        // Cheap dup guard, ordinal match (class tokens are ASCII-ish)
+        if (toAdd.IsNullOrEmpty()) return existing ?? string.Empty;
+        if (existing.IsNullOrEmpty()) return toAdd!;
         return existing.Contains(toAdd!, StringComparison.Ordinal) ? existing : $"{existing} {toAdd}";
     }
 
-    /// <summary>
-    /// Append a class token without duplicate checks (use when you know it's unique).
-    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static string AppendToClass(string? existing, string toAdd)
     {
-        if (toAdd.IsNullOrEmpty())
-            return existing ?? string.Empty;
-
-        if (existing.IsNullOrEmpty())
-            return toAdd;
-
+        if (toAdd.IsNullOrEmpty()) return existing ?? string.Empty;
+        if (existing.IsNullOrEmpty()) return toAdd;
         return $"{existing} {toAdd}";
     }
 
-    /// <summary>
-    /// Ensure a class token exists in the attributes["class"] value exactly once.
-    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void EnsureClassAttr(IDictionary<string, object> attrs, string token)
     {
         attrs.TryGetValue("class", out var clsObj);
         var cls = EnsureClass(clsObj?.ToString(), token);
-
-        if (cls.Length > 0)
-            attrs["class"] = cls;
+        if (cls.Length > 0) attrs["class"] = cls;
     }
 
-    /// <summary>
-    /// Append a class token to attributes["class"] (no dup check).
-    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void AppendToClassAttr(IDictionary<string, object> attrs, string token)
     {
         attrs.TryGetValue("class", out var clsObj);
         var cls = AppendToClass(clsObj?.ToString(), token);
-
-        if (cls.Length > 0)
-            attrs["class"] = cls;
+        if (cls.Length > 0) attrs["class"] = cls;
     }
 
-    /// <summary>
-    /// Set an attribute if it's not already present.
-    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void EnsureAttr<T>(IDictionary<string, object> attrs, string name, T value)
     {
-        if (!attrs.ContainsKey(name))
-            attrs[name] = value!;
+        if (!attrs.ContainsKey(name)) attrs[name] = value!;
     }
 
-    /// <summary>
-    /// Set attribute to a value when condition is true; otherwise remove it.
-    /// Useful for aria flags, boolean attrs, etc.
-    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void SetOrRemove(IDictionary<string, object> attrs, string name, bool condition, object trueValue)
     {
-        if (condition)
-            attrs[name] = trueValue;
-        else
-            attrs.Remove(name);
+        if (condition) attrs[name] = trueValue;
+        else attrs.Remove(name);
     }
 
-    /// <summary>
-    /// Append a style declaration (e.g., "color: red") onto attributes["style"] with proper "; " separation.
-    /// No duplicate guarding—use higher-level logic if you need that.
-    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void AppendStyleDeclAttr(IDictionary<string, object> attrs, string fullDecl)
     {
-        if (fullDecl.IsNullOrWhiteSpace())
-            return;
-
+        if (fullDecl.IsNullOrWhiteSpace()) return;
         attrs.TryGetValue("style", out var styleObj);
         var existing = styleObj?.ToString();
 
@@ -576,95 +577,86 @@ public abstract class Component : CoreComponent, IComponent
             return;
         }
 
-        // ensure delimiter
         if (existing!.EndsWith(';'))
             attrs["style"] = $"{existing} {fullDecl}";
         else
             attrs["style"] = $"{existing}; {fullDecl}";
     }
 
+    // ---------- Theme plumbing ----------
     private void ApplyThemeStyles()
     {
-        if (ThemeProvider?.Themes == null)
-            return;
+        if (ThemeProvider?.Themes == null) return;
 
-        // Get the current theme name
         var themeName = ThemeProvider.CurrentTheme;
-
-        if (themeName.IsNullOrEmpty())
-            return;
+        if (themeName.IsNullOrEmpty()) return;
 
         if (ThemeProvider.Themes.TryGetValue(themeName, out var theme))
-        {
             ApplyThemeToComponent(theme);
-        }
     }
 
     private void ApplyThemeToComponent(Theme theme)
     {
-        // Get the appropriate component options based on component name
         var componentOptions = GetComponentOptionsFromTheme(theme);
+        if (componentOptions == null) return;
 
-        if (componentOptions == null)
-            return;
-
-        ApplyThemeProperty(componentOptions.Display, () => Display, value => Display = value);
-        ApplyThemeProperty(componentOptions.Visibility, () => Visibility, value => Visibility = value);
-        ApplyThemeProperty(componentOptions.Float, () => Float, value => Float = value);
-        ApplyThemeProperty(componentOptions.VerticalAlign, () => VerticalAlign, value => VerticalAlign = value);
-        ApplyThemeProperty(componentOptions.TextOverflow, () => TextOverflow, value => TextOverflow = value);
-        ApplyThemeProperty(componentOptions.BoxShadow, () => BoxShadow, value => BoxShadow = value);
-        ApplyThemeProperty(componentOptions.Margin, () => Margin, value => Margin = value);
-        ApplyThemeProperty(componentOptions.Padding, () => Padding, value => Padding = value);
-        ApplyThemeProperty(componentOptions.Position, () => Position, value => Position = value);
-        ApplyThemeProperty(componentOptions.Offset, () => Offset, value => Offset = value);
-        ApplyThemeProperty(componentOptions.TextSize, () => TextSize, value => TextSize = value);
-        ApplyThemeProperty(componentOptions.Width, () => Width, value => Width = value);
-        ApplyThemeProperty(componentOptions.MinWidth, () => MinWidth, value => MinWidth = value);
-        ApplyThemeProperty(componentOptions.MaxWidth, () => MaxWidth, value => MaxWidth = value);
-        ApplyThemeProperty(componentOptions.Height, () => Height, value => Height = value);
-        ApplyThemeProperty(componentOptions.MinHeight, () => MinHeight, value => MinHeight = value);
-        ApplyThemeProperty(componentOptions.MaxHeight, () => MaxHeight, value => MaxHeight = value);
-        ApplyThemeProperty(componentOptions.Overflow, () => Overflow, value => Overflow = value);
-        ApplyThemeProperty(componentOptions.OverflowX, () => OverflowX, value => OverflowX = value);
-        ApplyThemeProperty(componentOptions.OverflowY, () => OverflowY, value => OverflowY = value);
-        ApplyThemeProperty(componentOptions.ObjectFit, () => ObjectFit, value => ObjectFit = value);
-        ApplyThemeProperty(componentOptions.TextAlignment, () => TextAlignment, value => TextAlignment = value);
-        ApplyThemeProperty(componentOptions.TextDecorationLine, () => TextDecorationLine, value => TextDecorationLine = value);
-        ApplyThemeProperty(componentOptions.TextDecorationCss, () => TextDecorationCss, value => TextDecorationCss = value);
-        ApplyThemeProperty(componentOptions.Flex, () => Flex, value => Flex = value);
-        ApplyThemeProperty(componentOptions.Gap, () => Gap, value => Gap = value);
-        ApplyThemeProperty(componentOptions.Border, () => Border, value => Border = value);
-        ApplyThemeProperty(componentOptions.Opacity, () => Opacity, value => Opacity = value);
-        ApplyThemeProperty(componentOptions.ZIndex, () => ZIndex, value => ZIndex = value);
-        ApplyThemeProperty(componentOptions.PointerEvents, () => PointerEvents, value => PointerEvents = value);
-        ApplyThemeProperty(componentOptions.UserSelect, () => UserSelect, value => UserSelect = value);
-        ApplyThemeProperty(componentOptions.TextTransform, () => TextTransform, value => TextTransform = value);
-        ApplyThemeProperty(componentOptions.FontWeight, () => FontWeight, value => FontWeight = value);
-        ApplyThemeProperty(componentOptions.FontStyle, () => FontStyle, value => FontStyle = value);
-        ApplyThemeProperty(componentOptions.LineHeight, () => LineHeight, value => LineHeight = value);
-        ApplyThemeProperty(componentOptions.TextWrap, () => TextWrap, value => TextWrap = value);
-        ApplyThemeProperty(componentOptions.TextBreak, () => TextBreak, value => TextBreak = value);
-        ApplyThemeProperty(componentOptions.TextColor, () => TextColor, value => TextColor = value);
-        ApplyThemeProperty(componentOptions.BackgroundColor, () => BackgroundColor, value => BackgroundColor = value);
-        ApplyThemeProperty(componentOptions.TextBackgroundColor, () => TextBackgroundColor, value => TextBackgroundColor = value);
-        ApplyThemeProperty(componentOptions.Animation, () => Animation, value => Animation = value);
-        ApplyThemeProperty(componentOptions.AspectRatio, () => AspectRatio, value => AspectRatio = value);
-        ApplyThemeProperty(componentOptions.BackdropFilter, () => BackdropFilter, value => BackdropFilter = value);
-        ApplyThemeProperty(componentOptions.BorderRadius, () => BorderRadius, value => BorderRadius = value);
-        ApplyThemeProperty(componentOptions.Clearfix, () => Clearfix, value => Clearfix = value);
-        ApplyThemeProperty(componentOptions.ClipPath, () => ClipPath, value => ClipPath = value);
-        ApplyThemeProperty(componentOptions.Cursor, () => Cursor, value => Cursor = value);
-        ApplyThemeProperty(componentOptions.Filter, () => Filter, value => Filter = value);
-        ApplyThemeProperty(componentOptions.Interaction, () => Interaction, value => Interaction = value);
-        ApplyThemeProperty(componentOptions.ObjectPosition, () => ObjectPosition, value => ObjectPosition = value);
-        ApplyThemeProperty(componentOptions.Resize, () => Resize, value => Resize = value);
-        ApplyThemeProperty(componentOptions.ScreenReader, () => ScreenReader, value => ScreenReader = value);
-        ApplyThemeProperty(componentOptions.ScrollBehavior, () => ScrollBehavior, value => ScrollBehavior = value);
-        ApplyThemeProperty(componentOptions.StretchedLink, () => StretchedLink, value => StretchedLink = value);
-        ApplyThemeProperty(componentOptions.Transform, () => Transform, value => Transform = value);
-        ApplyThemeProperty(componentOptions.Transition, () => Transition, value => Transition = value);
-        ApplyThemeProperty(componentOptions.Truncate, () => Truncate, value => Truncate = value);
+        ApplyThemeProperty(componentOptions.Display, () => Display, v => Display = v);
+        ApplyThemeProperty(componentOptions.Visibility, () => Visibility, v => Visibility = v);
+        ApplyThemeProperty(componentOptions.Float, () => Float, v => Float = v);
+        ApplyThemeProperty(componentOptions.VerticalAlign, () => VerticalAlign, v => VerticalAlign = v);
+        ApplyThemeProperty(componentOptions.TextOverflow, () => TextOverflow, v => TextOverflow = v);
+        ApplyThemeProperty(componentOptions.BoxShadow, () => BoxShadow, v => BoxShadow = v);
+        ApplyThemeProperty(componentOptions.Margin, () => Margin, v => Margin = v);
+        ApplyThemeProperty(componentOptions.Padding, () => Padding, v => Padding = v);
+        ApplyThemeProperty(componentOptions.Position, () => Position, v => Position = v);
+        ApplyThemeProperty(componentOptions.Offset, () => Offset, v => Offset = v);
+        ApplyThemeProperty(componentOptions.TextSize, () => TextSize, v => TextSize = v);
+        ApplyThemeProperty(componentOptions.Width, () => Width, v => Width = v);
+        ApplyThemeProperty(componentOptions.MinWidth, () => MinWidth, v => MinWidth = v);
+        ApplyThemeProperty(componentOptions.MaxWidth, () => MaxWidth, v => MaxWidth = v);
+        ApplyThemeProperty(componentOptions.Height, () => Height, v => Height = v);
+        ApplyThemeProperty(componentOptions.MinHeight, () => MinHeight, v => MinHeight = v);
+        ApplyThemeProperty(componentOptions.MaxHeight, () => MaxHeight, v => MaxHeight = v);
+        ApplyThemeProperty(componentOptions.Overflow, () => Overflow, v => Overflow = v);
+        ApplyThemeProperty(componentOptions.OverflowX, () => OverflowX, v => OverflowX = v);
+        ApplyThemeProperty(componentOptions.OverflowY, () => OverflowY, v => OverflowY = v);
+        ApplyThemeProperty(componentOptions.ObjectFit, () => ObjectFit, v => ObjectFit = v);
+        ApplyThemeProperty(componentOptions.TextAlignment, () => TextAlignment, v => TextAlignment = v);
+        ApplyThemeProperty(componentOptions.TextDecorationLine, () => TextDecorationLine, v => TextDecorationLine = v);
+        ApplyThemeProperty(componentOptions.TextDecorationCss, () => TextDecorationCss, v => TextDecorationCss = v);
+        ApplyThemeProperty(componentOptions.Flex, () => Flex, v => Flex = v);
+        ApplyThemeProperty(componentOptions.Gap, () => Gap, v => Gap = v);
+        ApplyThemeProperty(componentOptions.Border, () => Border, v => Border = v);
+        ApplyThemeProperty(componentOptions.Opacity, () => Opacity, v => Opacity = v);
+        ApplyThemeProperty(componentOptions.ZIndex, () => ZIndex, v => ZIndex = v);
+        ApplyThemeProperty(componentOptions.PointerEvents, () => PointerEvents, v => PointerEvents = v);
+        ApplyThemeProperty(componentOptions.UserSelect, () => UserSelect, v => UserSelect = v);
+        ApplyThemeProperty(componentOptions.TextTransform, () => TextTransform, v => TextTransform = v);
+        ApplyThemeProperty(componentOptions.FontWeight, () => FontWeight, v => FontWeight = v);
+        ApplyThemeProperty(componentOptions.FontStyle, () => FontStyle, v => FontStyle = v);
+        ApplyThemeProperty(componentOptions.LineHeight, () => LineHeight, v => LineHeight = v);
+        ApplyThemeProperty(componentOptions.TextWrap, () => TextWrap, v => TextWrap = v);
+        ApplyThemeProperty(componentOptions.TextBreak, () => TextBreak, v => TextBreak = v);
+        ApplyThemeProperty(componentOptions.TextColor, () => TextColor, v => TextColor = v);
+        ApplyThemeProperty(componentOptions.BackgroundColor, () => BackgroundColor, v => BackgroundColor = v);
+        ApplyThemeProperty(componentOptions.TextBackgroundColor, () => TextBackgroundColor, v => TextBackgroundColor = v);
+        ApplyThemeProperty(componentOptions.Animation, () => Animation, v => Animation = v);
+        ApplyThemeProperty(componentOptions.AspectRatio, () => AspectRatio, v => AspectRatio = v);
+        ApplyThemeProperty(componentOptions.BackdropFilter, () => BackdropFilter, v => BackdropFilter = v);
+        ApplyThemeProperty(componentOptions.BorderRadius, () => BorderRadius, v => BorderRadius = v);
+        ApplyThemeProperty(componentOptions.Clearfix, () => Clearfix, v => Clearfix = v);
+        ApplyThemeProperty(componentOptions.ClipPath, () => ClipPath, v => ClipPath = v);
+        ApplyThemeProperty(componentOptions.Cursor, () => Cursor, v => Cursor = v);
+        ApplyThemeProperty(componentOptions.Filter, () => Filter, v => Filter = v);
+        ApplyThemeProperty(componentOptions.Interaction, () => Interaction, v => Interaction = v);
+        ApplyThemeProperty(componentOptions.ObjectPosition, () => ObjectPosition, v => ObjectPosition = v);
+        ApplyThemeProperty(componentOptions.Resize, () => Resize, v => Resize = v);
+        ApplyThemeProperty(componentOptions.ScreenReader, () => ScreenReader, v => ScreenReader = v);
+        ApplyThemeProperty(componentOptions.ScrollBehavior, () => ScrollBehavior, v => ScrollBehavior = v);
+        ApplyThemeProperty(componentOptions.StretchedLink, () => StretchedLink, v => StretchedLink = v);
+        ApplyThemeProperty(componentOptions.Transform, () => Transform, v => Transform = v);
+        ApplyThemeProperty(componentOptions.Transition, () => Transition, v => Transition = v);
+        ApplyThemeProperty(componentOptions.Truncate, () => Truncate, v => Truncate = v);
     }
 
     private static void ApplyThemeProperty<T>(T? themeValue, Func<T?> getCurrentValue, Action<T> setValue) where T : struct
