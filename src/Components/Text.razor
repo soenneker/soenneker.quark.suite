@@ -1,3 +1,4 @@
+@using Soenneker.Extensions.String
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IText
@@ -8,4 +9,42 @@
 
 @code {
     public override string? ThemeKey { get; set; } = "Text";
+
+    [Parameter]
+    public CssValue<TextStyleBuilder>? TextStyle { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Attributes = base.BuildAttributes();
+        
+        // Add text CSS values
+        AddTextStyleCss();
+        AddTextColorCss();
+
+        return Attributes;
+    }
+
+    private void AddTextStyleCss()
+    {
+        if (TextStyle is { IsEmpty: false })
+        {
+            var textClass = TextStyle.Value.ToString();
+            if (textClass.HasContent())
+            {
+                AppendToClassAttr(Attributes, textClass);
+            }
+        }
+    }
+
+    private void AddTextColorCss()
+    {
+        if (TextColor is { IsEmpty: false })
+        {
+            var textColorClass = TextColor.Value.ToString();
+            if (textColorClass.HasContent())
+            {
+                AppendToClassAttr(Attributes, textColorClass);
+            }
+        }
+    }
 }

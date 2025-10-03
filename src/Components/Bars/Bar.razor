@@ -7,21 +7,21 @@
 
 @inject IBarInterop BarInterop 
 
-    <CascadingValue Value="@Mode" IsFixed="true">
-        <CascadingValue Value="@HandleBarTogglerClick" IsFixed="true">
-            <CascadingValue Value="@_sidebarCollapsed">
-                <CascadingValue Value="@_collapseGroupId" IsFixed="true">
-                    <CascadingValue Value="@_forceCollapseAll">
-                        <CascadingValue Value="@_menuId" IsFixed="true">
-                            <nav @attributes="BuildAttributes()">
-                                @ChildContent
-                            </nav>
-                        </CascadingValue>
+<CascadingValue Value="@Mode" IsFixed="true">
+    <CascadingValue Value="@HandleBarTogglerClick" IsFixed="true">
+        <CascadingValue Value="@_sidebarCollapsed">
+            <CascadingValue Value="@_collapseGroupId" IsFixed="true">
+                <CascadingValue Value="@_forceCollapseAll">
+                    <CascadingValue Value="@_menuId" IsFixed="true">
+                        <nav @attributes="BuildAttributes()">
+                            @ChildContent
+                        </nav>
                     </CascadingValue>
                 </CascadingValue>
             </CascadingValue>
         </CascadingValue>
     </CascadingValue>
+</CascadingValue>
 
 @code {
     public override string? ThemeKey { get; set; } = "Bar";
@@ -58,6 +58,7 @@
 
     [CascadingParameter]
     public EventCallback<bool> SidebarVisibleChanged { get; set; }
+
     private readonly string _collapseGroupId = $"sidebar-accordion-{Guid.NewGuid():N}";
     private readonly string _menuId = $"navbar-menu-{Guid.NewGuid():N}";
     private bool _sidebarCollapsed;
@@ -88,7 +89,7 @@
     {
         if (Mode == BarMode.Horizontal)
             return "navbar";
-        
+
         // For vertical mode, don't use navbar classes to avoid collapse behavior
         return "";
     }
@@ -138,7 +139,7 @@
             return null;
 
         var breakpointToken = BreakpointUtil.GetBreakpointToken(Breakpoint);
-        
+
         if (breakpointToken.IsNullOrEmpty())
             return "navbar-expand-lg"; // Default
 
@@ -207,7 +208,7 @@
             AppendToClassAttr(attributes, "flex-shrink-0");
             AppendToClassAttr(attributes, "bg-light");
             AppendToClassAttr(attributes, "border-end");
-            
+
             // Determine vertical sidebar state classes and width
             if (!SidebarVisible)
             {
@@ -248,7 +249,7 @@
         {
             // Toggle collapsed state for vertical bars when in Small collapse mode
             _sidebarCollapsed = !_sidebarCollapsed;
-            
+
             // If we're collapsing the sidebar, also collapse all dropdowns
             if (_sidebarCollapsed)
             {
@@ -261,7 +262,7 @@
                     await InvokeAsync(StateHasChanged);
                 });
             }
-            
+
             // Defer StateHasChanged to avoid re-render during event handling
             _ = InvokeAsync(StateHasChanged);
             return;
@@ -277,7 +278,7 @@
         {
             // Always collapse dropdowns first, then toggle sidebar after a brief delay
             await CollapseAllDropdowns();
-            
+
             // Wait just enough for dropdowns to collapse, then toggle sidebar
             await Task.Delay(50);
             await ToggleSidebar();
@@ -288,15 +289,16 @@
             await CollapseAllDropdowns();
         }
     }
-    
+
     private async Task CollapseAllDropdowns()
     {
         // Trigger collapse of all dropdowns by updating state
         _forceCollapseAll = true;
         StateHasChanged();
-        
+
         // Reset the flag after a brief delay to allow for re-opening
         await Task.Delay(100);
         _forceCollapseAll = false;
     }
+
 }

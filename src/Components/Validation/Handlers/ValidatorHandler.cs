@@ -63,7 +63,7 @@ internal sealed class ValidatorHandler : IValidationHandler
         if (args.Status == ValidationStatus.Error)
         {
             var messages = new List<string>();
-            if (!string.IsNullOrEmpty(args.ErrorText))
+            if (args.ErrorText.HasContent())
                 messages.Add(args.ErrorText);
             ctx.NotifyValidationStatusChanged(ValidationStatus.Error, messages);
         }

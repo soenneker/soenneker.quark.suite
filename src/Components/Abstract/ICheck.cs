@@ -25,14 +25,24 @@ public interface ICheck : IElement
     bool Disabled { get; set; }
 
     /// <summary>
-    /// Gets or sets the color scheme of the checkbox.
-    /// </summary>
-    CssValue<ColorBuilder> Color { get; set; }
-
-    /// <summary>
     /// Gets or sets the size of the checkbox.
     /// </summary>
     CssValue<SizeBuilder>? Size { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the checkbox should be rendered as a switch.
+    /// </summary>
+    bool Switch { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the checkbox should be rendered inline.
+    /// </summary>
+    bool Inline { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the checkbox should be rendered in reverse order.
+    /// </summary>
+    bool Reverse { get; set; }
 
     /// <summary>
     /// Gets or sets the callback invoked when the checked state changes.

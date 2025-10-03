@@ -5,4 +5,8 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IContainer : IElement
 {
+    /// <summary>
+    /// Gets or sets the container type configuration.
+    /// </summary>
+    CssValue<ContainerBuilder>? ContainerType { get; set; }
 }

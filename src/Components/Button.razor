@@ -67,6 +67,18 @@ else
 	[Parameter]
 	public CssValue<ColorBuilder>? Color { get; set; }
 
+	[Parameter]
+	public bool Outline { get; set; }
+
+	[Parameter]
+	public bool Block { get; set; }
+
+	[Parameter]
+	public bool Close { get; set; }
+
+	[Parameter]
+	public string? AriaLabel { get; set; }
+
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	private string? GetSizeClass() 
 	{
@@ -94,26 +106,37 @@ else
 		var isDisabled = Disabled || Loading || attributes.ContainsKey("disabled");
 
 		// Add Bootstrap button classes
-		AppendToClassAttr(attributes, "btn");
+		if (Close)
+		{
+			AppendToClassAttr(attributes, "btn-close");
+		}
+		else
+		{
+			AppendToClassAttr(attributes, "btn");
+		}
 
 		string? colorToken = null;
 		var isColorTheme = Color?.TryGetBootstrapThemeToken(out colorToken) == true;
 
-        if (Color is not null && !Color.Value.IsEmpty)
+        if (Color is not null && !Color.Value.IsEmpty && !Close)
         {
             var v = Color.Value.ToString().Trim();
 
             if (isColorTheme && colorToken is not null)
             {
                 // Bootstrap theme token (e.g., "primary", "secondary")
-				AppendToClassAttr(attributes, $"btn-{colorToken}");
+				var prefix = Outline ? "btn-outline-" : "btn-";
+				AppendToClassAttr(attributes, $"{prefix}{colorToken}");
             }
             else if (Color.Value.IsCssClass)
             {
                 if (v.StartsWith("btn-", StringComparison.Ordinal))
 					AppendToClassAttr(attributes, v);
                 else
-					AppendToClassAttr(attributes, $"btn-{v}");
+				{
+					var prefix = Outline ? "btn-outline-" : "btn-";
+					AppendToClassAttr(attributes, $"{prefix}{v}");
+				}
             }
             else
             {
@@ -132,6 +155,10 @@ else
 
 		if (sizeClass is not null)
 			AppendToClassAttr(attributes, sizeClass);
+
+		// Add block class if needed
+		if (Block)
+			AppendToClassAttr(attributes, "btn-block");
 
 		// Apply disabled visuals for anchor-style buttons
 		if (isLink && isDisabled)
@@ -170,6 +197,7 @@ else
 		if (Name.HasContent()) attributes["name"] = Name!;
 		if (Form.HasContent()) attributes["form"] = Form!;
 		if (AutoFocus) attributes["autofocus"] = true;
+		if (AriaLabel.HasContent()) attributes["aria-label"] = AriaLabel!;
 
 		// If this is acting as a link, we already render <Anchor>; nothing special beyond attrs.
 		return attributes;

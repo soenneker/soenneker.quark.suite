@@ -14,6 +14,12 @@ public interface IAlert : IElement
     CssValue<ColorBuilder>? Color { get; set; }
 
     /// <summary>
+    /// Gets or sets the alert styling configuration.
+    /// </summary>
+    CssValue<AlertStyleBuilder>? AlertStyle { get; set; }
+
+
+    /// <summary>
     /// Gets or sets whether the alert can be dismissed by the user.
     /// </summary>
     bool Dismissible { get; set; }

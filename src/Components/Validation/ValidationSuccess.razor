@@ -1,4 +1,4 @@
-
+@using Soenneker.Extensions.String
 @namespace Soenneker.Quark
 @inherits Element
 
@@ -9,7 +9,7 @@
         {
             @ChildContent
         }
-        else if (!string.IsNullOrEmpty(SuccessText))
+        else if (SuccessText.HasContent())
         {
             @SuccessText
         }
@@ -23,13 +23,7 @@
     public Validations? ParentValidations { get; set; }
 
     [Parameter]
-    public new RenderFragment? ChildContent { get; set; }
-
-    [Parameter]
     public string? SuccessText { get; set; }
-
-    [Parameter]
-    public new string? Class { get; set; }
 
     private bool _visible;
     private ValidationStatus _status = ValidationStatus.None;

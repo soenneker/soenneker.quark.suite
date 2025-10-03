@@ -25,13 +25,13 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
     public static implicit operator CssValue<TBuilder>(string value) => new(value);
 
     public static implicit operator CssValue<TBuilder>(int value) =>
-        _isHeight ? new($"height: {value}px") : _isWidth ? new($"width: {value}px") : new(value.ToString());
+        _isHeight ? new CssValue<TBuilder>($"height: {value}px") : _isWidth ? new CssValue<TBuilder>($"width: {value}px") : new CssValue<TBuilder>(value.ToString());
 
     public static implicit operator string(CssValue<TBuilder> v) => v._value;
 
     public override string ToString() => _value;
 
-    public bool IsEmpty => string.IsNullOrEmpty(_value);
+    public bool IsEmpty => _value.IsNullOrEmpty();
 
     public bool IsCssStyle =>
         // style if it looks like "prop: val" OR (ColorBuilder with non-theme token)
@@ -41,7 +41,9 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
 
     private static bool IsKnownThemeOrSizeToken(string value)
     {
-        if (string.IsNullOrEmpty(value)) return false;
+        if (value.IsNullOrEmpty()) 
+            return false;
+
         // For SizeBuilder, we accept size tokens; otherwise theme tokens (colors)
         if (_isSize) return _bootstrapSizeTokens.Contains(value);
         return _bootstrapThemeTokens.Contains(value);

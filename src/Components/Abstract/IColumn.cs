@@ -19,4 +19,9 @@ public interface IColumn : IElement
     /// Gets or sets the order configuration for the column.
     /// </summary>
     CssValue<ColumnOrderBuilder>? ColumnOrder { get; set; }
+
+    /// <summary>
+    /// Gets or sets the auto configuration for the column.
+    /// </summary>
+    CssValue<ColumnAutoBuilder>? ColumnAuto { get; set; }
 }

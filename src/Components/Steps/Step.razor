@@ -1,3 +1,4 @@
+@using Soenneker.Extensions.String
 @namespace Soenneker.Quark
 
 @inherits Soenneker.Quark.Element
@@ -37,7 +38,7 @@
                 }
                 else
                 {
-                    @if (!string.IsNullOrEmpty(Title))
+                    @if (Title.HasContent())
                     {
                         <Div Class="step-title">@Title</Div>
                     }
@@ -165,7 +166,7 @@
         return attributes.TryGetValue("class", out var classValue) ? classValue.ToString() ?? string.Empty : string.Empty;
     }
 
-    private string GetDescriptionClasses()
+    private static string GetDescriptionClasses()
     {
         return "step-description";
     }
@@ -186,7 +187,7 @@
         base.OnInitialized();
     }
 
-    public new void Dispose()
+    public override void Dispose()
     {
         ParentSteps?.NotifyStepRemoved(Name ?? string.Empty);
     }

@@ -40,6 +40,15 @@
 	public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
 
 	[Parameter]
+	public bool PlainText { get; set; }
+
+	[Parameter]
+	public bool FloatingLabel { get; set; }
+
+	[Parameter]
+	public string? Label { get; set; }
+
+	[Parameter]
 	public EventCallback<string?> ValueChanged { get; set; }
 
 	[Parameter]
@@ -150,7 +159,7 @@
 		var attributes = base.BuildAttributes();
 
 		// Add TextEdit-specific attributes
-		var baseClasses = "form-control";
+		var baseClasses = PlainText ? "form-control-plaintext" : "form-control";
 		var colorClass = GetColorClass();
 		var sizeClass = GetSizeClass();
 		var validationClass = GetValidationClass();

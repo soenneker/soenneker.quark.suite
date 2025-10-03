@@ -33,6 +33,9 @@
     [Parameter]
     public Expression<Func<bool>>? CheckedExpression { get; set; }
 
+    [Parameter]
+    public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
+
     public object? ValidationValue => Checked;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -46,6 +49,21 @@
         }
 
         await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private string? GetSizeClass()
+    {
+        if (Size == Quark.Size.Default)
+            return null;
+
+        string? token = null;
+        var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+        if (isTheme && token is not null)
+            return $"form-check-input-{token}";
+
+        // SizeBuilder now generates clean tokens like "lg", "sm" without prefix
+        var sizeValue = Size?.ToString();
+        return !string.IsNullOrEmpty(sizeValue) ? $"form-check-input-{sizeValue}" : null;
     }
 
     private async Task HandleChange(ChangeEventArgs e)
@@ -64,6 +82,11 @@
         var attributes = base.BuildAttributes();
 
         AppendToClassAttr(attributes, "form-check-input");
+
+        var sizeClass = GetSizeClass();
+        if (sizeClass != null)
+            AppendToClassAttr(attributes, sizeClass);
+            
         var validationClass = GetValidationClass();
         if (validationClass != null)
             AppendToClassAttr(attributes, validationClass);

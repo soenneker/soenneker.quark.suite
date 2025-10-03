@@ -1,3 +1,4 @@
+@using Soenneker.Extensions.String
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IBadge
@@ -17,6 +18,7 @@
 
     [Parameter]
     public bool Rounded { get; set; }
+
 
     private string? GetTypeClass()
     {
@@ -45,7 +47,7 @@
             {
                 var colorValue = Color.Value.ToString();
 
-                if (!string.IsNullOrEmpty(colorValue))
+                if (colorValue.HasContent())
                 {
                     return Color.Value.IsCssClass ? $"bg-{colorValue}" : null;
                 }

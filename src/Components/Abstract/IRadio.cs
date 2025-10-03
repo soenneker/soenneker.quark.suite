@@ -43,4 +43,9 @@ public interface IRadio : IElement
     /// Gets the value used for validation purposes.
     /// </summary>
     object? ValidationValue { get; }
+
+    /// <summary>
+    /// Gets or sets the size of the radio button.
+    /// </summary>
+    CssValue<SizeBuilder>? Size { get; set; }
 }

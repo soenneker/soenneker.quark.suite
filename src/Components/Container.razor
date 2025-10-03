@@ -1,3 +1,4 @@
+@using Soenneker.Extensions.String
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IContainer
@@ -9,12 +10,28 @@
 @code {
 	public override string? ThemeKey { get; set; } = "Container";
 
+	[Parameter]
+	public CssValue<ContainerBuilder>? ContainerType { get; set; }
+
     protected override Dictionary<string, object> BuildAttributes()
     {
         Attributes = base.BuildAttributes();
         
-        AppendToClassAttr(Attributes, "container");
+        var containerClass = GetContainerClass();
+        AppendToClassAttr(Attributes, containerClass);
 
         return Attributes;
+    }
+
+    private string GetContainerClass()
+    {
+        if (ContainerType is { IsEmpty: false })
+        {
+            var containerClass = ContainerType.Value.ToString();
+            if (containerClass.HasContent())
+                return containerClass;
+        }
+        
+        return "container";
     }
 }

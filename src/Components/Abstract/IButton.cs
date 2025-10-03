@@ -62,4 +62,24 @@ public interface IButton : IElement
     /// Gets or sets the color scheme of the button.
     /// </summary>
     CssValue<ColorBuilder>? Color { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the button should use outline styling.
+    /// </summary>
+    bool Outline { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the button should span the full width of its container.
+    /// </summary>
+    bool Block { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the button should be rendered as a close button.
+    /// </summary>
+    bool Close { get; set; }
+
+    /// <summary>
+    /// Gets or sets the aria-label for accessibility.
+    /// </summary>
+    string? AriaLabel { get; set; }
 }

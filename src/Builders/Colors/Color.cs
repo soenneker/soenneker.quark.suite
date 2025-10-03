@@ -34,5 +34,3 @@ public static class Color
     /// </summary>
     public static ColorBuilder FromCss(string css) => new(css);
 }
-
-

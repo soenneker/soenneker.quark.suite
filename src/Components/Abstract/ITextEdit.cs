@@ -55,6 +55,21 @@ public interface ITextEdit : IElement
     CssValue<SizeBuilder>? Size { get; set; }
 
     /// <summary>
+    /// Gets or sets whether the input should be rendered as plain text.
+    /// </summary>
+    bool PlainText { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the input should use floating label styling.
+    /// </summary>
+    bool FloatingLabel { get; set; }
+
+    /// <summary>
+    /// Gets or sets the label text for the input.
+    /// </summary>
+    string? Label { get; set; }
+
+    /// <summary>
     /// Gets or sets the callback invoked when the value changes.
     /// </summary>
     EventCallback<string?> ValueChanged { get; set; }

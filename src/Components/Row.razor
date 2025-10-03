@@ -1,3 +1,4 @@
+@using Soenneker.Extensions.String
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IRow
@@ -9,12 +10,30 @@
 @code {
     public override string? ThemeKey { get; set; } = "Row";
 
+	[Parameter]
+	public CssValue<GutterBuilder>? Gutter { get; set; }
+
     protected override Dictionary<string, object> BuildAttributes()
     {
         Attributes = base.BuildAttributes();
         
         AppendToClassAttr(Attributes, "row");
 
+        // Add gutter CSS values
+        AddGutterCss();
+
         return Attributes;
+    }
+
+    private void AddGutterCss()
+    {
+        if (Gutter is { IsEmpty: false })
+        {
+            var gutterClass = Gutter.Value.ToString();
+            if (gutterClass.HasContent())
+            {
+                AppendToClassAttr(Attributes, gutterClass);
+            }
+        }
     }
 }

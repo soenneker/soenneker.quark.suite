@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
-using Soenneker.Quark;
 using Serilog;
 using Serilog.Debugging;
 using Soenneker.Serilog.Sinks.Browser.Blazor.Registrars;

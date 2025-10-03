@@ -21,10 +21,16 @@
     public bool Disabled { get; set; }
 
     [Parameter]
-    public CssValue<ColorBuilder> Color { get; set; } = Quark.Color.Primary;
+    public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
 
     [Parameter]
-    public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
+    public bool Switch { get; set; }
+
+    [Parameter]
+    public bool Inline { get; set; }
+
+    [Parameter]
+    public bool Reverse { get; set; }
 
     [Parameter]
     public EventCallback<bool> CheckedChanged { get; set; }
@@ -53,17 +59,6 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private string? GetColorClass()
-    {
-        string? token = null;
-        var isTheme = Color.TryGetBootstrapThemeToken(out token);
-
-        if (isTheme && token is not null)
-            return $"form-check-input-{token}";
-
-        return null;
-    }
-
     private string? GetSizeClass()
     {
         if (Size == Quark.Size.Default)
@@ -83,11 +78,8 @@
     {
         var attributes = base.BuildAttributes();
 
-        AppendToClassAttr(attributes, "form-check-input");
-        
-        var colorClass = GetColorClass();
-        if (colorClass != null)
-            AppendToClassAttr(attributes, colorClass);
+        var baseClass = Switch ? "form-switch-input" : "form-check-input";
+        AppendToClassAttr(attributes, baseClass);
             
         var sizeClass = GetSizeClass();
         if (sizeClass != null)

@@ -14,86 +14,233 @@ namespace Soenneker.Quark;
 ///<inheritdoc cref="IComponent"/>
 public abstract class Component : CoreComponent, IComponent
 {
-    [Inject] protected IThemeProvider? ThemeProvider { get; set; }
-    [Inject] protected ILogger<Component> Logger { get; set; } = null!;
+    [Inject]
+    protected IThemeProvider? ThemeProvider { get; set; }
 
-    [Parameter] public string? Class { get; set; }
-    [Parameter] public string? Style { get; set; }
-    [Parameter] public string? Title { get; set; }
-    [Parameter] public int? TabIndex { get; set; }
-    [Parameter] public bool Hidden { get; set; }
+    [Inject]
+    protected ILogger<Component> Logger { get; set; } = null!;
 
-    [Parameter] public CssValue<DisplayBuilder>? Display { get; set; }
-    [Parameter] public CssValue<VisibilityBuilder>? Visibility { get; set; }
-    [Parameter] public CssValue<FloatBuilder>? Float { get; set; }
-    [Parameter] public CssValue<VerticalAlignBuilder>? VerticalAlign { get; set; }
-    [Parameter] public CssValue<TextOverflowBuilder>? TextOverflow { get; set; }
-    [Parameter] public CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
-    [Parameter] public CssValue<MarginBuilder>? Margin { get; set; }
-    [Parameter] public CssValue<PaddingBuilder>? Padding { get; set; }
-    [Parameter] public CssValue<PositionBuilder>? Position { get; set; }
-    [Parameter] public CssValue<PositionOffsetBuilder>? Offset { get; set; }
-    [Parameter] public CssValue<TextSizeBuilder>? TextSize { get; set; }
-    [Parameter] public CssValue<WidthBuilder>? Width { get; set; }
-    [Parameter] public CssValue<WidthBuilder>? MinWidth { get; set; }
-    [Parameter] public CssValue<WidthBuilder>? MaxWidth { get; set; }
-    [Parameter] public CssValue<HeightBuilder>? Height { get; set; }
-    [Parameter] public CssValue<HeightBuilder>? MinHeight { get; set; }
-    [Parameter] public CssValue<HeightBuilder>? MaxHeight { get; set; }
-    [Parameter] public CssValue<OverflowBuilder>? Overflow { get; set; }
-    [Parameter] public CssValue<OverflowBuilder>? OverflowX { get; set; }
-    [Parameter] public CssValue<OverflowBuilder>? OverflowY { get; set; }
-    [Parameter] public CssValue<ObjectFitBuilder>? ObjectFit { get; set; }
-    [Parameter] public CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
-    [Parameter] public CssValue<TextDecorationBuilder>? TextDecorationLine { get; set; }
-    [Parameter] public CssValue<TextDecorationBuilder>? TextDecorationCss { get; set; }
-    [Parameter] public CssValue<FlexBuilder>? Flex { get; set; }
-    [Parameter] public CssValue<GapBuilder>? Gap { get; set; }
-    [Parameter] public CssValue<BorderBuilder>? Border { get; set; }
-    [Parameter] public CssValue<OpacityBuilder>? Opacity { get; set; }
-    [Parameter] public CssValue<ZIndexBuilder>? ZIndex { get; set; }
-    [Parameter] public CssValue<PointerEventsBuilder>? PointerEvents { get; set; }
-    [Parameter] public CssValue<UserSelectBuilder>? UserSelect { get; set; }
-    [Parameter] public CssValue<TextTransformBuilder>? TextTransform { get; set; }
-    [Parameter] public CssValue<FontWeightBuilder>? FontWeight { get; set; }
-    [Parameter] public CssValue<FontStyleBuilder>? FontStyle { get; set; }
-    [Parameter] public CssValue<LineHeightBuilder>? LineHeight { get; set; }
-    [Parameter] public CssValue<TextWrapBuilder>? TextWrap { get; set; }
-    [Parameter] public CssValue<TextBreakBuilder>? TextBreak { get; set; }
-    [Parameter] public CssValue<ColorBuilder>? TextColor { get; set; }
-    [Parameter] public CssValue<ColorBuilder>? BackgroundColor { get; set; }
-    [Parameter] public CssValue<ColorBuilder>? TextBackgroundColor { get; set; }
-    [Parameter] public CssValue<AnimationBuilder>? Animation { get; set; }
-    [Parameter] public CssValue<AspectRatioBuilder>? AspectRatio { get; set; }
-    [Parameter] public CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
-    [Parameter] public CssValue<BorderRadiusBuilder>? BorderRadius { get; set; }
-    [Parameter] public CssValue<ClearfixBuilder>? Clearfix { get; set; }
-    [Parameter] public CssValue<ClipPathBuilder>? ClipPath { get; set; }
-    [Parameter] public CssValue<CursorBuilder>? Cursor { get; set; }
-    [Parameter] public CssValue<FilterBuilder>? Filter { get; set; }
-    [Parameter] public CssValue<InteractionBuilder>? Interaction { get; set; }
-    [Parameter] public CssValue<ObjectPositionBuilder>? ObjectPosition { get; set; }
-    [Parameter] public CssValue<ResizeBuilder>? Resize { get; set; }
-    [Parameter] public CssValue<ScreenReaderBuilder>? ScreenReader { get; set; }
-    [Parameter] public CssValue<ScrollBehaviorBuilder>? ScrollBehavior { get; set; }
-    [Parameter] public CssValue<StretchedLinkBuilder>? StretchedLink { get; set; }
-    [Parameter] public CssValue<TransformBuilder>? Transform { get; set; }
-    [Parameter] public CssValue<TransitionBuilder>? Transition { get; set; }
-    [Parameter] public CssValue<TruncateBuilder>? Truncate { get; set; }
+    [Parameter]
+    public string? Class { get; set; }
 
-    [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
-    [Parameter] public EventCallback<MouseEventArgs> OnDoubleClick { get; set; }
-    [Parameter] public EventCallback<MouseEventArgs> OnMouseOver { get; set; }
-    [Parameter] public EventCallback<MouseEventArgs> OnMouseOut { get; set; }
-    [Parameter] public EventCallback<KeyboardEventArgs> OnKeyDown { get; set; }
-    [Parameter] public EventCallback<FocusEventArgs> OnFocus { get; set; }
-    [Parameter] public EventCallback<FocusEventArgs> OnBlur { get; set; }
-    [Parameter] public EventCallback<ElementReference> OnElementRefReady { get; set; }
+    [Parameter]
+    public string? Style { get; set; }
 
-    [Parameter] public string? Role { get; set; }
-    [Parameter] public string? AriaLabel { get; set; }
-    [Parameter] public string? AriaDescribedBy { get; set; }
-    [Parameter] public virtual string? ThemeKey { get; set; }
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public int? TabIndex { get; set; }
+
+    [Parameter]
+    public bool Hidden { get; set; }
+
+    [Parameter]
+    public CssValue<DisplayBuilder>? Display { get; set; }
+
+    [Parameter]
+    public CssValue<VisibilityBuilder>? Visibility { get; set; }
+
+    [Parameter]
+    public CssValue<FloatBuilder>? Float { get; set; }
+
+    [Parameter]
+    public CssValue<VerticalAlignBuilder>? VerticalAlign { get; set; }
+
+    [Parameter]
+    public CssValue<TextOverflowBuilder>? TextOverflow { get; set; }
+
+    [Parameter]
+    public CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
+
+    [Parameter]
+    public CssValue<MarginBuilder>? Margin { get; set; }
+
+    [Parameter]
+    public CssValue<PaddingBuilder>? Padding { get; set; }
+
+    [Parameter]
+    public CssValue<PositionBuilder>? Position { get; set; }
+
+    [Parameter]
+    public CssValue<PositionOffsetBuilder>? Offset { get; set; }
+
+    [Parameter]
+    public CssValue<TextSizeBuilder>? TextSize { get; set; }
+
+    [Parameter]
+    public CssValue<WidthBuilder>? Width { get; set; }
+
+    [Parameter]
+    public CssValue<WidthBuilder>? MinWidth { get; set; }
+
+    [Parameter]
+    public CssValue<WidthBuilder>? MaxWidth { get; set; }
+
+    [Parameter]
+    public CssValue<HeightBuilder>? Height { get; set; }
+
+    [Parameter]
+    public CssValue<HeightBuilder>? MinHeight { get; set; }
+
+    [Parameter]
+    public CssValue<HeightBuilder>? MaxHeight { get; set; }
+
+    [Parameter]
+    public CssValue<OverflowBuilder>? Overflow { get; set; }
+
+    [Parameter]
+    public CssValue<OverflowBuilder>? OverflowX { get; set; }
+
+    [Parameter]
+    public CssValue<OverflowBuilder>? OverflowY { get; set; }
+
+    [Parameter]
+    public CssValue<ObjectFitBuilder>? ObjectFit { get; set; }
+
+    [Parameter]
+    public CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
+
+    [Parameter]
+    public CssValue<TextDecorationBuilder>? TextDecorationLine { get; set; }
+
+    [Parameter]
+    public CssValue<TextDecorationBuilder>? TextDecorationCss { get; set; }
+
+    [Parameter]
+    public CssValue<FlexBuilder>? Flex { get; set; }
+
+    [Parameter]
+    public CssValue<GapBuilder>? Gap { get; set; }
+
+    [Parameter]
+    public CssValue<BorderBuilder>? Border { get; set; }
+
+    [Parameter]
+    public CssValue<OpacityBuilder>? Opacity { get; set; }
+
+    [Parameter]
+    public CssValue<ZIndexBuilder>? ZIndex { get; set; }
+
+    [Parameter]
+    public CssValue<PointerEventsBuilder>? PointerEvents { get; set; }
+
+    [Parameter]
+    public CssValue<UserSelectBuilder>? UserSelect { get; set; }
+
+    [Parameter]
+    public CssValue<TextTransformBuilder>? TextTransform { get; set; }
+
+    [Parameter]
+    public CssValue<FontWeightBuilder>? FontWeight { get; set; }
+
+    [Parameter]
+    public CssValue<FontStyleBuilder>? FontStyle { get; set; }
+
+    [Parameter]
+    public CssValue<LineHeightBuilder>? LineHeight { get; set; }
+
+    [Parameter]
+    public CssValue<TextWrapBuilder>? TextWrap { get; set; }
+
+    [Parameter]
+    public CssValue<TextBreakBuilder>? TextBreak { get; set; }
+
+    [Parameter]
+    public CssValue<ColorBuilder>? TextColor { get; set; }
+
+    [Parameter]
+    public CssValue<ColorBuilder>? BackgroundColor { get; set; }
+
+    [Parameter]
+    public CssValue<ColorBuilder>? TextBackgroundColor { get; set; }
+
+    [Parameter]
+    public CssValue<AnimationBuilder>? Animation { get; set; }
+
+    [Parameter]
+    public CssValue<AspectRatioBuilder>? AspectRatio { get; set; }
+
+    [Parameter]
+    public CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
+
+    [Parameter]
+    public CssValue<BorderRadiusBuilder>? BorderRadius { get; set; }
+
+    [Parameter]
+    public CssValue<ClearfixBuilder>? Clearfix { get; set; }
+
+    [Parameter]
+    public CssValue<ClipPathBuilder>? ClipPath { get; set; }
+
+    [Parameter]
+    public CssValue<CursorBuilder>? Cursor { get; set; }
+
+    [Parameter]
+    public CssValue<FilterBuilder>? Filter { get; set; }
+
+    [Parameter]
+    public CssValue<InteractionBuilder>? Interaction { get; set; }
+
+    [Parameter]
+    public CssValue<ObjectPositionBuilder>? ObjectPosition { get; set; }
+
+    [Parameter]
+    public CssValue<ResizeBuilder>? Resize { get; set; }
+
+    [Parameter]
+    public CssValue<ScreenReaderBuilder>? ScreenReader { get; set; }
+
+    [Parameter]
+    public CssValue<ScrollBehaviorBuilder>? ScrollBehavior { get; set; }
+
+    [Parameter]
+    public CssValue<StretchedLinkBuilder>? StretchedLink { get; set; }
+
+    [Parameter]
+    public CssValue<TransformBuilder>? Transform { get; set; }
+
+    [Parameter]
+    public CssValue<TransitionBuilder>? Transition { get; set; }
+
+    [Parameter]
+    public CssValue<TruncateBuilder>? Truncate { get; set; }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnDoubleClick { get; set; }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnMouseOver { get; set; }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnMouseOut { get; set; }
+
+    [Parameter]
+    public EventCallback<KeyboardEventArgs> OnKeyDown { get; set; }
+
+    [Parameter]
+    public EventCallback<FocusEventArgs> OnFocus { get; set; }
+
+    [Parameter]
+    public EventCallback<FocusEventArgs> OnBlur { get; set; }
+
+    [Parameter]
+    public EventCallback<ElementReference> OnElementRefReady { get; set; }
+
+    [Parameter]
+    public string? Role { get; set; }
+
+    [Parameter]
+    public string? AriaLabel { get; set; }
+
+    [Parameter]
+    public string? AriaDescribedBy { get; set; }
+
+    [Parameter]
+    public virtual string? ThemeKey { get; set; }
 
     protected ElementReference ElementRef { get; set; }
 

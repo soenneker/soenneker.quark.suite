@@ -1,3 +1,4 @@
+@using Soenneker.Extensions.String
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements INav
@@ -8,4 +9,25 @@
 
 @code {
 	public override string? ThemeKey { get; set; } = "Nav";
+
+    [Parameter]
+    public CssValue<NavStyleBuilder>? NavStyle { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+	{
+		Attributes = base.BuildAttributes();
+		
+        // Handle nav styling
+        if (NavStyle is not null && !NavStyle.Value.IsEmpty)
+        {
+            var navClass = NavStyle.Value.ToString();
+            if (navClass.HasContent())
+            {
+                AppendToClassAttr(Attributes, navClass);
+            }
+        }
+
+		return Attributes;
+	}
+
 }

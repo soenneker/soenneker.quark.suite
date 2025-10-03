@@ -1,3 +1,4 @@
+@using Soenneker.Extensions.String
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IColumn
@@ -17,6 +18,9 @@
 
     [Parameter]
     public CssValue<ColumnOrderBuilder>? ColumnOrder { get; set; }
+
+    [Parameter]
+    public CssValue<ColumnAutoBuilder>? ColumnAuto { get; set; }
     
     protected override Dictionary<string, object> BuildAttributes()
     {
@@ -28,6 +32,7 @@
         AddColumnCss(ColumnSize);
         AddColumnCss(ColumnOffset);
         AddColumnCss(ColumnOrder);
+        AddColumnCss(ColumnAuto);
 
         return Attributes;
     }
@@ -37,7 +42,7 @@
         if (cssValue is { IsEmpty: false })
         {
             var css = cssValue.Value.ToString();
-            if (!string.IsNullOrEmpty(css))
+            if (css.HasContent())
             {
                 if (cssValue.Value.IsCssStyle)
                 {

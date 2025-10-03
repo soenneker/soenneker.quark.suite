@@ -1,5 +1,4 @@
 using Soenneker.Quark.Enums;
-
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -27,7 +26,7 @@ public sealed class ColorBuilder : ICssBuilder
         if (rules is { Count: > 0 })
             _rules.AddRange(rules);
     }
-    
+
     public ColorBuilder Primary => ChainValue("primary");
     public ColorBuilder Secondary => ChainValue("secondary");
     public ColorBuilder Success => ChainValue("success");
@@ -153,10 +152,8 @@ public sealed class ColorBuilder : ICssBuilder
     {
         return rule.Value switch
         {
-            "primary" or "secondary" or "success" or "danger" or "warning" or "info" or
-                "light" or "dark" or "link" or "muted" or
-                "white" or "black"
-                => rule.Value,
+            "primary" or "secondary" or "success" or "danger" or "warning" or "info" or "light" or "dark" or "link" or "muted" or "white"
+                or "black" => rule.Value,
             _ => string.Empty
         };
     }
@@ -166,10 +163,7 @@ public sealed class ColorBuilder : ICssBuilder
     {
         return rule.Value switch
         {
-            "primary" or "secondary" or "success" or "danger" or "warning" or "info" or
-                "light" or "dark" or "link" or "muted" or
-                "white" or "black"
-                => null,
+            "primary" or "secondary" or "success" or "danger" or "warning" or "info" or "light" or "dark" or "link" or "muted" or "white" or "black" => null,
             _ => rule.Value
         };
     }
@@ -183,22 +177,26 @@ public sealed class ColorBuilder : ICssBuilder
             var len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
             return string.Create(len, (className, dashIndex, bp), static (dst, s) =>
             {
-                s.className.AsSpan(0, s.dashIndex).CopyTo(dst);
+                s.className.AsSpan(0, s.dashIndex)
+                    .CopyTo(dst);
                 var idx = s.dashIndex;
                 dst[idx++] = '-';
-                s.bp.AsSpan().CopyTo(dst[idx..]);
+                s.bp.AsSpan()
+                    .CopyTo(dst[idx..]);
                 idx += s.bp.Length;
-                s.className.AsSpan(s.dashIndex).CopyTo(dst[idx..]);
+                s.className.AsSpan(s.dashIndex)
+                    .CopyTo(dst[idx..]);
             });
         }
 
         return string.Create(bp.Length + 1 + className.Length, (className, bp), static (dst, s) =>
         {
-            s.bp.AsSpan().CopyTo(dst);
+            s.bp.AsSpan()
+                .CopyTo(dst);
             var idx = s.bp.Length;
             dst[idx++] = '-';
-            s.className.AsSpan().CopyTo(dst[idx..]);
+            s.className.AsSpan()
+                .CopyTo(dst[idx..]);
         });
     }
-
 }

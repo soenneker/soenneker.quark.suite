@@ -1,4 +1,5 @@
 using Soenneker.Quark.Enums;
+using Soenneker.Extensions.String;
 
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -27,7 +28,7 @@ public sealed class BorderBuilder : ICssBuilder
 
     internal BorderBuilder(string size, BreakpointType? breakpoint = null)
     {
-        if (!string.IsNullOrEmpty(size))
+        if (size.HasContent())
             _rules.Add(new BorderRule(size, ElementSideType.All, breakpoint));
     }
 

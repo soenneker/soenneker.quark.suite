@@ -1,4 +1,5 @@
 using Soenneker.Quark.Enums;
+using Soenneker.Extensions.String;
 
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ public sealed class GapBuilder : ICssBuilder
 
     internal GapBuilder(string size, BreakpointType? breakpoint = null)
     {
-        if (!string.IsNullOrEmpty(size))
+        if (size.HasContent())
             _rules.Add(new GapRule(size, breakpoint));
     }
 

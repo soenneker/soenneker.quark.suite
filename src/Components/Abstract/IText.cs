@@ -5,4 +5,8 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IText : IElement
 {
+    /// <summary>
+    /// Gets or sets the text configuration for Bootstrap text utilities.
+    /// </summary>
+    CssValue<TextStyleBuilder>? TextStyle { get; set; }
 }

@@ -1,8 +1,6 @@
 using Soenneker.Quark.Enums;
 
 
-
-
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -18,5 +16,4 @@ internal readonly struct ColumnOffsetRule
         Offset = offset;
         Breakpoint = breakpoint;
     }
-
 }
