@@ -2,6 +2,7 @@
 @using System.Linq.Expressions
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Utils.PooledStringBuilders
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
@@ -96,7 +97,7 @@
     public DateTime? Max { get; set; }
 
     [Parameter]
-    public CssValue<ColorBuilder> BackgroundColor { get; set; } = Quark.Color.Primary;
+    public new CssValue<ColorBuilder> BackgroundColor { get; set; } = Quark.Color.Primary;
 
     [Parameter]
     public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
@@ -442,7 +443,7 @@
 
     protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
-        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
+        if (BackgroundColor is { IsEmpty: false })
         {
             string? token = null;
             var isTheme = BackgroundColor.TryGetBootstrapThemeToken(out token);
@@ -451,19 +452,15 @@
             {
                 AppendClass(ref cls, $"form-control-{token}");
             }
-            else if (BackgroundColor.Value.IsCssClass)
-            {
-                var v = BackgroundColor.Value.ToString().Trim();
-                if (v.StartsWith("form-control-", StringComparison.Ordinal))
-                    AppendClass(ref cls, v);
-                else
-                    AppendClass(ref cls, $"form-control-{v}");
-            }
             else
             {
-                // Use inline style for custom colors
-                var v = BackgroundColor.Value.ToString().Trim();
-                AppendStyleDecl(ref sty, $"background-color:{v}");
+                var result = BackgroundColor.ToString();
+                if (!result.HasContent()) return;
+
+                if (BackgroundColor.IsCssStyle)
+                    AppendStyleDecl(ref sty, $"background-color: {result}");
+                else
+                    AppendClass(ref cls, $"form-control-{result}");
             }
         }
     }

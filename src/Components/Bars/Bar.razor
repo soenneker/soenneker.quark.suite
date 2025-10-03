@@ -1,4 +1,5 @@
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Utils.PooledStringBuilders
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.CancellableElement
@@ -32,7 +33,7 @@
     public BarPlacement Placement { get; set; } = BarPlacement.Top;
 
     [Parameter]
-    public CssValue<ColorBuilder> BackgroundColor { get; set; } = Quark.Color.Light;
+    public new CssValue<ColorBuilder> BackgroundColor { get; set; } = Quark.Color.Light;
 
     [Parameter]
     public bool Expand { get; set; } = true;
@@ -285,7 +286,7 @@
 
     protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
-        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
+        if (BackgroundColor is { IsEmpty: false })
         {
             if (Transparent)
             {
@@ -300,19 +301,15 @@
                 {
                     AppendClass(ref cls, $"bg-{token}");
                 }
-                else if (BackgroundColor.Value.IsCssClass)
-                {
-                    var v = BackgroundColor.Value.ToString().Trim();
-                    if (v.StartsWith("bg-", StringComparison.Ordinal))
-                        AppendClass(ref cls, v);
-                    else
-                        AppendClass(ref cls, $"bg-{v}");
-                }
                 else
                 {
-                    // Use inline style for custom colors
-                    var v = BackgroundColor.Value.ToString().Trim();
-                    AppendStyleDecl(ref sty, $"background-color:{v}");
+                    var result = BackgroundColor.ToString();
+                    if (!result.HasContent()) return;
+
+                    if (BackgroundColor.IsCssStyle)
+                        AppendStyleDecl(ref sty, $"background-color: {result}");
+                    else
+                        AppendClass(ref cls, $"bg-{result}");
                 }
             }
         }

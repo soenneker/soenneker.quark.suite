@@ -1,3 +1,5 @@
+@using Soenneker.Utils.PooledStringBuilders
+
 @namespace Soenneker.Quark
 
 @inherits Soenneker.Quark.Element
@@ -70,7 +72,7 @@
     public bool Disabled { get; set; }
 
     [Parameter]
-    public CssValue<ColorBuilder> BackgroundColor { get; set; } = Quark.Color.Primary;
+    public new CssValue<ColorBuilder> BackgroundColor { get; set; } = Quark.Color.Primary;
 
     [Parameter]
     public StepStatus Status { get; set; } = StepStatus.Pending;
@@ -187,7 +189,7 @@
 
     protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
-        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
+        if (BackgroundColor is { IsEmpty: false })
         {
             string? token = null;
             var isTheme = BackgroundColor.TryGetBootstrapThemeToken(out token);
@@ -196,19 +198,15 @@
             {
                 AppendClass(ref cls, $"step-marker-{token}");
             }
-            else if (BackgroundColor.Value.IsCssClass)
-            {
-                var v = BackgroundColor.Value.ToString().Trim();
-                if (v.StartsWith("step-marker-", StringComparison.Ordinal))
-                    AppendClass(ref cls, v);
-                else
-                    AppendClass(ref cls, $"step-marker-{v}");
-            }
             else
             {
-                // Use inline style for custom colors
-                var v = BackgroundColor.Value.ToString().Trim();
-                AppendStyleDecl(ref sty, $"background-color:{v}");
+                var result = BackgroundColor.ToString();
+                if (!result.HasContent()) return;
+
+                if (BackgroundColor.IsCssStyle)
+                    AppendStyleDecl(ref sty, $"background-color: {result}");
+                else
+                    AppendClass(ref cls, $"step-marker-{result}");
             }
         }
     }

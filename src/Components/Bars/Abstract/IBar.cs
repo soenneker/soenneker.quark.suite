@@ -21,7 +21,7 @@ public interface IBar : ICancellableElement
     /// <summary>
     /// Gets or sets the background color scheme of the bar.
     /// </summary>
-    CssValue<ColorBuilder> BackgroundColor { get; set; }
+    new CssValue<ColorBuilder> BackgroundColor { get; set; }
 
     /// <summary>
     /// Gets or sets whether the bar should expand at the specified breakpoint.
