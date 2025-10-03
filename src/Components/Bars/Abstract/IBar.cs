@@ -19,9 +19,9 @@ public interface IBar : ICancellableElement
     BarPlacement Placement { get; set; }
 
     /// <summary>
-    /// Gets or sets the color scheme of the bar.
+    /// Gets or sets the background color scheme of the bar.
     /// </summary>
-    CssValue<ColorBuilder> Color { get; set; }
+    CssValue<ColorBuilder> BackgroundColor { get; set; }
 
     /// <summary>
     /// Gets or sets whether the bar should expand at the specified breakpoint.

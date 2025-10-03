@@ -20,7 +20,7 @@
     public bool Visible { get; set; } = true;
 
     [Parameter]
-    public CssValue<ColorBuilder> Color { get; set; } = Quark.Color.Primary;
+    public CssValue<ColorBuilder> BackgroundColor { get; set; } = Quark.Color.Primary;
 
     [Parameter]
     public int AutoHideDelay { get; set; } = 5000;
@@ -57,15 +57,7 @@
     {
         var inner = new Dictionary<string, object>(1);
 
-        string? token = null;
-        var isTheme = Color.TryGetBootstrapThemeToken(out token);
-
-        string? bgClass = null;
-
-        if (isTheme && token is not null)
-            bgClass = $"bg-{token}";
-
-        var cls = $"snackbar-content {bgClass} text-white rounded shadow p-3";
+        var cls = "snackbar-content text-white rounded shadow p-3";
         inner["class"] = cls;
 
         return inner;
@@ -87,6 +79,34 @@
         Visible = false;
         await InvokeAsync(StateHasChanged);
         await Closed.InvokeAsync(new SnackbarClosedEventArgs(Key, reason));
+    }
+
+    protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
+        {
+            string? token = null;
+            var isTheme = BackgroundColor.TryGetBootstrapThemeToken(out token);
+
+            if (isTheme && token is not null)
+            {
+                AppendClass(ref cls, $"bg-{token}");
+            }
+            else if (BackgroundColor.Value.IsCssClass)
+            {
+                var v = BackgroundColor.Value.ToString().Trim();
+                if (v.StartsWith("bg-", StringComparison.Ordinal))
+                    AppendClass(ref cls, v);
+                else
+                    AppendClass(ref cls, $"bg-{v}");
+            }
+            else
+            {
+                // Use inline style for custom colors
+                var v = BackgroundColor.Value.ToString().Trim();
+                AppendStyleDecl(ref sty, $"background-color:{v}");
+            }
+        }
     }
 
 }

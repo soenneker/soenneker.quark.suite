@@ -16,8 +16,8 @@ public interface IBreadcrumbItem : IElement
     bool Active { get; set; }
 
     /// <summary>
-    /// Gets or sets the color scheme of the breadcrumb item.
+    /// Gets or sets the background color scheme of the breadcrumb item.
     /// </summary>
-    CssValue<ColorBuilder> Color { get; set; }
+    CssValue<ColorBuilder> BackgroundColor { get; set; }
 }
 

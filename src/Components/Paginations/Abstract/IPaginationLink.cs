@@ -16,8 +16,8 @@ public interface IPaginationLink : IElement
     bool Disabled { get; set; }
 
     /// <summary>
-    /// Gets or sets the color scheme of the pagination link.
+    /// Gets or sets the background color scheme of the pagination link.
     /// </summary>
-    CssValue<ColorBuilder> Color { get; set; }
+    CssValue<ColorBuilder> BackgroundColor { get; set; }
 }
 

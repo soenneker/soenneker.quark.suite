@@ -96,7 +96,7 @@
     public DateTime? Max { get; set; }
 
     [Parameter]
-    public CssValue<ColorBuilder> Color { get; set; } = Quark.Color.Primary;
+    public CssValue<ColorBuilder> BackgroundColor { get; set; } = Quark.Color.Primary;
 
     [Parameter]
     public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
@@ -180,16 +180,6 @@
         return Size?.ToString() != null ? $"form-control-{Size}" : null;
     }
 
-    private string? GetColorClass()
-    {
-        string? token = null;
-        var isTheme = Color.TryGetBootstrapThemeToken(out token);
-
-        if (isTheme && token is not null)
-            return $"form-control-{token}";
-
-        return null;
-    }
 
     private string? GetValidationClass()
     {
@@ -250,12 +240,9 @@
         var attributes = base.BuildAttributes();
 
         var baseClasses = "form-control quark-datepicker quark-datepicker--icon";
-        var colorClass = GetColorClass();
         var sizeClass = GetSizeClass();
         var validationClass = GetValidationClass();
 
-        if (colorClass != null)
-            baseClasses = $"{baseClasses} {colorClass}";
         if (sizeClass != null)
             baseClasses = $"{baseClasses} {sizeClass}";
         if (validationClass != null)
@@ -451,6 +438,34 @@
     {
         _outsideRef?.Dispose();
         return Task.CompletedTask;
+    }
+
+    protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
+        {
+            string? token = null;
+            var isTheme = BackgroundColor.TryGetBootstrapThemeToken(out token);
+
+            if (isTheme && token is not null)
+            {
+                AppendClass(ref cls, $"form-control-{token}");
+            }
+            else if (BackgroundColor.Value.IsCssClass)
+            {
+                var v = BackgroundColor.Value.ToString().Trim();
+                if (v.StartsWith("form-control-", StringComparison.Ordinal))
+                    AppendClass(ref cls, v);
+                else
+                    AppendClass(ref cls, $"form-control-{v}");
+            }
+            else
+            {
+                // Use inline style for custom colors
+                var v = BackgroundColor.Value.ToString().Trim();
+                AppendStyleDecl(ref sty, $"background-color:{v}");
+            }
+        }
     }
 }
 

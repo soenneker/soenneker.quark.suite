@@ -6,9 +6,9 @@ namespace Soenneker.Quark;
 public interface IProgress : IElement
 {
     /// <summary>
-    /// Gets or sets the color scheme of the progress bar.
+    /// Gets or sets the background color scheme of the progress bar.
     /// </summary>
-    CssValue<ColorBuilder> Color { get; set; }
+    CssValue<ColorBuilder> BackgroundColor { get; set; }
 
     /// <summary>
     /// Gets or sets the size of the progress bar.

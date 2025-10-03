@@ -70,7 +70,7 @@
     public bool Disabled { get; set; }
 
     [Parameter]
-    public CssValue<ColorBuilder> Color { get; set; } = Quark.Color.Primary;
+    public CssValue<ColorBuilder> BackgroundColor { get; set; } = Quark.Color.Primary;
 
     [Parameter]
     public StepStatus Status { get; set; } = StepStatus.Pending;
@@ -153,12 +153,6 @@
         
         AppendToClassAttr(attributes, "step-marker");
 
-        string? token = null;
-        var isTheme = Color.TryGetBootstrapThemeToken(out token);
-
-        if (isTheme && token is not null)
-            AppendToClassAttr(attributes, $"step-marker-{token}");
-
         if (Active)
             AppendToClassAttr(attributes, "step-marker-active");
 
@@ -189,5 +183,33 @@
     public override void Dispose()
     {
         ParentSteps?.NotifyStepRemoved(Name ?? string.Empty);
+    }
+
+    protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
+        {
+            string? token = null;
+            var isTheme = BackgroundColor.TryGetBootstrapThemeToken(out token);
+
+            if (isTheme && token is not null)
+            {
+                AppendClass(ref cls, $"step-marker-{token}");
+            }
+            else if (BackgroundColor.Value.IsCssClass)
+            {
+                var v = BackgroundColor.Value.ToString().Trim();
+                if (v.StartsWith("step-marker-", StringComparison.Ordinal))
+                    AppendClass(ref cls, v);
+                else
+                    AppendClass(ref cls, $"step-marker-{v}");
+            }
+            else
+            {
+                // Use inline style for custom colors
+                var v = BackgroundColor.Value.ToString().Trim();
+                AppendStyleDecl(ref sty, $"background-color:{v}");
+            }
+        }
     }
 }

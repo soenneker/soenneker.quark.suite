@@ -32,7 +32,7 @@
     public BarPlacement Placement { get; set; } = BarPlacement.Top;
 
     [Parameter]
-    public CssValue<ColorBuilder> Color { get; set; } = Quark.Color.Light;
+    public CssValue<ColorBuilder> BackgroundColor { get; set; } = Quark.Color.Light;
 
     [Parameter]
     public bool Expand { get; set; } = true;
@@ -112,19 +112,6 @@
         return "navbar-light";
     }
 
-    private string? GetBackgroundClass()
-    {
-        if (Transparent)
-            return "bg-transparent";
-
-        string? token;
-        var isClass = Color.TryGetBootstrapThemeToken(out token);
-
-        if (isClass && token is not null)
-            return $"bg-{token}";
-
-        return null;
-    }
 
     private string? GetVerticalClass()
     {
@@ -176,10 +163,6 @@
         if (colorClass != null)
             AppendToClassAttr(attributes, colorClass);
 
-        // Add background class
-        var backgroundClass = GetBackgroundClass();
-        if (backgroundClass != null)
-            AppendToClassAttr(attributes, backgroundClass);
 
         // Add vertical specific class
         var verticalClass = GetVerticalClass();
@@ -298,6 +281,41 @@
         // Reset the flag after a brief delay to allow for re-opening
         await Task.Delay(100);
         _forceCollapseAll = false;
+    }
+
+    protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
+        {
+            if (Transparent)
+            {
+                AppendClass(ref cls, "bg-transparent");
+            }
+            else
+            {
+                string? token = null;
+                var isTheme = BackgroundColor.TryGetBootstrapThemeToken(out token);
+
+                if (isTheme && token is not null)
+                {
+                    AppendClass(ref cls, $"bg-{token}");
+                }
+                else if (BackgroundColor.Value.IsCssClass)
+                {
+                    var v = BackgroundColor.Value.ToString().Trim();
+                    if (v.StartsWith("bg-", StringComparison.Ordinal))
+                        AppendClass(ref cls, v);
+                    else
+                        AppendClass(ref cls, $"bg-{v}");
+                }
+                else
+                {
+                    // Use inline style for custom colors
+                    var v = BackgroundColor.Value.ToString().Trim();
+                    AppendStyleDecl(ref sty, $"background-color:{v}");
+                }
+            }
+        }
     }
 
 }

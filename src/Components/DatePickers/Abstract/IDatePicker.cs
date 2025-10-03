@@ -50,9 +50,9 @@ public interface IDatePicker : IElement
     DateOnly? Max { get; set; }
 
     /// <summary>
-    /// Gets or sets the color scheme of the input.
+    /// Gets or sets the background color scheme of the input.
     /// </summary>
-    CssValue<ColorBuilder> Color { get; set; }
+    CssValue<ColorBuilder> BackgroundColor { get; set; }
 
     /// <summary>
     /// Gets or sets the size of the input.
