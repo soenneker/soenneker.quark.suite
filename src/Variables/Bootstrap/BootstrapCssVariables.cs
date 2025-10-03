@@ -9,6 +9,16 @@ public sealed class BootstrapCssVariables
 {
     public BootstrapColorsCssVariables? Colors { get; set; }
 
+    public BootstrapTypographyCssVariables? Typography { get; set; }
+
+    public BootstrapSpacingCssVariables? Spacing { get; set; }
+
+    public BootstrapBordersCssVariables? Borders { get; set; }
+
+    public BootstrapShadowsCssVariables? Shadows { get; set; }
+
+    public BootstrapGeneralCssVariables? General { get; set; }
+
     public BootstrapButtonCssVariables? Button { get; set; }
 
     public BootstrapPrimaryButtonCssVariables? PrimaryButton { get; set; }
