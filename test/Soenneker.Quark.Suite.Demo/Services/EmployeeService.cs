@@ -6,6 +6,7 @@ using Soenneker.Dtos.Results.Paged;
 using Soenneker.Quark.Suite.Demo.Dtos;
 using Soenneker.Utils.AutoBogus;
 using Soenneker.Utils.Delay;
+using Soenneker.Extensions.String;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -44,7 +45,7 @@ public class EmployeeService
         IEnumerable<Employee> filteredData = _employees.AsEnumerable();
 
         // Apply search
-        if (!string.IsNullOrEmpty(serverSideRequest.Search?.Value))
+        if (serverSideRequest.Search?.Value.HasContent() == true)
         {
             string searchTerm = serverSideRequest.Search.Value.ToLower();
             filteredData = filteredData.Where(e => 
@@ -127,7 +128,7 @@ public class EmployeeService
         IEnumerable<Employee> filteredData = _employees.AsEnumerable();
 
         // Apply search
-        if (!string.IsNullOrEmpty(serverSideRequest.Search?.Value))
+        if (serverSideRequest.Search?.Value.HasContent() == true)
         {
             string searchTerm = serverSideRequest.Search.Value.ToLower();
             filteredData = filteredData.Where(e => 
@@ -191,7 +192,7 @@ public class EmployeeService
         IEnumerable<Employee> filteredData = _employees.AsEnumerable();
 
         // Apply search
-        if (!string.IsNullOrEmpty(serverSideRequest.Search?.Value))
+        if (serverSideRequest.Search?.Value.HasContent() == true)
         {
             string searchTerm = serverSideRequest.Search.Value.ToLower();
             filteredData = filteredData.Where(e => 

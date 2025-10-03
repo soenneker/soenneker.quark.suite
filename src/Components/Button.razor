@@ -76,9 +76,6 @@ else
 	[Parameter]
 	public bool Close { get; set; }
 
-	[Parameter]
-	public string? AriaLabel { get; set; }
-
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	private string? GetSizeClass() 
 	{
@@ -87,12 +84,13 @@ else
 
 		string? token = null;
 		var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+
 		if (isTheme && token is not null)
 			return $"btn-{token}";
 
 		// SizeBuilder now generates clean tokens like "lg", "sm" without prefix
 		var sizeValue = Size?.ToString();
-		return !string.IsNullOrEmpty(sizeValue) ? $"btn-{sizeValue}" : null;
+		return sizeValue.HasContent() ? $"btn-{sizeValue}" : null;
 	}
 
 	protected override Dictionary<string, object> BuildAttributes()
@@ -143,7 +141,7 @@ else
                 // Build style efficiently
                 var styleParts = new List<string> { $"background-color:{v}", $"border-color:{v}" };
                 
-				if (attributes.TryGetValue("style", out var existing) && !string.IsNullOrEmpty(existing?.ToString()))
+				if (attributes.TryGetValue("style", out var existing) && existing?.ToString().HasContent() == true)
                     styleParts.Insert(0, existing.ToString()!);
                     
 				attributes["style"] = string.Join(";", styleParts) + ";";

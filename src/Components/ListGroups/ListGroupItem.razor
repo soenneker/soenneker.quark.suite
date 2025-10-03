@@ -1,5 +1,6 @@
-@namespace Soenneker.Quark
+@using Soenneker.Extensions.String
 
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IListGroupItem
 
@@ -64,7 +65,7 @@
         if (Disabled)
             return;
 
-        if (ParentListGroup is not null && !string.IsNullOrEmpty(ItemName))
+        if (ParentListGroup is not null && ItemName.HasContent())
             await ParentListGroup.SelectItem(ItemName);
 
         await base.HandleClick(args);

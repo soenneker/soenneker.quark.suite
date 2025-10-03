@@ -1,6 +1,7 @@
 @page "/tables/topbar"
 @using System.Threading
 @using Soenneker.DataTables.Dtos.ServerSideRequest
+@using Soenneker.Extensions.String
 @using Soenneker.Dtos.Results.Paged
 @using Soenneker.Quark.Suite.Demo.Services
 @using Soenneker.Quark.Suite.Demo.Dtos
@@ -279,7 +280,7 @@
         };
 
         // Add sorting if available
-        if (!string.IsNullOrEmpty(_topbarTable?.SortBy))
+        if (_topbarTable?.SortBy.HasContent() == true)
         {
             int columnIndex = GetColumnIndex(_topbarTable.SortBy);
             if (columnIndex >= 0)
@@ -296,7 +297,7 @@
 
         // Apply department filter if selected
         _employees = pagedResult.Items;
-        if (!string.IsNullOrEmpty(_selectedDepartment))
+        if (_selectedDepartment.HasContent())
         {
             _employees = _employees.Where(e => e.Department == _selectedDepartment).ToList();
         }

@@ -20,6 +20,9 @@ public abstract class Component : CoreComponent, IComponent
     [Inject]
     protected ILogger<Component> Logger { get; set; } = null!;
 
+    [Inject]
+    protected QuarkOptions QuarkOptions { get; set; } = null!;
+
     [Parameter]
     public string? Class { get; set; }
 
@@ -261,7 +264,7 @@ public abstract class Component : CoreComponent, IComponent
         _shouldRender = key != _lastRenderKey;
         _lastRenderKey = key;
     }
-
+   
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)

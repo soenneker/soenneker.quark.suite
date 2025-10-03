@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using Serilog;
 using Serilog.Debugging;
+using Soenneker.Quark;
 using Soenneker.Serilog.Sinks.Browser.Blazor.Registrars;
 
 namespace Soenneker.Quark.Suite.Demo;
@@ -30,9 +31,6 @@ public sealed class Program
                 BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
             });
 
-            //builder.Services.AddEmptyThemeProviderAsScoped();
-
-            // Modern Professional Theme Configuration
             var theme = new Theme
             {
                 BootstrapCssVariables = new BootstrapCssVariables
@@ -102,6 +100,15 @@ public sealed class Program
 
             builder.Services.AddThemeProviderAsScoped(provider);
 
+            var quarkOptions = new QuarkOptions
+            {
+                Debug = true,
+                AutomaticBootstrapLoading = true,
+                AutomaticFontAwesomeLoading = true
+            };
+
+            builder.Services.AddQuarkOptionsAsScoped(quarkOptions);
+
             builder.Services.AddQuarkSuiteAsScoped();
 
             // Register demo services
@@ -112,6 +119,8 @@ public sealed class Program
             var jsRuntime = (IJSRuntime)host.Services.GetService(typeof(IJSRuntime))!;
 
             SetGlobalLogger(jsRuntime);
+
+            await host.Services.LoadQuarkResources();
 
             await host.RunAsync();
         }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
@@ -63,7 +64,7 @@ public static class BootstrapCssGenerator
             foreach (var property in properties)
             {
                 var value = property.GetValue(cssVariableObject) as string;
-                if (!string.IsNullOrEmpty(value))
+                if (value.HasContent())
                 {
                     var attr = property.GetCustomAttribute<CssVariableAttribute>();
                     if (attr != null)

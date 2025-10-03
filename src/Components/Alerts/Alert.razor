@@ -1,4 +1,5 @@
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Extensions.String
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
@@ -67,7 +68,7 @@
         if (AlertStyle is not null && !AlertStyle.Value.IsEmpty)
         {
             var alertClass = AlertStyle.Value.ToString();
-            if (!string.IsNullOrEmpty(alertClass))
+            if (alertClass.HasContent())
             {
                 AppendToClassAttr(attributes, alertClass);
             }
@@ -90,7 +91,7 @@
                 // Build style efficiently
                 var styleParts = new List<string> { $"background-color:{v}", $"border-color:{v}", "color:white" };
                 
-                if (attributes.TryGetValue("style", out var existing) && !string.IsNullOrEmpty(existing?.ToString()))
+                if (attributes.TryGetValue("style", out var existing) && existing?.ToString().HasContent() == true)
                     styleParts.Insert(0, existing.ToString()!);
                     
                 attributes["style"] = string.Join(";", styleParts) + ";";
@@ -99,7 +100,7 @@
 
         if (!Visible)
         {
-            if (attributes.TryGetValue("style", out var existingStyle) && !string.IsNullOrEmpty(existingStyle?.ToString()))
+            if (attributes.TryGetValue("style", out var existingStyle) && existingStyle?.ToString().HasContent() == true)
                 attributes["style"] = $"{existingStyle}display: none;";
             else
                 attributes["style"] = "display: none;";

@@ -26,18 +26,10 @@ dotnet add package Soenneker.Quark.Suite
 ```csharp
 builder.Services.AddQuarkSuiteAsScoped();
 
-var theme = new Theme { /* ... */ };
-var provider = new ThemeProvider();
-provider.AddTheme(theme);
+var host = builder.Build();
 
-builder.Services.AddThemeProviderAsScoped(provider);
-```
+await host.Services.LoadQuarkResources(); // Optional if you want to load resources via html
 
-Include Bootstrap if not already present:
-
-```html
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
 ```
 
 ## Examples

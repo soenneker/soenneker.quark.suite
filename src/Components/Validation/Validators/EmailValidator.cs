@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
@@ -32,6 +33,6 @@ public class EmailValidator : BaseQuarkValidator
         if (value is not string email)
             return false;
 
-        return !string.IsNullOrEmpty(email) && EmailRegex.IsMatch(email);
+        return email.HasContent() && EmailRegex.IsMatch(email);
     }
 }

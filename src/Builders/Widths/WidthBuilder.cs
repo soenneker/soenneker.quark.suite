@@ -1,4 +1,5 @@
 using Soenneker.Quark.Enums;
+using Soenneker.Extensions.String;
 
 using System;
 using System.Collections.Generic;
@@ -153,7 +154,7 @@ public sealed class WidthBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool IsNumeric(string value)
     {
-        return !string.IsNullOrEmpty(value) && value.All(char.IsDigit);
+        return value.HasContent() && value.All(char.IsDigit);
     }
 
 

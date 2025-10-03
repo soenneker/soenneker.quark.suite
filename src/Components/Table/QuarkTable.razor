@@ -1,6 +1,7 @@
 @using Microsoft.Extensions.Logging
 @using Soenneker.DataTables.Dtos.ServerSideRequest
 @using Soenneker.Utils.Debounce
+@using Soenneker.Extensions.String
 
 @namespace Soenneker.Quark
 @inherits CancellableElement
@@ -451,7 +452,7 @@
             {
                 Start = actualStart,
                 Length = PageSize,
-                Search = !string.IsNullOrEmpty(_searchTerm) ? new DataTableSearchRequest {Value = _searchTerm} : null,
+                Search = _searchTerm.HasContent() ? new DataTableSearchRequest {Value = _searchTerm} : null,
                 Order = _currentOrders.Count > 0 ? _currentOrders : null,
                 Columns = _registeredColumns.Count > 0 ? BuildColumns() : null,
                 ContinuationToken = continuationToken
