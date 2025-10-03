@@ -261,7 +261,7 @@ public abstract class Component : CoreComponent, IComponent
         _shouldRender = key != _lastRenderKey;
         _lastRenderKey = key;
     }
-   
+
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -408,56 +408,57 @@ public abstract class Component : CoreComponent, IComponent
             {
                 foreach (var kv in Attributes)
                 {
-                    var keyLower = kv.Key?.ToLowerInvariant() ?? string.Empty;
+                    var k = kv.Key;
 
-                    switch (keyLower)
+                    if (k is null) 
+                        continue;
+
+                    if (k.EqualsIgnoreCase("class"))
                     {
-                        case "class":
-                            AppendClass(ref cls, kv.Value?.ToString() ?? string.Empty);
-                            break;
-
-                        case "style":
-                            AppendStyleDecl(ref sty, kv.Value?.ToString() ?? string.Empty);
-                            break;
-
-                        case "onclick":
-                            userOnClick = true;
-                            attrs["onclick"] = OnClick.HasDelegate ? OnClick : kv.Value!;
-                            break;
-
-                        case "ondblclick":
-                            userOnDblClick = true;
-                            attrs["ondblclick"] = OnDoubleClick.HasDelegate ? OnDoubleClick : kv.Value!;
-                            break;
-
-                        case "onmouseover":
-                            userOnMouseOver = true;
-                            attrs["onmouseover"] = OnMouseOver.HasDelegate ? OnMouseOver : kv.Value!;
-                            break;
-
-                        case "onmouseout":
-                            userOnMouseOut = true;
-                            attrs["onmouseout"] = OnMouseOut.HasDelegate ? OnMouseOut : kv.Value!;
-                            break;
-
-                        case "onkeydown":
-                            userOnKeyDown = true;
-                            attrs["onkeydown"] = OnKeyDown.HasDelegate ? OnKeyDown : kv.Value!;
-                            break;
-
-                        case "onfocus":
-                            userOnFocus = true;
-                            attrs["onfocus"] = OnFocus.HasDelegate ? OnFocus : kv.Value!;
-                            break;
-
-                        case "onblur":
-                            userOnBlur = true;
-                            attrs["onblur"] = OnBlur.HasDelegate ? OnBlur : kv.Value!;
-                            break;
-
-                        default:
-                            attrs[kv.Key!] = kv.Value!;
-                            break;
+                        AppendClass(ref cls, kv.Value?.ToString() ?? "");
+                    }
+                    else if (k.EqualsIgnoreCase("style"))
+                    {
+                        AppendStyleDecl(ref sty, kv.Value?.ToString() ?? "");
+                    }
+                    else if (k.EqualsIgnoreCase("onclick"))
+                    {
+                        userOnClick = true;
+                        attrs["onclick"] = OnClick.HasDelegate ? OnClick : kv.Value!;
+                    }
+                    else if (k.EqualsIgnoreCase("ondblclick"))
+                    {
+                        userOnDblClick = true;
+                        attrs["ondblclick"] = OnDoubleClick.HasDelegate ? OnDoubleClick : kv.Value!;
+                    }
+                    else if (k.EqualsIgnoreCase("onmouseover"))
+                    {
+                        userOnMouseOver = true;
+                        attrs["onmouseover"] = OnMouseOver.HasDelegate ? OnMouseOver : kv.Value!;
+                    }
+                    else if (k.EqualsIgnoreCase("onmouseout"))
+                    {
+                        userOnMouseOut = true;
+                        attrs["onmouseout"] = OnMouseOut.HasDelegate ? OnMouseOut : kv.Value!;
+                    }
+                    else if (k.EqualsIgnoreCase("onkeydown"))
+                    {
+                        userOnKeyDown = true;
+                        attrs["onkeydown"] = OnKeyDown.HasDelegate ? OnKeyDown : kv.Value!;
+                    }
+                    else if (k.EqualsIgnoreCase("onfocus"))
+                    {
+                        userOnFocus = true;
+                        attrs["onfocus"] = OnFocus.HasDelegate ? OnFocus : kv.Value!;
+                    }
+                    else if (k.EqualsIgnoreCase("onblur"))
+                    {
+                        userOnBlur = true;
+                        attrs["onblur"] = OnBlur.HasDelegate ? OnBlur : kv.Value!;
+                    }
+                    else
+                    {
+                        attrs[k] = kv.Value!;
                     }
                 }
             }
@@ -597,7 +598,7 @@ public abstract class Component : CoreComponent, IComponent
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected static void AppendStyleDecl(ref PooledStringBuilder b, string nameColonSpace, object value)
+    protected static void AppendStyleDecl(ref PooledStringBuilder b, string nameColonSpace, string value)
     {
         if (b.Length != 0)
         {
@@ -606,7 +607,7 @@ public abstract class Component : CoreComponent, IComponent
         }
 
         b.Append(nameColonSpace);
-        b.Append(value.ToString()!);
+        b.Append(value);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
