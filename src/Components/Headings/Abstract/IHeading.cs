@@ -10,4 +10,3 @@ public interface IHeading : IElement
     /// </summary>
     CssValue<ScaleBuilder>? Scale { get; set; }
 }
-
