@@ -49,10 +49,6 @@ public interface INumericEdit : IElement
     /// </summary>
     decimal? Step { get; set; }
 
-    /// <summary>
-    /// Gets or sets the color scheme of the input.
-    /// </summary>
-    CssValue<ColorBuilder>? Color { get; set; }
 
     /// <summary>
     /// Gets or sets the size of the input.

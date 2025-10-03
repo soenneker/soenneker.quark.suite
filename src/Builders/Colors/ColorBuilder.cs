@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 using Soenneker.Extensions.String;
 using Soenneker.Utils.PooledStringBuilders;
 
-
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -92,7 +91,7 @@ public sealed class ColorBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = InsertBreakpointType(cls, bp);
 

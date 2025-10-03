@@ -5,6 +5,6 @@ namespace Soenneker.Quark;
 ///<inheritdoc cref="ICancellableElement"/>
 public abstract class CancellableElement : CancellableComponent, ICancellableElement
 {
-    [Parameter] 
+    [Parameter]
     public RenderFragment? ChildContent { get; set; }
 }

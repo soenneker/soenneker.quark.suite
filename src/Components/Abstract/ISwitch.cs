@@ -24,10 +24,6 @@ public interface ISwitch : IElement
     /// </summary>
     string? Label { get; set; }
 
-    /// <summary>
-    /// Gets or sets the color scheme of the switch.
-    /// </summary>
-    CssValue<ColorBuilder>? Color { get; set; }
 
     /// <summary>
     /// Gets or sets the size of the switch.

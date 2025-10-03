@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
@@ -15,7 +16,7 @@ public sealed class OffcanvasCoordinator : IOffcanvasCoordinator
 
     public void Register(string id)
     {
-        if (string.IsNullOrWhiteSpace(id))
+        if (id.IsNullOrWhiteSpace())
             return;
         if (!_enteredById.ContainsKey(id))
             _enteredById[id] = false;

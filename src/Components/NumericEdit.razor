@@ -1,7 +1,6 @@
 @using System.Globalization
 @using System.Linq.Expressions
 @using Soenneker.Blazor.Extensions.EventCallback
-@using Soenneker.Extensions.String
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
@@ -36,9 +35,6 @@
 
     [Parameter]
     public decimal? Step { get; set; }
-
-	[Parameter]
-	public CssValue<ColorBuilder>? Color { get; set; }
 
     [Parameter]
     public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
@@ -110,27 +106,25 @@
 
     private string? GetColorClass()
     {
-        if (Color is not null && !Color.Value.IsEmpty)
+        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
         {
             string? token = null;
-            var isTheme = Color.Value.TryGetBootstrapThemeToken(out token);
+            var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
 
             if (isTheme && token is not null)
             {
                 // Bootstrap theme token (e.g., "primary", "secondary")
                 return $"form-control-{token}";
             }
-            else
+
+            var v = BackgroundColor.Value.ToString().Trim();
+
+            if (BackgroundColor.Value.IsCssClass)
             {
-                var v = Color.Value.ToString().Trim();
+                if (v.StartsWith("form-control-", StringComparison.Ordinal))
+                    return v;
 
-                if (Color.Value.IsCssClass)
-                {
-                    if (v.StartsWith("form-control-", StringComparison.Ordinal))
-                        return v;
-
-                    return $"form-control-{v}";
-                }
+                return $"form-control-{v}";
             }
         }
 
@@ -181,11 +175,12 @@
 
         AppendToClassAttr(attributes, baseClasses);
 
-        // Handle custom CSS colors
-        if (Color is not null && !Color.Value.IsEmpty && !Color.Value.IsCssClass)
+        // Handle custom CSS colors using BackgroundColor
+        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty && !BackgroundColor.Value.IsCssClass)
         {
-            var v = Color.Value.ToString().Trim();
-            attributes["style"] = $"background-color:{v};border-color:{v};";
+            var v = BackgroundColor.Value.ToString().Trim();
+            // BackgroundColor already handles background-color, just add border-color
+            attributes["style"] = $"border-color:{v};";
         }
 
         if (Value.HasValue)
@@ -218,5 +213,6 @@
 
         return attributes;
     }
+
 
 }

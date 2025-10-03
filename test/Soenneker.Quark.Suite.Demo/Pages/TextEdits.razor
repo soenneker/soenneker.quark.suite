@@ -1,5 +1,6 @@
 @page "/textedits"
 @using Microsoft.Extensions.Logging
+@using Soenneker.Extensions.String
 
 @inject ILogger<Index> Logger
 
@@ -120,7 +121,7 @@
     
     private void ValidateRequired(ValidatorEventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(e.Value?.ToString()))
+        if (e.Value.ToString().IsNullOrWhiteSpace() == true)
         {
             e.Status = ValidationStatus.Error;
             e.ErrorText = "This field is required.";
@@ -133,8 +134,9 @@
     
     private void ValidateEmail(ValidatorEventArgs e)
     {
-        var email = e.Value?.ToString();
-        if (string.IsNullOrWhiteSpace(email))
+        var email = e.Value.ToString();
+
+        if (email.IsNullOrWhiteSpace())
         {
             e.Status = ValidationStatus.Error;
             e.ErrorText = "Email is required.";
@@ -153,7 +155,7 @@
     private void ValidateCompany(ValidatorEventArgs e)
     {
         var company = e.Value?.ToString();
-        if (string.IsNullOrWhiteSpace(company))
+        if (company.IsNullOrWhiteSpace())
         {
             e.Status = ValidationStatus.Error;
             e.ErrorText = "Company name is required.";

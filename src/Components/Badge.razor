@@ -1,4 +1,4 @@
-@using Soenneker.Extensions.String
+@using Soenneker.Utils.PooledStringBuilders
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IBadge
@@ -13,8 +13,6 @@
     [Parameter]
     public BadgeType Type { get; set; } = BadgeType.Badge;
 
-    [Parameter]
-    public CssValue<ColorBuilder>? Color { get; set; }
 
     [Parameter]
     public bool Rounded { get; set; }
@@ -31,31 +29,6 @@
         return null;
     }
 
-    private string? GetColorClass()
-    {
-        if (Color is not null && !Color.Value.IsEmpty)
-        {
-            string? token = null;
-            var isTheme = Color.Value.TryGetBootstrapThemeToken(out token);
-
-            if (isTheme && token is not null)
-            {
-                // Bootstrap theme token (e.g., "primary", "secondary")
-                return $"bg-{token}";
-            }
-            else
-            {
-                var colorValue = Color.Value.ToString();
-
-                if (colorValue.HasContent())
-                {
-                    return Color.Value.IsCssClass ? $"bg-{colorValue}" : null;
-                }
-            }
-        }
-
-        return null;
-    }
 
 
     protected override Dictionary<string, object> BuildAttributes()
@@ -65,17 +38,37 @@
         AppendToClassAttr(attributes, "badge");
         
         var typeClass = GetTypeClass();
+
         if (typeClass != null)
             AppendToClassAttr(attributes, typeClass);
-
-        var colorClass = GetColorClass();
-        if (colorClass != null)
-            AppendToClassAttr(attributes, colorClass);
 
         if (Rounded)
             AppendToClassAttr(attributes, "rounded");
 
         return attributes;
+    }
+
+    protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
+        {
+            var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out var token);
+
+            if (isTheme && token is not null)
+            {
+                // Bootstrap theme token (e.g., "primary", "secondary")
+                AppendClass(ref cls, $"bg-{token}");
+            }
+            else
+            {
+                var colorValue = BackgroundColor.Value.ToString();
+
+                if (colorValue.HasContent() && BackgroundColor.Value.IsCssClass)
+                {
+                    AppendClass(ref cls, $"bg-{colorValue}");
+                }
+            }
+        }
     }
 
 }

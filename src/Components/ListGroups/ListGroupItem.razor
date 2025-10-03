@@ -1,5 +1,3 @@
-@using Soenneker.Extensions.String
-
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IListGroupItem
@@ -20,8 +18,6 @@
     [Parameter]
     public bool Active { get; set; }
 
-    [Parameter]
-    public CssValue<ColorBuilder>? Color { get; set; }
 
     [CascadingParameter]
     protected ListGroup? ParentListGroup { get; set; }
@@ -41,11 +37,11 @@
         if (Disabled)
             AppendToClassAttr(attributes, "disabled");
 
-        if (Color is not null && !Color.Value.IsEmpty)
+        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
         {
-            var v = Color.Value.ToString().Trim();
+            var v = BackgroundColor.Value.ToString().Trim();
 
-            if (Color.Value.IsCssClass)
+            if (BackgroundColor.Value.IsCssClass)
             {
                 if (v.StartsWith("list-group-item-", StringComparison.Ordinal))
                     AppendToClassAttr(attributes, v);
@@ -70,4 +66,5 @@
 
         await base.HandleClick(args);
     }
+
 }

@@ -1,6 +1,5 @@
 @using System.Linq.Expressions
 @using Soenneker.Blazor.Extensions.EventCallback
-@using Soenneker.Extensions.String
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
@@ -27,8 +26,6 @@
     [Parameter]
     public string? Label { get; set; }
 
-    [Parameter]
-    public CssValue<ColorBuilder>? Color { get; set; }
 
     [Parameter]
     public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
@@ -62,27 +59,24 @@
 
     private string? GetColorClass()
     {
-        if (Color is not null && !Color.Value.IsEmpty)
+        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
         {
             string? token = null;
-            var isTheme = Color.Value.TryGetBootstrapThemeToken(out token);
+            var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
 
             if (isTheme && token is not null)
             {
                 // Bootstrap theme token (e.g., "primary", "secondary")
                 return $"form-check-input-{token}";
             }
-            else
-            {
-                var v = Color.Value.ToString().Trim();
 
-                if (Color.Value.IsCssClass)
-                {
-                    if (v.StartsWith("form-check-input-", StringComparison.Ordinal))
-                        return v;
-                    else
-                        return $"form-check-input-{v}";
-                }
+            var v = BackgroundColor.Value.ToString().Trim();
+
+            if (BackgroundColor.Value.IsCssClass)
+            {
+                if (v.StartsWith("form-check-input-", StringComparison.Ordinal))
+                    return v;
+                return $"form-check-input-{v}";
             }
         }
 
@@ -126,11 +120,11 @@
         if (validationClass != null)
             AppendToClassAttr(attributes, validationClass);
 
-        // Handle custom CSS colors
-        if (Color is not null && !Color.Value.IsEmpty && !Color.Value.IsCssClass)
+        // Handle custom CSS colors using BackgroundColor
+        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty && !BackgroundColor.Value.IsCssClass)
         {
-            var v = Color.Value.ToString().Trim();
-            AppendStyleDeclAttr(attributes, $"background-color:{v}");
+            var v = BackgroundColor.Value.ToString().Trim();
+            // BackgroundColor already handles background-color, just add border-color
             AppendStyleDeclAttr(attributes, $"border-color:{v}");
         }
 
@@ -168,5 +162,6 @@
         if (ParentValidation is not null)
             await ParentValidation.NotifyInputChanged(Checked);
     }
+
 
 }

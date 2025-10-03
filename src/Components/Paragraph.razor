@@ -1,4 +1,3 @@
-@using Soenneker.Extensions.String
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IParagraph
@@ -13,22 +12,27 @@
     [Parameter]
     public CssValue<TextStyleBuilder>? TextStyle { get; set; }
 
+    [CascadingParameter]
+    public CssValue<TextStyleBuilder>? CascadedTextStyle { get; set; }
+
     protected override Dictionary<string, object> BuildAttributes()
     {
         Attributes = base.BuildAttributes();
         
         // Add text CSS values
         AddTextStyleCss();
-        AddTextColorCss();
 
         return Attributes;
     }
 
     private void AddTextStyleCss()
     {
-        if (TextStyle is { IsEmpty: false })
+        // Use parameter TextStyle if set, otherwise use cascaded value
+        var textStyleToUse = TextStyle ?? CascadedTextStyle;
+        
+        if (textStyleToUse is { IsEmpty: false })
         {
-            var textClass = TextStyle.Value.ToString();
+            var textClass = textStyleToUse.Value.ToString();
 
             if (textClass.HasContent())
             {
@@ -37,16 +41,4 @@
         }
     }
 
-    private void AddTextColorCss()
-    {
-        if (TextColor is { IsEmpty: false })
-        {
-            var textColorClass = TextColor.Value.ToString();
-
-            if (textColorClass.HasContent())
-            {
-                AppendToClassAttr(Attributes, textColorClass);
-            }
-        }
-    }
 }

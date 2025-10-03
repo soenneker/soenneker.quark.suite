@@ -1,5 +1,5 @@
 @using Soenneker.Blazor.Extensions.EventCallback
-@using Soenneker.Extensions.String
+@using Soenneker.Utils.PooledStringBuilders
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
@@ -22,8 +22,6 @@
     private bool _hasMessage;
     private bool _hasDescription;
 
-    [Parameter]
-    public CssValue<ColorBuilder>? Color { get; set; }
 
     [Parameter]
     public CssValue<AlertStyleBuilder>? AlertStyle { get; set; }
@@ -74,29 +72,6 @@
             }
         }
 
-        // Handle color styling
-        if (Color is not null && !Color.Value.IsEmpty)
-        {
-            var v = Color.Value.ToString().Trim();
-
-            if (Color.Value.IsCssClass)
-            {
-                if (v.StartsWith("alert-", StringComparison.Ordinal))
-                    AppendToClassAttr(attributes, v);
-                else
-                    AppendToClassAttr(attributes, $"alert-{v}");
-            }
-            else
-            {
-                // Build style efficiently
-                var styleParts = new List<string> { $"background-color:{v}", $"border-color:{v}", "color:white" };
-                
-                if (attributes.TryGetValue("style", out var existing) && existing?.ToString().HasContent() == true)
-                    styleParts.Insert(0, existing.ToString()!);
-                    
-                attributes["style"] = string.Join(";", styleParts) + ";";
-            }
-        }
 
         if (!Visible)
         {
@@ -153,6 +128,28 @@
 
         await OnDismiss.InvokeIfHasDelegate();
         await VisibleChanged.InvokeAsync(Visible);
+    }
+
+    protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
+        {
+            var v = BackgroundColor.Value.ToString().Trim();
+
+            if (BackgroundColor.Value.IsCssClass)
+            {
+                if (v.StartsWith("alert-", StringComparison.Ordinal))
+                    AppendClass(ref cls, v);
+                else
+                    AppendClass(ref cls, $"alert-{v}");
+            }
+            else
+            {
+                // Build style efficiently - BackgroundColor already handles background-color
+                AppendStyleDecl(ref sty, $"border-color:{v}");
+                AppendStyleDecl(ref sty, "color:white");
+            }
+        }
     }
 
 }

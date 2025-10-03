@@ -1,5 +1,3 @@
-@using Soenneker.Extensions.String
-
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IProgressBar
@@ -18,8 +16,6 @@
     [Parameter]
     public int Value { get; set; }
 
-    [Parameter]
-    public CssValue<ColorBuilder>? Color { get; set; }
 
     [Parameter]
     public bool Striped { get; set; }
@@ -42,12 +38,12 @@
         if (Animated)
             AppendToClassAttr(attributes, "progress-bar-animated");
 
-        // Handle color styling
-        if (Color is not null && !Color.Value.IsEmpty)
+        // Handle color styling using BackgroundColor
+        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
         {
-            var v = Color.Value.ToString().Trim();
+            var v = BackgroundColor.Value.ToString().Trim();
 
-            if (Color.Value.IsCssClass)
+            if (BackgroundColor.Value.IsCssClass)
             {
                 if (v.StartsWith("bg-", StringComparison.Ordinal))
                     AppendToClassAttr(attributes, v);
@@ -56,8 +52,8 @@
             }
             else
             {
-                // Build style efficiently
-                var styleParts = new List<string> { $"background-color:{v}", $"width: {Value}%" };
+                // Build style efficiently - BackgroundColor already handles background-color
+                var styleParts = new List<string> { $"width: {Value}%" };
                 
                 if (attributes.TryGetValue("style", out var existing) && existing?.ToString().HasContent() == true)
                     styleParts.Insert(0, existing.ToString()!);
@@ -72,5 +68,6 @@
 
         return attributes;
     }
+
 
 }

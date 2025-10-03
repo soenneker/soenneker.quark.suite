@@ -150,13 +150,10 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<TextBreakBuilder>? TextBreak { get; set; }
 
     [Parameter]
-    public CssValue<ColorBuilder>? TextColor { get; set; }
+    public CssValue<TextColorBuilder>? TextColor { get; set; }
 
     [Parameter]
     public CssValue<ColorBuilder>? BackgroundColor { get; set; }
-
-    [Parameter]
-    public CssValue<ColorBuilder>? TextBackgroundColor { get; set; }
 
     [Parameter]
     public CssValue<AnimationBuilder>? Animation { get; set; }
@@ -351,9 +348,8 @@ public abstract class Component : CoreComponent, IComponent
             if (AriaDescribedBy.HasContent()) attrs["aria-describedby"] = AriaDescribedBy!;
 
             AddCss(ref sty, ref cls, Display);
-            AddColorCss(ref sty, ref cls, TextColor, "text", "color");
-            AddColorCss(ref sty, ref cls, BackgroundColor, "bg", "background-color");
-            AddColorCss(ref sty, ref cls, TextBackgroundColor, "text-bg", "background-color");
+            ApplyTextColor(ref sty, ref cls);
+            ApplyBackgroundColor(ref sty, ref cls);
             AddCss(ref sty, ref cls, Flex);
             AddCss(ref sty, ref cls, Gap);
             AddCss(ref sty, ref cls, Border);
@@ -567,7 +563,6 @@ public abstract class Component : CoreComponent, IComponent
         AddIf(ref hc, Truncate);
         AddIf(ref hc, TextColor);
         AddIf(ref hc, BackgroundColor);
-        AddIf(ref hc, TextBackgroundColor);
 
         if (Attributes is not null)
         {
@@ -594,7 +589,7 @@ public abstract class Component : CoreComponent, IComponent
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void AppendClass(ref PooledStringBuilder b, string s)
+    protected static void AppendClass(ref PooledStringBuilder b, string s)
     {
         if (s.IsNullOrEmpty()) return;
         if (b.Length != 0) b.Append(' ');
@@ -602,7 +597,7 @@ public abstract class Component : CoreComponent, IComponent
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void AppendStyleDecl(ref PooledStringBuilder b, string nameColonSpace, object value)
+    protected static void AppendStyleDecl(ref PooledStringBuilder b, string nameColonSpace, object value)
     {
         if (b.Length != 0)
         {
@@ -615,7 +610,7 @@ public abstract class Component : CoreComponent, IComponent
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void AppendStyleDecl(ref PooledStringBuilder b, string fullDecl)
+    protected static void AppendStyleDecl(ref PooledStringBuilder b, string fullDecl)
     {
         if (fullDecl.IsNullOrEmpty()) return;
         if (b.Length != 0)
@@ -787,9 +782,6 @@ public abstract class Component : CoreComponent, IComponent
         ApplyThemeProperty(componentOptions.LineHeight, () => LineHeight, v => LineHeight = v);
         ApplyThemeProperty(componentOptions.TextWrap, () => TextWrap, v => TextWrap = v);
         ApplyThemeProperty(componentOptions.TextBreak, () => TextBreak, v => TextBreak = v);
-        ApplyThemeProperty(componentOptions.TextColor, () => TextColor, v => TextColor = v);
-        ApplyThemeProperty(componentOptions.BackgroundColor, () => BackgroundColor, v => BackgroundColor = v);
-        ApplyThemeProperty(componentOptions.TextBackgroundColor, () => TextBackgroundColor, v => TextBackgroundColor = v);
         ApplyThemeProperty(componentOptions.Animation, () => Animation, v => Animation = v);
         ApplyThemeProperty(componentOptions.AspectRatio, () => AspectRatio, v => AspectRatio = v);
         ApplyThemeProperty(componentOptions.BackdropFilter, () => BackdropFilter, v => BackdropFilter = v);
@@ -832,5 +824,25 @@ public abstract class Component : CoreComponent, IComponent
         }
 
         return ThemeProvider.ComponentOptions.TryGetValue(ThemeKey, out var getter) ? getter(theme) : null;
+    }
+
+    /// <summary>
+    /// Applies text color styling. Override this method in derived components to customize text color application.
+    /// </summary>
+    /// <param name="sty">String builder for inline styles</param>
+    /// <param name="cls">String builder for CSS classes</param>
+    protected virtual void ApplyTextColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        AddCss(ref sty, ref cls, TextColor);
+    }
+
+    /// <summary>
+    /// Applies background color styling. Override this method in derived components to customize background color application.
+    /// </summary>
+    /// <param name="sty">String builder for inline styles</param>
+    /// <param name="cls">String builder for CSS classes</param>
+    protected virtual void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        AddColorCss(ref sty, ref cls, BackgroundColor, "bg", "background-color");
     }
 }

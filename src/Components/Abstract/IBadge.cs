@@ -12,10 +12,6 @@ public interface IBadge : IElement
     /// </summary>
     BadgeType Type { get; set; }
 
-    /// <summary>
-    /// Gets or sets the background color of the badge.
-    /// </summary>
-    CssValue<ColorBuilder>? Color { get; set; }
 
     /// <summary>
     /// Gets or sets whether the badge should have rounded corners.

@@ -1,9 +1,11 @@
+using Soenneker.Extensions.String;
+
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Validator for required fields.
 /// </summary>
-public class RequiredValidator : BaseQuarkValidator
+public sealed class RequiredValidator : BaseQuarkValidator
 {
     /// <summary>
     /// Initializes a new instance of the RequiredValidator class.
@@ -29,7 +31,7 @@ public class RequiredValidator : BaseQuarkValidator
             return false;
 
         if (value is string str)
-            return !string.IsNullOrWhiteSpace(str);
+            return !str.IsNullOrWhiteSpace();
 
         return true;
     }

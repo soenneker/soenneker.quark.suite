@@ -1,5 +1,5 @@
 @using System.Runtime.CompilerServices
-@using Soenneker.Extensions.String
+@using Soenneker.Utils.PooledStringBuilders
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
@@ -65,9 +65,6 @@ else
 	public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
 
 	[Parameter]
-	public CssValue<ColorBuilder>? Color { get; set; }
-
-	[Parameter]
 	public bool Outline { get; set; }
 
 	[Parameter]
@@ -113,40 +110,6 @@ else
 			AppendToClassAttr(attributes, "btn");
 		}
 
-		string? colorToken = null;
-		var isColorTheme = Color?.TryGetBootstrapThemeToken(out colorToken) == true;
-
-        if (Color is not null && !Color.Value.IsEmpty && !Close)
-        {
-            var v = Color.Value.ToString().Trim();
-
-            if (isColorTheme && colorToken is not null)
-            {
-                // Bootstrap theme token (e.g., "primary", "secondary")
-				var prefix = Outline ? "btn-outline-" : "btn-";
-				AppendToClassAttr(attributes, $"{prefix}{colorToken}");
-            }
-            else if (Color.Value.IsCssClass)
-            {
-                if (v.StartsWith("btn-", StringComparison.Ordinal))
-					AppendToClassAttr(attributes, v);
-                else
-				{
-					var prefix = Outline ? "btn-outline-" : "btn-";
-					AppendToClassAttr(attributes, $"{prefix}{v}");
-				}
-            }
-            else
-            {
-                // Build style efficiently
-                var styleParts = new List<string> { $"background-color:{v}", $"border-color:{v}" };
-                
-				if (attributes.TryGetValue("style", out var existing) && existing?.ToString().HasContent() == true)
-                    styleParts.Insert(0, existing.ToString()!);
-                    
-				attributes["style"] = string.Join(";", styleParts) + ";";
-            }
-        }
 
 		// Add size class if not default
 		var sizeClass = GetSizeClass();
@@ -213,6 +176,38 @@ else
 			Navigation.NavigateTo(To!);
 
 		await base.HandleClick(args);
+	}
+
+	protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+	{
+		if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty && !Close)
+		{
+			var v = BackgroundColor.Value.ToString().Trim();
+			string? colorToken = null;
+			var isColorTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out colorToken);
+
+			if (isColorTheme && colorToken is not null)
+			{
+				// Bootstrap theme token (e.g., "primary", "secondary")
+				var prefix = Outline ? "btn-outline-" : "btn-";
+				AppendClass(ref cls, $"{prefix}{colorToken}");
+			}
+			else if (BackgroundColor.Value.IsCssClass)
+			{
+				if (v.StartsWith("btn-", StringComparison.Ordinal))
+					AppendClass(ref cls, v);
+				else
+				{
+					var prefix = Outline ? "btn-outline-" : "btn-";
+					AppendClass(ref cls, $"{prefix}{v}");
+				}
+			}
+			else
+			{
+				// Build style efficiently - BackgroundColor already handles background-color
+				AppendStyleDecl(ref sty, $"border-color:{v}");
+			}
+		}
 	}
 
 }

@@ -10,10 +10,6 @@ public interface IProgressBar : IElement
     /// </summary>
     int Value { get; set; }
 
-    /// <summary>
-    /// Gets or sets the color scheme of the progress bar.
-    /// </summary>
-    CssValue<ColorBuilder>? Color { get; set; }
 
     /// <summary>
     /// Gets or sets whether the progress bar should have striped styling.

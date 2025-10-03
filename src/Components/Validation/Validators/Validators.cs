@@ -1,5 +1,6 @@
 using System;
 using System.Text.RegularExpressions;
+using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
@@ -14,14 +15,14 @@ public static class Validators
     /// </summary>
     public static readonly SimpleValidator IsNotEmpty = new(
         "This field is required", 
-        value => value is string s && !string.IsNullOrWhiteSpace(s));
+        value => value is string s && !s.IsNullOrWhiteSpace());
 
     /// <summary>
     /// Validates that the value is empty.
     /// </summary>
     public static readonly SimpleValidator IsEmpty = new(
         "This field must be empty",
-        value => value is string s && string.IsNullOrWhiteSpace(s));
+        value => value is string s && s.IsNullOrWhiteSpace());
 
     /// <summary>
     /// Validates that the value is a valid email address.
@@ -117,7 +118,7 @@ public static class Validators
     /// </summary>
     private static bool IsValidEmail(string email)
     {
-        if (string.IsNullOrWhiteSpace(email))
+        if (email.IsNullOrWhiteSpace())
             return false;
 
         try

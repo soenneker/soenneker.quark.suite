@@ -57,10 +57,6 @@ public interface IMemoEdit : IElement
     /// </summary>
     bool AutoResize { get; set; }
 
-    /// <summary>
-    /// Gets or sets the color scheme of the textarea.
-    /// </summary>
-    CssValue<ColorBuilder>? Color { get; set; }
 
     /// <summary>
     /// Gets or sets the size of the textarea.

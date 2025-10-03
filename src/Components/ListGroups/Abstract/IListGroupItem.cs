@@ -20,9 +20,5 @@ public interface IListGroupItem : IElement
     /// </summary>
     bool Active { get; set; }
 
-    /// <summary>
-    /// Gets or sets the color scheme of the item.
-    /// </summary>
-    CssValue<ColorBuilder>? Color { get; set; }
 }
 

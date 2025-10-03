@@ -44,10 +44,6 @@ public interface ITextEdit : IElement
     /// </summary>
     int MaxLength { get; set; }
 
-    /// <summary>
-    /// Gets or sets the color scheme of the input.
-    /// </summary>
-    CssValue<ColorBuilder>? Color { get; set; }
 
     /// <summary>
     /// Gets or sets the size of the input.

@@ -58,10 +58,6 @@ public interface IButton : IElement
     /// </summary>
     CssValue<SizeBuilder>? Size { get; set; }
 
-    /// <summary>
-    /// Gets or sets the color scheme of the button.
-    /// </summary>
-    CssValue<ColorBuilder>? Color { get; set; }
 
     /// <summary>
     /// Gets or sets whether the button should use outline styling.

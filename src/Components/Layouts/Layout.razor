@@ -5,7 +5,8 @@
 <CascadingValue Value="@this" IsFixed="true" >
     <CascadingValue Value="@_sidebarVisible" IsFixed="true">
         <CascadingValue Value="@OnSidebarVisibleChanged" IsFixed="true">
-            <Section @attributes="BuildAttributes()" >
+            <CascadingValue Value="@TextStyle" IsFixed="true">
+                <Section @attributes="BuildAttributes()" >
                 @if (Loading)
                 {
                     @if (LoadingTemplate is not null)
@@ -18,7 +19,8 @@
                     }
                 }
                 @ChildContent
-            </Section>
+                </Section>
+            </CascadingValue>
         </CascadingValue>
     </CascadingValue>
 </CascadingValue>
@@ -37,6 +39,9 @@
 
     [Parameter]
     public RenderFragment? LoadingTemplate { get; set; }
+
+    [Parameter]
+    public CssValue<TextStyleBuilder>? TextStyle { get; set; }
 
     private bool _sidebarVisible = true;
 
@@ -76,7 +81,7 @@
 
     private string GetLoadingClass()
     {
-        return string.IsNullOrWhiteSpace(LoadingClass) ? "position-fixed top-0 start-0 w-100 h-100 bg-body bg-opacity-75" : LoadingClass!;
+        return LoadingClass.IsNullOrWhiteSpace() ? "position-fixed top-0 start-0 w-100 h-100 bg-body bg-opacity-75" : LoadingClass!;
     }
 
     private void OnSidebarVisibleChanged(bool visible)

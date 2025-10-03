@@ -8,10 +8,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IAlert : IElement
 {
-    /// <summary>
-    /// Gets or sets the color scheme of the alert.
-    /// </summary>
-    CssValue<ColorBuilder>? Color { get; set; }
 
     /// <summary>
     /// Gets or sets the alert styling configuration.
