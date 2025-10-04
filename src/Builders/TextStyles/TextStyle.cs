@@ -2,15 +2,10 @@ namespace Soenneker.Quark;
 
 /// <summary>
 /// TextStyle utility with fluent API and Bootstrap-first approach.
+/// Note: Text alignment is handled by the separate TextAlignment property.
 /// </summary>
 public static class TextStyle
 {
-    // Alignment
-    public static TextStyleBuilder Start => new("start");
-    public static TextStyleBuilder Center => new("center");
-    public static TextStyleBuilder End => new("end");
-    public static TextStyleBuilder Justify => new("justify");
-
     // Wrapping
     public static TextStyleBuilder Wrap => new("wrap");
     public static TextStyleBuilder Nowrap => new("nowrap");

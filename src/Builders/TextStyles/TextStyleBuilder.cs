@@ -26,12 +26,6 @@ public sealed class TextStyleBuilder : ICssBuilder
     public bool IsCssClass => true;
     public bool IsCssStyle => false;
 
-    // Alignment
-    public TextStyleBuilder Start => ChainValue("start");
-    public TextStyleBuilder Center => ChainValue("center");
-    public TextStyleBuilder End => ChainValue("end");
-    public TextStyleBuilder Justify => ChainValue("justify");
-
     // Wrapping
     public TextStyleBuilder Wrap => ChainValue("wrap");
     public TextStyleBuilder Nowrap => ChainValue("nowrap");
@@ -110,10 +104,6 @@ public sealed class TextStyleBuilder : ICssBuilder
     {
         return styleRule.Value switch
         {
-            "start" => "text-start",
-            "center" => "text-center",
-            "end" => "text-end",
-            "justify" => "text-justify",
             "wrap" => "text-wrap",
             "nowrap" => "text-nowrap",
             "truncate" => "text-truncate",

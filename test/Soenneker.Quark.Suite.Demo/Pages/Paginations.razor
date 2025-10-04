@@ -1,183 +1,433 @@
 @page "/paginations"
 
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="text-center mb-5">
-                <h1 class="display-4 fw-bold text-primary">Paginations</h1>
-                <p class="lead text-muted">This page demonstrates the Quark.Pagination component with various configurations and use cases.</p>
-            </div>
-        </div>
-    </div>
+<Container Class="py-4">
+    <Row>
+        <Column>
+            <Div Class="text-center" Margin="Margin.Is5.FromEnd">
+                <H1 Class="display-4 fw-bold text-primary">Paginations</H1>
+                <Paragraph Class="lead text-muted">This page demonstrates the Quark.Pagination component with various configurations and use cases.</Paragraph>
+            </Div>
+        </Column>
+    </Row>
     
-    <div class="row g-4">
-        <div class="col-12">
-            <div>
-                <h2>Basic Pagination</h2>
-                <div class="mb-3">
-                    <Pagination TotalPages="10" CurrentPage="1" OnPageChanged="HandlePageChanged" />
-                </div>
-                <p class="text-muted">Basic pagination with 10 total pages, currently on page 1.</p>
-            </div>
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Div>
+                <H2>Basic Pagination</H2>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <Pagination>
+                        <PaginationItem Disabled="@(currentPage == 1)">
+                            <PaginationLink OnClick="@(() => GoToPage(1))">Previous</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem Active="@(currentPage == 1)">
+                            <PaginationLink OnClick="@(() => GoToPage(1))">1</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem Active="@(currentPage == 2)">
+                            <PaginationLink OnClick="@(() => GoToPage(2))">2</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem Active="@(currentPage == 3)">
+                            <PaginationLink OnClick="@(() => GoToPage(3))">3</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem Disabled="@(currentPage == 3)">
+                            <PaginationLink OnClick="@(() => GoToPage(currentPage + 1))">Next</PaginationLink>
+                        </PaginationItem>
+                    </Pagination>
+                </Div>
+                <Paragraph Class="text-muted">Basic pagination with 3 pages, currently on page @currentPage.</Paragraph>
+            </Div>
 
-            <hr />
+            <Hr />
 
-            <div>
-                <h2>Pagination with Different Current Pages</h2>
-                <div class="mb-3">
-                    <h5>Page 1 of 10</h5>
-                    <Pagination TotalPages="10" CurrentPage="1" OnPageChanged="HandlePageChanged" />
-                </div>
-                <div class="mb-3">
-                    <h5>Page 5 of 10</h5>
-                    <Pagination TotalPages="10" CurrentPage="5" OnPageChanged="HandlePageChanged" />
-                </div>
-                <div class="mb-3">
-                    <h5>Page 10 of 10</h5>
-                    <Pagination TotalPages="10" CurrentPage="10" OnPageChanged="HandlePageChanged" />
-                </div>
-            </div>
+            <Div>
+                <H2>Pagination with Different Current Pages</H2>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <H5>Page 1 of 5</H5>
+                    <Pagination>
+                        <PaginationItem Disabled="true">
+                            <PaginationLink>Previous</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem Active="true">
+                            <PaginationLink>1</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>2</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>3</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>4</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>5</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>Next</PaginationLink>
+                        </PaginationItem>
+                    </Pagination>
+                </Div>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <H5>Page 3 of 5</H5>
+                    <Pagination>
+                        <PaginationItem>
+                            <PaginationLink>Previous</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>1</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>2</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem Active="true">
+                            <PaginationLink>3</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>4</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>5</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>Next</PaginationLink>
+                        </PaginationItem>
+                    </Pagination>
+                </Div>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <H5>Page 5 of 5</H5>
+                    <Pagination>
+                        <PaginationItem>
+                            <PaginationLink>Previous</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>1</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>2</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>3</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>4</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem Active="true">
+                            <PaginationLink>5</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem Disabled="true">
+                            <PaginationLink>Next</PaginationLink>
+                        </PaginationItem>
+                    </Pagination>
+                </Div>
+            </Div>
 
-            <hr />
+            <Hr />
 
-            <div>
-                <h2>Pagination Sizes</h2>
-                <div class="mb-3">
-                    <h5>Small Size</h5>
-                    <Pagination TotalPages="15" CurrentPage="3" Size="Size.Small" OnPageChanged="HandlePageChanged" />
-                </div>
-                <div class="mb-3">
-                    <h5>Default Size</h5>
-                    <Pagination TotalPages="15" CurrentPage="3" Size="Size.Default" OnPageChanged="HandlePageChanged" />
-                </div>
-                <div class="mb-3">
-                    <h5>Large Size</h5>
-                    <Pagination TotalPages="15" CurrentPage="3" Size="Size.Large" OnPageChanged="HandlePageChanged" />
-                </div>
-            </div>
+            <Div>
+                <H2>Pagination Sizes</H2>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <H5>Small Size</H5>
+                    <Pagination Size="Size.Small">
+                        <PaginationItem>
+                            <PaginationLink>Previous</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem Active="true">
+                            <PaginationLink>1</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>2</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>3</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>Next</PaginationLink>
+                        </PaginationItem>
+                    </Pagination>
+                </Div>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <H5>Default Size</H5>
+                    <Pagination Size="Size.Default">
+                        <PaginationItem>
+                            <PaginationLink>Previous</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem Active="true">
+                            <PaginationLink>1</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>2</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>3</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>Next</PaginationLink>
+                        </PaginationItem>
+                    </Pagination>
+                </Div>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <H5>Large Size</H5>
+                    <Pagination Size="Size.Large">
+                        <PaginationItem>
+                            <PaginationLink>Previous</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem Active="true">
+                            <PaginationLink>1</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>2</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>3</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>Next</PaginationLink>
+                        </PaginationItem>
+                    </Pagination>
+                </Div>
+            </Div>
 
-            <hr />
+            <Hr />
 
-            <div>
-                <h2>Pagination Colors</h2>
-                <div class="mb-3">
-                    <h5>Primary Color</h5>
-                    <Pagination TotalPages="8" CurrentPage="4" Color="Color.Primary" OnPageChanged="HandlePageChanged" />
-                </div>
-                <div class="mb-3">
-                    <h5>Success Color</h5>
-                    <Pagination TotalPages="8" CurrentPage="4" Color="Color.Success" OnPageChanged="HandlePageChanged" />
-                </div>
-                <div class="mb-3">
-                    <h5>Danger Color</h5>
-                    <Pagination TotalPages="8" CurrentPage="4" Color="Color.Danger" OnPageChanged="HandlePageChanged" />
-                </div>
-                <div class="mb-3">
-                    <h5>Warning Color</h5>
-                    <Pagination TotalPages="8" CurrentPage="4" Color="Color.Warning" OnPageChanged="HandlePageChanged" />
-                </div>
-            </div>
+            <Div>
+                <H2>Pagination Colors</H2>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <H5>Primary Color</H5>
+                    <Pagination BackgroundColor="Color.Primary">
+                        <PaginationItem>
+                            <PaginationLink>Previous</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem Active="true">
+                            <PaginationLink>1</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>2</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>3</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>Next</PaginationLink>
+                        </PaginationItem>
+                    </Pagination>
+                </Div>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <H5>Success Color</H5>
+                    <Pagination BackgroundColor="Color.Success">
+                        <PaginationItem>
+                            <PaginationLink>Previous</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem Active="true">
+                            <PaginationLink>1</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>2</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>3</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>Next</PaginationLink>
+                        </PaginationItem>
+                    </Pagination>
+                </Div>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <H5>Danger Color</H5>
+                    <Pagination BackgroundColor="Color.Danger">
+                        <PaginationItem>
+                            <PaginationLink>Previous</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem Active="true">
+                            <PaginationLink>1</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>2</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>3</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>Next</PaginationLink>
+                        </PaginationItem>
+                    </Pagination>
+                </Div>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <H5>Warning Color</H5>
+                    <Pagination BackgroundColor="Color.Warning">
+                        <PaginationItem>
+                            <PaginationLink>Previous</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem Active="true">
+                            <PaginationLink>1</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>2</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>3</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>Next</PaginationLink>
+                        </PaginationItem>
+                    </Pagination>
+                </Div>
+            </Div>
 
-            <hr />
+            <Hr />
 
-            <div>
-                <h2>Pagination with ShowFirstLast</h2>
-                <div class="mb-3">
-                    <h5>With First/Last Buttons</h5>
-                    <Pagination TotalPages="20" CurrentPage="10" ShowFirstLast="true" OnPageChanged="HandlePageChanged" />
-                </div>
-                <div class="mb-3">
-                    <h5>Without First/Last Buttons</h5>
-                    <Pagination TotalPages="20" CurrentPage="10" ShowFirstLast="false" OnPageChanged="HandlePageChanged" />
-                </div>
-            </div>
+            <Div>
+                <H2>Interactive Pagination</H2>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <Pagination>
+                        <PaginationItem Disabled="@(currentPage == 1)">
+                            <PaginationLink OnClick="@(() => GoToPage(currentPage - 1))">Previous</PaginationLink>
+                        </PaginationItem>
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <PaginationItem Active="@(currentPage == i)">
+                                <PaginationLink OnClick="@(() => GoToPage(i))">@i</PaginationLink>
+                            </PaginationItem>
+                        }
+                        <PaginationItem Disabled="@(currentPage == 5)">
+                            <PaginationLink OnClick="@(() => GoToPage(currentPage + 1))">Next</PaginationLink>
+                        </PaginationItem>
+                    </Pagination>
+                </Div>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <Paragraph Class="text-muted">Current page: <Strong>@currentPage</Strong> of 5</Paragraph>
+                    <Button BackgroundColor="Color.Primary" Size="Size.Small" OnClick="@(() => GoToPage(1))">Go to First</Button>
+                    <Button BackgroundColor="Color.Secondary" Size="Size.Small" OnClick="@(() => GoToPage(5))">Go to Last</Button>
+                    <Button BackgroundColor="Color.Info" Size="Size.Small" OnClick="@GoToRandomPage">Random Page</Button>
+                </Div>
+            </Div>
 
-            <hr />
+            <Hr />
 
-            <div>
-                <h2>Pagination with ShowPreviousNext</h2>
-                <div class="mb-3">
-                    <h5>With Previous/Next Buttons</h5>
-                    <Pagination TotalPages="15" CurrentPage="8" ShowPreviousNext="true" OnPageChanged="HandlePageChanged" />
-                </div>
-                <div class="mb-3">
-                    <h5>Without Previous/Next Buttons</h5>
-                    <Pagination TotalPages="15" CurrentPage="8" ShowPreviousNext="false" OnPageChanged="HandlePageChanged" />
-                </div>
-            </div>
+            <Div>
+                <H2>Large Pagination Example</H2>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <Pagination Size="Size.Large">
+                        <PaginationItem>
+                            <PaginationLink>First</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>Previous</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>1</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>2</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>3</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>...</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem Active="true">
+                            <PaginationLink>50</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>...</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>98</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>99</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>100</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>Next</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>Last</PaginationLink>
+                        </PaginationItem>
+                    </Pagination>
+                </Div>
+                <Paragraph Class="text-muted">Example with 100 pages, showing first/last and previous/next buttons.</Paragraph>
+            </Div>
 
-            <hr />
+            <Hr />
 
-            <div>
-                <h2>Interactive Pagination</h2>
-                <div class="mb-3">
-                    <Pagination TotalPages="25" CurrentPage="@currentPage" OnPageChanged="HandlePageChanged" />
-                </div>
-                <div class="mb-3">
-                    <p class="text-muted">Current page: <strong>@currentPage</strong> of 25</p>
-                    <Button Color="Color.Primary" Size="Size.Small" OnClick="GoToFirstPage">Go to First</Button>
-                    <Button Color="Color.Secondary" Size="Size.Small" OnClick="GoToLastPage">Go to Last</Button>
-                    <Button Color="Color.Info" Size="Size.Small" OnClick="GoToRandomPage">Random Page</Button>
-                </div>
-            </div>
-
-            <hr />
-
-            <div>
-                <h2>Large Pagination Example</h2>
-                <div class="mb-3">
-                    <Pagination TotalPages="100" CurrentPage="50" ShowFirstLast="true" ShowPreviousNext="true" OnPageChanged="HandlePageChanged" />
-                </div>
-                <p class="text-muted">Example with 100 pages, showing first/last and previous/next buttons.</p>
-            </div>
-
-            <hr />
-
-            <div>
-                <h2>Disabled States</h2>
-                <div class="mb-3">
-                    <h5>First Page (Previous/First disabled)</h5>
-                    <Pagination TotalPages="10" CurrentPage="1" ShowFirstLast="true" ShowPreviousNext="true" OnPageChanged="HandlePageChanged" />
-                </div>
-                <div class="mb-3">
-                    <h5>Last Page (Next/Last disabled)</h5>
-                    <Pagination TotalPages="10" CurrentPage="10" ShowFirstLast="true" ShowPreviousNext="true" OnPageChanged="HandlePageChanged" />
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+            <Div>
+                <H2>Disabled States</H2>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <H5>First Page (Previous/First disabled)</H5>
+                    <Pagination>
+                        <PaginationItem Disabled="true">
+                            <PaginationLink>First</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem Disabled="true">
+                            <PaginationLink>Previous</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem Active="true">
+                            <PaginationLink>1</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>2</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>3</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>Next</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>Last</PaginationLink>
+                        </PaginationItem>
+                    </Pagination>
+                </Div>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <H5>Last Page (Next/Last disabled)</H5>
+                    <Pagination>
+                        <PaginationItem>
+                            <PaginationLink>First</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>Previous</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>1</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>2</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink>3</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem Disabled="true">
+                            <PaginationLink>Next</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem Disabled="true">
+                            <PaginationLink>Last</PaginationLink>
+                        </PaginationItem>
+                    </Pagination>
+                </Div>
+            </Div>
+        </Column>
+    </Row>
+</Container>
 
 @code {
     private int currentPage = 1;
 
-    private async Task HandlePageChanged(int page)
+    private void GoToPage(int page)
     {
-        currentPage = page;
-        StateHasChanged();
-        await Task.CompletedTask;
+        if (page >= 1 && page <= 5)
+        {
+            currentPage = page;
+            StateHasChanged();
+        }
     }
 
-    private async Task GoToFirstPage()
-    {
-        currentPage = 1;
-        StateHasChanged();
-        await Task.CompletedTask;
-    }
-
-    private async Task GoToLastPage()
-    {
-        currentPage = 25;
-        StateHasChanged();
-        await Task.CompletedTask;
-    }
-
-    private async Task GoToRandomPage()
+    private void GoToRandomPage()
     {
         var random = new Random();
-        currentPage = random.Next(1, 26);
+        currentPage = random.Next(1, 6);
         StateHasChanged();
-        await Task.CompletedTask;
     }
 
     protected override void OnInitialized()
