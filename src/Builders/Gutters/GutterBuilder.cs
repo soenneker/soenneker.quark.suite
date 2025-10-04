@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Soenneker.Extensions.String;
 using Soenneker.Quark.Enums;
@@ -7,173 +8,85 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Builder for Bootstrap gutter utilities.
 /// </summary>
-public class GutterBuilder : ICssBuilder
+public sealed class GutterBuilder : ICssBuilder
 {
-    private readonly List<Gutter> _gutters = new();
+    private readonly List<GutterRule> _rules = new(4);
 
-    public bool IsEmpty => _gutters.Count == 0;
+    public bool IsEmpty => _rules.Count == 0;
     public bool IsCssClass => true;
     public bool IsCssStyle => false;
 
-    public GutterBuilder Add(Gutter gutter)
+    internal GutterBuilder() { }
+
+    internal GutterBuilder(List<GutterRule> rules)
     {
-        _gutters.Add(gutter);
-        return this;
+        if (rules is { Count: > 0 })
+            _rules.AddRange(rules);
     }
 
-    public GutterBuilder None()
-    {
-        _gutters.Add(Gutter.None);
-        return this;
-    }
-
-    public GutterBuilder Xs()
-    {
-        _gutters.Add(Gutter.Xs);
-        return this;
-    }
-
-    public GutterBuilder Sm()
-    {
-        _gutters.Add(Gutter.Sm);
-        return this;
-    }
-
-    public GutterBuilder Md()
-    {
-        _gutters.Add(Gutter.Md);
-        return this;
-    }
-
-    public GutterBuilder Lg()
-    {
-        _gutters.Add(Gutter.Lg);
-        return this;
-    }
-
-    public GutterBuilder Xl()
-    {
-        _gutters.Add(Gutter.Xl);
-        return this;
-    }
-
+    // Gutter type methods
     public GutterBuilder X(int value)
     {
-        _gutters.Add(Gutter.X(value));
-        return this;
+        var newRules = new List<GutterRule>(_rules);
+        newRules.Add(new GutterRule(Math.Clamp(value, 0, 5), GutterType.X, null));
+        return new GutterBuilder(newRules);
     }
 
     public GutterBuilder Y(int value)
     {
-        _gutters.Add(Gutter.Y(value));
-        return this;
+        var newRules = new List<GutterRule>(_rules);
+        newRules.Add(new GutterRule(Math.Clamp(value, 0, 5), GutterType.Y, null));
+        return new GutterBuilder(newRules);
     }
 
     public GutterBuilder All(int value)
     {
-        _gutters.Add(Gutter.All(value));
-        return this;
+        var newRules = new List<GutterRule>(_rules);
+        newRules.Add(new GutterRule(Math.Clamp(value, 0, 5), GutterType.All, null));
+        return new GutterBuilder(newRules);
     }
 
-    public GutterBuilder XSm(int value)
+    public GutterBuilder None()
     {
-        _gutters.Add(Gutter.XSm(value));
-        return this;
+        var newRules = new List<GutterRule>(_rules);
+        newRules.Add(new GutterRule(0, GutterType.All, null));
+        return new GutterBuilder(newRules);
     }
 
-    public GutterBuilder YSm(int value)
-    {
-        _gutters.Add(Gutter.YSm(value));
-        return this;
-    }
+    // Breakpoint chaining methods
+    public GutterBuilder OnPhone => ChainBp(GutterBreakpoint.Sm);
+    public GutterBuilder OnTablet => ChainBp(GutterBreakpoint.Md);
+    public GutterBuilder OnLaptop => ChainBp(GutterBreakpoint.Lg);
+    public GutterBuilder OnDesktop => ChainBp(GutterBreakpoint.Xl);
+    public GutterBuilder OnWidescreen => ChainBp(GutterBreakpoint.Xxl);
 
-    public GutterBuilder AllSm(int value)
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+    private GutterBuilder ChainBp(GutterBreakpoint breakpoint)
     {
-        _gutters.Add(Gutter.AllSm(value));
-        return this;
-    }
-
-    public GutterBuilder XMd(int value)
-    {
-        _gutters.Add(Gutter.XMd(value));
-        return this;
-    }
-
-    public GutterBuilder YMd(int value)
-    {
-        _gutters.Add(Gutter.YMd(value));
-        return this;
-    }
-
-    public GutterBuilder AllMd(int value)
-    {
-        _gutters.Add(Gutter.AllMd(value));
-        return this;
-    }
-
-    public GutterBuilder XLg(int value)
-    {
-        _gutters.Add(Gutter.XLg(value));
-        return this;
-    }
-
-    public GutterBuilder YLg(int value)
-    {
-        _gutters.Add(Gutter.YLg(value));
-        return this;
-    }
-
-    public GutterBuilder AllLg(int value)
-    {
-        _gutters.Add(Gutter.AllLg(value));
-        return this;
-    }
-
-    public GutterBuilder XXl(int value)
-    {
-        _gutters.Add(Gutter.XXl(value));
-        return this;
-    }
-
-    public GutterBuilder YXl(int value)
-    {
-        _gutters.Add(Gutter.YXl(value));
-        return this;
-    }
-
-    public GutterBuilder AllXl(int value)
-    {
-        _gutters.Add(Gutter.AllXl(value));
-        return this;
-    }
-
-    public GutterBuilder XXxl(int value)
-    {
-        _gutters.Add(Gutter.XXxl(value));
-        return this;
-    }
-
-    public GutterBuilder YXxl(int value)
-    {
-        _gutters.Add(Gutter.YXxl(value));
-        return this;
-    }
-
-    public GutterBuilder AllXxl(int value)
-    {
-        _gutters.Add(Gutter.AllXxl(value));
-        return this;
+        var newRules = new List<GutterRule>(_rules);
+        // Add a rule with the breakpoint but no specific type yet
+        newRules.Add(new GutterRule(1, GutterType.All, breakpoint));
+        return new GutterBuilder(newRules);
     }
 
     public override string ToString()
     {
-        if (_gutters.Count == 0) return string.Empty;
+        if (_rules.Count == 0) return string.Empty;
+
+        // Deduplicate by (Type, Breakpoint) - last one wins
+        var dedupedRules = new Dictionary<(GutterType, GutterBreakpoint?), GutterRule>();
+        
+        for (var i = 0; i < _rules.Count; i++)
+        {
+            var rule = _rules[i];
+            var key = (rule.Type, rule.Breakpoint);
+            dedupedRules[key] = rule;
+        }
 
         var classes = new List<string>();
-
-        foreach (var gutter in _gutters)
+        foreach (var rule in dedupedRules.Values)
         {
-            var className = GetGutterClass(gutter);
+            var className = GetGutterClass(rule);
             if (!className.IsNullOrEmpty())
                 classes.Add(className);
         }
@@ -181,40 +94,30 @@ public class GutterBuilder : ICssBuilder
         return string.Join(" ", classes);
     }
 
-    private static string GetGutterClass(Gutter gutter)
+    private static string GetGutterClass(GutterRule rule)
     {
-        if (gutter.Value == 0)
-        {
-            return gutter.Type.Value switch
-            {
-                GutterType.AllValue => "g-0",
-                GutterType.XValue => "gx-0",
-                GutterType.YValue => "gy-0",
-                _ => string.Empty
-            };
-        }
-
-        var prefix = gutter.Type.Value switch
+        // Map axis
+        var prefix = rule.Type.Value switch
         {
             GutterType.AllValue => "g",
             GutterType.XValue => "gx",
             GutterType.YValue => "gy",
             _ => string.Empty
         };
-
         if (prefix.IsNullOrEmpty()) return string.Empty;
 
-        var breakpoint = gutter.Breakpoint.Value switch
+        // Map breakpoint (no xs breakpoint in Bootstrap)
+        var breakpoint = rule.Breakpoint?.Value switch
         {
             GutterBreakpoint.SmValue => "-sm",
             GutterBreakpoint.MdValue => "-md",
             GutterBreakpoint.LgValue => "-lg",
             GutterBreakpoint.XlValue => "-xl",
             GutterBreakpoint.XxlValue => "-xxl",
-            _ => string.Empty
+            _ => string.Empty // base (mobile)
         };
 
-        return $"{prefix}{breakpoint}-{gutter.Value}";
+        return $"{prefix}{breakpoint}-{rule.Value}";
     }
 
     public string ToClass() => ToString();

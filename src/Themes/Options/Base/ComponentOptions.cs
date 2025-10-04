@@ -26,6 +26,8 @@ public class ComponentOptions
 
     public CssValue<TextSizeBuilder>? TextSize { get; set; }
 
+    public CssValue<TextStyleBuilder>? TextStyle { get; set; }
+
     public CssValue<WidthBuilder>? Width { get; set; }
 
     public CssValue<WidthBuilder>? MinWidth { get; set; }

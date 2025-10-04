@@ -207,6 +207,9 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<TruncateBuilder>? Truncate { get; set; }
 
     [Parameter]
+    public CssValue<TextStyleBuilder>? TextStyle { get; set; }
+
+    [Parameter]
     public EventCallback<MouseEventArgs> OnClick { get; set; }
 
     [Parameter]
@@ -387,6 +390,7 @@ public abstract class Component : CoreComponent, IComponent
             AddCss(ref sty, ref cls, Transform);
             AddCss(ref sty, ref cls, Transition);
             AddCss(ref sty, ref cls, Truncate);
+            AddCss(ref sty, ref cls, TextStyle);
 
             AddCss(ref sty, ref cls, Margin);
             AddCss(ref sty, ref cls, Padding);
@@ -562,6 +566,7 @@ public abstract class Component : CoreComponent, IComponent
         AddIf(ref hc, Transform);
         AddIf(ref hc, Transition);
         AddIf(ref hc, Truncate);
+        AddIf(ref hc, TextStyle);
         AddIf(ref hc, TextColor);
         AddIf(ref hc, BackgroundColor);
 
@@ -744,7 +749,9 @@ public abstract class Component : CoreComponent, IComponent
     private void ApplyThemeToComponent(Theme theme)
     {
         var componentOptions = GetComponentOptionsFromTheme(theme);
-        if (componentOptions == null) return;
+
+        if (componentOptions == null) 
+            return;
 
         ApplyThemeProperty(componentOptions.Display, () => Display, v => Display = v);
         ApplyThemeProperty(componentOptions.Visibility, () => Visibility, v => Visibility = v);
@@ -800,6 +807,7 @@ public abstract class Component : CoreComponent, IComponent
         ApplyThemeProperty(componentOptions.Transform, () => Transform, v => Transform = v);
         ApplyThemeProperty(componentOptions.Transition, () => Transition, v => Transition = v);
         ApplyThemeProperty(componentOptions.Truncate, () => Truncate, v => Truncate = v);
+        ApplyThemeProperty(componentOptions.TextStyle, () => TextStyle, v => TextStyle = v);
     }
 
     private static void ApplyThemeProperty<T>(T? themeValue, Func<T?> getCurrentValue, Action<T> setValue) where T : struct

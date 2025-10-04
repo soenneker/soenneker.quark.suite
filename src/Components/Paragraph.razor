@@ -8,37 +8,4 @@
 
 @code {
     public override string? ThemeKey { get; set; } = "Paragraph";
-
-    [Parameter]
-    public CssValue<TextStyleBuilder>? TextStyle { get; set; }
-
-    [CascadingParameter]
-    public CssValue<TextStyleBuilder>? CascadedTextStyle { get; set; }
-
-    protected override Dictionary<string, object> BuildAttributes()
-    {
-        Attributes = base.BuildAttributes();
-        
-        // Add text CSS values
-        AddTextStyleCss();
-
-        return Attributes;
-    }
-
-    private void AddTextStyleCss()
-    {
-        // Use parameter TextStyle if set, otherwise use cascaded value
-        var textStyleToUse = TextStyle ?? CascadedTextStyle;
-        
-        if (textStyleToUse is { IsEmpty: false })
-        {
-            var textClass = textStyleToUse.Value.ToString();
-
-            if (textClass.HasContent())
-            {
-                AppendToClassAttr(Attributes, textClass);
-            }
-        }
-    }
-
 }
