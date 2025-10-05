@@ -21,6 +21,9 @@
     public string? Value { get; set; }
 
     [Parameter]
+    public string? Name { get; set; }
+
+    [Parameter]
     public EventCallback<bool> CheckedChanged { get; set; }
 
     [Parameter]
@@ -98,6 +101,9 @@
 
         if (Value.HasContent())
             attributes["value"] = Value;
+
+        if (Name.HasContent())
+            attributes["name"] = Name;
 
         // Keep Checked in sync when the user changes selection
         attributes["onchange"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleChange);

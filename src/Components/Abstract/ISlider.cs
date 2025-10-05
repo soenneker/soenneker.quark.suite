@@ -38,6 +38,11 @@ public interface ISlider : IElement
     EventCallback<double> ValueChanged { get; set; }
 
     /// <summary>
+    /// Gets or sets the callback invoked when the value changes.
+    /// </summary>
+    EventCallback<double> OnValueChanged { get; set; }
+
+    /// <summary>
     /// Gets or sets the callback invoked when the slider value changes.
     /// </summary>
     EventCallback<ChangeEventArgs> OnChange { get; set; }

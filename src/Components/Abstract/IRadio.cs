@@ -25,6 +25,11 @@ public interface IRadio : IElement
     string? Value { get; set; }
 
     /// <summary>
+    /// Gets or sets the name attribute of the radio button for grouping.
+    /// </summary>
+    string? Name { get; set; }
+
+    /// <summary>
     /// Gets or sets the callback invoked when the checked state changes.
     /// </summary>
     EventCallback<bool> CheckedChanged { get; set; }

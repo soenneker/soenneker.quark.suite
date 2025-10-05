@@ -1,0 +1,564 @@
+@page "/validation-demo"
+
+<Container Class="py-4">
+    <Row>
+        <Column>
+            <Div Class="text-center" Margin="Margin.Is5.FromEnd">
+                <H1 Class="display-4 fw-bold text-primary">Validation</H1>
+                <Paragraph Class="lead text-muted">This page demonstrates the Validation components for form validation and error handling.</Paragraph>
+            </Div>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Div>
+                <H2>Basic Validation</H2>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <Validations Model="_basicModel">
+                        <Div Class="mb-3">
+                            <Label For="requiredField" Class="form-label">Required Field <Span Class="text-danger">*</Span></Label>
+                            <Validation Action="@ValidateRequired">
+                                <TextEdit Id="requiredField" Placeholder="This field is required" @bind-Value="_basicModel.RequiredField" />
+                                <ValidationError />
+                            </Validation>
+                        </Div>
+                        <Div Class="mb-3">
+                            <Label For="emailField" Class="form-label">Email Address</Label>
+                            <Validation Action="@ValidateEmail">
+                                <TextEdit Id="emailField" Type="email" Placeholder="Enter email address" @bind-Value="_basicModel.EmailField" />
+                                <ValidationError />
+                            </Validation>
+                        </Div>
+                        <Button BackgroundColor="@Color.Primary" @onclick="ValidateBasicForm">Validate Form</Button>
+                    </Validations>
+                </Div>
+                <Paragraph Class="text-muted">Basic validation with required field and email validation.</Paragraph>
+            </Div>
+
+            <Hr/>
+
+            <Div>
+                <H2>Complex Form Validation</H2>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <Validations @ref="_complexValidationsRef" Model="_complexModel">
+                        <Row>
+                            <Column Size="ColumnSize.Is6">
+                                <Div Class="mb-3">
+                                    <Label For="firstName" Class="form-label">First Name <Span Class="text-danger">*</Span></Label>
+                                    <Validation Action="@ValidateRequired">
+                                        <TextEdit Id="firstName" Placeholder="Enter first name" @bind-Value="_complexModel.FirstName" />
+                                        <ValidationError />
+                                    </Validation>
+                                </Div>
+                            </Column>
+                            <Column Size="ColumnSize.Is6">
+                                <Div Class="mb-3">
+                                    <Label For="lastName" Class="form-label">Last Name <Span Class="text-danger">*</Span></Label>
+                                    <Validation Action="@ValidateRequired">
+                                        <TextEdit Id="lastName" Placeholder="Enter last name" @bind-Value="_complexModel.LastName" />
+                                        <ValidationError />
+                                    </Validation>
+                                </Div>
+                            </Column>
+                        </Row>
+                        
+                        <Div Class="mb-3">
+                            <Label For="email" Class="form-label">Email Address <Span Class="text-danger">*</Span></Label>
+                            <Validation Action="@ValidateEmail">
+                                <TextEdit Id="email" Type="email" Placeholder="Enter email address" @bind-Value="_complexModel.Email" />
+                                <ValidationError />
+                            </Validation>
+                        </Div>
+                        
+                        <Div Class="mb-3">
+                            <Label For="phone" Class="form-label">Phone Number</Label>
+                            <Validation Action="@ValidatePhone">
+                                <TextEdit Id="phone" Type="tel" Placeholder="Enter phone number" @bind-Value="_complexModel.Phone" />
+                                <ValidationError />
+                            </Validation>
+                        </Div>
+                        
+                        <Div Class="mb-3">
+                            <Label For="age" Class="form-label">Age</Label>
+                            <Validation Action="@ValidateAge">
+                                <NumericEdit Id="age" Placeholder="Enter age" @bind-Value="_complexModel.Age" />
+                                <ValidationError />
+                            </Validation>
+                        </Div>
+                        
+                        <Div Class="mb-3">
+                            <Label For="password" Class="form-label">Password <Span Class="text-danger">*</Span></Label>
+                            <Validation Action="@ValidatePassword">
+                                <TextEdit Id="password" Type="password" Placeholder="Enter password" @bind-Value="_complexModel.Password" />
+                                <ValidationError />
+                            </Validation>
+                        </Div>
+                        
+                        <Div Class="mb-3">
+                            <Label For="confirmPassword" Class="form-label">Confirm Password <Span Class="text-danger">*</Span></Label>
+                            <Validation Action="@ValidateConfirmPassword">
+                                <TextEdit Id="confirmPassword" Type="password" Placeholder="Confirm password" @bind-Value="_complexModel.ConfirmPassword" />
+                                <ValidationError />
+                            </Validation>
+                        </Div>
+                        
+                        <Div Class="mb-3">
+                            <Validation Action="@ValidateTerms">
+                                <Check @bind-Checked="_complexModel.AcceptTerms" /> I accept the terms and conditions <Span Class="text-danger">*</Span>
+                                <ValidationError />
+                            </Validation>
+                        </Div>
+                        
+                        <Div>
+                            <Button BackgroundColor="@Color.Success" @onclick="ValidateComplexForm" Class="me-2">Validate All</Button>
+                            <Button BackgroundColor="@Color.Secondary" @onclick="ClearComplexForm">Clear Form</Button>
+                        </Div>
+                    </Validations>
+                </Div>
+            </Div>
+
+            <Hr/>
+
+            <Div>
+                <H2>Pattern Validation</H2>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <Validations Model="_patternModel">
+                        <Div Class="mb-3">
+                            <Label For="zipCode" Class="form-label">ZIP Code (US Format)</Label>
+                            <Validation UsePattern="true" PatternString="^\d{5}(-\d{4})?$" PatternMessage="Please enter a valid US ZIP code (12345 or 12345-6789)">
+                                <TextEdit Id="zipCode" Placeholder="12345 or 12345-6789" @bind-Value="_patternModel.ZipCode" />
+                                <ValidationError />
+                            </Validation>
+                        </Div>
+                        
+                        <Div Class="mb-3">
+                            <Label For="ssn" Class="form-label">Social Security Number</Label>
+                            <Validation UsePattern="true" PatternString="^\d{3}-\d{2}-\d{4}$" PatternMessage="Please enter SSN in format XXX-XX-XXXX">
+                                <TextEdit Id="ssn" Placeholder="XXX-XX-XXXX" @bind-Value="_patternModel.SSN" />
+                                <ValidationError />
+                            </Validation>
+                        </Div>
+                        
+                        <Div Class="mb-3">
+                            <Label For="creditCard" Class="form-label">Credit Card Number</Label>
+                            <Validation UsePattern="true" PatternString="^\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}$" PatternMessage="Please enter a valid 16-digit credit card number">
+                                <TextEdit Id="creditCard" Placeholder="1234 5678 9012 3456" @bind-Value="_patternModel.CreditCard" />
+                                <ValidationError />
+                            </Validation>
+                        </Div>
+                        
+                        <Button BackgroundColor="@Color.Primary" @onclick="ValidatePatternForm">Validate Patterns</Button>
+                    </Validations>
+                </Div>
+            </Div>
+
+            <Hr/>
+
+            <Div>
+                <H2>Custom Validation Messages</H2>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <Validations Model="_customModel">
+                        <Div Class="mb-3">
+                            <Label For="username" Class="form-label">Username</Label>
+                            <Validation Action="@ValidateUsername">
+                                <TextEdit Id="username" Placeholder="Enter username" @bind-Value="_customModel.Username" />
+                                <ValidationError />
+                            </Validation>
+                        </Div>
+                        
+                        <Div Class="mb-3">
+                            <Label For="website" Class="form-label">Website URL</Label>
+                            <Validation Action="@ValidateWebsite">
+                                <TextEdit Id="website" Type="url" Placeholder="https://example.com" @bind-Value="_customModel.Website" />
+                                <ValidationError />
+                            </Validation>
+                        </Div>
+                        
+                        <Button BackgroundColor="@Color.Primary" @onclick="ValidateCustomForm">Validate Custom</Button>
+                    </Validations>
+                </Div>
+            </Div>
+
+            <Hr/>
+
+            <Div>
+                <H2>Validation Success Messages</H2>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <Validations Model="_successModel">
+                        <Div Class="mb-3">
+                            <Label For="successField" Class="form-label">Field with Success Message</Label>
+                            <Validation Action="@ValidateWithSuccess">
+                                <TextEdit Id="successField" Placeholder="Type 'success' for success message" @bind-Value="_successModel.SuccessField" />
+                                <ValidationError />
+                                <ValidationSuccess />
+                            </Validation>
+                        </Div>
+                        
+                        <Button BackgroundColor="@Color.Primary" @onclick="ValidateSuccessForm">Validate Success</Button>
+                    </Validations>
+                </Div>
+            </Div>
+
+            <Hr/>
+
+            <Div>
+                <H2>Validation Component Properties</H2>
+                <div class="bg-light p-3 mb-3">
+                    <H3>Validation Features</H3>
+                    <Paragraph>Validation components provide comprehensive form validation:</Paragraph>
+                    <ul>
+                        <li><strong>Validations:</strong> Main validation container with model binding</li>
+                        <li><strong>Validation:</strong> Individual field validation wrapper</li>
+                        <li><strong>ValidationError:</strong> Displays validation error messages</li>
+                        <li><strong>ValidationSuccess:</strong> Displays validation success messages</li>
+                        <li><strong>ValidationError:</strong> Individual error message component</li>
+                        <li><strong>Pattern Validation:</strong> Regex pattern validation support</li>
+                        <li><strong>Custom Validation:</strong> Custom validation logic support</li>
+                        <li><strong>Model Binding:</strong> Automatic model property validation</li>
+                    </ul>
+                </Div>
+            </Div>
+
+            <Hr/>
+
+            <Div>
+                <H2>Real-time Validation</H2>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <Validations Model="_realtimeModel">
+                        <Div Class="mb-3">
+                            <Label For="realtimeField" Class="form-label">Real-time Validation</Label>
+                            <Validation Action="@ValidateRealtime">
+                                <TextEdit Id="realtimeField" 
+                                         Placeholder="Type to see real-time validation" 
+                                         @bind-Value="_realtimeModel.RealtimeField"
+                                         @oninput="HandleRealtimeInput" />
+                                <ValidationError />
+                                <ValidationSuccess />
+                            </Validation>
+                        </Div>
+                    </Validations>
+                </Div>
+                <Paragraph Class="text-muted">This field validates in real-time as you type.</Paragraph>
+            </Div>
+        </Column>
+    </Row>
+</Container>
+
+@code {
+    private Validations? _complexValidationsRef;
+
+    private BasicModel _basicModel = new();
+    private ComplexModel _complexModel = new();
+    private PatternModel _patternModel = new();
+    private CustomModel _customModel = new();
+    private SuccessModel _successModel = new();
+    private RealtimeModel _realtimeModel = new();
+
+    // Basic Validation Methods
+    private void ValidateRequired(ValidatorEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.Value?.ToString()))
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "This field is required.";
+        }
+        else
+        {
+            e.Status = ValidationStatus.Success;
+        }
+    }
+
+    private void ValidateEmail(ValidatorEventArgs e)
+    {
+        var email = e.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Email address is required.";
+        }
+        else if (!email.Contains("@") || !email.Contains("."))
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Please enter a valid email address.";
+        }
+        else
+        {
+            e.Status = ValidationStatus.Success;
+        }
+    }
+
+    private void ValidatePhone(ValidatorEventArgs e)
+    {
+        var phone = e.Value?.ToString();
+        if (!string.IsNullOrWhiteSpace(phone) && !System.Text.RegularExpressions.Regex.IsMatch(phone, @"^[\d\s\-\(\)\+]+$"))
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Please enter a valid phone number.";
+        }
+        else
+        {
+            e.Status = ValidationStatus.Success;
+        }
+    }
+
+    private void ValidateAge(ValidatorEventArgs e)
+    {
+        if (e.Value == null)
+        {
+            e.Status = ValidationStatus.Success;
+            return;
+        }
+
+        if (decimal.TryParse(e.Value.ToString(), out decimal age))
+        {
+            if (age < 0 || age > 150)
+            {
+                e.Status = ValidationStatus.Error;
+                e.ErrorText = "Please enter a valid age between 0 and 150.";
+            }
+            else
+            {
+                e.Status = ValidationStatus.Success;
+            }
+        }
+        else
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Please enter a valid number.";
+        }
+    }
+
+    private void ValidatePassword(ValidatorEventArgs e)
+    {
+        var password = e.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Password is required.";
+        }
+        else if (password.Length < 8)
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Password must be at least 8 characters long.";
+        }
+        else if (!System.Text.RegularExpressions.Regex.IsMatch(password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)"))
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Password must contain at least one lowercase letter, one uppercase letter, and one number.";
+        }
+        else
+        {
+            e.Status = ValidationStatus.Success;
+        }
+    }
+
+    private void ValidateConfirmPassword(ValidatorEventArgs e)
+    {
+        var confirmPassword = e.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(confirmPassword))
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Please confirm your password.";
+        }
+        else if (confirmPassword != _complexModel.Password)
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Passwords do not match.";
+        }
+        else
+        {
+            e.Status = ValidationStatus.Success;
+        }
+    }
+
+    private void ValidateTerms(ValidatorEventArgs e)
+    {
+        if (!(bool)e.Value)
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "You must accept the terms and conditions.";
+        }
+        else
+        {
+            e.Status = ValidationStatus.Success;
+        }
+    }
+
+    private void ValidateUsername(ValidatorEventArgs e)
+    {
+        var username = e.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Username is required.";
+        }
+        else if (username.Length < 3)
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Username must be at least 3 characters long.";
+        }
+        else if (!System.Text.RegularExpressions.Regex.IsMatch(username, @"^[a-zA-Z0-9_]+$"))
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Username can only contain letters, numbers, and underscores.";
+        }
+        else
+        {
+            e.Status = ValidationStatus.Success;
+        }
+    }
+
+    private void ValidateWebsite(ValidatorEventArgs e)
+    {
+        var website = e.Value?.ToString();
+        if (!string.IsNullOrWhiteSpace(website))
+        {
+            if (!Uri.TryCreate(website, UriKind.Absolute, out Uri? uri) || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+            {
+                e.Status = ValidationStatus.Error;
+                e.ErrorText = "Please enter a valid website URL (including http:// or https://).";
+            }
+            else
+            {
+                e.Status = ValidationStatus.Success;
+            }
+        }
+        else
+        {
+            e.Status = ValidationStatus.Success;
+        }
+    }
+
+    private void ValidateWithSuccess(ValidatorEventArgs e)
+    {
+        var value = e.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "This field is required.";
+        }
+        else if (value.ToLower() == "success")
+        {
+            e.Status = ValidationStatus.Success;
+        }
+        else
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Type 'success' to see the success message.";
+        }
+    }
+
+    private void ValidateRealtime(ValidatorEventArgs e)
+    {
+        var value = e.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "This field cannot be empty.";
+        }
+        else if (value.Length < 5)
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Must be at least 5 characters.";
+        }
+        else
+        {
+            e.Status = ValidationStatus.Success;
+        }
+    }
+
+    private async Task ValidateBasicForm()
+    {
+        // Basic validation is handled automatically by the Validations component
+        await Task.CompletedTask;
+    }
+
+    private async Task ValidateComplexForm()
+    {
+        if (_complexValidationsRef != null)
+        {
+            await _complexValidationsRef.Validate();
+        }
+    }
+
+    private async Task ClearComplexForm()
+    {
+        if (_complexValidationsRef != null)
+        {
+            await _complexValidationsRef.ClearAll();
+        }
+        _complexModel = new ComplexModel();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ValidatePatternForm()
+    {
+        // Pattern validation is handled automatically
+        await Task.CompletedTask;
+    }
+
+    private async Task ValidateCustomForm()
+    {
+        // Custom validation is handled automatically
+        await Task.CompletedTask;
+    }
+
+    private async Task ValidateSuccessForm()
+    {
+        // Success validation is handled automatically
+        await Task.CompletedTask;
+    }
+
+    private void HandleRealtimeInput(ChangeEventArgs e)
+    {
+        // Real-time validation is handled automatically by the Validation component
+        StateHasChanged();
+    }
+
+    // Model Classes
+    public class BasicModel
+    {
+        public string RequiredField { get; set; } = string.Empty;
+        public string EmailField { get; set; } = string.Empty;
+    }
+
+    public class ComplexModel
+    {
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public decimal? Age { get; set; } = null;
+        public string Password { get; set; } = string.Empty;
+        public string ConfirmPassword { get; set; } = string.Empty;
+        public bool AcceptTerms { get; set; } = false;
+    }
+
+    public class PatternModel
+    {
+        public string ZipCode { get; set; } = string.Empty;
+        public string SSN { get; set; } = string.Empty;
+        public string CreditCard { get; set; } = string.Empty;
+    }
+
+    public class CustomModel
+    {
+        public string Username { get; set; } = string.Empty;
+        public string Website { get; set; } = string.Empty;
+    }
+
+    public class SuccessModel
+    {
+        public string SuccessField { get; set; } = string.Empty;
+    }
+
+    public class RealtimeModel
+    {
+        public string RealtimeField { get; set; } = string.Empty;
+    }
+
+    protected override void OnInitialized()
+    {
+    }
+}

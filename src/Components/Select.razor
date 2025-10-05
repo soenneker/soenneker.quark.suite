@@ -1,0 +1,173 @@
+@using System.Linq.Expressions
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@typeparam TValue
+@inherits Soenneker.Quark.Element
+@implements Soenneker.Quark.IValidationInput
+@implements ISelect<TValue>
+
+<select @attributes="BuildAttributes()">
+    @if (DefaultItemText.HasContent())
+    {
+        <option value="@GetDefaultItemValueString()" selected="@IsDefaultItemSelected()">@DefaultItemText</option>
+    }
+    @ChildContent
+</select>
+
+@code {
+    public override string? ThemeKey { get; set; } = "Select";
+
+    [Parameter]
+    public TValue? SelectedValue { get; set; }
+
+    [Parameter]
+    public Expression<Func<TValue>>? SelectedValueExpression { get; set; }
+
+    [Parameter]
+    public EventCallback<TValue?> SelectedValueChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnChange { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public bool Required { get; set; }
+
+    [Parameter]
+    public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
+
+    [Parameter]
+    public bool Multiple { get; set; }
+
+    [Parameter]
+    public string? Placeholder { get; set; }
+
+    [Parameter]
+    public string? DefaultItemText { get; set; }
+
+    [Parameter]
+    public TValue? DefaultItemValue { get; set; }
+
+    [CascadingParameter]
+    public Validation? ParentValidation { get; set; }
+
+    public object? ValidationValue => SelectedValue;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && ParentValidation is not null)
+        {
+            await ParentValidation.InitializeInput(this);
+
+            if (SelectedValueExpression is not null)
+                await ParentValidation.InitializeInputExpression(SelectedValueExpression);
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task HandleChange(ChangeEventArgs e)
+    {
+        var newValue = ConvertValue(e.Value?.ToString());
+        SelectedValue = newValue;
+
+        await SelectedValueChanged.InvokeIfHasDelegate(SelectedValue);
+        await OnChange.InvokeIfHasDelegate(e);
+
+        if (ParentValidation is not null)
+            await ParentValidation.NotifyInputChanged(SelectedValue);
+    }
+
+    private TValue? ConvertValue(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return default;
+
+        try
+        {
+            return (TValue)Convert.ChangeType(value, typeof(TValue));
+        }
+        catch
+        {
+            return default;
+        }
+    }
+
+    private string? GetDefaultItemValueString()
+    {
+        if (DefaultItemValue == null)
+            return string.Empty;
+
+        return DefaultItemValue.ToString();
+    }
+
+    private bool IsDefaultItemSelected()
+    {
+        if (DefaultItemValue == null && SelectedValue == null)
+            return true;
+
+        return EqualityComparer<TValue>.Default.Equals(DefaultItemValue, SelectedValue);
+    }
+
+    private string? GetSizeClass()
+    {
+        if (Size == Quark.Size.Default)
+            return null;
+
+        string? token = null;
+        var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+        if (isTheme && token is not null)
+            return $"form-select-{token}";
+
+        var sizeValue = Size?.ToString();
+        return sizeValue.HasContent() ? $"form-select-{sizeValue}" : null;
+    }
+
+    private string? GetValidationClass()
+    {
+        if (ParentValidation?.Status == ValidationStatus.Error)
+            return "is-invalid";
+
+        if (ParentValidation?.Status == ValidationStatus.Success)
+            return "is-valid";
+
+        return null;
+    }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+
+        AppendToClassAttr(attributes, "form-select");
+
+        var sizeClass = GetSizeClass();
+        if (sizeClass != null)
+            AppendToClassAttr(attributes, sizeClass);
+
+        var validationClass = GetValidationClass();
+        if (validationClass != null)
+            AppendToClassAttr(attributes, validationClass);
+
+        if (Disabled)
+            attributes["disabled"] = true;
+
+        if (Required)
+            attributes["required"] = true;
+
+        if (Multiple)
+            attributes["multiple"] = true;
+
+        if (Placeholder.HasContent())
+            attributes["placeholder"] = Placeholder;
+
+        if (SelectedValue != null)
+            attributes["value"] = SelectedValue.ToString();
+
+        attributes["onchange"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleChange);
+
+        return attributes;
+    }
+}

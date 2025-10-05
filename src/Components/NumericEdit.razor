@@ -3,11 +3,8 @@
 @using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
-@inherits Soenneker.Quark.Element
-@implements Soenneker.Quark.IValidationInput
+@inherits Soenneker.Quark.Input
 @implements INumericEdit
-
-<input type="number" @attributes="BuildAttributes()" />
 
 @code {
     public override string? ThemeKey { get; set; } = "NumericEdit";
@@ -15,17 +12,6 @@
     [Parameter]
     public decimal? Value { get; set; }
 
-    [Parameter]
-    public string? Placeholder { get; set; }
-
-    [Parameter]
-    public bool Disabled { get; set; }
-
-    [Parameter]
-    public bool ReadOnly { get; set; }
-
-    [Parameter]
-    public bool Required { get; set; }
 
     [Parameter]
     public decimal? Min { get; set; }
@@ -37,24 +23,17 @@
     public decimal? Step { get; set; }
 
     [Parameter]
-    public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
-
-    [Parameter]
     public EventCallback<decimal?> ValueChanged { get; set; }
 
     [Parameter]
     public Expression<Func<decimal?>>? ValueExpression { get; set; }
 
-    [Parameter]
-    public EventCallback<ChangeEventArgs> OnChange { get; set; }
+    public override object? ValidationValue => Value;
 
-    [Parameter]
-    public EventCallback<ChangeEventArgs> OnInput { get; set; }
-
-    [CascadingParameter]
-    public Validation? ParentValidation { get; set; }
-
-    public object? ValidationValue => Value;
+    protected override string GetInputType()
+    {
+        return "number";
+    }
 
     private static decimal? ParseDecimal(ChangeEventArgs e)
     {
@@ -69,89 +48,26 @@
         return null;
     }
 
-    private async Task HandleInput(ChangeEventArgs e)
+    protected override async Task HandleInput(ChangeEventArgs e)
     {
         Value = ParseDecimal(e);
         await ValueChanged.InvokeIfHasDelegate(Value);
-
-        await OnInput.InvokeIfHasDelegate(e);
-
-        if (ParentValidation is not null)
-            await ParentValidation.NotifyInputChanged(Value);
+        await base.HandleInput(e);
     }
 
-    private async Task HandleChange(ChangeEventArgs e)
+    protected override async Task HandleChange(ChangeEventArgs e)
     {
         Value = ParseDecimal(e);
         await ValueChanged.InvokeIfHasDelegate(Value);
-
-        await OnChange.InvokeIfHasDelegate(e);
-
-        if (ParentValidation is not null)
-            await ParentValidation.NotifyInputChanged(Value);
+        await base.HandleChange(e);
     }
 
-    private string? GetSizeClass()
-    {
-        if (Size == Quark.Size.Default)
-            return null;
-
-        string? token = null;
-        var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
-        if (isTheme && token is not null)
-            return $"form-control-{token}";
-
-        return Size?.ToString() != null ? $"form-control-{Size}" : null;
-    }
-
-    private string? GetColorClass()
-    {
-        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
-        {
-            string? token = null;
-            var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
-
-            if (isTheme && token is not null)
-            {
-                // Bootstrap theme token (e.g., "primary", "secondary")
-                return $"form-control-{token}";
-            }
-
-            var v = BackgroundColor.Value.ToString().Trim();
-
-            if (BackgroundColor.Value.IsCssClass)
-            {
-                if (v.StartsWith("form-control-", StringComparison.Ordinal))
-                    return v;
-
-                return $"form-control-{v}";
-            }
-        }
-
-        return null;
-    }
-
-    private string? GetValidationClass()
-    {
-        if (ParentValidation?.Status == ValidationStatus.Error)
-            return "is-invalid";
-
-        if (ParentValidation?.Status == ValidationStatus.Success)
-            return "is-valid";
-
-        return null;
-    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && ParentValidation is not null)
+        if (firstRender && ParentValidation is not null && ValueExpression is not null)
         {
-            await ParentValidation.InitializeInput(this);
-
-            if (ValueExpression is not null)
-            {
-                await ParentValidation.InitializeInputExpression(ValueExpression);
-            }
+            await ParentValidation.InitializeInputExpression(ValueExpression);
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -161,42 +77,9 @@
     {
         var attributes = base.BuildAttributes();
 
-        var baseClasses = "form-control";
-        var colorClass = GetColorClass();
-        var sizeClass = GetSizeClass();
-        var validationClass = GetValidationClass();
-
-        if (colorClass != null)
-            baseClasses = $"{baseClasses} {colorClass}";
-        if (sizeClass != null)
-            baseClasses = $"{baseClasses} {sizeClass}";
-        if (validationClass != null)
-            baseClasses = $"{baseClasses} {validationClass}";
-
-        AppendToClassAttr(attributes, baseClasses);
-
-        // Handle custom CSS colors using BackgroundColor
-        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty && !BackgroundColor.Value.IsCssClass)
-        {
-            var v = BackgroundColor.Value.ToString().Trim();
-            // BackgroundColor already handles background-color, just add border-color
-            attributes["style"] = $"border-color:{v};";
-        }
-
+        // Add NumericEdit-specific attributes
         if (Value.HasValue)
             attributes["value"] = Value.Value.ToString(CultureInfo.InvariantCulture);
-
-        if (Placeholder.HasContent())
-            attributes["placeholder"] = Placeholder;
-
-        if (Disabled)
-            attributes["disabled"] = true;
-
-        if (ReadOnly)
-            attributes["readonly"] = true;
-
-        if (Required)
-            attributes["required"] = true;
 
         if (Min.HasValue)
             attributes["min"] = Min.Value.ToString(CultureInfo.InvariantCulture);
@@ -206,10 +89,6 @@
 
         if (Step.HasValue)
             attributes["step"] = Step.Value.ToString(CultureInfo.InvariantCulture);
-
-        // Wire input/change events to keep Value in sync without using @bind on this element
-        attributes["oninput"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleInput);
-        attributes["onchange"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleChange);
 
         return attributes;
     }

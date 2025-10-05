@@ -1,0 +1,47 @@
+@namespace Soenneker.Quark
+@typeparam TValue
+@inherits Soenneker.Quark.Element
+@implements ISelectItem<TValue>
+
+<option @attributes="BuildAttributes()">
+    @if (ChildContent != null)
+    {
+        @ChildContent
+    }
+    else if (Text.HasContent())
+    {
+        @Text
+    }
+</option>
+
+@code {
+    public override string? ThemeKey { get; set; } = "SelectItem";
+
+    [Parameter]
+    public TValue? Value { get; set; }
+
+    [Parameter]
+    public string? Text { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public bool Hidden { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+
+        if (Value != null)
+            attributes["value"] = Value.ToString();
+
+        if (Disabled)
+            attributes["disabled"] = true;
+
+        if (Hidden)
+            attributes["hidden"] = true;
+
+        return attributes;
+    }
+}

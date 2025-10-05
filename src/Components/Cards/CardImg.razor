@@ -13,6 +13,12 @@
     [Parameter]
     public bool Bottom { get; set; }
 
+    [Parameter]
+    public string? Source { get; set; }
+
+    [Parameter]
+    public string? Alt { get; set; }
+
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
@@ -24,6 +30,13 @@
             classes = "card-img-bottom";
 
         AppendToClassAttr(attributes, classes);
+
+        if (Source.HasContent())
+            attributes["src"] = Source;
+
+        if (Alt.HasContent())
+            attributes["alt"] = Alt;
+
         return attributes;
     }
 

@@ -1,0 +1,30 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements ISelectGroup
+
+<optgroup @attributes="BuildAttributes()">
+    @ChildContent
+</optgroup>
+
+@code {
+    public override string? ThemeKey { get; set; } = "SelectGroup";
+
+    [Parameter]
+    public string? Label { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+
+        if (Label.HasContent())
+            attributes["label"] = Label;
+
+        if (Disabled)
+            attributes["disabled"] = true;
+
+        return attributes;
+    }
+}

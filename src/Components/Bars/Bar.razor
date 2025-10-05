@@ -33,9 +33,6 @@
     public BarPlacement Placement { get; set; } = BarPlacement.Top;
 
     [Parameter]
-    public new CssValue<ColorBuilder> BackgroundColor { get; set; } = Quark.Color.Light;
-
-    [Parameter]
     public bool Expand { get; set; } = true;
 
     [Parameter]
@@ -294,8 +291,7 @@
             }
             else
             {
-                string? token = null;
-                var isTheme = BackgroundColor.TryGetBootstrapThemeToken(out token);
+                var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out var token);
 
                 if (isTheme && token is not null)
                 {
@@ -306,7 +302,7 @@
                     var result = BackgroundColor.ToString();
                     if (!result.HasContent()) return;
 
-                    if (BackgroundColor.IsCssStyle)
+                    if (BackgroundColor.Value.IsCssStyle)
                         AppendStyleDecl(ref sty, $"background-color: {result}");
                     else
                         AppendClass(ref cls, $"bg-{result}");

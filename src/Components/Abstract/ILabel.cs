@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Components;
+
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -5,4 +7,8 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface ILabel : IElement
 {
+    /// <summary>
+    /// Name of the input element to which the label is connected.
+    /// </summary>
+    string? For { get; set; }
 }

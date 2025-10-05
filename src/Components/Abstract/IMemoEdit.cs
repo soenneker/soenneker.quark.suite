@@ -66,7 +66,7 @@ public interface IMemoEdit : IElement
     /// <summary>
     /// Gets or sets the callback invoked when the value changes.
     /// </summary>
-    EventCallback<string> ValueChanged { get; set; }
+    EventCallback<string?> ValueChanged { get; set; }
 
     /// <summary>
     /// Gets or sets the callback invoked when the textarea value changes.

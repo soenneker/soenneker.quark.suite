@@ -29,6 +29,9 @@
 	public EventCallback<double> ValueChanged { get; set; }
 
 	[Parameter]
+	public EventCallback<double> OnValueChanged { get; set; }
+
+	[Parameter]
 	public EventCallback<ChangeEventArgs> OnChange { get; set; }
 
 	[Parameter]
@@ -52,6 +55,7 @@
 		Value = ParseDouble(e);
 
 		await ValueChanged.InvokeIfHasDelegate(Value);
+		await OnValueChanged.InvokeIfHasDelegate(Value);
 
 		await OnInput.InvokeIfHasDelegate(e);
 	}
@@ -61,6 +65,7 @@
 		Value = ParseDouble(e);
 
 		await ValueChanged.InvokeIfHasDelegate(Value);
+		await OnValueChanged.InvokeIfHasDelegate(Value);
 
 		await OnChange.InvokeIfHasDelegate(e);
 	}

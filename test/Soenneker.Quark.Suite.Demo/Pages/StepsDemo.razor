@@ -1,0 +1,378 @@
+@page "/steps-demo"
+
+<Container Class="py-4">
+    <Row>
+        <Column>
+            <Div Class="text-center" Margin="Margin.Is5.FromEnd">
+                <H1 Class="display-4 fw-bold text-primary">Steps</H1>
+                <Paragraph Class="lead text-muted">This page demonstrates the Steps component for multi-step processes and workflows.</Paragraph>
+            </Div>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Div>
+                <H2>Basic Steps</H2>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <Steps @ref="basicStepsRef">
+                        <Step Name="step1" Title="Step 1">
+                            <StepContent>
+                                <Paragraph>This is the content for step 1.</Paragraph>
+                                <Paragraph>You can put any content here, including forms, text, or other components.</Paragraph>
+                            </StepContent>
+                        </Step>
+                        <Step Name="step2" Title="Step 2">
+                            <StepContent>
+                                <Paragraph>This is the content for step 2.</Paragraph>
+                                <Paragraph>Each step can have different content and functionality.</Paragraph>
+                            </StepContent>
+                        </Step>
+                        <Step Name="step3" Title="Step 3">
+                            <StepContent>
+                                <Paragraph>This is the content for step 3.</Paragraph>
+                                <Paragraph>This is the final step in the process.</Paragraph>
+                            </StepContent>
+                        </Step>
+                    </Steps>
+                    
+                    <Div Class="mt-3">
+                        <Button BackgroundColor="@Color.Primary" @onclick="PreviousStep">Previous</Button>
+                        <Button BackgroundColor="@Color.Success" @onclick="NextStep" Class="ms-2">Next</Button>
+                        <Text Class="ms-3">Current Step: @currentStep</Text>
+                    </Div>
+                </Div>
+                <Paragraph Class="text-muted">The Steps component provides a guided multi-step process interface.</Paragraph>
+            </Div>
+
+            <Hr/>
+
+            <Div>
+                <H2>Steps with Validation</H2>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <Steps @ref="validationStepsRef">
+                        <Step Name="personal" Title="Personal Information">
+                            <StepContent>
+                                <Div Class="mb-3">
+                                    <Label For="firstName" Class="form-label">First Name</Label>
+                                    <TextEdit Id="firstName" @bind-Value="personalInfo.FirstName" />
+                                </Div>
+                                <Div Class="mb-3">
+                                    <Label For="lastName" Class="form-label">Last Name</Label>
+                                    <TextEdit Id="lastName" @bind-Value="personalInfo.LastName" />
+                                </Div>
+                            </StepContent>
+                        </Step>
+                        <Step Name="contact" Title="Contact Information">
+                            <StepContent>
+                                <Div Class="mb-3">
+                                    <Label For="email" Class="form-label">Email</Label>
+                                    <TextEdit Id="email" Type="email" @bind-Value="personalInfo.Email" />
+                                </Div>
+                                <Div Class="mb-3">
+                                    <Label For="phone" Class="form-label">Phone</Label>
+                                    <TextEdit Id="phone" Type="tel" @bind-Value="personalInfo.Phone" />
+                                </Div>
+                            </StepContent>
+                        </Step>
+                        <Step Name="review" Title="Review & Submit">
+                            <StepContent>
+                                <H4>Review Your Information</H4>
+                                <Paragraph><Strong>Name:</Strong> @personalInfo.FirstName @personalInfo.LastName</Paragraph>
+                                <Paragraph><Strong>Email:</Strong> @personalInfo.Email</Paragraph>
+                                <Paragraph><Strong>Phone:</Strong> @personalInfo.Phone</Paragraph>
+                                
+                                <Div Class="mt-3">
+                                    <Button BackgroundColor="@Color.Success" @onclick="SubmitForm">Submit</Button>
+                                </Div>
+                            </StepContent>
+                        </Step>
+                    </Steps>
+                    
+                    <Div Class="mt-3">
+                        <Button BackgroundColor="@Color.Secondary" @onclick="PreviousValidationStep">Previous</Button>
+                        <Button BackgroundColor="@Color.Primary" @onclick="NextValidationStep" Class="ms-2">Next</Button>
+                    </Div>
+                </Div>
+            </Div>
+
+            <Hr/>
+
+            <Div>
+                <H2>Steps with Custom Styling</H2>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <Steps @ref="styledStepsRef" Class="custom-steps">
+                        <Step Name="design" Title="Design" Class="custom-step">
+                            <StepContent Class="custom-step-content">
+                                <H4 Class="text-primary">Design Phase</H4>
+                                <Paragraph>Create the visual design and user interface.</Paragraph>
+                                <ul>
+                                    <li>Wireframes</li>
+                                    <li>Mockups</li>
+                                    <li>Prototypes</li>
+                                </ul>
+                            </StepContent>
+                        </Step>
+                        <Step Name="develop" Title="Development" Class="custom-step">
+                            <StepContent Class="custom-step-content">
+                                <H4 Class="text-success">Development Phase</H4>
+                                <Paragraph>Implement the design into working code.</Paragraph>
+                                <ul>
+                                    <li>Frontend Development</li>
+                                    <li>Backend Development</li>
+                                    <li>Database Design</li>
+                                </ul>
+                            </StepContent>
+                        </Step>
+                        <Step Name="test" Title="Testing" Class="custom-step">
+                            <StepContent Class="custom-step-content">
+                                <H4 Class="text-warning">Testing Phase</H4>
+                                <Paragraph>Test the application for bugs and performance.</Paragraph>
+                                <ul>
+                                    <li>Unit Testing</li>
+                                    <li>Integration Testing</li>
+                                    <li>User Acceptance Testing</li>
+                                </ul>
+                            </StepContent>
+                        </Step>
+                        <Step Name="deploy" Title="Deployment" Class="custom-step">
+                            <StepContent Class="custom-step-content">
+                                <H4 Class="text-info">Deployment Phase</H4>
+                                <Paragraph>Deploy the application to production.</Paragraph>
+                                <ul>
+                                    <li>Production Setup</li>
+                                    <li>Monitoring</li>
+                                    <li>Documentation</li>
+                                </ul>
+                            </StepContent>
+                        </Step>
+                    </Steps>
+                    
+                    <Div Class="mt-3">
+                        <Button BackgroundColor="@Color.Primary" @onclick="PreviousStyledStep">Previous</Button>
+                        <Button BackgroundColor="@Color.Success" @onclick="NextStyledStep" Class="ms-2">Next</Button>
+                        <Text Class="ms-3">Current Phase: @currentStyledStep</Text>
+                    </Div>
+                </Div>
+            </Div>
+
+            <Hr/>
+
+            <Div>
+                <H2>Steps with Navigation</H2>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <Steps @ref="navigationStepsRef">
+                        <Step Name="account" Title="Create Account">
+                            <StepContent>
+                                <H4>Account Creation</H4>
+                                <Paragraph>Create your account to get started.</Paragraph>
+                                <Div Class="mb-3">
+                                    <Label For="username" Class="form-label">Username</Label>
+                                    <TextEdit Id="username" @bind-Value="accountInfo.Username" />
+                                </Div>
+                                <Div Class="mb-3">
+                                    <Label For="password" Class="form-label">Password</Label>
+                                    <TextEdit Id="password" Type="password" @bind-Value="accountInfo.Password" />
+                                </Div>
+                            </StepContent>
+                        </Step>
+                        <Step Name="profile" Title="Profile Setup">
+                            <StepContent>
+                                <H4>Profile Information</H4>
+                                <Paragraph>Tell us about yourself.</Paragraph>
+                                <Div Class="mb-3">
+                                    <Label For="bio" Class="form-label">Bio</Label>
+                                    <MemoEdit Id="bio" @bind-Value="accountInfo.Bio" Rows="3" />
+                                </Div>
+                                <Div Class="mb-3">
+                                    <Label For="website" Class="form-label">Website</Label>
+                                    <TextEdit Id="website" Type="url" @bind-Value="accountInfo.Website" />
+                                </Div>
+                            </StepContent>
+                        </Step>
+                        <Step Name="preferences" Title="Preferences">
+                            <StepContent>
+                                <H4>Account Preferences</H4>
+                                <Paragraph>Configure your account preferences.</Paragraph>
+                                <Div Class="mb-3">
+                                    <Check @bind-Checked="accountInfo.EmailNotifications" /> Email Notifications
+                                </Div>
+                                <Div Class="mb-3">
+                                    <Check @bind-Checked="accountInfo.SmsNotifications" /> SMS Notifications
+                                </Div>
+                                <Div Class="mb-3">
+                                    <Label For="language" Class="form-label">Language</Label>
+                                    <Select Id="language" @bind-SelectedValue="accountInfo.Language">
+                                        <SelectItem Value="@("english")">English</SelectItem>
+                                        <SelectItem Value="@("spanish")">Spanish</SelectItem>
+                                        <SelectItem Value="@("french")">French</SelectItem>
+                                    </Select>
+                                </Div>
+                            </StepContent>
+                        </Step>
+                    </Steps>
+                    
+                    <Div Class="mt-3">
+                        <Button BackgroundColor="@Color.Secondary" @onclick="PreviousNavigationStep">Previous</Button>
+                        <Button BackgroundColor="@Color.Primary" @onclick="NextNavigationStep" Class="ms-2">Next</Button>
+                        <Button BackgroundColor="@Color.Success" @onclick="CompleteSetup" Class="ms-2">Complete Setup</Button>
+                    </Div>
+                </Div>
+            </Div>
+
+            <Hr/>
+
+            <Div>
+                <H2>Steps Component Properties</H2>
+                <div class="bg-light p-3 mb-3">
+                    <H3>Steps Features</H3>
+                    <Paragraph>Steps components provide guided workflow functionality:</Paragraph>
+                    <ul>
+                        <li><strong>Steps:</strong> Main container for the step workflow</li>
+                        <li><strong>Step:</strong> Individual step with title and content</li>
+                        <li><strong>StepContent:</strong> Content area within each step</li>
+                        <li><strong>StepPanel:</strong> Panel wrapper for step content</li>
+                        <li><strong>Navigation:</strong> Built-in navigation between steps</li>
+                        <li><strong>Validation:</strong> Support for step validation</li>
+                        <li><strong>Customization:</strong> Custom styling and behavior</li>
+                        <li><strong>Events:</strong> Step change and completion events</li>
+                    </ul>
+                </Div>
+            </Div>
+        </Column>
+    </Row>
+</Container>
+
+<style>
+    .custom-steps {
+        border: 2px solid #6f42c1;
+        border-radius: 10px;
+        padding: 20px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    .custom-step {
+        margin-bottom: 20px;
+    }
+    
+    .custom-step-content {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+</style>
+
+@code {
+    private Steps? basicStepsRef;
+    private Steps? validationStepsRef;
+    private Steps? styledStepsRef;
+    private Steps? navigationStepsRef;
+
+    private string currentStep = "step1";
+    private string currentValidationStep = "personal";
+    private string currentStyledStep = "design";
+    private string currentNavigationStep = "account";
+
+    private PersonalInfo personalInfo = new();
+    private AccountInfo accountInfo = new();
+
+    private async Task NextStep()
+    {
+        if (basicStepsRef != null)
+        {
+            await basicStepsRef.NextStep();
+        }
+    }
+
+    private async Task PreviousStep()
+    {
+        if (basicStepsRef != null)
+        {
+            await basicStepsRef.PreviousStep();
+        }
+    }
+
+    private async Task NextValidationStep()
+    {
+        if (validationStepsRef != null)
+        {
+            await validationStepsRef.NextStep();
+        }
+    }
+
+    private async Task PreviousValidationStep()
+    {
+        if (validationStepsRef != null)
+        {
+            await validationStepsRef.PreviousStep();
+        }
+    }
+
+    private async Task NextStyledStep()
+    {
+        if (styledStepsRef != null)
+        {
+            await styledStepsRef.NextStep();
+        }
+    }
+
+    private async Task PreviousStyledStep()
+    {
+        if (styledStepsRef != null)
+        {
+            await styledStepsRef.PreviousStep();
+        }
+    }
+
+    private async Task NextNavigationStep()
+    {
+        if (navigationStepsRef != null)
+        {
+            await navigationStepsRef.NextStep();
+        }
+    }
+
+    private async Task PreviousNavigationStep()
+    {
+        if (navigationStepsRef != null)
+        {
+            await navigationStepsRef.PreviousStep();
+        }
+    }
+
+    private void SubmitForm()
+    {
+        // Handle form submission
+        StateHasChanged();
+    }
+
+    private void CompleteSetup()
+    {
+        // Handle account setup completion
+        StateHasChanged();
+    }
+
+    public class PersonalInfo
+    {
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+    }
+
+    public class AccountInfo
+    {
+        public string Username { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string Bio { get; set; } = string.Empty;
+        public string Website { get; set; } = string.Empty;
+        public bool EmailNotifications { get; set; } = true;
+        public bool SmsNotifications { get; set; } = false;
+        public string Language { get; set; } = "en";
+    }
+
+    protected override void OnInitialized()
+    {
+    }
+}
