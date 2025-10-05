@@ -15,7 +15,7 @@
             <Div>
                 <H2>Basic Steps</H2>
                 <Div Margin="Margin.Is3.FromEnd">
-                    <Steps @ref="basicStepsRef">
+                    <Steps @ref="_basicStepsRef">
                         <Step Name="step1" Title="Step 1">
                             <StepContent>
                                 <Paragraph>This is the content for step 1.</Paragraph>
@@ -39,7 +39,7 @@
                     <Div Class="mt-3">
                         <Button BackgroundColor="@Color.Primary" @onclick="PreviousStep">Previous</Button>
                         <Button BackgroundColor="@Color.Success" @onclick="NextStep" Class="ms-2">Next</Button>
-                        <Text Class="ms-3">Current Step: @currentStep</Text>
+                        <Text Class="ms-3">Current Step: @_currentStep</Text>
                     </Div>
                 </Div>
                 <Paragraph Class="text-muted">The Steps component provides a guided multi-step process interface.</Paragraph>
@@ -50,16 +50,16 @@
             <Div>
                 <H2>Steps with Validation</H2>
                 <Div Margin="Margin.Is3.FromEnd">
-                    <Steps @ref="validationStepsRef">
+                    <Steps @ref="_validationStepsRef">
                         <Step Name="personal" Title="Personal Information">
                             <StepContent>
                                 <Div Class="mb-3">
                                     <Label For="firstName" Class="form-label">First Name</Label>
-                                    <TextEdit Id="firstName" @bind-Value="personalInfo.FirstName" />
+                                    <TextEdit Id="firstName" @bind-Value="_personalInfo.FirstName" />
                                 </Div>
                                 <Div Class="mb-3">
                                     <Label For="lastName" Class="form-label">Last Name</Label>
-                                    <TextEdit Id="lastName" @bind-Value="personalInfo.LastName" />
+                                    <TextEdit Id="lastName" @bind-Value="_personalInfo.LastName" />
                                 </Div>
                             </StepContent>
                         </Step>
@@ -67,20 +67,20 @@
                             <StepContent>
                                 <Div Class="mb-3">
                                     <Label For="email" Class="form-label">Email</Label>
-                                    <TextEdit Id="email" Type="email" @bind-Value="personalInfo.Email" />
+                                    <TextEdit Id="email" Type="email" @bind-Value="_personalInfo.Email" />
                                 </Div>
                                 <Div Class="mb-3">
                                     <Label For="phone" Class="form-label">Phone</Label>
-                                    <TextEdit Id="phone" Type="tel" @bind-Value="personalInfo.Phone" />
+                                    <TextEdit Id="phone" Type="tel" @bind-Value="_personalInfo.Phone" />
                                 </Div>
                             </StepContent>
                         </Step>
                         <Step Name="review" Title="Review & Submit">
                             <StepContent>
                                 <H4>Review Your Information</H4>
-                                <Paragraph><Strong>Name:</Strong> @personalInfo.FirstName @personalInfo.LastName</Paragraph>
-                                <Paragraph><Strong>Email:</Strong> @personalInfo.Email</Paragraph>
-                                <Paragraph><Strong>Phone:</Strong> @personalInfo.Phone</Paragraph>
+                                <Paragraph><Strong>Name:</Strong> @_personalInfo.FirstName @_personalInfo.LastName</Paragraph>
+                                <Paragraph><Strong>Email:</Strong> @_personalInfo.Email</Paragraph>
+                                <Paragraph><Strong>Phone:</Strong> @_personalInfo.Phone</Paragraph>
                                 
                                 <Div Class="mt-3">
                                     <Button BackgroundColor="@Color.Success" @onclick="SubmitForm">Submit</Button>
@@ -101,7 +101,7 @@
             <Div>
                 <H2>Steps with Custom Styling</H2>
                 <Div Margin="Margin.Is3.FromEnd">
-                    <Steps @ref="styledStepsRef" Class="custom-steps">
+                    <Steps @ref="_styledStepsRef" Class="custom-steps">
                         <Step Name="design" Title="Design" Class="custom-step">
                             <StepContent Class="custom-step-content">
                                 <H4 Class="text-primary">Design Phase</H4>
@@ -151,7 +151,7 @@
                     <Div Class="mt-3">
                         <Button BackgroundColor="@Color.Primary" @onclick="PreviousStyledStep">Previous</Button>
                         <Button BackgroundColor="@Color.Success" @onclick="NextStyledStep" Class="ms-2">Next</Button>
-                        <Text Class="ms-3">Current Phase: @currentStyledStep</Text>
+                        <Text Class="ms-3">Current Phase: @_currentStyledStep</Text>
                     </Div>
                 </Div>
             </Div>
@@ -161,18 +161,18 @@
             <Div>
                 <H2>Steps with Navigation</H2>
                 <Div Margin="Margin.Is3.FromEnd">
-                    <Steps @ref="navigationStepsRef">
+                    <Steps @ref="_navigationStepsRef">
                         <Step Name="account" Title="Create Account">
                             <StepContent>
                                 <H4>Account Creation</H4>
                                 <Paragraph>Create your account to get started.</Paragraph>
                                 <Div Class="mb-3">
                                     <Label For="username" Class="form-label">Username</Label>
-                                    <TextEdit Id="username" @bind-Value="accountInfo.Username" />
+                                    <TextEdit Id="username" @bind-Value="_accountInfo.Username" />
                                 </Div>
                                 <Div Class="mb-3">
                                     <Label For="password" Class="form-label">Password</Label>
-                                    <TextEdit Id="password" Type="password" @bind-Value="accountInfo.Password" />
+                                    <TextEdit Id="password" Type="password" @bind-Value="_accountInfo.Password" />
                                 </Div>
                             </StepContent>
                         </Step>
@@ -182,11 +182,11 @@
                                 <Paragraph>Tell us about yourself.</Paragraph>
                                 <Div Class="mb-3">
                                     <Label For="bio" Class="form-label">Bio</Label>
-                                    <MemoEdit Id="bio" @bind-Value="accountInfo.Bio" Rows="3" />
+                                    <MemoEdit Id="bio" @bind-Value="_accountInfo.Bio" Rows="3" />
                                 </Div>
                                 <Div Class="mb-3">
                                     <Label For="website" Class="form-label">Website</Label>
-                                    <TextEdit Id="website" Type="url" @bind-Value="accountInfo.Website" />
+                                    <TextEdit Id="website" Type="url" @bind-Value="_accountInfo.Website" />
                                 </Div>
                             </StepContent>
                         </Step>
@@ -195,14 +195,14 @@
                                 <H4>Account Preferences</H4>
                                 <Paragraph>Configure your account preferences.</Paragraph>
                                 <Div Class="mb-3">
-                                    <Check @bind-Checked="accountInfo.EmailNotifications" /> Email Notifications
+                                    <Check @bind-Checked="_accountInfo.EmailNotifications" /> Email Notifications
                                 </Div>
                                 <Div Class="mb-3">
-                                    <Check @bind-Checked="accountInfo.SmsNotifications" /> SMS Notifications
+                                    <Check @bind-Checked="_accountInfo.SmsNotifications" /> SMS Notifications
                                 </Div>
                                 <Div Class="mb-3">
                                     <Label For="language" Class="form-label">Language</Label>
-                                    <Select Id="language" @bind-SelectedValue="accountInfo.Language">
+                                    <Select Id="language" @bind-SelectedValue="_accountInfo.Language">
                                         <SelectItem Value="@("english")">English</SelectItem>
                                         <SelectItem Value="@("spanish")">Spanish</SelectItem>
                                         <SelectItem Value="@("french")">French</SelectItem>
@@ -264,80 +264,80 @@
 </style>
 
 @code {
-    private Steps? basicStepsRef;
-    private Steps? validationStepsRef;
-    private Steps? styledStepsRef;
-    private Steps? navigationStepsRef;
+    private Steps? _basicStepsRef;
+    private Steps? _validationStepsRef;
+    private Steps? _styledStepsRef;
+    private Steps? _navigationStepsRef;
 
-    private string currentStep = "step1";
-    private string currentValidationStep = "personal";
-    private string currentStyledStep = "design";
-    private string currentNavigationStep = "account";
+    private string _currentStep = "step1";
+    private string _currentValidationStep = "personal";
+    private string _currentStyledStep = "design";
+    private string _currentNavigationStep = "account";
 
-    private PersonalInfo personalInfo = new();
-    private AccountInfo accountInfo = new();
+    private PersonalInfo _personalInfo = new();
+    private AccountInfo _accountInfo = new();
 
     private async Task NextStep()
     {
-        if (basicStepsRef != null)
+        if (_basicStepsRef != null)
         {
-            await basicStepsRef.NextStep();
+            await _basicStepsRef.NextStep();
         }
     }
 
     private async Task PreviousStep()
     {
-        if (basicStepsRef != null)
+        if (_basicStepsRef != null)
         {
-            await basicStepsRef.PreviousStep();
+            await _basicStepsRef.PreviousStep();
         }
     }
 
     private async Task NextValidationStep()
     {
-        if (validationStepsRef != null)
+        if (_validationStepsRef != null)
         {
-            await validationStepsRef.NextStep();
+            await _validationStepsRef.NextStep();
         }
     }
 
     private async Task PreviousValidationStep()
     {
-        if (validationStepsRef != null)
+        if (_validationStepsRef != null)
         {
-            await validationStepsRef.PreviousStep();
+            await _validationStepsRef.PreviousStep();
         }
     }
 
     private async Task NextStyledStep()
     {
-        if (styledStepsRef != null)
+        if (_styledStepsRef != null)
         {
-            await styledStepsRef.NextStep();
+            await _styledStepsRef.NextStep();
         }
     }
 
     private async Task PreviousStyledStep()
     {
-        if (styledStepsRef != null)
+        if (_styledStepsRef != null)
         {
-            await styledStepsRef.PreviousStep();
+            await _styledStepsRef.PreviousStep();
         }
     }
 
     private async Task NextNavigationStep()
     {
-        if (navigationStepsRef != null)
+        if (_navigationStepsRef != null)
         {
-            await navigationStepsRef.NextStep();
+            await _navigationStepsRef.NextStep();
         }
     }
 
     private async Task PreviousNavigationStep()
     {
-        if (navigationStepsRef != null)
+        if (_navigationStepsRef != null)
         {
-            await navigationStepsRef.PreviousStep();
+            await _navigationStepsRef.PreviousStep();
         }
     }
 

@@ -3,7 +3,7 @@
 @inherits Soenneker.Quark.Element
 @implements IDropdown
 
-<div @attributes="BuildAttributes()" @onmouseleave="OnMouseLeaveHandler" @onmouseenter="OnMouseEnterHandler">
+<div @attributes="BuildAttributes()">
     @ChildContent
 </div>
 
@@ -34,26 +34,9 @@
     [Parameter]
     public string? DropdownMenuTargetId { get; set; }
 
-    private bool _shouldClose;
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
-    }
-
-    private void OnMouseLeaveHandler()
-    {
-        _shouldClose = true;
-    }
-
-    private void OnMouseEnterHandler()
-    {
-        _shouldClose = false;
     }
 
     protected override Dictionary<string, object> BuildAttributes()

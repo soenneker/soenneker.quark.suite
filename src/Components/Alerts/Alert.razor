@@ -5,15 +5,18 @@
 @inherits Soenneker.Quark.Element
 @implements IAlert
 
-<CascadingValue Value="@this" IsFixed>
-    <Div Class="alert" @attributes="BuildAttributes()" role="alert" >
-        @if (Dismissible)
-        {
-            <Button Type="@ButtonType.Button" Class="btn-close" OnClick="HandleDismiss" aria-label="Close" ></Button>
-        }
-        @ChildContent
-    </Div>
-</CascadingValue>
+@if (Visible)
+{
+    <CascadingValue Value="@this" IsFixed>
+        <Div Class="alert" @attributes="BuildAttributes()" role="alert" >
+            @if (Dismissible)
+            {
+                <Button Type="@ButtonType.Button" Class="btn-close" OnClick="HandleDismiss" aria-label="Close" ></Button>
+            }
+            @ChildContent
+        </Div>
+    </CascadingValue>
+}
 
 @code {
 	public override string? ThemeKey { get; set; } = "Alert";
@@ -73,13 +76,6 @@
         }
 
 
-        if (!Visible)
-        {
-            if (attributes.TryGetValue("style", out var existingStyle) && existingStyle?.ToString().HasContent() == true)
-                attributes["style"] = $"{existingStyle}display: none;";
-            else
-                attributes["style"] = "display: none;";
-        }
 
         return attributes;
     }
@@ -124,7 +120,6 @@
     private async Task HandleDismiss()
     {
         Visible = false;
-        StateHasChanged();
 
         await OnDismiss.InvokeIfHasDelegate();
         await VisibleChanged.InvokeAsync(Visible);

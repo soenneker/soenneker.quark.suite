@@ -253,7 +253,7 @@ public abstract class Component : CoreComponent, IComponent
     private Dictionary<string, object>? _cachedAttrs;
     private int _cachedAttrsKey;
 
-    protected override bool ShouldRender() => true;
+    protected override bool ShouldRender() => _shouldRender;
 
     protected override void OnParametersSet()
     {
@@ -321,7 +321,11 @@ public abstract class Component : CoreComponent, IComponent
     // -------- Attributes building (cached by render key) --------
     protected virtual Dictionary<string, object> BuildAttributes()
     {
-        // Always rebuild attributes to reflect dynamic state changes reliably
+        // Use cached attributes if render key hasn't changed
+        if (_cachedAttrs != null && _cachedAttrsKey == _lastRenderKey)
+        {
+            return _cachedAttrs;
+        }
 
         var guess = 14 + (Attributes?.Count ?? 0);
         var attrs = new Dictionary<string, object>(guess);

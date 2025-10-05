@@ -20,3 +20,4 @@ public static class FontAwesomeRegistrar
         return services;
     }
 }
+

@@ -105,7 +105,6 @@ public interface IQuarkTable : ICancellableElement
     /// Sets the orders programmatically and triggers a reload
     /// </summary>
     /// <param name="orders">The orders to set</param>
-    /// <param name="cancellationToken">A token to cancel the operation</param>
     ValueTask SetOrders(List<DataTableOrderRequest> orders);
 
     /// <summary>

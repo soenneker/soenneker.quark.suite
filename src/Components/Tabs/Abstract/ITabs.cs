@@ -8,7 +8,7 @@ public interface ITabs : IElement
     /// <summary>
     /// Gets or sets the background color scheme of the tabs.
     /// </summary>
-    CssValue<ColorBuilder> BackgroundColor { get; set; }
+    CssValue<ColorBuilder>? BackgroundColor { get; set; }
 
     /// <summary>
     /// Gets or sets whether the tabs should be styled as pills instead of tabs.

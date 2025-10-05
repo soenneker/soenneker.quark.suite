@@ -1,6 +1,3 @@
-using System;
-using Microsoft.AspNetCore.Components;
-
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -17,9 +14,4 @@ public interface ISelectGroup : IElement
     /// Gets or sets whether the select group is disabled.
     /// </summary>
     bool Disabled { get; set; }
-
-    /// <summary>
-    /// Gets or sets the child content of the select group.
-    /// </summary>
-    RenderFragment? ChildContent { get; set; }
 }

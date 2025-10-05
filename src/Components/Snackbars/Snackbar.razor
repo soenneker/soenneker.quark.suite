@@ -13,16 +13,13 @@
 </CascadingValue>
 
 @code {
-	public override string? ThemeKey { get; set; } = "Snackbar";
+    public override string? ThemeKey { get; set; } = "Snackbar";
 
     [Parameter]
     public string Key { get; set; } = "";
 
     [Parameter]
     public bool Visible { get; set; } = true;
-
-    [Parameter]
-    public CssValue<ColorBuilder> BackgroundColor { get; set; } = Quark.Color.Primary;
 
     [Parameter]
     public int AutoHideDelay { get; set; } = 5000;
@@ -55,11 +52,19 @@
         return attrs;
     }
 
-    private Dictionary<string, object> GetContentAttributes()
+    protected override void OnInitialized()
+    {
+        if (TextColor == null)
+            TextColor = Quark.TextColor.Black;
+
+        base.OnInitialized();
+    }
+
+    private static Dictionary<string, object> GetContentAttributes()
     {
         var inner = new Dictionary<string, object>(1);
 
-        var cls = "snackbar-content text-white rounded shadow p-3";
+        var cls = "snackbar-content rounded shadow p-3";
         inner["class"] = cls;
 
         return inner;
@@ -87,8 +92,7 @@
     {
         if (BackgroundColor is { IsEmpty: false })
         {
-            string? token = null;
-            var isTheme = BackgroundColor.TryGetBootstrapThemeToken(out token);
+            var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out var token);
 
             if (isTheme && token is not null)
             {
@@ -99,7 +103,7 @@
                 var result = BackgroundColor.ToString();
                 if (!result.HasContent()) return;
 
-                if (BackgroundColor.IsCssStyle)
+                if (BackgroundColor.Value.IsCssStyle)
                     AppendStyleDecl(ref sty, $"background-color: {result}");
                 else
                     AppendClass(ref cls, $"bg-{result}");

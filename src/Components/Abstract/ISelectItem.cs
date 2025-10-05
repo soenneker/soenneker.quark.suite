@@ -1,4 +1,3 @@
-using System;
 using Microsoft.AspNetCore.Components;
 
 namespace Soenneker.Quark;
@@ -28,9 +27,4 @@ public interface ISelectItem<TValue> : IElement
     /// Gets or sets whether the select item is hidden.
     /// </summary>
     bool Hidden { get; set; }
-
-    /// <summary>
-    /// Gets or sets the child content of the select item.
-    /// </summary>
-    RenderFragment? ChildContent { get; set; }
 }

@@ -18,6 +18,6 @@ public interface IPaginationLink : IElement
     /// <summary>
     /// Gets or sets the background color scheme of the pagination link.
     /// </summary>
-    CssValue<ColorBuilder> BackgroundColor { get; set; }
+    CssValue<ColorBuilder>? BackgroundColor { get; set; }
 }
 

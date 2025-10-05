@@ -52,7 +52,7 @@ public interface IDatePicker : IElement
     /// <summary>
     /// Gets or sets the background color scheme of the input.
     /// </summary>
-    CssValue<ColorBuilder> BackgroundColor { get; set; }
+    CssValue<ColorBuilder>? BackgroundColor { get; set; }
 
     /// <summary>
     /// Gets or sets the size of the input.

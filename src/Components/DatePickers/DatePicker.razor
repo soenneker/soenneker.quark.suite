@@ -77,8 +77,6 @@
     [Parameter]
     public DateOnly? Max { get; set; }
 
-    [Parameter]
-    public CssValue<ColorBuilder> BackgroundColor { get; set; } = Quark.Color.Primary;
 
     [Parameter]
     public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
@@ -99,7 +97,7 @@
 
     private ElementReference _ref;
     private ElementReference _containerRef;
-    private DotNetObjectReference<OutsideCloseProxy>? _outsideRef;
+    private DotNetObjectReference<DatePickerOutsideCloseProxy>? _outsideRef;
     private bool _open;
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
     private string[] _dayNames = [];
@@ -183,8 +181,8 @@
 
         if (firstRender)
         {
-            _outsideRef = DotNetObjectReference.Create(new OutsideCloseProxy(this));
-            await DatePickerInterop.RegisterOutsideClose(_containerRef, _outsideRef, nameof(OutsideCloseProxy.Close));
+            _outsideRef = DotNetObjectReference.Create(new DatePickerOutsideCloseProxy(this));
+            await DatePickerInterop.RegisterOutsideClose(_containerRef, _outsideRef, nameof(DatePickerOutsideCloseProxy.Close));
             InitializeDayNames();
             if (Value.HasValue)
                 _displayMonth = new DateOnly(Value.Value.Year, Value.Value.Month, 1);
@@ -293,21 +291,13 @@
         return InvokeAsync(StateHasChanged);
     }
 
-    private Task ClosePanel()
+    internal Task ClosePanel()
     {
         if (_open)
             _open = false;
         return InvokeAsync(StateHasChanged);
     }
 
-    private sealed class OutsideCloseProxy
-    {
-        private readonly DatePicker _owner;
-        public OutsideCloseProxy(DatePicker owner) { _owner = owner; }
-
-        [JSInvokable]
-        public Task Close() => _owner.ClosePanel();
-    }
 
     private async Task SelectDate(DateOnly date)
     {
@@ -344,7 +334,7 @@
         if (BackgroundColor is { IsEmpty: false })
         {
             string? token = null;
-            var isTheme = BackgroundColor.TryGetBootstrapThemeToken(out token);
+            var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
 
             if (isTheme && token is not null)
             {
@@ -352,10 +342,10 @@
             }
             else
             {
-                var result = BackgroundColor.ToString();
+                var result = BackgroundColor.Value.ToString();
                 if (!result.HasContent()) return;
 
-                if (BackgroundColor.IsCssStyle)
+                if (BackgroundColor.Value.IsCssStyle)
                     AppendStyleDecl(ref sty, $"background-color: {result}");
                 else
                     AppendClass(ref cls, $"form-control-{result}");

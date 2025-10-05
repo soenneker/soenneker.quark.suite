@@ -31,7 +31,7 @@ public interface IStep : IElement
     /// <summary>
     /// Gets or sets the background color scheme of the step.
     /// </summary>
-    CssValue<ColorBuilder> BackgroundColor { get; set; }
+    CssValue<ColorBuilder>? BackgroundColor { get; set; }
 
     /// <summary>
     /// Gets or sets the status of the step.

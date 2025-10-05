@@ -4,7 +4,6 @@
 
 @inherits Soenneker.Quark.Element
 @implements IStep
-@implements IDisposable
 
 <UnorderedListItem Class="@GetStepClasses()">
     <Anchor Class="@GetStepLinkClasses()" OnClick="@HandleStepClick" role="tab" aria-selected="@(Active ? "true" : "false")" aria-current="@(Active ? "step" : null)" @attributes="BuildAttributes()">
@@ -71,8 +70,6 @@
     [Parameter]
     public bool Disabled { get; set; }
 
-    [Parameter]
-    public CssValue<ColorBuilder> BackgroundColor { get; set; } = Quark.Color.Primary;
 
     [Parameter]
     public StepStatus Status { get; set; } = StepStatus.Pending;
@@ -107,7 +104,7 @@
 
     private int CalculatedIndex => Index ?? ParentSteps?.IndexOfStep(Name ?? string.Empty) ?? 1;
 
-    private string GetStepClasses()
+    private static string GetStepClasses()
     {
         var attributes = new Dictionary<string, object>();
         AppendToClassAttr(attributes, "nav-item");
@@ -192,7 +189,7 @@
         if (BackgroundColor is { IsEmpty: false })
         {
             string? token = null;
-            var isTheme = BackgroundColor.TryGetBootstrapThemeToken(out token);
+            var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
 
             if (isTheme && token is not null)
             {
@@ -203,7 +200,7 @@
                 var result = BackgroundColor.ToString();
                 if (!result.HasContent()) return;
 
-                if (BackgroundColor.IsCssStyle)
+                if (BackgroundColor.Value.IsCssStyle)
                     AppendStyleDecl(ref sty, $"background-color: {result}");
                 else
                     AppendClass(ref cls, $"step-marker-{result}");

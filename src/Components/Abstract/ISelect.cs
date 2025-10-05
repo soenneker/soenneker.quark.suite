@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components;
 
@@ -70,9 +69,4 @@ public interface ISelect<TValue> : IElement
     /// Gets the value used for validation purposes.
     /// </summary>
     object? ValidationValue { get; }
-
-    /// <summary>
-    /// Gets or sets the child content of the select.
-    /// </summary>
-    RenderFragment? ChildContent { get; set; }
 }

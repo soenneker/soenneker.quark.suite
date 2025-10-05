@@ -8,7 +8,7 @@ public interface IPagination : IElement
     /// <summary>
     /// Gets or sets the background color scheme of the pagination.
     /// </summary>
-    CssValue<ColorBuilder> BackgroundColor { get; set; }
+    CssValue<ColorBuilder>? BackgroundColor { get; set; }
 
     /// <summary>
     /// Gets or sets the size of the pagination.

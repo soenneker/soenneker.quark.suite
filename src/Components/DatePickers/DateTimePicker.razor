@@ -96,8 +96,6 @@
     [Parameter]
     public DateTime? Max { get; set; }
 
-    [Parameter]
-    public CssValue<ColorBuilder> BackgroundColor { get; set; } = Quark.Color.Primary;
 
     [Parameter]
     public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
@@ -118,7 +116,7 @@
 
     private ElementReference _ref;
     private ElementReference _containerRef;
-    private DotNetObjectReference<OutsideCloseProxy>? _outsideRef;
+    private DotNetObjectReference<DateTimePickerOutsideCloseProxy>? _outsideRef;
     private bool _open;
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
     private string[] _dayNames = [];
@@ -209,15 +207,14 @@
         {
             await DatePickerInterop.Initialize();
             await DatePickerInterop.Attach(_ref);
-            _outsideRef = DotNetObjectReference.Create(new OutsideCloseProxy(this));
-            await DatePickerInterop.RegisterOutsideClose(_containerRef, _outsideRef, nameof(OutsideCloseProxy.Close));
+            _outsideRef = DotNetObjectReference.Create(new DateTimePickerOutsideCloseProxy(this));
+            await DatePickerInterop.RegisterOutsideClose(_containerRef, _outsideRef, nameof(DateTimePickerOutsideCloseProxy.Close));
             InitializeDayNames();
             if (Value.HasValue)
             {
                 _displayMonth = DateOnly.FromDateTime(Value.Value);
                 _hour = Value.Value.Hour;
                 _minute = Value.Value.Minute;
-                _isAm = _hour < 12;
             }
             else
             {
@@ -225,8 +222,9 @@
                 var now = DateTime.Now;
                 _hour = now.Hour;
                 _minute = now.Minute;
-                _isAm = _hour < 12;
             }
+
+            _isAm = _hour < 12;
             StateHasChanged();
         }
 
@@ -335,21 +333,13 @@
         return InvokeAsync(StateHasChanged);
     }
 
-    private Task ClosePanel()
+    internal Task ClosePanel()
     {
         if (_open)
             _open = false;
         return InvokeAsync(StateHasChanged);
     }
 
-    private sealed class OutsideCloseProxy
-    {
-        private readonly DateTimePicker _owner;
-        public OutsideCloseProxy(DateTimePicker owner) { _owner = owner; }
-
-        [JSInvokable]
-        public Task Close() => _owner.ClosePanel();
-    }
 
     private Task Commit()
     {
@@ -361,7 +351,6 @@
             await ValueChanged.InvokeIfHasDelegate(Value);
             if (ParentValidation is not null)
                 await ParentValidation.NotifyInputChanged(Value);
-            StateHasChanged();
         });
     }
 
@@ -446,7 +435,7 @@
         if (BackgroundColor is { IsEmpty: false })
         {
             string? token = null;
-            var isTheme = BackgroundColor.TryGetBootstrapThemeToken(out token);
+            var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
 
             if (isTheme && token is not null)
             {
@@ -457,7 +446,7 @@
                 var result = BackgroundColor.ToString();
                 if (!result.HasContent()) return;
 
-                if (BackgroundColor.IsCssStyle)
+                if (BackgroundColor.Value.IsCssStyle)
                     AppendStyleDecl(ref sty, $"background-color: {result}");
                 else
                     AppendClass(ref cls, $"form-control-{result}");

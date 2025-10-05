@@ -2,17 +2,14 @@
 @inherits Soenneker.Quark.Element
 @implements IBreadcrumb
 
-<nav aria-label="breadcrumb" @attributes="BuildAttributes()">
+<Nav @attributes="BuildAttributes()">
     <OrderedList Class="breadcrumb">
         @ChildContent
     </OrderedList>
-</nav>
+</Nav>
 
 @code {
 	public override string? ThemeKey { get; set; } = "Breadcrumb";
-
-    [Parameter]
-    public CssValue<ColorBuilder> BackgroundColor { get; set; } = Quark.Color.Light;
 
     [Parameter]
     public bool Large { get; set; }
@@ -39,6 +36,12 @@
             baseClasses = $"{baseClasses} breadcrumb-sm";
 
         AppendToClassAttr(attributes, baseClasses);
+
+        // Set default aria-label for the Nav component if none provided
+        if (!AriaLabel.HasContent())
+        {
+            attributes["AriaLabel"] = "breadcrumb";
+        }
 
         return attributes;
     }

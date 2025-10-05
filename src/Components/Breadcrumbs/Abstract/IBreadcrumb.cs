@@ -6,11 +6,6 @@ namespace Soenneker.Quark;
 public interface IBreadcrumb : IElement
 {
     /// <summary>
-    /// Gets or sets the background color scheme of the breadcrumb.
-    /// </summary>
-    CssValue<ColorBuilder> BackgroundColor { get; set; }
-
-    /// <summary>
     /// Gets or sets whether the breadcrumb should use a large size.
     /// </summary>
     bool Large { get; set; }
