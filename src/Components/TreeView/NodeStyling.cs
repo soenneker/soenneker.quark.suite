@@ -8,12 +8,12 @@ public sealed class NodeStyling
     /// <summary>
     /// Gets or sets the background color for the node.
     /// </summary>
-    public CssValue<ColorBuilder> Background { get; set; } = Quark.Color.Initial;
+    public CssValue<BackgroundColorBuilder> Background { get; set; } = Quark.BackgroundColor.Initial;
 
     /// <summary>
     /// Gets or sets the text color for the node.
     /// </summary>
-    public CssValue<ColorBuilder> TextColor { get; set; } = Quark.Color.Initial;
+    public CssValue<BackgroundColorBuilder> TextColor { get; set; } = Quark.BackgroundColor.Initial;
 
     /// <summary>
     /// Gets or sets the CSS class for the node.

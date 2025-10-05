@@ -20,7 +20,7 @@ public sealed record SnackbarNotificationItem(
     string Key,
     string Message,
     string? Title,
-    CssValue<ColorBuilder> Color,
+    CssValue<BackgroundColorBuilder> Color,
     RenderFragment? Content,
     bool ShowClose,
     string? CloseText,

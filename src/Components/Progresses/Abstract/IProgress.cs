@@ -8,7 +8,7 @@ public interface IProgress : IElement
     /// <summary>
     /// Gets or sets the background color scheme of the progress bar.
     /// </summary>
-    CssValue<ColorBuilder>? BackgroundColor { get; set; }
+    CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
 
     /// <summary>
     /// Gets or sets the size of the progress bar.

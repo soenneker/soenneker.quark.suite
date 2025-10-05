@@ -31,7 +31,7 @@ public interface ISnackbarStack : IElement
     /// <param name="color">The color scheme of the snackbar.</param>
     /// <param name="options">Additional options for the snackbar.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    ValueTask Push(string message, CssValue<ColorBuilder>? color = null, Action<SnackbarOptions>? options = null);
+    ValueTask Push(string message, CssValue<BackgroundColorBuilder>? color = null, Action<SnackbarOptions>? options = null);
 
     /// <summary>
     /// Pushes custom content to the snackbar stack.
@@ -40,6 +40,6 @@ public interface ISnackbarStack : IElement
     /// <param name="color">The color scheme of the snackbar.</param>
     /// <param name="options">Additional options for the snackbar.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    ValueTask Push(RenderFragment content, CssValue<ColorBuilder>? color = null, Action<SnackbarOptions>? options = null);
+    ValueTask Push(RenderFragment content, CssValue<BackgroundColorBuilder>? color = null, Action<SnackbarOptions>? options = null);
 }
 

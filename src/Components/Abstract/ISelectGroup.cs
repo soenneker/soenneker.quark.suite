@@ -15,3 +15,4 @@ public interface ISelectGroup : IElement
     /// </summary>
     bool Disabled { get; set; }
 }
+

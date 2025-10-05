@@ -78,24 +78,24 @@
 		await base.OnAfterRenderAsync(firstRender);
 	}
 
-	public async ValueTask Push(string message, CssValue<ColorBuilder>? color = null, Action<SnackbarOptions>? options = null)
+	public async ValueTask Push(string message, CssValue<BackgroundColorBuilder>? color = null, Action<SnackbarOptions>? options = null)
 	{
 		await Push(message, null, color, options);
 	}
 
-	public async ValueTask Push(RenderFragment content, CssValue<ColorBuilder>? color = null, Action<SnackbarOptions>? options = null)
+	public async ValueTask Push(RenderFragment content, CssValue<BackgroundColorBuilder>? color = null, Action<SnackbarOptions>? options = null)
 	{
 		await Push(null, content, color, options);
 	}
 
-	private async ValueTask Push(string? message, RenderFragment? content, CssValue<ColorBuilder>? color, Action<SnackbarOptions>? options)
+	private async ValueTask Push(string? message, RenderFragment? content, CssValue<BackgroundColorBuilder>? color, Action<SnackbarOptions>? options)
 	{
 		var snackbarOptions = new SnackbarOptions();
 		options?.Invoke(snackbarOptions);
 
 		var item = new SnackbarNotificationItem(snackbarOptions.Key ?? Guid.NewGuid()
 				.ToString(), message ?? "", null, // No title in simplified version
-			color ?? Color.Primary, content, // Use the content template
+			color ?? Quark.BackgroundColor.Primary, content, // Use the content template
 			false, // No close button in simplified version
 			null, // No close text
 			false, // No action button in simplified version

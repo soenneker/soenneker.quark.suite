@@ -265,9 +265,14 @@ public interface IComponent : ICoreComponent
     CssValue<TextColorBuilder>? TextColor { get; set; }
 
     /// <summary>
+    /// Gets or sets the border color to apply (implementation-specific mapping to classes or inline style).
+    /// </summary>
+    CssValue<BorderColorBuilder>? BorderColor { get; set; }
+
+    /// <summary>
     /// Gets or sets the background color to apply (implementation-specific mapping to classes or inline style).
     /// </summary>
-    CssValue<ColorBuilder>? BackgroundColor { get; set; }
+    CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
 
     /// <summary>
     /// Gets or sets the animation configuration for CSS animations.

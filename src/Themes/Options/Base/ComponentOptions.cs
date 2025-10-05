@@ -80,11 +80,11 @@ public class ComponentOptions
 
     public CssValue<TextBreakBuilder>? TextBreak { get; set; }
 
-    public CssValue<ColorBuilder>? TextColor { get; set; }
+    public CssValue<TextColorBuilder>? TextColor { get; set; }
 
-    public CssValue<ColorBuilder>? BackgroundColor { get; set; }
+    public CssValue<BorderColorBuilder>? BorderColor { get; set; }
 
-    public CssValue<ColorBuilder>? TextBackgroundColor { get; set; }
+    public CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
 
     public CssValue<AnimationBuilder>? Animation { get; set; }
 

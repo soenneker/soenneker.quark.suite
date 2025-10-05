@@ -153,7 +153,10 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<TextColorBuilder>? TextColor { get; set; }
 
     [Parameter]
-    public CssValue<ColorBuilder>? BackgroundColor { get; set; }
+    public CssValue<BorderColorBuilder>? BorderColor { get; set; }
+
+    [Parameter]
+    public CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
 
     [Parameter]
     public CssValue<AnimationBuilder>? Animation { get; set; }
@@ -357,6 +360,7 @@ public abstract class Component : CoreComponent, IComponent
 
             AddCss(ref sty, ref cls, Display);
             ApplyTextColor(ref sty, ref cls);
+            ApplyBorderColor(ref sty, ref cls);
             ApplyBackgroundColor(ref sty, ref cls);
             AddCss(ref sty, ref cls, Flex);
             AddCss(ref sty, ref cls, Gap);
@@ -419,7 +423,7 @@ public abstract class Component : CoreComponent, IComponent
                 {
                     var k = kv.Key;
 
-                    if (k is null) 
+                    if (k is null)
                         continue;
 
                     if (k.EqualsIgnoreCase("class"))
@@ -649,7 +653,7 @@ public abstract class Component : CoreComponent, IComponent
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void AddColorCss(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<ColorBuilder>? v, string classPrefix,
+    private static void AddColorCss(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<BackgroundColorBuilder>? v, string classPrefix,
         string cssProperty)
     {
         if (v is { IsEmpty: false })
@@ -755,11 +759,14 @@ public abstract class Component : CoreComponent, IComponent
     {
         var componentOptions = GetComponentOptionsFromTheme(theme);
 
-        if (componentOptions == null) 
+        if (componentOptions == null)
             return;
 
         ApplyThemeProperty(componentOptions.Display, () => Display, v => Display = v);
         ApplyThemeProperty(componentOptions.Visibility, () => Visibility, v => Visibility = v);
+        ApplyThemeProperty(componentOptions.TextColor, () => TextColor, v => TextColor = v);
+        ApplyThemeProperty(componentOptions.BackgroundColor, () => BackgroundColor, v => BackgroundColor = v);
+        ApplyThemeProperty(componentOptions.BorderColor, () => BorderColor, v => BorderColor = v);
         ApplyThemeProperty(componentOptions.Float, () => Float, v => Float = v);
         ApplyThemeProperty(componentOptions.VerticalAlign, () => VerticalAlign, v => VerticalAlign = v);
         ApplyThemeProperty(componentOptions.TextOverflow, () => TextOverflow, v => TextOverflow = v);
@@ -815,10 +822,10 @@ public abstract class Component : CoreComponent, IComponent
         ApplyThemeProperty(componentOptions.TextStyle, () => TextStyle, v => TextStyle = v);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ApplyThemeProperty<T>(T? themeValue, Func<T?> getCurrentValue, Action<T> setValue) where T : struct
     {
-        if (themeValue.HasValue && !getCurrentValue()
-                .HasValue)
+        if (themeValue.HasValue && !getCurrentValue().HasValue)
             setValue(themeValue.Value);
     }
 
@@ -848,6 +855,16 @@ public abstract class Component : CoreComponent, IComponent
     protected virtual void ApplyTextColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
         AddCss(ref sty, ref cls, TextColor);
+    }
+
+    /// <summary>
+    /// Applies border color styling. Override this method in derived components to customize border color application.
+    /// </summary>
+    /// <param name="sty">String builder for inline styles</param>
+    /// <param name="cls">String builder for CSS classes</param>
+    protected virtual void ApplyBorderColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        AddCss(ref sty, ref cls, BorderColor);
     }
 
     /// <summary>

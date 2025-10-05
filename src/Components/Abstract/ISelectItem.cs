@@ -28,3 +28,4 @@ public interface ISelectItem<TValue> : IElement
     /// </summary>
     bool Hidden { get; set; }
 }
+

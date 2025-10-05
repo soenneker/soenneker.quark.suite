@@ -70,3 +70,4 @@ public interface ISelect<TValue> : IElement
     /// </summary>
     object? ValidationValue { get; }
 }
+
