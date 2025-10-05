@@ -1,6 +1,5 @@
 using Soenneker.Quark.Enums;
 using Soenneker.Extensions.String;
-
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Soenneker.Utils.PooledStringBuilders;
@@ -18,16 +17,6 @@ public sealed class BorderRadiusBuilder : ICssBuilder
 
     // ----- Class tokens -----
     private const string _baseToken = "rounded";
-
-    // ----- Corner tokens -----
-    private const string _cornerTl = "tl"; // top-left
-    private const string _cornerTr = "tr"; // top-right
-    private const string _cornerBl = "bl"; // bottom-left
-    private const string _cornerBr = "br"; // bottom-right
-    private const string _cornerT = "t";   // top (both corners)
-    private const string _cornerB = "b";  // bottom (both corners)
-    private const string _cornerL = "l";  // left (both corners)
-    private const string _cornerR = "r";  // right (both corners)
 
     internal BorderRadiusBuilder(string size, BreakpointType? breakpoint = null, string cornerToken = "")
     {
@@ -63,13 +52,6 @@ public sealed class BorderRadiusBuilder : ICssBuilder
     public BorderRadiusBuilder Pill => ChainWithSize("pill");
     public BorderRadiusBuilder Circle => ChainWithSize("circle");
 
-    // ----- BreakpointType chaining -----
-    public BorderRadiusBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
-    public BorderRadiusBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
-    public BorderRadiusBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
-    public BorderRadiusBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
-    public BorderRadiusBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
-    public BorderRadiusBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BorderRadiusBuilder AddRule(ElementSideType side, string cornerToken = "")
