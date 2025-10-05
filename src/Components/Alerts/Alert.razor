@@ -42,6 +42,13 @@
     [Parameter]
     public EventCallback OnDismiss { get; set; }
     
+    protected override bool ShouldRender()
+    {
+        // Alert has internal state (_hasMessage, _hasDescription) that can change
+        // and isn't tracked by the render key, so allow re-renders
+        return true;
+    }
+    
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();

@@ -324,7 +324,8 @@ public abstract class Component : CoreComponent, IComponent
         // Use cached attributes if render key hasn't changed
         if (_cachedAttrs != null && _cachedAttrsKey == _lastRenderKey)
         {
-            return _cachedAttrs;
+            // Return a copy to prevent derived classes from mutating the cache
+            return new Dictionary<string, object>(_cachedAttrs);
         }
 
         var guess = 14 + (Attributes?.Count ?? 0);

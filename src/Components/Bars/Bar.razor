@@ -13,9 +13,9 @@
             <CascadingValue Value="@_collapseGroupId" IsFixed="true">
                 <CascadingValue Value="@_forceCollapseAll">
                     <CascadingValue Value="@_menuId" IsFixed="true">
-                        <Nav @attributes="BuildAttributes()">
+                        <nav @attributes="BuildAttributes()">
                             @ChildContent
-                        </Nav>
+                        </nav>
                     </CascadingValue>
                 </CascadingValue>
             </CascadingValue>
@@ -66,6 +66,18 @@
 
     [Parameter]
     public BreakpointType? NavigationBreakpoint { get; set; }
+
+    protected override bool ShouldRender()
+    {
+        // For vertical bars with collapsible state, always allow renders
+        // because _sidebarCollapsed is internal state not tracked by render key
+        if (Mode != BarMode.Horizontal && CollapseMode == BarCollapseMode.Small)
+        {
+            return true;
+        }
+        
+        return base.ShouldRender();
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -243,8 +255,7 @@
                 });
             }
 
-            // Defer StateHasChanged to avoid re-render during event handling
-            _ = InvokeAsync(StateHasChanged);
+            StateHasChanged();
             return;
         }
 
