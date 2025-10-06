@@ -184,4 +184,10 @@ public sealed class BootstrapTypographyCssVariables
     /// </summary>
     [CssVariable("bs-highlight-bg")]
     public string? HighlightBg { get; set; }
+
+    /// <summary>
+    /// Body text align. Default: left
+    /// </summary>
+    [CssVariable("bs-body-text-align")]
+    public string? BodyTextAlign { get; set; }
 }

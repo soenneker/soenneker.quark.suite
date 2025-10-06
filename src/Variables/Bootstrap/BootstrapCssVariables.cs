@@ -19,6 +19,10 @@ public sealed class BootstrapCssVariables
 
     public BootstrapGeneralCssVariables? General { get; set; }
 
+    public BootstrapBreakpointsCssVariables? Breakpoints { get; set; }
+
+    public BootstrapNavbarCssVariables? Navbar { get; set; }
+
     public BootstrapButtonCssVariables? Button { get; set; }
 
     public BootstrapPrimaryButtonCssVariables? PrimaryButton { get; set; }
@@ -65,6 +69,7 @@ public sealed class BootstrapCssVariables
     public BootstrapCardCssVariables? Card { get; set; }
 
     // Forms
+    public BootstrapFormsCssVariables? Forms { get; set; }
     public BootstrapFormControlCssVariables? FormControl { get; set; }
     public BootstrapFormCheckInputCssVariables? FormCheckInput { get; set; }
     public BootstrapFormSwitchInputCssVariables? FormSwitchInput { get; set; }
@@ -88,9 +93,11 @@ public sealed class BootstrapCssVariables
     // Modals
     public BootstrapModalCssVariables? Modal { get; set; }
     public BootstrapModalContentCssVariables? ModalContent { get; set; }
+    public BootstrapModalBackdropCssVariables? ModalBackdrop { get; set; }
 
     // Offcanvas
     public BootstrapOffcanvasCssVariables? Offcanvas { get; set; }
+    public BootstrapOffcanvasBackdropCssVariables? OffcanvasBackdrop { get; set; }
 
     // Dropdowns
     public BootstrapDropdownMenuCssVariables? DropdownMenu { get; set; }
@@ -98,6 +105,7 @@ public sealed class BootstrapCssVariables
     public BootstrapDropdownToggleCssVariables? DropdownToggle { get; set; }
 
     // Breadcrumbs
+    public BootstrapBreadcrumbCssVariables? Breadcrumb { get; set; }
     public BootstrapBreadcrumbItemCssVariables? BreadcrumbItem { get; set; }
 
     // Toasts
@@ -118,4 +126,10 @@ public sealed class BootstrapCssVariables
 
     // Carousel
     public BootstrapCarouselCssVariables? Carousel { get; set; }
+
+    // Close Button
+    public BootstrapCloseButtonCssVariables? CloseButton { get; set; }
+
+    // Spinner
+    public BootstrapSpinnerCssVariables? Spinner { get; set; }
 }

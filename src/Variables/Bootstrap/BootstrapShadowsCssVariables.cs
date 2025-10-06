@@ -29,4 +29,23 @@ public sealed class BootstrapShadowsCssVariables
     /// </summary>
     [CssVariable("bs-box-shadow-inset")]
     public string? BoxShadowInset { get; set; }
+
+    // Focus Ring
+    /// <summary>
+    /// Focus ring width. Default: 0.25rem
+    /// </summary>
+    [CssVariable("bs-focus-ring-width")]
+    public string? FocusRingWidth { get; set; }
+
+    /// <summary>
+    /// Focus ring opacity. Default: 0.25
+    /// </summary>
+    [CssVariable("bs-focus-ring-opacity")]
+    public string? FocusRingOpacity { get; set; }
+
+    /// <summary>
+    /// Focus ring color. Default: rgba(13, 110, 253, 0.25)
+    /// </summary>
+    [CssVariable("bs-focus-ring-color")]
+    public string? FocusRingColor { get; set; }
 }

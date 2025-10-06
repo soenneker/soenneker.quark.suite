@@ -60,7 +60,13 @@ public sealed class BootstrapBordersCssVariables
     public string? BorderRadiusXl { get; set; }
 
     /// <summary>
-    /// Border radius 2XL. Default: 2rem
+    /// Border radius XXL. Default: 2rem
+    /// </summary>
+    [CssVariable("bs-border-radius-xxl")]
+    public string? BorderRadiusXxl { get; set; }
+
+    /// <summary>
+    /// Border radius 2XL. Default: var(--bs-border-radius-xxl)
     /// </summary>
     [CssVariable("bs-border-radius-2xl")]
     public string? BorderRadius2xl { get; set; }
