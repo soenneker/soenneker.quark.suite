@@ -2,8 +2,13 @@
 @using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
-@inherits Soenneker.Quark.Input
+@inherits Soenneker.Quark.Element
 @implements IDateEdit
+
+<Input Type="@GetInputModeString()"
+       @attributes="BuildInputAttributes()" 
+       OnInput="HandleInput"
+       OnChange="HandleChange" />
 
 @code {
 	public override string? ThemeKey { get; set; } = "DateEdit";
@@ -44,11 +49,114 @@
 	[Parameter]
 	public EventCallback<DateOnly?> DateOnlyChanged { get; set; }
 
-	public override object? ValidationValue => Date ?? (object?)DateOnly;
+	[Parameter]
+	public string? Placeholder { get; set; }
 
-	protected override string GetInputType()
+	[Parameter]
+	public bool Disabled { get; set; }
+
+	[Parameter]
+	public bool ReadOnly { get; set; }
+
+	[Parameter]
+	public bool Required { get; set; }
+
+	[Parameter]
+	public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
+
+	[Parameter]
+	public bool PlainText { get; set; }
+
+	[Parameter]
+	public bool FloatingLabel { get; set; }
+
+	[Parameter]
+	public string? Label { get; set; }
+
+	[Parameter]
+	public EventCallback<ChangeEventArgs> OnChange { get; set; }
+
+	[Parameter]
+	public EventCallback<ChangeEventArgs> OnInput { get; set; }
+
+	[CascadingParameter]
+	public Validation? ParentValidation { get; set; }
+
+	public object? ValidationValue => Date ?? (object?)DateOnly;
+
+	public string? GetValidationClass()
 	{
-		return GetInputModeString();
+		if (ParentValidation?.Status == ValidationStatus.Error)
+			return "is-invalid";
+
+		if (ParentValidation?.Status == ValidationStatus.Success)
+			return "is-valid";
+
+		return null;
+	}
+
+	public string? GetColorClass()
+	{
+		if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
+		{
+			string? token = null;
+			var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
+
+			if (isTheme && token is not null)
+			{
+				// Bootstrap theme token (e.g., "primary", "secondary")
+				return $"form-control-{token}";
+			}
+
+			var v = BackgroundColor.Value.ToString().Trim();
+
+			if (BackgroundColor.Value.IsCssClass)
+			{
+				if (v.StartsWith("form-control-", StringComparison.Ordinal))
+					return v;
+				return $"form-control-{v}";
+			}
+		}
+
+		return null;
+	}
+
+	public string? GetSizeClass()
+	{
+		if (Size == Quark.Size.Default)
+			return null;
+
+		string? token = null;
+		var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+		if (isTheme && token is not null)
+			return $"form-control-{token}";
+
+		return Size?.ToString() != null ? $"form-control-{Size}" : null;
+	}
+
+	private string GetCurrentValue()
+	{
+		if (Date.HasValue)
+		{
+			return InputMode.Value switch
+			{
+				"date" => Date.Value.ToString("yyyy-MM-dd"),
+				"datetime-local" => Date.Value.ToString("yyyy-MM-ddTHH:mm"),
+				"month" => Date.Value.ToString("yyyy-MM"),
+				_ => Date.Value.ToString("yyyy-MM-dd")
+			};
+		}
+		else if (DateOnly.HasValue)
+		{
+			return InputMode.Value switch
+			{
+				"date" => DateOnly.Value.ToString("yyyy-MM-dd"),
+				"datetime-local" => DateOnly.Value.ToString("yyyy-MM-ddTHH:mm"),
+				"month" => DateOnly.Value.ToString("yyyy-MM"),
+				_ => DateOnly.Value.ToString("yyyy-MM-dd")
+			};
+		}
+		return string.Empty;
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -68,7 +176,7 @@
 		await base.OnAfterRenderAsync(firstRender);
 	}
 
-	protected override async Task HandleInput(ChangeEventArgs e)
+	private async Task HandleInput(ChangeEventArgs e)
 	{
 		var value = e.Value?.ToString();
 		
@@ -89,10 +197,10 @@
 			await DateOnlyChanged.InvokeIfHasDelegate(DateOnly);
 		}
 
-		await base.HandleInput(e);
+		await OnInput.InvokeIfHasDelegate(e);
 	}
 
-	protected override async Task HandleChange(ChangeEventArgs e)
+	private async Task HandleChange(ChangeEventArgs e)
 	{
 		var value = e?.Value?.ToString();
 		
@@ -113,7 +221,7 @@
 			await DateOnlyChanged.InvokeIfHasDelegate(DateOnly);
 		}
 
-		await base.HandleChange(e);
+		await OnChange.InvokeIfHasDelegate(e);
 	}
 
 	private string GetInputModeString()
@@ -121,36 +229,16 @@
 		return InputMode.Value;
 	}
 
-	protected override Dictionary<string, object> BuildAttributes()
+	private Dictionary<string, object> BuildInputAttributes()
 	{
-		var attributes = base.BuildAttributes();
+		var attributes = new Dictionary<string, object>();
+
+		// Add current value
+		var currentValue = GetCurrentValue();
+		if (!string.IsNullOrEmpty(currentValue))
+			attributes["value"] = currentValue;
 
 		// Add DateEdit-specific attributes
-		attributes["type"] = GetInputModeString();
-
-		if (Date.HasValue)
-		{
-			var dateString = InputMode.Value switch
-			{
-				"date" => Date.Value.ToString("yyyy-MM-dd"),
-				"datetime-local" => Date.Value.ToString("yyyy-MM-ddTHH:mm"),
-				"month" => Date.Value.ToString("yyyy-MM"),
-				_ => Date.Value.ToString("yyyy-MM-dd")
-			};
-			attributes["value"] = dateString;
-		}
-		else if (DateOnly.HasValue)
-		{
-			var dateString = InputMode.Value switch
-			{
-				"date" => DateOnly.Value.ToString("yyyy-MM-dd"),
-				"datetime-local" => DateOnly.Value.ToString("yyyy-MM-ddTHH:mm"),
-				"month" => DateOnly.Value.ToString("yyyy-MM"),
-				_ => DateOnly.Value.ToString("yyyy-MM-dd")
-			};
-			attributes["value"] = dateString;
-		}
-
 		if (Min != default)
 		{
 			var minString = InputMode.Value switch
@@ -199,6 +287,31 @@
 
 		if (Step > 1)
 			attributes["step"] = Step;
+
+		// Pass through Input component properties
+		if (Placeholder.HasContent())
+			attributes["placeholder"] = Placeholder;
+
+		if (Disabled)
+			attributes["disabled"] = true;
+
+		if (ReadOnly)
+			attributes["readonly"] = true;
+
+		if (Required)
+			attributes["required"] = true;
+
+		if (Size != Quark.Size.Default)
+			attributes["size"] = Size;
+
+		if (PlainText)
+			attributes["plaintext"] = true;
+
+		if (FloatingLabel)
+			attributes["floatinglabel"] = true;
+
+		if (Label.HasContent())
+			attributes["label"] = Label;
 
 		return attributes;
 	}

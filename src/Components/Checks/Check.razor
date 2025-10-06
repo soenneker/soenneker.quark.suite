@@ -5,6 +5,7 @@
 @inherits Soenneker.Quark.Element
 @implements Soenneker.Quark.IValidationInput
 @implements ICheck
+@inject ICheckInterop CheckInterop
 
 <input type="checkbox" @attributes="BuildAttributes()" @onchange="HandleChange" />
 
@@ -44,10 +45,19 @@
     [Parameter]
     public Expression<Func<bool>>? CheckedExpression { get; set; }
 
+
     public object? ValidationValue => Checked;
+
+    private bool _initialized;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender && !_initialized)
+        {
+            await CheckInterop.Initialize();
+            _initialized = true;
+        }
+
         if (firstRender && ParentValidation is not null)
         {
             if (CheckedExpression is not null)
@@ -67,11 +77,11 @@
         string? token = null;
         var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
         if (isTheme && token is not null)
-            return $"form-check-input-{token}";
+            return $"quark-check-{token}";
 
         // SizeBuilder now generates clean tokens like "lg", "sm" without prefix
         var sizeValue = Size?.ToString();
-        return sizeValue.HasContent() ? $"form-check-input-{sizeValue}" : null;
+        return sizeValue.HasContent() ? $"quark-check-{sizeValue}" : null;
     }
 
     protected override Dictionary<string, object> BuildAttributes()

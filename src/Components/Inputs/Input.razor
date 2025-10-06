@@ -5,10 +5,13 @@
 @implements Soenneker.Quark.IValidationInput
 @implements IInput
 
-<input type="@GetInputType()" @attributes="BuildAttributes()" />
+<input @attributes="BuildAttributes()" />
 
 @code {
     public override string? ThemeKey { get; set; } = "Input";
+
+    [Parameter]
+    public string? Type { get; set; }
 
     [Parameter]
     public string? Placeholder { get; set; }
@@ -130,7 +133,7 @@
 
     protected virtual string GetInputType()
     {
-        return "text";
+        return Type ?? "text";
     }
 
 
@@ -154,6 +157,9 @@
             baseClasses = $"{baseClasses} {validationClass}";
 
         AppendToClassAttr(attributes, baseClasses);
+
+        // Add type attribute
+        attributes["type"] = GetInputType();
 
         // Handle custom CSS colors using BackgroundColor
         if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty && !BackgroundColor.Value.IsCssClass)
