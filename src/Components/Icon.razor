@@ -45,40 +45,40 @@
 
     protected override Dictionary<string, object> BuildAttributes()
     {
-        Attributes = base.BuildAttributes();
+        var attributes = base.BuildAttributes();
 
         // Always include the FA base class first for predictability
-        AppendToClassAttr(Attributes, "fa");
+        AppendToClassAttr(attributes, "fa");
 
         var styleClass = GetFamilyAndStyleClass(Family, IconStyle);
 
         if (styleClass.HasContent())
-            AppendToClassAttr(Attributes, styleClass);
+            AppendToClassAttr(attributes, styleClass);
 
         // Icon name (normalize to fa-*)
         if (Name.HasContent())
-            AppendToClassAttr(Attributes, NormalizeIconName(Name!));
+            AppendToClassAttr(attributes, NormalizeIconName(Name!));
 
         // Helpers (size, spin, rotations, animations)
         if (IconSize is not null && IconSize != IconSize.None)
-            AppendToClassAttr(Attributes, IconSize!.Value);
+            AppendToClassAttr(attributes, IconSize!.Value);
 
         if (SpinReverse)
-            AppendToClassAttr(Attributes, "fa-spin-reverse");
+            AppendToClassAttr(attributes, "fa-spin-reverse");
 
         if (Rotate is not null && Rotate != IconRotate.None)
-            AppendToClassAttr(Attributes, Rotate!.Value);
+            AppendToClassAttr(attributes, Rotate!.Value);
 
         if (RotateByDegrees.HasValue)
-            AppendStyleDeclAttr(Attributes, $"--fa-rotate-angle: {RotateByDegrees.Value}deg");
+            AppendStyleDeclAttr(attributes, $"--fa-rotate-angle: {RotateByDegrees.Value}deg");
 
         if (Flip is not null && Flip != IconFlip.None)
-            AppendToClassAttr(Attributes, Flip!.Value);
+            AppendToClassAttr(attributes, Flip!.Value);
 
         if (Animation is not null && Animation != IconAnimation.None)
-            AppendToClassAttr(Attributes, Animation!.Value);
+            AppendToClassAttr(attributes, Animation!.Value);
 
-        return Attributes;
+        return attributes;
     }
 
     private static string GetFamilyAndStyleClass(IconFamily? family, IconStyle? weight)

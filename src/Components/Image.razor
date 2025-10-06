@@ -79,81 +79,81 @@
 
     protected override Dictionary<string, object> BuildAttributes()
     {
-        Attributes = base.BuildAttributes();
+        var attributes = base.BuildAttributes();
 
         // Add default Bootstrap image classes if no class is specified
         if (!Class.HasContent())
         {
-            AppendToClassAttr(Attributes, "img-thumbnail");
+            AppendToClassAttr(attributes, "img-thumbnail");
             var fluidClass = GetFluidClass();
             if (fluidClass != null)
-                AppendToClassAttr(Attributes, fluidClass);
+                AppendToClassAttr(attributes, fluidClass);
         }
         else
         {
             // If class is specified, still add fluid class if not already present
-            var currentClass = Attributes.GetValueOrDefault("class")
+            var currentClass = attributes.GetValueOrDefault("class")
                 ?.ToString() ?? "";
 
             var fluidClass = GetFluidClass();
             if (fluidClass != null && !currentClass.Contains(fluidClass))
             {
-                AppendToClassAttr(Attributes, fluidClass);
+                AppendToClassAttr(attributes, fluidClass);
             }
 
         }
 
         // Add image-specific attributes
         if (Source.HasContent())
-            Attributes["src"] = Source;
+            attributes["src"] = Source;
 
         if (Alt.HasContent())
-            Attributes["alt"] = Alt;
+            attributes["alt"] = Alt;
 
         var loadingAttr = GetLoadingAttribute();
         if (loadingAttr.HasContent())
-            Attributes["loading"] = loadingAttr;
+            attributes["loading"] = loadingAttr;
 
         if (Decoding.HasContent())
-            Attributes["decoding"] = Decoding;
+            attributes["decoding"] = Decoding;
 
         if (FetchPriority.HasContent())
-            Attributes["fetchpriority"] = FetchPriority;
+            attributes["fetchpriority"] = FetchPriority;
 
         if (Sizes.HasContent())
-            Attributes["sizes"] = Sizes;
+            attributes["sizes"] = Sizes;
 
         if (SrcSet.HasContent())
-            Attributes["srcset"] = SrcSet;
+            attributes["srcset"] = SrcSet;
 
         if (CrossOrigin.HasContent())
-            Attributes["crossorigin"] = CrossOrigin;
+            attributes["crossorigin"] = CrossOrigin;
 
         if (ReferrerPolicy.HasContent())
-            Attributes["referrerpolicy"] = ReferrerPolicy;
+            attributes["referrerpolicy"] = ReferrerPolicy;
 
         if (UseMap.HasContent())
-            Attributes["usemap"] = UseMap;
+            attributes["usemap"] = UseMap;
 
         if (IsMap)
-            Attributes["ismap"] = true;
+            attributes["ismap"] = true;
 
         if (LongDesc.HasContent())
-            Attributes["longdesc"] = LongDesc;
+            attributes["longdesc"] = LongDesc;
 
         // Add event handlers
         if (OnLoad.HasDelegate)
-            Attributes["onload"] = EventCallback.Factory.Create(this, OnLoad);
+            attributes["onload"] = EventCallback.Factory.Create(this, OnLoad);
 
         if (OnError.HasDelegate)
-            Attributes["onerror"] = EventCallback.Factory.Create(this, OnError);
+            attributes["onerror"] = EventCallback.Factory.Create(this, OnError);
 
         if (OnLoadStart.HasDelegate)
-            Attributes["onloadstart"] = EventCallback.Factory.Create(this, OnLoadStart);
+            attributes["onloadstart"] = EventCallback.Factory.Create(this, OnLoadStart);
 
         if (OnAbort.HasDelegate)
-            Attributes["onabort"] = EventCallback.Factory.Create(this, OnAbort);
+            attributes["onabort"] = EventCallback.Factory.Create(this, OnAbort);
 
-        return Attributes;
+        return attributes;
     }
 }

@@ -142,6 +142,21 @@
             <Hr/>
 
             <Div>
+                <H2>Snackbars with Location Parameter</H2>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <Div Class="mb-3">
+                        <Button BackgroundColor="@BackgroundColor.Primary" @onclick="ShowLocationOverrideSnackbar">Show Snackbar with Location Override</Button>
+                    </Div>
+                    <Div Class="mb-3">
+                        <Button BackgroundColor="@BackgroundColor.Success" @onclick="ShowMultipleLocationSnackbars">Show Multiple Locations Simultaneously</Button>
+                    </Div>
+                </Div>
+                <Paragraph Class="text-muted">Snackbars with individual location overrides using the new location parameter.</Paragraph>
+            </Div>
+
+            <Hr/>
+
+            <Div>
                 <H2>Snackbar with Rich Content</H2>
                 <Div Margin="Margin.Is3.FromEnd">
                     <Div Class="mb-3">
@@ -171,6 +186,18 @@
                         <li><strong>Actions:</strong> Interactive buttons and links</li>
                     </ul>
                 </Div>
+            </Div>
+
+            <Hr/>
+
+            <Div>
+                <H2>Theme Configuration</H2>
+                <Div Margin="Margin.Is3.FromEnd">
+                    <Div Class="mb-3">
+                        <Button BackgroundColor="@BackgroundColor.Primary" @onclick="ShowThemeConfiguredSnackbar">Show Theme-Configured Snackbar</Button>
+                    </Div>
+                </Div>
+                <Paragraph Class="text-muted">Snackbars that use theme-configured default location and delay settings.</Paragraph>
             </Div>
 
             <Hr/>
@@ -296,7 +323,20 @@
     private async Task ShowPositionedSnackbar(string position)
     {
         if (snackbarStackRef != null)
-            await snackbarStackRef.Push($"Snackbar positioned at {position}", BackgroundColor.Primary);
+        {
+            var location = position switch
+            {
+                "top-left" => SnackbarLocation.TopStart,
+                "top-center" => SnackbarLocation.Top,
+                "top-right" => SnackbarLocation.TopEnd,
+                "bottom-left" => SnackbarLocation.BottomStart,
+                "bottom-center" => SnackbarLocation.Bottom,
+                "bottom-right" => SnackbarLocation.BottomEnd,
+                _ => SnackbarLocation.BottomEnd
+            };
+            
+            await snackbarStackRef.Push($"Snackbar positioned at {position}", BackgroundColor.Primary, location: location);
+        }
     }
 
     private async Task ShowRichContentSnackbar()
@@ -329,6 +369,30 @@
             await snackbarStackRef.Push("This snackbar has proper accessibility features", BackgroundColor.Primary);
     }
 
+    private async Task ShowLocationOverrideSnackbar()
+    {
+        if (snackbarStackRef != null)
+            await snackbarStackRef.Push("This snackbar uses the location parameter to override the default position", BackgroundColor.Info, location: SnackbarLocation.Top);
+    }
+
+    private async Task ShowMultipleLocationSnackbars()
+    {
+        if (snackbarStackRef != null)
+        {
+            await snackbarStackRef.Push("Top-left snackbar", BackgroundColor.Primary, location: SnackbarLocation.TopStart);
+            await Task.Delay(200);
+            await snackbarStackRef.Push("Top-center snackbar", BackgroundColor.Secondary, location: SnackbarLocation.Top);
+            await Task.Delay(200);
+            await snackbarStackRef.Push("Top-right snackbar", BackgroundColor.Success, location: SnackbarLocation.TopEnd);
+            await Task.Delay(200);
+            await snackbarStackRef.Push("Bottom-left snackbar", BackgroundColor.Warning, location: SnackbarLocation.BottomStart);
+            await Task.Delay(200);
+            await snackbarStackRef.Push("Bottom-center snackbar", BackgroundColor.Info, location: SnackbarLocation.Bottom);
+            await Task.Delay(200);
+            await snackbarStackRef.Push("Bottom-right snackbar", BackgroundColor.Danger, location: SnackbarLocation.BottomEnd);
+        }
+    }
+
     // Action handlers
     private async Task HandleViewAction()
     {
@@ -358,6 +422,12 @@
     {
         if (snackbarStackRef != null)
             await snackbarStackRef.Push("Message marked as read", BackgroundColor.Success);
+    }
+
+    private async Task ShowThemeConfiguredSnackbar()
+    {
+        if (snackbarStackRef != null)
+            await snackbarStackRef.Push("This snackbar uses theme-configured defaults (no explicit location or delay)", BackgroundColor.Info);
     }
 
     protected override void OnInitialized()

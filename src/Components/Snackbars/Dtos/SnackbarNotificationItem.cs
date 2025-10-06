@@ -15,6 +15,7 @@ namespace Soenneker.Quark;
 /// <param name="ShowAction">Whether to show an action button.</param>
 /// <param name="ActionText">Text for the action button.</param>
 /// <param name="HideDelay">Auto-hide delay in milliseconds.</param>
+/// <param name="Location">Optional location override for this specific snackbar.</param>
 /// <param name="Visible">Whether the notification is visible.</param>
 public sealed record SnackbarNotificationItem(
     string Key,
@@ -27,4 +28,5 @@ public sealed record SnackbarNotificationItem(
     bool ShowAction,
     string? ActionText,
     int? HideDelay,
+    SnackbarLocation? Location,
     bool Visible = true);

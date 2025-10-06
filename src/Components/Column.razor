@@ -23,20 +23,20 @@
     
     protected override Dictionary<string, object> BuildAttributes()
     {
-        Attributes = base.BuildAttributes();
+        var attributes = base.BuildAttributes();
         
-        AppendToClassAttr(Attributes, "col");
+        AppendToClassAttr(attributes, "col");
 
         // Add column-specific CSS values
-        AddColumnCss(ColumnSize);
-        AddColumnCss(ColumnOffset);
-        AddColumnCss(ColumnOrder);
-        AddColumnCss(ColumnAuto);
+        AddColumnCss(attributes, ColumnSize);
+        AddColumnCss(attributes, ColumnOffset);
+        AddColumnCss(attributes, ColumnOrder);
+        AddColumnCss(attributes, ColumnAuto);
 
-        return Attributes;
+        return attributes;
     }
 
-    private void AddColumnCss<T>(CssValue<T>? cssValue) where T : class, ICssBuilder
+    private void AddColumnCss<T>(Dictionary<string, object> attributes, CssValue<T>? cssValue) where T : class, ICssBuilder
     {
         if (cssValue is { IsEmpty: false })
         {
@@ -45,11 +45,11 @@
             {
                 if (cssValue.Value.IsCssStyle)
                 {
-                    AppendStyleDeclAttr(Attributes, css);
+                    AppendStyleDeclAttr(attributes, css);
                 }
                 else
                 {
-                    AppendToClassAttr(Attributes, css);
+                    AppendToClassAttr(attributes, css);
                 }
             }
         }

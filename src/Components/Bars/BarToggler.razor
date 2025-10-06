@@ -41,13 +41,13 @@
 
     protected override Dictionary<string, object> BuildAttributes()
     {
-        Attributes = base.BuildAttributes();
+        var attributes = base.BuildAttributes();
 
-        AppendToClassAttr(Attributes, "navbar-toggler");
+        AppendToClassAttr(attributes, "navbar-toggler");
         // Use only new class names
         
         if (Mode == BarTogglerMode.Popout)
-            AppendToClassAttr(Attributes, "navbar-toggler-popout");
+            AppendToClassAttr(attributes, "navbar-toggler-popout");
 
 		// For horizontal navbars, wire up Bootstrap's collapse behavior
         if (BarMode == BarMode.Horizontal)
@@ -57,16 +57,16 @@
             
             if (target.HasContent())
             {
-                Attributes["data-bs-toggle"] = "collapse";
-                Attributes["data-bs-target"] = target!;
+                attributes["data-bs-toggle"] = "collapse";
+                attributes["data-bs-target"] = target!;
                 // aria-controls expects the id without the '#'
                 var controls = target!.StartsWith("#") ? target.Substring(1) : target!;
-                Attributes["aria-controls"] = controls;
+                attributes["aria-controls"] = controls;
             }
 		}
 
 
-        return Attributes;
+        return attributes;
     }
 
     private async Task HandleToggle(MouseEventArgs args)

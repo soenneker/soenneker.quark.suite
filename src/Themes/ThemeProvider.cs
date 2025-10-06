@@ -90,6 +90,7 @@ public sealed class ThemeProvider : IThemeProvider
         ["SnackbarFooter"] = theme => theme.SnackbarFooters,
         ["SnackbarBody"] = theme => theme.SnackbarBodys,
         ["SnackbarAction"] = theme => theme.SnackbarActions,
+        ["SnackbarStack"] = theme => theme.SnackbarStacks,
         
         // Navigation components
         ["Tabs"] = theme => theme.Tabs,

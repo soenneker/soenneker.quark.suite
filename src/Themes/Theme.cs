@@ -146,6 +146,8 @@ public sealed class Theme
 
     public SnackbarActionOptions? SnackbarActions { get; set; }
 
+    public SnackbarStackOptions? SnackbarStacks { get; set; }
+
     // Navigation components
     public TabsOptions? Tabs { get; set; }
 

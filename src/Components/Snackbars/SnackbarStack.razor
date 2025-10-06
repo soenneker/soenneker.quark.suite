@@ -5,29 +5,32 @@
 @implements ISnackbarStack
 @inject ISnackbarInterop SnackbarInterop
 
-<Div @attributes="BuildAttributes()" >
-	<CascadingValue Value="@this" IsFixed="true" >
-		@ChildContent
-		@foreach (var item in _notifications)
-		{
-			<Snackbar @key="@item.Key"
-			          Key="@item.Key"
-			          Visible="@item.Visible"
-			          BackgroundColor="@item.Color"
-			          AutoHideDelay="@(item.HideDelay ?? DefaultDelay)"
-			          Closed="@(async (e) => await HandleClosed(e.Key, e.CloseReason))" >
-				@if (item.Content != null)
-				{
-					@item.Content
-				}
-				else
-				{
-					@item.Message
-				}
-			</Snackbar>
-		}
-	</CascadingValue>
-</Div>
+<CascadingValue Value="@this" IsFixed="true" >
+	@ChildContent
+	@foreach (var locationGroup in _notifications.GroupBy(n => n.Location ?? EffectiveLocation))
+	{
+		<Div @attributes="BuildAttributes(locationGroup.Key)" >
+			@foreach (var item in locationGroup)
+			{
+				<Snackbar @key="@item.Key"
+				          Key="@item.Key"
+				          Visible="@item.Visible"
+				          BackgroundColor="@item.Color"
+				          AutoHideDelay="@(item.HideDelay ?? EffectiveDefaultDelay)"
+				          Closed="@(async (e) => await HandleClosed(e.Key, e.CloseReason))" >
+					@if (item.Content != null)
+					{
+						@item.Content
+					}
+					else
+					{
+						@item.Message
+					}
+				</Snackbar>
+			}
+		</Div>
+	}
+</CascadingValue>
 
 @code {
 	public override string? ThemeKey { get; set; } = "SnackbarStack";
@@ -37,20 +40,62 @@
 	private bool _isInitialized;
 
 	[Parameter]
-	public SnackbarLocation Location { get; set; } = SnackbarLocation.BottomEnd;
+	public SnackbarLocation? Location { get; set; }
 
 	[Parameter]
-	public int DefaultDelay { get; set; } = 5000;
+	public int? DefaultDelay { get; set; }
 
 	[Parameter]
 	public EventCallback<SnackbarClosedEventArgs> Closed { get; set; }
 
+	private SnackbarLocation? _cachedEffectiveLocation;
+	private int? _cachedEffectiveDefaultDelay;
+
+	private SnackbarLocation EffectiveLocation
+	{
+		get
+		{
+			if (_cachedEffectiveLocation == null)
+			{
+				_cachedEffectiveLocation = Location ?? GetThemeOptions()?.DefaultLocation ?? SnackbarLocation.BottomEnd;
+			}
+
+			return _cachedEffectiveLocation;
+		}
+	}
+
+	private int EffectiveDefaultDelay
+	{
+		get
+		{
+			if (_cachedEffectiveDefaultDelay == null)
+			{
+				_cachedEffectiveDefaultDelay = DefaultDelay ?? GetThemeOptions()?.DefaultDelay ?? 5000;
+			}
+			return _cachedEffectiveDefaultDelay.Value;
+		}
+	}
+
+	private SnackbarStackOptions? GetThemeOptions()
+	{
+		if (ThemeProvider?.Themes == null || ThemeProvider.CurrentTheme == null)
+			return null;
+
+		var theme = ThemeProvider.Themes.GetValueOrDefault(ThemeProvider.CurrentTheme);
+		return theme?.SnackbarStacks;
+	}
+
 	protected override Dictionary<string, object> BuildAttributes()
+	{
+		return BuildAttributes(EffectiveLocation);
+	}
+
+	protected Dictionary<string, object> BuildAttributes(SnackbarLocation location)
 	{
 		var attributes = base.BuildAttributes();
 		var classes = "snackbar-stack position-fixed p-3";
 
-		classes += Location.Value switch
+		classes += location.Value switch
 		{
 			"top" => " top-0 start-50 translate-middle-x",
 			"top-start" => " top-0 start-0",
@@ -61,10 +106,19 @@
 			_ => " bottom-0 end-0"
 		};
 
-		AppendToClassAttr(attributes, classes);
+		EnsureClassAttr(attributes, classes);
+		
 		attributes["style"] = "z-index: 1055;";
 
 		return attributes;
+	}
+
+	protected override void OnParametersSet()
+	{
+		// Clear cache when parameters change
+		_cachedEffectiveLocation = null;
+		_cachedEffectiveDefaultDelay = null;
+		base.OnParametersSet();
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -78,17 +132,17 @@
 		await base.OnAfterRenderAsync(firstRender);
 	}
 
-	public async ValueTask Push(string message, CssValue<BackgroundColorBuilder>? color = null, Action<SnackbarOptions>? options = null)
+	public async ValueTask Push(string message, CssValue<BackgroundColorBuilder>? color = null, Action<SnackbarOptions>? options = null, SnackbarLocation? location = null)
 	{
-		await Push(message, null, color, options);
+		await Push(message, null, color, options, location);
 	}
 
-	public async ValueTask Push(RenderFragment content, CssValue<BackgroundColorBuilder>? color = null, Action<SnackbarOptions>? options = null)
+	public async ValueTask Push(RenderFragment content, CssValue<BackgroundColorBuilder>? color = null, Action<SnackbarOptions>? options = null, SnackbarLocation? location = null)
 	{
-		await Push(null, content, color, options);
+		await Push(null, content, color, options, location);
 	}
 
-	private async ValueTask Push(string? message, RenderFragment? content, CssValue<BackgroundColorBuilder>? color, Action<SnackbarOptions>? options)
+	private async ValueTask Push(string? message, RenderFragment? content, CssValue<BackgroundColorBuilder>? color, Action<SnackbarOptions>? options, SnackbarLocation? location)
 	{
 		var snackbarOptions = new SnackbarOptions();
 		options?.Invoke(snackbarOptions);
@@ -100,13 +154,13 @@
 			null, // No close text
 			false, // No action button in simplified version
 			null, // No action text
-			snackbarOptions.HideDelay);
+			snackbarOptions.HideDelay, location);
 
 		_notifications.Add(item);
 		await InvokeAsync(StateHasChanged);
 
 		// Set up auto-hide timer if delay is specified
-		var delay = item.HideDelay ?? DefaultDelay;
+		var delay = item.HideDelay ?? EffectiveDefaultDelay;
 		if (delay > 0)
 		{
 			var timer = new Timer(delay);
