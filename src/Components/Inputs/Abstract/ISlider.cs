@@ -1,3 +1,5 @@
+using System;
+using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components;
 
 namespace Soenneker.Quark;
@@ -5,12 +7,17 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Represents a range slider component for selecting a numeric value within a range.
 /// </summary>
-public interface ISlider : IElement
+public interface ISlider : IInput
 {
     /// <summary>
     /// Gets or sets the current value of the slider.
     /// </summary>
     double Value { get; set; }
+
+    /// <summary>
+    /// Gets or sets the expression that identifies the bound value for validation.
+    /// </summary>
+    Expression<Func<double>>? ValueExpression { get; set; }
 
     /// <summary>
     /// Gets or sets the minimum value of the slider range.
@@ -28,27 +35,7 @@ public interface ISlider : IElement
     double Step { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the slider is disabled.
-    /// </summary>
-    bool Disabled { get; set; }
-
-    /// <summary>
     /// Gets or sets the callback invoked when the value changes.
     /// </summary>
     EventCallback<double> ValueChanged { get; set; }
-
-    /// <summary>
-    /// Gets or sets the callback invoked when the value changes.
-    /// </summary>
-    EventCallback<double> OnValueChanged { get; set; }
-
-    /// <summary>
-    /// Gets or sets the callback invoked when the slider value changes.
-    /// </summary>
-    EventCallback<ChangeEventArgs> OnChange { get; set; }
-
-    /// <summary>
-    /// Gets or sets the callback invoked during slider movement.
-    /// </summary>
-    EventCallback<ChangeEventArgs> OnInput { get; set; }
 }

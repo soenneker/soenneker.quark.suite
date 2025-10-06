@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,7 +7,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Interface for Steps component JavaScript interop operations.
 /// </summary>
-public interface IStepsInterop
+public interface IStepsInterop : IAsyncDisposable
 {
     /// <summary>
     /// Initializes the Steps component CSS and JavaScript resources.

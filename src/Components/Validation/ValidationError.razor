@@ -1,7 +1,7 @@
 @namespace Soenneker.Quark
 @inherits Element
 
-@* Prefer field-level messages if inside a single Validation; otherwise fall back to aggregate Validations messages *@
+@* Show field-level messages if available; otherwise show global messages only if no field validation context *@
 @if (ParentValidation?.Status == ValidationStatus.Error && ParentValidation.Messages?.Any() == true)
 {
 	<Div class="@($"alert alert-danger {Class}")">
@@ -11,7 +11,7 @@
 		}
 	</Div>
 }
-else if (_visible && _status == ValidationStatus.Error && (_messages?.Any() ?? false))
+else if (_visible && _status == ValidationStatus.Error && (_messages?.Any() ?? false) && ParentValidation == null)
 {
 	<Div class="@($"alert alert-danger {Class}")">
 		@foreach (var message in _messages!)

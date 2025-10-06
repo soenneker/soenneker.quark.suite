@@ -15,7 +15,7 @@
             <Div>
                 <H2>Basic Validation</H2>
                 <Div Margin="Margin.Is3.FromEnd">
-                    <Validations Model="_basicModel">
+                    <Validations @ref="_basicValidationsRef" Model="_basicModel">
                         <Div Class="mb-3">
                             <Label For="requiredField" Class="form-label">Required Field <Span Class="text-danger">*</Span></Label>
                             <Validation Action="@ValidateRequired">
@@ -123,7 +123,7 @@
             <Div>
                 <H2>Pattern Validation</H2>
                 <Div Margin="Margin.Is3.FromEnd">
-                    <Validations Model="_patternModel">
+                    <Validations @ref="_patternValidationsRef" Model="_patternModel">
                         <Div Class="mb-3">
                             <Label For="zipCode" Class="form-label">ZIP Code (US Format)</Label>
                             <Validation UsePattern="true" PatternString="^\d{5}(-\d{4})?$" PatternMessage="Please enter a valid US ZIP code (12345 or 12345-6789)">
@@ -158,7 +158,7 @@
             <Div>
                 <H2>Custom Validation Messages</H2>
                 <Div Margin="Margin.Is3.FromEnd">
-                    <Validations Model="_customModel">
+                    <Validations @ref="_customValidationsRef" Model="_customModel">
                         <Div Class="mb-3">
                             <Label For="username" Class="form-label">Username</Label>
                             <Validation Action="@ValidateUsername">
@@ -185,7 +185,7 @@
             <Div>
                 <H2>Validation Success Messages</H2>
                 <Div Margin="Margin.Is3.FromEnd">
-                    <Validations Model="_successModel">
+                    <Validations @ref="_successValidationsRef" Model="_successModel">
                         <Div Class="mb-3">
                             <Label For="successField" Class="form-label">Field with Success Message</Label>
                             <Validation Action="@ValidateWithSuccess">
@@ -246,7 +246,11 @@
 </Container>
 
 @code {
+    private Validations? _basicValidationsRef;
     private Validations? _complexValidationsRef;
+    private Validations? _patternValidationsRef;
+    private Validations? _customValidationsRef;
+    private Validations? _successValidationsRef;
 
     private BasicModel _basicModel = new();
     private ComplexModel _complexModel = new();
@@ -291,15 +295,20 @@
     private void ValidatePhone(ValidatorEventArgs e)
     {
         var phone = e.Value?.ToString();
-        if (!string.IsNullOrWhiteSpace(phone) && !System.Text.RegularExpressions.Regex.IsMatch(phone, @"^[\d\s\-\(\)\+]+$"))
-        {
-            e.Status = ValidationStatus.Error;
-            e.ErrorText = "Please enter a valid phone number.";
-        }
-        else
-        {
-            e.Status = ValidationStatus.Success;
-        }
+        // Temporarily always show error for debugging
+        e.Status = ValidationStatus.Error;
+        e.ErrorText = "Please enter a valid phone number.";
+        
+        // Original logic (commented out for debugging)
+        // if (!string.IsNullOrWhiteSpace(phone) && !System.Text.RegularExpressions.Regex.IsMatch(phone, @"^[\d\s\-\(\)\+]+$"))
+        // {
+        //     e.Status = ValidationStatus.Error;
+        //     e.ErrorText = "Please enter a valid phone number.";
+        // }
+        // else
+        // {
+        //     e.Status = ValidationStatus.Success;
+        // }
     }
 
     private void ValidateAge(ValidatorEventArgs e)
@@ -470,8 +479,10 @@
 
     private async Task ValidateBasicForm()
     {
-        // Basic validation is handled automatically by the Validations component
-        await Task.CompletedTask;
+        if (_basicValidationsRef != null)
+        {
+            await _basicValidationsRef.Validate();
+        }
     }
 
     private async Task ValidateComplexForm()
@@ -494,20 +505,26 @@
 
     private async Task ValidatePatternForm()
     {
-        // Pattern validation is handled automatically
-        await Task.CompletedTask;
+        if (_patternValidationsRef != null)
+        {
+            await _patternValidationsRef.Validate();
+        }
     }
 
     private async Task ValidateCustomForm()
     {
-        // Custom validation is handled automatically
-        await Task.CompletedTask;
+        if (_customValidationsRef != null)
+        {
+            await _customValidationsRef.Validate();
+        }
     }
 
     private async Task ValidateSuccessForm()
     {
-        // Success validation is handled automatically
-        await Task.CompletedTask;
+        if (_successValidationsRef != null)
+        {
+            await _successValidationsRef.Validate();
+        }
     }
 
     private void HandleRealtimeInput(ChangeEventArgs e)

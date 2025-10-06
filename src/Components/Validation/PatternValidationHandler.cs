@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
@@ -14,8 +15,9 @@ internal sealed class PatternValidationHandler : IValidationHandler
         }
 
         var isMatch = ctx.Pattern.IsMatch(value?.ToString() ?? string.Empty);
+        var errorMessage = ctx.PatternMessage.HasContent() ? ctx.PatternMessage : "Value does not match the required pattern.";
         ctx.NotifyValidationStatusChanged(isMatch ? ValidationStatus.Success : ValidationStatus.Error,
-            isMatch ? null : new[] { "Value does not match the required pattern." });
+            isMatch ? null : new[] { errorMessage });
     }
 
     public Task<ValidationStatus> ValidateAsync(Validation ctx, object value, CancellationToken cancellationToken)

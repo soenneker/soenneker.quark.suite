@@ -15,9 +15,18 @@ internal sealed class ValidatorHandler : IValidationHandler
         
         if (ctx.Validator is not null)
         {
-            ctx.Validator.Validate(value);
-            args.Status = ctx.Validator.Status;
-            args.ErrorText = ctx.Validator.Status == ValidationStatus.Error ? ctx.Validator.ErrorMessage : null;
+            // Use enhanced validation method if available (BaseQuarkValidator)
+            if (ctx.Validator is BaseQuarkValidator baseValidator)
+            {
+                baseValidator.Validate(args);
+            }
+            else
+            {
+                // Fall back to simple validation for other validators
+                ctx.Validator.Validate(value);
+                args.Status = ctx.Validator.Status;
+                args.ErrorText = ctx.Validator.Status == ValidationStatus.Error ? ctx.Validator.ErrorMessage : null;
+            }
         }
         else if (ctx.Action is not null)
         {
@@ -47,9 +56,18 @@ internal sealed class ValidatorHandler : IValidationHandler
 
         if (ctx.Validator is not null)
         {
-            await ctx.Validator.ValidateAsync(value, cancellationToken);
-            args.Status = ctx.Validator.Status;
-            args.ErrorText = ctx.Validator.Status == ValidationStatus.Error ? ctx.Validator.ErrorMessage : null;
+            // Use enhanced validation method if available (BaseQuarkValidator)
+            if (ctx.Validator is BaseQuarkValidator baseValidator)
+            {
+                await baseValidator.ValidateAsync(args, cancellationToken);
+            }
+            else
+            {
+                // Fall back to simple validation for other validators
+                await ctx.Validator.ValidateAsync(value, cancellationToken);
+                args.Status = ctx.Validator.Status;
+                args.ErrorText = ctx.Validator.Status == ValidationStatus.Error ? ctx.Validator.ErrorMessage : null;
+            }
         }
         else if (ctx.AsyncFunc is not null)
         {
