@@ -1,10 +1,12 @@
 @using System.Linq.Expressions
 @using Soenneker.Blazor.Extensions.EventCallback
+@using System.Threading
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements Soenneker.Quark.IValidationInput
 @implements IRadio
+@inject IRadioInterop RadioInterop
 
 <input type="radio" @attributes="BuildAttributes()" />
 
@@ -40,8 +42,16 @@
 
     public object? ValidationValue => Checked;
 
+    private bool _initialized;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender && !_initialized)
+        {
+            await RadioInterop.Initialize();
+            _initialized = true;
+        }
+
         if (firstRender && ParentValidation is not null)
         {
             await ParentValidation.InitializeInput(this);
@@ -61,11 +71,11 @@
         string? token = null;
         var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
         if (isTheme && token is not null)
-            return $"form-check-input-{token}";
+            return $"quark-radio-{token}";
 
         // SizeBuilder now generates clean tokens like "lg", "sm" without prefix
         var sizeValue = Size?.ToString();
-        return sizeValue.HasContent() ? $"form-check-input-{sizeValue}" : null;
+        return sizeValue.HasContent() ? $"quark-radio-{sizeValue}" : null;
     }
 
     private async Task HandleChange(ChangeEventArgs e)
