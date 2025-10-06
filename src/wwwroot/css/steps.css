@@ -3,6 +3,9 @@
 /* container aligns nicely with nav-pills; allow wrapping and subtle spacing */
 .steps {
     gap: .25rem;
+    margin-bottom: 0;
+    padding: 0;
+    list-style: none;
 }
 
 /* each item remains a classic nav item */
@@ -51,6 +54,8 @@
     color: var(--bs-secondary-color, #6c757d);
     background-color: var(--bs-light, #f8f9fa);
     border: 1px solid var(--bs-border-color, #dee2e6);
+    transition: all .2s ease;
+    flex-shrink: 0;
 }
 
 .steps .nav-link.active .step-marker {
@@ -99,6 +104,7 @@
     background-color: var(--bs-body-bg, #fff);
     border: 1px solid var(--bs-border-color, #dee2e6);
     border-radius: .75rem;
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
 }
 
 /* panes should not be absolutely positioned; use Bootstrap fade show */
@@ -114,8 +120,49 @@
     transform: none;
 }
 
+/* focus states for accessibility */
+.steps .nav-link:focus {
+    outline: 2px solid var(--bs-primary, #0d6efd);
+    outline-offset: 2px;
+}
+
+/* improve spacing and alignment */
+.steps .nav-link {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.steps .nav-link.disabled {
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* step status indicators */
+.step-marker.step-marker-active {
+    transform: scale(1.1);
+}
+
+/* completed step styling */
+.steps .nav-link.text-success .step-marker {
+    background-color: var(--bs-success, #198754);
+    color: #fff;
+    border-color: var(--bs-success, #198754);
+}
+
 @media (max-width: 576px) {
     .steps {
         gap: .5rem;
+    }
+    
+    .step-marker {
+        width: 1.75rem;
+        height: 1.75rem;
+        min-width: 1.75rem;
+        font-size: .75rem;
+    }
+    
+    .steps .nav-link {
+        padding: .5rem .75rem;
+        font-size: .875rem;
     }
 }

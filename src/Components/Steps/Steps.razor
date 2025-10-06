@@ -62,6 +62,8 @@
                 return;
 
             _state = _state with { SelectedStep = value };
+            // Nudge render key so this component re-renders and cascades the new state
+            AriaDescribedBy = _state.SelectedStep;
             SelectedStepChanged.InvokeAsync(_state.SelectedStep);
             StateHasChanged();
         }
@@ -89,7 +91,18 @@
     internal void NotifyStepInitialized(string name)
     {
         if (!_stepItems.Contains(name))
+        {
             _stepItems.Add(name);
+            
+            // Set initial selected step if not already set
+            if (string.IsNullOrEmpty(_state.SelectedStep))
+            {
+                _state = _state with { SelectedStep = name };
+                // Ensure initial selection triggers a re-render
+                AriaDescribedBy = _state.SelectedStep;
+                StateHasChanged();
+            }
+        }
     }
 
     internal void NotifyStepRemoved(string name)
@@ -108,12 +121,13 @@
     {
         var selectedStepIndex = _stepItems.IndexOf(SelectedStep);
 
-        if (selectedStepIndex == _stepItems.Count - 1)
+        if (selectedStepIndex == -1 || selectedStepIndex == _stepItems.Count - 1)
         {
             return Task.CompletedTask;
         }
 
-        SelectedStep = _stepItems[selectedStepIndex + 1];
+        var nextStep = _stepItems[selectedStepIndex + 1];
+        SelectedStep = nextStep;
         return Task.CompletedTask;
     }
 

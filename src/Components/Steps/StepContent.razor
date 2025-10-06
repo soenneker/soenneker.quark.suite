@@ -13,6 +13,7 @@
 
     private StepContentState _state = new();
     private readonly List<string> _stepPanels = [];
+    private StepState? _parentStepsState;
 
     [Parameter]
     public string SelectedPanel
@@ -31,6 +32,28 @@
 
     [Parameter]
     public EventCallback<string> SelectedPanelChanged { get; set; }
+
+    [CascadingParameter]
+    public StepState? ParentStepsState
+    {
+        get => _parentStepsState;
+        set
+        {
+            if (_parentStepsState == value)
+                return;
+
+            _parentStepsState = value;
+            
+            // Sync with the parent Steps component's selected step
+            if (_parentStepsState != null && _parentStepsState.SelectedStep != _state.SelectedPanel)
+            {
+                _state = _state with { SelectedPanel = _parentStepsState.SelectedStep };
+                // Nudge render key so this component re-renders when the selected step changes
+                AriaDescribedBy = _state.SelectedPanel;
+                StateHasChanged();
+            }
+        }
+    }
 
     internal void NotifyStepPanelInitialized(string name)
     {
@@ -53,5 +76,10 @@
     private string GetStepsContentClasses()
     {
         return "tab-content mt-3";
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
     }
 }
