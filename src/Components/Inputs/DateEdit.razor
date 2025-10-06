@@ -8,7 +8,8 @@
 <Input Type="@GetInputModeString()"
        @attributes="BuildInputAttributes()" 
        OnInput="HandleInput"
-       OnChange="HandleChange" />
+       OnChange="HandleChange"
+       ValidationValueSelector="@(() => (object?)Date ?? (object?)DateOnly)" />
 
 @code {
 	public override string? ThemeKey { get; set; } = "DateEdit";
@@ -171,9 +172,15 @@
 			{
 				await ParentValidation.InitializeInputExpression(DateOnlyExpression);
 			}
+			ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
 		}
 
 		await base.OnAfterRenderAsync(firstRender);
+	}
+
+	private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
+	{
+		InvokeAsync(StateHasChanged);
 	}
 
 	private async Task HandleInput(ChangeEventArgs e)
@@ -198,6 +205,20 @@
 		}
 
 		await OnInput.InvokeIfHasDelegate(e);
+
+		if (ParentValidation is not null)
+		{
+			ParentValidation.MarkTouched();
+			await ParentValidation.NotifyInputChanged(ValidationValue);
+		}
+	}
+
+	public override void Dispose()
+	{
+		base.Dispose();
+
+		if (ParentValidation is not null)
+			ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
 	}
 
 	private async Task HandleChange(ChangeEventArgs e)
@@ -222,6 +243,12 @@
 		}
 
 		await OnChange.InvokeIfHasDelegate(e);
+
+		if (ParentValidation is not null)
+		{
+			ParentValidation.MarkTouched();
+			await ParentValidation.NotifyInputChanged(ValidationValue);
+		}
 	}
 
 	private string GetInputModeString()

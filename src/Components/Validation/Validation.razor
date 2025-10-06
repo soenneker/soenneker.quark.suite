@@ -12,6 +12,9 @@
 @implements IValidation
 
 @code {
+    [Inject]
+    public IValidationInterop ValidationInterop { get; set; } = default!;
+
     private IValidationInput? _input;
     private object? _lastKnownValue;
     private string? _patternString;
@@ -67,7 +70,15 @@
 
     public Regex? Pattern => _pattern;
 
-    protected override Task OnInitializedAsync()
+    [Parameter]
+    public bool ShowErrorsOnInput { get; set; }
+
+    private bool _explicitlyValidated;
+    private bool _touched;
+
+    public bool ShouldShowInvalid => Status == ValidationStatus.Error && (ShowErrorsOnInput || _explicitlyValidated || _touched);
+
+    protected override async Task OnInitializedAsync()
     {
         if (ParentValidations is not null)
         {
@@ -75,7 +86,10 @@
             ParentValidations.NotifyValidationInitialized(this);
         }
 
-        return base.OnInitializedAsync();
+        // Ensure validation CSS is available
+        await ValidationInterop.Initialize();
+
+        await base.OnInitializedAsync();
     }
 
     protected override async Task OnParametersSetAsync()
@@ -188,6 +202,7 @@
     public ValidationStatus Validate()
     {
         var value = _input?.ValidationValue ?? _lastKnownValue ?? string.Empty;
+        _explicitlyValidated = true;
         return Validate(value);
     }
 
@@ -212,6 +227,7 @@
     {
         if (_input is not null && !_input.Disabled)
         {
+            _explicitlyValidated = true;
             if (_cts != null)
             {
                 await _cts.CancelAsync();
@@ -276,6 +292,8 @@
 
     public void NotifyValidationStatusChanged(ValidationStatus status, IEnumerable<string>? messages = null)
     {
+        var shouldShowInvalidBefore = ShouldShowInvalid;
+
         if (Status != status || (Messages?.SequenceEqual(messages ?? Enumerable.Empty<string>()) == false))
         {
             Status = status;
@@ -285,6 +303,28 @@
             InvokeAsync(StateHasChanged);
             InvokeAsync(() => StatusChanged.InvokeAsync(status));
             ParentValidations?.NotifyValidationStatusChanged(this);
+        }
+        else
+        {
+            // If visual gating changed (e.g., became touched), still notify listeners to refresh UI
+            var shouldShowInvalidAfter = ShouldShowInvalid;
+            if (shouldShowInvalidBefore != shouldShowInvalidAfter)
+            {
+                ValidationStatusChanged?.Invoke(this, new ValidationStatusChangedEventArgs(status, messages));
+                InvokeAsync(StateHasChanged);
+                ParentValidations?.NotifyValidationStatusChanged(this);
+            }
+        }
+    }
+
+    public void MarkTouched()
+    {
+        if (!_touched)
+        {
+            _touched = true;
+            // Broadcast to update UI with same status but new gating
+            ValidationStatusChanged?.Invoke(this, new ValidationStatusChangedEventArgs(Status, Messages));
+            InvokeAsync(StateHasChanged);
         }
     }
 

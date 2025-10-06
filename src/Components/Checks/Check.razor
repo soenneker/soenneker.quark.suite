@@ -64,9 +64,15 @@
                 await ParentValidation.InitializeInputExpression(CheckedExpression);
 
             await ParentValidation.InitializeInput(this);
+            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
 
         await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
     }
 
     private string? GetSizeClass()
@@ -82,6 +88,14 @@
         // SizeBuilder now generates clean tokens like "lg", "sm" without prefix
         var sizeValue = Size?.ToString();
         return sizeValue.HasContent() ? $"quark-check-{sizeValue}" : null;
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+
+        if (ParentValidation is not null)
+            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
     }
 
     protected override Dictionary<string, object> BuildAttributes()

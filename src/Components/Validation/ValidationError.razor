@@ -1,24 +1,23 @@
 @namespace Soenneker.Quark
 @inherits Element
 
-@* Show field-level messages if available; otherwise show global messages only if no field validation context *@
 @if (ParentValidation?.Status == ValidationStatus.Error && ParentValidation.Messages?.Any() == true)
 {
-	<Div class="@($"alert alert-danger {Class}")">
+	<div class="@($"invalid-feedback d-block mb-0 {Class}")">
 		@foreach (var message in ParentValidation.Messages)
 		{
-			<Div>@message</Div>
+			<div>@message</div>
 		}
-	</Div>
+	</div>
 }
 else if (_visible && _status == ValidationStatus.Error && (_messages?.Any() ?? false) && ParentValidation == null)
 {
-	<Div class="@($"alert alert-danger {Class}")">
+	<div class="@($"invalid-feedback d-block mb-0 {Class}")">
 		@foreach (var message in _messages!)
 		{
-			<Div>@message</Div>
+			<div>@message</div>
 		}
-	</Div>
+	</div>
 }
 
 @code {

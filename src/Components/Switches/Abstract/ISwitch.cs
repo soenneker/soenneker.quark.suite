@@ -24,7 +24,6 @@ public interface ISwitch : IElement
     /// </summary>
     string? Label { get; set; }
 
-
     /// <summary>
     /// Gets or sets the size of the switch.
     /// </summary>

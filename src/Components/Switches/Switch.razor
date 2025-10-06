@@ -5,6 +5,7 @@
 @inherits Soenneker.Quark.Element
 @implements Soenneker.Quark.IValidationInput
 @implements ISwitch
+@inject ISwitchInterop SwitchInterop
 
 <Div Class="form-check form-switch" @attributes="BuildWrapperAttributes()" >
     <input type="checkbox" @attributes="BuildInputAttributes()" />
@@ -43,8 +44,16 @@
 
     public object? ValidationValue => Checked;
 
+    private bool _initialized;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender && !_initialized)
+        {
+            await SwitchInterop.Initialize();
+            _initialized = true;
+        }
+
         if (firstRender && ParentValidation is not null)
         {
             if (CheckedExpression is not null)
@@ -97,7 +106,19 @@
 
     protected Dictionary<string, object> BuildWrapperAttributes()
     {
-        var attributes = base.BuildAttributes();
+        var attributes = new Dictionary<string, object>();
+        
+        // Only apply non-color related attributes to the wrapper
+        if (Id.HasContent())
+            attributes["id"] = Id;
+            
+        if (Class.HasContent())
+            attributes["class"] = Class;
+            
+        if (Style.HasContent())
+            attributes["style"] = Style;
+            
+        // Don't apply BackgroundColor to wrapper - it should only go to the input
         return attributes;
     }
 

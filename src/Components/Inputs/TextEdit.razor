@@ -10,7 +10,8 @@
        @attributes="BuildInputAttributes()" 
        @bind-Value="Value"
        OnInput="HandleInput"
-       OnChange="HandleChange" />
+       OnChange="HandleChange"
+       ValidationValueSelector="@(() => (object?)Value)" />
 
 @code {
 	public override string? ThemeKey { get; set; } = "TextEdit";
@@ -65,7 +66,7 @@
 
 	private Input? inputComponent;
 
-	public object? ValidationValue => Value;
+    public object? ValidationValue => Value;
 
 	public string? GetValidationClass()
 	{
@@ -122,23 +123,49 @@
 		if (firstRender && ParentValidation is not null && ValueExpression is not null)
 		{
 			await ParentValidation.InitializeInputExpression(ValueExpression);
+            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
 		}
 
 		await base.OnAfterRenderAsync(firstRender);
 	}
+
+    private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
 
 	private async Task HandleInput(ChangeEventArgs e)
 	{
 		Value = e.Value?.ToString();
 		await ValueChanged.InvokeIfHasDelegate(Value);
 		await OnInput.InvokeIfHasDelegate(e);
+
+        if (ParentValidation is not null)
+        {
+            ParentValidation.MarkTouched();
+            await ParentValidation.NotifyInputChanged(Value);
+        }
 	}
+
+    public override void Dispose()
+    {
+        base.Dispose();
+
+        if (ParentValidation is not null)
+            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+    }
 
 	private async Task HandleChange(ChangeEventArgs e)
 	{
 		Value = e.Value?.ToString();
 		await ValueChanged.InvokeIfHasDelegate(Value);
 		await OnChange.InvokeIfHasDelegate(e);
+
+        if (ParentValidation is not null)
+        {
+            ParentValidation.MarkTouched();
+            await ParentValidation.NotifyInputChanged(Value);
+        }
 	}
 
 	private Dictionary<string, object> BuildInputAttributes()

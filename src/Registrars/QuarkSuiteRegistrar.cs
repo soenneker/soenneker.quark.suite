@@ -18,7 +18,9 @@ public static class QuarkSuiteRegistrar
         if (services.All(descriptor => descriptor.ServiceType != typeof(IThemeProvider)))
             services.AddEmptyThemeProviderAsScoped();
 
-        services.AddQuarkBootstrapAsScoped()
+        services
+            .AddQuarkValidationAsScoped()
+            .AddQuarkBootstrapAsScoped()
             .AddQuarkTableAsScoped()
             .AddQuarkSnackbarAsScoped()
             .AddQuarkDatePickerAsScoped()
@@ -27,6 +29,7 @@ public static class QuarkSuiteRegistrar
             .AddQuarkBarAsScoped()
             .AddQuarkOffcanvasAsScoped()
             .AddQuarkCheckAsScoped()
+            .AddQuarkSwitchAsScoped()
             .AddQuarkRadioAsScoped()
             .AddFontAwesomeAsScoped();
 
