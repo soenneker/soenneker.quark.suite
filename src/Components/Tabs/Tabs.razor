@@ -2,13 +2,54 @@
 @inherits Soenneker.Quark.Element
 @implements ITabs
 
-<Div Class="nav" @attributes="BuildAttributes()" >
-    @ChildContent
-</Div>
+<CascadingValue Value="this">
+    @if (Vertical)
+    {
+        @* Vertical tabs layout *@
+        <div class="row">
+            <div class="col-3">
+                <Div Class="nav" @attributes="BuildAttributes()" >
+                    @ChildContent
+                </Div>
+            </div>
+            <div class="col-9">
+                <div class="tab-content">
+                    @foreach (var tab in _tabs)
+                    {
+                        if (tab.Name == SelectedTab && !string.IsNullOrEmpty(tab.Title))
+                        {
+                            <div class="tab-pane active" role="tabpanel">
+                                @tab.ChildContent
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        @* Horizontal tabs layout *@
+        <Div Class="nav" @attributes="BuildAttributes()" >
+            @ChildContent
+        </Div>
+        
+        <div class="tab-content">
+            @foreach (var tab in _tabs)
+            {
+                if (tab.Name == SelectedTab && !string.IsNullOrEmpty(tab.Title))
+                {
+                    <div class="tab-pane active" role="tabpanel">
+                        @tab.ChildContent
+                    </div>
+                }
+            }
+        </div>
+    }
+</CascadingValue>
 
 @code {
 	public override string? ThemeKey { get; set; } = "Tabs";
-
 
     [Parameter]
     public bool Pills { get; set; }
@@ -19,16 +60,83 @@
     [Parameter]
     public bool Justified { get; set; }
 
+    [Parameter]
+    public string? SelectedTab { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnSelectedTabChanged { get; set; }
+
+    private readonly List<Tab> _tabs = [];
+
+    public void RegisterTab(Tab tab)
+    {
+        if (!_tabs.Contains(tab))
+        {
+            _tabs.Add(tab);
+        }
+    }
+
+    public void UnregisterTab(Tab tab)
+    {
+        _tabs.Remove(tab);
+    }
+
+    public async Task SelectTab(string tabName)
+    {
+        if (SelectedTab != tabName)
+        {
+            SelectedTab = tabName;
+
+            if (OnSelectedTabChanged.HasDelegate)
+            {
+                await OnSelectedTabChanged.InvokeAsync(tabName);
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        
+        // If no selected tab is specified, select the first tab
+        if (string.IsNullOrEmpty(SelectedTab) && _tabs.Count > 0)
+        {
+            var firstTab = _tabs.FirstOrDefault(t => !t.Disabled);
+            if (firstTab != null)
+            {
+                SelectedTab = firstTab.Name;
+            }
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        
+        // Trigger a re-render when SelectedTab parameter changes
+        // The Tab components will determine their active state based on the cascaded SelectedTab
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        
+        if (firstRender)
+        {
+            // Trigger a re-render to ensure proper initial state
+            StateHasChanged();
+        }
+    }
+
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
 
         AppendToClassAttr(attributes, "nav");
 
-        var baseClasses = "nav-tabs";
-
-        if (Pills)
-            baseClasses = "nav-pills";
+        var baseClasses = Pills ? "nav-pills" : "nav-tabs";
 
         AppendToClassAttr(attributes, baseClasses);
 
@@ -40,5 +148,4 @@
 
         return attributes;
     }
-
 }

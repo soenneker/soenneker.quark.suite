@@ -7,13 +7,32 @@
     <Button
         Class="@ButtonClass"
         Type="@ButtonType.Button"
+        OnClick="HandleClick"
+        TabIndex="@(Disabled ? -1 : (int?)null)"
         @attributes="BuildButtonAttributes()" >
-        @ChildContent
+        @if (!string.IsNullOrEmpty(IconName))
+        {
+            <Icon Name="@IconName" />
+        }
+        @if (!string.IsNullOrEmpty(Title))
+        {
+            @Title
+        }
+        else
+        {
+            @ChildContent
+        }
     </Button>
 </UnorderedListItem>
 
 @code {
     public override string? ThemeKey { get; set; } = "Tab";
+
+    [Parameter]
+    public string? Name { get; set; }
+
+    [Parameter]
+    public string? IconName { get; set; }
 
     [Parameter]
     public string? Target { get; set; }
@@ -24,8 +43,54 @@
     [Parameter]
     public bool Disabled { get; set; }
 
+    [CascadingParameter]
+    public Tabs? ParentTabs { get; set; }
+
     // ✅ Avoid mixed markup/C# in the attribute by precomputing
-    private string ButtonClass => Active ? "nav-link active" : "nav-link";
+    private string ButtonClass
+    {
+        get
+        {
+            var classes = "nav-link";
+            if (IsActive) classes += " active";
+            if (Disabled) classes += " disabled";
+            return classes;
+        }
+    }
+
+    private bool IsActive => ParentTabs?.SelectedTab == Name;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        
+        // Only set Target for static tabs that need Bootstrap's JavaScript
+        // Dynamic tabs should not have Target set to avoid Bootstrap JS conflicts
+        if (string.IsNullOrEmpty(Target) && !string.IsNullOrEmpty(Name))
+        {
+            // For now, we'll handle all tabs through our custom logic
+            // Target will remain null for dynamic tabs
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        
+        if (firstRender && ParentTabs != null)
+        {
+            ParentTabs.RegisterTab(this);
+        }
+    }
+
+    public override void Dispose()
+    {
+        if (ParentTabs != null)
+        {
+            ParentTabs.UnregisterTab(this);
+        }
+        base.Dispose();
+    }
 
     protected override Dictionary<string, object> BuildAttributes()
     {
@@ -41,14 +106,34 @@
 
     private IReadOnlyDictionary<string, object> BuildButtonAttributes()
     {
-        return new Dictionary<string, object>
+        var attributes = new Dictionary<string, object>
         {
             ["role"] = "tab",
-            ["data-bs-toggle"] = "tab",
-            ["data-bs-target"] = $"#{Target}",
             ["aria-controls"] = Target ?? string.Empty,
-            ["aria-selected"] = Active ? "true" : "false"
+            ["aria-selected"] = IsActive ? "true" : "false"
         };
+
+        if (Disabled)
+        {
+            attributes["aria-disabled"] = "true";
+        }
+
+        // Only use Bootstrap's tab JavaScript for static tabs (when Target is set)
+        // For dynamic tabs, we handle the switching through our own logic
+        if (!string.IsNullOrEmpty(Target) && !Disabled)
+        {
+            attributes["data-bs-toggle"] = "tab";
+            attributes["data-bs-target"] = $"#{Target}";
+        }
+
+        return attributes;
     }
 
+    private new async Task HandleClick(MouseEventArgs args)
+    {
+        if (!Disabled && ParentTabs != null && !string.IsNullOrEmpty(Name))
+        {
+            await ParentTabs.SelectTab(Name);
+        }
+    }
 }

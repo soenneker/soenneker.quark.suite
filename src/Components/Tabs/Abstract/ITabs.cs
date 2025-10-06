@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Components;
+
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -24,5 +26,15 @@ public interface ITabs : IElement
     /// Gets or sets whether the tabs should take up the full width (justified).
     /// </summary>
     bool Justified { get; set; }
+
+    /// <summary>
+    /// Gets or sets the currently selected tab name.
+    /// </summary>
+    string? SelectedTab { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback that is invoked when the selected tab changes.
+    /// </summary>
+    EventCallback<string> OnSelectedTabChanged { get; set; }
 }
 
