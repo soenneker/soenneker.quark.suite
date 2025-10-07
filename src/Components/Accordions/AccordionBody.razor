@@ -1,0 +1,87 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IAccordionBody
+
+<Div Class="@BodyClass" @attributes="BuildAttributes()">
+    <Div Class="accordion-body">
+        @ChildContent
+    </Div>
+</Div>
+
+@code {
+    public override string? ThemeKey { get; set; } = "AccordionBody";
+
+    [Parameter]
+    public bool Expanded { get; set; }
+
+    [CascadingParameter]
+    public AccordionItem? ParentAccordionItem { get; set; }
+    
+    [CascadingParameter]
+    public Accordion? ParentAccordion { get; set; }
+
+    private bool IsExpanded => ParentAccordionItem?.IsExpanded ?? Expanded;
+
+    private string BodyClass
+    {
+        get
+        {
+            var classes = "accordion-collapse collapse";
+            if (IsExpanded) classes += " show";
+            return classes;
+        }
+    }
+
+    private IReadOnlyDictionary<string, object> BuildBodyAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+
+        if (ParentAccordionItem?.Name.HasContent() == true)
+        {
+            attributes["id"] = $"collapse-{ParentAccordionItem.Name}";
+        }
+
+        if (ParentAccordion?.Id.HasContent() == true)
+        {
+            attributes["data-bs-parent"] = $"#{ParentAccordion.Id}";
+        }
+
+        return attributes;
+    }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+
+        // Merge body-specific attributes
+        var bodyAttrs = BuildBodyAttributes();
+        foreach (var kvp in bodyAttrs)
+        {
+            attributes[kvp.Key] = kvp.Value;
+        }
+
+        return attributes;
+    }
+
+    private bool _lastIsExpanded;
+    private bool _expandedChanged;
+
+    protected override void OnParametersSet()
+    {
+        var current = IsExpanded;
+        _expandedChanged |= current != _lastIsExpanded;
+        _lastIsExpanded = current;
+        base.OnParametersSet();
+    }
+
+    protected override bool ShouldRender()
+    {
+        return _expandedChanged || base.ShouldRender();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        _expandedChanged = false;
+        await base.OnAfterRenderAsync(firstRender);
+    }
+}

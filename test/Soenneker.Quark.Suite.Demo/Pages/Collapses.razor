@@ -1,0 +1,398 @@
+@page "/collapses"
+
+<PageTitle>Collapses</PageTitle>
+
+<Container Class="py-4">
+    <Row>
+        <Column>
+            <Div Class="text-center" Margin="Margin.Is5.FromEnd">
+                <H1 Class="display-4 fw-bold text-primary">Collapses</H1>
+                <Paragraph Class="lead text-muted">Toggle the visibility of content across your project with a few classes and our JavaScript plugins.</Paragraph>
+            </Div>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+
+    <Section>
+        <H2>Basic Collapse</H2>
+        <Paragraph>Click the buttons below to show and hide another element via class changes.</Paragraph>
+        
+        <Div Class="mb-3">
+            <Button BackgroundColor="BackgroundColor.Primary" CollapseTarget="basicCollapse">
+                Toggle Collapse
+            </Button>
+        </Div>
+        
+        <Collapse Id="basicCollapse">
+            <Card>
+                <CardBody>
+                    <Paragraph>
+                        This is the collapsible content. It can contain any type of content including text, images, forms, or other components.
+                    </Paragraph>
+                    <Paragraph>
+                        The collapse component provides smooth animations when showing and hiding content.
+                    </Paragraph>
+                </CardBody>
+            </Card>
+        </Collapse>
+    </Section>
+
+    <Section>
+        <H2>Multiple Targets</H2>
+        <Paragraph>Show and hide multiple elements by referencing them with a selector.</Paragraph>
+        
+        <Div Class="mb-3">
+            <Button BackgroundColor="BackgroundColor.Primary" CollapseTarget="firstCollapse">
+                Toggle First Element
+            </Button>
+            <Button BackgroundColor="BackgroundColor.Secondary" CollapseTarget="secondCollapse">
+                Toggle Second Element
+            </Button>
+            <Button BackgroundColor="BackgroundColor.Success" Attributes="@(new Dictionary<string, object>{{"data-bs-toggle","collapse"},{"data-bs-target",".multi-collapse"},{"aria-controls","firstCollapse secondCollapse"}})">
+                Toggle Both Elements
+            </Button>
+        </Div>
+        
+        <Row>
+            <Column Class="col">
+        <Collapse Class="multi-collapse" Id="firstCollapse">
+            <Card>
+                <CardBody>
+                    <Paragraph>This is the first collapsible element.</Paragraph>
+                </CardBody>
+            </Card>
+        </Collapse>
+            </Column>
+            <Column Class="col">
+                <Collapse Class="multi-collapse" Id="secondCollapse">
+                    <Card>
+                        <CardBody>
+                            <Paragraph>This is the second collapsible element.</Paragraph>
+                        </CardBody>
+                    </Card>
+                </Collapse>
+            </Column>
+        </Row>
+    </Section>
+
+    <Section>
+        <H2>Horizontal Collapse</H2>
+        <Paragraph>Add the horizontal modifier to transition the width instead of height.</Paragraph>
+        
+        <Div Class="mb-3">
+            <Button BackgroundColor="BackgroundColor.Primary" CollapseTarget="horizontalCollapse">
+                Toggle Horizontal Collapse
+            </Button>
+        </Div>
+        
+        <Div Class="d-flex">
+            <Collapse Id="horizontalCollapse" Horizontal="true">
+                <Div Class="card card-body" Style="width: 300px;">
+                    <Paragraph>
+                        This is a horizontal collapse. It animates the width instead of the height.
+                    </Paragraph>
+                </Div>
+            </Collapse>
+        </Div>
+    </Section>
+
+    <Section>
+        <H2>Collapse with Button Toggle</H2>
+        <Paragraph>Use a button to toggle the collapse state.</Paragraph>
+        
+        <Div Class="mb-3">
+            <Button BackgroundColor="BackgroundColor.Primary" CollapseTarget="buttonCollapse">
+                Toggle
+            </Button>
+        </Div>
+        
+        <Collapse Id="buttonCollapse">
+            <Card>
+                <CardBody>
+                    <Paragraph>
+                        This content is controlled by the button above. The button text changes based on the collapse state.
+                    </Paragraph>
+                    <UnorderedList>
+                        <UnorderedListItem>Item 1</UnorderedListItem>
+                        <UnorderedListItem>Item 2</UnorderedListItem>
+                        <UnorderedListItem>Item 3</UnorderedListItem>
+                    </UnorderedList>
+                </CardBody>
+            </Card>
+        </Collapse>
+    </Section>
+
+    <Section>
+        <H2>Collapse with Form</H2>
+        <Paragraph>Collapse can contain forms and other interactive elements.</Paragraph>
+        
+        <Div Class="mb-3">
+            <Button BackgroundColor="BackgroundColor.Info" CollapseTarget="formCollapse">
+                Toggle Form
+            </Button>
+        </Div>
+        
+        <Collapse Id="formCollapse">
+            <Card>
+                <CardHeader>
+                    <Strong>Contact Form</Strong>
+                </CardHeader>
+                <CardBody>
+                    <Field>
+                        <FieldLabel>Name</FieldLabel>
+                        <FieldBody>
+                            <TextEdit @bind-Value="formName" Placeholder="Enter your name" />
+                        </FieldBody>
+                    </Field>
+                    <Field>
+                        <FieldLabel>Email</FieldLabel>
+                        <FieldBody>
+                            <TextEdit @bind-Value="formEmail" Placeholder="Enter your email" />
+                        </FieldBody>
+                    </Field>
+                    <Field>
+                        <FieldLabel>Message</FieldLabel>
+                        <FieldBody>
+                            <MemoEdit @bind-Value="formMessage" Placeholder="Enter your message" Rows="3" />
+                        </FieldBody>
+                    </Field>
+                    <Div Class="mt-3">
+                        <Button BackgroundColor="BackgroundColor.Success" OnClick="SubmitForm">
+                            Submit
+                        </Button>
+                        <Button BackgroundColor="BackgroundColor.Secondary" OnClick="ResetForm" Class="ms-2">
+                            Reset
+                        </Button>
+                    </Div>
+                </CardBody>
+            </Card>
+        </Collapse>
+    </Section>
+
+    <Section>
+        <H2>Collapse with Images</H2>
+        <Paragraph>Collapse can contain images and media content.</Paragraph>
+        
+        <Div Class="mb-3">
+            <Button BackgroundColor="BackgroundColor.Warning" CollapseTarget="imageCollapse">
+                Toggle Images
+            </Button>
+        </Div>
+        
+        <Collapse Id="imageCollapse">
+            <Card>
+                <CardBody>
+                    <Paragraph>Here are some sample images:</Paragraph>
+                    <Row>
+arst
+                    </Row>
+                </CardBody>
+            </Card>
+        </Collapse>
+    </Section>
+
+    <Section>
+        <H2>Programmatic Control</H2>
+        <Paragraph>Control collapse state programmatically using the component methods.</Paragraph>
+        
+        <Div Class="mb-3">
+            <Button BackgroundColor="BackgroundColor.Primary" OnClick="ShowProgrammaticCollapse">
+                Show
+            </Button>
+            <Button BackgroundColor="BackgroundColor.Secondary" OnClick="HideProgrammaticCollapse" Class="ms-2">
+                Hide
+            </Button>
+            <Button BackgroundColor="BackgroundColor.Info" OnClick="ToggleProgrammaticCollapse" Class="ms-2">
+                Toggle
+            </Button>
+        </Div>
+        
+        <Collapse @ref="programmaticCollapse" Expanded="@programmaticCollapseExpanded">
+            <Card>
+                <CardBody>
+                    <Paragraph>
+                        This collapse is controlled programmatically. Use the Show, Hide, and Toggle buttons above to control its state.
+                    </Paragraph>
+                    <Paragraph>
+                        Current state: <Strong>@(programmaticCollapseExpanded ? "Expanded" : "Collapsed")</Strong>
+                    </Paragraph>
+                </CardBody>
+            </Card>
+        </Collapse>
+    </Section>
+        </Column>
+    </Row>
+</Container>
+
+@code {
+    private Collapse? basicCollapse;
+    private bool basicCollapseExpanded = false;
+
+    private Collapse? firstTarget;
+    private bool firstTargetExpanded = false;
+    private Collapse? secondTarget;
+    private bool secondTargetExpanded = false;
+
+    private Collapse? horizontalCollapse;
+    private bool horizontalCollapseExpanded = false;
+
+    private Collapse? buttonCollapse;
+    private bool buttonCollapseExpanded = false;
+
+    private Collapse? formCollapse;
+    private bool formCollapseExpanded = false;
+
+    private Collapse? imageCollapse;
+    private bool imageCollapseExpanded = false;
+
+    private Collapse? programmaticCollapse;
+    private bool programmaticCollapseExpanded = false;
+
+    // Form data
+    private string formName = "";
+    private string formEmail = "";
+    private string formMessage = "";
+
+    private async Task ToggleBasicCollapse()
+    {
+        if (basicCollapse != null)
+        {
+            await basicCollapse.Toggle();
+        }
+    }
+
+    private async Task HandleBasicCollapseChanged(bool expanded)
+    {
+        basicCollapseExpanded = expanded;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleFirstTargetChanged(bool expanded)
+    {
+        firstTargetExpanded = expanded;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleSecondTargetChanged(bool expanded)
+    {
+        secondTargetExpanded = expanded;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ToggleFirstTarget()
+    {
+        if (firstTarget != null)
+        {
+            await firstTarget.Toggle();
+        }
+    }
+
+    private async Task ToggleSecondTarget()
+    {
+        if (secondTarget != null)
+        {
+            await secondTarget.Toggle();
+        }
+    }
+
+    private async Task ToggleBothTargets()
+    {
+        await ToggleFirstTarget();
+        await ToggleSecondTarget();
+    }
+
+    private async Task ToggleHorizontalCollapse()
+    {
+        if (horizontalCollapse != null)
+        {
+            await horizontalCollapse.Toggle();
+            horizontalCollapseExpanded = !horizontalCollapseExpanded;
+        }
+    }
+
+    private async Task ToggleButtonCollapse()
+    {
+        if (buttonCollapse != null)
+        {
+            await buttonCollapse.Toggle();
+            buttonCollapseExpanded = !buttonCollapseExpanded;
+        }
+    }
+
+    private async Task ToggleFormCollapse()
+    {
+        if (formCollapse != null)
+        {
+            await formCollapse.Toggle();
+            formCollapseExpanded = !formCollapseExpanded;
+        }
+    }
+
+    private async Task ToggleImageCollapse()
+    {
+        if (imageCollapse != null)
+        {
+            await imageCollapse.Toggle();
+            imageCollapseExpanded = !imageCollapseExpanded;
+        }
+    }
+
+    private async Task ShowProgrammaticCollapse()
+    {
+        if (programmaticCollapse != null)
+        {
+            await programmaticCollapse.Show();
+            programmaticCollapseExpanded = true;
+        }
+    }
+
+    private async Task HideProgrammaticCollapse()
+    {
+        if (programmaticCollapse != null)
+        {
+            await programmaticCollapse.Hide();
+            programmaticCollapseExpanded = false;
+        }
+    }
+
+    private async Task ToggleProgrammaticCollapse()
+    {
+        if (programmaticCollapse != null)
+        {
+            await programmaticCollapse.Toggle();
+            programmaticCollapseExpanded = !programmaticCollapseExpanded;
+        }
+    }
+
+    private Dictionary<string, object> GetButtonAttributes()
+    {
+        return new Dictionary<string, object>
+        {
+            ["aria-expanded"] = buttonCollapseExpanded ? "true" : "false",
+            ["aria-controls"] = "button-collapse-content"
+        };
+    }
+
+    private async Task SubmitForm()
+    {
+        // Simulate form submission
+        await Task.Delay(1000);
+        
+        // Reset form
+        formName = "";
+        formEmail = "";
+        formMessage = "";
+        
+        // Hide the form
+        await ToggleFormCollapse();
+    }
+
+    private async Task ResetForm()
+    {
+        formName = "";
+        formEmail = "";
+        formMessage = "";
+    }
+}

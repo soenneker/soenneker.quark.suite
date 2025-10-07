@@ -76,7 +76,7 @@ public sealed class TextStyleBuilder : ICssBuilder
         if (_rules.Count == 0)
             return string.Empty;
 
-        using var sb = new Soenneker.Utils.PooledStringBuilders.PooledStringBuilder();
+        using var sb = new Utils.PooledStringBuilders.PooledStringBuilder();
         var first = true;
 
         for (var i = 0; i < _rules.Count; i++)

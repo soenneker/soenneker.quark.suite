@@ -1,0 +1,61 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IButtonGroup
+
+<CascadingValue Value="this">
+    <Div Class="@ButtonGroupClass" @attributes="BuildAttributes()">
+        @ChildContent
+    </Div>
+</CascadingValue>
+
+@code {
+    public override string? ThemeKey { get; set; } = "ButtonGroup";
+
+    [Parameter]
+    public CssValue<SizeBuilder>? Size { get; set; }
+
+    [Parameter]
+    public bool Vertical { get; set; }
+
+    private string ButtonGroupClass
+    {
+        get
+        {
+            var classes = Vertical ? "btn-group-vertical" : "btn-group";
+            
+            if (Size != null && Size != Quark.Size.Default)
+            {
+                var sizeValue = Size.ToString();
+                if (sizeValue.HasContent())
+                {
+                    classes += $" btn-group-{sizeValue}";
+                }
+            }
+            
+            return classes;
+        }
+    }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+
+        // Set default role if not specified
+        if (string.IsNullOrEmpty(Role))
+        {
+            attributes["role"] = "group";
+        }
+        else
+        {
+            attributes["role"] = Role;
+        }
+
+        // Add aria-label if provided
+        if (AriaLabel.HasContent())
+        {
+            attributes["aria-label"] = AriaLabel;
+        }
+
+        return attributes;
+    }
+}

@@ -61,6 +61,13 @@ else
 	[Parameter]
 	public string? Name { get; set; }
 
+	// --- Bootstrap Collapse auto-targeting ---
+	[Parameter]
+	public string? CollapseTarget { get; set; }
+
+	[Parameter]
+	public Collapse? CollapseTargetRef { get; set; }
+
 	[Parameter]
 	public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
 
@@ -72,6 +79,9 @@ else
 
 	[Parameter]
 	public bool Close { get; set; }
+
+	[Parameter]
+	public bool Unstyled { get; set; }
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	private string? GetSizeClass() 
@@ -100,26 +110,28 @@ else
 		// Figure out disabled state (treat presence of "disabled" attribute as true)
 		var isDisabled = Disabled || Loading || attributes.ContainsKey("disabled");
 
-		// Add Bootstrap button classes
+		// Add Bootstrap button classes unless explicitly unstyled
 		if (Close)
 		{
 			AppendToClassAttr(attributes, "btn-close");
 		}
-		else
+		else if (!Unstyled)
 		{
 			AppendToClassAttr(attributes, "btn");
 		}
 
 
-		// Add size class if not default
-		var sizeClass = GetSizeClass();
+		// Add size class if not default (skip when unstyled)
+		if (!Unstyled)
+		{
+			var sizeClass = GetSizeClass();
+			if (sizeClass is not null)
+				AppendToClassAttr(attributes, sizeClass);
 
-		if (sizeClass is not null)
-			AppendToClassAttr(attributes, sizeClass);
-
-		// Add block class if needed
-		if (Block)
-			AppendToClassAttr(attributes, "btn-block");
+			// Add block class if needed
+			if (Block)
+				AppendToClassAttr(attributes, "btn-block");
+		}
 
 		// Apply disabled visuals for anchor-style buttons
 		if (isLink && isDisabled)
@@ -159,6 +171,16 @@ else
 		if (Form.HasContent()) attributes["form"] = Form!;
 		if (AutoFocus) attributes["autofocus"] = true;
 		if (AriaLabel.HasContent()) attributes["aria-label"] = AriaLabel!;
+
+		// Bootstrap collapse auto-wiring if requested
+		var targetId = CollapseTargetRef?.CollapseId ?? CollapseTarget;
+		if (targetId.HasContent())
+		{
+			attributes["data-bs-toggle"] = "collapse";
+			var selector = targetId!.StartsWith("#") ? targetId : $"#{targetId}";
+			attributes["data-bs-target"] = selector;
+			attributes["aria-controls"] = selector.StartsWith("#") ? selector.Substring(1) : selector;
+		}
 
 		// If this is acting as a link, we already render <Anchor>; nothing special beyond attrs.
 		return attributes;

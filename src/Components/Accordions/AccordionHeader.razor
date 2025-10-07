@@ -1,0 +1,113 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IAccordionHeader
+
+<H2 Class="accordion-header" @attributes="BuildAttributes()">
+    <Button
+        Class="@ButtonClass"
+        Type="@ButtonType.Button"
+        Unstyled="true"
+        OnClick="HandleClick"
+        TabIndex="@(Disabled ? -1 : (int?)null)"
+        @attributes="BuildButtonAttributes()">
+        @if (IconName.HasContent())
+        {
+            <Icon Name="@IconName" />
+        }
+        @ChildContent
+        <Icon Name="@(IsExpanded ? "chevron-up" : "chevron-down")" Class="accordion-icon" />
+    </Button>
+</H2>
+
+@code {
+    public override string? ThemeKey { get; set; } = "AccordionHeader";
+
+    [Parameter]
+    public string? IconName { get; set; }
+
+    [Parameter]
+    public bool Expanded { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public bool FullWidth { get; set; } = true;
+
+    [CascadingParameter]
+    public AccordionItem? ParentAccordionItem { get; set; }
+
+    private bool IsExpanded => ParentAccordionItem?.IsExpanded ?? Expanded;
+    private bool IsDisabled => ParentAccordionItem?.Disabled ?? Disabled;
+
+    private string ButtonClass
+    {
+        get
+        {
+            var classes = "accordion-button";
+            if (!FullWidth) classes += " quark-accordion-inline";
+            if (!IsExpanded) classes += " collapsed";
+            if (IsDisabled) classes += " disabled";
+            return classes;
+        }
+    }
+
+    private IReadOnlyDictionary<string, object> BuildButtonAttributes()
+    {
+        var attributes = new Dictionary<string, object>
+        {
+            ["data-bs-toggle"] = "collapse",
+            ["aria-expanded"] = IsExpanded ? "true" : "false"
+        };
+
+        if (ParentAccordionItem?.Name.HasContent() == true)
+        {
+            attributes["data-bs-target"] = $"#collapse-{ParentAccordionItem.Name}";
+            attributes["aria-controls"] = $"collapse-{ParentAccordionItem.Name}";
+        }
+
+        if (IsDisabled)
+        {
+            attributes["aria-disabled"] = "true";
+        }
+
+        return attributes;
+    }
+
+    protected override async Task HandleClick(MouseEventArgs args)
+    {
+        if (!IsDisabled && ParentAccordionItem?.ParentAccordion != null && ParentAccordionItem.Name.HasContent())
+        {
+            await ParentAccordionItem.ParentAccordion.ToggleItem(ParentAccordionItem.Name);
+        }
+    }
+
+    private bool _lastIsExpanded;
+    private bool _expandedChanged;
+
+    protected override void OnParametersSet()
+    {
+        var current = IsExpanded;
+        _expandedChanged |= current != _lastIsExpanded;
+        _lastIsExpanded = current;
+        base.OnParametersSet();
+    }
+
+    protected override bool ShouldRender()
+    {
+        return _expandedChanged || base.ShouldRender();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        _expandedChanged = false;
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+
+        return attributes;
+    }
+}

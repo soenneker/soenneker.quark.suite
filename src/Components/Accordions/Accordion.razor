@@ -1,0 +1,137 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IAccordion
+
+<CascadingValue Value="this">
+    <Div Class="@AccordionClass" @attributes="BuildAttributes()">
+        @ChildContent
+    </Div>
+</CascadingValue>
+
+@code {
+    public override string? ThemeKey { get; set; } = "Accordion";
+
+    [Parameter]
+    public bool AllowMultiple { get; set; }
+
+    [Parameter]
+    public string[] ExpandedItems { get; set; } = [];
+
+    [Parameter]
+    public EventCallback<string[]> OnExpandedItemsChanged { get; set; }
+
+    [Parameter]
+    public bool Flush { get; set; }
+
+    private readonly List<AccordionItem> _items = [];
+    private string? _autoId;
+    private bool _forceRender;
+    private int _expandedItemsKey;
+    private bool _expandedItemsChanged;
+
+    private string AccordionClass
+    {
+        get
+        {
+            var classes = "accordion";
+            if (Flush) classes += " accordion-flush";
+            return classes;
+        }
+    }
+
+    public void RegisterItem(AccordionItem item)
+    {
+        if (!_items.Contains(item))
+        {
+            _items.Add(item);
+        }
+    }
+
+    public void UnregisterItem(AccordionItem item)
+    {
+        _items.Remove(item);
+    }
+
+    public async Task ToggleItem(string itemName)
+    {
+        if (string.IsNullOrEmpty(itemName)) return;
+
+        var newExpandedItems = new List<string>(ExpandedItems);
+
+        if (newExpandedItems.Contains(itemName))
+        {
+            // Item is currently expanded, collapse it
+            newExpandedItems.Remove(itemName);
+        }
+        else
+        {
+            // Item is collapsed, expand it
+            if (!AllowMultiple)
+            {
+                // If only one item can be expanded at a time, clear all others
+                newExpandedItems.Clear();
+            }
+            newExpandedItems.Add(itemName);
+        }
+
+        ExpandedItems = newExpandedItems.ToArray();
+
+        if (OnExpandedItemsChanged.HasDelegate)
+        {
+            await OnExpandedItemsChanged.InvokeAsync(ExpandedItems);
+        }
+
+        // Ensure a render even if base gate would block it
+        _forceRender = true;
+        StateHasChanged();
+    }
+
+    public bool IsItemExpanded(string itemName)
+    {
+        return ExpandedItems.Contains(itemName);
+    }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+
+        // Ensure an id exists so children can reference this accordion as parent
+        if (!Id.HasContent())
+            Id = _autoId ??= $"accordion_{Guid.NewGuid():N}";
+
+        attributes["id"] = Id!;
+        attributes["role"] = "tablist";
+
+        return attributes;
+    }
+
+    protected override void OnParametersSet()
+    {
+        // Track external param-driven changes to ExpandedItems so we allow render
+        var key = 17;
+        if (ExpandedItems != null)
+        {
+            for (int i = 0; i < ExpandedItems.Length; i++)
+            {
+                key = HashCode.Combine(key, ExpandedItems[i]);
+            }
+        }
+
+        _expandedItemsChanged |= key != _expandedItemsKey;
+        _expandedItemsKey = key;
+
+        base.OnParametersSet();
+    }
+
+    protected override bool ShouldRender()
+    {
+        return _forceRender || _expandedItemsChanged || base.ShouldRender();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        _forceRender = false;
+        _expandedItemsChanged = false;
+        await base.OnAfterRenderAsync(firstRender);
+    }
+}

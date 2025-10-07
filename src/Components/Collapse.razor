@@ -1,0 +1,128 @@
+@namespace Soenneker.Quark
+
+@inherits Soenneker.Quark.Element
+@implements ICollapse
+
+<Div Class="@CollapseClass" @attributes="BuildAttributes()">
+    @ChildContent
+</Div>
+
+@code {
+    public override string? ThemeKey { get; set; } = "Collapse";
+
+    /// <summary>
+    /// A stable id for this collapse element that can be referenced by toggles.
+    /// If not provided via <code>Id</code>, one will be generated.
+    /// </summary>
+    public string CollapseId => Id.HasContent() ? Id! : (_autoId ??= $"collapse_{Guid.NewGuid():N}");
+
+    [Parameter]
+    public bool Expanded { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnExpandedChanged { get; set; }
+
+    [Parameter]
+    public bool Horizontal { get; set; }
+
+    private string CollapseClass
+    {
+        get
+        {
+            var classes = "collapse";
+
+            if (Horizontal)
+                classes += " collapse-horizontal";
+
+            if (Expanded) 
+                classes += " show";
+
+            return classes;
+        }
+    }
+
+    public async Task Toggle()
+    {
+        Expanded = !Expanded;
+        _forceRender = true;
+        
+        if (OnExpandedChanged.HasDelegate)
+        {
+            await OnExpandedChanged.InvokeAsync(Expanded);
+        }
+        
+        StateHasChanged();
+    }
+
+    public async Task Show()
+    {
+        if (!Expanded)
+        {
+            Expanded = true;
+            _forceRender = true;
+            
+            if (OnExpandedChanged.HasDelegate)
+            {
+                await OnExpandedChanged.InvokeAsync(Expanded);
+            }
+            
+            StateHasChanged();
+        }
+    }
+
+    public async Task Hide()
+    {
+        if (Expanded)
+        {
+            Expanded = false;
+            _forceRender = true;
+            
+            if (OnExpandedChanged.HasDelegate)
+            {
+                await OnExpandedChanged.InvokeAsync(Expanded);
+            }
+            
+            StateHasChanged();
+        }
+    }
+
+    private bool _lastExpanded;
+    private bool _expandedChanged;
+    private bool _forceRender;
+
+    protected override void OnParametersSet()
+    {
+        // Track param-driven expanded changes so we can render even if base gate blocks it
+        _expandedChanged |= Expanded != _lastExpanded;
+        _lastExpanded = Expanded;
+        base.OnParametersSet();
+    }
+
+    protected override bool ShouldRender()
+    {
+        // Allow render when Expanded changes or when we explicitly request it
+        return _forceRender || _expandedChanged || base.ShouldRender();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        _forceRender = false;
+        _expandedChanged = false;
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+
+        // Ensure an id exists so controls can target this collapse per Bootstrap docs
+        if (!Id.HasContent())
+            Id = _autoId ??= $"collapse_{Guid.NewGuid():N}";
+
+        attributes["id"] = Id!;
+
+        return attributes;
+    }
+
+    private string? _autoId;
+}

@@ -1,3 +1,6 @@
+using Soenneker.Quark.Themes.Options.Navigation;
+using Soenneker.Quark.Themes.Options.Content;
+
 namespace Soenneker.Quark;
 
 public sealed class Theme
@@ -5,6 +8,14 @@ public sealed class Theme
     public string Name { get; set; } = "Default";
 
     public AlertOptions? Alerts { get; set; }
+
+    public AccordionOptions? Accordions { get; set; }
+
+    public AccordionItemOptions? AccordionItems { get; set; }
+
+    public AccordionHeaderOptions? AccordionHeaders { get; set; }
+
+    public AccordionBodyOptions? AccordionBodys { get; set; }
 
     public AnchorOptions? Anchors { get; set; }
 
@@ -16,11 +27,15 @@ public sealed class Theme
 
     public ButtonOptions? Buttons { get; set; }
 
+    public ButtonGroupOptions? ButtonGroups { get; set; }
+
     public CardOptions? Cards { get; set; }
 
     public CheckOptions? Checks { get; set; }
 
     public CodeOptions? Codes { get; set; }
+
+    public CollapseOptions? Collapses { get; set; }
 
     public ColumnOptions? Columns { get; set; }
 
