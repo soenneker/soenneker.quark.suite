@@ -13,12 +13,11 @@
 
 @code {
     [Inject]
-    public IValidationInterop ValidationInterop { get; set; } = default!;
+    public IValidationInterop ValidationInterop { get; set; } = null!;
 
     private IValidationInput? _input;
     private object? _lastKnownValue;
     private string? _patternString;
-    private Regex? _pattern;
     private bool _hasPattern;
     private bool _initialized;
     private FieldIdentifier _fieldIdentifier;
@@ -68,7 +67,7 @@
 
     public FieldIdentifier FieldIdentifier => _fieldIdentifier;
 
-    public Regex? Pattern => _pattern;
+    public Regex? Pattern { get; private set; }
 
     [Parameter]
     public bool ShowErrorsOnInput { get; set; }
@@ -136,7 +135,7 @@
             if (!_hasPattern || _patternString != pattern)
             {
                 _patternString = pattern;
-                _pattern = new Regex(pattern);
+                Pattern = new Regex(pattern);
 
                 if (_hasPattern && (ParentValidations?.Mode ?? ValidationMode.Auto) == ValidationMode.Auto && (ParentValidations?.ValidateOnLoad ?? false) &&
                     _initialized)
@@ -294,7 +293,7 @@
     {
         var shouldShowInvalidBefore = ShouldShowInvalid;
 
-        if (Status != status || (Messages?.SequenceEqual(messages ?? Enumerable.Empty<string>()) == false))
+        if (Status != status || (Messages?.SequenceEqual(messages ?? []) == false))
         {
             Status = status;
             Messages = messages;
@@ -308,6 +307,7 @@
         {
             // If visual gating changed (e.g., became touched), still notify listeners to refresh UI
             var shouldShowInvalidAfter = ShouldShowInvalid;
+
             if (shouldShowInvalidBefore != shouldShowInvalidAfter)
             {
                 ValidationStatusChanged?.Invoke(this, new ValidationStatusChangedEventArgs(status, messages));

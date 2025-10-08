@@ -7,12 +7,14 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class RequiredValidator : QuarkValidator
 {
+    private readonly string _errorMessage;
+
     /// <summary>
     /// Initializes a new instance of the RequiredValidator class.
     /// </summary>
     public RequiredValidator()
     {
-        ErrorMessage = "This field is required.";
+        _errorMessage = "This field is required.";
     }
 
     /// <summary>
@@ -21,18 +23,17 @@ public sealed class RequiredValidator : QuarkValidator
     /// <param name="errorMessage">The error message to display when validation fails.</param>
     public RequiredValidator(string errorMessage)
     {
-        ErrorMessage = errorMessage;
+        _errorMessage = errorMessage;
     }
 
-    /// <inheritdoc/>
-    protected override bool ValidateValue(object value)
+    public override ValidationResult Validate(object value)
     {
         if (value is null)
-            return false;
+            return ValidationResult.Error(_errorMessage);
 
-        if (value is string str)
-            return !str.IsNullOrWhiteSpace();
+        if (value is string str && str.IsNullOrWhiteSpace())
+            return ValidationResult.Error(_errorMessage);
 
-        return true;
+        return ValidationResult.Success();
     }
 }

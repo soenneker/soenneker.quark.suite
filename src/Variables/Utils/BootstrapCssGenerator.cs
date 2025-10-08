@@ -72,7 +72,7 @@ public static class BootstrapCssGenerator
                         var cssVariableName = attr.GetName();
                         
                         if (!selectorGroups.ContainsKey(selector))
-                            selectorGroups[selector] = new List<string>();
+                            selectorGroups[selector] = [];
                         
                         selectorGroups[selector].Add($"  {cssVariableName}: {value};");
                     }

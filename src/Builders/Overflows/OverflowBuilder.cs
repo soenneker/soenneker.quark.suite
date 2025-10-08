@@ -49,7 +49,7 @@ public sealed class OverflowBuilder : ICssBuilder
     /// </summary>
     public static OverflowBuilder Create()
     {
-        return new OverflowBuilder(new List<OverflowRule>());
+        return new OverflowBuilder([]);
     }
 
     // ----- Fluent chaining (values & keywords) -----

@@ -52,5 +52,5 @@ public sealed class TreeViewNodeState<TNode>
     /// <summary>
     /// Gets the collection of child node states.
     /// </summary>
-    public List<TreeViewNodeState<TNode>> Children { get; } = new();
+    public List<TreeViewNodeState<TNode>> Children { get; } = [];
 }

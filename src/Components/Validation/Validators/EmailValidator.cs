@@ -9,13 +9,15 @@ namespace Soenneker.Quark;
 public class EmailValidator : QuarkValidator
 {
     private static readonly Regex EmailRegex = new(@"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,6}$", RegexOptions.IgnoreCase);
+    
+    private readonly string _errorMessage;
 
     /// <summary>
     /// Initializes a new instance of the EmailValidator class.
     /// </summary>
     public EmailValidator()
     {
-        ErrorMessage = "Please enter a valid email address.";
+        _errorMessage = "Please enter a valid email address.";
     }
 
     /// <summary>
@@ -24,15 +26,17 @@ public class EmailValidator : QuarkValidator
     /// <param name="errorMessage">The error message to display when validation fails.</param>
     public EmailValidator(string errorMessage)
     {
-        ErrorMessage = errorMessage;
+        _errorMessage = errorMessage;
     }
 
-    /// <inheritdoc/>
-    protected override bool ValidateValue(object value)
+    public override ValidationResult Validate(object value)
     {
         if (value is not string email)
-            return false;
+            return ValidationResult.Error(_errorMessage);
 
-        return email.HasContent() && EmailRegex.IsMatch(email);
+        if (!email.HasContent() || !EmailRegex.IsMatch(email))
+            return ValidationResult.Error(_errorMessage);
+
+        return ValidationResult.Success();
     }
 }

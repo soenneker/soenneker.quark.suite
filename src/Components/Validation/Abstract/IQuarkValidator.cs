@@ -12,24 +12,29 @@ public interface IQuarkValidator
     /// Validates the given value synchronously.
     /// </summary>
     /// <param name="value">The value to validate.</param>
-    /// <returns>True if validation passes, false otherwise.</returns>
-    bool Validate(object value);
+    /// <returns>A <see cref="ValidationResult"/> containing the validation outcome.</returns>
+    ValidationResult Validate(object value);
 
     /// <summary>
     /// Validates the given value asynchronously.
     /// </summary>
     /// <param name="value">The value to validate.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>True if validation passes, false otherwise.</returns>
-    Task<bool> ValidateAsync(object value, CancellationToken cancellationToken = default);
+    /// <returns>A <see cref="ValidationResult"/> containing the validation outcome.</returns>
+    Task<ValidationResult> ValidateAsync(object value, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets the error message for validation failures.
+    /// Validates the value with enhanced context using ValidatorEventArgs.
     /// </summary>
-    string ErrorMessage { get; }
+    /// <param name="args">The validation event arguments containing the value and validation context.</param>
+    /// <returns>A <see cref="ValidationResult"/> containing the validation outcome.</returns>
+    ValidationResult Validate(ValidatorEventArgs args);
 
     /// <summary>
-    /// Gets the validation status after validation.
+    /// Validates the value asynchronously with enhanced context using ValidatorEventArgs.
     /// </summary>
-    ValidationStatus Status { get; }
+    /// <param name="args">The validation event arguments containing the value and validation context.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A <see cref="ValidationResult"/> containing the validation outcome.</returns>
+    Task<ValidationResult> ValidateAsync(ValidatorEventArgs args, CancellationToken cancellationToken = default);
 }

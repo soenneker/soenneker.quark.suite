@@ -15,17 +15,16 @@ internal sealed class ValidatorHandler : IValidationHandler
         
         if (ctx.Validator is not null)
         {
-            // Use enhanced validation method if available (QuarkValidator)
-            if (ctx.Validator is QuarkValidator baseValidator)
+            // Use the new ValidationResult API
+            var result = ctx.Validator.Validate(args);
+            
+            // ValidatorEventArgs should already be synced by the validator
+            // but ensure it's set in case of custom implementations
+            if (args.Status == ValidationStatus.None)
             {
-                baseValidator.Validate(args);
-            }
-            else
-            {
-                // Fall back to simple validation for other validators
-                ctx.Validator.Validate(value);
-                args.Status = ctx.Validator.Status;
-                args.ErrorText = ctx.Validator.Status == ValidationStatus.Error ? ctx.Validator.ErrorMessage : null;
+                args.Status = result.Status;
+                args.ErrorText = result.ErrorText;
+                args.MemberNames = result.MemberNames;
             }
         }
         else if (ctx.Action is not null)
@@ -56,17 +55,16 @@ internal sealed class ValidatorHandler : IValidationHandler
 
         if (ctx.Validator is not null)
         {
-            // Use enhanced validation method if available (QuarkValidator)
-            if (ctx.Validator is QuarkValidator baseValidator)
+            // Use the new ValidationResult API
+            var result = await ctx.Validator.ValidateAsync(args, cancellationToken);
+            
+            // ValidatorEventArgs should already be synced by the validator
+            // but ensure it's set in case of custom implementations
+            if (args.Status == ValidationStatus.None)
             {
-                await baseValidator.ValidateAsync(args, cancellationToken);
-            }
-            else
-            {
-                // Fall back to simple validation for other validators
-                await ctx.Validator.ValidateAsync(value, cancellationToken);
-                args.Status = ctx.Validator.Status;
-                args.ErrorText = ctx.Validator.Status == ValidationStatus.Error ? ctx.Validator.ErrorMessage : null;
+                args.Status = result.Status;
+                args.ErrorText = result.ErrorText;
+                args.MemberNames = result.MemberNames;
             }
         }
         else if (ctx.AsyncFunc is not null)

@@ -22,7 +22,6 @@ public abstract class ValidationResultComponent : ComponentBase, IDisposable
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
-    /// <inheritdoc/>
     protected override void OnParametersSet()
     {
         if (ParentValidation != _previousParentValidation)
@@ -55,7 +54,6 @@ public abstract class ValidationResultComponent : ComponentBase, IDisposable
         await InvokeAsync(StateHasChanged);
     }
 
-    /// <inheritdoc/>
     public void Dispose()
     {
         DetachValidationStatusChangedListener();
