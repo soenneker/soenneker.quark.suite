@@ -6,25 +6,23 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Base implementation of IValidator that provides common validation functionality.
 /// </summary>
-public abstract class BaseQuarkValidator : IQuarkValidator
+public abstract class QuarkValidator : IQuarkValidator
 {
-    private ValidationStatus _status = ValidationStatus.None;
-
     public virtual string ErrorMessage { get; set; } = string.Empty;
 
-    public ValidationStatus Status => _status;
+    public ValidationStatus Status { get; private set; } = ValidationStatus.None;
 
     public virtual bool Validate(object value)
     {
         var result = ValidateValue(value);
-        _status = result ? ValidationStatus.Success : ValidationStatus.Error;
+        Status = result ? ValidationStatus.Success : ValidationStatus.Error;
         return result;
     }
 
     public virtual async Task<bool> ValidateAsync(object value, CancellationToken cancellationToken = default)
     {
         var result = await ValidateValueAsync(value, cancellationToken);
-        _status = result ? ValidationStatus.Success : ValidationStatus.Error;
+        Status = result ? ValidationStatus.Success : ValidationStatus.Error;
         return result;
     }
 
@@ -37,7 +35,7 @@ public abstract class BaseQuarkValidator : IQuarkValidator
     public virtual bool Validate(ValidatorEventArgs args)
     {
         var result = ValidateValue(args);
-        _status = args.Status;
+        Status = args.Status;
         return args.Status != ValidationStatus.Error;
     }
 
@@ -50,7 +48,7 @@ public abstract class BaseQuarkValidator : IQuarkValidator
     public virtual async Task<bool> ValidateAsync(ValidatorEventArgs args, CancellationToken cancellationToken = default)
     {
         var result = await ValidateValueAsync(args, cancellationToken);
-        _status = args.Status;
+        Status = args.Status;
         return args.Status != ValidationStatus.Error;
     }
 
@@ -82,6 +80,7 @@ public abstract class BaseQuarkValidator : IQuarkValidator
     {
         // Default implementation falls back to simple value validation
         var result = ValidateValue(args.Value);
+
         if (!result)
         {
             args.Status = ValidationStatus.Error;

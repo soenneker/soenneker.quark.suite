@@ -3,7 +3,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Validator for minimum length requirements.
 /// </summary>
-public class MinLengthValidator : BaseQuarkValidator
+public class MinLengthValidator : QuarkValidator
 {
     private readonly int _minLength;
 

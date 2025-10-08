@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Validator for email addresses.
 /// </summary>
-public class EmailValidator : BaseQuarkValidator
+public class EmailValidator : QuarkValidator
 {
     private static readonly Regex EmailRegex = new(@"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,6}$", RegexOptions.IgnoreCase);
 

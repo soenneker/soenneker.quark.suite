@@ -8,7 +8,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// A composite validator that combines multiple validators.
 /// </summary>
-public class CompositeValidator : BaseQuarkValidator
+public class CompositeValidator : QuarkValidator
 {
     private readonly List<IQuarkValidator> _validators;
 

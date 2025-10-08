@@ -15,8 +15,8 @@ internal sealed class ValidatorHandler : IValidationHandler
         
         if (ctx.Validator is not null)
         {
-            // Use enhanced validation method if available (BaseQuarkValidator)
-            if (ctx.Validator is BaseQuarkValidator baseValidator)
+            // Use enhanced validation method if available (QuarkValidator)
+            if (ctx.Validator is QuarkValidator baseValidator)
             {
                 baseValidator.Validate(args);
             }
@@ -56,8 +56,8 @@ internal sealed class ValidatorHandler : IValidationHandler
 
         if (ctx.Validator is not null)
         {
-            // Use enhanced validation method if available (BaseQuarkValidator)
-            if (ctx.Validator is BaseQuarkValidator baseValidator)
+            // Use enhanced validation method if available (QuarkValidator)
+            if (ctx.Validator is QuarkValidator baseValidator)
             {
                 await baseValidator.ValidateAsync(args, cancellationToken);
             }
