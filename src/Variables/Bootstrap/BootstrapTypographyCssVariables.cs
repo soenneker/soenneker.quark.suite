@@ -166,6 +166,36 @@ public sealed class BootstrapTypographyCssVariables
     [CssVariable("bs-link-hover-color-rgb")]
     public string? LinkHoverColorRgb { get; set; }
 
+    /// <summary>
+    /// Link hover decoration. Default: underline
+    /// </summary>
+    [CssVariable("bs-link-hover-decoration")]
+    public string? LinkHoverDecoration { get; set; }
+
+    /// <summary>
+    /// Link opacity. Default: 1
+    /// </summary>
+    [CssVariable("bs-link-opacity")]
+    public string? LinkOpacity { get; set; }
+
+    /// <summary>
+    /// Link hover opacity. Default: 1
+    /// </summary>
+    [CssVariable("bs-link-hover-opacity")]
+    public string? LinkHoverOpacity { get; set; }
+
+    /// <summary>
+    /// Link underline offset. Default: 0.125em
+    /// </summary>
+    [CssVariable("bs-link-underline-offset")]
+    public string? LinkUnderlineOffset { get; set; }
+
+    /// <summary>
+    /// Link underline opacity. Default: 1
+    /// </summary>
+    [CssVariable("bs-link-underline-opacity")]
+    public string? LinkUnderlineOpacity { get; set; }
+
     // Code and Highlight Colors
     /// <summary>
     /// Code color. Default: #d63384
