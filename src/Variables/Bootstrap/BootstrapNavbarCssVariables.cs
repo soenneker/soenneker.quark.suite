@@ -3,7 +3,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap's navbar CSS variables
 /// </summary>
-[CssSelector]
+[CssSelector(".navbar")]
 public sealed class BootstrapNavbarCssVariables
 {
     /// <summary>

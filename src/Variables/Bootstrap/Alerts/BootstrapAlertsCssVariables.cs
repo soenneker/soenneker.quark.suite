@@ -3,6 +3,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap's alert global CSS variables
 /// </summary>
+[CssSelector]
 public sealed class BootstrapAlertsCssVariables
 {
 	[CssVariable("bs-alert-bg")]

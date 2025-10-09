@@ -3,6 +3,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap's form CSS variables
 /// </summary>
+[CssSelector]
 public sealed class BootstrapFormsCssVariables
 {
     /// <summary>

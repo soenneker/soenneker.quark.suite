@@ -4,6 +4,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap's spacing CSS variables
 /// </summary>
+[CssSelector]
 public sealed class BootstrapSpacingCssVariables
 {
     // Grid Gutters

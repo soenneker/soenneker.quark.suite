@@ -3,6 +3,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap's close button CSS variables
 /// </summary>
+[CssSelector]
 public sealed class BootstrapCloseButtonsCssVariables
 {
     /// <summary>

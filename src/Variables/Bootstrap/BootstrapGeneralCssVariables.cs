@@ -4,6 +4,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap's general CSS variables
 /// </summary>
+[CssSelector]
 public sealed class BootstrapGeneralCssVariables
 {
     /// <summary>

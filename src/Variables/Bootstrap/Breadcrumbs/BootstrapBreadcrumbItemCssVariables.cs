@@ -6,5 +6,3 @@ public class BootstrapBreadcrumbItemCssVariables
 	[CssVariable("bs-breadcrumb-divider")]
 	public string? Divider { get; set; }
 }
-
-

@@ -3,6 +3,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap's offcanvas global CSS variables
 /// </summary>
+[CssSelector]
 public sealed class BootstrapOffcanvasGlobalsCssVariables
 {
 	[CssVariable("bs-offcanvas-width")]

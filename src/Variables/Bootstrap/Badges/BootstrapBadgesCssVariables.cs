@@ -3,6 +3,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap's badge global CSS variables
 /// </summary>
+[CssSelector]
 public sealed class BootstrapBadgesCssVariables
 {
 	[CssVariable("bs-badge-padding-x")]

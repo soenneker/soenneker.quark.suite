@@ -3,6 +3,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap's card CSS variables
 /// </summary>
+[CssSelector]
 public sealed class BootstrapCardsCssVariables
 {
 	[CssVariable("bs-card-spacer-y")]

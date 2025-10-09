@@ -1,4 +1,3 @@
-
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -22,6 +21,8 @@ public sealed class BootstrapCssVariables
     public BootstrapBreakpointsCssVariables? Breakpoints { get; set; }
 
     public BootstrapNavbarCssVariables? Navbar { get; set; }
+
+    public BootstrapLinkCssVariables? Link { get; set; }
 
     public BootstrapButtonCssVariables? Button { get; set; }
 

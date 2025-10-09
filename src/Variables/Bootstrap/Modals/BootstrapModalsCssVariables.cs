@@ -3,6 +3,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap's modal global CSS variables
 /// </summary>
+[CssSelector]
 public sealed class BootstrapModalsCssVariables
 {
 	[CssVariable("bs-modal-zindex")]
