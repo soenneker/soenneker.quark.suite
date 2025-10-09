@@ -42,6 +42,18 @@
     [Parameter]
     public bool? Disabled { get; set; }
 
+    protected override bool ShouldRender()
+    {
+        // For vertical bars, always render when sidebar collapse state might change
+        // The base component's render key doesn't track cascading parameters
+        if (BarMode != BarMode.Horizontal)
+        {
+            return true;
+        }
+
+        return base.ShouldRender();
+    }
+
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
@@ -65,17 +77,30 @@
         }
         else
         {
-            // For vertical mode, use custom toggler styling
-            AppendToClassAttr(attributes, "btn");
-            AppendToClassAttr(attributes, "btn-outline-secondary");
-            AppendToClassAttr(attributes, "border-0");
+            // For vertical mode, use sidebar-specific toggler styling
+            AppendToClassAttr(attributes, "sidebar-toggler");
+            AppendToClassAttr(attributes, "navbar-toggler");
             AppendToClassAttr(attributes, "p-2");
-            AppendToClassAttr(attributes, "m-2");
+            AppendToClassAttr(attributes, "my-2");
+            AppendToClassAttr(attributes, "d-flex");
+            AppendToClassAttr(attributes, "justify-content-center");
+            AppendToClassAttr(attributes, "align-items-center");
             
-            // When sidebar is collapsed, center the toggler
+            // Ensure fixed width so it doesn't shift
+            AppendStyleDeclAttr(attributes, "flex-shrink: 0");
+            AppendStyleDeclAttr(attributes, "width: 60px");
+            AppendStyleDeclAttr(attributes, "margin-left: 0");
+            AppendStyleDeclAttr(attributes, "border: none");
+            AppendStyleDeclAttr(attributes, "background: transparent");
+
+            // When the sidebar is collapsed, apply an inline nudge to visually center the icon
             if (SidebarCollapsed)
             {
-                AppendToClassAttr(attributes, "mx-auto");
+                // Force centering regardless of external classes
+                AppendStyleDeclAttr(attributes, "margin: 0 !important");
+                AppendStyleDeclAttr(attributes, "padding-left: 20px !important");
+                AppendStyleDeclAttr(attributes, "padding-right: 8px !important");
+                AppendStyleDeclAttr(attributes, "box-sizing: border-box");
             }
         }
         

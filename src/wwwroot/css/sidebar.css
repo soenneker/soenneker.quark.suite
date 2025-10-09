@@ -21,6 +21,8 @@
 .sidebar-collapsed .nav .nav-link,
 .sidebar-collapsed .d-flex.align-items-center.w-100 {
     font-size: 0; /* hide text nodes immediately */
+    /* Center the hamburger within the 60px column by nudging container */
+    padding-left: 20px !important;
     transition: font-size 0s, /* text disappears immediately */
                 align-items 0.2s ease-in-out 0.25s, /* centering delayed */
                 justify-content 0.2s ease-in-out 0.25s, /* centering delayed */
@@ -28,17 +30,26 @@
                 padding 0.2s ease-in-out 0.25s; /* centering delayed */
 }
 
-.sidebar-collapsed .btn {
-    font-size: 0; /* hide button text immediately */
+/* Only affect the dedicated sidebar toggler, not all buttons */
+.sidebar-collapsed .sidebar-toggler {
+    font-size: 0; /* hide text immediately */
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    padding: 0.5rem; /* keep consistent hit area */
-    transition: font-size 0s, /* text disappears immediately */
-                align-items 0.2s ease-in-out 0.25s, /* centering delayed */
-                justify-content 0.2s ease-in-out 0.25s, /* centering delayed */
-                padding 0.2s ease-in-out 0.25s; /* centering delayed */
+    padding: 0.5rem; /* consistent hit area */
+    /* Nudge right to visually center within 60px column (accounts for border) */
+    padding-left: 20px !important;
+    padding-right: 8px !important;
+    margin: 0 !important;
+    text-align: center;
+    box-sizing: border-box;
+    /* Extra nudge to account for border/shadow optical bias */
+    transform: translateX(3px);
+    transition: font-size 0s,
+                align-items 0.2s ease-in-out 0.25s,
+                justify-content 0.2s ease-in-out 0.25s,
+                padding 0.2s ease-in-out 0.25s;
 }
 
 /* Keep the toggler visible and centered in collapsed mode */
@@ -54,8 +65,13 @@
 }
 
 /* Hide brand content when sidebar is collapsed */
+/* Hide brand text but keep slot height stable; container remains */
 .sidebar-collapsed .navbar-brand {
-    display: none !important;
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    overflow: hidden;
 }
 
 /* Ensure the flex container allows the toggler to be centered when collapsed */

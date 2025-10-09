@@ -22,6 +22,17 @@
     [CascadingParameter]
     public string? MenuId { get; set; }
 
+    protected override bool ShouldRender()
+    {
+        // For vertical bars, always render when sidebar collapse state might change
+        // The base component's render key doesn't track cascading parameters
+        if (Mode != BarMode.Horizontal)
+        {
+            return true;
+        }
+
+        return base.ShouldRender();
+    }
 
     protected override Dictionary<string, object> BuildAttributes()
     {

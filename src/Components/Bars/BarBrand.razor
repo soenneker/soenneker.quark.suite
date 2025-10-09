@@ -19,6 +19,18 @@
     [CascadingParameter]
     public bool SidebarCollapsed { get; set; }
 
+    protected override bool ShouldRender()
+    {
+        // For vertical bars, always render when sidebar collapse state might change
+        // The base component's render key doesn't track cascading parameters
+        if (Mode != BarMode.Horizontal)
+        {
+            return true;
+        }
+
+        return base.ShouldRender();
+    }
+
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
@@ -37,10 +49,22 @@
             AppendToClassAttr(attributes, "align-items-center");
             AppendToClassAttr(attributes, "p-3");
             
-            // Hide the brand when sidebar is collapsed
+            // Add transition for smooth fade in/out
+            AppendStyleDeclAttr(attributes, "transition: opacity 0.3s ease, max-height 0.3s ease, padding 0.3s ease");
+            AppendStyleDeclAttr(attributes, "overflow: hidden");
+            
+            // Hide the brand when sidebar is collapsed with smooth transition
             if (SidebarCollapsed)
             {
-                AppendToClassAttr(attributes, "d-none");
+                AppendStyleDeclAttr(attributes, "opacity: 0");
+                AppendStyleDeclAttr(attributes, "max-height: 0");
+                AppendStyleDeclAttr(attributes, "padding-top: 0");
+                AppendStyleDeclAttr(attributes, "padding-bottom: 0");
+            }
+            else
+            {
+                AppendStyleDeclAttr(attributes, "opacity: 1");
+                AppendStyleDeclAttr(attributes, "max-height: 100px");
             }
         }
 
