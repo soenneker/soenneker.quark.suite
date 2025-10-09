@@ -1,91 +1,58 @@
 /* Sidebar visibility animations and styles */
-.sidebar-hidden {
-    transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
-    width: 0px !important;
-    overflow: hidden;
-    opacity: 0;
-}
+.sidebar-hidden { transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out; width: 0 !important; overflow: hidden; opacity: 0; }
 
 /* Collapsed sidebar - show only icons */
-.sidebar-collapsed {
-    transition: width 0.3s ease-in-out;
-    width: 60px !important;
-    overflow: hidden;
-    padding-left: 0;
-    padding-right: 0;
-}
+.sidebar-collapsed { transition: width 0.3s ease-in-out; width: 60px !important; overflow: hidden; padding-left: 0; padding-right: 0; }
 
 /* Hide text labels while keeping icon elements visible */
+/* Header container and text elements in collapsed state */
+.sidebar-collapsed .d-flex.align-items-center.w-100 { padding-left: 20px !important; }
 .sidebar-collapsed .navbar-brand,
 .sidebar-collapsed .navbar-nav .nav-link,
-.sidebar-collapsed .nav .nav-link,
-.sidebar-collapsed .d-flex.align-items-center.w-100 {
-    font-size: 0; /* hide text nodes immediately */
-    /* Center the hamburger within the 60px column by nudging container */
-    padding-left: 20px !important;
-    transition: font-size 0s, /* text disappears immediately */
-                align-items 0.2s ease-in-out 0.25s, /* centering delayed */
-                justify-content 0.2s ease-in-out 0.25s, /* centering delayed */
-                text-align 0.2s ease-in-out 0.25s, /* centering delayed */
-                padding 0.2s ease-in-out 0.25s; /* centering delayed */
-}
+.sidebar-collapsed .nav .nav-link { font-size: 0 !important; line-height: 0 !important; color: transparent !important; overflow: hidden; white-space: nowrap; background-color: transparent !important; box-shadow: none !important; }
+
+/* Ensure active link background matches sidebar background when collapsed */
+.sidebar-collapsed .navbar-nav .nav-link.active,
+.sidebar-collapsed .nav .nav-link.active { background-color: inherit !important; color: transparent !important; box-shadow: none !important; }
+/* Also force all descendant text to zero size, but keep icons sized via the i rule below */
+.sidebar-collapsed .navbar-nav .nav-link :not(.b-bar-icon):not(i):not(svg),
+.sidebar-collapsed .nav .nav-link :not(.b-bar-icon):not(i):not(svg) { font-size: 0 !important; line-height: 0 !important; }
+/* Hide any non-icon direct children completely */
+.sidebar-collapsed .navbar-nav .nav-link > :not(.b-bar-icon):not(i):not(svg),
+.sidebar-collapsed .nav .nav-link > :not(.b-bar-icon):not(i):not(svg) { display: none !important; }
+/* Ensure icon wrapper remains visible */
+.sidebar-collapsed .navbar-nav .nav-link .b-bar-icon,
+.sidebar-collapsed .nav .nav-link .b-bar-icon { display: inline-flex !important; align-items: center; justify-content: center; }
 
 /* Only affect the dedicated sidebar toggler, not all buttons */
-.sidebar-collapsed .sidebar-toggler {
-    font-size: 0; /* hide text immediately */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 0.5rem; /* consistent hit area */
-    /* Nudge right to visually center within 60px column (accounts for border) */
-    padding-left: 20px !important;
-    padding-right: 8px !important;
-    margin: 0 !important;
-    text-align: center;
-    box-sizing: border-box;
-    /* Extra nudge to account for border/shadow optical bias */
-    transform: translateX(3px);
-    transition: font-size 0s,
-                align-items 0.2s ease-in-out 0.25s,
-                justify-content 0.2s ease-in-out 0.25s,
-                padding 0.2s ease-in-out 0.25s;
-}
+.sidebar-collapsed .sidebar-toggler { font-size: 0; display: flex; align-items: center; justify-content: center; width: 100%; padding: 0.5rem; padding-left: 20px !important; padding-right: 8px !important; margin: 0 !important; box-sizing: border-box; }
 
 /* Keep the toggler visible and centered in collapsed mode */
-.sidebar-collapsed .navbar-toggler {
-    font-size: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    flex-shrink: 0;
-    margin: 0;
-    padding: 0.5rem;
-}
+.sidebar-collapsed .navbar-toggler { font-size: 0; display: flex; align-items: center; justify-content: center; width: 100%; flex-shrink: 0; margin: 0; padding: 0.5rem; }
 
 /* Hide brand content when sidebar is collapsed */
 /* Hide brand text but keep slot height stable; container remains */
-.sidebar-collapsed .navbar-brand {
-    opacity: 0;
-    max-height: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    overflow: hidden;
-}
+.sidebar-collapsed .navbar-brand { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; overflow: hidden; }
 
 /* Ensure the flex container allows the toggler to be centered when collapsed */
-.sidebar-collapsed .d-flex {
-    justify-content: center;
-    gap: 0 !important;
-}
+.sidebar-collapsed .d-flex { justify-content: center; gap: 0 !important; }
+
+/* Sidebar links should not have pill background; match sidebar bg */
+.sidebar .nav-pills .nav-link,
+.sidebar .nav .nav-link { background-color: transparent !important; box-shadow: none !important; }
+.sidebar .nav-pills .nav-link.active,
+.sidebar .nav-pills .show > .nav-link,
+.sidebar .nav .nav-link.active { background-color: transparent !important; color: inherit !important; box-shadow: none !important; }
 
 .sidebar-collapsed .navbar-brand i,
 .sidebar-collapsed .navbar-nav .nav-link i,
 .sidebar-collapsed .nav .nav-link i,
-.sidebar-collapsed .btn i {
-    font-size: 1rem; /* restore icon size */
-}
+.sidebar-collapsed .btn i { font-size: 1rem !important; line-height: 1 !important; color: var(--bs-body-color, #212529) !important; }
+
+/* Hide label text inside dropdown toggles when collapsed; keep icon visible */
+.sidebar-collapsed .btn-toggle { font-size: 0 !important; line-height: 0 !important; color: transparent !important; }
+.sidebar-collapsed .btn-toggle > :not(.b-bar-icon) { display: none !important; }
+.sidebar-collapsed .btn-toggle .b-bar-icon i { font-size: 1rem !important; line-height: 1 !important; color: var(--bs-body-color, #212529) !important; }
 
 .sidebar-collapsed .navbar-nav .nav-link,
 .sidebar-collapsed .nav .nav-link {
