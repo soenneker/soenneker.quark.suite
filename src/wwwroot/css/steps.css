@@ -1,119 +1,164 @@
-/* Quark Steps - Minimal Bootstrap 5 look */
+/* Quark Steps - Custom implementation without Bootstrap dependencies */
 
-/* container aligns nicely with nav-pills; allow wrapping and subtle spacing */
-.steps {
-    gap: .25rem;
-    margin-bottom: 0;
+/* Horizontal steps bar with connectors */
+.steps { 
+    display: flex; 
+    align-items: flex-start; 
+    margin: 0; 
+    padding: 0; 
+    list-style: none; 
+    position: relative;
+    width: 100%;
+    flex-wrap: wrap; /* allow content to wrap to next line if injected here */
+}
+
+/* Ensure steps and content stack vertically within any flex parent */
+.steps-container {
+    display: flex !important;            /* force vertical stacking regardless of parent flex */
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 1rem;
+}
+
+/* Ensure children take full row width */
+.steps-container > .steps,
+.steps-container > .tab-content {
+    width: 100% !important;
+    flex: 0 0 auto !important;
+}
+
+/* Ensure content is block-level in case a framework overrides it */
+.steps-container > .tab-content {
+    display: block !important;
+}
+
+/* If tab-content is rendered as a child of the steps list, force it below */
+.steps > .tab-content {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+}
+
+/* each item is a step item */
+.steps .step-item { 
+    position: relative !important; 
+    display: flex !important; 
+    flex: 1 !important;
+    align-items: flex-start !important;
+}
+
+/* Each step is a small circle with a caption under it */
+.steps a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem;
     padding: 0;
-    list-style: none;
+    border: 0 !important;
+    background: transparent !important;
+    text-decoration: none;
+    color: #6c757d;
+    width: 100%;
 }
 
-/* each item remains a classic nav item */
-.steps .nav-item {
-    margin: .25rem 0;
+/* Reset unwanted pseudo-elements but preserve our connector lines */
+.steps .step-item::before,
+.steps .step-item *::after,
+.steps .step-item *::before {
+    content: none !important;
+    display: none !important;
 }
 
-/* link: clean, minimal, pill-like. Use subtle borders and hover states */
-.steps .nav-link {
-    border: 1px solid var(--bs-border-color, #dee2e6);
-    color: var(--bs-secondary-color, #6c757d);
-    background-color: var(--bs-body-bg, #fff);
-    transition: border-color .2s ease, color .2s ease, background-color .2s ease, box-shadow .2s ease;
+/* Add connector line to all items except the last one */
+.steps li.step-item:not(:last-of-type)::after {
+    content: "" !important;
+    display: block !important;
+    position: absolute !important;
+    top: 1.0625rem !important; /* Half of step-marker height (2.125rem) */
+    left: calc(50% + 1.0625rem) !important; /* Start from center of current marker + half marker width */
+    right: calc(-50% + 1.0625rem) !important; /* End at center of next marker - half marker width */
+    height: 0.125rem !important;
+    background-color: var(--steps-connector-color, #cfd3d7) !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
 }
 
-/* ensure non-active stays low emphasis */
-.steps .nav-link:not(.active) {
-    background-color: var(--bs-tertiary-bg, #f8f9fa);
-    color: var(--bs-secondary-color, #6c757d);
-}
-
-.steps .nav-link:hover {
-    color: var(--bs-primary, #0d6efd);
-    border-color: var(--bs-primary, #0d6efd);
-    box-shadow: 0 .25rem .75rem rgba(13,110,253,.08);
-}
-
-.steps .nav-link.active {
-    color: #fff !important;
-    background-color: var(--bs-primary, #0d6efd);
-    border-color: var(--bs-primary, #0d6efd);
-    box-shadow: 0 .25rem 1rem rgba(13,110,253,.15);
-}
-
-/* marker: compact circular number/icon */
+/* Marker: circular number */
 .step-marker {
-    width: 2rem;
-    height: 2rem;
-    min-width: 2rem;
-    display: inline-flex;
+    position: relative;
+    width: 2.125rem;
+    height: 2.125rem;
+    min-width: 2.125rem;
+    display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
     font-weight: 600;
-    font-size: .875rem;
-    color: var(--bs-secondary-color, #6c757d);
-    background-color: var(--bs-light, #f8f9fa);
-    border: 1px solid var(--bs-border-color, #dee2e6);
-    transition: all .2s ease;
+    font-size: 0.85rem;
+    color: #6c757d;
+    background-color: transparent !important; /* Not filled by default */
+    border: 0.125rem solid #dee2e6;
+    transition: all 0.2s ease;
     flex-shrink: 0;
+    z-index: 2;
 }
 
-.steps .nav-link.active .step-marker {
-    color: var(--bs-primary, #0d6efd);
-    background-color: #fff;
-    border-color: #fff;
-    box-shadow: 0 0 0 .2rem rgba(255,255,255,.8), 0 0 0 .35rem rgba(13,110,253,.25);
-}
-
-.steps .nav-link:not(.active) .step-marker {
-    background-color: var(--bs-light, #f8f9fa);
-    border-color: var(--bs-border-color, #dee2e6);
-    color: var(--bs-secondary-color, #6c757d);
+/* Active step marker - filled in */
+.steps a.active .step-marker {
+    color: var(--steps-marker-active-color, #fff) !important;
+    background-color: var(--steps-marker-active-bg, #7c3aed) !important;
+    border-color: var(--steps-marker-active-border, #7c3aed) !important;
 }
 
 /* make current step caption stand out a bit more */
-.steps .nav-link.active .step-description,
-.steps .nav-link.active .step-title {
+.steps a.active .step-description,
+.steps a.active .step-title {
+    color: var(--steps-text-active, #7c3aed);
     font-weight: 600;
 }
 
-/* completed state - align with Bootstrap success */
-.steps .nav-link.text-success {
-    background-color: rgba(var(--bs-success-rgb, 25,135,84), .08);
-    border-color: rgba(var(--bs-success-rgb, 25,135,84), .35);
-    color: var(--bs-success, #198754);
+/* neutralize any active link text color inside steps */
+.steps a.active { color: var(--steps-text-active, #7c3aed) !important; }
+
+/* completed state - custom success styling */
+.steps a.text-success {
+    background-color: color-mix(in srgb, var(--steps-success, #198754) 10%, transparent);
+    border-color: color-mix(in srgb, var(--steps-success, #198754) 35%, transparent);
+    color: var(--steps-success, #198754);
 }
 
-.steps .nav-link.disabled {
-    background-color: var(--bs-tertiary-bg, #f8f9fa);
-    color: var(--bs-secondary-color, #6c757d);
-    opacity: .6;
+.steps a.disabled {
+    background-color: var(--steps-disabled-bg, #f8f9fa);
+    color: var(--steps-disabled-color, #6c757d);
+    opacity: 0.6;
 }
 
-/* step caption/description */
+/* Title below marker */
 .step-description, .step-title {
-    font-size: .875rem;
-    line-height: 1.35;
+    font-size: 0.9rem;
+    line-height: 1.2;
     color: inherit;
+    text-align: center;
+    word-wrap: break-word;
 }
 
 /* content wrapper: breathable spacing and clean card-like surface */
 .tab-content {
     margin-top: 1.25rem;
     padding: 1.25rem;
-    background-color: var(--bs-body-bg, #fff);
-    border: 1px solid var(--bs-border-color, #dee2e6);
-    border-radius: .75rem;
-    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+    background-color: var(--steps-content-bg, #fff);
+    border: 1px solid var(--steps-content-border, #dee2e6);
+    border-radius: var(--steps-content-radius, 0.75rem);
+    box-shadow: var(--steps-content-shadow, 0 0.125rem 0.25rem rgba(0,0,0,0.075));
 }
 
-/* panes should not be absolutely positioned; use Bootstrap fade show */
+/* panes should not be absolutely positioned; use custom fade show */
 .tab-pane {
-    transition: opacity .2s ease, transform .2s ease;
+    transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .tab-pane.fade {
-    transform: translateY(.25rem);
+    transform: translateY(0.25rem);
 }
 
 .tab-pane.show.active {
@@ -121,18 +166,18 @@
 }
 
 /* focus states for accessibility */
-.steps .nav-link:focus {
-    outline: 2px solid var(--bs-primary, #0d6efd);
+.steps a:focus {
+    outline: 2px solid var(--steps-focus-outline, #0d6efd);
     outline-offset: 2px;
 }
 
 /* improve spacing and alignment */
-.steps .nav-link {
+.steps a {
     text-decoration: none;
     cursor: pointer;
 }
 
-.steps .nav-link.disabled {
+.steps a.disabled {
     cursor: not-allowed;
     pointer-events: none;
 }
@@ -143,26 +188,32 @@
 }
 
 /* completed step styling */
-.steps .nav-link.text-success .step-marker {
-    background-color: var(--bs-success, #198754);
-    color: #fff;
-    border-color: var(--bs-success, #198754);
+.steps a.text-success .step-marker {
+    background-color: var(--steps-success, #198754);
+    color: var(--steps-marker-success-color, #fff);
+    border-color: var(--steps-success, #198754);
 }
 
 @media (max-width: 576px) {
-    .steps {
-        gap: .5rem;
-    }
-    
     .step-marker {
         width: 1.75rem;
         height: 1.75rem;
         min-width: 1.75rem;
-        font-size: .75rem;
+        font-size: 0.75rem;
     }
     
-    .steps .nav-link {
-        padding: .5rem .75rem;
-        font-size: .875rem;
+    /* Adjust connector line position for smaller markers */
+    .steps li.step-item:not(:last-of-type)::after {
+        top: 0.875rem !important; /* Half of smaller step-marker height (1.75rem) */
+        left: calc(50% + 0.875rem) !important; /* Start from center of current marker + half marker width */
+        right: calc(-50% + 0.875rem) !important; /* End at center of next marker - half marker width */
+    }
+    
+    .steps a {
+        font-size: 0.875rem;
+    }
+    
+    .step-description, .step-title {
+        font-size: 0.8rem;
     }
 }

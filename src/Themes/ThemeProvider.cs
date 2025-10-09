@@ -102,7 +102,7 @@ public sealed class ThemeProvider : IThemeProvider
         ["Tabs"] = theme => theme.Tabs,
         ["Steps"] = theme => theme.Steps,
         ["StepPanel"] = theme => theme.StepPanels,
-        ["StepContent"] = theme => theme.StepContents,
+        ["StepsContent"] = theme => theme.StepContents,
         ["PaginationLink"] = theme => theme.PaginationLinks,
         ["PaginationItem"] = theme => theme.PaginationItems,
         ["BreadcrumbItem"] = theme => theme.BreadcrumbItems,

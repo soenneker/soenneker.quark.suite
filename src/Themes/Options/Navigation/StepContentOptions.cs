@@ -5,6 +5,6 @@ public sealed class StepContentOptions : ComponentOptions
 {
     public StepContentOptions()
     {
-        ThemeKey = "StepContent";
+        ThemeKey = "StepsContent";
     }
 }

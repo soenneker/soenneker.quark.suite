@@ -1,41 +1,74 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using Microsoft.AspNetCore.Components.Routing
 @implements ISteps
 @inject IStepsInterop StepsInterop
+@inject NavigationManager Navigation
 
 <CascadingValue Value="_state">
     <CascadingValue Value="this">
-        <UnorderedList Class="@GetStepsClasses()" @attributes="BuildAttributes()">
-            @if (Items != null)
+        <Div Class="steps-container">
+            <UnorderedList Class="@GetStepsClasses()" @attributes="BuildAttributes()">
+                @if (Items != null)
+                {
+                    @Items
+                }
+                else
+                {
+                    @ChildContent
+                }
+            </UnorderedList>
+            
+            @if (Content != null)
             {
-                @Items
+                <CascadingValue Value="this">
+                    <CascadingValue Value="_state">
+                        <Div Class="@GetContentClasses()">
+                            @Content
+                        </Div>
+                    </CascadingValue>
+                </CascadingValue>
             }
-            else
-            {
-                @ChildContent
-            }
-        </UnorderedList>
-
-        @if (Content != null)
-        {
-            <Div Class="@GetContentClasses()">
-                @Content
-            </Div>
-        }
+        </Div>
     </CascadingValue>
 </CascadingValue>
 
 @code {
     public override string? ThemeKey { get; set; } = "Steps";
 
-    private StepState _state = new();
+    private StepsState _state = new();
     private readonly List<string> _stepItems = [];
+    private readonly List<string> _stepPanels = [];
+    private bool _navigationSubscribed;
+
+    protected override void OnParametersSet()
+    {
+        ApplyStepsThemeVariables();
+        base.OnParametersSet();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             await StepsInterop.Initialize();
+
+            // Sync initial selection from URL fragment if present
+            var fragment = GetFragment();
+            if (fragment.HasContent() && _stepItems.Contains(fragment) && fragment != _state.SelectedStep)
+            {
+                _state = _state with { SelectedStep = fragment };
+                AriaDescribedBy = _state.SelectedStep;
+                SelectedStepChanged.InvokeAsync(_state.SelectedStep);
+                StateHasChanged();
+            }
+
+            // Subscribe to fragment changes
+            if (!_navigationSubscribed)
+            {
+                Navigation.LocationChanged += HandleLocationChanged;
+                _navigationSubscribed = true;
+            }
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -70,7 +103,7 @@
     }
 
     [Parameter]
-    public StepRenderMode RenderMode
+    public StepsRenderMode RenderMode
     {
         get => _state.RenderMode;
         set
@@ -97,8 +130,9 @@
             // Set initial selected step if not already set
             if (string.IsNullOrEmpty(_state.SelectedStep))
             {
-                _state = _state with { SelectedStep = name };
-                // Ensure initial selection triggers a re-render
+                var fragment = GetFragment();
+                var initial = fragment.HasContent() && _stepItems.Contains(fragment) ? fragment : name;
+                _state = _state with { SelectedStep = initial };
                 AriaDescribedBy = _state.SelectedStep;
                 StateHasChanged();
             }
@@ -149,25 +183,116 @@
         return _stepItems.IndexOf(name) + 1;
     }
 
+    internal void NotifyStepPanelInitialized(string name)
+    {
+        if (!_stepPanels.Contains(name))
+            _stepPanels.Add(name);
+    }
+
+    internal void NotifyStepPanelRemoved(string name)
+    {
+        if (_stepPanels.Contains(name))
+            _stepPanels.Remove(name);
+    }
+
     private string GetStepsClasses()
     {
         var attributes = new Dictionary<string, object>();
-        
         AppendToClassAttr(attributes, "steps");
-        AppendToClassAttr(attributes, "nav");
-        AppendToClassAttr(attributes, "nav-pills");
-        AppendToClassAttr(attributes, "flex-wrap");
-        AppendToClassAttr(attributes, "gap-2");
 
-        if (RenderMode != StepRenderMode.Default)
-            AppendToClassAttr(attributes, $"steps-{RenderMode.Value}");
+        if (RenderMode == StepsRenderMode.LazyLoad)
+            AppendToClassAttr(attributes, "steps-lazy-load");
+        else if (RenderMode == StepsRenderMode.LazyReload)
+            AppendToClassAttr(attributes, "steps-lazy-reload");
 
         return attributes.TryGetValue("class", out var classValue) ? classValue.ToString() ?? string.Empty : string.Empty;
     }
 
     private string GetContentClasses()
     {
-        return "tab-content mt-3";
+        return "tab-content";
+    }
+
+    private void ApplyStepsThemeVariables()
+    {
+        try
+        {
+            if (ThemeProvider?.Themes == null || ThemeKey.IsNullOrEmpty())
+                return;
+
+            if (!ThemeProvider.Themes.TryGetValue(ThemeProvider.CurrentTheme ?? string.Empty, out var theme))
+                return;
+
+            if (!ThemeProvider.ComponentOptions.TryGetValue(ThemeKey!, out var getter))
+                return;
+
+            var options = getter(theme) as StepsOptions;
+            if (options == null)
+                return;
+
+            var sty = new PooledStringBuilder(256);
+
+            if (options.ConnectorColor.HasContent()) AppendStyleDecl(ref sty, "--steps-connector-color: ", options.ConnectorColor!);
+            if (options.MarkerActiveBg.HasContent()) AppendStyleDecl(ref sty, "--steps-marker-active-bg: ", options.MarkerActiveBg!);
+            if (options.MarkerActiveBorder.HasContent()) AppendStyleDecl(ref sty, "--steps-marker-active-border: ", options.MarkerActiveBorder!);
+            if (options.MarkerActiveColor.HasContent()) AppendStyleDecl(ref sty, "--steps-marker-active-color: ", options.MarkerActiveColor!);
+            if (options.TextActive.HasContent()) AppendStyleDecl(ref sty, "--steps-text-active: ", options.TextActive!);
+            if (options.Success.HasContent()) AppendStyleDecl(ref sty, "--steps-success: ", options.Success!);
+            if (options.DisabledBg.HasContent()) AppendStyleDecl(ref sty, "--steps-disabled-bg: ", options.DisabledBg!);
+            if (options.DisabledColor.HasContent()) AppendStyleDecl(ref sty, "--steps-disabled-color: ", options.DisabledColor!);
+            if (options.ContentBg.HasContent()) AppendStyleDecl(ref sty, "--steps-content-bg: ", options.ContentBg!);
+            if (options.ContentBorder.HasContent()) AppendStyleDecl(ref sty, "--steps-content-border: ", options.ContentBorder!);
+            if (options.ContentRadius.HasContent()) AppendStyleDecl(ref sty, "--steps-content-radius: ", options.ContentRadius!);
+            if (options.ContentShadow.HasContent()) AppendStyleDecl(ref sty, "--steps-content-shadow: ", options.ContentShadow!);
+            if (options.FocusOutline.HasContent()) AppendStyleDecl(ref sty, "--steps-focus-outline: ", options.FocusOutline!);
+            if (options.MarkerSuccessColor.HasContent()) AppendStyleDecl(ref sty, "--steps-marker-success-color: ", options.MarkerSuccessColor!);
+
+            if (sty.Length > 0)
+            {
+                Style = Style.HasContent() ? $"{Style}; {sty.ToString()}" : sty.ToString();
+            }
+        }
+        catch { /* ignore theme errors to avoid breaking render */ }
+    }
+
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        var fragment = GetFragment(args.Location);
+        if (!fragment.HasContent())
+            return;
+
+        if (_stepItems.Contains(fragment) && fragment != _state.SelectedStep)
+        {
+            _state = _state with { SelectedStep = fragment };
+            AriaDescribedBy = _state.SelectedStep;
+            SelectedStepChanged.InvokeAsync(_state.SelectedStep);
+            StateHasChanged();
+        }
+    }
+
+    private string GetFragment(string? uri = null)
+    {
+        var current = uri ?? Navigation.Uri;
+        try
+        {
+            var u = new Uri(current);
+            var frag = u.Fragment;
+            return string.IsNullOrEmpty(frag) ? string.Empty : frag.TrimStart('#');
+        }
+        catch
+        {
+            return string.Empty;
+        }
+    }
+
+    public override void Dispose()
+    {
+        if (_navigationSubscribed)
+        {
+            Navigation.LocationChanged -= HandleLocationChanged;
+            _navigationSubscribed = false;
+        }
+        base.Dispose();
     }
 
 }

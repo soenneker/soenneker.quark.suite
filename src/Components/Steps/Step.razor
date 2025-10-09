@@ -1,12 +1,11 @@
-@using Soenneker.Utils.PooledStringBuilders
-
 @namespace Soenneker.Quark
+@using Soenneker.Utils.PooledStringBuilders
 
 @inherits Soenneker.Quark.Element
 @implements IStep
 
 <UnorderedListItem Class="@GetStepClasses()">
-    <Anchor Class="@GetStepLinkClasses()" OnClick="@HandleStepClick" role="tab" aria-selected="@(Active ? "true" : "false")" aria-current="@(Active ? "step" : null)" @attributes="BuildAttributes()">
+    <Anchor To="@GetHref()" Class="@GetStepLinkClasses()" OnClick="@HandleStepClick" role="tab" aria-selected="@(Active ? "true" : "false")" aria-current="@(Active ? "step" : null)" @attributes="BuildAttributes()">
         <Div Class="@GetMarkerClasses()">
             @if (Marker != null)
             {
@@ -54,12 +53,12 @@
 </UnorderedListItem>
 
 @code {
-	public override string? ThemeKey { get; set; } = "Step";
+    public override string? ThemeKey { get; set; } = "Step";
 
-	[Parameter]
-	public string? Name { get; set; }
+    [Parameter]
+    public string? Name { get; set; }
 
-    private StepState? _parentStepsState;
+    private StepsState? _parentStepsState;
 
     [Parameter]
     public int? Index { get; set; }
@@ -70,12 +69,8 @@
     [Parameter]
     public bool Disabled { get; set; }
 
-
     [Parameter]
-    public StepStatus Status { get; set; } = StepStatus.Pending;
-
-    [Parameter]
-    public EventCallback<MouseEventArgs> OnStepClick { get; set; }
+    public EventCallback<MouseEventArgs> Clicked { get; set; }
 
     [Parameter]
     public RenderFragment? Marker { get; set; }
@@ -84,7 +79,7 @@
     public RenderFragment? Caption { get; set; }
 
     [CascadingParameter]
-    public StepState? ParentStepsState
+    public StepsState? ParentStepsState
     {
         get => _parentStepsState;
         set
@@ -93,23 +88,30 @@
                 return;
 
             _parentStepsState = value;
-            // Nudge render key so this component re-renders when the selected step changes
             AriaDescribedBy = _parentStepsState?.SelectedStep;
             StateHasChanged();
+            
         }
     }
 
     [CascadingParameter]
     public Steps? ParentSteps { get; set; }
 
-    private bool Active => _parentStepsState?.SelectedStep == Name;
+    private bool Active 
+    { 
+        get 
+        {
+            var isActive = _parentStepsState?.SelectedStep == Name && !string.IsNullOrEmpty(Name);
+            return isActive;
+        }
+    }
 
     private int CalculatedIndex => Index ?? ParentSteps?.IndexOfStep(Name ?? string.Empty) ?? 1;
 
     private static string GetStepClasses()
     {
         var attributes = new Dictionary<string, object>();
-        AppendToClassAttr(attributes, "nav-item");
+        AppendToClassAttr(attributes, "step-item");
         return attributes.TryGetValue("class", out var classValue) ? classValue.ToString() ?? string.Empty : string.Empty;
     }
 
@@ -117,23 +119,10 @@
     {
         var attributes = new Dictionary<string, object>();
         
-        AppendToClassAttr(attributes, "nav-link");
-        AppendToClassAttr(attributes, "rounded-pill");
-        AppendToClassAttr(attributes, "px-3");
-        AppendToClassAttr(attributes, "py-2");
-        AppendToClassAttr(attributes, "d-flex");
-        AppendToClassAttr(attributes, "align-items-center");
-        AppendToClassAttr(attributes, "gap-2");
-        AppendToClassAttr(attributes, "text-body-secondary");
-
+        // Use custom styling instead of Bootstrap classes
         if (Active)
         {
             AppendToClassAttr(attributes, "active");
-            AppendToClassAttr(attributes, "fw-semibold");
-        }
-        else
-        {
-            AppendToClassAttr(attributes, "opacity-75");
         }
 
         if (Completed)
@@ -141,9 +130,6 @@
 
         if (Disabled)
             AppendToClassAttr(attributes, "disabled");
-
-        if (Status != StepStatus.Pending)
-            AppendToClassAttr(attributes, $"step-{Status.Value}");
 
         return attributes.TryGetValue("class", out var classValue) ? classValue.ToString() ?? string.Empty : string.Empty;
     }
@@ -165,9 +151,14 @@
         return "step-description";
     }
 
+    private string? GetHref()
+    {
+        return Name.HasContent() ? $"#{Name}" : null;
+    }
+
     private async Task HandleStepClick(MouseEventArgs args)
     {
-        await OnStepClick.InvokeAsync(args);
+        await Clicked.InvokeAsync(args);
 
         if (ParentSteps != null && Name.HasContent())
         {

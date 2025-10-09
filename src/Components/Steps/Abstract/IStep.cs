@@ -34,14 +34,9 @@ public interface IStep : IElement
     CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
 
     /// <summary>
-    /// Gets or sets the status of the step.
+    /// Occurs when the step is clicked.
     /// </summary>
-    StepStatus Status { get; set; }
-
-    /// <summary>
-    /// Gets or sets the callback invoked when the step is clicked.
-    /// </summary>
-    EventCallback<MouseEventArgs> OnStepClick { get; set; }
+    EventCallback<MouseEventArgs> Clicked { get; set; }
 
     /// <summary>
     /// Gets or sets the template for rendering a custom marker/icon for the step.

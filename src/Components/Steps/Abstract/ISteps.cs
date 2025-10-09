@@ -17,7 +17,7 @@ public interface ISteps : IElement
     /// <summary>
     /// Gets or sets the render mode for step panels (default, lazy load, etc.).
     /// </summary>
-    StepRenderMode RenderMode { get; set; }
+    StepsRenderMode RenderMode { get; set; }
 
     /// <summary>
     /// Gets or sets the callback invoked when the selected step changes.

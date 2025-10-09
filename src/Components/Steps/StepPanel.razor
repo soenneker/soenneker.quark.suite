@@ -3,21 +3,24 @@
 @implements IStepPanel
 
 <Div Class="@GetStepPanelClasses()" @attributes="BuildAttributes()">
-    @ChildContent
+    @if (RenderMode == StepsRenderMode.Default || Active || (RenderMode == StepsRenderMode.LazyLoad && _lazyLoaded))
+    {
+        @ChildContent
+    }
 </Div>
 
 @code {
     public override string? ThemeKey { get; set; } = "StepPanel";
 
-    private StepState? _parentStepsState;
-    private StepContentState? _parentStepContentState;
+    private StepsState? _parentStepsState;
+    private StepsContentState? _parentStepContentState;
     private bool _lazyLoaded;
 
     [Parameter]
     public string Name { get; set; } = string.Empty;
 
     [CascadingParameter]
-    public StepState? ParentStepsState
+    public StepsState? ParentStepsState
     {
         get => _parentStepsState;
         set
@@ -33,7 +36,7 @@
     }
 
     [CascadingParameter]
-    public StepContentState? ParentStepContentState
+    public StepsContentState? ParentStepContentState
     {
         get => _parentStepContentState;
         set
@@ -52,11 +55,11 @@
     public Steps? ParentSteps { get; set; }
 
     [CascadingParameter]
-    public StepContent? ParentStepContent { get; set; }
+    public StepsContent? ParentStepContent { get; set; }
 
     private bool Active => _parentStepsState?.SelectedStep == Name || _parentStepContentState?.SelectedPanel == Name;
 
-    private StepRenderMode RenderMode => _parentStepsState?.RenderMode ?? StepRenderMode.Default;
+    private StepsRenderMode RenderMode => _parentStepsState?.RenderMode ?? StepsRenderMode.Default;
 
     private string GetStepPanelClasses()
     {
@@ -76,6 +79,7 @@
 
     protected override void OnInitialized()
     {
+        ParentSteps?.NotifyStepPanelInitialized(Name);
         ParentStepContent?.NotifyStepPanelInitialized(Name);
         base.OnInitialized();
     }
@@ -83,13 +87,14 @@
     protected override void OnParametersSet()
     {
         if (Active)
-            _lazyLoaded = RenderMode.Equals(StepRenderMode.LazyLoad);
+            _lazyLoaded = RenderMode.Equals(StepsRenderMode.LazyLoad);
 
         base.OnParametersSet();
     }
 
     public override void Dispose()
     {
+        ParentSteps?.NotifyStepPanelRemoved(Name);
         ParentStepContent?.NotifyStepPanelRemoved(Name);
     }
 }

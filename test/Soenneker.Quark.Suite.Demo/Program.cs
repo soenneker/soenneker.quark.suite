@@ -1,14 +1,18 @@
-using System;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using Serilog;
 using Serilog.Debugging;
 using Soenneker.Serilog.Sinks.Browser.Blazor.Registrars;
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Serilog.Events;
+using Soenneker.Extensions.Configuration.Logging;
+using Soenneker.Extensions.Serilog.LogEventLevels;
 
 namespace Soenneker.Quark.Suite.Demo;
 
@@ -20,7 +24,9 @@ public sealed class Program
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-            ConfigureLogging(builder.Services);
+            IConfiguration config = BuildConfig(builder);
+
+            ConfigureLogging(builder.Services, config);
 
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
@@ -134,15 +140,24 @@ public sealed class Program
         }
     }
 
-    private static void ConfigureLogging(IServiceCollection services)
+    private static IConfigurationRoot BuildConfig(WebAssemblyHostBuilder builder)
+    {
+        IConfigurationRoot configRoot = builder.Configuration.Build();
+
+        return configRoot;
+    }
+
+    private static void ConfigureLogging(IServiceCollection services, IConfiguration configuration)
     {
         SelfLog.Enable(m => Console.Error.WriteLine(m));
+
+        LogEventLevel logEventLevel = configuration.GetLogEventLevel();
 
         services.AddLogging(builder =>
         {
             builder.ClearProviders();
             builder.AddFilter("Microsoft.AspNetCore.Components.RenderTree.*", LogLevel.None);
-
+            builder.SetMinimumLevel(logEventLevel.ToMicrosoftLogLevel());
             builder.AddSerilog(dispose: false);
         });
     }
