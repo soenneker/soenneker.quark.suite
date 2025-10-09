@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
-using Soenneker.Quark.Components.Switches;
 
 namespace Soenneker.Quark;
 
@@ -15,8 +14,7 @@ public static class SwitchRegistrar
     /// </summary>
     public static IServiceCollection AddQuarkSwitchAsScoped(this IServiceCollection services)
     {
-        services.AddResourceLoaderAsScoped()
-            .TryAddScoped<ISwitchInterop, SwitchInterop>();
+        services.AddResourceLoaderAsScoped().TryAddScoped<ISwitchInterop, SwitchInterop>();
 
         return services;
     }

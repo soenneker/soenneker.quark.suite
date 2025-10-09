@@ -22,20 +22,17 @@
                     <H5 Class="card-title" Margin="Margin.Is0">Basic Usage</H5>
                 </CardHeader>
                 <CardBody>
-                    <Paragraph Class="text-muted">Simple radio button group with manual state management</Paragraph>
+                    <Paragraph Class="text-muted">Simple radio button group with ChildContent support</Paragraph>
 
-                    <Div Class="form-check">
-                        <Radio Name="basicGroup" Value="Option1" Checked="@(_basicSelected == "Option1")" OnClick="@(() => SelectBasic("Option1"))"/>
-                        <Label Class="form-check-label">Option 1</Label>
-                    </Div>
-                    <Div Class="form-check">
-                        <Radio Name="basicGroup" Value="Option2" Checked="@(_basicSelected == "Option2")" OnClick="@(() => SelectBasic("Option2"))"/>
-                        <Label Class="form-check-label">Option 2</Label>
-                    </Div>
-                    <Div Class="form-check">
-                        <Radio Name="basicGroup" Value="Option3" Checked="@(_basicSelected == "Option3")" OnClick="@(() => SelectBasic("Option3"))"/>
-                        <Label Class="form-check-label">Option 3</Label>
-                    </Div>
+                    <Radio Name="basicGroup" Value="Option1" Checked="@(_basicSelected == "Option1")" OnClick="@(() => SelectBasic("Option1"))">
+                        Option 1
+                    </Radio>
+                    <Radio Name="basicGroup" Value="Option2" Checked="@(_basicSelected == "Option2")" OnClick="@(() => SelectBasic("Option2"))">
+                        Option 2
+                    </Radio>
+                    <Radio Name="basicGroup" Value="Option3" Checked="@(_basicSelected == "Option3")" OnClick="@(() => SelectBasic("Option3"))">
+                        Option 3
+                    </Radio>
 
                     <Div Margin="Margin.Is3.FromTop">
                         <Small Class="text-muted">Selected: <Strong>@_basicSelected</Strong></Small>
@@ -55,30 +52,66 @@
 
                     <Div Margin="Margin.Is3.FromBottom">
                         <Label Class="form-label">Notification Preferences</Label>
-                        <Div Class="form-check">
-                            <Radio Name="notifications" Value="Email" Checked="@(_notificationPreference == "Email")"
-                                   OnClick="@(() => _notificationPreference = "Email")"/>
-                            <Label Class="form-check-label">Email</Label>
-                        </Div>
-                        <Div Class="form-check">
-                            <Radio Name="notifications" Value="SMS" Checked="@(_notificationPreference == "SMS")"
-                                   OnClick="@(() => _notificationPreference = "SMS")"/>
-                            <Label Class="form-check-label">SMS</Label>
-                        </Div>
-                        <Div Class="form-check">
-                            <Radio Name="notifications" Value="Push" Checked="@(_notificationPreference == "Push")"
-                                   OnClick="@(() => _notificationPreference = "Push")" Disabled="true"/>
-                            <Label Class="form-check-label text-muted">Push (Coming Soon)</Label>
-                        </Div>
-                        <Div Class="form-check">
-                            <Radio Name="notifications" Value="None" Checked="@(_notificationPreference == "None")"
-                                   OnClick="@(() => _notificationPreference = "None")" Disabled="true"/>
-                            <Label Class="form-check-label text-muted">None (Disabled)</Label>
-                        </Div>
+                        <Radio Name="notifications" Value="Email" Checked="@(_notificationPreference == "Email")"
+                               OnClick="@(() => _notificationPreference = "Email")">
+                            Email
+                        </Radio>
+                        <Radio Name="notifications" Value="SMS" Checked="@(_notificationPreference == "SMS")"
+                               OnClick="@(() => _notificationPreference = "SMS")">
+                            SMS
+                        </Radio>
+                        <Radio Name="notifications" Value="Push" Checked="@(_notificationPreference == "Push")"
+                               OnClick="@(() => _notificationPreference = "Push")" Disabled="true">
+                            Push (Coming Soon)
+                        </Radio>
+                        <Radio Name="notifications" Value="None" Checked="@(_notificationPreference == "None")"
+                               OnClick="@(() => _notificationPreference = "None")" Disabled="true">
+                            None (Disabled)
+                        </Radio>
                     </Div>
 
                     <Div Margin="Margin.Is3.FromTop">
                         <Small Class="text-muted">Selected: <Strong>@_notificationPreference</Strong></Small>
+                    </Div>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+
+    <Row>
+        <!-- Inline Radios -->
+        <Column Margin="Margin.Is4.FromBottom">
+            <Card>
+                <CardHeader>
+                    <H5 Class="card-title" Margin="Margin.Is0">Inline Radios (New)</H5>
+                </CardHeader>
+                <CardBody>
+                    <Paragraph Class="text-muted">Radio buttons displayed inline using ChildContent</Paragraph>
+
+                    <Div Margin="Margin.Is3.FromBottom">
+                        <Label Class="form-label">How would you rate your experience?</Label>
+                        <Div>
+                            <Radio Name="ratingGroup" Value="Excellent" Checked="@(_ratingSelected == "Excellent")" 
+                                   OnClick="@(() => _ratingSelected = "Excellent")" Inline="true">
+                                Excellent
+                            </Radio>
+                            <Radio Name="ratingGroup" Value="Good" Checked="@(_ratingSelected == "Good")" 
+                                   OnClick="@(() => _ratingSelected = "Good")" Inline="true">
+                                Good
+                            </Radio>
+                            <Radio Name="ratingGroup" Value="Fair" Checked="@(_ratingSelected == "Fair")" 
+                                   OnClick="@(() => _ratingSelected = "Fair")" Inline="true">
+                                Fair
+                            </Radio>
+                            <Radio Name="ratingGroup" Value="Poor" Checked="@(_ratingSelected == "Poor")" 
+                                   OnClick="@(() => _ratingSelected = "Poor")" Inline="true">
+                                Poor
+                            </Radio>
+                        </Div>
+                    </Div>
+
+                    <Div Margin="Margin.Is3.FromTop">
+                        <Small Class="text-muted">Selected Rating: <Strong>@_ratingSelected</Strong></Small>
                     </Div>
                 </CardBody>
             </Card>
@@ -174,36 +207,30 @@
 
                     <Div Margin="Margin.Is3.FromBottom">
                         <Label Class="form-label">Size Preference</Label>
-                        <Div Class="form-check">
-                            <Radio Name="sizeGroup" Value="ExtraSmall" Checked="@(_sizeSelected == "ExtraSmall")" 
-                                   Size="Size.ExtraSmall" OnClick="@(() => SelectSize("ExtraSmall"))"/>
-                            <Label Class="form-check-label">Extra Small Size</Label>
-                        </Div>
-                        <Div Class="form-check">
-                            <Radio Name="sizeGroup" Value="Small" Checked="@(_sizeSelected == "Small")" 
-                                   Size="Size.Small" OnClick="@(() => SelectSize("Small"))"/>
-                            <Label Class="form-check-label">Small Size</Label>
-                        </Div>
-                        <Div Class="form-check">
-                            <Radio Name="sizeGroup" Value="Medium" Checked="@(_sizeSelected == "Medium")" 
-                                   Size="Size.Medium" OnClick="@(() => SelectSize("Medium"))"/>
-                            <Label Class="form-check-label">Medium Size (Default)</Label>
-                        </Div>
-                        <Div Class="form-check">
-                            <Radio Name="sizeGroup" Value="Large" Checked="@(_sizeSelected == "Large")" 
-                                   Size="Size.Large" OnClick="@(() => SelectSize("Large"))"/>
-                            <Label Class="form-check-label">Large Size</Label>
-                        </Div>
-                        <Div Class="form-check">
-                            <Radio Name="sizeGroup" Value="ExtraLarge" Checked="@(_sizeSelected == "ExtraLarge")" 
-                                   Size="Size.ExtraLarge" OnClick="@(() => SelectSize("ExtraLarge"))"/>
-                            <Label Class="form-check-label">Extra Large Size</Label>
-                        </Div>
-                        <Div Class="form-check">
-                            <Radio Name="sizeGroup" Value="ExtraExtraLarge" Checked="@(_sizeSelected == "ExtraExtraLarge")" 
-                                   Size="Size.ExtraExtraLarge" OnClick="@(() => SelectSize("ExtraExtraLarge"))"/>
-                            <Label Class="form-check-label">Extra Extra Large Size</Label>
-                        </Div>
+                        <Radio Name="sizeGroup" Value="ExtraSmall" Checked="@(_sizeSelected == "ExtraSmall")" 
+                               Size="Size.ExtraSmall" OnClick="@(() => SelectSize("ExtraSmall"))">
+                            Extra Small Size
+                        </Radio>
+                        <Radio Name="sizeGroup" Value="Small" Checked="@(_sizeSelected == "Small")" 
+                               Size="Size.Small" OnClick="@(() => SelectSize("Small"))">
+                            Small Size
+                        </Radio>
+                        <Radio Name="sizeGroup" Value="Medium" Checked="@(_sizeSelected == "Medium")" 
+                               Size="Size.Medium" OnClick="@(() => SelectSize("Medium"))">
+                            Medium Size (Default)
+                        </Radio>
+                        <Radio Name="sizeGroup" Value="Large" Checked="@(_sizeSelected == "Large")" 
+                               Size="Size.Large" OnClick="@(() => SelectSize("Large"))">
+                            Large Size
+                        </Radio>
+                        <Radio Name="sizeGroup" Value="ExtraLarge" Checked="@(_sizeSelected == "ExtraLarge")" 
+                               Size="Size.ExtraLarge" OnClick="@(() => SelectSize("ExtraLarge"))">
+                            Extra Large Size
+                        </Radio>
+                        <Radio Name="sizeGroup" Value="ExtraExtraLarge" Checked="@(_sizeSelected == "ExtraExtraLarge")" 
+                               Size="Size.ExtraExtraLarge" OnClick="@(() => SelectSize("ExtraExtraLarge"))">
+                            Extra Extra Large Size
+                        </Radio>
                     </Div>
 
                     <Div Margin="Margin.Is3.FromTop">
@@ -226,21 +253,18 @@
                         <Validation Action="ValidatePaymentMethod">
                             <Div Margin="Margin.Is3.FromBottom">
                                 <Label Class="form-label">Payment Method</Label>
-                                <Div Class="form-check">
-                                    <Radio Name="paymentGroup" Value="CreditCard" Checked="@(formModel.PaymentMethod == "CreditCard")" 
-                                           OnChange="@((e) => formModel.PaymentMethod = "CreditCard")" />
-                                    <Label Class="form-check-label">Credit Card</Label>
-                                </Div>
-                                <Div Class="form-check">
-                                    <Radio Name="paymentGroup" Value="PayPal" Checked="@(formModel.PaymentMethod == "PayPal")" 
-                                           OnChange="@((e) => formModel.PaymentMethod = "PayPal")" />
-                                    <Label Class="form-check-label">PayPal</Label>
-                                </Div>
-                                <Div Class="form-check">
-                                    <Radio Name="paymentGroup" Value="BankTransfer" Checked="@(formModel.PaymentMethod == "BankTransfer")" 
-                                           OnChange="@((e) => formModel.PaymentMethod = "BankTransfer")" />
-                                    <Label Class="form-check-label">Bank Transfer</Label>
-                                </Div>
+                                <Radio Name="paymentGroup" Value="CreditCard" Checked="@(formModel.PaymentMethod == "CreditCard")" 
+                                       OnChange="@((e) => formModel.PaymentMethod = "CreditCard")">
+                                    Credit Card
+                                </Radio>
+                                <Radio Name="paymentGroup" Value="PayPal" Checked="@(formModel.PaymentMethod == "PayPal")" 
+                                       OnChange="@((e) => formModel.PaymentMethod = "PayPal")">
+                                    PayPal
+                                </Radio>
+                                <Radio Name="paymentGroup" Value="BankTransfer" Checked="@(formModel.PaymentMethod == "BankTransfer")" 
+                                       OnChange="@((e) => formModel.PaymentMethod = "BankTransfer")">
+                                    Bank Transfer
+                                </Radio>
                             </Div>
                             <ValidationError Class="mt-2" />
                         </Validation>
@@ -326,6 +350,9 @@
 
     // Interactive demo
     private bool _masterSelected = false;
+
+    // Inline radios
+    private string _ratingSelected = "Good";
 
     protected override void OnInitialized()
     {

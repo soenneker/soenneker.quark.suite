@@ -7,10 +7,25 @@
 @implements IRadio
 @inject IRadioInterop RadioInterop
 
-<input type="radio" @attributes="BuildAttributes()" />
+@if (ChildContent != null)
+{
+    <div class="@GetWrapperClass()">
+        <input id="@Id" type="radio" @attributes="BuildAttributes()" />
+        <label class="form-check-label" for="@Id">
+            @ChildContent
+        </label>
+    </div>
+}
+else
+{
+    <input type="radio" @attributes="BuildAttributes()" />
+}
 
 @code {
-	public override string? ThemeKey { get; set; } = "Radio";
+
+    public override string? ThemeKey { get; set; } = "Radio";
+
+    public override string? Id { get; set; } = $"radio-{Guid.NewGuid():N}";
 
     [Parameter]
     public bool Checked { get; set; }
@@ -39,6 +54,9 @@
     [Parameter]
     public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
 
+    [Parameter]
+    public bool Inline { get; set; }
+
     public object? ValidationValue => Checked;
 
     private bool _initialized;
@@ -60,6 +78,16 @@
         }
 
         await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private string GetWrapperClass()
+    {
+        var classes = new List<string> { "form-check" };
+
+        if (Inline)
+            classes.Add("form-check-inline");
+
+        return string.Join(" ", classes);
     }
 
     private string? GetSizeClass()

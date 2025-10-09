@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using Soenneker.Utils.AsyncSingleton;
 
-namespace Soenneker.Quark.Components.Switches;
+namespace Soenneker.Quark;
 
 ///<inheritdoc cref="ISwitchInterop"/>
 public sealed class SwitchInterop : ISwitchInterop

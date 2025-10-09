@@ -8,15 +8,21 @@
 @inject ISwitchInterop SwitchInterop
 
 <Div Class="form-check form-switch" @attributes="BuildWrapperAttributes()" >
-    <input type="checkbox" @attributes="BuildInputAttributes()" />
-    @if (Label.HasContent())
+    <input id="@_inputId" type="checkbox" @attributes="BuildInputAttributes()" />
+    @if (ChildContent != null)
     {
-        <Label Class="form-check-label" >@Label</Label>
+        <Label Class="form-check-label" For="@_inputId">@ChildContent</Label>
+    }
+    else if (Label.HasContent())
+    {
+        <Label Class="form-check-label" For="@_inputId">@Label</Label>
     }
 </Div>
 
 @code {
 	public override string? ThemeKey { get; set; } = "Switch";
+
+    private string _inputId = $"switch-{Guid.NewGuid():N}";
 
     [Parameter]
     public bool Checked { get; set; }

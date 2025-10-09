@@ -7,10 +7,25 @@
 @implements ICheck
 @inject ICheckInterop CheckInterop
 
-<input type="checkbox" @attributes="BuildAttributes()" @onchange="HandleChange" />
+@if (ChildContent != null)
+{
+    <div class="@GetWrapperClass()">
+        <input id="@Id" type="checkbox" @attributes="BuildAttributes()" @onchange="HandleChange" />
+        <label class="form-check-label" for="@Id">
+            @ChildContent
+        </label>
+    </div>
+}
+else
+{
+    <input type="checkbox" @attributes="BuildAttributes()" @onchange="HandleChange" />
+}
 
 @code {
-	public override string? ThemeKey { get; set; } = "Check";
+
+    public override string? ThemeKey { get; set; } = "Check";
+
+    public override string? Id { get; set; } = $"check-{Guid.NewGuid():N}";
 
     [Parameter]
     public bool Checked { get; set; }
@@ -45,7 +60,6 @@
     [Parameter]
     public Expression<Func<bool>>? CheckedExpression { get; set; }
 
-
     public object? ValidationValue => Checked;
 
     private bool _initialized;
@@ -73,6 +87,24 @@
     private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
     {
         InvokeAsync(StateHasChanged);
+    }
+
+    private string GetWrapperClass()
+    {
+        var classes = new List<string>();
+        
+        if (Switch)
+            classes.Add("form-switch");
+        else
+            classes.Add("form-check");
+
+        if (Inline)
+            classes.Add("form-check-inline");
+
+        if (Reverse)
+            classes.Add("form-check-reverse");
+
+        return string.Join(" ", classes);
     }
 
     private string? GetSizeClass()
