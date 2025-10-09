@@ -21,6 +21,9 @@ public abstract class Element : Component, IElement
 
     protected override bool ShouldRender()
     {
+        if (QuarkOptions.AlwaysRender)
+            return true;
+
         // Force a render when the fragment reference changes, otherwise defer to base render gate
         return _childContentChanged || base.ShouldRender();
     }

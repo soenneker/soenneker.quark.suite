@@ -1,3 +1,5 @@
+/* Root app sizing - rely on standard document flow; no forced widths */
+html, body, #app { height: 100%; }
 /* Sidebar visibility animations and styles */
 .sidebar-hidden { transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out; width: 0 !important; overflow: hidden; opacity: 0; }
 
@@ -39,7 +41,7 @@
 
 /* Sidebar links should not have pill background; match sidebar bg */
 .sidebar .nav-pills .nav-link,
-.sidebar .nav .nav-link { background-color: transparent !important; box-shadow: none !important; }
+.sidebar .nav .nav-link { background-color: transparent !important; box-shadow: none !important; width: 100%; }
 .sidebar .nav-pills .nav-link.active,
 .sidebar .nav-pills .show > .nav-link,
 .sidebar .nav .nav-link.active { background-color: transparent !important; color: inherit !important; box-shadow: none !important; }
@@ -117,15 +119,16 @@ aside, nav {
     margin-left: 0;
 }
 
-/* Make sure the toggle button is always visible */
-.navbar-toggler {
+/* Make sure the toggle button is always visible inside the sidebar only */
+.sidebar .navbar-toggler,
+.sidebar-toggler {
     display: block !important;
     visibility: visible !important;
 }
 
-/* Sidebar toggler specific styles */
-.sidebar-toggler,
-.navbar-toggler {
+/* Sidebar toggler specific styles (scope to sidebar only) */
+.sidebar .navbar-toggler,
+.sidebar-toggler {
     border: none;
     background: transparent;
     padding: 0.5rem;
@@ -136,21 +139,21 @@ aside, nav {
     pointer-events: auto !important;
 }
 
-.sidebar-toggler:hover,
-.navbar-toggler:hover {
+.sidebar .navbar-toggler:hover,
+.sidebar-toggler:hover {
     background-color: rgba(0, 0, 0, 0.1);
     color: #495057;
 }
 
-.sidebar-toggler:focus,
-.navbar-toggler:focus {
+.sidebar .navbar-toggler:focus,
+.sidebar-toggler:focus {
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
     outline: none;
 }
 
-/* Ensure icons are visible */
-.sidebar-toggler i,
-.navbar-toggler i {
+/* Ensure icons are visible (sidebar scope) */
+.sidebar .navbar-toggler i,
+.sidebar-toggler i {
     font-size: 1rem;
     line-height: 1;
 }

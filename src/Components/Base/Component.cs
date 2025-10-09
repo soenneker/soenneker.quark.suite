@@ -256,12 +256,26 @@ public abstract class Component : CoreComponent, IComponent
     private Dictionary<string, object>? _cachedAttrs;
     private int _cachedAttrsKey;
 
-    protected override bool ShouldRender() => _shouldRender;
+    protected override bool ShouldRender()
+    {
+        if (QuarkOptions.AlwaysRender)
+            return true;
+
+        return _shouldRender;
+    }
 
     protected override void OnParametersSet()
     {
         // Let theme push defaults before computing the render key (so the key reflects the actual values)
         ApplyThemeStyles();
+
+        if (QuarkOptions.AlwaysRender)
+        {
+            _shouldRender = true;
+            // still update the key for downstream caches if needed
+            _lastRenderKey = ComputeRenderKey();
+            return;
+        }
 
         var key = ComputeRenderKey();
         _shouldRender = key != _lastRenderKey;
@@ -281,43 +295,50 @@ public abstract class Component : CoreComponent, IComponent
     // ---- Event handlers: default to pass-through (no visual state change) ----
     protected virtual Task HandleClick(MouseEventArgs e)
     {
-        _shouldRender = false;
+        if (!QuarkOptions.AlwaysRender)
+            _shouldRender = false;
         return OnClick.InvokeIfHasDelegate(e);
     }
 
     protected virtual Task HandleDoubleClick(MouseEventArgs e)
     {
-        _shouldRender = false;
+        if (!QuarkOptions.AlwaysRender)
+            _shouldRender = false;
         return OnDoubleClick.InvokeIfHasDelegate(e);
     }
 
     protected virtual Task HandleMouseOver(MouseEventArgs e)
     {
-        _shouldRender = false;
+        if (!QuarkOptions.AlwaysRender)
+            _shouldRender = false;
         return OnMouseOver.InvokeIfHasDelegate(e);
     }
 
     protected virtual Task HandleMouseOut(MouseEventArgs e)
     {
-        _shouldRender = false;
+        if (!QuarkOptions.AlwaysRender)
+            _shouldRender = false;
         return OnMouseOut.InvokeIfHasDelegate(e);
     }
 
     protected virtual Task HandleKeyDown(KeyboardEventArgs e)
     {
-        _shouldRender = false;
+        if (!QuarkOptions.AlwaysRender)
+            _shouldRender = false;
         return OnKeyDown.InvokeIfHasDelegate(e);
     }
 
     protected virtual Task HandleFocus(FocusEventArgs e)
     {
-        _shouldRender = false;
+        if (!QuarkOptions.AlwaysRender)
+            _shouldRender = false;
         return OnFocus.InvokeIfHasDelegate(e);
     }
 
     protected virtual Task HandleBlur(FocusEventArgs e)
     {
-        _shouldRender = false;
+        if (!QuarkOptions.AlwaysRender)
+            _shouldRender = false;
         return OnBlur.InvokeIfHasDelegate(e);
     }
 
@@ -325,7 +346,7 @@ public abstract class Component : CoreComponent, IComponent
     protected virtual Dictionary<string, object> BuildAttributes()
     {
         // Use cached attributes if render key hasn't changed
-        if (_cachedAttrs != null && _cachedAttrsKey == _lastRenderKey)
+        if (!QuarkOptions.AlwaysRender && _cachedAttrs != null && _cachedAttrsKey == _lastRenderKey)
         {
             // Return a copy to prevent derived classes from mutating the cache
             return new Dictionary<string, object>(_cachedAttrs);
