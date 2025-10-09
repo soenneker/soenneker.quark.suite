@@ -3,7 +3,7 @@
 @inherits Soenneker.Quark.Element
 @implements IBarBrand
 
-<Div Class="navbar-brand d-flex align-items-center" @attributes="BuildAttributes()">
+<Div @attributes="BuildAttributes()">
     @ChildContent
 </Div>
 
@@ -13,15 +13,40 @@
     [Parameter]
     public string? To { get; set; }
 
+    [CascadingParameter]
+    public BarMode Mode { get; set; } = BarMode.Horizontal;
+
+    [CascadingParameter]
+    public bool SidebarCollapsed { get; set; }
+
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
 
+        // Apply different classes based on mode
+        if (Mode == BarMode.Horizontal)
+        {
+            AppendToClassAttr(attributes, "navbar-brand");
+            AppendToClassAttr(attributes, "d-flex");
+            AppendToClassAttr(attributes, "align-items-center");
+        }
+        else
+        {
+            // For vertical mode, use more generic styling
+            AppendToClassAttr(attributes, "d-flex");
+            AppendToClassAttr(attributes, "align-items-center");
+            AppendToClassAttr(attributes, "p-3");
+            
+            // Hide the brand when sidebar is collapsed
+            if (SidebarCollapsed)
+            {
+                AppendToClassAttr(attributes, "d-none");
+            }
+        }
+
         if (To.HasContent())
         {
             attributes["href"] = To;
-
-            AppendToClassAttr(attributes, "navbar-brand");
         }
 
         return attributes;

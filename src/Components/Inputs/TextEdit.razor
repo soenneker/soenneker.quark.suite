@@ -1,5 +1,6 @@
 @using System.Linq.Expressions
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Quark.Enums
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
@@ -27,6 +28,9 @@
 
 	[Parameter]
 	public string? Type { get; set; } = "text";
+
+	[Parameter]
+	public TextInputMode? InputMode { get; set; }
 
 	[Parameter]
 	public EventCallback<string?> ValueChanged { get; set; }
@@ -200,6 +204,9 @@
 
 		if (Label.HasContent())
 			attributes["label"] = Label;
+
+		if (InputMode != null)
+			attributes["inputmode"] = InputMode.Value;
 
 		return attributes;
 	}

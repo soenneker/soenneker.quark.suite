@@ -1,6 +1,7 @@
 using System;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components;
+using Soenneker.Quark.Enums;
 
 namespace Soenneker.Quark;
 
@@ -28,4 +29,9 @@ public interface ITextEdit : IInput
     /// Gets or sets the callback invoked when the value changes.
     /// </summary>
     EventCallback<string?> ValueChanged { get; set; }
+
+    /// <summary>
+    /// Gets or sets the input mode hint for mobile keyboards.
+    /// </summary>
+    TextInputMode? InputMode { get; set; }
 }

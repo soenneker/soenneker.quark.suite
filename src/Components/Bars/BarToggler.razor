@@ -36,6 +36,9 @@
     [CascadingParameter]
     public string? MenuId { get; set; }
 
+    [CascadingParameter]
+    public bool SidebarCollapsed { get; set; }
+
     [Parameter]
     public bool? Disabled { get; set; }
 
@@ -43,16 +46,12 @@
     {
         var attributes = base.BuildAttributes();
 
-        AppendToClassAttr(attributes, "navbar-toggler");
-        // Use only new class names
-        
-        if (Mode == BarTogglerMode.Popout)
-            AppendToClassAttr(attributes, "navbar-toggler-popout");
-
-		// For horizontal navbars, wire up Bootstrap's collapse behavior
+        // Apply different classes based on bar mode
         if (BarMode == BarMode.Horizontal)
-		{
-            // Use explicit Target if provided, otherwise use cascaded MenuId
+        {
+            AppendToClassAttr(attributes, "navbar-toggler");
+            
+            // For horizontal navbars, wire up Bootstrap's collapse behavior
             var target = Target.HasContent() ? Target : MenuId.HasContent() ? $"#{MenuId}" : null;
             
             if (target.HasContent())
@@ -63,8 +62,25 @@
                 var controls = target!.StartsWith("#") ? target.Substring(1) : target!;
                 attributes["aria-controls"] = controls;
             }
-		}
-
+        }
+        else
+        {
+            // For vertical mode, use custom toggler styling
+            AppendToClassAttr(attributes, "btn");
+            AppendToClassAttr(attributes, "btn-outline-secondary");
+            AppendToClassAttr(attributes, "border-0");
+            AppendToClassAttr(attributes, "p-2");
+            AppendToClassAttr(attributes, "m-2");
+            
+            // When sidebar is collapsed, center the toggler
+            if (SidebarCollapsed)
+            {
+                AppendToClassAttr(attributes, "mx-auto");
+            }
+        }
+        
+        if (Mode == BarTogglerMode.Popout)
+            AppendToClassAttr(attributes, "navbar-toggler-popout");
 
         return attributes;
     }

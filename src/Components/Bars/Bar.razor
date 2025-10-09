@@ -33,6 +33,9 @@
     public BarPlacement Placement { get; set; } = BarPlacement.Top;
 
     [Parameter]
+    public Alignment Alignment { get; set; } = Alignment.Default;
+
+    [Parameter]
     public bool Expand { get; set; } = true;
 
     [Parameter]
@@ -142,6 +145,20 @@
         return $"navbar-expand-{breakpointToken}";
     }
 
+    private string? GetAlignmentClass()
+    {
+        if (Alignment == Alignment.Default)
+            return null;
+
+        return Alignment.Value switch
+        {
+            Alignment.StartValue => "justify-content-start",
+            Alignment.CenterValue => "justify-content-center",
+            Alignment.EndValue => "justify-content-end",
+            _ => null
+        };
+    }
+
     private string? GetCollapseClass()
     {
         if (!Visible)
@@ -183,6 +200,11 @@
         var expandClass = GetExpandClass();
         if (expandClass != null)
             AppendToClassAttr(attributes, expandClass);
+
+        // Add alignment class
+        var alignmentClass = GetAlignmentClass();
+        if (alignmentClass != null)
+            AppendToClassAttr(attributes, alignmentClass);
 
         // Add collapse class (only for horizontal mode)
         if (Mode == BarMode.Horizontal)

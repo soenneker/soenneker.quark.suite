@@ -19,6 +19,11 @@ public interface IBar : ICancellableElement
     BarPlacement Placement { get; set; }
 
     /// <summary>
+    /// Gets or sets the alignment of items within the bar.
+    /// </summary>
+    Alignment Alignment { get; set; }
+
+    /// <summary>
     /// Gets or sets whether the bar should expand at the specified breakpoint.
     /// </summary>
     bool Expand { get; set; }
