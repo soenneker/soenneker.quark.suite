@@ -57,7 +57,9 @@ public static class Validators
     /// </summary>
     public static readonly SimpleValidator IsChecked = new(
         "This field must be checked",
-        value => value is string s && s == "on");
+        value => value is bool b
+            ? b
+            : value is string s && (s == "on" || s.Equals("true", StringComparison.OrdinalIgnoreCase) || s == "1"));
 
     /// <summary>
     /// Validates that the value contains only alphanumeric characters.
