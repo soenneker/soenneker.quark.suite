@@ -14,6 +14,12 @@
     public virtual string? Type { get; set; }
 
     [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    [Parameter]
     public string? Placeholder { get; set; }
 
     [Parameter]
@@ -70,6 +76,9 @@
 
     protected virtual async Task HandleInput(ChangeEventArgs e)
     {
+        Value = e.Value?.ToString();
+        await ValueChanged.InvokeIfHasDelegate(Value);
+
         if (OnInput.HasDelegate)
             await OnInput.InvokeIfHasDelegate(e);
 
@@ -82,6 +91,8 @@
 
     protected virtual async Task HandleChange(ChangeEventArgs e)
     {
+        Value = e.Value?.ToString();
+        await ValueChanged.InvokeIfHasDelegate(Value);
         await OnChange.InvokeIfHasDelegate(e);
 
         if (ParentValidation is not null)
@@ -193,6 +204,9 @@
             // BackgroundColor already handles background-color, just add border-color
             attributes["style"] = $"border-color:{v};";
         }
+
+        if (Value != null)
+            attributes["value"] = Value;
 
         if (Placeholder.HasContent())
             attributes["placeholder"] = Placeholder;

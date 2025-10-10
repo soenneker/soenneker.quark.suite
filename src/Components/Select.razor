@@ -64,9 +64,16 @@
 
             if (SelectedValueExpression is not null)
                 await ParentValidation.InitializeInputExpression(SelectedValueExpression);
+
+            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
 
         await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
     }
 
     private async Task HandleChange(ChangeEventArgs e)
@@ -78,7 +85,10 @@
         await OnChange.InvokeIfHasDelegate(e);
 
         if (ParentValidation is not null)
+        {
+            ParentValidation.MarkTouched();
             await ParentValidation.NotifyInputChanged(SelectedValue);
+        }
     }
 
     private static TValue? ConvertValue(string? value)
@@ -172,5 +182,13 @@
         attributes["onchange"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleChange);
 
         return attributes;
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+
+        if (ParentValidation is not null)
+            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
     }
 }

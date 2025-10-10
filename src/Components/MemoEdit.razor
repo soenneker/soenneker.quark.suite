@@ -57,6 +57,48 @@
 
 	public object? ValidationValue => Value;
 
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender && ParentValidation is not null)
+		{
+			await ParentValidation.InitializeInput(this);
+			ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
+		}
+
+		await base.OnAfterRenderAsync(firstRender);
+	}
+
+	private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
+	{
+		InvokeAsync(StateHasChanged);
+	}
+
+	private bool ShouldShowInvalid()
+	{
+		if (ParentValidation is null || ParentValidation.Status != ValidationStatus.Error)
+			return false;
+
+		var showInvalidProp = ParentValidation.GetType().GetProperty("ShouldShowInvalid");
+		var showInvalid = showInvalidProp?.GetValue(ParentValidation) as bool? ?? true;
+		return showInvalid;
+	}
+
+	private bool ShouldShowValid()
+	{
+		return ParentValidation?.Status == ValidationStatus.Success;
+	}
+
+	private string? GetValidationClass()
+	{
+		if (ShouldShowInvalid())
+			return "is-invalid";
+
+		if (ShouldShowValid())
+			return "is-valid";
+
+		return null;
+	}
+
 	private string? GetColorClass()
     {
         string? token = null;
@@ -97,6 +139,10 @@
 			var sizeClass = GetSizeClass();
 			if (sizeClass != null)
 				AppendClass(ref cls, sizeClass);
+				
+			var validationClass = GetValidationClass();
+			if (validationClass != null)
+				AppendClass(ref cls, validationClass);
 		});
 
 		if (Placeholder.HasContent())
@@ -142,7 +188,10 @@
 			await OnInput.InvokeIfHasDelegate(e);
 
 		if (ParentValidation is not null)
+		{
+			ParentValidation.MarkTouched();
 			await ParentValidation.NotifyInputChanged(Value ?? string.Empty);
+		}
 	}
 
 	private async Task HandleChange(ChangeEventArgs e)
@@ -152,8 +201,18 @@
 		await OnChange.InvokeIfHasDelegate(e);
 
 		if (ParentValidation is not null)
+		{
+			ParentValidation.MarkTouched();
 			await ParentValidation.NotifyInputChanged(Value ?? string.Empty);
+		}
 	}
 
+	public override void Dispose()
+	{
+		base.Dispose();
+
+		if (ParentValidation is not null)
+			ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+	}
 
 }
