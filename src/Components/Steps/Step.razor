@@ -5,7 +5,7 @@
 @implements IStep
 
 <UnorderedListItem Class="@GetStepClasses()">
-    <Anchor To="@GetHref()" Class="@GetStepLinkClasses()" OnClick="@HandleStepClick" role="tab" aria-selected="@(Active ? "true" : "false")" aria-current="@(Active ? "step" : null)" @attributes="BuildAttributes()">
+    <Anchor To="@GetHref()" Class="@GetStepLinkClasses()" OnClick="@(IsClickable ? HandleStepClick : null)" role="tab" aria-selected="@(Active ? "true" : "false")" aria-current="@(Active ? "step" : null)" @attributes="BuildAttributes()">
         <Div Class="@GetMarkerClasses()">
             @if (Marker != null)
             {
@@ -106,6 +106,8 @@
         }
     }
 
+    private bool IsClickable => Clicked.HasDelegate;
+
     private int CalculatedIndex => Index ?? ParentSteps?.IndexOfStep(Name ?? string.Empty) ?? 1;
 
     private static string GetStepClasses()
@@ -130,6 +132,9 @@
 
         if (Disabled)
             AppendToClassAttr(attributes, "disabled");
+
+        if (!IsClickable)
+            AppendToClassAttr(attributes, "non-clickable");
 
         return attributes.TryGetValue("class", out var classValue) ? classValue.ToString() ?? string.Empty : string.Empty;
     }

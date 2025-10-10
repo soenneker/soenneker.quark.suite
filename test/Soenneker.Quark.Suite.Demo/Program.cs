@@ -142,7 +142,7 @@ public sealed class Program
 
     private static IConfigurationRoot BuildConfig(WebAssemblyHostBuilder builder)
     {
-        IConfigurationRoot configRoot = builder.Configuration.Build();
+        var configRoot = builder.Configuration.Build();
 
         return configRoot;
     }
@@ -151,7 +151,7 @@ public sealed class Program
     {
         SelfLog.Enable(m => Console.Error.WriteLine(m));
 
-        LogEventLevel logEventLevel = configuration.GetLogEventLevel();
+        var logEventLevel = configuration.GetLogEventLevel();
 
         services.AddLogging(builder =>
         {

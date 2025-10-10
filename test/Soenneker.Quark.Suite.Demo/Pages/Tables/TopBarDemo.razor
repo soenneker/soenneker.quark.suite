@@ -75,7 +75,7 @@
                     <QuarkTbody>
                         @if (_employees != null)
                         {
-                            @foreach (Employee employee in _employees)
+                            @foreach (var employee in _employees)
                             {
                                 <QuarkTr>
                                     <QuarkTd>@employee.Name</QuarkTd>
@@ -282,7 +282,7 @@
         // Add sorting if available
         if (_topbarTable?.SortBy.HasContent() == true)
         {
-            int columnIndex = GetColumnIndex(_topbarTable.SortBy);
+            var columnIndex = GetColumnIndex(_topbarTable.SortBy);
             if (columnIndex >= 0)
             {
                 serverRequest.Order.Add(new DataTableOrderRequest
@@ -293,7 +293,7 @@
             }
         }
 
-        PagedResult<Employee> pagedResult = await EmployeeService.GetEmployeesPaged(serverRequest, CancellationToken.None);
+        var pagedResult = await EmployeeService.GetEmployeesPaged(serverRequest, CancellationToken.None);
 
         // Apply department filter if selected
         _employees = pagedResult.Items;

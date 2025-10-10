@@ -58,7 +58,7 @@
                     <QuarkTbody>
                         @if (_currentEmployees != null)
                         {
-                            @foreach (Employee employee in _currentEmployees)
+                            @foreach (var employee in _currentEmployees)
                             {
                                 <QuarkTr Key="@employee.Id">
                                     <QuarkTd>@employee.Name</QuarkTd>
@@ -317,7 +317,7 @@
 
         try
         {
-            PagedResult<Employee> pagedResult = await EmployeeService.GetEmployeesPaged(serverSideRequest, CancellationToken.None);
+            var pagedResult = await EmployeeService.GetEmployeesPaged(serverSideRequest, CancellationToken.None);
 
             Logger.LogInformation("PagedResultDemo: EmployeeService returned {Count} employees, TotalCount={TotalCount}, ContinuationToken='{Token}'", 
                 pagedResult.Items.Count, pagedResult.TotalCount, pagedResult.ContinuationToken ?? "null");
