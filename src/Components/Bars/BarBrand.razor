@@ -17,11 +17,11 @@
     public BarMode Mode { get; set; } = BarMode.Horizontal;
 
     [CascadingParameter]
-    public bool SidebarCollapsed { get; set; }
+    public bool VerticalBarCollapsed { get; set; }
 
     protected override bool ShouldRender()
     {
-        // For vertical bars, always render when sidebar collapse state might change
+        // For vertical bars, always render when vertical bar collapse state might change
         // The base component's render key doesn't track cascading parameters
         if (Mode != BarMode.Horizontal)
         {
@@ -53,8 +53,8 @@
             AppendStyleDeclAttr(attributes, "transition: opacity 0.3s ease, max-height 0.3s ease, padding 0.3s ease");
             AppendStyleDeclAttr(attributes, "overflow: hidden");
             
-            // Hide the brand when sidebar is collapsed with smooth transition
-            if (SidebarCollapsed)
+            // Hide the brand when vertical bar is collapsed with smooth transition
+            if (VerticalBarCollapsed)
             {
                 AppendStyleDeclAttr(attributes, "opacity: 0");
                 AppendStyleDeclAttr(attributes, "max-height: 0");

@@ -35,11 +35,6 @@ public interface ISteps : IElement
     RenderFragment? Items { get; set; }
 
     /// <summary>
-    /// Gets or sets the template for rendering step content panels.
-    /// </summary>
-    RenderFragment? Content { get; set; }
-
-    /// <summary>
     /// Selects a specific step by name.
     /// </summary>
     /// <param name="stepName">The name of the step to select.</param>

@@ -12,8 +12,8 @@ public sealed class BarInterop : IBarInterop
     private readonly AsyncSingleton _horizontalBarInitializer;
     private readonly AsyncSingleton _sidebarInitializer;
 
-    private const string _horizontalBarCssPath = "_content/Soenneker.Quark.Suite/css/topbar.css";
-    private const string _sidebarCssPath = "_content/Soenneker.Quark.Suite/css/sidebar.css";
+    private const string _horizontalBarCssPath = "_content/Soenneker.Quark.Suite/css/bars/horizontalbar.css";
+    private const string _verticalBarCssPath = "_content/Soenneker.Quark.Suite/css/bars/verticalbar.css";
 
     public BarInterop(IResourceLoader resourceLoader)
     {
@@ -25,7 +25,7 @@ public sealed class BarInterop : IBarInterop
 
         _sidebarInitializer = new AsyncSingleton(async (token, arg) =>
         {
-            await resourceLoader.LoadStyle(_sidebarCssPath, cancellationToken: token);
+            await resourceLoader.LoadStyle(_verticalBarCssPath, cancellationToken: token);
             return new object();
         });
     }
@@ -35,7 +35,7 @@ public sealed class BarInterop : IBarInterop
         return _horizontalBarInitializer.Init(cancellationToken);
     }
 
-    public ValueTask InitializeSidebar(CancellationToken cancellationToken = default)
+    public ValueTask InitializeVerticalBar(CancellationToken cancellationToken = default)
     {
         return _sidebarInitializer.Init(cancellationToken);
     }

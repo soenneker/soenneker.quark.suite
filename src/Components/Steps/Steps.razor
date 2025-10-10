@@ -1,6 +1,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @using Microsoft.AspNetCore.Components.Routing
+@using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Utils.PooledStringBuilders
 @implements ISteps
 @inject IStepsInterop StepsInterop
@@ -49,7 +50,8 @@
             {
                 _state = _state with { SelectedStep = fragment };
                 AriaDescribedBy = _state.SelectedStep;
-                SelectedStepChanged.InvokeAsync(_state.SelectedStep);
+
+                SelectedStepChanged.InvokeIfHasDelegate(_state.SelectedStep);
                 StateHasChanged();
             }
 

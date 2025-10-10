@@ -9,7 +9,7 @@
 
 <CascadingValue Value="@Mode" IsFixed="true">
     <CascadingValue Value="@HandleBarTogglerClick" IsFixed="true">
-        <CascadingValue Value="@_sidebarCollapsed">
+        <CascadingValue Value="@_verticalBarCollapsed">
             <CascadingValue Value="@_collapseGroupId" IsFixed="true">
                 <CascadingValue Value="@_forceCollapseAll">
                     <CascadingValue Value="@_menuId" IsFixed="true">
@@ -54,14 +54,14 @@
     public BarMenuToggleBehavior MenuToggleBehavior { get; set; } = BarMenuToggleBehavior.AllowMultipleMenus;
 
     [CascadingParameter]
-    public bool SidebarVisible { get; set; } = true;
+    public bool VerticalBarVisible { get; set; } = true;
 
     [CascadingParameter]
-    public EventCallback<bool> SidebarVisibleChanged { get; set; }
+    public EventCallback<bool> VerticalBarVisibleChanged { get; set; }
 
     private readonly string _collapseGroupId = $"sidebar-accordion-{Guid.NewGuid():N}";
     private readonly string _menuId = $"navbar-menu-{Guid.NewGuid():N}";
-    private bool _sidebarCollapsed;
+    private bool _verticalBarCollapsed;
     private bool _forceCollapseAll;
 
     [Parameter]
@@ -86,7 +86,7 @@
                 await BarInterop.InitializeHorizontalBar(CancellationToken);
                 break;
             default:
-                await BarInterop.InitializeSidebar(CancellationToken);
+                await BarInterop.InitializeVerticalBar(CancellationToken);
                 break;
         }
     }
@@ -218,12 +218,12 @@
             AppendToClassAttr(attributes, "border-end");
 
             // Determine vertical sidebar state classes and width
-            if (!SidebarVisible)
+            if (!VerticalBarVisible)
             {
                 AppendToClassAttr(attributes, "sidebar-hidden");
                 AppendStyleDeclAttr(attributes, "width: 0px");
             }
-            else if (CollapseMode == BarCollapseMode.Small && _sidebarCollapsed)
+            else if (CollapseMode == BarCollapseMode.Small && _verticalBarCollapsed)
             {
                 AppendToClassAttr(attributes, "sidebar-collapsed");
                 AppendStyleDeclAttr(attributes, "width: 60px");
@@ -246,7 +246,7 @@
     }
 
 
-    public async Task ToggleSidebar()
+    public async Task Toggle()
     {
         if (Mode == BarMode.Horizontal)
         {
@@ -256,10 +256,10 @@
         if (CollapseMode == BarCollapseMode.Small)
         {
             // Toggle collapsed state for vertical bars when in Small collapse mode
-            _sidebarCollapsed = !_sidebarCollapsed;
+            _verticalBarCollapsed = !_verticalBarCollapsed;
 
             // If we're collapsing the sidebar, also collapse all dropdowns
-            if (_sidebarCollapsed)
+            if (_verticalBarCollapsed)
             {
                 _forceCollapseAll = true;
                 // Reset the flag after a delay
@@ -276,7 +276,7 @@
         }
 
         // Fallback: toggle visibility (hide/show)
-        await SidebarVisibleChanged.InvokeIfHasDelegate(!SidebarVisible);
+        await VerticalBarVisibleChanged.InvokeIfHasDelegate(!VerticalBarVisible);
     }
 
     private async Task HandleBarTogglerClick(MouseEventArgs args)
@@ -288,7 +288,7 @@
 
             // Wait just enough for dropdowns to collapse, then toggle sidebar
             await Task.Delay(50);
-            await ToggleSidebar();
+            await Toggle();
         }
         else
         {

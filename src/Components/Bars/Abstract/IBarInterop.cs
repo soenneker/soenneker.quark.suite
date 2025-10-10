@@ -16,8 +16,8 @@ public interface IBarInterop : IAsyncDisposable
     ValueTask InitializeHorizontalBar(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Initializes sidebar functionality.
+    /// Initializes vertical functionality.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-    ValueTask InitializeSidebar(CancellationToken cancellationToken = default);
+    ValueTask InitializeVerticalBar(CancellationToken cancellationToken = default);
 }

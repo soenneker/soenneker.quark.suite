@@ -67,6 +67,6 @@ public interface IBar : ICancellableElement
     /// Toggles the sidebar visibility or collapsed state.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task ToggleSidebar();
+    Task Toggle();
 }
 
