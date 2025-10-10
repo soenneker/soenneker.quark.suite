@@ -37,15 +37,5 @@ public interface IStep : IElement
     /// Occurs when the step is clicked.
     /// </summary>
     EventCallback<MouseEventArgs> Clicked { get; set; }
-
-    /// <summary>
-    /// Gets or sets the template for rendering a custom marker/icon for the step.
-    /// </summary>
-    RenderFragment? Marker { get; set; }
-
-    /// <summary>
-    /// Gets or sets the template for rendering a custom caption for the step.
-    /// </summary>
-    RenderFragment? Caption { get; set; }
 }
 

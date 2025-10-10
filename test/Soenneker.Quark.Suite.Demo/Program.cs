@@ -10,7 +10,6 @@ using Soenneker.Serilog.Sinks.Browser.Blazor.Registrars;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Serilog.Events;
 using Soenneker.Extensions.Configuration.Logging;
 using Soenneker.Extensions.Serilog.LogEventLevels;
 

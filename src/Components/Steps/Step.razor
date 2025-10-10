@@ -1,54 +1,11 @@
 @namespace Soenneker.Quark
-@using Soenneker.Utils.PooledStringBuilders
 
 @inherits Soenneker.Quark.Element
 @implements IStep
 
 <UnorderedListItem Class="@GetStepClasses()">
     <Anchor To="@GetHref()" Class="@GetStepLinkClasses()" OnClick="@(IsClickable ? HandleStepClick : null)" role="tab" aria-selected="@(Active ? "true" : "false")" aria-current="@(Active ? "step" : null)" @attributes="BuildAttributes()">
-        <Div Class="@GetMarkerClasses()">
-            @if (Marker != null)
-            {
-                @Marker
-            }
-            else
-            {
-                @if (Completed)
-                {
-                    <Span>✓</Span>
-                }
-                else if (Index.HasValue)
-                {
-                    <Span>@Index.Value</Span>
-                }
-                else
-                {
-                    <Span>@CalculatedIndex</Span>
-                }
-            }
-        </Div>
-        
-        @if (Caption != null || Title.HasContent())
-        {
-            <Div Class="@GetDescriptionClasses()">
-                @if (Caption != null)
-                {
-                    @Caption
-                }
-                else
-                {
-                    @if (Title.HasContent())
-                    {
-                        <Div Class="step-title">@Title</Div>
-                    }
-                    @ChildContent
-                }
-            </Div>
-        }
-        else
-        {
-            @ChildContent
-        }
+        @ChildContent
     </Anchor>
 </UnorderedListItem>
 
@@ -71,12 +28,6 @@
 
     [Parameter]
     public EventCallback<MouseEventArgs> Clicked { get; set; }
-
-    [Parameter]
-    public RenderFragment? Marker { get; set; }
-
-    [Parameter]
-    public RenderFragment? Caption { get; set; }
 
     [CascadingParameter]
     public StepsState? ParentStepsState
@@ -121,7 +72,6 @@
     {
         var attributes = new Dictionary<string, object>();
         
-        // Use custom styling instead of Bootstrap classes
         if (Active)
         {
             AppendToClassAttr(attributes, "active");
@@ -137,23 +87,6 @@
             AppendToClassAttr(attributes, "non-clickable");
 
         return attributes.TryGetValue("class", out var classValue) ? classValue.ToString() ?? string.Empty : string.Empty;
-    }
-
-    private string GetMarkerClasses()
-    {
-        var attributes = new Dictionary<string, object>();
-        
-        AppendToClassAttr(attributes, "step-marker");
-
-        if (Active)
-            AppendToClassAttr(attributes, "step-marker-active");
-
-        return attributes.TryGetValue("class", out var classValue) ? classValue.ToString() ?? string.Empty : string.Empty;
-    }
-
-    private static string GetDescriptionClasses()
-    {
-        return "step-description";
     }
 
     private string? GetHref()
@@ -180,29 +113,5 @@
     public override void Dispose()
     {
         ParentSteps?.NotifyStepRemoved(Name ?? string.Empty);
-    }
-
-    protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
-    {
-        if (BackgroundColor is { IsEmpty: false })
-        {
-            string? token = null;
-            var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
-
-            if (isTheme && token is not null)
-            {
-                AppendClass(ref cls, $"step-marker-{token}");
-            }
-            else
-            {
-                var result = BackgroundColor.ToString();
-                if (!result.HasContent()) return;
-
-                if (BackgroundColor.Value.IsCssStyle)
-                    AppendStyleDecl(ref sty, $"background-color: {result}");
-                else
-                    AppendClass(ref cls, $"step-marker-{result}");
-            }
-        }
     }
 }
