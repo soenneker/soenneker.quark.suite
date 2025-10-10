@@ -8,10 +8,7 @@ namespace Soenneker.Quark;
 public abstract class CancellableComponent : Component, ICancellableComponent
 {
     public CancellationToken CancellationToken =>
-        Disposed.IsTrue || AsyncDisposed.IsTrue
-            ? CancellationToken.None
-            : _cancellationTokenSource.TryGet()
-                ?.Token ?? CancellationToken.None;
+        Disposed.IsTrue || AsyncDisposed.IsTrue ? CancellationToken.None : _cancellationTokenSource.TryGet()?.Token ?? CancellationToken.None;
 
     private readonly AtomicResource<CancellationTokenSource> _cancellationTokenSource;
 
