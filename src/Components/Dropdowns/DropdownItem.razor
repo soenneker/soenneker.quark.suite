@@ -48,15 +48,15 @@ else
     {
         var attributes = base.BuildAttributes();
 
-        var baseClasses = "dropdown-item";
-
-        if (Active)
-            baseClasses = $"{baseClasses} active";
-
-        if (Disabled)
-            baseClasses = $"{baseClasses} disabled";
-
-        AppendToClassAttr(attributes, baseClasses);
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "dropdown-item");
+            
+            if (Active)
+                AppendClass(ref cls, "active");
+            if (Disabled)
+                AppendClass(ref cls, "disabled");
+        });
 
         if (Disabled)
         {

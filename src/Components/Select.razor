@@ -141,15 +141,18 @@
     {
         var attributes = base.BuildAttributes();
 
-        AppendToClassAttr(attributes, "form-select");
-
-        var sizeClass = GetSizeClass();
-        if (sizeClass != null)
-            AppendToClassAttr(attributes, sizeClass);
-
-        var validationClass = GetValidationClass();
-        if (validationClass != null)
-            AppendToClassAttr(attributes, validationClass);
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "form-select");
+            
+            var sizeClass = GetSizeClass();
+            if (sizeClass != null)
+                AppendClass(ref cls, sizeClass);
+                
+            var validationClass = GetValidationClass();
+            if (validationClass != null)
+                AppendClass(ref cls, validationClass);
+        });
 
         if (Disabled)
             attributes["disabled"] = true;

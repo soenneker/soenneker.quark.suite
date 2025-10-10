@@ -3,7 +3,7 @@
 
 @if (ParentValidation?.Status == ValidationStatus.Error && ParentValidation.Messages?.Any() == true)
 {
-	<div class="@($"invalid-feedback d-block mb-0 {Class}")">
+	<div @attributes="BuildAttributes()">
 		@foreach (var message in ParentValidation.Messages)
 		{
 			<div>@message</div>
@@ -12,7 +12,7 @@
 }
 else if (_visible && _status == ValidationStatus.Error && (_messages?.Any() ?? false) && ParentValidation == null)
 {
-	<div class="@($"invalid-feedback d-block mb-0 {Class}")">
+	<div @attributes="BuildAttributes()">
 		@foreach (var message in _messages!)
 		{
 			<div>@message</div>
@@ -57,6 +57,18 @@ else if (_visible && _status == ValidationStatus.Error && (_messages?.Any() ?? f
 		_messages = null;
 		InvokeAsync(StateHasChanged);
 	}
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "invalid-feedback");
+            AppendClass(ref cls, "d-block");
+            AppendClass(ref cls, "mb-0");
+        });
+        return attributes;
+    }
 
     public override void Dispose()
     {

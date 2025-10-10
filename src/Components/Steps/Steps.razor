@@ -10,7 +10,7 @@
 <CascadingValue Value="_state">
     <CascadingValue Value="this">
         <Div Class="steps-container">
-            <UnorderedList Class="@GetStepsClasses()" @attributes="BuildAttributes()">
+            <UnorderedList @attributes="BuildAttributes()">
                 @if (Items != null)
                 {
                     @Items
@@ -105,18 +105,21 @@
         }
     }
 
-    [Parameter] public EventCallback<string> SelectedStepChanged { get; set; }
+    [Parameter]
+    public EventCallback<string> SelectedStepChanged { get; set; }
 
-    [Parameter] public Func<StepNavigationContext, bool>? NavigationAllowed { get; set; }
+    [Parameter]
+    public Func<StepNavigationContext, bool>? NavigationAllowed { get; set; }
 
-    [Parameter] public RenderFragment? Items { get; set; }
+    [Parameter]
+    public RenderFragment? Items { get; set; }
 
     internal void NotifyStepInitialized(string name)
     {
         if (!_stepItems.Contains(name))
         {
             _stepItems.Add(name);
-            
+
             // Set initial selected step if not already set
             if (string.IsNullOrEmpty(_state.SelectedStep))
             {
@@ -185,17 +188,21 @@
             _stepPanels.Remove(name);
     }
 
-    private string GetStepsClasses()
+    protected override Dictionary<string, object> BuildAttributes()
     {
-        var attributes = new Dictionary<string, object>();
-        AppendToClassAttr(attributes, "steps");
+        var attributes = base.BuildAttributes();
 
-        if (RenderMode == StepsRenderMode.LazyLoad)
-            AppendToClassAttr(attributes, "steps-lazy-load");
-        else if (RenderMode == StepsRenderMode.LazyReload)
-            AppendToClassAttr(attributes, "steps-lazy-reload");
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "steps");
 
-        return attributes.TryGetValue("class", out var classValue) ? classValue.ToString() ?? string.Empty : string.Empty;
+            if (RenderMode == StepsRenderMode.LazyLoad)
+                AppendClass(ref cls, "steps-lazy-load");
+            else if (RenderMode == StepsRenderMode.LazyReload)
+                AppendClass(ref cls, "steps-lazy-reload");
+        });
+
+        return attributes;
     }
 
     private void ApplyStepsThemeVariables()
@@ -237,7 +244,10 @@
                 Style = Style.HasContent() ? $"{Style}; {sty.ToString()}" : sty.ToString();
             }
         }
-        catch { /* ignore theme errors to avoid breaking render */ }
+        catch
+        {
+            /* ignore theme errors to avoid breaking render */
+        }
     }
 
     private void HandleLocationChanged(object? sender, LocationChangedEventArgs args)
@@ -277,6 +287,7 @@
             Navigation.LocationChanged -= HandleLocationChanged;
             _navigationSubscribed = false;
         }
+
         base.Dispose();
     }
 

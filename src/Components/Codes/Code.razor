@@ -25,47 +25,62 @@
     {
         var attributes = base.BuildAttributes();
 
-        // Add default Bootstrap classes for code display
         if (!Class.HasContent())
         {
-            if (Inline)
+            BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
             {
-                AppendToClassAttr(attributes, "text-bg-light px-1 py-0 rounded");
-            }
-            else
-            {
-                AppendToClassAttr(attributes, "d-block text-bg-light p-3 rounded");
-            }
+                if (Inline)
+                {
+                    AppendClass(ref cls, "text-bg-light");
+                    AppendClass(ref cls, "px-1");
+                    AppendClass(ref cls, "py-0");
+                    AppendClass(ref cls, "rounded");
+                }
+                else
+                {
+                    AppendClass(ref cls, "d-block");
+                    AppendClass(ref cls, "text-bg-light");
+                    AppendClass(ref cls, "p-3");
+                    AppendClass(ref cls, "rounded");
+                }
+            });
         }
         else
         {
-            // If class is specified, still add basic styling if not already present
-            var currentClass = attributes.GetValueOrDefault("class")
-                ?.ToString() ?? "";
+            var currentClass = attributes.GetValueOrDefault("class")?.ToString() ?? "";
 
             if (Inline && !currentClass.Contains("text-bg-light"))
             {
-                AppendToClassAttr(attributes, "text-bg-light px-1 py-0 rounded");
+                BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+                {
+                    AppendClass(ref cls, "text-bg-light");
+                    AppendClass(ref cls, "px-1");
+                    AppendClass(ref cls, "py-0");
+                    AppendClass(ref cls, "rounded");
+                });
             }
             else if (!Inline && !currentClass.Contains("d-block"))
             {
-                AppendToClassAttr(attributes, "d-block text-bg-light p-3 rounded");
+                BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+                {
+                    AppendClass(ref cls, "d-block");
+                    AppendClass(ref cls, "text-bg-light");
+                    AppendClass(ref cls, "p-3");
+                    AppendClass(ref cls, "rounded");
+                });
             }
         }
 
-        // Add language attribute for syntax highlighting
         if (Language.HasContent())
         {
             attributes["data-language"] = Language;
         }
 
-        // Add theme attribute
         if (Theme.HasContent() && Theme != "default")
         {
             attributes["data-theme"] = Theme;
         }
 
-        // Add highlight attribute
         if (Highlight)
         {
             attributes["data-highlight"] = "true";

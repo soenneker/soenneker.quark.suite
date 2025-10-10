@@ -111,31 +111,30 @@ else
 		var isDisabled = Disabled || Loading || attributes.ContainsKey("disabled");
 
 		// Add Bootstrap button classes unless explicitly unstyled
-		if (Close)
+		BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
 		{
-			AppendToClassAttr(attributes, "btn-close");
-		}
-		else if (!Unstyled)
-		{
-			AppendToClassAttr(attributes, "btn");
-		}
+			if (Close)
+			{
+				AppendClass(ref cls, "btn-close");
+			}
+			else if (!Unstyled)
+			{
+				AppendClass(ref cls, "btn");
+			}
 
+			if (!Unstyled)
+			{
+				var sizeClass = GetSizeClass();
+				if (sizeClass is not null)
+					AppendClass(ref cls, sizeClass);
 
-		// Add size class if not default (skip when unstyled)
-		if (!Unstyled)
-		{
-			var sizeClass = GetSizeClass();
-			if (sizeClass is not null)
-				AppendToClassAttr(attributes, sizeClass);
+				if (Block)
+					AppendClass(ref cls, "btn-block");
+			}
 
-			// Add block class if needed
-			if (Block)
-				AppendToClassAttr(attributes, "btn-block");
-		}
-
-		// Apply disabled visuals for anchor-style buttons
-		if (isLink && isDisabled)
-			AppendToClassAttr(attributes, "disabled");
+			if (isLink && isDisabled)
+				AppendClass(ref cls, "disabled");
+		});
 
 		// Common ARIA for loading/disabled
 		if (Loading)

@@ -2,7 +2,7 @@
 @inherits Soenneker.Quark.Element
 @implements IStepPanel
 
-<Div Class="@GetStepPanelClasses()" @attributes="BuildAttributes()">
+<Div @attributes="BuildAttributes()">
     @if (RenderMode == StepsRenderMode.Default || Active || (RenderMode == StepsRenderMode.LazyLoad && _lazyLoaded))
     {
         @ChildContent
@@ -61,20 +61,23 @@
 
     private StepsRenderMode RenderMode => _parentStepsState?.RenderMode ?? StepsRenderMode.Default;
 
-    private string GetStepPanelClasses()
+    protected override Dictionary<string, object> BuildAttributes()
     {
-        var attributes = new Dictionary<string, object>();
+        var attributes = base.BuildAttributes();
         
-        AppendToClassAttr(attributes, "tab-pane");
-        AppendToClassAttr(attributes, "fade");
-
-        if (Active)
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
         {
-            AppendToClassAttr(attributes, "show");
-            AppendToClassAttr(attributes, "active");
-        }
+            AppendClass(ref cls, "tab-pane");
+            AppendClass(ref cls, "fade");
+            
+            if (Active)
+            {
+                AppendClass(ref cls, "show");
+                AppendClass(ref cls, "active");
+            }
+        });
 
-        return attributes.TryGetValue("class", out var classValue) ? classValue.ToString() ?? string.Empty : string.Empty;
+        return attributes;
     }
 
     protected override void OnInitialized()

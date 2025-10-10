@@ -26,29 +26,29 @@
     {
         var attributes = base.BuildAttributes();
         
-        AppendToClassAttr(attributes, "list-group-item");
-        
-        if (ParentListGroup?.Mode == ListGroupMode.Selectable)
-            AppendToClassAttr(attributes, "list-group-item-action");
-            
-        if (Active)
-            AppendToClassAttr(attributes, "active");
-            
-        if (Disabled)
-            AppendToClassAttr(attributes, "disabled");
-
+        string? bgClass = null;
         if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
         {
             var v = BackgroundColor.Value.ToString().Trim();
-
             if (BackgroundColor.Value.IsCssClass)
             {
-                if (v.StartsWith("list-group-item-", StringComparison.Ordinal))
-                    AppendToClassAttr(attributes, v);
-                else
-                    AppendToClassAttr(attributes, $"list-group-item-{v}");
+                bgClass = v.StartsWith("list-group-item-", StringComparison.Ordinal) ? v : $"list-group-item-{v}";
             }
         }
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "list-group-item");
+            
+            if (ParentListGroup?.Mode == ListGroupMode.Selectable)
+                AppendClass(ref cls, "list-group-item-action");
+            if (Active)
+                AppendClass(ref cls, "active");
+            if (Disabled)
+                AppendClass(ref cls, "disabled");
+            if (bgClass != null)
+                AppendClass(ref cls, bgClass);
+        });
 
         if (Disabled)
             attributes["aria-disabled"] = "true";

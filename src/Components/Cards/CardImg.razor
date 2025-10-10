@@ -23,13 +23,11 @@
     {
         var attributes = base.BuildAttributes();
 
-        var classes = "card-img";
-        if (Top)
-            classes = "card-img-top";
-        else if (Bottom)
-            classes = "card-img-bottom";
-
-        AppendToClassAttr(attributes, classes);
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            var imgClass = Top ? "card-img-top" : Bottom ? "card-img-bottom" : "card-img";
+            AppendClass(ref cls, imgClass);
+        });
 
         if (Source.HasContent())
             attributes["src"] = Source;

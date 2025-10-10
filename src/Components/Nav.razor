@@ -16,13 +16,12 @@
 	{
 		var attributes = base.BuildAttributes();
 		
-        // Handle nav styling
         if (NavStyle is not null && !NavStyle.Value.IsEmpty)
         {
             var navClass = NavStyle.Value.ToString();
             if (navClass.HasContent())
             {
-				AppendToClassAttr(attributes, navClass);
+				BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, navClass));
             }
         }
 

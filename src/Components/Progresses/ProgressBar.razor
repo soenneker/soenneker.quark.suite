@@ -2,7 +2,7 @@
 @inherits Soenneker.Quark.Element
 @implements IProgressBar
 
-<Div Class="progress-bar" @attributes="BuildAttributes()" role="progressbar" aria-valuenow="@Value" aria-valuemin="0" aria-valuemax="100" >
+<Div @attributes="BuildAttributes()" role="progressbar" aria-valuenow="@Value" aria-valuemin="0" aria-valuemax="100" >
     @if (ShowLabel)
     {
         @($"{Value}%")
@@ -30,41 +30,29 @@
     {
         var attributes = base.BuildAttributes();
 
-        AppendToClassAttr(attributes, "progress-bar");
-
-        if (Striped)
-            AppendToClassAttr(attributes, "progress-bar-striped");
-
-        if (Animated)
-            AppendToClassAttr(attributes, "progress-bar-animated");
-
-        // Handle color styling using BackgroundColor
+        string? bgClass = null;
         if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
         {
             var v = BackgroundColor.Value.ToString().Trim();
-
             if (BackgroundColor.Value.IsCssClass)
             {
-                if (v.StartsWith("bg-", StringComparison.Ordinal))
-                    AppendToClassAttr(attributes, v);
-                else
-                    AppendToClassAttr(attributes, $"bg-{v}");
-            }
-            else
-            {
-                // Build style efficiently - BackgroundColor already handles background-color
-                var styleParts = new List<string> { $"width: {Value}%" };
-                
-                if (attributes.TryGetValue("style", out var existing) && existing?.ToString().HasContent() == true)
-                    styleParts.Insert(0, existing.ToString()!);
-                    
-                attributes["style"] = string.Join(";", styleParts) + ";";
+                bgClass = v.StartsWith("bg-", StringComparison.Ordinal) ? v : $"bg-{v}";
             }
         }
-        else
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
         {
-            AppendStyleDeclAttr(attributes, $"width: {Value}%");
-        }
+            AppendClass(ref cls, "progress-bar");
+            
+            if (Striped)
+                AppendClass(ref cls, "progress-bar-striped");
+            if (Animated)
+                AppendClass(ref cls, "progress-bar-animated");
+            if (bgClass != null)
+                AppendClass(ref cls, bgClass);
+        });
+
+        BuildStyleAttribute(attributes, (ref PooledStringBuilder sty) => AppendStyleDecl(ref sty, $"width: {Value}%"));
 
         return attributes;
     }

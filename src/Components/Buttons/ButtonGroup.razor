@@ -3,7 +3,7 @@
 @implements IButtonGroup
 
 <CascadingValue Value="this">
-    <Div Class="@ButtonGroupClass" @attributes="BuildAttributes()">
+    <Div @attributes="BuildAttributes()">
         @ChildContent
     </Div>
 </CascadingValue>
@@ -17,31 +17,25 @@
     [Parameter]
     public bool Vertical { get; set; }
 
-    private string ButtonGroupClass
-    {
-        get
-        {
-            var classes = Vertical ? "btn-group-vertical" : "btn-group";
-            
-            if (Size != null && Size != Quark.Size.Default)
-            {
-                var sizeValue = Size.ToString();
-                if (sizeValue.HasContent())
-                {
-                    classes += $" btn-group-{sizeValue}";
-                }
-            }
-            
-            return classes;
-        }
-    }
-
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
 
+        var classes = Vertical ? "btn-group-vertical" : "btn-group";
+        
+        if (Size != null && Size != Quark.Size.Default)
+        {
+            var sizeValue = Size.ToString();
+            if (sizeValue.HasContent())
+            {
+                classes += $" btn-group-{sizeValue}";
+            }
+        }
+
+        attributes["class"] = classes;
+
         // Set default role if not specified
-        if (string.IsNullOrEmpty(Role))
+        if (Role.IsNullOrEmpty())
         {
             attributes["role"] = "group";
         }

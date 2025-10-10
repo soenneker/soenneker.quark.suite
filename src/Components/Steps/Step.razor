@@ -3,8 +3,8 @@
 @inherits Soenneker.Quark.Element
 @implements IStep
 
-<UnorderedListItem Class="@GetStepClasses()">
-    <Anchor To="@GetHref()" Class="@GetStepLinkClasses()" OnClick="@(IsClickable ? HandleStepClick : null)" role="tab" aria-selected="@(Active ? "true" : "false")" aria-current="@(Active ? "step" : null)" @attributes="BuildAttributes()">
+<UnorderedListItem @attributes="BuildAttributes()">
+    <Anchor To="@GetHref()" OnClick="@(IsClickable ? HandleStepClick : null)" @attributes="BuildAnchorAttributes()">
         @ChildContent
     </Anchor>
 </UnorderedListItem>
@@ -61,32 +61,34 @@
 
     private int CalculatedIndex => Index ?? ParentSteps?.IndexOfStep(Name ?? string.Empty) ?? 1;
 
-    private static string GetStepClasses()
+    protected override Dictionary<string, object> BuildAttributes()
     {
-        var attributes = new Dictionary<string, object>();
-        AppendToClassAttr(attributes, "step-item");
-        return attributes.TryGetValue("class", out var classValue) ? classValue.ToString() ?? string.Empty : string.Empty;
+        var attributes = base.BuildAttributes();
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, "step-item"));
+        return attributes;
     }
 
-    private string GetStepLinkClasses()
+    private Dictionary<string, object> BuildAnchorAttributes()
     {
         var attributes = new Dictionary<string, object>();
         
-        if (Active)
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
         {
-            AppendToClassAttr(attributes, "active");
-        }
+            if (Active)
+                AppendClass(ref cls, "active");
+            if (Completed)
+                AppendClass(ref cls, "text-success");
+            if (Disabled)
+                AppendClass(ref cls, "disabled");
+            if (!IsClickable)
+                AppendClass(ref cls, "non-clickable");
+        });
 
-        if (Completed)
-            AppendToClassAttr(attributes, "text-success");
+        attributes["role"] = "tab";
+        attributes["aria-selected"] = Active ? "true" : "false";
+        attributes["aria-current"] = Active ? "step" : null;
 
-        if (Disabled)
-            AppendToClassAttr(attributes, "disabled");
-
-        if (!IsClickable)
-            AppendToClassAttr(attributes, "non-clickable");
-
-        return attributes.TryGetValue("class", out var classValue) ? classValue.ToString() ?? string.Empty : string.Empty;
+        return attributes;
     }
 
     private string? GetHref()

@@ -10,7 +10,7 @@
     }
     else
     {
-        <Div Class="quark-table-no-data" @attributes="BuildAttributes()">
+        <Div @attributes="BuildAttributes()">
             <Div Class="quark-table-no-data-content">
                 <Div Class="quark-table-no-data-icon">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -31,4 +31,11 @@
 
     [CascadingParameter]
     public IQuarkTable? QuarkTable { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, "quark-table-no-data"));
+        return attributes;
+    }
 } 

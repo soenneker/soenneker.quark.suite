@@ -4,7 +4,7 @@
 
 @if (To.HasContent())
 {
-    <OrderedListItem Class="breadcrumb-item">
+    <OrderedListItem @attributes="BuildListItemAttributes()">
         <Anchor To="@To" @attributes="BuildAttributes()">
             @ChildContent
         </Anchor>
@@ -30,16 +30,26 @@ else
     {
         var attributes = base.BuildAttributes();
 
-        var baseClasses = "breadcrumb-item";
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "breadcrumb-item");
+            
+            if (Active)
+                AppendClass(ref cls, "active");
+        });
 
         if (Active)
         {
-            baseClasses = $"{baseClasses} active";
             attributes["aria-current"] = "page";
         }
 
-        AppendToClassAttr(attributes, baseClasses);
+        return attributes;
+    }
 
+    private Dictionary<string, object> BuildListItemAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, "breadcrumb-item"));
         return attributes;
     }
 }

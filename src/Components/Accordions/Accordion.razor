@@ -3,7 +3,7 @@
 @implements IAccordion
 
 <CascadingValue Value="this">
-    <Div Class="@AccordionClass" @attributes="BuildAttributes()">
+    <Div @attributes="BuildAttributes()">
         @ChildContent
     </Div>
 </CascadingValue>
@@ -28,16 +28,6 @@
     private bool _forceRender;
     private int _expandedItemsKey;
     private bool _expandedItemsChanged;
-
-    private string AccordionClass
-    {
-        get
-        {
-            var classes = "accordion";
-            if (Flush) classes += " accordion-flush";
-            return classes;
-        }
-    }
 
     public void RegisterItem(AccordionItem item)
     {
@@ -94,6 +84,14 @@
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "accordion");
+            
+            if (Flush)
+                AppendClass(ref cls, "accordion-flush");
+        });
 
         // Ensure an id exists so children can reference this accordion as parent
         if (!Id.HasContent())

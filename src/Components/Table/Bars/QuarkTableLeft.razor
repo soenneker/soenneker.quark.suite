@@ -2,10 +2,17 @@
 @namespace Soenneker.Quark
 @inherits Element
 
-<Div Class="quark-table-left" @attributes="BuildAttributes()">
+<Div @attributes="BuildAttributes()">
     @ChildContent
 </Div>
 
 @code {
     public override string? ThemeKey { get; set; } = "QuarkTableLeft";
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, "quark-table-left"));
+        return attributes;
+    }
 }

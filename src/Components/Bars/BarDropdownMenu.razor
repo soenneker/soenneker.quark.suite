@@ -2,7 +2,7 @@
 @inherits Soenneker.Quark.Element
 @implements IBarDropdownMenu
 
-<Div Class="collapse" Id="@ParentDropdown?.CollapseId" data-bs-parent="@CollapseParent" @attributes="BuildAttributes()">
+<Div Id="@ParentDropdown?.CollapseId" data-bs-parent="@CollapseParent" @attributes="BuildAttributes()">
     <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
         @ChildContent
     </ul>
@@ -48,22 +48,15 @@
     {
         var attributes = base.BuildAttributes();
 
-        var baseClass = "collapse";
-        
-        // When the sidebar is collapsed, suppress initial "show" state;
-        // the panel should appear only after an explicit click.
-        // Also suppress show state when force collapse is active
-        if (Show && !VerticalBarCollapsed && !ForceCollapseAll)
-            baseClass = $"{baseClass} show";
-        
-        // Always suppress show state when sidebar is collapsed to prevent panels from staying open
-        if (VerticalBarCollapsed)
-            baseClass = baseClass.Replace(" show", "");
+        var shouldShow = Show && !VerticalBarCollapsed && !ForceCollapseAll;
 
-        // For vertical mode, let dropdowns size naturally instead of forcing w-100
-        // This allows the dropdown to have a more appropriate width when sidebar is expanded
-
-        AppendToClassAttr(attributes, baseClass);
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "collapse");
+            
+            if (shouldShow)
+                AppendClass(ref cls, "show");
+        });
 
         return attributes;
     }

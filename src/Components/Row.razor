@@ -16,22 +16,20 @@
     {
         var attributes = base.BuildAttributes();
         
-        AppendToClassAttr(attributes, "row");
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "row");
 
-        AddGutterCss(attributes);
+            if (Gutter is { IsEmpty: false })
+            {
+                var gutterClass = Gutter.Value.ToString();
+                if (gutterClass.HasContent())
+                {
+                    AppendClass(ref cls, gutterClass);
+                }
+            }
+        });
 
         return attributes;
-    }
-
-    private void AddGutterCss(Dictionary<string, object> attributes)
-    {
-        if (Gutter is { IsEmpty: false })
-        {
-            var gutterClass = Gutter.Value.ToString();
-            if (gutterClass.HasContent())
-            {
-                AppendToClassAttr(attributes, gutterClass);
-            }
-        }
     }
 }

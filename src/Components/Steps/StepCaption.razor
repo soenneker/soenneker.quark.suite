@@ -2,10 +2,17 @@
 
 @inherits Soenneker.Quark.Element
 
-<Div Class="step-description" @attributes="BuildAttributes()">
+<Div @attributes="BuildAttributes()">
     @ChildContent
 </Div>
 
 @code {
     public override string? ThemeKey { get; set; } = "StepCaption";
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, "step-description"));
+        return attributes;
+    }
 }

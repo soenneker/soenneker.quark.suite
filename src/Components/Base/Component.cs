@@ -11,6 +11,16 @@ using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// Delegate for building class attributes with a ref PooledStringBuilder
+/// </summary>
+public delegate void BuildClassAction(ref PooledStringBuilder builder);
+
+/// <summary>
+/// Delegate for building style attributes with a ref PooledStringBuilder  
+/// </summary>
+public delegate void BuildStyleAction(ref PooledStringBuilder builder);
+
 ///<inheritdoc cref="IComponent"/>
 public abstract class Component : CoreComponent, IComponent
 {
@@ -285,10 +295,8 @@ public abstract class Component : CoreComponent, IComponent
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
-        {
             _ = OnElementRefReady.InvokeIfHasDelegate(ElementRef);
-        }
-
+        
         return Task.CompletedTask;
     }
 
@@ -368,8 +376,11 @@ public abstract class Component : CoreComponent, IComponent
 
         try
         {
-            if (Class.HasContent()) cls.Append(Class!);
-            if (Style.HasContent()) sty.Append(Style!);
+            if (Class.HasContent()) 
+                cls.Append(Class!);
+
+            if (Style.HasContent()) 
+                sty.Append(Style!);
 
             if (Id.HasContent()) attrs["id"] = Id!;
             if (Title.HasContent()) attrs["title"] = Title!;
@@ -525,7 +536,7 @@ public abstract class Component : CoreComponent, IComponent
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void AddIf<T>(ref HashCode hc, CssValue<T>? v) where T : class, ICssBuilder
     {
-        if (v.HasValue && !v.Value.IsEmpty)
+        if (v is { IsEmpty: false })
             hc.Add(v.Value); // struct add; no boxing
     }
 
@@ -627,8 +638,12 @@ public abstract class Component : CoreComponent, IComponent
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void AppendClass(ref PooledStringBuilder b, string s)
     {
-        if (s.IsNullOrEmpty()) return;
-        if (b.Length != 0) b.Append(' ');
+        if (s.IsNullOrEmpty()) 
+            return;
+
+        if (b.Length != 0) 
+            b.Append(' ');
+
         b.Append(s);
     }
 
@@ -703,16 +718,24 @@ public abstract class Component : CoreComponent, IComponent
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static string EnsureClass(string? existing, string? toAdd)
     {
-        if (toAdd.IsNullOrEmpty()) return existing ?? string.Empty;
-        if (existing.IsNullOrEmpty()) return toAdd!;
+        if (toAdd.IsNullOrEmpty()) 
+            return existing ?? string.Empty;
+
+        if (existing.IsNullOrEmpty()) 
+            return toAdd;
+
         return existing.Contains(toAdd!, StringComparison.Ordinal) ? existing : $"{existing} {toAdd}";
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static string AppendToClass(string? existing, string toAdd)
     {
-        if (toAdd.IsNullOrEmpty()) return existing ?? string.Empty;
-        if (existing.IsNullOrEmpty()) return toAdd;
+        if (toAdd.IsNullOrEmpty()) 
+            return existing ?? string.Empty;
+
+        if (existing.IsNullOrEmpty()) 
+            return toAdd;
+
         return $"{existing} {toAdd}";
     }
 
@@ -729,7 +752,106 @@ public abstract class Component : CoreComponent, IComponent
     {
         attrs.TryGetValue("class", out var clsObj);
         var cls = AppendToClass(clsObj?.ToString(), token);
-        if (cls.Length > 0) attrs["class"] = cls;
+
+        if (cls.Length > 0) 
+            attrs["class"] = cls;
+    }
+
+    /// <summary>
+    /// Appends to the class attribute using PooledStringBuilder internally, accepting multiple class strings.
+    /// Merges with any existing class attribute. Null or empty strings are automatically skipped.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected static void AppendClassAttribute(IDictionary<string, object> attrs, params string?[] classes)
+    {
+        var cls = new PooledStringBuilder(64);
+
+        try
+        {
+            // Include existing class first
+            if (attrs.TryGetValue("class", out var existing))
+            {
+                var existingStr = existing.ToString();
+
+                if (!existingStr.IsNullOrWhiteSpace())
+                    cls.Append(existingStr);
+            }
+
+            foreach (var c in classes)
+            {
+                if (!c.IsNullOrWhiteSpace())
+                    AppendClass(ref cls, c!);
+            }
+            
+            if (cls.Length > 0)
+                attrs["class"] = cls.ToString();
+        }
+        finally
+        {
+            cls.Dispose();
+        }
+    }
+
+    /// <summary>
+    /// Builds the class attribute by providing a PooledStringBuilder to the callback.
+    /// Merges with any existing class attribute. The framework manages pooling lifecycle.
+    /// Use AppendClass(ref cls, "yourClass") within the callback to add classes.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected static void BuildClassAttribute(IDictionary<string, object> attrs, BuildClassAction builder)
+    {
+        var cls = new PooledStringBuilder(64);
+        try
+        {
+            // Include existing class first
+            if (attrs.TryGetValue("class", out var existing))
+            {
+                var existingStr = existing.ToString();
+
+                if (existingStr.HasContent())
+                    cls.Append(existingStr);
+            }
+            
+            builder(ref cls); // Let the component add classes
+            
+            if (cls.Length > 0)
+                attrs["class"] = cls.ToString();
+        }
+        finally
+        {
+            cls.Dispose();
+        }
+    }
+
+    /// <summary>
+    /// Builds the style attribute by providing a PooledStringBuilder to the callback.
+    /// Merges with any existing style attribute. The framework manages pooling lifecycle.
+    /// Use AppendStyle(ref sty, "name", "value") or AppendStyleDecl(ref sty, "full: decl") within the callback to add styles.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected static void BuildStyleAttribute(IDictionary<string, object> attrs, BuildStyleAction builder)
+    {
+        var sty = new PooledStringBuilder(64);
+        try
+        {
+            // Include existing style first
+            if (attrs.TryGetValue("style", out var existing))
+            {
+                var existingStr = existing.ToString();
+
+                if (existingStr.HasContent())
+                    sty.Append(existingStr);
+            }
+            
+            builder(ref sty); // Let the component add styles
+            
+            if (sty.Length > 0)
+                attrs["style"] = sty.ToString();
+        }
+        finally
+        {
+            sty.Dispose();
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

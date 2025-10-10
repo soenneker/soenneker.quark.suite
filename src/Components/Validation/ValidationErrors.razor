@@ -3,7 +3,7 @@
 
 @if (_visible && _status == ValidationStatus.Error && (_messages?.Any() ?? false))
 {
-    <Div class="@($"alert alert-danger {Class}")" >
+    <Div @attributes="BuildAttributes()" >
         @foreach (var message in _messages!)
         {
             <Div>@message</Div>
@@ -44,6 +44,17 @@
         _status = ValidationStatus.None;
         _messages = null;
         InvokeAsync(StateHasChanged);
+    }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "alert");
+            AppendClass(ref cls, "alert-danger");
+        });
+        return attributes;
     }
 
     public override void Dispose()

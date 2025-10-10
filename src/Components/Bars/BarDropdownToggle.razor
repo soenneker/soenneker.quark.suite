@@ -53,29 +53,29 @@
     {
         var attributes = base.BuildAttributes();
 
-        AppendToClassAttr(attributes, "btn");
-        AppendToClassAttr(attributes, "btn-toggle");
-        // Use only new class names
-        AppendToClassAttr(attributes, "align-items-center");
-        AppendToClassAttr(attributes, "rounded");
-        
-        // Force collapse if requested, otherwise use Expanded state
-        var shouldBeCollapsed = ForceCollapseAll || !Expanded;
-        if (shouldBeCollapsed)
-            AppendToClassAttr(attributes, "collapsed");
-        
-        if (Disabled == true)
-            AppendToClassAttr(attributes, "disabled");
-
-        // For vertical mode, add specific styling
-        if (Mode != BarMode.Horizontal)
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
         {
-            AppendToClassAttr(attributes, "d-flex");
-            AppendToClassAttr(attributes, "align-items-center");
-            AppendToClassAttr(attributes, "position-relative");
-            if (!SidebarCollapsed)
-                AppendToClassAttr(attributes, "w-100");
-        }
+            AppendClass(ref cls, "btn");
+            AppendClass(ref cls, "btn-toggle");
+            AppendClass(ref cls, "align-items-center");
+            AppendClass(ref cls, "rounded");
+            
+            var shouldBeCollapsed = ForceCollapseAll || !Expanded;
+            if (shouldBeCollapsed)
+                AppendClass(ref cls, "collapsed");
+            
+            if (Disabled == true)
+                AppendClass(ref cls, "disabled");
+
+            if (Mode != BarMode.Horizontal)
+            {
+                AppendClass(ref cls, "d-flex");
+                AppendClass(ref cls, "align-items-center");
+                AppendClass(ref cls, "position-relative");
+                if (!SidebarCollapsed)
+                    AppendClass(ref cls, "w-100");
+            }
+        });
 
         if (Disabled == true)
             attributes["aria-disabled"] = "true";

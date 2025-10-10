@@ -3,7 +3,7 @@
 
 @if (_visible && _status == ValidationStatus.Success)
 {
-    <div class="@($"valid-feedback d-block mb-0 {Class}")">
+    <div @attributes="BuildAttributes()">
         @if (ChildContent is not null)
         {
             @ChildContent
@@ -48,6 +48,18 @@
         _visible = false;
         _status = ValidationStatus.None;
         InvokeAsync(StateHasChanged);
+    }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "valid-feedback");
+            AppendClass(ref cls, "d-block");
+            AppendClass(ref cls, "mb-0");
+        });
+        return attributes;
     }
 
     public override void Dispose()

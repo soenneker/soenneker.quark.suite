@@ -34,12 +34,17 @@
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
-        AppendToClassAttr(attributes, "q-tree-view-node-content cursor-pointer");
+        
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "q-tree-view-node-content");
+            AppendClass(ref cls, "cursor-pointer");
 
-        if (Selected)
-            AppendToClassAttr(attributes, "q-tree-view-node-selected");
-        else if (NodeState?.Disabled ?? false)
-            AppendToClassAttr(attributes, "q-tree-view-node-disabled");
+            if (Selected)
+                AppendClass(ref cls, "q-tree-view-node-selected");
+            else if (NodeState?.Disabled ?? false)
+                AppendClass(ref cls, "q-tree-view-node-disabled");
+        });
 
         return attributes;
     }

@@ -7,8 +7,8 @@
 @if (Visible)
 {
     <CascadingValue Value="@this">
-		<Div Class="@GetModalClasses()" Style="@GetModalStyles()" TabIndex="-1" OnKeyDown="HandleKeyDown" OnClick="HandleBackdropClick" @attributes="BuildAttributes()">
-			<Div Class="@GetDialogClasses()" @onclick:stopPropagation="true">
+		<Div TabIndex="-1" OnKeyDown="HandleKeyDown" OnClick="HandleBackdropClick" @attributes="BuildAttributes()">
+			<Div @attributes="BuildDialogAttributes()" @onclick:stopPropagation="true">
                 <Div Class="modal-content">
                     @ChildContent
                 </Div>
@@ -54,62 +54,46 @@
     [Parameter]
     public EventCallback OnBackdropClick { get; set; }
 
-    private string GetModalClasses()
-    {
-        var attributes = new Dictionary<string, object>();
-        
-        AppendToClassAttr(attributes, "modal");
-        AppendToClassAttr(attributes, "fade");
-        
-        if (Visible)
-            AppendToClassAttr(attributes, "show");
-            
-        if (Class.HasContent())
-            AppendToClassAttr(attributes, Class!);
-            
-        return attributes.TryGetValue("class", out var classValue) ? classValue.ToString() ?? string.Empty : string.Empty;
-    }
-
-    private string GetDialogClasses()
-    {
-        var attributes = new Dictionary<string, object>();
-        
-        AppendToClassAttr(attributes, "modal-dialog");
-        
-        if (Centered)
-            AppendToClassAttr(attributes, "modal-dialog-centered");
-            
-        if (Scrollable)
-            AppendToClassAttr(attributes, "modal-dialog-scrollable");
-            
-        if (Size != null && !Size.Value.IsEmpty)
-            AppendToClassAttr(attributes, $"modal-{Size.Value}");
-            
-        return attributes.TryGetValue("class", out var classValue) ? classValue.ToString() ?? string.Empty : string.Empty;
-    }
-
-    private string GetModalStyles()
-    {
-        var attributes = new Dictionary<string, object>();
-        
-        if (Visible)
-            AppendStyleDeclAttr(attributes, "display: block");
-            
-        if (Style.HasContent())
-            AppendStyleDeclAttr(attributes, Style!);
-            
-        return attributes.TryGetValue("style", out var styleValue) ? styleValue.ToString() ?? string.Empty : string.Empty;
-    }
-
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
+        
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "modal");
+            AppendClass(ref cls, "fade");
+            
+            if (Visible)
+                AppendClass(ref cls, "show");
+        });
+        
+        if (Visible)
+            BuildStyleAttribute(attributes, (ref PooledStringBuilder sty) => AppendStyleDecl(ref sty, "display: block"));
         
         attributes["role"] = "dialog";
         attributes["aria-modal"] = "true";
         
         if (Static)
             attributes["data-bs-backdrop"] = "static";
+            
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildDialogAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+        
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "modal-dialog");
+            
+            if (Centered)
+                AppendClass(ref cls, "modal-dialog-centered");
+            if (Scrollable)
+                AppendClass(ref cls, "modal-dialog-scrollable");
+            if (Size != null && !Size.Value.IsEmpty)
+                AppendClass(ref cls, $"modal-{Size.Value}");
+        });
             
         return attributes;
     }

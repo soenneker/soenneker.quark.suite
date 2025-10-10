@@ -8,7 +8,7 @@
 @if (Visible)
 {
     <CascadingValue Value="@this" IsFixed>
-        <Div Class="alert" @attributes="BuildAttributes()" role="alert" >
+        <Div @attributes="BuildAttributes()" role="alert" >
             @if (Dismissible)
             {
                 <Button Type="@ButtonType.Button" Class="btn-close" OnClick="HandleDismiss" aria-label="Close" ></Button>
@@ -25,10 +25,8 @@
     private bool _hasMessage;
     private bool _hasDescription;
 
-
     [Parameter]
     public CssValue<AlertStyleBuilder>? AlertStyle { get; set; }
-
 
     [Parameter]
     public bool Dismissible { get; set; }
@@ -53,36 +51,24 @@
     {
         var attributes = base.BuildAttributes();
 
-        AppendToClassAttr(attributes, "alert");
-
-
-        if (Dismissible)
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
         {
-            AppendToClassAttr(attributes, "alert-dismissible");
-            AppendToClassAttr(attributes, "fade");
+            AppendClass(ref cls, "alert");
             
-            if (Visible)
-                AppendToClassAttr(attributes, "show");
-        }
-
-        // Add classes for child component detection
-        if (_hasMessage)
-            AppendToClassAttr(attributes, "alert-has-message");
-
-        if (_hasDescription)
-            AppendToClassAttr(attributes, "alert-has-description");
-
-        // Handle alert styling
-        if (AlertStyle is not null && !AlertStyle.Value.IsEmpty)
-        {
-            var alertClass = AlertStyle.Value.ToString();
-            if (alertClass.HasContent())
+            if (Dismissible)
             {
-                AppendToClassAttr(attributes, alertClass);
+                AppendClass(ref cls, "alert-dismissible");
+                AppendClass(ref cls, "fade");
             }
-        }
-
-
+            if (Dismissible && Visible)
+                AppendClass(ref cls, "show");
+            if (_hasMessage)
+                AppendClass(ref cls, "alert-has-message");
+            if (_hasDescription)
+                AppendClass(ref cls, "alert-has-description");
+            if (AlertStyle is not null && !AlertStyle.Value.IsEmpty)
+                AppendClass(ref cls, AlertStyle.Value.ToString());
+        });
 
         return attributes;
     }

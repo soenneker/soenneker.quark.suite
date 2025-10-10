@@ -86,17 +86,18 @@
 	{
 		var attributes = base.BuildAttributes();
 
-		var baseClasses = "form-control";
-		var colorClass = GetColorClass();
-		var sizeClass = GetSizeClass();
-
-		if (colorClass != null)
-			baseClasses = $"{baseClasses} {colorClass}";
-
-		if (sizeClass != null)
-			baseClasses = $"{baseClasses} {sizeClass}";
-
-		AppendToClassAttr(attributes, baseClasses);
+		BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+		{
+			AppendClass(ref cls, "form-control");
+			
+			var colorClass = GetColorClass();
+			if (colorClass != null)
+				AppendClass(ref cls, colorClass);
+				
+			var sizeClass = GetSizeClass();
+			if (sizeClass != null)
+				AppendClass(ref cls, sizeClass);
+		});
 
 		if (Placeholder.HasContent())
 			attributes["placeholder"] = Placeholder;
@@ -123,7 +124,7 @@
 			attributes["pattern"] = Pattern;
 
 		if (AutoResize)
-			AppendStyleDeclAttr(attributes, "resize: vertical; min-height: 60px;");
+			BuildStyleAttribute(attributes, (ref PooledStringBuilder sty) => AppendStyleDecl(ref sty, "resize: vertical; min-height: 60px;"));
 
 		// Wire input/change events
 		attributes["oninput"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleInput);

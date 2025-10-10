@@ -196,16 +196,20 @@
     {
         var attributes = base.BuildAttributes();
 
-        var baseClasses = "form-control quark-datepicker quark-datepicker--icon";
-        var sizeClass = GetSizeClass();
-        var validationClass = GetValidationClass();
-
-        if (sizeClass != null)
-            baseClasses = $"{baseClasses} {sizeClass}";
-        if (validationClass != null)
-            baseClasses = $"{baseClasses} {validationClass}";
-
-        AppendToClassAttr(attributes, baseClasses);
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "form-control");
+            AppendClass(ref cls, "quark-datepicker");
+            AppendClass(ref cls, "quark-datepicker--icon");
+            
+            var sizeClass = GetSizeClass();
+            if (sizeClass != null)
+                AppendClass(ref cls, sizeClass);
+                
+            var validationClass = GetValidationClass();
+            if (validationClass != null)
+                AppendClass(ref cls, validationClass);
+        });
 
         if (Value.HasValue)
             attributes["value"] = Value.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
@@ -243,15 +247,35 @@
     private Dictionary<string, object> GetContainerAttributes()
     {
         var attrs = new Dictionary<string, object>(2);
-        AppendToClassAttr(attrs, "position-relative d-inline-block quark-date-container");
+        BuildClassAttribute(attrs, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "position-relative");
+            AppendClass(ref cls, "d-inline-block");
+            AppendClass(ref cls, "quark-date-container");
+        });
         return attrs;
     }
 
     private Dictionary<string, object> BuildPanelAttributes()
     {
         var attrs = new Dictionary<string, object>(4);
-        AppendToClassAttr(attrs, "quark-calendar-panel shadow-lg border rounded-3 bg-white p-3");
-        attrs["style"] = "position: absolute; top: calc(100% + .25rem); left: 0; z-index: 1080; min-width: 18rem;";
+        BuildClassAttribute(attrs, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "quark-calendar-panel");
+            AppendClass(ref cls, "shadow-lg");
+            AppendClass(ref cls, "border");
+            AppendClass(ref cls, "rounded-3");
+            AppendClass(ref cls, "bg-white");
+            AppendClass(ref cls, "p-3");
+        });
+        BuildStyleAttribute(attrs, (ref PooledStringBuilder sty) =>
+        {
+            AppendStyleDecl(ref sty, "position: absolute");
+            AppendStyleDecl(ref sty, "top: calc(100% + .25rem)");
+            AppendStyleDecl(ref sty, "left: 0");
+            AppendStyleDecl(ref sty, "z-index: 1080");
+            AppendStyleDecl(ref sty, "min-width: 18rem");
+        });
         return attrs;
     }
 

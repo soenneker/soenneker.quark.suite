@@ -3,7 +3,7 @@
 
 @if (ShowInfo)
 {
-    <Div Class="quark-table-info" @attributes="BuildAttributes()">
+    <Div @attributes="BuildAttributes()">
         @if (ChildContent != null)
         {
             @ChildContent
@@ -17,6 +17,13 @@
 
 @code {
     public override string? ThemeKey { get; set; } = "QuarkTableInfo";
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, "quark-table-info"));
+        return attributes;
+    }
 
     [CascadingParameter]
     private IQuarkTable? QuarkTable { get; set; }

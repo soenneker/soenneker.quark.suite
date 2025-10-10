@@ -5,7 +5,6 @@
 
 <UnorderedListItem @attributes="BuildAttributes()" >
     <Button
-        Class="@ButtonClass"
         Type="@ButtonType.Button"
         OnClick="HandleClick"
         TabIndex="@(Disabled ? -1 : (int?)null)"
@@ -45,18 +44,6 @@
 
     [CascadingParameter]
     public Tabs? ParentTabs { get; set; }
-
-    // ✅ Avoid mixed markup/C# in the attribute by precomputing
-    private string ButtonClass
-    {
-        get
-        {
-            var classes = "nav-link";
-            if (IsActive) classes += " active";
-            if (Disabled) classes += " disabled";
-            return classes;
-        }
-    }
 
     private bool IsActive => ParentTabs?.SelectedTab == Name;
 
@@ -98,20 +85,34 @@
 
         attributes["role"] = "presentation";
 
-        var baseClasses = Disabled ? "nav-item disabled" : "nav-item";
-        AppendToClassAttr(attributes, baseClasses);
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "nav-item");
+            
+            if (Disabled)
+                AppendClass(ref cls, "disabled");
+        });
 
         return attributes;
     }
 
     private IReadOnlyDictionary<string, object> BuildButtonAttributes()
     {
-        var attributes = new Dictionary<string, object>
+        var attributes = new Dictionary<string, object>();
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
         {
-            ["role"] = "tab",
-            ["aria-controls"] = Target ?? string.Empty,
-            ["aria-selected"] = IsActive ? "true" : "false"
-        };
+            AppendClass(ref cls, "nav-link");
+            
+            if (IsActive)
+                AppendClass(ref cls, "active");
+            if (Disabled)
+                AppendClass(ref cls, "disabled");
+        });
+
+        attributes["role"] = "tab";
+        attributes["aria-controls"] = Target ?? string.Empty;
+        attributes["aria-selected"] = IsActive ? "true" : "false";
 
         if (Disabled)
         {

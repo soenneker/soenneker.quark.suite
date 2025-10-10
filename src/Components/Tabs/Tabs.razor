@@ -8,7 +8,7 @@
         @* Vertical tabs layout *@
         <div class="row">
             <div class="col-3">
-                <Div Class="nav" @attributes="BuildAttributes()" >
+                <Div @attributes="BuildAttributes()" >
                     @ChildContent
                 </Div>
             </div>
@@ -30,7 +30,7 @@
     else
     {
         @* Horizontal tabs layout *@
-        <Div Class="nav" @attributes="BuildAttributes()" >
+        <Div @attributes="BuildAttributes()" >
             @ChildContent
         </Div>
         
@@ -134,17 +134,16 @@
     {
         var attributes = base.BuildAttributes();
 
-        AppendToClassAttr(attributes, "nav");
-
-        var baseClasses = Pills ? "nav-pills" : "nav-tabs";
-
-        AppendToClassAttr(attributes, baseClasses);
-
-        if (Vertical)
-            AppendToClassAttr(attributes, "flex-column");
-
-        if (Justified)
-            AppendToClassAttr(attributes, "nav-justified");
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "nav");
+            AppendClass(ref cls, Pills ? "nav-pills" : "nav-tabs");
+            
+            if (Vertical)
+                AppendClass(ref cls, "flex-column");
+            if (Justified)
+                AppendClass(ref cls, "nav-justified");
+        });
 
         return attributes;
     }

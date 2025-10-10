@@ -33,14 +33,17 @@
     {
         var attributes = base.BuildAttributes();
 
-        AppendToClassAttr(attributes, "pagination");
-        
-        var sizeClass = GetSizeClass();
-        if (sizeClass != null)
-            AppendToClassAttr(attributes, sizeClass);
-
-        if (Vertical)
-            AppendToClassAttr(attributes, "flex-column");
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "pagination");
+            
+            var sizeClass = GetSizeClass();
+            if (sizeClass != null)
+                AppendClass(ref cls, sizeClass);
+                
+            if (Vertical)
+                AppendClass(ref cls, "flex-column");
+        });
 
         return attributes;
     }

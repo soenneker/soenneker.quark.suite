@@ -1,5 +1,6 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using Soenneker.Utils.PooledStringBuilders
 @implements IColumn
 
 <div @attributes="BuildAttributes()">
@@ -25,32 +26,27 @@
     {
         var attributes = base.BuildAttributes();
         
-        AppendToClassAttr(attributes, "col");
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "col");
 
-        // Add column-specific CSS values
-        AddColumnCss(attributes, ColumnSize);
-        AddColumnCss(attributes, ColumnOffset);
-        AddColumnCss(attributes, ColumnOrder);
-        AddColumnCss(attributes, ColumnAuto);
+            AddColumnCss(ref cls, ColumnSize);
+            AddColumnCss(ref cls, ColumnOffset);
+            AddColumnCss(ref cls, ColumnOrder);
+            AddColumnCss(ref cls, ColumnAuto);
+        });
 
         return attributes;
     }
 
-    private void AddColumnCss<T>(Dictionary<string, object> attributes, CssValue<T>? cssValue) where T : class, ICssBuilder
+    private static void AddColumnCss<T>(ref PooledStringBuilder cls, CssValue<T>? cssValue) where T : class, ICssBuilder
     {
         if (cssValue is { IsEmpty: false })
         {
             var css = cssValue.Value.ToString();
-            if (css.HasContent())
+            if (css.HasContent() && !cssValue.Value.IsCssStyle)
             {
-                if (cssValue.Value.IsCssStyle)
-                {
-                    AppendStyleDeclAttr(attributes, css);
-                }
-                else
-                {
-                    AppendToClassAttr(attributes, css);
-                }
+                AppendClass(ref cls, css);
             }
         }
     }

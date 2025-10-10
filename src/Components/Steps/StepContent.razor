@@ -3,7 +3,7 @@
 @implements IStepContent
 
 <CascadingValue Value="_state">
-    <Div Class="@GetStepsContentClasses()" @attributes="BuildAttributes()">
+    <Div @attributes="BuildAttributes()">
         @ChildContent
     </Div>
 </CascadingValue>
@@ -73,9 +73,11 @@
         return Task.CompletedTask;
     }
 
-    private string GetStepsContentClasses()
+    protected override Dictionary<string, object> BuildAttributes()
     {
-        return "tab-content";
+        var attributes = base.BuildAttributes();
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, "tab-content"));
+        return attributes;
     }
 
     protected override void OnInitialized()

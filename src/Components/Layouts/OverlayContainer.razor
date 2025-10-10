@@ -5,7 +5,7 @@
 @inject IOffcanvasCoordinator OffcanvasCoordinator
 @inject IOffcanvasInterop OffcanvasInterop
 
-<div class="@GetRootClass()" @attributes="BuildAttributes()">
+<div @attributes="BuildAttributes()">
     @ChildContent
 </div>
 
@@ -24,14 +24,19 @@
         InvokeAsync(StateHasChanged);
     }
 
-    private string GetRootClass()
+    protected override Dictionary<string, object> BuildAttributes()
     {
-        var cls = "quark-overlay-container";
-        if (OffcanvasCoordinator.ActiveCount > 0)
-            cls += " offcanvas-open";
-        if (Class.HasContent())
-            cls += $" {Class}";
-        return cls;
+        var attributes = base.BuildAttributes();
+        
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "quark-overlay-container");
+            
+            if (OffcanvasCoordinator.ActiveCount > 0)
+                AppendClass(ref cls, "offcanvas-open");
+        });
+        
+        return attributes;
     }
 
     public override ValueTask DisposeAsync()

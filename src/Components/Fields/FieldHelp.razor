@@ -18,11 +18,13 @@
     {
         var attributes = base.BuildAttributes();
 
-        var baseClasses = "field-help";
-        if (ParentIsFieldBody)
-            baseClasses += " field-help-in-body";
-
-        AppendToClassAttr(attributes, baseClasses);
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "field-help");
+            
+            if (ParentIsFieldBody)
+                AppendClass(ref cls, "field-help-in-body");
+        });
 
         return attributes;
     }

@@ -1,15 +1,13 @@
-@using Microsoft.AspNetCore.Components.Routing
-
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IAnchor
 
-<NavLink href="@To" @attributes="BuildAttributes()">
-	@ChildContent
-</NavLink>
+<a @attributes="BuildAttributes()">
+    @ChildContent
+</a>
 
 @code {
-	public override string? ThemeKey { get; set; } = "Anchor";
+    public override string? ThemeKey { get; set; } = "Anchor";
 
     [Parameter]
     public string? To { get; set; }
@@ -21,7 +19,10 @@
     {
         var attributes = base.BuildAttributes();
 
-        if (Target != null)
+        if (To.HasContent())
+            attributes["href"] = To!;
+
+        if (Target is not null)
             attributes["target"] = Target.Value;
 
         return attributes;

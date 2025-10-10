@@ -40,13 +40,15 @@
     {
         var attributes = base.BuildAttributes();
         
-        AppendToClassAttr(attributes, "list-group");
-        
-        if (Flush)
-            AppendToClassAttr(attributes, "list-group-flush");
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "list-group");
             
-        if (Scrollable)
-            AppendToClassAttr(attributes, "list-group-scrollable");
+            if (Flush)
+                AppendClass(ref cls, "list-group-flush");
+            if (Scrollable)
+                AppendClass(ref cls, "list-group-scrollable");
+        });
 
         return attributes;
     }

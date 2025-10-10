@@ -58,54 +58,59 @@
     {
         var attributes = base.BuildAttributes();
 
-        // Apply different classes based on bar mode
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "navbar-toggler");
+            
+            if (BarMode != BarMode.Horizontal)
+            {
+                AppendClass(ref cls, "sidebar-toggler");
+                AppendClass(ref cls, "p-2");
+                AppendClass(ref cls, "my-2");
+                AppendClass(ref cls, "d-flex");
+                AppendClass(ref cls, "justify-content-center");
+                AppendClass(ref cls, "align-items-center");
+                AppendClass(ref cls, "position-relative");
+                
+                if (!SidebarCollapsed)
+                    AppendClass(ref cls, "w-100");
+            }
+            
+            if (Mode == BarTogglerMode.Popout)
+                AppendClass(ref cls, "navbar-toggler-popout");
+        });
+
         if (BarMode == BarMode.Horizontal)
         {
-            AppendToClassAttr(attributes, "navbar-toggler");
-            
-            // For horizontal navbars, wire up Bootstrap's collapse behavior
             var target = Target.HasContent() ? Target : MenuId.HasContent() ? $"#{MenuId}" : null;
             
             if (target.HasContent())
             {
                 attributes["data-bs-toggle"] = "collapse";
                 attributes["data-bs-target"] = target!;
-                // aria-controls expects the id without the '#'
                 var controls = target!.StartsWith("#") ? target.Substring(1) : target!;
                 attributes["aria-controls"] = controls;
             }
         }
         else
         {
-            // For vertical mode, use sidebar-specific toggler styling
-            AppendToClassAttr(attributes, "sidebar-toggler");
-            AppendToClassAttr(attributes, "navbar-toggler");
-            AppendToClassAttr(attributes, "p-2");
-            AppendToClassAttr(attributes, "my-2");
-            AppendToClassAttr(attributes, "d-flex");
-            AppendToClassAttr(attributes, "justify-content-center");
-            AppendToClassAttr(attributes, "align-items-center");
-            
-            // Ensure fixed width so it doesn't shift
-            AppendStyleDeclAttr(attributes, "flex-shrink: 0");
-            AppendStyleDeclAttr(attributes, "width: 60px");
-            AppendStyleDeclAttr(attributes, "margin-left: 0");
-            AppendStyleDeclAttr(attributes, "border: none");
-            AppendStyleDeclAttr(attributes, "background: transparent");
-
-            // When the sidebar is collapsed, apply an inline nudge to visually center the icon
-            if (SidebarCollapsed)
+            BuildStyleAttribute(attributes, (ref PooledStringBuilder sty) =>
             {
-                // Force centering regardless of external classes
-                AppendStyleDeclAttr(attributes, "margin: 0 !important");
-                AppendStyleDeclAttr(attributes, "padding-left: 20px !important");
-                AppendStyleDeclAttr(attributes, "padding-right: 8px !important");
-                AppendStyleDeclAttr(attributes, "box-sizing: border-box");
-            }
+                AppendStyleDecl(ref sty, "flex-shrink: 0");
+                AppendStyleDecl(ref sty, "width: 60px");
+                AppendStyleDecl(ref sty, "margin-left: 0");
+                AppendStyleDecl(ref sty, "border: none");
+                AppendStyleDecl(ref sty, "background: transparent");
+
+                if (SidebarCollapsed)
+                {
+                    AppendStyleDecl(ref sty, "margin: 0 !important");
+                    AppendStyleDecl(ref sty, "padding-left: 20px !important");
+                    AppendStyleDecl(ref sty, "padding-right: 8px !important");
+                    AppendStyleDecl(ref sty, "box-sizing: border-box");
+                }
+            });
         }
-        
-        if (Mode == BarTogglerMode.Popout)
-            AppendToClassAttr(attributes, "navbar-toggler-popout");
 
         return attributes;
     }

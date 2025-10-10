@@ -7,12 +7,12 @@
 @inject IOffcanvasCoordinator OffcanvasCoordinator
 
 <CascadingValue Value="@this" IsFixed="true">
-    <Div id="@Id" Class="@GetOffcanvasClasses()" Style="@GetOffcanvasStyles()" tabindex="-1" role="dialog" aria-modal="true" @attributes="BuildAttributes()">
+    <Div @attributes="BuildAttributes()">
         @ChildContent
     </Div>
     @if (ShowBackdrop && _backdropVisible)
     {
-        <Div Class="@GetBackdropClass()" OnClick="HandleBackdropClick"></Div>
+        <Div @attributes="BuildBackdropAttributes()" OnClick="HandleBackdropClick"></Div>
     }
 </CascadingValue>
 
@@ -66,46 +66,70 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private string GetOffcanvasClasses()
+    protected override Dictionary<string, object> BuildAttributes()
     {
-        var cls = "offcanvas";
+        var attributes = base.BuildAttributes();
 
-        switch (Placement.Value)
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
         {
-            case PlacementType.StartValue:
-                cls += " offcanvas-start";
-                break;
-            case PlacementType.EndValue:
-                cls += " offcanvas-end";
-                break;
-            case PlacementType.TopValue:
-                cls += " offcanvas-top";
-                break;
-            case PlacementType.BottomValue:
-                cls += " offcanvas-bottom";
-                break;
-        }
+            AppendClass(ref cls, "offcanvas");
+            
+            switch (Placement.Value)
+            {
+                case PlacementType.StartValue:
+                    AppendClass(ref cls, "offcanvas-start");
+                    break;
+                case PlacementType.EndValue:
+                    AppendClass(ref cls, "offcanvas-end");
+                    break;
+                case PlacementType.TopValue:
+                    AppendClass(ref cls, "offcanvas-top");
+                    break;
+                case PlacementType.BottomValue:
+                    AppendClass(ref cls, "offcanvas-bottom");
+                    break;
+            }
+            
+            AppendClass(ref cls, "quark-offcanvas");
+            AppendClass(ref cls, "quark-offcanvas-shadow");
+            
+            if (_isShowing)
+                AppendClass(ref cls, "showing");
+            
+            if (_active)
+                AppendClass(ref cls, "show");
+            
+            if (_isHiding)
+                AppendClass(ref cls, "hiding");
+        });
 
-        cls += " quark-offcanvas quark-offcanvas-shadow";
+        attributes["id"] = Id;
+        
+        if (Style.HasContent())
+            attributes["style"] = Style;
 
-        if (_isShowing)
-            cls += " showing";
+        attributes["tabindex"] = "-1";
+        attributes["role"] = "dialog";
+        attributes["aria-modal"] = "true";
 
-        if (_active)
-            cls += " show";
-
-        if (_isHiding)
-            cls += " hiding";
-
-        if (Class.HasContent())
-            cls += $" {Class}";
-
-        return cls;
+        return attributes;
     }
 
-    private string GetOffcanvasStyles() => Style ?? string.Empty;
-
-    private string GetBackdropClass() => (_active || _isShowing) ? "offcanvas-backdrop fade show" : "offcanvas-backdrop fade";
+    private Dictionary<string, object> BuildBackdropAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+        
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "offcanvas-backdrop");
+            AppendClass(ref cls, "fade");
+            
+            if (_active || _isShowing)
+                AppendClass(ref cls, "show");
+        });
+        
+        return attributes;
+    }
 
     public async Task Show()
     {

@@ -18,18 +18,19 @@
     {
         var attributes = base.BuildAttributes();
 
-        // For horizontal mode, add margin start auto to push to the right
-        if (Mode == BarMode.Horizontal)
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
         {
-            AppendToClassAttr(attributes, "navbar-nav");
-            AppendToClassAttr(attributes, "ms-auto");
-        }
-        else
-        {
-            // For vertical modes, BarEnd should be at the bottom
-            AppendToClassAttr(attributes, "mt-auto");
-            AppendToClassAttr(attributes, "dropdown");
-        }
+            if (Mode == BarMode.Horizontal)
+            {
+                AppendClass(ref cls, "navbar-nav");
+                AppendClass(ref cls, "ms-auto");
+            }
+            else
+            {
+                AppendClass(ref cls, "mt-auto");
+                AppendClass(ref cls, "dropdown");
+            }
+        });
 
         return attributes;
     }

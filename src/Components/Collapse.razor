@@ -3,7 +3,7 @@
 @inherits Soenneker.Quark.Element
 @implements ICollapse
 
-<Div Class="@CollapseClass" @attributes="BuildAttributes()">
+<Div @attributes="BuildAttributes()">
     @ChildContent
 </Div>
 
@@ -25,21 +25,6 @@
     [Parameter]
     public bool Horizontal { get; set; }
 
-    private string CollapseClass
-    {
-        get
-        {
-            var classes = "collapse";
-
-            if (Horizontal)
-                classes += " collapse-horizontal";
-
-            if (Expanded) 
-                classes += " show";
-
-            return classes;
-        }
-    }
 
     public async Task Toggle()
     {
@@ -114,6 +99,16 @@
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "collapse");
+            
+            if (Horizontal)
+                AppendClass(ref cls, "collapse-horizontal");
+            if (Expanded)
+                AppendClass(ref cls, "show");
+        });
 
         // Ensure an id exists so controls can target this collapse per Bootstrap docs
         if (!Id.HasContent())

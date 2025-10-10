@@ -23,17 +23,19 @@
     {
         var attributes = base.BuildAttributes();
 
-        AppendToClassAttr(attributes, "nav-item");
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "nav-item");
+            
+            if (Active)
+                AppendClass(ref cls, "active");
+            if (Disabled)
+                AppendClass(ref cls, "disabled");
+        });
 
-        if (Active)
-            AppendToClassAttr(attributes, "active");
-        if (Disabled)
-            AppendToClassAttr(attributes, "disabled");
-
-        // For vertical modes, add width 100%
         if (Mode != BarMode.Horizontal)
         {
-            AppendStyleDeclAttr(attributes, "width: 100%");
+            BuildStyleAttribute(attributes, (ref PooledStringBuilder sty) => AppendStyleDecl(ref sty, "width: 100%"));
         }
 
         return attributes;

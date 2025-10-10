@@ -34,33 +34,21 @@
     [Parameter]
     public string? DropdownMenuTargetId { get; set; }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await base.OnAfterRenderAsync(firstRender);
-    }
-
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
 
-        var baseClasses = "dropdown";
-        
-        if (IsSubmenu)
-            baseClasses = "dropdown-submenu";
-        
-        if (IsGroup)
-            baseClasses = "btn-group";
-        
-        if (Visible)
-            baseClasses = $"{baseClasses} show";
-        
-        if (RightAligned)
-            baseClasses = $"{baseClasses} dropend";
-        
-        if (Disabled)
-            baseClasses = $"{baseClasses} disabled";
-
-        AppendToClassAttr(attributes, baseClasses);
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, IsGroup ? "btn-group" : IsSubmenu ? "dropdown-submenu" : "dropdown");
+            
+            if (Visible)
+                AppendClass(ref cls, "show");
+            if (RightAligned)
+                AppendClass(ref cls, "dropend");
+            if (Disabled)
+                AppendClass(ref cls, "disabled");
+        });
 
         return attributes;
     }

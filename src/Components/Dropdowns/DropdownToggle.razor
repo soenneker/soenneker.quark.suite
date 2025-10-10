@@ -1,5 +1,6 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using Soenneker.Blazor.Extensions.EventCallback
 @implements IDropdownToggle
 
 <button @attributes="BuildAttributes()" type="button" data-bs-toggle="dropdown" aria-expanded="false" @onclick="OnClickHandler">
@@ -20,22 +21,33 @@
 
     private async Task OnClickHandler(MouseEventArgs e)
     {
-        if (!Disabled && Clicked.HasDelegate)
-        {
-            await Clicked.InvokeAsync(e);
-        }
+        if (!Disabled)
+            await Clicked.InvokeIfHasDelegate(e);
     }
 
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
 
-        var baseClasses = IsSplit ? "btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" : "btn btn-secondary dropdown-toggle";
-
-        if (Disabled)
-            baseClasses = $"{baseClasses} disabled";
-
-        AppendToClassAttr(attributes, baseClasses);
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            if (IsSplit)
+            {
+                AppendClass(ref cls, "btn");
+                AppendClass(ref cls, "btn-outline-secondary");
+                AppendClass(ref cls, "dropdown-toggle");
+                AppendClass(ref cls, "dropdown-toggle-split");
+            }
+            else
+            {
+                AppendClass(ref cls, "btn");
+                AppendClass(ref cls, "btn-secondary");
+                AppendClass(ref cls, "dropdown-toggle");
+            }
+            
+            if (Disabled)
+                AppendClass(ref cls, "disabled");
+        });
 
         if (Disabled)
         {

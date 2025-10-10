@@ -29,22 +29,27 @@
     {
         var attributes = base.BuildAttributes();
 
-        AppendToClassAttr(attributes, "nav-link");
-        // Use only new class names
-        if (Active)
-            AppendToClassAttr(attributes, "active");
-        if (Disabled)
-            AppendToClassAttr(attributes, "disabled");
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "nav-link");
+            
+            if (Active)
+                AppendClass(ref cls, "active");
+            if (Disabled)
+                AppendClass(ref cls, "disabled");
+        });
 
-        // For vertical modes, add specific styles
         if (Mode != BarMode.Horizontal)
         {
-            AppendStyleDeclAttr(attributes, "display: flex");
-            AppendStyleDeclAttr(attributes, "align-items: center");
-            AppendStyleDeclAttr(attributes, "width: 100%");
-            AppendStyleDeclAttr(attributes, "padding: 0.75rem 1rem");
-            AppendStyleDeclAttr(attributes, "border-radius: 0");
-            AppendStyleDeclAttr(attributes, "border-bottom: 1px solid var(--bs-border-color-translucent, rgba(0, 0, 0, 0.1))");
+            BuildStyleAttribute(attributes, (ref PooledStringBuilder sty) =>
+            {
+                AppendStyleDecl(ref sty, "display: flex");
+                AppendStyleDecl(ref sty, "align-items: center");
+                AppendStyleDecl(ref sty, "width: 100%");
+                AppendStyleDecl(ref sty, "padding: 0.75rem 1rem");
+                AppendStyleDecl(ref sty, "border-radius: 0");
+                AppendStyleDecl(ref sty, "border-bottom: 1px solid var(--bs-border-color-translucent, rgba(0, 0, 0, 0.1))");
+            });
         }
 
         if (Disabled)

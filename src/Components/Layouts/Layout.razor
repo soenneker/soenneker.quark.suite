@@ -15,7 +15,7 @@
                     }
                     else
                     {
-                        <Div class="@GetLoadingClass()" ></Div>
+                        <Div @attributes="BuildLoadingAttributes()" ></Div>
                     }
                 }
                 @ChildContent
@@ -49,18 +49,14 @@
     {
         var attributes = base.BuildAttributes();
 
-        // Base layout classes - using standard Bootstrap classes
-        if (Sider)
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
         {
-            // For sidebar layout, use horizontal flex with full width and height
-            // Remove w-100 to prevent width constraints that cause layout issues
-            AppendToClassAttr(attributes, "d-flex min-vh-100 w-100");
-        }
-        else
-        {
-            // For regular layout, use vertical flex with full height
-            AppendToClassAttr(attributes, "d-flex flex-column min-vh-100 w-100");
-        }
+            AppendClass(ref cls, "d-flex");
+            if (!Sider)
+                AppendClass(ref cls, "flex-column");
+            AppendClass(ref cls, "min-vh-100");
+            AppendClass(ref cls, "w-100");
+        });
 
         // a11y: reflect busy state when loading overlay shown
         SetOrRemove(attributes, "aria-busy", Loading, "true");
@@ -78,9 +74,29 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private string GetLoadingClass()
+    private Dictionary<string, object> BuildLoadingAttributes()
     {
-        return LoadingClass.IsNullOrWhiteSpace() ? "position-fixed top-0 start-0 w-100 h-100 bg-body bg-opacity-75" : LoadingClass!;
+        var attributes = new Dictionary<string, object>();
+        
+        if (LoadingClass.IsNullOrWhiteSpace())
+        {
+            BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+            {
+                AppendClass(ref cls, "position-fixed");
+                AppendClass(ref cls, "top-0");
+                AppendClass(ref cls, "start-0");
+                AppendClass(ref cls, "w-100");
+                AppendClass(ref cls, "h-100");
+                AppendClass(ref cls, "bg-body");
+                AppendClass(ref cls, "bg-opacity-75");
+            });
+        }
+        else
+        {
+            BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, LoadingClass!));
+        }
+        
+        return attributes;
     }
 
     private void OnSidebarVisibleChanged(bool visible)

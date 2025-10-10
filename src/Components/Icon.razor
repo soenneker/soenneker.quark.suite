@@ -47,36 +47,35 @@
     {
         var attributes = base.BuildAttributes();
 
-        // Always include the FA base class first for predictability
-        AppendToClassAttr(attributes, "fa");
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "fa");
 
-        var styleClass = GetFamilyAndStyleClass(Family, IconStyle);
+            var styleClass = GetFamilyAndStyleClass(Family, IconStyle);
+            if (styleClass.HasContent())
+                AppendClass(ref cls, styleClass);
 
-        if (styleClass.HasContent())
-            AppendToClassAttr(attributes, styleClass);
+            if (Name.HasContent())
+                AppendClass(ref cls, NormalizeIconName(Name!));
 
-        // Icon name (normalize to fa-*)
-        if (Name.HasContent())
-            AppendToClassAttr(attributes, NormalizeIconName(Name!));
+            if (IconSize is not null && IconSize != IconSize.None)
+                AppendClass(ref cls, IconSize!.Value);
 
-        // Helpers (size, spin, rotations, animations)
-        if (IconSize is not null && IconSize != IconSize.None)
-            AppendToClassAttr(attributes, IconSize!.Value);
+            if (SpinReverse)
+                AppendClass(ref cls, "fa-spin-reverse");
 
-        if (SpinReverse)
-            AppendToClassAttr(attributes, "fa-spin-reverse");
+            if (Rotate is not null && Rotate != IconRotate.None)
+                AppendClass(ref cls, Rotate!.Value);
 
-        if (Rotate is not null && Rotate != IconRotate.None)
-            AppendToClassAttr(attributes, Rotate!.Value);
+            if (Flip is not null && Flip != IconFlip.None)
+                AppendClass(ref cls, Flip!.Value);
+
+            if (Animation is not null && Animation != IconAnimation.None)
+                AppendClass(ref cls, Animation!.Value);
+        });
 
         if (RotateByDegrees.HasValue)
-            AppendStyleDeclAttr(attributes, $"--fa-rotate-angle: {RotateByDegrees.Value}deg");
-
-        if (Flip is not null && Flip != IconFlip.None)
-            AppendToClassAttr(attributes, Flip!.Value);
-
-        if (Animation is not null && Animation != IconAnimation.None)
-            AppendToClassAttr(attributes, Animation!.Value);
+            BuildStyleAttribute(attributes, (ref PooledStringBuilder sty) => AppendStyleDecl(ref sty, $"--fa-rotate-angle: {RotateByDegrees.Value}deg"));
 
         return attributes;
     }

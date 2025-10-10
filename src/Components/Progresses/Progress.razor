@@ -3,7 +3,7 @@
 @inherits Soenneker.Quark.Element
 @implements IProgress
 
-<Div Class="progress" @attributes="BuildAttributes()">
+<Div @attributes="BuildAttributes()">
     @ChildContent
 </Div>
 
@@ -37,11 +37,14 @@
     {
         var attributes = base.BuildAttributes();
 
-        AppendToClassAttr(attributes, "progress");
-        
-        var sizeClass = GetSizeClass();
-        if (sizeClass != null)
-            AppendToClassAttr(attributes, sizeClass);
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "progress");
+            
+            var sizeClass = GetSizeClass();
+            if (sizeClass != null)
+                AppendClass(ref cls, sizeClass);
+        });
 
         return attributes;
     }

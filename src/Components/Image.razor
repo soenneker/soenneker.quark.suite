@@ -81,26 +81,26 @@
     {
         var attributes = base.BuildAttributes();
 
-        // Add default Bootstrap image classes if no class is specified
         if (!Class.HasContent())
         {
-            AppendToClassAttr(attributes, "img-thumbnail");
-            var fluidClass = GetFluidClass();
-            if (fluidClass != null)
-                AppendToClassAttr(attributes, fluidClass);
+            BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+            {
+                AppendClass(ref cls, "img-thumbnail");
+                
+                var fluidClass = GetFluidClass();
+                if (fluidClass != null)
+                    AppendClass(ref cls, fluidClass);
+            });
         }
         else
         {
-            // If class is specified, still add fluid class if not already present
-            var currentClass = attributes.GetValueOrDefault("class")
-                ?.ToString() ?? "";
-
+            var currentClass = attributes.GetValueOrDefault("class")?.ToString() ?? "";
             var fluidClass = GetFluidClass();
+            
             if (fluidClass != null && !currentClass.Contains(fluidClass))
             {
-                AppendToClassAttr(attributes, fluidClass);
+                BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, fluidClass));
             }
-
         }
 
         // Add image-specific attributes

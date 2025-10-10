@@ -3,7 +3,7 @@
 @implements IBreadcrumb
 
 <Nav @attributes="BuildAttributes()">
-    <OrderedList Class="breadcrumb">
+    <OrderedList @attributes="BuildListAttributes()">
         @ChildContent
     </OrderedList>
 </Nav>
@@ -27,21 +27,28 @@
     {
         var attributes = base.BuildAttributes();
 
-        var baseClasses = "breadcrumb";
-
-        if (Large)
-            baseClasses = $"{baseClasses} breadcrumb-lg";
-        
-        if (Small)
-            baseClasses = $"{baseClasses} breadcrumb-sm";
-
-        AppendToClassAttr(attributes, baseClasses);
-
         // Set default aria-label for the Nav component if none provided
         if (!AriaLabel.HasContent())
         {
             attributes["AriaLabel"] = "breadcrumb";
         }
+
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildListAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "breadcrumb");
+            
+            if (Large)
+                AppendClass(ref cls, "breadcrumb-lg");
+            if (Small)
+                AppendClass(ref cls, "breadcrumb-sm");
+        });
 
         return attributes;
     }

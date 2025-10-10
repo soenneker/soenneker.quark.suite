@@ -9,7 +9,7 @@
 
 @if (ChildContent != null)
 {
-    <div class="@GetWrapperClass()">
+    <div @attributes="BuildWrapperAttributes()">
         <input id="@Id" type="checkbox" @attributes="BuildAttributes()" @onchange="HandleChange" />
         <label class="form-check-label" for="@Id">
             @ChildContent
@@ -89,22 +89,21 @@ else
         InvokeAsync(StateHasChanged);
     }
 
-    private string GetWrapperClass()
+    private Dictionary<string, object> BuildWrapperAttributes()
     {
-        var classes = new List<string>();
+        var attributes = new Dictionary<string, object>();
         
-        if (Switch)
-            classes.Add("form-switch");
-        else
-            classes.Add("form-check");
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, Switch ? "form-switch" : "form-check");
+            
+            if (Inline)
+                AppendClass(ref cls, "form-check-inline");
+            if (Reverse)
+                AppendClass(ref cls, "form-check-reverse");
+        });
 
-        if (Inline)
-            classes.Add("form-check-inline");
-
-        if (Reverse)
-            classes.Add("form-check-reverse");
-
-        return string.Join(" ", classes);
+        return attributes;
     }
 
     private string? GetSizeClass()
@@ -134,16 +133,18 @@ else
     {
         var attributes = base.BuildAttributes();
 
-        var baseClass = Switch ? "form-switch-input" : "form-check-input";
-        AppendToClassAttr(attributes, baseClass);
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, Switch ? "form-switch-input" : "form-check-input");
             
-        var sizeClass = GetSizeClass();
-        if (sizeClass != null)
-            AppendToClassAttr(attributes, sizeClass);
-            
-        var validationClass = GetValidationClass();
-        if (validationClass != null)
-            AppendToClassAttr(attributes, validationClass);
+            var sizeClass = GetSizeClass();
+            if (sizeClass != null)
+                AppendClass(ref cls, sizeClass);
+                
+            var validationClass = GetValidationClass();
+            if (validationClass != null)
+                AppendClass(ref cls, validationClass);
+        });
 
         if (Checked)
             attributes["checked"] = true;

@@ -3,7 +3,7 @@
 @inherits Soenneker.Quark.Element
 @implements ILayoutSider
 
-<aside @attributes="BuildAttributes()" class="d-flex flex-column">
+<aside @attributes="BuildAttributes()">
     <CascadingValue Value="@_sidebarVisible" IsFixed="true">
         <CascadingValue Value="@OnSidebarVisibleChanged" IsFixed="true">
             @ChildContent
@@ -26,15 +26,18 @@
     {
         var attributes = base.BuildAttributes();
         
-        // Add visibility classes
-        if (!_sidebarVisible)
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
         {
-            AppendToClassAttr(attributes, "sidebar-hidden");
-        }
+            AppendClass(ref cls, "d-flex");
+            AppendClass(ref cls, "flex-column");
+            
+            if (!_sidebarVisible)
+                AppendClass(ref cls, "sidebar-hidden");
+        });
 
         // Prevent aside from shrinking so content area can expand naturally
         // Use flex: 0 0 auto to maintain natural width without growing or shrinking
-        AppendStyleDeclAttr(attributes, "flex: 0 0 auto");
+        BuildStyleAttribute(attributes, (ref PooledStringBuilder sty) => AppendStyleDecl(ref sty, "flex: 0 0 auto"));
 
         return attributes;
     }

@@ -40,22 +40,28 @@
 
         if (Mode == BarMode.Horizontal)
         {
-            AppendToClassAttr(attributes, "collapse");
-            AppendToClassAttr(attributes, "navbar-collapse");
+            BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+            {
+                AppendClass(ref cls, "collapse");
+                AppendClass(ref cls, "navbar-collapse");
+                
+                if (Right)
+                    AppendClass(ref cls, "ms-auto");
+            });
+            
             if (MenuId.HasContent())
                 attributes["id"] = MenuId;
-            
-            if (Right)
-                AppendToClassAttr(attributes, "ms-auto");
         }
 
-        // For vertical modes, add flex-direction column
         if (Mode != BarMode.Horizontal)
         {
-            AppendStyleDeclAttr(attributes, "flex-direction: column");
-            AppendStyleDeclAttr(attributes, "width: 100%");
-            if (SidebarCollapsed)
-                AppendStyleDeclAttr(attributes, "gap: 0.25rem");
+            BuildStyleAttribute(attributes, (ref PooledStringBuilder sty) =>
+            {
+                AppendStyleDecl(ref sty, "flex-direction: column");
+                AppendStyleDecl(ref sty, "width: 100%");
+                if (SidebarCollapsed)
+                    AppendStyleDecl(ref sty, "gap: 0.25rem");
+            });
         }
 
         return attributes;

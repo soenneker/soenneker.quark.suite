@@ -172,71 +172,67 @@
     {
         var attributes = base.BuildAttributes();
 
-        AppendToClassAttr(attributes, GetBaseClass());
-
-        // Add placement class
-        var placementClass = GetPlacementClass();
-        if (placementClass != null)
-            AppendToClassAttr(attributes, placementClass);
-
-        // Add color class
-        var colorClass = GetColorClass();
-        if (colorClass != null)
-            AppendToClassAttr(attributes, colorClass);
-
-
-        // Add vertical specific class
-        var verticalClass = GetVerticalClass();
-        if (verticalClass != null)
-            AppendToClassAttr(attributes, verticalClass);
-
-        // Add expand class (horizontal only)
-        var expandClass = GetExpandClass();
-        if (expandClass != null)
-            AppendToClassAttr(attributes, expandClass);
-
-        // Add alignment class
-        var alignmentClass = GetAlignmentClass();
-        if (alignmentClass != null)
-            AppendToClassAttr(attributes, alignmentClass);
-
-        // Add collapse class (only for horizontal mode)
-        if (Mode == BarMode.Horizontal)
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
         {
-            var collapseClass = GetCollapseClass();
-            if (collapseClass != null)
-                AppendToClassAttr(attributes, collapseClass);
-        }
+            AppendClass(ref cls, GetBaseClass());
 
-        // For vertical sidebar mode, add specific styling
+            var placementClass = GetPlacementClass();
+            if (placementClass != null)
+                AppendClass(ref cls, placementClass);
+
+            var colorClass = GetColorClass();
+            if (colorClass != null)
+                AppendClass(ref cls, colorClass);
+
+            var verticalClass = GetVerticalClass();
+            if (verticalClass != null)
+                AppendClass(ref cls, verticalClass);
+
+            var expandClass = GetExpandClass();
+            if (expandClass != null)
+                AppendClass(ref cls, expandClass);
+
+            var alignmentClass = GetAlignmentClass();
+            if (alignmentClass != null)
+                AppendClass(ref cls, alignmentClass);
+
+            if (Mode == BarMode.Horizontal)
+            {
+                var collapseClass = GetCollapseClass();
+                if (collapseClass != null)
+                    AppendClass(ref cls, collapseClass);
+            }
+
+            // For vertical sidebar mode, add specific styling
+            if (Mode != BarMode.Horizontal)
+            {
+                AppendClass(ref cls, "d-flex");
+                AppendClass(ref cls, "flex-column");
+                AppendClass(ref cls, "flex-shrink-0");
+                AppendClass(ref cls, "bg-light");
+                AppendClass(ref cls, "border-end");
+
+                if (!VerticalBarVisible)
+                    AppendClass(ref cls, "sidebar-hidden");
+                else if (CollapseMode == BarCollapseMode.Small && _verticalBarCollapsed)
+                    AppendClass(ref cls, "sidebar-collapsed");
+            }
+        });
+
         if (Mode != BarMode.Horizontal)
         {
-            AppendToClassAttr(attributes, "d-flex");
-            AppendToClassAttr(attributes, "flex-column");
-            AppendToClassAttr(attributes, "flex-shrink-0");
-            AppendToClassAttr(attributes, "bg-light");
-            AppendToClassAttr(attributes, "border-end");
-
-            // Determine vertical sidebar state classes and width
-            if (!VerticalBarVisible)
+            BuildStyleAttribute(attributes, (ref PooledStringBuilder sty) =>
             {
-                AppendToClassAttr(attributes, "sidebar-hidden");
-                AppendStyleDeclAttr(attributes, "width: 0px");
-            }
-            else if (CollapseMode == BarCollapseMode.Small && _verticalBarCollapsed)
-            {
-                AppendToClassAttr(attributes, "sidebar-collapsed");
-                AppendStyleDeclAttr(attributes, "width: 60px");
-            }
-            else
-            {
-                AppendStyleDeclAttr(attributes, "width: 250px");
-            }
+                if (!VerticalBarVisible)
+                    AppendStyleDecl(ref sty, "width: 0px");
+                else if (CollapseMode == BarCollapseMode.Small && _verticalBarCollapsed)
+                    AppendStyleDecl(ref sty, "width: 60px");
+                else
+                    AppendStyleDecl(ref sty, "width: 250px");
 
-            AppendStyleDeclAttr(attributes, "height: 100%");
-
-            // Ensure the vertical nav participates in layout width, not flex-grow
-            AppendStyleDeclAttr(attributes, "flex: 0 0 auto");
+                AppendStyleDecl(ref sty, "height: 100%");
+                AppendStyleDecl(ref sty, "flex: 0 0 auto");
+            });
 
             // Provide a grouping id to act as Bootstrap collapse parent so only one opens at a time
             attributes["id"] = _collapseGroupId;

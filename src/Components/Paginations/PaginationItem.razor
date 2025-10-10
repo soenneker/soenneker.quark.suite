@@ -20,13 +20,15 @@
     {
         var attributes = base.BuildAttributes();
 
-        AppendToClassAttr(attributes, "page-item");
-
-        if (Active)
-            AppendToClassAttr(attributes, "active");
-
-        if (Disabled)
-            AppendToClassAttr(attributes, "disabled");
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "page-item");
+            
+            if (Active)
+                AppendClass(ref cls, "active");
+            if (Disabled)
+                AppendClass(ref cls, "disabled");
+        });
 
         return attributes;
     }

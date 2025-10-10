@@ -50,9 +50,9 @@
     {
         var attributes = base.BuildAttributes();
 
-        var baseClasses = IsHorizontal ? "col-form-label" : "form-label";
-
-        AppendToClassAttr(attributes, baseClasses);
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => 
+            AppendClass(ref cls, IsHorizontal ? "col-form-label" : "form-label")
+        );
 
         if (For.HasContent())
             attributes["for"] = For;

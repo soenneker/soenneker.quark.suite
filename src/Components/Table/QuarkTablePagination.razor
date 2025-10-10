@@ -3,8 +3,8 @@
 
 @if (ShowPagination)
 {
-	<Div Class="quark-table-pagination" @attributes="BuildAttributes()">
-		<Div Class="quark-table-pagination-controls" >
+	<Div @attributes="BuildAttributes()">
+		<Div @attributes="BuildControlsAttributes()" >
 			<Button Class="quark-table-pagination-btn" OnClick="HandleFirstPage" disabled="@(CurrentPage == 1)" title="First" >«</Button>
 			<Button Class="quark-table-pagination-btn" OnClick="HandlePreviousPage" disabled="@(CurrentPage == 1)" title="Previous" >‹</Button>
 
@@ -176,6 +176,20 @@
 		{
 			await OnGoToPage.InvokeAsync(page);
 		}
+	}
+
+	protected override Dictionary<string, object> BuildAttributes()
+	{
+		var attributes = base.BuildAttributes();
+		BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, "quark-table-pagination"));
+		return attributes;
+	}
+
+	private Dictionary<string, object> BuildControlsAttributes()
+	{
+		var attributes = new Dictionary<string, object>();
+		BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, "quark-table-pagination-controls"));
+		return attributes;
 	}
 
 }

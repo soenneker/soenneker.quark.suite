@@ -2,7 +2,7 @@
 @inherits Soenneker.Quark.Element
 @implements IAccordionBody
 
-<Div Class="@BodyClass" @attributes="BuildAttributes()">
+<Div @attributes="BuildAttributes()">
     <Div Class="accordion-body">
         @ChildContent
     </Div>
@@ -22,19 +22,18 @@
 
     private bool IsExpanded => ParentAccordionItem?.IsExpanded ?? Expanded;
 
-    private string BodyClass
+    protected override Dictionary<string, object> BuildAttributes()
     {
-        get
-        {
-            var classes = "accordion-collapse collapse";
-            if (IsExpanded) classes += " show";
-            return classes;
-        }
-    }
+        var attributes = base.BuildAttributes();
 
-    private IReadOnlyDictionary<string, object> BuildBodyAttributes()
-    {
-        var attributes = new Dictionary<string, object>();
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "accordion-collapse");
+            AppendClass(ref cls, "collapse");
+            
+            if (IsExpanded)
+                AppendClass(ref cls, "show");
+        });
 
         if (ParentAccordionItem?.Name.HasContent() == true)
         {
@@ -44,20 +43,6 @@
         if (ParentAccordion?.Id.HasContent() == true)
         {
             attributes["data-bs-parent"] = $"#{ParentAccordion.Id}";
-        }
-
-        return attributes;
-    }
-
-    protected override Dictionary<string, object> BuildAttributes()
-    {
-        var attributes = base.BuildAttributes();
-
-        // Merge body-specific attributes
-        var bodyAttrs = BuildBodyAttributes();
-        foreach (var kvp in bodyAttrs)
-        {
-            attributes[kvp.Key] = kvp.Value;
         }
 
         return attributes;

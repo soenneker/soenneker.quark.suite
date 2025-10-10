@@ -166,22 +166,22 @@
     {
         var attributes = base.BuildAttributes();
 
-        // Add Input-specific attributes
-        var baseClasses = PlainText ? "form-control-plaintext" : "form-control";
-        var colorClass = GetColorClass();
-        var sizeClass = GetSizeClass();
-        var validationClass = GetValidationClass();
-
-        if (colorClass != null)
-            baseClasses = $"{baseClasses} {colorClass}";
-
-        if (sizeClass != null)
-            baseClasses = $"{baseClasses} {sizeClass}";
-
-        if (validationClass != null)
-            baseClasses = $"{baseClasses} {validationClass}";
-
-        AppendToClassAttr(attributes, baseClasses);
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, PlainText ? "form-control-plaintext" : "form-control");
+            
+            var colorClass = GetColorClass();
+            if (colorClass != null)
+                AppendClass(ref cls, colorClass);
+                
+            var sizeClass = GetSizeClass();
+            if (sizeClass != null)
+                AppendClass(ref cls, sizeClass);
+                
+            var validationClass = GetValidationClass();
+            if (validationClass != null)
+                AppendClass(ref cls, validationClass);
+        });
 
         // Add type attribute
         attributes["type"] = GetInputType();

@@ -1,9 +1,7 @@
 @namespace Soenneker.Quark
 @inherits Element
 
-<th @onclick="HandleClick" 
-    class="quark-table-sortable @(Sortable ? GetSortClass() : string.Empty)"
-	style="@(Sortable ? "cursor:pointer;" : string.Empty) @GetAlignStyle() @Style" @attributes="BuildAttributes()">
+<th @onclick="HandleClick" @attributes="BuildAttributes()">
 	@ChildContent @(Sortable ? GetSortIndicator() : string.Empty)
 </th>
 
@@ -77,6 +75,38 @@
 			"right" => "text-align: right;",
 			_ => string.Empty
 		};
+	}
+
+	protected override Dictionary<string, object> BuildAttributes()
+	{
+		var attributes = base.BuildAttributes();
+
+		BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+		{
+			AppendClass(ref cls, "quark-table-sortable");
+			
+			if (Sortable)
+			{
+				var sortClass = GetSortClass();
+				if (sortClass != null)
+					AppendClass(ref cls, sortClass);
+			}
+		});
+
+		var alignStyle = GetAlignStyle();
+		if (Sortable || alignStyle.HasContent())
+		{
+			BuildStyleAttribute(attributes, (ref PooledStringBuilder sty) =>
+			{
+				if (Sortable)
+					AppendStyleDecl(ref sty, "cursor:pointer;");
+				
+				if (alignStyle.HasContent())
+					AppendStyleDecl(ref sty, alignStyle);
+			});
+		}
+
+		return attributes;
 	}
 
 }

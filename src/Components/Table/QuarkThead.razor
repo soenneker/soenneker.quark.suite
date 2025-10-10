@@ -1,10 +1,17 @@
 @namespace Soenneker.Quark
 @inherits Element
 
-<thead class="qt-thead" @attributes="BuildAttributes()">
+<thead @attributes="BuildAttributes()">
     @ChildContent
 </thead>
 
 @code {
 	public override string? ThemeKey { get; set; } = "QuarkThead";
+
+	protected override Dictionary<string, object> BuildAttributes()
+	{
+		var attributes = base.BuildAttributes();
+		BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, "qt-thead"));
+		return attributes;
+	}
 } 

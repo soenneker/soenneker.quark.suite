@@ -23,26 +23,27 @@
     {
         var attributes = base.BuildAttributes();
 
-        AppendToClassAttr(attributes, "dropdown-menu");
-
-        if (Visible)
-            AppendToClassAttr(attributes, "show");
-
-        if (RightAligned)
-            AppendToClassAttr(attributes, "dropdown-menu-end");
-
-        switch (Direction.Value)
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
         {
-            case Direction.UpValue:
-                AppendToClassAttr(attributes, "dropup");
-                break;
-            case Direction.EndValue:
-                AppendToClassAttr(attributes, "dropend");
-                break;
-            case Direction.StartValue:
-                AppendToClassAttr(attributes, "dropstart");
-                break;
-        }
+            AppendClass(ref cls, "dropdown-menu");
+            
+            if (Visible)
+                AppendClass(ref cls, "show");
+
+            if (RightAligned)
+                AppendClass(ref cls, "dropdown-menu-end");
+                
+            var directionClass = Direction.Value switch
+            {
+                Direction.UpValue => "dropup",
+                Direction.EndValue => "dropend",
+                Direction.StartValue => "dropstart",
+                _ => null
+            };
+            
+            if (directionClass != null)
+                AppendClass(ref cls, directionClass);
+        });
 
         return attributes;
     }
