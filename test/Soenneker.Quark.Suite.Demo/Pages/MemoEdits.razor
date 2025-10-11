@@ -17,6 +17,52 @@
     <Row Gap="Gap.Is4">
         <Column>
             <Div>
+                <H2>🧪 BINDING TEST SECTION</H2>
+                <Alert Color="Color.Info" Margin="Margin.Is3.FromEnd">
+                    <strong>Test Instructions:</strong> Type in the fields below or click "Load Test Data" to verify binding works.
+                </Alert>
+
+<div class="mb-4 p-3 bg-light rounded">
+    <H3 Margin="Margin.Is3.FromBottom">Two-Way Binding Test</H3>
+    
+    <Div Margin="Margin.Is3.FromBottom">
+        <Label For="testMemo1" Class="form-label fw-bold">Test Memo 1:</Label>
+        <MemoEdit Id="testMemo1" 
+                  Placeholder="Type something here..." 
+                  @bind-Value="_testMemo1" />
+        <div class="mt-2 p-2 bg-white rounded">
+            <strong>Bound Value:</strong> <code>@(_testMemo1 ?? "(empty)")</code>
+        </div>
+    </Div>
+
+    <Div Margin="Margin.Is3.FromBottom">
+        <Label For="testMemo2" Class="form-label fw-bold">Test Memo 2 (Pre-populated):</Label>
+        <MemoEdit Id="testMemo2" 
+                  Placeholder="Type something here..." 
+                  @bind-Value="_testMemo2" 
+                  Rows="5" />
+        <div class="mt-2 p-2 bg-white rounded">
+            <strong>Bound Value:</strong> <code>@(_testMemo2 ?? "(empty)")</code>
+        </div>
+    </Div>
+
+    <Div Margin="Margin.Is3.FromTop">
+        <Button Color="Color.Primary" OnClick="LoadMemoTestData" Margin="Margin.Is2.FromEnd">Load Test Data</Button>
+        <Button Color="Color.Secondary" OnClick="ClearMemoTestData" Margin="Margin.Is2.FromEnd">Clear Test Data</Button>
+        <Button Color="Color.Warning" OnClick="UpdateMemoTestData">Update to Random Values</Button>
+    </Div>
+    
+    <div class="mt-3 p-3 bg-success bg-opacity-10 rounded">
+        <H4>Test Results:</H4>
+        <ul class="mb-0">
+            <li><strong>Memo 1:</strong> @(_testMemo1 ?? "(not set)")</li>
+            <li><strong>Memo 2:</strong> @(_testMemo2 ?? "(not set)")</li>
+        </ul>
+    </div>
+</div>
+
+<Hr />
+
                 <H2>Basic Usage</H2>
                 <H3>Default MemoEdit</H3>
                 <MemoEdit @bind-Value="basicValue" Placeholder="Enter your text here..."/>
@@ -161,6 +207,10 @@
 </Container>
 
 @code {
+    // Binding Test Fields
+    private string? _testMemo1;
+    private string? _testMemo2 = "Initial text for Memo 2\nThis has multiple lines\nTo test binding better";
+
     private string? basicValue;
     private string? smallValue;
     private string? largeValue;
@@ -192,6 +242,27 @@
     protected override void OnInitialized()
     {
         Logger.LogInformation("MemoEdits demo page initialized");
+    }
+
+    private void LoadMemoTestData()
+    {
+        _testMemo1 = "Test Data 1 - Loaded\nThis is a multi-line\ntest value";
+        _testMemo2 = "Test Data 2 - Loaded\nWith even more lines\nTo verify binding\nWorks correctly";
+        Logger.LogInformation("Memo test data loaded");
+    }
+    
+    private void ClearMemoTestData()
+    {
+        _testMemo1 = null;
+        _testMemo2 = null;
+        Logger.LogInformation("Memo test data cleared");
+    }
+    
+    private void UpdateMemoTestData()
+    {
+        _testMemo1 = $"Random-{Guid.NewGuid().ToString()[..8]}\nUpdated at {DateTime.Now:HH:mm:ss}";
+        _testMemo2 = $"Random-{Guid.NewGuid().ToString()[..8]}\nMulti-line content\nUpdated at {DateTime.Now:HH:mm:ss}";
+        Logger.LogInformation("Memo test data updated with random values");
     }
 
     private void OnChangeHandler(ChangeEventArgs e)

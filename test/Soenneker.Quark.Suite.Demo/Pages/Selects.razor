@@ -11,6 +11,61 @@
     </Row>
 
     <Row>
+        <Column>
+            <H2>🧪 BINDING TEST SECTION</H2>
+            <Alert Color="Color.Info" Margin="Margin.Is3.FromEnd">
+                <strong>Test Instructions:</strong> Select options below or click "Load Test Data" to verify binding works.
+            </Alert>
+
+<div class="mb-4 p-3 bg-light rounded">
+    <H3 Margin="Margin.Is3.FromBottom">Two-Way Binding Test</H3>
+    
+    <Div Margin="Margin.Is3.FromBottom">
+        <Label For="testSelect1" Class="form-label fw-bold">Test Select 1 (String):</Label>
+        <Select TValue="string" Id="testSelect1" @bind-SelectedValue="_testSelect1" DefaultItemText="Select an option...">
+            <SelectItem TValue="string" Value="@("option1")" Text="Option 1" />
+            <SelectItem TValue="string" Value="@("option2")" Text="Option 2" />
+            <SelectItem TValue="string" Value="@("option3")" Text="Option 3" />
+            <SelectItem TValue="string" Value="@("option4")" Text="Option 4" />
+        </Select>
+        <div class="mt-2 p-2 bg-white rounded">
+            <strong>Bound Value:</strong> <code>@(_testSelect1 ?? "(empty)")</code>
+        </div>
+    </Div>
+
+    <Div Margin="Margin.Is3.FromBottom">
+        <Label For="testSelect2" Class="form-label fw-bold">Test Select 2 (Int, Pre-populated with 2):</Label>
+        <Select TValue="int" Id="testSelect2" @bind-SelectedValue="_testSelect2" DefaultItemText="Select a number...">
+            <SelectItem TValue="int" Value="1" Text="One" />
+            <SelectItem TValue="int" Value="2" Text="Two" />
+            <SelectItem TValue="int" Value="3" Text="Three" />
+            <SelectItem TValue="int" Value="4" Text="Four" />
+        </Select>
+        <div class="mt-2 p-2 bg-white rounded">
+            <strong>Bound Value:</strong> <code>@_testSelect2</code>
+        </div>
+    </Div>
+
+    <Div Margin="Margin.Is3.FromTop">
+        <Button Color="Color.Primary" OnClick="LoadSelectTestData" Margin="Margin.Is2.FromEnd">Load Test Data</Button>
+        <Button Color="Color.Secondary" OnClick="ClearSelectTestData" Margin="Margin.Is2.FromEnd">Clear Test Data</Button>
+        <Button Color="Color.Warning" OnClick="UpdateSelectTestData">Update to Different Values</Button>
+    </Div>
+    
+    <div class="mt-3 p-3 bg-success bg-opacity-10 rounded">
+        <H4>Test Results:</H4>
+        <ul class="mb-0">
+            <li><strong>Select 1 (string):</strong> @(_testSelect1 ?? "(not set)")</li>
+            <li><strong>Select 2 (int):</strong> @_testSelect2</li>
+        </ul>
+    </div>
+</div>
+
+<Hr />
+        </Column>
+    </Row>
+
+    <Row>
         <Column ColumnSize="@ColumnSize.Is6.OnTablet">
             <Card>
                 <CardHeader>
@@ -162,10 +217,33 @@
 </Container>
 
 @code {
+    // Binding Test Fields
+    private string? _testSelect1;
+    private int _testSelect2 = 2;
+
     private string? selectedCountry;
     private string? selectedCity;
     private int selectedNumber;
     private string? selectedFramework;
     private string? disabledValue = "option1";
     private string? requiredValue;
+
+    private void LoadSelectTestData()
+    {
+        _testSelect1 = "option3";
+        _testSelect2 = 4;
+    }
+    
+    private void ClearSelectTestData()
+    {
+        _testSelect1 = null;
+        _testSelect2 = 0;
+    }
+    
+    private void UpdateSelectTestData()
+    {
+        var options = new[] { "option1", "option2", "option3", "option4" };
+        _testSelect1 = options[new Random().Next(options.Length)];
+        _testSelect2 = new Random().Next(1, 5);
+    }
 }

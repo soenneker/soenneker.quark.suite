@@ -1,3 +1,4 @@
+@using System.Linq.Expressions
 @using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
@@ -5,7 +6,7 @@
 @implements Soenneker.Quark.IValidationInput
 @implements IMemoEdit
 
-<textarea @attributes="BuildAttributes()">@Value</textarea>
+<textarea value="@Value" @oninput="HandleInput" @onchange="HandleChange" @attributes="BuildAttributes()"></textarea>
 
 @code {
     public override string? ThemeKey { get; set; } = "MemoEdit";
@@ -47,6 +48,9 @@
 	public EventCallback<string?> ValueChanged { get; set; }
 
 	[Parameter]
+	public Expression<Func<string?>>? ValueExpression { get; set; }
+
+	[Parameter]
 	public EventCallback<ChangeEventArgs> OnChange { get; set; }
 
 	[Parameter]
@@ -55,18 +59,41 @@
 	[CascadingParameter]
 	public Validation? ParentValidation { get; set; }
 
-	public object? ValidationValue => Value;
+    public object? ValidationValue => Value;
+    private string? _lastValue;
+    private bool _valueChanged;
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && ParentValidation is not null)
 		{
 			await ParentValidation.InitializeInput(this);
+			
+			if (ValueExpression is not null)
+				await ParentValidation.InitializeInputExpression(ValueExpression);
+			
 			ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
 		}
 
-		await base.OnAfterRenderAsync(firstRender);
+        _valueChanged = false;
+        await base.OnAfterRenderAsync(firstRender);
 	}
+
+    protected override void OnParametersSet()
+    {
+        if (!string.Equals(Value, _lastValue, StringComparison.Ordinal))
+        {
+            _valueChanged = true;
+            _lastValue = Value;
+        }
+
+        base.OnParametersSet();
+    }
+
+    protected override bool ShouldRender()
+    {
+        return _valueChanged || base.ShouldRender();
+    }
 
 	private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
 	{
@@ -172,17 +199,18 @@
 		if (AutoResize)
 			BuildStyleAttribute(attributes, (ref PooledStringBuilder sty) => AppendStyleDecl(ref sty, "resize: vertical; min-height: 60px;"));
 
-		// Wire input/change events
-		attributes["oninput"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleInput);
-		attributes["onchange"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleChange);
-
 		return attributes;
 	}
 
-	private async Task HandleInput(ChangeEventArgs e)
+    private async Task HandleInput(ChangeEventArgs e)
 	{
-		Value = e?.Value?.ToString() ?? string.Empty;
-		await ValueChanged.InvokeIfHasDelegate(Value);
+		var newValue = e?.Value?.ToString() ?? string.Empty;
+		if (Value != newValue)
+		{
+			Value = newValue;
+			await ValueChanged.InvokeAsync(Value);
+            _valueChanged = true;
+		}
 
 		if (OnInput.HasDelegate)
 			await OnInput.InvokeIfHasDelegate(e);
@@ -190,20 +218,26 @@
 		if (ParentValidation is not null)
 		{
 			ParentValidation.MarkTouched();
-			await ParentValidation.NotifyInputChanged(Value ?? string.Empty);
+			await ParentValidation.NotifyInputChanged(Value);
 		}
 	}
 
-	private async Task HandleChange(ChangeEventArgs e)
+    private async Task HandleChange(ChangeEventArgs e)
 	{
-		Value = e?.Value?.ToString() ?? string.Empty;
-		await ValueChanged.InvokeIfHasDelegate(Value);
+		var newValue = e?.Value?.ToString() ?? string.Empty;
+		if (Value != newValue)
+		{
+			Value = newValue;
+			await ValueChanged.InvokeAsync(Value);
+            _valueChanged = true;
+		}
+
 		await OnChange.InvokeIfHasDelegate(e);
 
 		if (ParentValidation is not null)
 		{
 			ParentValidation.MarkTouched();
-			await ParentValidation.NotifyInputChanged(Value ?? string.Empty);
+			await ParentValidation.NotifyInputChanged(Value);
 		}
 	}
 

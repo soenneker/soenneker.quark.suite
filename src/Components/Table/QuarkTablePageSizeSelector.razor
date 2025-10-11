@@ -39,6 +39,9 @@
 	{
 		if (int.TryParse(e.Value?.ToString(), out var size) && size != PageSize)
 		{
+			// Update PageSize for binding
+			PageSize = size;
+
 			// First, try to use the QuarkTable if available
 			if (QuarkTable != null)
 			{
@@ -46,7 +49,8 @@
 				// We just need to trigger a manual request
 				await QuarkTable.HandleGoToPage(1); // Reset to first page
 			}
-			else if (PageSizeChanged.HasDelegate)
+			
+			if (PageSizeChanged.HasDelegate)
 			{
 				await PageSizeChanged.InvokeAsync(size);
 			}

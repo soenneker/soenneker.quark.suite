@@ -18,7 +18,7 @@ public interface IDateEdit : IInput
     /// <summary>
     /// Gets or sets the expression that identifies the bound DateTime value for validation.
     /// </summary>
-    Expression<Func<DateTime>>? DateExpression { get; set; }
+    Expression<Func<DateTime?>>? DateExpression { get; set; }
 
     /// <summary>
     /// Gets or sets the DateOnly value.
@@ -28,7 +28,7 @@ public interface IDateEdit : IInput
     /// <summary>
     /// Gets or sets the expression that identifies the bound DateOnly value for validation.
     /// </summary>
-    Expression<Func<DateOnly>>? DateOnlyExpression { get; set; }
+    Expression<Func<DateOnly?>>? DateOnlyExpression { get; set; }
 
     /// <summary>
     /// Gets or sets the minimum DateTime value allowed.

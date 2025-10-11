@@ -11,7 +11,7 @@
 @inject IDatePickerInterop DatePickerInterop
 
 <Div OnElementRefReady="HandleContainerRefReady" @attributes="GetContainerAttributes()">
-    <input @ref="_ref" type="text" @attributes="BuildAttributes()" />
+    <input @ref="_ref" type="text" value="@(Value.HasValue ? FormatDisplay(Value.Value) : "")" @attributes="BuildAttributes()" />
 
     @if (_open)
     {
@@ -125,6 +125,8 @@
     private int _minute; // 0-59
     private bool _isAm;
     private const int MinuteStep = 1;
+    private DateTime? _lastValue;
+    private bool _valueChanged;
 
     private static DateTime? Parse(ChangeEventArgs e)
     {
@@ -154,6 +156,8 @@
 
         if (ParentValidation is not null)
             await ParentValidation.NotifyInputChanged(Value);
+
+        _valueChanged = true;
     }
 
     private async Task HandleChange(ChangeEventArgs e)
@@ -164,6 +168,8 @@
 
         if (ParentValidation is not null)
             await ParentValidation.NotifyInputChanged(Value);
+
+        _valueChanged = true;
     }
 
     private string? GetSizeClass()
@@ -228,7 +234,24 @@
             StateHasChanged();
         }
 
+        _valueChanged = false;
         await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Value != _lastValue)
+        {
+            _valueChanged = true;
+            _lastValue = Value;
+        }
+
+        base.OnParametersSet();
+    }
+
+    protected override bool ShouldRender()
+    {
+        return _valueChanged || base.ShouldRender();
     }
 
     private static string FormatDisplay(DateTime dt) => dt.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
@@ -252,9 +275,6 @@
             if (validationClass != null)
                 AppendClass(ref cls, validationClass);
         });
-
-        if (Value.HasValue)
-            attributes["value"] = FormatDisplay(Value.Value);
 
         if (Placeholder.HasContent())
             attributes["placeholder"] = Placeholder!;
@@ -371,12 +391,21 @@
     {
         var date = _pendingDate ?? (Value.HasValue ? DateOnly.FromDateTime(Value.Value) : DateOnly.FromDateTime(DateTime.Today));
         var dt = new DateTime(date.Year, date.Month, date.Day, _hour, _minute, 0);
-        Value = dt;
+        
         return InvokeAsync(async () =>
         {
-            await ValueChanged.InvokeIfHasDelegate(Value);
+            if (Value != dt)
+            {
+                Value = dt;
+                await ValueChanged.InvokeAsync(Value);
+                _valueChanged = true;
+            }
+            
             if (ParentValidation is not null)
+            {
+                ParentValidation.MarkTouched();
                 await ParentValidation.NotifyInputChanged(Value);
+            }
         });
     }
 

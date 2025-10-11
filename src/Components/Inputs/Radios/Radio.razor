@@ -10,7 +10,7 @@
 @if (ChildContent != null)
 {
     <div @attributes="BuildWrapperAttributes()">
-        <input id="@Id" type="radio" @attributes="BuildAttributes()" />
+        <input id="@Id" type="radio" checked="@Checked" @onchange="HandleChange" @attributes="BuildAttributes()" />
         <label class="form-check-label" for="@Id">
             @ChildContent
         </label>
@@ -18,7 +18,7 @@
 }
 else
 {
-    <input type="radio" @attributes="BuildAttributes()" />
+    <input type="radio" checked="@Checked" @onchange="HandleChange" @attributes="BuildAttributes()" />
 }
 
 @code {
@@ -60,6 +60,8 @@ else
     public object? ValidationValue => Checked;
 
     private bool _initialized;
+    private bool _lastChecked;
+    private bool _checkedChanged;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -77,7 +79,24 @@ else
                 await ParentValidation.InitializeInputExpression(CheckedExpression);
         }
 
+        _checkedChanged = false;
         await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Checked != _lastChecked)
+        {
+            _checkedChanged = true;
+            _lastChecked = Checked;
+        }
+
+        base.OnParametersSet();
+    }
+
+    protected override bool ShouldRender()
+    {
+        return _checkedChanged || base.ShouldRender();
     }
 
     private Dictionary<string, object> BuildWrapperAttributes()
@@ -112,13 +131,21 @@ else
 
     private async Task HandleChange(ChangeEventArgs e)
     {
-        Checked = true;
-        await CheckedChanged.InvokeIfHasDelegate(Checked);
+        if (!Checked)
+        {
+            Checked = true;
+            await CheckedChanged.InvokeAsync(Checked);
+            _checkedChanged = true;
+            StateHasChanged();
+        }
 
         await OnChange.InvokeIfHasDelegate(e);
 
         if (ParentValidation is not null)
+        {
+            ParentValidation.MarkTouched();
             await ParentValidation.NotifyInputChanged(Checked);
+        }
     }
 
     protected override Dictionary<string, object> BuildAttributes()
@@ -138,9 +165,6 @@ else
                 AppendClass(ref cls, validationClass);
         });
 
-        if (Checked)
-            attributes["checked"] = true;
-
         if (Disabled)
             attributes["disabled"] = true;
 
@@ -149,9 +173,6 @@ else
 
         if (Name.HasContent())
             attributes["name"] = Name;
-
-        // Keep Checked in sync when the user changes selection
-        attributes["onchange"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleChange);
 
         return attributes;
     }

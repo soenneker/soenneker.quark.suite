@@ -11,7 +11,7 @@
 @inject IDatePickerInterop DatePickerInterop
 
 <Div OnElementRefReady="HandleContainerRefReady" @attributes="GetContainerAttributes()">
-    <input @ref="_ref" type="text" @attributes="BuildAttributes()" />
+    <input @ref="_ref" type="text" value="@(Value.HasValue ? Value.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : "")" @attributes="BuildAttributes()" />
 
     @if (_open)
     {
@@ -101,6 +101,8 @@
     private bool _open;
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
     private string[] _dayNames = [];
+    private DateOnly? _lastValue;
+    private bool _valueChanged;
 
     private static DateOnly? Parse(ChangeEventArgs e)
     {
@@ -122,6 +124,8 @@
 
         if (ParentValidation is not null)
             await ParentValidation.NotifyInputChanged(Value);
+
+        _valueChanged = true;
     }
 
     private async Task HandleChange(ChangeEventArgs e)
@@ -132,6 +136,8 @@
 
         if (ParentValidation is not null)
             await ParentValidation.NotifyInputChanged(Value);
+
+        _valueChanged = true;
     }
 
     private string? GetSizeClass()
@@ -177,6 +183,7 @@
             await DatePickerInterop.Attach(_ref);
         }
 
+        _valueChanged = false;
         await base.OnAfterRenderAsync(firstRender);
 
         if (firstRender)
@@ -190,6 +197,22 @@
                 _displayMonth = new DateOnly(DateOnly.FromDateTime(DateTime.Today).Year, DateOnly.FromDateTime(DateTime.Today).Month, 1);
             StateHasChanged();
         }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Value != _lastValue)
+        {
+            _valueChanged = true;
+            _lastValue = Value;
+        }
+
+        base.OnParametersSet();
+    }
+
+    protected override bool ShouldRender()
+    {
+        return _valueChanged || base.ShouldRender();
     }
 
     protected override Dictionary<string, object> BuildAttributes()
@@ -210,9 +233,6 @@
             if (validationClass != null)
                 AppendClass(ref cls, validationClass);
         });
-
-        if (Value.HasValue)
-            attributes["value"] = Value.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
         if (Placeholder.HasContent())
             attributes["placeholder"] = Placeholder!;
@@ -328,10 +348,19 @@
         if ((Min.HasValue && date < Min.Value) || (Max.HasValue && date > Max.Value))
             return;
 
-        Value = date;
-        await ValueChanged.InvokeIfHasDelegate(Value);
+        if (Value != date)
+        {
+            Value = date;
+            await ValueChanged.InvokeAsync(Value);
+            _valueChanged = true;
+        }
+        
         if (ParentValidation is not null)
+        {
+            ParentValidation.MarkTouched();
             await ParentValidation.NotifyInputChanged(Value);
+        }
+        
         await ClosePanel();
     }
 

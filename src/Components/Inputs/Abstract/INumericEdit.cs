@@ -33,9 +33,4 @@ public interface INumericEdit : IInput
     /// Gets or sets the callback invoked when the value changes.
     /// </summary>
     EventCallback<decimal?> ValueChanged { get; set; }
-
-    /// <summary>
-    /// Gets or sets the expression that identifies the bound value for validation.
-    /// </summary>
-    Expression<Func<decimal?>>? ValueExpression { get; set; }
 }

@@ -67,7 +67,8 @@
 	public Validation? ParentValidation { get; set; }
 
 	private Input? inputComponent;
-
+	private double _lastValue;
+	private bool _valueChanged;
 	public object? ValidationValue => Value;
 
 	public string? GetValidationClass()
@@ -135,15 +136,25 @@
 
 	private async Task HandleInput(ChangeEventArgs e)
 	{
-		Value = ParseDouble(e);
-		await ValueChanged.InvokeIfHasDelegate(Value);
+		var newValue = ParseDouble(e);
+		if (Value != newValue)
+		{
+			Value = newValue;
+			await ValueChanged.InvokeAsync(Value);
+			_valueChanged = true;
+		}
 		await OnInput.InvokeIfHasDelegate(e);
 	}
 
 	private async Task HandleChange(ChangeEventArgs e)
 	{
-		Value = ParseDouble(e);
-		await ValueChanged.InvokeIfHasDelegate(Value);
+		var newValue = ParseDouble(e);
+		if (Value != newValue)
+		{
+			Value = newValue;
+			await ValueChanged.InvokeAsync(Value);
+			_valueChanged = true;
+		}
 		await OnChange.InvokeIfHasDelegate(e);
 	}
 
@@ -154,7 +165,24 @@
 			await ParentValidation.InitializeInputExpression(ValueExpression);
 		}
 
+		_valueChanged = false;
 		await base.OnAfterRenderAsync(firstRender);
+	}
+
+	protected override void OnParametersSet()
+	{
+		if (!Value.Equals(_lastValue))
+		{
+			_valueChanged = true;
+			_lastValue = Value;
+		}
+
+		base.OnParametersSet();
+	}
+
+	protected override bool ShouldRender()
+	{
+		return _valueChanged || base.ShouldRender();
 	}
 
 	private Dictionary<string, object> BuildInputAttributes()

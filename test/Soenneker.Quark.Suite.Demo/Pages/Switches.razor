@@ -8,6 +8,54 @@
         </Div>
     </Div>
 
+    <!-- Binding Test Section -->
+    <Div class="row mb-4">
+        <Div class="col-12">
+            <H2>🧪 BINDING TEST SECTION</H2>
+            <Alert Color="Color.Info" Margin="Margin.Is3.FromEnd">
+                <strong>Test Instructions:</strong> Toggle switches below or click "Load Test Data" to verify binding works.
+            </Alert>
+
+            <div class="mb-4 p-3 bg-light rounded">
+                <H3 Margin="Margin.Is3.FromBottom">Two-Way Binding Test</H3>
+                
+                <Div Margin="Margin.Is3.FromBottom">
+                    <Switch @bind-Checked="_testSwitch1">
+                        Test Switch 1
+                    </Switch>
+                    <div class="mt-2 p-2 bg-white rounded">
+                        <strong>Bound Value:</strong> <code>@_testSwitch1</code>
+                    </div>
+                </Div>
+
+                <Div Margin="Margin.Is3.FromBottom">
+                    <Switch @bind-Checked="_testSwitch2">
+                        Test Switch 2 (Pre-enabled)
+                    </Switch>
+                    <div class="mt-2 p-2 bg-white rounded">
+                        <strong>Bound Value:</strong> <code>@_testSwitch2</code>
+                    </div>
+                </Div>
+
+                <Div Margin="Margin.Is3.FromTop">
+                    <Button Color="Color.Primary" OnClick="LoadSwitchTestData" Margin="Margin.Is2.FromEnd">Load Test Data (Enable All)</Button>
+                    <Button Color="Color.Secondary" OnClick="ClearSwitchTestData" Margin="Margin.Is2.FromEnd">Clear Test Data (Disable All)</Button>
+                    <Button Color="Color.Warning" OnClick="ToggleSwitchTestData">Toggle Values</Button>
+                </Div>
+                
+                <div class="mt-3 p-3 bg-success bg-opacity-10 rounded">
+                    <H4>Test Results:</H4>
+                    <ul class="mb-0">
+                        <li><strong>Switch 1:</strong> @_testSwitch1</li>
+                        <li><strong>Switch 2:</strong> @_testSwitch2</li>
+                    </ul>
+                </div>
+            </div>
+
+            <Hr />
+        </Div>
+    </Div>
+
     <!-- ChildContent Support (New) -->
     <Div class="row mb-4">
         <Div class="col-12">
@@ -230,6 +278,10 @@
 </Div>
 
 @code {
+    // Binding Test Fields
+    private bool _testSwitch1;
+    private bool _testSwitch2 = true;
+
     // ChildContent examples
     private bool childContentChecked;
     private bool childContentChecked2 = true;
@@ -263,6 +315,24 @@
 
     // Interactive demo
     private bool masterSwitch;
+
+    private void LoadSwitchTestData()
+    {
+        _testSwitch1 = true;
+        _testSwitch2 = true;
+    }
+    
+    private void ClearSwitchTestData()
+    {
+        _testSwitch1 = false;
+        _testSwitch2 = false;
+    }
+    
+    private void ToggleSwitchTestData()
+    {
+        _testSwitch1 = !_testSwitch1;
+        _testSwitch2 = !_testSwitch2;
+    }
 
     private void OnSwitchClick(MouseEventArgs e)
     {

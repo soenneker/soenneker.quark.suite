@@ -8,7 +8,7 @@
 @inject ISwitchInterop SwitchInterop
 
 <Div @attributes="BuildWrapperAttributes()" >
-    <input id="@_inputId" type="checkbox" @attributes="BuildInputAttributes()" />
+    <input id="@_inputId" type="checkbox" checked="@Checked" @onclick="HandleClick" @onchange="HandleChange" @attributes="BuildInputAttributes()" />
     @if (ChildContent != null)
     {
         <Label @attributes="BuildLabelAttributes()">@ChildContent</Label>
@@ -51,6 +51,8 @@
     public object? ValidationValue => Checked;
 
     private bool _initialized;
+    private bool _lastChecked;
+    private bool _checkedChanged;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -68,7 +70,24 @@
             await ParentValidation.InitializeInput(this);
         }
 
+        _checkedChanged = false; // reset after render
         await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Checked != _lastChecked)
+        {
+            _checkedChanged = true;
+            _lastChecked = Checked;
+        }
+
+        base.OnParametersSet();
+    }
+
+    protected override bool ShouldRender()
+    {
+        return _checkedChanged || base.ShouldRender();
     }
 
     private string? GetColorClass()
@@ -168,13 +187,8 @@
             BuildStyleAttribute(attributes, (ref PooledStringBuilder sty) => AppendStyleDecl(ref sty, $"border-color:{v}"));
         }
 
-        if (Checked)
-            attributes["checked"] = true;
-
         if (Disabled)
             attributes["disabled"] = true;
-
-        attributes["onchange"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleChange);
 
         return attributes;
     }
@@ -189,18 +203,29 @@
         return null;
     }
 
-    private async Task HandleChange(ChangeEventArgs e)
+    private new async Task HandleClick(MouseEventArgs args)
     {
-        if (e.Value is bool value)
-        {
-            Checked = value;
-            await CheckedChanged.InvokeIfHasDelegate(Checked);
-        }
+        if (Disabled)
+            return;
 
-        await OnChange.InvokeIfHasDelegate(e);
+        // Toggle the checked state
+        Checked = !Checked;
+        await CheckedChanged.InvokeAsync(Checked);
+
+        _checkedChanged = true;
+        StateHasChanged();
 
         if (ParentValidation is not null)
+        {
+            ParentValidation.MarkTouched();
             await ParentValidation.NotifyInputChanged(Checked);
+        }
+    }
+
+    private async Task HandleChange(ChangeEventArgs e)
+    {
+        // This is called after onclick, primarily for OnChange event callback
+        await OnChange.InvokeIfHasDelegate(e);
     }
 
 

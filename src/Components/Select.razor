@@ -7,7 +7,7 @@
 @implements Soenneker.Quark.IValidationInput
 @implements ISelect<TValue>
 
-<select @attributes="BuildAttributes()">
+<select value="@SelectedValue?.ToString()" @onchange="HandleChange" @attributes="BuildAttributes()">
     @if (DefaultItemText.HasContent())
     {
         <option value="@GetDefaultItemValueString()" selected="@IsDefaultItemSelected()">@DefaultItemText</option>
@@ -55,6 +55,8 @@
     public Validation? ParentValidation { get; set; }
 
     public object? ValidationValue => SelectedValue;
+    private TValue? _lastSelected;
+    private bool _valueChanged;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -68,6 +70,7 @@
             ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
 
+        _valueChanged = false;
         await base.OnAfterRenderAsync(firstRender);
     }
 
@@ -79,9 +82,13 @@
     private async Task HandleChange(ChangeEventArgs e)
     {
         var newValue = ConvertValue(e.Value?.ToString());
-        SelectedValue = newValue;
+        if (!EqualityComparer<TValue>.Default.Equals(SelectedValue, newValue))
+        {
+            SelectedValue = newValue;
+            await SelectedValueChanged.InvokeAsync(SelectedValue);
+            _valueChanged = true;
+        }
 
-        await SelectedValueChanged.InvokeIfHasDelegate(SelectedValue);
         await OnChange.InvokeIfHasDelegate(e);
 
         if (ParentValidation is not null)
@@ -89,6 +96,22 @@
             ParentValidation.MarkTouched();
             await ParentValidation.NotifyInputChanged(SelectedValue);
         }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (!EqualityComparer<TValue>.Default.Equals(SelectedValue, _lastSelected))
+        {
+            _valueChanged = true;
+            _lastSelected = SelectedValue;
+        }
+
+        base.OnParametersSet();
+    }
+
+    protected override bool ShouldRender()
+    {
+        return _valueChanged || base.ShouldRender();
     }
 
     private static TValue? ConvertValue(string? value)
@@ -175,11 +198,6 @@
 
         if (Placeholder.HasContent())
             attributes["placeholder"] = Placeholder;
-
-        if (SelectedValue != null)
-            attributes["value"] = SelectedValue.ToString();
-
-        attributes["onchange"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleChange);
 
         return attributes;
     }

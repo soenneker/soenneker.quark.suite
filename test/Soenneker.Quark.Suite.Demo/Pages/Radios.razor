@@ -15,6 +15,50 @@
     </Row>
 
     <Row>
+        <Column>
+            <H2>🧪 BINDING TEST SECTION</H2>
+            <Alert Color="Color.Info" Margin="Margin.Is3.FromEnd">
+                <strong>Test Instructions:</strong> Select radio buttons below or click "Load Test Data" to verify binding works.
+            </Alert>
+
+            <div class="mb-4 p-3 bg-light rounded">
+                <H3 Margin="Margin.Is3.FromBottom">Two-Way Binding Test</H3>
+                
+                <Div Margin="Margin.Is3.FromBottom">
+                    <Label Class="form-label fw-bold">Test Radio Group 1:</Label>
+                    <Radio Name="testGroup1" Value="test1" Checked="@(_testRadio1 == "test1")" CheckedChanged="@((bool c) => { if (c) _testRadio1 = "test1"; })">
+                        Test Option 1
+                    </Radio>
+                    <Radio Name="testGroup1" Value="test2" Checked="@(_testRadio1 == "test2")" CheckedChanged="@((bool c) => { if (c) _testRadio1 = "test2"; })">
+                        Test Option 2
+                    </Radio>
+                    <Radio Name="testGroup1" Value="test3" Checked="@(_testRadio1 == "test3")" CheckedChanged="@((bool c) => { if (c) _testRadio1 = "test3"; })">
+                        Test Option 3 (Pre-selected)
+                    </Radio>
+                    <div class="mt-2 p-2 bg-white rounded">
+                        <strong>Bound Value:</strong> <code>@(_testRadio1 ?? "(none)")</code>
+                    </div>
+                </Div>
+
+                <Div Margin="Margin.Is3.FromTop">
+                    <Button Color="Color.Primary" OnClick="LoadRadioTestData" Margin="Margin.Is2.FromEnd">Load Test Data (Select Option 2)</Button>
+                    <Button Color="Color.Secondary" OnClick="ClearRadioTestData" Margin="Margin.Is2.FromEnd">Clear Test Data</Button>
+                    <Button Color="Color.Warning" OnClick="UpdateRadioTestData">Select Random Option</Button>
+                </Div>
+                
+                <div class="mt-3 p-3 bg-success bg-opacity-10 rounded">
+                    <H4>Test Results:</H4>
+                    <ul class="mb-0">
+                        <li><strong>Radio Group 1:</strong> @(_testRadio1 ?? "(not set)")</li>
+                    </ul>
+                </div>
+            </div>
+
+            <Hr />
+        </Column>
+    </Row>
+
+    <Row>
         <!-- Basic Usage -->
         <Column ColumnSize="@ColumnSize.Is6.OnLaptop" Margin="Margin.Is4.FromBottom">
             <Card Class="h-100">
@@ -327,6 +371,9 @@
 </Container>
 
 @code {
+    // Binding Test Fields
+    private string? _testRadio1 = "test3";
+
     // Basic usage
     private string _basicSelected = "Option1";
 
@@ -357,6 +404,25 @@
     protected override void OnInitialized()
     {
         Logger.LogInformation("Radios demo page initialized");
+    }
+
+    private void LoadRadioTestData()
+    {
+        _testRadio1 = "test2";
+        Logger.LogInformation("Radio test data loaded - test2 selected");
+    }
+    
+    private void ClearRadioTestData()
+    {
+        _testRadio1 = null;
+        Logger.LogInformation("Radio test data cleared");
+    }
+    
+    private void UpdateRadioTestData()
+    {
+        var options = new[] { "test1", "test2", "test3" };
+        _testRadio1 = options[new Random().Next(options.Length)];
+        Logger.LogInformation("Radio test data updated to {Value}", _testRadio1);
     }
 
     private void SelectBasic(string option)

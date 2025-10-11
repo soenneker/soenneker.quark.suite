@@ -14,11 +14,6 @@ public interface ITextEdit : IInput
     /// Gets or sets the text value.
     /// </summary>
     string? Value { get; set; }
-
-    /// <summary>
-    /// Gets or sets the expression that identifies the bound value for validation.
-    /// </summary>
-    Expression<Func<string>>? ValueExpression { get; set; }
     
     /// <summary>
     /// Gets or sets the maximum number of characters allowed.

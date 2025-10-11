@@ -20,6 +20,12 @@
     public decimal? Value { get; set; }
 
     [Parameter]
+    public EventCallback<decimal?> ValueChanged { get; set; }
+
+    [Parameter]
+    public Expression<Func<decimal?>>? ValueExpression { get; set; }
+
+    [Parameter]
     public decimal? Min { get; set; }
 
     [Parameter]
@@ -27,12 +33,6 @@
 
     [Parameter]
     public decimal? Step { get; set; }
-
-    [Parameter]
-    public EventCallback<decimal?> ValueChanged { get; set; }
-
-    [Parameter]
-    public Expression<Func<decimal?>>? ValueExpression { get; set; }
 
     [Parameter]
     public string? Placeholder { get; set; }
@@ -68,6 +68,8 @@
     public Validation? ParentValidation { get; set; }
 
     private Input? inputComponent;
+    private decimal? _lastValue;
+    private bool _valueChanged;
 
     public object? ValidationValue => Value;
 
@@ -86,8 +88,7 @@
     {
         if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
         {
-            string? token = null;
-            var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
+            var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out var token);
 
             if (isTheme && token is not null)
             {
@@ -139,6 +140,7 @@
         Value = ParseDecimal(e);
         await ValueChanged.InvokeIfHasDelegate(Value);
         await OnInput.InvokeIfHasDelegate(e);
+        _valueChanged = true;
 
         if (ParentValidation is not null)
         {
@@ -152,6 +154,7 @@
         Value = ParseDecimal(e);
         await ValueChanged.InvokeIfHasDelegate(Value);
         await OnChange.InvokeIfHasDelegate(e);
+        _valueChanged = true;
 
         if (ParentValidation is not null)
         {
@@ -168,12 +171,29 @@
             ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
 
+        _valueChanged = false;
         await base.OnAfterRenderAsync(firstRender);
     }
 
     private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
     {
         InvokeAsync(StateHasChanged);
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Value != _lastValue)
+        {
+            _valueChanged = true;
+            _lastValue = Value;
+        }
+
+        base.OnParametersSet();
+    }
+
+    protected override bool ShouldRender()
+    {
+        return _valueChanged || base.ShouldRender();
     }
 
     private Dictionary<string, object> BuildInputAttributes()
