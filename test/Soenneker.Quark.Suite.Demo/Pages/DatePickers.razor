@@ -1,6 +1,6 @@
 @page "/datepickers"
 
-<Container Class="py-4">
+<Container Padding="Padding.Is4.OnY">
     <Row>
         <Column>
             <Div Class="text-center" Margin="Margin.Is5.FromEnd">
@@ -14,45 +14,49 @@
         <Column>
             <Div>
                 <H2>🧪 BINDING TEST SECTION</H2>
-                <Alert Color="Color.Info" Margin="Margin.Is3.FromEnd">
-                    <strong>Test Instructions:</strong> Select dates below or click "Load Test Data" to verify binding works.
+                <Alert BackgroundColor="BackgroundColor.Info" Margin="Margin.Is3.FromEnd">
+                    <Strong>Test Instructions:</Strong> Select dates below or click "Load Test Data" to verify binding works.
                 </Alert>
 
-<div class="mb-4 p-3 bg-light rounded">
-    <H3 Margin="Margin.Is3.FromBottom">Two-Way Binding Test</H3>
-    
-    <Div Margin="Margin.Is3.FromBottom">
-        <Label For="testDatePicker1" Class="form-label fw-bold">Test DatePicker 1:</Label>
-        <DatePicker @bind-Value="_testDatePicker1" />
-        <div class="mt-2 p-2 bg-white rounded">
-            <strong>Bound Value:</strong> <code>@(_testDatePicker1?.ToString("yyyy-MM-dd") ?? "(empty)")</code>
-        </div>
-    </Div>
+                <Div Margin="Margin.Is4.FromBottom" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Light" Class="rounded">
+                    <H3 Margin="Margin.Is3.FromBottom">Two-Way Binding Test</H3>
 
-    <Div Margin="Margin.Is3.FromBottom">
-        <Label For="testDatePicker2" Class="form-label fw-bold">Test DatePicker 2 (Pre-set to today):</Label>
-        <DatePicker @bind-Value="_testDatePicker2" />
-        <div class="mt-2 p-2 bg-white rounded">
-            <strong>Bound Value:</strong> <code>@(_testDatePicker2?.ToString("yyyy-MM-dd") ?? "(empty)")</code>
-        </div>
-    </Div>
+                    <Div Margin="Margin.Is3.FromBottom">
+                        <Label For="testDatePicker1" Class="form-label fw-bold">Test DatePicker 1:</Label>
+                        <DatePicker @bind-Value="_testDatePicker1"/>
+                        <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" Class="rounded">
+                            <Strong>Bound Value:</Strong> <Code>@(_testDatePicker1?.ToString("yyyy-MM-dd") ?? "(empty)")</Code>
+                        </Div>
+                    </Div>
 
-    <Div Margin="Margin.Is3.FromTop">
-        <Button Color="Color.Primary" OnClick="LoadDatePickerTestData" Margin="Margin.Is2.FromEnd">Load Test Data</Button>
-        <Button Color="Color.Secondary" OnClick="ClearDatePickerTestData" Margin="Margin.Is2.FromEnd">Clear Test Data</Button>
-        <Button Color="Color.Warning" OnClick="UpdateDatePickerTestData">Update to Random Dates</Button>
-    </Div>
-    
-    <div class="mt-3 p-3 bg-success bg-opacity-10 rounded">
-        <H4>Test Results:</H4>
-        <ul class="mb-0">
-            <li><strong>DatePicker 1:</strong> @(_testDatePicker1?.ToString("yyyy-MM-dd") ?? "(not set)")</li>
-            <li><strong>DatePicker 2:</strong> @(_testDatePicker2?.ToString("yyyy-MM-dd") ?? "(not set)")</li>
-        </ul>
-    </div>
-</div>
+                    <Div Margin="Margin.Is3.FromBottom">
+                        <Label For="testDatePicker2" Class="form-label fw-bold">Test DatePicker 2 (Pre-set to today):</Label>
+                        <DatePicker @bind-Value="_testDatePicker2"/>
+                        <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" Class="rounded">
+                            <Strong>Bound Value:</Strong> <Code>@(_testDatePicker2?.ToString("yyyy-MM-dd") ?? "(empty)")</Code>
+                        </Div>
+                    </Div>
 
-<Hr />
+                    <Div Margin="Margin.Is3.FromTop">
+                        <Button BackgroundColor="BackgroundColor.Primary" OnClick="LoadDatePickerTestData" Margin="Margin.Is2.FromEnd">Load Test Data</Button>
+                        <Button BackgroundColor="BackgroundColor.Secondary" OnClick="ClearDatePickerTestData" Margin="Margin.Is2.FromEnd">Clear Test Data</Button>
+                        <Button BackgroundColor="BackgroundColor.Warning" OnClick="UpdateDatePickerTestData">Update to Random Dates</Button>
+                    </Div>
+
+                    <Div Margin="Margin.Is3.FromTop" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Success" Class="bg-opacity-10 rounded">
+                        <H4>Test Results:</H4>
+                        <UnorderedList Margin="Margin.Is0.FromBottom">
+                            <UnorderedListItem>
+                                <Strong>DatePicker 1:</Strong> @(_testDatePicker1?.ToString("yyyy-MM-dd") ?? "(not set)")
+                            </UnorderedListItem>
+                            <UnorderedListItem>
+                                <Strong>DatePicker 2:</Strong> @(_testDatePicker2?.ToString("yyyy-MM-dd") ?? "(not set)")
+                            </UnorderedListItem>
+                        </UnorderedList>
+                    </Div>
+                </Div>
+
+                <Hr/>
 
                 <Section Class="mb-4 mb-md-5">
                     <Row Gap="Gap.Is4">
@@ -90,6 +94,7 @@
 </Container>
 
 @code{
+
     // Binding Test Fields
     private DateOnly? _testDatePicker1;
     private DateOnly? _testDatePicker2 = DateOnly.FromDateTime(DateTime.Today);
@@ -105,13 +110,13 @@
         _testDatePicker1 = DateOnly.FromDateTime(new DateTime(2025, 12, 25));
         _testDatePicker2 = DateOnly.FromDateTime(new DateTime(2026, 1, 1));
     }
-    
+
     private void ClearDatePickerTestData()
     {
         _testDatePicker1 = null;
         _testDatePicker2 = null;
     }
-    
+
     private void UpdateDatePickerTestData()
     {
         var random = new Random();

@@ -1,5 +1,3 @@
-using System;
-using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components;
 using Soenneker.Quark.Enums;
 
@@ -13,7 +11,7 @@ public interface ITextEdit : IInput
     /// <summary>
     /// Gets or sets the text value.
     /// </summary>
-    string? Value { get; set; }
+    string? Text { get; set; }
     
     /// <summary>
     /// Gets or sets the maximum number of characters allowed.
@@ -21,9 +19,9 @@ public interface ITextEdit : IInput
     int MaxLength { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the value changes.
+    /// Gets or sets the callback invoked when the text value changes.
     /// </summary>
-    EventCallback<string?> ValueChanged { get; set; }
+    EventCallback<string?> TextChanged { get; set; }
 
     /// <summary>
     /// Gets or sets the input mode hint for mobile keyboards.

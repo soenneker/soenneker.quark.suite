@@ -8,24 +8,24 @@
 <Input @ref="inputComponent"
        Type="@Type"
        @attributes="BuildInputAttributes()"
-       @bind-Value="Value"
-       @bind-Value:expression="ValueExpression"
+       @bind-Value="Text"
+       @bind-Value:expression="TextExpression"
        OnInput="HandleInput"
        OnChange="HandleChange"
-       ValidationValueSelector="@(() => (object?)Value)" />
+       ValidationValueSelector="@(() => (object?)Text)" />
 
 @code {
     public override string? ThemeKey { get; set; } = "TextEdit";
 
     // ===== 2-way binding triplet =====
     [Parameter]
-    public string? Value { get; set; }
+    public string? Text { get; set; }
 
     [Parameter]
-    public EventCallback<string?> ValueChanged { get; set; }
+    public EventCallback<string?> TextChanged { get; set; }
 
     [Parameter]
-    public Expression<Func<string?>>? ValueExpression { get; set; }
+    public Expression<Func<string?>>? TextExpression { get; set; }
 
     // ===== TextEdit surface props =====
     [Parameter]
@@ -74,7 +74,7 @@
     private string? _lastValue;
     private bool _valueChanged;
 
-    public object? ValidationValue => Value;
+    public object? ValidationValue => Text;
 
     public string? GetValidationClass()
     {
@@ -112,9 +112,9 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && ParentValidation is not null && ValueExpression is not null)
+        if (firstRender && ParentValidation is not null && TextExpression is not null)
         {
-            await ParentValidation.InitializeInputExpression(ValueExpression);
+            await ParentValidation.InitializeInputExpression(TextExpression);
             ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
 
@@ -124,10 +124,10 @@
 
     protected override void OnParametersSet()
     {
-        if (!string.Equals(Value, _lastValue, StringComparison.Ordinal))
+        if (!string.Equals(Text, _lastValue, StringComparison.Ordinal))
         {
             _valueChanged = true;
-            _lastValue = Value;
+            _lastValue = Text;
         }
 
         base.OnParametersSet();
@@ -142,29 +142,29 @@
 
     private async Task HandleInput(ChangeEventArgs e)
     {
-        Value = e.Value?.ToString();
-        await ValueChanged.InvokeIfHasDelegate(Value);
+        Text = e.Value?.ToString();
+        await TextChanged.InvokeIfHasDelegate(Text);
         await OnInput.InvokeIfHasDelegate(e);
         _valueChanged = true;
 
         if (ParentValidation is not null)
         {
             ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(Value);
+            await ParentValidation.NotifyInputChanged(Text);
         }
     }
 
     private async Task HandleChange(ChangeEventArgs e)
     {
-        Value = e.Value?.ToString();
-        await ValueChanged.InvokeIfHasDelegate(Value);
+        Text = e.Value?.ToString();
+        await TextChanged.InvokeIfHasDelegate(Text);
         await OnChange.InvokeIfHasDelegate(e);
         _valueChanged = true;
 
         if (ParentValidation is not null)
         {
             ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(Value);
+            await ParentValidation.NotifyInputChanged(Text);
         }
     }
 
