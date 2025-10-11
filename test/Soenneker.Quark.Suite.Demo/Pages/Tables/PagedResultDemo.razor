@@ -17,8 +17,8 @@
             <Div class="col-12 text-center">
                 <Div class="hero-content">
                     <Div class="demo-icon">✨</Div>
-                    <h1 class="demo-title">PagedResult Demo</h1>
-                    <p class="demo-subtitle">Advanced pagination with continuation tokens and comprehensive debug information.</p>
+                    <H1 Class="demo-title">PagedResult Demo</H1>
+                    <Paragraph Class="demo-subtitle">Advanced pagination with continuation tokens and comprehensive debug information.</Paragraph>
                 </Div>
             </Div>
         </Div>
@@ -29,8 +29,8 @@
     <Div class="demo-card">
         <Div class="card-header">
             <Div class="card-header-content">
-                <h3><i class="fas fa-layer-group me-2"></i>Advanced Employee Directory</h3>
-                <p class="text-muted mb-0">This demo shows how QuarkTable works with PagedResult and handles continuation tokens internally.</p>
+                <H3><Icon Name="layer-group" Class="me-2"/>Advanced Employee Directory</H3>
+                <Paragraph Class="text-muted mb-0">This demo shows how QuarkTable works with PagedResult and handles continuation tokens internally.</Paragraph>
             </Div>
         </Div>
         <Div class="card-body">
@@ -41,7 +41,7 @@
                         Options="_tableOptions"
                         TotalRecords="@_totalRecords">
 
-                <QuarkTableSearch Placeholder="Search employees..." />
+                <QuarkTableSearch Placeholder="Search employees..."/>
 
                 <QuarkTableElement>
                     <QuarkThead>
@@ -75,8 +75,8 @@
                 </QuarkTableElement>
 
                 <QuarkTableBottomBar>
-                    <QuarkTableInfo />
-                    <QuarkTablePagination />
+                    <QuarkTableInfo/>
+                    <QuarkTablePagination/>
                 </QuarkTableBottomBar>
 
             </QuarkTable>
@@ -89,8 +89,8 @@
         <Div class="debug-card">
             <Div class="card-header">
                 <Div class="card-header-content">
-                    <h3><i class="fas fa-bug me-2"></i>Debug Information</h3>
-                    <p class="text-muted mb-0">Real-time information about table state and PagedResult handling</p>
+                    <h3><i class="fas fa-bug me-2"></i>Debug Information</H3>
+                    <Paragraph Class="text-muted mb-0">Real-time information about table state and PagedResult handling</Paragraph>
                 </Div>
             </Div>
             <Div class="card-body">
@@ -312,23 +312,18 @@
 
     private async Task OnInteraction(DataTableServerSideRequest serverSideRequest)
     {
-        Logger.LogInformation("PagedResultDemo: OnInteraction called with Start={Start}, Length={Length}, Token='{Token}'", 
-            serverSideRequest.Start, serverSideRequest.Length, serverSideRequest.ContinuationToken ?? "null");
+        Logger.LogInformation("PagedResultDemo: OnInteraction called with Start={Start}, Length={Length}, Token='{Token}'", serverSideRequest.Start, serverSideRequest.Length, serverSideRequest.ContinuationToken ?? "null");
 
         try
         {
             var pagedResult = await EmployeeService.GetEmployeesPaged(serverSideRequest, CancellationToken.None);
 
-            Logger.LogInformation("PagedResultDemo: EmployeeService returned {Count} employees, TotalCount={TotalCount}, ContinuationToken='{Token}'", 
-                pagedResult.Items.Count, pagedResult.TotalCount, pagedResult.ContinuationToken ?? "null");
+            Logger.LogInformation("PagedResultDemo: EmployeeService returned {Count} employees, TotalCount={TotalCount}, ContinuationToken='{Token}'", pagedResult.Items.Count, pagedResult.TotalCount, pagedResult.ContinuationToken ?? "null");
 
             _currentEmployees = pagedResult.Items;
 
             // Update the QuarkTable's continuation token paging
-            _quarkTable?.UpdateContinuationTokenPaging(
-                pagedResult.Items.Count,
-                pagedResult.ContinuationToken,
-                serverSideRequest.ContinuationToken);
+            _quarkTable?.UpdateContinuationTokenPaging(pagedResult.Items.Count, pagedResult.ContinuationToken, serverSideRequest.ContinuationToken);
 
             // Update debug information
             _currentContinuationToken = pagedResult.ContinuationToken;
@@ -338,8 +333,7 @@
 
             // StateHasChanged is not needed here as the QuarkTable will handle the UI update
 
-            Logger.LogInformation("PagedResultDemo: Updated currentEmployees with {Count} records, totalRecords={TotalRecords}", 
-                _currentEmployees.Count, _totalRecords);
+            Logger.LogInformation("PagedResultDemo: Updated currentEmployees with {Count} records, totalRecords={TotalRecords}", _currentEmployees.Count, _totalRecords);
         }
         catch (Exception ex)
         {
@@ -356,4 +350,5 @@
     {
         Logger.LogInformation("PagedResultDemo: PagedResult table initialized");
     }
-} 
+
+}

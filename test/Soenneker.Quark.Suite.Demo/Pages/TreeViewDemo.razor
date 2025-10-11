@@ -14,165 +14,166 @@
     <Row Gap="Gap.Is4">
         <Column>
 
-    <!-- Basic Example -->
-    <Row Margin="Margin.Is4.FromEnd">
-        <Column>
-            <H3>Basic TreeView</H3>
-            <Paragraph>A simple tree structure with basic functionality.</Paragraph>
-            
-            <Card>
-                <CardBody>
-                    <TreeView TNode="DemoNode"
-                              Nodes="@BasicNodes"
-                              NodeContent="@(node => (builder) => builder.AddContent(0, node.Title))"
-                              GetChildNodes="@GetChildren"
-                              HasChildNodes="@HasChildren"
-                              SelectionMode="TreeViewSelectionMode.Single"
-                              ExpandedNodes="@BasicExpandedNodes"
-                              ExpandedNodesChanged="@OnBasicExpandedNodesChanged" />
-                </CardBody>
-            </Card>
-        </Column>
-    </Row>
+            <!-- Basic Example -->
+            <Row Margin="Margin.Is4.FromEnd">
+                <Column>
+                    <H3>Basic TreeView</H3>
+                    <Paragraph>A simple tree structure with basic functionality.</Paragraph>
 
-    <!-- Single Selection Example -->
-    <Row Margin="Margin.Is4.FromEnd">
-        <Column>
-            <H3>Single Selection</H3>
-            <Paragraph>TreeView with single selection mode. Selected node: <Strong>@(SelectedNode?.Title ?? "None")</Strong></Paragraph>
-            
-            <Card>
-                <CardBody>
-                    <TreeView TNode="DemoNode"
-                              Nodes="@SingleSelectionNodes"
-                              NodeContent="@(node => (builder) => builder.AddContent(0, node.Title))"
-                              GetChildNodes="@GetChildren"
-                              HasChildNodes="@HasChildren"
-                              SelectionMode="TreeViewSelectionMode.Single"
-                              SelectedNode="@SelectedNode"
-                              SelectedNodeChanged="@OnSelectedNodeChanged"
-                              ExpandedNodes="@SingleSelectionExpandedNodes"
-                              ExpandedNodesChanged="@OnSingleSelectionExpandedNodesChanged" />
-                </CardBody>
-            </Card>
-        </Column>
-    </Row>
+                    <Card>
+                        <CardBody>
+                            <TreeView TNode="DemoNode"
+                                      Nodes="@BasicNodes"
+                                      NodeContent="@(node => (builder) => builder.AddContent(0, node.Title))"
+                                      GetChildNodes="@GetChildren"
+                                      HasChildNodes="@HasChildren"
+                                      SelectionMode="TreeViewSelectionMode.Single"
+                                      ExpandedNodes="@BasicExpandedNodes"
+                                      ExpandedNodesChanged="@OnBasicExpandedNodesChanged"/>
+                        </CardBody>
+                    </Card>
+                </Column>
+            </Row>
 
-    <!-- Multiple Selection Example -->
-    <Row Margin="Margin.Is4.FromEnd">
-        <Column>
-            <H3>Multiple Selection</H3>
-            <Paragraph>TreeView with multiple selection mode. Selected nodes: <Strong>@(SelectedNodes.Count > 0 ? string.Join(", ", SelectedNodes.Select(n => n.Title)) : "None")</Strong></Paragraph>
-            
-            <Card>
-                <CardBody>
-                    <TreeView TNode="DemoNode"
-                              Nodes="@MultipleSelectionNodes"
-                              NodeContent="@(node => (builder) => builder.AddContent(0, node.Title))"
-                              GetChildNodes="@GetChildren"
-                              HasChildNodes="@HasChildren"
-                              SelectionMode="TreeViewSelectionMode.Multiple"
-                              SelectedNodes="@SelectedNodes"
-                              SelectedNodesChanged="@OnSelectedNodesChanged"
-                              ExpandedNodes="@MultipleSelectionExpandedNodes"
-                              ExpandedNodesChanged="@OnMultipleSelectionExpandedNodesChanged" />
-                </CardBody>
-            </Card>
-        </Column>
-    </Row>
+            <!-- Single Selection Example -->
+            <Row Margin="Margin.Is4.FromEnd">
+                <Column>
+                    <H3>Single Selection</H3>
+                    <Paragraph>TreeView with single selection mode. Selected node: <Strong>@(SelectedNode?.Title ?? "None")</Strong></Paragraph>
 
-    <!-- Custom Styling Example -->
-    <Row Margin="Margin.Is4.FromEnd">
-        <Column>
-            <H3>Custom Styling & Icons</H3>
-            <Paragraph>TreeView with custom icons and styling.</Paragraph>
-            
-            <Card>
-                <CardBody>
-                    <TreeView TNode="DemoNode"
-                              Nodes="@StyledNodes"
-                              NodeContent="@RenderStyledNode"
-                              GetChildNodes="@GetChildren"
-                              HasChildNodes="@HasChildren"
-                              SelectionMode="TreeViewSelectionMode.Single"
-                              ExpandIconName="plus"
-                              CollapseIconName="minus"
-                              ExpandedNodes="@StyledExpandedNodes"
-                              ExpandedNodesChanged="@OnStyledExpandedNodesChanged" />
-                </CardBody>
-            </Card>
-        </Column>
-    </Row>
+                    <Card>
+                        <CardBody>
+                            <TreeView TNode="DemoNode"
+                                      Nodes="@SingleSelectionNodes"
+                                      NodeContent="@(node => (builder) => builder.AddContent(0, node.Title))"
+                                      GetChildNodes="@GetChildren"
+                                      HasChildNodes="@HasChildren"
+                                      SelectionMode="TreeViewSelectionMode.Single"
+                                      SelectedNode="@SelectedNode"
+                                      SelectedNodeChanged="@OnSelectedNodeChanged"
+                                      ExpandedNodes="@SingleSelectionExpandedNodes"
+                                      ExpandedNodesChanged="@OnSingleSelectionExpandedNodesChanged"/>
+                        </CardBody>
+                    </Card>
+                </Column>
+            </Row>
 
-    <!-- Async Data Loading Example -->
-    <Row Margin="Margin.Is4.FromEnd">
-        <Column>
-            <H3>Async Data Loading</H3>
-            <Paragraph>TreeView with asynchronous data loading simulation.</Paragraph>
-            
-            <Card>
-                <CardBody>
-                    <TreeView TNode="AsyncDemoNode"
-                              Nodes="@AsyncNodes"
-                              NodeContent="@(node => (builder) => builder.AddContent(0, node.Title))"
-                              GetChildNodesAsync="@GetChildrenAsync"
-                              HasChildNodesAsync="@HasChildrenAsync"
-                              SelectionMode="TreeViewSelectionMode.Single"
-                              ExpandedNodes="@AsyncExpandedNodes"
-                              ExpandedNodesChanged="@OnAsyncExpandedNodesChanged" />
-                </CardBody>
-            </Card>
-        </Column>
-    </Row>
+            <!-- Multiple Selection Example -->
+            <Row Margin="Margin.Is4.FromEnd">
+                <Column>
+                    <H3>Multiple Selection</H3>
+                    <Paragraph>TreeView with multiple selection mode. Selected nodes: <Strong>@(SelectedNodes.Count > 0 ? string.Join(", ", SelectedNodes.Select(n => n.Title)) : "None")</Strong></Paragraph>
 
-    <!-- Disabled Nodes Example -->
-    <Row Margin="Margin.Is4.FromEnd">
-        <Column>
-            <H3>Disabled Nodes</H3>
-            <Paragraph>TreeView with some nodes disabled.</Paragraph>
-            
-            <Card>
-                <CardBody>
-                    <TreeView TNode="DemoNode"
-                              Nodes="@DisabledNodes"
-                              NodeContent="@(node => (builder) => builder.AddContent(0, node.Title))"
-                              GetChildNodes="@GetChildren"
-                              HasChildNodes="@HasChildren"
-                              IsDisabled="@IsNodeDisabled"
-                              SelectionMode="TreeViewSelectionMode.Single"
-                              ExpandedNodes="@DisabledExpandedNodes"
-                              ExpandedNodesChanged="@OnDisabledExpandedNodesChanged" />
-                </CardBody>
-            </Card>
-        </Column>
-    </Row>
+                    <Card>
+                        <CardBody>
+                            <TreeView TNode="DemoNode"
+                                      Nodes="@MultipleSelectionNodes"
+                                      NodeContent="@(node => (builder) => builder.AddContent(0, node.Title))"
+                                      GetChildNodes="@GetChildren"
+                                      HasChildNodes="@HasChildren"
+                                      SelectionMode="TreeViewSelectionMode.Multiple"
+                                      SelectedNodes="@SelectedNodes"
+                                      SelectedNodesChanged="@OnSelectedNodesChanged"
+                                      ExpandedNodes="@MultipleSelectionExpandedNodes"
+                                      ExpandedNodesChanged="@OnMultipleSelectionExpandedNodesChanged"/>
+                        </CardBody>
+                    </Card>
+                </Column>
+            </Row>
 
-    <!-- Large Dataset with Virtualization -->
-    <Row Margin="Margin.Is4.FromEnd">
-        <Column>
-            <H3>Large Dataset with Virtualization</H3>
-            <Paragraph>TreeView with virtualization for handling large datasets efficiently.</Paragraph>
-            
-            <Card>
-                <CardBody>
-                    <TreeView TNode="DemoNode"
-                              Nodes="@LargeDatasetNodes"
-                              NodeContent="@(node => (builder) => builder.AddContent(0, $"{node.Title} (Level {node.Level})"))"
-                              GetChildNodes="@GetChildren"
-                              HasChildNodes="@HasChildren"
-                              SelectionMode="TreeViewSelectionMode.Single"
-                              Virtualize="true"
-                              ExpandedNodes="@LargeDatasetExpandedNodes"
-                              ExpandedNodesChanged="@OnLargeDatasetExpandedNodesChanged" />
-                </CardBody>
-            </Card>
-        </Column>
-    </Row>
+            <!-- Custom Styling Example -->
+            <Row Margin="Margin.Is4.FromEnd">
+                <Column>
+                    <H3>Custom Styling & Icons</H3>
+                    <Paragraph>TreeView with custom icons and styling.</Paragraph>
+
+                    <Card>
+                        <CardBody>
+                            <TreeView TNode="DemoNode"
+                                      Nodes="@StyledNodes"
+                                      NodeContent="@RenderStyledNode"
+                                      GetChildNodes="@GetChildren"
+                                      HasChildNodes="@HasChildren"
+                                      SelectionMode="TreeViewSelectionMode.Single"
+                                      ExpandIconName="plus"
+                                      CollapseIconName="minus"
+                                      ExpandedNodes="@StyledExpandedNodes"
+                                      ExpandedNodesChanged="@OnStyledExpandedNodesChanged"/>
+                        </CardBody>
+                    </Card>
+                </Column>
+            </Row>
+
+            <!-- Async Data Loading Example -->
+            <Row Margin="Margin.Is4.FromEnd">
+                <Column>
+                    <H3>Async Data Loading</H3>
+                    <Paragraph>TreeView with asynchronous data loading simulation.</Paragraph>
+
+                    <Card>
+                        <CardBody>
+                            <TreeView TNode="AsyncDemoNode"
+                                      Nodes="@AsyncNodes"
+                                      NodeContent="@(node => (builder) => builder.AddContent(0, node.Title))"
+                                      GetChildNodesAsync="@GetChildrenAsync"
+                                      HasChildNodesAsync="@HasChildrenAsync"
+                                      SelectionMode="TreeViewSelectionMode.Single"
+                                      ExpandedNodes="@AsyncExpandedNodes"
+                                      ExpandedNodesChanged="@OnAsyncExpandedNodesChanged"/>
+                        </CardBody>
+                    </Card>
+                </Column>
+            </Row>
+
+            <!-- Disabled Nodes Example -->
+            <Row Margin="Margin.Is4.FromEnd">
+                <Column>
+                    <H3>Disabled Nodes</H3>
+                    <Paragraph>TreeView with some nodes disabled.</Paragraph>
+
+                    <Card>
+                        <CardBody>
+                            <TreeView TNode="DemoNode"
+                                      Nodes="@DisabledNodes"
+                                      NodeContent="@(node => (builder) => builder.AddContent(0, node.Title))"
+                                      GetChildNodes="@GetChildren"
+                                      HasChildNodes="@HasChildren"
+                                      IsDisabled="@IsNodeDisabled"
+                                      SelectionMode="TreeViewSelectionMode.Single"
+                                      ExpandedNodes="@DisabledExpandedNodes"
+                                      ExpandedNodesChanged="@OnDisabledExpandedNodesChanged"/>
+                        </CardBody>
+                    </Card>
+                </Column>
+            </Row>
+
+            <!-- Large Dataset with Virtualization -->
+            <Row Margin="Margin.Is4.FromEnd">
+                <Column>
+                    <H3>Large Dataset with Virtualization</H3>
+                    <Paragraph>TreeView with virtualization for handling large datasets efficiently.</Paragraph>
+
+                    <Card>
+                        <CardBody>
+                            <TreeView TNode="DemoNode"
+                                      Nodes="@LargeDatasetNodes"
+                                      NodeContent="@(node => (builder) => builder.AddContent(0, $"{node.Title} (Level {node.Level})"))"
+                                      GetChildNodes="@GetChildren"
+                                      HasChildNodes="@HasChildren"
+                                      SelectionMode="TreeViewSelectionMode.Single"
+                                      Virtualize="true"
+                                      ExpandedNodes="@LargeDatasetExpandedNodes"
+                                      ExpandedNodesChanged="@OnLargeDatasetExpandedNodesChanged"/>
+                        </CardBody>
+                    </Card>
+                </Column>
+            </Row>
         </Column>
     </Row>
 </Container>
 
 @code {
+
     // Basic Example
     private readonly ObservableCollection<DemoNode> BasicNodes =
     [
@@ -403,12 +404,12 @@
         {
             var level1 = new DemoNode($"Category {i + 1}", level: 1);
             root.Children.Add(level1);
-            
+
             for (var j = 0; j < 10; j++)
             {
                 var level2 = new DemoNode($"Item {i + 1}.{j + 1}", level: 2);
                 level1.Children.Add(level2);
-                
+
                 for (var k = 0; k < 5; k++)
                 {
                     var level3 = new DemoNode($"Sub-item {i + 1}.{j + 1}.{k + 1}", level: 3);
@@ -448,6 +449,5 @@
         public List<AsyncDemoNode> Children { get; }
         public override string ToString() => Title;
     }
+
 }
-
-

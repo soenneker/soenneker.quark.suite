@@ -1,336 +1,342 @@
 @page "/stepsdemo"
 
 <Container Padding="Padding.Is4.OnY">
-    <Row>
-        <Column>
-            <Div Class="text-center" Margin="Margin.Is5.FromEnd">
-                <H1 Class="display-4 fw-bold text-primary">Steps</H1>
-                <Paragraph Class="lead text-muted">This page demonstrates the Steps component for multi-step processes and workflows.</Paragraph>
-            </Div>
-        </Column>
-    </Row>
+<Row>
+    <Column>
+        <Div Class="text-center" Margin="Margin.Is5.FromEnd">
+            <H1 Class="display-4 fw-bold text-primary">Steps</H1>
+            <Paragraph Class="lead text-muted">This page demonstrates the Steps component for multi-step processes and workflows.</Paragraph>
+        </Div>
+    </Column>
+</Row>
 
-    <Row Gap="Gap.Is4">
-        <Column>
-            <Div>
-                <H2>Basic Steps</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Steps @ref="_basicStepsRef" @bind-SelectedStep="_currentStep">
-                        <Step Name="step1">
-                            <StepMarker>
-                                <Span>1</Span>
-                            </StepMarker>
-                            <StepCaption>
-                                <Div Class="step-title">Step 1</Div>
-                            </StepCaption>
-                        </Step>
-                        <Step Name="step2">
-                            <StepMarker>
-                                <Span>2</Span>
-                            </StepMarker>
-                            <StepCaption>
-                                <Div Class="step-title">Step 2</Div>
-                            </StepCaption>
-                        </Step>
-                        <Step Name="step3">
-                            <StepMarker>
-                                <Span>3</Span>
-                            </StepMarker>
-                            <StepCaption>
-                                <Div Class="step-title">Step 3</Div>
-                            </StepCaption>
-                        </Step>
-                        
-                        <StepContent>
-                            <StepPanel Name="step1">
-                                <Paragraph>This is the content for step 1.</Paragraph>
-                                <Paragraph>You can put any content here, including forms, text, or other components.</Paragraph>
-                            </StepPanel>
-                            <StepPanel Name="step2">
-                                <Paragraph>This is the content for step 2.</Paragraph>
-                                <Paragraph>Each step can have different content and functionality.</Paragraph>
-                            </StepPanel>
-                            <StepPanel Name="step3">
-                                <Paragraph>This is the content for step 3.</Paragraph>
-                                <Paragraph>This is the final step in the process.</Paragraph>
-                            </StepPanel>
-                        </StepContent>
-                    </Steps>
-                    
-                    <Div Class="mt-3">
-                        <Button BackgroundColor="@BackgroundColor.Primary" OnClick="PreviousStep">Previous</Button>
-                        <Button BackgroundColor="@BackgroundColor.Success" OnClick="NextStep" Class="ms-2">Next</Button>
-                        <Text Class="ms-3">Current Step: @_currentStep</Text>
+<Row Gap="Gap.Is4">
+<Column>
+<Div>
+    <H2>Basic Steps</H2>
+    <Div Margin="Margin.Is3.FromEnd">
+        <Steps @ref="_basicStepsRef" @bind-SelectedStep="_currentStep">
+            <Step Name="step1">
+                <StepMarker>
+                    <Span>1</Span>
+                </StepMarker>
+                <StepCaption>
+                    <Div Class="step-title">Step 1</Div>
+                </StepCaption>
+            </Step>
+            <Step Name="step2">
+                <StepMarker>
+                    <Span>2</Span>
+                </StepMarker>
+                <StepCaption>
+                    <Div Class="step-title">Step 2</Div>
+                </StepCaption>
+            </Step>
+            <Step Name="step3">
+                <StepMarker>
+                    <Span>3</Span>
+                </StepMarker>
+                <StepCaption>
+                    <Div Class="step-title">Step 3</Div>
+                </StepCaption>
+            </Step>
+
+            <StepContent>
+                <StepPanel Name="step1">
+                    <Paragraph>This is the content for step 1.</Paragraph>
+                    <Paragraph>You can put any content here, including forms, text, or other components.</Paragraph>
+                </StepPanel>
+                <StepPanel Name="step2">
+                    <Paragraph>This is the content for step 2.</Paragraph>
+                    <Paragraph>Each step can have different content and functionality.</Paragraph>
+                </StepPanel>
+                <StepPanel Name="step3">
+                    <Paragraph>This is the content for step 3.</Paragraph>
+                    <Paragraph>This is the final step in the process.</Paragraph>
+                </StepPanel>
+            </StepContent>
+        </Steps>
+
+        <Div Margin="Margin.Is3.FromTop">
+            <Button BackgroundColor="@BackgroundColor.Primary" OnClick="PreviousStep">Previous</Button>
+            <Button BackgroundColor="@BackgroundColor.Success" OnClick="NextStep" Class="ms-2">Next</Button>
+            <Text Class="ms-3">Current Step: @_currentStep</Text>
+        </Div>
+    </Div>
+    <Paragraph Class="text-muted">The Steps component provides a guided multi-step process interface.</Paragraph>
+</Div>
+
+<Hr/>
+
+<Div>
+    <H2>Steps with Validation</H2>
+    <Div Margin="Margin.Is3.FromEnd">
+        <Steps @ref="_validationStepsRef" @bind-SelectedStep="_currentValidationStep">
+            <Step Name="personal">
+                <StepMarker>
+                    <Span>1</Span>
+                </StepMarker>
+                <StepCaption>
+                    <Div Class="step-title">Personal Information</Div>
+                </StepCaption>
+            </Step>
+            <Step Name="contact">
+                <StepMarker>
+                    <Span>2</Span>
+                </StepMarker>
+                <StepCaption>
+                    <Div Class="step-title">Contact Information</Div>
+                </StepCaption>
+            </Step>
+            <Step Name="review">
+                <StepMarker>
+                    <Span>3</Span>
+                </StepMarker>
+                <StepCaption>
+                    <Div Class="step-title">Review & Submit</Div>
+                </StepCaption>
+            </Step>
+
+            <StepContent>
+                <StepPanel Name="personal">
+                    <Div Margin="Margin.Is3.FromBottom">
+                        <Label For="firstName" Class="form-label">First Name</Label>
+                        <TextEdit Id="firstName" @bind-Value="_personalInfo.FirstName"/>
                     </Div>
-                </Div>
-                <Paragraph Class="text-muted">The Steps component provides a guided multi-step process interface.</Paragraph>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Steps with Validation</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Steps @ref="_validationStepsRef" @bind-SelectedStep="_currentValidationStep">
-                        <Step Name="personal">
-                            <StepMarker>
-                                <Span>1</Span>
-                            </StepMarker>
-                            <StepCaption>
-                                <Div Class="step-title">Personal Information</Div>
-                            </StepCaption>
-                        </Step>
-                        <Step Name="contact">
-                            <StepMarker>
-                                <Span>2</Span>
-                            </StepMarker>
-                            <StepCaption>
-                                <Div Class="step-title">Contact Information</Div>
-                            </StepCaption>
-                        </Step>
-                        <Step Name="review">
-                            <StepMarker>
-                                <Span>3</Span>
-                            </StepMarker>
-                            <StepCaption>
-                                <Div Class="step-title">Review & Submit</Div>
-                            </StepCaption>
-                        </Step>
-                        
-                        <StepContent>
-                            <StepPanel Name="personal">
-                                <Div Class="mb-3">
-                                    <Label For="firstName" Class="form-label">First Name</Label>
-                                    <TextEdit Id="firstName" @bind-Value="_personalInfo.FirstName" />
-                                </Div>
-                                <Div Class="mb-3">
-                                    <Label For="lastName" Class="form-label">Last Name</Label>
-                                    <TextEdit Id="lastName" @bind-Value="_personalInfo.LastName" />
-                                </Div>
-                            </StepPanel>
-                            <StepPanel Name="contact">
-                                <Div Class="mb-3">
-                                    <Label For="email" Class="form-label">Email</Label>
-                                    <TextEdit Id="email" Type="email" @bind-Value="_personalInfo.Email" />
-                                </Div>
-                                <Div Class="mb-3">
-                                    <Label For="phone" Class="form-label">Phone</Label>
-                                    <TextEdit Id="phone" Type="tel" @bind-Value="_personalInfo.Phone" />
-                                </Div>
-                            </StepPanel>
-                            <StepPanel Name="review">
-                                <H4>Review Your Information</H4>
-                                <Paragraph><Strong>Name:</Strong> @_personalInfo.FirstName @_personalInfo.LastName</Paragraph>
-                                <Paragraph><Strong>Email:</Strong> @_personalInfo.Email</Paragraph>
-                                <Paragraph><Strong>Phone:</Strong> @_personalInfo.Phone</Paragraph>
-                                
-                                <Div Class="mt-3">
-                                    <Button BackgroundColor="@BackgroundColor.Success" OnClick="SubmitForm">Submit</Button>
-                                </Div>
-                            </StepPanel>
-                        </StepContent>
-                    </Steps>
-                    
-                    <Div Class="mt-3">
-                        <Button BackgroundColor="@BackgroundColor.Secondary" OnClick="PreviousValidationStep">Previous</Button>
-                        <Button BackgroundColor="@BackgroundColor.Primary" OnClick="NextValidationStep" Class="ms-2">Next</Button>
+                    <Div Margin="Margin.Is3.FromBottom">
+                        <Label For="lastName" Class="form-label">Last Name</Label>
+                        <TextEdit Id="lastName" @bind-Value="_personalInfo.LastName"/>
                     </Div>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Steps with Custom Content</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Steps @ref="_styledStepsRef" @bind-SelectedStep="_currentStyledStep">
-                        <Step Name="design">
-                            <StepMarker>
-                                <Span>🎨</Span>
-                            </StepMarker>
-                            <StepCaption>
-                                <Div Class="step-title">Design</Div>
-                            </StepCaption>
-                        </Step>
-                        <Step Name="develop">
-                            <StepMarker>
-                                <Span>💻</Span>
-                            </StepMarker>
-                            <StepCaption>
-                                <Div Class="step-title">Development</Div>
-                            </StepCaption>
-                        </Step>
-                        <Step Name="test">
-                            <StepMarker>
-                                <Span>🧪</Span>
-                            </StepMarker>
-                            <StepCaption>
-                                <Div Class="step-title">Testing</Div>
-                            </StepCaption>
-                        </Step>
-                        <Step Name="deploy">
-                            <StepMarker>
-                                <Span>🚀</Span>
-                            </StepMarker>
-                            <StepCaption>
-                                <Div Class="step-title">Deployment</Div>
-                            </StepCaption>
-                        </Step>
-                        
-                        <StepContent>
-                            <StepPanel Name="design">
-                                <H4 Class="text-primary">Design Phase</H4>
-                                <Paragraph>Create the visual design and user interface.</Paragraph>
-                                <UnorderedList>
-                                    <UnorderedListItem>Wireframes</UnorderedListItem>
-                                    <UnorderedListItem>Mockups</UnorderedListItem>
-                                    <UnorderedListItem>Prototypes</UnorderedListItem>
-                                </UnorderedList>
-                            </StepPanel>
-                            <StepPanel Name="develop">
-                                <H4 Class="text-success">Development Phase</H4>
-                                <Paragraph>Implement the design into working code.</Paragraph>
-                                <UnorderedList>
-                                    <UnorderedListItem>Frontend Development</UnorderedListItem>
-                                    <UnorderedListItem>Backend Development</UnorderedListItem>
-                                    <UnorderedListItem>Database Design</UnorderedListItem>
-                                </UnorderedList>
-                            </StepPanel>
-                            <StepPanel Name="test">
-                                <H4 Class="text-warning">Testing Phase</H4>
-                                <Paragraph>Test the application for bugs and performance.</Paragraph>
-                                <UnorderedList>
-                                    <UnorderedListItem>Unit Testing</UnorderedListItem>
-                                    <UnorderedListItem>Integration Testing</UnorderedListItem>
-                                    <UnorderedListItem>User Acceptance Testing</UnorderedListItem>
-                                </UnorderedList>
-                            </StepPanel>
-                            <StepPanel Name="deploy">
-                                <H4 Class="text-info">Deployment Phase</H4>
-                                <Paragraph>Deploy the application to production.</Paragraph>
-                                <UnorderedList>
-                                    <UnorderedListItem>Production Setup</UnorderedListItem>
-                                    <UnorderedListItem>Monitoring</UnorderedListItem>
-                                    <UnorderedListItem>Documentation</UnorderedListItem>
-                                </UnorderedList>
-                            </StepPanel>
-                        </StepContent>
-                    </Steps>
-                    
-                    <Div Class="mt-3">
-                        <Button BackgroundColor="@BackgroundColor.Primary" OnClick="PreviousStyledStep">Previous</Button>
-                        <Button BackgroundColor="@BackgroundColor.Success" OnClick="NextStyledStep" Class="ms-2">Next</Button>
-                        <Text Class="ms-3">Current Phase: @_currentStyledStep</Text>
+                </StepPanel>
+                <StepPanel Name="contact">
+                    <Div Margin="Margin.Is3.FromBottom">
+                        <Label For="email" Class="form-label">Email</Label>
+                        <TextEdit Id="email" Type="email" @bind-Value="_personalInfo.Email"/>
                     </Div>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Steps with Navigation</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Steps @ref="_navigationStepsRef" @bind-SelectedStep="_currentNavigationStep">
-                        <Step Name="account">
-                            <StepMarker>
-                                <Span>1</Span>
-                            </StepMarker>
-                            <StepCaption>
-                                <Div Class="step-title">Create Account</Div>
-                            </StepCaption>
-                        </Step>
-                        <Step Name="profile">
-                            <StepMarker>
-                                <Span>2</Span>
-                            </StepMarker>
-                            <StepCaption>
-                                <Div Class="step-title">Profile Setup</Div>
-                            </StepCaption>
-                        </Step>
-                        <Step Name="preferences">
-                            <StepMarker>
-                                <Span>3</Span>
-                            </StepMarker>
-                            <StepCaption>
-                                <Div Class="step-title">Preferences</Div>
-                            </StepCaption>
-                        </Step>
-                        
-                        <StepContent>
-                            <StepPanel Name="account">
-                                <H4>Account Creation</H4>
-                                <Paragraph>Create your account to get started.</Paragraph>
-                                <Div Class="mb-3">
-                                    <Label For="username" Class="form-label">Username</Label>
-                                    <TextEdit Id="username" @bind-Value="_accountInfo.Username" />
-                                </Div>
-                                <Div Class="mb-3">
-                                    <Label For="password" Class="form-label">Password</Label>
-                                    <TextEdit Id="password" Type="password" @bind-Value="_accountInfo.Password" />
-                                </Div>
-                            </StepPanel>
-                            <StepPanel Name="profile">
-                                <H4>Profile Information</H4>
-                                <Paragraph>Tell us about yourself.</Paragraph>
-                                <Div Class="mb-3">
-                                    <Label For="bio" Class="form-label">Bio</Label>
-                                    <MemoEdit Id="bio" @bind-Value="_accountInfo.Bio" Rows="3" />
-                                </Div>
-                                <Div Class="mb-3">
-                                    <Label For="website" Class="form-label">Website</Label>
-                                    <TextEdit Id="website" Type="url" @bind-Value="_accountInfo.Website" />
-                                </Div>
-                            </StepPanel>
-                            <StepPanel Name="preferences">
-                                <H4>Account Preferences</H4>
-                                <Paragraph>Configure your account preferences.</Paragraph>
-                                <Div Class="mb-3">
-                                    <Check @bind-Checked="_accountInfo.EmailNotifications" /> Email Notifications
-                                </Div>
-                                <Div Class="mb-3">
-                                    <Check @bind-Checked="_accountInfo.SmsNotifications" /> SMS Notifications
-                                </Div>
-                                <Div Class="mb-3">
-                                    <Label For="language" Class="form-label">Language</Label>
-                                    <Select Id="language" @bind-SelectedValue="_accountInfo.Language">
-                                        <SelectItem Value="@("english")">English</SelectItem>
-                                        <SelectItem Value="@("spanish")">Spanish</SelectItem>
-                                        <SelectItem Value="@("french")">French</SelectItem>
-                                    </Select>
-                                </Div>
-                            </StepPanel>
-                        </StepContent>
-                    </Steps>
-                    
-                    <Div Class="mt-3">
-                        <Button BackgroundColor="@BackgroundColor.Secondary" OnClick="PreviousNavigationStep">Previous</Button>
-                        <Button BackgroundColor="@BackgroundColor.Primary" OnClick="NextNavigationStep" Class="ms-2">Next</Button>
-                        <Button BackgroundColor="@BackgroundColor.Success" OnClick="CompleteSetup" Class="ms-2">Complete Setup</Button>
+                    <Div Margin="Margin.Is3.FromBottom">
+                        <Label For="phone" Class="form-label">Phone</Label>
+                        <TextEdit Id="phone" Type="tel" @bind-Value="_personalInfo.Phone"/>
                     </Div>
-                </Div>
-            </Div>
+                </StepPanel>
+                <StepPanel Name="review">
+                    <H4>Review Your Information</H4>
+                    <Paragraph>
+                        <Strong>Name:</Strong> @_personalInfo.FirstName @_personalInfo.LastName
+                    </Paragraph>
+                    <Paragraph>
+                        <Strong>Email:</Strong> @_personalInfo.Email
+                    </Paragraph>
+                    <Paragraph>
+                        <Strong>Phone:</Strong> @_personalInfo.Phone
+                    </Paragraph>
 
-            <Hr/>
+                    <Div Margin="Margin.Is3.FromTop">
+                        <Button BackgroundColor="@BackgroundColor.Success" OnClick="SubmitForm">Submit</Button>
+                    </Div>
+                </StepPanel>
+            </StepContent>
+        </Steps>
 
-            <Div>
-                <H2>Steps Component Properties</H2>
-                <Div BackgroundColor="BackgroundColor.Light" Padding="Padding.Is3" Margin="Margin.Is3.FromBottom">
-                    <H3>Steps Features</H3>
-                    <Paragraph>Steps components provide guided workflow functionality:</Paragraph>
+        <Div Margin="Margin.Is3.FromTop">
+            <Button BackgroundColor="@BackgroundColor.Secondary" OnClick="PreviousValidationStep">Previous</Button>
+            <Button BackgroundColor="@BackgroundColor.Primary" OnClick="NextValidationStep" Class="ms-2">Next</Button>
+        </Div>
+    </Div>
+</Div>
+
+<Hr/>
+
+<Div>
+    <H2>Steps with Custom Content</H2>
+    <Div Margin="Margin.Is3.FromEnd">
+        <Steps @ref="_styledStepsRef" @bind-SelectedStep="_currentStyledStep">
+            <Step Name="design">
+                <StepMarker>
+                    <Span>🎨</Span>
+                </StepMarker>
+                <StepCaption>
+                    <Div Class="step-title">Design</Div>
+                </StepCaption>
+            </Step>
+            <Step Name="develop">
+                <StepMarker>
+                    <Span>💻</Span>
+                </StepMarker>
+                <StepCaption>
+                    <Div Class="step-title">Development</Div>
+                </StepCaption>
+            </Step>
+            <Step Name="test">
+                <StepMarker>
+                    <Span>🧪</Span>
+                </StepMarker>
+                <StepCaption>
+                    <Div Class="step-title">Testing</Div>
+                </StepCaption>
+            </Step>
+            <Step Name="deploy">
+                <StepMarker>
+                    <Span>🚀</Span>
+                </StepMarker>
+                <StepCaption>
+                    <Div Class="step-title">Deployment</Div>
+                </StepCaption>
+            </Step>
+
+            <StepContent>
+                <StepPanel Name="design">
+                    <H4 Class="text-primary">Design Phase</H4>
+                    <Paragraph>Create the visual design and user interface.</Paragraph>
                     <UnorderedList>
-                        <UnorderedListItem><Strong>Steps:</Strong> Main container for the step workflow</UnorderedListItem>
-                        <UnorderedListItem><Strong>Step:</Strong> Individual step with title and content</UnorderedListItem>
-                        <UnorderedListItem><Strong>StepContent:</Strong> Content area within each step</UnorderedListItem>
-                        <UnorderedListItem><Strong>StepPanel:</Strong> Panel wrapper for step content</UnorderedListItem>
-                        <UnorderedListItem><Strong>Navigation:</Strong> Built-in navigation between steps</UnorderedListItem>
-                        <UnorderedListItem><Strong>Validation:</Strong> Support for step validation</UnorderedListItem>
-                        <UnorderedListItem><Strong>Customization:</Strong> Custom styling and behavior</UnorderedListItem>
-                        <UnorderedListItem><Strong>Events:</Strong> Step change and completion events</UnorderedListItem>
+                        <UnorderedListItem>Wireframes</UnorderedListItem>
+                        <UnorderedListItem>Mockups</UnorderedListItem>
+                        <UnorderedListItem>Prototypes</UnorderedListItem>
                     </UnorderedList>
-                </Div>
-            </Div>
-        </Column>
-    </Row>
+                </StepPanel>
+                <StepPanel Name="develop">
+                    <H4 Class="text-success">Development Phase</H4>
+                    <Paragraph>Implement the design into working code.</Paragraph>
+                    <UnorderedList>
+                        <UnorderedListItem>Frontend Development</UnorderedListItem>
+                        <UnorderedListItem>Backend Development</UnorderedListItem>
+                        <UnorderedListItem>Database Design</UnorderedListItem>
+                    </UnorderedList>
+                </StepPanel>
+                <StepPanel Name="test">
+                    <H4 Class="text-warning">Testing Phase</H4>
+                    <Paragraph>Test the application for bugs and performance.</Paragraph>
+                    <UnorderedList>
+                        <UnorderedListItem>Unit Testing</UnorderedListItem>
+                        <UnorderedListItem>Integration Testing</UnorderedListItem>
+                        <UnorderedListItem>User Acceptance Testing</UnorderedListItem>
+                    </UnorderedList>
+                </StepPanel>
+                <StepPanel Name="deploy">
+                    <H4 Class="text-info">Deployment Phase</H4>
+                    <Paragraph>Deploy the application to production.</Paragraph>
+                    <UnorderedList>
+                        <UnorderedListItem>Production Setup</UnorderedListItem>
+                        <UnorderedListItem>Monitoring</UnorderedListItem>
+                        <UnorderedListItem>Documentation</UnorderedListItem>
+                    </UnorderedList>
+                </StepPanel>
+            </StepContent>
+        </Steps>
+
+        <Div Margin="Margin.Is3.FromTop">
+            <Button BackgroundColor="@BackgroundColor.Primary" OnClick="PreviousStyledStep">Previous</Button>
+            <Button BackgroundColor="@BackgroundColor.Success" OnClick="NextStyledStep" Class="ms-2">Next</Button>
+            <Text Class="ms-3">Current Phase: @_currentStyledStep</Text>
+        </Div>
+    </Div>
+</Div>
+
+<Hr/>
+
+<Div>
+    <H2>Steps with Navigation</H2>
+    <Div Margin="Margin.Is3.FromEnd">
+        <Steps @ref="_navigationStepsRef" @bind-SelectedStep="_currentNavigationStep">
+            <Step Name="account">
+                <StepMarker>
+                    <Span>1</Span>
+                </StepMarker>
+                <StepCaption>
+                    <Div Class="step-title">Create Account</Div>
+                </StepCaption>
+            </Step>
+            <Step Name="profile">
+                <StepMarker>
+                    <Span>2</Span>
+                </StepMarker>
+                <StepCaption>
+                    <Div Class="step-title">Profile Setup</Div>
+                </StepCaption>
+            </Step>
+            <Step Name="preferences">
+                <StepMarker>
+                    <Span>3</Span>
+                </StepMarker>
+                <StepCaption>
+                    <Div Class="step-title">Preferences</Div>
+                </StepCaption>
+            </Step>
+
+            <StepContent>
+                <StepPanel Name="account">
+                    <H4>Account Creation</H4>
+                    <Paragraph>Create your account to get started.</Paragraph>
+                    <Div Margin="Margin.Is3.FromBottom">
+                        <Label For="username" Class="form-label">Username</Label>
+                        <TextEdit Id="username" @bind-Value="_accountInfo.Username"/>
+                    </Div>
+                    <Div Margin="Margin.Is3.FromBottom">
+                        <Label For="password" Class="form-label">Password</Label>
+                        <TextEdit Id="password" Type="password" @bind-Value="_accountInfo.Password"/>
+                    </Div>
+                </StepPanel>
+                <StepPanel Name="profile">
+                    <H4>Profile Information</H4>
+                    <Paragraph>Tell us about yourself.</Paragraph>
+                    <Div Margin="Margin.Is3.FromBottom">
+                        <Label For="bio" Class="form-label">Bio</Label>
+                        <MemoEdit Id="bio" @bind-Value="_accountInfo.Bio" Rows="3"/>
+                    </Div>
+                    <Div Margin="Margin.Is3.FromBottom">
+                        <Label For="website" Class="form-label">Website</Label>
+                        <TextEdit Id="website" Type="url" @bind-Value="_accountInfo.Website"/>
+                    </Div>
+                </StepPanel>
+                <StepPanel Name="preferences">
+                    <H4>Account Preferences</H4>
+                    <Paragraph>Configure your account preferences.</Paragraph>
+                    <Div Margin="Margin.Is3.FromBottom">
+                        <Check @bind-Checked="_accountInfo.EmailNotifications"/> Email Notifications
+                    </Div>
+                    <Div Margin="Margin.Is3.FromBottom">
+                        <Check @bind-Checked="_accountInfo.SmsNotifications"/> SMS Notifications
+                    </Div>
+                    <Div Margin="Margin.Is3.FromBottom">
+                        <Label For="language" Class="form-label">Language</Label>
+                        <Select Id="language" @bind-SelectedValue="_accountInfo.Language">
+                            <SelectItem Value="@("english")">English</SelectItem>
+                            <SelectItem Value="@("spanish")">Spanish</SelectItem>
+                            <SelectItem Value="@("french")">French</SelectItem>
+                        </Select>
+                    </Div>
+                </StepPanel>
+            </StepContent>
+        </Steps>
+
+        <Div Margin="Margin.Is3.FromTop">
+            <Button BackgroundColor="@BackgroundColor.Secondary" OnClick="PreviousNavigationStep">Previous</Button>
+            <Button BackgroundColor="@BackgroundColor.Primary" OnClick="NextNavigationStep" Class="ms-2">Next</Button>
+            <Button BackgroundColor="@BackgroundColor.Success" OnClick="CompleteSetup" Class="ms-2">Complete Setup</Button>
+        </Div>
+    </Div>
+</Div>
+
+<Hr/>
+
+<Div>
+    <H2>Steps Component Properties</H2>
+    <Div BackgroundColor="BackgroundColor.Light" Padding="Padding.Is3" Margin="Margin.Is3.FromBottom">
+        <H3>Steps Features</H3>
+        <Paragraph>Steps components provide guided workflow functionality:</Paragraph>
+        <UnorderedList>
+            <UnorderedListItem><Strong>Steps:</Strong> Main container for the step workflow</UnorderedListItem>
+            <UnorderedListItem><Strong>Step:</Strong> Individual step with title and content</UnorderedListItem>
+            <UnorderedListItem><Strong>StepContent:</Strong> Content area within each step</UnorderedListItem>
+            <UnorderedListItem><Strong>StepPanel:</Strong> Panel wrapper for step content</UnorderedListItem>
+            <UnorderedListItem><Strong>Navigation:</Strong> Built-in navigation between steps</UnorderedListItem>
+            <UnorderedListItem><Strong>Validation:</Strong> Support for step validation</UnorderedListItem>
+            <UnorderedListItem><Strong>Customization:</Strong> Custom styling and behavior</UnorderedListItem>
+            <UnorderedListItem><Strong>Events:</Strong> Step change and completion events</UnorderedListItem>
+        </UnorderedList>
+    </Div>
+</Div>
+</Column>
+</Row>
 </Container>
 
 @code {
@@ -445,4 +451,5 @@
     protected override void OnInitialized()
     {
     }
+
 }
