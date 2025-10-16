@@ -1,0 +1,300 @@
+@page "/details-demo"
+
+<Container Padding="Padding.Is4.OnY">
+    <Row>
+        <Column>
+            <Div Class="text-center" Margin="Margin.Is5.FromEnd">
+                <H1 Class="display-4 fw-bold text-primary">Details & Summary</H1>
+                <Paragraph Class="lead text-muted">Native disclosure widgets for creating collapsible content without JavaScript.</Paragraph>
+            </Div>
+        </Column>
+    </Row>
+    
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Section Class="surface mb-5">
+                <Div Class="surface-header d-flex align-items-center justify-content-between">
+                    <Strong>Basic Details Element</Strong>
+                </Div>
+                <Div Class="surface-body">
+                    <Paragraph>Simple collapsible content using the native HTML details and summary elements.</Paragraph>
+                    <Details Border="Border.Is1" BorderRadius="BorderRadius.Default" Padding="Padding.Is3">
+                        <Summary Class="fw-bold cursor-pointer">Click to expand</Summary>
+                        <Div Class="mt-2">
+                            <Paragraph Class="mb-0">
+                                This is the hidden content that appears when you click the summary. No JavaScript required!
+                            </Paragraph>
+                        </Div>
+                    </Details>
+                </Div>
+            </Section>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Section Class="surface mb-5">
+                <Div Class="surface-header d-flex align-items-center justify-content-between">
+                    <Strong>Open by Default</Strong>
+                </Div>
+                <Div Class="surface-body">
+                    <Paragraph>Details element that starts in the expanded state.</Paragraph>
+                    <Details Open="true" Border="Border.Is1" BorderRadius="BorderRadius.Default" Padding="Padding.Is3">
+                        <Summary Class="fw-bold cursor-pointer">Already Expanded</Summary>
+                        <Div Class="mt-2">
+                            <Paragraph Class="mb-0">
+                                This details element is open by default thanks to the Open attribute.
+                            </Paragraph>
+                        </Div>
+                    </Details>
+                </Div>
+            </Section>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Section Class="surface mb-5">
+                <Div Class="surface-header d-flex align-items-center justify-content-between">
+                    <Strong>FAQ Example</Strong>
+                </Div>
+                <Div Class="surface-body">
+                    <Paragraph>Common use case: Frequently Asked Questions.</Paragraph>
+                    
+                    <Details Border="Border.Is1" BorderRadius="BorderRadius.Default" Padding="Padding.Is3" Margin="Margin.Is3.FromBottom">
+                        <Summary Class="fw-bold cursor-pointer">
+                            <Icon Name="circle-question" Margin="Margin.Is2.FromEnd"/>
+                            What is Quark Suite?
+                        </Summary>
+                        <Div Class="mt-2">
+                            <Paragraph Class="mb-0">
+                                Quark Suite is a comprehensive Blazor component library built with modern web standards and best practices.
+                            </Paragraph>
+                        </Div>
+                    </Details>
+
+                    <Details Border="Border.Is1" BorderRadius="BorderRadius.Default" Padding="Padding.Is3" Margin="Margin.Is3.FromBottom">
+                        <Summary Class="fw-bold cursor-pointer">
+                            <Icon Name="circle-question" Margin="Margin.Is2.FromEnd"/>
+                            Is it free to use?
+                        </Summary>
+                        <Div Class="mt-2">
+                            <Paragraph Class="mb-0">
+                                Check the project license for usage terms and conditions.
+                            </Paragraph>
+                        </Div>
+                    </Details>
+
+                    <Details Border="Border.Is1" BorderRadius="BorderRadius.Default" Padding="Padding.Is3" Margin="Margin.Is3.FromBottom">
+                        <Summary Class="fw-bold cursor-pointer">
+                            <Icon Name="circle-question" Margin="Margin.Is2.FromEnd"/>
+                            Does it support TypeScript?
+                        </Summary>
+                        <Div Class="mt-2">
+                            <Paragraph Class="mb-0">
+                                Quark Suite is built for Blazor/.NET applications and uses C# rather than TypeScript.
+                            </Paragraph>
+                        </Div>
+                    </Details>
+                </Div>
+            </Section>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Section Class="surface mb-5">
+                <Div Class="surface-header d-flex align-items-center justify-content-between">
+                    <Strong>With Event Handling</Strong>
+                </Div>
+                <Div Class="surface-body">
+                    <Paragraph>Details element with toggle event tracking.</Paragraph>
+                    
+                    @if (!string.IsNullOrEmpty(toggleStatus))
+                    {
+                        <Alert BackgroundColor="@BackgroundColor.Info">
+                            <Icon Name="info-circle" Margin="Margin.Is2.FromEnd"/> @toggleStatus
+                        </Alert>
+                    }
+                    
+                    <Details OnToggle="HandleToggle" Border="Border.Is1" BorderRadius="BorderRadius.Default" Padding="Padding.Is3">
+                        <Summary Class="fw-bold cursor-pointer">Toggle me to see events</Summary>
+                        <Div Class="mt-2">
+                            <Paragraph Class="mb-0">
+                                The toggle event fires when the details element is opened or closed.
+                            </Paragraph>
+                        </Div>
+                    </Details>
+                </Div>
+            </Section>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Section Class="surface mb-5">
+                <Div Class="surface-header d-flex align-items-center justify-content-between">
+                    <Strong>Styled Details</Strong>
+                </Div>
+                <Div Class="surface-body">
+                    <Paragraph>Details elements with custom styling.</Paragraph>
+                    
+                    <Row Gap="Gap.Is3">
+                        <Column ColumnSize="@ColumnSize.Is6.OnLaptop">
+                            <Details Border="Border.Is1" BorderColor="@BorderColor.Primary" BorderRadius="BorderRadius.Default" Padding="Padding.Is3" Class="bg-primary bg-opacity-10">
+                                <Summary Class="fw-bold text-primary cursor-pointer">
+                                    <Icon Name="circle-info" Margin="Margin.Is2.FromEnd"/>
+                                    Primary Style
+                                </Summary>
+                                <Div Class="mt-2">
+                                    <Paragraph Class="mb-0">
+                                        This details element uses primary color theming.
+                                    </Paragraph>
+                                </Div>
+                            </Details>
+                        </Column>
+                        
+                        <Column ColumnSize="@ColumnSize.Is6.OnLaptop">
+                            <Details Border="Border.Is1" BorderColor="@BorderColor.Success" BorderRadius="BorderRadius.Default" Padding="Padding.Is3" Class="bg-success bg-opacity-10">
+                                <Summary Class="fw-bold text-success cursor-pointer">
+                                    <Icon Name="circle-check" Margin="Margin.Is2.FromEnd"/>
+                                    Success Style
+                                </Summary>
+                                <Div Class="mt-2">
+                                    <Paragraph Class="mb-0">
+                                        This details element uses success color theming.
+                                    </Paragraph>
+                                </Div>
+                            </Details>
+                        </Column>
+                    </Row>
+                </Div>
+            </Section>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Section Class="surface mb-5">
+                <Div Class="surface-header d-flex align-items-center justify-content-between">
+                    <Strong>Nested Details</Strong>
+                </Div>
+                <Div Class="surface-body">
+                    <Paragraph>Details elements can be nested for hierarchical disclosure.</Paragraph>
+                    
+                    <Details Border="Border.Is1" BorderRadius="BorderRadius.Default" Padding="Padding.Is3">
+                        <Summary Class="fw-bold cursor-pointer">Parent Level</Summary>
+                        <Div Class="mt-2">
+                            <Paragraph>This is the parent level content.</Paragraph>
+                            
+                            <Details Border="Border.Is1" BorderRadius="BorderRadius.Default" Padding="Padding.Is3" Class="ms-3">
+                                <Summary Class="fw-bold cursor-pointer">Child Level 1</Summary>
+                                <Div Class="mt-2">
+                                    <Paragraph>This is nested content at the first child level.</Paragraph>
+                                    
+                                    <Details Border="Border.Is1" BorderRadius="BorderRadius.Default" Padding="Padding.Is3" Class="ms-3">
+                                        <Summary Class="fw-bold cursor-pointer">Grandchild Level</Summary>
+                                        <Div Class="mt-2">
+                                            <Paragraph Class="mb-0">
+                                                This is deeply nested content at the grandchild level.
+                                            </Paragraph>
+                                        </Div>
+                                    </Details>
+                                </Div>
+                            </Details>
+                        </Div>
+                    </Details>
+                </Div>
+            </Section>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Section Class="surface mb-5">
+                <Div Class="surface-header d-flex align-items-center justify-content-between">
+                    <Strong>Rich Content</Strong>
+                </Div>
+                <Div Class="surface-body">
+                    <Paragraph>Details elements can contain any HTML content.</Paragraph>
+                    
+                    <Details Border="Border.Is1" BorderRadius="BorderRadius.Default" Padding="Padding.Is3">
+                        <Summary Class="fw-bold cursor-pointer">
+                            <Icon Name="image" Margin="Margin.Is2.FromEnd"/>
+                            View Content Gallery
+                        </Summary>
+                        <Div Class="mt-3">
+                            <Row Gap="Gap.Is3">
+                                <Column ColumnSize="@ColumnSize.Is4">
+                                    <Card>
+                                        <CardBody>
+                                            <H6>Item 1</H6>
+                                            <Paragraph Class="mb-0">
+                                                <Small>Details can contain cards, images, forms, or any other content.</Small>
+                                            </Paragraph>
+                                        </CardBody>
+                                    </Card>
+                                </Column>
+                                <Column ColumnSize="@ColumnSize.Is4">
+                                    <Card>
+                                        <CardBody>
+                                            <H6>Item 2</H6>
+                                            <Paragraph Class="mb-0">
+                                                <Small>The content is fully interactive when expanded.</Small>
+                                            </Paragraph>
+                                        </CardBody>
+                                    </Card>
+                                </Column>
+                                <Column ColumnSize="@ColumnSize.Is4">
+                                    <Card>
+                                        <CardBody>
+                                            <H6>Item 3</H6>
+                                            <Paragraph Class="mb-0">
+                                                <Small>Native HTML means better accessibility.</Small>
+                                            </Paragraph>
+                                        </CardBody>
+                                    </Card>
+                                </Column>
+                            </Row>
+                        </Div>
+                    </Details>
+                </Div>
+            </Section>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Section Class="surface mb-5">
+                <Div Class="surface-header d-flex align-items-center justify-content-between">
+                    <Strong>Benefits</Strong>
+                </Div>
+                <Div Class="surface-body">
+                    <Alert BackgroundColor="@BackgroundColor.Success">
+                        <Icon Name="circle-check" Margin="Margin.Is2.FromEnd"/>
+                        <Strong>Advantages of Details/Summary:</Strong>
+                        <ul class="mb-0 mt-2">
+                            <li>No JavaScript required for basic functionality</li>
+                            <li>Built-in keyboard navigation support</li>
+                            <li>Excellent accessibility with screen readers</li>
+                            <li>Semantic HTML that search engines understand</li>
+                            <li>Lightweight and performant</li>
+                        </ul>
+                    </Alert>
+                </Div>
+            </Section>
+        </Column>
+    </Row>
+</Container>
+
+@code {
+    private string? toggleStatus;
+    private int toggleCount = 0;
+
+    private void HandleToggle(EventArgs args)
+    {
+        toggleCount++;
+        toggleStatus = $"Details toggled {toggleCount} time(s)";
+    }
+}
+

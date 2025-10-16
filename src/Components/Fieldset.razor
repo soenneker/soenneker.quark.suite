@@ -1,0 +1,31 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IFieldset
+
+<fieldset @attributes="BuildAttributes()">
+	@ChildContent
+</fieldset>
+
+@code {
+	public override string? ThemeKey { get; set; } = "Fieldset";
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public string? Form { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+
+        if (Disabled)
+            attributes["disabled"] = true;
+
+        if (Form.HasContent())
+            attributes["form"] = Form;
+
+        return attributes;
+    }
+}
+

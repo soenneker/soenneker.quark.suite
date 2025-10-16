@@ -1,0 +1,31 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IDetails
+
+<details @attributes="BuildAttributes()">
+	@ChildContent
+</details>
+
+@code {
+	public override string? ThemeKey { get; set; } = "Details";
+
+    [Parameter]
+    public bool Open { get; set; }
+
+    [Parameter]
+    public EventCallback<EventArgs> OnToggle { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+
+        if (Open)
+            attributes["open"] = true;
+
+        if (OnToggle.HasDelegate)
+            attributes["ontoggle"] = EventCallback.Factory.Create(this, OnToggle);
+
+        return attributes;
+    }
+}
+
