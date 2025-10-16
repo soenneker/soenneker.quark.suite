@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Soenneker.Quark.Enums;
 
 namespace Soenneker.Quark;
 
@@ -34,9 +35,9 @@ public interface IModal : IElement
     bool Scrollable { get; set; }
 
     /// <summary>
-    /// Gets or sets the size of the modal (small, default, large, extra-large).
+    /// Gets or sets the size of the modal (small, default, large, extra-large, fullscreen).
     /// </summary>
-    CssValue<SizeBuilder>? Size { get; set; }
+    ModalSizeType? ModalSize { get; set; }
 
     /// <summary>
     /// Gets or sets whether the modal is static (cannot be closed by clicking backdrop or pressing Escape).

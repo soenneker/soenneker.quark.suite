@@ -40,7 +40,7 @@
     public bool Scrollable { get; set; }
 
     [Parameter]
-    public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
+    public ModalSizeType? ModalSize { get; set; }
 
     [Parameter]
     public bool Static { get; set; }
@@ -91,8 +91,8 @@
                 AppendClass(ref cls, "modal-dialog-centered");
             if (Scrollable)
                 AppendClass(ref cls, "modal-dialog-scrollable");
-            if (Size != null && !Size.Value.IsEmpty)
-                AppendClass(ref cls, $"modal-{Size.Value}");
+            if (ModalSize != null && !string.IsNullOrEmpty(ModalSize.Value))
+                AppendClass(ref cls, $"modal-{ModalSize.Value}");
         });
             
         return attributes;
