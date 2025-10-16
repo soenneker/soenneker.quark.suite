@@ -115,10 +115,7 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
 
     [Parameter]
-    public CssValue<TextDecorationBuilder>? TextDecorationLine { get; set; }
-
-    [Parameter]
-    public CssValue<TextDecorationBuilder>? TextDecorationCss { get; set; }
+    public CssValue<TextDecorationBuilder>? TextDecoration { get; set; }
 
     [Parameter]
     public CssValue<FlexBuilder>? Flex { get; set; }
@@ -399,7 +396,7 @@ public abstract class Component : CoreComponent, IComponent
             AddCss(ref sty, ref cls, Border);
             AddCss(ref sty, ref cls, TextOverflow);
             AddCss(ref sty, ref cls, TextAlignment);
-            AddCss(ref sty, ref cls, TextDecorationCss);
+            AddCss(ref sty, ref cls, TextDecoration);
             AddCss(ref sty, ref cls, VerticalAlign);
             AddCss(ref sty, ref cls, Float);
             AddCss(ref sty, ref cls, Visibility);
@@ -575,8 +572,7 @@ public abstract class Component : CoreComponent, IComponent
         AddIf(ref hc, OverflowY);
         AddIf(ref hc, ObjectFit);
         AddIf(ref hc, TextAlignment);
-        AddIf(ref hc, TextDecorationLine);
-        AddIf(ref hc, TextDecorationCss);
+        AddIf(ref hc, TextDecoration);
         AddIf(ref hc, Flex);
         AddIf(ref hc, Gap);
         AddIf(ref hc, Border);
@@ -930,8 +926,7 @@ public abstract class Component : CoreComponent, IComponent
         ApplyThemeProperty(componentOptions.OverflowY, () => OverflowY, v => OverflowY = v);
         ApplyThemeProperty(componentOptions.ObjectFit, () => ObjectFit, v => ObjectFit = v);
         ApplyThemeProperty(componentOptions.TextAlignment, () => TextAlignment, v => TextAlignment = v);
-        ApplyThemeProperty(componentOptions.TextDecorationLine, () => TextDecorationLine, v => TextDecorationLine = v);
-        ApplyThemeProperty(componentOptions.TextDecorationCss, () => TextDecorationCss, v => TextDecorationCss = v);
+        ApplyThemeProperty(componentOptions.TextDecoration, () => TextDecoration, v => TextDecoration = v);
         ApplyThemeProperty(componentOptions.Flex, () => Flex, v => Flex = v);
         ApplyThemeProperty(componentOptions.Gap, () => Gap, v => Gap = v);
         ApplyThemeProperty(componentOptions.Border, () => Border, v => Border = v);

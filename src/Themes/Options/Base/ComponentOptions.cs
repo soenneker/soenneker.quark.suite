@@ -50,9 +50,7 @@ public class ComponentOptions
 
     public CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
 
-    public CssValue<TextDecorationBuilder>? TextDecorationLine { get; set; }
-
-    public CssValue<TextDecorationBuilder>? TextDecorationCss { get; set; }
+    public CssValue<TextDecorationBuilder>? TextDecoration { get; set; }
 
     public CssValue<FlexBuilder>? Flex { get; set; }
 

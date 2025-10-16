@@ -144,14 +144,10 @@ public interface IComponent : ICoreComponent
     CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
 
     /// <summary>
-    /// Gets or sets the CSS <c>text-decoration-line</c> value to apply inline.
-    /// </summary>
-    CssValue<TextDecorationBuilder>? TextDecorationLine { get; set; }
-
-    /// <summary>
     /// Gets or sets the CSS <c>text-decoration</c> value to apply inline.
+    /// Supports fluent configuration of line, style, color, and thickness.
     /// </summary>
-    CssValue<TextDecorationBuilder>? TextDecorationCss { get; set; }
+    CssValue<TextDecorationBuilder>? TextDecoration { get; set; }
 
     /// <summary>
     /// Gets or sets the flex configuration (e.g., flex direction, wrap, grow, shrink).

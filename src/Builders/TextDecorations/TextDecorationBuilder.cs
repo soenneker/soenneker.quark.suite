@@ -3,6 +3,7 @@ using Soenneker.Quark.Enums;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Soenneker.Utils.PooledStringBuilders;
 
 
@@ -11,25 +12,14 @@ namespace Soenneker.Quark;
 public sealed class TextDecorationBuilder : ICssBuilder
 {
     private readonly List<TextDecorationRule> _rules = new(4);
+    private string? _style;
+    private string? _color;
+    private string? _thickness;
 
     // ----- Class name constants (compile-time) -----
     private const string _classNone = "text-decoration-none";
     private const string _classUnderline = "text-decoration-underline";
     private const string _classLineThrough = "text-decoration-line-through";
-
-    // ----- CSS value prefix (compile-time) -----
-    private const string _textDecorationPrefix = "text-decoration-line: ";
-
-    // ----- Style constants (compile-time const interpolation with Intellenum consts) -----
-    private const string _styleNone = $"{_textDecorationPrefix}{TextDecorationLineKeyword.NoneValue}";
-    private const string _styleUnderline = $"{_textDecorationPrefix}{TextDecorationLineKeyword.UnderlineValue}";
-    private const string _styleLineThrough = $"{_textDecorationPrefix}{TextDecorationLineKeyword.LineThroughValue}";
-
-    private const string _styleInherit = $"{_textDecorationPrefix}{GlobalKeyword.InheritValue}";
-    private const string _styleInitial = $"{_textDecorationPrefix}{GlobalKeyword.InitialValue}";
-    private const string _styleUnset = $"{_textDecorationPrefix}{GlobalKeyword.UnsetValue}";
-    private const string _styleRevert = $"{_textDecorationPrefix}{GlobalKeyword.RevertValue}";
-    private const string _styleRevertLayer = $"{_textDecorationPrefix}{GlobalKeyword.RevertLayerValue}";
 
     internal TextDecorationBuilder(string value, BreakpointType? breakpoint = null)
     {
@@ -42,16 +32,54 @@ public sealed class TextDecorationBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    // Line types
     public TextDecorationBuilder None => Chain(TextDecorationLineKeyword.NoneValue);
     public TextDecorationBuilder Underline => Chain(TextDecorationLineKeyword.UnderlineValue);
     public TextDecorationBuilder LineThrough => Chain(TextDecorationLineKeyword.LineThroughValue);
+    public TextDecorationBuilder Overline => Chain(TextDecorationLineKeyword.OverlineValue);
 
+    // Global keywords
     public TextDecorationBuilder Inherit => Chain(GlobalKeyword.InheritValue);
     public TextDecorationBuilder Initial => Chain(GlobalKeyword.InitialValue);
     public TextDecorationBuilder Revert => Chain(GlobalKeyword.RevertValue);
     public TextDecorationBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
     public TextDecorationBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
+    // Decoration styles
+    public TextDecorationBuilder Solid => SetStyle(TextDecorationStyleKeyword.SolidValue);
+    public TextDecorationBuilder Double => SetStyle(TextDecorationStyleKeyword.DoubleValue);
+    public TextDecorationBuilder Dotted => SetStyle(TextDecorationStyleKeyword.DottedValue);
+    public TextDecorationBuilder Dashed => SetStyle(TextDecorationStyleKeyword.DashedValue);
+    public TextDecorationBuilder Wavy => SetStyle(TextDecorationStyleKeyword.WavyValue);
+
+    // Color methods
+    public TextDecorationBuilder Color(string color)
+    {
+        _color = color;
+        return this;
+    }
+
+    public TextDecorationBuilder Primary => Color("var(--bs-primary)");
+    public TextDecorationBuilder Secondary => Color("var(--bs-secondary)");
+    public TextDecorationBuilder Success => Color("var(--bs-success)");
+    public TextDecorationBuilder Danger => Color("var(--bs-danger)");
+    public TextDecorationBuilder Warning => Color("var(--bs-warning)");
+    public TextDecorationBuilder Info => Color("var(--bs-info)");
+    public TextDecorationBuilder Light => Color("var(--bs-light)");
+    public TextDecorationBuilder Dark => Color("var(--bs-dark)");
+
+    // Thickness methods
+    public TextDecorationBuilder Thickness(string thickness)
+    {
+        _thickness = thickness;
+        return this;
+    }
+
+    public TextDecorationBuilder Thin => Thickness("1px");
+    public TextDecorationBuilder Medium => Thickness("2px");
+    public TextDecorationBuilder Thick => Thickness("3px");
+
+    // Breakpoints
     public TextDecorationBuilder OnPhone => ChainBp(BreakpointType.Phone);
     public TextDecorationBuilder OnTablet => ChainBp(BreakpointType.Tablet);
     public TextDecorationBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
@@ -63,6 +91,13 @@ public sealed class TextDecorationBuilder : ICssBuilder
     private TextDecorationBuilder Chain(string value)
     {
         _rules.Add(new TextDecorationRule(value, null));
+        return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private TextDecorationBuilder SetStyle(string style)
+    {
+        _style = style;
         return this;
     }
 
@@ -122,39 +157,61 @@ public sealed class TextDecorationBuilder : ICssBuilder
 
     public string ToStyle()
     {
-        if (_rules.Count == 0)
+        if (_rules.Count == 0 && _style == null && _color == null && _thickness == null)
             return string.Empty;
 
         using var sb = new PooledStringBuilder();
-        var first = true;
-
-        for (var i = 0; i < _rules.Count; i++)
+        
+        // Build the text-decoration shorthand or individual properties
+        if (_rules.Count > 0 || _style != null || _color != null || _thickness != null)
         {
-            var rule = _rules[i];
-
-            var css = rule.Value switch
+            sb.Append("text-decoration:");
+            
+            // Line (underline, line-through, etc.)
+            if (_rules.Count > 0)
             {
-                TextDecorationLineKeyword.NoneValue => _styleNone,
-                TextDecorationLineKeyword.UnderlineValue => _styleUnderline,
-                TextDecorationLineKeyword.LineThroughValue => _styleLineThrough,
-                GlobalKeyword.InheritValue => _styleInherit,
-                GlobalKeyword.InitialValue => _styleInitial,
-                GlobalKeyword.UnsetValue => _styleUnset,
-                GlobalKeyword.RevertValue => _styleRevert,
-                GlobalKeyword.RevertLayerValue => _styleRevertLayer,
-
-                _ => string.Empty
-            };
-
-            if (css.Length == 0)
-                continue;
-
-            if (!first)
-                sb.Append("; ");
+                var rule = _rules[^1]; // Use the last rule
+                var lineValue = rule.Value switch
+                {
+                    TextDecorationLineKeyword.NoneValue => "none",
+                    TextDecorationLineKeyword.UnderlineValue => "underline",
+                    TextDecorationLineKeyword.LineThroughValue => "line-through",
+                    TextDecorationLineKeyword.OverlineValue => "overline",
+                    GlobalKeyword.InheritValue => "inherit",
+                    GlobalKeyword.InitialValue => "initial",
+                    GlobalKeyword.UnsetValue => "unset",
+                    GlobalKeyword.RevertValue => "revert",
+                    GlobalKeyword.RevertLayerValue => "revert-layer",
+                    _ => "none"
+                };
+                sb.Append(' ');
+                sb.Append(lineValue);
+            }
             else
-                first = false;
-
-            sb.Append(css);
+            {
+                sb.Append(" underline"); // Default if only style/color/thickness specified
+            }
+            
+            // Style (solid, dotted, wavy, etc.)
+            if (_style != null)
+            {
+                sb.Append(' ');
+                sb.Append(_style);
+            }
+            
+            // Color
+            if (_color != null)
+            {
+                sb.Append(' ');
+                sb.Append(_color);
+            }
+            
+            // Thickness
+            if (_thickness != null)
+            {
+                sb.Append(' ');
+                sb.Append(_thickness);
+            }
         }
 
         return sb.ToString();
