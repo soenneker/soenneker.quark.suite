@@ -180,12 +180,174 @@
                         <Paragraph>Content that scrolls with sticky navbar</Paragraph>
                     </Div>
                 </Div>
+
+                <Hr/>
+
+                <Div>
+                    <H2>Vertical Sidebar Navigation</H2>
+                    <Paragraph Class="text-muted mb-3">Demonstrates vertical bar mode with BarEnd positioned at the bottom.</Paragraph>
+                    
+                    <Div Style="display: flex; height: 500px; border: 1px solid #dee2e6;">
+                        <Bar Mode="BarMode.VerticalInline" BackgroundColor="@BackgroundColor.Light">
+                            <BarToggler />
+                            <BarBrand>
+                                <BarItem>
+                                    <BarLink To="#">My App</BarLink>
+                                </BarItem>
+                            </BarBrand>
+                            <BarMenu>
+                                <BarStart>
+                                    <BarItem>
+                                        <BarLink To="#" Active="true">
+                                            <BarIcon Name="fa-house" IconStyle="IconStyle.Solid" Class="fa-fw" />
+                                            Dashboard
+                                        </BarLink>
+                                    </BarItem>
+                                    <BarItem>
+                                        <BarLink To="#">
+                                            <BarIcon Name="fa-users" IconStyle="IconStyle.Solid" Class="fa-fw" />
+                                            Users
+                                        </BarLink>
+                                    </BarItem>
+                                    <BarItem>
+                                        <BarLink To="#">
+                                            <BarIcon Name="fa-chart-line" IconStyle="IconStyle.Solid" Class="fa-fw" />
+                                            Analytics
+                                        </BarLink>
+                                    </BarItem>
+                                    <BarItem>
+                                        <BarLink To="#">
+                                            <BarIcon Name="fa-gear" IconStyle="IconStyle.Solid" Class="fa-fw" />
+                                            Settings
+                                        </BarLink>
+                                    </BarItem>
+                                    <BarItem>
+                                        <BarDropdown>
+                                            <BarDropdownToggle>
+                                                <BarIcon Name="fa-chevron-down" IconStyle="IconStyle.Solid" Class="fa-fw" />
+                                                More Options
+                                            </BarDropdownToggle>
+                                            <BarDropdownMenu>
+                                                <BarDropdownItem To="#">Option 1</BarDropdownItem>
+                                                <BarDropdownItem To="#">Option 2</BarDropdownItem>
+                                                <BarDropdownItem To="#">Option 3</BarDropdownItem>
+                                            </BarDropdownMenu>
+                                        </BarDropdown>
+                                    </BarItem>
+                                </BarStart>
+                                <BarEnd>
+                                    <BarItem>
+                                        <BarDropdown>
+                                            <BarDropdownMenu Border="Border.Is1">
+                                                <BarDropdownItem To="#" Padding="Padding.Is3.FromStart">
+                                                    <BarIcon Name="fa-user" IconStyle="IconStyle.Solid" Class="me-2" />
+                                                    Profile
+                                                </BarDropdownItem>
+                                                <BarDropdownItem To="#" Padding="Padding.Is3.FromStart">
+                                                    <BarIcon Name="fa-arrow-right-from-bracket" IconStyle="IconStyle.Solid" Class="me-2" />
+                                                    Log out
+                                                </BarDropdownItem>
+                                            </BarDropdownMenu>
+                                            <BarDropdownToggle Class="d-flex align-items-center">
+                                                <BarIcon Name="fa-circle-user" IconStyle="IconStyle.Regular" Class="me-2" />
+                                                User Name
+                                            </BarDropdownToggle>
+                                        </BarDropdown>
+                                    </BarItem>
+                                </BarEnd>
+                            </BarMenu>
+                        </Bar>
+                        <Div Style="flex: 1; padding: 20px; background-color: #f8f9fa;">
+                            <H3>Main Content Area</H3>
+                            <Paragraph>
+                                This demonstrates a vertical sidebar with the user dropdown pushed to the bottom using BarEnd.
+                                The BarStart section contains the main navigation items and grows to fill available space,
+                                while the BarEnd section is automatically positioned at the bottom of the sidebar.
+                            </Paragraph>
+                            <Paragraph Class="text-muted">
+                                Notice how the user dropdown stays at the bottom regardless of the number of navigation items above it.
+                            </Paragraph>
+                        </Div>
+                    </Div>
+                </Div>
+
+                <Hr Margin="Margin.Is4.OnY" />
+
+                <Div>
+                    <H2>Collapsible Vertical Bar</H2>
+                    <Paragraph Class="text-muted mb-3">Vertical bar with small collapse mode that can be toggled.</Paragraph>
+                    
+                    <Div Style="display: flex; height: 500px; border: 1px solid #dee2e6;">
+                        <Bar Mode="BarMode.VerticalInline" 
+                             CollapseMode="BarCollapseMode.Small" 
+                             BackgroundColor="@BackgroundColor.Light"
+                             @bind-Visible="_sidebarVisible">
+                            <BarToggler />
+                            @if (_sidebarVisible)
+                            {
+                                <BarBrand>
+                                    <BarItem>
+                                        <BarLink To="#">Brand</BarLink>
+                                    </BarItem>
+                                </BarBrand>
+                            }
+                            <BarMenu>
+                                <BarStart>
+                                    <BarItem>
+                                        <BarLink To="#">
+                                            <BarIcon Name="fa-inbox" IconStyle="IconStyle.Solid" Class="fa-fw" />
+                                            Inbox
+                                        </BarLink>
+                                    </BarItem>
+                                    <BarItem>
+                                        <BarLink To="#">
+                                            <BarIcon Name="fa-folder" IconStyle="IconStyle.Solid" Class="fa-fw" />
+                                            Files
+                                        </BarLink>
+                                    </BarItem>
+                                    <BarItem>
+                                        <BarLink To="#">
+                                            <BarIcon Name="fa-calendar" IconStyle="IconStyle.Solid" Class="fa-fw" />
+                                            Calendar
+                                        </BarLink>
+                                    </BarItem>
+                                </BarStart>
+                                <BarEnd>
+                                    <BarItem>
+                                        <BarDropdown>
+                                            <BarDropdownMenu Border="Border.Is1">
+                                                <BarDropdownItem To="#">Settings</BarDropdownItem>
+                                                <BarDropdownItem To="#">Help</BarDropdownItem>
+                                                <BarDropdownItem To="#">Sign Out</BarDropdownItem>
+                                            </BarDropdownMenu>
+                                            <BarDropdownToggle>
+                                                <BarIcon Name="fa-ellipsis-vertical" IconStyle="IconStyle.Solid" />
+                                                @if (_sidebarVisible)
+                                                {
+                                                    <Text>Menu</Text>
+                                                }
+                                            </BarDropdownToggle>
+                                        </BarDropdown>
+                                    </BarItem>
+                                </BarEnd>
+                            </BarMenu>
+                        </Bar>
+                        <Div Style="flex: 1; padding: 20px; background-color: #f8f9fa;">
+                            <H3>Collapsible Sidebar Demo</H3>
+                            <Paragraph>
+                                Click the hamburger icon in the sidebar to toggle between expanded and collapsed states.
+                                The BarEnd section remains at the bottom in both states.
+                            </Paragraph>
+                        </Div>
+                    </Div>
+                </Div>
             </Div>
         </Column>
     </Row>
 </Container>
 
 @code {
+    private bool _sidebarVisible = true;
 
     protected override void OnInitialized()
     {
