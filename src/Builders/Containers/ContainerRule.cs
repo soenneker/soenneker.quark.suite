@@ -1,3 +1,5 @@
+using Soenneker.Quark.Enums;
+
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -5,12 +7,12 @@ namespace Soenneker.Quark;
 /// </summary>
 public readonly struct ContainerRule
 {
-    public readonly string ClassName;
-    public readonly string CssRule;
+    public readonly ContainerVariant Variant;
+    public readonly ContainerBreakpoint Breakpoint;
 
-    public ContainerRule(string className, string cssRule)
+    public ContainerRule(ContainerVariant variant, ContainerBreakpoint breakpoint)
     {
-        ClassName = className;
-        CssRule = cssRule;
+        Variant = variant;
+        Breakpoint = breakpoint;
     }
 }

@@ -11,6 +11,7 @@ public sealed class FontWeightBuilder : ICssBuilder
 {
     private readonly List<FontWeightRule> _rules = new(6);
 
+    private const string _classLighter = "fw-lighter";
     private const string _classLight = "fw-light";
     private const string _classNormal = "fw-normal";
     private const string _classMedium = "fw-medium";
@@ -30,12 +31,14 @@ public sealed class FontWeightBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    // Note: Lighter and Bolder are not available in the current FontWeightKeyword package version
+    // public FontWeightBuilder Lighter => Chain(FontWeightKeyword.LighterValue);
     public FontWeightBuilder Light => Chain(FontWeightKeyword.LightValue);
     public FontWeightBuilder Normal => Chain(FontWeightKeyword.NormalValue);
     public FontWeightBuilder Medium => Chain(FontWeightKeyword.MediumValue);
     public FontWeightBuilder Semibold => Chain(FontWeightKeyword.SemiboldValue);
     public FontWeightBuilder Bold => Chain(FontWeightKeyword.BoldValue);
-    public FontWeightBuilder Bolder => Chain(FontWeightKeyword.BolderValue);
+    // public FontWeightBuilder Bolder => Chain(FontWeightKeyword.BolderValue);
     public FontWeightBuilder Inherit => Chain(GlobalKeyword.InheritValue);
     public FontWeightBuilder Initial => Chain(GlobalKeyword.InitialValue);
     public FontWeightBuilder Revert => Chain(GlobalKeyword.RevertValue);
@@ -87,12 +90,13 @@ public sealed class FontWeightBuilder : ICssBuilder
             var rule = _rules[i];
             var cls = rule.Value switch
             {
+                // FontWeightKeyword.LighterValue => _classLighter,
                 FontWeightKeyword.LightValue => _classLight,
                 FontWeightKeyword.NormalValue => _classNormal,
                 FontWeightKeyword.MediumValue => _classMedium,
                 FontWeightKeyword.SemiboldValue => _classSemibold,
                 FontWeightKeyword.BoldValue => _classBold,
-                FontWeightKeyword.BolderValue => _classBolder,
+                // FontWeightKeyword.BolderValue => _classBolder,
                 _ => string.Empty
             };
             if (cls.Length == 0)
@@ -121,12 +125,13 @@ public sealed class FontWeightBuilder : ICssBuilder
             var rule = _rules[i];
             var css = rule.Value switch
             {
+                // FontWeightKeyword.LighterValue => "lighter",
                 FontWeightKeyword.LightValue => "300",
                 FontWeightKeyword.NormalValue => "400",
                 FontWeightKeyword.MediumValue => "500",
                 FontWeightKeyword.SemiboldValue => "600",
                 FontWeightKeyword.BoldValue => "700",
-                FontWeightKeyword.BolderValue => "bolder",
+                // FontWeightKeyword.BolderValue => "bolder",
                 GlobalKeyword.InheritValue => "inherit",
                 GlobalKeyword.InitialValue => "initial",
                 GlobalKeyword.UnsetValue => "unset",

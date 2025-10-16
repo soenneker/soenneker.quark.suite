@@ -16,11 +16,12 @@ public sealed class TextSizeBuilder : ICssBuilder
     private readonly List<TextSizeRule> _rules = new(4);
 
     // ----- Class name constants -----
-    private const string _fs6 = "fs-6";
-    private const string _fs5 = "fs-5";
-    private const string _fs4 = "fs-4";
-    private const string _fs3 = "fs-3";
+    private const string _fs1 = "fs-1";
     private const string _fs2 = "fs-2";
+    private const string _fs3 = "fs-3";
+    private const string _fs4 = "fs-4";
+    private const string _fs5 = "fs-5";
+    private const string _fs6 = "fs-6";
 
     // ----- CSS prefix (compile-time) -----
     private const string _fontSizePrefix = "font-size: ";
@@ -37,11 +38,12 @@ public sealed class TextSizeBuilder : ICssBuilder
     }
 
     // ----- Fluent size chaining -----
-    public TextSizeBuilder ExtraSmall => ChainSize(SizeType.ExtraSmall.Value);
-    public TextSizeBuilder Small => ChainSize(SizeType.Small.Value);
-    public TextSizeBuilder Base => ChainSize("base");
-    public TextSizeBuilder Large => ChainSize(SizeType.Large.Value);
-    public TextSizeBuilder ExtraLarge => ChainSize(SizeType.ExtraLarge.Value);
+    public TextSizeBuilder Is1 => ChainSize("1");
+    public TextSizeBuilder Is2 => ChainSize("2");
+    public TextSizeBuilder Is3 => ChainSize("3");
+    public TextSizeBuilder Is4 => ChainSize("4");
+    public TextSizeBuilder Is5 => ChainSize("5");
+    public TextSizeBuilder Is6 => ChainSize("6");
 
     // ----- BreakpointType chaining -----
     public TextSizeBuilder OnPhone => ChainBp(BreakpointType.Phone);
@@ -58,13 +60,13 @@ public sealed class TextSizeBuilder : ICssBuilder
         return this;
     }
 
-    /// <summary>Apply a BreakpointType to the most recent rule (or bootstrap with "base" if empty).</summary>
+    /// <summary>Apply a BreakpointType to the most recent rule (or bootstrap with "4" if empty).</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextSizeBuilder ChainBp(BreakpointType bp)
     {
         if (_rules.Count == 0)
         {
-            _rules.Add(new TextSizeRule("base", bp));
+            _rules.Add(new TextSizeRule("4", bp));
             return this;
         }
 
@@ -138,14 +140,15 @@ public sealed class TextSizeBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string GetSizeClass(string size)
     {
-        // Bootstrap 5 font-scale mapping
+        // Bootstrap 5 font-size mapping
         return size switch
         {
-            "xs" => _fs6,
-            "sm" => _fs5,
-            "base" => _fs4,
-            "lg" => _fs3,
-            "xl" => _fs2,
+            "1" => _fs1,
+            "2" => _fs2,
+            "3" => _fs3,
+            "4" => _fs4,
+            "5" => _fs5,
+            "6" => _fs6,
             _ => string.Empty
         };
     }
@@ -153,14 +156,15 @@ public sealed class TextSizeBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string? GetSizeValue(string size)
     {
-        // Tailored inline values for when you need styles instead of classes
+        // Use Bootstrap CSS variables for inline styles
         return size switch
         {
-            "xs" => "0.75rem",
-            "sm" => "0.875rem",
-            "base" => "1rem",
-            "lg" => "1.125rem",
-            "xl" => "1.25rem",
+            "1" => "calc(1.375rem + 1.5vw)",
+            "2" => "calc(1.325rem + 0.9vw)",
+            "3" => "calc(1.3rem + 0.6vw)",
+            "4" => "calc(1.275rem + 0.3vw)",
+            "5" => "1.25rem",
+            "6" => "1rem",
             _ => null
         };
     }

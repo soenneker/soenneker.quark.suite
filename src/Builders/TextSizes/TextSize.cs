@@ -9,27 +9,32 @@ namespace Soenneker.Quark;
 public static class TextSize
 {
     /// <summary>
-    /// Extra small text size.
+    /// Font size 1 (largest). Generates 'fs-1' class.
     /// </summary>
-    public static TextSizeBuilder ExtraSmall => new(SizeType.ExtraSmall.Value);
+    public static TextSizeBuilder Is1 => new("1");
 
     /// <summary>
-    /// Small text size.
+    /// Font size 2. Generates 'fs-2' class.
     /// </summary>
-    public static TextSizeBuilder Small => new(SizeType.Small.Value);
+    public static TextSizeBuilder Is2 => new("2");
 
     /// <summary>
-    /// Base text size (default).
+    /// Font size 3. Generates 'fs-3' class.
     /// </summary>
-    public static TextSizeBuilder Base => new("base");
+    public static TextSizeBuilder Is3 => new("3");
 
     /// <summary>
-    /// Large text size.
+    /// Font size 4. Generates 'fs-4' class.
     /// </summary>
-    public static TextSizeBuilder Large => new(SizeType.Large.Value);
+    public static TextSizeBuilder Is4 => new("4");
 
     /// <summary>
-    /// Extra large text size.
+    /// Font size 5. Generates 'fs-5' class.
     /// </summary>
-    public static TextSizeBuilder ExtraLarge => new(SizeType.ExtraLarge.Value);
+    public static TextSizeBuilder Is5 => new("5");
+
+    /// <summary>
+    /// Font size 6 (smallest). Generates 'fs-6' class.
+    /// </summary>
+    public static TextSizeBuilder Is6 => new("6");
 }

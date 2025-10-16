@@ -1,80 +1,43 @@
 using Soenneker.Quark.Enums;
+using System.Runtime.CompilerServices;
 
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Builder for Bootstrap container utilities.
 /// </summary>
-public class ContainerBuilder : ICssBuilder
+public sealed class ContainerBuilder : ICssBuilder
 {
-    private ContainerUtility? _container;
+    private ContainerRule? _rule;
 
-    public bool IsEmpty => !_container.HasValue;
-    public bool IsCssClass => true;
-    public bool IsCssStyle => false;
-
-    public ContainerBuilder Set(ContainerUtility container)
+    internal ContainerBuilder(ContainerVariant variant, ContainerBreakpoint? breakpoint = null)
     {
-        _container = container;
-        return this;
+        _rule = new ContainerRule(variant, breakpoint ?? ContainerBreakpoint.None);
     }
 
-    public ContainerBuilder Default()
+    /// <summary>Gets the CSS class string for the current configuration.</summary>
+    public string ToClass()
     {
-        _container = ContainerUtility.Default;
-        return this;
+        if (!_rule.HasValue)
+            return string.Empty;
+
+        return GetContainerClass(_rule.Value);
     }
 
-    public ContainerBuilder Fluid()
-    {
-        _container = ContainerUtility.Fluid;
-        return this;
-    }
+    /// <summary>Gets the CSS style string for the current configuration.</summary>
+    public string ToStyle() => string.Empty;
 
-    public ContainerBuilder Small()
-    {
-        _container = ContainerUtility.Small;
-        return this;
-    }
+    /// <summary>Gets the string representation of the current configuration.</summary>
+    public override string ToString() => ToClass();
 
-    public ContainerBuilder Medium()
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string GetContainerClass(ContainerRule rule)
     {
-        _container = ContainerUtility.Medium;
-        return this;
-    }
-
-    public ContainerBuilder Large()
-    {
-        _container = ContainerUtility.Large;
-        return this;
-    }
-
-    public ContainerBuilder ExtraLarge()
-    {
-        _container = ContainerUtility.ExtraLarge;
-        return this;
-    }
-
-    public ContainerBuilder ExtraExtraLarge()
-    {
-        _container = ContainerUtility.ExtraExtraLarge;
-        return this;
-    }
-
-    public override string ToString()
-    {
-        if (!_container.HasValue) return string.Empty;
-
-        return GetContainerClass(_container.Value);
-    }
-
-    private static string GetContainerClass(ContainerUtility container)
-    {
-        return container.Type.Value switch
+        return rule.Variant.Value switch
         {
-            ContainerType.DefaultValue => "container",
-            ContainerType.FluidValue => "container-fluid",
-            ContainerType.ResponsiveValue => container.Breakpoint.Value switch
+            ContainerVariant.DefaultValue => "container",
+            ContainerVariant.FluidValue => "container-fluid",
+            ContainerVariant.ResponsiveValue => rule.Breakpoint.Value switch
             {
                 ContainerBreakpoint.SmValue => "container-sm",
                 ContainerBreakpoint.MdValue => "container-md",
@@ -86,7 +49,4 @@ public class ContainerBuilder : ICssBuilder
             _ => "container"
         };
     }
-
-    public string ToClass() => ToString();
-    public string ToStyle() => string.Empty;
 }
