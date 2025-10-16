@@ -33,13 +33,17 @@
         if (Disabled)
         {
             attributes["aria-disabled"] = "true";
-            attributes["tabindex"] = -1;
+            // Set tabindex only if not already set via TabIndex property
+            if (!attributes.ContainsKey("tabindex"))
+                attributes["tabindex"] = -1;
         }
         else
         {
             // Avoid navigation while still rendering as a link
             attributes["href"] = attributes.ContainsKey("href") ? attributes["href"] : "javascript:void(0)";
-            attributes["role"] = attributes.GetValueOrDefault("role")?.ToString() ?? "button";
+            // Set role only if not already set via Role property
+            if (!attributes.ContainsKey("role"))
+                attributes["role"] = "button";
         }
 
         return attributes;

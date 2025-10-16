@@ -28,7 +28,10 @@
 
         BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, "btn-close"));
 
-        attributes["aria-label"] = "Close";
+        // Only set default aria-label if not already set via AriaLabel property
+        if (!attributes.ContainsKey("aria-label"))
+            attributes["aria-label"] = "Close";
+            
         attributes["data-bs-dismiss"] = "modal";
 
         return attributes;
