@@ -41,6 +41,8 @@ public sealed class BackgroundColorBuilder : ICssBuilder
 
     public BackgroundColorBuilder Black => ChainValue("black");
 
+    public BackgroundColorBuilder Transparent => ChainValue("transparent");
+
     public BackgroundColorBuilder Inherit => ChainValue(GlobalKeyword.InheritValue);
     public BackgroundColorBuilder Initial => ChainValue(GlobalKeyword.InitialValue);
     public BackgroundColorBuilder Revert => ChainValue(GlobalKeyword.RevertValue);
@@ -152,7 +154,7 @@ public sealed class BackgroundColorBuilder : ICssBuilder
         return rule.Value switch
         {
             "primary" or "secondary" or "success" or "danger" or "warning" or "info" or "light" or "dark" or "link" or "muted" or "white"
-                or "black" => rule.Value,
+                or "black" or "transparent" => rule.Value,
             _ => string.Empty
         };
     }
@@ -162,7 +164,7 @@ public sealed class BackgroundColorBuilder : ICssBuilder
     {
         return rule.Value switch
         {
-            "primary" or "secondary" or "success" or "danger" or "warning" or "info" or "light" or "dark" or "link" or "muted" or "white" or "black" => null,
+            "primary" or "secondary" or "success" or "danger" or "warning" or "info" or "light" or "dark" or "link" or "muted" or "white" or "black" or "transparent" => null,
             _ => rule.Value
         };
     }

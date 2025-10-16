@@ -23,6 +23,8 @@ public static class BackgroundColor
 
     public static BackgroundColorBuilder Black => new("black");
 
+    public static BackgroundColorBuilder Transparent => new("transparent");
+
     public static BackgroundColorBuilder Inherit => new(GlobalKeyword.InheritValue);
     public static BackgroundColorBuilder Initial => new(GlobalKeyword.InitialValue);
     public static BackgroundColorBuilder Revert => new(GlobalKeyword.RevertValue);
