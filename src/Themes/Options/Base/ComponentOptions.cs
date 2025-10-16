@@ -117,4 +117,18 @@ public class ComponentOptions
     public CssValue<TransitionBuilder>? Transition { get; set; }
 
     public CssValue<TruncateBuilder>? Truncate { get; set; }
+
+    public CssValue<FocusRingBuilder>? FocusRing { get; set; }
+
+    public CssValue<LinkOpacityBuilder>? LinkOpacity { get; set; }
+
+    public CssValue<LinkOffsetBuilder>? LinkOffset { get; set; }
+
+    public CssValue<LinkUnderlineBuilder>? LinkUnderline { get; set; }
+
+    public CssValue<BackgroundOpacityBuilder>? BackgroundOpacity { get; set; }
+
+    public CssValue<BorderOpacityBuilder>? BorderOpacity { get; set; }
+
+    public CssValue<TextOpacityBuilder>? TextOpacity { get; set; }
 }

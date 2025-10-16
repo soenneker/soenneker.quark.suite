@@ -220,6 +220,27 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<TextStyleBuilder>? TextStyle { get; set; }
 
     [Parameter]
+    public CssValue<FocusRingBuilder>? FocusRing { get; set; }
+
+    [Parameter]
+    public CssValue<LinkOpacityBuilder>? LinkOpacity { get; set; }
+
+    [Parameter]
+    public CssValue<LinkOffsetBuilder>? LinkOffset { get; set; }
+
+    [Parameter]
+    public CssValue<LinkUnderlineBuilder>? LinkUnderline { get; set; }
+
+    [Parameter]
+    public CssValue<BackgroundOpacityBuilder>? BackgroundOpacity { get; set; }
+
+    [Parameter]
+    public CssValue<BorderOpacityBuilder>? BorderOpacity { get; set; }
+
+    [Parameter]
+    public CssValue<TextOpacityBuilder>? TextOpacity { get; set; }
+
+    [Parameter]
     public EventCallback<MouseEventArgs> OnClick { get; set; }
 
     [Parameter]
@@ -429,6 +450,13 @@ public abstract class Component : CoreComponent, IComponent
             AddCss(ref sty, ref cls, Transition);
             AddCss(ref sty, ref cls, Truncate);
             AddCss(ref sty, ref cls, TextStyle);
+            AddCss(ref sty, ref cls, FocusRing);
+            AddCss(ref sty, ref cls, LinkOpacity);
+            AddCss(ref sty, ref cls, LinkOffset);
+            AddCss(ref sty, ref cls, LinkUnderline);
+            AddCss(ref sty, ref cls, BackgroundOpacity);
+            AddCss(ref sty, ref cls, BorderOpacity);
+            AddCss(ref sty, ref cls, TextOpacity);
 
             AddCss(ref sty, ref cls, Margin);
             AddCss(ref sty, ref cls, Padding);
@@ -604,6 +632,13 @@ public abstract class Component : CoreComponent, IComponent
         AddIf(ref hc, Transition);
         AddIf(ref hc, Truncate);
         AddIf(ref hc, TextStyle);
+        AddIf(ref hc, FocusRing);
+        AddIf(ref hc, LinkOpacity);
+        AddIf(ref hc, LinkOffset);
+        AddIf(ref hc, LinkUnderline);
+        AddIf(ref hc, BackgroundOpacity);
+        AddIf(ref hc, BorderOpacity);
+        AddIf(ref hc, TextOpacity);
         AddIf(ref hc, TextColor);
         AddIf(ref hc, BackgroundColor);
 
@@ -958,6 +993,13 @@ public abstract class Component : CoreComponent, IComponent
         ApplyThemeProperty(componentOptions.Transition, () => Transition, v => Transition = v);
         ApplyThemeProperty(componentOptions.Truncate, () => Truncate, v => Truncate = v);
         ApplyThemeProperty(componentOptions.TextStyle, () => TextStyle, v => TextStyle = v);
+        ApplyThemeProperty(componentOptions.FocusRing, () => FocusRing, v => FocusRing = v);
+        ApplyThemeProperty(componentOptions.LinkOpacity, () => LinkOpacity, v => LinkOpacity = v);
+        ApplyThemeProperty(componentOptions.LinkOffset, () => LinkOffset, v => LinkOffset = v);
+        ApplyThemeProperty(componentOptions.LinkUnderline, () => LinkUnderline, v => LinkUnderline = v);
+        ApplyThemeProperty(componentOptions.BackgroundOpacity, () => BackgroundOpacity, v => BackgroundOpacity = v);
+        ApplyThemeProperty(componentOptions.BorderOpacity, () => BorderOpacity, v => BorderOpacity = v);
+        ApplyThemeProperty(componentOptions.TextOpacity, () => TextOpacity, v => TextOpacity = v);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

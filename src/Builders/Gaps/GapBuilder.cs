@@ -22,12 +22,24 @@ public sealed class GapBuilder : ICssBuilder
     private const string _classGap3 = "gap-3";
     private const string _classGap4 = "gap-4";
     private const string _classGap5 = "gap-5";
+    private const string _classColumnGap0 = "column-gap-0";
+    private const string _classColumnGap1 = "column-gap-1";
+    private const string _classColumnGap2 = "column-gap-2";
+    private const string _classColumnGap3 = "column-gap-3";
+    private const string _classColumnGap4 = "column-gap-4";
+    private const string _classColumnGap5 = "column-gap-5";
+    private const string _classRowGap0 = "row-gap-0";
+    private const string _classRowGap1 = "row-gap-1";
+    private const string _classRowGap2 = "row-gap-2";
+    private const string _classRowGap3 = "row-gap-3";
+    private const string _classRowGap4 = "row-gap-4";
+    private const string _classRowGap5 = "row-gap-5";
     private const string _stylePrefix = "gap: ";
 
-    internal GapBuilder(string size, BreakpointType? breakpoint = null)
+    internal GapBuilder(string size, BreakpointType? breakpoint = null, string direction = "")
     {
         if (size.HasContent())
-            _rules.Add(new GapRule(size, breakpoint));
+            _rules.Add(new GapRule(size, breakpoint, direction));
     }
 
     internal GapBuilder(List<GapRule> rules)
@@ -67,6 +79,16 @@ public sealed class GapBuilder : ICssBuilder
     public GapBuilder Is5 => ChainWithSize(ScaleType.Is5Value);
 
     /// <summary>
+    /// Apply to column gap only.
+    /// </summary>
+    public GapBuilder Column => ChainWithDirection("column");
+
+    /// <summary>
+    /// Apply to row gap only.
+    /// </summary>
+    public GapBuilder Row => ChainWithDirection("row");
+
+    /// <summary>
     /// Apply on phone devices (portrait phones, less than 576px).
     /// </summary>
     public GapBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
@@ -95,7 +117,22 @@ public sealed class GapBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private GapBuilder ChainWithSize(string size)
     {
-        _rules.Add(new GapRule(size, null));
+        _rules.Add(new GapRule(size, null, ""));
+        return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private GapBuilder ChainWithDirection(string direction)
+    {
+        if (_rules.Count == 0)
+        {
+            _rules.Add(new GapRule(ScaleType.Is0Value, null, direction));
+            return this;
+        }
+
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
+        _rules[lastIdx] = new GapRule(last.Size, last.breakpoint, direction);
         return this;
     }
 
@@ -104,13 +141,13 @@ public sealed class GapBuilder : ICssBuilder
     {
         if (_rules.Count == 0)
         {
-            _rules.Add(new GapRule(ScaleType.Is0Value, breakpoint));
+            _rules.Add(new GapRule(ScaleType.Is0Value, breakpoint, ""));
             return this;
         }
 
         var lastIdx = _rules.Count - 1;
         var last = _rules[lastIdx];
-        _rules[lastIdx] = new GapRule(last.Size, breakpoint);
+        _rules[lastIdx] = new GapRule(last.Size, breakpoint, last.Direction);
         return this;
     }
 
@@ -128,7 +165,7 @@ public sealed class GapBuilder : ICssBuilder
         for (var i = 0; i < _rules.Count; i++)
         {
             var rule = _rules[i];
-            var cls = GetSizeClass(rule.Size);
+            var cls = GetSizeClass(rule.Size, rule.Direction);
             if (cls.Length == 0)
                 continue;
 
@@ -168,7 +205,18 @@ public sealed class GapBuilder : ICssBuilder
             if (!first) sb.Append("; ");
             else first = false;
 
-            sb.Append(_stylePrefix);
+            if (rule.Direction == "column")
+            {
+                sb.Append("column-gap: ");
+            }
+            else if (rule.Direction == "row")
+            {
+                sb.Append("row-gap: ");
+            }
+            else
+            {
+                sb.Append(_stylePrefix);
+            }
             sb.Append(sizeValue);
         }
 
@@ -176,18 +224,47 @@ public sealed class GapBuilder : ICssBuilder
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string GetSizeClass(string size)
+    private static string GetSizeClass(string size, string direction)
     {
-        return size switch
+        if (direction == "column")
         {
-            ScaleType.Is0Value => _classGap0,
-            ScaleType.Is1Value => _classGap1,
-            ScaleType.Is2Value => _classGap2,
-            ScaleType.Is3Value => _classGap3,
-            ScaleType.Is4Value => _classGap4,
-            ScaleType.Is5Value => _classGap5,
-            _ => string.Empty
-        };
+            return size switch
+            {
+                ScaleType.Is0Value => _classColumnGap0,
+                ScaleType.Is1Value => _classColumnGap1,
+                ScaleType.Is2Value => _classColumnGap2,
+                ScaleType.Is3Value => _classColumnGap3,
+                ScaleType.Is4Value => _classColumnGap4,
+                ScaleType.Is5Value => _classColumnGap5,
+                _ => string.Empty
+            };
+        }
+        else if (direction == "row")
+        {
+            return size switch
+            {
+                ScaleType.Is0Value => _classRowGap0,
+                ScaleType.Is1Value => _classRowGap1,
+                ScaleType.Is2Value => _classRowGap2,
+                ScaleType.Is3Value => _classRowGap3,
+                ScaleType.Is4Value => _classRowGap4,
+                ScaleType.Is5Value => _classRowGap5,
+                _ => string.Empty
+            };
+        }
+        else
+        {
+            return size switch
+            {
+                ScaleType.Is0Value => _classGap0,
+                ScaleType.Is1Value => _classGap1,
+                ScaleType.Is2Value => _classGap2,
+                ScaleType.Is3Value => _classGap3,
+                ScaleType.Is4Value => _classGap4,
+                ScaleType.Is5Value => _classGap5,
+                _ => string.Empty
+            };
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

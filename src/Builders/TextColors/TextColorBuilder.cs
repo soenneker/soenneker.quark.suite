@@ -52,6 +52,16 @@ public sealed class TextColorBuilder : ICssBuilder
     public TextColorBuilder BodyInverseMuted => ChainValue("body-inverse-muted");
     public TextColorBuilder BodyInverseReset => ChainValue("body-inverse-reset");
 
+    // Emphasis variants
+    public TextColorBuilder PrimaryEmphasis => ChainValue("primary-emphasis");
+    public TextColorBuilder SecondaryEmphasis => ChainValue("secondary-emphasis");
+    public TextColorBuilder SuccessEmphasis => ChainValue("success-emphasis");
+    public TextColorBuilder DangerEmphasis => ChainValue("danger-emphasis");
+    public TextColorBuilder WarningEmphasis => ChainValue("warning-emphasis");
+    public TextColorBuilder InfoEmphasis => ChainValue("info-emphasis");
+    public TextColorBuilder LightEmphasis => ChainValue("light-emphasis");
+    public TextColorBuilder DarkEmphasis => ChainValue("dark-emphasis");
+
     // Opacity variants
     public TextColorBuilder Opacity75 => ChainValue("75");
     public TextColorBuilder Opacity50 => ChainValue("50");
@@ -186,6 +196,14 @@ public sealed class TextColorBuilder : ICssBuilder
             "body-inverse-highlight" => "text-body-inverse-highlight",
             "body-inverse-muted" => "text-body-inverse-muted",
             "body-inverse-reset" => "text-body-inverse-reset",
+            "primary-emphasis" => "text-primary-emphasis",
+            "secondary-emphasis" => "text-secondary-emphasis",
+            "success-emphasis" => "text-success-emphasis",
+            "danger-emphasis" => "text-danger-emphasis",
+            "warning-emphasis" => "text-warning-emphasis",
+            "info-emphasis" => "text-info-emphasis",
+            "light-emphasis" => "text-light-emphasis",
+            "dark-emphasis" => "text-dark-emphasis",
             "75" => "-75",
             "50" => "-50",
             "25" => "-25",
