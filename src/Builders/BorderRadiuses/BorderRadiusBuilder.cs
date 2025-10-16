@@ -44,13 +44,14 @@ public sealed class BorderRadiusBuilder : ICssBuilder
 
     // ----- Size chaining -----
     public BorderRadiusBuilder Is0 => ChainWithSize(ScaleType.Is0);
-    public BorderRadiusBuilder Small => ChainWithSize("sm");
     public BorderRadiusBuilder Default => ChainWithSize("");
-    public BorderRadiusBuilder Large => ChainWithSize("lg");
-    public BorderRadiusBuilder ExtraLarge => ChainWithSize("xl");
-    public BorderRadiusBuilder Xxl => ChainWithSize("2xl");
     public BorderRadiusBuilder Pill => ChainWithSize("pill");
     public BorderRadiusBuilder Circle => ChainWithSize("circle");
+    public BorderRadiusBuilder Is1 => ChainWithSize("1");
+    public BorderRadiusBuilder Is2 => ChainWithSize("2");
+    public BorderRadiusBuilder Is3 => ChainWithSize("3");
+    public BorderRadiusBuilder Is4 => ChainWithSize("4");
+    public BorderRadiusBuilder Is5 => ChainWithSize("5");
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -255,13 +256,14 @@ public sealed class BorderRadiusBuilder : ICssBuilder
         return size switch
         {
             ScaleType.Is0Value => "0",
-            "sm" => "0.25rem",
-            "" => "0.375rem",
-            "lg" => "0.5rem",
-            "xl" => "1rem",
-            "2xl" => "2rem",
+            "" => "var(--bs-border-radius)",
             "pill" => "50rem",
             "circle" => "50%",
+            "1" => "var(--bs-border-radius-sm)",
+            "2" => "var(--bs-border-radius)",
+            "3" => "var(--bs-border-radius-lg)",
+            "4" => "var(--bs-border-radius-xl)",
+            "5" => "var(--bs-border-radius-xxl)",
             _ => null
         };
     }
