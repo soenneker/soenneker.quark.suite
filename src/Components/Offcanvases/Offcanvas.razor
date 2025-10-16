@@ -48,6 +48,9 @@
 
     protected override void OnInitialized()
     {
+        // Offcanvas dialogs should not be in tab order by default
+        TabIndex ??= -1;
+        
         // Ensure we have a stable id to register with interop
         Id ??= _generatedId;
         // Register this offcanvas with the coordinator so overlay containers can react
@@ -108,7 +111,6 @@
         if (Style.HasContent())
             attributes["style"] = Style;
 
-        attributes["tabindex"] = "-1";
         attributes["role"] = "dialog";
         attributes["aria-modal"] = "true";
 

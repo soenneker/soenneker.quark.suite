@@ -108,6 +108,10 @@ else
 
 		// Figure out disabled state (treat presence of "disabled" attribute as true)
 		var isDisabled = Disabled || Loading || attributes.ContainsKey("disabled");
+		
+		// Links that are disabled/loading should not be in tab order (unless user explicitly set TabIndex)
+		if (isLink && isDisabled && !attributes.ContainsKey("tabindex"))
+			attributes["tabindex"] = -1;
 
 		// Add Bootstrap button classes unless explicitly unstyled
 		BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
@@ -146,11 +150,10 @@ else
 		// Real disabled vs. aria-disabled
 		if (isLink)
 		{
-			// Anchor can't be truly disabled; use ARIA and remove focus
+			// Anchor can't be truly disabled; use ARIA
 			if (isDisabled)
 			{
                 attributes["aria-disabled"] = "true";
-                attributes["tabindex"] = "-1";
 				// role is already a good idea for link-as-button
                 attributes["role"] = "button";
 			}
