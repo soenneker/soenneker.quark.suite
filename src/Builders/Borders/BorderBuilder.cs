@@ -279,7 +279,7 @@ public sealed class BorderBuilder : ICssBuilder
             ScaleType.Is3Value => "3px",
             ScaleType.Is4Value => "4px",
             ScaleType.Is5Value => "5px",
-            _ => null
+            _ => size
         };
     }
 

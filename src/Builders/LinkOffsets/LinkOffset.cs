@@ -7,3 +7,4 @@ public static class LinkOffset
     public static LinkOffsetBuilder Is3 => new(3);
 }
 
+

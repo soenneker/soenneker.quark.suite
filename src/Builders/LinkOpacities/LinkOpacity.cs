@@ -9,3 +9,4 @@ public static class LinkOpacity
     public static LinkOpacityBuilder V100 => new(100);
 }
 
+

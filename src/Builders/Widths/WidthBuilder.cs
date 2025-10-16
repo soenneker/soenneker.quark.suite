@@ -3,7 +3,6 @@ using Soenneker.Extensions.String;
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 using Soenneker.Utils.PooledStringBuilders;
@@ -147,14 +146,8 @@ public sealed class WidthBuilder : ICssBuilder
             "75" => "75%",
             "100" => "100%",
             "auto" => "auto",
-            _ => IsNumeric(size) ? $"{size}px" : null
+            _ => size
         };
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsNumeric(string value)
-    {
-        return value.HasContent() && value.All(char.IsDigit);
     }
 
 

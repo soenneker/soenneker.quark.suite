@@ -306,7 +306,7 @@ public sealed class MarginBuilder : ICssBuilder
                 ScaleType.Is4Value => "1.5rem",
                 ScaleType.Is5Value => "3rem",
                 "auto" => "auto",
-                _ => null
+                _ => size
             };
         }
 

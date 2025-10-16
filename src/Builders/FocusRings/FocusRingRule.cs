@@ -8,3 +8,4 @@ namespace Soenneker.Quark;
 /// </summary>
 internal record FocusRingRule(string Color, BreakpointType? breakpoint = null);
 
+

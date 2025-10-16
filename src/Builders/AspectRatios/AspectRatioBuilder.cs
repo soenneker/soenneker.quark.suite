@@ -140,7 +140,7 @@ public sealed class AspectRatioBuilder : ICssBuilder
             "4x3" => "4 / 3",
             "16x9" => "16 / 9",
             "21x9" => "21 / 9",
-            _ => null
+            _ => ratio
         };
     }
 

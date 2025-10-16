@@ -8,3 +8,4 @@ namespace Soenneker.Quark;
 /// </summary>
 internal record BackgroundOpacityRule(int Value, BreakpointType? breakpoint = null);
 
+

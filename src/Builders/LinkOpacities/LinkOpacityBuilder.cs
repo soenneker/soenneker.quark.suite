@@ -127,7 +127,7 @@ public sealed class LinkOpacityBuilder : ICssBuilder
             50 => "--bs-link-opacity: 0.5",
             75 => "--bs-link-opacity: 0.75",
             100 => "--bs-link-opacity: 1",
-            _ => null
+            _ => $"--bs-link-opacity: {value}"
         };
     }
 
@@ -158,4 +158,5 @@ public sealed class LinkOpacityBuilder : ICssBuilder
         });
     }
 }
+
 

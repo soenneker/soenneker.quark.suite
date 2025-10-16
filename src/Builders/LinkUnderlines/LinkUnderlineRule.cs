@@ -9,3 +9,4 @@ namespace Soenneker.Quark;
 internal record LinkUnderlineRule(string Value, string Type, BreakpointType? breakpoint = null);
 // Type can be: "base", "opacity", "color"
 
+

@@ -264,7 +264,7 @@ public sealed class BorderRadiusBuilder : ICssBuilder
             "3" => "var(--bs-border-radius-lg)",
             "4" => "var(--bs-border-radius-xl)",
             "5" => "var(--bs-border-radius-xxl)",
-            _ => null
+            _ => size
         };
     }
 }

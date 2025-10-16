@@ -165,7 +165,7 @@ public sealed class TextSizeBuilder : ICssBuilder
             "4" => "calc(1.275rem + 0.3vw)",
             "5" => "1.25rem",
             "6" => "1rem",
-            _ => null
+            _ => size
         };
     }
 

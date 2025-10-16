@@ -8,3 +8,4 @@ public static class TextOpacity
     public static TextOpacityBuilder V100 => new(100);
 }
 
+

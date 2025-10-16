@@ -121,7 +121,7 @@ public sealed class LinkOffsetBuilder : ICssBuilder
             1 => "text-underline-offset: 0.125em",
             2 => "text-underline-offset: 0.25em",
             3 => "text-underline-offset: 0.375em",
-            _ => null
+            _ => $"text-underline-offset: {value}"
         };
     }
 
@@ -152,4 +152,5 @@ public sealed class LinkOffsetBuilder : ICssBuilder
         });
     }
 }
+
 

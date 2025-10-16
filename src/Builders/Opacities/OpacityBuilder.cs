@@ -127,7 +127,7 @@ public sealed class OpacityBuilder : ICssBuilder
             50 => "opacity: 0.5",
             75 => "opacity: 0.75",
             100 => "opacity: 1",
-            _ => null
+            _ => $"opacity: {value}"
         };
     }
 

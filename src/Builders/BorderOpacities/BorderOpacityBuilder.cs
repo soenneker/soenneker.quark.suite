@@ -127,7 +127,7 @@ public sealed class BorderOpacityBuilder : ICssBuilder
             50 => "--bs-border-opacity: 0.5",
             75 => "--bs-border-opacity: 0.75",
             100 => "--bs-border-opacity: 1",
-            _ => null
+            _ => $"--bs-border-opacity: {value}"
         };
     }
 
@@ -158,4 +158,5 @@ public sealed class BorderOpacityBuilder : ICssBuilder
         });
     }
 }
+
 

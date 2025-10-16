@@ -8,3 +8,4 @@ namespace Soenneker.Quark;
 /// </summary>
 internal record LinkOpacityRule(int Value, BreakpointType? breakpoint = null);
 
+

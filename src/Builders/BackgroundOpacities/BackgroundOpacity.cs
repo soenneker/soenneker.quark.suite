@@ -9,3 +9,4 @@ public static class BackgroundOpacity
     public static BackgroundOpacityBuilder V100 => new(100);
 }
 
+

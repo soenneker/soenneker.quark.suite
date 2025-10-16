@@ -278,7 +278,7 @@ public sealed class GapBuilder : ICssBuilder
             ScaleType.Is3Value => "1rem",
             ScaleType.Is4Value => "1.5rem",
             ScaleType.Is5Value => "3rem",
-            _ => null
+            _ => size
         };
     }
 

@@ -302,7 +302,7 @@ public sealed class PaddingBuilder : ICssBuilder
             ScaleType.Is4Value => "1.5rem",
             ScaleType.Is5Value => "3rem",
             "-1" => "auto",
-            _ => null
+            _ => size
         };
     }
 

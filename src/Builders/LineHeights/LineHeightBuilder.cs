@@ -108,9 +108,8 @@ public sealed class LineHeightBuilder : ICssBuilder
                 "sm" => "1.25",
                 "base" => "1.5",
                 "lg" => "2",
-                _ => null
+                _ => rule.Value
             };
-            if (css is null) continue;
 
             if (!first) sb.Append("; ");
             else first = false;

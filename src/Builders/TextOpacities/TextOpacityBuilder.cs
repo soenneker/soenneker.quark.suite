@@ -124,7 +124,7 @@ public sealed class TextOpacityBuilder : ICssBuilder
             50 => "--bs-text-opacity: 0.5",
             75 => "--bs-text-opacity: 0.75",
             100 => "--bs-text-opacity: 1",
-            _ => null
+            _ => $"--bs-text-opacity: {value}"
         };
     }
 
@@ -155,4 +155,5 @@ public sealed class TextOpacityBuilder : ICssBuilder
         });
     }
 }
+
 

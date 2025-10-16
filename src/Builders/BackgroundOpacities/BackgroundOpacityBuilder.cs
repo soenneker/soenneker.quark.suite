@@ -127,7 +127,7 @@ public sealed class BackgroundOpacityBuilder : ICssBuilder
             50 => "--bs-bg-opacity: 0.5",
             75 => "--bs-bg-opacity: 0.75",
             100 => "--bs-bg-opacity: 1",
-            _ => null
+            _ => $"--bs-bg-opacity: {value}"
         };
     }
 
@@ -158,4 +158,5 @@ public sealed class BackgroundOpacityBuilder : ICssBuilder
         });
     }
 }
+
 
