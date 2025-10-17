@@ -39,9 +39,19 @@ public sealed class FlexBuilder : ICssBuilder
     public FlexBuilder Row => ChainWithRule("direction", "row");
 
     /// <summary>
+    /// Chain with flex direction row-reverse for the next rule.
+    /// </summary>
+    public FlexBuilder RowReverse => ChainWithRule("direction", "row-reverse");
+
+    /// <summary>
     /// Chain with flex direction column for the next rule.
     /// </summary>
     public FlexBuilder Column => ChainWithRule("direction", "column");
+
+    /// <summary>
+    /// Chain with flex direction column-reverse for the next rule.
+    /// </summary>
+    public FlexBuilder ColumnReverse => ChainWithRule("direction", "column-reverse");
 
     // Wrap properties
     /// <summary>
@@ -110,6 +120,94 @@ public sealed class FlexBuilder : ICssBuilder
     /// Chain with align items stretch for the next rule.
     /// </summary>
     public FlexBuilder AlignStretch => ChainWithRule("align", "stretch");
+
+    // Align content properties
+    /// <summary>
+    /// Chain with align content start for the next rule.
+    /// </summary>
+    public FlexBuilder AlignContentStart => ChainWithRule("align-content", "start");
+
+    /// <summary>
+    /// Chain with align content end for the next rule.
+    /// </summary>
+    public FlexBuilder AlignContentEnd => ChainWithRule("align-content", "end");
+
+    /// <summary>
+    /// Chain with align content center for the next rule.
+    /// </summary>
+    public FlexBuilder AlignContentCenter => ChainWithRule("align-content", "center");
+
+    /// <summary>
+    /// Chain with align content between for the next rule.
+    /// </summary>
+    public FlexBuilder AlignContentBetween => ChainWithRule("align-content", "between");
+
+    /// <summary>
+    /// Chain with align content around for the next rule.
+    /// </summary>
+    public FlexBuilder AlignContentAround => ChainWithRule("align-content", "around");
+
+    /// <summary>
+    /// Chain with align content stretch for the next rule.
+    /// </summary>
+    public FlexBuilder AlignContentStretch => ChainWithRule("align-content", "stretch");
+
+    // Align self properties
+    /// <summary>
+    /// Chain with align self auto for the next rule.
+    /// </summary>
+    public FlexBuilder AlignSelfAuto => ChainWithRule("align-self", "auto");
+
+    /// <summary>
+    /// Chain with align self start for the next rule.
+    /// </summary>
+    public FlexBuilder AlignSelfStart => ChainWithRule("align-self", "start");
+
+    /// <summary>
+    /// Chain with align self end for the next rule.
+    /// </summary>
+    public FlexBuilder AlignSelfEnd => ChainWithRule("align-self", "end");
+
+    /// <summary>
+    /// Chain with align self center for the next rule.
+    /// </summary>
+    public FlexBuilder AlignSelfCenter => ChainWithRule("align-self", "center");
+
+    /// <summary>
+    /// Chain with align self baseline for the next rule.
+    /// </summary>
+    public FlexBuilder AlignSelfBaseline => ChainWithRule("align-self", "baseline");
+
+    /// <summary>
+    /// Chain with align self stretch for the next rule.
+    /// </summary>
+    public FlexBuilder AlignSelfStretch => ChainWithRule("align-self", "stretch");
+
+    // Flex grow/shrink properties
+    /// <summary>
+    /// Chain with flex-fill for the next rule.
+    /// </summary>
+    public FlexBuilder Fill => ChainWithRule("fill", "");
+
+    /// <summary>
+    /// Chain with flex-grow-0 for the next rule.
+    /// </summary>
+    public FlexBuilder Grow0 => ChainWithRule("grow", "0");
+
+    /// <summary>
+    /// Chain with flex-grow-1 for the next rule.
+    /// </summary>
+    public FlexBuilder Grow1 => ChainWithRule("grow", "1");
+
+    /// <summary>
+    /// Chain with flex-shrink-0 for the next rule.
+    /// </summary>
+    public FlexBuilder Shrink0 => ChainWithRule("shrink", "0");
+
+    /// <summary>
+    /// Chain with flex-shrink-1 for the next rule.
+    /// </summary>
+    public FlexBuilder Shrink1 => ChainWithRule("shrink", "1");
 
     /// <summary>
     /// Apply on phone devices (portrait phones, less than 576px).
@@ -226,7 +324,9 @@ public sealed class FlexBuilder : ICssBuilder
             "direction" => value switch
             {
                 "row" => "flex-row",
+                "row-reverse" => "flex-row-reverse",
                 "column" => "flex-column",
+                "column-reverse" => "flex-column-reverse",
                 _ => string.Empty
             },
             "wrap" => value switch
@@ -254,6 +354,39 @@ public sealed class FlexBuilder : ICssBuilder
                 "stretch" => "align-items-stretch",
                 _ => string.Empty
             },
+            "align-content" => value switch
+            {
+                "start" => "align-content-start",
+                "end" => "align-content-end",
+                "center" => "align-content-center",
+                "between" => "align-content-between",
+                "around" => "align-content-around",
+                "stretch" => "align-content-stretch",
+                _ => string.Empty
+            },
+            "align-self" => value switch
+            {
+                "auto" => "align-self-auto",
+                "start" => "align-self-start",
+                "end" => "align-self-end",
+                "center" => "align-self-center",
+                "baseline" => "align-self-baseline",
+                "stretch" => "align-self-stretch",
+                _ => string.Empty
+            },
+            "fill" => "flex-fill",
+            "grow" => value switch
+            {
+                "0" => "flex-grow-0",
+                "1" => "flex-grow-1",
+                _ => string.Empty
+            },
+            "shrink" => value switch
+            {
+                "0" => "flex-shrink-0",
+                "1" => "flex-shrink-1",
+                _ => string.Empty
+            },
             _ => string.Empty
         };
     }
@@ -266,7 +399,9 @@ public sealed class FlexBuilder : ICssBuilder
             "direction" => value switch
             {
                 "row" => "flex-direction: row",
+                "row-reverse" => "flex-direction: row-reverse",
                 "column" => "flex-direction: column",
+                "column-reverse" => "flex-direction: column-reverse",
                 _ => null
             },
             "wrap" => value switch
@@ -292,6 +427,39 @@ public sealed class FlexBuilder : ICssBuilder
                 "center" => "align-items: center",
                 "baseline" => "align-items: baseline",
                 "stretch" => "align-items: stretch",
+                _ => null
+            },
+            "align-content" => value switch
+            {
+                "start" => "align-content: flex-start",
+                "end" => "align-content: flex-end",
+                "center" => "align-content: center",
+                "between" => "align-content: space-between",
+                "around" => "align-content: space-around",
+                "stretch" => "align-content: stretch",
+                _ => null
+            },
+            "align-self" => value switch
+            {
+                "auto" => "align-self: auto",
+                "start" => "align-self: flex-start",
+                "end" => "align-self: flex-end",
+                "center" => "align-self: center",
+                "baseline" => "align-self: baseline",
+                "stretch" => "align-self: stretch",
+                _ => null
+            },
+            "fill" => "flex: 1 1 auto",
+            "grow" => value switch
+            {
+                "0" => "flex-grow: 0",
+                "1" => "flex-grow: 1",
+                _ => null
+            },
+            "shrink" => value switch
+            {
+                "0" => "flex-shrink: 0",
+                "1" => "flex-shrink: 1",
                 _ => null
             },
             _ => null

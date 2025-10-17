@@ -196,6 +196,9 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<ObjectPositionBuilder>? ObjectPosition { get; set; }
 
     [Parameter]
+    public CssValue<RatioBuilder>? Ratio { get; set; }
+
+    [Parameter]
     public CssValue<ResizeBuilder>? Resize { get; set; }
 
     [Parameter]
@@ -218,6 +221,9 @@ public abstract class Component : CoreComponent, IComponent
 
     [Parameter]
     public CssValue<TextStyleBuilder>? TextStyle { get; set; }
+
+    [Parameter]
+    public CssValue<TextBackgroundBuilder>? TextBackground { get; set; }
 
     [Parameter]
     public CssValue<FocusRingBuilder>? FocusRing { get; set; }
@@ -442,6 +448,7 @@ public abstract class Component : CoreComponent, IComponent
             AddCss(ref sty, ref cls, Filter);
             AddCss(ref sty, ref cls, Interaction);
             AddCss(ref sty, ref cls, ObjectPosition);
+            AddCss(ref sty, ref cls, Ratio);
             AddCss(ref sty, ref cls, Resize);
             AddCss(ref sty, ref cls, ScreenReader);
             AddCss(ref sty, ref cls, ScrollBehavior);
@@ -450,6 +457,7 @@ public abstract class Component : CoreComponent, IComponent
             AddCss(ref sty, ref cls, Transition);
             AddCss(ref sty, ref cls, Truncate);
             AddCss(ref sty, ref cls, TextStyle);
+            AddCss(ref sty, ref cls, TextBackground);
             AddCss(ref sty, ref cls, FocusRing);
             AddCss(ref sty, ref cls, LinkOpacity);
             AddCss(ref sty, ref cls, LinkOffset);
