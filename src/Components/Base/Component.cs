@@ -705,7 +705,7 @@ public abstract class Component : CoreComponent, IComponent
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void AddCss<T>(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<T>? v) where T : class, ICssBuilder
+    protected static void AddCss<T>(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<T>? v) where T : class, ICssBuilder
     {
         if (v is { IsEmpty: false })
         {

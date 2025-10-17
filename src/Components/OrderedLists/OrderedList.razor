@@ -8,5 +8,36 @@
 </ol>
 
 @code {
+    [Parameter]
+    public CssValue<ListVariantBuilder>? ListVariant { get; set; }
+
+    [Parameter]
+    public CssValue<ListStyleTypeBuilder>? ListStyleType { get; set; }
+
     public override string? ThemeKey { get; set; } = "OrderedList";
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attrs = base.BuildAttributes();
+        
+        if (ListVariant is { IsEmpty: false })
+        {
+            var cls = ListVariant.Value.ToString();
+            if (cls.Length > 0)
+            {
+                AppendClassAttribute(attrs, cls);
+            }
+        }
+        
+        if (ListStyleType is { IsEmpty: false })
+        {
+            var styleStr = ListStyleType.Value.ToString();
+            if (styleStr.Length > 0)
+            {
+                AppendStyleDeclAttr(attrs, styleStr);
+            }
+        }
+        
+        return attrs;
+    }
 }

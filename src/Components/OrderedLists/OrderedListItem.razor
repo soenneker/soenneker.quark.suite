@@ -8,5 +8,24 @@
 </li>
 
 @code {
+    [Parameter]
+    public CssValue<ListVariantBuilder>? ListVariant { get; set; }
+
     public override string? ThemeKey { get; set; } = "ListItem";
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attrs = base.BuildAttributes();
+        
+        if (ListVariant is { IsEmpty: false })
+        {
+            var cls = ListVariant.Value.ToString();
+            if (cls.Length > 0)
+            {
+                AppendClassAttribute(attrs, cls);
+            }
+        }
+        
+        return attrs;
+    }
 }
