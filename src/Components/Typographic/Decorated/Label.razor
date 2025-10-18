@@ -1,0 +1,24 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.DecoratedTypographicElement
+@implements ILabel
+
+<label @attributes="BuildTypographicAttributes()">@ChildContent</label>
+
+@code {
+	public override string? ThemeKey { get; set; } = "Label";
+
+    /// <summary>
+    /// Name of the input element to which the label is connected.
+    /// </summary>
+    [Parameter] public string? For { get; set; }
+
+    protected override Dictionary<string, object> BuildTypographicAttributes()
+    {
+        var attributes = base.BuildTypographicAttributes();
+
+        if (For.HasContent())
+            attributes["for"] = For;
+
+        return attributes;
+    }
+}

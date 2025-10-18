@@ -9,3 +9,4 @@ namespace Soenneker.Quark;
 internal record LinkOffsetRule(int Value, BreakpointType? breakpoint = null);
 
 
+

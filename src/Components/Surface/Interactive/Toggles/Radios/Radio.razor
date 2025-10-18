@@ -1,0 +1,172 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits ToggleElement
+@implements Soenneker.Quark.IValidationInput
+@implements IRadio
+@inject IRadioInterop RadioInterop
+
+@if (ChildContent != null)
+{
+    <div @attributes="BuildWrapperAttributes()">
+        <input id="@Id" type="radio" checked="@Checked" @onchange="HandleChange" @attributes="BuildAttributes()" />
+        <label class="form-check-label" for="@Id">
+            @ChildContent
+        </label>
+    </div>
+}
+else
+{
+    <input type="radio" checked="@Checked" @onchange="HandleChange" @attributes="BuildAttributes()" />
+}
+
+@code {
+
+    public override string? ThemeKey { get; set; } = "Radio";
+
+    public override string? Id { get; set; } = $"radio-{Guid.NewGuid():N}";
+
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnChange { get; set; }
+
+    [CascadingParameter]
+    public Validation? ParentValidation { get; set; }
+
+    [Parameter]
+    public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
+
+    [Parameter]
+    public bool Inline { get; set; }
+
+    public object? ValidationValue => Checked;
+
+    private bool _initialized;
+    private bool _lastChecked;
+    private bool _checkedChanged;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_initialized)
+        {
+            await RadioInterop.Initialize();
+            _initialized = true;
+        }
+
+        if (firstRender && ParentValidation is not null)
+        {
+            await ParentValidation.InitializeInput(this);
+
+            if (CheckedExpression is not null)
+                await ParentValidation.InitializeInputExpression(CheckedExpression);
+        }
+
+        _checkedChanged = false;
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Checked != _lastChecked)
+        {
+            _checkedChanged = true;
+            _lastChecked = Checked;
+        }
+
+        base.OnParametersSet();
+    }
+
+    protected override bool ShouldRender()
+    {
+        return _checkedChanged || base.ShouldRender();
+    }
+
+    private Dictionary<string, object> BuildWrapperAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+        
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "form-check");
+            
+            if (Inline)
+                AppendClass(ref cls, "form-check-inline");
+        });
+
+        return attributes;
+    }
+
+    private string? GetSizeClass()
+    {
+        if (Size == Quark.Size.Default)
+            return null;
+
+        string? token = null;
+        var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+        if (isTheme && token is not null)
+            return $"quark-radio-{token}";
+
+        // SizeBuilder now generates clean tokens like "lg", "sm" without prefix
+        var sizeValue = Size?.ToString();
+        return sizeValue.HasContent() ? $"quark-radio-{sizeValue}" : null;
+    }
+
+    private async Task HandleChange(ChangeEventArgs e)
+    {
+        if (!Checked)
+        {
+            Checked = true;
+            await CheckedChanged.InvokeAsync(Checked);
+            _checkedChanged = true;
+            StateHasChanged();
+        }
+
+        await OnChange.InvokeIfHasDelegate(e);
+
+        if (ParentValidation is not null)
+        {
+            ParentValidation.MarkTouched();
+            await ParentValidation.NotifyInputChanged(Checked);
+        }
+    }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "form-check-input");
+            
+            var sizeClass = GetSizeClass();
+            if (sizeClass != null)
+                AppendClass(ref cls, sizeClass);
+                
+            var validationClass = GetValidationClass();
+            if (validationClass != null)
+                AppendClass(ref cls, validationClass);
+        });
+
+        if (Disabled)
+            attributes["disabled"] = true;
+
+        if (Value.HasContent())
+            attributes["value"] = Value;
+
+        if (Name.HasContent())
+            attributes["name"] = Name;
+
+        return attributes;
+    }
+
+    private string? GetValidationClass()
+    {
+        if (ParentValidation?.Status == ValidationStatus.Error)
+            return "is-invalid";
+
+        if (ParentValidation?.Status == ValidationStatus.Success)
+            return "is-valid";
+
+        return null;
+    }
+
+}

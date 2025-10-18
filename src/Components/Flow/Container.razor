@@ -1,0 +1,35 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IContainer
+
+<Div @attributes="BuildFlowAttributes()">
+	@ChildContent
+</Div>
+
+@code {
+	public override string? ThemeKey { get; set; } = "Container";
+
+	[Parameter]
+	public CssValue<ContainerBuilder>? ContainerType { get; set; }
+
+    protected virtual Dictionary<string, object> BuildFlowAttributes()
+    {
+        var attributes = BuildAttributes();
+        
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, GetContainerClass()));
+
+        return attributes;
+    }
+
+    private string GetContainerClass()
+    {
+        if (ContainerType is { IsEmpty: false })
+        {
+            var containerClass = ContainerType.Value.ToString();
+            if (containerClass.HasContent())
+                return containerClass;
+        }
+        
+        return "container";
+    }
+}

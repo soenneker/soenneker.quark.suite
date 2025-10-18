@@ -1,0 +1,55 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.TypographicElement
+@implements IHeading
+
+@{
+    var level = GetHeadingLevel(Scale);
+    var attrs = BuildTypographicAttributes();
+}
+
+@if (level == 1)
+{
+    <h1 @attributes="attrs">@ChildContent</h1>
+}
+else if (level == 2)
+{
+    <h2 @attributes="attrs">@ChildContent</h2>
+}
+else if (level == 3)
+{
+    <h3 @attributes="attrs">@ChildContent</h3>
+}
+else if (level == 4)
+{
+    <h4 @attributes="attrs">@ChildContent</h4>
+}
+else if (level == 5)
+{
+    <h5 @attributes="attrs">@ChildContent</h5>
+}
+else
+{
+    <h6 @attributes="attrs">@ChildContent</h6>
+}
+
+@code {
+    [Parameter]
+    public CssValue<ScaleBuilder>? Scale { get; set; }
+
+    public override string? ThemeKey { get; set; } = "Heading";
+
+    private int GetHeadingLevel(CssValue<ScaleBuilder>? scale)
+    {
+        const int fallback = 3;
+        var s = scale?.ToString();
+        if (s.IsNullOrWhiteSpace()) return fallback;
+
+        if (s.Length >= 7 && s.AsSpan().StartsWith("scale-"))
+        {
+            var d = s[^1] - '0';
+            if ((uint)(d - 1) <= 5) return d; // 1..6
+        }
+
+        return fallback;
+    }
+}

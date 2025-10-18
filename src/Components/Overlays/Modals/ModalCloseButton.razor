@@ -1,0 +1,47 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IModalCloseButton
+
+<Button Type="@ButtonType.Button" OnClick="HandleClick" @attributes="BuildAttributes()">
+    @if (ChildContent == null)
+    {
+        <Span Class="visually-hidden">Close</Span>
+    }
+    else
+    {
+        @ChildContent
+    }
+</Button>
+
+@code {
+    public override string? ThemeKey { get; set; } = "ModalCloseButton";
+
+    [Parameter]
+    public bool AutoClose { get; set; } = true;
+
+    [CascadingParameter]
+    public Modal? ParentModal { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, "btn-close"));
+
+        // Only set default aria-label if not already set via AriaLabel property
+        if (!attributes.ContainsKey("aria-label"))
+            attributes["aria-label"] = "Close";
+            
+        attributes["data-bs-dismiss"] = "modal";
+
+        return attributes;
+    }
+
+    protected override async Task HandleClick(MouseEventArgs e)
+    {
+        if (AutoClose && ParentModal != null)
+        {
+            await ParentModal.Hide();
+        }
+    }
+}

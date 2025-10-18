@@ -1,0 +1,150 @@
+@namespace Soenneker.Quark
+@inherits VisualMediaElement
+@implements IImage
+
+<img @attributes="BuildAttributes()" />
+
+@code {
+	public override string? ThemeKey { get; set; } = "Image";
+
+    [Parameter]
+    public bool Fluid { get; set; }
+
+    [Parameter]
+    public string? Loading { get; set; }
+
+    [Parameter]
+    public string? Decoding { get; set; }
+
+    [Parameter]
+    public string? FetchPriority { get; set; }
+
+    [Parameter]
+    public string? Sizes { get; set; }
+
+    [Parameter]
+    public string? SrcSet { get; set; }
+
+    [Parameter]
+    public string? CrossOrigin { get; set; }
+
+    [Parameter]
+    public string? ReferrerPolicy { get; set; }
+
+    [Parameter]
+    public string? UseMap { get; set; }
+
+    [Parameter]
+    public bool IsMap { get; set; }
+
+    [Parameter]
+    public string? LongDesc { get; set; }
+
+    [Parameter]
+    public EventCallback<ProgressEventArgs> OnLoad { get; set; }
+
+    [Parameter]
+    public EventCallback<ErrorEventArgs> OnError { get; set; }
+
+    [Parameter]
+    public EventCallback<ProgressEventArgs> OnLoadStart { get; set; }
+
+    [Parameter]
+    public EventCallback<ProgressEventArgs> OnAbort { get; set; }
+
+    private string? GetLoadingAttribute()
+    {
+        if (Lazy)
+            return "lazy";
+        
+        return Loading;
+    }
+
+    private string? GetFluidClass()
+    {
+        if (Fluid)
+            return "img-fluid";
+        
+        return null;
+    }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+
+        if (!Class.HasContent())
+        {
+            BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+            {
+                AppendClass(ref cls, "img-thumbnail");
+                
+                var fluidClass = GetFluidClass();
+                if (fluidClass != null)
+                    AppendClass(ref cls, fluidClass);
+            });
+        }
+        else
+        {
+            var currentClass = attributes.GetValueOrDefault("class")?.ToString() ?? "";
+            var fluidClass = GetFluidClass();
+            
+            if (fluidClass != null && !currentClass.Contains(fluidClass))
+            {
+                BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, fluidClass));
+            }
+        }
+
+        // Add image-specific attributes
+        if (Source.HasContent())
+            attributes["src"] = Source;
+
+        if (Alt.HasContent())
+            attributes["alt"] = Alt;
+
+        var loadingAttr = GetLoadingAttribute();
+        if (loadingAttr.HasContent())
+            attributes["loading"] = loadingAttr;
+
+        if (Decoding.HasContent())
+            attributes["decoding"] = Decoding;
+
+        if (FetchPriority.HasContent())
+            attributes["fetchpriority"] = FetchPriority;
+
+        if (Sizes.HasContent())
+            attributes["sizes"] = Sizes;
+
+        if (SrcSet.HasContent())
+            attributes["srcset"] = SrcSet;
+
+        if (CrossOrigin.HasContent())
+            attributes["crossorigin"] = CrossOrigin;
+
+        if (ReferrerPolicy.HasContent())
+            attributes["referrerpolicy"] = ReferrerPolicy;
+
+        if (UseMap.HasContent())
+            attributes["usemap"] = UseMap;
+
+        if (IsMap)
+            attributes["ismap"] = true;
+
+        if (LongDesc.HasContent())
+            attributes["longdesc"] = LongDesc;
+
+        // Add event handlers
+        if (OnLoad.HasDelegate)
+            attributes["onload"] = EventCallback.Factory.Create(this, OnLoad);
+
+        if (OnError.HasDelegate)
+            attributes["onerror"] = EventCallback.Factory.Create(this, OnError);
+
+        if (OnLoadStart.HasDelegate)
+            attributes["onloadstart"] = EventCallback.Factory.Create(this, OnLoadStart);
+
+        if (OnAbort.HasDelegate)
+            attributes["onabort"] = EventCallback.Factory.Create(this, OnAbort);
+
+        return attributes;
+    }
+}

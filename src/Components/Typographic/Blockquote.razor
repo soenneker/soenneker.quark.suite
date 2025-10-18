@@ -1,0 +1,22 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.TypographicElement
+@implements IBlockquote
+
+<blockquote @attributes="BuildTypographicAttributes()">@ChildContent</blockquote>
+
+@code {
+    public override string? ThemeKey { get; set; } = "Blockquote";
+
+    [Parameter]
+    public string? Cite { get; set; }
+
+    protected override Dictionary<string, object> BuildTypographicAttributes()
+    {
+        var attributes = base.BuildTypographicAttributes();
+
+        if (Cite.HasContent())
+            attributes["cite"] = Cite;
+
+        return attributes;
+    }
+}

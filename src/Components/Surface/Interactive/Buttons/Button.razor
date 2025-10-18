@@ -1,0 +1,236 @@
+@using System.Runtime.CompilerServices
+@using Soenneker.Quark.Components.Surface.Interactive.Buttons.Abstract
+
+@namespace Soenneker.Quark
+@inherits InteractiveSurface
+@implements IButton
+@inject NavigationManager Navigation
+
+@if (Type == ButtonType.Link)
+{
+	<Anchor To="To" Attributes="BuildAttributes()" >
+		@ChildContent
+	</Anchor>
+}
+else
+{
+    <button @onclick="HandleClick" @attributes="BuildAttributes()">
+		@if (Loading)
+		{
+			<Span Class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" ></Span>
+		}
+		@if (LoadingTemplate is not null && Loading)
+		{
+			@LoadingTemplate
+		}
+		else
+		{
+			@ChildContent
+		}
+	</button>
+}
+
+@code {
+
+	public override string? ThemeKey { get; set; } = "Button";
+
+	[Parameter]
+	public CssValue<SizeBuilder>? Size { get; set; }
+
+	[Parameter]
+	public bool Disabled { get; set; }
+
+	[Parameter]
+	public bool Outline { get; set; }
+
+	[Parameter]
+	public bool Block { get; set; }
+
+	[Parameter]
+	public bool Loading { get; set; }
+
+    [Parameter]
+	public ButtonType Type { get; set; } = ButtonType.Button;
+
+	[Parameter]
+	public RenderFragment? LoadingTemplate { get; set; }
+
+	[Parameter]
+	public string? Value { get; set; }
+
+	[Parameter]
+	public string? Form { get; set; }
+
+	[Parameter]
+	public bool AutoFocus { get; set; }
+
+	[Parameter]
+	public string? To { get; set; }
+
+	[Parameter]
+	public string? Name { get; set; }
+
+	// --- Bootstrap Collapse auto-targeting ---
+	[Parameter]
+	public string? CollapseTarget { get; set; }
+
+	[Parameter]
+	public Collapse? CollapseTargetRef { get; set; }
+
+	[Parameter]
+	public bool Close { get; set; }
+
+	[Parameter]
+	public bool Unstyled { get; set; }
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private string? GetSizeClass() 
+	{
+		if (Size == Quark.Size.Default)
+			return null;
+
+		string? token = null;
+		var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+
+		if (isTheme && token is not null)
+			return $"btn-{token}";
+
+		// SizeBuilder now generates clean tokens like "lg", "sm" without prefix
+		var sizeValue = Size?.ToString();
+		return sizeValue.HasContent() ? $"btn-{sizeValue}" : null;
+	}
+
+	protected override Dictionary<string, object> BuildAttributes()
+	{
+		var attributes = base.BuildAttributes();
+
+		// Determine element kind
+		var isLink = Type == ButtonType.Link || To.HasContent();
+
+		// Figure out disabled state (treat presence of "disabled" attribute as true)
+		var isDisabled = Disabled || Loading || attributes.ContainsKey("disabled");
+		
+		// Links that are disabled/loading should not be in tab order (unless user explicitly set TabIndex)
+		if (isLink && isDisabled && !attributes.ContainsKey("tabindex"))
+			attributes["tabindex"] = -1;
+
+		// Add Bootstrap button classes unless explicitly unstyled
+		BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+		{
+			if (Close)
+			{
+				AppendClass(ref cls, "btn-close");
+			}
+			else if (!Unstyled)
+			{
+				AppendClass(ref cls, "btn");
+			}
+
+			if (!Unstyled)
+			{
+				var sizeClass = GetSizeClass();
+				if (sizeClass is not null)
+					AppendClass(ref cls, sizeClass);
+
+				if (Block)
+					AppendClass(ref cls, "btn-block");
+			}
+
+			if (isLink && isDisabled)
+				AppendClass(ref cls, "disabled");
+		});
+
+		// Common ARIA for loading/disabled
+		if (Loading)
+            attributes["aria-busy"] = "true";
+
+		// Only set type on real <button>
+		if (!isLink)
+            attributes["type"] = Type.Value;
+
+		// Real disabled vs. aria-disabled
+		if (isLink)
+		{
+			// Anchor can't be truly disabled; use ARIA
+			if (isDisabled)
+			{
+                attributes["aria-disabled"] = "true";
+				// role is already a good idea for link-as-button
+                attributes["role"] = "button";
+			}
+			else
+                attributes.TryAdd("role", "button");
+		}
+		else
+		{
+			if (isDisabled)
+                attributes["disabled"] = true;
+		}
+
+		// Standard button/submit metadata
+		if (Value.HasContent()) attributes["value"] = Value!;
+		if (Name.HasContent()) attributes["name"] = Name!;
+		if (Form.HasContent()) attributes["form"] = Form!;
+		if (AutoFocus) attributes["autofocus"] = true;
+
+		// Bootstrap collapse auto-wiring if requested
+		var targetId = CollapseTargetRef?.CollapseId ?? CollapseTarget;
+		if (targetId.HasContent())
+		{
+			attributes["data-bs-toggle"] = "collapse";
+			var selector = targetId!.StartsWith("#") ? targetId : $"#{targetId}";
+			attributes["data-bs-target"] = selector;
+			attributes["aria-controls"] = selector.StartsWith("#") ? selector.Substring(1) : selector;
+		}
+
+		// If this is acting as a link, we already render <Anchor>; nothing special beyond attrs.
+		return attributes;
+	}
+
+	protected override async Task HandleClick(MouseEventArgs args)
+	{
+		// Respect disabled state at runtime, same semantics as in BuildAttributes
+		var isDisabled = Disabled || Loading || (Attributes is not null && Attributes.ContainsKey("disabled"));
+		if (isDisabled)
+			return;
+
+		// Programmatic navigation if To is set (and not a hash)
+		if (To.HasContent() && !To!.StartsWith("#"))
+			Navigation.NavigateTo(To!);
+
+		await base.HandleClick(args);
+	}
+
+	protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+	{
+		if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty && !Close)
+		{
+			var v = BackgroundColor.Value.ToString().Trim();
+			string? colorToken = null;
+			var isColorTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out colorToken);
+
+			if (isColorTheme && colorToken is not null)
+			{
+				// Bootstrap theme token (e.g., "primary", "secondary")
+				var prefix = Outline ? "btn-outline-" : "btn-";
+				AppendClass(ref cls, $"{prefix}{colorToken}");
+			}
+			else if (BackgroundColor.Value.IsCssClass)
+			{
+				if (v.StartsWith("btn-", StringComparison.Ordinal))
+					AppendClass(ref cls, v);
+				else
+				{
+					var prefix = Outline ? "btn-outline-" : "btn-";
+					AppendClass(ref cls, $"{prefix}{v}");
+				}
+			}
+			else
+			{
+				// Build style efficiently - BackgroundColor already handles background-color
+				AppendStyleDecl(ref sty, $"border-color:{v}");
+			}
+		}
+	}
+
+}

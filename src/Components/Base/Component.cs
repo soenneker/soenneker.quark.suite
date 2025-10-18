@@ -43,9 +43,6 @@ public abstract class Component : CoreComponent, IComponent
     public string? Title { get; set; }
 
     [Parameter]
-    public int? TabIndex { get; set; }
-
-    [Parameter]
     public bool Hidden { get; set; }
 
     [Parameter]
@@ -61,12 +58,6 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<VerticalAlignBuilder>? VerticalAlign { get; set; }
 
     [Parameter]
-    public CssValue<TextOverflowBuilder>? TextOverflow { get; set; }
-
-    [Parameter]
-    public CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
-
-    [Parameter]
     public CssValue<MarginBuilder>? Margin { get; set; }
 
     [Parameter]
@@ -77,9 +68,6 @@ public abstract class Component : CoreComponent, IComponent
 
     [Parameter]
     public CssValue<PositionOffsetBuilder>? Offset { get; set; }
-
-    [Parameter]
-    public CssValue<TextSizeBuilder>? TextSize { get; set; }
 
     [Parameter]
     public CssValue<WidthBuilder>? Width { get; set; }
@@ -109,22 +97,10 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<OverflowBuilder>? OverflowY { get; set; }
 
     [Parameter]
-    public CssValue<ObjectFitBuilder>? ObjectFit { get; set; }
-
-    [Parameter]
-    public CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
-
-    [Parameter]
-    public CssValue<TextDecorationBuilder>? TextDecoration { get; set; }
-
-    [Parameter]
     public CssValue<FlexBuilder>? Flex { get; set; }
 
     [Parameter]
     public CssValue<GapBuilder>? Gap { get; set; }
-
-    [Parameter]
-    public CssValue<BorderBuilder>? Border { get; set; }
 
     [Parameter]
     public CssValue<OpacityBuilder>? Opacity { get; set; }
@@ -139,43 +115,16 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<UserSelectBuilder>? UserSelect { get; set; }
 
     [Parameter]
-    public CssValue<TextTransformBuilder>? TextTransform { get; set; }
-
-    [Parameter]
-    public CssValue<FontWeightBuilder>? FontWeight { get; set; }
-
-    [Parameter]
-    public CssValue<FontStyleBuilder>? FontStyle { get; set; }
-
-    [Parameter]
-    public CssValue<LineHeightBuilder>? LineHeight { get; set; }
-
-    [Parameter]
-    public CssValue<TextWrapBuilder>? TextWrap { get; set; }
-
-    [Parameter]
-    public CssValue<TextBreakBuilder>? TextBreak { get; set; }
-
-    [Parameter]
-    public CssValue<TextColorBuilder>? TextColor { get; set; }
+    public CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
 
     [Parameter]
     public CssValue<BorderColorBuilder>? BorderColor { get; set; }
 
     [Parameter]
-    public CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
-
-    [Parameter]
     public CssValue<AnimationBuilder>? Animation { get; set; }
 
     [Parameter]
-    public CssValue<AspectRatioBuilder>? AspectRatio { get; set; }
-
-    [Parameter]
     public CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
-
-    [Parameter]
-    public CssValue<BorderRadiusBuilder>? BorderRadius { get; set; }
 
     [Parameter]
     public CssValue<ClearfixBuilder>? Clearfix { get; set; }
@@ -184,16 +133,7 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<ClipPathBuilder>? ClipPath { get; set; }
 
     [Parameter]
-    public CssValue<CursorBuilder>? Cursor { get; set; }
-
-    [Parameter]
     public CssValue<FilterBuilder>? Filter { get; set; }
-
-    [Parameter]
-    public CssValue<InteractionBuilder>? Interaction { get; set; }
-
-    [Parameter]
-    public CssValue<ObjectPositionBuilder>? ObjectPosition { get; set; }
 
     [Parameter]
     public CssValue<RatioBuilder>? Ratio { get; set; }
@@ -217,18 +157,6 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<TransitionBuilder>? Transition { get; set; }
 
     [Parameter]
-    public CssValue<TruncateBuilder>? Truncate { get; set; }
-
-    [Parameter]
-    public CssValue<TextStyleBuilder>? TextStyle { get; set; }
-
-    [Parameter]
-    public CssValue<TextBackgroundBuilder>? TextBackground { get; set; }
-
-    [Parameter]
-    public CssValue<FocusRingBuilder>? FocusRing { get; set; }
-
-    [Parameter]
     public CssValue<LinkOpacityBuilder>? LinkOpacity { get; set; }
 
     [Parameter]
@@ -238,46 +166,10 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<LinkUnderlineBuilder>? LinkUnderline { get; set; }
 
     [Parameter]
-    public CssValue<BackgroundOpacityBuilder>? BackgroundOpacity { get; set; }
-
-    [Parameter]
-    public CssValue<BorderOpacityBuilder>? BorderOpacity { get; set; }
-
-    [Parameter]
-    public CssValue<TextOpacityBuilder>? TextOpacity { get; set; }
-
-    [Parameter]
     public EventCallback<MouseEventArgs> OnClick { get; set; }
 
     [Parameter]
-    public EventCallback<MouseEventArgs> OnDoubleClick { get; set; }
-
-    [Parameter]
-    public EventCallback<MouseEventArgs> OnMouseOver { get; set; }
-
-    [Parameter]
-    public EventCallback<MouseEventArgs> OnMouseOut { get; set; }
-
-    [Parameter]
-    public EventCallback<KeyboardEventArgs> OnKeyDown { get; set; }
-
-    [Parameter]
-    public EventCallback<FocusEventArgs> OnFocus { get; set; }
-
-    [Parameter]
-    public EventCallback<FocusEventArgs> OnBlur { get; set; }
-
-    [Parameter]
     public EventCallback<ElementReference> OnElementRefReady { get; set; }
-
-    [Parameter]
-    public string? Role { get; set; }
-
-    [Parameter]
-    public string? AriaLabel { get; set; }
-
-    [Parameter]
-    public string? AriaDescribedBy { get; set; }
 
     [Parameter]
     public virtual string? ThemeKey { get; set; }
@@ -324,7 +216,7 @@ public abstract class Component : CoreComponent, IComponent
         return Task.CompletedTask;
     }
 
-    // ---- Event handlers: default to pass-through (no visual state change) ----
+    // ---- Click handler (OnClick is common enough to be on Component) ----
     protected virtual Task HandleClick(MouseEventArgs e)
     {
         if (!QuarkOptions.AlwaysRender)
@@ -332,47 +224,6 @@ public abstract class Component : CoreComponent, IComponent
         return OnClick.InvokeIfHasDelegate(e);
     }
 
-    protected virtual Task HandleDoubleClick(MouseEventArgs e)
-    {
-        if (!QuarkOptions.AlwaysRender)
-            _shouldRender = false;
-        return OnDoubleClick.InvokeIfHasDelegate(e);
-    }
-
-    protected virtual Task HandleMouseOver(MouseEventArgs e)
-    {
-        if (!QuarkOptions.AlwaysRender)
-            _shouldRender = false;
-        return OnMouseOver.InvokeIfHasDelegate(e);
-    }
-
-    protected virtual Task HandleMouseOut(MouseEventArgs e)
-    {
-        if (!QuarkOptions.AlwaysRender)
-            _shouldRender = false;
-        return OnMouseOut.InvokeIfHasDelegate(e);
-    }
-
-    protected virtual Task HandleKeyDown(KeyboardEventArgs e)
-    {
-        if (!QuarkOptions.AlwaysRender)
-            _shouldRender = false;
-        return OnKeyDown.InvokeIfHasDelegate(e);
-    }
-
-    protected virtual Task HandleFocus(FocusEventArgs e)
-    {
-        if (!QuarkOptions.AlwaysRender)
-            _shouldRender = false;
-        return OnFocus.InvokeIfHasDelegate(e);
-    }
-
-    protected virtual Task HandleBlur(FocusEventArgs e)
-    {
-        if (!QuarkOptions.AlwaysRender)
-            _shouldRender = false;
-        return OnBlur.InvokeIfHasDelegate(e);
-    }
 
     // -------- Attributes building (cached by render key) --------
     protected virtual Dictionary<string, object> BuildAttributes()
@@ -390,14 +241,6 @@ public abstract class Component : CoreComponent, IComponent
         var cls = new PooledStringBuilder(64);
         var sty = new PooledStringBuilder(128);
 
-        bool userOnClick = false,
-            userOnDblClick = false,
-            userOnMouseOver = false,
-            userOnMouseOut = false,
-            userOnKeyDown = false,
-            userOnFocus = false,
-            userOnBlur = false;
-
         try
         {
             if (Class.HasContent()) 
@@ -408,46 +251,25 @@ public abstract class Component : CoreComponent, IComponent
 
             if (Id.HasContent()) attrs["id"] = Id!;
             if (Title.HasContent()) attrs["title"] = Title!;
-            if (TabIndex.HasValue) attrs["tabindex"] = TabIndex.Value;
             if (Hidden) attrs["hidden"] = true;
-            if (Role.HasContent()) attrs["role"] = Role!;
-            if (AriaLabel.HasContent()) attrs["aria-label"] = AriaLabel!;
-            if (AriaDescribedBy.HasContent()) attrs["aria-describedby"] = AriaDescribedBy!;
 
             AddCss(ref sty, ref cls, Display);
-            ApplyTextColor(ref sty, ref cls);
             ApplyBorderColor(ref sty, ref cls);
             ApplyBackgroundColor(ref sty, ref cls);
             AddCss(ref sty, ref cls, Flex);
             AddCss(ref sty, ref cls, Gap);
-            AddCss(ref sty, ref cls, Border);
-            AddCss(ref sty, ref cls, TextOverflow);
-            AddCss(ref sty, ref cls, TextAlignment);
-            AddCss(ref sty, ref cls, TextDecoration);
             AddCss(ref sty, ref cls, VerticalAlign);
             AddCss(ref sty, ref cls, Float);
             AddCss(ref sty, ref cls, Visibility);
-            AddCss(ref sty, ref cls, BoxShadow);
             AddCss(ref sty, ref cls, Opacity);
             AddCss(ref sty, ref cls, ZIndex);
             AddCss(ref sty, ref cls, PointerEvents);
             AddCss(ref sty, ref cls, UserSelect);
-            AddCss(ref sty, ref cls, TextTransform);
-            AddCss(ref sty, ref cls, FontWeight);
-            AddCss(ref sty, ref cls, FontStyle);
-            AddCss(ref sty, ref cls, LineHeight);
-            AddCss(ref sty, ref cls, TextWrap);
-            AddCss(ref sty, ref cls, TextBreak);
             AddCss(ref sty, ref cls, Animation);
-            AddCss(ref sty, ref cls, AspectRatio);
             AddCss(ref sty, ref cls, BackdropFilter);
-            AddCss(ref sty, ref cls, BorderRadius);
             AddCss(ref sty, ref cls, Clearfix);
             AddCss(ref sty, ref cls, ClipPath);
-            AddCss(ref sty, ref cls, Cursor);
             AddCss(ref sty, ref cls, Filter);
-            AddCss(ref sty, ref cls, Interaction);
-            AddCss(ref sty, ref cls, ObjectPosition);
             AddCss(ref sty, ref cls, Ratio);
             AddCss(ref sty, ref cls, Resize);
             AddCss(ref sty, ref cls, ScreenReader);
@@ -455,22 +277,14 @@ public abstract class Component : CoreComponent, IComponent
             AddCss(ref sty, ref cls, StretchedLink);
             AddCss(ref sty, ref cls, Transform);
             AddCss(ref sty, ref cls, Transition);
-            AddCss(ref sty, ref cls, Truncate);
-            AddCss(ref sty, ref cls, TextStyle);
-            AddCss(ref sty, ref cls, TextBackground);
-            AddCss(ref sty, ref cls, FocusRing);
             AddCss(ref sty, ref cls, LinkOpacity);
             AddCss(ref sty, ref cls, LinkOffset);
             AddCss(ref sty, ref cls, LinkUnderline);
-            AddCss(ref sty, ref cls, BackgroundOpacity);
-            AddCss(ref sty, ref cls, BorderOpacity);
-            AddCss(ref sty, ref cls, TextOpacity);
 
             AddCss(ref sty, ref cls, Margin);
             AddCss(ref sty, ref cls, Padding);
             AddCss(ref sty, ref cls, Position);
             AddCss(ref sty, ref cls, Offset);
-            AddCss(ref sty, ref cls, TextSize);
             AddCss(ref sty, ref cls, Width);
             AddCss(ref sty, ref cls, MinWidth);
             AddCss(ref sty, ref cls, MaxWidth);
@@ -480,7 +294,6 @@ public abstract class Component : CoreComponent, IComponent
             AddCss(ref sty, ref cls, Overflow);
             AddCss(ref sty, ref cls, OverflowX);
             AddCss(ref sty, ref cls, OverflowY);
-            AddCss(ref sty, ref cls, ObjectFit);
 
             if (Attributes is not null)
             {
@@ -499,41 +312,6 @@ public abstract class Component : CoreComponent, IComponent
                     {
                         AppendStyleDecl(ref sty, kv.Value?.ToString() ?? "");
                     }
-                    else if (k.EqualsIgnoreCase("onclick"))
-                    {
-                        userOnClick = true;
-                        attrs["onclick"] = OnClick.HasDelegate ? OnClick : kv.Value!;
-                    }
-                    else if (k.EqualsIgnoreCase("ondblclick"))
-                    {
-                        userOnDblClick = true;
-                        attrs["ondblclick"] = OnDoubleClick.HasDelegate ? OnDoubleClick : kv.Value!;
-                    }
-                    else if (k.EqualsIgnoreCase("onmouseover"))
-                    {
-                        userOnMouseOver = true;
-                        attrs["onmouseover"] = OnMouseOver.HasDelegate ? OnMouseOver : kv.Value!;
-                    }
-                    else if (k.EqualsIgnoreCase("onmouseout"))
-                    {
-                        userOnMouseOut = true;
-                        attrs["onmouseout"] = OnMouseOut.HasDelegate ? OnMouseOut : kv.Value!;
-                    }
-                    else if (k.EqualsIgnoreCase("onkeydown"))
-                    {
-                        userOnKeyDown = true;
-                        attrs["onkeydown"] = OnKeyDown.HasDelegate ? OnKeyDown : kv.Value!;
-                    }
-                    else if (k.EqualsIgnoreCase("onfocus"))
-                    {
-                        userOnFocus = true;
-                        attrs["onfocus"] = OnFocus.HasDelegate ? OnFocus : kv.Value!;
-                    }
-                    else if (k.EqualsIgnoreCase("onblur"))
-                    {
-                        userOnBlur = true;
-                        attrs["onblur"] = OnBlur.HasDelegate ? OnBlur : kv.Value!;
-                    }
                     else
                     {
                         attrs[k] = kv.Value!;
@@ -543,14 +321,6 @@ public abstract class Component : CoreComponent, IComponent
 
             if (cls.Length > 0) attrs["class"] = cls.ToString();
             if (sty.Length > 0) attrs["style"] = sty.ToString();
-
-            if (!userOnClick && OnClick.HasDelegate && !attrs.ContainsKey("onclick")) attrs["onclick"] = OnClick;
-            if (!userOnDblClick && OnDoubleClick.HasDelegate) attrs["ondblclick"] = OnDoubleClick;
-            if (!userOnMouseOver && OnMouseOver.HasDelegate) attrs["onmouseover"] = OnMouseOver;
-            if (!userOnMouseOut && OnMouseOut.HasDelegate) attrs["onmouseout"] = OnMouseOut;
-            if (!userOnKeyDown && OnKeyDown.HasDelegate) attrs["onkeydown"] = OnKeyDown;
-            if (!userOnFocus && OnFocus.HasDelegate) attrs["onfocus"] = OnFocus;
-            if (!userOnBlur && OnBlur.HasDelegate) attrs["onblur"] = OnBlur;
 
             // Cache the computed attributes keyed by the render key
             _cachedAttrs = attrs;
@@ -580,23 +350,18 @@ public abstract class Component : CoreComponent, IComponent
         hc.Add(Class);
         hc.Add(Style);
         hc.Add(Title);
-        hc.Add(TabIndex);
         hc.Add(Hidden);
-        hc.Add(Role);
-        hc.Add(AriaLabel);
-        hc.Add(AriaDescribedBy);
 
         AddIf(ref hc, Display);
         AddIf(ref hc, Visibility);
         AddIf(ref hc, Float);
         AddIf(ref hc, VerticalAlign);
-        AddIf(ref hc, TextOverflow);
-        AddIf(ref hc, BoxShadow);
         AddIf(ref hc, Margin);
         AddIf(ref hc, Padding);
         AddIf(ref hc, Position);
+        AddIf(ref hc, BackgroundColor);
+        AddIf(ref hc, BorderColor);
         AddIf(ref hc, Offset);
-        AddIf(ref hc, TextSize);
         AddIf(ref hc, Width);
         AddIf(ref hc, MinWidth);
         AddIf(ref hc, MaxWidth);
@@ -606,58 +371,32 @@ public abstract class Component : CoreComponent, IComponent
         AddIf(ref hc, Overflow);
         AddIf(ref hc, OverflowX);
         AddIf(ref hc, OverflowY);
-        AddIf(ref hc, ObjectFit);
-        AddIf(ref hc, TextAlignment);
-        AddIf(ref hc, TextDecoration);
         AddIf(ref hc, Flex);
         AddIf(ref hc, Gap);
-        AddIf(ref hc, Border);
         AddIf(ref hc, Opacity);
         AddIf(ref hc, ZIndex);
         AddIf(ref hc, PointerEvents);
         AddIf(ref hc, UserSelect);
-        AddIf(ref hc, TextTransform);
-        AddIf(ref hc, FontWeight);
-        AddIf(ref hc, FontStyle);
-        AddIf(ref hc, LineHeight);
-        AddIf(ref hc, TextWrap);
-        AddIf(ref hc, TextBreak);
         AddIf(ref hc, Animation);
-        AddIf(ref hc, AspectRatio);
         AddIf(ref hc, BackdropFilter);
-        AddIf(ref hc, BorderRadius);
         AddIf(ref hc, Clearfix);
         AddIf(ref hc, ClipPath);
-        AddIf(ref hc, Cursor);
         AddIf(ref hc, Filter);
-        AddIf(ref hc, Interaction);
-        AddIf(ref hc, ObjectPosition);
         AddIf(ref hc, Resize);
         AddIf(ref hc, ScreenReader);
         AddIf(ref hc, ScrollBehavior);
         AddIf(ref hc, StretchedLink);
         AddIf(ref hc, Transform);
         AddIf(ref hc, Transition);
-        AddIf(ref hc, Truncate);
-        AddIf(ref hc, TextStyle);
-        AddIf(ref hc, FocusRing);
         AddIf(ref hc, LinkOpacity);
         AddIf(ref hc, LinkOffset);
         AddIf(ref hc, LinkUnderline);
-        AddIf(ref hc, BackgroundOpacity);
-        AddIf(ref hc, BorderOpacity);
-        AddIf(ref hc, TextOpacity);
-        AddIf(ref hc, TextColor);
-        AddIf(ref hc, BackgroundColor);
 
         if (Attributes is not null)
         {
             if (Attributes.TryGetValue("class", out var cls)) hc.Add(cls?.ToString());
             if (Attributes.TryGetValue("style", out var sty)) hc.Add(sty?.ToString());
             if (Attributes.TryGetValue("id", out var id)) hc.Add(id?.ToString());
-            if (Attributes.TryGetValue("role", out var role)) hc.Add(role?.ToString());
-            if (Attributes.TryGetValue("aria-label", out var al)) hc.Add(al?.ToString());
-            if (Attributes.TryGetValue("aria-describedby", out var ad)) hc.Add(ad?.ToString());
         }
 
         return hc.ToHashCode();
@@ -724,32 +463,6 @@ public abstract class Component : CoreComponent, IComponent
                 AppendStyleDecl(ref styB, s);
             else
                 AppendClass(ref clsB, s);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void AddColorCss(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<BackgroundColorBuilder>? v, string classPrefix,
-        string cssProperty)
-    {
-        if (v is { IsEmpty: false })
-        {
-            string? token = null;
-            var isTheme = v.Value.TryGetBootstrapThemeToken(out token);
-
-            if (isTheme && token is not null)
-            {
-                AppendClass(ref clsB, $"{classPrefix}-{token}");
-            }
-            else
-            {
-                var result = v.Value.ToString();
-                if (!result.HasContent()) return;
-
-                if (v.Value.IsCssStyle)
-                    AppendStyleDecl(ref styB, $"{cssProperty}: {result}");
-                else
-                    AppendClass(ref clsB, $"{classPrefix}-{result}");
-            }
         }
     }
 
@@ -946,18 +659,14 @@ public abstract class Component : CoreComponent, IComponent
 
         ApplyThemeProperty(componentOptions.Display, () => Display, v => Display = v);
         ApplyThemeProperty(componentOptions.Visibility, () => Visibility, v => Visibility = v);
-        ApplyThemeProperty(componentOptions.TextColor, () => TextColor, v => TextColor = v);
         ApplyThemeProperty(componentOptions.BackgroundColor, () => BackgroundColor, v => BackgroundColor = v);
         ApplyThemeProperty(componentOptions.BorderColor, () => BorderColor, v => BorderColor = v);
         ApplyThemeProperty(componentOptions.Float, () => Float, v => Float = v);
         ApplyThemeProperty(componentOptions.VerticalAlign, () => VerticalAlign, v => VerticalAlign = v);
-        ApplyThemeProperty(componentOptions.TextOverflow, () => TextOverflow, v => TextOverflow = v);
-        ApplyThemeProperty(componentOptions.BoxShadow, () => BoxShadow, v => BoxShadow = v);
         ApplyThemeProperty(componentOptions.Margin, () => Margin, v => Margin = v);
         ApplyThemeProperty(componentOptions.Padding, () => Padding, v => Padding = v);
         ApplyThemeProperty(componentOptions.Position, () => Position, v => Position = v);
         ApplyThemeProperty(componentOptions.Offset, () => Offset, v => Offset = v);
-        ApplyThemeProperty(componentOptions.TextSize, () => TextSize, v => TextSize = v);
         ApplyThemeProperty(componentOptions.Width, () => Width, v => Width = v);
         ApplyThemeProperty(componentOptions.MinWidth, () => MinWidth, v => MinWidth = v);
         ApplyThemeProperty(componentOptions.MaxWidth, () => MaxWidth, v => MaxWidth = v);
@@ -967,47 +676,26 @@ public abstract class Component : CoreComponent, IComponent
         ApplyThemeProperty(componentOptions.Overflow, () => Overflow, v => Overflow = v);
         ApplyThemeProperty(componentOptions.OverflowX, () => OverflowX, v => OverflowX = v);
         ApplyThemeProperty(componentOptions.OverflowY, () => OverflowY, v => OverflowY = v);
-        ApplyThemeProperty(componentOptions.ObjectFit, () => ObjectFit, v => ObjectFit = v);
-        ApplyThemeProperty(componentOptions.TextAlignment, () => TextAlignment, v => TextAlignment = v);
-        ApplyThemeProperty(componentOptions.TextDecoration, () => TextDecoration, v => TextDecoration = v);
         ApplyThemeProperty(componentOptions.Flex, () => Flex, v => Flex = v);
         ApplyThemeProperty(componentOptions.Gap, () => Gap, v => Gap = v);
-        ApplyThemeProperty(componentOptions.Border, () => Border, v => Border = v);
         ApplyThemeProperty(componentOptions.Opacity, () => Opacity, v => Opacity = v);
         ApplyThemeProperty(componentOptions.ZIndex, () => ZIndex, v => ZIndex = v);
         ApplyThemeProperty(componentOptions.PointerEvents, () => PointerEvents, v => PointerEvents = v);
         ApplyThemeProperty(componentOptions.UserSelect, () => UserSelect, v => UserSelect = v);
-        ApplyThemeProperty(componentOptions.TextTransform, () => TextTransform, v => TextTransform = v);
-        ApplyThemeProperty(componentOptions.FontWeight, () => FontWeight, v => FontWeight = v);
-        ApplyThemeProperty(componentOptions.FontStyle, () => FontStyle, v => FontStyle = v);
-        ApplyThemeProperty(componentOptions.LineHeight, () => LineHeight, v => LineHeight = v);
-        ApplyThemeProperty(componentOptions.TextWrap, () => TextWrap, v => TextWrap = v);
-        ApplyThemeProperty(componentOptions.TextBreak, () => TextBreak, v => TextBreak = v);
         ApplyThemeProperty(componentOptions.Animation, () => Animation, v => Animation = v);
-        ApplyThemeProperty(componentOptions.AspectRatio, () => AspectRatio, v => AspectRatio = v);
         ApplyThemeProperty(componentOptions.BackdropFilter, () => BackdropFilter, v => BackdropFilter = v);
-        ApplyThemeProperty(componentOptions.BorderRadius, () => BorderRadius, v => BorderRadius = v);
         ApplyThemeProperty(componentOptions.Clearfix, () => Clearfix, v => Clearfix = v);
         ApplyThemeProperty(componentOptions.ClipPath, () => ClipPath, v => ClipPath = v);
-        ApplyThemeProperty(componentOptions.Cursor, () => Cursor, v => Cursor = v);
         ApplyThemeProperty(componentOptions.Filter, () => Filter, v => Filter = v);
-        ApplyThemeProperty(componentOptions.Interaction, () => Interaction, v => Interaction = v);
-        ApplyThemeProperty(componentOptions.ObjectPosition, () => ObjectPosition, v => ObjectPosition = v);
         ApplyThemeProperty(componentOptions.Resize, () => Resize, v => Resize = v);
         ApplyThemeProperty(componentOptions.ScreenReader, () => ScreenReader, v => ScreenReader = v);
         ApplyThemeProperty(componentOptions.ScrollBehavior, () => ScrollBehavior, v => ScrollBehavior = v);
         ApplyThemeProperty(componentOptions.StretchedLink, () => StretchedLink, v => StretchedLink = v);
         ApplyThemeProperty(componentOptions.Transform, () => Transform, v => Transform = v);
         ApplyThemeProperty(componentOptions.Transition, () => Transition, v => Transition = v);
-        ApplyThemeProperty(componentOptions.Truncate, () => Truncate, v => Truncate = v);
-        ApplyThemeProperty(componentOptions.TextStyle, () => TextStyle, v => TextStyle = v);
-        ApplyThemeProperty(componentOptions.FocusRing, () => FocusRing, v => FocusRing = v);
         ApplyThemeProperty(componentOptions.LinkOpacity, () => LinkOpacity, v => LinkOpacity = v);
         ApplyThemeProperty(componentOptions.LinkOffset, () => LinkOffset, v => LinkOffset = v);
         ApplyThemeProperty(componentOptions.LinkUnderline, () => LinkUnderline, v => LinkUnderline = v);
-        ApplyThemeProperty(componentOptions.BackgroundOpacity, () => BackgroundOpacity, v => BackgroundOpacity = v);
-        ApplyThemeProperty(componentOptions.BorderOpacity, () => BorderOpacity, v => BorderOpacity = v);
-        ApplyThemeProperty(componentOptions.TextOpacity, () => TextOpacity, v => TextOpacity = v);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1036,16 +724,6 @@ public abstract class Component : CoreComponent, IComponent
     }
 
     /// <summary>
-    /// Applies text color styling. Override this method in derived components to customize text color application.
-    /// </summary>
-    /// <param name="sty">String builder for inline styles</param>
-    /// <param name="cls">String builder for CSS classes</param>
-    protected virtual void ApplyTextColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
-    {
-        AddCss(ref sty, ref cls, TextColor);
-    }
-
-    /// <summary>
     /// Applies border color styling. Override this method in derived components to customize border color application.
     /// </summary>
     /// <param name="sty">String builder for inline styles</param>
@@ -1063,5 +741,31 @@ public abstract class Component : CoreComponent, IComponent
     protected virtual void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
         AddColorCss(ref sty, ref cls, BackgroundColor, "bg", "background-color");
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void AddColorCss(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<BackgroundColorBuilder>? v, string classPrefix,
+        string cssProperty)
+    {
+        if (v is { IsEmpty: false })
+        {
+            string? token = null;
+            var isTheme = v.Value.TryGetBootstrapThemeToken(out token);
+
+            if (isTheme && token is not null)
+            {
+                AppendClass(ref clsB, $"{classPrefix}-{token}");
+            }
+            else
+            {
+                var result = v.Value.ToString();
+                if (!result.HasContent()) return;
+
+                if (v.Value.IsCssStyle)
+                    AppendStyleDecl(ref styB, $"{cssProperty}: {result}");
+                else
+                    AppendClass(ref clsB, $"{classPrefix}-{result}");
+            }
+        }
     }
 }

@@ -1,0 +1,138 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Surface
+@implements IAlert
+
+@if (Visible)
+{
+    <CascadingValue Value="@this" IsFixed>
+        <Div @attributes="BuildAlertAttributes()" role="alert" >
+            @if (Dismissible)
+            {
+                <Button Type="@ButtonType.Button" Class="btn-close" OnClick="HandleDismiss" aria-label="Close" ></Button>
+            }
+            @ChildContent
+        </Div>
+    </CascadingValue>
+}
+
+@code {
+	public override string? ThemeKey { get; set; } = "Alert";
+
+    // Internal state tracking for child components
+    private bool _hasMessage;
+    private bool _hasDescription;
+
+    [Parameter]
+    public CssValue<AlertStyleBuilder>? AlertStyle { get; set; }
+
+    [Parameter]
+    public bool Dismissible { get; set; }
+
+    [Parameter]
+    public bool Visible { get; set; } = true;
+
+    [Parameter]
+    public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter]
+    public EventCallback OnDismiss { get; set; }
+    
+    protected override bool ShouldRender()
+    {
+        // Alert has internal state that can change
+        return true;
+    }
+    
+    protected virtual Dictionary<string, object> BuildAlertAttributes()
+    {
+        var attributes = BuildSurfaceAttributes();
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "alert");
+            
+            if (Dismissible)
+            {
+                AppendClass(ref cls, "alert-dismissible");
+                AppendClass(ref cls, "fade");
+            }
+            if (Dismissible && Visible)
+                AppendClass(ref cls, "show");
+            if (_hasMessage)
+                AppendClass(ref cls, "alert-has-message");
+            if (_hasDescription)
+                AppendClass(ref cls, "alert-has-description");
+            if (AlertStyle is not null && !AlertStyle.Value.IsEmpty)
+                AppendClass(ref cls, AlertStyle.Value.ToString());
+        });
+
+        return attributes;
+    }
+
+    public Task Show()
+    {
+        if (Visible)
+            return Task.CompletedTask;
+
+        Visible = true;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    public Task Hide()
+    {
+        if (!Visible)
+            return Task.CompletedTask;
+
+        Visible = false;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    public Task Toggle()
+    {
+        Visible = !Visible;
+        return InvokeAsync(StateHasChanged);
+    }
+    
+    internal void NotifyHasMessage()
+    {
+        _hasMessage = true;
+        InvokeAsync(StateHasChanged);
+    }
+
+    internal void NotifyHasDescription()
+    {
+        _hasDescription = true;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleDismiss()
+    {
+        Visible = false;
+
+        await OnDismiss.InvokeIfHasDelegate();
+        await VisibleChanged.InvokeAsync(Visible);
+    }
+
+    protected virtual void ApplyAlertBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
+        {
+            var v = BackgroundColor.Value.ToString().Trim();
+
+            if (BackgroundColor.Value.IsCssClass)
+            {
+                if (v.StartsWith("alert-", StringComparison.Ordinal))
+                    AppendClass(ref cls, v);
+                else
+                    AppendClass(ref cls, $"alert-{v}");
+            }
+            else
+            {
+                AppendStyleDecl(ref sty, $"border-color:{v}");
+                AppendStyleDecl(ref sty, "color:white");
+            }
+        }
+    }
+}

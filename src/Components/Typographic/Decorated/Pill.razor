@@ -1,0 +1,21 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.DecoratedTypographicElement
+
+<span @attributes="BuildTypographicAttributes()">@ChildContent</span>
+
+@code {
+    public override string? ThemeKey { get; set; } = "Pill";
+
+    protected override Dictionary<string, object> BuildTypographicAttributes()
+    {
+        var attributes = base.BuildTypographicAttributes();
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => 
+        {
+            AppendClass(ref cls, "badge");
+            AppendClass(ref cls, "rounded-pill");
+        });
+        return attributes;
+    }
+}
+
+

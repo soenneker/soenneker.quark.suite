@@ -1,0 +1,187 @@
+@using System.Linq.Expressions
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits InputSurface
+@implements ITextEdit
+
+<Input @ref="inputComponent"
+       Type="@Type"
+       @attributes="BuildInputAttributes()"
+       @bind-Value="Text"
+       @bind-Value:expression="TextExpression"
+       OnInput="HandleInput"
+       OnChange="HandleChange"
+       ValidationValueSelector="@(() => (object?)Text)" />
+
+@code {
+    public override string? ThemeKey { get; set; } = "TextEdit";
+
+    // ===== 2-way binding triplet =====
+    [Parameter]
+    public string? Text { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> TextChanged { get; set; }
+
+    [Parameter]
+    public Expression<Func<string?>>? TextExpression { get; set; }
+
+    // ===== TextEdit surface props =====
+    [Parameter]
+    public int MaxLength { get; set; }
+
+    [Parameter]
+    public string? Type { get; set; } = "text";
+
+    [Parameter]
+    public TextInputMode? InputMode { get; set; }
+
+    [Parameter]
+    public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
+
+    [Parameter]
+    public bool PlainText { get; set; }
+
+    [Parameter]
+    public bool FloatingLabel { get; set; }
+
+    [Parameter]
+    public string? Label { get; set; }
+
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnChange { get; set; }
+
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnInput { get; set; }
+
+    [CascadingParameter]
+    public Validation? ParentValidation { get; set; }
+
+    private Input? inputComponent;
+    private string? _lastValue;
+    private bool _valueChanged;
+
+    public object? ValidationValue => Text;
+
+    public string? GetValidationClass()
+    {
+        if (ParentValidation?.Status == ValidationStatus.Error) return "is-invalid";
+        if (ParentValidation?.Status == ValidationStatus.Success) return "is-valid";
+        return null;
+    }
+
+    public string? GetColorClass()
+    {
+        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
+        {
+            string? token = null;
+            var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
+            if (isTheme && token is not null) return $"form-control-{token}";
+
+            var v = BackgroundColor.Value.ToString().Trim();
+            if (BackgroundColor.Value.IsCssClass)
+                return v.StartsWith("form-control-", StringComparison.Ordinal) ? v : $"form-control-{v}";
+        }
+
+        return null;
+    }
+
+    public string? GetSizeClass()
+    {
+        if (Size == Quark.Size.Default) return null;
+
+        string? token = null;
+        var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+        if (isTheme && token is not null) return $"form-control-{token}";
+
+        return Size?.ToString() != null ? $"form-control-{Size}" : null;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && ParentValidation is not null && TextExpression is not null)
+        {
+            await ParentValidation.InitializeInputExpression(TextExpression);
+            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
+        }
+
+        _valueChanged = false;
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (!string.Equals(Text, _lastValue, StringComparison.Ordinal))
+        {
+            _valueChanged = true;
+            _lastValue = Text;
+        }
+
+        base.OnParametersSet();
+    }
+
+    protected override bool ShouldRender()
+    {
+        return _valueChanged || base.ShouldRender();
+    }
+
+    private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e) => InvokeAsync(StateHasChanged);
+
+    private async Task HandleInput(ChangeEventArgs e)
+    {
+        Text = e.Value?.ToString();
+        await TextChanged.InvokeIfHasDelegate(Text);
+        await OnInput.InvokeIfHasDelegate(e);
+        _valueChanged = true;
+
+        if (ParentValidation is not null)
+        {
+            ParentValidation.MarkTouched();
+            await ParentValidation.NotifyInputChanged(Text);
+        }
+    }
+
+    private async Task HandleChange(ChangeEventArgs e)
+    {
+        Text = e.Value?.ToString();
+        await TextChanged.InvokeIfHasDelegate(Text);
+        await OnChange.InvokeIfHasDelegate(e);
+        _valueChanged = true;
+
+        if (ParentValidation is not null)
+        {
+            ParentValidation.MarkTouched();
+            await ParentValidation.NotifyInputChanged(Text);
+        }
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        if (ParentValidation is not null)
+            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+    }
+
+    private Dictionary<string, object> BuildInputAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+
+        // TextEdit-specific attributes that should land on the native <input> (via Input.AdditionalAttributes)
+        if (MaxLength > 0) attributes["maxlength"] = MaxLength;
+        if (Placeholder.HasContent()) attributes["placeholder"] = Placeholder;
+        if (Disabled) attributes["disabled"] = true;
+        if (ReadOnly) attributes["readonly"] = true;
+        if (Required) attributes["required"] = true;
+
+        // (Optional) semantic props�if your Input interprets them as classes/behavior, pass through:
+        if (Size != Quark.Size.Default) attributes["size"] = Size;
+        if (PlainText) attributes["plaintext"] = true;
+        if (FloatingLabel) attributes["floatinglabel"] = true;
+        if (Label.HasContent()) attributes["label"] = Label;
+        if (InputMode is not null) attributes["inputmode"] = InputMode.Value;
+
+        return attributes;
+    }
+
+}

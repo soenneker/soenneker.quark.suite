@@ -1,0 +1,125 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Overlay
+@implements IModal
+
+@if (Visible)
+{
+    <CascadingValue Value="@this">
+		<Div OnKeyDown="HandleKeyDown" OnClick="HandleBackdropClick" @attributes="BuildAttributes()">
+			<Div @attributes="BuildDialogAttributes()" @onclick:stopPropagation="true">
+                <Div Class="modal-content">
+                    @ChildContent
+                </Div>
+            </Div>
+        </Div>
+        @if (ShowBackdrop)
+        {
+            <Div Class="modal-backdrop fade show"></Div>
+        }
+    </CascadingValue>
+}
+
+@code {
+	public override string? ThemeKey { get; set; } = "Modal";
+
+    [Parameter]
+    public bool Centered { get; set; }
+
+    [Parameter]
+    public bool Scrollable { get; set; }
+
+    [Parameter]
+    public ModalSizeType? ModalSize { get; set; }
+
+    [Parameter]
+    public bool Static { get; set; }
+
+    [Parameter]
+    public EventCallback OnBackdropClick { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+        
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "modal");
+            AppendClass(ref cls, "fade");
+            
+            if (Visible)
+                AppendClass(ref cls, "show");
+        });
+        
+        if (Visible)
+            BuildStyleAttribute(attributes, (ref PooledStringBuilder sty) => AppendStyleDecl(ref sty, "display: block"));
+        
+        attributes["tabindex"] = -1;
+        attributes["role"] = "dialog";
+        attributes["aria-modal"] = "true";
+        
+        if (Static)
+            attributes["data-bs-backdrop"] = "static";
+            
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildDialogAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+        
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "modal-dialog");
+            
+            if (Centered)
+                AppendClass(ref cls, "modal-dialog-centered");
+            if (Scrollable)
+                AppendClass(ref cls, "modal-dialog-scrollable");
+            if (ModalSize != null && !string.IsNullOrEmpty(ModalSize.Value))
+                AppendClass(ref cls, $"modal-{ModalSize.Value}");
+        });
+            
+        return attributes;
+    }
+
+    protected virtual async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (!Static && e.Key == "Escape")
+        {
+            await Hide();
+        }
+    }
+
+    private async Task HandleBackdropClick(MouseEventArgs args)
+    {
+        if (!Static)
+        {
+            await OnBackdropClick.InvokeIfHasDelegate();
+            await Hide();
+        }
+    }
+
+    public async Task Show()
+    {
+        if (!Visible)
+        {
+            Visible = true;
+
+            await VisibleChanged.InvokeAsync(Visible);
+            await OnShow.InvokeIfHasDelegate();
+        }
+    }
+
+    public async Task Hide()
+    {
+        if (Visible)
+        {
+            Visible = false;
+
+            await VisibleChanged.InvokeAsync(Visible);
+            await OnHide.InvokeIfHasDelegate();
+        }
+    }
+}

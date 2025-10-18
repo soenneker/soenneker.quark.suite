@@ -1,0 +1,52 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IColumn
+
+<Div @attributes="BuildFlowAttributes()">
+    @ChildContent
+</Div>
+
+@code {
+    public override string? ThemeKey { get; set; } = "Column";
+
+    [Parameter]
+    public CssValue<ColumnSizeBuilder>? ColumnSize { get; set; }
+
+    [Parameter]
+    public CssValue<ColumnOffsetBuilder>? ColumnOffset { get; set; }
+
+    [Parameter]
+    public CssValue<ColumnOrderBuilder>? ColumnOrder { get; set; }
+
+    [Parameter]
+    public CssValue<ColumnAutoBuilder>? ColumnAuto { get; set; }
+
+    protected virtual Dictionary<string, object> BuildFlowAttributes()
+    {
+        var attributes = BuildAttributes();
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "col");
+
+            AddColumnCss(ref cls, ColumnSize);
+            AddColumnCss(ref cls, ColumnOffset);
+            AddColumnCss(ref cls, ColumnOrder);
+            AddColumnCss(ref cls, ColumnAuto);
+        });
+
+        return attributes;
+    }
+
+    private static void AddColumnCss<T>(ref PooledStringBuilder cls, CssValue<T>? cssValue) where T : class, ICssBuilder
+    {
+        if (cssValue is { IsEmpty: false })
+        {
+            var css = cssValue.Value.ToString();
+            if (css.HasContent() && !cssValue.Value.IsCssStyle)
+            {
+                AppendClass(ref cls, css);
+            }
+        }
+    }
+}

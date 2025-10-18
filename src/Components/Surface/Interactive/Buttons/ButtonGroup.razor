@@ -1,0 +1,59 @@
+@using Soenneker.Quark.Components.Surface.Interactive.Buttons.Abstract
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IButtonGroup
+
+<CascadingValue Value="this">
+    <Div @attributes="BuildAttributes()">
+        @ChildContent
+    </Div>
+</CascadingValue>
+
+@code {
+    public override string? ThemeKey { get; set; } = "ButtonGroup";
+
+    [Parameter]
+    public CssValue<SizeBuilder>? Size { get; set; }
+
+    [Parameter]
+    public bool Vertical { get; set; }
+
+    [Parameter]
+    public string? Role { get; set; }
+
+    [Parameter]
+    public string? AriaLabel { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+
+        var classes = Vertical ? "btn-group-vertical" : "btn-group";
+        
+        if (Size != null && Size != Quark.Size.Default)
+        {
+            var sizeValue = Size.ToString();
+            if (sizeValue.HasContent())
+            {
+                classes += $" btn-group-{sizeValue}";
+            }
+        }
+
+        attributes["class"] = classes;
+
+        // Set default role if not specified
+        if (!attributes.ContainsKey("role"))
+        {
+            attributes["role"] = Role ?? "group";
+        }
+
+        // Set aria-label if specified
+        if (AriaLabel.HasContent())
+        {
+            attributes["aria-label"] = AriaLabel;
+        }
+
+        return attributes;
+    }
+}

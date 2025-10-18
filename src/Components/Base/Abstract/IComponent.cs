@@ -23,11 +23,6 @@ public interface IComponent : ICoreComponent
     string? Title { get; set; }
 
     /// <summary>
-    /// Gets or sets the HTML <c>tabindex</c> value to control keyboard tab order.
-    /// </summary>
-    int? TabIndex { get; set; }
-
-    /// <summary>
     /// Gets or sets whether the element is hidden using the boolean HTML <c>hidden</c> attribute.
     /// </summary>
     bool Hidden { get; set; }
@@ -36,16 +31,6 @@ public interface IComponent : ICoreComponent
     /// Gets or sets the CSS <c>vertical-align</c> value to apply inline.
     /// </summary>
     CssValue<VerticalAlignBuilder>? VerticalAlign { get; set; }
-
-    /// <summary>
-    /// Gets or sets the CSS <c>text-overflow</c> value to apply inline.
-    /// </summary>
-    CssValue<TextOverflowBuilder>? TextOverflow { get; set; }
-
-    /// <summary>
-    /// Gets or sets the CSS <c>box-shadow</c> value to apply inline.
-    /// </summary>
-    CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
 
     /// <summary>
     /// 
@@ -82,11 +67,6 @@ public interface IComponent : ICoreComponent
     /// Gets or sets the position offset configuration (e.g., top, bottom, start, end).
     /// </summary>
     CssValue<PositionOffsetBuilder>? Offset { get; set; }
-
-    /// <summary>
-    /// Gets or sets the text size configuration (e.g., font-size utilities).
-    /// </summary>
-    CssValue<TextSizeBuilder>? TextSize { get; set; }
 
     /// <summary>
     /// Gets or sets the width configuration (e.g., fixed, responsive, utility classes).
@@ -134,22 +114,6 @@ public interface IComponent : ICoreComponent
     CssValue<OverflowBuilder>? OverflowY { get; set; }
 
     /// <summary>
-    /// Gets or sets the object-fit configuration for replaced content (e.g., images, video).
-    /// </summary>
-    CssValue<ObjectFitBuilder>? ObjectFit { get; set; }
-
-    /// <summary>
-    /// Gets or sets the CSS <c>text-align</c> value to apply inline.
-    /// </summary>
-    CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
-
-    /// <summary>
-    /// Gets or sets the CSS <c>text-decoration</c> value to apply inline.
-    /// Supports fluent configuration of line, style, color, and thickness.
-    /// </summary>
-    CssValue<TextDecorationBuilder>? TextDecoration { get; set; }
-
-    /// <summary>
     /// Gets or sets the flex configuration (e.g., flex direction, wrap, grow, shrink).
     /// </summary>
     CssValue<FlexBuilder>? Flex { get; set; }
@@ -158,11 +122,6 @@ public interface IComponent : ICoreComponent
     /// Gets or sets the gap configuration for flex and grid layouts.
     /// </summary>
     CssValue<GapBuilder>? Gap { get; set; }
-
-    /// <summary>
-    /// Gets or sets the border configuration (e.g., width, style, color).
-    /// </summary>
-    CssValue<BorderBuilder>? Border { get; set; }
 
     /// <summary>
     /// Gets or sets the opacity configuration.
@@ -185,69 +144,19 @@ public interface IComponent : ICoreComponent
     CssValue<UserSelectBuilder>? UserSelect { get; set; }
 
     /// <summary>
-    /// Gets or sets the text transform configuration (e.g., uppercase, lowercase, capitalize).
+    /// Gets or sets the background color to apply (implementation-specific mapping to classes or inline style).
     /// </summary>
-    CssValue<TextTransformBuilder>? TextTransform { get; set; }
+    CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
 
     /// <summary>
-    /// Gets or sets the font weight configuration (e.g., normal, bold, 100-900).
+    /// Gets or sets the border color to apply (implementation-specific mapping to classes or inline style).
     /// </summary>
-    CssValue<FontWeightBuilder>? FontWeight { get; set; }
-
-    /// <summary>
-    /// Gets or sets the font style configuration (e.g., normal, italic, oblique).
-    /// </summary>
-    CssValue<FontStyleBuilder>? FontStyle { get; set; }
-
-    /// <summary>
-    /// Gets or sets the line height configuration.
-    /// </summary>
-    CssValue<LineHeightBuilder>? LineHeight { get; set; }
-
-    /// <summary>
-    /// Gets or sets the text wrap configuration (e.g., wrap, nowrap, balance).
-    /// </summary>
-    CssValue<TextWrapBuilder>? TextWrap { get; set; }
-
-    /// <summary>
-    /// Gets or sets the text break configuration (e.g., normal, break-all, break-word).
-    /// </summary>
-    CssValue<TextBreakBuilder>? TextBreak { get; set; }
+    CssValue<BorderColorBuilder>? BorderColor { get; set; }
 
     /// <summary>
     /// Invoked when the element is clicked.
     /// </summary>
     EventCallback<MouseEventArgs> OnClick { get; set; }
-
-    /// <summary>
-    /// Invoked when the element is double-clicked.
-    /// </summary>
-    EventCallback<MouseEventArgs> OnDoubleClick { get; set; }
-
-    /// <summary>
-    /// Invoked when the pointer moves over the element.
-    /// </summary>
-    EventCallback<MouseEventArgs> OnMouseOver { get; set; }
-
-    /// <summary>
-    /// Invoked when the pointer leaves the element.
-    /// </summary>
-    EventCallback<MouseEventArgs> OnMouseOut { get; set; }
-
-    /// <summary>
-    /// Invoked when a key is pressed while the element has focus.
-    /// </summary>
-    EventCallback<KeyboardEventArgs> OnKeyDown { get; set; }
-
-    /// <summary>
-    /// Invoked when the element receives focus.
-    /// </summary>
-    EventCallback<FocusEventArgs> OnFocus { get; set; }
-
-    /// <summary>
-    /// Invoked when the element loses focus.
-    /// </summary>
-    EventCallback<FocusEventArgs> OnBlur { get; set; }
 
     /// <summary>
     /// Invoked after the element reference (<see cref="ElementReference"/>) becomes available on first render.
@@ -256,39 +165,14 @@ public interface IComponent : ICoreComponent
     EventCallback<ElementReference> OnElementRefReady { get; set; }
 
     /// <summary>
-    /// Gets or sets the text color to apply (implementation-specific mapping to classes or inline style).
-    /// </summary>
-    CssValue<TextColorBuilder>? TextColor { get; set; }
-
-    /// <summary>
-    /// Gets or sets the border color to apply (implementation-specific mapping to classes or inline style).
-    /// </summary>
-    CssValue<BorderColorBuilder>? BorderColor { get; set; }
-
-    /// <summary>
-    /// Gets or sets the background color to apply (implementation-specific mapping to classes or inline style).
-    /// </summary>
-    CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
-
-    /// <summary>
     /// Gets or sets the animation configuration for CSS animations.
     /// </summary>
     CssValue<AnimationBuilder>? Animation { get; set; }
 
     /// <summary>
-    /// Gets or sets the aspect ratio configuration.
-    /// </summary>
-    CssValue<AspectRatioBuilder>? AspectRatio { get; set; }
-
-    /// <summary>
     /// Gets or sets the backdrop filter configuration.
     /// </summary>
     CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
-
-    /// <summary>
-    /// Gets or sets the border radius configuration.
-    /// </summary>
-    CssValue<BorderRadiusBuilder>? BorderRadius { get; set; }
 
     /// <summary>
     /// Gets or sets the clearfix configuration.
@@ -301,24 +185,9 @@ public interface IComponent : ICoreComponent
     CssValue<ClipPathBuilder>? ClipPath { get; set; }
 
     /// <summary>
-    /// Gets or sets the cursor configuration.
-    /// </summary>
-    CssValue<CursorBuilder>? Cursor { get; set; }
-
-    /// <summary>
     /// Gets or sets the CSS filter configuration.
     /// </summary>
     CssValue<FilterBuilder>? Filter { get; set; }
-
-    /// <summary>
-    /// Gets or sets the interaction configuration for hover, focus, and active states.
-    /// </summary>
-    CssValue<InteractionBuilder>? Interaction { get; set; }
-
-    /// <summary>
-    /// Gets or sets the object position configuration for replaced content.
-    /// </summary>
-    CssValue<ObjectPositionBuilder>? ObjectPosition { get; set; }
 
     /// <summary>
     /// Gets or sets the resize configuration.
@@ -349,24 +218,4 @@ public interface IComponent : ICoreComponent
     /// Gets or sets the CSS transition configuration.
     /// </summary>
     CssValue<TransitionBuilder>? Transition { get; set; }
-
-    /// <summary>
-    /// Gets or sets the text truncation configuration.
-    /// </summary>
-    CssValue<TruncateBuilder>? Truncate { get; set; }
-
-    /// <summary>
-    /// Gets or sets the ARIA <c>role</c> attribute for accessibility semantics.
-    /// </summary>
-    string? Role { get; set; }
-
-    /// <summary>
-    /// Gets or sets the ARIA <c>aria-label</c> attribute to provide an accessible label.
-    /// </summary>
-    string? AriaLabel { get; set; }
-
-    /// <summary>
-    /// Gets or sets the ARIA <c>aria-describedby</c> attribute to reference descriptive content.
-    /// </summary>
-    string? AriaDescribedBy { get; set; }
 }

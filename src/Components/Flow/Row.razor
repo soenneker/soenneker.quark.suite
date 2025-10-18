@@ -1,0 +1,35 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IRow
+
+<Div @attributes="BuildFlowAttributes()">
+	@ChildContent
+</Div>
+
+@code {
+    public override string? ThemeKey { get; set; } = "Row";
+
+	[Parameter]
+	public CssValue<GutterBuilder>? Gutter { get; set; }
+
+    protected virtual Dictionary<string, object> BuildFlowAttributes()
+    {
+        var attributes = BuildAttributes();
+        
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "row");
+
+            if (Gutter is { IsEmpty: false })
+            {
+                var gutterClass = Gutter.Value.ToString();
+                if (gutterClass.HasContent())
+                {
+                    AppendClass(ref cls, gutterClass);
+                }
+            }
+        });
+
+        return attributes;
+    }
+}

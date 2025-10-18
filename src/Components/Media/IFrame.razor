@@ -1,0 +1,97 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Component
+@implements IIFrame
+
+<iframe @attributes="BuildAttributes()"></iframe>
+
+@code {
+	public override string? ThemeKey { get; set; } = "IFrame";
+
+    [Parameter]
+    public string? Source { get; set; }
+
+    [Parameter]
+    public string? Name { get; set; }
+
+    [Parameter]
+    public string? Sandbox { get; set; }
+
+    [Parameter]
+    public string? Allow { get; set; }
+
+    [Parameter]
+    public string? Loading { get; set; }
+
+    [Parameter]
+    public bool Lazy { get; set; }
+
+    [Parameter]
+    public string? ReferrerPolicy { get; set; }
+
+    [Parameter]
+    public bool AllowFullscreen { get; set; }
+
+    [Parameter]
+    public bool AllowPaymentRequest { get; set; }
+
+    [Parameter]
+    public string? SrcDoc { get; set; }
+
+    [Parameter]
+    public EventCallback<ProgressEventArgs> OnLoad { get; set; }
+
+    [Parameter]
+    public EventCallback<ErrorEventArgs> OnError { get; set; }
+
+    private string? GetLoadingAttribute()
+    {
+        if (Lazy)
+            return "lazy";
+        
+        return Loading;
+    }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+
+        // Add iframe-specific attributes
+        if (Source.HasContent())
+            attributes["src"] = Source;
+
+        if (Name.HasContent())
+            attributes["name"] = Name;
+
+        if (Sandbox.HasContent())
+            attributes["sandbox"] = Sandbox;
+
+        if (Allow.HasContent())
+            attributes["allow"] = Allow;
+
+        var loadingAttr = GetLoadingAttribute();
+        if (loadingAttr.HasContent())
+            attributes["loading"] = loadingAttr;
+
+        if (ReferrerPolicy.HasContent())
+            attributes["referrerpolicy"] = ReferrerPolicy;
+
+        if (AllowFullscreen)
+            attributes["allowfullscreen"] = true;
+
+        if (AllowPaymentRequest)
+            attributes["allowpaymentrequest"] = true;
+
+        if (SrcDoc.HasContent())
+            attributes["srcdoc"] = SrcDoc;
+
+        // Add event handlers
+        if (OnLoad.HasDelegate)
+            attributes["onload"] = EventCallback.Factory.Create(this, OnLoad);
+
+        if (OnError.HasDelegate)
+            attributes["onerror"] = EventCallback.Factory.Create(this, OnError);
+
+        return attributes;
+    }
+}
+

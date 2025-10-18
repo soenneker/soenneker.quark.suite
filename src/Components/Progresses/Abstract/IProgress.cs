@@ -1,4 +1,4 @@
-namespace Soenneker.Quark;
+namespace Soenneker.Quark.Components.Progresses.Abstract;
 
 /// <summary>
 /// Represents a progress bar container component for displaying task completion.
