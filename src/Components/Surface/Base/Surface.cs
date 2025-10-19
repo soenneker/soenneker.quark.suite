@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
-using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
@@ -17,12 +16,6 @@ public abstract class Surface : Component, ISurface
     /// </summary>
     [Parameter]
     public string Tag { get; set; } = "div";
-
-    /// <summary>
-    /// Gets or sets the child content to be rendered within the surface.
-    /// </summary>
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
 
     /// <summary>
     /// Gets or sets the border style and width.
@@ -54,41 +47,21 @@ public abstract class Surface : Component, ISurface
     [Parameter]
     public CssValue<BorderOpacityBuilder>? BorderOpacity { get; set; }
 
-    protected virtual Dictionary<string, object> BuildSurfaceAttributes()
+    protected override Dictionary<string, object> BuildAttributes()
     {
-        var attributes = BuildAttributes();
+        var attributes = base.BuildAttributes();
 
-        var sty = new PooledStringBuilder(64);
-        var cls = new PooledStringBuilder(64);
-
-        try
+        BuildClassAndStyleAttributes(attributes, (cls, sty) =>
         {
-            // Get existing class and style
-            if (attributes.TryGetValue("style", out var existingStyle))
-                sty.Append(existingStyle.ToString());
-            if (attributes.TryGetValue("class", out var existingClass))
-                cls.Append(existingClass.ToString());
-
             // Apply surface-specific properties
             AddCss(ref sty, ref cls, Border);
             AddCss(ref sty, ref cls, BorderRadius);
             AddCss(ref sty, ref cls, BoxShadow);
             AddCss(ref sty, ref cls, BackgroundOpacity);
             AddCss(ref sty, ref cls, BorderOpacity);
+        });
 
-            // Update attributes with surface styles
-            if (cls.Length > 0)
-                attributes["class"] = cls.ToString();
-            if (sty.Length > 0)
-                attributes["style"] = sty.ToString();
-
-            return attributes;
-        }
-        finally
-        {
-            sty.Dispose();
-            cls.Dispose();
-        }
+        return attributes;
     }
 }
 

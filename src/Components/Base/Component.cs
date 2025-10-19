@@ -606,6 +606,48 @@ public abstract class Component : CoreComponent, IComponent
         }
     }
 
+    /// <summary>
+    /// Builds both class and style attributes by providing PooledStringBuilders to the callback.
+    /// Merges with any existing class and style attributes. The framework manages pooling lifecycle.
+    /// Use AppendClass(ref cls, "yourClass") and AppendStyleDecl(ref sty, "full: decl") within the callback.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected static void BuildClassAndStyleAttributes(IDictionary<string, object> attrs, Action<PooledStringBuilder, PooledStringBuilder> builder)
+    {
+        var cls = new PooledStringBuilder(64);
+        var sty = new PooledStringBuilder(64);
+        try
+        {
+            // Include existing class first
+            if (attrs.TryGetValue("class", out var existingClass))
+            {
+                var existingStr = existingClass.ToString();
+                if (existingStr.HasContent())
+                    cls.Append(existingStr);
+            }
+
+            // Include existing style first
+            if (attrs.TryGetValue("style", out var existingStyle))
+            {
+                var existingStr = existingStyle.ToString();
+                if (existingStr.HasContent())
+                    sty.Append(existingStr);
+            }
+            
+            builder(cls, sty); // Let the component add classes and styles
+            
+            if (cls.Length > 0)
+                attrs["class"] = cls.ToString();
+            if (sty.Length > 0)
+                attrs["style"] = sty.ToString();
+        }
+        finally
+        {
+            cls.Dispose();
+            sty.Dispose();
+        }
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void EnsureAttr<T>(IDictionary<string, object> attrs, string name, T value)
     {

@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Soenneker.Blazor.Extensions.EventCallback;
-using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
@@ -139,57 +138,37 @@ public abstract class InteractiveSurface : Surface, IInteractiveSurface
 
     // -------- Attribute Building Override --------
     
-    protected override Dictionary<string, object> BuildSurfaceAttributes()
+    protected override Dictionary<string, object> BuildAttributes()
     {
-        var attributes = base.BuildSurfaceAttributes();
+        var attributes = base.BuildAttributes();
 
-        var sty = new PooledStringBuilder(64);
-        var cls = new PooledStringBuilder(64);
-
-        try
+        BuildClassAndStyleAttributes(attributes, (cls, sty) =>
         {
-            // Get existing class and style
-            if (attributes.TryGetValue("style", out var existingStyle))
-                sty.Append(existingStyle.ToString());
-            if (attributes.TryGetValue("class", out var existingClass))
-                cls.Append(existingClass.ToString());
-
             // Apply interactive-specific properties
             AddCss(ref sty, ref cls, Cursor);
             AddCss(ref sty, ref cls, FocusRing);
             AddCss(ref sty, ref cls, Interaction);
+        });
 
-            // Update attributes with interactive styles
-            if (cls.Length > 0)
-                attributes["class"] = cls.ToString();
-            if (sty.Length > 0)
-                attributes["style"] = sty.ToString();
+        // Add accessibility attributes
+        if (TabIndex.HasValue) 
+            attributes["tabindex"] = TabIndex.Value;
+        if (Role != null) 
+            attributes["role"] = Role;
+        if (AriaLabel != null) 
+            attributes["aria-label"] = AriaLabel;
+        if (AriaDescribedBy != null) 
+            attributes["aria-describedby"] = AriaDescribedBy;
 
-            // Add accessibility attributes
-            if (TabIndex.HasValue) 
-                attributes["tabindex"] = TabIndex.Value;
-            if (Role != null) 
-                attributes["role"] = Role;
-            if (AriaLabel != null) 
-                attributes["aria-label"] = AriaLabel;
-            if (AriaDescribedBy != null) 
-                attributes["aria-describedby"] = AriaDescribedBy;
+        // Add interactive event handlers if they have delegates
+        if (OnDoubleClick.HasDelegate) attributes["ondblclick"] = OnDoubleClick;
+        if (OnMouseOver.HasDelegate) attributes["onmouseover"] = OnMouseOver;
+        if (OnMouseOut.HasDelegate) attributes["onmouseout"] = OnMouseOut;
+        if (OnKeyDown.HasDelegate) attributes["onkeydown"] = OnKeyDown;
+        if (OnFocus.HasDelegate) attributes["onfocus"] = OnFocus;
+        if (OnBlur.HasDelegate) attributes["onblur"] = OnBlur;
 
-            // Add interactive event handlers if they have delegates
-            if (OnDoubleClick.HasDelegate) attributes["ondblclick"] = OnDoubleClick;
-            if (OnMouseOver.HasDelegate) attributes["onmouseover"] = OnMouseOver;
-            if (OnMouseOut.HasDelegate) attributes["onmouseout"] = OnMouseOut;
-            if (OnKeyDown.HasDelegate) attributes["onkeydown"] = OnKeyDown;
-            if (OnFocus.HasDelegate) attributes["onfocus"] = OnFocus;
-            if (OnBlur.HasDelegate) attributes["onblur"] = OnBlur;
-
-            return attributes;
-        }
-        finally
-        {
-            sty.Dispose();
-            cls.Dispose();
-        }
+        return attributes;
     }
 }
 

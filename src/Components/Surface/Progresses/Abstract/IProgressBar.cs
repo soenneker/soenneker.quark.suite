@@ -1,4 +1,4 @@
-namespace Soenneker.Quark.Components.Progresses.Abstract;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents the inner progress bar that displays the actual progress value.

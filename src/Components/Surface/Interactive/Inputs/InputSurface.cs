@@ -44,5 +44,3 @@ public abstract class InputSurface : InteractiveSurface, IInputSurface
     [Parameter]
     public bool AutoFocus { get; set; }
 }
-
-

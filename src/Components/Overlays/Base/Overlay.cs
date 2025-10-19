@@ -56,4 +56,3 @@ public abstract class Overlay : Component, IOverlay
     [Parameter]
     public EventCallback OnHide { get; set; }
 }
-

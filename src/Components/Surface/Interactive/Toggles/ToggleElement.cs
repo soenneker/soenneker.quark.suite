@@ -8,7 +8,7 @@ namespace Soenneker.Quark;
 /// Shared base for toggle components (checkbox, switch, radio).
 /// Provides common checked state and value binding.
 /// </summary>
-public abstract class ToggleElement : InteractiveSurface, IToggleElement
+public abstract class ToggleElement : InteractiveSurfaceElement, IToggleElement
 {
     /// <summary>
     /// Gets or sets whether the toggle is checked.

@@ -7,7 +7,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Represents a toggle input component (checkbox, radio, switch) with checked state binding.
 /// </summary>
-public interface IToggleElement : IInteractiveSurface
+public interface IToggleElement : IInteractiveSurfaceElement
 {
     /// <summary>
     /// Gets or sets whether the toggle is checked.

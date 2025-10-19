@@ -35,4 +35,3 @@ public interface IInputSurface : IInteractiveSurface
     /// </summary>
     bool AutoFocus { get; set; }
 }
-

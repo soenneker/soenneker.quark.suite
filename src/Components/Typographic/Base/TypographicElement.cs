@@ -57,21 +57,12 @@ public abstract class TypographicElement : Element
     [Parameter]
     public CssValue<TextOpacityBuilder>? TextOpacity { get; set; }
 
-    protected virtual Dictionary<string, object> BuildTypographicAttributes()
+    protected override Dictionary<string, object> BuildAttributes()
     {
-        var attributes = BuildAttributes();
+        var attributes = base.BuildAttributes();
 
-        var sty = new PooledStringBuilder(64);
-        var cls = new PooledStringBuilder(64);
-
-        try
+        BuildClassAndStyleAttributes(attributes, (cls, sty) =>
         {
-            // Get existing class and style
-            if (attributes.TryGetValue("style", out var existingStyle))
-                sty.Append(existingStyle.ToString());
-            if (attributes.TryGetValue("class", out var existingClass))
-                cls.Append(existingClass.ToString());
-
             // Apply typography-specific properties
             ApplyTextColor(ref sty, ref cls);
             AddCss(ref sty, ref cls, TextSize);
@@ -88,20 +79,9 @@ public abstract class TypographicElement : Element
             AddCss(ref sty, ref cls, TextStyle);
             AddCss(ref sty, ref cls, TextBackground);
             AddCss(ref sty, ref cls, TextOpacity);
+        });
 
-            // Update attributes with typography styles
-            if (cls.Length > 0)
-                attributes["class"] = cls.ToString();
-            if (sty.Length > 0)
-                attributes["style"] = sty.ToString();
-
-            return attributes;
-        }
-        finally
-        {
-            sty.Dispose();
-            cls.Dispose();
-        }
+        return attributes;
     }
 
     /// <summary>
