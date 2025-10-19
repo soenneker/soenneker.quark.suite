@@ -22,6 +22,22 @@
 	[CascadingParameter(Name = "IsLoading")]
 	public bool IsLoading { get; set; }
 
+	private bool _lastIsLoading;
+
+	protected override bool ShouldRender()
+	{
+		if (QuarkOptions.AlwaysRender)
+			return true;
+
+		if (IsLoading != _lastIsLoading)
+		{
+			_lastIsLoading = IsLoading;
+			return true;
+		}
+
+		return base.ShouldRender();
+	}
+
 	protected override Dictionary<string, object> BuildAttributes()
 	{
 		var attributes = base.BuildAttributes();

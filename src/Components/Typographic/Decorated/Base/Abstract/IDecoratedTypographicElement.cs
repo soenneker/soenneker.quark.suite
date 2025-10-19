@@ -31,4 +31,9 @@ public interface IDecoratedTypographicElement : ITypographicElement
     /// Gets or sets the border opacity.
     /// </summary>
     CssValue<BorderOpacityBuilder>? BorderOpacity { get; set; }
+
+    /// <summary>
+    /// Gets or sets the display size (Bootstrap display heading classes).
+    /// </summary>
+    CssValue<DisplaySizeBuilder>? DisplaySize { get; set; }
 }

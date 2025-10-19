@@ -26,6 +26,10 @@ public sealed class DisplaySizeBuilder : ICssBuilder
     // ----- CSS prefix (compile-time) -----
     private const string _fontSizePrefix = "font-size: ";
 
+    public bool IsEmpty => _rules.Count == 0;
+    public bool IsCssClass => true;
+    public bool IsCssStyle => false;
+
     internal DisplaySizeBuilder(string size, BreakpointType? breakpoint = null)
     {
         _rules.Add(new DisplaySizeRule(size, breakpoint));
@@ -75,6 +79,8 @@ public sealed class DisplaySizeBuilder : ICssBuilder
         _rules[lastIdx] = new DisplaySizeRule(last.Size, bp);
         return this;
     }
+
+    public override string ToString() => ToClass();
 
     /// <summary>Gets the CSS class string for the current configuration.</summary>
     public string ToClass()

@@ -9,4 +9,16 @@
     public CssValue<DisplaySizeBuilder>? DisplaySize { get; set; }
 
     public override string? ThemeKey { get; set; } = "H2";
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+
+        BuildClassAndStyleAttributes(attributes, (ref PooledStringBuilder cls, ref PooledStringBuilder sty) =>
+        {
+            AddCss(ref sty, ref cls, DisplaySize);
+        });
+
+        return attributes;
+    }
 }

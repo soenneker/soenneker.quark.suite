@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Soenneker.Blazor.Extensions.EventCallback;
+using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
@@ -33,7 +34,7 @@ public abstract class InteractiveSurfaceElement : SurfaceElement, IInteractiveSu
     // -------- Interactive Events --------
     // Note: OnClick uses 'new' to shadow Component.OnClick because interactive surfaces
     // need to wire it up differently (with render gating, etc.)
-    
+
     [Parameter]
     public EventCallback<MouseEventArgs> OnDoubleClick { get; set; }
 
@@ -53,7 +54,7 @@ public abstract class InteractiveSurfaceElement : SurfaceElement, IInteractiveSu
     public EventCallback<FocusEventArgs> OnBlur { get; set; }
 
     // -------- Event Handlers --------
-    
+
     protected new virtual Task HandleClick(MouseEventArgs e)
     {
         return OnClick.InvokeIfHasDelegate(e);
@@ -90,12 +91,12 @@ public abstract class InteractiveSurfaceElement : SurfaceElement, IInteractiveSu
     }
 
     // -------- Attribute Building Override --------
-    
+
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
 
-        BuildClassAndStyleAttributes(attributes, (cls, sty) =>
+        BuildClassAndStyleAttributes(attributes, (ref PooledStringBuilder cls, ref PooledStringBuilder sty) =>
         {
             // Apply interactive-specific properties
             AddCss(ref sty, ref cls, Cursor);
@@ -104,24 +105,29 @@ public abstract class InteractiveSurfaceElement : SurfaceElement, IInteractiveSu
         });
 
         // Add accessibility attributes
-        if (TabIndex.HasValue) 
+        if (TabIndex.HasValue)
             attributes["tabindex"] = TabIndex.Value;
-        if (Role != null) 
+        if (Role != null)
             attributes["role"] = Role;
-        if (AriaLabel != null) 
+        if (AriaLabel != null)
             attributes["aria-label"] = AriaLabel;
-        if (AriaDescribedBy != null) 
+        if (AriaDescribedBy != null)
             attributes["aria-describedby"] = AriaDescribedBy;
 
         // Add interactive event handlers if they have delegates
-        if (OnDoubleClick.HasDelegate) attributes["ondblclick"] = OnDoubleClick;
-        if (OnMouseOver.HasDelegate) attributes["onmouseover"] = OnMouseOver;
-        if (OnMouseOut.HasDelegate) attributes["onmouseout"] = OnMouseOut;
-        if (OnKeyDown.HasDelegate) attributes["onkeydown"] = OnKeyDown;
-        if (OnFocus.HasDelegate) attributes["onfocus"] = OnFocus;
-        if (OnBlur.HasDelegate) attributes["onblur"] = OnBlur;
+        if (OnDoubleClick.HasDelegate)
+            attributes["ondblclick"] = OnDoubleClick;
+        if (OnMouseOver.HasDelegate)
+            attributes["onmouseover"] = OnMouseOver;
+        if (OnMouseOut.HasDelegate)
+            attributes["onmouseout"] = OnMouseOut;
+        if (OnKeyDown.HasDelegate)
+            attributes["onkeydown"] = OnKeyDown;
+        if (OnFocus.HasDelegate)
+            attributes["onfocus"] = OnFocus;
+        if (OnBlur.HasDelegate)
+            attributes["onblur"] = OnBlur;
 
         return attributes;
     }
 }
-

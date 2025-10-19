@@ -1,0 +1,80 @@
+@page "/forms/code-editor"
+
+<Container Padding="Padding.Is4.OnY">
+    <Row>
+        <Column>
+            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
+                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Code Editor</H1>
+                <Paragraph Class="lead" TextColor="TextColor.Muted">Monaco-based editor with Quark styling</Paragraph>
+            </Div>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column ColumnSize="ColumnSize.Is4.OnDesktop">
+            <Card>
+                <CardBody>
+                    <H4>Options</H4>
+                    <Div Margin="Margin.Is2.FromBottom">
+                        <Label Form="true">Language</Label>
+                        <Select TValue="string" SelectedValue="_language" SelectedValueChanged="(v => _language = v)">
+                            <SelectItem Value="@("csharp")">CSharp</SelectItem>
+                            <SelectItem Value="@("json")">JSON</SelectItem>
+                            <SelectItem Value="@("xml")">XML</SelectItem>
+                            <SelectItem Value="@("javascript")">JavaScript</SelectItem>
+                            <SelectItem Value="@("typescript")">TypeScript</SelectItem>
+                            <SelectItem Value="@("html")">HTML</SelectItem>
+                            <SelectItem Value="@("css")">CSS</SelectItem>
+                            <SelectItem Value="@("sql")">SQL</SelectItem>
+                            <SelectItem Value="@("yaml")">YAML</SelectItem>
+                            <SelectItem Value="@("markdown")">Markdown</SelectItem>
+                        </Select>
+                    </Div>
+
+                    <Div Margin="Margin.Is2.FromBottom">
+                        <Label Form="true">Theme</Label>
+                        <Select TValue="string" SelectedValue="_theme" SelectedValueChanged="(v => _theme = v)">
+                            <SelectItem Value="@("vs")">vs (light)</SelectItem>
+                            <SelectItem Value="@("vs-dark")">vs-dark</SelectItem>
+                            <SelectItem Value="@("hc-black")">hc-black</SelectItem>
+                        </Select>
+                    </Div>
+
+                    <Div Margin="Margin.Is2.FromBottom">
+                        <Check Checked="_wordWrap" CheckedChanged="(v => _wordWrap = v)">Word Wrap</Check>
+                    </Div>
+                    <Div Margin="Margin.Is2.FromBottom">
+                        <Check Checked="_minimap" CheckedChanged="(v => _minimap = v)">Minimap</Check>
+                    </Div>
+                    <Div Margin="Margin.Is2.FromBottom">
+                        <Label Form="true">Height (px)</Label>
+                        <NumericEdit Value="@((decimal)_editorHeight)" ValueChanged="v => _editorHeight = (int)v.GetValueOrDefault(300)" />
+                    </Div>
+                </CardBody>
+            </Card>
+        </Column>
+        <Column ColumnSize="ColumnSize.Is8.OnDesktop">
+            <CodeEditor @bind-Text="_text"
+                        Language="@_language"
+                        Theme="@_theme"
+                        WordWrap="@_wordWrap"
+                        Minimap="@_minimap"
+                        @bind-HeightPx="_editorHeight" />
+            <Div Margin="Margin.Is3.FromTop">
+                <H5>Value</H5>
+                <Pre>@_text</Pre>
+            </Div>
+        </Column>
+    </Row>
+</Container>
+
+@code {
+    private string _language = "csharp";
+    private string _theme = "vs-dark";
+    private bool _wordWrap = false;
+    private bool _minimap = true;
+    private int _editorHeight = 300;
+    private string _text = "// Hello, Monaco!\npublic class Demo { }";
+}
+
+

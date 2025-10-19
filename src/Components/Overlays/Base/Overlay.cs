@@ -60,12 +60,18 @@ public abstract class Overlay : Component, IOverlay
 
     protected override void OnParametersSet()
     {
-        // Force re-render when Visible changes
+        base.OnParametersSet();
+    }
+
+    protected override bool ShouldRender()
+    {
+        // Ensure visibility changes always trigger a render regardless of base render key
         if (Visible != _lastVisible)
         {
             _lastVisible = Visible;
+            return true;
         }
 
-        base.OnParametersSet();
+        return base.ShouldRender();
     }
 }

@@ -1,0 +1,142 @@
+@using System.Linq.Expressions
+@using System.Text.Json
+
+@namespace Soenneker.Quark
+@inherits InputSurfaceElement
+
+@inject ICodeEditorInterop CodeEditorInterop
+
+<div @ref="_container" @attributes="BuildContainerAttributes()"></div>
+
+@code {
+    public override string? ThemeKey { get; set; } = "CodeEditor";
+
+    // Two-way binding for the code text
+    [Parameter]
+    public string? Text { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> TextChanged { get; set; }
+
+    [Parameter]
+    public Expression<Func<string?>>? TextExpression { get; set; }
+
+    // Options
+    [Parameter]
+    public string Language { get; set; } = "csharp";
+
+    [Parameter]
+    public string Theme { get; set; } = "vs-dark"; // vs, vs-dark, hc-black
+
+    [Parameter]
+    public bool WordWrap { get; set; }
+
+    [Parameter]
+    public bool Minimap { get; set; } = true;
+
+    [Parameter]
+    public int HeightPx { get; set; } = 300;
+
+    [Parameter]
+    public EventCallback<int> HeightPxChanged { get; set; }
+
+    private ElementReference _container;
+    private string? _lastText;
+    private string? _lastLanguage;
+    private string? _lastTheme;
+    private bool _initialized;
+    private bool _valueChanged;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await CodeEditorInterop.Initialize();
+
+            var options = new
+            {
+                value = Text ?? string.Empty,
+                language = Language,
+                theme = Theme,
+                readOnly = ReadOnly,
+                wordWrap = WordWrap ? "on" : "off",
+                minimap = new { enabled = Minimap },
+                automaticLayout = true
+            };
+
+            var json = JsonSerializer.Serialize(options);
+            await CodeEditorInterop.CreateEditor(_container, json);
+
+            _initialized = true;
+            _lastLanguage = Language;
+            _lastTheme = Theme;
+            _lastText = Text;
+        }
+
+        _valueChanged = false;
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_initialized)
+        {
+            if (!string.Equals(Text, _lastText, StringComparison.Ordinal))
+            {
+                await CodeEditorInterop.SetValue(_container, Text ?? string.Empty);
+                _lastText = Text;
+            }
+
+            if (!string.Equals(Language, _lastLanguage, StringComparison.OrdinalIgnoreCase))
+            {
+                await CodeEditorInterop.SetLanguage(_container, Language);
+                _lastLanguage = Language;
+            }
+
+            if (!string.Equals(Theme, _lastTheme, StringComparison.OrdinalIgnoreCase))
+            {
+                await CodeEditorInterop.SetTheme(Theme);
+                _lastTheme = Theme;
+            }
+        }
+
+        await base.OnParametersSetAsync();
+    }
+
+    protected override bool ShouldRender()
+    {
+        return _valueChanged || base.ShouldRender();
+    }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        // Not used on wrapper div; preserve base for surface props if needed in future
+        return base.BuildAttributes();
+    }
+
+    private Dictionary<string, object> BuildContainerAttributes()
+    {
+        var attrs = new Dictionary<string, object>(2);
+        BuildStyleAttribute(attrs, (ref PooledStringBuilder sty) =>
+        {
+            AppendStyleDecl(ref sty, $"height: {HeightPx}px");
+            AppendStyleDecl(ref sty, "width: 100%");
+            AppendStyleDecl(ref sty, "position: relative");
+        });
+
+        BuildClassAttribute(attrs, (ref PooledStringBuilder cls) => { AppendClass(ref cls, "quark-codeeditor"); });
+
+        return attrs;
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        await base.DisposeAsync();
+
+        if (_initialized)
+        {
+            await CodeEditorInterop.DisposeEditor(_container);
+        }
+    }
+
+}

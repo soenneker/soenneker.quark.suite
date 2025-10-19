@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
+using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
@@ -24,12 +25,6 @@ public abstract class SurfaceElement : Element, ISurfaceElement
     public CssValue<BorderBuilder>? Border { get; set; }
 
     /// <summary>
-    /// Gets or sets the border radius for rounded corners.
-    /// </summary>
-    [Parameter]
-    public CssValue<BorderRadiusBuilder>? BorderRadius { get; set; }
-
-    /// <summary>
     /// Gets or sets the box shadow for depth and elevation effects.
     /// </summary>
     [Parameter]
@@ -51,11 +46,10 @@ public abstract class SurfaceElement : Element, ISurfaceElement
     {
         var attributes = base.BuildAttributes();
 
-        BuildClassAndStyleAttributes(attributes, (cls, sty) =>
+        BuildClassAndStyleAttributes(attributes, (ref PooledStringBuilder cls, ref PooledStringBuilder sty) =>
         {
             // Apply surface-specific properties
             AddCss(ref sty, ref cls, Border);
-            AddCss(ref sty, ref cls, BorderRadius);
             AddCss(ref sty, ref cls, BoxShadow);
             AddCss(ref sty, ref cls, BackgroundOpacity);
             AddCss(ref sty, ref cls, BorderOpacity);

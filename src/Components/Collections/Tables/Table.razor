@@ -110,6 +110,7 @@
     private bool _isHandlingManualRequest; // Flag to prevent multiple simultaneous manual requests
     private int _manualRequestCount; // Counter to track manual request calls
     private TableOptions? _previousOptions;
+    private int? _lastRenderGateKey;
 
     protected override async Task OnInitializedAsync()
     {
@@ -128,6 +129,24 @@
             Logger.LogError(ex, "Error during Table initialization: {Message}", ex.Message);
             throw;
         }
+    }
+
+    protected override bool ShouldRender()
+    {
+        if (QuarkOptions.AlwaysRender)
+            return true;
+
+        // Re-render when loading state or key paging/search values change
+        // This ensures the loader disappears and rows appear promptly.
+        var key = HashCode.Combine(_isLoading, CurrentPage, PageSize, _searchTerm, _registeredColumns.Count, _hasLoadedOnce, TotalRecordsCount);
+
+        if (_lastRenderGateKey != key)
+        {
+            _lastRenderGateKey = key;
+            return true;
+        }
+
+        return base.ShouldRender();
     }
 
     protected override async Task OnParametersSetAsync()
@@ -162,13 +181,15 @@
                 TotalRecordsCount = TotalRecords;
                 TotalPages = (int) Math.Ceiling((double) TotalRecordsCount / PageSize);
 
-                // Load initial data
+                // Load initial data without blocking first render so loader shows immediately
                 if (OnInteraction.HasDelegate)
                 {
                     if (Options.Debug)
-                        Logger.LogDebug("Calling OnInteractionInternal for initial data load");
+                        Logger.LogDebug("Scheduling OnInteractionInternal for initial data load");
 
-                    await OnInteractionInternal();
+                    _isLoading = true; // ensure loader visible on first render
+                    await InvokeAsync(StateHasChanged);
+                    _ = OnInteractionInternal();
                 }
 
                 _dataLoaded = true;
@@ -443,7 +464,7 @@
         _isHandlingManualRequest = true;
         _isLoading = true;
 
-        StateHasChanged();
+        await InvokeAsync(StateHasChanged);
 
         try
         {
@@ -491,7 +512,7 @@
             _isLoading = false;
             _isHandlingManualRequest = false;
 
-            StateHasChanged();
+            await InvokeAsync(StateHasChanged);
         }
     }
 

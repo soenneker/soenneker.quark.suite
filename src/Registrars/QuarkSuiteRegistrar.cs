@@ -31,6 +31,7 @@ public static class QuarkSuiteRegistrar
             .AddQuarkCheckAsScoped()
             .AddQuarkSwitchAsScoped()
             .AddQuarkRadioAsScoped()
+            .AddQuarkCodeEditorAsScoped()
             .AddFontAwesomeAsScoped();
 
         return services;

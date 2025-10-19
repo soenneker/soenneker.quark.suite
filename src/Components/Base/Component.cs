@@ -21,6 +21,11 @@ public delegate void BuildClassAction(ref PooledStringBuilder builder);
 /// </summary>
 public delegate void BuildStyleAction(ref PooledStringBuilder builder);
 
+/// <summary>
+/// Delegate for building both class and style attributes with ref PooledStringBuilders
+/// </summary>
+public delegate void BuildClassAndStyleAction(ref PooledStringBuilder classBuilder, ref PooledStringBuilder styleBuilder);
+
 ///<inheritdoc cref="IComponent"/>
 public abstract class Component : CoreComponent, IComponent
 {
@@ -119,6 +124,9 @@ public abstract class Component : CoreComponent, IComponent
 
     [Parameter]
     public CssValue<BorderColorBuilder>? BorderColor { get; set; }
+
+    [Parameter]
+    public CssValue<BorderRadiusBuilder>? BorderRadius { get; set; }
 
     [Parameter]
     public CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
@@ -259,6 +267,7 @@ public abstract class Component : CoreComponent, IComponent
             AddCss(ref sty, ref cls, Display);
             ApplyBorderColor(ref sty, ref cls);
             ApplyBackgroundColor(ref sty, ref cls);
+            AddCss(ref sty, ref cls, BorderRadius);
             AddCss(ref sty, ref cls, TextAlignment);
             AddCss(ref sty, ref cls, Flex);
             AddCss(ref sty, ref cls, Gap);
@@ -366,6 +375,7 @@ public abstract class Component : CoreComponent, IComponent
         AddIf(ref hc, Position);
         AddIf(ref hc, BackgroundColor);
         AddIf(ref hc, BorderColor);
+        AddIf(ref hc, BorderRadius);
         AddIf(ref hc, Offset);
         AddIf(ref hc, Width);
         AddIf(ref hc, MinWidth);
@@ -617,7 +627,7 @@ public abstract class Component : CoreComponent, IComponent
     /// Use AppendClass(ref cls, "yourClass") and AppendStyleDecl(ref sty, "full: decl") within the callback.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected static void BuildClassAndStyleAttributes(IDictionary<string, object> attrs, Action<PooledStringBuilder, PooledStringBuilder> builder)
+    protected static void BuildClassAndStyleAttributes(IDictionary<string, object> attrs, BuildClassAndStyleAction builder)
     {
         var cls = new PooledStringBuilder(64);
         var sty = new PooledStringBuilder(64);
@@ -639,7 +649,7 @@ public abstract class Component : CoreComponent, IComponent
                     sty.Append(existingStr);
             }
             
-            builder(cls, sty); // Let the component add classes and styles
+            builder(ref cls, ref sty); // Let the component add classes and styles
             
             if (cls.Length > 0)
                 attrs["class"] = cls.ToString();
@@ -708,6 +718,7 @@ public abstract class Component : CoreComponent, IComponent
         ApplyThemeProperty(componentOptions.Visibility, () => Visibility, v => Visibility = v);
         ApplyThemeProperty(componentOptions.BackgroundColor, () => BackgroundColor, v => BackgroundColor = v);
         ApplyThemeProperty(componentOptions.BorderColor, () => BorderColor, v => BorderColor = v);
+        ApplyThemeProperty(componentOptions.BorderRadius, () => BorderRadius, v => BorderRadius = v);
         ApplyThemeProperty(componentOptions.TextAlignment, () => TextAlignment, v => TextAlignment = v);
         ApplyThemeProperty(componentOptions.Float, () => Float, v => Float = v);
         ApplyThemeProperty(componentOptions.VerticalAlign, () => VerticalAlign, v => VerticalAlign = v);
