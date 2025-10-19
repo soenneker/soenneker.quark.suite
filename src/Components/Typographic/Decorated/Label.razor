@@ -5,11 +5,13 @@
 <label @attributes="BuildAttributes()">@ChildContent</label>
 
 @code {
-	public override string? ThemeKey { get; set; } = "Label";
+    public override string? ThemeKey { get; set; } = "Label";
 
-    [Parameter] public string? For { get; set; }
+    [Parameter]
+    public string? For { get; set; }
 
-    [Parameter] public bool FormLabel { get; set; }
+    [Parameter]
+    public bool Form { get; set; }
 
     protected override Dictionary<string, object> BuildAttributes()
     {
@@ -18,14 +20,12 @@
         if (For.HasContent())
             attributes["for"] = For;
 
-        if (FormLabel)
+        if (Form)
         {
-            BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
-            {
-                AppendClass(ref cls, "form-label");
-            });
+            BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => { AppendClass(ref cls, "form-label"); });
         }
 
         return attributes;
     }
+
 }

@@ -85,4 +85,20 @@ public static class Flex
     /// Align items stretch.
     /// </summary>
     public static FlexBuilder AlignStretch => new("align", "stretch");
+
+    /// <summary>
+    /// Flex grow utilities.
+    /// </summary>
+    public static class Grow
+    {
+        /// <summary>
+        /// Flex grow 0.
+        /// </summary>
+        public static FlexBuilder Is0 => new("grow", "0");
+
+        /// <summary>
+        /// Flex grow 1.
+        /// </summary>
+        public static FlexBuilder Is1 => new("grow", "1");
+    }
 }

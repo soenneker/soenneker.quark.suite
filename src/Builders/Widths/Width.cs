@@ -27,6 +27,11 @@ public static class Width
     public static WidthBuilder P100 => new("100");
 
     /// <summary>
+    /// 100% width (alternative naming).
+    /// </summary>
+    public static WidthBuilder Is100 => new("100");
+
+    /// <summary>
     /// Auto width.
     /// </summary>
     public static WidthBuilder Auto => new("auto");

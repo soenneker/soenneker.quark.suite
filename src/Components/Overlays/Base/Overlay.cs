@@ -55,4 +55,17 @@ public abstract class Overlay : Component, IOverlay
     /// </summary>
     [Parameter]
     public EventCallback OnHide { get; set; }
+
+    private bool _lastVisible;
+
+    protected override void OnParametersSet()
+    {
+        // Force re-render when Visible changes
+        if (Visible != _lastVisible)
+        {
+            _lastVisible = Visible;
+        }
+
+        base.OnParametersSet();
+    }
 }

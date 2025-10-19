@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Components;
+
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -13,5 +15,6 @@ public interface ILabel : IElement
     /// <summary>
     /// Gets or sets whether to apply the Bootstrap form-label class for form styling.
     /// </summary>
-    bool FormLabel { get; set; }
+    [Parameter]
+    bool Form { get; set; }
 }

@@ -11,36 +11,35 @@
 <PageTitle>Loading Demo - Table</PageTitle>
 
 <Div class="demo-hero">
-    <Div class="container">
-        <Div class="row">
-            <Div class="col-12 text-center">
+    <Container>
+        <Row>
+            <Column ColumnSize="ColumnSize.Is12" Class="text-center">
                 <Div class="hero-content">
                     <Div class="demo-icon">⚡</Div>
                     <H1 Class="demo-title">Loading Behavior Demo</H1>
                     <Paragraph Class="demo-subtitle">Smooth loading behavior with overlay that prevents jarring flickering effects.</Paragraph>
                 </Div>
-            </Div>
-        </Div>
-    </Div>
+            </Column>
+        </Row>
+    </Container>
 </Div>
 
-<Div class="container">
-    <Div class="demo-card">
-        <Div class="card-header">
+<Container>
+    <Card Class="demo-card">
+        <CardHeader>
             <Div class="card-header-content">
                 <H3><Icon Name="spinner" Margin="Margin.Is2.FromEnd"/>Employee Directory</H3>
                 <Paragraph TextColor="TextColor.Muted" Margin="Margin.Is0.FromBottom">Try searching, sorting, or changing pages to see the smooth loading overlay</Paragraph>
             </Div>
-        </Div>
-        <Div class="card-body">
+        </CardHeader>
+        <CardBody>
             <Table @ref="_tableRef"
                         TotalRecords="@_totalRecords"
                         OnInteraction="HandleServerSideRequest" >
 
                 <TableSearch Placeholder="Search employees..." />
 
-                <TableLoader>
-                </TableLoader>
+                <TableLoader />
 
                 <TableElement>
                     <Thead>
@@ -87,14 +86,19 @@
                     <TablePagination />
                 </TableBottomBar>
             </Table>
-        </Div>
-    </Div>
-</Div>
+        </CardBody>
+    </Card>
+</Container>
 
 @code {
     private Table? _tableRef;
     private List<Employee> _currentEmployees = [];
     private int _totalRecords;
+
+    protected override void OnInitialized()
+    {
+        _totalRecords = EmployeeService.GetTotalCount();
+    }
 
     private async Task HandleServerSideRequest(DataTableServerSideRequest request)
     {
@@ -102,18 +106,20 @@
 
         try
         {
+            // Simulate loading delay BEFORE fetching data
+            await DelayUtil.Delay(3000, Logger);
+
             // Get filtered employees using the service
             var employees = await EmployeeService.GetFilteredEmployees(request);
-
-            await DelayUtil.Delay(3000, Logger);
 
             Logger.LogInformation("LoadingDemo: EmployeeService returned {Count} employees", employees.Count);
 
             // Update the current employees list
             _currentEmployees = employees;
 
-            // Trigger UI update
-            StateHasChanged();
+            // Update table paging state (optional for demo; keeps pages/counts coherent)
+            if (_tableRef is not null)
+                _tableRef.UpdateContinuationTokenPaging(employees.Count, null);
 
             Logger.LogInformation("LoadingDemo: Updated currentEmployees with {Count} records, totalRecords={TotalRecords}", _currentEmployees.Count, _totalRecords);
         }
