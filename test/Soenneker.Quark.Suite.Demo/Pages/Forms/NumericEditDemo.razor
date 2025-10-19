@@ -1,0 +1,388 @@
+@page "/forms/numericedit-demo"
+
+<Container Padding="Padding.Is4.OnY">
+<Row>
+    <Column>
+        <Div Class="text-center" Margin="Margin.Is5.FromEnd">
+            <H1 Class="display-4 fw-bold text-primary">NumericEdit</H1>
+            <Paragraph Class="lead text-muted">This page demonstrates the NumericEdit component for numeric input with validation and formatting.</Paragraph>
+        </Div>
+    </Column>
+</Row>
+
+<Row Gap="Gap.Is4">
+<Column>
+<Div>
+    <H2>🧪 BINDING TEST SECTION</H2>
+    <Alert BackgroundColor="BackgroundColor.Info" Margin="Margin.Is3.FromEnd">
+        <Strong>Test Instructions:</Strong> Type in the fields below or click "Load Test Data" to verify binding works.
+    </Alert>
+
+    <Div Margin="Margin.Is4.FromBottom" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Light" Class="rounded">
+        <H3 Margin="Margin.Is3.FromBottom">Two-Way Binding Test</H3>
+
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="testNumeric1" Class="form-label fw-bold">Test Numeric 1:</Label>
+            <NumericEdit Id="testNumeric1"
+                         Placeholder="Enter a number..."
+                         @bind-Value="_testNumeric1"/>
+            <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" Class="rounded">
+                <Strong>Bound Value:</Strong> <Code>@(_testNumeric1?.ToString() ?? "(empty)")</Code>
+            </Div>
+        </Div>
+
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="testNumeric2" Class="form-label fw-bold">Test Numeric 2 (Pre-populated with 42.5):</Label>
+            <NumericEdit Id="testNumeric2"
+                         Placeholder="Enter a number..."
+                         @bind-Value="_testNumeric2"/>
+            <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" Class="rounded">
+                <Strong>Bound Value:</Strong> <Code>@(_testNumeric2?.ToString() ?? "(empty)")</Code>
+            </Div>
+        </Div>
+
+        <Div Margin="Margin.Is3.FromTop">
+                        <Button BackgroundColor="BackgroundColor.Primary" OnClick="LoadNumericTestData" Margin="Margin.Is2.FromEnd">Load Test Data</Button>
+            <Button BackgroundColor="BackgroundColor.Secondary" OnClick="ClearNumericTestData" Margin="Margin.Is2.FromEnd">Clear Test Data</Button>
+            <Button BackgroundColor="BackgroundColor.Warning" OnClick="UpdateNumericTestData">Update to Random Values</Button>
+        </Div>
+
+        <Div Margin="Margin.Is3.FromTop" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Success" Class="bg-opacity-10 rounded">
+            <H4>Test Results:</H4>
+            <UnorderedList Margin="Margin.Is0.FromBottom">
+                <UnorderedListItem>
+                    <Strong>Numeric 1:</Strong> @(_testNumeric1?.ToString() ?? "(not set)")
+                </UnorderedListItem>
+                <UnorderedListItem>
+                    <Strong>Numeric 2:</Strong> @(_testNumeric2?.ToString() ?? "(not set)")
+                </UnorderedListItem>
+            </UnorderedList>
+        </Div>
+    </Div>
+
+    <Hr/>
+
+    <H2>Basic NumericEdit</H2>
+    <Div Margin="Margin.Is3.FromEnd">
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="basicNumeric" Class="form-label">Basic Numeric Input</Label>
+            <NumericEdit Id="basicNumeric" Placeholder="Enter a number..." @bind-Value="basicValue"/>
+            <Small Class="form-text text-muted">Current value: @basicValue</Small>
+        </Div>
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="decimalNumeric" Class="form-label">Decimal Input</Label>
+            <NumericEdit Id="decimalNumeric" Placeholder="Enter a decimal number..." @bind-Value="decimalValue"/>
+            <Small Class="form-text text-muted">Current value: @decimalValue</Small>
+        </Div>
+    </Div>
+    <Paragraph Class="text-muted">The NumericEdit component creates numeric input fields with built-in validation.</Paragraph>
+</Div>
+
+<Hr/>
+
+<Div>
+    <H2>NumericEdit with Min/Max Values</H2>
+    <Div Margin="Margin.Is3.FromEnd">
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="minMaxNumeric" Class="form-label">Age (18-100)</Label>
+            <NumericEdit Id="minMaxNumeric" Min="18" Max="100" Placeholder="Enter your age..." @bind-Value="ageValue"/>
+            <Small Class="form-text text-muted">Age: @ageValue (Range: 18-100)</Small>
+        </Div>
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="positiveNumeric" Class="form-label">Positive Number Only</Label>
+            <NumericEdit Id="positiveNumeric" Min="0" Placeholder="Enter positive number..." @bind-Value="positiveValue"/>
+            <Small Class="form-text text-muted">Value: @positiveValue (Must be positive)</Small>
+        </Div>
+    </Div>
+</Div>
+
+<Hr/>
+
+<Div>
+    <H2>NumericEdit with Step Values</H2>
+    <Div Margin="Margin.Is3.FromEnd">
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="stepNumeric" Class="form-label">Step by 5</Label>
+            <NumericEdit Id="stepNumeric" Step="5" Placeholder="Increments of 5..." @bind-Value="stepValue"/>
+            <Small Class="form-text text-muted">Value: @stepValue (Step: 5)</Small>
+        </Div>
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="decimalStepNumeric" Class="form-label">Decimal Step (0.1)</Label>
+            <NumericEdit Id="decimalStepNumeric" Step="0.1m" Placeholder="Decimal increments..." @bind-Value="decimalStepValue"/>
+            <Small Class="form-text text-muted">Value: @decimalStepValue (Step: 0.1)</Small>
+        </Div>
+    </Div>
+</Div>
+
+<Hr/>
+
+<Div>
+    <H2>NumericEdit with Validation</H2>
+    <Validations Model="_validationModel">
+        <Div Margin="Margin.Is3.FromEnd">
+            <Div Margin="Margin.Is3.FromBottom">
+                <Label For="requiredNumeric" Class="form-label">Required Number <Span Class="text-danger">*</Span></Label>
+                <Validation Action="@ValidateRequired">
+                    <NumericEdit Id="requiredNumeric" Placeholder="This field is required" @bind-Value="_validationModel.RequiredNumber"/>
+                    <ValidationError/>
+                </Validation>
+            </Div>
+            <Div Margin="Margin.Is3.FromBottom">
+                <Label For="rangeNumeric" Class="form-label">Number in Range (1-100)</Label>
+                <Validation Action="@ValidateRange">
+                    <NumericEdit Id="rangeNumeric" Placeholder="Enter 1-100" @bind-Value="_validationModel.RangeNumber"/>
+                    <ValidationError/>
+                </Validation>
+            </Div>
+        </Div>
+    </Validations>
+</Div>
+
+<Hr/>
+
+<Div>
+    <H2>NumericEdit with Different Sizes</H2>
+    <Div Margin="Margin.Is3.FromEnd">
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="smallNumeric" Class="form-label">Small NumericEdit</Label>
+            <NumericEdit Id="smallNumeric" Class="form-control-sm" Placeholder="Small input" @bind-Value="smallValue"/>
+        </Div>
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="normalNumeric" Class="form-label">Normal NumericEdit</Label>
+            <NumericEdit Id="normalNumeric" Placeholder="Normal input" @bind-Value="normalValue"/>
+        </Div>
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="largeNumeric" Class="form-label">Large NumericEdit</Label>
+            <NumericEdit Id="largeNumeric" Class="form-control-lg" Placeholder="Large input" @bind-Value="largeValue"/>
+        </Div>
+    </Div>
+</Div>
+
+<Hr/>
+
+<Div>
+    <H2>NumericEdit with Custom Styling</H2>
+    <Div Margin="Margin.Is3.FromEnd">
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="customNumeric" Class="form-label">Custom Styled NumericEdit</Label>
+            <NumericEdit Id="customNumeric"
+                         Class="custom-numeric"
+                         Style="border: 2px solid #6f42c1; border-radius: 10px; padding: 10px; background-color: #f8f9fa;"
+                         Placeholder="Custom styled numeric input"
+                         @bind-Value="customValue"/>
+        </Div>
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="gradientNumeric" Class="form-label">Gradient Border NumericEdit</Label>
+            <NumericEdit Id="gradientNumeric"
+                         Class="gradient-numeric"
+                         Style="border: 2px solid transparent; background: linear-gradient(white, white) padding-box, linear-gradient(135deg, #667eea, #764ba2) border-box; border-radius: 8px;"
+                         Placeholder="Gradient border numeric input"
+                         @bind-Value="gradientValue"/>
+        </Div>
+    </Div>
+</Div>
+
+<Hr/>
+
+<Div>
+    <H2>NumericEdit with Icons and Add-ons</H2>
+    <Div Margin="Margin.Is3.FromEnd">
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="iconNumeric" Class="form-label">NumericEdit with Icon</Label>
+            <Div Class="input-group">
+                <Span Class="input-group-text">
+                    <Icon Name="calculator"/>
+                </Span>
+                <NumericEdit Id="iconNumeric" Placeholder="Enter number..." @bind-Value="iconValue"/>
+            </Div>
+        </Div>
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="currencyNumeric" Class="form-label">Currency Input</Label>
+            <Div Class="input-group">
+                <Span Class="input-group-text">$</Span>
+                <NumericEdit Id="currencyNumeric" Placeholder="0.00" Step="0.01m" @bind-Value="currencyValue"/>
+                <Span Class="input-group-text">USD</Span>
+            </Div>
+        </Div>
+    </Div>
+</Div>
+
+<Hr/>
+
+<Div>
+    <H2>NumericEdit Events</H2>
+    <Div Margin="Margin.Is3.FromEnd">
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="eventNumeric" Class="form-label">NumericEdit with Events</Label>
+            <NumericEdit Id="eventNumeric"
+                         Placeholder="Type here to see events"
+                         @bind-Value="eventValue"
+                         @oninput="HandleInput"
+                         @onfocus="HandleFocus"
+                         @onblur="HandleBlur"/>
+            <Small Class="form-text text-muted">
+                Events: Input(@inputCount), Focus(@focusCount), Blur(@blurCount)
+            </Small>
+        </Div>
+    </Div>
+</Div>
+
+<Hr/>
+
+<Div>
+    <H2>NumericEdit Component Properties</H2>
+    <Div BackgroundColor="BackgroundColor.Light" Padding="Padding.Is3" Margin="Margin.Is3.FromBottom">
+        <H3>NumericEdit Features</H3>
+        <Paragraph>The NumericEdit component inherits all properties from the Element base class plus:</Paragraph>
+        <UnorderedList>
+            <UnorderedListItem><Strong>Value:</Strong> Numeric value (decimal, int, long, etc.)</UnorderedListItem>
+            <UnorderedListItem><Strong>Min:</Strong> Minimum allowed value</UnorderedListItem>
+            <UnorderedListItem><Strong>Max:</Strong> Maximum allowed value</UnorderedListItem>
+            <UnorderedListItem><Strong>Step:</Strong> Step increment value</UnorderedListItem>
+            <UnorderedListItem><Strong>Placeholder:</Strong> Placeholder text</UnorderedListItem>
+            <UnorderedListItem><Strong>ReadOnly:</Strong> Read-only state</UnorderedListItem>
+            <UnorderedListItem><Strong>Disabled:</Strong> Disabled state</UnorderedListItem>
+            <UnorderedListItem><Strong>Required:</Strong> Required validation</UnorderedListItem>
+            <UnorderedListItem><Strong>AutoComplete:</Strong> Auto-complete behavior</UnorderedListItem>
+            <UnorderedListItem><Strong>Event Handlers:</Strong> Input, focus, blur, change events</UnorderedListItem>
+        </UnorderedList>
+    </Div>
+</Div>
+
+<Hr/>
+
+<Div>
+    <H2>Accessibility Features</H2>
+    <Div Margin="Margin.Is3.FromEnd">
+        <Div Margin="Margin.Is3.FromBottom">
+            <Label For="accessibleNumeric" Class="form-label">Accessible NumericEdit</Label>
+            <NumericEdit Id="accessibleNumeric"
+                         Placeholder="Accessible numeric input field"
+                         AriaLabel="Enter a numeric value"
+                         AriaDescribedBy="numeric-help"
+                         @bind-Value="accessibleValue"/>
+            <Small Id="numeric-help" Class="form-text text-muted">This numeric input has proper ARIA attributes for accessibility.</Small>
+        </Div>
+    </Div>
+</Div>
+</Column>
+</Row>
+</Container>
+
+@code {
+
+    // Binding Test Fields
+    private decimal? _testNumeric1;
+    private decimal? _testNumeric2 = 42.5m;
+
+    private decimal? basicValue = null;
+    private decimal? decimalValue = null;
+    private decimal? ageValue = null;
+    private decimal? positiveValue = null;
+    private decimal? stepValue = null;
+    private decimal? decimalStepValue = null;
+    private decimal? smallValue = null;
+    private decimal? normalValue = null;
+    private decimal? largeValue = null;
+    private decimal? customValue = null;
+    private decimal? gradientValue = null;
+    private decimal? iconValue = null;
+    private decimal? currencyValue = null;
+    private decimal? eventValue = null;
+    private decimal? accessibleValue = null;
+
+    private int inputCount = 0;
+    private int focusCount = 0;
+    private int blurCount = 0;
+
+    private ValidationModel _validationModel = new();
+
+    private void LoadNumericTestData()
+    {
+        _testNumeric1 = 123.45m;
+        _testNumeric2 = 999.99m;
+    }
+
+    private void ClearNumericTestData()
+    {
+        _testNumeric1 = null;
+        _testNumeric2 = null;
+    }
+
+    private void UpdateNumericTestData()
+    {
+        var random = new Random();
+        _testNumeric1 = (decimal)(random.NextDouble() * 1000);
+        _testNumeric2 = (decimal)(random.NextDouble() * 1000);
+    }
+
+    private void HandleInput(ChangeEventArgs e)
+    {
+        inputCount++;
+        StateHasChanged();
+    }
+
+    private void HandleFocus(FocusEventArgs e)
+    {
+        focusCount++;
+        StateHasChanged();
+    }
+
+    private void HandleBlur(FocusEventArgs e)
+    {
+        blurCount++;
+        StateHasChanged();
+    }
+
+    private void ValidateRequired(ValidatorEventArgs e)
+    {
+        if (e.Value == null || e.Value.ToString() == "0" || string.IsNullOrWhiteSpace(e.Value.ToString()))
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "This field is required.";
+        }
+        else
+        {
+            e.Status = ValidationStatus.Success;
+        }
+    }
+
+    private void ValidateRange(ValidatorEventArgs e)
+    {
+        if (e.Value == null)
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "This field is required.";
+            return;
+        }
+
+        if (decimal.TryParse(e.Value.ToString(), out var value))
+        {
+            if (value < 1 || value > 100)
+            {
+                e.Status = ValidationStatus.Error;
+                e.ErrorText = "Value must be between 1 and 100.";
+            }
+            else
+            {
+                e.Status = ValidationStatus.Success;
+            }
+        }
+        else
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Please enter a valid number.";
+        }
+    }
+
+    public class ValidationModel
+    {
+        public decimal? RequiredNumber { get; set; } = null;
+        public decimal? RangeNumber { get; set; } = null;
+    }
+
+    protected override void OnInitialized()
+    {
+    }
+
+}

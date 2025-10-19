@@ -1,0 +1,217 @@
+@page "/data/tables/basic"
+@using Microsoft.Extensions.Logging
+@using Soenneker.DataTables.Dtos.ServerSideRequest
+@using Soenneker.Quark.Suite.Demo.Services
+@using Soenneker.Quark.Suite.Demo.Dtos
+
+@inject ILogger<BasicDemo> Logger
+@inject EmployeeService EmployeeService
+
+<PageTitle>Basic Demo - QuarkTable</PageTitle>
+
+<Container Padding="Padding.Is4.OnY">
+    <Row>
+        <Column>
+            <Div Class="text-center" Margin="Margin.Is5.FromEnd">
+                <H1 Class="display-4 fw-bold text-primary">Basic QuarkTable Demo</H1>
+                <Paragraph Class="lead text-muted">A simple demonstration of QuarkTable with basic features including search, sorting, and pagination.</Paragraph>
+            </Div>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+    <Div class="demo-card">
+        <Div class="card-header">
+            <Div class="card-header-content">
+                <H3><Icon Name="users" Class="me-2"/>Employee Directory</H3>
+                <Paragraph Class="text-muted mb-0">Search, sort, and paginate through employee data with ease</Paragraph>
+            </Div>
+        </Div>
+        <Div class="card-body">
+            <QuarkTable @ref="_basicTable"
+                        OnInteraction="OnInteraction"
+                        OnOrder="HandleOrder"
+                        OnInitialize="HandleInitialize"
+                        Options="_basicTableOptions"
+                        TotalRecords="@_totalRecords">
+
+                <QuarkTableSearch Placeholder="Search employees..."></QuarkTableSearch>
+
+                <QuarkTableElement>
+                    <QuarkThead>
+                        <QuarkTr>
+                            <QuarkTh Data="Name" Sortable="true" Searchable="true">Name</QuarkTh>
+                            <QuarkTh Data="test.dept" Sortable="true" Searchable="true">Department</QuarkTh>
+                            <QuarkTh Data="Email" Sortable="true" Searchable="true">Email</QuarkTh>
+                            <QuarkTh Data="Salary" Sortable="true" Searchable="true">Salary</QuarkTh>
+                            <QuarkTh Data="HireDate" Sortable="true" Searchable="true">Hire Date</QuarkTh>
+                            <QuarkTh Data="Status" Sortable="true" Searchable="true">Status</QuarkTh>
+                        </QuarkTr>
+                    </QuarkThead>
+
+                    <QuarkTbody>
+                        @if (_currentEmployees is {Count: > 0})
+                        {
+                            @foreach (var employee in _currentEmployees)
+                            {
+                                <QuarkTr Key="@employee.Id">
+                                    <QuarkTd>@employee.Name</QuarkTd>
+                                    <QuarkTd>@employee.Department</QuarkTd>
+                                    <QuarkTd>@employee.Email</QuarkTd>
+                                    <QuarkTd>@employee.Salary.ToString("C")</QuarkTd>
+                                    <QuarkTd>@employee.HireDate.ToString("MMM dd, yyyy")</QuarkTd>
+                                    <QuarkTd>@employee.Status</QuarkTd>
+                                </QuarkTr>
+                            }
+                        }
+                        else if (_basicTable.HasLoadedOnce)
+                        {
+                            <QuarkTableNoData>
+                                <Div class="no-data-content">
+                                    <Div class="no-data-icon">🔍</Div>
+                                    <H4>No employees found</H4>
+                                    <Paragraph>Try adjusting your search criteria or filters.</Paragraph>
+                                </Div>
+                            </QuarkTableNoData>
+                        }
+                    </QuarkTbody>
+                </QuarkTableElement>
+                
+                <QuarkTableBottomBar>
+                    <QuarkTableInfo />
+                    <QuarkTablePagination />
+                </QuarkTableBottomBar>
+            </QuarkTable>
+        </Div>
+    </Div>
+        </Column>
+    </Row>
+</Container>
+
+<style>
+    .demo-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        border: none;
+        margin-bottom: 3rem;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 1px solid #dee2e6;
+        padding: 2rem;
+    }
+
+    .card-header-content h3 {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .no-data-content {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: #6c757d;
+    }
+
+    .no-data-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .no-data-content h4 {
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+    @@media (max-width: 768px) {
+        .card-header,
+        .card-body {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+@code {
+    private QuarkTable? _basicTable;
+    private List<Employee> _currentEmployees = [];
+
+    private readonly QuarkTableOptions _basicTableOptions = new()
+    {
+        DefaultPageSize = 10
+    };
+
+    private int _totalRecords;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Initialize total records from the service
+        _totalRecords = EmployeeService.GetTotalCount();
+        Logger.LogInformation("BasicDemo: OnInitializedAsync - Initialized with {TotalRecords} total records", _totalRecords);
+
+        // Test the service directly
+        var testEmployees = EmployeeService.GetAllEmployees();
+        Logger.LogInformation("BasicDemo: OnInitializedAsync - EmployeeService.GetAllEmployees() returned {Count} employees", testEmployees.Count);
+    }
+
+    private async Task OnInteraction(DataTableServerSideRequest serverSideRequest)
+    {
+        Logger.LogInformation("BasicDemo: OnInteraction called: basicTable is {IsNull}, Request: Start={Start}, Length={Length}", _basicTable == null ? "null" : "not null", serverSideRequest.Start, serverSideRequest.Length);
+        
+        // Log columns information if available
+        if (serverSideRequest.Columns != null && serverSideRequest.Columns.Count > 0)
+        {
+            Logger.LogInformation("BasicDemo: Request includes {ColumnCount} columns:", serverSideRequest.Columns.Count);
+            foreach (var column in serverSideRequest.Columns)
+            {
+                Logger.LogInformation("  Column: Data='{Data}', Name='{Name}', Searchable={Searchable}, Orderable={Orderable}", 
+                    column.Data ?? "null", column.Name ?? "null", column.Searchable, column.Orderable);
+            }
+        }
+        else
+        {
+            Logger.LogInformation("BasicDemo: Request has no columns information");
+        }
+
+        try
+        {
+            // Get filtered employees using the service
+            var employees = await EmployeeService.GetFilteredEmployees(serverSideRequest);
+
+            Logger.LogInformation("BasicDemo: EmployeeService returned {Count} employees", employees.Count);
+
+            // Update the current employees list
+            _currentEmployees = employees;
+
+            // Update the total records count
+            _totalRecords = EmployeeService.GetTotalCount();
+
+            // Trigger UI update
+            StateHasChanged();
+
+            Logger.LogInformation("BasicDemo: Updated currentEmployees with {Count} records, totalRecords={TotalRecords}", _currentEmployees.Count, _totalRecords);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "BasicDemo: Error handling manual request: {Message}", ex.Message);
+        }
+    }
+
+    private async Task HandleOrder(QuarkTableOrderEventArgs args)
+    {
+        Logger.LogInformation("Column '{Column}' sorted {Direction}", args.Column, args.Direction);
+    }
+
+    private async Task HandleInitialize()
+    {
+        Logger.LogInformation("Basic table initialized");
+    }
+}

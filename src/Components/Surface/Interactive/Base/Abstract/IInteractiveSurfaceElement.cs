@@ -4,9 +4,7 @@ using Microsoft.AspNetCore.Components.Web;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Interface for interactive surface elements like buttons, inputs, and toggles.
-/// Provides access to interactive properties, accessibility attributes, and event handlers
-/// that are specific to user-interactive components.
+/// Represents an interactive surface component with event handling and accessibility features.
 /// </summary>
 public interface IInteractiveSurfaceElement : ISurfaceElement
 {
@@ -44,11 +42,6 @@ public interface IInteractiveSurfaceElement : ISurfaceElement
     /// Gets or sets the ARIA described-by attribute referencing describing element IDs.
     /// </summary>
     string? AriaDescribedBy { get; set; }
-
-    /// <summary>
-    /// Gets or sets the callback invoked when the element is clicked.
-    /// </summary>
-    EventCallback<MouseEventArgs> OnClick { get; set; }
 
     /// <summary>
     /// Gets or sets the callback invoked when the element is double-clicked.

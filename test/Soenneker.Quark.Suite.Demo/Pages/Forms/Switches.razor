@@ -1,0 +1,368 @@
+@page "/forms/switches"
+
+<Container Margin="Margin.Is4.FromTop">
+    <Row>
+        <Column>
+            <Div Class="text-center" Margin="Margin.Is5.FromEnd">
+                <H1 Class="display-4 fw-bold text-primary">Switches</H1>
+                <Paragraph Class="lead text-muted">This page demonstrates the Switch component with various configurations and features.</Paragraph>
+            </Div>
+        </Column>
+    </Row>
+
+    <!-- Binding Test Section -->
+    <Row Margin="Margin.Is4.FromBottom">
+        <Column ColumnSize="ColumnSize.Is12">
+            <H2>🧪 BINDING TEST SECTION</H2>
+            <Alert BackgroundColor="BackgroundColor.Info" Margin="Margin.Is3.FromEnd">
+                <Strong>Test Instructions:</Strong> Toggle switches below or click "Load Test Data" to verify binding works.
+            </Alert>
+
+            <Div Margin="Margin.Is4.FromBottom" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Light" Class="rounded">
+                <H3 Margin="Margin.Is3.FromBottom">Two-Way Binding Test</H3>
+                
+                <Div Margin="Margin.Is3.FromBottom">
+                    <Switch @bind-Checked="_testSwitch1">
+                        Test Switch 1
+                    </Switch>
+                    <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" Class="rounded">
+                        <Strong>Bound Value:</Strong> <Code>@_testSwitch1</Code>
+                    </Div>
+                </Div>
+
+                <Div Margin="Margin.Is3.FromBottom">
+                    <Switch @bind-Checked="_testSwitch2">
+                        Test Switch 2 (Pre-enabled)
+                    </Switch>
+                    <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" Class="rounded">
+                        <Strong>Bound Value:</Strong> <Code>@_testSwitch2</Code>
+                    </Div>
+                </Div>
+
+                <Div Margin="Margin.Is3.FromTop">
+                    <Button BackgroundColor="BackgroundColor.Primary" OnClick="LoadSwitchTestData" Margin="Margin.Is2.FromEnd">Load Test Data (Enable All)</Button>
+                    <Button BackgroundColor="BackgroundColor.Secondary" OnClick="ClearSwitchTestData" Margin="Margin.Is2.FromEnd">Clear Test Data (Disable All)</Button>
+                    <Button BackgroundColor="BackgroundColor.Warning" OnClick="ToggleSwitchTestData">Toggle Values</Button>
+                </Div>
+                
+                <Div Margin="Margin.Is3.FromTop" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Success" Class="bg-opacity-10 rounded">
+                    <H4>Test Results:</H4>
+                    <UnorderedList Margin="Margin.Is0.FromBottom">
+                        <UnorderedListItem><Strong>Switch 1:</Strong> @_testSwitch1</UnorderedListItem>
+                        <UnorderedListItem><Strong>Switch 2:</Strong> @_testSwitch2</UnorderedListItem>
+                    </UnorderedList>
+                </Div>
+            </Div>
+
+            <Hr />
+        </Column>
+    </Row>
+
+    <!-- ChildContent Support (New) -->
+    <Row Margin="Margin.Is4.FromBottom">
+        <Column ColumnSize="ColumnSize.Is12">
+            <H2>ChildContent Support (New)</H2>
+            <Card>
+                <CardBody>
+                    <Row>
+                        <Column ColumnSize="ColumnSize.Is6.OnDesktop">
+                            <H5>Using ChildContent</H5>
+                            <Switch @bind-Checked="childContentChecked">
+                                Enable notifications
+                            </Switch>
+                            <Switch @bind-Checked="childContentChecked2">
+                                Dark mode with <Strong>bold text</Strong>
+                            </Switch>
+                            <Paragraph Class="text-muted" Margin="Margin.Is2.FromTop">ChildContent allows rich content inside switches</Paragraph>
+                        </Column>
+                        <Column ColumnSize="ColumnSize.Is6.OnDesktop">
+                            <H5>Using Label (Legacy)</H5>
+                            <Switch Label="Enable notifications" @bind-Checked="labelChecked" />
+                            <Paragraph Class="text-muted" Margin="Margin.Is2.FromTop">The Label property is still supported for backward compatibility</Paragraph>
+                        </Column>
+                    </Row>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+
+    <!-- Basic Switches -->
+    <Row Margin="Margin.Is4.FromBottom">
+        <Column ColumnSize="ColumnSize.Is12">
+            <H2>Basic Switches</H2>
+            <Card>
+                <CardBody>
+                    <Row>
+                        <Column ColumnSize="ColumnSize.Is6.OnDesktop">
+                            <H5>Simple Switch</H5>
+                            <Switch @bind-Checked="basicChecked">
+                                Enable notifications
+                            </Switch>
+                            <Paragraph Class="text-muted" Margin="Margin.Is2.FromTop">Status: @(basicChecked ? "Enabled" : "Disabled")</Paragraph>
+                        </Column>
+                        <Column ColumnSize="ColumnSize.Is6.OnDesktop">
+                            <H5>Switch without Label</H5>
+                            <Switch @bind-Checked="noLabelChecked" />
+                            <Paragraph Class="text-muted" Margin="Margin.Is2.FromTop">Status: @(noLabelChecked ? "On" : "Off")</Paragraph>
+                        </Column>
+                    </Row>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+
+    <!-- Color Variants -->
+    <Row Margin="Margin.Is4.FromBottom">
+        <Column ColumnSize="ColumnSize.Is12">
+            <H2>Color Variants</H2>
+            <Card>
+                <CardBody>
+                    <Row>
+                        <Column ColumnSize="ColumnSize.Is4.OnDesktop">
+                            <H6>Primary</H6>
+                            <Switch BackgroundColor="BackgroundColor.Primary" @bind-Checked="primaryChecked">
+                                Primary Switch
+                            </Switch>
+                        </Column>
+                        <Column ColumnSize="ColumnSize.Is4.OnDesktop">
+                            <H6>Secondary</H6>
+                            <Switch BackgroundColor="BackgroundColor.Secondary" @bind-Checked="secondaryChecked">
+                                Secondary Switch
+                            </Switch>
+                        </Column>
+                        <Column ColumnSize="ColumnSize.Is4.OnDesktop">
+                            <H6>Success</H6>
+                            <Switch BackgroundColor="BackgroundColor.Success" @bind-Checked="successChecked">
+                                Success Switch
+                            </Switch>
+                        </Column>
+                    </Row>
+                    <Row Margin="Margin.Is3.FromTop">
+                        <Column ColumnSize="ColumnSize.Is4.OnDesktop">
+                            <H6>Danger</H6>
+                            <Switch BackgroundColor="BackgroundColor.Danger" @bind-Checked="dangerChecked">
+                                Danger Switch
+                            </Switch>
+                        </Column>
+                        <Column ColumnSize="ColumnSize.Is4.OnDesktop">
+                            <H6>Warning</H6>
+                            <Switch BackgroundColor="BackgroundColor.Warning" @bind-Checked="warningChecked">
+                                Warning Switch
+                            </Switch>
+                        </Column>
+                        <Column ColumnSize="ColumnSize.Is4.OnDesktop">
+                            <H6>Info</H6>
+                            <Switch BackgroundColor="BackgroundColor.Info" @bind-Checked="infoChecked">
+                                Info Switch
+                            </Switch>
+                        </Column>
+                    </Row>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+
+    <!-- Size Variants -->
+    <Row Margin="Margin.Is4.FromBottom">
+        <Column ColumnSize="ColumnSize.Is12">
+            <H2>Size Variants</H2>
+            <Card>
+                <CardBody>
+                    <Row>
+                        <Column ColumnSize="ColumnSize.Is4.OnDesktop">
+                            <H6>Small</H6>
+                            <Switch Label="Small Switch" Size="Size.Small" @bind-Checked="smallChecked" />
+                        </Column>
+                        <Column ColumnSize="ColumnSize.Is4.OnDesktop">
+                            <H6>Default</H6>
+                            <Switch Label="Default Switch" Size="Size.Default" @bind-Checked="defaultChecked" />
+                        </Column>
+                        <Column ColumnSize="ColumnSize.Is4.OnDesktop">
+                            <H6>Large</H6>
+                            <Switch Label="Large Switch" Size="Size.Large" @bind-Checked="largeChecked" />
+                        </Column>
+                    </Row>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+
+    <!-- Disabled State -->
+    <Row Margin="Margin.Is4.FromBottom">
+        <Column ColumnSize="ColumnSize.Is12">
+            <H2>Disabled State</H2>
+            <Card>
+                <CardBody>
+                    <Row>
+                        <Column ColumnSize="ColumnSize.Is6.OnDesktop">
+                            <H6>Disabled (Unchecked)</H6>
+                            <Switch Label="This switch is disabled" Disabled="true" Checked="false" />
+                        </Column>
+                        <Column ColumnSize="ColumnSize.Is6.OnDesktop">
+                            <H6>Disabled (Checked)</H6>
+                            <Switch Label="This switch is disabled and checked" Disabled="true" Checked="true" />
+                        </Column>
+                    </Row>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+
+    <!-- Event Handling -->
+    <Row Margin="Margin.Is4.FromBottom">
+        <Column ColumnSize="ColumnSize.Is12">
+            <H2>Event Handling</H2>
+            <Card>
+                <CardBody>
+                    <Row>
+                        <Column ColumnSize="ColumnSize.Is6.OnDesktop">
+                            <H6>Click Events</H6>
+                            <Switch Label="Click me to see events" @bind-Checked="eventChecked" OnClick="OnSwitchClick" />
+                            <Paragraph Class="text-muted" Margin="Margin.Is2.FromTop">Click count: @clickCount</Paragraph>
+                        </Column>
+                        <Column ColumnSize="ColumnSize.Is6.OnDesktop">
+                            <H6>Change Events</H6>
+                            <Switch Label="Change me to see events" @bind-Checked="changeChecked" OnChange="OnSwitchChange" />
+                            <Paragraph Class="text-muted" Margin="Margin.Is2.FromTop">Last change: @lastChangeEvent</Paragraph>
+                        </Column>
+                    </Row>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+
+    <!-- Form Integration -->
+    <Row Margin="Margin.Is4.FromBottom">
+        <Column ColumnSize="ColumnSize.Is12">
+            <H2>Form Integration</H2>
+            <Card>
+                <CardBody>
+                    <form>
+                        <Div Margin="Margin.Is3.FromBottom">
+                            <H6>User Preferences</H6>
+                            <Switch Label="Email notifications" @bind-Checked="formData.EmailNotifications" />
+                            <Switch Label="SMS notifications" @bind-Checked="formData.SmsNotifications" />
+                            <Switch Label="Marketing emails" @bind-Checked="formData.MarketingEmails" />
+                        </Div>
+                        <Button BackgroundColor="BackgroundColor.Primary" OnClick="SubmitForm">Submit Preferences</Button>
+                    </form>
+                    <Div Margin="Margin.Is3.FromTop">
+                        <H6>Form Data:</H6>
+                        <Div ElementType="ElementType.Pre" BackgroundColor="BackgroundColor.Light" Padding="Padding.Is2" Class="rounded">@GetFormDataJson()</Div>
+                    </Div>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+
+    <!-- Interactive Demo -->
+    <Row Margin="Margin.Is4.FromBottom">
+        <Column ColumnSize="ColumnSize.Is12">
+            <H2>Interactive Demo</H2>
+            <Card>
+                <CardBody>
+                    <Row>
+                        <Column ColumnSize="ColumnSize.Is6.OnDesktop">
+                            <H6>Master Switch</H6>
+                            <Switch Label="Toggle all switches" @bind-Checked="masterSwitch" />
+                        </Column>
+                        <Column ColumnSize="ColumnSize.Is6.OnDesktop">
+                            <H6>Controlled Switches</H6>
+                            <Switch Label="Option 1" Checked="masterSwitch" Disabled="true" />
+                            <Switch Label="Option 2" Checked="masterSwitch" Disabled="true" />
+                            <Switch Label="Option 3" Checked="masterSwitch" Disabled="true" />
+                        </Column>
+                    </Row>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+</Container>
+
+@code {
+    // Binding Test Fields
+    private bool _testSwitch1;
+    private bool _testSwitch2 = true;
+
+    // ChildContent examples
+    private bool childContentChecked;
+    private bool childContentChecked2 = true;
+    private bool labelChecked;
+
+    // Basic switches
+    private bool basicChecked;
+    private bool noLabelChecked = true;
+
+    // Color variants
+    private bool primaryChecked;
+    private bool secondaryChecked = true;
+    private bool successChecked;
+    private bool dangerChecked = true;
+    private bool warningChecked;
+    private bool infoChecked = true;
+
+    // Size variants
+    private bool smallChecked;
+    private bool defaultChecked = true;
+    private bool largeChecked;
+
+    // Event handling
+    private bool eventChecked;
+    private bool changeChecked;
+    private int clickCount;
+    private string lastChangeEvent = "No changes yet";
+
+    // Form data
+    private UserPreferences formData = new();
+
+    // Interactive demo
+    private bool masterSwitch;
+
+    private void LoadSwitchTestData()
+    {
+        _testSwitch1 = true;
+        _testSwitch2 = true;
+    }
+    
+    private void ClearSwitchTestData()
+    {
+        _testSwitch1 = false;
+        _testSwitch2 = false;
+    }
+    
+    private void ToggleSwitchTestData()
+    {
+        _testSwitch1 = !_testSwitch1;
+        _testSwitch2 = !_testSwitch2;
+    }
+
+    private void OnSwitchClick(MouseEventArgs e)
+    {
+        clickCount++;
+        StateHasChanged();
+    }
+
+    private void OnSwitchChange(ChangeEventArgs e)
+    {
+        lastChangeEvent = $"Changed to: {e.Value} at {DateTime.Now:HH:mm:ss}";
+        StateHasChanged();
+    }
+
+    private void SubmitForm()
+    {
+        // In a real application, you would submit the form data to a server
+        Console.WriteLine("Form submitted with data: " + GetFormDataJson());
+    }
+
+    private string GetFormDataJson()
+    {
+        return System.Text.Json.JsonSerializer.Serialize(formData, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+    }
+
+    public class UserPreferences
+    {
+        public bool EmailNotifications { get; set; } = true;
+        public bool SmsNotifications { get; set; }
+        public bool MarketingEmails { get; set; }
+    }
+}

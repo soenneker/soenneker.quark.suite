@@ -1,0 +1,453 @@
+@page "/data/treeview"
+@using System.Collections.ObjectModel
+
+<Container Padding="Padding.Is4.OnY">
+    <Row>
+        <Column>
+            <Div Class="text-center" Margin="Margin.Is5.FromEnd">
+                <H1 Class="display-4 fw-bold text-primary">TreeView Component</H1>
+                <Paragraph Class="lead text-muted">A hierarchical tree structure component for displaying nested data with selection, expansion, and customization options.</Paragraph>
+            </Div>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+
+            <!-- Basic Example -->
+            <Row Margin="Margin.Is4.FromEnd">
+                <Column>
+                    <H3>Basic TreeView</H3>
+                    <Paragraph>A simple tree structure with basic functionality.</Paragraph>
+
+                    <Card>
+                        <CardBody>
+                            <TreeView TNode="DemoNode"
+                                      Nodes="@BasicNodes"
+                                      NodeContent="@(node => (builder) => builder.AddContent(0, node.Title))"
+                                      GetChildNodes="@GetChildren"
+                                      HasChildNodes="@HasChildren"
+                                      SelectionMode="TreeViewSelectionMode.Single"
+                                      ExpandedNodes="@BasicExpandedNodes"
+                                      ExpandedNodesChanged="@OnBasicExpandedNodesChanged"/>
+                        </CardBody>
+                    </Card>
+                </Column>
+            </Row>
+
+            <!-- Single Selection Example -->
+            <Row Margin="Margin.Is4.FromEnd">
+                <Column>
+                    <H3>Single Selection</H3>
+                    <Paragraph>TreeView with single selection mode. Selected node: <Strong>@(SelectedNode?.Title ?? "None")</Strong></Paragraph>
+
+                    <Card>
+                        <CardBody>
+                            <TreeView TNode="DemoNode"
+                                      Nodes="@SingleSelectionNodes"
+                                      NodeContent="@(node => (builder) => builder.AddContent(0, node.Title))"
+                                      GetChildNodes="@GetChildren"
+                                      HasChildNodes="@HasChildren"
+                                      SelectionMode="TreeViewSelectionMode.Single"
+                                      SelectedNode="@SelectedNode"
+                                      SelectedNodeChanged="@OnSelectedNodeChanged"
+                                      ExpandedNodes="@SingleSelectionExpandedNodes"
+                                      ExpandedNodesChanged="@OnSingleSelectionExpandedNodesChanged"/>
+                        </CardBody>
+                    </Card>
+                </Column>
+            </Row>
+
+            <!-- Multiple Selection Example -->
+            <Row Margin="Margin.Is4.FromEnd">
+                <Column>
+                    <H3>Multiple Selection</H3>
+                    <Paragraph>TreeView with multiple selection mode. Selected nodes: <Strong>@(SelectedNodes.Count > 0 ? string.Join(", ", SelectedNodes.Select(n => n.Title)) : "None")</Strong></Paragraph>
+
+                    <Card>
+                        <CardBody>
+                            <TreeView TNode="DemoNode"
+                                      Nodes="@MultipleSelectionNodes"
+                                      NodeContent="@(node => (builder) => builder.AddContent(0, node.Title))"
+                                      GetChildNodes="@GetChildren"
+                                      HasChildNodes="@HasChildren"
+                                      SelectionMode="TreeViewSelectionMode.Multiple"
+                                      SelectedNodes="@SelectedNodes"
+                                      SelectedNodesChanged="@OnSelectedNodesChanged"
+                                      ExpandedNodes="@MultipleSelectionExpandedNodes"
+                                      ExpandedNodesChanged="@OnMultipleSelectionExpandedNodesChanged"/>
+                        </CardBody>
+                    </Card>
+                </Column>
+            </Row>
+
+            <!-- Custom Styling Example -->
+            <Row Margin="Margin.Is4.FromEnd">
+                <Column>
+                    <H3>Custom Styling & Icons</H3>
+                    <Paragraph>TreeView with custom icons and styling.</Paragraph>
+
+                    <Card>
+                        <CardBody>
+                            <TreeView TNode="DemoNode"
+                                      Nodes="@StyledNodes"
+                                      NodeContent="@RenderStyledNode"
+                                      GetChildNodes="@GetChildren"
+                                      HasChildNodes="@HasChildren"
+                                      SelectionMode="TreeViewSelectionMode.Single"
+                                      ExpandIconName="plus"
+                                      CollapseIconName="minus"
+                                      ExpandedNodes="@StyledExpandedNodes"
+                                      ExpandedNodesChanged="@OnStyledExpandedNodesChanged"/>
+                        </CardBody>
+                    </Card>
+                </Column>
+            </Row>
+
+            <!-- Async Data Loading Example -->
+            <Row Margin="Margin.Is4.FromEnd">
+                <Column>
+                    <H3>Async Data Loading</H3>
+                    <Paragraph>TreeView with asynchronous data loading simulation.</Paragraph>
+
+                    <Card>
+                        <CardBody>
+                            <TreeView TNode="AsyncDemoNode"
+                                      Nodes="@AsyncNodes"
+                                      NodeContent="@(node => (builder) => builder.AddContent(0, node.Title))"
+                                      GetChildNodesAsync="@GetChildrenAsync"
+                                      HasChildNodesAsync="@HasChildrenAsync"
+                                      SelectionMode="TreeViewSelectionMode.Single"
+                                      ExpandedNodes="@AsyncExpandedNodes"
+                                      ExpandedNodesChanged="@OnAsyncExpandedNodesChanged"/>
+                        </CardBody>
+                    </Card>
+                </Column>
+            </Row>
+
+            <!-- Disabled Nodes Example -->
+            <Row Margin="Margin.Is4.FromEnd">
+                <Column>
+                    <H3>Disabled Nodes</H3>
+                    <Paragraph>TreeView with some nodes disabled.</Paragraph>
+
+                    <Card>
+                        <CardBody>
+                            <TreeView TNode="DemoNode"
+                                      Nodes="@DisabledNodes"
+                                      NodeContent="@(node => (builder) => builder.AddContent(0, node.Title))"
+                                      GetChildNodes="@GetChildren"
+                                      HasChildNodes="@HasChildren"
+                                      IsDisabled="@IsNodeDisabled"
+                                      SelectionMode="TreeViewSelectionMode.Single"
+                                      ExpandedNodes="@DisabledExpandedNodes"
+                                      ExpandedNodesChanged="@OnDisabledExpandedNodesChanged"/>
+                        </CardBody>
+                    </Card>
+                </Column>
+            </Row>
+
+            <!-- Large Dataset with Virtualization -->
+            <Row Margin="Margin.Is4.FromEnd">
+                <Column>
+                    <H3>Large Dataset with Virtualization</H3>
+                    <Paragraph>TreeView with virtualization for handling large datasets efficiently.</Paragraph>
+
+                    <Card>
+                        <CardBody>
+                            <TreeView TNode="DemoNode"
+                                      Nodes="@LargeDatasetNodes"
+                                      NodeContent="@(node => (builder) => builder.AddContent(0, $"{node.Title} (Level {node.Level})"))"
+                                      GetChildNodes="@GetChildren"
+                                      HasChildNodes="@HasChildren"
+                                      SelectionMode="TreeViewSelectionMode.Single"
+                                      Virtualize="true"
+                                      ExpandedNodes="@LargeDatasetExpandedNodes"
+                                      ExpandedNodesChanged="@OnLargeDatasetExpandedNodesChanged"/>
+                        </CardBody>
+                    </Card>
+                </Column>
+            </Row>
+        </Column>
+    </Row>
+</Container>
+
+@code {
+
+    // Basic Example
+    private readonly ObservableCollection<DemoNode> BasicNodes =
+    [
+        new DemoNode("Documents", [
+            new DemoNode("Work", [
+                new DemoNode("Projects"),
+                new DemoNode("Reports")
+            ]),
+
+            new DemoNode("Personal", [
+                new DemoNode("Photos"),
+                new DemoNode("Videos")
+            ])
+        ]),
+
+        new DemoNode("Applications"),
+        new DemoNode("System")
+    ];
+
+    private IList<DemoNode> BasicExpandedNodes { get; set; } = new List<DemoNode>();
+
+    // Single Selection Example
+    private readonly ObservableCollection<DemoNode> SingleSelectionNodes =
+    [
+        new DemoNode("File System", [
+            new DemoNode("C:\\", [
+                new DemoNode("Program Files"),
+                new DemoNode("Users"),
+                new DemoNode("Windows")
+            ]),
+
+            new DemoNode("D:\\", [
+                new DemoNode("Data"),
+                new DemoNode("Backup")
+            ])
+        ])
+    ];
+
+    private DemoNode? SelectedNode { get; set; }
+    private IList<DemoNode> SingleSelectionExpandedNodes { get; set; } = new List<DemoNode>();
+
+    // Multiple Selection Example
+    private readonly ObservableCollection<DemoNode> MultipleSelectionNodes =
+    [
+        new DemoNode("Project Structure", [
+            new DemoNode("src", [
+                new DemoNode("Components"),
+                new DemoNode("Services"),
+                new DemoNode("Models")
+            ]),
+
+            new DemoNode("tests", [
+                new DemoNode("Unit"),
+                new DemoNode("Integration")
+            ]),
+
+            new DemoNode("docs")
+        ])
+    ];
+
+    private IList<DemoNode> SelectedNodes { get; set; } = new List<DemoNode>();
+    private IList<DemoNode> MultipleSelectionExpandedNodes { get; set; } = new List<DemoNode>();
+
+    // Styled Example
+    private readonly ObservableCollection<DemoNode> StyledNodes =
+    [
+        new DemoNode("Development", [
+            new DemoNode("Frontend", [
+                new DemoNode("React"),
+                new DemoNode("Vue"),
+                new DemoNode("Angular")
+            ]),
+
+            new DemoNode("Backend", [
+                new DemoNode("Node.js"),
+                new DemoNode("Python"),
+                new DemoNode("C#")
+            ])
+        ])
+    ];
+
+    private IList<DemoNode> StyledExpandedNodes { get; set; } = new List<DemoNode>();
+
+    // Async Example
+    private readonly ObservableCollection<AsyncDemoNode> AsyncNodes =
+    [
+        new AsyncDemoNode("Server 1"),
+        new AsyncDemoNode("Server 2"),
+        new AsyncDemoNode("Server 3")
+    ];
+
+    private IList<AsyncDemoNode> AsyncExpandedNodes { get; set; } = new List<AsyncDemoNode>();
+
+    // Disabled Example
+    private readonly ObservableCollection<DemoNode> DisabledNodes =
+    [
+        new DemoNode("Available Features", [
+            new DemoNode("Feature A"),
+            new DemoNode("Feature B (Disabled)", isDisabled: true),
+            new DemoNode("Feature C", [
+                new DemoNode("Sub-feature 1"),
+                new DemoNode("Sub-feature 2 (Disabled)", isDisabled: true)
+            ])
+        ])
+    ];
+
+    private IList<DemoNode> DisabledExpandedNodes { get; set; } = new List<DemoNode>();
+
+    // Large Dataset Example
+    private readonly ObservableCollection<DemoNode> LargeDatasetNodes = [new DemoNode("Root", level: 0)];
+
+    private IList<DemoNode> LargeDatasetExpandedNodes { get; set; } = new List<DemoNode>();
+
+    // Event Handlers
+    private Task OnBasicExpandedNodesChanged(IList<DemoNode> nodes)
+    {
+        BasicExpandedNodes = nodes;
+        return Task.CompletedTask;
+    }
+
+    private Task OnSelectedNodeChanged(DemoNode? node)
+    {
+        SelectedNode = node;
+        return Task.CompletedTask;
+    }
+
+    private Task OnSingleSelectionExpandedNodesChanged(IList<DemoNode> nodes)
+    {
+        SingleSelectionExpandedNodes = nodes;
+        return Task.CompletedTask;
+    }
+
+    private Task OnSelectedNodesChanged(IList<DemoNode> nodes)
+    {
+        SelectedNodes = nodes;
+        return Task.CompletedTask;
+    }
+
+    private Task OnMultipleSelectionExpandedNodesChanged(IList<DemoNode> nodes)
+    {
+        MultipleSelectionExpandedNodes = nodes;
+        return Task.CompletedTask;
+    }
+
+    private Task OnStyledExpandedNodesChanged(IList<DemoNode> nodes)
+    {
+        StyledExpandedNodes = nodes;
+        return Task.CompletedTask;
+    }
+
+    private Task OnAsyncExpandedNodesChanged(IList<AsyncDemoNode> nodes)
+    {
+        AsyncExpandedNodes = nodes;
+        return Task.CompletedTask;
+    }
+
+    private Task OnDisabledExpandedNodesChanged(IList<DemoNode> nodes)
+    {
+        DisabledExpandedNodes = nodes;
+        return Task.CompletedTask;
+    }
+
+    private Task OnLargeDatasetExpandedNodesChanged(IList<DemoNode> nodes)
+    {
+        LargeDatasetExpandedNodes = nodes;
+        return Task.CompletedTask;
+    }
+
+    // Helper Methods
+    private IEnumerable<DemoNode> GetChildren(DemoNode node) => node.Children;
+    private bool HasChildren(DemoNode node) => node.Children.Count > 0;
+
+    private async Task<IEnumerable<AsyncDemoNode>> GetChildrenAsync(AsyncDemoNode node)
+    {
+        // Simulate async loading
+        await Task.Delay(500);
+        return node.Children;
+    }
+
+    private async Task<bool> HasChildrenAsync(AsyncDemoNode node)
+    {
+        // Simulate async check
+        await Task.Delay(100);
+        return node.Children.Count > 0;
+    }
+
+    private bool IsNodeDisabled(DemoNode node) => node.IsDisabled;
+
+    private RenderFragment<DemoNode> RenderStyledNode => (node) => (builder) =>
+    {
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "class", "d-flex align-items-center");
+        builder.OpenElement(2, "span");
+        builder.AddAttribute(3, "class", "me-2");
+        builder.AddContent(4, GetNodeIcon(node));
+        builder.CloseElement();
+        builder.AddContent(5, node.Title);
+        builder.CloseElement();
+    };
+
+    private string GetNodeIcon(DemoNode node)
+    {
+        return node.Title switch
+        {
+            "Development" => "💻",
+            "Frontend" => "🎨",
+            "Backend" => "⚙️",
+            "React" => "⚛️",
+            "Vue" => "🟢",
+            "Angular" => "🔴",
+            "Node.js" => "🟢",
+            "Python" => "🐍",
+            "C#" => "🔷",
+            _ => "📁"
+        };
+    }
+
+    protected override void OnInitialized()
+    {
+        // Initialize large dataset
+        InitializeLargeDataset();
+    }
+
+    private void InitializeLargeDataset()
+    {
+        var root = LargeDatasetNodes.First();
+        for (var i = 0; i < 5; i++)
+        {
+            var level1 = new DemoNode($"Category {i + 1}", level: 1);
+            root.Children.Add(level1);
+
+            for (var j = 0; j < 10; j++)
+            {
+                var level2 = new DemoNode($"Item {i + 1}.{j + 1}", level: 2);
+                level1.Children.Add(level2);
+
+                for (var k = 0; k < 5; k++)
+                {
+                    var level3 = new DemoNode($"Sub-item {i + 1}.{j + 1}.{k + 1}", level: 3);
+                    level2.Children.Add(level3);
+                }
+            }
+        }
+    }
+
+    // Data Models
+    public sealed class DemoNode
+    {
+        public DemoNode(string title, List<DemoNode>? children = null, bool isDisabled = false, int level = 0)
+        {
+            Title = title;
+            Children = children ?? [];
+            IsDisabled = isDisabled;
+            Level = level;
+        }
+
+        public string Title { get; }
+        public List<DemoNode> Children { get; }
+        public bool IsDisabled { get; }
+        public int Level { get; }
+        public override string ToString() => Title;
+    }
+
+    public sealed class AsyncDemoNode
+    {
+        public AsyncDemoNode(string title, List<AsyncDemoNode>? children = null)
+        {
+            Title = title;
+            Children = children ?? [];
+        }
+
+        public string Title { get; }
+        public List<AsyncDemoNode> Children { get; }
+        public override string ToString() => Title;
+    }
+
+}

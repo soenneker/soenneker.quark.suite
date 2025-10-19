@@ -1,0 +1,153 @@
+@page "/forms/datepickers"
+
+<Container Padding="Padding.Is4.OnY">
+    <Row>
+        <Column>
+            <Div Class="text-center" Margin="Margin.Is5.FromEnd">
+                <H1 Class="display-4 fw-bold text-primary">Date Pickers</H1>
+                <Paragraph Class="lead text-muted">This page demonstrates the DatePicker and DateTimePicker components.</Paragraph>
+            </Div>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Div>
+                <H2>🧪 BINDING TEST SECTION</H2>
+                <Alert BackgroundColor="BackgroundColor.Info" Margin="Margin.Is3.FromEnd">
+                    <Strong>Test Instructions:</Strong> Select dates below or click "Load Test Data" to verify binding works.
+                </Alert>
+
+                <Div Margin="Margin.Is4.FromBottom" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Light" Class="rounded">
+                    <H3 Margin="Margin.Is3.FromBottom">Two-Way Binding Test</H3>
+
+                    <Div Margin="Margin.Is3.FromBottom">
+                        <Label For="testDatePicker1" Class="form-label fw-bold">Test DatePicker 1:</Label>
+                        <DatePicker @bind-Value="_testDatePicker1"/>
+                        <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" Class="rounded">
+                            <Strong>Bound Value:</Strong> <Code>@(_testDatePicker1?.ToString("yyyy-MM-dd") ?? "(empty)")</Code>
+                        </Div>
+                    </Div>
+
+                    <Div Margin="Margin.Is3.FromBottom">
+                        <Label For="testDatePicker2" Class="form-label fw-bold">Test DatePicker 2 (Pre-set to today):</Label>
+                        <DatePicker @bind-Value="_testDatePicker2"/>
+                        <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" Class="rounded">
+                            <Strong>Bound Value:</Strong> <Code>@(_testDatePicker2?.ToString("yyyy-MM-dd") ?? "(empty)")</Code>
+                        </Div>
+                    </Div>
+
+                    <Div Margin="Margin.Is3.FromTop">
+                        <Button BackgroundColor="BackgroundColor.Primary" OnClick="LoadDatePickerTestData" Margin="Margin.Is2.FromEnd">Load Test Data</Button>
+                        <Button BackgroundColor="BackgroundColor.Secondary" OnClick="ClearDatePickerTestData" Margin="Margin.Is2.FromEnd">Clear Test Data</Button>
+                        <Button BackgroundColor="BackgroundColor.Warning" OnClick="UpdateDatePickerTestData">Update to Random Dates</Button>
+                    </Div>
+
+                    <Div Margin="Margin.Is3.FromTop" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Success" Class="bg-opacity-10 rounded">
+                        <H4>Test Results:</H4>
+                        <UnorderedList Margin="Margin.Is0.FromBottom">
+                            <UnorderedListItem>
+                                <Strong>DatePicker 1:</Strong> @(_testDatePicker1?.ToString("yyyy-MM-dd") ?? "(not set)")
+                            </UnorderedListItem>
+                            <UnorderedListItem>
+                                <Strong>DatePicker 2:</Strong> @(_testDatePicker2?.ToString("yyyy-MM-dd") ?? "(not set)")
+                            </UnorderedListItem>
+                        </UnorderedList>
+                    </Div>
+                </Div>
+
+                <Hr/>
+
+                <Section Margin="Margin.Is4.FromBottom.Is5.OnTablet.FromBottom">
+                    <Row Gap="Gap.Is4">
+                        <Column ColumnSize="@ColumnSize.Is6.OnLaptop">
+                            <Div Class="demo-card p-4 p-md-4 h-100">
+                                <H3 Class="card-title">DateOnly</H3>
+                                <Paragraph Class="section-subtitle mb-3">Simple date selection with a lightweight UI.</Paragraph>
+                                <Div Margin="Margin.Is2.FromBottom">
+                                    <Label Class="form-label">Pick a date</Label>
+                                    <DatePicker @bind-Value="_dateOnly"/>
+                                </Div>
+                                <Div Class="value-chip mt-2">
+                                    <Span Class="dot"></Span><Span>Value: @_dateOnly?.ToString("yyyy-MM-dd")</Span>
+                                </Div>
+                            </Div>
+                        </Column>
+                        <Column ColumnSize="@ColumnSize.Is6.OnLaptop">
+                            <Div Class="demo-card p-4 p-md-4 h-100">
+                                <H3 Class="card-title">DateTime</H3>
+                                <Paragraph Class="section-subtitle mb-3">Choose both date and time in one control.</Paragraph>
+                                <Div Margin="Margin.Is2.FromBottom">
+                                    <Label Class="form-label">Pick a date and time</Label>
+                                    <DateTimePicker @bind-Value="_dateTime"/>
+                                </Div>
+                                <Div Class="value-chip mt-2">
+                                    <Span Class="dot"></Span><Span>Value: @_dateTime?.ToString("yyyy-MM-dd HH:mm:ss")</Span>
+                                </Div>
+                            </Div>
+                        </Column>
+                    </Row>
+                </Section>
+            </Div>
+        </Column>
+    </Row>
+</Container>
+
+@code{
+
+    // Binding Test Fields
+    private DateOnly? _testDatePicker1;
+    private DateOnly? _testDatePicker2 = DateOnly.FromDateTime(DateTime.Today);
+
+    private DateOnly? _dateOnly = DateOnly.FromDateTime(DateTime.Today);
+    private DateTime? _dateTime = DateTime.Now;
+
+    private DateOnly? _validatedDate;
+    private DateTime? _validatedDateTime;
+
+    private void LoadDatePickerTestData()
+    {
+        _testDatePicker1 = DateOnly.FromDateTime(new DateTime(2025, 12, 25));
+        _testDatePicker2 = DateOnly.FromDateTime(new DateTime(2026, 1, 1));
+    }
+
+    private void ClearDatePickerTestData()
+    {
+        _testDatePicker1 = null;
+        _testDatePicker2 = null;
+    }
+
+    private void UpdateDatePickerTestData()
+    {
+        var random = new Random();
+        _testDatePicker1 = DateOnly.FromDateTime(DateTime.Today.AddDays(random.Next(-365, 365)));
+        _testDatePicker2 = DateOnly.FromDateTime(DateTime.Today.AddDays(random.Next(-365, 365)));
+    }
+
+    private void ValidateDate(ValidatorEventArgs e)
+    {
+        if (_validatedDate is null)
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Date is required.";
+        }
+        else
+        {
+            e.Status = ValidationStatus.Success;
+        }
+    }
+
+    private void ValidateDateTime(ValidatorEventArgs e)
+    {
+        if (_validatedDateTime is null)
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Date/time is required.";
+        }
+        else
+        {
+            e.Status = ValidationStatus.Success;
+        }
+    }
+
+}

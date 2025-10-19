@@ -1,0 +1,236 @@
+@page "/media/iframes"
+@using Microsoft.Extensions.Logging
+
+@inject ILogger<Index> Logger
+
+<Container Padding="Padding.Is4.OnY">
+    <Row>
+        <Column>
+            <Div Class="text-center" Margin="Margin.Is5.FromEnd">
+                <H1 Class="display-4 fw-bold text-primary">IFrames</H1>
+                <Paragraph Class="lead text-muted">This page demonstrates the IFrame component with various configurations and features.</Paragraph>
+            </Div>
+        </Column>
+    </Row>
+    
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Section Class="surface mb-5">
+                <Div Class="surface-header d-flex align-items-center justify-content-between">
+                    <Strong>Basic IFrame</Strong>
+                </Div>
+                <Div Class="surface-body">
+                    <Row Gap="Gap.Is4">
+                        <Column ColumnSize="@ColumnSize.Is12">
+                            <Paragraph>Basic iframe with source URL and title for accessibility.</Paragraph>
+                            <IFrame 
+                                Source="https://www.example.com" 
+                                Title="Example Website"
+                                Style="width: 100%; height: 400px;"
+                                Border="Border.Is1"
+                                BorderRadius="BorderRadius.Default"
+                            />
+                        </Column>
+                    </Row>
+                </Div>
+            </Section>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Section Class="surface mb-5">
+                <Div Class="surface-header d-flex align-items-center justify-content-between">
+                    <Strong>Lazy Loading IFrame</Strong>
+                </Div>
+                <Div Class="surface-body">
+                    <Row Gap="Gap.Is4">
+                        <Column ColumnSize="@ColumnSize.Is12">
+                            <Paragraph>IFrame with lazy loading enabled for better performance.</Paragraph>
+                            <IFrame 
+                                Source="https://www.wikipedia.org" 
+                                Title="Wikipedia"
+                                Style="width: 100%; height: 400px;"
+                                Lazy="true"
+                                Class="border rounded"
+                            />
+                        </Column>
+                    </Row>
+                </Div>
+            </Section>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Section Class="surface mb-5">
+                <Div Class="surface-header d-flex align-items-center justify-content-between">
+                    <Strong>Sandboxed IFrame</Strong>
+                </Div>
+                <Div Class="surface-body">
+                    <Row Gap="Gap.Is4">
+                        <Column ColumnSize="@ColumnSize.Is12">
+                            <Paragraph>IFrame with sandbox security restrictions. This example allows scripts and same-origin access.</Paragraph>
+                            <IFrame 
+                                Source="https://www.openstreetmap.org" 
+                                Title="OpenStreetMap"
+                                Style="width: 100%; height: 400px;"
+                                Sandbox="allow-scripts allow-same-origin"
+                                Class="border rounded"
+                            />
+                        </Column>
+                    </Row>
+                </Div>
+            </Section>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Section Class="surface mb-5">
+                <Div Class="surface-header d-flex align-items-center justify-content-between">
+                    <Strong>IFrame with SrcDoc</Strong>
+                </Div>
+                <Div Class="surface-body">
+                    <Row Gap="Gap.Is4">
+                        <Column ColumnSize="@ColumnSize.Is12">
+                            <Paragraph>IFrame with inline HTML content using the srcdoc attribute.</Paragraph>
+                            <IFrame 
+                                SrcDoc="@htmlContent"
+                                Title="Inline HTML Content"
+                                Style="width: 100%; height: 300px;"
+                                Border="Border.Is1"
+                                BorderRadius="BorderRadius.Default"
+                            />
+                        </Column>
+                    </Row>
+                </Div>
+            </Section>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Section Class="surface mb-5">
+                <Div Class="surface-header d-flex align-items-center justify-content-between">
+                    <Strong>Fullscreen IFrame</Strong>
+                </Div>
+                <Div Class="surface-body">
+                    <Row Gap="Gap.Is4">
+                        <Column ColumnSize="@ColumnSize.Is12">
+                            <Paragraph>IFrame with fullscreen capability enabled.</Paragraph>
+                            <IFrame 
+                                Source="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                                Title="YouTube Video"
+                                Style="width: 100%; height: 400px;"
+                                AllowFullscreen="true"
+                                Allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                Class="border rounded"
+                            />
+                        </Column>
+                    </Row>
+                </Div>
+            </Section>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Section Class="surface mb-5">
+                <Div Class="surface-header d-flex align-items-center justify-content-between">
+                    <Strong>Responsive IFrames</Strong>
+                </Div>
+                <Div Class="surface-body">
+                    <Row Gap="Gap.Is4">
+                        <Column ColumnSize="@ColumnSize.Is6.OnLaptop">
+                            <H5>16:9 Aspect Ratio</H5>
+                            <Div Class="ratio ratio-16x9">
+                                <IFrame 
+                                    Source="https://www.example.com" 
+                                    Title="16:9 Example"
+                                    Class="border rounded"
+                                />
+                            </Div>
+                        </Column>
+                        <Column ColumnSize="@ColumnSize.Is6.OnLaptop">
+                            <H5>4:3 Aspect Ratio</H5>
+                            <Div Class="ratio ratio-4x3">
+                                <IFrame 
+                                    Source="https://www.example.com" 
+                                    Title="4:3 Example"
+                                    Class="border rounded"
+                                />
+                            </Div>
+                        </Column>
+                    </Row>
+                </Div>
+            </Section>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Section Class="surface mb-5">
+                <Div Class="surface-header d-flex align-items-center justify-content-between">
+                    <Strong>IFrame with Event Handlers</Strong>
+                </Div>
+                <Div Class="surface-body">
+                    <Row Gap="Gap.Is4">
+                        <Column ColumnSize="@ColumnSize.Is12">
+                            <Paragraph>IFrame with onload event handler.</Paragraph>
+                            @if (iframeLoaded)
+                            {
+                                <Alert BackgroundColor="@BackgroundColor.Success">
+                                    <Icon Name="circle-check" Margin="Margin.Is2.FromEnd"/> IFrame loaded successfully!
+                                </Alert>
+                            }
+                            <IFrame 
+                                Source="@dynamicSource" 
+                                Title="Dynamic Content"
+                                Style="width: 100%; height: 400px;"
+                                OnLoad="HandleIFrameLoad"
+                                Class="border rounded"
+                            />
+                            <Div Class="mt-3">
+                                <Button BackgroundColor="@BackgroundColor.Primary" OnClick='() => dynamicSource = "https://www.example.com"'>Load Example.com</Button>
+                                <Button BackgroundColor="@BackgroundColor.Secondary" OnClick='() => dynamicSource = "https://www.wikipedia.org"' Margin="Margin.Is2.FromStart">Load Wikipedia</Button>
+                            </Div>
+                        </Column>
+                    </Row>
+                </Div>
+            </Section>
+        </Column>
+    </Row>
+</Container>
+
+@code {
+    private string htmlContent = @"
+        <html>
+            <head>
+                <style>
+                    body { 
+                        font-family: Arial, sans-serif; 
+                        padding: 20px; 
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                    }
+                    h1 { color: white; }
+                </style>
+            </head>
+            <body>
+                <h1>Hello from srcdoc!</h1>
+                <p>This is inline HTML content rendered directly in the iframe without a separate URL.</p>
+            </body>
+        </html>
+    ";
+
+    private string dynamicSource = "https://www.example.com";
+    private bool iframeLoaded = false;
+
+    private void HandleIFrameLoad(ProgressEventArgs args)
+    {
+        iframeLoaded = true;
+        Logger.LogInformation("IFrame loaded successfully");
+    }
+}
+

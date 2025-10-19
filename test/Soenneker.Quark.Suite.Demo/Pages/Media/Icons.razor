@@ -1,0 +1,188 @@
+@page "/media/icons"
+@using Microsoft.Extensions.Logging
+
+@inject ILogger<Index> Logger
+
+<Container Padding="Padding.Is4.OnY">
+    <Row>
+        <Column>
+            <Div Class="text-center" Margin="Margin.Is5.FromEnd">
+                <H1 Class="display-4 fw-bold text-primary">Icons</H1>
+                <Paragraph Class="lead text-muted">This page demonstrates the Icon component with various configurations and features.</Paragraph>
+            </Div>
+        </Column>
+    </Row>
+    
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Section Class="surface mb-5">
+                <Div Class="surface-header d-flex align-items-center justify-content-between">
+                    <Strong>Playground</Strong>
+                </Div>
+                <Div Class="surface-body">
+                    <Row Gap="Gap.Is4">
+                        <Column ColumnSize="@ColumnSize.Is6.OnLaptop">
+                            <input class="form-control" @bind="iconName" @bind:event="oninput" placeholder="e.g. circle-check" />
+                            <select class="form-select" @bind="iconStyle">
+                                <option value="@IconStyle.Solid">Solid</option>
+                                <option value="@IconStyle.Regular">Regular</option>
+                                <option value="@IconStyle.Light">Light</option>
+                                <option value="@IconStyle.Thin">Thin</option>
+                                <option value="@IconStyle.Duotone">Duotone</option>
+                            </select>
+                            <select class="form-select" @bind="family">
+                                <option value="@IconFamily.Classic">Classic</option>
+                                <option value="@IconFamily.Sharp">Sharp</option>
+                                <option value="@IconFamily.Chisel">Chisel</option>
+                            </select>
+                            <select class="form-select" @bind="size">
+                                <option value="@IconSize.Small">Small</option>
+                                <option value="@IconSize.Large">Large</option>
+                                <option value="@IconSize.Is2x">2x</option>
+                                <option value="@IconSize.Is3x">3x</option>
+                                <option value="@IconSize.Is4x">4x</option>
+                                <option value="@IconSize.Is5x">5x</option>
+                                <option value="@IconSize.Is6x">6x</option>
+                                <option value="@IconSize.Is7x">7x</option>
+                                <option value="@IconSize.Is8x">8x</option>
+                                <option value="@IconSize.Is9x">9x</option>
+                                <option value="@IconSize.Is10x">10x</option>
+                            </select>
+                            <Button Class="btn btn-primary" OnClick="RandomizeName">Random Icon</Button>
+                        </Column>
+                        <Column ColumnSize="@ColumnSize.Is6.OnLaptop">
+                            <Div Class="text-center">
+                                <Icon Name="@iconName" IconStyle="@iconStyle" IconFamily="@family" IconSize="@size" IconRotate="@rotate" IconFlip="@flip" IconAnimation="@animation" />
+                            </Div>
+                        </Column>
+                    </Row>
+                </Div>
+            </Section>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Section Class="surface mb-5">
+                <Div Class="surface-header d-flex align-items-center justify-content-between">
+                    <Strong>Icon Styles</Strong>
+                </Div>
+                <Div Class="surface-body">
+                    <Row Gap="Gap.Is4">
+                        <Column ColumnSize="@ColumnSize.Is6.OnLaptop">
+                            <H3>Solid Icons</H3>
+                            <Div Class="icon-grid">
+                                <Icon Name="circle-check" IconStyle="@IconStyle.Solid" IconSize="@IconSize.Is2x" />
+                                <Icon Name="circle-xmark" IconStyle="@IconStyle.Solid" IconSize="@IconSize.Is2x" />
+                                <Icon Name="star" IconStyle="@IconStyle.Solid" IconSize="@IconSize.Is2x" />
+                                <Icon Name="heart" IconStyle="@IconStyle.Solid" IconSize="@IconSize.Is2x" />
+                            </Div>
+                        </Column>
+                        <Column ColumnSize="@ColumnSize.Is6.OnLaptop">
+                            <H3>Regular Icons</H3>
+                            <Div Class="icon-grid">
+                                <Icon Name="circle-check" IconStyle="@IconStyle.Regular" IconSize="@IconSize.Is2x" />
+                                <Icon Name="circle-xmark" IconStyle="@IconStyle.Regular" IconSize="@IconSize.Is2x" />
+                                <Icon Name="star" IconStyle="@IconStyle.Regular" IconSize="@IconSize.Is2x" />
+                                <Icon Name="heart" IconStyle="@IconStyle.Regular" IconSize="@IconSize.Is2x" />
+                            </Div>
+                        </Column>
+                    </Row>
+                </Div>
+            </Section>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Section Class="surface mb-5">
+                <Div Class="surface-header d-flex align-items-center justify-content-between">
+                    <Strong>Icon Sizes</Strong>
+                </Div>
+                <Div Class="surface-body">
+                    <Row Gap="Gap.Is4">
+                        <Column ColumnSize="@ColumnSize.Is6.OnLaptop">
+                            <H3>Size Variations</H3>
+                            <Div Class="icon-grid">
+                                <Icon Name="star" IconSize="@IconSize.Small" />
+                                <Icon Name="star" IconSize="@IconSize.Large" />
+                                <Icon Name="star" IconSize="@IconSize.Is2x" />
+                                <Icon Name="star" IconSize="@IconSize.Is3x" />
+                                <Icon Name="star" IconSize="@IconSize.Is4x" />
+                            </Div>
+                        </Column>
+                        <Column ColumnSize="@ColumnSize.Is6.OnLaptop">
+                            <H3>Color Variations</H3>
+                            <Div Class="icon-grid">
+                                <Icon Name="star" TextColor="@TextColor.Primary" IconSize="@IconSize.Is2x" />
+                                <Icon Name="star" TextColor="@TextColor.Success" IconSize="@IconSize.Is2x" />
+                                <Icon Name="star" TextColor="@TextColor.Warning" IconSize="@IconSize.Is2x" />
+                                <Icon Name="star" TextColor="@TextColor.Danger" IconSize="@IconSize.Is2x" />
+                            </Div>
+                        </Column>
+                    </Row>
+                </Div>
+            </Section>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Section Class="surface mb-5">
+                <Div Class="surface-header d-flex align-items-center justify-content-between">
+                    <Strong>Icon Animations</Strong>
+                </Div>
+                <Div Class="surface-body">
+                    <Row Gap="Gap.Is4">
+                        <Column ColumnSize="@ColumnSize.Is6.OnLaptop">
+                            <H3>Animation Effects</H3>
+                            <Div Class="icon-grid">
+                                <Icon Name="spinner" IconAnimation="@IconAnimation.Spin" IconSize="@IconSize.Is2x" />
+                                <Icon Name="bell" IconAnimation="@IconAnimation.Shake" IconSize="@IconSize.Is2x" />
+                                <Icon Name="flag" IconAnimation="@IconAnimation.Pulse" IconSize="@IconSize.Is2x" />
+                                <Icon Name="heart" IconAnimation="@IconAnimation.Bounce" IconSize="@IconSize.Is2x" />
+                            </Div>
+                        </Column>
+                        <Column ColumnSize="@ColumnSize.Is6.OnLaptop">
+                            <H3>Transform Effects</H3>
+                            <Div Class="icon-grid">
+                                <Icon Name="arrow-right" Rotate="@IconRotate.R90" IconSize="@IconSize.Is2x" />
+                                <Icon Name="arrow-right" Rotate="@IconRotate.R180" IconSize="@IconSize.Is2x" />
+                                <Icon Name="arrow-right" Rotate="@IconRotate.R270" IconSize="@IconSize.Is2x" />
+                                <Icon Name="arrow-right" Flip="@IconFlip.Horizontal" IconSize="@IconSize.Is2x" />
+                            </Div>
+                        </Column>
+                    </Row>
+                </Div>
+            </Section>
+        </Column>
+    </Row>
+</Container>
+
+@code {
+    private string iconName = "circle-check";
+    private IconStyle? iconStyle = IconStyle.Solid;
+    private IconFamily family = IconFamily.Classic;
+    private IconSize size = IconSize.Is2x;
+    private IconRotate rotate = IconRotate.None;
+    private IconFlip flip = IconFlip.None;
+    private IconAnimation animation = IconAnimation.None;
+
+    private readonly string[] KnownIconNames =
+    [
+        "circle-check", "circle-xmark", "circle-question", "circle-info",
+        "arrow-right", "arrow-left", "arrow-up", "arrow-down",
+        "star", "heart", "bell", "flag", "gear", "sync", "refresh",
+        "exclamation-triangle", "xmark", "hand", "bug", "spinner"
+    ];
+
+    protected override void OnInitialized()
+    {
+        iconName = KnownIconNames[Random.Shared.Next(KnownIconNames.Length)];
+    }
+
+    private void RandomizeName()
+    {
+        iconName = KnownIconNames[Random.Shared.Next(KnownIconNames.Length)];
+    }
+}

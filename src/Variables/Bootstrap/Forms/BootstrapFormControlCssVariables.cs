@@ -4,8 +4,4 @@ namespace Soenneker.Quark;
 /// Variables for .form-control
 /// </summary>
 [CssSelector(".form-control")]
-public class BootstrapFormControlCssVariables : BootstrapBaseFormControlCssVariables
-{
-}
-
-
+public class BootstrapFormControlCssVariables : BootstrapBaseFormControlCssVariables;

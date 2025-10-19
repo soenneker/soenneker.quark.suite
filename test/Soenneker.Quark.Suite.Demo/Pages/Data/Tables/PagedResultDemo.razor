@@ -1,0 +1,354 @@
+@page "/data/tables/paged-result-demo"
+@using System.Threading
+@using Microsoft.Extensions.Logging
+@using Soenneker.DataTables.Dtos.ServerSideRequest
+@using Soenneker.Quark.Suite.Demo.Services
+@using Soenneker.Quark.Suite.Demo.Dtos
+@using Soenneker.Dtos.Results.Paged
+
+@inject ILogger<PagedResultDemo> Logger
+@inject EmployeeService EmployeeService
+
+<PageTitle>PagedResult Demo - QuarkTable</PageTitle>
+
+<Div class="demo-hero">
+    <Div class="container">
+        <Div class="row">
+            <Div class="col-12 text-center">
+                <Div class="hero-content">
+                    <Div class="demo-icon">✨</Div>
+                    <H1 Class="demo-title">PagedResult Demo</H1>
+                    <Paragraph Class="demo-subtitle">Advanced pagination with continuation tokens and comprehensive debug information.</Paragraph>
+                </Div>
+            </Div>
+        </Div>
+    </Div>
+</Div>
+
+<Div class="container">
+    <Div class="demo-card">
+        <Div class="card-header">
+            <Div class="card-header-content">
+                <H3><Icon Name="layer-group" Class="me-2"/>Advanced Employee Directory</H3>
+                <Paragraph Class="text-muted mb-0">This demo shows how QuarkTable works with PagedResult and handles continuation tokens internally.</Paragraph>
+            </Div>
+        </Div>
+        <Div class="card-body">
+            <QuarkTable @ref="_quarkTable"
+                        OnInteraction="OnInteraction"
+                        OnOrder="HandleOrder"
+                        OnInitialize="HandleInitialize"
+                        Options="_tableOptions"
+                        TotalRecords="@_totalRecords">
+
+                <QuarkTableSearch Placeholder="Search employees..."/>
+
+                <QuarkTableElement>
+                    <QuarkThead>
+                        <QuarkTr>
+                            <QuarkTh Sortable="true" Searchable="true">Name</QuarkTh>
+                            <QuarkTh Sortable="true" Searchable="true">Department</QuarkTh>
+                            <QuarkTh Sortable="true" Searchable="true">Email</QuarkTh>
+                            <QuarkTh Sortable="true" Searchable="true">Salary</QuarkTh>
+                            <QuarkTh Sortable="true" Searchable="true">Hire Date</QuarkTh>
+                            <QuarkTh Sortable="true" Searchable="true">Status</QuarkTh>
+                            <QuarkTh Sortable="true" Searchable="true">ID</QuarkTh>
+                        </QuarkTr>
+                    </QuarkThead>
+                    <QuarkTbody>
+                        @if (_currentEmployees != null)
+                        {
+                            @foreach (var employee in _currentEmployees)
+                            {
+                                <QuarkTr Key="@employee.Id">
+                                    <QuarkTd>@employee.Name</QuarkTd>
+                                    <QuarkTd>@employee.Department</QuarkTd>
+                                    <QuarkTd>@employee.Email</QuarkTd>
+                                    <QuarkTd>@employee.Salary.ToString("C")</QuarkTd>
+                                    <QuarkTd>@employee.HireDate.ToString("MMM dd, yyyy")</QuarkTd>
+                                    <QuarkTd>@employee.Status</QuarkTd>
+                                    <QuarkTd>@employee.Id</QuarkTd>
+                                </QuarkTr>
+                            }
+                        }
+                    </QuarkTbody>
+                </QuarkTableElement>
+
+                <QuarkTableBottomBar>
+                    <QuarkTableInfo/>
+                    <QuarkTablePagination/>
+                </QuarkTableBottomBar>
+
+            </QuarkTable>
+        </Div>
+    </Div>
+
+    <!-- Debug Information -->
+    @if (_quarkTable != null)
+    {
+        <Div class="debug-card">
+            <Div class="card-header">
+                <Div class="card-header-content">
+                    <h3><i class="fas fa-bug me-2"></i>Debug Information</H3>
+                    <Paragraph Class="text-muted mb-0">Real-time information about table state and PagedResult handling</Paragraph>
+                </Div>
+            </Div>
+            <Div class="card-body">
+                <Div class="row">
+                    <Div class="col-md-6">
+                        <Div class="debug-section">
+                            <h4><i class="fas fa-table me-2"></i>Table State</h4>
+                            <Div class="debug-grid">
+                                <Div class="debug-item">
+                                    <span class="debug-label">Current Page:</span>
+                                    <span class="debug-value">@_quarkTable.CurrentPage</span>
+                                </Div>
+                                <Div class="debug-item">
+                                    <span class="debug-label">Page Size:</span>
+                                    <span class="debug-value">@_quarkTable.PageSize</span>
+                                </Div>
+                                <Div class="debug-item">
+                                    <span class="debug-label">Total Pages:</span>
+                                    <span class="debug-value">@_quarkTable.TotalPages</span>
+                                </Div>
+                                <Div class="debug-item">
+                                    <span class="debug-label">Total Records:</span>
+                                    <span class="debug-value">@_quarkTable.TotalRecordsCount</span>
+                                </Div>
+                            </Div>
+                        </Div>
+                    </Div>
+                    <Div class="col-md-6">
+                        <Div class="debug-section">
+                            <h4><i class="fas fa-info-circle me-2"></i>PagedResult Info</h4>
+                            <Div class="debug-grid">
+                                <Div class="debug-item">
+                                    <span class="debug-label">Current Token:</span>
+                                    <span class="debug-value">@(_currentContinuationToken ?? "null")</span>
+                                </Div>
+                                <Div class="debug-item">
+                                    <span class="debug-label">Records Loaded:</span>
+                                    <span class="debug-value">@(_currentEmployees?.Count ?? 0)</span>
+                                </Div>
+                                <Div class="debug-item">
+                                    <span class="debug-label">Last Request Start:</span>
+                                    <span class="debug-value">@_lastRequestStart</span>
+                                </Div>
+                                <Div class="debug-item">
+                                    <span class="debug-label">Last Request Length:</span>
+                                    <span class="debug-value">@_lastRequestLength</span>
+                                </Div>
+                                <Div class="debug-item">
+                                    <span class="debug-label">PagedResult TotalCount:</span>
+                                    <span class="debug-value">@(_lastPagedResult?.TotalCount ?? 0)</span>
+                                </Div>
+                            </Div>
+                        </Div>
+                    </Div>
+                </Div>
+            </Div>
+        </Div>
+    }
+</Div>
+
+<style>
+    .demo-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 4rem 0;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .demo-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .demo-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .demo-title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        background: linear-gradient(45deg, #fff, #f8f9fa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .demo-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .demo-card,
+    .debug-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        border: none;
+        margin-bottom: 3rem;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 1px solid #dee2e6;
+        padding: 2rem;
+    }
+
+    .card-header-content h3 {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    /* Debug section styling */
+    .debug-section {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .debug-section h4 {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+
+    .debug-grid {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .debug-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .debug-item:last-child {
+        border-bottom: none;
+    }
+
+    .debug-label {
+        font-weight: 500;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .debug-item-value {
+        font-weight: 600;
+        color: #495057;
+    }
+
+    @@media (max-width: 768px) {
+        .demo-title {
+            font-size: 2rem;
+        }
+        
+        .demo-subtitle {
+            font-size: 1rem;
+        }
+        
+        .card-header,
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .debug-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .debug-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+    }
+</style>
+
+@code {
+    private QuarkTable? _quarkTable;
+    private List<Employee> _currentEmployees = [];
+
+    private readonly QuarkTableOptions _tableOptions = new()
+    {
+        DefaultPageSize = 5 // Smaller page size to demonstrate paging
+    };
+
+    private string? _currentContinuationToken;
+    private int _lastRequestStart;
+    private int _lastRequestLength;
+    private PagedResult<Employee>? _lastPagedResult;
+    private int _totalRecords;
+
+    private async Task OnInteraction(DataTableServerSideRequest serverSideRequest)
+    {
+        Logger.LogInformation("PagedResultDemo: OnInteraction called with Start={Start}, Length={Length}, Token='{Token}'", serverSideRequest.Start, serverSideRequest.Length, serverSideRequest.ContinuationToken ?? "null");
+
+        try
+        {
+            var pagedResult = await EmployeeService.GetEmployeesPaged(serverSideRequest, CancellationToken.None);
+
+            Logger.LogInformation("PagedResultDemo: EmployeeService returned {Count} employees, TotalCount={TotalCount}, ContinuationToken='{Token}'", pagedResult.Items.Count, pagedResult.TotalCount, pagedResult.ContinuationToken ?? "null");
+
+            _currentEmployees = pagedResult.Items;
+
+            // Update the QuarkTable's continuation token paging
+            _quarkTable?.UpdateContinuationTokenPaging(pagedResult.Items.Count, pagedResult.ContinuationToken, serverSideRequest.ContinuationToken);
+
+            // Update debug information
+            _currentContinuationToken = pagedResult.ContinuationToken;
+            _lastRequestStart = serverSideRequest.Start;
+            _lastRequestLength = serverSideRequest.Length;
+            _lastPagedResult = pagedResult;
+
+            // StateHasChanged is not needed here as the QuarkTable will handle the UI update
+
+            Logger.LogInformation("PagedResultDemo: Updated currentEmployees with {Count} records, totalRecords={TotalRecords}", _currentEmployees.Count, _totalRecords);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "PagedResultDemo: Error handling manual request: {Message}", ex.Message);
+        }
+    }
+
+    private async Task HandleOrder(QuarkTableOrderEventArgs args)
+    {
+        Logger.LogInformation("PagedResultDemo: Column '{Column}' sorted {Direction}", args.Column, args.Direction);
+    }
+
+    private async Task HandleInitialize()
+    {
+        Logger.LogInformation("PagedResultDemo: PagedResult table initialized");
+    }
+
+}

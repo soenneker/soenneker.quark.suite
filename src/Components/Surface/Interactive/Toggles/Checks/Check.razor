@@ -5,7 +5,7 @@
 @implements ICheck
 @inject ICheckInterop CheckInterop
 
-<Div @attributes="BuildWrapperAttributes()">
+<div @attributes="BuildWrapperAttributes()">
     <input
         @ref="_inputRef"
         id="@Id"
@@ -13,30 +13,45 @@
         checked="@Checked"
         @onclick="HandleClick"
         @onchange="HandleChange"
-        @attributes="BuildInputAttributes()" />
+        @attributes="BuildInputAttributes()"/>
 
     @if (ChildContent is not null)
     {
-        <Label @attributes="BuildLabelAttributes()">@ChildContent</Label>
+        <label @attributes="BuildLabelAttributes()">@ChildContent</label>
     }
     else if (Label.HasContent())
     {
-        <Label @attributes="BuildLabelAttributes()">@Label</Label>
+        <label @attributes="BuildLabelAttributes()">@Label</label>
     }
-</Div>
+</div>
 
 @code {
     public override string? ThemeKey { get; set; } = "Check";
     public override string? Id { get; set; } = $"check-{Guid.NewGuid():N}";
 
-    [Parameter] public bool Indeterminate { get; set; }
-    [Parameter] public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
-    [Parameter] public bool Switch { get; set; }
-    [Parameter] public bool Inline { get; set; }
-    [Parameter] public bool Reverse { get; set; }
-    [Parameter] public string? Label { get; set; }
-    [Parameter] public EventCallback<ChangeEventArgs> OnChange { get; set; }
-    [CascadingParameter] public Validation? ParentValidation { get; set; }
+    [Parameter]
+    public bool Indeterminate { get; set; }
+
+    [Parameter]
+    public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
+
+    [Parameter]
+    public bool Switch { get; set; }
+
+    [Parameter]
+    public bool Inline { get; set; }
+
+    [Parameter]
+    public bool Reverse { get; set; }
+
+    [Parameter]
+    public string? Label { get; set; }
+
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnChange { get; set; }
+
+    [CascadingParameter]
+    public Validation? ParentValidation { get; set; }
 
     public object? ValidationValue => Checked;
 
@@ -66,6 +81,7 @@
         _checkedChanged = false; // reset local render gate after any render
         await base.OnAfterRenderAsync(firstRender);
     }
+
     protected override void OnParametersSet()
     {
         // detect programmatic changes from parent (@bind updates, button clicks, etc.)
@@ -84,10 +100,9 @@
         return _checkedChanged || base.ShouldRender();
     }
 
-    private void OnParentValidationStatusChanged(object? s, ValidationStatusChangedEventArgs e)
-        => InvokeAsync(StateHasChanged);
+    private void OnParentValidationStatusChanged(object? s, ValidationStatusChangedEventArgs e) => InvokeAsync(StateHasChanged);
 
-    protected Dictionary<string, object> BuildWrapperAttributes()
+    public virtual Dictionary<string, object> BuildWrapperAttributes()
     {
         var attributes = new Dictionary<string, object>();
 
@@ -103,18 +118,15 @@
         return attributes;
     }
 
-    protected Dictionary<string, object> BuildLabelAttributes()
+    public virtual Dictionary<string, object> BuildLabelAttributes()
     {
         var attributes = new Dictionary<string, object>();
-        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
-        {
-            AppendClass(ref cls, "form-check-label");
-        });
-        attributes["for"] = Id;
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => { AppendClass(ref cls, "form-check-label"); });
+        attributes["for"] = Id!;
         return attributes;
     }
 
-    protected Dictionary<string, object> BuildInputAttributes()
+    public virtual Dictionary<string, object> BuildInputAttributes()
     {
         var attributes = base.BuildAttributes();
 
@@ -181,4 +193,5 @@
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
     }
+
 }

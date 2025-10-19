@@ -1,0 +1,168 @@
+@page "/surfaces/listgroups"
+@using Microsoft.Extensions.Logging
+
+@inject ILogger<Index> Logger
+
+<Container Padding="Padding.Is4.OnY">
+    <Row>
+        <Column>
+            <Div Class="text-center" Margin="Margin.Is5.FromEnd">
+                <H1 Class="display-4 fw-bold text-primary">ListGroup Components</H1>
+                <Paragraph Class="lead text-muted">Professional, minimalistic, and visually stunning list groups built with Bootstrap 5</Paragraph>
+            </Div>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <!-- Basic Example -->
+        <Column ColumnSize="@ColumnSize.Is6.OnLaptop">
+            <Card Class="h-100 shadow-sm">
+                <CardHeader Class="bg-primary text-white">
+                    <H5 Class="card-title" Margin="Margin.Is0">Basic List Group</H5>
+                </CardHeader>
+                <CardBody>
+                    <Paragraph Class="card-text text-muted">A simple static list group with clean styling.</Paragraph>
+                    <ListGroup>
+                        <ListGroupItem>First item</ListGroupItem>
+                        <ListGroupItem>Second item</ListGroupItem>
+                        <ListGroupItem>Third item</ListGroupItem>
+                        <ListGroupItem Disabled="true">Disabled item</ListGroupItem>
+                    </ListGroup>
+                </CardBody>
+            </Card>
+        </Column>
+
+        <!-- Flush Example -->
+        <Column ColumnSize="@ColumnSize.Is6.OnLaptop">
+            <Card Class="h-100 shadow-sm">
+                <CardHeader Class="bg-success text-white">
+                    <H5 Class="card-title" Margin="Margin.Is0">Flush List Group</H5>
+                </CardHeader>
+                <CardBody>
+                    <Paragraph Class="card-text text-muted">Remove borders and rounded corners for edge-to-edge appearance.</Paragraph>
+                    <ListGroup Flush="true">
+                        <ListGroupItem>Flush item 1</ListGroupItem>
+                        <ListGroupItem>Flush item 2</ListGroupItem>
+                        <ListGroupItem>Flush item 3</ListGroupItem>
+                    </ListGroup>
+                </CardBody>
+            </Card>
+        </Column>
+
+        <!-- Selectable Example -->
+        <Column ColumnSize="@ColumnSize.Is6.OnLaptop">
+            <Card Class="h-100 shadow-sm">
+                <CardHeader Class="bg-info text-white">
+                    <H5 Class="card-title" Margin="Margin.Is0">Selectable List Group</H5>
+                </CardHeader>
+                <CardBody>
+                    <Paragraph Class="card-text text-muted">Click items to select them. Selected: <Strong>@selectedItem</Strong></Paragraph>
+                    <ListGroup Mode="ListGroupMode.Selectable" @bind-SelectedItem="selectedItem">
+                        <ListGroupItem ItemName="option1">Option 1</ListGroupItem>
+                        <ListGroupItem ItemName="option2">Option 2</ListGroupItem>
+                        <ListGroupItem ItemName="option3">Option 3</ListGroupItem>
+                        <ListGroupItem ItemName="option4" Disabled="true">Disabled Option</ListGroupItem>
+                    </ListGroup>
+                </CardBody>
+            </Card>
+        </Column>
+
+        <!-- Multiple Selection -->
+        <Column ColumnSize="@ColumnSize.Is6.OnLaptop">
+            <Card Class="h-100 shadow-sm">
+                <CardHeader Class="bg-warning text-dark">
+                    <H5 Class="card-title" Margin="Margin.Is0">Multiple Selection</H5>
+                </CardHeader>
+                <CardBody>
+                    <Paragraph Class="card-text text-muted">Select multiple items. Count: <Strong>@(selectedItems?.Count ?? 0)</Strong></Paragraph>
+                    <ListGroup Mode="ListGroupMode.Selectable" SelectionMode="ListGroupSelectionMode.Multiple" @bind-SelectedItems="selectedItems">
+                        <ListGroupItem ItemName="multi1">Multi Item 1</ListGroupItem>
+                        <ListGroupItem ItemName="multi2">Multi Item 2</ListGroupItem>
+                        <ListGroupItem ItemName="multi3">Multi Item 3</ListGroupItem>
+                        <ListGroupItem ItemName="multi4">Multi Item 4</ListGroupItem>
+                    </ListGroup>
+                </CardBody>
+            </Card>
+        </Column>
+
+        <!-- Color Variants -->
+        <Column ColumnSize="@ColumnSize.Is6.OnLaptop">
+            <Card Class="h-100 shadow-sm">
+                <CardHeader Class="bg-danger text-white">
+                    <H5 Class="card-title" Margin="Margin.Is0">Color Variants</H5>
+                </CardHeader>
+                <CardBody>
+                    <Paragraph Class="card-text text-muted">Different color themes for list items.</Paragraph>
+                    <ListGroup>
+                        <ListGroupItem class="list-group-item-primary">Primary Item</ListGroupItem>
+                        <ListGroupItem class="list-group-item-success">Success Item</ListGroupItem>
+                        <ListGroupItem class="list-group-item-danger">Danger Item</ListGroupItem>
+                        <ListGroupItem class="list-group-item-warning">Warning Item</ListGroupItem>
+                        <ListGroupItem class="list-group-item-info">Info Item</ListGroupItem>
+                    </ListGroup>
+                </CardBody>
+            </Card>
+        </Column>
+
+        <!-- Scrollable Example -->
+        <Column ColumnSize="@ColumnSize.Is6.OnLaptop">
+            <Card Class="h-100 shadow-sm">
+                <CardHeader Class="bg-dark text-white">
+                    <H5 Class="card-title" Margin="Margin.Is0">Scrollable List Group</H5>
+                </CardHeader>
+                <CardBody>
+                    <Paragraph Class="card-text text-muted">Long list with scrollable content.</Paragraph>
+                    <ListGroup Scrollable="true">
+                        @for (var i = 1; i <= 15; i++)
+                        {
+                            <ListGroupItem>Scrollable Item @i</ListGroupItem>
+                        }
+                    </ListGroup>
+                </CardBody>
+            </Card>
+        </Column>
+
+        <!-- Custom Content -->
+        <Column>
+            <Card Class="shadow-sm">
+                <CardHeader Class="bg-gradient text-white" Style="background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);">
+                    <H5 Class="card-title" Margin="Margin.Is0">Custom Content Example</H5>
+                </CardHeader>
+                <CardBody>
+                    <Paragraph Class="card-text text-muted">Rich content with headings, text, and badges.</Paragraph>
+                    <ListGroup>
+                        <ListGroupItem>
+                            <Div Class="d-flex w-100 justify-content-between">
+                                <H6 Margin="Margin.Is1.FromEnd">List group item heading</H6>
+                                <Small Class="text-muted">3 days ago</Small>
+                            </Div>
+                            <Paragraph Margin="Margin.Is1.FromEnd">Some placeholder content in a paragraph.</Paragraph>
+                            <Small>And some small print.</Small>
+                        </ListGroupItem>
+                        <ListGroupItem>
+                            <Div Class="d-flex w-100 justify-content-between">
+                                <H6 Margin="Margin.Is1.FromEnd">Another list group item</H6>
+                                <Small Class="text-muted">1 week ago</Small>
+                            </Div>
+                            <Paragraph Margin="Margin.Is1.FromEnd">More placeholder content with additional details.</Paragraph>
+                            <Small>Additional small print information.</Small>
+                        </ListGroupItem>
+                        <ListGroupItem>
+                            <Div Class="d-flex w-100 justify-content-between">
+                                <H6 Margin="Margin.Is1.FromEnd">Third list group item</H6>
+                                <Small Class="text-muted">2 weeks ago</Small>
+                            </Div>
+                            <Paragraph Margin="Margin.Is1.FromEnd">Final example with comprehensive content.</Paragraph>
+                            <Small>Final small print details.</Small>
+                        </ListGroupItem>
+                    </ListGroup>
+                </CardBody>
+            </Card>
+        </Column>
+    </Row>
+</Container>
+
+@code {
+    private string selectedItem = "option1";
+    private List<string>? selectedItems = [];
+}

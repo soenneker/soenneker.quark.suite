@@ -1,0 +1,251 @@
+@page "/forms/checks"
+@using Microsoft.Extensions.Logging
+
+@inject ILogger<Index> Logger
+
+<Container Padding="Padding.Is4.OnY">
+    <Row>
+        <Column>
+            <Div Class="text-center" Margin="Margin.Is5.FromEnd">
+                <H1 Class="display-4 fw-bold text-primary">Checks</H1>
+                <Paragraph Class="lead text-muted">This page demonstrates the Check component - a checkbox input wrapper.</Paragraph>
+            </Div>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column>
+            <Div>
+
+                <H2>🧪 BINDING TEST SECTION</H2>
+                <Alert BackgroundColor="BackgroundColor.Info" Margin="Margin.Is3.FromEnd">
+                    <Strong>Test Instructions:</Strong> Toggle checkboxes below or click "Load Test Data" to verify binding works.
+                </Alert>
+
+                <Div Margin="Margin.Is4.FromBottom" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Light" Class="rounded">
+                    <H3 Margin="Margin.Is3.FromBottom">Two-Way Binding Test</H3>
+
+                    <Div Margin="Margin.Is3.FromBottom">
+                        <Check @bind-Checked="_testCheck1">
+                            Test Checkbox 1
+                        </Check>
+                        <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" Class="rounded">
+                            <Strong>Bound Value:</Strong> <Code>@_testCheck1</Code>
+                        </Div>
+                    </Div>
+
+                    <Div Margin="Margin.Is3.FromBottom">
+                        <Check @bind-Checked="_testCheck2">
+                            Test Checkbox 2 (Pre-checked)
+                        </Check>
+                        <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" Class="rounded">
+                            <Strong>Bound Value:</Strong> <Code>@_testCheck2</Code>
+                        </Div>
+                    </Div>
+
+                    <Div Margin="Margin.Is3.FromTop">
+                        <Button BackgroundColor="BackgroundColor.Primary" OnClick="LoadCheckTestData" Margin="Margin.Is2.FromEnd">Load Test Data (Check All)</Button>
+                        <Button BackgroundColor="BackgroundColor.Secondary" OnClick="ClearCheckTestData" Margin="Margin.Is2.FromEnd">Clear Test Data (Uncheck All)</Button>
+                        <Button BackgroundColor="BackgroundColor.Warning" OnClick="ToggleCheckTestData">Toggle Values</Button>
+                    </Div>
+
+                    <Div Margin="Margin.Is3.FromTop" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Success" Class="bg-opacity-10 rounded">
+                        <H4>Test Results:</H4>
+                        <UnorderedList Margin="Margin.Is0.FromBottom">
+                            <UnorderedListItem>
+                                <Strong>Check 1:</Strong> @_testCheck1
+                            </UnorderedListItem>
+                            <UnorderedListItem>
+                                <Strong>Check 2:</Strong> @_testCheck2
+                            </UnorderedListItem>
+                        </UnorderedList>
+                    </Div>
+                </Div>
+
+                <Hr/>
+
+                <H2>Basic Checkbox</H2>
+                <Check @bind-Checked="isChecked1">
+                    Basic checkbox
+                </Check>
+                <Paragraph>Checked: @isChecked1</Paragraph>
+
+                <Br/>
+
+                <H2>Checkbox with ChildContent (New)</H2>
+                <Check @bind-Checked="isChecked2">
+                    This checkbox has content inside it
+                </Check>
+                <Check @bind-Checked="isChecked3">
+                    Another checkbox with <Strong>bold text</Strong> inside
+                </Check>
+                <Paragraph>isChecked2: @isChecked2, isChecked3: @isChecked3</Paragraph>
+
+                <Br/>
+
+                <H2>Different Sizes</H2>
+                <Check @bind-Checked="isChecked6" Size="@Size.ExtraSmall">
+                    Extra Small checkbox
+                </Check>
+                <Check @bind-Checked="isChecked7" Size="@Size.Small">
+                    Small checkbox
+                </Check>
+                <Check @bind-Checked="isChecked8" Size="@Size.Medium">
+                    Medium checkbox (default)
+                </Check>
+                <Check @bind-Checked="isChecked9" Size="@Size.Large">
+                    Large checkbox
+                </Check>
+                <Check @bind-Checked="isChecked10" Size="@Size.ExtraLarge">
+                    Extra Large checkbox
+                </Check>
+                <Check @bind-Checked="isChecked11" Size="@Size.ExtraExtraLarge">
+                    Extra Extra Large checkbox
+                </Check>
+
+                <Br/>
+
+                <H2>Disabled Checkbox</H2>
+                <Check @bind-Checked="isChecked12" Disabled="true">
+                    Disabled checkbox
+                </Check>
+
+                <Br/>
+
+                <H2>Indeterminate Checkbox</H2>
+                <Check @bind-Checked="isChecked13" Indeterminate="true">
+                    Indeterminate checkbox
+                </Check>
+
+                <Br/>
+
+                <H2>Inline Checkboxes</H2>
+                <Check @bind-Checked="isChecked15" Inline="true">
+                    First inline
+                </Check>
+                <Check @bind-Checked="isChecked16" Inline="true">
+                    Second inline
+                </Check>
+                <Check @bind-Checked="isChecked17" Inline="true">
+                    Third inline
+                </Check>
+
+                <Br/>
+
+                <H2>Event Handling</H2>
+                <Check @bind-Checked="isChecked14" OnChange="HandleChange">
+                    Checkbox with change event
+                </Check>
+                <Paragraph>Last change event: @lastChangeEvent</Paragraph>
+
+                <Br/>
+
+                <H2>Validation</H2>
+                <Paragraph>This example requires the checkbox to be checked.</Paragraph>
+
+                <Validations @ref="validations" Model="@demoModel">
+                    <Validation Action="ValidateTerms">
+                        <Check @bind-Checked="demoModel.TermsAccepted">
+                            I accept the terms and conditions
+                        </Check>
+                        <ValidationError Margin="Margin.Is2.FromTop"/>
+                    </Validation>
+
+                    <Div Margin="Margin.Is2.FromTop">
+                        <Button Class="btn btn-primary" OnClick="Submit">Submit</Button>
+                        <Span Class="ms-2">@submitResult</Span>
+                    </Div>
+                </Validations>
+            </Div>
+        </Column>
+    </Row>
+</Container>
+
+@code{
+
+    // Binding Test Fields
+    private bool _testCheck1;
+    private bool _testCheck2 = true;
+
+    private bool isChecked1;
+    private bool isChecked2;
+    private bool isChecked3;
+    private bool isChecked6; // Extra Small
+    private bool isChecked7; // Small
+    private bool isChecked8; // Medium
+    private bool isChecked9; // Large
+    private bool isChecked10; // Extra Large
+    private bool isChecked11; // Extra Extra Large
+    private bool isChecked12 = true; // Disabled
+    private bool isChecked13; // Indeterminate
+    private bool isChecked14; // Event handling
+    private bool isChecked15; // Inline
+    private bool isChecked16; // Inline
+    private bool isChecked17; // Inline
+    private string lastChangeEvent = "None";
+
+    private Validations? validations;
+
+    private class DemoModel
+    {
+        public bool TermsAccepted { get; set; }
+    }
+
+    private DemoModel demoModel = new();
+    private string submitResult = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        Logger.LogInformation("Checks demo page initialized");
+    }
+
+    private void LoadCheckTestData()
+    {
+        _testCheck1 = true;
+        _testCheck2 = true;
+        Logger.LogInformation("Check test data loaded - all checked");
+    }
+
+    private void ClearCheckTestData()
+    {
+        _testCheck1 = false;
+        _testCheck2 = false;
+        Logger.LogInformation("Check test data cleared - all unchecked");
+    }
+
+    private void ToggleCheckTestData()
+    {
+        _testCheck1 = !_testCheck1;
+        _testCheck2 = !_testCheck2;
+        Logger.LogInformation("Check test data toggled");
+    }
+
+    private void HandleChange(ChangeEventArgs args)
+    {
+        lastChangeEvent = $"Value: {args.Value}, Type: {args.Value?.GetType().Name}";
+    }
+
+    private void ValidateTerms(ValidatorEventArgs args)
+    {
+        var isChecked = args.Value is bool b ? b : demoModel.TermsAccepted;
+        if (!isChecked)
+        {
+            args.Status = ValidationStatus.Error;
+            args.ErrorText = "You must accept the terms.";
+        }
+        else
+        {
+            args.Status = ValidationStatus.Success;
+        }
+    }
+
+    private async Task Submit()
+    {
+        if (validations is null)
+            return;
+
+        var ok = await validations.Validate();
+        submitResult = ok ? "Submitted!" : "Please fix validation errors.";
+    }
+
+}

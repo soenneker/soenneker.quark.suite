@@ -1,0 +1,308 @@
+@page "/data/tables/request-data-options-demo"
+@using Soenneker.DataTables.Extensions.ServerSideRequest
+@using Soenneker.Dtos.RequestDataOptions
+@using Soenneker.Quark.Suite.Demo.Dtos
+@using Soenneker.Quark.Suite.Demo.Services
+@using Microsoft.Extensions.Logging
+@using Soenneker.DataTables.Dtos.ServerSideRequest
+
+@inject EmployeeService EmployeeService
+@inject ILogger<RequestDataOptionsDemo> Logger
+
+<PageTitle>RequestDataOptions Demo - QuarkTable</PageTitle>
+
+<Div class="demo-hero">
+    <Div class="container">
+        <Div class="row">
+            <Div class="col-12 text-center">
+                <Div class="hero-content">
+                    <Div class="demo-icon">🔧</Div>
+                    <H1 Class="demo-title">RequestDataOptions Demo</H1>
+                    <Paragraph Class="demo-subtitle">Using the ToRequestDataOptions extension method for seamless data transformation.</Paragraph>
+                </Div>
+            </Div>
+        </Div>
+    </Div>
+</Div>
+
+<Div class="container">
+    <Div class="demo-card">
+        <Div class="card-header">
+            <Div class="card-header-content">
+                <H3><Icon Name="cogs" Class="me-2"/>Extension Method Demo</H3>
+                <Paragraph Class="text-muted mb-0">This demo shows how to use the ToRequestDataOptions extension method with QuarkTable.</Paragraph>
+            </Div>
+        </Div>
+        <Div class="card-body">
+            <QuarkTable @ref="_table"
+                        Options="_tableOptions"
+                        TotalRecords="_totalRecords"
+                        OnInteraction="OnInteraction"
+                        OnInitialize="HandleInitialize" >
+
+                <QuarkTableSearch></QuarkTableSearch>
+
+                <QuarkTableElement>
+                    <QuarkThead>
+                        <QuarkTr>
+                            <QuarkTh Data="Name" Sortable="true" Searchable="true" >Name</QuarkTh>
+                            <QuarkTh Data="Department" Sortable="true" Searchable="false">Department</QuarkTh>
+                            <QuarkTh Data="Email" Sortable="true" Searchable="true" >Email</QuarkTh>
+                            <QuarkTh Data="Salary" Sortable="true" Searchable="true" >Salary</QuarkTh>
+                            <QuarkTh Data="HireDate" Sortable="true" Searchable="false">Hire Date</QuarkTh>
+                            <QuarkTh Data="Status" Sortable="false" Searchable="false" >Status</QuarkTh>
+                        </QuarkTr>
+                    </QuarkThead>
+
+                    <QuarkTbody>
+                        @if (_currentEmployees is {Count: > 0})
+                        {
+                            @foreach (var employee in _currentEmployees)
+                            {
+                                <QuarkTr Key="@employee.Id" >
+                                    <QuarkTd>@employee.Name</QuarkTd>
+                                    <QuarkTd>@employee.Department</QuarkTd>
+                                    <QuarkTd>@employee.Email</QuarkTd>
+                                    <QuarkTd>@employee.Salary.ToString("C")</QuarkTd>
+                                    <QuarkTd>@employee.HireDate.ToString("MMM dd, yyyy")</QuarkTd>
+                                    <QuarkTd>@employee.Status</QuarkTd>
+                                </QuarkTr>
+                            }
+                        }
+                        else
+                        {
+                            <QuarkTableNoData>
+                                <Div class="no-data-content">
+                                    <Div class="no-data-icon">🔧</Div>
+                                    <H4>No employees found</H4>
+                                    <Paragraph>Try adjusting your search criteria.</Paragraph>
+                                </Div>
+                            </QuarkTableNoData>
+                        }
+                    </QuarkTbody>
+                </QuarkTableElement>
+
+                <QuarkTableBottomBar>
+                    <QuarkTablePagination />
+                </QuarkTableBottomBar>
+            </QuarkTable>
+        </Div>
+    </Div>
+
+    @if (_lastRequestDataOptions != null)
+    {
+        <Div class="debug-card">
+            <Div class="card-header">
+                <Div class="card-header-content">
+                    <h3><i class="fas fa-code me-2"></i>Last RequestDataOptions</H3>
+                    <Paragraph Class="text-muted mb-0">JSON representation of the converted RequestDataOptions object</Paragraph>
+                </Div>
+            </Div>
+            <Div class="card-body">
+                <Div class="json-display">
+                    <pre class="json-content">@_lastRequestDataOptionsJson</pre>
+                </Div>
+            </Div>
+        </Div>
+    }
+</Div>
+
+<style>
+    .demo-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 4rem 0;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .demo-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .demo-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .demo-title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        background: linear-gradient(45deg, #fff, #f8f9fa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .demo-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .demo-card,
+    .debug-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        border: none;
+        margin-bottom: 3rem;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 1px solid #dee2e6;
+        padding: 2rem;
+    }
+
+    .card-header-content h3 {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .no-data-content {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: #6c757d;
+    }
+
+    .no-data-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .no-data-content h4 {
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+    /* JSON display styling */
+    .json-display {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid #e9ecef;
+    }
+
+    .json-content {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1.5rem;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        overflow-x: auto;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    @@media (max-width: 768px) {
+        .demo-title {
+            font-size: 2rem;
+        }
+        
+        .demo-subtitle {
+            font-size: 1rem;
+        }
+        
+        .card-header,
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .json-content {
+            font-size: 0.8rem;
+            padding: 1rem;
+        }
+    }
+</style>
+
+@code {
+    private QuarkTable? _table;
+    private List<Employee> _currentEmployees = [];
+    private RequestDataOptions? _lastRequestDataOptions;
+    private string _lastRequestDataOptionsJson = "";
+
+    private readonly QuarkTableOptions _tableOptions = new()
+    {
+        DefaultPageSize = 10
+    };
+
+    private int _totalRecords;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _totalRecords = EmployeeService.GetTotalCount();
+        Logger.LogInformation("RequestDataOptionsDemo: OnInitializedAsync - Initialized with {TotalRecords} total employee records", _totalRecords);
+    }
+
+    private async Task OnInteraction(DataTableServerSideRequest serverSideRequest)
+    {
+        Logger.LogInformation("RequestDataOptionsDemo: OnInteraction called: Request: Start={Start}, Length={Length}", serverSideRequest.Start, serverSideRequest.Length);
+
+        try
+        {
+            // Convert the DataTableServerSideRequest to RequestDataOptions using the extension method
+            var requestDataOptions = serverSideRequest.ToRequestDataOptions<Employee>();
+
+            // Store for display
+            _lastRequestDataOptions = requestDataOptions;
+            _lastRequestDataOptionsJson = System.Text.Json.JsonSerializer.Serialize(requestDataOptions, new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+
+            Logger.LogInformation("RequestDataOptionsDemo: Converted to RequestDataOptions: PageSize={PageSize}, Search='{Search}', SearchFields={SearchFieldsCount}, Filters={FiltersCount}, OrderBy={OrderByCount}", requestDataOptions.PageSize, requestDataOptions.Search, requestDataOptions.SearchFields?.Count ?? 0, requestDataOptions.Filters?.Count ?? 0, requestDataOptions.OrderBy?.Count ?? 0);
+
+            // Get filtered employees using the EmployeeService
+            var employees = await EmployeeService.GetFilteredEmployees(serverSideRequest);
+
+            Logger.LogInformation("RequestDataOptionsDemo: Returned {Count} employees", employees.Count);
+
+            // Update the current employees list
+            _currentEmployees = employees;
+
+            // Update the total records count
+            _totalRecords = EmployeeService.GetTotalCount();
+
+            // Trigger UI update
+            StateHasChanged();
+
+            Logger.LogInformation("RequestDataOptionsDemo: Updated currentEmployees with {Count} records, totalRecords={TotalRecords}", _currentEmployees.Count, _totalRecords);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "RequestDataOptionsDemo: Error handling manual request: {Message}", ex.Message);
+        }
+    }
+
+    private async Task HandleInitialize()
+    {
+        Logger.LogInformation("RequestDataOptionsDemo: Table initialized");
+    }
+
+}

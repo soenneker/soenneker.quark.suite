@@ -6,22 +6,22 @@
 @implements ISwitch
 @inject ISwitchInterop SwitchInterop
 
-<Div @attributes="BuildWrapperAttributes()" >
-    <input id="@_inputId" type="checkbox" checked="@Checked" @onclick="HandleClick" @onchange="HandleChange" @attributes="BuildInputAttributes()" />
+<div @attributes="BuildWrapperAttributes()">
+    <input id="@Id" type="checkbox" checked="@Checked" @onclick="HandleClick" @onchange="HandleChange" @attributes="BuildInputAttributes()"/>
     @if (ChildContent != null)
     {
-        <Label @attributes="BuildLabelAttributes()">@ChildContent</Label>
+        <label @attributes="BuildLabelAttributes()">@ChildContent</label>
     }
     else if (Label.HasContent())
     {
-        <Label @attributes="BuildLabelAttributes()">@Label</Label>
+        <label @attributes="BuildLabelAttributes()">@Label</label>
     }
-</Div>
+</div>
 
 @code {
-	public override string? ThemeKey { get; set; } = "Switch";
+    public override string? ThemeKey { get; set; } = "Switch";
 
-    private string _inputId = $"switch-{Guid.NewGuid():N}";
+    public override string? Id { get; set; } = $"switch-{Guid.NewGuid():N}";
 
     [Parameter]
     public string? Label { get; set; }
@@ -119,20 +119,20 @@
     protected Dictionary<string, object> BuildWrapperAttributes()
     {
         var attributes = new Dictionary<string, object>();
-        
+
         BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
         {
             AppendClass(ref cls, "form-check");
             AppendClass(ref cls, "form-switch");
         });
-        
+
         // Only apply non-color related attributes to the wrapper
         if (Id.HasContent())
             attributes["id"] = Id;
-            
+
         if (Style.HasContent())
             attributes["style"] = Style;
-            
+
         // Don't apply BackgroundColor to wrapper - it should only go to the input
         return attributes;
     }
@@ -141,7 +141,7 @@
     {
         var attributes = new Dictionary<string, object>();
         BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, "form-check-label"));
-        attributes["for"] = _inputId;
+        attributes["for"] = Id!;
         return attributes;
     }
 
@@ -152,15 +152,15 @@
         BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
         {
             AppendClass(ref cls, "form-check-input");
-            
+
             var colorClass = GetColorClass();
             if (colorClass != null)
                 AppendClass(ref cls, colorClass);
-                
+
             var sizeClass = GetSizeClass();
             if (sizeClass != null)
                 AppendClass(ref cls, sizeClass);
-                
+
             var validationClass = GetValidationClass();
             if (validationClass != null)
                 AppendClass(ref cls, validationClass);
@@ -214,6 +214,5 @@
         // This is called after onclick, primarily for OnChange event callback
         await OnChange.InvokeIfHasDelegate(e);
     }
-
 
 }
