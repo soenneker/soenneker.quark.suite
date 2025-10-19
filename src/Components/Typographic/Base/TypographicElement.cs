@@ -19,9 +19,6 @@ public abstract class TypographicElement : Element
     public CssValue<TextSizeBuilder>? TextSize { get; set; }
 
     [Parameter]
-    public CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
-
-    [Parameter]
     public CssValue<TextDecorationBuilder>? TextDecoration { get; set; }
 
     [Parameter]
@@ -66,7 +63,6 @@ public abstract class TypographicElement : Element
             // Apply typography-specific properties
             ApplyTextColor(ref sty, ref cls);
             AddCss(ref sty, ref cls, TextSize);
-            AddCss(ref sty, ref cls, TextAlignment);
             AddCss(ref sty, ref cls, TextDecoration);
             AddCss(ref sty, ref cls, TextTransform);
             AddCss(ref sty, ref cls, FontWeight);

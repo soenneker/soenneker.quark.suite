@@ -109,12 +109,16 @@
         BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
         {
             AppendClass(ref cls, "form-check");
-            if (Switch) AppendClass(ref cls, "form-switch");
-            if (Inline) AppendClass(ref cls, "form-check-inline");
+            if (Switch)
+                AppendClass(ref cls, "form-switch");
+            if (Inline)
+                AppendClass(ref cls, "form-check-inline");
         });
 
-        if (Id.HasContent()) attributes["id"] = $"{Id}-wrapper";
-        if (Style.HasContent()) attributes["style"] = Style;
+        if (Id.HasContent())
+            attributes["id"] = $"{Id}-wrapper";
+        if (Style.HasContent())
+            attributes["style"] = Style;
         return attributes;
     }
 
@@ -135,30 +139,37 @@
             AppendClass(ref cls, "form-check-input");
 
             var sizeClass = GetSizeClass();
-            if (sizeClass != null) AppendClass(ref cls, sizeClass);
+            if (sizeClass != null)
+                AppendClass(ref cls, sizeClass);
 
             var validationClass = GetValidationClass();
-            if (validationClass != null) AppendClass(ref cls, validationClass);
+            if (validationClass != null)
+                AppendClass(ref cls, validationClass);
         });
 
-        if (Disabled) attributes["disabled"] = true;
+        if (Disabled)
+            attributes["disabled"] = true;
         return attributes;
     }
 
     private string? GetValidationClass()
     {
-        if (ParentValidation?.Status == ValidationStatus.Error) return "is-invalid";
-        if (ParentValidation?.Status == ValidationStatus.Success) return "is-valid";
+        if (ParentValidation?.Status == ValidationStatus.Error)
+            return "is-invalid";
+        if (ParentValidation?.Status == ValidationStatus.Success)
+            return "is-valid";
         return null;
     }
 
     private string? GetSizeClass()
     {
-        if (Size == Quark.Size.Default) return null;
+        if (Size == Quark.Size.Default)
+            return null;
 
         string? token = null;
         var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
-        if (isTheme && token is not null) return $"quark-check-{token}";
+        if (isTheme && token is not null)
+            return $"quark-check-{token}";
 
         var sizeValue = Size?.ToString();
         return sizeValue.HasContent() ? $"quark-check-{sizeValue}" : null;
@@ -166,7 +177,8 @@
 
     protected override async Task HandleClick(MouseEventArgs args)
     {
-        if (Disabled) return;
+        if (Disabled)
+            return;
 
         Checked = !Checked;
         await CheckedChanged.InvokeAsync(Checked);

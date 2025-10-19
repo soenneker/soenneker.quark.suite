@@ -121,6 +121,9 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<BorderColorBuilder>? BorderColor { get; set; }
 
     [Parameter]
+    public CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
+
+    [Parameter]
     public CssValue<AnimationBuilder>? Animation { get; set; }
 
     [Parameter]
@@ -256,6 +259,7 @@ public abstract class Component : CoreComponent, IComponent
             AddCss(ref sty, ref cls, Display);
             ApplyBorderColor(ref sty, ref cls);
             ApplyBackgroundColor(ref sty, ref cls);
+            AddCss(ref sty, ref cls, TextAlignment);
             AddCss(ref sty, ref cls, Flex);
             AddCss(ref sty, ref cls, Gap);
             AddCss(ref sty, ref cls, VerticalAlign);
@@ -356,6 +360,7 @@ public abstract class Component : CoreComponent, IComponent
         AddIf(ref hc, Visibility);
         AddIf(ref hc, Float);
         AddIf(ref hc, VerticalAlign);
+        AddIf(ref hc, TextAlignment);
         AddIf(ref hc, Margin);
         AddIf(ref hc, Padding);
         AddIf(ref hc, Position);
@@ -703,6 +708,7 @@ public abstract class Component : CoreComponent, IComponent
         ApplyThemeProperty(componentOptions.Visibility, () => Visibility, v => Visibility = v);
         ApplyThemeProperty(componentOptions.BackgroundColor, () => BackgroundColor, v => BackgroundColor = v);
         ApplyThemeProperty(componentOptions.BorderColor, () => BorderColor, v => BorderColor = v);
+        ApplyThemeProperty(componentOptions.TextAlignment, () => TextAlignment, v => TextAlignment = v);
         ApplyThemeProperty(componentOptions.Float, () => Float, v => Float = v);
         ApplyThemeProperty(componentOptions.VerticalAlign, () => VerticalAlign, v => VerticalAlign = v);
         ApplyThemeProperty(componentOptions.Margin, () => Margin, v => Margin = v);

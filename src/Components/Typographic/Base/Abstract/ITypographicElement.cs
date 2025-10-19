@@ -17,11 +17,6 @@ public interface ITypographicElement : IElement
     CssValue<TextSizeBuilder>? TextSize { get; set; }
 
     /// <summary>
-    /// Gets or sets the text alignment.
-    /// </summary>
-    CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
-
-    /// <summary>
     /// Gets or sets the text decoration (underline, line-through, etc.).
     /// </summary>
     CssValue<TextDecorationBuilder>? TextDecoration { get; set; }

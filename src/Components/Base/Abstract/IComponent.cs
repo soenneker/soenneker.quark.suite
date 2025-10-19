@@ -154,6 +154,11 @@ public interface IComponent : ICoreComponent
     CssValue<BorderColorBuilder>? BorderColor { get; set; }
 
     /// <summary>
+    /// Gets or sets the text alignment configuration (e.g., start, center, end).
+    /// </summary>
+    CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
+
+    /// <summary>
     /// Invoked when the element is clicked.
     /// </summary>
     EventCallback<MouseEventArgs> OnClick { get; set; }
