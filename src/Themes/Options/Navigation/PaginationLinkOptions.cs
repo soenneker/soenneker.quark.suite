@@ -8,3 +8,4 @@ public sealed class PaginationLinkOptions : ComponentOptions
         ThemeKey = "PaginationLink";
     }
 }
+

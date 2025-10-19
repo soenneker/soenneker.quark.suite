@@ -1,5 +1,6 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.DecoratedTypographicElement
+@implements ICodeChip
 
 <code @attributes="BuildAttributes()">@ChildContent</code>
 
@@ -9,12 +10,14 @@
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
+
         BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => 
         {
             AppendClass(ref cls, "badge");
             AppendClass(ref cls, "bg-light");
             AppendClass(ref cls, "text-dark");
         });
+
         return attributes;
     }
 }

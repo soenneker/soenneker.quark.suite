@@ -9,4 +9,9 @@ public interface IHeading : IElement
     /// Gets or sets the scale/level of the heading (1-6), determining which HTML heading tag to render.
     /// </summary>
     CssValue<ScaleBuilder>? Scale { get; set; }
+
+    /// <summary>
+    /// Gets or sets the display size for Bootstrap display headings (display-1 through display-6).
+    /// </summary>
+    CssValue<DisplaySizeBuilder>? DisplaySize { get; set; }
 }

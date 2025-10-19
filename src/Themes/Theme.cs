@@ -1,6 +1,3 @@
-using Soenneker.Quark.Themes.Options.Navigation;
-using Soenneker.Quark.Themes.Options.Content;
-
 namespace Soenneker.Quark;
 
 public sealed class Theme
@@ -235,6 +232,156 @@ public sealed class Theme
     public BarDropdownDividerOptions? BarDropdownDividers { get; set; }
 
     public BarBrandOptions? BarBrands { get; set; }
+
+    // Typographic components
+    public H1Options? H1s { get; set; }
+
+    public H2Options? H2s { get; set; }
+
+    public H3Options? H3s { get; set; }
+
+    public H4Options? H4s { get; set; }
+
+    public H5Options? H5s { get; set; }
+
+    public H6Options? H6s { get; set; }
+
+    public BlockquoteOptions? Blockquotes { get; set; }
+
+    public LeadOptions? Leads { get; set; }
+
+    public MutedOptions? Muteds { get; set; }
+
+    public KbdOptions? Kbds { get; set; }
+
+    public FormTextOptions? FormTexts { get; set; }
+
+    public KbdChipOptions? KbdChips { get; set; }
+
+    public PillOptions? Pills { get; set; }
+
+    public CodeChipOptions? CodeChips { get; set; }
+
+    // Structure components
+    public FigureOptions? Figures { get; set; }
+
+    public FigcaptionOptions? Figcaptions { get; set; }
+
+    public MainOptions? Mains { get; set; }
+
+    public LegendOptions? Legends { get; set; }
+
+    public AsideOptions? Asides { get; set; }
+
+    public ArticleOptions? Articles { get; set; }
+
+    public FieldsetOptions? Fieldsets { get; set; }
+
+    // Media components
+    public AudioOptions? Audios { get; set; }
+
+    public VideoOptions? Videos { get; set; }
+
+    public IFrameOptions? IFrames { get; set; }
+
+    // Utilities
+    public HrOptions? Hrs { get; set; }
+
+    public BrOptions? Brs { get; set; }
+
+    public DetailsOptions? Details { get; set; }
+
+    public SummaryOptions? Summaries { get; set; }
+
+    // Card sub-components
+    public CardTextOptions? CardTexts { get; set; }
+
+    public CardTitleOptions? CardTitles { get; set; }
+
+    public CardImgOptions? CardImgs { get; set; }
+
+    public CardSubtitleOptions? CardSubtitles { get; set; }
+
+    public CardBodyOptions? CardBodys { get; set; }
+
+    public CardHeaderOptions? CardHeaders { get; set; }
+
+    public CardFooterOptions? CardFooters { get; set; }
+
+    // Alert sub-components
+    public AlertMessageOptions? AlertMessages { get; set; }
+
+    public AlertDescriptionOptions? AlertDescriptions { get; set; }
+
+    // Surface components
+    public ProgressBarOptions? ProgressBars { get; set; }
+
+    public CalloutOptions? Callouts { get; set; }
+
+    public PanelOptions? Panels { get; set; }
+
+    // Input components
+    public SelectItemOptions? SelectItems { get; set; }
+
+    public SelectGroupOptions? SelectGroups { get; set; }
+
+    public SelectOptions? Selects { get; set; }
+
+    public InputOptions? Inputs { get; set; }
+
+    public DateTimePickerOptions? DateTimePickers { get; set; }
+
+    // Layout components
+    public LayoutHeaderOptions? LayoutHeaders { get; set; }
+
+    public LayoutFooterOptions? LayoutFooters { get; set; }
+
+    public LayoutContentOptions? LayoutContents { get; set; }
+
+    public LayoutContainerOptions? LayoutContainers { get; set; }
+
+    public LayoutSiderOptions? LayoutSiders { get; set; }
+
+    public LayoutSiderContentOptions? LayoutSiderContents { get; set; }
+
+    public OverlayContainerOptions? OverlayContainers { get; set; }
+
+    // Navigation sub-components
+    public TabOptions? Tab { get; set; }
+
+    public StepOptions? Step { get; set; }
+
+    public StepMarkerOptions? StepMarkers { get; set; }
+
+    public StepCaptionOptions? StepCaptions { get; set; }
+
+    public StepsContentOptions? StepsContents { get; set; }
+
+    // Table sub-components
+    public QuarkThOptions? QuarkThs { get; set; }
+
+    public QuarkTableBottomBarOptions? QuarkTableBottomBars { get; set; }
+
+    public QuarkTableTopBarOptions? QuarkTableTopBars { get; set; }
+
+    public QuarkTableLeftOptions? QuarkTableLefts { get; set; }
+
+    public QuarkTableRightOptions? QuarkTableRights { get; set; }
+
+    public QuarkTableOptions? QuarkTables { get; set; }
+
+    // Collection components
+    public TreeViewOptions? TreeViews { get; set; }
+
+    public TreeViewNodeOptions? TreeViewNodes { get; set; }
+
+    public TreeViewNodeContentOptions? TreeViewNodeContents { get; set; }
+
+    // Forms sub-components
+    public ValidationsContainerOptions? ValidationsContainers { get; set; }
+
+    // Modal/Overlay main components
+    public SnackbarOptions? Snackbar { get; set; }
 
     public BootstrapCssVariables? BootstrapCssVariables { get; set; }
 }

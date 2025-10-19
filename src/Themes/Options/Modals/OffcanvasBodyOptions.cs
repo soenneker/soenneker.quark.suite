@@ -8,3 +8,4 @@ public sealed class OffcanvasBodyOptions : ComponentOptions
         ThemeKey = "OffcanvasBody";
     }
 }
+

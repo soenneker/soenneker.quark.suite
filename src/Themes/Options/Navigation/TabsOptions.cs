@@ -5,6 +5,7 @@ public sealed class TabsOptions : ComponentOptions
 {
     public TabsOptions()
     {
-        ThemeKey = "TabsContainer";
+        ThemeKey = "Tabs";
     }
 }
+

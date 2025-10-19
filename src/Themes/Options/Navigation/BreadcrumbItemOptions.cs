@@ -8,3 +8,4 @@ public sealed class BreadcrumbItemOptions : ComponentOptions
         ThemeKey = "BreadcrumbItem";
     }
 }
+

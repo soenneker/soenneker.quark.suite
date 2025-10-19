@@ -8,3 +8,4 @@ public sealed class ModalTitleOptions : ComponentOptions
         ThemeKey = "ModalTitle";
     }
 }
+

@@ -8,3 +8,4 @@ public sealed class ModalFooterOptions : ComponentOptions
         ThemeKey = "ModalFooter";
     }
 }
+

@@ -8,3 +8,4 @@ public sealed class PaginationItemOptions : ComponentOptions
         ThemeKey = "PaginationItem";
     }
 }
+

@@ -33,23 +33,32 @@ else
 }
 
 @code {
+
     [Parameter]
     public CssValue<ScaleBuilder>? Scale { get; set; }
 
+    [Parameter]
+    public CssValue<DisplaySizeBuilder>? DisplaySize { get; set; }
+
     public override string? ThemeKey { get; set; } = "Heading";
 
-    private int GetHeadingLevel(CssValue<ScaleBuilder>? scale)
+    private static int GetHeadingLevel(CssValue<ScaleBuilder>? scale)
     {
         const int fallback = 3;
         var s = scale?.ToString();
-        if (s.IsNullOrWhiteSpace()) return fallback;
+
+        if (s.IsNullOrWhiteSpace())
+            return fallback;
 
         if (s.Length >= 7 && s.AsSpan().StartsWith("scale-"))
         {
             var d = s[^1] - '0';
-            if ((uint)(d - 1) <= 5) return d; // 1..6
+
+            if ((uint)(d - 1) <= 5)
+                return d; // 1..6
         }
 
         return fallback;
     }
+
 }

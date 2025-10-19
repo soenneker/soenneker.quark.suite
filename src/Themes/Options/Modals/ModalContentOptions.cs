@@ -8,3 +8,4 @@ public sealed class ModalContentOptions : ComponentOptions
         ThemeKey = "ModalContent";
     }
 }
+

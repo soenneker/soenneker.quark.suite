@@ -7,10 +7,9 @@
 @code {
 	public override string? ThemeKey { get; set; } = "Label";
 
-    /// <summary>
-    /// Name of the input element to which the label is connected.
-    /// </summary>
     [Parameter] public string? For { get; set; }
+
+    [Parameter] public bool FormLabel { get; set; }
 
     protected override Dictionary<string, object> BuildAttributes()
     {
@@ -18,6 +17,14 @@
 
         if (For.HasContent())
             attributes["for"] = For;
+
+        if (FormLabel)
+        {
+            BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+            {
+                AppendClass(ref cls, "form-label");
+            });
+        }
 
         return attributes;
     }

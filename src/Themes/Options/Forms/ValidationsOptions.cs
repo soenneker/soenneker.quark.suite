@@ -8,3 +8,4 @@ public sealed class ValidationsOptions : ComponentOptions
         ThemeKey = "Validations";
     }
 }
+
