@@ -9,7 +9,7 @@
 @inject EmployeeService EmployeeService
 @inject ILogger<RequestDataOptionsDemo> Logger
 
-<PageTitle>RequestDataOptions Demo - QuarkTable</PageTitle>
+<PageTitle>RequestDataOptions Demo - Table</PageTitle>
 
 <Div class="demo-hero">
     <Div class="container">
@@ -30,62 +30,62 @@
         <Div class="card-header">
             <Div class="card-header-content">
                 <H3><Icon Name="cogs" Margin="Margin.Is2.FromEnd"/>Extension Method Demo</H3>
-                <Paragraph TextColor="TextColor.Muted" Margin="Margin.Is0.FromBottom">This demo shows how to use the ToRequestDataOptions extension method with QuarkTable.</Paragraph>
+                <Paragraph TextColor="TextColor.Muted" Margin="Margin.Is0.FromBottom">This demo shows how to use the ToRequestDataOptions extension method with Table.</Paragraph>
             </Div>
         </Div>
         <Div class="card-body">
-            <QuarkTable @ref="_table"
+            <Table @ref="_table"
                         Options="_tableOptions"
                         TotalRecords="_totalRecords"
                         OnInteraction="OnInteraction"
                         OnInitialize="HandleInitialize" >
 
-                <QuarkTableSearch></QuarkTableSearch>
+                <TableSearch></TableSearch>
 
-                <QuarkTableElement>
-                    <QuarkThead>
-                        <QuarkTr>
-                            <QuarkTh Data="Name" Sortable="true" Searchable="true" >Name</QuarkTh>
-                            <QuarkTh Data="Department" Sortable="true" Searchable="false">Department</QuarkTh>
-                            <QuarkTh Data="Email" Sortable="true" Searchable="true" >Email</QuarkTh>
-                            <QuarkTh Data="Salary" Sortable="true" Searchable="true" >Salary</QuarkTh>
-                            <QuarkTh Data="HireDate" Sortable="true" Searchable="false">Hire Date</QuarkTh>
-                            <QuarkTh Data="Status" Sortable="false" Searchable="false" >Status</QuarkTh>
-                        </QuarkTr>
-                    </QuarkThead>
+                <TableElement>
+                    <Thead>
+                        <Tr>
+                            <Th Data="Name" Sortable="true" Searchable="true" >Name</Th>
+                            <Th Data="Department" Sortable="true" Searchable="false">Department</Th>
+                            <Th Data="Email" Sortable="true" Searchable="true" >Email</Th>
+                            <Th Data="Salary" Sortable="true" Searchable="true" >Salary</Th>
+                            <Th Data="HireDate" Sortable="true" Searchable="false">Hire Date</Th>
+                            <Th Data="Status" Sortable="false" Searchable="false" >Status</Th>
+                        </Tr>
+                    </Thead>
 
-                    <QuarkTbody>
+                    <Tbody>
                         @if (_currentEmployees is {Count: > 0})
                         {
                             @foreach (var employee in _currentEmployees)
                             {
-                                <QuarkTr Key="@employee.Id" >
-                                    <QuarkTd>@employee.Name</QuarkTd>
-                                    <QuarkTd>@employee.Department</QuarkTd>
-                                    <QuarkTd>@employee.Email</QuarkTd>
-                                    <QuarkTd>@employee.Salary.ToString("C")</QuarkTd>
-                                    <QuarkTd>@employee.HireDate.ToString("MMM dd, yyyy")</QuarkTd>
-                                    <QuarkTd>@employee.Status</QuarkTd>
-                                </QuarkTr>
+                                <Tr Key="@employee.Id" >
+                                    <Td>@employee.Name</Td>
+                                    <Td>@employee.Department</Td>
+                                    <Td>@employee.Email</Td>
+                                    <Td>@employee.Salary.ToString("C")</Td>
+                                    <Td>@employee.HireDate.ToString("MMM dd, yyyy")</Td>
+                                    <Td>@employee.Status</Td>
+                                </Tr>
                             }
                         }
                         else
                         {
-                            <QuarkTableNoData>
+                            <TableNoData>
                                 <Div class="no-data-content">
                                     <Div class="no-data-icon">🔧</Div>
                                     <H4>No employees found</H4>
                                     <Paragraph>Try adjusting your search criteria.</Paragraph>
                                 </Div>
-                            </QuarkTableNoData>
+                            </TableNoData>
                         }
-                    </QuarkTbody>
-                </QuarkTableElement>
+                    </Tbody>
+                </TableElement>
 
-                <QuarkTableBottomBar>
-                    <QuarkTablePagination />
-                </QuarkTableBottomBar>
-            </QuarkTable>
+                <TableBottomBar>
+                    <TablePagination />
+                </TableBottomBar>
+            </Table>
         </Div>
     </Div>
 
@@ -242,12 +242,12 @@
 </style>
 
 @code {
-    private QuarkTable? _table;
+    private Table? _table;
     private List<Employee> _currentEmployees = [];
     private RequestDataOptions? _lastRequestDataOptions;
     private string _lastRequestDataOptionsJson = "";
 
-    private readonly QuarkTableOptions _tableOptions = new()
+    private readonly TableOptions _tableOptions = new()
     {
         DefaultPageSize = 10
     };

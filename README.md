@@ -49,12 +49,12 @@ await host.Services.LoadQuarkResources(); // Optional if you want to load resour
 **Data table with server-side paging**
 
 ```razor
-<QuarkTable TItem="Employee" Data="employees" PageSize="10"
+<Table TItem="Employee" Data="employees" PageSize="10"
             ServerSide="true" OnRequestData="LoadEmployees">
-    <QuarkTableColumns>
-        <QuarkTh Field="@nameof(Employee.Name)" Sortable />
-        <QuarkTh Field="@nameof(Employee.Email)" />
-        <QuarkTh Field="@nameof(Employee.Department)" Sortable />
-    </QuarkTableColumns>
-</QuarkTable>
+    <TableColumns>
+        <Th Field="@nameof(Employee.Name)" Sortable />
+        <Th Field="@nameof(Employee.Email)" />
+        <Th Field="@nameof(Employee.Department)" Sortable />
+    </TableColumns>
+</Table>
 ```

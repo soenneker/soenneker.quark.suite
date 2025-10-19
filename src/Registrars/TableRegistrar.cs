@@ -8,10 +8,10 @@ namespace Soenneker.Quark.Registrars;
 /// <summary>
 /// Service registrar for Quark.Table
 /// </summary>
-public static class QuarkTableRegistrar
+public static class TableRegistrar
 {
     /// <summary>
-    /// Adds QuarkTable services to the service collection
+    /// Adds Table services to the service collection
     /// </summary>
     /// <param name="services">The service collection</param>
     /// <returns>The service collection for chaining</returns>

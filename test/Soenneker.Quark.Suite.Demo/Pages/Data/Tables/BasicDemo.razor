@@ -7,14 +7,14 @@
 @inject ILogger<BasicDemo> Logger
 @inject EmployeeService EmployeeService
 
-<PageTitle>Basic Demo - QuarkTable</PageTitle>
+<PageTitle>Basic Demo - Table</PageTitle>
 
 <Container Padding="Padding.Is4.OnY">
     <Row>
         <Column>
             <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-                <H1 Class="display-4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Basic QuarkTable Demo</H1>
-                <Paragraph Class="lead" TextColor="TextColor.Muted">A simple demonstration of QuarkTable with basic features including search, sorting, and pagination.</Paragraph>
+                <H1 Class="display-4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Basic Table Demo</H1>
+                <Paragraph Class="lead" TextColor="TextColor.Muted">A simple demonstration of Table with basic features including search, sorting, and pagination.</Paragraph>
             </Div>
         </Column>
     </Row>
@@ -29,60 +29,60 @@
             </Div>
         </Div>
         <Div class="card-body">
-            <QuarkTable @ref="_basicTable"
+            <Table @ref="_basicTable"
                         OnInteraction="OnInteraction"
                         OnOrder="HandleOrder"
                         OnInitialize="HandleInitialize"
                         Options="_basicTableOptions"
                         TotalRecords="@_totalRecords">
 
-                <QuarkTableSearch Placeholder="Search employees..."></QuarkTableSearch>
+                <TableSearch Placeholder="Search employees..."></TableSearch>
 
-                <QuarkTableElement>
-                    <QuarkThead>
-                        <QuarkTr>
-                            <QuarkTh Data="Name" Sortable="true" Searchable="true">Name</QuarkTh>
-                            <QuarkTh Data="test.dept" Sortable="true" Searchable="true">Department</QuarkTh>
-                            <QuarkTh Data="Email" Sortable="true" Searchable="true">Email</QuarkTh>
-                            <QuarkTh Data="Salary" Sortable="true" Searchable="true">Salary</QuarkTh>
-                            <QuarkTh Data="HireDate" Sortable="true" Searchable="true">Hire Date</QuarkTh>
-                            <QuarkTh Data="Status" Sortable="true" Searchable="true">Status</QuarkTh>
-                        </QuarkTr>
-                    </QuarkThead>
+                <TableElement>
+                    <Thead>
+                        <Tr>
+                            <Th Data="Name" Sortable="true" Searchable="true">Name</Th>
+                            <Th Data="test.dept" Sortable="true" Searchable="true">Department</Th>
+                            <Th Data="Email" Sortable="true" Searchable="true">Email</Th>
+                            <Th Data="Salary" Sortable="true" Searchable="true">Salary</Th>
+                            <Th Data="HireDate" Sortable="true" Searchable="true">Hire Date</Th>
+                            <Th Data="Status" Sortable="true" Searchable="true">Status</Th>
+                        </Tr>
+                    </Thead>
 
-                    <QuarkTbody>
+                    <Tbody>
                         @if (_currentEmployees is {Count: > 0})
                         {
                             @foreach (var employee in _currentEmployees)
                             {
-                                <QuarkTr Key="@employee.Id">
-                                    <QuarkTd>@employee.Name</QuarkTd>
-                                    <QuarkTd>@employee.Department</QuarkTd>
-                                    <QuarkTd>@employee.Email</QuarkTd>
-                                    <QuarkTd>@employee.Salary.ToString("C")</QuarkTd>
-                                    <QuarkTd>@employee.HireDate.ToString("MMM dd, yyyy")</QuarkTd>
-                                    <QuarkTd>@employee.Status</QuarkTd>
-                                </QuarkTr>
+                                <Tr Key="@employee.Id">
+                                    <Td>@employee.Name</Td>
+                                    <Td>@employee.Department</Td>
+                                    <Td>@employee.Email</Td>
+                                    <Td>@employee.Salary.ToString("C")</Td>
+                                    <Td>@employee.HireDate.ToString("MMM dd, yyyy")</Td>
+                                    <Td>@employee.Status</Td>
+                                </Tr>
                             }
                         }
                         else if (_basicTable.HasLoadedOnce)
                         {
-                            <QuarkTableNoData>
+                            <TableNoData>
                                 <Div class="no-data-content">
                                     <Div class="no-data-icon">🔍</Div>
                                     <H4>No employees found</H4>
                                     <Paragraph>Try adjusting your search criteria or filters.</Paragraph>
                                 </Div>
-                            </QuarkTableNoData>
+                            </TableNoData>
                         }
-                    </QuarkTbody>
-                </QuarkTableElement>
+                    </Tbody>
+                </TableElement>
                 
-                <QuarkTableBottomBar>
-                    <QuarkTableInfo />
-                    <QuarkTablePagination />
-                </QuarkTableBottomBar>
-            </QuarkTable>
+                <TableBottomBar>
+                    <TableInfo />
+                    <TablePagination />
+                </TableBottomBar>
+            </Table>
         </Div>
     </Div>
         </Column>
@@ -141,10 +141,10 @@
 </style>
 
 @code {
-    private QuarkTable? _basicTable;
+    private Table? _basicTable;
     private List<Employee> _currentEmployees = [];
 
-    private readonly QuarkTableOptions _basicTableOptions = new()
+    private readonly TableOptions _basicTableOptions = new()
     {
         DefaultPageSize = 10
     };
@@ -205,7 +205,7 @@
         }
     }
 
-    private async Task HandleOrder(QuarkTableOrderEventArgs args)
+    private async Task HandleOrder(TableOrderEventArgs args)
     {
         Logger.LogInformation("Column '{Column}' sorted {Direction}", args.Column, args.Direction);
     }

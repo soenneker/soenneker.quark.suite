@@ -1,0 +1,195 @@
+@namespace Soenneker.Quark
+@inherits Element
+
+@if (ShowPagination)
+{
+	<div @attributes="BuildAttributes()">
+		<div @attributes="BuildControlsAttributes()" >
+			<Button Class="quark-table-pagination-btn" OnClick="HandleFirstPage" disabled="@(CurrentPage == 1)" title="First" >«</Button>
+			<Button Class="quark-table-pagination-btn" OnClick="HandlePreviousPage" disabled="@(CurrentPage == 1)" title="Previous" >‹</Button>
+
+			@if (ComputedTotalPages <= 1)
+			{
+				<Button Class="quark-table-pagination-btn active" >
+					1
+				</Button>
+			}
+			else
+			{
+				@for (var p = StartPage; p <= EndPage; p++)
+				{
+					var pageNumber = p;
+					<Button Class="@($"quark-table-pagination-btn {(pageNumber == CurrentPage ? "active" : string.Empty)}")"
+					        OnClick="@(() => HandleGoToPage(pageNumber))" >
+						@pageNumber
+					</Button>
+				}
+			}
+
+			<Button Class="quark-table-pagination-btn" OnClick="HandleNextPage" disabled="@(CurrentPage == TotalPages)" title="Next" >›</Button>
+			<Button Class="quark-table-pagination-btn" OnClick="HandleLastPage" disabled="@(CurrentPage == TotalPages)" title="Last" >»</Button>
+		</div>
+	</div>
+}
+
+@code {
+	public override string? ThemeKey { get; set; } = "TablePagination";
+
+	[CascadingParameter]
+	private ITable? Table { get; set; }
+
+	[Parameter]
+	public bool ShowPagination { get; set; } = true;
+
+	[Parameter]
+	public int CurrentPage { get; set; } = 1;
+
+	[Parameter]
+	public int TotalPages { get; set; } = 1;
+
+	[Parameter]
+	public int TotalRecords { get; set; }
+
+	[Parameter]
+	public int PageSize { get; set; } = 10;
+
+	[Parameter]
+	public int MaxPageButtons { get; set; } = 5;
+
+	[Parameter]
+	public EventCallback<int> OnGoToPage { get; set; }
+
+	[Parameter]
+	public EventCallback OnFirstPage { get; set; }
+
+	[Parameter]
+	public EventCallback OnPreviousPage { get; set; }
+
+	[Parameter]
+	public EventCallback OnNextPage { get; set; }
+
+	[Parameter]
+	public EventCallback OnLastPage { get; set; }
+
+	// Computed properties that use Table values when available
+	private int ComputedCurrentPage => Table?.CurrentPage ?? CurrentPage;
+	private int ComputedTotalPages => Table?.TotalPages ?? TotalPages;
+	private int ComputedTotalRecords => Table?.TotalRecordsCount ?? TotalRecords;
+	private int ComputedPageSize => Table?.PageSize ?? PageSize;
+	private int ComputedMaxPageButtons => MaxPageButtons;
+
+	public int StartPage
+	{
+		get
+		{
+			if (ComputedTotalPages <= 0) return 1;
+			if (ComputedCurrentPage <= 0) return 1;
+
+			var halfButtons = ComputedMaxPageButtons / 2;
+			var start = ComputedCurrentPage - halfButtons;
+			start = Math.Max(1, start);
+
+			if (start + ComputedMaxPageButtons - 1 > ComputedTotalPages)
+			{
+				start = Math.Max(1, ComputedTotalPages - ComputedMaxPageButtons + 1);
+			}
+
+			if (start > ComputedTotalPages) start = ComputedTotalPages;
+
+			return start;
+		}
+	}
+
+	public int EndPage => Math.Min(ComputedTotalPages, StartPage + ComputedMaxPageButtons - 1);
+
+	private async Task HandleFirstPage()
+	{
+		if (Table != null)
+		{
+			await Table.HandleGoToPage(1);
+		}
+		else if (OnFirstPage.HasDelegate)
+		{
+			await OnFirstPage.InvokeAsync();
+		}
+		else if (OnGoToPage.HasDelegate)
+		{
+			await OnGoToPage.InvokeAsync(1);
+		}
+	}
+
+	private async Task HandlePreviousPage()
+	{
+		if (Table != null && ComputedCurrentPage > 1)
+		{
+			await Table.HandleGoToPage(ComputedCurrentPage - 1);
+		}
+		else if (OnPreviousPage.HasDelegate)
+		{
+			await OnPreviousPage.InvokeAsync();
+		}
+		else if (OnGoToPage.HasDelegate && ComputedCurrentPage > 1)
+		{
+			await OnGoToPage.InvokeAsync(ComputedCurrentPage - 1);
+		}
+	}
+
+	private async Task HandleNextPage()
+	{
+		if (Table != null && ComputedCurrentPage < ComputedTotalPages)
+		{
+			await Table.HandleGoToPage(ComputedCurrentPage + 1);
+		}
+		else if (OnNextPage.HasDelegate)
+		{
+			await OnNextPage.InvokeAsync();
+		}
+		else if (OnGoToPage.HasDelegate && ComputedCurrentPage < ComputedTotalPages)
+		{
+			await OnGoToPage.InvokeAsync(ComputedCurrentPage + 1);
+		}
+	}
+
+	private async Task HandleLastPage()
+	{
+		if (Table != null)
+		{
+			await Table.HandleGoToPage(ComputedTotalPages);
+		}
+		else if (OnLastPage.HasDelegate)
+		{
+			await OnLastPage.InvokeAsync();
+		}
+		else if (OnGoToPage.HasDelegate)
+		{
+			await OnGoToPage.InvokeAsync(ComputedTotalPages);
+		}
+	}
+
+	private async Task HandleGoToPage(int page)
+	{
+		if (Table != null)
+		{
+			await Table.HandleGoToPage(page);
+		}
+		else if (OnGoToPage.HasDelegate)
+		{
+			await OnGoToPage.InvokeAsync(page);
+		}
+	}
+
+	protected override Dictionary<string, object> BuildAttributes()
+	{
+		var attributes = base.BuildAttributes();
+		BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, "quark-table-pagination"));
+		return attributes;
+	}
+
+	private Dictionary<string, object> BuildControlsAttributes()
+	{
+		var attributes = new Dictionary<string, object>();
+		BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, "quark-table-pagination-controls"));
+		return attributes;
+	}
+
+}

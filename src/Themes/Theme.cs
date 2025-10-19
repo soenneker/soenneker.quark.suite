@@ -96,8 +96,6 @@ public sealed class Theme
 
     public SwitchOptions? Switches { get; set; }
 
-    public TableOptions? Tables { get; set; }
-
     public TextEditOptions? TextEdits { get; set; }
 
     public TextOptions? Texts { get; set; }
@@ -127,27 +125,27 @@ public sealed class Theme
     public ValidationErrorOptions? ValidationError { get; set; }
 
     // Table components
-    public QuarkTrOptions? QuarkTrs { get; set; }
+    public TrOptions? Trs { get; set; }
 
-    public QuarkTheadOptions? QuarkTheads { get; set; }
+    public TheadOptions? Theads { get; set; }
 
-    public QuarkTdOptions? QuarkTds { get; set; }
+    public TdOptions? Tds { get; set; }
 
-    public QuarkTbodyOptions? QuarkTbodys { get; set; }
+    public TbodyOptions? Tbodys { get; set; }
 
-    public QuarkTableSearchOptions? QuarkTableSearches { get; set; }
+    public TableSearchOptions? TableSearches { get; set; }
 
-    public QuarkTablePaginationOptions? QuarkTablePaginations { get; set; }
+    public TablePaginationOptions? TablePaginations { get; set; }
 
-    public QuarkTablePageSizeSelectorOptions? QuarkTablePageSizeSelectors { get; set; }
+    public TablePageSizeSelectorOptions? TablePageSizeSelectors { get; set; }
 
-    public QuarkTableNoDataOptions? QuarkTableNoDatas { get; set; }
+    public TableNoDataOptions? TableNoDatas { get; set; }
 
-    public QuarkTableLoaderOptions? QuarkTableLoaders { get; set; }
+    public TableLoaderOptions? TableLoaders { get; set; }
 
-    public QuarkTableInfoOptions? QuarkTableInfos { get; set; }
+    public TableInfoOptions? TableInfos { get; set; }
 
-    public QuarkTableElementOptions? QuarkTableElements { get; set; }
+    public TableElementOptions? TableElements { get; set; }
 
     // Snackbar components
     public SnackbarHeaderOptions? SnackbarHeaders { get; set; }
@@ -358,17 +356,17 @@ public sealed class Theme
     public StepsContentOptions? StepsContents { get; set; }
 
     // Table sub-components
-    public QuarkThOptions? QuarkThs { get; set; }
+    public ThOptions? Ths { get; set; }
 
-    public QuarkTableBottomBarOptions? QuarkTableBottomBars { get; set; }
+    public TableBottomBarOptions? TableBottomBars { get; set; }
 
-    public QuarkTableTopBarOptions? QuarkTableTopBars { get; set; }
+    public TableTopBarOptions? TableTopBars { get; set; }
 
-    public QuarkTableLeftOptions? QuarkTableLefts { get; set; }
+    public TableLeftOptions? TableLefts { get; set; }
 
-    public QuarkTableRightOptions? QuarkTableRights { get; set; }
+    public TableRightOptions? TableRights { get; set; }
 
-    public QuarkTableOptions? QuarkTables { get; set; }
+    public TableThemeOptions? Tables { get; set; }
 
     // Collection components
     public TreeViewOptions? TreeViews { get; set; }

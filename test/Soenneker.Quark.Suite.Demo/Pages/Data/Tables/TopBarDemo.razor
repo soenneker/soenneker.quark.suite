@@ -7,7 +7,7 @@
 
 @inject EmployeeService EmployeeService
 
-<PageTitle>TopBar Demo - QuarkTable</PageTitle>
+<PageTitle>TopBar Demo - Table</PageTitle>
 
 <Div class="demo-hero">
     <Div class="container">
@@ -15,7 +15,7 @@
             <Div class="col-12 text-center">
                 <Div class="hero-content">
                     <Div class="demo-icon">🎛️</Div>
-                    <H1 Class="demo-title">TopBar QuarkTable Demo</H1>
+                    <H1 Class="demo-title">TopBar Table Demo</H1>
                     <Paragraph Class="demo-subtitle">Custom topbar with search and controls layout for enhanced user experience.</Paragraph>
                 </Div>
             </Div>
@@ -32,18 +32,18 @@
             </Div>
         </Div>
         <Div class="card-body">
-            <QuarkTable @ref="_topbarTable"
+            <Table @ref="_topbarTable"
                         OnInteraction="OnInteraction"
                         OnOrder="HandleOrder"
                         OnInitialize="HandleInitialize"
                         Options="_topbarTableOptions"
                         TotalRecords="@_totalRecords" >
 
-                <QuarkTableTopBar>
-                    <QuarkTableLeft>
-                        <QuarkTableSearch Placeholder="Search employees..." />
-                    </QuarkTableLeft>
-                    <QuarkTableRight>
+                <TableTopBar>
+                    <TableLeft>
+                        <TableSearch Placeholder="Search employees..." />
+                    </TableLeft>
+                    <TableRight>
                         <select class="custom-select" @onchange="HandleDepartmentFilter" >
                             <option value="" >All Departments</option>
                             <option value="Engineering" >Engineering</option>
@@ -57,44 +57,44 @@
                         <Button Class="custom-btn refresh-btn" OnClick="HandleRefresh">
                             <Icon Name="sync-alt" Margin="Margin.Is1.FromEnd"/>Refresh
                         </Button>
-                    </QuarkTableRight>
-                </QuarkTableTopBar>
+                    </TableRight>
+                </TableTopBar>
 
-                <QuarkTableElement>
-                    <QuarkThead>
-                        <QuarkTr>
-                            <QuarkTh Data="Name" Sortable="true" Searchable="true" >Name</QuarkTh>
-                            <QuarkTh Data="test.dept" Sortable="true" Searchable="true" >Department</QuarkTh>
-                            <QuarkTh Data="Email" Sortable="true" Searchable="true" >Email</QuarkTh>
-                            <QuarkTh Data="Salary" Sortable="true" Searchable="true" >Salary</QuarkTh>
-                            <QuarkTh Data="HireDate" Sortable="true" Searchable="true" >Hire Date</QuarkTh>
-                        </QuarkTr>
-                    </QuarkThead>
+                <TableElement>
+                    <Thead>
+                        <Tr>
+                            <Th Data="Name" Sortable="true" Searchable="true" >Name</Th>
+                            <Th Data="test.dept" Sortable="true" Searchable="true" >Department</Th>
+                            <Th Data="Email" Sortable="true" Searchable="true" >Email</Th>
+                            <Th Data="Salary" Sortable="true" Searchable="true" >Salary</Th>
+                            <Th Data="HireDate" Sortable="true" Searchable="true" >Hire Date</Th>
+                        </Tr>
+                    </Thead>
 
-                    <QuarkTbody>
+                    <Tbody>
                         @if (_employees != null)
                         {
                             @foreach (var employee in _employees)
                             {
-                                <QuarkTr>
-                                    <QuarkTd>@employee.Name</QuarkTd>
-                                    <QuarkTd>@employee.Department</QuarkTd>
-                                    <QuarkTd>@employee.Email</QuarkTd>
-                                    <QuarkTd>@employee.Salary.ToString("C")</QuarkTd>
-                                    <QuarkTd>@employee.HireDate.ToString("MM/dd/yyyy")</QuarkTd>
-                                </QuarkTr>
+                                <Tr>
+                                    <Td>@employee.Name</Td>
+                                    <Td>@employee.Department</Td>
+                                    <Td>@employee.Email</Td>
+                                    <Td>@employee.Salary.ToString("C")</Td>
+                                    <Td>@employee.HireDate.ToString("MM/dd/yyyy")</Td>
+                                </Tr>
                             }
                         }
-                    </QuarkTbody>
-                </QuarkTableElement>
-                <QuarkTableBottomBar LayoutClass="only-right">
-                    <QuarkTableRight>
-                        <QuarkTableInfo />
-                        <QuarkTablePagination />
-                    </QuarkTableRight>
-                </QuarkTableBottomBar>
+                    </Tbody>
+                </TableElement>
+                <TableBottomBar LayoutClass="only-right">
+                    <TableRight>
+                        <TableInfo />
+                        <TablePagination />
+                    </TableRight>
+                </TableBottomBar>
 
-            </QuarkTable>
+            </Table>
         </Div>
     </Div>
 </Div>
@@ -247,8 +247,8 @@
 </style>
 
 @code {
-    private QuarkTable _topbarTable = null!;
-    private readonly QuarkTableOptions _topbarTableOptions = new();
+    private Table _topbarTable = null!;
+    private readonly TableOptions _topbarTableOptions = new();
     private List<Employee>? _employees;
     private int _totalRecords;
     private string _selectedDepartment = string.Empty;

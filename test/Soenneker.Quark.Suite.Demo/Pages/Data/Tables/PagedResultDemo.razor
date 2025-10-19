@@ -9,7 +9,7 @@
 @inject ILogger<PagedResultDemo> Logger
 @inject EmployeeService EmployeeService
 
-<PageTitle>PagedResult Demo - QuarkTable</PageTitle>
+<PageTitle>PagedResult Demo - Table</PageTitle>
 
 <Div class="demo-hero">
     <Div class="container">
@@ -30,56 +30,56 @@
         <Div class="card-header">
             <Div class="card-header-content">
                 <H3><Icon Name="layer-group" Margin="Margin.Is2.FromEnd"/>Advanced Employee Directory</H3>
-                <Paragraph TextColor="TextColor.Muted" Margin="Margin.Is0.FromBottom">This demo shows how QuarkTable works with PagedResult and handles continuation tokens internally.</Paragraph>
+                <Paragraph TextColor="TextColor.Muted" Margin="Margin.Is0.FromBottom">This demo shows how Table works with PagedResult and handles continuation tokens internally.</Paragraph>
             </Div>
         </Div>
         <Div class="card-body">
-            <QuarkTable @ref="_quarkTable"
+            <Table @ref="_quarkTable"
                         OnInteraction="OnInteraction"
                         OnOrder="HandleOrder"
                         OnInitialize="HandleInitialize"
                         Options="_tableOptions"
                         TotalRecords="@_totalRecords">
 
-                <QuarkTableSearch Placeholder="Search employees..."/>
+                <TableSearch Placeholder="Search employees..."/>
 
-                <QuarkTableElement>
-                    <QuarkThead>
-                        <QuarkTr>
-                            <QuarkTh Sortable="true" Searchable="true">Name</QuarkTh>
-                            <QuarkTh Sortable="true" Searchable="true">Department</QuarkTh>
-                            <QuarkTh Sortable="true" Searchable="true">Email</QuarkTh>
-                            <QuarkTh Sortable="true" Searchable="true">Salary</QuarkTh>
-                            <QuarkTh Sortable="true" Searchable="true">Hire Date</QuarkTh>
-                            <QuarkTh Sortable="true" Searchable="true">Status</QuarkTh>
-                            <QuarkTh Sortable="true" Searchable="true">ID</QuarkTh>
-                        </QuarkTr>
-                    </QuarkThead>
-                    <QuarkTbody>
+                <TableElement>
+                    <Thead>
+                        <Tr>
+                            <Th Sortable="true" Searchable="true">Name</Th>
+                            <Th Sortable="true" Searchable="true">Department</Th>
+                            <Th Sortable="true" Searchable="true">Email</Th>
+                            <Th Sortable="true" Searchable="true">Salary</Th>
+                            <Th Sortable="true" Searchable="true">Hire Date</Th>
+                            <Th Sortable="true" Searchable="true">Status</Th>
+                            <Th Sortable="true" Searchable="true">ID</Th>
+                        </Tr>
+                    </Thead>
+                    <Tbody>
                         @if (_currentEmployees != null)
                         {
                             @foreach (var employee in _currentEmployees)
                             {
-                                <QuarkTr Key="@employee.Id">
-                                    <QuarkTd>@employee.Name</QuarkTd>
-                                    <QuarkTd>@employee.Department</QuarkTd>
-                                    <QuarkTd>@employee.Email</QuarkTd>
-                                    <QuarkTd>@employee.Salary.ToString("C")</QuarkTd>
-                                    <QuarkTd>@employee.HireDate.ToString("MMM dd, yyyy")</QuarkTd>
-                                    <QuarkTd>@employee.Status</QuarkTd>
-                                    <QuarkTd>@employee.Id</QuarkTd>
-                                </QuarkTr>
+                                <Tr Key="@employee.Id">
+                                    <Td>@employee.Name</Td>
+                                    <Td>@employee.Department</Td>
+                                    <Td>@employee.Email</Td>
+                                    <Td>@employee.Salary.ToString("C")</Td>
+                                    <Td>@employee.HireDate.ToString("MMM dd, yyyy")</Td>
+                                    <Td>@employee.Status</Td>
+                                    <Td>@employee.Id</Td>
+                                </Tr>
                             }
                         }
-                    </QuarkTbody>
-                </QuarkTableElement>
+                    </Tbody>
+                </TableElement>
 
-                <QuarkTableBottomBar>
-                    <QuarkTableInfo/>
-                    <QuarkTablePagination/>
-                </QuarkTableBottomBar>
+                <TableBottomBar>
+                    <TableInfo/>
+                    <TablePagination/>
+                </TableBottomBar>
 
-            </QuarkTable>
+            </Table>
         </Div>
     </Div>
 
@@ -296,10 +296,10 @@
 </style>
 
 @code {
-    private QuarkTable? _quarkTable;
+    private Table? _quarkTable;
     private List<Employee> _currentEmployees = [];
 
-    private readonly QuarkTableOptions _tableOptions = new()
+    private readonly TableOptions _tableOptions = new()
     {
         DefaultPageSize = 5 // Smaller page size to demonstrate paging
     };
@@ -322,7 +322,7 @@
 
             _currentEmployees = pagedResult.Items;
 
-            // Update the QuarkTable's continuation token paging
+            // Update the Table's continuation token paging
             _quarkTable?.UpdateContinuationTokenPaging(pagedResult.Items.Count, pagedResult.ContinuationToken, serverSideRequest.ContinuationToken);
 
             // Update debug information
@@ -331,7 +331,7 @@
             _lastRequestLength = serverSideRequest.Length;
             _lastPagedResult = pagedResult;
 
-            // StateHasChanged is not needed here as the QuarkTable will handle the UI update
+            // StateHasChanged is not needed here as the Table will handle the UI update
 
             Logger.LogInformation("PagedResultDemo: Updated currentEmployees with {Count} records, totalRecords={TotalRecords}", _currentEmployees.Count, _totalRecords);
         }
@@ -341,7 +341,7 @@
         }
     }
 
-    private async Task HandleOrder(QuarkTableOrderEventArgs args)
+    private async Task HandleOrder(TableOrderEventArgs args)
     {
         Logger.LogInformation("PagedResultDemo: Column '{Column}' sorted {Direction}", args.Column, args.Direction);
     }
