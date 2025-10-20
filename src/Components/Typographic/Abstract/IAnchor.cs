@@ -5,7 +5,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Interface for the Anchor component
 /// </summary>
-public interface IAnchor : IElement
+public interface IAnchor : ITypographicElement
 {
     /// <summary>
     /// The URL that the hyperlink points to
@@ -17,3 +17,4 @@ public interface IAnchor : IElement
     /// </summary>
     Target? Target { get; set; }
 }
+
