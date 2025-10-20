@@ -19,12 +19,6 @@ public abstract class SurfaceElement : Element, ISurfaceElement
     public string Tag { get; set; } = "div";
 
     /// <summary>
-    /// Gets or sets the border style and width.
-    /// </summary>
-    [Parameter]
-    public CssValue<BorderBuilder>? Border { get; set; }
-
-    /// <summary>
     /// Gets or sets the box shadow for depth and elevation effects.
     /// </summary>
     [Parameter]
@@ -49,7 +43,6 @@ public abstract class SurfaceElement : Element, ISurfaceElement
         BuildClassAndStyleAttributes(attributes, (ref PooledStringBuilder cls, ref PooledStringBuilder sty) =>
         {
             // Apply surface-specific properties
-            AddCss(ref sty, ref cls, Border);
             AddCss(ref sty, ref cls, BoxShadow);
             AddCss(ref sty, ref cls, BackgroundOpacity);
             AddCss(ref sty, ref cls, BorderOpacity);

@@ -11,11 +11,6 @@ public interface ISurfaceElement : IElement
     string Tag { get; set; }
 
     /// <summary>
-    /// Gets or sets the border style and width.
-    /// </summary>
-    CssValue<BorderBuilder>? Border { get; set; }
-
-    /// <summary>
     /// Gets or sets the border radius for rounded corners.
     /// </summary>
     CssValue<BorderRadiusBuilder>? BorderRadius { get; set; }

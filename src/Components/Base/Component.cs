@@ -123,6 +123,9 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
 
     [Parameter]
+    public CssValue<BorderBuilder>? Border { get; set; }
+
+    [Parameter]
     public CssValue<BorderColorBuilder>? BorderColor { get; set; }
 
     [Parameter]
@@ -265,6 +268,7 @@ public abstract class Component : CoreComponent, IComponent
             if (Hidden) attrs["hidden"] = true;
 
             AddCss(ref sty, ref cls, Display);
+            AddCss(ref sty, ref cls, Border);
             ApplyBorderColor(ref sty, ref cls);
             ApplyBackgroundColor(ref sty, ref cls);
             AddCss(ref sty, ref cls, BorderRadius);
@@ -374,6 +378,7 @@ public abstract class Component : CoreComponent, IComponent
         AddIf(ref hc, Padding);
         AddIf(ref hc, Position);
         AddIf(ref hc, BackgroundColor);
+        AddIf(ref hc, Border);
         AddIf(ref hc, BorderColor);
         AddIf(ref hc, BorderRadius);
         AddIf(ref hc, Offset);
@@ -717,6 +722,7 @@ public abstract class Component : CoreComponent, IComponent
         ApplyThemeProperty(componentOptions.Display, () => Display, v => Display = v);
         ApplyThemeProperty(componentOptions.Visibility, () => Visibility, v => Visibility = v);
         ApplyThemeProperty(componentOptions.BackgroundColor, () => BackgroundColor, v => BackgroundColor = v);
+        ApplyThemeProperty(componentOptions.Border, () => Border, v => Border = v);
         ApplyThemeProperty(componentOptions.BorderColor, () => BorderColor, v => BorderColor = v);
         ApplyThemeProperty(componentOptions.BorderRadius, () => BorderRadius, v => BorderRadius = v);
         ApplyThemeProperty(componentOptions.TextAlignment, () => TextAlignment, v => TextAlignment = v);

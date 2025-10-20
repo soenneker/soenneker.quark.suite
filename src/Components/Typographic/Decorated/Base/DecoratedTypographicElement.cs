@@ -8,9 +8,6 @@ namespace Soenneker.Quark;
 public abstract class DecoratedTypographicElement : TypographicElement, IDecoratedTypographicElement
 {
     [Parameter]
-    public CssValue<BorderBuilder>? Border { get; set; }
-
-    [Parameter]
     public CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
 
     [Parameter]
@@ -29,7 +26,6 @@ public abstract class DecoratedTypographicElement : TypographicElement, IDecorat
         BuildClassAndStyleAttributes(attributes, (ref PooledStringBuilder cls, ref PooledStringBuilder sty) =>
         {
             // Apply decorative properties
-            AddCss(ref sty, ref cls, Border);
             AddCss(ref sty, ref cls, BoxShadow);
             AddCss(ref sty, ref cls, BackgroundOpacity);
             AddCss(ref sty, ref cls, BorderOpacity);
