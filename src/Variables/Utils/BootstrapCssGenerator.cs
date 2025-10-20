@@ -48,35 +48,35 @@ public static class BootstrapCssGenerator
         return css.ToString().TrimEnd();
     }
 
-        private static void ProcessCssVariableObject(object cssVariableObject, Dictionary<string, List<string>> selectorGroups)
+    private static void ProcessCssVariableObject(object cssVariableObject, Dictionary<string, List<string>> selectorGroups)
+    {
+        var type = cssVariableObject.GetType();
+
+        // Get the CssSelector attribute from the class
+        var cssSelectorAttr = type.GetCustomAttribute<CssSelectorAttribute>();
+        var selector = cssSelectorAttr?.GetSelector() ?? ":root";
+
+        // Get all properties with CssVariable attributes
+        var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Where(p => p.PropertyType == typeof(string))
+            .Where(p => p.GetCustomAttribute<CssVariableAttribute>() != null);
+
+        foreach (var property in properties)
         {
-            var type = cssVariableObject.GetType();
-
-            // Get the CssSelector attribute from the class
-            var cssSelectorAttr = type.GetCustomAttribute<CssSelectorAttribute>();
-            var selector = cssSelectorAttr?.GetSelector() ?? ":root";
-
-            // Get all properties with CssVariable attributes
-            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => p.PropertyType == typeof(string))
-                .Where(p => p.GetCustomAttribute<CssVariableAttribute>() != null);
-
-            foreach (var property in properties)
+            var value = property.GetValue(cssVariableObject) as string;
+            if (value.HasContent())
             {
-                var value = property.GetValue(cssVariableObject) as string;
-                if (value.HasContent())
+                var attr = property.GetCustomAttribute<CssVariableAttribute>();
+                if (attr != null)
                 {
-                    var attr = property.GetCustomAttribute<CssVariableAttribute>();
-                    if (attr != null)
-                    {
-                        var cssVariableName = attr.GetName();
-                        
-                        if (!selectorGroups.ContainsKey(selector))
-                            selectorGroups[selector] = [];
-                        
-                        selectorGroups[selector].Add($"  {cssVariableName}: {value};");
-                    }
+                    var cssPropertyName = attr.IsVariable ? attr.GetName() : attr.Name;
+                    
+                    if (!selectorGroups.ContainsKey(selector))
+                        selectorGroups[selector] = [];
+                    
+                    selectorGroups[selector].Add($"  {cssPropertyName}: {value};");
                 }
             }
         }
+    }
 }

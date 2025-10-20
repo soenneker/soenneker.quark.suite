@@ -32,10 +32,10 @@ public sealed class WidthBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
-    public WidthBuilder P25 => ChainWithSize("25");
-    public WidthBuilder P50 => ChainWithSize("50");
-    public WidthBuilder P75 => ChainWithSize("75");
-    public WidthBuilder P100 => ChainWithSize("100");
+    public WidthBuilder Is25 => ChainWithSize("25");
+    public WidthBuilder Is50 => ChainWithSize("50");
+    public WidthBuilder Is75 => ChainWithSize("75");
+    public WidthBuilder Is100 => ChainWithSize("100");
     public WidthBuilder Auto => ChainWithSize("auto");
 
     public WidthBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);

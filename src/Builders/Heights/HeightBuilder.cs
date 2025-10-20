@@ -31,10 +31,10 @@ public sealed class HeightBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
-    public HeightBuilder P25 => ChainWithSize("25");
-    public HeightBuilder P50 => ChainWithSize("50");
-    public HeightBuilder P75 => ChainWithSize("75");
-    public HeightBuilder P100 => ChainWithSize("100");
+    public HeightBuilder Is25 => ChainWithSize("25");
+    public HeightBuilder Is50 => ChainWithSize("50");
+    public HeightBuilder Is75 => ChainWithSize("75");
+    public HeightBuilder Is100 => ChainWithSize("100");
     public HeightBuilder Auto => ChainWithSize("auto");
 
     public HeightBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);

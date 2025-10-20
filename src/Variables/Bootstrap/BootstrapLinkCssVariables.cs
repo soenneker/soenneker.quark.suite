@@ -2,7 +2,7 @@
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Bootstrap's link CSS variables
+/// Bootstrap's link CSS variables and direct CSS properties
 /// </summary>
 [CssSelector("a")]
 public sealed class BootstrapLinkCssVariables
@@ -42,5 +42,11 @@ public sealed class BootstrapLinkCssVariables
     /// </summary>
     [CssVariable("bs-link-underline-opacity")]
     public string? LinkUnderlineOpacity { get; set; }
+
+    /// <summary>
+    /// Direct CSS text-decoration property. Set to "none" to remove underlines, "underline" to add them.
+    /// </summary>
+    [CssVariable("text-decoration", isVariable: false)]
+    public string? TextDecoration { get; set; }
 }
 

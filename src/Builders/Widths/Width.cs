@@ -9,25 +9,20 @@ public static class Width
     /// <summary>
     /// 25% width.
     /// </summary>
-    public static WidthBuilder P25 => new("25");
+    public static WidthBuilder Is25 => new("25");
 
     /// <summary>
     /// 50% width.
     /// </summary>
-    public static WidthBuilder P50 => new("50");
+    public static WidthBuilder Is50 => new("50");
 
     /// <summary>
     /// 75% width.
     /// </summary>
-    public static WidthBuilder P75 => new("75");
+    public static WidthBuilder Is75 => new("75");
 
     /// <summary>
     /// 100% width.
-    /// </summary>
-    public static WidthBuilder P100 => new("100");
-
-    /// <summary>
-    /// 100% width (alternative naming).
     /// </summary>
     public static WidthBuilder Is100 => new("100");
 
