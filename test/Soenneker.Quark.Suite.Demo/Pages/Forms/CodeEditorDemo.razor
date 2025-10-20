@@ -47,9 +47,26 @@
                         <Check Checked="_minimap" CheckedChanged="(v => _minimap = v)">Minimap</Check>
                     </Div>
                     <Div Margin="Margin.Is2.FromBottom">
-                        <Label Form="true">Height (px)</Label>
-                        <NumericEdit Value="@((decimal)_editorHeight)" ValueChanged="v => _editorHeight = (int)v.GetValueOrDefault(300)" />
+                        <Check Checked="_autoHeight" CheckedChanged="(v => _autoHeight = v)">Auto Height</Check>
                     </Div>
+                    @if (!_autoHeight)
+                    {
+                        <Div Margin="Margin.Is2.FromBottom">
+                            <Label Form="true">Height (px)</Label>
+                            <NumericEdit Value="@((decimal)_editorHeight)" ValueChanged="v => _editorHeight = (int)v.GetValueOrDefault(300)" />
+                        </Div>
+                    }
+                    else
+                    {
+                        <Div Margin="Margin.Is2.FromBottom">
+                            <Label Form="true">Min Lines</Label>
+                            <NumericEdit Value="@((decimal?)_minLines)" ValueChanged="v => _minLines = (int?)v" />
+                        </Div>
+                        <Div Margin="Margin.Is2.FromBottom">
+                            <Label Form="true">Max Lines</Label>
+                            <NumericEdit Value="@((decimal?)_maxLines)" ValueChanged="v => _maxLines = (int?)v" />
+                        </Div>
+                    }
                 </CardBody>
             </Card>
         </Column>
@@ -59,11 +76,52 @@
                         Theme="@_theme"
                         WordWrap="@_wordWrap"
                         Minimap="@_minimap"
-                        @bind-HeightPx="_editorHeight" />
+                        AutoHeight="@_autoHeight"
+                        MinLines="@_minLines"
+                        MaxLines="@_maxLines"
+                        Style="@(!_autoHeight ? $"height: {_editorHeight}px" : null)" />
             <Div Margin="Margin.Is3.FromTop">
                 <H5>Value</H5>
                 <Pre>@_text</Pre>
             </Div>
+        </Column>
+    </Row>
+
+    <Row Margin="Margin.Is5.FromTop">
+        <Column>
+            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is4.FromBottom">
+                <H2 DisplaySize="DisplaySize.Is5" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Auto Height Examples</H2>
+                <Paragraph TextColor="TextColor.Muted">Editors that automatically adjust height based on content</Paragraph>
+            </Div>
+        </Column>
+    </Row>
+
+    <Row Gap="Gap.Is4">
+        <Column ColumnSize="ColumnSize.Is6.OnDesktop">
+            <Card>
+                <CardBody>
+                    <H5 Margin="Margin.Is3.FromBottom">Min 3 lines, Max 10 lines</H5>
+                    <CodeEditor @bind-Text="_autoHeightText1"
+                                Language="javascript"
+                                Theme="@_theme"
+                                AutoHeight="true"
+                                MinLines="3"
+                                MaxLines="10" />
+                </CardBody>
+            </Card>
+        </Column>
+        <Column ColumnSize="ColumnSize.Is6.OnDesktop">
+            <Card>
+                <CardBody>
+                    <H5 Margin="Margin.Is3.FromBottom">Min 5 lines, No Max</H5>
+                    <CodeEditor @bind-Text="_autoHeightText2"
+                                Language="json"
+                                Theme="@_theme"
+                                AutoHeight="true"
+                                MinLines="5"
+                                MaxLines="null" />
+                </CardBody>
+            </Card>
         </Column>
     </Row>
 </Container>
@@ -73,8 +131,19 @@
     private string _theme = "vs-dark";
     private bool _wordWrap = false;
     private bool _minimap = true;
+    private bool _autoHeight = true;
     private int _editorHeight = 300;
+    private int? _minLines = 3;
+    private int? _maxLines = 30;
     private string _text = "// Hello, Monaco!\npublic class Demo { }";
+    
+    private string _autoHeightText1 = @"// Try adding more lines!
+console.log('Hello');";
+    
+    private string _autoHeightText2 = @"{
+  ""name"": ""example"",
+  ""value"": ""test""
+}";
 }
 
 

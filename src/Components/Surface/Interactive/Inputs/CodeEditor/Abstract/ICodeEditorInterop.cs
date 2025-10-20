@@ -46,6 +46,22 @@ public interface ICodeEditorInterop : IAsyncDisposable
     /// Disposes the editor instance associated with the container.
     /// </summary>
     ValueTask DisposeEditor(ElementReference container, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates the editor height based on the current content line count.
+    /// </summary>
+    /// <param name="container">Container element hosting the editor.</param>
+    /// <param name="minLines">Minimum number of lines to display (default: 1).</param>
+    /// <param name="maxLines">Maximum number of lines to display (default: no limit).</param>
+    ValueTask UpdateContentHeight(ElementReference container, int? minLines = null, int? maxLines = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Adds a content change listener that automatically adjusts editor height as content changes.
+    /// </summary>
+    /// <param name="container">Container element hosting the editor.</param>
+    /// <param name="minLines">Minimum number of lines to display (default: 1).</param>
+    /// <param name="maxLines">Maximum number of lines to display (default: no limit).</param>
+    ValueTask AddContentChangeListener(ElementReference container, int? minLines = null, int? maxLines = null, CancellationToken cancellationToken = default);
 }
 
 

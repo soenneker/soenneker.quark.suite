@@ -35,10 +35,13 @@
     public bool Minimap { get; set; } = true;
 
     [Parameter]
-    public int HeightPx { get; set; } = 300;
+    public bool AutoHeight { get; set; }
 
     [Parameter]
-    public EventCallback<int> HeightPxChanged { get; set; }
+    public int? MinLines { get; set; } = 3;
+
+    [Parameter]
+    public int? MaxLines { get; set; } = 30;
 
     private ElementReference _container;
     private string? _lastText;
@@ -67,6 +70,12 @@
             var json = JsonSerializer.Serialize(options);
             await CodeEditorInterop.CreateEditor(_container, json);
 
+            // If auto-height is enabled, set up content change listener
+            if (AutoHeight)
+            {
+                await CodeEditorInterop.AddContentChangeListener(_container, MinLines, MaxLines);
+            }
+
             _initialized = true;
             _lastLanguage = Language;
             _lastTheme = Theme;
@@ -79,6 +88,15 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        // Set default width and height if not specified
+        Width ??= Soenneker.Quark.Width.P100;
+        
+        // Don't set a fixed height if AutoHeight is enabled
+        if (!AutoHeight && Height == null && Style == null)
+        {
+            Style = "height: 300px";
+        }
+
         if (_initialized)
         {
             if (!string.Equals(Text, _lastText, StringComparison.Ordinal))
@@ -116,11 +134,11 @@
 
     private Dictionary<string, object> BuildContainerAttributes()
     {
-        var attrs = new Dictionary<string, object>(2);
+        var attrs = base.BuildAttributes();
+        
+        // Monaco editor needs position: relative for proper rendering
         BuildStyleAttribute(attrs, (ref PooledStringBuilder sty) =>
         {
-            AppendStyleDecl(ref sty, $"height: {HeightPx}px");
-            AppendStyleDecl(ref sty, "width: 100%");
             AppendStyleDecl(ref sty, "position: relative");
         });
 
