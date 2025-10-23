@@ -8,11 +8,6 @@ namespace Soenneker.Quark;
 public interface IDecoratedTypographicElement : ITypographicElement
 {
     /// <summary>
-    /// Gets or sets the border radius for rounded corners.
-    /// </summary>
-    CssValue<BorderRadiusBuilder>? BorderRadius { get; set; }
-
-    /// <summary>
     /// Gets or sets the box shadow for depth and elevation effects.
     /// </summary>
     CssValue<BoxShadowBuilder>? BoxShadow { get; set; }

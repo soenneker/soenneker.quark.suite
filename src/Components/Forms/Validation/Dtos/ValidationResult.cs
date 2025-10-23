@@ -74,7 +74,7 @@ public sealed class ValidationResult
         if (errors.Count > 0)
         {
             var allErrors = string.Join(" ", errors.Select(e => e.ErrorText).Where(e => !string.IsNullOrEmpty(e)));
-            var allMemberNames = errors.SelectMany(e => e.MemberNames ?? Enumerable.Empty<string>()).Distinct().ToList();
+            var allMemberNames = errors.SelectMany(e => e.MemberNames ?? []).Distinct().ToList();
             
             return new ValidationResult
             {

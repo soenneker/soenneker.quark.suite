@@ -14,10 +14,5 @@ public interface IBreadcrumbItem : IElement
     /// Gets or sets whether this item represents the current page (active state).
     /// </summary>
     bool Active { get; set; }
-
-    /// <summary>
-    /// Gets or sets the background color scheme of the breadcrumb item.
-    /// </summary>
-    CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
 }
 

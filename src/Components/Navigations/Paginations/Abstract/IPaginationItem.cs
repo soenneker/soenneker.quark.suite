@@ -14,10 +14,5 @@ public interface IPaginationItem : IElement
     /// Gets or sets whether this pagination item is disabled.
     /// </summary>
     bool Disabled { get; set; }
-
-    /// <summary>
-    /// Gets or sets the background color scheme of the pagination item.
-    /// </summary>
-    CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
 }
 

@@ -1,3 +1,3 @@
 namespace Soenneker.Quark;
 
-public interface IElement : ICoreElement;
+public interface IElement : IComponent, ICoreElement;

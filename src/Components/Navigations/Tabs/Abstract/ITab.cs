@@ -11,11 +11,6 @@ public interface ITab : IElement
     string? Name { get; set; }
 
     /// <summary>
-    /// Gets or sets the display title of the tab.
-    /// </summary>
-    string? Title { get; set; }
-
-    /// <summary>
     /// Gets or sets the icon name to display in the tab.
     /// </summary>
     string? IconName { get; set; }
@@ -35,4 +30,3 @@ public interface ITab : IElement
     /// </summary>
     bool Disabled { get; set; }
 }
-

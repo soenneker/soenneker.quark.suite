@@ -19,11 +19,6 @@ public interface ISnackbar : IElement
     bool Visible { get; set; }
 
     /// <summary>
-    /// Gets or sets the background color scheme of the snackbar.
-    /// </summary>
-    CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
-
-    /// <summary>
     /// Gets or sets the delay in milliseconds before the snackbar automatically hides.
     /// </summary>
     int AutoHideDelay { get; set; }

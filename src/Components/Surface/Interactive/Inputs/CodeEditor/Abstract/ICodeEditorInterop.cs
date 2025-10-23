@@ -53,6 +53,7 @@ public interface ICodeEditorInterop : IAsyncDisposable
     /// <param name="container">Container element hosting the editor.</param>
     /// <param name="minLines">Minimum number of lines to display (default: 1).</param>
     /// <param name="maxLines">Maximum number of lines to display (default: no limit).</param>
+    /// <param name="cancellationToken"></param>
     ValueTask UpdateContentHeight(ElementReference container, int? minLines = null, int? maxLines = null, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -61,7 +62,6 @@ public interface ICodeEditorInterop : IAsyncDisposable
     /// <param name="container">Container element hosting the editor.</param>
     /// <param name="minLines">Minimum number of lines to display (default: 1).</param>
     /// <param name="maxLines">Maximum number of lines to display (default: no limit).</param>
+    /// <param name="cancellationToken"></param>
     ValueTask AddContentChangeListener(ElementReference container, int? minLines = null, int? maxLines = null, CancellationToken cancellationToken = default);
 }
-
-

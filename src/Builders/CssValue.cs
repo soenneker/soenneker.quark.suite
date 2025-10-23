@@ -6,6 +6,7 @@ using Soenneker.Extensions.String;
 public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where TBuilder : class, ICssBuilder
 {
     private readonly string _value;
+    private readonly string? _styleValue;
 
     // Cache generic-type checks per closed generic
     private static readonly bool _isHeight = typeof(TBuilder) == typeof(HeightBuilder);
@@ -18,9 +19,13 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
 
     private static readonly HashSet<string> _bootstrapSizeTokens = new(StringComparer.OrdinalIgnoreCase) { "xs", "sm", "md", "lg", "xl", "xxl" };
 
-    private CssValue(string value) => _value = value ?? string.Empty;
+    private CssValue(string value, string? styleValue = null)
+    {
+        _value = value ?? string.Empty;
+        _styleValue = styleValue;
+    }
 
-    public static implicit operator CssValue<TBuilder>(TBuilder builder) => new(builder.ToClass());
+    public static implicit operator CssValue<TBuilder>(TBuilder builder) => new(builder.ToClass(), builder.ToStyle());
 
     public static implicit operator CssValue<TBuilder>(string value) => new(value);
 
@@ -35,9 +40,12 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
 
     public bool IsCssStyle =>
         // style if it looks like "prop: val" OR (ColorBuilder with non-theme token)
-        (_value.IndexOf(':') >= 0) || (_isColor && !IsKnownThemeOrSizeToken(_value));
+        _value.IndexOf(':') >= 0 || (_isColor && !IsKnownThemeOrSizeToken(_value));
 
     public bool IsCssClass => !IsCssStyle && !IsEmpty;
+
+    /// <summary>Gets the style representation (e.g., "text-decoration: underline") if available</summary>
+    public string StyleValue => _styleValue ?? _value;
 
     private static bool IsKnownThemeOrSizeToken(string value)
     {

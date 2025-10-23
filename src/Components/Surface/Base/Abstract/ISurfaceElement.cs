@@ -11,11 +11,6 @@ public interface ISurfaceElement : IElement
     string Tag { get; set; }
 
     /// <summary>
-    /// Gets or sets the border radius for rounded corners.
-    /// </summary>
-    CssValue<BorderRadiusBuilder>? BorderRadius { get; set; }
-
-    /// <summary>
     /// Gets or sets the box shadow for depth and elevation effects.
     /// </summary>
     CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
@@ -30,4 +25,3 @@ public interface ISurfaceElement : IElement
     /// </summary>
     CssValue<BorderOpacityBuilder>? BorderOpacity { get; set; }
 }
-

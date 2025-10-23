@@ -42,7 +42,7 @@
                         css += " disabled";
                     }
 
-                    <button type="button" class="@css" disabled="@day.Disabled" @onclick="(() => SelectDate(day.Date))">@day.Date.Day</button>
+                    <button type="button" class="@css" disabled="@day.Disabled" @onclick="() => SelectDate(day.Date)">@day.Date.Day</button>
                 }
             </div>
 
@@ -254,7 +254,7 @@
     }
 
     private static string FormatDisplay(DateTime dt) => dt.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-    private int DisplayHour => ((_hour % 12) == 0) ? 12 : (_hour % 12);
+    private int DisplayHour => _hour % 12 == 0 ? 12 : _hour % 12;
 
     protected override Dictionary<string, object> BuildAttributes()
     {
@@ -423,8 +423,8 @@
     private Task DecrementMinute() { _minute = (_minute + 60 - MinuteStep) % 60; return Commit(); }
     private Task SetAmPm(bool am) { _isAm = am; if (am && _hour >= 12) _hour -= 12; if (!am && _hour < 12) _hour += 12; return Commit(); }
     private Task ToggleAmPm() => SetAmPm(!_isAm);
-    private Task OnHourWheel(WheelEventArgs e) => (e.DeltaY < 0) ? IncrementHour() : DecrementHour();
-    private Task OnMinuteWheel(WheelEventArgs e) => (e.DeltaY < 0) ? IncrementMinute() : DecrementMinute();
+    private Task OnHourWheel(WheelEventArgs e) => e.DeltaY < 0 ? IncrementHour() : DecrementHour();
+    private Task OnMinuteWheel(WheelEventArgs e) => e.DeltaY < 0 ? IncrementMinute() : DecrementMinute();
 
     private Task OnHourKeyDown(KeyboardEventArgs e)
     {
@@ -448,7 +448,7 @@
             v = Math.Clamp(v, 1, 12);
             // preserve am/pm while mapping 12->0 for AM case
             var baseHour = _isAm ? 0 : 12;
-            _hour = (v % 12) + baseHour;
+            _hour = v % 12 + baseHour;
             return Commit();
         }
         return Task.CompletedTask;
@@ -459,7 +459,7 @@
         if (e?.Value is null) return Task.CompletedTask;
         if (int.TryParse(e.Value.ToString(), out var v))
         {
-            v = ((v % 60) + 60) % 60;
+            v = (v % 60 + 60) % 60;
             _minute = v;
             return Commit();
         }

@@ -48,10 +48,13 @@ public class ComponentOptions
 
     public CssValue<ObjectFitBuilder>? ObjectFit { get; set; }
 
+    [CssProperty("text-align")]
     public CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
 
+    [CssProperty("text-decoration")]
     public CssValue<TextDecorationBuilder>? TextDecoration { get; set; }
 
+    [CssProperty("flex")]
     public CssValue<FlexBuilder>? Flex { get; set; }
 
     public CssValue<GapBuilder>? Gap { get; set; }

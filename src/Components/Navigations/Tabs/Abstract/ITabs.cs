@@ -8,11 +8,6 @@ namespace Soenneker.Quark;
 public interface ITabs : IElement
 {
     /// <summary>
-    /// Gets or sets the background color scheme of the tabs.
-    /// </summary>
-    CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
-
-    /// <summary>
     /// Gets or sets whether the tabs should be styled as pills instead of tabs.
     /// </summary>
     bool Pills { get; set; }

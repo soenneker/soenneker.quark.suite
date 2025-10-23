@@ -6,11 +6,6 @@ namespace Soenneker.Quark;
 public interface IProgress : IElement
 {
     /// <summary>
-    /// Gets or sets the background color scheme of the progress bar.
-    /// </summary>
-    CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
-
-    /// <summary>
     /// Gets or sets the size of the progress bar.
     /// </summary>
     CssValue<SizeBuilder>? Size { get; set; }
@@ -25,4 +20,3 @@ public interface IProgress : IElement
     /// </summary>
     bool Animated { get; set; }
 }
-

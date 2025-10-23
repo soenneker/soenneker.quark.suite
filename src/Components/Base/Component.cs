@@ -11,21 +11,6 @@ using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
-/// <summary>
-/// Delegate for building class attributes with a ref PooledStringBuilder
-/// </summary>
-public delegate void BuildClassAction(ref PooledStringBuilder builder);
-
-/// <summary>
-/// Delegate for building style attributes with a ref PooledStringBuilder  
-/// </summary>
-public delegate void BuildStyleAction(ref PooledStringBuilder builder);
-
-/// <summary>
-/// Delegate for building both class and style attributes with ref PooledStringBuilders
-/// </summary>
-public delegate void BuildClassAndStyleAction(ref PooledStringBuilder classBuilder, ref PooledStringBuilder styleBuilder);
-
 ///<inheritdoc cref="IComponent"/>
 public abstract class Component : CoreComponent, IComponent
 {
@@ -814,8 +799,7 @@ public abstract class Component : CoreComponent, IComponent
     {
         if (v is { IsEmpty: false })
         {
-            string? token = null;
-            var isTheme = v.Value.TryGetBootstrapThemeToken(out token);
+            var isTheme = v.Value.TryGetBootstrapThemeToken(out var token);
 
             if (isTheme && token is not null)
             {
@@ -834,3 +818,18 @@ public abstract class Component : CoreComponent, IComponent
         }
     }
 }
+
+/// <summary>
+/// Delegate for building class attributes with a ref PooledStringBuilder
+/// </summary>
+public delegate void BuildClassAction(ref PooledStringBuilder builder);
+
+/// <summary>
+/// Delegate for building style attributes with a ref PooledStringBuilder  
+/// </summary>
+public delegate void BuildStyleAction(ref PooledStringBuilder builder);
+
+/// <summary>
+/// Delegate for building both class and style attributes with ref PooledStringBuilders
+/// </summary>
+public delegate void BuildClassAndStyleAction(ref PooledStringBuilder classBuilder, ref PooledStringBuilder styleBuilder);

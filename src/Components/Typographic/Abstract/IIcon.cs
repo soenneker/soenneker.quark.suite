@@ -58,3 +58,4 @@ public interface IIcon : ITypographicElement
     IconAnimation? IconAnimation { get; set; }
 }
 
+

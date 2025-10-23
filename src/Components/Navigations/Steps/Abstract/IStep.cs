@@ -24,10 +24,5 @@ public interface IStep : IElement
     /// Gets or sets whether the step is disabled.
     /// </summary>
     bool Disabled { get; set; }
-
-    /// <summary>
-    /// Gets or sets the background color scheme of the step.
-    /// </summary>
-    CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
 }
 

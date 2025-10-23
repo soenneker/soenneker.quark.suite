@@ -149,9 +149,19 @@ public interface IComponent : ICoreComponent
     CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
 
     /// <summary>
+    /// Gets or sets the border configuration.
+    /// </summary>
+    CssValue<BorderBuilder>? Border { get; set; }
+
+    /// <summary>
     /// Gets or sets the border color to apply (implementation-specific mapping to classes or inline style).
     /// </summary>
     CssValue<BorderColorBuilder>? BorderColor { get; set; }
+
+    /// <summary>
+    /// Gets or sets the border radius configuration.
+    /// </summary>
+    CssValue<BorderRadiusBuilder>? BorderRadius { get; set; }
 
     /// <summary>
     /// Gets or sets the text alignment configuration (e.g., start, center, end).
@@ -195,6 +205,11 @@ public interface IComponent : ICoreComponent
     CssValue<FilterBuilder>? Filter { get; set; }
 
     /// <summary>
+    /// Gets or sets the ratio configuration for aspect ratio utilities.
+    /// </summary>
+    CssValue<RatioBuilder>? Ratio { get; set; }
+
+    /// <summary>
     /// Gets or sets the resize configuration.
     /// </summary>
     CssValue<ResizeBuilder>? Resize { get; set; }
@@ -223,4 +238,19 @@ public interface IComponent : ICoreComponent
     /// Gets or sets the CSS transition configuration.
     /// </summary>
     CssValue<TransitionBuilder>? Transition { get; set; }
+
+    /// <summary>
+    /// Gets or sets the link opacity configuration.
+    /// </summary>
+    CssValue<LinkOpacityBuilder>? LinkOpacity { get; set; }
+
+    /// <summary>
+    /// Gets or sets the link offset configuration.
+    /// </summary>
+    CssValue<LinkOffsetBuilder>? LinkOffset { get; set; }
+
+    /// <summary>
+    /// Gets or sets the link underline configuration.
+    /// </summary>
+    CssValue<LinkUnderlineBuilder>? LinkUnderline { get; set; }
 }

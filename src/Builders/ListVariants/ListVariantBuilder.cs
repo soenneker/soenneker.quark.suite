@@ -1,5 +1,4 @@
 using Soenneker.Quark.Enums;
-
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -111,7 +110,7 @@ public sealed class ListVariantBuilder : ICssBuilder
         {
             var rule = _rules[i];
             var typeValue = rule.Type.Value;
-            string? style = typeValue switch
+            var style = typeValue switch
             {
                 "unstyled" => "list-style: none; padding-left: 0;",
                 "inline" => "padding-left: 0; list-style: none;",

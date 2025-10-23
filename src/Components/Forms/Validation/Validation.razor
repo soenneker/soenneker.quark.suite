@@ -177,7 +177,7 @@
 
     public Task NotifyInputChanged<T>(T newValue, bool overrideNewValue = false)
     {
-        var newValidationValue = overrideNewValue ? (object?)newValue : _input?.ValidationValue;
+        var newValidationValue = overrideNewValue ? newValue : _input?.ValidationValue;
         _lastKnownValue = newValidationValue;
 
         if (EditContext is not null && _hasFieldIdentifier)
@@ -293,7 +293,7 @@
     {
         var shouldShowInvalidBefore = ShouldShowInvalid;
 
-        if (Status != status || (Messages?.SequenceEqual(messages ?? []) == false))
+        if (Status != status || Messages?.SequenceEqual(messages ?? []) == false)
         {
             Status = status;
             Messages = messages;

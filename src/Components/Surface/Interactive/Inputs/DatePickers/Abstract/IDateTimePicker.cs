@@ -50,11 +50,6 @@ public interface IDateTimePicker : IElement
     DateTime? Max { get; set; }
 
     /// <summary>
-    /// Gets or sets the background color scheme of the input.
-    /// </summary>
-    CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
-
-    /// <summary>
     /// Gets or sets the size of the input.
     /// </summary>
     CssValue<SizeBuilder>? Size { get; set; }

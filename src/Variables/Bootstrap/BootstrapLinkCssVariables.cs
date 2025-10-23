@@ -4,7 +4,6 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap's link CSS variables and direct CSS properties
 /// </summary>
-[CssSelector("a")]
 public sealed class BootstrapLinkCssVariables
 {
     /// <summary>

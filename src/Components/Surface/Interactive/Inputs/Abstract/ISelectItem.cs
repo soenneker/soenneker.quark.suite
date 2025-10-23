@@ -20,10 +20,4 @@ public interface ISelectItem<TValue> : IElement
     /// Gets or sets whether the select item is disabled.
     /// </summary>
     bool Disabled { get; set; }
-
-    /// <summary>
-    /// Gets or sets whether the select item is hidden.
-    /// </summary>
-    bool Hidden { get; set; }
 }
-

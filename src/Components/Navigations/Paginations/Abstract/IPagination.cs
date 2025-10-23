@@ -6,11 +6,6 @@ namespace Soenneker.Quark;
 public interface IPagination : IElement
 {
     /// <summary>
-    /// Gets or sets the background color scheme of the pagination.
-    /// </summary>
-    CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
-
-    /// <summary>
     /// Gets or sets the size of the pagination.
     /// </summary>
     CssValue<SizeBuilder>? Size { get; set; }
