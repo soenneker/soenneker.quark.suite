@@ -5,8 +5,8 @@ using Soenneker.Extensions.String;
 
 public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where TBuilder : class, ICssBuilder
 {
-    private readonly string _value;
     private readonly string? _styleValue;
+    private readonly string _value;
 
     // Cache generic-type checks per closed generic
     private static readonly bool _isHeight = typeof(TBuilder) == typeof(HeightBuilder);
@@ -45,7 +45,22 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
     public bool IsCssClass => !IsCssStyle && !IsEmpty;
 
     /// <summary>Gets the style representation (e.g., "text-decoration: underline") if available</summary>
-    public string StyleValue => _styleValue ?? _value;
+    public string StyleValue
+    {
+        get
+        {
+            // Check if _styleValue looks like a style (contains colon)
+            if (!string.IsNullOrEmpty(_styleValue) && _styleValue.IndexOf(':') >= 0)
+                return _styleValue;
+            
+            // Check if _value looks like a style (contains colon)
+            if (!string.IsNullOrEmpty(_value) && _value.IndexOf(':') >= 0)
+                return _value;
+            
+            // Neither looks like a style, return empty
+            return string.Empty;
+        }
+    }
 
     private static bool IsKnownThemeOrSizeToken(string value)
     {

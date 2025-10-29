@@ -106,16 +106,8 @@ public static class ComponentCssGenerator
         {
             var p = props[i];
 
-            // Resolve attribute off the declaring property (covers inheritance/flattening cases)
-            var declaring = p.DeclaringType;
-            if (declaring is null)
-                continue;
-
-            var declaringProp = declaring.GetProperty(p.Name, BindingFlags.Public | BindingFlags.Instance);
-            if (declaringProp is null)
-                continue;
-
-            var cssPropAttr = declaringProp.GetCustomAttribute<CssPropertyAttribute>();
+            // Check for CssProperty attribute (with inheritance support)
+            var cssPropAttr = p.GetCustomAttribute<CssPropertyAttribute>(inherit: true);
             if (cssPropAttr is null)
                 continue;
 
