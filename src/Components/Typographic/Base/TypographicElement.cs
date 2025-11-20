@@ -6,15 +6,13 @@ namespace Soenneker.Quark;
 
 /// <summary>
 /// Pure text element base with inheritable text properties.
-/// Provides properties for text color, size, weight, alignment, wrapping, and breaking.
+/// Provides properties for text size, weight, alignment, wrapping, and breaking.
+/// Note: TextColor is provided by the Component base class.
 /// Note: Child components must provide their own markup.
 /// </summary>
 public abstract class TypographicElement : Element
 {
     // Typography-specific properties
-    [Parameter]
-    public CssValue<TextColorBuilder>? TextColor { get; set; }
-
     [Parameter]
     public CssValue<TextSizeBuilder>? TextSize { get; set; }
 
@@ -61,7 +59,7 @@ public abstract class TypographicElement : Element
         BuildClassAndStyleAttributes(attributes, (ref PooledStringBuilder cls, ref PooledStringBuilder sty) =>
         {
             // Apply typography-specific properties
-            ApplyTextColor(ref sty, ref cls);
+            // Note: TextColor is now handled by Component base class, so we don't process it here
             AddCss(ref sty, ref cls, TextSize);
             AddCss(ref sty, ref cls, TextDecoration);
             AddCss(ref sty, ref cls, TextTransform);
@@ -80,11 +78,4 @@ public abstract class TypographicElement : Element
         return attributes;
     }
 
-    /// <summary>
-    /// Applies text color styling. Override this method in derived components to customize text color application.
-    /// </summary>
-    protected virtual void ApplyTextColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
-    {
-        AddCss(ref sty, ref cls, TextColor);
-    }
 }

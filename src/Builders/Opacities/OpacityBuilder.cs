@@ -22,11 +22,11 @@ public sealed class OpacityBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
-    public OpacityBuilder V0 => Chain(0);
-    public OpacityBuilder V25 => Chain(25);
-    public OpacityBuilder V50 => Chain(50);
-    public OpacityBuilder V75 => Chain(75);
-    public OpacityBuilder V100 => Chain(100);
+    public OpacityBuilder Is0 => Chain(0);
+    public OpacityBuilder Is25 => Chain(25);
+    public OpacityBuilder Is50 => Chain(50);
+    public OpacityBuilder Is75 => Chain(75);
+    public OpacityBuilder Is100 => Chain(100);
 
     public OpacityBuilder OnPhone => ChainBp(BreakpointType.Phone);
     public OpacityBuilder OnTablet => ChainBp(BreakpointType.Tablet);

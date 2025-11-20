@@ -66,7 +66,7 @@ public interface IComponent : ICoreComponent
     /// <summary>
     /// Gets or sets the position offset configuration (e.g., top, bottom, start, end).
     /// </summary>
-    CssValue<PositionOffsetBuilder>? Offset { get; set; }
+    CssValue<PositionOffsetBuilder>? PositionOffset { get; set; }
 
     /// <summary>
     /// Gets or sets the width configuration (e.g., fixed, responsive, utility classes).
@@ -167,6 +167,11 @@ public interface IComponent : ICoreComponent
     /// Gets or sets the text alignment configuration (e.g., start, center, end).
     /// </summary>
     CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
+
+    /// <summary>
+    /// Gets or sets the text color configuration.
+    /// </summary>
+    CssValue<TextColorBuilder>? TextColor { get; set; }
 
     /// <summary>
     /// Invoked when the element is clicked.

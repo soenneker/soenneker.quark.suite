@@ -7,11 +7,6 @@ namespace Soenneker.Quark;
 public interface ITypographicElement : IElement
 {
     /// <summary>
-    /// Gets or sets the text color.
-    /// </summary>
-    CssValue<TextColorBuilder>? TextColor { get; set; }
-
-    /// <summary>
     /// Gets or sets the text size.
     /// </summary>
     CssValue<TextSizeBuilder>? TextSize { get; set; }

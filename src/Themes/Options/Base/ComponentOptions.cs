@@ -22,7 +22,7 @@ public class ComponentOptions
 
     public CssValue<PositionBuilder>? Position { get; set; }
 
-    public CssValue<PositionOffsetBuilder>? Offset { get; set; }
+    public CssValue<PositionOffsetBuilder>? PositionOffset { get; set; }
 
     public CssValue<TextSizeBuilder>? TextSize { get; set; }
 
@@ -50,6 +50,8 @@ public class ComponentOptions
 
     [CssProperty("text-align")]
     public CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
+
+    public CssValue<TextColorBuilder>? TextColor { get; set; }
 
     [CssProperty("text-decoration")]
     public CssValue<TextDecorationBuilder>? TextDecoration { get; set; }
@@ -80,8 +82,6 @@ public class ComponentOptions
     public CssValue<TextWrapBuilder>? TextWrap { get; set; }
 
     public CssValue<TextBreakBuilder>? TextBreak { get; set; }
-
-    public CssValue<TextColorBuilder>? TextColor { get; set; }
 
     public CssValue<BorderColorBuilder>? BorderColor { get; set; }
 

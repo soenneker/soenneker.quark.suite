@@ -57,7 +57,7 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<PositionBuilder>? Position { get; set; }
 
     [Parameter]
-    public CssValue<PositionOffsetBuilder>? Offset { get; set; }
+    public CssValue<PositionOffsetBuilder>? PositionOffset { get; set; }
 
     [Parameter]
     public CssValue<WidthBuilder>? Width { get; set; }
@@ -118,6 +118,9 @@ public abstract class Component : CoreComponent, IComponent
 
     [Parameter]
     public CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
+
+    [Parameter]
+    public CssValue<TextColorBuilder>? TextColor { get; set; }
 
     [Parameter]
     public CssValue<AnimationBuilder>? Animation { get; set; }
@@ -258,6 +261,7 @@ public abstract class Component : CoreComponent, IComponent
             ApplyBackgroundColor(ref sty, ref cls);
             AddCss(ref sty, ref cls, BorderRadius);
             AddCss(ref sty, ref cls, TextAlignment);
+            ApplyTextColor(ref sty, ref cls);
             AddCss(ref sty, ref cls, Flex);
             AddCss(ref sty, ref cls, Gap);
             AddCss(ref sty, ref cls, VerticalAlign);
@@ -286,7 +290,7 @@ public abstract class Component : CoreComponent, IComponent
             AddCss(ref sty, ref cls, Margin);
             AddCss(ref sty, ref cls, Padding);
             AddCss(ref sty, ref cls, Position);
-            AddCss(ref sty, ref cls, Offset);
+            AddCss(ref sty, ref cls, PositionOffset);
             AddCss(ref sty, ref cls, Width, "width");
             AddCss(ref sty, ref cls, MinWidth, "min-width");
             AddCss(ref sty, ref cls, MaxWidth, "max-width");
@@ -359,6 +363,7 @@ public abstract class Component : CoreComponent, IComponent
         AddIf(ref hc, Float);
         AddIf(ref hc, VerticalAlign);
         AddIf(ref hc, TextAlignment);
+        AddIf(ref hc, TextColor);
         AddIf(ref hc, Margin);
         AddIf(ref hc, Padding);
         AddIf(ref hc, Position);
@@ -366,7 +371,7 @@ public abstract class Component : CoreComponent, IComponent
         AddIf(ref hc, Border);
         AddIf(ref hc, BorderColor);
         AddIf(ref hc, BorderRadius);
-        AddIf(ref hc, Offset);
+        AddIf(ref hc, PositionOffset);
         AddIf(ref hc, Width);
         AddIf(ref hc, MinWidth);
         AddIf(ref hc, MaxWidth);
@@ -755,12 +760,13 @@ public abstract class Component : CoreComponent, IComponent
         ApplyThemeProperty(componentOptions.BorderColor, () => BorderColor, v => BorderColor = v);
         ApplyThemeProperty(componentOptions.BorderRadius, () => BorderRadius, v => BorderRadius = v);
         ApplyThemeProperty(componentOptions.TextAlignment, () => TextAlignment, v => TextAlignment = v);
+        ApplyThemeProperty(componentOptions.TextColor, () => TextColor, v => TextColor = v);
         ApplyThemeProperty(componentOptions.Float, () => Float, v => Float = v);
         ApplyThemeProperty(componentOptions.VerticalAlign, () => VerticalAlign, v => VerticalAlign = v);
         ApplyThemeProperty(componentOptions.Margin, () => Margin, v => Margin = v);
         ApplyThemeProperty(componentOptions.Padding, () => Padding, v => Padding = v);
         ApplyThemeProperty(componentOptions.Position, () => Position, v => Position = v);
-        ApplyThemeProperty(componentOptions.Offset, () => Offset, v => Offset = v);
+        ApplyThemeProperty(componentOptions.PositionOffset, () => PositionOffset, v => PositionOffset = v);
         ApplyThemeProperty(componentOptions.Width, () => Width, v => Width = v);
         ApplyThemeProperty(componentOptions.MinWidth, () => MinWidth, v => MinWidth = v);
         ApplyThemeProperty(componentOptions.MaxWidth, () => MaxWidth, v => MaxWidth = v);
@@ -825,6 +831,16 @@ public abstract class Component : CoreComponent, IComponent
     protected virtual void ApplyBorderColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
         AddCss(ref sty, ref cls, BorderColor);
+    }
+
+    /// <summary>
+    /// Applies text color styling. Override this method in derived components to customize text color application.
+    /// </summary>
+    /// <param name="sty">String builder for inline styles</param>
+    /// <param name="cls">String builder for CSS classes</param>
+    protected virtual void ApplyTextColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        AddCss(ref sty, ref cls, TextColor);
     }
 
     /// <summary>
