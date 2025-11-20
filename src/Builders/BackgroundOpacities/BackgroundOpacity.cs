@@ -8,9 +8,3 @@ public static class BackgroundOpacity
     public static BackgroundOpacityBuilder V75 => new(75);
     public static BackgroundOpacityBuilder V100 => new(100);
 }
-
-
-
-
-
-

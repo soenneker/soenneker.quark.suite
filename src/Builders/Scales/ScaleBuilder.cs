@@ -32,12 +32,33 @@ public sealed class ScaleBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the scale to 0.
+    /// </summary>
     public ScaleBuilder Is0 => ChainWithScale(ScaleType.Is0);
+    /// <summary>
+    /// Sets the scale to 1.
+    /// </summary>
     public ScaleBuilder Is1 => ChainWithScale(ScaleType.Is1);
+    /// <summary>
+    /// Sets the scale to 2.
+    /// </summary>
     public ScaleBuilder Is2 => ChainWithScale(ScaleType.Is2);
+    /// <summary>
+    /// Sets the scale to 3.
+    /// </summary>
     public ScaleBuilder Is3 => ChainWithScale(ScaleType.Is3);
+    /// <summary>
+    /// Sets the scale to 4.
+    /// </summary>
     public ScaleBuilder Is4 => ChainWithScale(ScaleType.Is4);
+    /// <summary>
+    /// Sets the scale to 5.
+    /// </summary>
     public ScaleBuilder Is5 => ChainWithScale(ScaleType.Is5);
+    /// <summary>
+    /// Sets the scale to 6.
+    /// </summary>
     public ScaleBuilder Is6 => ChainWithScale(ScaleType.Is6);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -47,6 +68,10 @@ public sealed class ScaleBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -71,6 +96,10 @@ public sealed class ScaleBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)

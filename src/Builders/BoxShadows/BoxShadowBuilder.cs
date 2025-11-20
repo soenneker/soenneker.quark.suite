@@ -6,6 +6,9 @@ using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// High-performance box shadow builder with fluent API for chaining box shadow rules.
+/// </summary>
 public sealed class BoxShadowBuilder : ICssBuilder
 {
     private readonly List<BoxShadowRule> _rules = new(4);
@@ -27,16 +30,46 @@ public sealed class BoxShadowBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the box shadow to none.
+    /// </summary>
     public BoxShadowBuilder None => Chain("none");
+    /// <summary>
+    /// Sets the box shadow to base.
+    /// </summary>
     public BoxShadowBuilder Base => Chain("base");
+    /// <summary>
+    /// Sets the box shadow to small.
+    /// </summary>
     public BoxShadowBuilder Small => Chain(SizeType.Small.Value);
+    /// <summary>
+    /// Sets the box shadow to large.
+    /// </summary>
     public BoxShadowBuilder Large => Chain(SizeType.Large.Value);
 
+    /// <summary>
+    /// Applies the box shadow on phone breakpoint.
+    /// </summary>
     public BoxShadowBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the box shadow on tablet breakpoint.
+    /// </summary>
     public BoxShadowBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the box shadow on laptop breakpoint.
+    /// </summary>
     public BoxShadowBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the box shadow on desktop breakpoint.
+    /// </summary>
     public BoxShadowBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the box shadow on widescreen breakpoint.
+    /// </summary>
     public BoxShadowBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the box shadow on ultrawide breakpoint.
+    /// </summary>
     public BoxShadowBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -62,6 +95,10 @@ public sealed class BoxShadowBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -101,6 +138,11 @@ public sealed class BoxShadowBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// Shadow utilities are class-first; no inline style mapping.
+    /// </summary>
+    /// <returns>An empty string as shadow utilities are class-first.</returns>
     public string ToStyle()
     {
         // Shadow utilities are class-first; no inline style mapping

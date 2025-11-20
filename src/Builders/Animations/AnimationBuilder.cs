@@ -29,17 +29,50 @@ public sealed class AnimationBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the animation to none.
+    /// </summary>
     public AnimationBuilder None => ChainWithAnimation("none");
+    /// <summary>
+    /// Sets the animation to spin.
+    /// </summary>
     public AnimationBuilder Spin => ChainWithAnimation("spin");
+    /// <summary>
+    /// Sets the animation to ping.
+    /// </summary>
     public AnimationBuilder Ping => ChainWithAnimation("ping");
+    /// <summary>
+    /// Sets the animation to pulse.
+    /// </summary>
     public AnimationBuilder Pulse => ChainWithAnimation("pulse");
+    /// <summary>
+    /// Sets the animation to bounce.
+    /// </summary>
     public AnimationBuilder Bounce => ChainWithAnimation("bounce");
 
+    /// <summary>
+    /// Applies the animation on phone breakpoint.
+    /// </summary>
     public AnimationBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the animation on tablet breakpoint.
+    /// </summary>
     public AnimationBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the animation on laptop breakpoint.
+    /// </summary>
     public AnimationBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the animation on desktop breakpoint.
+    /// </summary>
     public AnimationBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the animation on widescreen breakpoint.
+    /// </summary>
     public AnimationBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the animation on ultrawide breakpoint.
+    /// </summary>
     public AnimationBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -64,6 +97,10 @@ public sealed class AnimationBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -92,6 +129,10 @@ public sealed class AnimationBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)

@@ -5,6 +5,9 @@ using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// High-performance line height builder with fluent API for chaining line height rules.
+/// </summary>
 public sealed class LineHeightBuilder : ICssBuilder
 {
     private readonly List<LineHeightRule> _rules = new(4);
@@ -25,16 +28,46 @@ public sealed class LineHeightBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the line height to 1.
+    /// </summary>
     public LineHeightBuilder Is1 => Chain(ScaleType.Is1.Value);
+    /// <summary>
+    /// Sets the line height to small.
+    /// </summary>
     public LineHeightBuilder Small => Chain(SizeType.Small.Value);
+    /// <summary>
+    /// Sets the line height to base.
+    /// </summary>
     public LineHeightBuilder Base => Chain("base");
+    /// <summary>
+    /// Sets the line height to large.
+    /// </summary>
     public LineHeightBuilder Large => Chain(SizeType.Large.Value);
 
+    /// <summary>
+    /// Applies the line height on phone breakpoint.
+    /// </summary>
     public LineHeightBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the line height on tablet breakpoint.
+    /// </summary>
     public LineHeightBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the line height on laptop breakpoint.
+    /// </summary>
     public LineHeightBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the line height on desktop breakpoint.
+    /// </summary>
     public LineHeightBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the line height on widescreen breakpoint.
+    /// </summary>
     public LineHeightBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the line height on ultrawide breakpoint.
+    /// </summary>
     public LineHeightBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -59,6 +92,10 @@ public sealed class LineHeightBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0) return string.Empty;
@@ -91,6 +128,10 @@ public sealed class LineHeightBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0) return string.Empty;

@@ -55,10 +55,25 @@ public sealed class ObjectFitBuilder : ICssBuilder
     /// </summary>
     public ObjectFitBuilder None => ChainWithFit(ObjectFitKeyword.NoneValue);
 
+    /// <summary>
+    /// Sets the object fit to inherit.
+    /// </summary>
     public ObjectFitBuilder Inherit => ChainWithFit(GlobalKeyword.InheritValue);
+    /// <summary>
+    /// Sets the object fit to initial.
+    /// </summary>
     public ObjectFitBuilder Initial => ChainWithFit(GlobalKeyword.InitialValue);
+    /// <summary>
+    /// Sets the object fit to revert.
+    /// </summary>
     public ObjectFitBuilder Revert => ChainWithFit(GlobalKeyword.RevertValue);
+    /// <summary>
+    /// Sets the object fit to revert-layer.
+    /// </summary>
     public ObjectFitBuilder RevertLayer => ChainWithFit(GlobalKeyword.RevertLayerValue);
+    /// <summary>
+    /// Sets the object fit to unset.
+    /// </summary>
     public ObjectFitBuilder Unset => ChainWithFit(GlobalKeyword.UnsetValue);
 
     /// <summary>
@@ -85,6 +100,9 @@ public sealed class ObjectFitBuilder : ICssBuilder
     /// Apply on wide screen devices (larger desktops, 1400px and up).
     /// </summary>
     public ObjectFitBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the object fit on ultrawide breakpoint.
+    /// </summary>
     public ObjectFitBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -57,7 +57,8 @@ public sealed class BackgroundOpacityBuilder : ICssBuilder
 
     public string ToClass()
     {
-        if (_rules.Count == 0) return string.Empty;
+        if (_rules.Count == 0)
+            return string.Empty;
 
         using var sb = new PooledStringBuilder();
         var first = true;
@@ -72,17 +73,21 @@ public sealed class BackgroundOpacityBuilder : ICssBuilder
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
-            if (!first) sb.Append(' ');
-            else first = false;
+            if (!first)
+                sb.Append(' ');
+            else
+                first = false;
 
             sb.Append(cls);
         }
+
         return sb.ToString();
     }
 
     public string ToStyle()
     {
-        if (_rules.Count == 0) return string.Empty;
+        if (_rules.Count == 0)
+            return string.Empty;
 
         using var sb = new PooledStringBuilder();
         var first = true;
@@ -93,11 +98,14 @@ public sealed class BackgroundOpacityBuilder : ICssBuilder
             if (css is null)
                 continue;
 
-            if (!first) sb.Append("; ");
-            else first = false;
+            if (!first)
+                sb.Append("; ");
+            else
+                first = false;
 
             sb.Append(css);
         }
+
         return sb.ToString();
     }
 
@@ -128,7 +136,4 @@ public sealed class BackgroundOpacityBuilder : ICssBuilder
             _ => $"--bs-bg-opacity: {value}"
         };
     }
-
 }
-
-

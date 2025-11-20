@@ -33,21 +33,66 @@ public sealed class ObjectPositionBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the object position to center.
+    /// </summary>
     public ObjectPositionBuilder Center => ChainWithPosition("center");
+    /// <summary>
+    /// Sets the object position to top.
+    /// </summary>
     public ObjectPositionBuilder Top => ChainWithPosition("top");
+    /// <summary>
+    /// Sets the object position to right.
+    /// </summary>
     public ObjectPositionBuilder Right => ChainWithPosition("right");
+    /// <summary>
+    /// Sets the object position to bottom.
+    /// </summary>
     public ObjectPositionBuilder Bottom => ChainWithPosition("bottom");
+    /// <summary>
+    /// Sets the object position to left.
+    /// </summary>
     public ObjectPositionBuilder Left => ChainWithPosition("left");
+    /// <summary>
+    /// Sets the object position to top-left.
+    /// </summary>
     public ObjectPositionBuilder TopLeft => ChainWithPosition("top-left");
+    /// <summary>
+    /// Sets the object position to top-right.
+    /// </summary>
     public ObjectPositionBuilder TopRight => ChainWithPosition("top-right");
+    /// <summary>
+    /// Sets the object position to bottom-left.
+    /// </summary>
     public ObjectPositionBuilder BottomLeft => ChainWithPosition("bottom-left");
+    /// <summary>
+    /// Sets the object position to bottom-right.
+    /// </summary>
     public ObjectPositionBuilder BottomRight => ChainWithPosition("bottom-right");
 
+    /// <summary>
+    /// Applies the object position on phone breakpoint.
+    /// </summary>
     public ObjectPositionBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the object position on tablet breakpoint.
+    /// </summary>
     public ObjectPositionBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the object position on laptop breakpoint.
+    /// </summary>
     public ObjectPositionBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the object position on desktop breakpoint.
+    /// </summary>
     public ObjectPositionBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the object position on widescreen breakpoint.
+    /// </summary>
     public ObjectPositionBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the object position on ultrawide breakpoint.
+    /// </summary>
     public ObjectPositionBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -72,6 +117,10 @@ public sealed class ObjectPositionBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -100,6 +149,10 @@ public sealed class ObjectPositionBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)

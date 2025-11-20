@@ -29,16 +29,46 @@ public sealed class ResizeBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the resize to none.
+    /// </summary>
     public ResizeBuilder None => ChainWithResize("none");
+    /// <summary>
+    /// Sets the resize to both.
+    /// </summary>
     public ResizeBuilder Both => ChainWithResize("both");
+    /// <summary>
+    /// Sets the resize to horizontal.
+    /// </summary>
     public ResizeBuilder Horizontal => ChainWithResize("horizontal");
+    /// <summary>
+    /// Sets the resize to vertical.
+    /// </summary>
     public ResizeBuilder Vertical => ChainWithResize("vertical");
 
+    /// <summary>
+    /// Applies the resize on phone breakpoint.
+    /// </summary>
     public ResizeBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the resize on tablet breakpoint.
+    /// </summary>
     public ResizeBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the resize on laptop breakpoint.
+    /// </summary>
     public ResizeBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the resize on desktop breakpoint.
+    /// </summary>
     public ResizeBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the resize on widescreen breakpoint.
+    /// </summary>
     public ResizeBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the resize on ultrawide breakpoint.
+    /// </summary>
     public ResizeBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -63,6 +93,10 @@ public sealed class ResizeBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -91,6 +125,10 @@ public sealed class ResizeBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)

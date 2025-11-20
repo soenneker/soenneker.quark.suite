@@ -37,25 +37,82 @@ public sealed class CursorBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the cursor to auto.
+    /// </summary>
     public CursorBuilder Auto => ChainWithCursor("auto");
+    /// <summary>
+    /// Sets the cursor to pointer.
+    /// </summary>
     public CursorBuilder Pointer => ChainWithCursor("pointer");
+    /// <summary>
+    /// Sets the cursor to grab.
+    /// </summary>
     public CursorBuilder Grab => ChainWithCursor("grab");
+    /// <summary>
+    /// Sets the cursor to grabbing.
+    /// </summary>
     public CursorBuilder Grabbing => ChainWithCursor("grabbing");
+    /// <summary>
+    /// Sets the cursor to text.
+    /// </summary>
     public CursorBuilder Text => ChainWithCursor("text");
+    /// <summary>
+    /// Sets the cursor to move.
+    /// </summary>
     public CursorBuilder Move => ChainWithCursor("move");
+    /// <summary>
+    /// Sets the cursor to resize.
+    /// </summary>
     public CursorBuilder Resize => ChainWithCursor("resize");
+    /// <summary>
+    /// Sets the cursor to not-allowed.
+    /// </summary>
     public CursorBuilder NotAllowed => ChainWithCursor("not-allowed");
+    /// <summary>
+    /// Sets the cursor to help.
+    /// </summary>
     public CursorBuilder Help => ChainWithCursor("help");
+    /// <summary>
+    /// Sets the cursor to wait.
+    /// </summary>
     public CursorBuilder Wait => ChainWithCursor("wait");
+    /// <summary>
+    /// Sets the cursor to crosshair.
+    /// </summary>
     public CursorBuilder Crosshair => ChainWithCursor("crosshair");
+    /// <summary>
+    /// Sets the cursor to zoom-in.
+    /// </summary>
     public CursorBuilder ZoomIn => ChainWithCursor("zoom-in");
+    /// <summary>
+    /// Sets the cursor to zoom-out.
+    /// </summary>
     public CursorBuilder ZoomOut => ChainWithCursor("zoom-out");
 
+    /// <summary>
+    /// Applies the cursor on phone breakpoint.
+    /// </summary>
     public CursorBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the cursor on tablet breakpoint.
+    /// </summary>
     public CursorBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the cursor on laptop breakpoint.
+    /// </summary>
     public CursorBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the cursor on desktop breakpoint.
+    /// </summary>
     public CursorBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the cursor on widescreen breakpoint.
+    /// </summary>
     public CursorBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the cursor on ultrawide breakpoint.
+    /// </summary>
     public CursorBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -80,6 +137,10 @@ public sealed class CursorBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -108,6 +169,10 @@ public sealed class CursorBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)

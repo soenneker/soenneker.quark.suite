@@ -6,6 +6,9 @@ using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// High-performance focus ring builder with fluent API for chaining focus ring rules.
+/// </summary>
 public sealed class FocusRingBuilder : ICssBuilder
 {
     private readonly List<FocusRingRule> _rules = new(4);
@@ -30,20 +33,62 @@ public sealed class FocusRingBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the focus ring color to primary.
+    /// </summary>
     public FocusRingBuilder Primary => Chain("primary");
+    /// <summary>
+    /// Sets the focus ring color to secondary.
+    /// </summary>
     public FocusRingBuilder Secondary => Chain("secondary");
+    /// <summary>
+    /// Sets the focus ring color to success.
+    /// </summary>
     public FocusRingBuilder Success => Chain("success");
+    /// <summary>
+    /// Sets the focus ring color to info.
+    /// </summary>
     public FocusRingBuilder Info => Chain("info");
+    /// <summary>
+    /// Sets the focus ring color to warning.
+    /// </summary>
     public FocusRingBuilder Warning => Chain("warning");
+    /// <summary>
+    /// Sets the focus ring color to danger.
+    /// </summary>
     public FocusRingBuilder Danger => Chain("danger");
+    /// <summary>
+    /// Sets the focus ring color to light.
+    /// </summary>
     public FocusRingBuilder Light => Chain("light");
+    /// <summary>
+    /// Sets the focus ring color to dark.
+    /// </summary>
     public FocusRingBuilder Dark => Chain("dark");
 
+    /// <summary>
+    /// Applies the focus ring on phone breakpoint.
+    /// </summary>
     public FocusRingBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the focus ring on tablet breakpoint.
+    /// </summary>
     public FocusRingBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the focus ring on laptop breakpoint.
+    /// </summary>
     public FocusRingBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the focus ring on desktop breakpoint.
+    /// </summary>
     public FocusRingBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the focus ring on widescreen breakpoint.
+    /// </summary>
     public FocusRingBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the focus ring on ultrawide breakpoint.
+    /// </summary>
     public FocusRingBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -68,6 +113,10 @@ public sealed class FocusRingBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0) return string.Empty;
@@ -104,6 +153,10 @@ public sealed class FocusRingBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0) return string.Empty;

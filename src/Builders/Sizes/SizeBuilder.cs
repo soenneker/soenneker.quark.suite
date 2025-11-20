@@ -158,6 +158,10 @@ public sealed class SizeBuilder : ICssBuilder
     }
 
 
+    /// <summary>
+    /// Returns the string representation of the size builder (same as ToClass).
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public override string ToString()
     {
         return ToClass();

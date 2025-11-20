@@ -27,6 +27,10 @@ public sealed class ThemeProvider : IThemeProvider
         Themes[theme.Name] = theme;
     }
 
+    /// <summary>
+    /// Generates Bootstrap CSS from the current theme configuration.
+    /// </summary>
+    /// <returns>The generated Bootstrap CSS string, or null if generation fails.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string? GenerateBootstrapCss()
     {
@@ -38,6 +42,10 @@ public sealed class ThemeProvider : IThemeProvider
         return BootstrapCssGenerator.Generate(currentTheme.BootstrapCssVariables);
     }
 
+    /// <summary>
+    /// Generates component-specific CSS from the current theme configuration.
+    /// </summary>
+    /// <returns>The generated component CSS string, or null if generation fails.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string? GenerateComponentsCss()
     {

@@ -30,17 +30,50 @@ public sealed class TransformBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the transform to none.
+    /// </summary>
     public TransformBuilder None => ChainWithTransform("none");
+    /// <summary>
+    /// Sets the transform to scale.
+    /// </summary>
     public TransformBuilder Scale => ChainWithTransform("scale");
+    /// <summary>
+    /// Sets the transform to rotate.
+    /// </summary>
     public TransformBuilder Rotate => ChainWithTransform("rotate");
+    /// <summary>
+    /// Sets the transform to translate.
+    /// </summary>
     public TransformBuilder Translate => ChainWithTransform("translate");
+    /// <summary>
+    /// Sets the transform to skew.
+    /// </summary>
     public TransformBuilder Skew => ChainWithTransform("skew");
 
+    /// <summary>
+    /// Applies the transform on phone breakpoint.
+    /// </summary>
     public TransformBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the transform on tablet breakpoint.
+    /// </summary>
     public TransformBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the transform on laptop breakpoint.
+    /// </summary>
     public TransformBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the transform on desktop breakpoint.
+    /// </summary>
     public TransformBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the transform on widescreen breakpoint.
+    /// </summary>
     public TransformBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the transform on ultrawide breakpoint.
+    /// </summary>
     public TransformBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -65,6 +98,10 @@ public sealed class TransformBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -93,6 +130,10 @@ public sealed class TransformBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)

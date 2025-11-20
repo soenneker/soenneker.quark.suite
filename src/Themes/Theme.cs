@@ -12,386 +12,923 @@ public sealed class Theme
     /// </summary>
     public string Name { get; set; } = "Default";
 
+    /// <summary>
+    /// Gets or sets the alert component styling options.
+    /// </summary>
     public AlertOptions? Alerts { get; set; }
 
+    /// <summary>
+    /// Gets or sets the accordion component styling options.
+    /// </summary>
     public AccordionOptions? Accordions { get; set; }
 
+    /// <summary>
+    /// Gets or sets the accordion item component styling options.
+    /// </summary>
     public AccordionItemOptions? AccordionItems { get; set; }
 
+    /// <summary>
+    /// Gets or sets the accordion header component styling options.
+    /// </summary>
     public AccordionHeaderOptions? AccordionHeaders { get; set; }
 
+    /// <summary>
+    /// Gets or sets the accordion body component styling options.
+    /// </summary>
     public AccordionBodyOptions? AccordionBodys { get; set; }
 
+    /// <summary>
+    /// Gets or sets the anchor component styling options.
+    /// </summary>
     public AnchorOptions? Anchors { get; set; }
 
+    /// <summary>
+    /// Gets or sets the badge component styling options.
+    /// </summary>
     public BadgeOptions? Badges { get; set; }
 
+    /// <summary>
+    /// Gets or sets the bar component styling options.
+    /// </summary>
     public BarOptions? Bars { get; set; }
 
+    /// <summary>
+    /// Gets or sets the breadcrumb component styling options.
+    /// </summary>
     public BreadcrumbOptions? Breadcrumbs { get; set; }
 
+    /// <summary>
+    /// Gets or sets the button component styling options.
+    /// </summary>
     public ButtonOptions? Buttons { get; set; }
 
+    /// <summary>
+    /// Gets or sets the button group component styling options.
+    /// </summary>
     public ButtonGroupOptions? ButtonGroups { get; set; }
 
+    /// <summary>
+    /// Gets or sets the card component styling options.
+    /// </summary>
     public CardOptions? Cards { get; set; }
 
+    /// <summary>
+    /// Gets or sets the check component styling options.
+    /// </summary>
     public CheckOptions? Checks { get; set; }
 
+    /// <summary>
+    /// Gets or sets the code component styling options.
+    /// </summary>
     public CodeOptions? Codes { get; set; }
 
+    /// <summary>
+    /// Gets or sets the collapse component styling options.
+    /// </summary>
     public CollapseOptions? Collapses { get; set; }
 
+    /// <summary>
+    /// Gets or sets the column component styling options.
+    /// </summary>
     public ColumnOptions? Columns { get; set; }
 
+    /// <summary>
+    /// Gets or sets the container component styling options.
+    /// </summary>
     public ContainerOptions? Containers { get; set; }
 
+    /// <summary>
+    /// Gets or sets the date edit component styling options.
+    /// </summary>
     public DateEditOptions? DateEdits { get; set; }
 
+    /// <summary>
+    /// Gets or sets the datepicker component styling options.
+    /// </summary>
     public DatepickerOptions? Datepickers { get; set; }
 
+    /// <summary>
+    /// Gets or sets the div component styling options.
+    /// </summary>
     public DivOptions? Divs { get; set; }
 
+    /// <summary>
+    /// Gets or sets the field component styling options.
+    /// </summary>
     public FieldOptions? Fields { get; set; }
 
+    /// <summary>
+    /// Gets or sets the heading component styling options.
+    /// </summary>
     public HeadingOptions? Headings { get; set; }
 
+    /// <summary>
+    /// Gets or sets the icon component styling options.
+    /// </summary>
     public IconOptions? Icons { get; set; }
 
+    /// <summary>
+    /// Gets or sets the image component styling options.
+    /// </summary>
     public ImageOptions? Images { get; set; }
 
+    /// <summary>
+    /// Gets or sets the label component styling options.
+    /// </summary>
     public LabelOptions? Labels { get; set; }
 
+    /// <summary>
+    /// Gets or sets the layout component styling options.
+    /// </summary>
     public LayoutOptions? Layouts { get; set; }
 
+    /// <summary>
+    /// Gets or sets the list group component styling options.
+    /// </summary>
     public ListGroupOptions? ListGroups { get; set; }
 
+    /// <summary>
+    /// Gets or sets the list group item component styling options.
+    /// </summary>
     public ListGroupItemOptions? ListGroupItems { get; set; }
 
+    /// <summary>
+    /// Gets or sets the memo edit component styling options.
+    /// </summary>
     public MemoEditOptions? MemoEdits { get; set; }
 
+    /// <summary>
+    /// Gets or sets the modal component styling options.
+    /// </summary>
     public ModalOptions? Modals { get; set; }
 
+    /// <summary>
+    /// Gets or sets the nav component styling options.
+    /// </summary>
     public NavOptions? Navs { get; set; }
 
+    /// <summary>
+    /// Gets or sets the numeric edit component styling options.
+    /// </summary>
     public NumericEditOptions? NumericEdits { get; set; }
 
+    /// <summary>
+    /// Gets or sets the offcanvas component styling options.
+    /// </summary>
     public OffcanvasOptions? Offcanvases { get; set; }
 
+    /// <summary>
+    /// Gets or sets the ordered list component styling options.
+    /// </summary>
     public OrderedListOptions? OrderedLists { get; set; }
 
+    /// <summary>
+    /// Gets or sets the ordered list item component styling options.
+    /// </summary>
     public OrderedListItemOptions? OrderedListItems { get; set; }
 
+    /// <summary>
+    /// Gets or sets the pagination component styling options.
+    /// </summary>
     public PaginationOptions? Paginations { get; set; }
 
+    /// <summary>
+    /// Gets or sets the paragraph component styling options.
+    /// </summary>
     public ParagraphOptions? Paragraphs { get; set; }
 
+    /// <summary>
+    /// Gets or sets the progress component styling options.
+    /// </summary>
     public ProgressOptions? Progresses { get; set; }
 
+    /// <summary>
+    /// Gets or sets the radio component styling options.
+    /// </summary>
     public RadioOptions? Radios { get; set; }
 
+    /// <summary>
+    /// Gets or sets the row component styling options.
+    /// </summary>
     public RowOptions? Rows { get; set; }
 
+    /// <summary>
+    /// Gets or sets the section component styling options.
+    /// </summary>
     public SectionOptions? Sections { get; set; }
 
+    /// <summary>
+    /// Gets or sets the slider component styling options.
+    /// </summary>
     public SliderOptions? Sliders { get; set; }
 
+    /// <summary>
+    /// Gets or sets the snackbar component styling options.
+    /// </summary>
     public SnackbarThemeOptions? Snackbars { get; set; }
 
+    /// <summary>
+    /// Gets or sets the span component styling options.
+    /// </summary>
     public SpanOptions? Spans { get; set; }
 
+    /// <summary>
+    /// Gets or sets the strong component styling options.
+    /// </summary>
     public StrongOptions? Strongs { get; set; }
 
+    /// <summary>
+    /// Gets or sets the switch component styling options.
+    /// </summary>
     public SwitchOptions? Switches { get; set; }
 
+    /// <summary>
+    /// Gets or sets the text edit component styling options.
+    /// </summary>
     public TextEditOptions? TextEdits { get; set; }
 
+    /// <summary>
+    /// Gets or sets the text component styling options.
+    /// </summary>
     public TextOptions? Texts { get; set; }
 
+    /// <summary>
+    /// Gets or sets the unordered list component styling options.
+    /// </summary>
     public UnorderedListOptions? UnorderedLists { get; set; }
 
+    /// <summary>
+    /// Gets or sets the unordered list item component styling options.
+    /// </summary>
     public UnorderedListItemOptions? UnorderedListItems { get; set; }
 
     // Dropdown components
+    /// <summary>
+    /// Gets or sets the dropdown component styling options.
+    /// </summary>
     public DropdownOptions? Dropdowns { get; set; }
 
+    /// <summary>
+    /// Gets or sets the dropdown toggle component styling options.
+    /// </summary>
     public DropdownToggleOptions? DropdownToggles { get; set; }
 
+    /// <summary>
+    /// Gets or sets the dropdown menu component styling options.
+    /// </summary>
     public DropdownMenuOptions? DropdownMenus { get; set; }
 
+    /// <summary>
+    /// Gets or sets the dropdown item component styling options.
+    /// </summary>
     public DropdownItemOptions? DropdownItems { get; set; }
 
+    /// <summary>
+    /// Gets or sets the dropdown divider component styling options.
+    /// </summary>
     public DropdownDividerOptions? DropdownDividers { get; set; }
 
     // Validation components
+    /// <summary>
+    /// Gets or sets the validation success component styling options.
+    /// </summary>
     public ValidationSuccessOptions? ValidationSuccess { get; set; }
 
+    /// <summary>
+    /// Gets or sets the validations component styling options.
+    /// </summary>
     public ValidationsOptions? Validations { get; set; }
 
+    /// <summary>
+    /// Gets or sets the validation errors component styling options.
+    /// </summary>
     public ValidationErrorsOptions? ValidationErrors { get; set; }
 
+    /// <summary>
+    /// Gets or sets the validation error component styling options.
+    /// </summary>
     public ValidationErrorOptions? ValidationError { get; set; }
 
     // Table components
+    /// <summary>
+    /// Gets or sets the table row component styling options.
+    /// </summary>
     public TrOptions? Trs { get; set; }
 
+    /// <summary>
+    /// Gets or sets the table head component styling options.
+    /// </summary>
     public TheadOptions? Theads { get; set; }
 
+    /// <summary>
+    /// Gets or sets the table data cell component styling options.
+    /// </summary>
     public TdOptions? Tds { get; set; }
 
+    /// <summary>
+    /// Gets or sets the table body component styling options.
+    /// </summary>
     public TbodyOptions? Tbodys { get; set; }
 
+    /// <summary>
+    /// Gets or sets the table search component styling options.
+    /// </summary>
     public TableSearchOptions? TableSearches { get; set; }
 
+    /// <summary>
+    /// Gets or sets the table pagination component styling options.
+    /// </summary>
     public TablePaginationOptions? TablePaginations { get; set; }
 
+    /// <summary>
+    /// Gets or sets the table page size selector component styling options.
+    /// </summary>
     public TablePageSizeSelectorOptions? TablePageSizeSelectors { get; set; }
 
+    /// <summary>
+    /// Gets or sets the table no data component styling options.
+    /// </summary>
     public TableNoDataOptions? TableNoDatas { get; set; }
 
+    /// <summary>
+    /// Gets or sets the table loader component styling options.
+    /// </summary>
     public TableLoaderOptions? TableLoaders { get; set; }
 
+    /// <summary>
+    /// Gets or sets the table info component styling options.
+    /// </summary>
     public TableInfoOptions? TableInfos { get; set; }
 
+    /// <summary>
+    /// Gets or sets the table element component styling options.
+    /// </summary>
     public TableElementOptions? TableElements { get; set; }
 
     // Snackbar components
+    /// <summary>
+    /// Gets or sets the snackbar header component styling options.
+    /// </summary>
     public SnackbarHeaderOptions? SnackbarHeaders { get; set; }
 
+    /// <summary>
+    /// Gets or sets the snackbar footer component styling options.
+    /// </summary>
     public SnackbarFooterOptions? SnackbarFooters { get; set; }
 
+    /// <summary>
+    /// Gets or sets the snackbar body component styling options.
+    /// </summary>
     public SnackbarBodyOptions? SnackbarBodys { get; set; }
 
+    /// <summary>
+    /// Gets or sets the snackbar action component styling options.
+    /// </summary>
     public SnackbarActionOptions? SnackbarActions { get; set; }
 
+    /// <summary>
+    /// Gets or sets the snackbar stack component styling options.
+    /// </summary>
     public SnackbarStackOptions? SnackbarStacks { get; set; }
 
     // Navigation components
+    /// <summary>
+    /// Gets or sets the tabs component styling options.
+    /// </summary>
     public TabsOptions? Tabs { get; set; }
 
+    /// <summary>
+    /// Gets or sets the steps component styling options.
+    /// </summary>
     public StepsOptions? Steps { get; set; }
 
+    /// <summary>
+    /// Gets or sets the step panel component styling options.
+    /// </summary>
     public StepPanelOptions? StepPanels { get; set; }
 
+    /// <summary>
+    /// Gets or sets the step content component styling options.
+    /// </summary>
     public StepContentOptions? StepContents { get; set; }
 
+    /// <summary>
+    /// Gets or sets the pagination link component styling options.
+    /// </summary>
     public PaginationLinkOptions? PaginationLinks { get; set; }
 
+    /// <summary>
+    /// Gets or sets the pagination item component styling options.
+    /// </summary>
     public PaginationItemOptions? PaginationItems { get; set; }
 
+    /// <summary>
+    /// Gets or sets the breadcrumb item component styling options.
+    /// </summary>
     public BreadcrumbItemOptions? BreadcrumbItems { get; set; }
 
     // Modal components
+    /// <summary>
+    /// Gets or sets the offcanvas header component styling options.
+    /// </summary>
     public OffcanvasHeaderOptions? OffcanvasHeaders { get; set; }
 
+    /// <summary>
+    /// Gets or sets the offcanvas body component styling options.
+    /// </summary>
     public OffcanvasBodyOptions? OffcanvasBodys { get; set; }
 
+    /// <summary>
+    /// Gets or sets the modal title component styling options.
+    /// </summary>
     public ModalTitleOptions? ModalTitles { get; set; }
 
+    /// <summary>
+    /// Gets or sets the modal header component styling options.
+    /// </summary>
     public ModalHeaderOptions? ModalHeaders { get; set; }
 
+    /// <summary>
+    /// Gets or sets the modal footer component styling options.
+    /// </summary>
     public ModalFooterOptions? ModalFooters { get; set; }
 
+    /// <summary>
+    /// Gets or sets the modal content component styling options.
+    /// </summary>
     public ModalContentOptions? ModalContents { get; set; }
 
+    /// <summary>
+    /// Gets or sets the modal close button component styling options.
+    /// </summary>
     public ModalCloseButtonOptions? ModalCloseButtons { get; set; }
 
+    /// <summary>
+    /// Gets or sets the modal body component styling options.
+    /// </summary>
     public ModalBodyOptions? ModalBodys { get; set; }
 
     // Form components
+    /// <summary>
+    /// Gets or sets the field label component styling options.
+    /// </summary>
     public FieldLabelOptions? FieldLabels { get; set; }
 
+    /// <summary>
+    /// Gets or sets the field help component styling options.
+    /// </summary>
     public FieldHelpOptions? FieldHelps { get; set; }
 
+    /// <summary>
+    /// Gets or sets the field body component styling options.
+    /// </summary>
     public FieldBodyOptions? FieldBodys { get; set; }
 
     // Content components
+    /// <summary>
+    /// Gets or sets the small component styling options.
+    /// </summary>
     public SmallOptions? Smalls { get; set; }
 
+    /// <summary>
+    /// Gets or sets the pre code component styling options.
+    /// </summary>
     public PreCodeOptions? PreCodes { get; set; }
 
     // Bar components
+    /// <summary>
+    /// Gets or sets the bar toggler component styling options.
+    /// </summary>
     public BarTogglerOptions? BarTogglers { get; set; }
 
+    /// <summary>
+    /// Gets or sets the bar start component styling options.
+    /// </summary>
     public BarStartOptions? BarStarts { get; set; }
 
+    /// <summary>
+    /// Gets or sets the bar menu component styling options.
+    /// </summary>
     public BarMenuOptions? BarMenus { get; set; }
 
+    /// <summary>
+    /// Gets or sets the bar link component styling options.
+    /// </summary>
     public BarLinkOptions? BarLinks { get; set; }
 
+    /// <summary>
+    /// Gets or sets the bar label component styling options.
+    /// </summary>
     public BarLabelOptions? BarLabels { get; set; }
 
+    /// <summary>
+    /// Gets or sets the bar item component styling options.
+    /// </summary>
     public BarItemOptions? BarItems { get; set; }
 
+    /// <summary>
+    /// Gets or sets the bar icon component styling options.
+    /// </summary>
     public BarIconOptions? BarIcons { get; set; }
 
+    /// <summary>
+    /// Gets or sets the bar end component styling options.
+    /// </summary>
     public BarEndOptions? BarEnds { get; set; }
 
+    /// <summary>
+    /// Gets or sets the bar dropdown toggle component styling options.
+    /// </summary>
     public BarDropdownToggleOptions? BarDropdownToggles { get; set; }
 
+    /// <summary>
+    /// Gets or sets the bar dropdown component styling options.
+    /// </summary>
     public BarDropdownOptions? BarDropdowns { get; set; }
 
+    /// <summary>
+    /// Gets or sets the bar dropdown menu component styling options.
+    /// </summary>
     public BarDropdownMenuOptions? BarDropdownMenus { get; set; }
 
+    /// <summary>
+    /// Gets or sets the bar dropdown item component styling options.
+    /// </summary>
     public BarDropdownItemOptions? BarDropdownItems { get; set; }
 
+    /// <summary>
+    /// Gets or sets the bar dropdown divider component styling options.
+    /// </summary>
     public BarDropdownDividerOptions? BarDropdownDividers { get; set; }
 
+    /// <summary>
+    /// Gets or sets the bar brand component styling options.
+    /// </summary>
     public BarBrandOptions? BarBrands { get; set; }
 
     // Typographic components
+    /// <summary>
+    /// Gets or sets the H1 heading component styling options.
+    /// </summary>
     public H1Options? H1s { get; set; }
 
+    /// <summary>
+    /// Gets or sets the H2 heading component styling options.
+    /// </summary>
     public H2Options? H2s { get; set; }
 
+    /// <summary>
+    /// Gets or sets the H3 heading component styling options.
+    /// </summary>
     public H3Options? H3s { get; set; }
 
+    /// <summary>
+    /// Gets or sets the H4 heading component styling options.
+    /// </summary>
     public H4Options? H4s { get; set; }
 
+    /// <summary>
+    /// Gets or sets the H5 heading component styling options.
+    /// </summary>
     public H5Options? H5s { get; set; }
 
+    /// <summary>
+    /// Gets or sets the H6 heading component styling options.
+    /// </summary>
     public H6Options? H6s { get; set; }
 
+    /// <summary>
+    /// Gets or sets the blockquote component styling options.
+    /// </summary>
     public BlockquoteOptions? Blockquotes { get; set; }
 
+    /// <summary>
+    /// Gets or sets the lead component styling options.
+    /// </summary>
     public LeadOptions? Leads { get; set; }
 
+    /// <summary>
+    /// Gets or sets the muted component styling options.
+    /// </summary>
     public MutedOptions? Muteds { get; set; }
 
+    /// <summary>
+    /// Gets or sets the keyboard key component styling options.
+    /// </summary>
     public KbdOptions? Kbds { get; set; }
 
+    /// <summary>
+    /// Gets or sets the form text component styling options.
+    /// </summary>
     public FormTextOptions? FormTexts { get; set; }
 
+    /// <summary>
+    /// Gets or sets the keyboard chip component styling options.
+    /// </summary>
     public KbdChipOptions? KbdChips { get; set; }
 
+    /// <summary>
+    /// Gets or sets the pill component styling options.
+    /// </summary>
     public PillOptions? Pills { get; set; }
 
+    /// <summary>
+    /// Gets or sets the code chip component styling options.
+    /// </summary>
     public CodeChipOptions? CodeChips { get; set; }
 
     // Structure components
+    /// <summary>
+    /// Gets or sets the figure component styling options.
+    /// </summary>
     public FigureOptions? Figures { get; set; }
 
+    /// <summary>
+    /// Gets or sets the figcaption component styling options.
+    /// </summary>
     public FigcaptionOptions? Figcaptions { get; set; }
 
+    /// <summary>
+    /// Gets or sets the main component styling options.
+    /// </summary>
     public MainOptions? Mains { get; set; }
 
+    /// <summary>
+    /// Gets or sets the legend component styling options.
+    /// </summary>
     public LegendOptions? Legends { get; set; }
 
+    /// <summary>
+    /// Gets or sets the aside component styling options.
+    /// </summary>
     public AsideOptions? Asides { get; set; }
 
+    /// <summary>
+    /// Gets or sets the article component styling options.
+    /// </summary>
     public ArticleOptions? Articles { get; set; }
 
+    /// <summary>
+    /// Gets or sets the fieldset component styling options.
+    /// </summary>
     public FieldsetOptions? Fieldsets { get; set; }
 
     // Media components
+    /// <summary>
+    /// Gets or sets the audio component styling options.
+    /// </summary>
     public AudioOptions? Audios { get; set; }
 
+    /// <summary>
+    /// Gets or sets the video component styling options.
+    /// </summary>
     public VideoOptions? Videos { get; set; }
 
+    /// <summary>
+    /// Gets or sets the iframe component styling options.
+    /// </summary>
     public IFrameOptions? IFrames { get; set; }
 
     // Utilities
+    /// <summary>
+    /// Gets or sets the horizontal rule component styling options.
+    /// </summary>
     public HrOptions? Hrs { get; set; }
 
+    /// <summary>
+    /// Gets or sets the line break component styling options.
+    /// </summary>
     public BrOptions? Brs { get; set; }
 
+    /// <summary>
+    /// Gets or sets the details component styling options.
+    /// </summary>
     public DetailsOptions? Details { get; set; }
 
+    /// <summary>
+    /// Gets or sets the summary component styling options.
+    /// </summary>
     public SummaryOptions? Summaries { get; set; }
 
     // Card sub-components
+    /// <summary>
+    /// Gets or sets the card text component styling options.
+    /// </summary>
     public CardTextOptions? CardTexts { get; set; }
 
+    /// <summary>
+    /// Gets or sets the card title component styling options.
+    /// </summary>
     public CardTitleOptions? CardTitles { get; set; }
 
+    /// <summary>
+    /// Gets or sets the card image component styling options.
+    /// </summary>
     public CardImgOptions? CardImgs { get; set; }
 
+    /// <summary>
+    /// Gets or sets the card subtitle component styling options.
+    /// </summary>
     public CardSubtitleOptions? CardSubtitles { get; set; }
 
+    /// <summary>
+    /// Gets or sets the card body component styling options.
+    /// </summary>
     public CardBodyOptions? CardBodys { get; set; }
 
+    /// <summary>
+    /// Gets or sets the card header component styling options.
+    /// </summary>
     public CardHeaderOptions? CardHeaders { get; set; }
 
+    /// <summary>
+    /// Gets or sets the card footer component styling options.
+    /// </summary>
     public CardFooterOptions? CardFooters { get; set; }
 
     // Alert sub-components
+    /// <summary>
+    /// Gets or sets the alert message component styling options.
+    /// </summary>
     public AlertMessageOptions? AlertMessages { get; set; }
 
+    /// <summary>
+    /// Gets or sets the alert description component styling options.
+    /// </summary>
     public AlertDescriptionOptions? AlertDescriptions { get; set; }
 
     // Surface components
+    /// <summary>
+    /// Gets or sets the progress bar component styling options.
+    /// </summary>
     public ProgressBarOptions? ProgressBars { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callout component styling options.
+    /// </summary>
     public CalloutOptions? Callouts { get; set; }
 
+    /// <summary>
+    /// Gets or sets the panel component styling options.
+    /// </summary>
     public PanelOptions? Panels { get; set; }
 
     // Input components
+    /// <summary>
+    /// Gets or sets the select item component styling options.
+    /// </summary>
     public SelectItemOptions? SelectItems { get; set; }
 
+    /// <summary>
+    /// Gets or sets the select group component styling options.
+    /// </summary>
     public SelectGroupOptions? SelectGroups { get; set; }
 
+    /// <summary>
+    /// Gets or sets the select component styling options.
+    /// </summary>
     public SelectOptions? Selects { get; set; }
 
+    /// <summary>
+    /// Gets or sets the input component styling options.
+    /// </summary>
     public InputOptions? Inputs { get; set; }
 
+    /// <summary>
+    /// Gets or sets the date time picker component styling options.
+    /// </summary>
     public DateTimePickerOptions? DateTimePickers { get; set; }
 
     // Layout components
+    /// <summary>
+    /// Gets or sets the layout header component styling options.
+    /// </summary>
     public LayoutHeaderOptions? LayoutHeaders { get; set; }
 
+    /// <summary>
+    /// Gets or sets the layout footer component styling options.
+    /// </summary>
     public LayoutFooterOptions? LayoutFooters { get; set; }
 
+    /// <summary>
+    /// Gets or sets the layout content component styling options.
+    /// </summary>
     public LayoutContentOptions? LayoutContents { get; set; }
 
+    /// <summary>
+    /// Gets or sets the layout container component styling options.
+    /// </summary>
     public LayoutContainerOptions? LayoutContainers { get; set; }
 
+    /// <summary>
+    /// Gets or sets the layout sider component styling options.
+    /// </summary>
     public LayoutSiderOptions? LayoutSiders { get; set; }
 
+    /// <summary>
+    /// Gets or sets the layout sider content component styling options.
+    /// </summary>
     public LayoutSiderContentOptions? LayoutSiderContents { get; set; }
 
+    /// <summary>
+    /// Gets or sets the overlay container component styling options.
+    /// </summary>
     public OverlayContainerOptions? OverlayContainers { get; set; }
 
     // Navigation sub-components
+    /// <summary>
+    /// Gets or sets the tab component styling options.
+    /// </summary>
     public TabOptions? Tab { get; set; }
 
+    /// <summary>
+    /// Gets or sets the step component styling options.
+    /// </summary>
     public StepOptions? Step { get; set; }
 
+    /// <summary>
+    /// Gets or sets the step marker component styling options.
+    /// </summary>
     public StepMarkerOptions? StepMarkers { get; set; }
 
+    /// <summary>
+    /// Gets or sets the step caption component styling options.
+    /// </summary>
     public StepCaptionOptions? StepCaptions { get; set; }
 
+    /// <summary>
+    /// Gets or sets the steps content component styling options.
+    /// </summary>
     public StepsContentOptions? StepsContents { get; set; }
 
     // Table sub-components
+    /// <summary>
+    /// Gets or sets the table header cell component styling options.
+    /// </summary>
     public ThOptions? Ths { get; set; }
 
+    /// <summary>
+    /// Gets or sets the table bottom bar component styling options.
+    /// </summary>
     public TableBottomBarOptions? TableBottomBars { get; set; }
 
+    /// <summary>
+    /// Gets or sets the table top bar component styling options.
+    /// </summary>
     public TableTopBarOptions? TableTopBars { get; set; }
 
+    /// <summary>
+    /// Gets or sets the table left component styling options.
+    /// </summary>
     public TableLeftOptions? TableLefts { get; set; }
 
+    /// <summary>
+    /// Gets or sets the table right component styling options.
+    /// </summary>
     public TableRightOptions? TableRights { get; set; }
 
+    /// <summary>
+    /// Gets or sets the table theme component styling options.
+    /// </summary>
     public TableThemeOptions? Tables { get; set; }
 
     // Collection components
+    /// <summary>
+    /// Gets or sets the tree view component styling options.
+    /// </summary>
     public TreeViewOptions? TreeViews { get; set; }
 
+    /// <summary>
+    /// Gets or sets the tree view node component styling options.
+    /// </summary>
     public TreeViewNodeOptions? TreeViewNodes { get; set; }
 
+    /// <summary>
+    /// Gets or sets the tree view node content component styling options.
+    /// </summary>
     public TreeViewNodeContentOptions? TreeViewNodeContents { get; set; }
 
     // Forms sub-components
+    /// <summary>
+    /// Gets or sets the validations container component styling options.
+    /// </summary>
     public ValidationsContainerOptions? ValidationsContainers { get; set; }
 
     // Modal/Overlay main components
+    /// <summary>
+    /// Gets or sets the snackbar component styling options.
+    /// </summary>
     public SnackbarOptions? Snackbar { get; set; }
 
+    /// <summary>
+    /// Gets or sets the Bootstrap CSS variables configuration.
+    /// </summary>
     public BootstrapCssVariables? BootstrapCssVariables { get; set; }
 
-    /// <summary>Gets all ComponentOptions instances in this theme without using reflection.</summary>
+    /// <summary>
+    /// Gets all ComponentOptions instances in this theme without using reflection.
+    /// </summary>
+    /// <returns>An enumerable collection of all component options in this theme.</returns>
     internal IEnumerable<ComponentOptions> GetAllComponentOptions()
     {
         if (Alerts != null) yield return Alerts;

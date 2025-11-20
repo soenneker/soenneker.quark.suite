@@ -36,19 +36,55 @@ public sealed class TextSizeBuilder : ICssBuilder
     }
 
     // ----- Fluent size chaining -----
+    /// <summary>
+    /// Sets the text size to 1.
+    /// </summary>
     public TextSizeBuilder Is1 => ChainSize("1");
+    /// <summary>
+    /// Sets the text size to 2.
+    /// </summary>
     public TextSizeBuilder Is2 => ChainSize("2");
+    /// <summary>
+    /// Sets the text size to 3.
+    /// </summary>
     public TextSizeBuilder Is3 => ChainSize("3");
+    /// <summary>
+    /// Sets the text size to 4.
+    /// </summary>
     public TextSizeBuilder Is4 => ChainSize("4");
+    /// <summary>
+    /// Sets the text size to 5.
+    /// </summary>
     public TextSizeBuilder Is5 => ChainSize("5");
+    /// <summary>
+    /// Sets the text size to 6.
+    /// </summary>
     public TextSizeBuilder Is6 => ChainSize("6");
 
     // ----- BreakpointType chaining -----
+    /// <summary>
+    /// Applies the text size on phone breakpoint.
+    /// </summary>
     public TextSizeBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the text size on tablet breakpoint.
+    /// </summary>
     public TextSizeBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the text size on laptop breakpoint.
+    /// </summary>
     public TextSizeBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the text size on desktop breakpoint.
+    /// </summary>
     public TextSizeBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the text size on widescreen breakpoint.
+    /// </summary>
     public TextSizeBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the text size on ultrawide breakpoint.
+    /// </summary>
     public TextSizeBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

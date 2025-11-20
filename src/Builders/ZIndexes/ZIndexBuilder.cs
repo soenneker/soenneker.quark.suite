@@ -6,6 +6,9 @@ using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// Simplified z-index builder with fluent API for chaining z-index rules.
+/// </summary>
 public sealed class ZIndexBuilder : ICssBuilder
 {
     private readonly List<ZIndexRule> _rules = new(4);
@@ -27,17 +30,59 @@ public sealed class ZIndexBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the z-index to -1.
+    /// </summary>
     public ZIndexBuilder N1 => Chain(-1);
+
+    /// <summary>
+    /// Sets the z-index to 0.
+    /// </summary>
     public ZIndexBuilder Z0 => Chain(0);
+
+    /// <summary>
+    /// Sets the z-index to 1.
+    /// </summary>
     public ZIndexBuilder Z1 => Chain(1);
+
+    /// <summary>
+    /// Sets the z-index to 2.
+    /// </summary>
     public ZIndexBuilder Z2 => Chain(2);
+
+    /// <summary>
+    /// Sets the z-index to 3.
+    /// </summary>
     public ZIndexBuilder Z3 => Chain(3);
 
+    /// <summary>
+    /// Applies the z-index on phone breakpoint.
+    /// </summary>
     public ZIndexBuilder OnPhone => ChainBp(BreakpointType.Phone);
+
+    /// <summary>
+    /// Applies the z-index on tablet breakpoint.
+    /// </summary>
     public ZIndexBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+
+    /// <summary>
+    /// Applies the z-index on laptop breakpoint.
+    /// </summary>
     public ZIndexBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+
+    /// <summary>
+    /// Applies the z-index on desktop breakpoint.
+    /// </summary>
     public ZIndexBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+
+    /// <summary>
+    /// Applies the z-index on widescreen breakpoint.
+    /// </summary>
     public ZIndexBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+
+    /// <summary>
+    /// Applies the z-index on ultrawide breakpoint.
+    /// </summary>
     public ZIndexBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -62,6 +107,10 @@ public sealed class ZIndexBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0) return string.Empty;
@@ -95,6 +144,10 @@ public sealed class ZIndexBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0) return string.Empty;

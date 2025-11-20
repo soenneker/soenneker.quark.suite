@@ -6,6 +6,9 @@ using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// Simplified user select builder with fluent API for chaining user select rules.
+/// </summary>
 public sealed class UserSelectBuilder : ICssBuilder
 {
     private readonly List<UserSelectRule> _rules = new(4);
@@ -26,20 +29,74 @@ public sealed class UserSelectBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the user select to none.
+    /// </summary>
     public UserSelectBuilder None => Chain(UserSelectKeyword.NoneValue);
+
+    /// <summary>
+    /// Sets the user select to auto.
+    /// </summary>
     public UserSelectBuilder Auto => Chain(UserSelectKeyword.AutoValue);
+
+    /// <summary>
+    /// Sets the user select to all.
+    /// </summary>
     public UserSelectBuilder All => Chain(UserSelectKeyword.AllValue);
+
+    /// <summary>
+    /// Sets the user select to inherit.
+    /// </summary>
     public UserSelectBuilder Inherit => Chain(GlobalKeyword.InheritValue);
+
+    /// <summary>
+    /// Sets the user select to initial.
+    /// </summary>
     public UserSelectBuilder Initial => Chain(GlobalKeyword.InitialValue);
+
+    /// <summary>
+    /// Sets the user select to revert.
+    /// </summary>
     public UserSelectBuilder Revert => Chain(GlobalKeyword.RevertValue);
+
+    /// <summary>
+    /// Sets the user select to revert-layer.
+    /// </summary>
     public UserSelectBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
+
+    /// <summary>
+    /// Sets the user select to unset.
+    /// </summary>
     public UserSelectBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
+    /// <summary>
+    /// Applies the user select on phone breakpoint.
+    /// </summary>
     public UserSelectBuilder OnPhone => ChainBp(BreakpointType.Phone);
+
+    /// <summary>
+    /// Applies the user select on tablet breakpoint.
+    /// </summary>
     public UserSelectBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+
+    /// <summary>
+    /// Applies the user select on laptop breakpoint.
+    /// </summary>
     public UserSelectBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+
+    /// <summary>
+    /// Applies the user select on desktop breakpoint.
+    /// </summary>
     public UserSelectBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+
+    /// <summary>
+    /// Applies the user select on widescreen breakpoint.
+    /// </summary>
     public UserSelectBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+
+    /// <summary>
+    /// Applies the user select on ultrawide breakpoint.
+    /// </summary>
     public UserSelectBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -64,6 +121,10 @@ public sealed class UserSelectBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0) return string.Empty;
@@ -95,6 +156,10 @@ public sealed class UserSelectBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0) return string.Empty;

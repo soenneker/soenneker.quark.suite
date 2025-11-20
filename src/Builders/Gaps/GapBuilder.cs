@@ -110,6 +110,10 @@ public sealed class GapBuilder : ICssBuilder
     /// Apply on wide screen devices (larger desktops, 1400px and up).
     /// </summary>
     public GapBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+
+    /// <summary>
+    /// Apply on ultrawide devices (ultrawide screens, 1920px and up).
+    /// </summary>
     public GapBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

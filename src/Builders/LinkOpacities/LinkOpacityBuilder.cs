@@ -5,6 +5,9 @@ using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// High-performance link opacity builder with fluent API for chaining link opacity rules.
+/// </summary>
 public sealed class LinkOpacityBuilder : ICssBuilder
 {
     private readonly List<LinkOpacityRule> _rules = new(4);
@@ -20,17 +23,50 @@ public sealed class LinkOpacityBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the link opacity to 10%.
+    /// </summary>
     public LinkOpacityBuilder V10 => Chain(10);
+    /// <summary>
+    /// Sets the link opacity to 25%.
+    /// </summary>
     public LinkOpacityBuilder V25 => Chain(25);
+    /// <summary>
+    /// Sets the link opacity to 50%.
+    /// </summary>
     public LinkOpacityBuilder V50 => Chain(50);
+    /// <summary>
+    /// Sets the link opacity to 75%.
+    /// </summary>
     public LinkOpacityBuilder V75 => Chain(75);
+    /// <summary>
+    /// Sets the link opacity to 100%.
+    /// </summary>
     public LinkOpacityBuilder V100 => Chain(100);
 
+    /// <summary>
+    /// Applies the link opacity on phone breakpoint.
+    /// </summary>
     public LinkOpacityBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the link opacity on tablet breakpoint.
+    /// </summary>
     public LinkOpacityBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the link opacity on laptop breakpoint.
+    /// </summary>
     public LinkOpacityBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the link opacity on desktop breakpoint.
+    /// </summary>
     public LinkOpacityBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the link opacity on widescreen breakpoint.
+    /// </summary>
     public LinkOpacityBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the link opacity on ultrawide breakpoint.
+    /// </summary>
     public LinkOpacityBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -55,6 +91,10 @@ public sealed class LinkOpacityBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0) return string.Empty;
@@ -80,6 +120,10 @@ public sealed class LinkOpacityBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0) return string.Empty;

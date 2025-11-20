@@ -232,6 +232,9 @@ public sealed class FlexBuilder : ICssBuilder
     /// </summary>
     public FlexBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
 
+    /// <summary>
+    /// Apply on ultrawide devices (ultrawide screens, 1920px and up).
+    /// </summary>
     public FlexBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

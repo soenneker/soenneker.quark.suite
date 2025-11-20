@@ -6,6 +6,9 @@ using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// Simplified vertical alignment builder with fluent API for chaining vertical alignment rules.
+/// </summary>
 public sealed class VerticalAlignBuilder : ICssBuilder
 {
     private readonly List<VerticalAlignRule> _rules = new(6);
@@ -21,23 +24,89 @@ public sealed class VerticalAlignBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the vertical alignment to baseline.
+    /// </summary>
     public VerticalAlignBuilder Baseline => Chain(VerticalAlignKeyword.BaselineValue);
+
+    /// <summary>
+    /// Sets the vertical alignment to top.
+    /// </summary>
     public VerticalAlignBuilder Top => Chain(VerticalAlignKeyword.TopValue);
+
+    /// <summary>
+    /// Sets the vertical alignment to middle.
+    /// </summary>
     public VerticalAlignBuilder Middle => Chain(VerticalAlignKeyword.MiddleValue);
+
+    /// <summary>
+    /// Sets the vertical alignment to bottom.
+    /// </summary>
     public VerticalAlignBuilder Bottom => Chain(VerticalAlignKeyword.BottomValue);
+
+    /// <summary>
+    /// Sets the vertical alignment to text-top.
+    /// </summary>
     public VerticalAlignBuilder TextTop => Chain(VerticalAlignKeyword.TextTopValue);
+
+    /// <summary>
+    /// Sets the vertical alignment to text-bottom.
+    /// </summary>
     public VerticalAlignBuilder TextBottom => Chain(VerticalAlignKeyword.TextBottomValue);
+
+    /// <summary>
+    /// Sets the vertical alignment to inherit.
+    /// </summary>
     public VerticalAlignBuilder Inherit => Chain(GlobalKeyword.InheritValue);
+
+    /// <summary>
+    /// Sets the vertical alignment to initial.
+    /// </summary>
     public VerticalAlignBuilder Initial => Chain(GlobalKeyword.InitialValue);
+
+    /// <summary>
+    /// Sets the vertical alignment to revert.
+    /// </summary>
     public VerticalAlignBuilder Revert => Chain(GlobalKeyword.RevertValue);
+
+    /// <summary>
+    /// Sets the vertical alignment to revert-layer.
+    /// </summary>
     public VerticalAlignBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
+
+    /// <summary>
+    /// Sets the vertical alignment to unset.
+    /// </summary>
     public VerticalAlignBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
+    /// <summary>
+    /// Applies the vertical alignment on phone breakpoint.
+    /// </summary>
     public VerticalAlignBuilder OnPhone => ChainBp(BreakpointType.Phone);
+
+    /// <summary>
+    /// Applies the vertical alignment on tablet breakpoint.
+    /// </summary>
     public VerticalAlignBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+
+    /// <summary>
+    /// Applies the vertical alignment on laptop breakpoint.
+    /// </summary>
     public VerticalAlignBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+
+    /// <summary>
+    /// Applies the vertical alignment on desktop breakpoint.
+    /// </summary>
     public VerticalAlignBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+
+    /// <summary>
+    /// Applies the vertical alignment on widescreen breakpoint.
+    /// </summary>
     public VerticalAlignBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+
+    /// <summary>
+    /// Applies the vertical alignment on ultrawide breakpoint.
+    /// </summary>
     public VerticalAlignBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -62,6 +131,10 @@ public sealed class VerticalAlignBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0) return string.Empty;
@@ -96,6 +169,10 @@ public sealed class VerticalAlignBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0) return string.Empty;

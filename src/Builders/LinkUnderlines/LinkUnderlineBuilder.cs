@@ -5,6 +5,9 @@ using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// High-performance link underline builder with fluent API for chaining link underline rules.
+/// </summary>
 public sealed class LinkUnderlineBuilder : ICssBuilder
 {
     private readonly List<LinkUnderlineRule> _rules = new(4);
@@ -21,28 +24,88 @@ public sealed class LinkUnderlineBuilder : ICssBuilder
     }
 
     // Opacity methods
+    /// <summary>
+    /// Sets the link underline opacity to 0.
+    /// </summary>
     public LinkUnderlineBuilder Opacity0 => ChainOpacity("0");
+    /// <summary>
+    /// Sets the link underline opacity to 10.
+    /// </summary>
     public LinkUnderlineBuilder Opacity10 => ChainOpacity("10");
+    /// <summary>
+    /// Sets the link underline opacity to 25.
+    /// </summary>
     public LinkUnderlineBuilder Opacity25 => ChainOpacity("25");
+    /// <summary>
+    /// Sets the link underline opacity to 50.
+    /// </summary>
     public LinkUnderlineBuilder Opacity50 => ChainOpacity("50");
+    /// <summary>
+    /// Sets the link underline opacity to 75.
+    /// </summary>
     public LinkUnderlineBuilder Opacity75 => ChainOpacity("75");
+    /// <summary>
+    /// Sets the link underline opacity to 100.
+    /// </summary>
     public LinkUnderlineBuilder Opacity100 => ChainOpacity("100");
 
     // Color methods
+    /// <summary>
+    /// Sets the link underline color to primary.
+    /// </summary>
     public LinkUnderlineBuilder Primary => ChainColor("primary");
+    /// <summary>
+    /// Sets the link underline color to secondary.
+    /// </summary>
     public LinkUnderlineBuilder Secondary => ChainColor("secondary");
+    /// <summary>
+    /// Sets the link underline color to success.
+    /// </summary>
     public LinkUnderlineBuilder Success => ChainColor("success");
+    /// <summary>
+    /// Sets the link underline color to info.
+    /// </summary>
     public LinkUnderlineBuilder Info => ChainColor("info");
+    /// <summary>
+    /// Sets the link underline color to warning.
+    /// </summary>
     public LinkUnderlineBuilder Warning => ChainColor("warning");
+    /// <summary>
+    /// Sets the link underline color to danger.
+    /// </summary>
     public LinkUnderlineBuilder Danger => ChainColor("danger");
+    /// <summary>
+    /// Sets the link underline color to light.
+    /// </summary>
     public LinkUnderlineBuilder Light => ChainColor("light");
+    /// <summary>
+    /// Sets the link underline color to dark.
+    /// </summary>
     public LinkUnderlineBuilder Dark => ChainColor("dark");
 
+    /// <summary>
+    /// Applies the link underline on phone breakpoint.
+    /// </summary>
     public LinkUnderlineBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the link underline on tablet breakpoint.
+    /// </summary>
     public LinkUnderlineBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the link underline on laptop breakpoint.
+    /// </summary>
     public LinkUnderlineBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the link underline on desktop breakpoint.
+    /// </summary>
     public LinkUnderlineBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the link underline on widescreen breakpoint.
+    /// </summary>
     public LinkUnderlineBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the link underline on ultrawide breakpoint.
+    /// </summary>
     public LinkUnderlineBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -74,6 +137,10 @@ public sealed class LinkUnderlineBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0) return string.Empty;
@@ -113,6 +180,10 @@ public sealed class LinkUnderlineBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0) return string.Empty;

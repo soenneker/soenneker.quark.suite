@@ -26,153 +26,303 @@ public abstract class Component : CoreComponent, IComponent
     [Inject]
     protected QuarkOptions QuarkOptions { get; set; } = null!;
 
+    /// <summary>
+    /// Gets or sets additional CSS class names to be merged into the rendered element's class attribute.
+    /// </summary>
     [Parameter]
     public string? Class { get; set; }
 
+    /// <summary>
+    /// Gets or sets additional inline CSS declarations to be merged into the element's style attribute.
+    /// </summary>
     [Parameter]
     public string? Style { get; set; }
 
+    /// <summary>
+    /// Gets or sets the HTML title attribute (commonly used for native tooltips).
+    /// </summary>
     [Parameter]
     public string? Title { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the element is hidden using the boolean HTML hidden attribute.
+    /// </summary>
     [Parameter]
     public bool Hidden { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS display configuration (e.g., block, inline, flex, grid, none).
+    /// </summary>
     [Parameter]
     public CssValue<DisplayBuilder>? Display { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS visibility configuration (e.g., visible, hidden, collapse).
+    /// </summary>
     [Parameter]
     public CssValue<VisibilityBuilder>? Visibility { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS float configuration (e.g., left, right, none).
+    /// </summary>
     [Parameter]
     public CssValue<FloatBuilder>? Float { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS vertical-align value to apply inline.
+    /// </summary>
     [Parameter]
     public CssValue<VerticalAlignBuilder>? VerticalAlign { get; set; }
 
+    /// <summary>
+    /// Gets or sets the margin configuration. Will emit either classes or inline style based on the builder.
+    /// </summary>
     [Parameter]
     public CssValue<MarginBuilder>? Margin { get; set; }
 
+    /// <summary>
+    /// Gets or sets the padding configuration. Will emit either classes or inline style based on the builder.
+    /// </summary>
     [Parameter]
     public CssValue<PaddingBuilder>? Padding { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS position configuration (e.g., static, relative, absolute, fixed, sticky).
+    /// </summary>
     [Parameter]
     public CssValue<PositionBuilder>? Position { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS position offset configuration (top, right, bottom, left).
+    /// </summary>
     [Parameter]
     public CssValue<PositionOffsetBuilder>? PositionOffset { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS width configuration. Will emit either classes or inline style based on the builder.
+    /// </summary>
     [Parameter]
     public CssValue<WidthBuilder>? Width { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS min-width configuration. Will emit either classes or inline style based on the builder.
+    /// </summary>
     [Parameter]
     public CssValue<WidthBuilder>? MinWidth { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS max-width configuration. Will emit either classes or inline style based on the builder.
+    /// </summary>
     [Parameter]
     public CssValue<WidthBuilder>? MaxWidth { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS height configuration. Will emit either classes or inline style based on the builder.
+    /// </summary>
     [Parameter]
     public CssValue<HeightBuilder>? Height { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS min-height configuration. Will emit either classes or inline style based on the builder.
+    /// </summary>
     [Parameter]
     public CssValue<HeightBuilder>? MinHeight { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS max-height configuration. Will emit either classes or inline style based on the builder.
+    /// </summary>
     [Parameter]
     public CssValue<HeightBuilder>? MaxHeight { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS overflow configuration for all axes.
+    /// </summary>
     [Parameter]
     public CssValue<OverflowBuilder>? Overflow { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS overflow-x configuration.
+    /// </summary>
     [Parameter]
     public CssValue<OverflowBuilder>? OverflowX { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS overflow-y configuration.
+    /// </summary>
     [Parameter]
     public CssValue<OverflowBuilder>? OverflowY { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS flex configuration.
+    /// </summary>
     [Parameter]
     public CssValue<FlexBuilder>? Flex { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS gap configuration for flex and grid layouts.
+    /// </summary>
     [Parameter]
     public CssValue<GapBuilder>? Gap { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS opacity configuration.
+    /// </summary>
     [Parameter]
     public CssValue<OpacityBuilder>? Opacity { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS z-index configuration.
+    /// </summary>
     [Parameter]
     public CssValue<ZIndexBuilder>? ZIndex { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS pointer-events configuration.
+    /// </summary>
     [Parameter]
     public CssValue<PointerEventsBuilder>? PointerEvents { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS user-select configuration.
+    /// </summary>
     [Parameter]
     public CssValue<UserSelectBuilder>? UserSelect { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS background color configuration. Will emit either classes or inline style based on the builder.
+    /// </summary>
     [Parameter]
     public CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS border configuration. Will emit either classes or inline style based on the builder.
+    /// </summary>
     [Parameter]
     public CssValue<BorderBuilder>? Border { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS border color configuration. Will emit either classes or inline style based on the builder.
+    /// </summary>
     [Parameter]
     public CssValue<BorderColorBuilder>? BorderColor { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS border radius configuration. Will emit either classes or inline style based on the builder.
+    /// </summary>
     [Parameter]
     public CssValue<BorderRadiusBuilder>? BorderRadius { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS text alignment configuration.
+    /// </summary>
     [Parameter]
     public CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS text color configuration. Will emit either classes or inline style based on the builder.
+    /// </summary>
     [Parameter]
     public CssValue<TextColorBuilder>? TextColor { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS animation configuration.
+    /// </summary>
     [Parameter]
     public CssValue<AnimationBuilder>? Animation { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS backdrop filter configuration.
+    /// </summary>
     [Parameter]
     public CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS clearfix configuration.
+    /// </summary>
     [Parameter]
     public CssValue<ClearfixBuilder>? Clearfix { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS clip-path configuration.
+    /// </summary>
     [Parameter]
     public CssValue<ClipPathBuilder>? ClipPath { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS filter configuration.
+    /// </summary>
     [Parameter]
     public CssValue<FilterBuilder>? Filter { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS aspect ratio configuration.
+    /// </summary>
     [Parameter]
     public CssValue<RatioBuilder>? Ratio { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS resize configuration.
+    /// </summary>
     [Parameter]
     public CssValue<ResizeBuilder>? Resize { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS screen reader configuration.
+    /// </summary>
     [Parameter]
     public CssValue<ScreenReaderBuilder>? ScreenReader { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS scroll behavior configuration.
+    /// </summary>
     [Parameter]
     public CssValue<ScrollBehaviorBuilder>? ScrollBehavior { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS stretched link configuration.
+    /// </summary>
     [Parameter]
     public CssValue<StretchedLinkBuilder>? StretchedLink { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS transform configuration.
+    /// </summary>
     [Parameter]
     public CssValue<TransformBuilder>? Transform { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS transition configuration.
+    /// </summary>
     [Parameter]
     public CssValue<TransitionBuilder>? Transition { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS link opacity configuration.
+    /// </summary>
     [Parameter]
     public CssValue<LinkOpacityBuilder>? LinkOpacity { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS link offset configuration.
+    /// </summary>
     [Parameter]
     public CssValue<LinkOffsetBuilder>? LinkOffset { get; set; }
 
+    /// <summary>
+    /// Gets or sets the CSS link underline configuration.
+    /// </summary>
     [Parameter]
     public CssValue<LinkUnderlineBuilder>? LinkUnderline { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the component is clicked.
+    /// </summary>
     [Parameter]
     public EventCallback<MouseEventArgs> OnClick { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the element reference is ready after the first render.
+    /// </summary>
     [Parameter]
     public EventCallback<ElementReference> OnElementRefReady { get; set; }
 

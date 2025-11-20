@@ -25,35 +25,145 @@ public sealed class BorderColorBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
     
+    /// <summary>
+    /// Sets the border color to primary.
+    /// </summary>
     public BorderColorBuilder Primary => ChainValue("primary");
+
+    /// <summary>
+    /// Sets the border color to secondary.
+    /// </summary>
     public BorderColorBuilder Secondary => ChainValue("secondary");
+
+    /// <summary>
+    /// Sets the border color to success.
+    /// </summary>
     public BorderColorBuilder Success => ChainValue("success");
+
+    /// <summary>
+    /// Sets the border color to danger.
+    /// </summary>
     public BorderColorBuilder Danger => ChainValue("danger");
+
+    /// <summary>
+    /// Sets the border color to warning.
+    /// </summary>
     public BorderColorBuilder Warning => ChainValue("warning");
+
+    /// <summary>
+    /// Sets the border color to info.
+    /// </summary>
     public BorderColorBuilder Info => ChainValue("info");
+
+    /// <summary>
+    /// Sets the border color to light.
+    /// </summary>
     public BorderColorBuilder Light => ChainValue("light");
+
+    /// <summary>
+    /// Sets the border color to dark.
+    /// </summary>
     public BorderColorBuilder Dark => ChainValue("dark");
+
+    /// <summary>
+    /// Sets the border color to muted.
+    /// </summary>
     public BorderColorBuilder Muted => ChainValue("muted");
+
+    /// <summary>
+    /// Sets the border color to white.
+    /// </summary>
     public BorderColorBuilder White => ChainValue("white");
+
+    /// <summary>
+    /// Sets the border color to black.
+    /// </summary>
     public BorderColorBuilder Black => ChainValue("black");
+
+    /// <summary>
+    /// Sets the border color to body.
+    /// </summary>
     public BorderColorBuilder Body => ChainValue("body");
+
+    /// <summary>
+    /// Sets the border color to body-secondary.
+    /// </summary>
     public BorderColorBuilder BodySecondary => ChainValue("body-secondary");
+
+    /// <summary>
+    /// Sets the border color to body-tertiary.
+    /// </summary>
     public BorderColorBuilder BodyTertiary => ChainValue("body-tertiary");
+
+    /// <summary>
+    /// Sets the border color to body-emphasis.
+    /// </summary>
     public BorderColorBuilder BodyEmphasis => ChainValue("body-emphasis");
+
+    /// <summary>
+    /// Sets the border color to body-highlight.
+    /// </summary>
     public BorderColorBuilder BodyHighlight => ChainValue("body-highlight");
+
+    /// <summary>
+    /// Sets the border color to body-muted.
+    /// </summary>
     public BorderColorBuilder BodyMuted => ChainValue("body-muted");
+
+    /// <summary>
+    /// Sets the border color to body-reset.
+    /// </summary>
     public BorderColorBuilder BodyReset => ChainValue("body-reset");
+
+    /// <summary>
+    /// Sets the border color to body-inverse.
+    /// </summary>
     public BorderColorBuilder BodyInverse => ChainValue("body-inverse");
+
+    /// <summary>
+    /// Sets the border color to body-inverse-secondary.
+    /// </summary>
     public BorderColorBuilder BodyInverseSecondary => ChainValue("body-inverse-secondary");
+
+    /// <summary>
+    /// Sets the border color to body-inverse-tertiary.
+    /// </summary>
     public BorderColorBuilder BodyInverseTertiary => ChainValue("body-inverse-tertiary");
+
+    /// <summary>
+    /// Sets the border color to body-inverse-emphasis.
+    /// </summary>
     public BorderColorBuilder BodyInverseEmphasis => ChainValue("body-inverse-emphasis");
+
+    /// <summary>
+    /// Sets the border color to body-inverse-highlight.
+    /// </summary>
     public BorderColorBuilder BodyInverseHighlight => ChainValue("body-inverse-highlight");
+
+    /// <summary>
+    /// Sets the border color to body-inverse-muted.
+    /// </summary>
     public BorderColorBuilder BodyInverseMuted => ChainValue("body-inverse-muted");
+
+    /// <summary>
+    /// Sets the border color to body-inverse-reset.
+    /// </summary>
     public BorderColorBuilder BodyInverseReset => ChainValue("body-inverse-reset");
 
     // Opacity variants
+    /// <summary>
+    /// Sets the border color opacity to 75%.
+    /// </summary>
     public BorderColorBuilder Opacity75 => ChainValue("75");
+
+    /// <summary>
+    /// Sets the border color opacity to 50%.
+    /// </summary>
     public BorderColorBuilder Opacity50 => ChainValue("50");
+
+    /// <summary>
+    /// Sets the border color opacity to 25%.
+    /// </summary>
     public BorderColorBuilder Opacity25 => ChainValue("25");
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -64,6 +174,10 @@ public sealed class BorderColorBuilder : ICssBuilder
     }
 
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -88,6 +202,10 @@ public sealed class BorderColorBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)

@@ -26,11 +26,29 @@ public sealed class ClearfixBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Applies the clearfix on phone breakpoint.
+    /// </summary>
     public ClearfixBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the clearfix on tablet breakpoint.
+    /// </summary>
     public ClearfixBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the clearfix on laptop breakpoint.
+    /// </summary>
     public ClearfixBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the clearfix on desktop breakpoint.
+    /// </summary>
     public ClearfixBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the clearfix on widescreen breakpoint.
+    /// </summary>
     public ClearfixBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the clearfix on ultrawide breakpoint.
+    /// </summary>
     public ClearfixBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -48,6 +66,10 @@ public sealed class ClearfixBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -74,6 +96,10 @@ public sealed class ClearfixBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)

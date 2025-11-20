@@ -6,6 +6,9 @@ using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// High-performance font style builder with fluent API for chaining font style rules.
+/// </summary>
 public sealed class FontStyleBuilder : ICssBuilder
 {
     private readonly List<FontStyleRule> _rules = new(4);
@@ -25,19 +28,58 @@ public sealed class FontStyleBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the font style to italic.
+    /// </summary>
     public FontStyleBuilder Italic => Chain(FontStyleKeyword.ItalicValue);
+    /// <summary>
+    /// Sets the font style to normal.
+    /// </summary>
     public FontStyleBuilder Normal => Chain(FontStyleKeyword.NormalValue);
+    /// <summary>
+    /// Sets the font style to inherit.
+    /// </summary>
     public FontStyleBuilder Inherit => Chain(GlobalKeyword.InheritValue);
+    /// <summary>
+    /// Sets the font style to initial.
+    /// </summary>
     public FontStyleBuilder Initial => Chain(GlobalKeyword.InitialValue);
+    /// <summary>
+    /// Sets the font style to revert.
+    /// </summary>
     public FontStyleBuilder Revert => Chain(GlobalKeyword.RevertValue);
+    /// <summary>
+    /// Sets the font style to revert-layer.
+    /// </summary>
     public FontStyleBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
+    /// <summary>
+    /// Sets the font style to unset.
+    /// </summary>
     public FontStyleBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
+    /// <summary>
+    /// Applies the font style on phone breakpoint.
+    /// </summary>
     public FontStyleBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the font style on tablet breakpoint.
+    /// </summary>
     public FontStyleBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the font style on laptop breakpoint.
+    /// </summary>
     public FontStyleBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the font style on desktop breakpoint.
+    /// </summary>
     public FontStyleBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the font style on widescreen breakpoint.
+    /// </summary>
     public FontStyleBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the font style on ultrawide breakpoint.
+    /// </summary>
     public FontStyleBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -62,6 +104,10 @@ public sealed class FontStyleBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0) return string.Empty;
@@ -92,6 +138,10 @@ public sealed class FontStyleBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0) return string.Empty;

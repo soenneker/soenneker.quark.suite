@@ -5,6 +5,9 @@ using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// High-performance link offset builder with fluent API for chaining link offset rules.
+/// </summary>
 public sealed class LinkOffsetBuilder : ICssBuilder
 {
     private readonly List<LinkOffsetRule> _rules = new(4);
@@ -20,15 +23,42 @@ public sealed class LinkOffsetBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the link offset to 1.
+    /// </summary>
     public LinkOffsetBuilder Is1 => Chain(1);
+    /// <summary>
+    /// Sets the link offset to 2.
+    /// </summary>
     public LinkOffsetBuilder Is2 => Chain(2);
+    /// <summary>
+    /// Sets the link offset to 3.
+    /// </summary>
     public LinkOffsetBuilder Is3 => Chain(3);
 
+    /// <summary>
+    /// Applies the link offset on phone breakpoint.
+    /// </summary>
     public LinkOffsetBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the link offset on tablet breakpoint.
+    /// </summary>
     public LinkOffsetBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the link offset on laptop breakpoint.
+    /// </summary>
     public LinkOffsetBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the link offset on desktop breakpoint.
+    /// </summary>
     public LinkOffsetBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the link offset on widescreen breakpoint.
+    /// </summary>
     public LinkOffsetBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the link offset on ultrawide breakpoint.
+    /// </summary>
     public LinkOffsetBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -53,6 +83,10 @@ public sealed class LinkOffsetBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0) return string.Empty;
@@ -78,6 +112,10 @@ public sealed class LinkOffsetBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0) return string.Empty;

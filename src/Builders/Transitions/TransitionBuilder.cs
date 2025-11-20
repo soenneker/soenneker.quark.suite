@@ -31,18 +31,54 @@ public sealed class TransitionBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the transition to none.
+    /// </summary>
     public TransitionBuilder None => ChainWithTransition("none");
+    /// <summary>
+    /// Sets the transition to all.
+    /// </summary>
     public TransitionBuilder All => ChainWithTransition("all");
+    /// <summary>
+    /// Sets the transition to colors.
+    /// </summary>
     public TransitionBuilder Colors => ChainWithTransition("colors");
+    /// <summary>
+    /// Sets the transition to opacity.
+    /// </summary>
     public TransitionBuilder Opacity => ChainWithTransition("opacity");
+    /// <summary>
+    /// Sets the transition to shadow.
+    /// </summary>
     public TransitionBuilder Shadow => ChainWithTransition("shadow");
+    /// <summary>
+    /// Sets the transition to transform.
+    /// </summary>
     public TransitionBuilder Transform => ChainWithTransition("transform");
 
+    /// <summary>
+    /// Applies the transition on phone breakpoint.
+    /// </summary>
     public TransitionBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the transition on tablet breakpoint.
+    /// </summary>
     public TransitionBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the transition on laptop breakpoint.
+    /// </summary>
     public TransitionBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the transition on desktop breakpoint.
+    /// </summary>
     public TransitionBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the transition on widescreen breakpoint.
+    /// </summary>
     public TransitionBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the transition on ultrawide breakpoint.
+    /// </summary>
     public TransitionBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -67,6 +103,10 @@ public sealed class TransitionBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -95,6 +135,10 @@ public sealed class TransitionBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)

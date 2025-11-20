@@ -35,22 +35,70 @@ public sealed class BackdropFilterBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the backdrop filter to none.
+    /// </summary>
     public BackdropFilterBuilder None => ChainWithFilter("none");
+    /// <summary>
+    /// Sets the backdrop filter to blur.
+    /// </summary>
     public BackdropFilterBuilder Blur => ChainWithFilter("blur");
+    /// <summary>
+    /// Sets the backdrop filter to brightness.
+    /// </summary>
     public BackdropFilterBuilder Brightness => ChainWithFilter("brightness");
+    /// <summary>
+    /// Sets the backdrop filter to contrast.
+    /// </summary>
     public BackdropFilterBuilder Contrast => ChainWithFilter("contrast");
+    /// <summary>
+    /// Sets the backdrop filter to grayscale.
+    /// </summary>
     public BackdropFilterBuilder Grayscale => ChainWithFilter("grayscale");
+    /// <summary>
+    /// Sets the backdrop filter to hue-rotate.
+    /// </summary>
     public BackdropFilterBuilder HueRotate => ChainWithFilter("hue-rotate");
+    /// <summary>
+    /// Sets the backdrop filter to invert.
+    /// </summary>
     public BackdropFilterBuilder Invert => ChainWithFilter("invert");
+    /// <summary>
+    /// Sets the backdrop filter to opacity.
+    /// </summary>
     public BackdropFilterBuilder Opacity => ChainWithFilter("opacity");
+    /// <summary>
+    /// Sets the backdrop filter to saturate.
+    /// </summary>
     public BackdropFilterBuilder Saturate => ChainWithFilter("saturate");
+    /// <summary>
+    /// Sets the backdrop filter to sepia.
+    /// </summary>
     public BackdropFilterBuilder Sepia => ChainWithFilter("sepia");
 
+    /// <summary>
+    /// Applies the backdrop filter on phone breakpoint.
+    /// </summary>
     public BackdropFilterBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the backdrop filter on tablet breakpoint.
+    /// </summary>
     public BackdropFilterBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the backdrop filter on laptop breakpoint.
+    /// </summary>
     public BackdropFilterBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the backdrop filter on desktop breakpoint.
+    /// </summary>
     public BackdropFilterBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the backdrop filter on widescreen breakpoint.
+    /// </summary>
     public BackdropFilterBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the backdrop filter on ultrawide breakpoint.
+    /// </summary>
     public BackdropFilterBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -75,6 +123,10 @@ public sealed class BackdropFilterBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -103,6 +155,10 @@ public sealed class BackdropFilterBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)

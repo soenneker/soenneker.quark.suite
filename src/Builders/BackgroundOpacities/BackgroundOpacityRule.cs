@@ -7,9 +7,3 @@ namespace Soenneker.Quark;
 /// Represents a single background opacity rule with optional BreakpointType.
 /// </summary>
 internal record BackgroundOpacityRule(int Value, BreakpointType? breakpoint = null);
-
-
-
-
-
-

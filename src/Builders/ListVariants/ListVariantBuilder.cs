@@ -28,15 +28,42 @@ public sealed class ListVariantBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the list variant to unstyled.
+    /// </summary>
     public ListVariantBuilder Unstyled => Chain(ListVariantType.Unstyled);
+    /// <summary>
+    /// Sets the list variant to inline.
+    /// </summary>
     public ListVariantBuilder Inline => Chain(ListVariantType.Inline);
+    /// <summary>
+    /// Sets the list variant to inline-item.
+    /// </summary>
     public ListVariantBuilder InlineItem => Chain(ListVariantType.InlineItem);
 
+    /// <summary>
+    /// Applies the list variant on phone breakpoint.
+    /// </summary>
     public ListVariantBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the list variant on tablet breakpoint.
+    /// </summary>
     public ListVariantBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the list variant on laptop breakpoint.
+    /// </summary>
     public ListVariantBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the list variant on desktop breakpoint.
+    /// </summary>
     public ListVariantBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the list variant on widescreen breakpoint.
+    /// </summary>
     public ListVariantBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the list variant on ultrawide breakpoint.
+    /// </summary>
     public ListVariantBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -61,6 +88,10 @@ public sealed class ListVariantBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -97,6 +128,10 @@ public sealed class ListVariantBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)

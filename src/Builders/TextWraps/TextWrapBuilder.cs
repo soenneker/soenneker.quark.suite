@@ -6,6 +6,9 @@ using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// High-performance text wrap builder with fluent API for chaining text wrap rules.
+/// </summary>
 public sealed class TextWrapBuilder : ICssBuilder
 {
     private readonly List<TextWrapRule> _rules = new(4);
@@ -25,19 +28,58 @@ public sealed class TextWrapBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the text wrap to wrap.
+    /// </summary>
     public TextWrapBuilder Wrap => Chain(TextWrapKeyword.WrapValue);
+    /// <summary>
+    /// Sets the text wrap to no-wrap.
+    /// </summary>
     public TextWrapBuilder NoWrap => Chain(TextWrapKeyword.NoWrapValue);
+    /// <summary>
+    /// Sets the text wrap to inherit.
+    /// </summary>
     public TextWrapBuilder Inherit => Chain(GlobalKeyword.InheritValue);
+    /// <summary>
+    /// Sets the text wrap to initial.
+    /// </summary>
     public TextWrapBuilder Initial => Chain(GlobalKeyword.InitialValue);
+    /// <summary>
+    /// Sets the text wrap to revert.
+    /// </summary>
     public TextWrapBuilder Revert => Chain(GlobalKeyword.RevertValue);
+    /// <summary>
+    /// Sets the text wrap to revert-layer.
+    /// </summary>
     public TextWrapBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
+    /// <summary>
+    /// Sets the text wrap to unset.
+    /// </summary>
     public TextWrapBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
+    /// <summary>
+    /// Applies the text wrap on phone breakpoint.
+    /// </summary>
     public TextWrapBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the text wrap on tablet breakpoint.
+    /// </summary>
     public TextWrapBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the text wrap on laptop breakpoint.
+    /// </summary>
     public TextWrapBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the text wrap on desktop breakpoint.
+    /// </summary>
     public TextWrapBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the text wrap on widescreen breakpoint.
+    /// </summary>
     public TextWrapBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the text wrap on ultrawide breakpoint.
+    /// </summary>
     public TextWrapBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -62,6 +104,10 @@ public sealed class TextWrapBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0) return string.Empty;
@@ -95,6 +141,10 @@ public sealed class TextWrapBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0) return string.Empty;

@@ -21,30 +21,81 @@ public sealed class TextStyleBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Gets a value indicating whether the builder is empty (has no rules).
+    /// </summary>
     public bool IsEmpty => _rules.Count == 0;
+    /// <summary>
+    /// Gets a value indicating whether this builder generates CSS classes.
+    /// </summary>
     public bool IsCssClass => true;
+    /// <summary>
+    /// Gets a value indicating whether this builder generates CSS styles.
+    /// </summary>
     public bool IsCssStyle => false;
 
     // Wrapping
+    /// <summary>
+    /// Sets the text style to wrap.
+    /// </summary>
     public TextStyleBuilder Wrap => ChainValue("wrap");
+    /// <summary>
+    /// Sets the text style to nowrap.
+    /// </summary>
     public TextStyleBuilder Nowrap => ChainValue("nowrap");
+    /// <summary>
+    /// Sets the text style to truncate.
+    /// </summary>
     public TextStyleBuilder Truncate => ChainValue("truncate");
 
     // Transformation
+    /// <summary>
+    /// Sets the text style to lowercase.
+    /// </summary>
     public TextStyleBuilder Lowercase => ChainValue("lowercase");
+    /// <summary>
+    /// Sets the text style to uppercase.
+    /// </summary>
     public TextStyleBuilder Uppercase => ChainValue("uppercase");
+    /// <summary>
+    /// Sets the text style to capitalize.
+    /// </summary>
     public TextStyleBuilder Capitalize => ChainValue("capitalize");
 
     // Styling
+    /// <summary>
+    /// Sets the text style to reset.
+    /// </summary>
     public TextStyleBuilder Reset => ChainValue("reset");
+    /// <summary>
+    /// Sets the text style to muted.
+    /// </summary>
     public TextStyleBuilder Muted => ChainValue("muted");
+    /// <summary>
+    /// Sets the text style to emphasis.
+    /// </summary>
     public TextStyleBuilder Emphasis => ChainValue("emphasis");
 
     // Breakpoints
+    /// <summary>
+    /// Applies the text style on phone breakpoint.
+    /// </summary>
     public TextStyleBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the text style on tablet breakpoint.
+    /// </summary>
     public TextStyleBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the text style on laptop breakpoint.
+    /// </summary>
     public TextStyleBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the text style on desktop breakpoint.
+    /// </summary>
     public TextStyleBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the text style on widescreen breakpoint.
+    /// </summary>
     public TextStyleBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
 
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -117,6 +168,15 @@ public sealed class TextStyleBuilder : ICssBuilder
     }
 
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass() => ToString();
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// This builder only generates CSS classes, so this returns an empty string.
+    /// </summary>
+    /// <returns>An empty string.</returns>
     public string ToStyle() => string.Empty;
 }

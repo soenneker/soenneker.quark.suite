@@ -6,6 +6,9 @@ using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// High-performance text transform builder with fluent API for chaining text transform rules.
+/// </summary>
 public sealed class TextTransformBuilder : ICssBuilder
 {
     private readonly List<TextTransformRule> _rules = new(4);
@@ -26,20 +29,62 @@ public sealed class TextTransformBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the text transform to lowercase.
+    /// </summary>
     public TextTransformBuilder Lowercase => Chain(TextTransformKeyword.LowercaseValue);
+    /// <summary>
+    /// Sets the text transform to uppercase.
+    /// </summary>
     public TextTransformBuilder Uppercase => Chain(TextTransformKeyword.UppercaseValue);
+    /// <summary>
+    /// Sets the text transform to capitalize.
+    /// </summary>
     public TextTransformBuilder Capitalize => Chain(TextTransformKeyword.CapitalizeValue);
+    /// <summary>
+    /// Sets the text transform to inherit.
+    /// </summary>
     public TextTransformBuilder Inherit => Chain(GlobalKeyword.InheritValue);
+    /// <summary>
+    /// Sets the text transform to initial.
+    /// </summary>
     public TextTransformBuilder Initial => Chain(GlobalKeyword.InitialValue);
+    /// <summary>
+    /// Sets the text transform to revert.
+    /// </summary>
     public TextTransformBuilder Revert => Chain(GlobalKeyword.RevertValue);
+    /// <summary>
+    /// Sets the text transform to revert-layer.
+    /// </summary>
     public TextTransformBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
+    /// <summary>
+    /// Sets the text transform to unset.
+    /// </summary>
     public TextTransformBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
+    /// <summary>
+    /// Applies the text transform on phone breakpoint.
+    /// </summary>
     public TextTransformBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the text transform on tablet breakpoint.
+    /// </summary>
     public TextTransformBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the text transform on laptop breakpoint.
+    /// </summary>
     public TextTransformBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the text transform on desktop breakpoint.
+    /// </summary>
     public TextTransformBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the text transform on widescreen breakpoint.
+    /// </summary>
     public TextTransformBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the text transform on ultrawide breakpoint.
+    /// </summary>
     public TextTransformBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -64,6 +109,10 @@ public sealed class TextTransformBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0) return string.Empty;
@@ -95,6 +144,10 @@ public sealed class TextTransformBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0) return string.Empty;

@@ -24,8 +24,17 @@ public sealed class DisplaySizeBuilder : ICssBuilder
     // ----- CSS prefix (compile-time) -----
     private const string _fontSizePrefix = "font-size: ";
 
+    /// <summary>
+    /// Gets a value indicating whether the builder is empty (has no rules).
+    /// </summary>
     public bool IsEmpty => _rules.Count == 0;
+    /// <summary>
+    /// Gets a value indicating whether this builder generates CSS classes.
+    /// </summary>
     public bool IsCssClass => true;
+    /// <summary>
+    /// Gets a value indicating whether this builder generates CSS styles.
+    /// </summary>
     public bool IsCssStyle => false;
 
     internal DisplaySizeBuilder(string size, BreakpointType? breakpoint = null)
@@ -40,19 +49,55 @@ public sealed class DisplaySizeBuilder : ICssBuilder
     }
 
     // ----- Fluent size chaining -----
+    /// <summary>
+    /// Sets the display size to 1.
+    /// </summary>
     public DisplaySizeBuilder Is1 => ChainSize("1");
+    /// <summary>
+    /// Sets the display size to 2.
+    /// </summary>
     public DisplaySizeBuilder Is2 => ChainSize("2");
+    /// <summary>
+    /// Sets the display size to 3.
+    /// </summary>
     public DisplaySizeBuilder Is3 => ChainSize("3");
+    /// <summary>
+    /// Sets the display size to 4.
+    /// </summary>
     public DisplaySizeBuilder Is4 => ChainSize("4");
+    /// <summary>
+    /// Sets the display size to 5.
+    /// </summary>
     public DisplaySizeBuilder Is5 => ChainSize("5");
+    /// <summary>
+    /// Sets the display size to 6.
+    /// </summary>
     public DisplaySizeBuilder Is6 => ChainSize("6");
 
     // ----- BreakpointType chaining -----
+    /// <summary>
+    /// Applies the display size on phone breakpoint.
+    /// </summary>
     public DisplaySizeBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the display size on tablet breakpoint.
+    /// </summary>
     public DisplaySizeBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the display size on laptop breakpoint.
+    /// </summary>
     public DisplaySizeBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the display size on desktop breakpoint.
+    /// </summary>
     public DisplaySizeBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the display size on widescreen breakpoint.
+    /// </summary>
     public DisplaySizeBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the display size on ultrawide breakpoint.
+    /// </summary>
     public DisplaySizeBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
