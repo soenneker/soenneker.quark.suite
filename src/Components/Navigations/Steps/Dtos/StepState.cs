@@ -6,6 +6,13 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed record StepState
 {
+    /// <summary>
+    /// Gets the name of the selected step item.
+    /// </summary>
     public string SelectedStep { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Gets the step rendering mode.
+    /// </summary>
     public StepRenderMode RenderMode { get; init; } = StepRenderMode.Default;
 }

@@ -4,6 +4,10 @@ using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// Represents a CSS value that can be either a CSS class or inline style, generated from a builder.
+/// </summary>
+/// <typeparam name="TBuilder">The type of CSS builder used to generate the value.</typeparam>
 public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where TBuilder : class, ICssBuilder
 {
     private readonly string _value;
@@ -33,19 +37,40 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         _selectorIsAbsolute = selectorIsAbsolute;
     }
 
+    /// <summary>
+    /// Implicitly converts a CSS builder to a CssValue.
+    /// </summary>
     public static implicit operator CssValue<TBuilder>(TBuilder builder) => new(builder.ToClass(), builder.ToStyle());
 
+    /// <summary>
+    /// Implicitly converts a string to a CssValue.
+    /// </summary>
     public static implicit operator CssValue<TBuilder>(string value) => new(value);
 
+    /// <summary>
+    /// Implicitly converts an integer to a CssValue. For HeightBuilder and WidthBuilder, converts to pixel values.
+    /// </summary>
     public static implicit operator CssValue<TBuilder>(int value) =>
         _isHeight ? new CssValue<TBuilder>($"height: {value}px") : _isWidth ? new CssValue<TBuilder>($"width: {value}px") : new CssValue<TBuilder>(value.ToString());
 
+    /// <summary>
+    /// Implicitly converts a CssValue to a string.
+    /// </summary>
     public static implicit operator string(CssValue<TBuilder> v) => v._value;
 
+    /// <summary>
+    /// Returns the string representation of this CSS value.
+    /// </summary>
     public override string ToString() => _value;
 
+    /// <summary>
+    /// Gets whether this CSS value is empty.
+    /// </summary>
     public bool IsEmpty => _value.IsNullOrEmpty();
 
+    /// <summary>
+    /// Gets whether this CSS value represents an inline style (e.g., "color: red") rather than a CSS class.
+    /// </summary>
     public bool IsCssStyle =>
         // style if it looks like "prop: val" OR (ColorBuilder with non-theme token)
         // OR (HeightBuilder/WidthBuilder with CSS unit value) OR standalone CSS values (var(), #fff, inherit, etc.)
@@ -53,6 +78,9 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         ((_isHeight || _isWidth) && LooksLikeCssUnit(_value)) ||
         LooksLikeStandaloneCssValue(_value);
 
+    /// <summary>
+    /// Gets whether this CSS value represents a CSS class (e.g., "btn-primary") rather than an inline style.
+    /// </summary>
     public bool IsCssClass => !IsCssStyle && !IsEmpty;
 
     internal string? CssSelector => _cssSelector;
@@ -77,6 +105,12 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         }
     }
 
+    /// <summary>
+    /// Creates a new CssValue with the specified CSS selector.
+    /// </summary>
+    /// <param name="selector">The CSS selector to apply.</param>
+    /// <param name="absolute">Whether the selector is absolute (not relative to base selector).</param>
+    /// <returns>A new CssValue with the specified selector.</returns>
     public CssValue<TBuilder> WithSelector(string selector, bool absolute = false)
     {
         if (selector.IsNullOrWhiteSpace())
@@ -151,18 +185,41 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
                trimmed.Equals("transparent", StringComparison.OrdinalIgnoreCase);
     }
 
-    /// <summary>Does this non-empty value change generated markup (class or style)?</summary>
-    public bool AffectsMarkup => !IsEmpty; // keep simple: empty is no-op, anything else impacts attrs
+    /// <summary>
+    /// Gets whether this non-empty value affects the generated markup (class or style).
+    /// </summary>
+    public bool AffectsMarkup => !IsEmpty;
 
+    /// <summary>
+    /// Determines whether this CssValue is equal to another CssValue.
+    /// </summary>
     public bool Equals(CssValue<TBuilder> other) => _value == other._value;
 
+    /// <summary>
+    /// Determines whether this CssValue is equal to the specified object.
+    /// </summary>
     public override bool Equals(object? obj) => obj is CssValue<TBuilder> o && Equals(o);
 
+    /// <summary>
+    /// Returns the hash code for this CssValue.
+    /// </summary>
     public override int GetHashCode() => StringComparer.Ordinal.GetHashCode(_value);
 
+    /// <summary>
+    /// Determines whether two CssValue instances are equal.
+    /// </summary>
     public static bool operator ==(CssValue<TBuilder> a, CssValue<TBuilder> b) => a.Equals(b);
+
+    /// <summary>
+    /// Determines whether two CssValue instances are not equal.
+    /// </summary>
     public static bool operator !=(CssValue<TBuilder> a, CssValue<TBuilder> b) => !a.Equals(b);
 
+    /// <summary>
+    /// Attempts to extract a Bootstrap theme token from this CSS value.
+    /// </summary>
+    /// <param name="token">When this method returns, contains the Bootstrap theme token if found; otherwise, null.</param>
+    /// <returns>true if a Bootstrap theme token was found; otherwise, false.</returns>
     public bool TryGetBootstrapThemeToken(out string? token)
     {
         if (_value.HasContent())

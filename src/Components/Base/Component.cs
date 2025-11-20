@@ -14,9 +14,15 @@ namespace Soenneker.Quark;
 ///<inheritdoc cref="IComponent"/>
 public abstract class Component : CoreComponent, IComponent
 {
+    /// <summary>
+    /// Gets or sets the logger instance for this component.
+    /// </summary>
     [Inject]
     protected ILogger<Component> Logger { get; set; } = null!;
 
+    /// <summary>
+    /// Gets or sets the Quark configuration options for this component.
+    /// </summary>
     [Inject]
     protected QuarkOptions QuarkOptions { get; set; } = null!;
 
@@ -170,6 +176,9 @@ public abstract class Component : CoreComponent, IComponent
     [Parameter]
     public EventCallback<ElementReference> OnElementRefReady { get; set; }
 
+    /// <summary>
+    /// Gets or sets the element reference for this component's root element.
+    /// </summary>
     protected ElementReference ElementRef { get; set; }
 
     // -------- Render gate + attribute cache --------

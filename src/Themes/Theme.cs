@@ -2,8 +2,14 @@ using System.Collections.Generic;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// Represents a theme configuration containing styling options for all Quark components.
+/// </summary>
 public sealed class Theme
 {
+    /// <summary>
+    /// Gets or sets the name of the theme.
+    /// </summary>
     public string Name { get; set; } = "Default";
 
     public AlertOptions? Alerts { get; set; }

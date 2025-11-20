@@ -33,18 +33,17 @@ public interface IComponent : ICoreComponent
     CssValue<VerticalAlignBuilder>? VerticalAlign { get; set; }
 
     /// <summary>
-    /// 
+    /// Gets or sets the CSS float configuration (e.g., left, right, none).
     /// </summary>
     CssValue<FloatBuilder>? Float { get; set; }
 
     /// <summary>
-    /// 
+    /// Gets or sets the CSS display configuration (e.g., block, inline, flex, grid, none).
     /// </summary>
     CssValue<DisplayBuilder>? Display { get; set; }
 
-
     /// <summary>
-    /// 
+    /// Gets or sets the CSS visibility configuration (e.g., visible, hidden, collapse).
     /// </summary>
     CssValue<VisibilityBuilder>? Visibility { get; set; }
 

@@ -7,10 +7,20 @@ namespace Soenneker.Quark;
 ///<inheritdoc cref="IThemeProvider"/>
 public sealed class ThemeProvider : IThemeProvider
 {
+    /// <summary>
+    /// Gets or sets the name of the currently active theme.
+    /// </summary>
     public string? CurrentTheme { get; set; } = "Default";
 
+    /// <summary>
+    /// Gets or sets the dictionary of available themes, keyed by theme name.
+    /// </summary>
     public Dictionary<string, Theme>? Themes { get; set; }
 
+    /// <summary>
+    /// Adds a theme to the theme collection.
+    /// </summary>
+    /// <param name="theme">The theme to add.</param>
     public void AddTheme(Theme theme)
     {
         Themes ??= new Dictionary<string, Theme>();
