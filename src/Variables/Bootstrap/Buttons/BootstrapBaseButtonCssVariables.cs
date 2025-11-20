@@ -1,52 +1,77 @@
+using System.Collections.Generic;
+using Soenneker.Extensions.String;
+
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Base CSS variables for any Bootstrap button variant.
 /// </summary>
-[CssSelector]
-public abstract class BootstrapBaseButtonCssVariables
+public abstract class BootstrapBaseButtonCssVariables : IBootstrapCssVariableGroup
 {
-	[CssVariable("bs-btn-color")]
 	public string? Color { get; set; }
 
-	[CssVariable("bs-btn-bg")]
 	public string? Background { get; set; }
 
-	[CssVariable("bs-btn-border-color")]
 	public string? BorderColor { get; set; }
 
-	[CssVariable("bs-btn-hover-color")]
 	public string? HoverColor { get; set; }
 
-	[CssVariable("bs-btn-hover-bg")]
 	public string? HoverBackground { get; set; }
 
-	[CssVariable("bs-btn-hover-border-color")]
 	public string? HoverBorderColor { get; set; }
 
-	[CssVariable("bs-btn-focus-shadow-rgb")]
 	public string? FocusShadowRgb { get; set; }
 
-	[CssVariable("bs-btn-active-color")]
 	public string? ActiveColor { get; set; }
 
-	[CssVariable("bs-btn-active-bg")]
 	public string? ActiveBackground { get; set; }
 
-	[CssVariable("bs-btn-active-border-color")]
 	public string? ActiveBorderColor { get; set; }
 
-	[CssVariable("bs-btn-active-shadow")]
 	public string? ActiveShadow { get; set; }
 
-	[CssVariable("bs-btn-disabled-color")]
 	public string? DisabledColor { get; set; }
 
-	[CssVariable("bs-btn-disabled-bg")]
 	public string? DisabledBackground { get; set; }
 
-	[CssVariable("bs-btn-disabled-border-color")]
 	public string? DisabledBorderColor { get; set; }
+
+    public virtual string GetSelector()
+    {
+        return ":root";
+    }
+
+    public virtual IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
+    {
+        if (Color.HasContent())
+            yield return ("--bs-btn-color", Color);
+        if (Background.HasContent())
+            yield return ("--bs-btn-bg", Background);
+        if (BorderColor.HasContent())
+            yield return ("--bs-btn-border-color", BorderColor);
+        if (HoverColor.HasContent())
+            yield return ("--bs-btn-hover-color", HoverColor);
+        if (HoverBackground.HasContent())
+            yield return ("--bs-btn-hover-bg", HoverBackground);
+        if (HoverBorderColor.HasContent())
+            yield return ("--bs-btn-hover-border-color", HoverBorderColor);
+        if (FocusShadowRgb.HasContent())
+            yield return ("--bs-btn-focus-shadow-rgb", FocusShadowRgb);
+        if (ActiveColor.HasContent())
+            yield return ("--bs-btn-active-color", ActiveColor);
+        if (ActiveBackground.HasContent())
+            yield return ("--bs-btn-active-bg", ActiveBackground);
+        if (ActiveBorderColor.HasContent())
+            yield return ("--bs-btn-active-border-color", ActiveBorderColor);
+        if (ActiveShadow.HasContent())
+            yield return ("--bs-btn-active-shadow", ActiveShadow);
+        if (DisabledColor.HasContent())
+            yield return ("--bs-btn-disabled-color", DisabledColor);
+        if (DisabledBackground.HasContent())
+            yield return ("--bs-btn-disabled-bg", DisabledBackground);
+        if (DisabledBorderColor.HasContent())
+            yield return ("--bs-btn-disabled-border-color", DisabledBorderColor);
+    }
 }
 
 

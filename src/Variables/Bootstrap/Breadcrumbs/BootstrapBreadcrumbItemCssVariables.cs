@@ -1,8 +1,20 @@
+using System.Collections.Generic;
+using Soenneker.Extensions.String;
+
 namespace Soenneker.Quark;
 
-[CssSelector(".breadcrumb-item + .breadcrumb-item::before")]
-public class BootstrapBreadcrumbItemCssVariables
+public class BootstrapBreadcrumbItemCssVariables : IBootstrapCssVariableGroup
 {
-	[CssVariable("bs-breadcrumb-divider")]
 	public string? Divider { get; set; }
+
+    public string GetSelector()
+    {
+        return ".breadcrumb-item + .breadcrumb-item::before";
+    }
+
+    public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
+    {
+        if (Divider.HasContent())
+            yield return ("--bs-breadcrumb-divider", Divider);
+    }
 }

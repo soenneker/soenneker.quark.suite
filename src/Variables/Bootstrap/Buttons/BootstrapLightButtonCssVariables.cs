@@ -3,9 +3,12 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap light button CSS variables
 /// </summary>
-[CssSelector(".btn-light")]
 public class BootstrapLightButtonCssVariables : BootstrapBaseButtonCssVariables
 {
+    public override string GetSelector()
+    {
+        return ".btn-light";
+    }
 }
 
 

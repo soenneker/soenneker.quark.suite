@@ -1,18 +1,32 @@
+using System.Collections.Generic;
+using Soenneker.Extensions.String;
+
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Variables for pagination.
 /// </summary>
-[CssSelector(".pagination")]
-public class BootstrapPaginationCssVariables
+public class BootstrapPaginationCssVariables : IBootstrapCssVariableGroup
 {
-	[CssVariable("bs-pagination-color")]
 	public string? Color { get; set; }
 
-	[CssVariable("bs-pagination-bg")]
 	public string? Background { get; set; }
 
-	[CssVariable("bs-pagination-border-color")]
 	public string? BorderColor { get; set; }
+
+    public string GetSelector()
+    {
+        return ".pagination";
+    }
+
+    public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
+    {
+        if (Color.HasContent())
+            yield return ("--bs-pagination-color", Color);
+        if (Background.HasContent())
+            yield return ("--bs-pagination-bg", Background);
+        if (BorderColor.HasContent())
+            yield return ("--bs-pagination-border-color", BorderColor);
+    }
 }
 

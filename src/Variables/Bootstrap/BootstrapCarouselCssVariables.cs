@@ -1,35 +1,53 @@
+using System.Collections.Generic;
+using Soenneker.Extensions.String;
+
 namespace Soenneker.Quark;
 
-[CssSelector(".carousel")]
-public class BootstrapCarouselCssVariables
+public class BootstrapCarouselCssVariables : IBootstrapCssVariableGroup
 {
-	[CssVariable("bs-carousel-control-color")]
 	public string? ControlColor { get; set; }
 
-	[CssVariable("bs-carousel-control-width")]
 	public string? ControlWidth { get; set; }
 
-	[CssVariable("bs-carousel-indicator-width")]
 	public string? IndicatorWidth { get; set; }
 
-	[CssVariable("bs-carousel-indicator-height")]
 	public string? IndicatorHeight { get; set; }
 
     /// <summary>
     /// Carousel indicator active background. Default: #fff
     /// </summary>
-    [CssVariable("bs-carousel-indicator-active-bg")]
     public string? IndicatorActiveBg { get; set; }
 
     /// <summary>
     /// Carousel caption color. Default: #fff
     /// </summary>
-    [CssVariable("bs-carousel-caption-color")]
     public string? CaptionColor { get; set; }
 
     /// <summary>
     /// Carousel control icon filter. Default: none
     /// </summary>
-    [CssVariable("bs-carousel-control-icon-filter")]
     public string? ControlIconFilter { get; set; }
+
+    public string GetSelector()
+    {
+        return ".carousel";
+    }
+
+    public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
+    {
+        if (ControlColor.HasContent())
+            yield return ("--bs-carousel-control-color", ControlColor);
+        if (ControlWidth.HasContent())
+            yield return ("--bs-carousel-control-width", ControlWidth);
+        if (IndicatorWidth.HasContent())
+            yield return ("--bs-carousel-indicator-width", IndicatorWidth);
+        if (IndicatorHeight.HasContent())
+            yield return ("--bs-carousel-indicator-height", IndicatorHeight);
+        if (IndicatorActiveBg.HasContent())
+            yield return ("--bs-carousel-indicator-active-bg", IndicatorActiveBg);
+        if (CaptionColor.HasContent())
+            yield return ("--bs-carousel-caption-color", CaptionColor);
+        if (ControlIconFilter.HasContent())
+            yield return ("--bs-carousel-control-icon-filter", ControlIconFilter);
+    }
 }

@@ -133,4 +133,165 @@ public sealed class BootstrapCssVariables
 
     // Spinner
     public BootstrapSpinnerCssVariables? Spinner { get; set; }
+
+    /// <summary>Gets all CSS variable group instances in this BootstrapCssVariables without using reflection.</summary>
+    internal System.Collections.Generic.IEnumerable<IBootstrapCssVariableGroup> GetAllCssVariableGroups()
+    {
+        if (Colors != null)
+            yield return Colors;
+        if (Typography != null)
+            yield return Typography;
+        if (Spacing != null)
+            yield return Spacing;
+        if (Borders != null)
+            yield return Borders;
+        if (Shadows != null)
+            yield return Shadows;
+        if (General != null)
+            yield return General;
+        if (Breakpoints != null)
+            yield return Breakpoints;
+        if (Navbar != null)
+            yield return Navbar;
+        if (Link != null)
+            yield return Link;
+        if (Button != null)
+            yield return Button;
+        if (PrimaryButton != null)
+            yield return PrimaryButton;
+        if (SecondaryButton != null)
+            yield return SecondaryButton;
+        if (SuccessButton != null)
+            yield return SuccessButton;
+        if (DangerButton != null)
+            yield return DangerButton;
+        if (WarningButton != null)
+            yield return WarningButton;
+        if (InfoButton != null)
+            yield return InfoButton;
+        if (LightButton != null)
+            yield return LightButton;
+        if (DarkButton != null)
+            yield return DarkButton;
+        if (OutlinePrimaryButton != null)
+            yield return OutlinePrimaryButton;
+        if (OutlineSecondaryButton != null)
+            yield return OutlineSecondaryButton;
+        if (OutlineSuccessButton != null)
+            yield return OutlineSuccessButton;
+        if (OutlineDangerButton != null)
+            yield return OutlineDangerButton;
+        if (OutlineWarningButton != null)
+            yield return OutlineWarningButton;
+        if (OutlineInfoButton != null)
+            yield return OutlineInfoButton;
+        if (OutlineLightButton != null)
+            yield return OutlineLightButton;
+        if (OutlineDarkButton != null)
+            yield return OutlineDarkButton;
+        if (Alert != null)
+            yield return Alert;
+        if (AlertPrimary != null)
+            yield return AlertPrimary;
+        if (AlertSecondary != null)
+            yield return AlertSecondary;
+        if (AlertSuccess != null)
+            yield return AlertSuccess;
+        if (AlertDanger != null)
+            yield return AlertDanger;
+        if (AlertWarning != null)
+            yield return AlertWarning;
+        if (AlertInfo != null)
+            yield return AlertInfo;
+        if (AlertLight != null)
+            yield return AlertLight;
+        if (AlertDark != null)
+            yield return AlertDark;
+        if (Badge != null)
+            yield return Badge;
+        if (BadgePrimary != null)
+            yield return BadgePrimary;
+        if (BadgeSecondary != null)
+            yield return BadgeSecondary;
+        if (BadgeSuccess != null)
+            yield return BadgeSuccess;
+        if (BadgeDanger != null)
+            yield return BadgeDanger;
+        if (BadgeWarning != null)
+            yield return BadgeWarning;
+        if (BadgeInfo != null)
+            yield return BadgeInfo;
+        if (BadgeLight != null)
+            yield return BadgeLight;
+        if (BadgeDark != null)
+            yield return BadgeDark;
+        if (Card != null)
+            yield return Card;
+        if (Forms != null)
+            yield return Forms;
+        if (FormControl != null)
+            yield return FormControl;
+        if (FormCheckInput != null)
+            yield return FormCheckInput;
+        if (FormSwitchInput != null)
+            yield return FormSwitchInput;
+        if (ListGroup != null)
+            yield return ListGroup;
+        if (ListGroupItem != null)
+            yield return ListGroupItem;
+        if (NavLink != null)
+            yield return NavLink;
+        if (NavTabs != null)
+            yield return NavTabs;
+        if (Pagination != null)
+            yield return Pagination;
+        if (PageLink != null)
+            yield return PageLink;
+        if (Progress != null)
+            yield return Progress;
+        if (ProgressBar != null)
+            yield return ProgressBar;
+        if (Modal != null)
+            yield return Modal;
+        if (ModalContent != null)
+            yield return ModalContent;
+        if (ModalBackdrop != null)
+            yield return ModalBackdrop;
+        if (Offcanvas != null)
+            yield return Offcanvas;
+        if (OffcanvasBackdrop != null)
+            yield return OffcanvasBackdrop;
+        if (DropdownMenu != null)
+            yield return DropdownMenu;
+        if (DropdownItem != null)
+            yield return DropdownItem;
+        if (DropdownToggle != null)
+            yield return DropdownToggle;
+        if (Breadcrumb != null)
+            yield return Breadcrumb;
+        if (BreadcrumbItem != null)
+            yield return BreadcrumbItem;
+        if (Toast != null)
+            yield return Toast;
+        if (Tooltip != null)
+            yield return Tooltip;
+        if (Popover != null)
+            yield return Popover;
+        if (Table != null)
+            yield return Table;
+        if (TableStriped != null)
+            yield return TableStriped;
+        if (TableHover != null)
+            yield return TableHover;
+        if (Accordion != null)
+            yield return Accordion;
+        if (AccordionButton != null)
+            yield return AccordionButton;
+        if (Carousel != null)
+            yield return Carousel;
+        if (CloseButton != null)
+            yield return CloseButton;
+        if (Spinner != null)
+            yield return Spinner;
+    }
 }

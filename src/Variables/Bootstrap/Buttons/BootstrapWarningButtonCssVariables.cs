@@ -3,9 +3,12 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap warning button CSS variables
 /// </summary>
-[CssSelector(".btn-warning")]
 public class BootstrapWarningButtonCssVariables : BootstrapBaseButtonCssVariables
 {
+    public override string GetSelector()
+    {
+        return ".btn-warning";
+    }
 }
 
 

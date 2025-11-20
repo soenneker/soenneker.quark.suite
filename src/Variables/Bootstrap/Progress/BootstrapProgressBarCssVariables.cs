@@ -1,12 +1,25 @@
+using System.Collections.Generic;
+using Soenneker.Extensions.String;
+
 namespace Soenneker.Quark;
 
-[CssSelector(".progress-bar")]
-public class BootstrapProgressBarCssVariables
+public class BootstrapProgressBarCssVariables : IBootstrapCssVariableGroup
 {
-	[CssVariable("bs-progress-bar-color")]
 	public string? Color { get; set; }
 
-	[CssVariable("bs-progress-bar-bg")]
 	public string? Background { get; set; }
+
+    public string GetSelector()
+    {
+        return ".progress-bar";
+    }
+
+    public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
+    {
+        if (Color.HasContent())
+            yield return ("--bs-progress-bar-color", Color);
+        if (Background.HasContent())
+            yield return ("--bs-progress-bar-bg", Background);
+    }
 }
 

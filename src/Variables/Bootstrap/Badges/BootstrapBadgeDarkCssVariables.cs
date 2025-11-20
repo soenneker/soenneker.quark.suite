@@ -1,6 +1,11 @@
 namespace Soenneker.Quark;
 
-[CssSelector(".text-bg-dark")]
-public class BootstrapBadgeDarkCssVariables : BootstrapBaseBadgeCssVariables { }
+public class BootstrapBadgeDarkCssVariables : BootstrapBaseBadgeCssVariables
+{
+    public override string GetSelector()
+    {
+        return ".text-bg-dark";
+    }
+}
 
 

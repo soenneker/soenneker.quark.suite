@@ -1,18 +1,32 @@
+using System.Collections.Generic;
+using Soenneker.Extensions.String;
+
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Variables for dropdown menus and items.
 /// </summary>
-[CssSelector(".dropdown-menu")]
-public class BootstrapDropdownMenuCssVariables
+public class BootstrapDropdownMenuCssVariables : IBootstrapCssVariableGroup
 {
-	[CssVariable("bs-dropdown-color")]
 	public string? Color { get; set; }
 
-	[CssVariable("bs-dropdown-bg")]
 	public string? Background { get; set; }
 
-	[CssVariable("bs-dropdown-border-color")]
 	public string? BorderColor { get; set; }
+
+    public string GetSelector()
+    {
+        return ".dropdown-menu";
+    }
+
+    public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
+    {
+        if (Color.HasContent())
+            yield return ("--bs-dropdown-color", Color);
+        if (Background.HasContent())
+            yield return ("--bs-dropdown-bg", Background);
+        if (BorderColor.HasContent())
+            yield return ("--bs-dropdown-border-color", BorderColor);
+    }
 }
 

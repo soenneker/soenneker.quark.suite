@@ -1,10 +1,22 @@
+using System.Collections.Generic;
+using Soenneker.Extensions.String;
+
 namespace Soenneker.Quark;
 
-[CssSelector("[data-bs-toggle=dropdown]")]
-public class BootstrapDropdownToggleCssVariables
+public class BootstrapDropdownToggleCssVariables : IBootstrapCssVariableGroup
 {
-	[CssVariable("bs-dropdown-spacer")]
 	public string? Spacer { get; set; }
+
+    public string GetSelector()
+    {
+        return "[data-bs-toggle=dropdown]";
+    }
+
+    public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
+    {
+        if (Spacer.HasContent())
+            yield return ("--bs-dropdown-spacer", Spacer);
+    }
 }
 
 

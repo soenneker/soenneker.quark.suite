@@ -1,16 +1,30 @@
+using System.Collections.Generic;
+using Soenneker.Extensions.String;
+
 namespace Soenneker.Quark;
 
-[CssSelector(".nav-link")]
-public class BootstrapNavLinkCssVariables
+public class BootstrapNavLinkCssVariables : IBootstrapCssVariableGroup
 {
-	[CssVariable("bs-nav-link-color")]
 	public string? Color { get; set; }
 
-	[CssVariable("bs-nav-link-hover-color")]
 	public string? HoverColor { get; set; }
 
-	[CssVariable("bs-nav-link-disabled-color")]
 	public string? DisabledColor { get; set; }
+
+    public string GetSelector()
+    {
+        return ".nav-link";
+    }
+
+    public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
+    {
+        if (Color.HasContent())
+            yield return ("--bs-nav-link-color", Color);
+        if (HoverColor.HasContent())
+            yield return ("--bs-nav-link-hover-color", HoverColor);
+        if (DisabledColor.HasContent())
+            yield return ("--bs-nav-link-disabled-color", DisabledColor);
+    }
 }
 
 

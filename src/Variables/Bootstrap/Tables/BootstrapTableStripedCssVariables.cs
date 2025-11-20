@@ -1,12 +1,25 @@
+using System.Collections.Generic;
+using Soenneker.Extensions.String;
+
 namespace Soenneker.Quark;
 
-[CssSelector(".table-striped")]
-public class BootstrapTableStripedCssVariables
+public class BootstrapTableStripedCssVariables : IBootstrapCssVariableGroup
 {
-	[CssVariable("bs-table-striped-bg")]
 	public string? StripedBackground { get; set; }
 
-	[CssVariable("bs-table-striped-color")]
 	public string? StripedColor { get; set; }
+
+    public string GetSelector()
+    {
+        return ".table-striped";
+    }
+
+    public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
+    {
+        if (StripedBackground.HasContent())
+            yield return ("--bs-table-striped-bg", StripedBackground);
+        if (StripedColor.HasContent())
+            yield return ("--bs-table-striped-color", StripedColor);
+    }
 }
 

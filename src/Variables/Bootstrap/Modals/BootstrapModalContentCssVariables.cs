@@ -1,15 +1,29 @@
+using System.Collections.Generic;
+using Soenneker.Extensions.String;
+
 namespace Soenneker.Quark;
 
-[CssSelector(".modal-content")]
-public class BootstrapModalContentCssVariables
+public class BootstrapModalContentCssVariables : IBootstrapCssVariableGroup
 {
-	[CssVariable("bs-modal-color")]
 	public string? Color { get; set; }
 
-	[CssVariable("bs-modal-bg")]
 	public string? Background { get; set; }
 
-	[CssVariable("bs-modal-border-color")]
 	public string? BorderColor { get; set; }
+
+    public string GetSelector()
+    {
+        return ".modal-content";
+    }
+
+    public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
+    {
+        if (Color.HasContent())
+            yield return ("--bs-modal-color", Color);
+        if (Background.HasContent())
+            yield return ("--bs-modal-bg", Background);
+        if (BorderColor.HasContent())
+            yield return ("--bs-modal-border-color", BorderColor);
+    }
 }
 

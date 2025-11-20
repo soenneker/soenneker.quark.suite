@@ -1,6 +1,11 @@
 namespace Soenneker.Quark;
 
-[CssSelector(".text-bg-success")]
-public class BootstrapBadgeSuccessCssVariables : BootstrapBaseBadgeCssVariables { }
+public class BootstrapBadgeSuccessCssVariables : BootstrapBaseBadgeCssVariables
+{
+    public override string GetSelector()
+    {
+        return ".text-bg-success";
+    }
+}
 
 

@@ -1,18 +1,32 @@
+using System.Collections.Generic;
+using Soenneker.Extensions.String;
+
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Variables for .list-group and items.
 /// </summary>
-[CssSelector(".list-group")]
-public class BootstrapListGroupCssVariables
+public class BootstrapListGroupCssVariables : IBootstrapCssVariableGroup
 {
-	[CssVariable("bs-list-group-color")]
 	public string? Color { get; set; }
 
-	[CssVariable("bs-list-group-bg")]
 	public string? Background { get; set; }
 
-	[CssVariable("bs-list-group-border-color")]
 	public string? BorderColor { get; set; }
+
+    public string GetSelector()
+    {
+        return ".list-group";
+    }
+
+    public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
+    {
+        if (Color.HasContent())
+            yield return ("--bs-list-group-color", Color);
+        if (Background.HasContent())
+            yield return ("--bs-list-group-bg", Background);
+        if (BorderColor.HasContent())
+            yield return ("--bs-list-group-border-color", BorderColor);
+    }
 }
 

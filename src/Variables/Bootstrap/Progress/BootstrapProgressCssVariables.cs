@@ -1,12 +1,24 @@
+using System.Collections.Generic;
+using Soenneker.Extensions.String;
+
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Variables for progress.
 /// </summary>
-[CssSelector(".progress")]
-public class BootstrapProgressCssVariables
+public class BootstrapProgressCssVariables : IBootstrapCssVariableGroup
 {
-	[CssVariable("bs-progress-bg")]
 	public string? Background { get; set; }
+
+    public string GetSelector()
+    {
+        return ".progress";
+    }
+
+    public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
+    {
+        if (Background.HasContent())
+            yield return ("--bs-progress-bg", Background);
+    }
 }
 

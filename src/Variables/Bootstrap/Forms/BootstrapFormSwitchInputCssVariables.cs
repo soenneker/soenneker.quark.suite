@@ -1,12 +1,25 @@
+using System.Collections.Generic;
+using Soenneker.Extensions.String;
+
 namespace Soenneker.Quark;
 
-[CssSelector(".form-switch .form-check-input")]
-public class BootstrapFormSwitchInputCssVariables
+public class BootstrapFormSwitchInputCssVariables : IBootstrapCssVariableGroup
 {
-	[CssVariable("bs-form-switch-bg")]
 	public string? Background { get; set; }
 
-	[CssVariable("bs-form-switch-color")]
 	public string? Color { get; set; }
+
+    public string GetSelector()
+    {
+        return ".form-switch .form-check-input";
+    }
+
+    public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
+    {
+        if (Background.HasContent())
+            yield return ("--bs-form-switch-bg", Background);
+        if (Color.HasContent())
+            yield return ("--bs-form-switch-color", Color);
+    }
 }
 

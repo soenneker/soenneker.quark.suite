@@ -1,135 +1,219 @@
+using System.Collections.Generic;
+using Soenneker.Extensions.String;
+
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Bootstrap's modal CSS variables
 /// </summary>
-[CssSelector(".modal")]
-public class BootstrapModalCssVariables
+public class BootstrapModalCssVariables : IBootstrapCssVariableGroup
 {
 	/// <summary>
 	/// Modal z-index. Default: 1055
 	/// </summary>
-	[CssVariable("bs-modal-zindex")]
 	public string? Zindex { get; set; }
 
 	/// <summary>
 	/// Modal width. Default: 500px
 	/// </summary>
-	[CssVariable("bs-modal-width")]
 	public string? Width { get; set; }
 
 	/// <summary>
 	/// Modal padding. Default: 1rem
 	/// </summary>
-	[CssVariable("bs-modal-padding")]
 	public string? Padding { get; set; }
 
 	/// <summary>
 	/// Modal margin. Default: 0.5rem
 	/// </summary>
-	[CssVariable("bs-modal-margin")]
 	public string? Margin { get; set; }
 
 	/// <summary>
 	/// Modal color. Default: var(--bs-body-color)
 	/// </summary>
-	[CssVariable("bs-modal-color")]
 	public string? Color { get; set; }
 
 	/// <summary>
 	/// Modal background. Default: var(--bs-body-bg)
 	/// </summary>
-	[CssVariable("bs-modal-bg")]
 	public string? Background { get; set; }
 
 	/// <summary>
 	/// Modal border color. Default: var(--bs-border-color-translucent)
 	/// </summary>
-	[CssVariable("bs-modal-border-color")]
 	public string? BorderColor { get; set; }
 
 	/// <summary>
 	/// Modal border width. Default: var(--bs-border-width)
 	/// </summary>
-	[CssVariable("bs-modal-border-width")]
 	public string? BorderWidth { get; set; }
 
 	/// <summary>
 	/// Modal border radius. Default: var(--bs-border-radius-lg)
 	/// </summary>
-	[CssVariable("bs-modal-border-radius")]
 	public string? BorderRadius { get; set; }
 
 	/// <summary>
 	/// Modal box shadow. Default: var(--bs-box-shadow-sm)
 	/// </summary>
-	[CssVariable("bs-modal-box-shadow")]
 	public string? BoxShadow { get; set; }
 
 	/// <summary>
 	/// Modal inner border radius. Default: calc(var(--bs-border-radius-lg) - (var(--bs-border-width)))
 	/// </summary>
-	[CssVariable("bs-modal-inner-border-radius")]
 	public string? InnerBorderRadius { get; set; }
 
 	/// <summary>
 	/// Modal header padding X. Default: 1rem
 	/// </summary>
-	[CssVariable("bs-modal-header-padding-x")]
 	public string? HeaderPaddingX { get; set; }
 
 	/// <summary>
 	/// Modal header padding Y. Default: 1rem
 	/// </summary>
-	[CssVariable("bs-modal-header-padding-y")]
 	public string? HeaderPaddingY { get; set; }
 
 	/// <summary>
 	/// Modal header padding. Default: 1rem 1rem
 	/// </summary>
-	[CssVariable("bs-modal-header-padding")]
 	public string? HeaderPadding { get; set; }
 
 	/// <summary>
 	/// Modal header border color. Default: var(--bs-border-color)
 	/// </summary>
-	[CssVariable("bs-modal-header-border-color")]
 	public string? HeaderBorderColor { get; set; }
 
 	/// <summary>
 	/// Modal header border width. Default: var(--bs-border-width)
 	/// </summary>
-	[CssVariable("bs-modal-header-border-width")]
 	public string? HeaderBorderWidth { get; set; }
 
 	/// <summary>
 	/// Modal title line height. Default: 1.5
 	/// </summary>
-	[CssVariable("bs-modal-title-line-height")]
 	public string? TitleLineHeight { get; set; }
 
 	/// <summary>
 	/// Modal footer gap. Default: 0.5rem
 	/// </summary>
-	[CssVariable("bs-modal-footer-gap")]
 	public string? FooterGap { get; set; }
 
 	/// <summary>
 	/// Modal footer background. Default: transparent
 	/// </summary>
-	[CssVariable("bs-modal-footer-bg")]
 	public string? FooterBg { get; set; }
 
 	/// <summary>
 	/// Modal footer border color. Default: var(--bs-border-color)
 	/// </summary>
-	[CssVariable("bs-modal-footer-border-color")]
 	public string? FooterBorderColor { get; set; }
 
 	/// <summary>
 	/// Modal footer border width. Default: var(--bs-border-width)
 	/// </summary>
-	[CssVariable("bs-modal-footer-border-width")]
 	public string? FooterBorderWidth { get; set; }
+
+	public string? Border { get; set; }
+
+	public string? BackdropBg { get; set; }
+
+	public string? BackdropOpacity { get; set; }
+
+	public string? ContentBorderRadius { get; set; }
+
+	public string? ContentBorder { get; set; }
+
+	public string? ContentBorderWidth { get; set; }
+
+	public string? ContentBoxShadow { get; set; }
+
+	public string? DialogMargin { get; set; }
+
+	public string? DialogMarginYSmUp { get; set; }
+
+	public string? DialogTransform { get; set; }
+
+	public string? FadeTransform { get; set; }
+
+	public string? ShowTransform { get; set; }
+
+	public string? ShowTransformTranslate { get; set; }
+
+    public string GetSelector()
+    {
+        return ".modal";
+    }
+
+    public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
+    {
+        if (Zindex.HasContent())
+            yield return ("--bs-modal-zindex", Zindex);
+        if (Width.HasContent())
+            yield return ("--bs-modal-width", Width);
+        if (Padding.HasContent())
+            yield return ("--bs-modal-padding", Padding);
+        if (Margin.HasContent())
+            yield return ("--bs-modal-margin", Margin);
+        if (Color.HasContent())
+            yield return ("--bs-modal-color", Color);
+        if (Background.HasContent())
+            yield return ("--bs-modal-bg", Background);
+        if (BorderColor.HasContent())
+            yield return ("--bs-modal-border-color", BorderColor);
+        if (BorderWidth.HasContent())
+            yield return ("--bs-modal-border-width", BorderWidth);
+        if (Border.HasContent())
+            yield return ("--bs-modal-border", Border);
+        if (BorderRadius.HasContent())
+            yield return ("--bs-modal-border-radius", BorderRadius);
+        if (BoxShadow.HasContent())
+            yield return ("--bs-modal-box-shadow", BoxShadow);
+        if (InnerBorderRadius.HasContent())
+            yield return ("--bs-modal-inner-border-radius", InnerBorderRadius);
+        if (BackdropBg.HasContent())
+            yield return ("--bs-modal-backdrop-bg", BackdropBg);
+        if (BackdropOpacity.HasContent())
+            yield return ("--bs-modal-backdrop-opacity", BackdropOpacity);
+        if (HeaderPaddingX.HasContent())
+            yield return ("--bs-modal-header-padding-x", HeaderPaddingX);
+        if (HeaderPaddingY.HasContent())
+            yield return ("--bs-modal-header-padding-y", HeaderPaddingY);
+        if (HeaderPadding.HasContent())
+            yield return ("--bs-modal-header-padding", HeaderPadding);
+        if (HeaderBorderColor.HasContent())
+            yield return ("--bs-modal-header-border-color", HeaderBorderColor);
+        if (HeaderBorderWidth.HasContent())
+            yield return ("--bs-modal-header-border-width", HeaderBorderWidth);
+        if (TitleLineHeight.HasContent())
+            yield return ("--bs-modal-title-line-height", TitleLineHeight);
+        if (FooterGap.HasContent())
+            yield return ("--bs-modal-footer-gap", FooterGap);
+        if (FooterBg.HasContent())
+            yield return ("--bs-modal-footer-bg", FooterBg);
+        if (FooterBorderColor.HasContent())
+            yield return ("--bs-modal-footer-border-color", FooterBorderColor);
+        if (FooterBorderWidth.HasContent())
+            yield return ("--bs-modal-footer-border-width", FooterBorderWidth);
+        if (ContentBorderRadius.HasContent())
+            yield return ("--bs-modal-content-border-radius", ContentBorderRadius);
+        if (ContentBorder.HasContent())
+            yield return ("--bs-modal-content-border", ContentBorder);
+        if (ContentBorderWidth.HasContent())
+            yield return ("--bs-modal-content-border-width", ContentBorderWidth);
+        if (ContentBoxShadow.HasContent())
+            yield return ("--bs-modal-content-box-shadow", ContentBoxShadow);
+        if (DialogMargin.HasContent())
+            yield return ("--bs-modal-dialog-margin", DialogMargin);
+        if (DialogMarginYSmUp.HasContent())
+            yield return ("--bs-modal-dialog-margin-y-sm-up", DialogMarginYSmUp);
+        if (DialogTransform.HasContent())
+            yield return ("--bs-modal-dialog-transform", DialogTransform);
+        if (FadeTransform.HasContent())
+            yield return ("--bs-modal-fade-transform", FadeTransform);
+        if (ShowTransform.HasContent())
+            yield return ("--bs-modal-show-transform", ShowTransform);
+        if (ShowTransformTranslate.HasContent())
+            yield return ("--bs-modal-show-transform-translate", ShowTransformTranslate);
+    }
 }
 

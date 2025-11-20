@@ -1,6 +1,11 @@
 namespace Soenneker.Quark;
 
-[CssSelector(".text-bg-warning")]
-public class BootstrapBadgeWarningCssVariables : BootstrapBaseBadgeCssVariables { }
+public class BootstrapBadgeWarningCssVariables : BootstrapBaseBadgeCssVariables
+{
+    public override string GetSelector()
+    {
+        return ".text-bg-warning";
+    }
+}
 
 

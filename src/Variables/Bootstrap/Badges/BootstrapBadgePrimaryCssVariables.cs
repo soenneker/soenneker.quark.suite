@@ -1,6 +1,11 @@
 namespace Soenneker.Quark;
 
-[CssSelector(".text-bg-primary")]
-public class BootstrapBadgePrimaryCssVariables : BootstrapBaseBadgeCssVariables { }
+public class BootstrapBadgePrimaryCssVariables : BootstrapBaseBadgeCssVariables
+{
+    public override string GetSelector()
+    {
+        return ".text-bg-primary";
+    }
+}
 
 

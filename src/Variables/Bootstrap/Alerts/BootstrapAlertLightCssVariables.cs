@@ -1,6 +1,11 @@
 namespace Soenneker.Quark;
 
-[CssSelector(".alert-light")]
-public class BootstrapAlertLightCssVariables : BootstrapBaseAlertCssVariables { }
+public class BootstrapAlertLightCssVariables : BootstrapBaseAlertCssVariables
+{
+    public override string GetSelector()
+    {
+        return ".alert-light";
+    }
+}
 
 

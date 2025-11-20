@@ -1,27 +1,45 @@
+using System.Collections.Generic;
+using Soenneker.Extensions.String;
+
 namespace Soenneker.Quark;
 
-[CssSelector(".list-group-item")]
-public class BootstrapListGroupItemCssVariables
+public class BootstrapListGroupItemCssVariables : IBootstrapCssVariableGroup
 {
-	[CssVariable("bs-list-group-item-padding-y")]
 	public string? PaddingY { get; set; }
 
-	[CssVariable("bs-list-group-item-padding-x")]
 	public string? PaddingX { get; set; }
 
-	[CssVariable("bs-list-group-action-hover-color")]
 	public string? ActionHoverColor { get; set; }
 
-	[CssVariable("bs-list-group-action-hover-bg")]
 	public string? ActionHoverBackground { get; set; }
 
-	[CssVariable("bs-list-group-active-color")]
 	public string? ActiveColor { get; set; }
 
-	[CssVariable("bs-list-group-active-bg")]
 	public string? ActiveBackground { get; set; }
 
-	[CssVariable("bs-list-group-active-border-color")]
 	public string? ActiveBorderColor { get; set; }
+
+    public string GetSelector()
+    {
+        return ".list-group-item";
+    }
+
+    public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
+    {
+        if (PaddingY.HasContent())
+            yield return ("--bs-list-group-item-padding-y", PaddingY);
+        if (PaddingX.HasContent())
+            yield return ("--bs-list-group-item-padding-x", PaddingX);
+        if (ActionHoverColor.HasContent())
+            yield return ("--bs-list-group-action-hover-color", ActionHoverColor);
+        if (ActionHoverBackground.HasContent())
+            yield return ("--bs-list-group-action-hover-bg", ActionHoverBackground);
+        if (ActiveColor.HasContent())
+            yield return ("--bs-list-group-active-color", ActiveColor);
+        if (ActiveBackground.HasContent())
+            yield return ("--bs-list-group-active-bg", ActiveBackground);
+        if (ActiveBorderColor.HasContent())
+            yield return ("--bs-list-group-active-border-color", ActiveBorderColor);
+    }
 }
 
