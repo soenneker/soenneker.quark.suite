@@ -6,6 +6,7 @@ public sealed class FieldsetOptions : ComponentOptions
     public FieldsetOptions()
     {
         ThemeKey = "Fieldset";
+        Selector = "fieldset";
     }
 }
 

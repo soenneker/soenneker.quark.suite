@@ -6,5 +6,6 @@ public sealed class BarOptions : ComponentOptions
     public BarOptions()
     {
         ThemeKey = "Bar";
+        Selector = ".navbar";
     }
 }

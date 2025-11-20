@@ -6,5 +6,6 @@ public sealed class AlertOptions : ComponentOptions
     public AlertOptions()
     {
         ThemeKey = "Alert";
+        Selector = ".alert";
     }
 }

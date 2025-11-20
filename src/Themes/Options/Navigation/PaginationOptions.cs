@@ -6,5 +6,6 @@ public sealed class PaginationOptions : ComponentOptions
     public PaginationOptions()
     {
         ThemeKey = "Pagination";
+        Selector = ".pagination";
     }
 }

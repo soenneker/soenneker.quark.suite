@@ -1,8 +1,24 @@
+using System.Collections.Generic;
+using Soenneker.Extensions.String;
+
 namespace Soenneker.Quark;
 
 public class ComponentOptions
 {
     public string ThemeKey { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the CSS selector for this component (e.g., "a", "i", ":root").</summary>
+    public string Selector { get; set; } = ":root";
+
+    internal virtual IEnumerable<ComponentCssRule> GetCssRules()
+    {
+        if (Selector.IsNullOrWhiteSpace())
+            return [];
+
+        var buffer = new List<ComponentCssRule>(32);
+        CollectCssRules(buffer, Selector);
+        return buffer;
+    }
 
     public CssValue<DisplayBuilder>? Display { get; set; }
 
@@ -47,16 +63,12 @@ public class ComponentOptions
     public CssValue<OverflowBuilder>? OverflowY { get; set; }
 
     public CssValue<ObjectFitBuilder>? ObjectFit { get; set; }
-
-    [CssProperty("text-align")]
     public CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
 
     public CssValue<TextColorBuilder>? TextColor { get; set; }
 
-    [CssProperty("text-decoration")]
     public CssValue<TextDecorationBuilder>? TextDecoration { get; set; }
 
-    [CssProperty("flex")]
     public CssValue<FlexBuilder>? Flex { get; set; }
 
     public CssValue<GapBuilder>? Gap { get; set; }
@@ -134,4 +146,152 @@ public class ComponentOptions
     public CssValue<BorderOpacityBuilder>? BorderOpacity { get; set; }
 
     public CssValue<TextOpacityBuilder>? TextOpacity { get; set; }
+
+    private void CollectCssRules(List<ComponentCssRule> buffer, string baseSelector)
+    {
+        AddRules(buffer, baseSelector, Display, "display");
+        AddRules(buffer, baseSelector, Visibility, "visibility");
+        AddRules(buffer, baseSelector, Float, "float");
+        AddRules(buffer, baseSelector, VerticalAlign, "vertical-align");
+        AddRules(buffer, baseSelector, TextOverflow, "text-overflow");
+        AddRules(buffer, baseSelector, BoxShadow, "box-shadow");
+        AddRules(buffer, baseSelector, Margin, "margin");
+        AddRules(buffer, baseSelector, Padding, "padding");
+        AddRules(buffer, baseSelector, Position, "position");
+        AddRules(buffer, baseSelector, PositionOffset, null);
+        AddRules(buffer, baseSelector, TextSize, "font-size");
+        AddRules(buffer, baseSelector, TextStyle, null);
+        AddRules(buffer, baseSelector, Width, "width");
+        AddRules(buffer, baseSelector, MinWidth, "min-width");
+        AddRules(buffer, baseSelector, MaxWidth, "max-width");
+        AddRules(buffer, baseSelector, Height, "height");
+        AddRules(buffer, baseSelector, MinHeight, "min-height");
+        AddRules(buffer, baseSelector, MaxHeight, "max-height");
+        AddRules(buffer, baseSelector, Overflow, "overflow");
+        AddRules(buffer, baseSelector, OverflowX, "overflow-x");
+        AddRules(buffer, baseSelector, OverflowY, "overflow-y");
+        AddRules(buffer, baseSelector, ObjectFit, "object-fit");
+        AddRules(buffer, baseSelector, TextAlignment, "text-align");
+        AddRules(buffer, baseSelector, TextColor, "color");
+        AddRules(buffer, baseSelector, TextDecoration, "text-decoration");
+        AddRules(buffer, baseSelector, Flex, "flex");
+        AddRules(buffer, baseSelector, Gap, "gap");
+        AddRules(buffer, baseSelector, Border, "border");
+        AddRules(buffer, baseSelector, Opacity, "opacity");
+        AddRules(buffer, baseSelector, ZIndex, "z-index");
+        AddRules(buffer, baseSelector, PointerEvents, "pointer-events");
+        AddRules(buffer, baseSelector, UserSelect, "user-select");
+        AddRules(buffer, baseSelector, TextTransform, "text-transform");
+        AddRules(buffer, baseSelector, FontWeight, "font-weight");
+        AddRules(buffer, baseSelector, FontStyle, "font-style");
+        AddRules(buffer, baseSelector, LineHeight, "line-height");
+        AddRules(buffer, baseSelector, TextWrap, "text-wrap");
+        AddRules(buffer, baseSelector, TextBreak, "word-break");
+        AddRules(buffer, baseSelector, BorderColor, "border-color");
+        AddRules(buffer, baseSelector, BackgroundColor, "background-color");
+        AddRules(buffer, baseSelector, Animation, "animation");
+        AddRules(buffer, baseSelector, AspectRatio, "aspect-ratio");
+        AddRules(buffer, baseSelector, BackdropFilter, "backdrop-filter");
+        AddRules(buffer, baseSelector, BorderRadius, "border-radius");
+        AddRules(buffer, baseSelector, Clearfix, null);
+        AddRules(buffer, baseSelector, ClipPath, "clip-path");
+        AddRules(buffer, baseSelector, Cursor, "cursor");
+        AddRules(buffer, baseSelector, Filter, "filter");
+        AddRules(buffer, baseSelector, Interaction, null);
+        AddRules(buffer, baseSelector, ObjectPosition, "object-position");
+        AddRules(buffer, baseSelector, Resize, "resize");
+        AddRules(buffer, baseSelector, ScreenReader, null);
+        AddRules(buffer, baseSelector, ScrollBehavior, "scroll-behavior");
+        AddRules(buffer, baseSelector, StretchedLink, null);
+        AddRules(buffer, baseSelector, Transform, "transform");
+        AddRules(buffer, baseSelector, Transition, "transition");
+        AddRules(buffer, baseSelector, Truncate, null);
+        AddRules(buffer, baseSelector, FocusRing, null);
+        AddRules(buffer, baseSelector, LinkOpacity, null);
+        AddRules(buffer, baseSelector, LinkOffset, null);
+        AddRules(buffer, baseSelector, LinkUnderline, null);
+        AddRules(buffer, baseSelector, BackgroundOpacity, null);
+        AddRules(buffer, baseSelector, BorderOpacity, null);
+        AddRules(buffer, baseSelector, TextOpacity, null);
+    }
+
+    private static void AddRules<TBuilder>(List<ComponentCssRule> buffer, string baseSelector, CssValue<TBuilder>? value, string? fallbackProperty = null)
+        where TBuilder : class, ICssBuilder
+    {
+        if (value is not { IsEmpty: false })
+            return;
+
+        var declarations = ConvertToDeclarations(value.Value, fallbackProperty);
+
+        if (declarations is null)
+            return;
+
+        var resolvedSelector = ResolveSelector(baseSelector, value.Value);
+
+        foreach (var declaration in declarations)
+        {
+            if (!declaration.HasContent())
+                continue;
+
+            buffer.Add(new ComponentCssRule(resolvedSelector, declaration));
+        }
+    }
+
+    private static IEnumerable<string>? ConvertToDeclarations<TBuilder>(CssValue<TBuilder> value, string? fallbackProperty)
+        where TBuilder : class, ICssBuilder
+    {
+        var styleValue = value.StyleValue;
+
+        if (styleValue.HasContent())
+            return SplitDeclarations(styleValue);
+
+        if (fallbackProperty.IsNullOrEmpty())
+            return null;
+
+        if (!value.IsCssStyle)
+            return null;
+
+        var rawValue = value.ToString();
+        if (!rawValue.HasContent())
+            return null;
+
+        return [$"{fallbackProperty}: {rawValue.Trim()}"];
+    }
+
+    private static IEnumerable<string> SplitDeclarations(string value)
+    {
+        var segments = value.Split(';');
+
+        foreach (var segment in segments)
+        {
+            var trimmed = segment.Trim();
+
+            if (trimmed.Length > 0)
+                yield return trimmed;
+        }
+    }
+
+    private static string ResolveSelector<TBuilder>(string baseSelector, CssValue<TBuilder> value)
+        where TBuilder : class, ICssBuilder
+    {
+        var custom = value.CssSelector;
+
+        if (custom.IsNullOrWhiteSpace())
+            return baseSelector;
+
+        var trimmed = custom.Trim();
+
+        if (value.SelectorIsAbsolute)
+            return trimmed;
+
+        if (trimmed.Contains('&'))
+            return trimmed.Replace("&", baseSelector);
+
+        var first = trimmed[0];
+
+        if (first == ':' || first == '.' || first == '#' || first == '[')
+            return baseSelector + trimmed;
+
+        return $"{baseSelector} {trimmed}";
+    }
 }

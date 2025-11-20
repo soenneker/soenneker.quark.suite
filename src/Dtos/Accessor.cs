@@ -2,7 +2,7 @@
 
 namespace Soenneker.Quark.Dtos;
 
-internal sealed class Accessor
+public sealed class Accessor
 {
     // options -> CssValue<T> (boxed or null)
     public required Func<object, object?> GetOptionValue;

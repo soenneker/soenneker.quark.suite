@@ -6,5 +6,6 @@ public sealed class ListGroupOptions : ComponentOptions
     public ListGroupOptions()
     {
         ThemeKey = "ListGroup";
+        Selector = ".list-group";
     }
 }

@@ -6,6 +6,7 @@ public sealed class VideoOptions : ComponentOptions
     public VideoOptions()
     {
         ThemeKey = "Video";
+        Selector = "video";
     }
 }
 

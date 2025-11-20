@@ -6,5 +6,6 @@ public sealed class RowOptions : ComponentOptions
     public RowOptions()
     {
         ThemeKey = "Row";
+        Selector = ".row";
     }
 }

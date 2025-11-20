@@ -6,5 +6,6 @@ public sealed class ImageOptions : ComponentOptions
     public ImageOptions()
     {
         ThemeKey = "Image";
+        Selector = "img";
     }
 }

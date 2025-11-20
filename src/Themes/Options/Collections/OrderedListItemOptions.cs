@@ -6,5 +6,6 @@ public sealed class OrderedListItemOptions : ComponentOptions
     public OrderedListItemOptions()
     {
         ThemeKey = "OrderedListItem";
+        Selector = "li";
     }
 }

@@ -6,6 +6,7 @@ public sealed class ThOptions : ComponentOptions
     public ThOptions()
     {
         ThemeKey = "Th";
+        Selector = "th";
     }
 }
 
