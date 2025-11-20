@@ -5,7 +5,6 @@ public sealed class OrderedListOptions : ComponentOptions
 {
     public OrderedListOptions()
     {
-        ThemeKey = "OrderedList";
         Selector = "ol";
     }
 }

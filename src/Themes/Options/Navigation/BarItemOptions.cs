@@ -5,6 +5,5 @@ public sealed class BarItemOptions : ComponentOptions
 {
     public BarItemOptions()
     {
-        ThemeKey = "BarItem";
     }
 }

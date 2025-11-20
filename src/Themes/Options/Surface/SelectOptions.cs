@@ -5,7 +5,6 @@ public sealed class SelectOptions : ComponentOptions
 {
     public SelectOptions()
     {
-        ThemeKey = "Select";
         Selector = "select";
     }
 }

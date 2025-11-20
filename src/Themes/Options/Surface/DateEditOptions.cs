@@ -5,6 +5,5 @@ public sealed class DateEditOptions : ComponentOptions
 {
     public DateEditOptions()
     {
-        ThemeKey = "DateEdit";
     }
 }

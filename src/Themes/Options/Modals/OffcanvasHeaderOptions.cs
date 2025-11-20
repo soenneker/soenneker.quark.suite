@@ -5,7 +5,6 @@ public sealed class OffcanvasHeaderOptions : ComponentOptions
 {
     public OffcanvasHeaderOptions()
     {
-        ThemeKey = "OffcanvasHeader";
     }
 }
 

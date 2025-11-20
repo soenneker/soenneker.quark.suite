@@ -7,7 +7,6 @@ public sealed class SnackbarStackOptions : ComponentOptions
 {
     public SnackbarStackOptions()
     {
-        ThemeKey = "SnackbarStack";
     }
 
     /// <summary>

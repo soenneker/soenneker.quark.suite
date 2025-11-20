@@ -5,6 +5,5 @@ public sealed class DropdownItemOptions : ComponentOptions
 {
     public DropdownItemOptions()
     {
-        ThemeKey = "DropdownItem";
     }
 }

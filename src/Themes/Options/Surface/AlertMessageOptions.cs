@@ -5,7 +5,6 @@ public sealed class AlertMessageOptions : ComponentOptions
 {
     public AlertMessageOptions()
     {
-        ThemeKey = "AlertMessage";
     }
 }
 

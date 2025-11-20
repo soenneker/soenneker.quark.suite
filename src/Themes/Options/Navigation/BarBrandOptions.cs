@@ -5,6 +5,5 @@ public sealed class BarBrandOptions : ComponentOptions
 {
     public BarBrandOptions()
     {
-        ThemeKey = "BarBrand";
     }
 }

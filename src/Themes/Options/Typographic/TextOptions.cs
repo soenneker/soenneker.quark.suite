@@ -5,6 +5,5 @@ public sealed class TextOptions : ComponentOptions
 {
     public TextOptions()
     {
-        ThemeKey = "Text";
     }
 }

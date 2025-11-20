@@ -5,7 +5,6 @@ public sealed class BreadcrumbItemOptions : ComponentOptions
 {
     public BreadcrumbItemOptions()
     {
-        ThemeKey = "BreadcrumbItem";
     }
 }
 

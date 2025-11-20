@@ -5,6 +5,5 @@ public sealed class TablePageSizeSelectorOptions : ComponentOptions
 {
     public TablePageSizeSelectorOptions()
     {
-        ThemeKey = "TablePageSizeSelector";
     }
 }

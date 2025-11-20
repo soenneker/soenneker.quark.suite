@@ -4,6 +4,5 @@ public sealed class BarLabelOptions : ComponentOptions
 {
     public BarLabelOptions()
     {
-        ThemeKey = "BarLabel";
     }
 }

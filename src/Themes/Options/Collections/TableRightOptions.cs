@@ -5,7 +5,6 @@ public sealed class TableRightOptions : ComponentOptions
 {
     public TableRightOptions()
     {
-        ThemeKey = "TableRight";
     }
 }
 

@@ -5,6 +5,5 @@ public sealed class ValidationErrorsOptions : ComponentOptions
 {
     public ValidationErrorsOptions()
     {
-        ThemeKey = "ValidationErrors";
     }
 }

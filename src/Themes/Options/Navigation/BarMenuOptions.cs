@@ -5,6 +5,5 @@ public sealed class BarMenuOptions : ComponentOptions
 {
     public BarMenuOptions()
     {
-        ThemeKey = "BarMenu";
     }
 }

@@ -5,7 +5,6 @@ public sealed class StepsOptions : ComponentOptions
 {
     public StepsOptions()
     {
-        ThemeKey = "Steps";
     }
 
     public string? ConnectorColor { get; set; }

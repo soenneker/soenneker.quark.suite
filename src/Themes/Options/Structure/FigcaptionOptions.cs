@@ -5,7 +5,6 @@ public sealed class FigcaptionOptions : ComponentOptions
 {
     public FigcaptionOptions()
     {
-        ThemeKey = "Figcaption";
         Selector = "figcaption";
     }
 }

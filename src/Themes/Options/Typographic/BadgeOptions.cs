@@ -5,7 +5,6 @@ public sealed class BadgeOptions : ComponentOptions
 {
     public BadgeOptions()
     {
-        ThemeKey = "Badge";
         Selector = ".badge";
     }
 }

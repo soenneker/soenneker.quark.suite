@@ -5,6 +5,5 @@ public sealed class BarDropdownToggleOptions : ComponentOptions
 {
     public BarDropdownToggleOptions()
     {
-        ThemeKey = "BarDropdownToggle";
     }
 }

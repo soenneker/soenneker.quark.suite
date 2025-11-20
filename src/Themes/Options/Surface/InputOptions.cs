@@ -5,7 +5,6 @@ public sealed class InputOptions : ComponentOptions
 {
     public InputOptions()
     {
-        ThemeKey = "Input";
         Selector = "input";
     }
 }

@@ -5,6 +5,5 @@ public sealed class TableElementOptions : ComponentOptions
 {
     public TableElementOptions()
     {
-        ThemeKey = "TableElement";
     }
 }

@@ -5,7 +5,6 @@ public sealed class ModalOptions : ComponentOptions
 {
     public ModalOptions()
     {
-        ThemeKey = "Modal";
         Selector = ".modal";
     }
 }

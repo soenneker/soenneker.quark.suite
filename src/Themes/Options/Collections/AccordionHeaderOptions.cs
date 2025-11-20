@@ -5,7 +5,6 @@ public sealed class AccordionHeaderOptions : ComponentOptions
 {
     public AccordionHeaderOptions()
     {
-        ThemeKey = "AccordionHeader";
     }
 }
 

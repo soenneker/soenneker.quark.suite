@@ -5,7 +5,6 @@ public sealed class CodeChipOptions : ComponentOptions
 {
     public CodeChipOptions()
     {
-        ThemeKey = "CodeChip";
     }
 }
 

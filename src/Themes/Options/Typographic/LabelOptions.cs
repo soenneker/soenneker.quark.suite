@@ -5,6 +5,5 @@ public sealed class LabelOptions : ComponentOptions
 {
     public LabelOptions()
     {
-        ThemeKey = "Label";
     }
 }

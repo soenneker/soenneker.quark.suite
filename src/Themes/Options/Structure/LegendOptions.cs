@@ -5,7 +5,6 @@ public sealed class LegendOptions : ComponentOptions
 {
     public LegendOptions()
     {
-        ThemeKey = "Legend";
         Selector = "legend";
     }
 }

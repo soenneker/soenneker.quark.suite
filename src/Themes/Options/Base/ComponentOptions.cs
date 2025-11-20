@@ -5,8 +5,6 @@ namespace Soenneker.Quark;
 
 public class ComponentOptions
 {
-    public string ThemeKey { get; set; } = string.Empty;
-
     /// <summary>Gets or sets the CSS selector for this component (e.g., "a", "i", ":root").</summary>
     public string Selector { get; set; } = ":root";
 

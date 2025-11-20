@@ -5,7 +5,6 @@ public sealed class CardImgOptions : ComponentOptions
 {
     public CardImgOptions()
     {
-        ThemeKey = "CardImg";
     }
 }
 

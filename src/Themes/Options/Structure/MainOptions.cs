@@ -5,7 +5,6 @@ public sealed class MainOptions : ComponentOptions
 {
     public MainOptions()
     {
-        ThemeKey = "Main";
         Selector = "main";
     }
 }

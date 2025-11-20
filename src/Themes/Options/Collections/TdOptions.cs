@@ -5,7 +5,6 @@ public sealed class TdOptions : ComponentOptions
 {
     public TdOptions()
     {
-        ThemeKey = "Td";
         Selector = "td";
     }
 }

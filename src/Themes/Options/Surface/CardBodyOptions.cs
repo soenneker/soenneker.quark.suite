@@ -5,7 +5,6 @@ public sealed class CardBodyOptions : ComponentOptions
 {
     public CardBodyOptions()
     {
-        ThemeKey = "CardBody";
     }
 }
 

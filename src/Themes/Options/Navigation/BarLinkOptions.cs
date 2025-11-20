@@ -4,6 +4,5 @@ public sealed class BarLinkOptions : ComponentOptions
 {
     public BarLinkOptions()
     {
-        ThemeKey = "BarLink";
     }
 }

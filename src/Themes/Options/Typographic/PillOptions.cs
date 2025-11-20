@@ -5,7 +5,6 @@ public sealed class PillOptions : ComponentOptions
 {
     public PillOptions()
     {
-        ThemeKey = "Pill";
     }
 }
 

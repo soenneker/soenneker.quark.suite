@@ -5,7 +5,6 @@ public sealed class NavOptions : ComponentOptions
 {
     public NavOptions()
     {
-        ThemeKey = "Nav";
         Selector = ".nav";
     }
 }

@@ -5,7 +5,6 @@ public sealed class CodeOptions : ComponentOptions
 {
     public CodeOptions()
     {
-        ThemeKey = "Code";
         Selector = "code";
     }
 }

@@ -5,6 +5,5 @@ public sealed class BarStartOptions : ComponentOptions
 {
     public BarStartOptions()
     {
-        ThemeKey = "BarStart";
     }
 }

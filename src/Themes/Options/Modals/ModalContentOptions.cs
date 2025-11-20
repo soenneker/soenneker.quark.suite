@@ -5,7 +5,6 @@ public sealed class ModalContentOptions : ComponentOptions
 {
     public ModalContentOptions()
     {
-        ThemeKey = "ModalContent";
     }
 }
 

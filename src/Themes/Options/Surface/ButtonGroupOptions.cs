@@ -4,6 +4,5 @@ public sealed class ButtonGroupOptions : ComponentOptions
 {
     public ButtonGroupOptions()
     {
-        ThemeKey = "ButtonGroup";
     }
 }

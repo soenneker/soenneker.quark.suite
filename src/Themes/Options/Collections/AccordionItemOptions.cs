@@ -5,7 +5,6 @@ public sealed class AccordionItemOptions : ComponentOptions
 {
     public AccordionItemOptions()
     {
-        ThemeKey = "AccordionItem";
     }
 }
 

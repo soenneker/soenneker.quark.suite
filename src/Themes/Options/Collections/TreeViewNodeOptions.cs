@@ -5,7 +5,6 @@ public sealed class TreeViewNodeOptions : ComponentOptions
 {
     public TreeViewNodeOptions()
     {
-        ThemeKey = "_TreeViewNode";
     }
 }
 

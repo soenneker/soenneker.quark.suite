@@ -5,7 +5,6 @@ public sealed class CalloutOptions : ComponentOptions
 {
     public CalloutOptions()
     {
-        ThemeKey = "Callout";
     }
 }
 

@@ -5,7 +5,6 @@ public sealed class H2Options : ComponentOptions
 {
     public H2Options()
     {
-        ThemeKey = "H2";
         Selector = "h2";
     }
 }

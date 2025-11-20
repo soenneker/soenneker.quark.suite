@@ -5,7 +5,6 @@ public sealed class KbdOptions : ComponentOptions
 {
     public KbdOptions()
     {
-        ThemeKey = "Kbd";
     }
 }
 

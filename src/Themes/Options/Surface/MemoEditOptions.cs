@@ -5,6 +5,5 @@ public sealed class MemoEditOptions : ComponentOptions
 {
     public MemoEditOptions()
     {
-        ThemeKey = "MemoEdit";
     }
 }

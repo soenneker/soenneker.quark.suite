@@ -5,7 +5,6 @@ public sealed class TableTopBarOptions : ComponentOptions
 {
     public TableTopBarOptions()
     {
-        ThemeKey = "TableTopBar";
     }
 }
 

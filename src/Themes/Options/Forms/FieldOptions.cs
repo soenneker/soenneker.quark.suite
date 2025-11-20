@@ -5,7 +5,6 @@ public sealed class FieldOptions : ComponentOptions
 {
     public FieldOptions()
     {
-        ThemeKey = "Field";
         Selector = ".form-group";
     }
 }

@@ -5,7 +5,6 @@ public sealed class SelectGroupOptions : ComponentOptions
 {
     public SelectGroupOptions()
     {
-        ThemeKey = "SelectGroup";
     }
 }
 

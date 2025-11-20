@@ -5,7 +5,6 @@ public sealed class LeadOptions : ComponentOptions
 {
     public LeadOptions()
     {
-        ThemeKey = "Lead";
     }
 }
 

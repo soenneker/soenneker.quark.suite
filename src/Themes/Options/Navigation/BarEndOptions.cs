@@ -5,6 +5,5 @@ public sealed class BarEndOptions : ComponentOptions
 {
     public BarEndOptions()
     {
-        ThemeKey = "BarEnd";
     }
 }
