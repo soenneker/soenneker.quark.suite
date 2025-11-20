@@ -40,7 +40,9 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
 
     public bool IsCssStyle =>
         // style if it looks like "prop: val" OR (ColorBuilder with non-theme token)
-        _value.IndexOf(':') >= 0 || (_isColor && !IsKnownThemeOrSizeToken(_value));
+        // OR (HeightBuilder/WidthBuilder with CSS unit value)
+        _value.IndexOf(':') >= 0 || (_isColor && !IsKnownThemeOrSizeToken(_value)) ||
+        ((_isHeight || _isWidth) && LooksLikeCssUnit(_value));
 
     public bool IsCssClass => !IsCssStyle && !IsEmpty;
 
@@ -70,6 +72,27 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         // For SizeBuilder, we accept size tokens; otherwise theme tokens (colors)
         if (_isSize) return _bootstrapSizeTokens.Contains(value);
         return _bootstrapThemeTokens.Contains(value);
+    }
+
+    private static bool LooksLikeCssUnit(string value)
+    {
+        if (value.IsNullOrEmpty())
+            return false;
+
+        // Check if the value ends with common CSS units
+        var trimmed = value.Trim();
+        return trimmed.EndsWith("px", StringComparison.OrdinalIgnoreCase) ||
+               trimmed.EndsWith("em", StringComparison.OrdinalIgnoreCase) ||
+               trimmed.EndsWith("rem", StringComparison.OrdinalIgnoreCase) ||
+               trimmed.EndsWith("%", StringComparison.OrdinalIgnoreCase) ||
+               trimmed.EndsWith("vh", StringComparison.OrdinalIgnoreCase) ||
+               trimmed.EndsWith("vw", StringComparison.OrdinalIgnoreCase) ||
+               trimmed.EndsWith("vmin", StringComparison.OrdinalIgnoreCase) ||
+               trimmed.EndsWith("vmax", StringComparison.OrdinalIgnoreCase) ||
+               trimmed.Equals("auto", StringComparison.OrdinalIgnoreCase) ||
+               trimmed.Equals("inherit", StringComparison.OrdinalIgnoreCase) ||
+               trimmed.Equals("initial", StringComparison.OrdinalIgnoreCase) ||
+               trimmed.Equals("unset", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>Does this non-empty value change generated markup (class or style)?</summary>

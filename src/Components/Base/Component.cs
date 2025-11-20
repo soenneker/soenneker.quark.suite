@@ -287,12 +287,12 @@ public abstract class Component : CoreComponent, IComponent
             AddCss(ref sty, ref cls, Padding);
             AddCss(ref sty, ref cls, Position);
             AddCss(ref sty, ref cls, Offset);
-            AddCss(ref sty, ref cls, Width);
-            AddCss(ref sty, ref cls, MinWidth);
-            AddCss(ref sty, ref cls, MaxWidth);
-            AddCss(ref sty, ref cls, Height);
-            AddCss(ref sty, ref cls, MinHeight);
-            AddCss(ref sty, ref cls, MaxHeight);
+            AddCss(ref sty, ref cls, Width, "width");
+            AddCss(ref sty, ref cls, MinWidth, "min-width");
+            AddCss(ref sty, ref cls, MaxWidth, "max-width");
+            AddCss(ref sty, ref cls, Height, "height");
+            AddCss(ref sty, ref cls, MinHeight, "min-height");
+            AddCss(ref sty, ref cls, MaxHeight, "max-height");
             AddCss(ref sty, ref cls, Overflow);
             AddCss(ref sty, ref cls, OverflowX);
             AddCss(ref sty, ref cls, OverflowY);
@@ -466,6 +466,50 @@ public abstract class Component : CoreComponent, IComponent
 
             if (v.Value.IsCssStyle)
                 AppendStyleDecl(ref styB, s);
+            else
+                AppendClass(ref clsB, s);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected static void AddCss(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<HeightBuilder>? v, string propertyName)
+    {
+        if (v is { IsEmpty: false })
+        {
+            var s = v.Value.ToString();
+            if (s.Length == 0) return;
+
+            if (v.Value.IsCssStyle)
+            {
+                // If it's already a full declaration (contains colon), use it as-is
+                if (s.IndexOf(':') >= 0)
+                    AppendStyleDecl(ref styB, s);
+                else
+                    // Format as property: value
+                    AppendStyleDecl(ref styB, $"{propertyName}: {s}");
+            }
+            else
+                AppendClass(ref clsB, s);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected static void AddCss(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<WidthBuilder>? v, string propertyName)
+    {
+        if (v is { IsEmpty: false })
+        {
+            var s = v.Value.ToString();
+            if (s.Length == 0) return;
+
+            if (v.Value.IsCssStyle)
+            {
+                // If it's already a full declaration (contains colon), use it as-is
+                if (s.IndexOf(':') >= 0)
+                    AppendStyleDecl(ref styB, s);
+                else
+                    // Format as property: value
+                    AppendStyleDecl(ref styB, $"{propertyName}: {s}");
+            }
             else
                 AppendClass(ref clsB, s);
         }
