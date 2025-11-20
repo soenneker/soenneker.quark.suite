@@ -4,7 +4,7 @@ using System.Reflection;
 using Soenneker.Extensions.String;
 using Soenneker.Utils.PooledStringBuilders;
 
-namespace Soenneker.Quark.Themes.Utils;
+namespace Soenneker.Quark;
 
 /// <summary>Generates simple Bootstrap CSS custom property overrides.</summary>
 public static class BootstrapCssGenerator
@@ -38,6 +38,7 @@ public static class BootstrapCssGenerator
         foreach (var selectorGroup in selectorGroups)
         {
             css.Append($"{selectorGroup.Key} {{\n");
+
             foreach (var variable in selectorGroup.Value)
             {
                 css.Append(variable);

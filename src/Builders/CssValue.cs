@@ -1,6 +1,7 @@
-using Soenneker.Quark;
 using System;
 using Soenneker.Extensions.String;
+
+namespace Soenneker.Quark;
 
 public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where TBuilder : class, ICssBuilder
 {
@@ -74,6 +75,7 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
 
         // Check if the value ends with common CSS units
         var trimmed = value.Trim();
+
         return trimmed.EndsWith("px", StringComparison.OrdinalIgnoreCase) ||
                trimmed.EndsWith("em", StringComparison.OrdinalIgnoreCase) ||
                trimmed.EndsWith("rem", StringComparison.OrdinalIgnoreCase) ||

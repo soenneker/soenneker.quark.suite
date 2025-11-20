@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using Soenneker.Extensions.String;
 using Soenneker.Utils.PooledStringBuilders;
 
-namespace Soenneker.Quark.Themes.Utils;
+namespace Soenneker.Quark;
 
 /// <summary>Generates CSS for all component options in a Theme.</summary>
 public static class ComponentsCssGenerator

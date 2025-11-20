@@ -8,7 +8,7 @@ using Soenneker.Extensions.String;
 using Soenneker.Quark.Dtos;
 using Soenneker.Utils.PooledStringBuilders;
 
-namespace Soenneker.Quark.Themes.Utils;
+namespace Soenneker.Quark;
 
 /// <summary>Generates CSS rules from ComponentOptions using CssSelector and CssProperty attributes — optimized.</summary>
 public static class ComponentCssGenerator

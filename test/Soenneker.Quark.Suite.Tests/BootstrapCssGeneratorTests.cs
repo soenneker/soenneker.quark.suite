@@ -1,5 +1,4 @@
 using AwesomeAssertions;
-using Soenneker.Quark.Themes.Utils;
 using Xunit;
 
 namespace Soenneker.Quark.Suite.Tests;
