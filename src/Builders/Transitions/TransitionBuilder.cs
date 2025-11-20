@@ -195,7 +195,10 @@ public sealed class TransitionBuilder : ICssBuilder
         };
     }
 
-
+    /// <summary>
+    /// Returns the CSS class string representation of this transition builder.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public override string ToString()
     {
         return ToClass();

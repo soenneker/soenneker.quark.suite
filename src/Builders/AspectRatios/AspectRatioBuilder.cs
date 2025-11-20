@@ -62,6 +62,10 @@ public sealed class AspectRatioBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -90,6 +94,10 @@ public sealed class AspectRatioBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)
@@ -142,7 +150,10 @@ public sealed class AspectRatioBuilder : ICssBuilder
         };
     }
 
-
+    /// <summary>
+    /// Returns the CSS class string representation of this aspect ratio builder.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public override string ToString()
     {
         return ToClass();

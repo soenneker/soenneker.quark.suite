@@ -230,7 +230,10 @@ public sealed class FilterBuilder : ICssBuilder
         };
     }
 
-
+    /// <summary>
+    /// Returns the CSS class string representation of this filter builder.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public override string ToString()
     {
         return ToClass();

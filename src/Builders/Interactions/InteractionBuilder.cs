@@ -236,7 +236,10 @@ public sealed class InteractionBuilder : ICssBuilder
         };
     }
 
-
+    /// <summary>
+    /// Returns the CSS class string representation of this interaction builder.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public override string ToString()
     {
         return ToClass();

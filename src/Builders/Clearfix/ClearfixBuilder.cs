@@ -119,7 +119,10 @@ public sealed class ClearfixBuilder : ICssBuilder
         return sb.ToString();
     }
 
-
+    /// <summary>
+    /// Returns the CSS class string representation of this clearfix builder.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public override string ToString()
     {
         return ToClass();

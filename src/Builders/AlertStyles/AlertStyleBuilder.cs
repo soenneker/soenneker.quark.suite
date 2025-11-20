@@ -207,7 +207,8 @@ public sealed class AlertStyleBuilder : ICssBuilder
     /// <returns>The CSS class string, or an empty string if no alert style is set.</returns>
     public override string ToString()
     {
-        if (!_alert.HasValue) return string.Empty;
+        if (!_alert.HasValue)
+            return string.Empty;
         return GetAlertClass(_alert.Value);
     }
 
@@ -226,7 +227,8 @@ public sealed class AlertStyleBuilder : ICssBuilder
             _ => string.Empty
         };
 
-        if (baseClass.IsNullOrEmpty()) return string.Empty;
+        if (baseClass.IsNullOrEmpty())
+            return string.Empty;
 
         var dismissibleClass = alert.Dismissible.Value switch
         {

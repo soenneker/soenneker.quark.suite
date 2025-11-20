@@ -121,6 +121,10 @@ public sealed class TextStyleBuilder : ICssBuilder
         return new TextStyleBuilder(newRules);
     }
 
+    /// <summary>
+    /// Returns the CSS class string representation of this text style builder.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public override string ToString()
     {
         if (_rules.Count == 0)

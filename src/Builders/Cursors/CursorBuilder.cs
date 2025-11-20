@@ -243,7 +243,10 @@ public sealed class CursorBuilder : ICssBuilder
         };
     }
 
-
+    /// <summary>
+    /// Returns the CSS class string representation of this cursor builder.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public override string ToString()
     {
         return ToClass();

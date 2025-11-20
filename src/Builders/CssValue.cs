@@ -51,7 +51,8 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
     /// Implicitly converts an integer to a CssValue. For HeightBuilder and WidthBuilder, converts to pixel values.
     /// </summary>
     public static implicit operator CssValue<TBuilder>(int value) =>
-        _isHeight ? new CssValue<TBuilder>($"height: {value}px") : _isWidth ? new CssValue<TBuilder>($"width: {value}px") : new CssValue<TBuilder>(value.ToString());
+        _isHeight ? new CssValue<TBuilder>($"height: {value}px") :
+        _isWidth ? new CssValue<TBuilder>($"width: {value}px") : new CssValue<TBuilder>(value.ToString());
 
     /// <summary>
     /// Implicitly converts a CssValue to a string.
@@ -74,8 +75,7 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
     public bool IsCssStyle =>
         // style if it looks like "prop: val" OR (ColorBuilder with non-theme token)
         // OR (HeightBuilder/WidthBuilder with CSS unit value) OR standalone CSS values (var(), #fff, inherit, etc.)
-        _value.IndexOf(':') >= 0 || (_isColor && !IsKnownThemeOrSizeToken(_value)) ||
-        ((_isHeight || _isWidth) && LooksLikeCssUnit(_value)) ||
+        _value.IndexOf(':') >= 0 || (_isColor && !IsKnownThemeOrSizeToken(_value)) || ((_isHeight || _isWidth) && LooksLikeCssUnit(_value)) ||
         LooksLikeStandaloneCssValue(_value);
 
     /// <summary>
@@ -121,11 +121,12 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
 
     private static bool IsKnownThemeOrSizeToken(string value)
     {
-        if (value.IsNullOrEmpty()) 
+        if (value.IsNullOrEmpty())
             return false;
 
         // For SizeBuilder, we accept size tokens; otherwise theme tokens (colors)
-        if (_isSize) return BootstrapTokens.SizeTokens.Contains(value);
+        if (_isSize)
+            return BootstrapTokens.SizeTokens.Contains(value);
         return BootstrapTokens.ThemeTokens.Contains(value);
     }
 
@@ -137,18 +138,12 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         // Check if the value ends with common CSS units
         var trimmed = value.Trim();
 
-        return trimmed.EndsWith("px", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.EndsWith("em", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.EndsWith("rem", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.EndsWith("%", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.EndsWith("vh", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.EndsWith("vw", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.EndsWith("vmin", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.EndsWith("vmax", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.Equals("auto", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.Equals("inherit", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.Equals("initial", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.Equals("unset", StringComparison.OrdinalIgnoreCase);
+        return trimmed.EndsWith("px", StringComparison.OrdinalIgnoreCase) || trimmed.EndsWith("em", StringComparison.OrdinalIgnoreCase) ||
+               trimmed.EndsWith("rem", StringComparison.OrdinalIgnoreCase) || trimmed.EndsWith("%", StringComparison.OrdinalIgnoreCase) ||
+               trimmed.EndsWith("vh", StringComparison.OrdinalIgnoreCase) || trimmed.EndsWith("vw", StringComparison.OrdinalIgnoreCase) ||
+               trimmed.EndsWith("vmin", StringComparison.OrdinalIgnoreCase) || trimmed.EndsWith("vmax", StringComparison.OrdinalIgnoreCase) ||
+               trimmed.Equals("auto", StringComparison.OrdinalIgnoreCase) || trimmed.Equals("inherit", StringComparison.OrdinalIgnoreCase) ||
+               trimmed.Equals("initial", StringComparison.OrdinalIgnoreCase) || trimmed.Equals("unset", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool LooksLikeStandaloneCssValue(string value)
@@ -161,27 +156,19 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         if (trimmed.Length == 0)
             return false;
 
-        if (trimmed.StartsWith("#", StringComparison.Ordinal) ||
-            trimmed.StartsWith("rgb", StringComparison.OrdinalIgnoreCase) ||
-            trimmed.StartsWith("hsl", StringComparison.OrdinalIgnoreCase) ||
-            trimmed.StartsWith("var(", StringComparison.OrdinalIgnoreCase) ||
-            trimmed.StartsWith("calc(", StringComparison.OrdinalIgnoreCase) ||
-            trimmed.StartsWith("clamp(", StringComparison.OrdinalIgnoreCase) ||
-            trimmed.StartsWith("min(", StringComparison.OrdinalIgnoreCase) ||
-            trimmed.StartsWith("max(", StringComparison.OrdinalIgnoreCase))
+        if (trimmed.StartsWith("#", StringComparison.Ordinal) || trimmed.StartsWith("rgb", StringComparison.OrdinalIgnoreCase) ||
+            trimmed.StartsWith("hsl", StringComparison.OrdinalIgnoreCase) || trimmed.StartsWith("var(", StringComparison.OrdinalIgnoreCase) ||
+            trimmed.StartsWith("calc(", StringComparison.OrdinalIgnoreCase) || trimmed.StartsWith("clamp(", StringComparison.OrdinalIgnoreCase) ||
+            trimmed.StartsWith("min(", StringComparison.OrdinalIgnoreCase) || trimmed.StartsWith("max(", StringComparison.OrdinalIgnoreCase))
             return true;
 
         if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out _))
             return true;
 
-        return trimmed.Equals("inherit", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.Equals("initial", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.Equals("unset", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.Equals("revert", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.Equals("revert-layer", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.Equals("auto", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.Equals("none", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.Equals("currentColor", StringComparison.OrdinalIgnoreCase) ||
+        return trimmed.Equals("inherit", StringComparison.OrdinalIgnoreCase) || trimmed.Equals("initial", StringComparison.OrdinalIgnoreCase) ||
+               trimmed.Equals("unset", StringComparison.OrdinalIgnoreCase) || trimmed.Equals("revert", StringComparison.OrdinalIgnoreCase) ||
+               trimmed.Equals("revert-layer", StringComparison.OrdinalIgnoreCase) || trimmed.Equals("auto", StringComparison.OrdinalIgnoreCase) ||
+               trimmed.Equals("none", StringComparison.OrdinalIgnoreCase) || trimmed.Equals("currentColor", StringComparison.OrdinalIgnoreCase) ||
                trimmed.Equals("transparent", StringComparison.OrdinalIgnoreCase);
     }
 

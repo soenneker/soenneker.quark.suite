@@ -40,25 +40,82 @@ public sealed class ColumnSizeBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the column size to 1.
+    /// </summary>
     public ColumnSizeBuilder Is1 => ChainWithSize("1");
+    /// <summary>
+    /// Sets the column size to 2.
+    /// </summary>
     public ColumnSizeBuilder Is2 => ChainWithSize("2");
+    /// <summary>
+    /// Sets the column size to 3.
+    /// </summary>
     public ColumnSizeBuilder Is3 => ChainWithSize("3");
+    /// <summary>
+    /// Sets the column size to 4.
+    /// </summary>
     public ColumnSizeBuilder Is4 => ChainWithSize("4");
+    /// <summary>
+    /// Sets the column size to 5.
+    /// </summary>
     public ColumnSizeBuilder Is5 => ChainWithSize("5");
+    /// <summary>
+    /// Sets the column size to 6.
+    /// </summary>
     public ColumnSizeBuilder Is6 => ChainWithSize("6");
+    /// <summary>
+    /// Sets the column size to 7.
+    /// </summary>
     public ColumnSizeBuilder Is7 => ChainWithSize("7");
+    /// <summary>
+    /// Sets the column size to 8.
+    /// </summary>
     public ColumnSizeBuilder Is8 => ChainWithSize("8");
+    /// <summary>
+    /// Sets the column size to 9.
+    /// </summary>
     public ColumnSizeBuilder Is9 => ChainWithSize("9");
+    /// <summary>
+    /// Sets the column size to 10.
+    /// </summary>
     public ColumnSizeBuilder Is10 => ChainWithSize("10");
+    /// <summary>
+    /// Sets the column size to 11.
+    /// </summary>
     public ColumnSizeBuilder Is11 => ChainWithSize("11");
+    /// <summary>
+    /// Sets the column size to 12.
+    /// </summary>
     public ColumnSizeBuilder Is12 => ChainWithSize("12");
+    /// <summary>
+    /// Sets the column size to auto.
+    /// </summary>
     public ColumnSizeBuilder Auto => ChainWithSize("auto");
 
+    /// <summary>
+    /// Applies the column size on phone breakpoint.
+    /// </summary>
     public ColumnSizeBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the column size on tablet breakpoint.
+    /// </summary>
     public ColumnSizeBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the column size on laptop breakpoint.
+    /// </summary>
     public ColumnSizeBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the column size on desktop breakpoint.
+    /// </summary>
     public ColumnSizeBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the column size on widescreen breakpoint.
+    /// </summary>
     public ColumnSizeBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the column size on ultrawide breakpoint.
+    /// </summary>
     public ColumnSizeBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -83,6 +140,10 @@ public sealed class ColumnSizeBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -100,7 +161,7 @@ public sealed class ColumnSizeBuilder : ICssBuilder
 
             var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
-                cls = InsertBreakpoint(cls, bp);
+                cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
             if (!first) sb.Append(' ');
             else first = false;
@@ -111,6 +172,11 @@ public sealed class ColumnSizeBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// Column sizes are typically handled via Bootstrap classes, not inline styles.
+    /// </summary>
+    /// <returns>An empty string, as column sizes are handled via classes.</returns>
     public string ToStyle()
     {
         // Column sizes are typically handled via Bootstrap classes, not inline styles
@@ -139,30 +205,4 @@ public sealed class ColumnSizeBuilder : ICssBuilder
         };
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string InsertBreakpoint(string className, string bp)
-    {
-        var dashIndex = className.IndexOf('-');
-        if (dashIndex > 0)
-        {
-            var len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
-            return string.Create(len, (className, dashIndex, bp), static (dst, s) =>
-            {
-                s.className.AsSpan(0, s.dashIndex).CopyTo(dst);
-                var idx = s.dashIndex;
-                dst[idx++] = '-';
-                s.bp.AsSpan().CopyTo(dst[idx..]);
-                idx += s.bp.Length;
-                s.className.AsSpan(s.dashIndex).CopyTo(dst[idx..]);
-            });
-        }
-
-        return string.Create(bp.Length + 1 + className.Length, (className, bp), static (dst, s) =>
-        {
-            s.bp.AsSpan().CopyTo(dst);
-            var idx = s.bp.Length;
-            dst[idx++] = '-';
-            s.className.AsSpan().CopyTo(dst[idx..]);
-        });
-    }
 }

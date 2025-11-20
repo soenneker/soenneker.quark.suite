@@ -41,26 +41,86 @@ public sealed class ColumnOrderBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the column order to 1.
+    /// </summary>
     public ColumnOrderBuilder O1 => ChainWithOrder("1");
+    /// <summary>
+    /// Sets the column order to 2.
+    /// </summary>
     public ColumnOrderBuilder O2 => ChainWithOrder("2");
+    /// <summary>
+    /// Sets the column order to 3.
+    /// </summary>
     public ColumnOrderBuilder O3 => ChainWithOrder("3");
+    /// <summary>
+    /// Sets the column order to 4.
+    /// </summary>
     public ColumnOrderBuilder O4 => ChainWithOrder("4");
+    /// <summary>
+    /// Sets the column order to 5.
+    /// </summary>
     public ColumnOrderBuilder O5 => ChainWithOrder("5");
+    /// <summary>
+    /// Sets the column order to 6.
+    /// </summary>
     public ColumnOrderBuilder O6 => ChainWithOrder("6");
+    /// <summary>
+    /// Sets the column order to 7.
+    /// </summary>
     public ColumnOrderBuilder O7 => ChainWithOrder("7");
+    /// <summary>
+    /// Sets the column order to 8.
+    /// </summary>
     public ColumnOrderBuilder O8 => ChainWithOrder("8");
+    /// <summary>
+    /// Sets the column order to 9.
+    /// </summary>
     public ColumnOrderBuilder O9 => ChainWithOrder("9");
+    /// <summary>
+    /// Sets the column order to 10.
+    /// </summary>
     public ColumnOrderBuilder O10 => ChainWithOrder("10");
+    /// <summary>
+    /// Sets the column order to 11.
+    /// </summary>
     public ColumnOrderBuilder O11 => ChainWithOrder("11");
+    /// <summary>
+    /// Sets the column order to 12.
+    /// </summary>
     public ColumnOrderBuilder O12 => ChainWithOrder("12");
+    /// <summary>
+    /// Sets the column order to first.
+    /// </summary>
     public ColumnOrderBuilder First => ChainWithOrder("first");
+    /// <summary>
+    /// Sets the column order to last.
+    /// </summary>
     public ColumnOrderBuilder Last => ChainWithOrder("last");
 
+    /// <summary>
+    /// Applies the column order on phone breakpoint.
+    /// </summary>
     public ColumnOrderBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the column order on tablet breakpoint.
+    /// </summary>
     public ColumnOrderBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the column order on laptop breakpoint.
+    /// </summary>
     public ColumnOrderBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the column order on desktop breakpoint.
+    /// </summary>
     public ColumnOrderBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the column order on widescreen breakpoint.
+    /// </summary>
     public ColumnOrderBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the column order on ultrawide breakpoint.
+    /// </summary>
     public ColumnOrderBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -85,6 +145,10 @@ public sealed class ColumnOrderBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -102,7 +166,7 @@ public sealed class ColumnOrderBuilder : ICssBuilder
 
             var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
-                cls = InsertBreakpoint(cls, bp);
+                cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
             if (!first) sb.Append(' ');
             else first = false;
@@ -113,6 +177,11 @@ public sealed class ColumnOrderBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// Column orders are typically handled via Bootstrap classes, not inline styles.
+    /// </summary>
+    /// <returns>An empty string, as column orders are handled via classes.</returns>
     public string ToStyle()
     {
         // Column orders are typically handled via Bootstrap classes, not inline styles
@@ -142,30 +211,4 @@ public sealed class ColumnOrderBuilder : ICssBuilder
         };
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string InsertBreakpoint(string className, string bp)
-    {
-        var dashIndex = className.IndexOf('-');
-        if (dashIndex > 0)
-        {
-            var len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
-            return string.Create(len, (className, dashIndex, bp), static (dst, s) =>
-            {
-                s.className.AsSpan(0, s.dashIndex).CopyTo(dst);
-                var idx = s.dashIndex;
-                dst[idx++] = '-';
-                s.bp.AsSpan().CopyTo(dst[idx..]);
-                idx += s.bp.Length;
-                s.className.AsSpan(s.dashIndex).CopyTo(dst[idx..]);
-            });
-        }
-
-        return string.Create(bp.Length + 1 + className.Length, (className, bp), static (dst, s) =>
-        {
-            s.bp.AsSpan().CopyTo(dst);
-            var idx = s.bp.Length;
-            dst[idx++] = '-';
-            s.className.AsSpan().CopyTo(dst[idx..]);
-        });
-    }
 }

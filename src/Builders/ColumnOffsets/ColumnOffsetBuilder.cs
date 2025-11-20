@@ -39,24 +39,78 @@ public sealed class ColumnOffsetBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the column offset to 1.
+    /// </summary>
     public ColumnOffsetBuilder O1 => ChainWithOffset("1");
+    /// <summary>
+    /// Sets the column offset to 2.
+    /// </summary>
     public ColumnOffsetBuilder O2 => ChainWithOffset("2");
+    /// <summary>
+    /// Sets the column offset to 3.
+    /// </summary>
     public ColumnOffsetBuilder O3 => ChainWithOffset("3");
+    /// <summary>
+    /// Sets the column offset to 4.
+    /// </summary>
     public ColumnOffsetBuilder O4 => ChainWithOffset("4");
+    /// <summary>
+    /// Sets the column offset to 5.
+    /// </summary>
     public ColumnOffsetBuilder O5 => ChainWithOffset("5");
+    /// <summary>
+    /// Sets the column offset to 6.
+    /// </summary>
     public ColumnOffsetBuilder O6 => ChainWithOffset("6");
+    /// <summary>
+    /// Sets the column offset to 7.
+    /// </summary>
     public ColumnOffsetBuilder O7 => ChainWithOffset("7");
+    /// <summary>
+    /// Sets the column offset to 8.
+    /// </summary>
     public ColumnOffsetBuilder O8 => ChainWithOffset("8");
+    /// <summary>
+    /// Sets the column offset to 9.
+    /// </summary>
     public ColumnOffsetBuilder O9 => ChainWithOffset("9");
+    /// <summary>
+    /// Sets the column offset to 10.
+    /// </summary>
     public ColumnOffsetBuilder O10 => ChainWithOffset("10");
+    /// <summary>
+    /// Sets the column offset to 11.
+    /// </summary>
     public ColumnOffsetBuilder O11 => ChainWithOffset("11");
+    /// <summary>
+    /// Sets the column offset to 12.
+    /// </summary>
     public ColumnOffsetBuilder O12 => ChainWithOffset("12");
 
+    /// <summary>
+    /// Applies the column offset on phone breakpoint.
+    /// </summary>
     public ColumnOffsetBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the column offset on tablet breakpoint.
+    /// </summary>
     public ColumnOffsetBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the column offset on laptop breakpoint.
+    /// </summary>
     public ColumnOffsetBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the column offset on desktop breakpoint.
+    /// </summary>
     public ColumnOffsetBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the column offset on widescreen breakpoint.
+    /// </summary>
     public ColumnOffsetBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the column offset on ultrawide breakpoint.
+    /// </summary>
     public ColumnOffsetBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -81,6 +135,10 @@ public sealed class ColumnOffsetBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -98,7 +156,7 @@ public sealed class ColumnOffsetBuilder : ICssBuilder
 
             var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
-                cls = InsertBreakpoint(cls, bp);
+                cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
             if (!first) sb.Append(' ');
             else first = false;
@@ -109,6 +167,11 @@ public sealed class ColumnOffsetBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// Column offsets are typically handled via Bootstrap classes, not inline styles.
+    /// </summary>
+    /// <returns>An empty string, as column offsets are handled via classes.</returns>
     public string ToStyle()
     {
         // Column offsets are typically handled via Bootstrap classes, not inline styles
@@ -136,30 +199,4 @@ public sealed class ColumnOffsetBuilder : ICssBuilder
         };
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string InsertBreakpoint(string className, string bp)
-    {
-        var dashIndex = className.IndexOf('-');
-        if (dashIndex > 0)
-        {
-            var len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
-            return string.Create(len, (className, dashIndex, bp), static (dst, s) =>
-            {
-                s.className.AsSpan(0, s.dashIndex).CopyTo(dst);
-                var idx = s.dashIndex;
-                dst[idx++] = '-';
-                s.bp.AsSpan().CopyTo(dst[idx..]);
-                idx += s.bp.Length;
-                s.className.AsSpan(s.dashIndex).CopyTo(dst[idx..]);
-            });
-        }
-
-        return string.Create(bp.Length + 1 + className.Length, (className, bp), static (dst, s) =>
-        {
-            s.bp.AsSpan().CopyTo(dst);
-            var idx = s.bp.Length;
-            dst[idx++] = '-';
-            s.className.AsSpan().CopyTo(dst[idx..]);
-        });
-    }
 }

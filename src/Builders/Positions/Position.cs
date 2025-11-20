@@ -33,9 +33,24 @@ public static class Position
     /// </summary>
     public static PositionBuilder Sticky => new(PositionKeyword.StickyValue);
 
+    /// <summary>
+    /// Inherit positioning from parent.
+    /// </summary>
     public static PositionBuilder Inherit => new(GlobalKeyword.InheritValue);
+    /// <summary>
+    /// Initial positioning keyword.
+    /// </summary>
     public static PositionBuilder Initial => new(GlobalKeyword.InitialValue);
+    /// <summary>
+    /// Revert positioning keyword.
+    /// </summary>
     public static PositionBuilder Revert => new(GlobalKeyword.RevertValue);
+    /// <summary>
+    /// Revert-layer positioning keyword.
+    /// </summary>
     public static PositionBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
+    /// <summary>
+    /// Unset positioning keyword.
+    /// </summary>
     public static PositionBuilder Unset => new(GlobalKeyword.UnsetValue);
 }

@@ -164,7 +164,10 @@ public sealed class ListVariantBuilder : ICssBuilder
         return sb.ToString();
     }
 
-
+    /// <summary>
+    /// Returns the CSS class string representation of this list variant builder.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public override string ToString()
     {
         return ToClass();

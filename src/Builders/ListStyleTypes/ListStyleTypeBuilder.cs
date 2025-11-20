@@ -39,6 +39,10 @@ public sealed class ListStyleTypeBuilder : ICssBuilder
         return $"list-style-type: {valueStr}";
     }
 
+    /// <summary>
+    /// Returns the CSS style string representation of this list style type builder.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public override string ToString() => ToStyle();
 }
 

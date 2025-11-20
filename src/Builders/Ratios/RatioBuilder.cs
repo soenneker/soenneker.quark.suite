@@ -64,6 +64,10 @@ public sealed class RatioBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -92,6 +96,11 @@ public sealed class RatioBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// Bootstrap ratio utilities should use classes, not inline styles.
+    /// </summary>
+    /// <returns>An empty string, as ratios are handled via classes.</returns>
     public string ToStyle()
     {
         // Bootstrap ratio utilities should use classes, not inline styles
@@ -111,7 +120,10 @@ public sealed class RatioBuilder : ICssBuilder
         };
     }
 
-
+    /// <summary>
+    /// Returns the CSS class string representation of this ratio builder.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public override string ToString()
     {
         return ToClass();

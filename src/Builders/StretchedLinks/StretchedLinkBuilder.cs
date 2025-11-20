@@ -26,11 +26,29 @@ public sealed class StretchedLinkBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Applies the stretched link on phone breakpoint.
+    /// </summary>
     public StretchedLinkBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the stretched link on tablet breakpoint.
+    /// </summary>
     public StretchedLinkBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the stretched link on laptop breakpoint.
+    /// </summary>
     public StretchedLinkBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the stretched link on desktop breakpoint.
+    /// </summary>
     public StretchedLinkBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the stretched link on widescreen breakpoint.
+    /// </summary>
     public StretchedLinkBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the stretched link on ultrawide breakpoint.
+    /// </summary>
     public StretchedLinkBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -48,6 +66,10 @@ public sealed class StretchedLinkBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -74,6 +96,10 @@ public sealed class StretchedLinkBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)
@@ -93,7 +119,10 @@ public sealed class StretchedLinkBuilder : ICssBuilder
         return sb.ToString();
     }
 
-
+    /// <summary>
+    /// Returns the CSS class string representation of this stretched link builder.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public override string ToString()
     {
         return ToClass();

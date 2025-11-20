@@ -33,18 +33,22 @@ public sealed class AnimationBuilder : ICssBuilder
     /// Sets the animation to none.
     /// </summary>
     public AnimationBuilder None => ChainWithAnimation("none");
+
     /// <summary>
     /// Sets the animation to spin.
     /// </summary>
     public AnimationBuilder Spin => ChainWithAnimation("spin");
+
     /// <summary>
     /// Sets the animation to ping.
     /// </summary>
     public AnimationBuilder Ping => ChainWithAnimation("ping");
+
     /// <summary>
     /// Sets the animation to pulse.
     /// </summary>
     public AnimationBuilder Pulse => ChainWithAnimation("pulse");
+
     /// <summary>
     /// Sets the animation to bounce.
     /// </summary>
@@ -54,22 +58,27 @@ public sealed class AnimationBuilder : ICssBuilder
     /// Applies the animation on phone breakpoint.
     /// </summary>
     public AnimationBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+
     /// <summary>
     /// Applies the animation on tablet breakpoint.
     /// </summary>
     public AnimationBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+
     /// <summary>
     /// Applies the animation on laptop breakpoint.
     /// </summary>
     public AnimationBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+
     /// <summary>
     /// Applies the animation on desktop breakpoint.
     /// </summary>
     public AnimationBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+
     /// <summary>
     /// Applies the animation on widescreen breakpoint.
     /// </summary>
     public AnimationBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+
     /// <summary>
     /// Applies the animation on ultrawide breakpoint.
     /// </summary>
@@ -120,8 +129,10 @@ public sealed class AnimationBuilder : ICssBuilder
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
-            if (!first) sb.Append(' ');
-            else first = false;
+            if (!first)
+                sb.Append(' ');
+            else
+                first = false;
 
             sb.Append(cls);
         }
@@ -149,8 +160,10 @@ public sealed class AnimationBuilder : ICssBuilder
             if (animationValue is null)
                 continue;
 
-            if (!first) sb.Append("; ");
-            else first = false;
+            if (!first)
+                sb.Append("; ");
+            else
+                first = false;
 
             sb.Append("animation: ");
             sb.Append(animationValue);
@@ -187,7 +200,10 @@ public sealed class AnimationBuilder : ICssBuilder
         };
     }
 
-
+    /// <summary>
+    /// Returns the CSS class string representation of this animation builder.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public override string ToString()
     {
         return ToClass();
