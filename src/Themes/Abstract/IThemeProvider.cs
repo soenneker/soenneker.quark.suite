@@ -9,7 +9,7 @@ public interface IThemeProvider
 
     Dictionary<string, Theme>? Themes { get; set; }
 
-    Dictionary<string, Func<Theme, ComponentOptions?>> ComponentOptions { get; set; }
+    string? GenerateBootstrapCss();
 
-    string? GenerateRootCss();
+    string? GenerateComponentsCss();
 }

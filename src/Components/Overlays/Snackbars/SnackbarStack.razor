@@ -33,8 +33,6 @@
 </CascadingValue>
 
 @code {
-	public override string? ThemeKey { get; set; } = "SnackbarStack";
-
 	private readonly List<SnackbarNotificationItem> _notifications = [];
 	private readonly Dictionary<string, Timer> _autoHideTimers = new();
 	private bool _isInitialized;
@@ -57,7 +55,7 @@
 		{
 			if (_cachedEffectiveLocation == null)
 			{
-				_cachedEffectiveLocation = Location ?? GetThemeOptions()?.DefaultLocation ?? SnackbarLocation.BottomEnd;
+				_cachedEffectiveLocation = Location ?? SnackbarLocation.BottomEnd;
 			}
 
 			return _cachedEffectiveLocation;
@@ -70,19 +68,10 @@
 		{
 			if (_cachedEffectiveDefaultDelay == null)
 			{
-				_cachedEffectiveDefaultDelay = DefaultDelay ?? GetThemeOptions()?.DefaultDelay ?? 5000;
+				_cachedEffectiveDefaultDelay = DefaultDelay ?? 5000;
 			}
 			return _cachedEffectiveDefaultDelay.Value;
 		}
-	}
-
-	private SnackbarStackOptions? GetThemeOptions()
-	{
-		if (ThemeProvider?.Themes == null || ThemeProvider.CurrentTheme == null)
-			return null;
-
-		var theme = ThemeProvider.Themes.GetValueOrDefault(ThemeProvider.CurrentTheme);
-		return theme?.SnackbarStacks;
 	}
 
 	protected override Dictionary<string, object> BuildAttributes()

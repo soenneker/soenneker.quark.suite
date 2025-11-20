@@ -24,18 +24,10 @@
 </CascadingValue>
 
 @code {
-    public override string? ThemeKey { get; set; } = "Steps";
-
     private StepsState _state = new();
     private readonly List<string> _stepItems = [];
     private readonly List<string> _stepPanels = [];
     private bool _navigationSubscribed;
-
-    protected override void OnParametersSet()
-    {
-        ApplyStepsThemeVariables();
-        base.OnParametersSet();
-    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -205,51 +197,6 @@
         });
 
         return attributes;
-    }
-
-    private void ApplyStepsThemeVariables()
-    {
-        try
-        {
-            if (ThemeProvider?.Themes == null || ThemeKey.IsNullOrEmpty())
-                return;
-
-            if (!ThemeProvider.Themes.TryGetValue(ThemeProvider.CurrentTheme ?? string.Empty, out var theme))
-                return;
-
-            if (!ThemeProvider.ComponentOptions.TryGetValue(ThemeKey!, out var getter))
-                return;
-
-            var options = getter(theme) as StepsOptions;
-            if (options == null)
-                return;
-
-            var sty = new PooledStringBuilder(256);
-
-            if (options.ConnectorColor.HasContent()) AppendStyleDecl(ref sty, "--steps-connector-color: ", options.ConnectorColor!);
-            if (options.MarkerActiveBg.HasContent()) AppendStyleDecl(ref sty, "--steps-marker-active-bg: ", options.MarkerActiveBg!);
-            if (options.MarkerActiveBorder.HasContent()) AppendStyleDecl(ref sty, "--steps-marker-active-border: ", options.MarkerActiveBorder!);
-            if (options.MarkerActiveColor.HasContent()) AppendStyleDecl(ref sty, "--steps-marker-active-color: ", options.MarkerActiveColor!);
-            if (options.TextActive.HasContent()) AppendStyleDecl(ref sty, "--steps-text-active: ", options.TextActive!);
-            if (options.Success.HasContent()) AppendStyleDecl(ref sty, "--steps-success: ", options.Success!);
-            if (options.DisabledBg.HasContent()) AppendStyleDecl(ref sty, "--steps-disabled-bg: ", options.DisabledBg!);
-            if (options.DisabledColor.HasContent()) AppendStyleDecl(ref sty, "--steps-disabled-color: ", options.DisabledColor!);
-            if (options.ContentBg.HasContent()) AppendStyleDecl(ref sty, "--steps-content-bg: ", options.ContentBg!);
-            if (options.ContentBorder.HasContent()) AppendStyleDecl(ref sty, "--steps-content-border: ", options.ContentBorder!);
-            if (options.ContentRadius.HasContent()) AppendStyleDecl(ref sty, "--steps-content-radius: ", options.ContentRadius!);
-            if (options.ContentShadow.HasContent()) AppendStyleDecl(ref sty, "--steps-content-shadow: ", options.ContentShadow!);
-            if (options.FocusOutline.HasContent()) AppendStyleDecl(ref sty, "--steps-focus-outline: ", options.FocusOutline!);
-            if (options.MarkerSuccessColor.HasContent()) AppendStyleDecl(ref sty, "--steps-marker-success-color: ", options.MarkerSuccessColor!);
-
-            if (sty.Length > 0)
-            {
-                Style = Style.HasContent() ? $"{Style}; {sty.ToString()}" : sty.ToString();
-            }
-        }
-        catch
-        {
-            /* ignore theme errors to avoid breaking render */
-        }
     }
 
     private void HandleLocationChanged(object? sender, LocationChangedEventArgs args)

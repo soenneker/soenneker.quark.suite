@@ -1,16 +1,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Soenneker.Extensions.String;
+using Soenneker.Utils.PooledStringBuilders;
 
-namespace Soenneker.Quark;
+namespace Soenneker.Quark.Themes.Utils;
 
 /// <summary>Generates simple Bootstrap CSS custom property overrides.</summary>
 public static class BootstrapCssGenerator
 {
     /// <summary>Generates Bootstrap CSS variable overrides using CssVariable attributes.</summary>
-    public static string GenerateRootCss(BootstrapCssVariables cssVariables)
+    public static string Generate(BootstrapCssVariables cssVariables)
     {
         if (cssVariables == null)
             return string.Empty;
@@ -20,32 +20,35 @@ public static class BootstrapCssGenerator
         // Process all properties in BootstrapCssVariables that contain CSS variables
         var cssVariablesType = cssVariables.GetType();
         var properties = cssVariablesType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(p => p.PropertyType.IsClass && p.PropertyType != typeof(string));
+                                         .Where(p => p.PropertyType.IsClass && p.PropertyType != typeof(string));
 
         foreach (var property in properties)
         {
             var propertyValue = property.GetValue(cssVariables);
+
             if (propertyValue != null)
-            {
                 ProcessCssVariableObject(propertyValue, selectorGroups);
-            }
         }
 
         if (selectorGroups.Count == 0)
             return string.Empty;
 
-        var css = new StringBuilder();
+        using var css = new PooledStringBuilder();
+
         foreach (var selectorGroup in selectorGroups)
         {
-            css.AppendLine($"{selectorGroup.Key} {{");
+            css.Append($"{selectorGroup.Key} {{\n");
             foreach (var variable in selectorGroup.Value)
             {
-                css.AppendLine(variable);
+                css.Append(variable);
+                css.Append('\n');
             }
-            css.AppendLine("}");
+
+            css.Append("}\n");
         }
 
-        return css.ToString().TrimEnd();
+        return css.ToString()
+                  .TrimEnd();
     }
 
     private static void ProcessCssVariableObject(object cssVariableObject, Dictionary<string, List<string>> selectorGroups)
@@ -58,8 +61,8 @@ public static class BootstrapCssGenerator
 
         // Get all properties with CssVariable attributes
         var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(p => p.PropertyType == typeof(string))
-            .Where(p => p.GetCustomAttribute<CssVariableAttribute>() != null);
+                             .Where(p => p.PropertyType == typeof(string))
+                             .Where(p => p.GetCustomAttribute<CssVariableAttribute>() != null);
 
         foreach (var property in properties)
         {
@@ -70,11 +73,12 @@ public static class BootstrapCssGenerator
                 if (attr != null)
                 {
                     var cssPropertyName = attr.IsVariable ? attr.GetName() : attr.Name;
-                    
+
                     if (!selectorGroups.ContainsKey(selector))
                         selectorGroups[selector] = [];
-                    
-                    selectorGroups[selector].Add($"  {cssPropertyName}: {value};");
+
+                    selectorGroups[selector]
+                        .Add($"  {cssPropertyName}: {value};");
                 }
             }
         }

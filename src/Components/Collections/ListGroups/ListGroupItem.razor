@@ -7,7 +7,6 @@
 </li>
 
 @code {
-    public override string? ThemeKey { get; set; } = "ListGroupItem";
 
     [Parameter]
     public string? ItemName { get; set; }
@@ -27,9 +26,11 @@
         var attributes = base.BuildAttributes();
 
         string? bgClass = null;
+
         if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
         {
-            var v = BackgroundColor.Value.ToString().Trim();
+            var v = BackgroundColor.Value.ToString()
+                                   .Trim();
             if (BackgroundColor.Value.IsCssClass)
             {
                 bgClass = v.StartsWith("list-group-item-", StringComparison.Ordinal) ? v : $"list-group-item-{v}";
@@ -42,10 +43,13 @@
 
             if (ParentListGroup?.Mode == ListGroupMode.Selectable)
                 AppendClass(ref cls, "list-group-item-action");
+
             if (Active)
                 AppendClass(ref cls, "active");
+
             if (Disabled)
                 AppendClass(ref cls, "disabled");
+
             if (bgClass != null)
                 AppendClass(ref cls, bgClass);
         });
@@ -66,4 +70,5 @@
 
         await base.HandleClick(e);
     }
+
 }

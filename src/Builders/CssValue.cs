@@ -1,11 +1,9 @@
 using Soenneker.Quark;
 using System;
-using System.Collections.Generic;
 using Soenneker.Extensions.String;
 
 public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where TBuilder : class, ICssBuilder
 {
-    private readonly string? _styleValue;
     private readonly string _value;
 
     // Cache generic-type checks per closed generic
@@ -14,15 +12,10 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
     private static readonly bool _isColor = typeof(TBuilder) == typeof(ColorBuilder);
     private static readonly bool _isSize = typeof(TBuilder) == typeof(SizeBuilder);
 
-    private static readonly HashSet<string> _bootstrapThemeTokens = new(StringComparer.OrdinalIgnoreCase)
-        { "primary", "secondary", "success", "danger", "warning", "info", "light", "dark", "link", "muted" };
-
-    private static readonly HashSet<string> _bootstrapSizeTokens = new(StringComparer.OrdinalIgnoreCase) { "xs", "sm", "md", "lg", "xl", "xxl" };
-
     private CssValue(string value, string? styleValue = null)
     {
         _value = value ?? string.Empty;
-        _styleValue = styleValue;
+        StyleValue = styleValue;
     }
 
     public static implicit operator CssValue<TBuilder>(TBuilder builder) => new(builder.ToClass(), builder.ToStyle());
@@ -52,8 +45,8 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         get
         {
             // Check if _styleValue looks like a style (contains colon)
-            if (!string.IsNullOrEmpty(_styleValue) && _styleValue.IndexOf(':') >= 0)
-                return _styleValue;
+            if (!string.IsNullOrEmpty(field) && field.IndexOf(':') >= 0)
+                return field;
             
             // Check if _value looks like a style (contains colon)
             if (!string.IsNullOrEmpty(_value) && _value.IndexOf(':') >= 0)
@@ -70,8 +63,8 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
             return false;
 
         // For SizeBuilder, we accept size tokens; otherwise theme tokens (colors)
-        if (_isSize) return _bootstrapSizeTokens.Contains(value);
-        return _bootstrapThemeTokens.Contains(value);
+        if (_isSize) return BootstrapTokens.SizeTokens.Contains(value);
+        return BootstrapTokens.ThemeTokens.Contains(value);
     }
 
     private static bool LooksLikeCssUnit(string value)
@@ -112,9 +105,10 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         if (_value.HasContent())
         {
             var v = _value.Trim();
+
             if (_isSize)
             {
-                if (_bootstrapSizeTokens.Contains(v))
+                if (BootstrapTokens.SizeTokens.Contains(v))
                 {
                     token = v;
                     return true;
@@ -122,7 +116,7 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
             }
             else
             {
-                if (_bootstrapThemeTokens.Contains(v))
+                if (BootstrapTokens.ThemeTokens.Contains(v))
                 {
                     token = v;
                     return true;

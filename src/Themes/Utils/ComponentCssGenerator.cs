@@ -4,62 +4,48 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
-using System.Text;
 using Soenneker.Extensions.String;
+using Soenneker.Quark.Dtos;
+using Soenneker.Utils.PooledStringBuilders;
 
-namespace Soenneker.Quark;
+namespace Soenneker.Quark.Themes.Utils;
 
 /// <summary>Generates CSS rules from ComponentOptions using CssSelector and CssProperty attributes — optimized.</summary>
 public static class ComponentCssGenerator
 {
-    private sealed class Accessor
-    {
-        // options -> CssValue<T> (boxed or null)
-        public required Func<object, object?> GetOptionValue;
-
-        // CssValue<T> -> StyleValue (boxed or null)
-        public required Func<object, object?> GetStyleValue;
-
-        // Precomputed: "  " + cssName + ": "
-        public required string CssPrefix;
-    }
-
-    private sealed class CachedTypeInfo
-    {
-        public required string Selector;
-        public required Accessor[] Accessors;
-    }
-
     // If type discovery is only at startup, you can switch to Dictionary<Type,...> + lock
     private static readonly ConcurrentDictionary<Type, CachedTypeInfo> _cache = new();
 
     /// <summary>Generates CSS rules for a ComponentOptions object (e.g., AnchorOptions) with aggressive caching and minimal allocations.</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string GenerateSelectorCss(ComponentOptions options)
+    public static string Generate(ComponentOptions options)
     {
         if (options is null)
             return string.Empty;
 
         var type = options.GetType();
         var cached = _cache.GetOrAdd(type, BuildCacheForType);
+
         if (cached.Accessors.Length == 0 || cached.Selector.IsNullOrEmpty())
             return string.Empty;
 
         // Heuristic capacity: selector + braces + ~40 chars per property
-        var estimated = 16 + cached.Selector.Length + 4 + cached.Accessors.Length * 40;
-        var sb = new StringBuilder(capacity: estimated);
+     //   var estimated = 16 + cached.Selector.Length + 4 + cached.Accessors.Length * 40;
+        using var sb = new PooledStringBuilder();
 
         var any = false;
 
-        for (int i = 0; i < cached.Accessors.Length; i++)
+        for (var i = 0; i < cached.Accessors.Length; i++)
         {
             var acc = cached.Accessors[i];
 
             var cssValueObj = acc.GetOptionValue(options);
+
             if (cssValueObj is null)
                 continue;
 
             var styleObj = acc.GetStyleValue(cssValueObj);
+
             if (styleObj is null)
                 continue;
 
@@ -74,12 +60,13 @@ public static class ComponentCssGenerator
             if (!any)
             {
                 any = true;
-                sb.Append(cached.Selector).Append(" {\n");
+                sb.Append(cached.Selector);
+                sb.Append(" {\n");
             }
 
-            sb.Append(acc.CssPrefix)
-              .Append(valueSpan)
-              .Append(";\n");
+            sb.Append(acc.CssPrefix);
+            sb.Append(valueSpan);
+            sb.Append(";\n");
         }
 
         if (!any)
@@ -102,7 +89,7 @@ public static class ComponentCssGenerator
         var rented = ArrayPool<Accessor>.Shared.Rent(props.Length);
         var count = 0;
 
-        for (int i = 0; i < props.Length; i++)
+        for (var i = 0; i < props.Length; i++)
         {
             var p = props[i];
 
@@ -163,11 +150,7 @@ public static class ComponentCssGenerator
         // The DynamicMethod must be associated with a module, not a Type
         var module = declaringType.Module;
 
-        var dm = new DynamicMethod(
-            name: "get_" + prop.Name + "_boxed",
-            returnType: typeof(object),
-            parameterTypes: [typeof(object)],
-            m: module,
+        var dm = new DynamicMethod(name: "get_" + prop.Name + "_boxed", returnType: typeof(object), parameterTypes: [typeof(object)], m: module,
             skipVisibility: true);
 
         var il = dm.GetILGenerator();
@@ -186,13 +169,15 @@ public static class ComponentCssGenerator
     {
         var span = s.AsSpan();
         var idx = span.IndexOf(':');
+
         if (idx <= 0 || (uint)(idx + 1) >= (uint)span.Length)
         {
             value = default;
             return false;
         }
 
-        value = span[(idx + 1)..].TrimStart(); // .NET 8/9 span trim, zero-alloc
+        value = span[(idx + 1)..]
+            .TrimStart(); // .NET 8/9 span trim, zero-alloc
         return !value.IsEmpty;
     }
 }

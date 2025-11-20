@@ -37,6 +37,11 @@ public sealed class Program
 
             var theme = new Theme
             {
+                Anchors = new AnchorOptions
+                {
+                    TextDecoration = TextDecoration.None
+                },
+
                 BootstrapCssVariables = new BootstrapCssVariables
                 {
                     Colors = new BootstrapColorsCssVariables

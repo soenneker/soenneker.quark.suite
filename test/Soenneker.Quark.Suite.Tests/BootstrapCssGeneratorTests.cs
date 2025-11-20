@@ -1,4 +1,5 @@
 using AwesomeAssertions;
+using Soenneker.Quark.Themes.Utils;
 using Xunit;
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -9,7 +10,7 @@ public class BootstrapCssGeneratorTests
     public void GenerateRootCss_WithNullVariables_ReturnsEmptyString()
     {
         // Act
-        var result = BootstrapCssGenerator.GenerateRootCss(null!);
+        var result = BootstrapCssGenerator.Generate(null!);
 
         // Assert
         result.Should().BeEmpty();
@@ -22,7 +23,7 @@ public class BootstrapCssGeneratorTests
         var variables = new BootstrapCssVariables();
 
         // Act
-        var result = BootstrapCssGenerator.GenerateRootCss(variables);
+        var result = BootstrapCssGenerator.Generate(variables);
 
         // Assert
         result.Should().BeEmpty();
@@ -42,7 +43,7 @@ public class BootstrapCssGeneratorTests
         };
 
         // Act
-        var result = BootstrapCssGenerator.GenerateRootCss(variables);
+        var result = BootstrapCssGenerator.Generate(variables);
 
         // Assert
         result.Should().Contain("--bs-primary: #2563eb;");
@@ -76,7 +77,7 @@ public class BootstrapCssGeneratorTests
         };
 
         // Act
-        var result = BootstrapCssGenerator.GenerateRootCss(variables);
+        var result = BootstrapCssGenerator.Generate(variables);
 
         // Assert
         result.Should().Contain("--bs-blue: #0d6efd;");
@@ -114,7 +115,7 @@ public class BootstrapCssGeneratorTests
         };
 
         // Act
-        var result = BootstrapCssGenerator.GenerateRootCss(variables);
+        var result = BootstrapCssGenerator.Generate(variables);
 
         // Assert
         result.Should().Contain("--bs-primary: #0d6efd;");
@@ -145,7 +146,7 @@ public class BootstrapCssGeneratorTests
         };
 
         // Act
-        var result = BootstrapCssGenerator.GenerateRootCss(variables);
+        var result = BootstrapCssGenerator.Generate(variables);
 
         // Assert
         result.Should().Contain(".btn-primary {");
@@ -176,7 +177,7 @@ public class BootstrapCssGeneratorTests
         };
 
         // Act
-        var result = BootstrapCssGenerator.GenerateRootCss(variables);
+        var result = BootstrapCssGenerator.Generate(variables);
 
         // Assert
         // Should contain both :root and .btn-primary selectors
@@ -206,7 +207,7 @@ public class BootstrapCssGeneratorTests
         };
 
         // Act
-        var result = BootstrapCssGenerator.GenerateRootCss(variables);
+        var result = BootstrapCssGenerator.Generate(variables);
 
         // Assert
         result.Should().Contain(".btn-secondary {");
@@ -235,7 +236,7 @@ public class BootstrapCssGeneratorTests
         };
 
         // Act
-        var result = BootstrapCssGenerator.GenerateRootCss(variables);
+        var result = BootstrapCssGenerator.Generate(variables);
 
         // Assert - Should generate :root overrides, NOT a {} selectors
         result.Should().Contain(":root {");
@@ -262,7 +263,7 @@ public class BootstrapCssGeneratorTests
         };
 
         // Act
-        var result = BootstrapCssGenerator.GenerateRootCss(variables);
+        var result = BootstrapCssGenerator.Generate(variables);
 
         // Assert - Verify it does NOT create selector-specific blocks
         result.Should().NotContain("a {");
@@ -284,7 +285,7 @@ public class BootstrapCssGeneratorTests
         };
 
         // Act
-        var result = BootstrapCssGenerator.GenerateRootCss(variables);
+        var result = BootstrapCssGenerator.Generate(variables);
 
         // Assert - Direct CSS properties should also be in :root
         result.Should().Contain(":root {");
@@ -310,7 +311,7 @@ public class BootstrapCssGeneratorTests
         };
 
         // Act
-        var result = BootstrapCssGenerator.GenerateRootCss(variables);
+        var result = BootstrapCssGenerator.Generate(variables);
 
         // Assert - Verify only :root block is generated, no selector-specific blocks
         result.Should().Contain(":root {");
@@ -343,7 +344,7 @@ public class BootstrapCssGeneratorTests
         };
 
         // Act
-        var result = BootstrapCssGenerator.GenerateRootCss(variables);
+        var result = BootstrapCssGenerator.Generate(variables);
 
         // Assert - All should be in single :root block
         result.Should().Contain(":root {");
@@ -521,7 +522,7 @@ public class BootstrapCssGeneratorTests
         };
 
         // Act
-        var css = ComponentCssGenerator.GenerateSelectorCss(anchorOptions);
+        var css = ComponentCssGenerator.Generate(anchorOptions);
 
         // Assert
         css.Should().Contain("a {");
@@ -539,7 +540,7 @@ public class BootstrapCssGeneratorTests
         };
 
         // Act
-        var css = ComponentCssGenerator.GenerateSelectorCss(anchorOptions);
+        var css = ComponentCssGenerator.Generate(anchorOptions);
 
         // Assert
         css.Should().Contain("a {");
@@ -557,7 +558,7 @@ public class BootstrapCssGeneratorTests
         };
 
         // Act
-        var css = ComponentCssGenerator.GenerateSelectorCss(anchorOptions);
+        var css = ComponentCssGenerator.Generate(anchorOptions);
 
         // Assert
         css.Should().Contain("a {");
@@ -579,7 +580,7 @@ public class BootstrapCssGeneratorTests
         };
 
         // Act
-        var css = ComponentCssGenerator.GenerateSelectorCss(anchorOptions);
+        var css = ComponentCssGenerator.Generate(anchorOptions);
 
         // Assert
         css.Should().Contain("a {");
@@ -598,7 +599,7 @@ public class BootstrapCssGeneratorTests
         };
 
         // Act
-        var css = ComponentCssGenerator.GenerateSelectorCss(anchorOptions);
+        var css = ComponentCssGenerator.Generate(anchorOptions);
 
         // Assert
         css.Should().Contain("a {");
@@ -614,7 +615,7 @@ public class BootstrapCssGeneratorTests
         var anchorOptions = new AnchorOptions();
 
         // Act
-        var css = ComponentCssGenerator.GenerateSelectorCss(anchorOptions);
+        var css = ComponentCssGenerator.Generate(anchorOptions);
 
         // Assert
         css.Should().BeEmpty();
@@ -624,7 +625,7 @@ public class BootstrapCssGeneratorTests
     public void ComponentCssGenerator_WithNullOptions_ReturnsEmptyString()
     {
         // Act
-        var css = ComponentCssGenerator.GenerateSelectorCss(null!);
+        var css = ComponentCssGenerator.Generate(null!);
 
         // Assert
         css.Should().BeEmpty();

@@ -1,10 +1,17 @@
 @namespace Soenneker.Quark
 @inject IThemeProvider ThemeProvider
 
-@if (_bootstrapOverrides.HasContent())
+@if (_bootstrapCss.HasContent())
 {
     <style>
-        @_bootstrapOverrides
+        @_bootstrapCss
+    </style>
+}
+
+@if (_componentsCss.HasContent())
+{
+    <style>
+        @_componentsCss
     </style>
 }
 
@@ -16,7 +23,9 @@
 }
 
 @code {
-    private string? _bootstrapOverrides;
+    private string? _bootstrapCss;
+
+    private string? _componentsCss;
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
@@ -26,14 +35,9 @@
 
     protected override void OnParametersSet()
     {
-        try
-        {
-            _bootstrapOverrides = ThemeProvider.GenerateRootCss();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error generating Bootstrap variable overrides: {ex.Message}");
-            _bootstrapOverrides = null;
-        }
+        _bootstrapCss = ThemeProvider.GenerateBootstrapCss();
+
+        _componentsCss = ThemeProvider.GenerateComponentsCss();
     }
+
 }

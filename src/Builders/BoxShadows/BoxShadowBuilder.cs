@@ -90,7 +90,7 @@ public sealed class BoxShadowBuilder : ICssBuilder
 
             var bp = BreakpointUtil.GetBreakpointToken(rule.breakpoint);
             if (bp.Length != 0)
-                baseClass = InsertBreakpointType(baseClass, bp);
+                baseClass = BreakpointUtil.InsertBreakpointType(baseClass, bp);
 
             if (!first)
                 sb.Append(' ');
@@ -110,41 +110,4 @@ public sealed class BoxShadowBuilder : ICssBuilder
     }
 
 
-    /// <summary>
-    /// Insert BreakpointType token as: "shadow-lg" + "md" → "shadow-md-lg".
-    /// Falls back to "bp-{class}" if no dash exists.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string InsertBreakpointType(string className, string bp)
-    {
-        var dashIndex = className.IndexOf('-');
-        if (dashIndex > 0)
-        {
-            // length = prefix + "-" + bp + remainder
-            var len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
-            return string.Create(len, (className, dashIndex, bp), static (dst, s) =>
-            {
-                // prefix
-                s.className.AsSpan(0, s.dashIndex).CopyTo(dst);
-                var idx = s.dashIndex;
-
-                // "-" + bp
-                dst[idx++] = '-';
-                s.bp.AsSpan().CopyTo(dst[idx..]);
-                idx += s.bp.Length;
-
-                // remainder (starts with '-')
-                s.className.AsSpan(s.dashIndex).CopyTo(dst[idx..]);
-            });
-        }
-
-        // Fallback: "bp-{className}"
-        return string.Create(bp.Length + 1 + className.Length, (className, bp), static (dst, s) =>
-        {
-            s.bp.AsSpan().CopyTo(dst);
-            var idx = s.bp.Length;
-            dst[idx++] = '-';
-            s.className.AsSpan().CopyTo(dst[idx..]);
-        });
-    }
 }

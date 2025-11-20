@@ -78,7 +78,7 @@ public sealed class ScreenReaderBuilder : ICssBuilder
 
             var bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
             if (bp.Length != 0)
-                cls = InsertBreakpointType(cls, bp);
+                cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
             if (!first) sb.Append(' ');
             else first = false;
@@ -136,17 +136,6 @@ public sealed class ScreenReaderBuilder : ICssBuilder
         };
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string InsertBreakpointType(string className, string bp)
-    {
-        return string.Create(bp.Length + 1 + className.Length, (className, bp), static (dst, s) =>
-        {
-            s.bp.AsSpan().CopyTo(dst);
-            var idx = s.bp.Length;
-            dst[idx++] = '-';
-            s.className.AsSpan().CopyTo(dst[idx..]);
-        });
-    }
 
     public override string ToString()
     {

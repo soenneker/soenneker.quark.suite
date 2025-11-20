@@ -15,9 +15,6 @@ namespace Soenneker.Quark;
 public abstract class Component : CoreComponent, IComponent
 {
     [Inject]
-    protected IThemeProvider? ThemeProvider { get; set; }
-
-    [Inject]
     protected ILogger<Component> Logger { get; set; } = null!;
 
     [Inject]
@@ -173,9 +170,6 @@ public abstract class Component : CoreComponent, IComponent
     [Parameter]
     public EventCallback<ElementReference> OnElementRefReady { get; set; }
 
-    [Parameter]
-    public virtual string? ThemeKey { get; set; }
-
     protected ElementReference ElementRef { get; set; }
 
     // -------- Render gate + attribute cache --------
@@ -194,9 +188,6 @@ public abstract class Component : CoreComponent, IComponent
 
     protected override void OnParametersSet()
     {
-        // Let theme push defaults before computing the render key (so the key reflects the actual values)
-        ApplyThemeStyles();
-
         if (QuarkOptions.AlwaysRender)
         {
             _shouldRender = true;
@@ -732,95 +723,6 @@ public abstract class Component : CoreComponent, IComponent
             attrs["style"] = $"{existing} {fullDecl}";
         else
             attrs["style"] = $"{existing}; {fullDecl}";
-    }
-
-    // ---------- Theme plumbing ----------
-    private void ApplyThemeStyles()
-    {
-        if (ThemeProvider?.Themes == null) return;
-
-        var themeName = ThemeProvider.CurrentTheme;
-        if (themeName.IsNullOrEmpty()) return;
-
-        if (ThemeProvider.Themes.TryGetValue(themeName, out var theme))
-            ApplyThemeToComponent(theme);
-    }
-
-    private void ApplyThemeToComponent(Theme theme)
-    {
-        var componentOptions = GetComponentOptionsFromTheme(theme);
-
-        if (componentOptions == null)
-            return;
-
-        ApplyThemeProperty(componentOptions.Display, () => Display, v => Display = v);
-        ApplyThemeProperty(componentOptions.Visibility, () => Visibility, v => Visibility = v);
-        ApplyThemeProperty(componentOptions.BackgroundColor, () => BackgroundColor, v => BackgroundColor = v);
-        ApplyThemeProperty(componentOptions.Border, () => Border, v => Border = v);
-        ApplyThemeProperty(componentOptions.BorderColor, () => BorderColor, v => BorderColor = v);
-        ApplyThemeProperty(componentOptions.BorderRadius, () => BorderRadius, v => BorderRadius = v);
-        ApplyThemeProperty(componentOptions.TextAlignment, () => TextAlignment, v => TextAlignment = v);
-        ApplyThemeProperty(componentOptions.TextColor, () => TextColor, v => TextColor = v);
-        ApplyThemeProperty(componentOptions.Float, () => Float, v => Float = v);
-        ApplyThemeProperty(componentOptions.VerticalAlign, () => VerticalAlign, v => VerticalAlign = v);
-        ApplyThemeProperty(componentOptions.Margin, () => Margin, v => Margin = v);
-        ApplyThemeProperty(componentOptions.Padding, () => Padding, v => Padding = v);
-        ApplyThemeProperty(componentOptions.Position, () => Position, v => Position = v);
-        ApplyThemeProperty(componentOptions.PositionOffset, () => PositionOffset, v => PositionOffset = v);
-        ApplyThemeProperty(componentOptions.Width, () => Width, v => Width = v);
-        ApplyThemeProperty(componentOptions.MinWidth, () => MinWidth, v => MinWidth = v);
-        ApplyThemeProperty(componentOptions.MaxWidth, () => MaxWidth, v => MaxWidth = v);
-        ApplyThemeProperty(componentOptions.Height, () => Height, v => Height = v);
-        ApplyThemeProperty(componentOptions.MinHeight, () => MinHeight, v => MinHeight = v);
-        ApplyThemeProperty(componentOptions.MaxHeight, () => MaxHeight, v => MaxHeight = v);
-        ApplyThemeProperty(componentOptions.Overflow, () => Overflow, v => Overflow = v);
-        ApplyThemeProperty(componentOptions.OverflowX, () => OverflowX, v => OverflowX = v);
-        ApplyThemeProperty(componentOptions.OverflowY, () => OverflowY, v => OverflowY = v);
-        ApplyThemeProperty(componentOptions.Flex, () => Flex, v => Flex = v);
-        ApplyThemeProperty(componentOptions.Gap, () => Gap, v => Gap = v);
-        ApplyThemeProperty(componentOptions.Opacity, () => Opacity, v => Opacity = v);
-        ApplyThemeProperty(componentOptions.ZIndex, () => ZIndex, v => ZIndex = v);
-        ApplyThemeProperty(componentOptions.PointerEvents, () => PointerEvents, v => PointerEvents = v);
-        ApplyThemeProperty(componentOptions.UserSelect, () => UserSelect, v => UserSelect = v);
-        ApplyThemeProperty(componentOptions.Animation, () => Animation, v => Animation = v);
-        ApplyThemeProperty(componentOptions.BackdropFilter, () => BackdropFilter, v => BackdropFilter = v);
-        ApplyThemeProperty(componentOptions.Clearfix, () => Clearfix, v => Clearfix = v);
-        ApplyThemeProperty(componentOptions.ClipPath, () => ClipPath, v => ClipPath = v);
-        ApplyThemeProperty(componentOptions.Filter, () => Filter, v => Filter = v);
-        ApplyThemeProperty(componentOptions.Resize, () => Resize, v => Resize = v);
-        ApplyThemeProperty(componentOptions.ScreenReader, () => ScreenReader, v => ScreenReader = v);
-        ApplyThemeProperty(componentOptions.ScrollBehavior, () => ScrollBehavior, v => ScrollBehavior = v);
-        ApplyThemeProperty(componentOptions.StretchedLink, () => StretchedLink, v => StretchedLink = v);
-        ApplyThemeProperty(componentOptions.Transform, () => Transform, v => Transform = v);
-        ApplyThemeProperty(componentOptions.Transition, () => Transition, v => Transition = v);
-        ApplyThemeProperty(componentOptions.LinkOpacity, () => LinkOpacity, v => LinkOpacity = v);
-        ApplyThemeProperty(componentOptions.LinkOffset, () => LinkOffset, v => LinkOffset = v);
-        ApplyThemeProperty(componentOptions.LinkUnderline, () => LinkUnderline, v => LinkUnderline = v);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ApplyThemeProperty<T>(T? themeValue, Func<T?> getCurrentValue, Action<T> setValue) where T : struct
-    {
-        if (themeValue.HasValue && !getCurrentValue().HasValue)
-            setValue(themeValue.Value);
-    }
-
-    private ComponentOptions? GetComponentOptionsFromTheme(Theme theme)
-    {
-        if (ThemeProvider == null)
-        {
-            Logger?.LogWarning("ThemeProvider is null; cannot apply theme styles.");
-            return null;
-        }
-
-        if (ThemeKey == null)
-        {
-            Logger?.LogWarning("ThemeKey is null for {type}; cannot apply theme styles.", GetType()
-                .FullName);
-            return null;
-        }
-
-        return ThemeProvider.ComponentOptions.TryGetValue(ThemeKey, out var getter) ? getter(theme) : null;
     }
 
     /// <summary>
