@@ -52,21 +52,55 @@ public sealed class OverflowBuilder : ICssBuilder
         return new OverflowBuilder([]);
     }
 
-    // ----- Fluent chaining (values & keywords) -----
+	/// <summary>
+	/// Sets the overflow to auto.
+	/// </summary>
     public OverflowBuilder Auto => Chain(OverflowKeyword.AutoValue);
+	/// <summary>
+	/// Sets the overflow to hidden.
+	/// </summary>
     public OverflowBuilder Hidden => Chain(OverflowKeyword.HiddenValue);
+	/// <summary>
+	/// Sets the overflow to visible.
+	/// </summary>
     public OverflowBuilder Visible => Chain(OverflowKeyword.VisibleValue);
+	/// <summary>
+	/// Sets the overflow to scroll.
+	/// </summary>
     public OverflowBuilder Scroll => Chain(OverflowKeyword.ScrollValue);
 
+	/// <summary>
+	/// Sets the overflow to inherit.
+	/// </summary>
     public OverflowBuilder Inherit => Chain(GlobalKeyword.InheritValue);
+	/// <summary>
+	/// Sets the overflow to initial.
+	/// </summary>
     public OverflowBuilder Initial => Chain(GlobalKeyword.InitialValue);
+	/// <summary>
+	/// Sets the overflow to revert.
+	/// </summary>
     public OverflowBuilder Revert => Chain(GlobalKeyword.RevertValue);
+	/// <summary>
+	/// Sets the overflow to revert-layer.
+	/// </summary>
     public OverflowBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
+	/// <summary>
+	/// Sets the overflow to unset.
+	/// </summary>
     public OverflowBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
-    // ----- Axis chaining -----
+	/// <summary>
+	/// Applies overflow on the X axis.
+	/// </summary>
     public OverflowBuilder X => ChainAxis("-x");
+	/// <summary>
+	/// Applies overflow on the Y axis.
+	/// </summary>
     public OverflowBuilder Y => ChainAxis("-y");
+	/// <summary>
+	/// Applies overflow on all axes.
+	/// </summary>
     public OverflowBuilder All => ChainAxis("");
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

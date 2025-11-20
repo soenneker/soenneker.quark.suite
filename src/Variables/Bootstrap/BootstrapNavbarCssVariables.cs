@@ -108,11 +108,19 @@ public sealed class BootstrapNavbarCssVariables : IBootstrapCssVariableGroup
     /// </summary>
     public string? NavbarTogglerTransition { get; set; }
 
+	/// <summary>
+	/// Gets the CSS selector for the navbar component.
+	/// </summary>
+	/// <returns>The CSS selector string.</returns>
     public string GetSelector()
     {
         return ".navbar";
     }
 
+	/// <summary>
+	/// Gets the collection of CSS variables for the navbar component.
+	/// </summary>
+	/// <returns>An enumerable collection of CSS property name and value tuples.</returns>
     public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
     {
         if (NavbarPaddingX.HasContent())

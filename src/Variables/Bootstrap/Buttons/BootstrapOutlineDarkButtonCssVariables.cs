@@ -8,33 +8,74 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class BootstrapOutlineDarkButtonCssVariables : IBootstrapCssVariableGroup
 {
+	/// <summary>
+	/// Gets or sets the CSS variable value for the outline dark button text color.
+	/// </summary>
 	public string? Color { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the outline dark button border color.
+	/// </summary>
 	public string? BorderColor { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the outline dark button hover text color.
+	/// </summary>
 	public string? HoverColor { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the outline dark button hover background color.
+	/// </summary>
 	public string? HoverBackground { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the outline dark button hover border color.
+	/// </summary>
 	public string? HoverBorderColor { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the outline dark button active text color.
+	/// </summary>
 	public string? ActiveColor { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the outline dark button active background color.
+	/// </summary>
 	public string? ActiveBackground { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the outline dark button active border color.
+	/// </summary>
 	public string? ActiveBorderColor { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the outline dark button disabled text color.
+	/// </summary>
 	public string? DisabledColor { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the outline dark button disabled background color.
+	/// </summary>
 	public string? DisabledBackground { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the outline dark button disabled border color.
+	/// </summary>
 	public string? DisabledBorderColor { get; set; }
 
+	/// <summary>
+	/// Gets the CSS selector for the outline dark button component.
+	/// </summary>
+	/// <returns>The CSS selector string.</returns>
     public string GetSelector()
     {
         return ".btn-outline-dark";
     }
 
+	/// <summary>
+	/// Gets the collection of CSS variables for the outline dark button component.
+	/// </summary>
+	/// <returns>An enumerable collection of CSS property name and value tuples.</returns>
     public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
     {
         if (Color.HasContent())

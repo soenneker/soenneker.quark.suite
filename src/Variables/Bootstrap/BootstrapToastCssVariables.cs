@@ -83,11 +83,19 @@ public sealed class BootstrapToastCssVariables : IBootstrapCssVariableGroup
 	/// </summary>
 	public string? HeaderBorderColor { get; set; }
 
+	/// <summary>
+	/// Gets the CSS selector for the toast component.
+	/// </summary>
+	/// <returns>The CSS selector string.</returns>
     public string GetSelector()
     {
         return ".toast";
     }
 
+	/// <summary>
+	/// Gets the collection of CSS variables for the toast component.
+	/// </summary>
+	/// <returns>An enumerable collection of CSS property name and value tuples.</returns>
     public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
     {
         if (Zindex.HasContent())

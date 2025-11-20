@@ -168,11 +168,19 @@ public sealed class BootstrapTypographyCssVariables : IBootstrapCssVariableGroup
     /// </summary>
     public string? BodyTextAlign { get; set; }
 
+	/// <summary>
+	/// Gets the CSS selector for the typography component.
+	/// </summary>
+	/// <returns>The CSS selector string.</returns>
     public string GetSelector()
     {
         return ":root";
     }
 
+	/// <summary>
+	/// Gets the collection of CSS variables for the typography component.
+	/// </summary>
+	/// <returns>An enumerable collection of CSS property name and value tuples.</returns>
     public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
     {
         if (FontSansSerif.HasContent())

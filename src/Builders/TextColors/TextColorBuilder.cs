@@ -25,52 +25,176 @@ public sealed class TextColorBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
     
+	/// <summary>
+	/// Sets the text color to primary.
+	/// </summary>
     public TextColorBuilder Primary => ChainValue("primary");
+	/// <summary>
+	/// Sets the text color to secondary.
+	/// </summary>
     public TextColorBuilder Secondary => ChainValue("secondary");
+	/// <summary>
+	/// Sets the text color to success.
+	/// </summary>
     public TextColorBuilder Success => ChainValue("success");
+	/// <summary>
+	/// Sets the text color to danger.
+	/// </summary>
     public TextColorBuilder Danger => ChainValue("danger");
+	/// <summary>
+	/// Sets the text color to warning.
+	/// </summary>
     public TextColorBuilder Warning => ChainValue("warning");
+	/// <summary>
+	/// Sets the text color to info.
+	/// </summary>
     public TextColorBuilder Info => ChainValue("info");
+	/// <summary>
+	/// Sets the text color to light.
+	/// </summary>
     public TextColorBuilder Light => ChainValue("light");
+	/// <summary>
+	/// Sets the text color to dark.
+	/// </summary>
     public TextColorBuilder Dark => ChainValue("dark");
+	/// <summary>
+	/// Sets the text color to muted.
+	/// </summary>
     public TextColorBuilder Muted => ChainValue("muted");
+	/// <summary>
+	/// Sets the text color to white.
+	/// </summary>
     public TextColorBuilder White => ChainValue("white");
+	/// <summary>
+	/// Sets the text color to black.
+	/// </summary>
     public TextColorBuilder Black => ChainValue("black");
+	/// <summary>
+	/// Sets the text color to body.
+	/// </summary>
     public TextColorBuilder Body => ChainValue("body");
+	/// <summary>
+	/// Sets the text color to body-secondary.
+	/// </summary>
     public TextColorBuilder BodySecondary => ChainValue("body-secondary");
+	/// <summary>
+	/// Sets the text color to body-tertiary.
+	/// </summary>
     public TextColorBuilder BodyTertiary => ChainValue("body-tertiary");
+	/// <summary>
+	/// Sets the text color to body-emphasis.
+	/// </summary>
     public TextColorBuilder BodyEmphasis => ChainValue("body-emphasis");
+	/// <summary>
+	/// Sets the text color to body-highlight.
+	/// </summary>
     public TextColorBuilder BodyHighlight => ChainValue("body-highlight");
+	/// <summary>
+	/// Sets the text color to body-muted.
+	/// </summary>
     public TextColorBuilder BodyMuted => ChainValue("body-muted");
+	/// <summary>
+	/// Sets the text color to body-reset.
+	/// </summary>
     public TextColorBuilder BodyReset => ChainValue("body-reset");
+	/// <summary>
+	/// Sets the text color to body-inverse.
+	/// </summary>
     public TextColorBuilder BodyInverse => ChainValue("body-inverse");
+	/// <summary>
+	/// Sets the text color to body-inverse-secondary.
+	/// </summary>
     public TextColorBuilder BodyInverseSecondary => ChainValue("body-inverse-secondary");
+	/// <summary>
+	/// Sets the text color to body-inverse-tertiary.
+	/// </summary>
     public TextColorBuilder BodyInverseTertiary => ChainValue("body-inverse-tertiary");
+	/// <summary>
+	/// Sets the text color to body-inverse-emphasis.
+	/// </summary>
     public TextColorBuilder BodyInverseEmphasis => ChainValue("body-inverse-emphasis");
+	/// <summary>
+	/// Sets the text color to body-inverse-highlight.
+	/// </summary>
     public TextColorBuilder BodyInverseHighlight => ChainValue("body-inverse-highlight");
+	/// <summary>
+	/// Sets the text color to body-inverse-muted.
+	/// </summary>
     public TextColorBuilder BodyInverseMuted => ChainValue("body-inverse-muted");
+	/// <summary>
+	/// Sets the text color to body-inverse-reset.
+	/// </summary>
     public TextColorBuilder BodyInverseReset => ChainValue("body-inverse-reset");
 
-    // Emphasis variants
+	/// <summary>
+	/// Sets the text color to primary-emphasis.
+	/// </summary>
     public TextColorBuilder PrimaryEmphasis => ChainValue("primary-emphasis");
+	/// <summary>
+	/// Sets the text color to secondary-emphasis.
+	/// </summary>
     public TextColorBuilder SecondaryEmphasis => ChainValue("secondary-emphasis");
+	/// <summary>
+	/// Sets the text color to success-emphasis.
+	/// </summary>
     public TextColorBuilder SuccessEmphasis => ChainValue("success-emphasis");
+	/// <summary>
+	/// Sets the text color to danger-emphasis.
+	/// </summary>
     public TextColorBuilder DangerEmphasis => ChainValue("danger-emphasis");
+	/// <summary>
+	/// Sets the text color to warning-emphasis.
+	/// </summary>
     public TextColorBuilder WarningEmphasis => ChainValue("warning-emphasis");
+	/// <summary>
+	/// Sets the text color to info-emphasis.
+	/// </summary>
     public TextColorBuilder InfoEmphasis => ChainValue("info-emphasis");
+	/// <summary>
+	/// Sets the text color to light-emphasis.
+	/// </summary>
     public TextColorBuilder LightEmphasis => ChainValue("light-emphasis");
+	/// <summary>
+	/// Sets the text color to dark-emphasis.
+	/// </summary>
     public TextColorBuilder DarkEmphasis => ChainValue("dark-emphasis");
 
-    // Opacity variants
+	/// <summary>
+	/// Sets the text color opacity to 75%.
+	/// </summary>
     public TextColorBuilder Opacity75 => ChainValue("75");
+	/// <summary>
+	/// Sets the text color opacity to 50%.
+	/// </summary>
     public TextColorBuilder Opacity50 => ChainValue("50");
+	/// <summary>
+	/// Sets the text color opacity to 25%.
+	/// </summary>
     public TextColorBuilder Opacity25 => ChainValue("25");
 
+	/// <summary>
+	/// Applies the text color on phone breakpoint.
+	/// </summary>
     public TextColorBuilder OnPhone => ChainBp(BreakpointType.Phone);
+	/// <summary>
+	/// Applies the text color on tablet breakpoint.
+	/// </summary>
     public TextColorBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+	/// <summary>
+	/// Applies the text color on laptop breakpoint.
+	/// </summary>
     public TextColorBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+	/// <summary>
+	/// Applies the text color on desktop breakpoint.
+	/// </summary>
     public TextColorBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+	/// <summary>
+	/// Applies the text color on widescreen breakpoint.
+	/// </summary>
     public TextColorBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+	/// <summary>
+	/// Applies the text color on ultrawide breakpoint.
+	/// </summary>
     public TextColorBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -95,6 +219,10 @@ public sealed class TextColorBuilder : ICssBuilder
         return this;
     }
 
+	/// <summary>
+	/// Gets the CSS class string for the current configuration.
+	/// </summary>
+	/// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -123,6 +251,10 @@ public sealed class TextColorBuilder : ICssBuilder
         return sb.ToString();
     }
 
+	/// <summary>
+	/// Gets the CSS style string for the current configuration.
+	/// </summary>
+	/// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)

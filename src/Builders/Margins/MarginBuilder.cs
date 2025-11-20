@@ -44,32 +44,95 @@ public sealed class MarginBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
-    // ----- Side chaining -----
+	/// <summary>
+	/// Applies margin from the top side.
+	/// </summary>
     public MarginBuilder FromTop => AddRule(ElementSideType.Top);
+	/// <summary>
+	/// Applies margin from the right side.
+	/// </summary>
     public MarginBuilder FromRight => AddRule(ElementSideType.Right);
+	/// <summary>
+	/// Applies margin from the bottom side.
+	/// </summary>
     public MarginBuilder FromBottom => AddRule(ElementSideType.Bottom);
+	/// <summary>
+	/// Applies margin from the left side.
+	/// </summary>
     public MarginBuilder FromLeft => AddRule(ElementSideType.Left);
+	/// <summary>
+	/// Applies margin on the horizontal axis (left and right).
+	/// </summary>
     public MarginBuilder OnX => AddRule(ElementSideType.Horizontal);
+	/// <summary>
+	/// Applies margin on the vertical axis (top and bottom).
+	/// </summary>
     public MarginBuilder OnY => AddRule(ElementSideType.Vertical);
+	/// <summary>
+	/// Applies margin on all sides.
+	/// </summary>
     public MarginBuilder OnAll => AddRule(ElementSideType.All);
+	/// <summary>
+	/// Applies margin from the inline start.
+	/// </summary>
     public MarginBuilder FromStart => AddRule(ElementSideType.InlineStart);
+	/// <summary>
+	/// Applies margin from the inline end.
+	/// </summary>
     public MarginBuilder FromEnd => AddRule(ElementSideType.InlineEnd);
 
-    // ----- Size chaining -----
+	/// <summary>
+	/// Sets the margin size to 0.
+	/// </summary>
     public MarginBuilder Is0 => ChainWithSize(ScaleType.Is0);
+	/// <summary>
+	/// Sets the margin size to 1.
+	/// </summary>
     public MarginBuilder Is1 => ChainWithSize(ScaleType.Is1);
+	/// <summary>
+	/// Sets the margin size to 2.
+	/// </summary>
     public MarginBuilder Is2 => ChainWithSize(ScaleType.Is2);
+	/// <summary>
+	/// Sets the margin size to 3.
+	/// </summary>
     public MarginBuilder Is3 => ChainWithSize(ScaleType.Is3);
+	/// <summary>
+	/// Sets the margin size to 4.
+	/// </summary>
     public MarginBuilder Is4 => ChainWithSize(ScaleType.Is4);
+	/// <summary>
+	/// Sets the margin size to 5.
+	/// </summary>
     public MarginBuilder Is5 => ChainWithSize(ScaleType.Is5);
+	/// <summary>
+	/// Sets the margin to auto.
+	/// </summary>
     public MarginBuilder Auto => ChainWithSize("auto");
 
-    // ----- BreakpointType chaining -----
+	/// <summary>
+	/// Applies the margin on phone breakpoint.
+	/// </summary>
     public MarginBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+	/// <summary>
+	/// Applies the margin on tablet breakpoint.
+	/// </summary>
     public MarginBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+	/// <summary>
+	/// Applies the margin on laptop breakpoint.
+	/// </summary>
     public MarginBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+	/// <summary>
+	/// Applies the margin on desktop breakpoint.
+	/// </summary>
     public MarginBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+	/// <summary>
+	/// Applies the margin on widescreen breakpoint.
+	/// </summary>
     public MarginBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+	/// <summary>
+	/// Applies the margin on ultrawide breakpoint.
+	/// </summary>
     public MarginBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

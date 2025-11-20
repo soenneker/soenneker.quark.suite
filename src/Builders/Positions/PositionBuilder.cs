@@ -45,18 +45,50 @@ public sealed class PositionBuilder : ICssBuilder
     /// <summary>Chain with sticky positioning for the next rule.</summary>
     public PositionBuilder Sticky => ChainWithPosition(PositionKeyword.StickyValue);
 
+	/// <summary>
+	/// Chain with inherit positioning for the next rule.
+	/// </summary>
     public PositionBuilder Inherit => ChainWithPosition(GlobalKeyword.InheritValue);
+	/// <summary>
+	/// Chain with initial positioning for the next rule.
+	/// </summary>
     public PositionBuilder Initial => ChainWithPosition(GlobalKeyword.InitialValue);
+	/// <summary>
+	/// Chain with revert positioning for the next rule.
+	/// </summary>
     public PositionBuilder Revert => ChainWithPosition(GlobalKeyword.RevertValue);
+	/// <summary>
+	/// Chain with revert-layer positioning for the next rule.
+	/// </summary>
     public PositionBuilder RevertLayer => ChainWithPosition(GlobalKeyword.RevertLayerValue);
+	/// <summary>
+	/// Chain with unset positioning for the next rule.
+	/// </summary>
     public PositionBuilder Unset => ChainWithPosition(GlobalKeyword.UnsetValue);
 
-    // ----- BreakpointType chaining -----
+	/// <summary>
+	/// Applies the position on phone breakpoint.
+	/// </summary>
     public PositionBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+	/// <summary>
+	/// Applies the position on tablet breakpoint.
+	/// </summary>
     public PositionBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+	/// <summary>
+	/// Applies the position on laptop breakpoint.
+	/// </summary>
     public PositionBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+	/// <summary>
+	/// Applies the position on desktop breakpoint.
+	/// </summary>
     public PositionBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+	/// <summary>
+	/// Applies the position on widescreen breakpoint.
+	/// </summary>
     public PositionBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+	/// <summary>
+	/// Applies the position on ultrawide breakpoint.
+	/// </summary>
     public PositionBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

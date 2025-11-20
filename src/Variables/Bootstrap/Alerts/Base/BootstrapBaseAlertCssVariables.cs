@@ -8,29 +8,64 @@ namespace Soenneker.Quark;
 /// </summary>
 public abstract class BootstrapBaseAlertCssVariables : IBootstrapCssVariableGroup
 {
+	/// <summary>
+	/// Gets or sets the CSS variable value for the alert text color.
+	/// </summary>
 	public string? Color { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the alert background color.
+	/// </summary>
 	public string? Background { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the alert border color.
+	/// </summary>
 	public string? BorderColor { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the alert border.
+	/// </summary>
 	public string? Border { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the alert border radius.
+	/// </summary>
 	public string? BorderRadius { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the alert link color.
+	/// </summary>
 	public string? LinkColor { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the alert horizontal padding.
+	/// </summary>
 	public string? PaddingX { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the alert vertical padding.
+	/// </summary>
 	public string? PaddingY { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the alert bottom margin.
+	/// </summary>
 	public string? MarginBottom { get; set; }
 
+	/// <summary>
+	/// Gets the CSS selector for the alert component.
+	/// </summary>
+	/// <returns>The CSS selector string.</returns>
     public virtual string GetSelector()
     {
         return ":root";
     }
 
+	/// <summary>
+	/// Gets the collection of CSS variables for the alert component.
+	/// </summary>
+	/// <returns>An enumerable collection of CSS property name and value tuples.</returns>
     public virtual IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
     {
         if (Color.HasContent())

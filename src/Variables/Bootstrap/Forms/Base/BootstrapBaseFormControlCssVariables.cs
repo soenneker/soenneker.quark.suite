@@ -8,18 +8,39 @@ namespace Soenneker.Quark;
 /// </summary>
 public abstract class BootstrapBaseFormControlCssVariables : IBootstrapCssVariableGroup
 {
+	/// <summary>
+	/// Gets or sets the CSS variable value for the form control border width.
+	/// </summary>
 	public string? BorderWidth { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the form control border color.
+	/// </summary>
 	public string? BorderColor { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the form control border radius.
+	/// </summary>
 	public string? BorderRadius { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the form control focus ring color.
+	/// </summary>
 	public string? FocusRingColor { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the form control background.
+	/// </summary>
 	public string? Background { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the form control text color.
+	/// </summary>
 	public string? Color { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the form control disabled background.
+	/// </summary>
 	public string? DisabledBackground { get; set; }
 
 	/// <summary>
@@ -67,11 +88,19 @@ public abstract class BootstrapBaseFormControlCssVariables : IBootstrapCssVariab
 	/// </summary>
 	public string? PlaceholderColor { get; set; }
 
+	/// <summary>
+	/// Gets the CSS selector for the form control component.
+	/// </summary>
+	/// <returns>The CSS selector string.</returns>
     public virtual string GetSelector()
     {
         return ":root";
     }
 
+	/// <summary>
+	/// Gets the collection of CSS variables for the form control component.
+	/// </summary>
+	/// <returns>An enumerable collection of CSS property name and value tuples.</returns>
     public virtual IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
     {
         if (BorderWidth.HasContent())

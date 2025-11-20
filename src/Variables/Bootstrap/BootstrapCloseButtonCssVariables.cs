@@ -48,17 +48,34 @@ public sealed class BootstrapCloseButtonCssVariables : IBootstrapCssVariableGrou
     /// </summary>
 	public string? CloseButtonWhiteFilter { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the close button border.
+	/// </summary>
 	public string? CloseButtonBorder { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the close button border radius.
+	/// </summary>
 	public string? CloseButtonBorderRadius { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the close button focus box shadow.
+	/// </summary>
 	public string? CloseButtonFocusBoxShadow { get; set; }
 
+	/// <summary>
+	/// Gets the CSS selector for the close button component.
+	/// </summary>
+	/// <returns>The CSS selector string.</returns>
     public string GetSelector()
     {
         return ":root";
     }
 
+	/// <summary>
+	/// Gets the collection of CSS variables for the close button component.
+	/// </summary>
+	/// <returns>An enumerable collection of CSS property name and value tuples.</returns>
     public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
     {
         if (CloseButtonColor.HasContent())

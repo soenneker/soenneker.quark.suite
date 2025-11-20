@@ -31,17 +31,50 @@ public sealed class WidthBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+	/// <summary>
+	/// Sets the width to 25%.
+	/// </summary>
     public WidthBuilder Is25 => ChainWithSize("25");
+	/// <summary>
+	/// Sets the width to 50%.
+	/// </summary>
     public WidthBuilder Is50 => ChainWithSize("50");
+	/// <summary>
+	/// Sets the width to 75%.
+	/// </summary>
     public WidthBuilder Is75 => ChainWithSize("75");
+	/// <summary>
+	/// Sets the width to 100%.
+	/// </summary>
     public WidthBuilder Is100 => ChainWithSize("100");
+	/// <summary>
+	/// Sets the width to auto.
+	/// </summary>
     public WidthBuilder Auto => ChainWithSize("auto");
 
+	/// <summary>
+	/// Applies the width on phone breakpoint.
+	/// </summary>
     public WidthBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+	/// <summary>
+	/// Applies the width on tablet breakpoint.
+	/// </summary>
     public WidthBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+	/// <summary>
+	/// Applies the width on laptop breakpoint.
+	/// </summary>
     public WidthBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+	/// <summary>
+	/// Applies the width on desktop breakpoint.
+	/// </summary>
     public WidthBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+	/// <summary>
+	/// Applies the width on widescreen breakpoint.
+	/// </summary>
     public WidthBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+	/// <summary>
+	/// Applies the width on ultrawide breakpoint.
+	/// </summary>
     public WidthBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -66,6 +99,10 @@ public sealed class WidthBuilder : ICssBuilder
         return this;
     }
 
+	/// <summary>
+	/// Gets the CSS class string for the current configuration.
+	/// </summary>
+	/// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -94,6 +131,10 @@ public sealed class WidthBuilder : ICssBuilder
         return sb.ToString();
     }
 
+	/// <summary>
+	/// Gets the CSS style string for the current configuration.
+	/// </summary>
+	/// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)

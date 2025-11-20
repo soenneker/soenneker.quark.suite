@@ -31,12 +31,33 @@ public sealed class SizeBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+	/// <summary>
+	/// Sets the size to default.
+	/// </summary>
     public SizeBuilder Default => ChainWithSize(SizeType.Default);
+	/// <summary>
+	/// Sets the size to extra small.
+	/// </summary>
     public SizeBuilder ExtraSmall => ChainWithSize(SizeType.ExtraSmall);
+	/// <summary>
+	/// Sets the size to small.
+	/// </summary>
     public SizeBuilder Small => ChainWithSize(SizeType.Small);
+	/// <summary>
+	/// Sets the size to medium.
+	/// </summary>
     public SizeBuilder Medium => ChainWithSize(SizeType.Medium);
+	/// <summary>
+	/// Sets the size to large.
+	/// </summary>
     public SizeBuilder Large => ChainWithSize(SizeType.Large);
+	/// <summary>
+	/// Sets the size to extra large.
+	/// </summary>
     public SizeBuilder ExtraLarge => ChainWithSize(SizeType.ExtraLarge);
+	/// <summary>
+	/// Sets the size to extra extra large.
+	/// </summary>
     public SizeBuilder ExtraExtraLarge => ChainWithSize(SizeType.ExtraExtraLarge);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -46,6 +67,10 @@ public sealed class SizeBuilder : ICssBuilder
         return this;
     }
 
+	/// <summary>
+	/// Gets the CSS class string for the current configuration.
+	/// </summary>
+	/// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -70,6 +95,10 @@ public sealed class SizeBuilder : ICssBuilder
         return sb.ToString();
     }
 
+	/// <summary>
+	/// Gets the CSS style string for the current configuration.
+	/// </summary>
+	/// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)

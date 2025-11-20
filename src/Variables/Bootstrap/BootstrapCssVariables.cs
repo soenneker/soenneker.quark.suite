@@ -6,135 +6,353 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class BootstrapCssVariables
 {
+	/// <summary>
+	/// Gets or sets the Bootstrap colors CSS variables.
+	/// </summary>
     public BootstrapColorsCssVariables? Colors { get; set; }
 
+	/// <summary>
+	/// Gets or sets the Bootstrap typography CSS variables.
+	/// </summary>
     public BootstrapTypographyCssVariables? Typography { get; set; }
 
+	/// <summary>
+	/// Gets or sets the Bootstrap spacing CSS variables.
+	/// </summary>
     public BootstrapSpacingCssVariables? Spacing { get; set; }
 
+	/// <summary>
+	/// Gets or sets the Bootstrap borders CSS variables.
+	/// </summary>
     public BootstrapBordersCssVariables? Borders { get; set; }
 
+	/// <summary>
+	/// Gets or sets the Bootstrap shadows CSS variables.
+	/// </summary>
     public BootstrapShadowsCssVariables? Shadows { get; set; }
 
+	/// <summary>
+	/// Gets or sets the Bootstrap general CSS variables.
+	/// </summary>
     public BootstrapGeneralCssVariables? General { get; set; }
 
+	/// <summary>
+	/// Gets or sets the Bootstrap breakpoints CSS variables.
+	/// </summary>
     public BootstrapBreakpointsCssVariables? Breakpoints { get; set; }
 
+	/// <summary>
+	/// Gets or sets the Bootstrap navbar CSS variables.
+	/// </summary>
     public BootstrapNavbarCssVariables? Navbar { get; set; }
 
+	/// <summary>
+	/// Gets or sets the Bootstrap link CSS variables.
+	/// </summary>
     public BootstrapLinkCssVariables? Link { get; set; }
 
+	/// <summary>
+	/// Gets or sets the Bootstrap base button CSS variables.
+	/// </summary>
     public BootstrapButtonCssVariables? Button { get; set; }
 
+	/// <summary>
+	/// Gets or sets the Bootstrap primary button CSS variables.
+	/// </summary>
     public BootstrapPrimaryButtonCssVariables? PrimaryButton { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap secondary button CSS variables.
+	/// </summary>
     public BootstrapSecondaryButtonCssVariables? SecondaryButton { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap success button CSS variables.
+	/// </summary>
     public BootstrapSuccessButtonCssVariables? SuccessButton { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap danger button CSS variables.
+	/// </summary>
     public BootstrapDangerButtonCssVariables? DangerButton { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap warning button CSS variables.
+	/// </summary>
     public BootstrapWarningButtonCssVariables? WarningButton { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap info button CSS variables.
+	/// </summary>
     public BootstrapInfoButtonCssVariables? InfoButton { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap light button CSS variables.
+	/// </summary>
     public BootstrapLightButtonCssVariables? LightButton { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap dark button CSS variables.
+	/// </summary>
     public BootstrapDarkButtonCssVariables? DarkButton { get; set; }
 
+	/// <summary>
+	/// Gets or sets the Bootstrap outline primary button CSS variables.
+	/// </summary>
     public BootstrapOutlinePrimaryButtonCssVariables? OutlinePrimaryButton { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap outline secondary button CSS variables.
+	/// </summary>
     public BootstrapOutlineSecondaryButtonCssVariables? OutlineSecondaryButton { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap outline success button CSS variables.
+	/// </summary>
     public BootstrapOutlineSuccessButtonCssVariables? OutlineSuccessButton { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap outline danger button CSS variables.
+	/// </summary>
     public BootstrapOutlineDangerButtonCssVariables? OutlineDangerButton { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap outline warning button CSS variables.
+	/// </summary>
     public BootstrapOutlineWarningButtonCssVariables? OutlineWarningButton { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap outline info button CSS variables.
+	/// </summary>
     public BootstrapOutlineInfoButtonCssVariables? OutlineInfoButton { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap outline light button CSS variables.
+	/// </summary>
     public BootstrapOutlineLightButtonCssVariables? OutlineLightButton { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap outline dark button CSS variables.
+	/// </summary>
     public BootstrapOutlineDarkButtonCssVariables? OutlineDarkButton { get; set; }
 
-    // Alerts
+	/// <summary>
+	/// Gets or sets the Bootstrap base alert CSS variables.
+	/// </summary>
     public BootstrapAlertCssVariables? Alert { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap primary alert CSS variables.
+	/// </summary>
     public BootstrapAlertPrimaryCssVariables? AlertPrimary { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap secondary alert CSS variables.
+	/// </summary>
     public BootstrapAlertSecondaryCssVariables? AlertSecondary { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap success alert CSS variables.
+	/// </summary>
     public BootstrapAlertSuccessCssVariables? AlertSuccess { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap danger alert CSS variables.
+	/// </summary>
     public BootstrapAlertDangerCssVariables? AlertDanger { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap warning alert CSS variables.
+	/// </summary>
     public BootstrapAlertWarningCssVariables? AlertWarning { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap info alert CSS variables.
+	/// </summary>
     public BootstrapAlertInfoCssVariables? AlertInfo { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap light alert CSS variables.
+	/// </summary>
     public BootstrapAlertLightCssVariables? AlertLight { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap dark alert CSS variables.
+	/// </summary>
     public BootstrapAlertDarkCssVariables? AlertDark { get; set; }
 
-    // Badges
+	/// <summary>
+	/// Gets or sets the Bootstrap base badge CSS variables.
+	/// </summary>
     public BootstrapBadgeCssVariables? Badge { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap primary badge CSS variables.
+	/// </summary>
     public BootstrapBadgePrimaryCssVariables? BadgePrimary { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap secondary badge CSS variables.
+	/// </summary>
     public BootstrapBadgeSecondaryCssVariables? BadgeSecondary { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap success badge CSS variables.
+	/// </summary>
     public BootstrapBadgeSuccessCssVariables? BadgeSuccess { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap danger badge CSS variables.
+	/// </summary>
     public BootstrapBadgeDangerCssVariables? BadgeDanger { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap warning badge CSS variables.
+	/// </summary>
     public BootstrapBadgeWarningCssVariables? BadgeWarning { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap info badge CSS variables.
+	/// </summary>
     public BootstrapBadgeInfoCssVariables? BadgeInfo { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap light badge CSS variables.
+	/// </summary>
     public BootstrapBadgeLightCssVariables? BadgeLight { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap dark badge CSS variables.
+	/// </summary>
     public BootstrapBadgeDarkCssVariables? BadgeDark { get; set; }
 
-    // Cards
+	/// <summary>
+	/// Gets or sets the Bootstrap card CSS variables.
+	/// </summary>
     public BootstrapCardCssVariables? Card { get; set; }
 
-    // Forms
+	/// <summary>
+	/// Gets or sets the Bootstrap forms CSS variables.
+	/// </summary>
     public BootstrapFormsCssVariables? Forms { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap form control CSS variables.
+	/// </summary>
     public BootstrapFormControlCssVariables? FormControl { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap form check input CSS variables.
+	/// </summary>
     public BootstrapFormCheckInputCssVariables? FormCheckInput { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap form switch input CSS variables.
+	/// </summary>
     public BootstrapFormSwitchInputCssVariables? FormSwitchInput { get; set; }
 
-    // List group
+	/// <summary>
+	/// Gets or sets the Bootstrap list group CSS variables.
+	/// </summary>
     public BootstrapListGroupCssVariables? ListGroup { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap list group item CSS variables.
+	/// </summary>
     public BootstrapListGroupItemCssVariables? ListGroupItem { get; set; }
 
-    // Navs & Tabs
+	/// <summary>
+	/// Gets or sets the Bootstrap nav link CSS variables.
+	/// </summary>
     public BootstrapNavLinkCssVariables? NavLink { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap nav tabs CSS variables.
+	/// </summary>
     public BootstrapNavTabsCssVariables? NavTabs { get; set; }
 
-    // Pagination
+	/// <summary>
+	/// Gets or sets the Bootstrap pagination CSS variables.
+	/// </summary>
     public BootstrapPaginationCssVariables? Pagination { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap page link CSS variables.
+	/// </summary>
     public BootstrapPageLinkCssVariables? PageLink { get; set; }
 
-    // Progress
+	/// <summary>
+	/// Gets or sets the Bootstrap progress CSS variables.
+	/// </summary>
     public BootstrapProgressCssVariables? Progress { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap progress bar CSS variables.
+	/// </summary>
     public BootstrapProgressBarCssVariables? ProgressBar { get; set; }
 
-    // Modals
+	/// <summary>
+	/// Gets or sets the Bootstrap modal CSS variables.
+	/// </summary>
     public BootstrapModalCssVariables? Modal { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap modal content CSS variables.
+	/// </summary>
     public BootstrapModalContentCssVariables? ModalContent { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap modal backdrop CSS variables.
+	/// </summary>
     public BootstrapModalBackdropCssVariables? ModalBackdrop { get; set; }
 
-    // Offcanvas
+	/// <summary>
+	/// Gets or sets the Bootstrap offcanvas CSS variables.
+	/// </summary>
     public BootstrapOffcanvasCssVariables? Offcanvas { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap offcanvas backdrop CSS variables.
+	/// </summary>
     public BootstrapOffcanvasBackdropCssVariables? OffcanvasBackdrop { get; set; }
 
-    // Dropdowns
+	/// <summary>
+	/// Gets or sets the Bootstrap dropdown menu CSS variables.
+	/// </summary>
     public BootstrapDropdownMenuCssVariables? DropdownMenu { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap dropdown item CSS variables.
+	/// </summary>
     public BootstrapDropdownItemCssVariables? DropdownItem { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap dropdown toggle CSS variables.
+	/// </summary>
     public BootstrapDropdownToggleCssVariables? DropdownToggle { get; set; }
 
-    // Breadcrumbs
+	/// <summary>
+	/// Gets or sets the Bootstrap breadcrumb CSS variables.
+	/// </summary>
     public BootstrapBreadcrumbCssVariables? Breadcrumb { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap breadcrumb item CSS variables.
+	/// </summary>
     public BootstrapBreadcrumbItemCssVariables? BreadcrumbItem { get; set; }
 
-    // Toasts
+	/// <summary>
+	/// Gets or sets the Bootstrap toast CSS variables.
+	/// </summary>
     public BootstrapToastCssVariables? Toast { get; set; }
 
-    // Tooltip & Popover
+	/// <summary>
+	/// Gets or sets the Bootstrap tooltip CSS variables.
+	/// </summary>
     public BootstrapTooltipCssVariables? Tooltip { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap popover CSS variables.
+	/// </summary>
     public BootstrapPopoverCssVariables? Popover { get; set; }
 
-    // Tables
+	/// <summary>
+	/// Gets or sets the Bootstrap table CSS variables.
+	/// </summary>
     public BootstrapTableCssVariables? Table { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap table striped CSS variables.
+	/// </summary>
     public BootstrapTableStripedCssVariables? TableStriped { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap table hover CSS variables.
+	/// </summary>
     public BootstrapTableHoverCssVariables? TableHover { get; set; }
 
-    // Accordion
+	/// <summary>
+	/// Gets or sets the Bootstrap accordion CSS variables.
+	/// </summary>
     public BootstrapAccordionCssVariables? Accordion { get; set; }
+	/// <summary>
+	/// Gets or sets the Bootstrap accordion button CSS variables.
+	/// </summary>
     public BootstrapAccordionButtonCssVariables? AccordionButton { get; set; }
 
-    // Carousel
+	/// <summary>
+	/// Gets or sets the Bootstrap carousel CSS variables.
+	/// </summary>
     public BootstrapCarouselCssVariables? Carousel { get; set; }
 
-    // Close Button
+	/// <summary>
+	/// Gets or sets the Bootstrap close button CSS variables.
+	/// </summary>
     public BootstrapCloseButtonCssVariables? CloseButton { get; set; }
 
-    // Spinner
+	/// <summary>
+	/// Gets or sets the Bootstrap spinner CSS variables.
+	/// </summary>
     public BootstrapSpinnerCssVariables? Spinner { get; set; }
 
-    /// <summary>Gets all CSS variable group instances in this BootstrapCssVariables without using reflection.</summary>
+	/// <summary>
+	/// Gets all CSS variable group instances in this BootstrapCssVariables without using reflection.
+	/// </summary>
+	/// <returns>An enumerable collection of CSS variable group instances.</returns>
     internal System.Collections.Generic.IEnumerable<IBootstrapCssVariableGroup> GetAllCssVariableGroups()
     {
         if (Colors != null)

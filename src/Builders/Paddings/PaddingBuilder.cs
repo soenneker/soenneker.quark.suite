@@ -39,31 +39,91 @@ public sealed class PaddingBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
-    // ----- Side chaining -----
+	/// <summary>
+	/// Applies padding from the top side.
+	/// </summary>
     public PaddingBuilder FromTop => AddRule(ElementSideType.Top);
+	/// <summary>
+	/// Applies padding from the right side.
+	/// </summary>
     public PaddingBuilder FromRight => AddRule(ElementSideType.Right);
+	/// <summary>
+	/// Applies padding from the bottom side.
+	/// </summary>
     public PaddingBuilder FromBottom => AddRule(ElementSideType.Bottom);
+	/// <summary>
+	/// Applies padding from the left side.
+	/// </summary>
     public PaddingBuilder FromLeft => AddRule(ElementSideType.Left);
+	/// <summary>
+	/// Applies padding on the horizontal axis (left and right).
+	/// </summary>
     public PaddingBuilder OnX => AddRule(ElementSideType.Horizontal);
+	/// <summary>
+	/// Applies padding on the vertical axis (top and bottom).
+	/// </summary>
     public PaddingBuilder OnY => AddRule(ElementSideType.Vertical);
+	/// <summary>
+	/// Applies padding on all sides.
+	/// </summary>
     public PaddingBuilder OnAll => AddRule(ElementSideType.All);
+	/// <summary>
+	/// Applies padding from the inline start.
+	/// </summary>
     public PaddingBuilder FromStart => AddRule(ElementSideType.InlineStart);
+	/// <summary>
+	/// Applies padding from the inline end.
+	/// </summary>
     public PaddingBuilder FromEnd => AddRule(ElementSideType.InlineEnd);
 
-    // ----- Size chaining -----
+	/// <summary>
+	/// Sets the padding size to 0.
+	/// </summary>
     public PaddingBuilder Is0 => ChainWithSize(ScaleType.Is0);
+	/// <summary>
+	/// Sets the padding size to 1.
+	/// </summary>
     public PaddingBuilder Is1 => ChainWithSize(ScaleType.Is1);
+	/// <summary>
+	/// Sets the padding size to 2.
+	/// </summary>
     public PaddingBuilder Is2 => ChainWithSize(ScaleType.Is2);
+	/// <summary>
+	/// Sets the padding size to 3.
+	/// </summary>
     public PaddingBuilder Is3 => ChainWithSize(ScaleType.Is3);
+	/// <summary>
+	/// Sets the padding size to 4.
+	/// </summary>
     public PaddingBuilder Is4 => ChainWithSize(ScaleType.Is4);
+	/// <summary>
+	/// Sets the padding size to 5.
+	/// </summary>
     public PaddingBuilder Is5 => ChainWithSize(ScaleType.Is5);
 
-    // ----- BreakpointType chaining -----
+	/// <summary>
+	/// Applies the padding on phone breakpoint.
+	/// </summary>
     public PaddingBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+	/// <summary>
+	/// Applies the padding on tablet breakpoint.
+	/// </summary>
     public PaddingBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+	/// <summary>
+	/// Applies the padding on laptop breakpoint.
+	/// </summary>
     public PaddingBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+	/// <summary>
+	/// Applies the padding on desktop breakpoint.
+	/// </summary>
     public PaddingBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+	/// <summary>
+	/// Applies the padding on widescreen breakpoint.
+	/// </summary>
     public PaddingBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+	/// <summary>
+	/// Applies the padding on ultrawide breakpoint.
+	/// </summary>
     public PaddingBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

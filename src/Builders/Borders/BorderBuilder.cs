@@ -38,31 +38,91 @@ public sealed class BorderBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
-    // ----- Side chaining -----
+	/// <summary>
+	/// Applies border from the top side.
+	/// </summary>
     public BorderBuilder FromTop => AddRule(ElementSideType.Top);
+	/// <summary>
+	/// Applies border from the right side.
+	/// </summary>
     public BorderBuilder FromRight => AddRule(ElementSideType.Right);
+	/// <summary>
+	/// Applies border from the bottom side.
+	/// </summary>
     public BorderBuilder FromBottom => AddRule(ElementSideType.Bottom);
+	/// <summary>
+	/// Applies border from the left side.
+	/// </summary>
     public BorderBuilder FromLeft => AddRule(ElementSideType.Left);
+	/// <summary>
+	/// Applies border on the horizontal axis (left and right).
+	/// </summary>
     public BorderBuilder OnX => AddRule(ElementSideType.Horizontal);
+	/// <summary>
+	/// Applies border on the vertical axis (top and bottom).
+	/// </summary>
     public BorderBuilder OnY => AddRule(ElementSideType.Vertical);
+	/// <summary>
+	/// Applies border on all sides.
+	/// </summary>
     public BorderBuilder OnAll => AddRule(ElementSideType.All);
+	/// <summary>
+	/// Applies border from the inline start.
+	/// </summary>
     public BorderBuilder FromStart => AddRule(ElementSideType.InlineStart);
+	/// <summary>
+	/// Applies border from the inline end.
+	/// </summary>
     public BorderBuilder FromEnd => AddRule(ElementSideType.InlineEnd);
 
-    // ----- Size chaining -----
+	/// <summary>
+	/// Sets the border size to 0.
+	/// </summary>
     public BorderBuilder Is0 => ChainWithSize(ScaleType.Is0);
+	/// <summary>
+	/// Sets the border size to 1.
+	/// </summary>
     public BorderBuilder Is1 => ChainWithSize(ScaleType.Is1);
+	/// <summary>
+	/// Sets the border size to 2.
+	/// </summary>
     public BorderBuilder Is2 => ChainWithSize(ScaleType.Is2);
+	/// <summary>
+	/// Sets the border size to 3.
+	/// </summary>
     public BorderBuilder Is3 => ChainWithSize(ScaleType.Is3);
+	/// <summary>
+	/// Sets the border size to 4.
+	/// </summary>
     public BorderBuilder Is4 => ChainWithSize(ScaleType.Is4);
+	/// <summary>
+	/// Sets the border size to 5.
+	/// </summary>
     public BorderBuilder Is5 => ChainWithSize(ScaleType.Is5);
 
-    // ----- BreakpointType chaining -----
+	/// <summary>
+	/// Applies the border on phone breakpoint.
+	/// </summary>
     public BorderBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+	/// <summary>
+	/// Applies the border on tablet breakpoint.
+	/// </summary>
     public BorderBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+	/// <summary>
+	/// Applies the border on laptop breakpoint.
+	/// </summary>
     public BorderBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+	/// <summary>
+	/// Applies the border on desktop breakpoint.
+	/// </summary>
     public BorderBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+	/// <summary>
+	/// Applies the border on widescreen breakpoint.
+	/// </summary>
     public BorderBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+	/// <summary>
+	/// Applies the border on ultrawide breakpoint.
+	/// </summary>
     public BorderBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

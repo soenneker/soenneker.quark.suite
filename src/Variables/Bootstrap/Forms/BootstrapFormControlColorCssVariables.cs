@@ -38,11 +38,19 @@ public sealed class BootstrapFormControlColorCssVariables : IBootstrapCssVariabl
 	/// </summary>
 	public string? LgHeight { get; set; }
 
+	/// <summary>
+	/// Gets the CSS selector for the color form control component.
+	/// </summary>
+	/// <returns>The CSS selector string.</returns>
     public string GetSelector()
     {
         return ".form-control-color";
     }
 
+	/// <summary>
+	/// Gets the collection of CSS variables for the color form control component.
+	/// </summary>
+	/// <returns>An enumerable collection of CSS property name and value tuples.</returns>
     public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
     {
         if (Width.HasContent())

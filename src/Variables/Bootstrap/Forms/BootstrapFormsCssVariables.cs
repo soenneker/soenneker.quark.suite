@@ -128,11 +128,19 @@ public sealed class BootstrapFormsCssVariables : IBootstrapCssVariableGroup
     /// </summary>
     public string? FormInvalidFeedbackFontSize { get; set; }
 
+	/// <summary>
+	/// Gets the CSS selector for the forms component.
+	/// </summary>
+	/// <returns>The CSS selector string.</returns>
     public string GetSelector()
     {
         return ":root";
     }
 
+	/// <summary>
+	/// Gets the collection of CSS variables for the forms component.
+	/// </summary>
+	/// <returns>An enumerable collection of CSS property name and value tuples.</returns>
     public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
     {
         if (FormValidColor.HasContent())

@@ -30,22 +30,70 @@ public sealed class FloatBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+	/// <summary>
+	/// Sets the float to none.
+	/// </summary>
     public FloatBuilder None => ChainWithValue(FloatKeyword.NoneValue);
+	/// <summary>
+	/// Sets the float to left.
+	/// </summary>
     public FloatBuilder Left => ChainWithValue(FloatKeyword.LeftValue);
+	/// <summary>
+	/// Sets the float to right.
+	/// </summary>
     public FloatBuilder Right => ChainWithValue(FloatKeyword.RightValue);
+	/// <summary>
+	/// Sets the float to start (inline-start).
+	/// </summary>
     public FloatBuilder Start => ChainWithValue(FloatKeyword.InlineStartValue);
+	/// <summary>
+	/// Sets the float to end (inline-end).
+	/// </summary>
     public FloatBuilder End => ChainWithValue(FloatKeyword.InlineEndValue);
+	/// <summary>
+	/// Sets the float to inherit.
+	/// </summary>
     public FloatBuilder Inherit => ChainWithValue(GlobalKeyword.InheritValue);
+	/// <summary>
+	/// Sets the float to initial.
+	/// </summary>
     public FloatBuilder Initial => ChainWithValue(GlobalKeyword.InitialValue);
+	/// <summary>
+	/// Sets the float to revert.
+	/// </summary>
     public FloatBuilder Revert => ChainWithValue(GlobalKeyword.RevertValue);
+	/// <summary>
+	/// Sets the float to revert-layer.
+	/// </summary>
     public FloatBuilder RevertLayer => ChainWithValue(GlobalKeyword.RevertLayerValue);
+	/// <summary>
+	/// Sets the float to unset.
+	/// </summary>
     public FloatBuilder Unset => ChainWithValue(GlobalKeyword.UnsetValue);
 
+	/// <summary>
+	/// Applies the float on phone breakpoint.
+	/// </summary>
     public FloatBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+	/// <summary>
+	/// Applies the float on tablet breakpoint.
+	/// </summary>
     public FloatBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+	/// <summary>
+	/// Applies the float on laptop breakpoint.
+	/// </summary>
     public FloatBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+	/// <summary>
+	/// Applies the float on desktop breakpoint.
+	/// </summary>
     public FloatBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+	/// <summary>
+	/// Applies the float on widescreen breakpoint.
+	/// </summary>
     public FloatBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+	/// <summary>
+	/// Applies the float on ultrawide breakpoint.
+	/// </summary>
     public FloatBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -108,6 +156,10 @@ public sealed class FloatBuilder : ICssBuilder
         return sb.ToString();
     }
 
+	/// <summary>
+	/// Gets the CSS style string for the current configuration.
+	/// </summary>
+	/// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)

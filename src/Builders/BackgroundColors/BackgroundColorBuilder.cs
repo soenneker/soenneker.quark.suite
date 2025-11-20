@@ -25,34 +25,106 @@ public sealed class BackgroundColorBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+	/// <summary>
+	/// Sets the background color to primary.
+	/// </summary>
     public BackgroundColorBuilder Primary => ChainValue("primary");
+	/// <summary>
+	/// Sets the background color to secondary.
+	/// </summary>
     public BackgroundColorBuilder Secondary => ChainValue("secondary");
+	/// <summary>
+	/// Sets the background color to success.
+	/// </summary>
     public BackgroundColorBuilder Success => ChainValue("success");
+	/// <summary>
+	/// Sets the background color to danger.
+	/// </summary>
     public BackgroundColorBuilder Danger => ChainValue("danger");
+	/// <summary>
+	/// Sets the background color to warning.
+	/// </summary>
     public BackgroundColorBuilder Warning => ChainValue("warning");
+	/// <summary>
+	/// Sets the background color to info.
+	/// </summary>
     public BackgroundColorBuilder Info => ChainValue("info");
+	/// <summary>
+	/// Sets the background color to light.
+	/// </summary>
     public BackgroundColorBuilder Light => ChainValue("light");
+	/// <summary>
+	/// Sets the background color to dark.
+	/// </summary>
     public BackgroundColorBuilder Dark => ChainValue("dark");
+	/// <summary>
+	/// Sets the background color to link.
+	/// </summary>
     public BackgroundColorBuilder Link => ChainValue("link");
+	/// <summary>
+	/// Sets the background color to muted.
+	/// </summary>
     public BackgroundColorBuilder Muted => ChainValue("muted");
 
+	/// <summary>
+	/// Sets the background color to white.
+	/// </summary>
     public BackgroundColorBuilder White => ChainValue("white");
 
+	/// <summary>
+	/// Sets the background color to black.
+	/// </summary>
     public BackgroundColorBuilder Black => ChainValue("black");
 
+	/// <summary>
+	/// Sets the background color to transparent.
+	/// </summary>
     public BackgroundColorBuilder Transparent => ChainValue("transparent");
 
+	/// <summary>
+	/// Sets the background color to inherit.
+	/// </summary>
     public BackgroundColorBuilder Inherit => ChainValue(GlobalKeyword.InheritValue);
+	/// <summary>
+	/// Sets the background color to initial.
+	/// </summary>
     public BackgroundColorBuilder Initial => ChainValue(GlobalKeyword.InitialValue);
+	/// <summary>
+	/// Sets the background color to revert.
+	/// </summary>
     public BackgroundColorBuilder Revert => ChainValue(GlobalKeyword.RevertValue);
+	/// <summary>
+	/// Sets the background color to revert-layer.
+	/// </summary>
     public BackgroundColorBuilder RevertLayer => ChainValue(GlobalKeyword.RevertLayerValue);
+	/// <summary>
+	/// Sets the background color to unset.
+	/// </summary>
     public BackgroundColorBuilder Unset => ChainValue(GlobalKeyword.UnsetValue);
 
+	/// <summary>
+	/// Applies the background color on phone breakpoint.
+	/// </summary>
     public BackgroundColorBuilder OnPhone => ChainBp(BreakpointType.Phone);
+	/// <summary>
+	/// Applies the background color on tablet breakpoint.
+	/// </summary>
     public BackgroundColorBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+	/// <summary>
+	/// Applies the background color on laptop breakpoint.
+	/// </summary>
     public BackgroundColorBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+	/// <summary>
+	/// Applies the background color on desktop breakpoint.
+	/// </summary>
     public BackgroundColorBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+	/// <summary>
+	/// Applies the background color on widescreen breakpoint.
+	/// </summary>
     public BackgroundColorBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+	/// <summary>
+	/// Applies the background color on ultrawide breakpoint.
+	/// </summary>
     public BackgroundColorBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -77,6 +149,10 @@ public sealed class BackgroundColorBuilder : ICssBuilder
         return this;
     }
 
+	/// <summary>
+	/// Gets the CSS class string for the current configuration.
+	/// </summary>
+	/// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -105,6 +181,10 @@ public sealed class BackgroundColorBuilder : ICssBuilder
         return sb.ToString();
     }
 
+	/// <summary>
+	/// Gets the CSS style string for the current configuration.
+	/// </summary>
+	/// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)

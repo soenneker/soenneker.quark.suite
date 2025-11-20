@@ -8,53 +8,124 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class BootstrapCardCssVariables : IBootstrapCssVariableGroup
 {
-	public string? Color { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card text color.
+    /// </summary>
+    public string? Color { get; set; }
 
-	public string? Background { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card background color.
+    /// </summary>
+    public string? Background { get; set; }
 
-	public string? BorderColor { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card border color.
+    /// </summary>
+    public string? BorderColor { get; set; }
 
-	public string? BorderWidth { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card border width.
+    /// </summary>
+    public string? BorderWidth { get; set; }
 
-	public string? BorderRadius { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card border radius.
+    /// </summary>
+    public string? BorderRadius { get; set; }
 
-	public string? InnerBorderRadius { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card inner border radius.
+    /// </summary>
+    public string? InnerBorderRadius { get; set; }
 
-	public string? CapBackground { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card cap background color.
+    /// </summary>
+    public string? CapBackground { get; set; }
 
-	public string? CapColor { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card cap text color.
+    /// </summary>
+    public string? CapColor { get; set; }
 
-	public string? CapPaddingX { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card cap horizontal padding.
+    /// </summary>
+    public string? CapPaddingX { get; set; }
 
-	public string? CapPaddingY { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card cap vertical padding.
+    /// </summary>
+    public string? CapPaddingY { get; set; }
 
-	public string? SpacerX { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card horizontal spacer.
+    /// </summary>
+    public string? SpacerX { get; set; }
 
-	public string? SpacerY { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card vertical spacer.
+    /// </summary>
+    public string? SpacerY { get; set; }
 
-	public string? TitleSpacerY { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card title vertical spacer.
+    /// </summary>
+    public string? TitleSpacerY { get; set; }
 
-	public string? TitleColor { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card title color.
+    /// </summary>
+    public string? TitleColor { get; set; }
 
-	public string? SubtitleColor { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card subtitle color.
+    /// </summary>
+    public string? SubtitleColor { get; set; }
 
-	public string? ImgOverlayPadding { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card image overlay padding.
+    /// </summary>
+    public string? ImgOverlayPadding { get; set; }
 
-	public string? GroupMargin { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card group margin.
+    /// </summary>
+    public string? GroupMargin { get; set; }
 
-	public string? DeckGap { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card deck gap.
+    /// </summary>
+    public string? DeckGap { get; set; }
 
-	public string? ColumnsCount { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card columns count.
+    /// </summary>
+    public string? ColumnsCount { get; set; }
 
-	public string? ColumnsGap { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card columns gap.
+    /// </summary>
+    public string? ColumnsGap { get; set; }
 
-	public string? ColumnsMargin { get; set; }
+    /// <summary>
+    /// Gets or sets the CSS variable value for the card columns margin.
+    /// </summary>
+    public string? ColumnsMargin { get; set; }
 
+    /// <summary>
+    /// Gets the CSS selector for the card component.
+    /// </summary>
+    /// <returns>The CSS selector string.</returns>
     public string GetSelector()
     {
         return ".card";
     }
 
+    /// <summary>
+    /// Gets the collection of CSS variables for the card component.
+    /// </summary>
+    /// <returns>An enumerable collection of CSS property name and value tuples.</returns>
     public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
     {
         if (Color.HasContent())
@@ -101,5 +172,3 @@ public sealed class BootstrapCardCssVariables : IBootstrapCssVariableGroup
             yield return ("--bs-card-columns-margin", ColumnsMargin);
     }
 }
-
-

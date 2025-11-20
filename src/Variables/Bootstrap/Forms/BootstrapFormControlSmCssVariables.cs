@@ -43,11 +43,19 @@ public sealed class BootstrapFormControlSmCssVariables : IBootstrapCssVariableGr
 	/// </summary>
 	public string? FileUploadMarginEnd { get; set; }
 
+	/// <summary>
+	/// Gets the CSS selector for the small form control component.
+	/// </summary>
+	/// <returns>The CSS selector string.</returns>
     public string GetSelector()
     {
         return ".form-control-sm";
     }
 
+	/// <summary>
+	/// Gets the collection of CSS variables for the small form control component.
+	/// </summary>
+	/// <returns>An enumerable collection of CSS property name and value tuples.</returns>
     public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
     {
         if (MinHeight.HasContent())

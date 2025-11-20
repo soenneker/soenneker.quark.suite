@@ -38,11 +38,19 @@ public sealed class BootstrapSpinnerCssVariables : IBootstrapCssVariableGroup
     /// </summary>
     public string? SpinnerAnimationName { get; set; }
 
+	/// <summary>
+	/// Gets the CSS selector for the spinner component.
+	/// </summary>
+	/// <returns>The CSS selector string.</returns>
     public string GetSelector()
     {
         return ":root";
     }
 
+	/// <summary>
+	/// Gets the collection of CSS variables for the spinner component.
+	/// </summary>
+	/// <returns>An enumerable collection of CSS property name and value tuples.</returns>
     public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
     {
         if (SpinnerWidth.HasContent())

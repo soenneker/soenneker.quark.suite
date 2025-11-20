@@ -38,11 +38,19 @@ public sealed class BootstrapBreakpointsCssVariables : IBootstrapCssVariableGrou
     /// </summary>
     public string? BreakpointXxl { get; set; }
 
+	/// <summary>
+	/// Gets the CSS selector for the breakpoints component.
+	/// </summary>
+	/// <returns>The CSS selector string.</returns>
     public string GetSelector()
     {
         return ":root";
     }
 
+	/// <summary>
+	/// Gets the collection of CSS variables for the breakpoints component.
+	/// </summary>
+	/// <returns>An enumerable collection of CSS property name and value tuples.</returns>
     public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
     {
         if (BreakpointXs.HasContent())

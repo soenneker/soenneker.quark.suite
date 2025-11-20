@@ -113,37 +113,84 @@ public sealed class BootstrapModalCssVariables : IBootstrapCssVariableGroup
 	/// </summary>
 	public string? FooterBorderWidth { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the modal border.
+	/// </summary>
 	public string? Border { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the modal backdrop background.
+	/// </summary>
 	public string? BackdropBg { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the modal backdrop opacity.
+	/// </summary>
 	public string? BackdropOpacity { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the modal content border radius.
+	/// </summary>
 	public string? ContentBorderRadius { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the modal content border.
+	/// </summary>
 	public string? ContentBorder { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the modal content border width.
+	/// </summary>
 	public string? ContentBorderWidth { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the modal content box shadow.
+	/// </summary>
 	public string? ContentBoxShadow { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the modal dialog margin.
+	/// </summary>
 	public string? DialogMargin { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the modal dialog margin Y on small screens and up.
+	/// </summary>
 	public string? DialogMarginYSmUp { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the modal dialog transform.
+	/// </summary>
 	public string? DialogTransform { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the modal fade transform.
+	/// </summary>
 	public string? FadeTransform { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the modal show transform.
+	/// </summary>
 	public string? ShowTransform { get; set; }
 
+	/// <summary>
+	/// Gets or sets the CSS variable value for the modal show transform translate.
+	/// </summary>
 	public string? ShowTransformTranslate { get; set; }
 
+	/// <summary>
+	/// Gets the CSS selector for the modal component.
+	/// </summary>
+	/// <returns>The CSS selector string.</returns>
     public string GetSelector()
     {
         return ".modal";
     }
 
+	/// <summary>
+	/// Gets the collection of CSS variables for the modal component.
+	/// </summary>
+	/// <returns>An enumerable collection of CSS property name and value tuples.</returns>
     public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
     {
         if (Zindex.HasContent())

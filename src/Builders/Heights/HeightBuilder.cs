@@ -30,17 +30,50 @@ public sealed class HeightBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+	/// <summary>
+	/// Sets the height to 25%.
+	/// </summary>
     public HeightBuilder Is25 => ChainWithSize("25");
+	/// <summary>
+	/// Sets the height to 50%.
+	/// </summary>
     public HeightBuilder Is50 => ChainWithSize("50");
+	/// <summary>
+	/// Sets the height to 75%.
+	/// </summary>
     public HeightBuilder Is75 => ChainWithSize("75");
+	/// <summary>
+	/// Sets the height to 100%.
+	/// </summary>
     public HeightBuilder Is100 => ChainWithSize("100");
+	/// <summary>
+	/// Sets the height to auto.
+	/// </summary>
     public HeightBuilder Auto => ChainWithSize("auto");
 
+	/// <summary>
+	/// Applies the height on phone breakpoint.
+	/// </summary>
     public HeightBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+	/// <summary>
+	/// Applies the height on tablet breakpoint.
+	/// </summary>
     public HeightBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+	/// <summary>
+	/// Applies the height on laptop breakpoint.
+	/// </summary>
     public HeightBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+	/// <summary>
+	/// Applies the height on desktop breakpoint.
+	/// </summary>
     public HeightBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+	/// <summary>
+	/// Applies the height on widescreen breakpoint.
+	/// </summary>
     public HeightBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+	/// <summary>
+	/// Applies the height on ultrawide breakpoint.
+	/// </summary>
     public HeightBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -65,6 +98,10 @@ public sealed class HeightBuilder : ICssBuilder
         return this;
     }
 
+	/// <summary>
+	/// Gets the CSS class string for the current configuration.
+	/// </summary>
+	/// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -93,6 +130,10 @@ public sealed class HeightBuilder : ICssBuilder
         return sb.ToString();
     }
 
+	/// <summary>
+	/// Gets the CSS style string for the current configuration.
+	/// </summary>
+	/// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)

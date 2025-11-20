@@ -31,26 +31,78 @@ public sealed class BorderRadiusBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
-    // ----- Corner chaining -----
+	/// <summary>
+	/// Applies border radius to the top-left corner.
+	/// </summary>
     public BorderRadiusBuilder TopLeft => new(_rules) { _cornerToken = "tl" };
+	/// <summary>
+	/// Applies border radius to the top-right corner.
+	/// </summary>
     public BorderRadiusBuilder TopRight => new(_rules) { _cornerToken = "tr" };
+	/// <summary>
+	/// Applies border radius to the bottom-left corner.
+	/// </summary>
     public BorderRadiusBuilder BottomLeft => new(_rules) { _cornerToken = "bl" };
+	/// <summary>
+	/// Applies border radius to the bottom-right corner.
+	/// </summary>
     public BorderRadiusBuilder BottomRight => new(_rules) { _cornerToken = "br" };
+	/// <summary>
+	/// Applies border radius to the top side.
+	/// </summary>
     public BorderRadiusBuilder Top => AddRule(ElementSideType.Top, "t");
+	/// <summary>
+	/// Applies border radius to the bottom side.
+	/// </summary>
     public BorderRadiusBuilder Bottom => AddRule(ElementSideType.Bottom, "b");
+	/// <summary>
+	/// Applies border radius to the left side.
+	/// </summary>
     public BorderRadiusBuilder Left => AddRule(ElementSideType.Left, "l");
+	/// <summary>
+	/// Applies border radius to the right side.
+	/// </summary>
     public BorderRadiusBuilder Right => AddRule(ElementSideType.Right, "r");
+	/// <summary>
+	/// Applies border radius to all corners.
+	/// </summary>
     public BorderRadiusBuilder All => AddRule(ElementSideType.All, "");
 
-    // ----- Size chaining -----
+	/// <summary>
+	/// Sets the border radius size to 0.
+	/// </summary>
     public BorderRadiusBuilder Is0 => ChainWithSize(ScaleType.Is0);
+	/// <summary>
+	/// Sets the border radius to default size.
+	/// </summary>
     public BorderRadiusBuilder Default => ChainWithSize("");
+	/// <summary>
+	/// Sets the border radius to pill shape.
+	/// </summary>
     public BorderRadiusBuilder Pill => ChainWithSize("pill");
+	/// <summary>
+	/// Sets the border radius to circle shape.
+	/// </summary>
     public BorderRadiusBuilder Circle => ChainWithSize("circle");
+	/// <summary>
+	/// Sets the border radius size to 1.
+	/// </summary>
     public BorderRadiusBuilder Is1 => ChainWithSize("1");
+	/// <summary>
+	/// Sets the border radius size to 2.
+	/// </summary>
     public BorderRadiusBuilder Is2 => ChainWithSize("2");
+	/// <summary>
+	/// Sets the border radius size to 3.
+	/// </summary>
     public BorderRadiusBuilder Is3 => ChainWithSize("3");
+	/// <summary>
+	/// Sets the border radius size to 4.
+	/// </summary>
     public BorderRadiusBuilder Is4 => ChainWithSize("4");
+	/// <summary>
+	/// Sets the border radius size to 5.
+	/// </summary>
     public BorderRadiusBuilder Is5 => ChainWithSize("5");
 
 

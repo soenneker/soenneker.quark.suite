@@ -5,6 +5,10 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class BootstrapDarkButtonCssVariables : BootstrapBaseButtonCssVariables
 {
+	/// <summary>
+	/// Gets the CSS selector for the dark button component.
+	/// </summary>
+	/// <returns>The CSS selector string.</returns>
     public override string GetSelector()
     {
         return ".btn-dark";

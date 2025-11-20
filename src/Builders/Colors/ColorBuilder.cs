@@ -25,32 +25,101 @@ public sealed class ColorBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+	/// <summary>
+	/// Sets the color to primary.
+	/// </summary>
     public ColorBuilder Primary => ChainValue("primary");
+	/// <summary>
+	/// Sets the color to secondary.
+	/// </summary>
     public ColorBuilder Secondary => ChainValue("secondary");
+	/// <summary>
+	/// Sets the color to success.
+	/// </summary>
     public ColorBuilder Success => ChainValue("success");
+	/// <summary>
+	/// Sets the color to danger.
+	/// </summary>
     public ColorBuilder Danger => ChainValue("danger");
+	/// <summary>
+	/// Sets the color to warning.
+	/// </summary>
     public ColorBuilder Warning => ChainValue("warning");
+	/// <summary>
+	/// Sets the color to info.
+	/// </summary>
     public ColorBuilder Info => ChainValue("info");
+	/// <summary>
+	/// Sets the color to light.
+	/// </summary>
     public ColorBuilder Light => ChainValue("light");
+	/// <summary>
+	/// Sets the color to dark.
+	/// </summary>
     public ColorBuilder Dark => ChainValue("dark");
+	/// <summary>
+	/// Sets the color to link.
+	/// </summary>
     public ColorBuilder Link => ChainValue("link");
+	/// <summary>
+	/// Sets the color to muted.
+	/// </summary>
     public ColorBuilder Muted => ChainValue("muted");
 
+	/// <summary>
+	/// Sets the color to white.
+	/// </summary>
     public ColorBuilder White => ChainValue("white");
 
+	/// <summary>
+	/// Sets the color to black.
+	/// </summary>
     public ColorBuilder Black => ChainValue("black");
 
+	/// <summary>
+	/// Sets the color to inherit.
+	/// </summary>
     public ColorBuilder Inherit => ChainValue(GlobalKeyword.InheritValue);
+	/// <summary>
+	/// Sets the color to initial.
+	/// </summary>
     public ColorBuilder Initial => ChainValue(GlobalKeyword.InitialValue);
+	/// <summary>
+	/// Sets the color to revert.
+	/// </summary>
     public ColorBuilder Revert => ChainValue(GlobalKeyword.RevertValue);
+	/// <summary>
+	/// Sets the color to revert-layer.
+	/// </summary>
     public ColorBuilder RevertLayer => ChainValue(GlobalKeyword.RevertLayerValue);
+	/// <summary>
+	/// Sets the color to unset.
+	/// </summary>
     public ColorBuilder Unset => ChainValue(GlobalKeyword.UnsetValue);
 
+	/// <summary>
+	/// Applies the color on phone breakpoint.
+	/// </summary>
     public ColorBuilder OnPhone => ChainBp(BreakpointType.Phone);
+	/// <summary>
+	/// Applies the color on tablet breakpoint.
+	/// </summary>
     public ColorBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+	/// <summary>
+	/// Applies the color on laptop breakpoint.
+	/// </summary>
     public ColorBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+	/// <summary>
+	/// Applies the color on desktop breakpoint.
+	/// </summary>
     public ColorBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+	/// <summary>
+	/// Applies the color on widescreen breakpoint.
+	/// </summary>
     public ColorBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+	/// <summary>
+	/// Applies the color on ultrawide breakpoint.
+	/// </summary>
     public ColorBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -75,6 +144,10 @@ public sealed class ColorBuilder : ICssBuilder
         return this;
     }
 
+	/// <summary>
+	/// Gets the CSS class string for the current configuration.
+	/// </summary>
+	/// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -103,6 +176,10 @@ public sealed class ColorBuilder : ICssBuilder
         return sb.ToString();
     }
 
+	/// <summary>
+	/// Gets the CSS style string for the current configuration.
+	/// </summary>
+	/// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)

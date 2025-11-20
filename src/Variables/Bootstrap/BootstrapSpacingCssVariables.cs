@@ -154,11 +154,19 @@ public sealed class BootstrapSpacingCssVariables : IBootstrapCssVariableGroup
     /// </summary>
     public string? ContainerPaddingY { get; set; }
 
+	/// <summary>
+	/// Gets the CSS selector for the spacing component.
+	/// </summary>
+	/// <returns>The CSS selector string.</returns>
     public string GetSelector()
     {
         return ":root";
     }
 
+	/// <summary>
+	/// Gets the collection of CSS variables for the spacing component.
+	/// </summary>
+	/// <returns>An enumerable collection of CSS property name and value tuples.</returns>
     public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
     {
         if (GutterX.HasContent())

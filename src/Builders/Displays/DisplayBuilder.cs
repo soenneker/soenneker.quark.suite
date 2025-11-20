@@ -25,28 +25,94 @@ public sealed class DisplayBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+	/// <summary>
+	/// Sets the display to none.
+	/// </summary>
     public DisplayBuilder None => ChainWithDisplay(DisplayKeyword.NoneValue);
+	/// <summary>
+	/// Sets the display to inline.
+	/// </summary>
     public DisplayBuilder Inline => ChainWithDisplay(DisplayKeyword.InlineValue);
+	/// <summary>
+	/// Sets the display to inline-block.
+	/// </summary>
     public DisplayBuilder InlineBlock => ChainWithDisplay(DisplayKeyword.InlineBlockValue);
+	/// <summary>
+	/// Sets the display to block.
+	/// </summary>
     public DisplayBuilder Block => ChainWithDisplay(DisplayKeyword.BlockValue);
+	/// <summary>
+	/// Sets the display to flex.
+	/// </summary>
     public DisplayBuilder Flex => ChainWithDisplay(DisplayKeyword.FlexValue);
+	/// <summary>
+	/// Sets the display to inline-flex.
+	/// </summary>
     public DisplayBuilder InlineFlex => ChainWithDisplay(DisplayKeyword.InlineFlexValue);
+	/// <summary>
+	/// Sets the display to grid.
+	/// </summary>
     public DisplayBuilder Grid => ChainWithDisplay(DisplayKeyword.GridValue);
+	/// <summary>
+	/// Sets the display to inline-grid.
+	/// </summary>
     public DisplayBuilder InlineGrid => ChainWithDisplay(DisplayKeyword.InlineGridValue);
+	/// <summary>
+	/// Sets the display to table.
+	/// </summary>
     public DisplayBuilder Table => ChainWithDisplay(DisplayKeyword.TableValue);
+	/// <summary>
+	/// Sets the display to table-cell.
+	/// </summary>
     public DisplayBuilder TableCell => ChainWithDisplay(DisplayKeyword.TableCellValue);
+	/// <summary>
+	/// Sets the display to table-row.
+	/// </summary>
     public DisplayBuilder TableRow => ChainWithDisplay(DisplayKeyword.TableRowValue);
+	/// <summary>
+	/// Sets the display to inherit.
+	/// </summary>
     public DisplayBuilder Inherit => ChainWithDisplay(GlobalKeyword.InheritValue);
+	/// <summary>
+	/// Sets the display to initial.
+	/// </summary>
     public DisplayBuilder Initial => ChainWithDisplay(GlobalKeyword.InitialValue);
+	/// <summary>
+	/// Sets the display to revert.
+	/// </summary>
     public DisplayBuilder Revert => ChainWithDisplay(GlobalKeyword.RevertValue);
+	/// <summary>
+	/// Sets the display to revert-layer.
+	/// </summary>
     public DisplayBuilder RevertLayer => ChainWithDisplay(GlobalKeyword.RevertLayerValue);
+	/// <summary>
+	/// Sets the display to unset.
+	/// </summary>
     public DisplayBuilder Unset => ChainWithDisplay(GlobalKeyword.UnsetValue);
 
+	/// <summary>
+	/// Applies the display on phone breakpoint.
+	/// </summary>
     public DisplayBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+	/// <summary>
+	/// Applies the display on tablet breakpoint.
+	/// </summary>
     public DisplayBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+	/// <summary>
+	/// Applies the display on laptop breakpoint.
+	/// </summary>
     public DisplayBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+	/// <summary>
+	/// Applies the display on desktop breakpoint.
+	/// </summary>
     public DisplayBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+	/// <summary>
+	/// Applies the display on widescreen breakpoint.
+	/// </summary>
     public DisplayBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+	/// <summary>
+	/// Applies the display on ultrawide breakpoint.
+	/// </summary>
     public DisplayBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -71,6 +137,10 @@ public sealed class DisplayBuilder : ICssBuilder
         return this;
     }
 
+	/// <summary>
+	/// Gets the CSS class string for the current configuration.
+	/// </summary>
+	/// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -99,6 +169,10 @@ public sealed class DisplayBuilder : ICssBuilder
         return sb.ToString();
     }
 
+	/// <summary>
+	/// Gets the CSS style string for the current configuration.
+	/// </summary>
+	/// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)

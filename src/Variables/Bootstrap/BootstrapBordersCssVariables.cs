@@ -155,11 +155,19 @@ public sealed class BootstrapBordersCssVariables : IBootstrapCssVariableGroup
     /// </summary>
     public string? BorderColorDark { get; set; }
 
+	/// <summary>
+	/// Gets the CSS selector for the borders component.
+	/// </summary>
+	/// <returns>The CSS selector string.</returns>
     public string GetSelector()
     {
         return ":root";
     }
 
+	/// <summary>
+	/// Gets the collection of CSS variables for the borders component.
+	/// </summary>
+	/// <returns>An enumerable collection of CSS property name and value tuples.</returns>
     public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
     {
         if (BorderWidth.HasContent())

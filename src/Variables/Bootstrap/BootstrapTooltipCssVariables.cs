@@ -68,11 +68,19 @@ public sealed class BootstrapTooltipCssVariables : IBootstrapCssVariableGroup
     /// </summary>
     public string? ArrowHeight { get; set; }
 
+	/// <summary>
+	/// Gets the CSS selector for the tooltip component.
+	/// </summary>
+	/// <returns>The CSS selector string.</returns>
     public string GetSelector()
     {
         return ".tooltip";
     }
 
+	/// <summary>
+	/// Gets the collection of CSS variables for the tooltip component.
+	/// </summary>
+	/// <returns>An enumerable collection of CSS property name and value tuples.</returns>
     public IEnumerable<(string CssPropertyName, string Value)> GetCssVariables()
     {
         if (Zindex.HasContent())

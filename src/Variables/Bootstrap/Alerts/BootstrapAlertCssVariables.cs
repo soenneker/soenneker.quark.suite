@@ -5,6 +5,10 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class BootstrapAlertCssVariables : BootstrapBaseAlertCssVariables
 {
+	/// <summary>
+	/// Gets the CSS selector for the base alert component.
+	/// </summary>
+	/// <returns>The CSS selector string.</returns>
     public override string GetSelector()
     {
         return ".alert";
