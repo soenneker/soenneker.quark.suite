@@ -3,7 +3,7 @@ using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
-public class BootstrapBreadcrumbItemCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapBreadcrumbItemCssVariables : IBootstrapCssVariableGroup
 {
 	public string? Divider { get; set; }
 

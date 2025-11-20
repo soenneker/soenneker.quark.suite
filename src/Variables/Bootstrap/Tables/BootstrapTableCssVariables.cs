@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap's table CSS variables
 /// </summary>
-public class BootstrapTableCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapTableCssVariables : IBootstrapCssVariableGroup
 {
 	/// <summary>
 	/// Table color type. Default: initial

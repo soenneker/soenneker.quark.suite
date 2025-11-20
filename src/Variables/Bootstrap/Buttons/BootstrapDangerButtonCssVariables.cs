@@ -3,7 +3,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap danger button CSS variables
 /// </summary>
-public class BootstrapDangerButtonCssVariables : BootstrapBaseButtonCssVariables
+public sealed class BootstrapDangerButtonCssVariables : BootstrapBaseButtonCssVariables
 {
     public override string GetSelector()
     {

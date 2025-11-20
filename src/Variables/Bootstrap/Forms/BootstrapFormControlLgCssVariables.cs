@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Variables for .form-control-lg
 /// </summary>
-public class BootstrapFormControlLgCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapFormControlLgCssVariables : IBootstrapCssVariableGroup
 {
 	/// <summary>
 	/// Form control large min height. Default: calc(1.5em + 1rem + calc(var(--bs-border-width) * 2))

@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Variables for dropdown menus and items.
 /// </summary>
-public class BootstrapDropdownMenuCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapDropdownMenuCssVariables : IBootstrapCssVariableGroup
 {
 	public string? Color { get; set; }
 

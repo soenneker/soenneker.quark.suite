@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap's toast CSS variables
 /// </summary>
-public class BootstrapToastCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapToastCssVariables : IBootstrapCssVariableGroup
 {
 	/// <summary>
 	/// Toast z-index. Default: 1090

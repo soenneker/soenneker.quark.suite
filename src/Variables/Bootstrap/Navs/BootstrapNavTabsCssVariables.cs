@@ -3,7 +3,7 @@ using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
-public class BootstrapNavTabsCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapNavTabsCssVariables : IBootstrapCssVariableGroup
 {
 	public string? LinkHoverBorderColor { get; set; }
 

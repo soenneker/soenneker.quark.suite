@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap link button CSS variables
 /// </summary>
-public class BootstrapLinkButtonCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapLinkButtonCssVariables : IBootstrapCssVariableGroup
 {
 	public string? Color { get; set; }
 

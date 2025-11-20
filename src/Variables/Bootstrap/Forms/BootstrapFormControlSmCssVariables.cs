@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Variables for .form-control-sm
 /// </summary>
-public class BootstrapFormControlSmCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapFormControlSmCssVariables : IBootstrapCssVariableGroup
 {
 	/// <summary>
 	/// Form control small min height. Default: calc(1.5em + 0.5rem + calc(var(--bs-border-width) * 2))

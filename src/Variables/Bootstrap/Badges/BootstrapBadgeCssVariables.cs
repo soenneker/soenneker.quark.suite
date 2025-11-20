@@ -3,7 +3,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Base badge selector.
 /// </summary>
-public class BootstrapBadgeCssVariables : BootstrapBaseBadgeCssVariables
+public sealed class BootstrapBadgeCssVariables : BootstrapBaseBadgeCssVariables
 {
     public override string GetSelector()
     {

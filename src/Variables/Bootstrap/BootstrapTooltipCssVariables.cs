@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap's tooltip CSS variables
 /// </summary>
-public class BootstrapTooltipCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapTooltipCssVariables : IBootstrapCssVariableGroup
 {
     /// <summary>
     /// Tooltip z-index. Default: 1080

@@ -3,7 +3,7 @@ using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
-public class BootstrapFormSwitchInputCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapFormSwitchInputCssVariables : IBootstrapCssVariableGroup
 {
 	public string? Background { get; set; }
 

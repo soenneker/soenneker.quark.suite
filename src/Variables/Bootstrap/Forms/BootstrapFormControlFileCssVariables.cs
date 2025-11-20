@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Variables for .form-control[type=file] and file upload button styling
 /// </summary>
-public class BootstrapFormControlFileCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapFormControlFileCssVariables : IBootstrapCssVariableGroup
 {
 	/// <summary>
 	/// Form control file upload button padding. Default: 0.375rem 0.75rem

@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Variables for offcanvas.
 /// </summary>
-public class BootstrapOffcanvasCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapOffcanvasCssVariables : IBootstrapCssVariableGroup
 {
 	public string? Background { get; set; }
 

@@ -6,9 +6,9 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Variables for progress.
 /// </summary>
-public class BootstrapProgressCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapProgressCssVariables : IBootstrapCssVariableGroup
 {
-	public string? Background { get; set; }
+    public string? Background { get; set; }
 
     public string GetSelector()
     {
@@ -21,4 +21,3 @@ public class BootstrapProgressCssVariables : IBootstrapCssVariableGroup
             yield return ("--bs-progress-bg", Background);
     }
 }
-

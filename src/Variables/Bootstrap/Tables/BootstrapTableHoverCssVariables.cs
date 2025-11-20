@@ -3,7 +3,7 @@ using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
-public class BootstrapTableHoverCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapTableHoverCssVariables : IBootstrapCssVariableGroup
 {
 	public string? HoverBackground { get; set; }
 

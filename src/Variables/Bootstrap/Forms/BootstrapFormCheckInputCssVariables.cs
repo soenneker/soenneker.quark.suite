@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Variables for .form-check inputs and switches.
 /// </summary>
-public class BootstrapFormCheckInputCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapFormCheckInputCssVariables : IBootstrapCssVariableGroup
 {
 	public string? Background { get; set; }
 

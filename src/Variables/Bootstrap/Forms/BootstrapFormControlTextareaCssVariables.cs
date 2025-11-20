@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Variables for textarea.form-control
 /// </summary>
-public class BootstrapFormControlTextareaCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapFormControlTextareaCssVariables : IBootstrapCssVariableGroup
 {
 	/// <summary>
 	/// Textarea form control min height. Default: calc(1.5em + 0.75rem + calc(var(--bs-border-width) * 2))

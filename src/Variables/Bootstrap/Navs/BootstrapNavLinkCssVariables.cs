@@ -3,7 +3,7 @@ using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
-public class BootstrapNavLinkCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapNavLinkCssVariables : IBootstrapCssVariableGroup
 {
 	public string? Color { get; set; }
 

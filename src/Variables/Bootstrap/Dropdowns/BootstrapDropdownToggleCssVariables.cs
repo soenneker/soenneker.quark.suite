@@ -3,7 +3,7 @@ using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
-public class BootstrapDropdownToggleCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapDropdownToggleCssVariables : IBootstrapCssVariableGroup
 {
 	public string? Spacer { get; set; }
 

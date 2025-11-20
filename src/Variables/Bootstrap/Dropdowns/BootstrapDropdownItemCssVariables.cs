@@ -3,7 +3,7 @@ using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
-public class BootstrapDropdownItemCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapDropdownItemCssVariables : IBootstrapCssVariableGroup
 {
 	public string? LinkColor { get; set; }
 

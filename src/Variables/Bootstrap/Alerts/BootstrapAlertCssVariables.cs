@@ -3,7 +3,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Base selector for alerts.
 /// </summary>
-public class BootstrapAlertCssVariables : BootstrapBaseAlertCssVariables
+public sealed class BootstrapAlertCssVariables : BootstrapBaseAlertCssVariables
 {
     public override string GetSelector()
     {

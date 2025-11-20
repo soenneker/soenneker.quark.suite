@@ -3,7 +3,7 @@ using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
-public class BootstrapListGroupItemCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapListGroupItemCssVariables : IBootstrapCssVariableGroup
 {
 	public string? PaddingY { get; set; }
 

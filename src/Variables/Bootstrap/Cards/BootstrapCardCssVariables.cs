@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Base CSS variables for Bootstrap cards.
 /// </summary>
-public class BootstrapCardCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapCardCssVariables : IBootstrapCssVariableGroup
 {
 	public string? Color { get; set; }
 

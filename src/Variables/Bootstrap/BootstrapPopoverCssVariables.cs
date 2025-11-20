@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap's popover CSS variables
 /// </summary>
-public class BootstrapPopoverCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapPopoverCssVariables : IBootstrapCssVariableGroup
 {
 	/// <summary>
 	/// Popover z-index. Default: 1070

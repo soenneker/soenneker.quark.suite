@@ -3,7 +3,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Variables for .form-control
 /// </summary>
-public class BootstrapFormControlCssVariables : BootstrapBaseFormControlCssVariables
+public sealed class BootstrapFormControlCssVariables : BootstrapBaseFormControlCssVariables
 {
     public override string GetSelector()
     {

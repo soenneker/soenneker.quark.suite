@@ -3,7 +3,7 @@ using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
-public class BootstrapAccordionButtonCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapAccordionButtonCssVariables : IBootstrapCssVariableGroup
 {
     public string? ButtonColor { get; set; }
 

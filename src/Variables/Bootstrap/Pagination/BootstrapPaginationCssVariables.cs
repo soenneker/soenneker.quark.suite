@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Variables for pagination.
 /// </summary>
-public class BootstrapPaginationCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapPaginationCssVariables : IBootstrapCssVariableGroup
 {
 	public string? Color { get; set; }
 

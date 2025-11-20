@@ -3,7 +3,7 @@ using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
-public class BootstrapProgressBarCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapProgressBarCssVariables : IBootstrapCssVariableGroup
 {
 	public string? Color { get; set; }
 

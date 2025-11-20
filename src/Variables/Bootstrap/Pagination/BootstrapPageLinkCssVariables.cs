@@ -3,7 +3,7 @@ using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
-public class BootstrapPageLinkCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapPageLinkCssVariables : IBootstrapCssVariableGroup
 {
 	public string? HoverColor { get; set; }
 

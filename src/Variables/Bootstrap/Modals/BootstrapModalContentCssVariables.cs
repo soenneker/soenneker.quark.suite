@@ -3,7 +3,7 @@ using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
-public class BootstrapModalContentCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapModalContentCssVariables : IBootstrapCssVariableGroup
 {
 	public string? Color { get; set; }
 

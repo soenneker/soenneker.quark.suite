@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Variables for .form-control-plaintext
 /// </summary>
-public class BootstrapFormControlPlaintextCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapFormControlPlaintextCssVariables : IBootstrapCssVariableGroup
 {
 	/// <summary>
 	/// Form control plaintext padding. Default: 0.375rem 0

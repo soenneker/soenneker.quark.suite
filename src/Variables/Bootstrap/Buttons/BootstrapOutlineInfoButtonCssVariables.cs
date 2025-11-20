@@ -3,7 +3,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap outline info button CSS variables
 /// </summary>
-public class BootstrapOutlineInfoButtonCssVariables : BootstrapBaseButtonCssVariables
+public sealed class BootstrapOutlineInfoButtonCssVariables : BootstrapBaseButtonCssVariables
 {
     public override string GetSelector()
     {

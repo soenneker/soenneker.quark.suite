@@ -1,6 +1,6 @@
 namespace Soenneker.Quark;
 
-public class BootstrapAlertPrimaryCssVariables : BootstrapBaseAlertCssVariables
+public sealed class BootstrapAlertPrimaryCssVariables : BootstrapBaseAlertCssVariables
 {
     public override string GetSelector()
     {

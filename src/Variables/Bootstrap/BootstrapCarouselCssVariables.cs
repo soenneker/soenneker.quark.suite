@@ -3,7 +3,7 @@ using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
-public class BootstrapCarouselCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapCarouselCssVariables : IBootstrapCssVariableGroup
 {
 	public string? ControlColor { get; set; }
 

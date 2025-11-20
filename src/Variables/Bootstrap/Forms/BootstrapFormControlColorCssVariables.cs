@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Variables for .form-control-color
 /// </summary>
-public class BootstrapFormControlColorCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapFormControlColorCssVariables : IBootstrapCssVariableGroup
 {
 	/// <summary>
 	/// Form control color width. Default: 3rem

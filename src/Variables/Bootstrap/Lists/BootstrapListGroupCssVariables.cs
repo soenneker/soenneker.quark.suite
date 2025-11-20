@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Variables for .list-group and items.
 /// </summary>
-public class BootstrapListGroupCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapListGroupCssVariables : IBootstrapCssVariableGroup
 {
 	public string? Color { get; set; }
 

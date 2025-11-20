@@ -3,7 +3,7 @@ using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
-public class BootstrapTableStripedCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapTableStripedCssVariables : IBootstrapCssVariableGroup
 {
 	public string? StripedBackground { get; set; }
 

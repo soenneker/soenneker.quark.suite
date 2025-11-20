@@ -1,6 +1,6 @@
 namespace Soenneker.Quark;
 
-public class BootstrapBadgeDangerCssVariables : BootstrapBaseBadgeCssVariables
+public sealed class BootstrapBadgeDangerCssVariables : BootstrapBaseBadgeCssVariables
 {
     public override string GetSelector()
     {

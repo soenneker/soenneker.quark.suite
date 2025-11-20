@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap outline dark button CSS variables
 /// </summary>
-public class BootstrapOutlineDarkButtonCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapOutlineDarkButtonCssVariables : IBootstrapCssVariableGroup
 {
 	public string? Color { get; set; }
 

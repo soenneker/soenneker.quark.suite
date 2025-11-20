@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Bootstrap's modal CSS variables
 /// </summary>
-public class BootstrapModalCssVariables : IBootstrapCssVariableGroup
+public sealed class BootstrapModalCssVariables : IBootstrapCssVariableGroup
 {
 	/// <summary>
 	/// Modal z-index. Default: 1055
