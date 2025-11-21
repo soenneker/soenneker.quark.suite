@@ -8,23 +8,34 @@
 </div>
 
 @code {
-
     /// <summary>
-    /// A stable id for this collapse element that can be referenced by toggles.
-    /// If not provided via <code>Id</code>, one will be generated.
+    /// Gets a stable ID for this collapse element that can be referenced by toggles.
+    /// If not provided via <see cref="Id"/>, one will be generated.
     /// </summary>
     public string CollapseId => Id.HasContent() ? Id! : _autoId ??= $"collapse_{Guid.NewGuid():N}";
 
+    /// <summary>
+    /// Gets or sets whether the collapse is expanded.
+    /// </summary>
     [Parameter]
     public bool Expanded { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the expanded state changes.
+    /// </summary>
     [Parameter]
     public EventCallback<bool> OnExpandedChanged { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the collapse should expand horizontally.
+    /// </summary>
     [Parameter]
     public bool Horizontal { get; set; }
 
-
+    /// <summary>
+    /// Toggles the expanded state of the collapse.
+    /// </summary>
+    /// <returns>A task representing the toggle operation.</returns>
     public async Task Toggle()
     {
         Expanded = !Expanded;
@@ -38,6 +49,10 @@
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Shows (expands) the collapse.
+    /// </summary>
+    /// <returns>A task representing the show operation.</returns>
     public async Task Show()
     {
         if (!Expanded)
@@ -54,6 +69,10 @@
         }
     }
 
+    /// <summary>
+    /// Hides (collapses) the collapse.
+    /// </summary>
+    /// <returns>A task representing the hide operation.</returns>
     public async Task Hide()
     {
         if (Expanded)

@@ -22,18 +22,33 @@
     private bool _hasMessage;
     private bool _hasDescription;
 
+    /// <summary>
+    /// Gets or sets the alert style configuration.
+    /// </summary>
     [Parameter]
     public CssValue<AlertStyleBuilder>? AlertStyle { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the alert can be dismissed.
+    /// </summary>
     [Parameter]
     public bool Dismissible { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the alert is visible.
+    /// </summary>
     [Parameter]
     public bool Visible { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the visibility state changes.
+    /// </summary>
     [Parameter]
     public EventCallback<bool> VisibleChanged { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the alert is dismissed.
+    /// </summary>
     [Parameter]
     public EventCallback OnDismiss { get; set; }
     
@@ -69,6 +84,10 @@
         return attributes;
     }
 
+    /// <summary>
+    /// Shows the alert.
+    /// </summary>
+    /// <returns>A task representing the show operation.</returns>
     public Task Show()
     {
         if (Visible)
@@ -78,6 +97,10 @@
         return InvokeAsync(StateHasChanged);
     }
 
+    /// <summary>
+    /// Hides the alert.
+    /// </summary>
+    /// <returns>A task representing the hide operation.</returns>
     public Task Hide()
     {
         if (!Visible)
@@ -87,6 +110,10 @@
         return InvokeAsync(StateHasChanged);
     }
 
+    /// <summary>
+    /// Toggles the visibility of the alert.
+    /// </summary>
+    /// <returns>A task representing the toggle operation.</returns>
     public Task Toggle()
     {
         Visible = !Visible;

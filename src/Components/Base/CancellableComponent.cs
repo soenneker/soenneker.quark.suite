@@ -7,6 +7,10 @@ namespace Soenneker.Quark;
 ///<inheritdoc cref="ICancellableComponent"/>
 public abstract class CancellableComponent : Component, ICancellableComponent
 {
+    /// <summary>
+    /// Gets the current cancellation token for in-flight work.
+    /// Returns <see cref="CancellationToken.None"/> after disposal.
+    /// </summary>
     public CancellationToken CancellationToken =>
         Disposed.IsTrue || AsyncDisposed.IsTrue ? CancellationToken.None : _cancellationTokenSource.TryGet()?.Token ?? CancellationToken.None;
 
@@ -38,12 +42,20 @@ public abstract class CancellableComponent : Component, ICancellableComponent
             });
     }
 
+    /// <summary>
+    /// Cancels any in-flight work. No-op if nothing has started.
+    /// </summary>
+    /// <returns>A task representing the cancellation operation.</returns>
     public Task Cancel()
     {
         var cts = _cancellationTokenSource.TryGet();
         return cts is null ? Task.CompletedTask : cts.CancelAsync();
     }
 
+    /// <summary>
+    /// Cancels current work and swaps in a fresh token/source for new work.
+    /// </summary>
+    /// <returns>A value task representing the reset operation.</returns>
     public ValueTask ResetCancellation() => _cancellationTokenSource.Reset();
 
     public override async ValueTask DisposeAsync()

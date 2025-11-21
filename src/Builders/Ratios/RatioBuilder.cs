@@ -30,16 +30,46 @@ public sealed class RatioBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the ratio to 1:1 (square).
+    /// </summary>
     public RatioBuilder R1x1 => ChainWithRatio("1x1");
+    /// <summary>
+    /// Sets the ratio to 4:3.
+    /// </summary>
     public RatioBuilder R4x3 => ChainWithRatio("4x3");
+    /// <summary>
+    /// Sets the ratio to 16:9.
+    /// </summary>
     public RatioBuilder R16x9 => ChainWithRatio("16x9");
+    /// <summary>
+    /// Sets the ratio to 21:9.
+    /// </summary>
     public RatioBuilder R21x9 => ChainWithRatio("21x9");
 
+    /// <summary>
+    /// Applies the ratio on phone breakpoint.
+    /// </summary>
     public RatioBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the ratio on tablet breakpoint.
+    /// </summary>
     public RatioBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the ratio on laptop breakpoint.
+    /// </summary>
     public RatioBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the ratio on desktop breakpoint.
+    /// </summary>
     public RatioBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the ratio on widescreen breakpoint.
+    /// </summary>
     public RatioBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the ratio on ultrawide breakpoint.
+    /// </summary>
     public RatioBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

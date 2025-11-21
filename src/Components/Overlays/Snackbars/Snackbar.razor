@@ -12,15 +12,27 @@
 
 @code {
 
+    /// <summary>
+    /// Gets or sets the unique key for the snackbar.
+    /// </summary>
     [Parameter]
     public string Key { get; set; } = "";
 
+    /// <summary>
+    /// Gets or sets whether the snackbar is visible.
+    /// </summary>
     [Parameter]
     public bool Visible { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets the delay in milliseconds before the snackbar automatically hides.
+    /// </summary>
     [Parameter]
     public int AutoHideDelay { get; set; } = 5000;
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the snackbar is closed.
+    /// </summary>
     [Parameter]
     public EventCallback<SnackbarClosedEventArgs> Closed { get; set; }
 
@@ -59,6 +71,10 @@
         return inner;
     }
 
+    /// <summary>
+    /// Shows the snackbar.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task Show()
     {
         if (Visible) return Task.CompletedTask;
@@ -66,6 +82,10 @@
         return InvokeAsync(StateHasChanged);
     }
 
+    /// <summary>
+    /// Hides the snackbar.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task Hide() => Hide(SnackbarCloseReason.UserClosed);
 
     protected async Task Hide(SnackbarCloseReason reason)

@@ -43,12 +43,25 @@ public class CompositeValidator : QuarkValidator
         _validators.Remove(validator);
     }
 
+    /// <summary>
+    /// Validates the given value using all validators in the composite.
+    /// All validators must pass for the validation to succeed.
+    /// </summary>
+    /// <param name="value">The value to validate.</param>
+    /// <returns>A <see cref="ValidationResult"/> containing the combined validation outcome.</returns>
     public override ValidationResult Validate(object value)
     {
         var results = _validators.Select(validator => validator.Validate(value)).ToList();
         return ValidationResult.Combine(results.ToArray());
     }
 
+    /// <summary>
+    /// Validates the given value asynchronously using all validators in the composite.
+    /// All validators must pass for the validation to succeed.
+    /// </summary>
+    /// <param name="value">The value to validate.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A <see cref="ValidationResult"/> containing the combined validation outcome.</returns>
     public override async Task<ValidationResult> ValidateAsync(object value, CancellationToken cancellationToken = default)
     {
         var tasks = _validators.Select(validator => validator.ValidateAsync(value, cancellationToken));

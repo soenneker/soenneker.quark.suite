@@ -9,42 +9,78 @@
 <textarea value="@Value" @oninput="HandleInput" @onchange="HandleChange" @attributes="BuildAttributes()"></textarea>
 
 @code {
+	/// <summary>
+	/// Gets or sets the value of the textarea.
+	/// </summary>
 	[Parameter]
 	public string? Value { get; set; }
 
+	/// <summary>
+	/// Gets or sets the number of rows for the textarea.
+	/// </summary>
 	[Parameter]
 	public int Rows { get; set; } = 3;
 
+	/// <summary>
+	/// Gets or sets the maximum length of the input.
+	/// </summary>
 	[Parameter]
 	public int MaxLength { get; set; }
 
+	/// <summary>
+	/// Gets or sets the minimum length of the input.
+	/// </summary>
 	[Parameter]
 	public int MinLength { get; set; }
 
+	/// <summary>
+	/// Gets or sets the pattern for validation.
+	/// </summary>
 	[Parameter]
 	public string? Pattern { get; set; }
 
+	/// <summary>
+	/// Gets or sets whether the textarea should auto-resize.
+	/// </summary>
 	[Parameter]
 	public bool AutoResize { get; set; }
 
+	/// <summary>
+	/// Gets or sets the size of the input.
+	/// </summary>
 	[Parameter]
 	public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
 
+	/// <summary>
+	/// Gets or sets the callback invoked when the value changes.
+	/// </summary>
 	[Parameter]
 	public EventCallback<string?> ValueChanged { get; set; }
 
+	/// <summary>
+	/// Gets or sets the expression that identifies the bound value.
+	/// </summary>
 	[Parameter]
 	public Expression<Func<string?>>? ValueExpression { get; set; }
 
+	/// <summary>
+	/// Gets or sets the callback invoked when the input changes.
+	/// </summary>
 	[Parameter]
 	public EventCallback<ChangeEventArgs> OnChange { get; set; }
 
+	/// <summary>
+	/// Gets or sets the callback invoked when the input value changes.
+	/// </summary>
 	[Parameter]
 	public EventCallback<ChangeEventArgs> OnInput { get; set; }
 
 	[CascadingParameter]
 	public Validation? ParentValidation { get; set; }
 
+    /// <summary>
+    /// Gets the value used for validation.
+    /// </summary>
     public object? ValidationValue => Value;
     private string? _lastValue;
     private bool _valueChanged;
@@ -135,7 +171,6 @@
 
 		return Size?.ToString() != null ? $"form-control-{Size}" : null;
 	}
-
 
 	protected override Dictionary<string, object> BuildAttributes()
 	{

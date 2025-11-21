@@ -20,6 +20,11 @@ public sealed class TablesInterop : ITablesInterop
         });
     }
 
+    /// <summary>
+    /// Initializes table functionality by loading required CSS resources.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>A value task representing the initialization operation.</returns>
     public ValueTask Initialize(CancellationToken cancellationToken = default)
     {
         return _styleInitializer.Init(cancellationToken);

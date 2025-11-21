@@ -12,62 +12,114 @@
        @attributes="BuildAttributes()"/>
 
 @code {
-    // ===== 2-way binding triplet =====
+    /// <summary>
+    /// Gets or sets the input value.
+    /// </summary>
     [Parameter]
     public string? Value { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the value changes.
+    /// </summary>
     [Parameter]
     public EventCallback<string?> ValueChanged { get; set; }
 
+    /// <summary>
+    /// Gets or sets the expression that identifies the bound value for validation.
+    /// </summary>
     [Parameter]
-    public Expression<Func<string?>>? ValueExpression { get; set; } // NEW: enables EditForm/validation
+    public Expression<Func<string?>>? ValueExpression { get; set; }
 
-    // ===== Common input props =====
+    /// <summary>
+    /// Gets or sets the input type (e.g., "text", "email", "password").
+    /// </summary>
     [Parameter]
     public virtual string? Type { get; set; }
 
+    /// <summary>
+    /// Gets or sets the placeholder text displayed when the input is empty.
+    /// </summary>
     [Parameter]
     public string? Placeholder { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the input is disabled.
+    /// </summary>
     [Parameter]
     public bool Disabled { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the input is read-only.
+    /// </summary>
     [Parameter]
     public bool ReadOnly { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the input is required.
+    /// </summary>
     [Parameter]
     public bool Required { get; set; }
 
+    /// <summary>
+    /// Gets or sets the size of the input.
+    /// </summary>
     [Parameter]
     public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
 
+    /// <summary>
+    /// Gets or sets whether the input should be rendered as plain text.
+    /// </summary>
     [Parameter]
     public bool PlainText { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the input should use floating label styling.
+    /// </summary>
     [Parameter]
     public bool FloatingLabel { get; set; }
 
+    /// <summary>
+    /// Gets or sets the label text for the input.
+    /// </summary>
     [Parameter]
     public string? Label { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the input value changes.
+    /// </summary>
     [Parameter]
     public EventCallback<ChangeEventArgs> OnChange { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback invoked during input.
+    /// </summary>
     [Parameter]
     public EventCallback<ChangeEventArgs> OnInput { get; set; }
 
-    // ===== Validation plumbing =====
+    /// <summary>
+    /// Gets or sets the parent validation context.
+    /// </summary>
     [CascadingParameter]
     public Validation? ParentValidation { get; set; }
 
+    /// <summary>
+    /// Gets or sets the function that selects the value used for validation.
+    /// </summary>
     [Parameter]
     public Func<object?>? ValidationValueSelector { get; set; }
 
+    /// <summary>
+    /// Gets the value used for validation purposes.
+    /// </summary>
     public virtual object? ValidationValue => ValidationValueSelector?.Invoke();
 
     private string? _lastValue;
     private bool _valueChanged;
 
+    /// <summary>
+    /// Called after the component has rendered.
+    /// </summary>
+    /// <param name="firstRender">True if this is the first render.</param>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && ParentValidation is not null)
@@ -98,6 +150,10 @@
 
     private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e) => InvokeAsync(StateHasChanged);
 
+    /// <summary>
+    /// Handles the input event.
+    /// </summary>
+    /// <param name="e">The change event arguments.</param>
     protected virtual async Task HandleInput(ChangeEventArgs e)
     {
         var newValue = e.Value?.ToString();
@@ -118,6 +174,10 @@
         }
     }
 
+    /// <summary>
+    /// Handles the change event.
+    /// </summary>
+    /// <param name="e">The change event arguments.</param>
     protected virtual async Task HandleChange(ChangeEventArgs e)
     {
         var newValue = e.Value?.ToString();
@@ -149,6 +209,10 @@
 
     private bool ShouldShowValid() => ParentValidation?.Status == ValidationStatus.Success;
 
+    /// <summary>
+    /// Gets the validation class for the input based on validation status.
+    /// </summary>
+    /// <returns>The validation class name, or null if no validation class should be applied.</returns>
     public virtual string? GetValidationClass()
     {
         if (ShouldShowInvalid()) return "is-invalid";
@@ -156,6 +220,10 @@
         return null;
     }
 
+    /// <summary>
+    /// Gets the color class for the input based on background color.
+    /// </summary>
+    /// <returns>The color class name, or null if no color class should be applied.</returns>
     public virtual string? GetColorClass()
     {
         if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
@@ -174,6 +242,10 @@
         return null;
     }
 
+    /// <summary>
+    /// Gets the size class for the input.
+    /// </summary>
+    /// <returns>The size class name, or null if no size class should be applied.</returns>
     public virtual string? GetSizeClass()
     {
         if (Size == Quark.Size.Default) return null;
@@ -185,8 +257,16 @@
         return Size?.ToString() != null ? $"form-control-{Size}" : null;
     }
 
+    /// <summary>
+    /// Gets the input type, defaulting to "text" if not specified.
+    /// </summary>
+    /// <returns>The input type string.</returns>
     protected virtual string GetInputType() => Type ?? "text";
 
+    /// <summary>
+    /// Builds the attributes dictionary for the input component.
+    /// </summary>
+    /// <returns>A dictionary of HTML attributes.</returns>
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();

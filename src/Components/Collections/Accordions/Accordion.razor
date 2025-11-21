@@ -9,15 +9,27 @@
 </CascadingValue>
 
 @code {
+    /// <summary>
+    /// Gets or sets whether multiple items can be expanded at the same time.
+    /// </summary>
     [Parameter]
     public bool AllowMultiple { get; set; }
 
+    /// <summary>
+    /// Gets or sets the array of expanded item names.
+    /// </summary>
     [Parameter]
     public string[] ExpandedItems { get; set; } = [];
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the expanded items change.
+    /// </summary>
     [Parameter]
     public EventCallback<string[]> OnExpandedItemsChanged { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the accordion should be flush (no borders/rounded corners).
+    /// </summary>
     [Parameter]
     public bool Flush { get; set; }
 
@@ -27,6 +39,10 @@
     private int _expandedItemsKey;
     private bool _expandedItemsChanged;
 
+    /// <summary>
+    /// Registers an accordion item.
+    /// </summary>
+    /// <param name="item">The accordion item to register.</param>
     public void RegisterItem(AccordionItem item)
     {
         if (!_items.Contains(item))
@@ -35,11 +51,20 @@
         }
     }
 
+    /// <summary>
+    /// Unregisters an accordion item.
+    /// </summary>
+    /// <param name="item">The accordion item to unregister.</param>
     public void UnregisterItem(AccordionItem item)
     {
         _items.Remove(item);
     }
 
+    /// <summary>
+    /// Toggles the expanded state of the specified item.
+    /// </summary>
+    /// <param name="itemName">The name of the item to toggle.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task ToggleItem(string itemName)
     {
         if (string.IsNullOrEmpty(itemName)) return;
@@ -74,6 +99,11 @@
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Determines whether the specified item is expanded.
+    /// </summary>
+    /// <param name="itemName">The name of the item.</param>
+    /// <returns>True if the item is expanded; otherwise, false.</returns>
     public bool IsItemExpanded(string itemName)
     {
         return ExpandedItems.Contains(itemName);

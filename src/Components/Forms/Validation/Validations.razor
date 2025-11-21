@@ -12,30 +12,57 @@
 @code {
     private readonly List<IValidation> _validations = [];
 
+    /// <summary>
+    /// Gets or sets the validation mode.
+    /// </summary>
     [Parameter]
     public ValidationMode Mode { get; set; } = ValidationMode.Auto;
 
+    /// <summary>
+    /// Gets or sets whether to validate on component load.
+    /// </summary>
     [Parameter]
     public bool ValidateOnLoad { get; set; }
 
+    /// <summary>
+    /// Gets or sets the edit context for validation.
+    /// </summary>
     [Parameter]
     public EditContext? EditContext { get; set; }
 
+    /// <summary>
+    /// Gets or sets the model to validate.
+    /// </summary>
     [Parameter]
     public object? Model { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the model changes.
+    /// </summary>
     [Parameter]
     public EventCallback<object> ModelChanged { get; set; }
 
+    /// <summary>
+    /// Gets or sets the error message to display when fields are missing.
+    /// </summary>
     [Parameter]
     public string? MissingFieldsErrorMessage { get; set; }
 
+    /// <summary>
+    /// Gets or sets the handler type for validation.
+    /// </summary>
     [Parameter]
     public Type? HandlerType { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when all validations pass.
+    /// </summary>
     [Parameter]
     public EventCallback ValidatedAll { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the validation status changes.
+    /// </summary>
     [Parameter]
     public EventCallback<ValidationsStatusChangedEventArgs> StatusChanged { get; set; }
 
@@ -63,6 +90,10 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
+    /// <summary>
+    /// Validates all registered validations.
+    /// </summary>
+    /// <returns>True if all validations pass; otherwise, false.</returns>
     public async Task<bool> Validate()
     {
         var result = await TryValidate();
@@ -80,6 +111,10 @@
         return result;
     }
 
+    /// <summary>
+    /// Clears all validations.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task ClearAll()
     {
         ClearingAll?.Invoke();
@@ -100,18 +135,30 @@
         return validated;
     }
 
+    /// <summary>
+    /// Notifies that a validation has been initialized.
+    /// </summary>
+    /// <param name="validation">The validation that was initialized.</param>
     public void NotifyValidationInitialized(IValidation validation)
     {
         if (!_validations.Contains(validation))
             _validations.Add(validation);
     }
 
+    /// <summary>
+    /// Notifies that a validation has been removed.
+    /// </summary>
+    /// <param name="validation">The validation that was removed.</param>
     public void NotifyValidationRemoved(IValidation validation)
     {
         if (_validations.Contains(validation))
             _validations.Remove(validation);
     }
 
+    /// <summary>
+    /// Notifies that a validation's status has changed.
+    /// </summary>
+    /// <param name="validation">The validation whose status changed.</param>
     public void NotifyValidationStatusChanged(IValidation validation)
     {
         if (Mode == ValidationMode.Manual)

@@ -24,51 +24,102 @@
     private bool _hasFieldIdentifier;
     private CancellationTokenSource? _cts;
 
+    /// <summary>
+    /// Gets or sets the parent validations context.
+    /// </summary>
     [CascadingParameter]
     public Validations? ParentValidations { get; set; }
 
+    /// <summary>
+    /// Gets or sets the edit context for form validation.
+    /// </summary>
     [CascadingParameter]
     public EditContext? EditContext { get; set; }
 
+    /// <summary>
+    /// Gets or sets the current validation status.
+    /// </summary>
     [Parameter]
     public ValidationStatus Status { get; set; } = ValidationStatus.None;
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the validation status changes.
+    /// </summary>
     [Parameter]
     public EventCallback<ValidationStatus> StatusChanged { get; set; }
 
+    /// <summary>
+    /// Gets or sets the validator to use for validation.
+    /// </summary>
     [Parameter]
     public IQuarkValidator? Validator { get; set; }
 
+    /// <summary>
+    /// Gets or sets the action to execute for validation.
+    /// </summary>
     [Parameter]
     public Action<ValidatorEventArgs>? Action { get; set; }
 
+    /// <summary>
+    /// Gets or sets the async function to execute for validation.
+    /// </summary>
     [Parameter]
     public Func<ValidatorEventArgs, CancellationToken, Task>? AsyncFunc { get; set; }
 
+    /// <summary>
+    /// Gets or sets the message localizer function.
+    /// </summary>
     [Parameter]
     public Func<string, IEnumerable<string>, string>? MessageLocalizer { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether to use pattern-based validation.
+    /// </summary>
     [Parameter]
     public bool UsePattern { get; set; }
 
+    /// <summary>
+    /// Gets or sets the regex pattern string for validation.
+    /// </summary>
     [Parameter]
     public string? PatternString { get; set; }
 
+    /// <summary>
+    /// Gets or sets the error message to display when pattern validation fails.
+    /// </summary>
     [Parameter]
     public string? PatternMessage { get; set; }
 
+    /// <summary>
+    /// Gets or sets the handler type for validation.
+    /// </summary>
     [Parameter]
     public Type? HandlerType { get; set; }
 
+    /// <summary>
+    /// Gets or sets the child content to be validated.
+    /// </summary>
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
+    /// <summary>
+    /// Gets the collection of validation error messages.
+    /// </summary>
     public IEnumerable<string>? Messages { get; private set; }
 
+    /// <summary>
+    /// Gets the field identifier for form validation.
+    /// </summary>
     public FieldIdentifier FieldIdentifier => _fieldIdentifier;
 
+    /// <summary>
+    /// Gets the compiled regex pattern for validation.
+    /// </summary>
     public Regex? Pattern { get; private set; }
 
+    /// <summary>
+    /// Gets or sets whether to show validation errors immediately on input.
+    /// </summary>
     [Parameter]
     public bool ShowErrorsOnInput { get; set; }
 

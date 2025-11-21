@@ -10,8 +10,10 @@ namespace Soenneker.Quark;
 public static class RadioRegistrar
 {
     /// <summary>
-    /// Adds <see cref="IRadioInterop"/> as a scoped service. <para/>
+    /// Adds <see cref="IRadioInterop"/> as a scoped service.
     /// </summary>
+    /// <param name="services">The service collection to add the service to.</param>
+    /// <returns>The service collection for method chaining.</returns>
     public static IServiceCollection AddQuarkRadioAsScoped(this IServiceCollection services)
     {
         services.AddResourceLoaderAsScoped()

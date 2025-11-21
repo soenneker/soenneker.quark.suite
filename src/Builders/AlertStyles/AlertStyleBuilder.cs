@@ -6,9 +6,6 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Builder for Bootstrap alert utilities.
 /// </summary>
-/// <summary>
-/// Builder for Bootstrap alert utilities.
-/// </summary>
 public sealed class AlertStyleBuilder : ICssBuilder
 {
     private AlertStyle? _alert;

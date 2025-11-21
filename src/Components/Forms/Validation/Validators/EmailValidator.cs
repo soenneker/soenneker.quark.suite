@@ -29,6 +29,11 @@ public class EmailValidator : QuarkValidator
         _errorMessage = errorMessage;
     }
 
+    /// <summary>
+    /// Validates the given value as an email address.
+    /// </summary>
+    /// <param name="value">The value to validate.</param>
+    /// <returns>A <see cref="ValidationResult"/> containing the validation outcome.</returns>
     public override ValidationResult Validate(object value)
     {
         if (value is not string email)

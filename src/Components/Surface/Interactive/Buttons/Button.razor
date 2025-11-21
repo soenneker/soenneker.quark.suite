@@ -31,53 +31,99 @@ else
 }
 
 @code {
-
+    /// <summary>
+    /// Gets or sets the size of the button.
+    /// </summary>
     [Parameter]
     public CssValue<SizeBuilder>? Size { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the button is disabled.
+    /// </summary>
     [Parameter]
     public bool Disabled { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the button should use outline styling.
+    /// </summary>
     [Parameter]
     public bool Outline { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the button should span the full width of its container.
+    /// </summary>
     [Parameter]
     public bool Block { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the button is in a loading state.
+    /// </summary>
     [Parameter]
     public bool Loading { get; set; }
 
+    /// <summary>
+    /// Gets or sets the type of the button (button, submit, reset, or link).
+    /// </summary>
     [Parameter]
     public ButtonType Type { get; set; } = ButtonType.Button;
 
+    /// <summary>
+    /// Gets or sets the template to display when the button is in a loading state.
+    /// </summary>
     [Parameter]
     public RenderFragment? LoadingTemplate { get; set; }
 
+    /// <summary>
+    /// Gets or sets the value attribute of the button.
+    /// </summary>
     [Parameter]
     public string? Value { get; set; }
 
+    /// <summary>
+    /// Gets or sets the form ID that this button is associated with.
+    /// </summary>
     [Parameter]
     public string? Form { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the button should automatically receive focus when the page loads.
+    /// </summary>
     [Parameter]
     public bool AutoFocus { get; set; }
 
+    /// <summary>
+    /// Gets or sets the navigation target URL when the button type is Link.
+    /// </summary>
     [Parameter]
     public string? To { get; set; }
 
+    /// <summary>
+    /// Gets or sets the name attribute of the button.
+    /// </summary>
     [Parameter]
     public string? Name { get; set; }
 
-    // --- Bootstrap Collapse auto-targeting ---
+    /// <summary>
+    /// Gets or sets the ID of the collapse element to toggle when clicked.
+    /// </summary>
     [Parameter]
     public string? CollapseTarget { get; set; }
 
+    /// <summary>
+    /// Gets or sets the reference to the collapse component to toggle when clicked.
+    /// </summary>
     [Parameter]
     public Collapse? CollapseTargetRef { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the button should render as a close button.
+    /// </summary>
     [Parameter]
     public bool Close { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the button should render without Bootstrap button styling.
+    /// </summary>
     [Parameter]
     public bool Unstyled { get; set; }
 
@@ -98,6 +144,10 @@ else
         return sizeValue.HasContent() ? $"btn-{sizeValue}" : null;
     }
 
+    /// <summary>
+    /// Builds the attributes dictionary for the button component.
+    /// </summary>
+    /// <returns>A dictionary of HTML attributes.</returns>
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
@@ -185,6 +235,10 @@ else
         return attributes;
     }
 
+    /// <summary>
+    /// Handles the click event for the button.
+    /// </summary>
+    /// <param name="args">The mouse event arguments.</param>
     protected override async Task HandleClick(MouseEventArgs args)
     {
         // Respect disabled state at runtime, same semantics as in BuildAttributes
@@ -199,6 +253,11 @@ else
         await base.HandleClick(args);
     }
 
+    /// <summary>
+    /// Applies background color styling to the button.
+    /// </summary>
+    /// <param name="sty">The style string builder.</param>
+    /// <param name="cls">The class string builder.</param>
     protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
         if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty && !Close)

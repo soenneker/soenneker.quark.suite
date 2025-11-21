@@ -27,14 +27,38 @@ public sealed class ScreenReaderBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the screen reader to only (sr-only).
+    /// </summary>
     public ScreenReaderBuilder Only => ChainWithType("only");
+    /// <summary>
+    /// Sets the screen reader to only-focusable (sr-only-focusable).
+    /// </summary>
     public ScreenReaderBuilder OnlyFocusable => ChainWithType("only-focusable");
 
+    /// <summary>
+    /// Applies the screen reader on phone breakpoint.
+    /// </summary>
     public ScreenReaderBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the screen reader on tablet breakpoint.
+    /// </summary>
     public ScreenReaderBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the screen reader on laptop breakpoint.
+    /// </summary>
     public ScreenReaderBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the screen reader on desktop breakpoint.
+    /// </summary>
     public ScreenReaderBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the screen reader on widescreen breakpoint.
+    /// </summary>
     public ScreenReaderBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the screen reader on ultrawide breakpoint.
+    /// </summary>
     public ScreenReaderBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

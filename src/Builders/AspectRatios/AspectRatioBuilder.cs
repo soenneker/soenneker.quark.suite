@@ -28,16 +28,46 @@ public sealed class AspectRatioBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the aspect ratio to 1:1 (square).
+    /// </summary>
     public AspectRatioBuilder R1x1 => ChainWithRatio("1x1");
+    /// <summary>
+    /// Sets the aspect ratio to 4:3.
+    /// </summary>
     public AspectRatioBuilder R4x3 => ChainWithRatio("4x3");
+    /// <summary>
+    /// Sets the aspect ratio to 16:9.
+    /// </summary>
     public AspectRatioBuilder R16x9 => ChainWithRatio("16x9");
+    /// <summary>
+    /// Sets the aspect ratio to 21:9.
+    /// </summary>
     public AspectRatioBuilder R21x9 => ChainWithRatio("21x9");
 
+    /// <summary>
+    /// Applies the aspect ratio on phone breakpoint.
+    /// </summary>
     public AspectRatioBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the aspect ratio on tablet breakpoint.
+    /// </summary>
     public AspectRatioBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the aspect ratio on laptop breakpoint.
+    /// </summary>
     public AspectRatioBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the aspect ratio on desktop breakpoint.
+    /// </summary>
     public AspectRatioBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the aspect ratio on widescreen breakpoint.
+    /// </summary>
     public AspectRatioBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the aspect ratio on ultrawide breakpoint.
+    /// </summary>
     public AspectRatioBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

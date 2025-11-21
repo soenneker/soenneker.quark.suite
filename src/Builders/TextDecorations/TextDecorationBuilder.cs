@@ -6,6 +6,9 @@ using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// High-performance text decoration builder with fluent API for chaining text decoration rules.
+/// </summary>
 public sealed class TextDecorationBuilder : ICssBuilder
 {
     private readonly List<TextDecorationRule> _rules = new(4);
@@ -30,58 +33,161 @@ public sealed class TextDecorationBuilder : ICssBuilder
     }
 
     // Line types
+    /// <summary>
+    /// Sets the text decoration to none (no decoration).
+    /// </summary>
     public TextDecorationBuilder None => Chain(TextDecorationLineKeyword.NoneValue);
+    /// <summary>
+    /// Sets the text decoration to underline.
+    /// </summary>
     public TextDecorationBuilder Underline => Chain(TextDecorationLineKeyword.UnderlineValue);
+    /// <summary>
+    /// Sets the text decoration to line-through.
+    /// </summary>
     public TextDecorationBuilder LineThrough => Chain(TextDecorationLineKeyword.LineThroughValue);
+    /// <summary>
+    /// Sets the text decoration to overline.
+    /// </summary>
     public TextDecorationBuilder Overline => Chain(TextDecorationLineKeyword.OverlineValue);
 
     // Global keywords
+    /// <summary>
+    /// Sets the text decoration to inherit.
+    /// </summary>
     public TextDecorationBuilder Inherit => Chain(GlobalKeyword.InheritValue);
+    /// <summary>
+    /// Sets the text decoration to initial.
+    /// </summary>
     public TextDecorationBuilder Initial => Chain(GlobalKeyword.InitialValue);
+    /// <summary>
+    /// Sets the text decoration to revert.
+    /// </summary>
     public TextDecorationBuilder Revert => Chain(GlobalKeyword.RevertValue);
+    /// <summary>
+    /// Sets the text decoration to revert-layer.
+    /// </summary>
     public TextDecorationBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
+    /// <summary>
+    /// Sets the text decoration to unset.
+    /// </summary>
     public TextDecorationBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
     // Decoration styles
+    /// <summary>
+    /// Sets the text decoration style to solid.
+    /// </summary>
     public TextDecorationBuilder Solid => SetStyle(TextDecorationStyleKeyword.SolidValue);
+    /// <summary>
+    /// Sets the text decoration style to double.
+    /// </summary>
     public TextDecorationBuilder Double => SetStyle(TextDecorationStyleKeyword.DoubleValue);
+    /// <summary>
+    /// Sets the text decoration style to dotted.
+    /// </summary>
     public TextDecorationBuilder Dotted => SetStyle(TextDecorationStyleKeyword.DottedValue);
+    /// <summary>
+    /// Sets the text decoration style to dashed.
+    /// </summary>
     public TextDecorationBuilder Dashed => SetStyle(TextDecorationStyleKeyword.DashedValue);
+    /// <summary>
+    /// Sets the text decoration style to wavy.
+    /// </summary>
     public TextDecorationBuilder Wavy => SetStyle(TextDecorationStyleKeyword.WavyValue);
 
     // Color methods
+    /// <summary>
+    /// Sets the text decoration color to the specified value.
+    /// </summary>
+    /// <param name="color">The color value (e.g., "#ff0000", "red", "var(--bs-primary)").</param>
+    /// <returns>This builder instance for method chaining.</returns>
     public TextDecorationBuilder Color(string color)
     {
         _color = color;
         return this;
     }
 
+    /// <summary>
+    /// Sets the text decoration color to primary theme color.
+    /// </summary>
     public TextDecorationBuilder Primary => Color("var(--bs-primary)");
+    /// <summary>
+    /// Sets the text decoration color to secondary theme color.
+    /// </summary>
     public TextDecorationBuilder Secondary => Color("var(--bs-secondary)");
+    /// <summary>
+    /// Sets the text decoration color to success theme color.
+    /// </summary>
     public TextDecorationBuilder Success => Color("var(--bs-success)");
+    /// <summary>
+    /// Sets the text decoration color to danger theme color.
+    /// </summary>
     public TextDecorationBuilder Danger => Color("var(--bs-danger)");
+    /// <summary>
+    /// Sets the text decoration color to warning theme color.
+    /// </summary>
     public TextDecorationBuilder Warning => Color("var(--bs-warning)");
+    /// <summary>
+    /// Sets the text decoration color to info theme color.
+    /// </summary>
     public TextDecorationBuilder Info => Color("var(--bs-info)");
+    /// <summary>
+    /// Sets the text decoration color to light theme color.
+    /// </summary>
     public TextDecorationBuilder Light => Color("var(--bs-light)");
+    /// <summary>
+    /// Sets the text decoration color to dark theme color.
+    /// </summary>
     public TextDecorationBuilder Dark => Color("var(--bs-dark)");
 
     // Thickness methods
+    /// <summary>
+    /// Sets the text decoration thickness to the specified value.
+    /// </summary>
+    /// <param name="thickness">The thickness value (e.g., "1px", "2px", "3px").</param>
+    /// <returns>This builder instance for method chaining.</returns>
     public TextDecorationBuilder Thickness(string thickness)
     {
         _thickness = thickness;
         return this;
     }
 
+    /// <summary>
+    /// Sets the text decoration thickness to thin (1px).
+    /// </summary>
     public TextDecorationBuilder Thin => Thickness("1px");
+    /// <summary>
+    /// Sets the text decoration thickness to medium (2px).
+    /// </summary>
     public TextDecorationBuilder Medium => Thickness("2px");
+    /// <summary>
+    /// Sets the text decoration thickness to thick (3px).
+    /// </summary>
     public TextDecorationBuilder Thick => Thickness("3px");
 
     // Breakpoints
+    /// <summary>
+    /// Applies the text decoration on phone breakpoint.
+    /// </summary>
     public TextDecorationBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the text decoration on tablet breakpoint.
+    /// </summary>
     public TextDecorationBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the text decoration on laptop breakpoint.
+    /// </summary>
     public TextDecorationBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the text decoration on desktop breakpoint.
+    /// </summary>
     public TextDecorationBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the text decoration on widescreen breakpoint.
+    /// </summary>
     public TextDecorationBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the text decoration on ultrawide breakpoint.
+    /// </summary>
     public TextDecorationBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -114,6 +220,10 @@ public sealed class TextDecorationBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -152,6 +262,10 @@ public sealed class TextDecorationBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0 && _style == null && _color == null && _thickness == null)

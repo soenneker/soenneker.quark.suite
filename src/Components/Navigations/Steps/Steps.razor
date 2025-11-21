@@ -57,9 +57,15 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
+    /// <summary>
+    /// Gets or sets the aria-describedby attribute value.
+    /// </summary>
     [Parameter]
     public string? AriaDescribedBy { get; set; }
 
+    /// <summary>
+    /// Gets or sets the currently selected step.
+    /// </summary>
     [Parameter]
     public string SelectedStep
     {
@@ -88,6 +94,9 @@
         }
     }
 
+    /// <summary>
+    /// Gets or sets the render mode for the steps.
+    /// </summary>
     [Parameter]
     public StepsRenderMode RenderMode
     {
@@ -99,15 +108,28 @@
         }
     }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the selected step changes.
+    /// </summary>
     [Parameter]
     public EventCallback<string> SelectedStepChanged { get; set; }
 
+    /// <summary>
+    /// Gets or sets the function that determines whether navigation to a step is allowed.
+    /// </summary>
     [Parameter]
     public Func<StepNavigationContext, bool>? NavigationAllowed { get; set; }
 
+    /// <summary>
+    /// Gets or sets the render fragment for step items.
+    /// </summary>
     [Parameter]
     public RenderFragment? Items { get; set; }
 
+    /// <summary>
+    /// Notifies that a step has been initialized.
+    /// </summary>
+    /// <param name="name">The name of the step.</param>
     internal void NotifyStepInitialized(string name)
     {
         if (!_stepItems.Contains(name))
@@ -126,18 +148,31 @@
         }
     }
 
+    /// <summary>
+    /// Notifies that a step has been removed.
+    /// </summary>
+    /// <param name="name">The name of the step.</param>
     internal void NotifyStepRemoved(string name)
     {
         if (_stepItems.Contains(name))
             _stepItems.Remove(name);
     }
 
+    /// <summary>
+    /// Selects the specified step.
+    /// </summary>
+    /// <param name="stepName">The name of the step to select.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task SelectStep(string stepName)
     {
         SelectedStep = stepName;
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Moves to the next step.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task NextStep()
     {
         var selectedStepIndex = _stepItems.IndexOf(SelectedStep);
@@ -152,6 +187,10 @@
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Moves to the previous step.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task PreviousStep()
     {
         var selectedStepIndex = _stepItems.IndexOf(SelectedStep);
@@ -165,17 +204,30 @@
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Gets the index of the specified step.
+    /// </summary>
+    /// <param name="name">The name of the step.</param>
+    /// <returns>The 1-based index of the step.</returns>
     public int IndexOfStep(string name)
     {
         return _stepItems.IndexOf(name) + 1;
     }
 
+    /// <summary>
+    /// Notifies that a step panel has been initialized.
+    /// </summary>
+    /// <param name="name">The name of the step panel.</param>
     internal void NotifyStepPanelInitialized(string name)
     {
         if (!_stepPanels.Contains(name))
             _stepPanels.Add(name);
     }
 
+    /// <summary>
+    /// Notifies that a step panel has been removed.
+    /// </summary>
+    /// <param name="name">The name of the step panel.</param>
     internal void NotifyStepPanelRemoved(string name)
     {
         if (_stepPanels.Contains(name))

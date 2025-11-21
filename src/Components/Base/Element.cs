@@ -6,6 +6,9 @@ namespace Soenneker.Quark;
 ///<inheritdoc cref="IElement"/>
 public abstract class Element : Component, IElement
 {
+    /// <summary>
+    /// Gets or sets the child content to be rendered within the element.
+    /// </summary>
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 

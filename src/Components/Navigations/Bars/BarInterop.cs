@@ -29,11 +29,21 @@ public sealed class BarInterop : IBarInterop
         });
     }
 
+    /// <summary>
+    /// Initializes horizontal bar (topbar) functionality.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>A value task representing the initialization operation.</returns>
     public ValueTask InitializeHorizontalBar(CancellationToken cancellationToken = default)
     {
         return _horizontalBarInitializer.Init(cancellationToken);
     }
 
+    /// <summary>
+    /// Initializes vertical bar (sidebar) functionality.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>A value task representing the initialization operation.</returns>
     public ValueTask InitializeVerticalBar(CancellationToken cancellationToken = default)
     {
         return _sidebarInitializer.Init(cancellationToken);

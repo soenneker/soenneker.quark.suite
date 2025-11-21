@@ -13,9 +13,15 @@
     private readonly List<string> _stepPanels = [];
     private StepsState? _parentStepsState;
 
+    /// <summary>
+    /// Gets or sets the aria-describedby attribute value.
+    /// </summary>
     [Parameter]
     public string? AriaDescribedBy { get; set; }
 
+    /// <summary>
+    /// Gets or sets the currently selected panel.
+    /// </summary>
     [Parameter]
     public string SelectedPanel
     {
@@ -31,6 +37,9 @@
         }
     }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the selected panel changes.
+    /// </summary>
     [Parameter]
     public EventCallback<string> SelectedPanelChanged { get; set; }
 
@@ -56,18 +65,31 @@
         }
     }
 
+    /// <summary>
+    /// Notifies that a step panel has been initialized.
+    /// </summary>
+    /// <param name="name">The name of the step panel.</param>
     internal void NotifyStepPanelInitialized(string name)
     {
         if (!_stepPanels.Contains(name))
             _stepPanels.Add(name);
     }
 
+    /// <summary>
+    /// Notifies that a step panel has been removed.
+    /// </summary>
+    /// <param name="name">The name of the step panel.</param>
     internal void NotifyStepPanelRemoved(string name)
     {
         if (_stepPanels.Contains(name))
             _stepPanels.Remove(name);
     }
 
+    /// <summary>
+    /// Selects the specified panel.
+    /// </summary>
+    /// <param name="name">The name of the panel to select.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task SelectPanel(string name)
     {
         SelectedPanel = name;

@@ -5,6 +5,10 @@ using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// High-performance text opacity builder.
+/// Produces Bootstrap utility classes when possible, otherwise falls back to inline style.
+/// </summary>
 public sealed class TextOpacityBuilder : ICssBuilder
 {
     private readonly List<TextOpacityRule> _rules = new(4);
@@ -20,16 +24,46 @@ public sealed class TextOpacityBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the text opacity to 25 (25% opacity).
+    /// </summary>
     public TextOpacityBuilder V25 => Chain(25);
+    /// <summary>
+    /// Sets the text opacity to 50 (50% opacity).
+    /// </summary>
     public TextOpacityBuilder V50 => Chain(50);
+    /// <summary>
+    /// Sets the text opacity to 75 (75% opacity).
+    /// </summary>
     public TextOpacityBuilder V75 => Chain(75);
+    /// <summary>
+    /// Sets the text opacity to 100 (fully opaque).
+    /// </summary>
     public TextOpacityBuilder V100 => Chain(100);
 
+    /// <summary>
+    /// Applies the text opacity on phone breakpoint.
+    /// </summary>
     public TextOpacityBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the text opacity on tablet breakpoint.
+    /// </summary>
     public TextOpacityBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the text opacity on laptop breakpoint.
+    /// </summary>
     public TextOpacityBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the text opacity on desktop breakpoint.
+    /// </summary>
     public TextOpacityBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the text opacity on widescreen breakpoint.
+    /// </summary>
     public TextOpacityBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the text opacity on ultrawide breakpoint.
+    /// </summary>
     public TextOpacityBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -54,6 +88,10 @@ public sealed class TextOpacityBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0) return string.Empty;
@@ -79,6 +117,10 @@ public sealed class TextOpacityBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0) return string.Empty;

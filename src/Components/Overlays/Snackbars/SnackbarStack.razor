@@ -37,12 +37,21 @@
 	private readonly Dictionary<string, Timer> _autoHideTimers = new();
 	private bool _isInitialized;
 
+	/// <summary>
+	/// Gets or sets the location where snackbars should appear.
+	/// </summary>
 	[Parameter]
 	public SnackbarLocation? Location { get; set; }
 
+	/// <summary>
+	/// Gets or sets the default delay in milliseconds before snackbars automatically hide.
+	/// </summary>
 	[Parameter]
 	public int? DefaultDelay { get; set; }
 
+	/// <summary>
+	/// Gets or sets the callback invoked when a snackbar is closed.
+	/// </summary>
 	[Parameter]
 	public EventCallback<SnackbarClosedEventArgs> Closed { get; set; }
 
@@ -79,6 +88,11 @@
 		return BuildAttributes(EffectiveLocation);
 	}
 
+	/// <summary>
+	/// Builds the attributes for the snackbar stack at the specified location.
+	/// </summary>
+	/// <param name="location">The location for the snackbar stack.</param>
+	/// <returns>A dictionary of attributes.</returns>
 	protected Dictionary<string, object> BuildAttributes(SnackbarLocation location)
 	{
 		var attributes = base.BuildAttributes();
@@ -121,11 +135,27 @@
 		await base.OnAfterRenderAsync(firstRender);
 	}
 
+	/// <summary>
+	/// Pushes a snackbar with the specified message.
+	/// </summary>
+	/// <param name="message">The message to display.</param>
+	/// <param name="color">The background color for the snackbar.</param>
+	/// <param name="options">Optional action to configure snackbar options.</param>
+	/// <param name="location">Optional location override for this snackbar.</param>
+	/// <returns>A value task that represents the asynchronous operation.</returns>
 	public async ValueTask Push(string message, CssValue<BackgroundColorBuilder>? color = null, Action<SnackbarOptions>? options = null, SnackbarLocation? location = null)
 	{
 		await Push(message, null, color, options, location);
 	}
 
+	/// <summary>
+	/// Pushes a snackbar with the specified content.
+	/// </summary>
+	/// <param name="content">The render fragment content to display.</param>
+	/// <param name="color">The background color for the snackbar.</param>
+	/// <param name="options">Optional action to configure snackbar options.</param>
+	/// <param name="location">Optional location override for this snackbar.</param>
+	/// <returns>A value task that represents the asynchronous operation.</returns>
 	public async ValueTask Push(RenderFragment content, CssValue<BackgroundColorBuilder>? color = null, Action<SnackbarOptions>? options = null, SnackbarLocation? location = null)
 	{
 		await Push(null, content, color, options, location);

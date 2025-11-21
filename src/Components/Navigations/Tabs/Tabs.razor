@@ -49,23 +49,42 @@
 </CascadingValue>
 
 @code {
+    /// <summary>
+    /// Gets or sets whether the tabs should be displayed as pills.
+    /// </summary>
     [Parameter]
     public bool Pills { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the tabs should be displayed vertically.
+    /// </summary>
     [Parameter]
     public bool Vertical { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the tabs should be justified.
+    /// </summary>
     [Parameter]
     public bool Justified { get; set; }
 
+    /// <summary>
+    /// Gets or sets the currently selected tab.
+    /// </summary>
     [Parameter]
     public string? SelectedTab { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the selected tab changes.
+    /// </summary>
     [Parameter]
     public EventCallback<string> OnSelectedTabChanged { get; set; }
 
     private readonly List<Tab> _tabs = [];
 
+    /// <summary>
+    /// Registers a tab with the tabs component.
+    /// </summary>
+    /// <param name="tab">The tab to register.</param>
     public void RegisterTab(Tab tab)
     {
         if (!_tabs.Contains(tab))
@@ -74,11 +93,20 @@
         }
     }
 
+    /// <summary>
+    /// Unregisters a tab from the tabs component.
+    /// </summary>
+    /// <param name="tab">The tab to unregister.</param>
     public void UnregisterTab(Tab tab)
     {
         _tabs.Remove(tab);
     }
 
+    /// <summary>
+    /// Selects the specified tab.
+    /// </summary>
+    /// <param name="tabName">The name of the tab to select.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task SelectTab(string tabName)
     {
         if (SelectedTab != tabName)

@@ -10,27 +10,51 @@
 </CascadingValue>
 
 @code {
+    /// <summary>
+    /// Gets or sets whether the list group should be flush (no borders).
+    /// </summary>
     [Parameter]
     public bool Flush { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the list group should be scrollable.
+    /// </summary>
     [Parameter]
     public bool Scrollable { get; set; }
 
+    /// <summary>
+    /// Gets or sets the mode of the list group.
+    /// </summary>
     [Parameter]
     public ListGroupMode Mode { get; set; } = ListGroupMode.Static;
 
+    /// <summary>
+    /// Gets or sets the selection mode of the list group.
+    /// </summary>
     [Parameter]
     public ListGroupSelectionMode SelectionMode { get; set; } = ListGroupSelectionMode.Single;
 
+    /// <summary>
+    /// Gets or sets the selected item name (for single selection mode).
+    /// </summary>
     [Parameter]
     public string? SelectedItem { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the selected item changes (for single selection mode).
+    /// </summary>
     [Parameter]
     public EventCallback<string> SelectedItemChanged { get; set; }
 
+    /// <summary>
+    /// Gets or sets the list of selected item names (for multiple selection mode).
+    /// </summary>
     [Parameter]
     public List<string>? SelectedItems { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the selected items change (for multiple selection mode).
+    /// </summary>
     [Parameter]
     public EventCallback<List<string>> SelectedItemsChanged { get; set; }
 
@@ -51,6 +75,11 @@
         return attributes;
     }
 
+    /// <summary>
+    /// Selects or deselects the specified item.
+    /// </summary>
+    /// <param name="name">The name of the item to select or deselect.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task SelectItem(string name)
     {
         if (SelectionMode == ListGroupSelectionMode.Single)

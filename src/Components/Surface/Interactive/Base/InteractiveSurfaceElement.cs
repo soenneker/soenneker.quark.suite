@@ -10,24 +10,45 @@ namespace Soenneker.Quark;
 ///<inheritdoc cref="IInteractiveSurfaceElement"/>
 public abstract class InteractiveSurfaceElement : SurfaceElement, IInteractiveSurfaceElement
 {
+    /// <summary>
+    /// Gets or sets the cursor style when hovering over the element.
+    /// </summary>
     [Parameter]
     public CssValue<CursorBuilder>? Cursor { get; set; }
 
+    /// <summary>
+    /// Gets or sets the focus ring style when the element is focused.
+    /// </summary>
     [Parameter]
     public CssValue<FocusRingBuilder>? FocusRing { get; set; }
 
+    /// <summary>
+    /// Gets or sets the interaction behavior (e.g., pointer-events).
+    /// </summary>
     [Parameter]
     public CssValue<InteractionBuilder>? Interaction { get; set; }
 
+    /// <summary>
+    /// Gets or sets the tab index for keyboard navigation.
+    /// </summary>
     [Parameter]
     public int? TabIndex { get; set; }
 
+    /// <summary>
+    /// Gets or sets the ARIA role attribute.
+    /// </summary>
     [Parameter]
     public string? Role { get; set; }
 
+    /// <summary>
+    /// Gets or sets the ARIA label for accessibility.
+    /// </summary>
     [Parameter]
     public string? AriaLabel { get; set; }
 
+    /// <summary>
+    /// Gets or sets the ARIA described-by attribute referencing describing element IDs.
+    /// </summary>
     [Parameter]
     public string? AriaDescribedBy { get; set; }
 
@@ -35,21 +56,39 @@ public abstract class InteractiveSurfaceElement : SurfaceElement, IInteractiveSu
     // Note: OnClick uses 'new' to shadow Component.OnClick because interactive surfaces
     // need to wire it up differently (with render gating, etc.)
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the element is double-clicked.
+    /// </summary>
     [Parameter]
     public EventCallback<MouseEventArgs> OnDoubleClick { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the mouse enters the element.
+    /// </summary>
     [Parameter]
     public EventCallback<MouseEventArgs> OnMouseOver { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the mouse leaves the element.
+    /// </summary>
     [Parameter]
     public EventCallback<MouseEventArgs> OnMouseOut { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when a key is pressed while the element is focused.
+    /// </summary>
     [Parameter]
     public EventCallback<KeyboardEventArgs> OnKeyDown { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the element receives focus.
+    /// </summary>
     [Parameter]
     public EventCallback<FocusEventArgs> OnFocus { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the element loses focus.
+    /// </summary>
     [Parameter]
     public EventCallback<FocusEventArgs> OnBlur { get; set; }
 

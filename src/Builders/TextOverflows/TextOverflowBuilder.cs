@@ -37,22 +37,61 @@ public sealed class TextOverflowBuilder : ICssBuilder
     }
 
     // ----- Fluent chaining (TextOverflow enum) -----
+    /// <summary>
+    /// Sets the text overflow to clip.
+    /// </summary>
     public TextOverflowBuilder Clip => Chain(TextOverflowEnum.Clip);
+    /// <summary>
+    /// Sets the text overflow to ellipsis.
+    /// </summary>
     public TextOverflowBuilder Ellipsis => Chain(TextOverflowEnum.Ellipsis);
 
     // ----- Fluent chaining (Global keywords) -----
+    /// <summary>
+    /// Sets the text overflow to inherit.
+    /// </summary>
     public TextOverflowBuilder Inherit => Chain(GlobalKeyword.InheritValue);
+    /// <summary>
+    /// Sets the text overflow to initial.
+    /// </summary>
     public TextOverflowBuilder Initial => Chain(GlobalKeyword.InitialValue);
+    /// <summary>
+    /// Sets the text overflow to revert.
+    /// </summary>
     public TextOverflowBuilder Revert => Chain(GlobalKeyword.RevertValue);
+    /// <summary>
+    /// Sets the text overflow to revert-layer.
+    /// </summary>
     public TextOverflowBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
+    /// <summary>
+    /// Sets the text overflow to unset.
+    /// </summary>
     public TextOverflowBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
     // ----- BreakpointType chaining -----
+    /// <summary>
+    /// Applies the text overflow on phone breakpoint.
+    /// </summary>
     public TextOverflowBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the text overflow on tablet breakpoint.
+    /// </summary>
     public TextOverflowBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the text overflow on laptop breakpoint.
+    /// </summary>
     public TextOverflowBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the text overflow on desktop breakpoint.
+    /// </summary>
     public TextOverflowBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the text overflow on widescreen breakpoint.
+    /// </summary>
     public TextOverflowBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the text overflow on ultrawide breakpoint.
+    /// </summary>
     public TextOverflowBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

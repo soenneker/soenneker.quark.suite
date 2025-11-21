@@ -26,6 +26,11 @@ public sealed class RequiredValidator : QuarkValidator
         _errorMessage = errorMessage;
     }
 
+    /// <summary>
+    /// Validates the given value to ensure it is not null or empty.
+    /// </summary>
+    /// <param name="value">The value to validate.</param>
+    /// <returns>A <see cref="ValidationResult"/> indicating success or an error.</returns>
     public override ValidationResult Validate(object value)
     {
         if (value is null)

@@ -19,18 +19,39 @@
 @code {
     private static readonly TimeSpan _transitionDuration = TimeSpan.FromMilliseconds(350);
 
+    /// <summary>
+    /// Gets or sets the placement of the offcanvas.
+    /// </summary>
     [Parameter] public PlacementType Placement { get; set; } = PlacementType.End;
 
+    /// <summary>
+    /// Gets or sets whether scrolling is allowed when the offcanvas is open.
+    /// </summary>
     [Parameter] public bool AllowScroll { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether to show the backdrop.
+    /// </summary>
     [Parameter] public bool ShowBackdrop { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the offcanvas is shown.
+    /// </summary>
     [Parameter] public EventCallback OnShow { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the offcanvas is hidden.
+    /// </summary>
     [Parameter] public EventCallback OnHide { get; set; }
 
+    /// <summary>
+    /// Gets or sets the callback invoked when the backdrop is clicked.
+    /// </summary>
     [Parameter] public EventCallback OnBackdropClick { get; set; }
 
+    /// <summary>
+    /// Gets or sets the tab index of the offcanvas.
+    /// </summary>
     [Parameter] public int? TabIndex { get; set; }
 
     /// <summary>
@@ -130,6 +151,9 @@
         return attributes;
     }
 
+    /// <summary>
+    /// Shows the offcanvas.
+    /// </summary>
     public async Task Show()
     {
         if (_active || _isShowing)
@@ -156,6 +180,9 @@
         }, OnShow, token);
     }
 
+    /// <summary>
+    /// Hides the offcanvas.
+    /// </summary>
     public async Task Hide()
     {
         if (!_active && !_isShowing)
@@ -178,6 +205,10 @@
         }, OnHide, token);
     }
 
+    /// <summary>
+    /// Requests to close the offcanvas.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task RequestClose() => Hide();
 
     private async Task HandleBackdropClick(MouseEventArgs _)

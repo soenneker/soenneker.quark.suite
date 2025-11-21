@@ -12,6 +12,8 @@ public static class BootstrapRegistrar
     /// <summary>
     /// Adds <see cref="IBootstrapInterop"/> as a scoped service.
     /// </summary>
+    /// <param name="services">The service collection to add the service to.</param>
+    /// <returns>The service collection for method chaining.</returns>
     public static IServiceCollection AddQuarkBootstrapAsScoped(this IServiceCollection services)
     {
         services.AddResourceLoaderAsScoped().TryAddScoped<IBootstrapInterop, BootstrapInterop>();

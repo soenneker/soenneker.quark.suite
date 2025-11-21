@@ -5,6 +5,10 @@ using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// High-performance background opacity builder.
+/// Produces Bootstrap utility classes when possible, otherwise falls back to inline style.
+/// </summary>
 public sealed class BackgroundOpacityBuilder : ICssBuilder
 {
     private readonly List<BackgroundOpacityRule> _rules = new(4);
@@ -20,17 +24,50 @@ public sealed class BackgroundOpacityBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Sets the background opacity to 10 (10% opacity).
+    /// </summary>
     public BackgroundOpacityBuilder V10 => Chain(10);
+    /// <summary>
+    /// Sets the background opacity to 25 (25% opacity).
+    /// </summary>
     public BackgroundOpacityBuilder V25 => Chain(25);
+    /// <summary>
+    /// Sets the background opacity to 50 (50% opacity).
+    /// </summary>
     public BackgroundOpacityBuilder V50 => Chain(50);
+    /// <summary>
+    /// Sets the background opacity to 75 (75% opacity).
+    /// </summary>
     public BackgroundOpacityBuilder V75 => Chain(75);
+    /// <summary>
+    /// Sets the background opacity to 100 (fully opaque).
+    /// </summary>
     public BackgroundOpacityBuilder V100 => Chain(100);
 
+    /// <summary>
+    /// Applies the background opacity on phone breakpoint.
+    /// </summary>
     public BackgroundOpacityBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the background opacity on tablet breakpoint.
+    /// </summary>
     public BackgroundOpacityBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the background opacity on laptop breakpoint.
+    /// </summary>
     public BackgroundOpacityBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the background opacity on desktop breakpoint.
+    /// </summary>
     public BackgroundOpacityBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the background opacity on widescreen breakpoint.
+    /// </summary>
     public BackgroundOpacityBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the background opacity on ultrawide breakpoint.
+    /// </summary>
     public BackgroundOpacityBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -55,6 +92,10 @@ public sealed class BackgroundOpacityBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -84,6 +125,10 @@ public sealed class BackgroundOpacityBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)

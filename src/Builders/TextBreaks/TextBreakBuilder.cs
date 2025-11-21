@@ -6,6 +6,9 @@ using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+/// <summary>
+/// Simplified text break builder with fluent API for chaining text break rules.
+/// </summary>
 public sealed class TextBreakBuilder : ICssBuilder
 {
     private readonly List<TextBreakRule> _rules = new(4);
@@ -25,14 +28,38 @@ public sealed class TextBreakBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Enables word breaking.
+    /// </summary>
     public TextBreakBuilder Enable => Chain(true);
+    /// <summary>
+    /// Disables word breaking.
+    /// </summary>
     public TextBreakBuilder Disable => Chain(false);
 
+    /// <summary>
+    /// Applies the text break on phone breakpoint.
+    /// </summary>
     public TextBreakBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    /// <summary>
+    /// Applies the text break on tablet breakpoint.
+    /// </summary>
     public TextBreakBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    /// <summary>
+    /// Applies the text break on laptop breakpoint.
+    /// </summary>
     public TextBreakBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    /// <summary>
+    /// Applies the text break on desktop breakpoint.
+    /// </summary>
     public TextBreakBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    /// <summary>
+    /// Applies the text break on widescreen breakpoint.
+    /// </summary>
     public TextBreakBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    /// <summary>
+    /// Applies the text break on ultrawide breakpoint.
+    /// </summary>
     public TextBreakBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -58,6 +85,10 @@ public sealed class TextBreakBuilder : ICssBuilder
         return this;
     }
 
+    /// <summary>
+    /// Gets the CSS class string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -87,6 +118,10 @@ public sealed class TextBreakBuilder : ICssBuilder
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the CSS style string for the current configuration.
+    /// </summary>
+    /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
         if (_rules.Count == 0)
