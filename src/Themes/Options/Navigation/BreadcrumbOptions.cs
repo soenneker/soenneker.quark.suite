@@ -5,6 +5,6 @@ public sealed class BreadcrumbOptions : ComponentOptions
 {
     public BreadcrumbOptions()
     {
-        Selector = ".breadcrumb";
+        Selector = ".breadcrumb, .breadcrumb .breadcrumb-item, .breadcrumb-item.active";
     }
 }

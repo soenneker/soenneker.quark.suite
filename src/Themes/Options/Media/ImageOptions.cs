@@ -5,6 +5,6 @@ public sealed class ImageOptions : ComponentOptions
 {
     public ImageOptions()
     {
-        Selector = "img";
+        Selector = ".img-fluid, .rounded, .img-thumbnail, img";
     }
 }

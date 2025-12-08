@@ -5,6 +5,6 @@ public sealed class AnchorOptions : ComponentOptions
 {
     public AnchorOptions()
     {
-        Selector = "a";
+        Selector = ".nav-link, a.btn-link, a.dropdown-item, a";
     }
 }

@@ -5,6 +5,6 @@ public sealed class UnorderedListItemOptions : ComponentOptions
 {
     public UnorderedListItemOptions()
     {
-        Selector = "li";
+        Selector = ".list-group-item, .nav-item, li";
     }
 }

@@ -5,7 +5,7 @@ public sealed class SelectOptions : ComponentOptions
 {
     public SelectOptions()
     {
-        Selector = "select";
+        Selector = "select.form-select, select.form-control, select";
     }
 }
 

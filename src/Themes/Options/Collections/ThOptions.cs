@@ -5,7 +5,7 @@ public sealed class ThOptions : ComponentOptions
 {
     public ThOptions()
     {
-        Selector = "th";
+        Selector = ".table th, th";
     }
 }
 

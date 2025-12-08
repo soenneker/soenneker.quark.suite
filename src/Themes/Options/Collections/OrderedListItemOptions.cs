@@ -5,6 +5,6 @@ public sealed class OrderedListItemOptions : ComponentOptions
 {
     public OrderedListItemOptions()
     {
-        Selector = "li";
+        Selector = ".list-group-item, .nav-item, li";
     }
 }

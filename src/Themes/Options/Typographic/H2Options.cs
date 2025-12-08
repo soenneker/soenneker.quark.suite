@@ -11,7 +11,7 @@ public sealed class H2Options : ComponentOptions
     /// </summary>
     public H2Options()
     {
-        Selector = "h2";
+        Selector = ".h2, .display-2, h2";
     }
 }
 

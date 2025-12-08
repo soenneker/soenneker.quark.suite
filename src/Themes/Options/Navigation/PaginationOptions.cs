@@ -5,6 +5,6 @@ public sealed class PaginationOptions : ComponentOptions
 {
     public PaginationOptions()
     {
-        Selector = ".pagination";
+        Selector = ".pagination, .pagination .page-item, .pagination .page-link";
     }
 }

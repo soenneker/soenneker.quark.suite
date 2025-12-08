@@ -11,6 +11,6 @@ public sealed class CodeOptions : ComponentOptions
     /// </summary>
     public CodeOptions()
     {
-        Selector = "code";
+        Selector = ".code, code";
     }
 }

@@ -11,7 +11,7 @@ public sealed class H6Options : ComponentOptions
     /// </summary>
     public H6Options()
     {
-        Selector = "h6";
+        Selector = ".h6, .display-6, h6";
     }
 }
 

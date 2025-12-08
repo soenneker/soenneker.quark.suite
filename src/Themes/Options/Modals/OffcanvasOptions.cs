@@ -5,6 +5,6 @@ public sealed class OffcanvasOptions : ComponentOptions
 {
     public OffcanvasOptions()
     {
-        Selector = ".offcanvas";
+        Selector = ".offcanvas, .offcanvas.show, .offcanvas.offcanvas-start";
     }
 }

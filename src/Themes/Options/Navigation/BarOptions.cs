@@ -5,6 +5,6 @@ public sealed class BarOptions : ComponentOptions
 {
     public BarOptions()
     {
-        Selector = ".navbar";
+        Selector = ".navbar, .navbar.navbar-expand-lg, .navbar .navbar-nav, .navbar .nav-link";
     }
 }

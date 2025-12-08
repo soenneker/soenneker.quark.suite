@@ -5,6 +5,6 @@ public sealed class OrderedListOptions : ComponentOptions
 {
     public OrderedListOptions()
     {
-        Selector = "ol";
+        Selector = ".list-group, .list-unstyled, ol";
     }
 }

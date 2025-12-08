@@ -5,6 +5,6 @@ public sealed class TrOptions : ComponentOptions
 {
     public TrOptions()
     {
-        Selector = "tr";
+        Selector = ".table tr, tr";
     }
 }

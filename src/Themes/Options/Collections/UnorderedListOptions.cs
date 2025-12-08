@@ -5,6 +5,6 @@ public sealed class UnorderedListOptions : ComponentOptions
 {
     public UnorderedListOptions()
     {
-        Selector = "ul";
+        Selector = ".list-group, .list-unstyled, ul";
     }
 }

@@ -11,7 +11,7 @@ public sealed class BlockquoteOptions : ComponentOptions
     /// </summary>
     public BlockquoteOptions()
     {
-        Selector = "blockquote";
+        Selector = ".blockquote, blockquote";
     }
 }
 

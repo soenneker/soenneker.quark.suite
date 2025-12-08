@@ -5,6 +5,6 @@ public sealed class CardOptions : ComponentOptions
 {
     public CardOptions()
     {
-        Selector = ".card";
+        Selector = ".card, .card.card-body, .card-header, .card-footer, .card-title";
     }
 }

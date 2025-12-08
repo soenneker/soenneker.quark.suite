@@ -11,7 +11,7 @@ public sealed class FieldLabelOptions : ComponentOptions
     /// </summary>
     public FieldLabelOptions()
     {
-        Selector = "label";
+        Selector = "label.form-label, label.form-check-label, label";
     }
 }
 

@@ -5,7 +5,7 @@ public sealed class TabsOptions : ComponentOptions
 {
     public TabsOptions()
     {
-        Selector = ".nav";
+        Selector = ".nav, .nav.nav-pills, .nav.nav-tabs, .nav .nav-link";
     }
 }
 

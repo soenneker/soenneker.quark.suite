@@ -5,6 +5,6 @@ public sealed class IconOptions : ComponentOptions
 {
     public IconOptions()
     {
-        Selector = "i";
+        Selector = ".fa, .fas, .far, .fal, .fab, i";
     }
 }

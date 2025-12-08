@@ -5,6 +5,6 @@ public sealed class TdOptions : ComponentOptions
 {
     public TdOptions()
     {
-        Selector = "td";
+        Selector = ".table td, td";
     }
 }

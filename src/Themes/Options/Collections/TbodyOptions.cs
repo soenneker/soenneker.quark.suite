@@ -5,6 +5,6 @@ public sealed class TbodyOptions : ComponentOptions
 {
     public TbodyOptions()
     {
-        Selector = "tbody";
+        Selector = ".table tbody, tbody";
     }
 }
