@@ -55,6 +55,7 @@ public class ComponentsCssGeneratorTests
         {
             Anchors = new AnchorOptions
             {
+                Selector = "a",
                 TextDecoration = TextDecoration.Underline
             }
         };
@@ -74,6 +75,7 @@ public class ComponentsCssGeneratorTests
         {
             Anchors = new AnchorOptions
             {
+                Selector = "a",
                 TextDecoration = TextDecoration.Underline
             },
             Buttons = new ButtonOptions
