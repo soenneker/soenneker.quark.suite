@@ -4,11 +4,9 @@
 @inherits Soenneker.Quark.Element
 @implements IBarDropdownItem
 
-<li>
-    <Anchor To="@To" @attributes="BuildAttributes()">
-        @ChildContent
-    </Anchor>
-</li>
+<a @attributes="BuildAttributes()" @onclick="HandleClick">
+    @ChildContent
+</a>
 
 @code {
 
@@ -45,13 +43,20 @@
             AppendClass(ref cls, "q-bar-dropdown-item");
             AppendClass(ref cls, "link-dark");
             AppendClass(ref cls, "rounded");
-            
+            AppendClass(ref cls, "d-block");
+
             if (Disabled)
                 AppendClass(ref cls, "disabled");
         });
 
+        if (To.HasContent())
+            attributes["href"] = To!;
+
         if (Disabled)
+        {
             attributes["aria-disabled"] = "true";
+            attributes["tabindex"] = "-1";
+        }
 
         return attributes;
     }
