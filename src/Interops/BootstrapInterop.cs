@@ -8,26 +8,57 @@ namespace Soenneker.Quark;
 ///<inheritdoc cref="IBootstrapInterop"/>
 public sealed class BootstrapInterop : IBootstrapInterop
 {
+    private readonly QuarkOptions _quarkOptions;
     private readonly AsyncSingleton _initializer;
 
-    private const string _bootstrapCssUrl = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css";
-    private const string _bootstrapJsUrl = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js";
-    private const string _bootstrapCssIntegrity = "sha256-2FMn2Zx6PuH5tdBQDRNwrOo60ts5wWPC9R8jK67b3t4=";
-    private const string _bootstrapJsIntegrity = "sha256-5P1JGBOIxI7FBAvT/mb1fCnI5n/NhQKzNUuW7Hq0fMc=";
+    private const string CdnBaseUrl = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist";
+    private const string CdnCssPath = "/css/bootstrap.min.css";
+    private const string CdnJsPath = "/js/bootstrap.bundle.min.js";
+    
+    private const string LocalCssPath = "/css/bootstrap/bootstrap.min.css";
+    private const string LocalJsPath = "/js/bootstrap/bootstrap.bundle.min.js";
+    
+    private const string CssIntegrity = "sha256-2FMn2Zx6PuH5tdBQDRNwrOo60ts5wWPC9R8jK67b3t4=";
+    private const string JsIntegrity = "sha256-5P1JGBOIxI7FBAvT/mb1fCnI5n/NhQKzNUuW7Hq0fMc=";
 
     /// <summary>
     /// Initializes a new instance of the BootstrapInterop class.
     /// </summary>
     /// <param name="resourceLoader">The resource loader used to load Bootstrap CSS and JavaScript.</param>
-    public BootstrapInterop(IResourceLoader resourceLoader)
+    /// <param name="quarkOptions">The Quark configuration options.</param>
+    public BootstrapInterop(IResourceLoader resourceLoader, QuarkOptions quarkOptions)
     {
+        _quarkOptions = quarkOptions;
+
         _initializer = new AsyncSingleton(async (token, arg) =>
         {
-            // Load Bootstrap CSS using ResourceLoader
-            await resourceLoader.LoadStyle(_bootstrapCssUrl, _bootstrapCssIntegrity, cancellationToken: token);
+            string cssUrl;
+            string jsUrl;
+            bool useIntegrity;
 
-            // Load Bootstrap JavaScript using ResourceLoader
-            await resourceLoader.LoadScript(_bootstrapJsUrl, _bootstrapJsIntegrity, cancellationToken: token);
+            if (_quarkOptions.BootstrapUseCdn)
+            {
+                cssUrl = $"{CdnBaseUrl}{CdnCssPath}";
+                jsUrl = $"{CdnBaseUrl}{CdnJsPath}";
+                useIntegrity = true;
+            }
+            else
+            {
+                cssUrl = LocalCssPath;
+                jsUrl = LocalJsPath;
+                useIntegrity = false;
+            }
+
+            if (useIntegrity)
+            {
+                await resourceLoader.LoadStyle(cssUrl, CssIntegrity, cancellationToken: token);
+                await resourceLoader.LoadScript(jsUrl, JsIntegrity, cancellationToken: token);
+            }
+            else
+            {
+                await resourceLoader.LoadStyle(cssUrl, cancellationToken: token);
+                await resourceLoader.LoadScript(jsUrl, cancellationToken: token);
+            }
 
             return new object();
         });

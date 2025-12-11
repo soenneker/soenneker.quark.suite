@@ -15,25 +15,62 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     private readonly IResourceLoader _resourceLoader;
     private readonly AsyncSingleton _initializer;
 
-
-    private const string _monacoBaseCdn = "https://cdn.jsdelivr.net/npm/monaco-editor@0.54.0";
     private const string _modulePath = "Soenneker.Quark.Suite/js/monacointerop.js";
     private const string _moduleName = "MonacoInterop";
+    
+    private const string _cdnBaseUrl = "https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1";
+    private const string _cdnCssPath = "/min/vs/editor/editor.main.css";
+    private const string _cdnLoaderPath = "/min/vs/loader.js";
+    private const string _cdnBasePath = "/min";
+    
+    private const string _localCssPath = "/css/monaco-editor/editor.main.css";
+    private const string _localLoaderPath = "/js/monaco-editor/loader.js";
+    private const string _localBasePath = "/js/monaco-editor/min";
+    
+    private const string _cssIntegrity = "sha256-22wc1geUOoYbR8dmDQ7wLvZPcXMZTXxLi85cmIFW5fg=";
+    private const string _loaderIntegrity = "sha256-NbWd+AtBqLc78c6xWbRPBAVnwqtT9Od6PQAtncOdVdE=";
 
-    public CodeEditorInterop(IJSRuntime jsRuntime, IResourceLoader resourceLoader)
+    public CodeEditorInterop(IJSRuntime jsRuntime, IResourceLoader resourceLoader, QuarkOptions quarkOptions)
     {
         _jsRuntime = jsRuntime;
         _resourceLoader = resourceLoader;
 
         _initializer = new AsyncSingleton(async (token, _) =>
         {
-            await _resourceLoader.LoadStyle("https://cdn.jsdelivr.net/npm/monaco-editor@0.54.0/min/vs/editor/editor.main.css", integrity: "sha256-KPxKE5YDTnMFYh7t0uKscHO8puZlkZPttjPyUGqo2Lo=", cancellationToken: token);
-            await _resourceLoader.LoadScript("https://cdn.jsdelivr.net/npm/monaco-editor@0.54.0/min/vs/loader.js", integrity: "sha256-NbWd+AtBqLc78c6xWbRPBAVnwqtT9Od6PQAtncOdVdE=", cancellationToken: token);
+            string cssUrl;
+            string loaderUrl;
+            string monacoBaseUrl;
+            bool useIntegrity;
+
+            if (quarkOptions.CodeEditorUseCdn)
+            {
+                cssUrl = $"{_cdnBaseUrl}{_cdnCssPath}";
+                loaderUrl = $"{_cdnBaseUrl}{_cdnLoaderPath}";
+                monacoBaseUrl = $"{_cdnBaseUrl}{_cdnBasePath}";
+                useIntegrity = true;
+            }
+            else
+            {
+                cssUrl = _localCssPath;
+                loaderUrl = _localLoaderPath;
+                monacoBaseUrl = _localBasePath;
+                useIntegrity = false;
+            }
+
+            if (useIntegrity)
+            {
+                await _resourceLoader.LoadStyle(cssUrl, integrity: _cssIntegrity, cancellationToken: token);
+                await _resourceLoader.LoadScript(loaderUrl, integrity: _loaderIntegrity, cancellationToken: token);
+            }
+            else
+            {
+                await _resourceLoader.LoadStyle(cssUrl, cancellationToken: token);
+                await _resourceLoader.LoadScript(loaderUrl, cancellationToken: token);
+            }
 
             await _resourceLoader.ImportModuleAndWaitUntilAvailable(_modulePath, _moduleName, 100, token);
 
-            // Initialize the AMD config for monaco
-            await _jsRuntime.InvokeVoidAsync($"{_moduleName}.ensureConfigured", token, _monacoBaseCdn + "/min");
+            await _jsRuntime.InvokeVoidAsync($"{_moduleName}.ensureConfigured", token, monacoBaseUrl);
             return new object();
         });
     }
