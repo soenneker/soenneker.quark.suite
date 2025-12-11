@@ -1,7 +1,7 @@
 @namespace Soenneker.Quark
 @inherits Element
 
-@if (ParentValidation?.Status == ValidationStatus.Error && ParentValidation.Messages?.Any() == true)
+@if (ShowErrorMessages && ParentValidation?.Status == ValidationStatus.Error && ParentValidation.Messages?.Any() == true)
 {
 	<div @attributes="BuildAttributes()">
 		@foreach (var message in ParentValidation.Messages)
@@ -10,7 +10,7 @@
 		}
 	</div>
 }
-else if (_visible && _status == ValidationStatus.Error && (_messages?.Any() ?? false) && ParentValidation == null)
+else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (_messages?.Any() ?? false) && ParentValidation == null)
 {
 	<div @attributes="BuildAttributes()">
 		@foreach (var message in _messages!)
@@ -26,6 +26,12 @@ else if (_visible && _status == ValidationStatus.Error && (_messages?.Any() ?? f
 
 	[CascadingParameter]
 	public Validations? ParentValidations { get; set; }
+
+	/// <summary>
+	/// Gets or sets whether to show validation error messages.
+	/// </summary>
+	[Parameter]
+	public bool ShowErrorMessages { get; set; } = true;
 
 	private bool _visible;
 	private ValidationStatus _status = ValidationStatus.None;
