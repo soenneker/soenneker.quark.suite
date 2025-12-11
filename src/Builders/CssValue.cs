@@ -138,10 +138,10 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         // Check if the value ends with common CSS units
         var trimmed = value.Trim();
 
-        return trimmed.EndsWithIgnoreCase("px") || trimmed.EndsWith("em", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.EndsWith("rem", StringComparison.OrdinalIgnoreCase) || trimmed.EndsWith("%", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.EndsWith("vh", StringComparison.OrdinalIgnoreCase) || trimmed.EndsWith("vw", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.EndsWith("vmin", StringComparison.OrdinalIgnoreCase) || trimmed.EndsWith("vmax", StringComparison.OrdinalIgnoreCase) ||
+        return trimmed.EndsWithIgnoreCase("px") || trimmed.EndsWithIgnoreCase("em") ||
+               trimmed.EndsWithIgnoreCase("rem") || trimmed.EndsWithIgnoreCase("%") ||
+               trimmed.EndsWithIgnoreCase("vh") || trimmed.EndsWithIgnoreCase("vw") ||
+               trimmed.EndsWithIgnoreCase("vmin") || trimmed.EndsWithIgnoreCase("vmax") ||
                trimmed.Equals("auto", StringComparison.OrdinalIgnoreCase) || trimmed.Equals("inherit", StringComparison.OrdinalIgnoreCase) ||
                trimmed.Equals("initial", StringComparison.OrdinalIgnoreCase) || trimmed.Equals("unset", StringComparison.OrdinalIgnoreCase);
     }
