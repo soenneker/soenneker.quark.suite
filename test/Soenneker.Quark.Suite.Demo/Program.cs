@@ -45,7 +45,6 @@ public sealed class Program
                 {
                     BackgroundColor = "#FFFFFF"
                 },
-
                 BootstrapCssVariables = new BootstrapCssVariables
                 {
                     Colors = new BootstrapColorsCssVariables

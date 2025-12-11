@@ -74,9 +74,9 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
     /// </summary>
     public bool IsCssStyle =>
         // style if it looks like "prop: val" OR (ColorBuilder with non-theme token)
-        // OR (HeightBuilder/WidthBuilder with CSS unit value) OR standalone CSS values (var(), #fff, inherit, etc.)
-        _value.IndexOf(':') >= 0 || (_isColor && !IsKnownThemeOrSizeToken(_value)) || ((_isHeight || _isWidth) && LooksLikeCssUnit(_value)) ||
-        LooksLikeStandaloneCssValue(_value);
+        // OR (CSS unit value) OR standalone CSS values (var(), #fff, inherit, etc.)
+        _value.IndexOf(':') >= 0 || (_isColor && !IsKnownThemeOrSizeToken(_value)) ||
+        LooksLikeCssUnit(_value) || LooksLikeStandaloneCssValue(_value);
 
     /// <summary>
     /// Gets whether this CSS value represents a CSS class (e.g., "btn-primary") rather than an inline style.
@@ -138,7 +138,7 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         // Check if the value ends with common CSS units
         var trimmed = value.Trim();
 
-        return trimmed.EndsWith("px", StringComparison.OrdinalIgnoreCase) || trimmed.EndsWith("em", StringComparison.OrdinalIgnoreCase) ||
+        return trimmed.EndsWithIgnoreCase("px") || trimmed.EndsWith("em", StringComparison.OrdinalIgnoreCase) ||
                trimmed.EndsWith("rem", StringComparison.OrdinalIgnoreCase) || trimmed.EndsWith("%", StringComparison.OrdinalIgnoreCase) ||
                trimmed.EndsWith("vh", StringComparison.OrdinalIgnoreCase) || trimmed.EndsWith("vw", StringComparison.OrdinalIgnoreCase) ||
                trimmed.EndsWith("vmin", StringComparison.OrdinalIgnoreCase) || trimmed.EndsWith("vmax", StringComparison.OrdinalIgnoreCase) ||
