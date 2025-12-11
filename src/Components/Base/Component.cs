@@ -189,6 +189,12 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<UserSelectBuilder>? UserSelect { get; set; }
 
     /// <summary>
+    /// Gets or sets the cursor style when hovering over the element.
+    /// </summary>
+    [Parameter]
+    public CssValue<CursorBuilder>? Cursor { get; set; }
+
+    /// <summary>
     /// Gets or sets the CSS background color configuration. Will emit either classes or inline style based on the builder.
     /// </summary>
     [Parameter]
@@ -421,6 +427,7 @@ public abstract class Component : CoreComponent, IComponent
             AddCss(ref sty, ref cls, ZIndex);
             AddCss(ref sty, ref cls, PointerEvents);
             AddCss(ref sty, ref cls, UserSelect);
+            AddCss(ref sty, ref cls, Cursor);
             AddCss(ref sty, ref cls, Animation);
             AddCss(ref sty, ref cls, BackdropFilter);
             AddCss(ref sty, ref cls, Clearfix);

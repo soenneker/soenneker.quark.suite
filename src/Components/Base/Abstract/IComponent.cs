@@ -143,6 +143,11 @@ public interface IComponent : ICoreComponent
     CssValue<UserSelectBuilder>? UserSelect { get; set; }
 
     /// <summary>
+    /// Gets or sets the cursor style when hovering over the element.
+    /// </summary>
+    CssValue<CursorBuilder>? Cursor { get; set; }
+
+    /// <summary>
     /// Gets or sets the background color to apply (implementation-specific mapping to classes or inline style).
     /// </summary>
     CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }

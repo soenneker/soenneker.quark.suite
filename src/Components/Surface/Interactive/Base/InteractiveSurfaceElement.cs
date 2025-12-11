@@ -11,12 +11,6 @@ namespace Soenneker.Quark;
 public abstract class InteractiveSurfaceElement : SurfaceElement, IInteractiveSurfaceElement
 {
     /// <summary>
-    /// Gets or sets the cursor style when hovering over the element.
-    /// </summary>
-    [Parameter]
-    public CssValue<CursorBuilder>? Cursor { get; set; }
-
-    /// <summary>
     /// Gets or sets the focus ring style when the element is focused.
     /// </summary>
     [Parameter]
@@ -138,7 +132,6 @@ public abstract class InteractiveSurfaceElement : SurfaceElement, IInteractiveSu
         BuildClassAndStyleAttributes(attributes, (ref PooledStringBuilder cls, ref PooledStringBuilder sty) =>
         {
             // Apply interactive-specific properties
-            AddCss(ref sty, ref cls, Cursor);
             AddCss(ref sty, ref cls, FocusRing);
             AddCss(ref sty, ref cls, Interaction);
         });

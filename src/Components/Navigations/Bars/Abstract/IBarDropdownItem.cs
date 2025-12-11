@@ -28,4 +28,3 @@ public interface IBarDropdownItem : IElement
     /// </summary>
     double Indentation { get; set; }
 }
-
