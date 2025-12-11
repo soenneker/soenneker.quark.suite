@@ -11,5 +11,6 @@ public sealed class ValidationsContainerOptions : ComponentOptions
     /// </summary>
     public ValidationsContainerOptions()
     {
+        Selector = ":root";
     }
 }

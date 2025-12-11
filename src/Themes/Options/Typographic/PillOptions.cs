@@ -11,6 +11,7 @@ public sealed class PillOptions : ComponentOptions
     /// </summary>
     public PillOptions()
     {
+        Selector = ".q-pill";
     }
 }
 

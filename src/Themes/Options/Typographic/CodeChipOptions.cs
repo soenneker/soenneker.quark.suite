@@ -11,6 +11,7 @@ public sealed class CodeChipOptions : ComponentOptions
     /// </summary>
     public CodeChipOptions()
     {
+        Selector = ".q-code-chip";
     }
 }
 

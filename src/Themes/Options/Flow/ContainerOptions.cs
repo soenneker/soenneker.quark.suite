@@ -5,6 +5,6 @@ public sealed class ContainerOptions : ComponentOptions
 {
     public ContainerOptions()
     {
-        Selector = ".container";
+        Selector = ".q-container";
     }
 }

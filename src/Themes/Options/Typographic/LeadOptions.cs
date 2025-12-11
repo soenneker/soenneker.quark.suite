@@ -11,6 +11,7 @@ public sealed class LeadOptions : ComponentOptions
     /// </summary>
     public LeadOptions()
     {
+        Selector = ".q-lead";
     }
 }
 

@@ -11,6 +11,7 @@ public sealed class StepsOptions : ComponentOptions
     /// </summary>
     public StepsOptions()
     {
+        Selector = ".q-steps";
     }
 
     /// <summary>

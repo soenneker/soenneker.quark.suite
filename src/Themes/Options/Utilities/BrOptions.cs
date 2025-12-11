@@ -11,7 +11,7 @@ public sealed class BrOptions : ComponentOptions
     /// </summary>
     public BrOptions()
     {
-        Selector = "br";
+        Selector = ".q-br";
     }
 }
 

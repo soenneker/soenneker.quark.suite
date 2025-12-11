@@ -5,6 +5,7 @@ public sealed class LayoutFooterOptions : ComponentOptions
 {
     public LayoutFooterOptions()
     {
+        Selector = ".q-layout-footer";
     }
 }
 

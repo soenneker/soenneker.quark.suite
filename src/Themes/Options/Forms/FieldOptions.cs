@@ -11,6 +11,6 @@ public sealed class FieldOptions : ComponentOptions
     /// </summary>
     public FieldOptions()
     {
-        Selector = ".form-group, .form-group .form-label, .form-group .form-control";
+        Selector = ".q-field";
     }
 }

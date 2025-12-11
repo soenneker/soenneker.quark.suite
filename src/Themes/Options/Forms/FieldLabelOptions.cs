@@ -1,4 +1,3 @@
-
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -11,7 +10,6 @@ public sealed class FieldLabelOptions : ComponentOptions
     /// </summary>
     public FieldLabelOptions()
     {
-        Selector = "label.form-label, label.form-check-label, label";
+        Selector = ".q-field-label";
     }
 }
-

@@ -11,6 +11,6 @@ public sealed class StrongOptions : ComponentOptions
     /// </summary>
     public StrongOptions()
     {
-        Selector = ".fw-bold, strong";
+        Selector = ".q-strong";
     }
 }

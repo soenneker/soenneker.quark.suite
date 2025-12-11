@@ -5,6 +5,6 @@ public sealed class ProgressOptions : ComponentOptions
 {
     public ProgressOptions()
     {
-        Selector = ".progress, .progress .progress-bar";
+        Selector = ".q-progress";
     }
 }

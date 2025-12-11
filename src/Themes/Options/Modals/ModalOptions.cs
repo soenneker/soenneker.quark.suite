@@ -5,6 +5,6 @@ public sealed class ModalOptions : ComponentOptions
 {
     public ModalOptions()
     {
-        Selector = ".modal, .modal.show, .modal.fade";
+        Selector = ".q-modal";
     }
 }

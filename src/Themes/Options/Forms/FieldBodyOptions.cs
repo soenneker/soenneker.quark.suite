@@ -11,6 +11,7 @@ public sealed class FieldBodyOptions : ComponentOptions
     /// </summary>
     public FieldBodyOptions()
     {
+        Selector = ".q-field-body";
     }
 }
 

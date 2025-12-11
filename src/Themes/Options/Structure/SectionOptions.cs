@@ -5,6 +5,6 @@ public sealed class SectionOptions : ComponentOptions
 {
     public SectionOptions()
     {
-        Selector = "section";
+        Selector = ".q-section";
     }
 }

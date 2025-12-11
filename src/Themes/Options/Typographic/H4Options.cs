@@ -11,7 +11,7 @@ public sealed class H4Options : ComponentOptions
     /// </summary>
     public H4Options()
     {
-        Selector = ".h4, .display-4, h4";
+        Selector = ".q-h4";
     }
 }
 

@@ -5,7 +5,7 @@ public sealed class IFrameOptions : ComponentOptions
 {
     public IFrameOptions()
     {
-        Selector = "iframe";
+        Selector = ".q-iframe";
     }
 }
 

@@ -5,7 +5,7 @@ public sealed class AudioOptions : ComponentOptions
 {
     public AudioOptions()
     {
-        Selector = "audio";
+        Selector = ".q-audio";
     }
 }
 

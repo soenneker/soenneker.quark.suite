@@ -17,14 +17,18 @@
 	{
 		var attributes = base.BuildAttributes();
 		
-        if (NavStyle is not null && !NavStyle.Value.IsEmpty)
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
         {
-            var navClass = NavStyle.Value.ToString();
-            if (navClass.HasContent())
+            AppendClass(ref cls, "q-nav");
+            if (NavStyle is not null && !NavStyle.Value.IsEmpty)
             {
-				BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, navClass));
+                var navClass = NavStyle.Value.ToString();
+                if (navClass.HasContent())
+                {
+                    AppendClass(ref cls, navClass);
+                }
             }
-        }
+        });
 
 		return attributes;
 	}

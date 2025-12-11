@@ -5,5 +5,6 @@ public sealed class BarStartOptions : ComponentOptions
 {
     public BarStartOptions()
     {
+        Selector = ".q-bar-start";
     }
 }

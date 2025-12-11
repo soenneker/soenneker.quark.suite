@@ -11,7 +11,7 @@ public sealed class H3Options : ComponentOptions
     /// </summary>
     public H3Options()
     {
-        Selector = ".h3, .display-3, h3";
+        Selector = ".q-h3";
     }
 }
 

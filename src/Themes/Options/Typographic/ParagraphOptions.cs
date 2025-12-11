@@ -11,6 +11,6 @@ public sealed class ParagraphOptions : ComponentOptions
     /// </summary>
     public ParagraphOptions()
     {
-        Selector = ".lead, p";
+        Selector = ".q-paragraph";
     }
 }

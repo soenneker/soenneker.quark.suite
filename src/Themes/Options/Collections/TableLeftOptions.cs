@@ -5,6 +5,7 @@ public sealed class TableLeftOptions : ComponentOptions
 {
     public TableLeftOptions()
     {
+        Selector = ".q-table-left";
     }
 }
 

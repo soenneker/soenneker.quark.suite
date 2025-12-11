@@ -1,4 +1,3 @@
-
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -11,7 +10,6 @@ public sealed class FieldsetOptions : ComponentOptions
     /// </summary>
     public FieldsetOptions()
     {
-        Selector = "fieldset";
+        Selector = ".q-fieldset";
     }
 }
-

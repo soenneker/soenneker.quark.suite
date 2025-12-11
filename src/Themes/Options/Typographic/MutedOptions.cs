@@ -11,6 +11,7 @@ public sealed class MutedOptions : ComponentOptions
     /// </summary>
     public MutedOptions()
     {
+        Selector = ".q-muted";
     }
 }
 

@@ -11,6 +11,6 @@ public sealed class PreCodeOptions : ComponentOptions
     /// </summary>
     public PreCodeOptions()
     {
-        Selector = ".pre, pre";
+        Selector = ".q-pre-code";
     }
 }

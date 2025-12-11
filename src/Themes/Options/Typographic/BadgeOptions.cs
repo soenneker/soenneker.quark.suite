@@ -11,6 +11,6 @@ public sealed class BadgeOptions : ComponentOptions
     /// </summary>
     public BadgeOptions()
     {
-        Selector = ".badge, .badge.bg-primary, .badge.text-bg-primary, .badge.text-bg-secondary, .badge.text-bg-success, .badge.text-bg-danger, .badge.text-bg-warning, .badge.text-bg-info, .badge.text-bg-light, .badge.text-bg-dark";
+        Selector = ".q-badge";
     }
 }

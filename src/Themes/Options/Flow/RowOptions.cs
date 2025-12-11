@@ -5,6 +5,6 @@ public sealed class RowOptions : ComponentOptions
 {
     public RowOptions()
     {
-        Selector = ".row";
+        Selector = ".q-row";
     }
 }

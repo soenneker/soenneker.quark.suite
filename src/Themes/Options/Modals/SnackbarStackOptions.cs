@@ -7,6 +7,7 @@ public sealed class SnackbarStackOptions : ComponentOptions
 {
     public SnackbarStackOptions()
     {
+        Selector = ".q-snackbar-stack";
     }
 
     /// <summary>

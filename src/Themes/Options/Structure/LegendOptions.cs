@@ -5,7 +5,7 @@ public sealed class LegendOptions : ComponentOptions
 {
     public LegendOptions()
     {
-        Selector = "legend";
+        Selector = ".q-legend";
     }
 }
 

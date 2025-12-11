@@ -11,7 +11,7 @@ public sealed class H5Options : ComponentOptions
     /// </summary>
     public H5Options()
     {
-        Selector = ".h5, .display-5, h5";
+        Selector = ".q-h5";
     }
 }
 

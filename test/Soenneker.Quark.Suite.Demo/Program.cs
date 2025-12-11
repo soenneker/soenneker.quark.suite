@@ -41,6 +41,10 @@ public sealed class Program
                 {
                     TextDecoration = TextDecoration.None
                 },
+                BarDropdownItems = new BarDropdownItemOptions
+                {
+                    BackgroundColor = "#FFFFFF"
+                },
 
                 BootstrapCssVariables = new BootstrapCssVariables
                 {

@@ -5,7 +5,7 @@ public sealed class ArticleOptions : ComponentOptions
 {
     public ArticleOptions()
     {
-        Selector = "article";
+        Selector = ".q-article";
     }
 }
 

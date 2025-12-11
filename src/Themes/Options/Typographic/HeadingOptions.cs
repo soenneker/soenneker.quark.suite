@@ -11,5 +11,6 @@ public sealed class HeadingOptions : ComponentOptions
     /// </summary>
     public HeadingOptions()
     {
+        Selector = ".q-heading";
     }
 }

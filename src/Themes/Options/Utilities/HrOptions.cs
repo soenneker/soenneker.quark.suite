@@ -11,7 +11,7 @@ public sealed class HrOptions : ComponentOptions
     /// </summary>
     public HrOptions()
     {
-        Selector = "hr";
+        Selector = ".q-hr";
     }
 }
 

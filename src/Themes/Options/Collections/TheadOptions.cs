@@ -4,6 +4,6 @@ public sealed class TheadOptions : ComponentOptions
 {
     public TheadOptions()
     {
-        Selector = ".table thead, thead";
+        Selector = ".q-table-thead";
     }
 }

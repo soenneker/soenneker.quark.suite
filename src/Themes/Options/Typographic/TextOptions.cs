@@ -11,5 +11,6 @@ public sealed class TextOptions : ComponentOptions
     /// </summary>
     public TextOptions()
     {
+        Selector = ".q-text";
     }
 }

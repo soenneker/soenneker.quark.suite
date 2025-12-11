@@ -27,18 +27,21 @@
     {
         var attributes = base.BuildAttributes();
 
-        var classes = Vertical ? "btn-group-vertical" : "btn-group";
-        
-        if (Size != null && Size != Quark.Size.Default)
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
         {
-            var sizeValue = Size.ToString();
-            if (sizeValue.HasContent())
+            AppendClass(ref cls, "q-button-group");
+            var groupClass = Vertical ? "btn-group-vertical" : "btn-group";
+            AppendClass(ref cls, groupClass);
+            
+            if (Size != null && Size != Quark.Size.Default)
             {
-                classes += $" btn-group-{sizeValue}";
+                var sizeValue = Size.ToString();
+                if (sizeValue.HasContent())
+                {
+                    AppendClass(ref cls, $"btn-group-{sizeValue}");
+                }
             }
-        }
-
-        attributes["class"] = classes;
+        });
 
         // Set default role if not specified
         if (!attributes.ContainsKey("role"))

@@ -11,6 +11,7 @@ public sealed class KbdChipOptions : ComponentOptions
     /// </summary>
     public KbdChipOptions()
     {
+        Selector = ".q-kbd-chip";
     }
 }
 

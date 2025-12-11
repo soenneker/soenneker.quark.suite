@@ -201,7 +201,10 @@
 
         BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
         {
-            AppendClass(ref cls, GetBaseClass());
+            AppendClass(ref cls, "q-bar");
+            var baseClass = GetBaseClass();
+            if (baseClass.HasContent())
+                AppendClass(ref cls, baseClass);
 
             var placementClass = GetPlacementClass();
             if (placementClass != null)
@@ -240,9 +243,15 @@
                 AppendClass(ref cls, "border-end");
 
                 if (!VerticalBarVisible)
+                {
                     AppendClass(ref cls, "sidebar-hidden");
+                    AppendClass(ref cls, "q-sidebar-hidden");
+                }
                 else if (CollapseMode == BarCollapseMode.Small && _verticalBarCollapsed)
+                {
                     AppendClass(ref cls, "sidebar-collapsed");
+                    AppendClass(ref cls, "q-sidebar-collapsed");
+                }
             }
         });
 

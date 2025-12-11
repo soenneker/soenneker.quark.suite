@@ -5,7 +5,7 @@ public sealed class FigureOptions : ComponentOptions
 {
     public FigureOptions()
     {
-        Selector = "figure";
+        Selector = ".q-figure";
     }
 }
 

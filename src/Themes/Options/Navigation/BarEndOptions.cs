@@ -5,5 +5,6 @@ public sealed class BarEndOptions : ComponentOptions
 {
     public BarEndOptions()
     {
+        Selector = ".q-bar-end";
     }
 }

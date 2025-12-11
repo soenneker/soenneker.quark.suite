@@ -5,12 +5,12 @@
 {
 	<div @attributes="BuildAttributes()">
 		<div @attributes="BuildControlsAttributes()" >
-			<Button Class="quark-table-pagination-btn" OnClick="HandleFirstPage" disabled="@(CurrentPage == 1)" title="First" >«</Button>
-			<Button Class="quark-table-pagination-btn" OnClick="HandlePreviousPage" disabled="@(CurrentPage == 1)" title="Previous" >‹</Button>
+			<Button Class="q-table-pagination-btn" OnClick="HandleFirstPage" disabled="@(CurrentPage == 1)" title="First" >«</Button>
+			<Button Class="q-table-pagination-btn" OnClick="HandlePreviousPage" disabled="@(CurrentPage == 1)" title="Previous" >‹</Button>
 
 			@if (ComputedTotalPages <= 1)
 			{
-				<Button Class="quark-table-pagination-btn active" >
+				<Button Class="q-table-pagination-btn active" >
 					1
 				</Button>
 			}
@@ -19,15 +19,15 @@
 				@for (var p = StartPage; p <= EndPage; p++)
 				{
 					var pageNumber = p;
-					<Button Class="@($"quark-table-pagination-btn {(pageNumber == CurrentPage ? "active" : string.Empty)}")"
+					<Button Class="@($"q-table-pagination-btn {(pageNumber == CurrentPage ? "active" : string.Empty)}")"
 					        OnClick="@(() => HandleGoToPage(pageNumber))" >
 						@pageNumber
 					</Button>
 				}
 			}
 
-			<Button Class="quark-table-pagination-btn" OnClick="HandleNextPage" disabled="@(CurrentPage == TotalPages)" title="Next" >›</Button>
-			<Button Class="quark-table-pagination-btn" OnClick="HandleLastPage" disabled="@(CurrentPage == TotalPages)" title="Last" >»</Button>
+			<Button Class="q-table-pagination-btn" OnClick="HandleNextPage" disabled="@(CurrentPage == TotalPages)" title="Next" >›</Button>
+			<Button Class="q-table-pagination-btn" OnClick="HandleLastPage" disabled="@(CurrentPage == TotalPages)" title="Last" >»</Button>
 		</div>
 	</div>
 }
@@ -179,14 +179,17 @@
 	protected override Dictionary<string, object> BuildAttributes()
 	{
 		var attributes = base.BuildAttributes();
-		BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, "quark-table-pagination"));
+		BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+		{
+			AppendClass(ref cls, "q-table-pagination");
+		});
 		return attributes;
 	}
 
 	private Dictionary<string, object> BuildControlsAttributes()
 	{
 		var attributes = new Dictionary<string, object>();
-		BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, "quark-table-pagination-controls"));
+		BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => AppendClass(ref cls, "q-table-pagination-controls"));
 		return attributes;
 	}
 

@@ -11,7 +11,7 @@ public sealed class SummaryOptions : ComponentOptions
     /// </summary>
     public SummaryOptions()
     {
-        Selector = "summary";
+        Selector = ".q-summary";
     }
 }
 

@@ -5,7 +5,7 @@ public sealed class FigcaptionOptions : ComponentOptions
 {
     public FigcaptionOptions()
     {
-        Selector = "figcaption";
+        Selector = ".q-figcaption";
     }
 }
 

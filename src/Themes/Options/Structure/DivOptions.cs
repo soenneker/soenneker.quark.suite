@@ -5,6 +5,6 @@ public sealed class DivOptions : ComponentOptions
 {
     public DivOptions()
     {
-        Selector = "div";
+        Selector = ".q-div";
     }
 }

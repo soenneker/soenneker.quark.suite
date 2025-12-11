@@ -5,7 +5,7 @@ public sealed class AsideOptions : ComponentOptions
 {
     public AsideOptions()
     {
-        Selector = "aside";
+        Selector = ".q-aside";
     }
 }
 
