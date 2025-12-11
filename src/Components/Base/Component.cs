@@ -544,6 +544,7 @@ public abstract class Component : CoreComponent, IComponent
         AddIf(ref hc, ZIndex);
         AddIf(ref hc, PointerEvents);
         AddIf(ref hc, UserSelect);
+        AddIf(ref hc, Cursor);
         AddIf(ref hc, Animation);
         AddIf(ref hc, BackdropFilter);
         AddIf(ref hc, Clearfix);
