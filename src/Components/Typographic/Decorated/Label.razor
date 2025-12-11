@@ -21,13 +21,15 @@
     {
         var attributes = base.BuildAttributes();
 
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-label");
+            if (Form)
+                AppendClass(ref cls, "form-label");
+        });
+
         if (For.HasContent())
             attributes["for"] = For;
-
-        if (Form)
-        {
-            BuildClassAttribute(attributes, (ref PooledStringBuilder cls) => { AppendClass(ref cls, "form-label"); });
-        }
 
         return attributes;
     }

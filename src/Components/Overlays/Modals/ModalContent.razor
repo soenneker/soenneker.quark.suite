@@ -2,9 +2,24 @@
 @inherits Soenneker.Quark.Element
 @implements IModalContent
 
-@ChildContent
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
 
 @code {
-	[CascadingParameter]
-	public Modal? ParentModal { get; set; }
+    [CascadingParameter]
+    public Modal? ParentModal { get; set; }
+
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = base.BuildAttributes();
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-modal-content");
+            AppendClass(ref cls, "modal-content");
+        });
+
+        return attributes;
+    }
 }

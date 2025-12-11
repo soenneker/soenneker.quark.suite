@@ -40,7 +40,7 @@ public abstract class SurfaceElement : Element, ISurfaceElement
     {
         var attributes = base.BuildAttributes();
 
-        BuildClassAndStyleAttributes(attributes, (ref PooledStringBuilder cls, ref PooledStringBuilder sty) =>
+        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
             // Apply surface-specific properties
             AddCss(ref sty, ref cls, BoxShadow);

@@ -63,8 +63,6 @@ public static class ComponentCssGenerator
                 sb.Append("  ");
                 var trimmed = declaration.TrimEnd(';', ' ');
                 sb.Append(trimmed);
-                if (!trimmed.EndsWith("!important", StringComparison.OrdinalIgnoreCase))
-                    sb.Append(" !important");
                 sb.Append(";\n");
             }
 

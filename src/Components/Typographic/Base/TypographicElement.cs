@@ -56,7 +56,7 @@ public abstract class TypographicElement : Element
     {
         var attributes = base.BuildAttributes();
 
-        BuildClassAndStyleAttributes(attributes, (ref PooledStringBuilder cls, ref PooledStringBuilder sty) =>
+        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
             // Apply typography-specific properties
             // Note: TextColor is now handled by Component base class, so we don't process it here

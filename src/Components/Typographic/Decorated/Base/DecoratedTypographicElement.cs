@@ -35,7 +35,7 @@ public abstract class DecoratedTypographicElement : TypographicElement, IDecorat
     {
         var attributes = base.BuildAttributes();
 
-        BuildClassAndStyleAttributes(attributes, (ref PooledStringBuilder cls, ref PooledStringBuilder sty) =>
+        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
             // Apply decorative properties
             AddCss(ref sty, ref cls, BoxShadow);

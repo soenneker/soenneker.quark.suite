@@ -129,7 +129,7 @@ public abstract class InteractiveSurfaceElement : SurfaceElement, IInteractiveSu
     {
         var attributes = base.BuildAttributes();
 
-        BuildClassAndStyleAttributes(attributes, (ref PooledStringBuilder cls, ref PooledStringBuilder sty) =>
+        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
             // Apply interactive-specific properties
             AddCss(ref sty, ref cls, FocusRing);
