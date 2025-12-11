@@ -517,6 +517,7 @@ public class BootstrapCssGeneratorTests
         var builder = TextDecoration.Underline;
         var anchorOptions = new AnchorOptions
         {
+            Selector = "a",
             TextDecoration = builder
         };
 
@@ -535,6 +536,7 @@ public class BootstrapCssGeneratorTests
         // Arrange
         var anchorOptions = new AnchorOptions
         {
+            Selector = "a",
             TextDecoration = TextDecoration.None
         };
 
@@ -553,6 +555,7 @@ public class BootstrapCssGeneratorTests
         // Arrange - Complex text decoration with style, color, thickness
         var anchorOptions = new AnchorOptions
         {
+            Selector = "a",
             TextDecoration = TextDecoration.Underline.Wavy.Primary.Medium
         };
 
@@ -575,6 +578,7 @@ public class BootstrapCssGeneratorTests
         // Arrange
         var anchorOptions = new AnchorOptions
         {
+            Selector = "a",
             TextDecoration = TextDecoration.LineThrough
         };
 
@@ -593,6 +597,7 @@ public class BootstrapCssGeneratorTests
         // Arrange
         var anchorOptions = new AnchorOptions
         {
+            Selector = "a",
             TextDecoration = TextDecoration.None,
             TextAlignment = TextAlignment.Center
         };

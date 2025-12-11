@@ -44,7 +44,7 @@ public class ComponentsCssGeneratorTests
         var result = ComponentsCssGenerator.Generate(theme);
 
         // Assert
-        result.Should().Be("div {\n  text-decoration: underline;\n}");
+        result.Should().Be(".q-div {\n  text-decoration: underline;\n}");
     }
 
     [Fact]
@@ -113,7 +113,7 @@ public class ComponentsCssGeneratorTests
         var result = ComponentsCssGenerator.Generate(theme);
 
         // Assert
-        result.Should().Contain("a:hover {\n  text-decoration: underline;\n}");
-        result.Should().Contain("a:focus {\n  background-color: #abcdef;\n}");
+        result.Should().Contain(".q-anchor:hover {\n  text-decoration: underline;\n}");
+        result.Should().Contain(".q-anchor:focus {\n  background-color: #abcdef;\n}");
     }
 }
