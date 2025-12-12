@@ -12,20 +12,6 @@ public sealed class CursorBuilder : ICssBuilder
 {
     private readonly List<CursorRule> _rules = new(4);
 
-    private const string _classCursorAuto = "cursor-auto";
-    private const string _classCursorPointer = "cursor-pointer";
-    private const string _classCursorGrab = "cursor-grab";
-    private const string _classCursorGrabbing = "cursor-grabbing";
-    private const string _classCursorText = "cursor-text";
-    private const string _classCursorMove = "cursor-move";
-    private const string _classCursorResize = "cursor-resize";
-    private const string _classCursorNotAllowed = "cursor-not-allowed";
-    private const string _classCursorHelp = "cursor-help";
-    private const string _classCursorWait = "cursor-wait";
-    private const string _classCursorCrosshair = "cursor-crosshair";
-    private const string _classCursorZoomIn = "cursor-zoom-in";
-    private const string _classCursorZoomOut = "cursor-zoom-out";
-
     internal CursorBuilder(string cursor, BreakpointType? breakpoint = null)
     {
         _rules.Add(new CursorRule(cursor, breakpoint));
@@ -202,23 +188,9 @@ public sealed class CursorBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string GetCursorClass(string cursor)
     {
-        return cursor switch
-        {
-            "auto" => _classCursorAuto,
-            "pointer" => _classCursorPointer,
-            "grab" => _classCursorGrab,
-            "grabbing" => _classCursorGrabbing,
-            "text" => _classCursorText,
-            "move" => _classCursorMove,
-            "resize" => _classCursorResize,
-            "not-allowed" => _classCursorNotAllowed,
-            "help" => _classCursorHelp,
-            "wait" => _classCursorWait,
-            "crosshair" => _classCursorCrosshair,
-            "zoom-in" => _classCursorZoomIn,
-            "zoom-out" => _classCursorZoomOut,
-            _ => string.Empty
-        };
+        // Bootstrap doesn't have cursor utility classes, so always return empty
+        // Cursor styles should be applied via inline styles using ToStyle()
+        return string.Empty;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -244,11 +216,11 @@ public sealed class CursorBuilder : ICssBuilder
     }
 
     /// <summary>
-    /// Returns the CSS class string representation of this cursor builder.
+    /// Returns the CSS style string representation of this cursor builder.
     /// </summary>
-    /// <returns>The CSS class string.</returns>
+    /// <returns>The CSS style string.</returns>
     public override string ToString()
     {
-        return ToClass();
+        return ToStyle();
     }
 }
