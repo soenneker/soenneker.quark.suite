@@ -1,4 +1,3 @@
-
 namespace Soenneker.Quark;
 
 public sealed class StepsContentOptions : ComponentOptions
@@ -8,4 +7,3 @@ public sealed class StepsContentOptions : ComponentOptions
         Selector = ".q-steps-content";
     }
 }
-

@@ -1,4 +1,3 @@
-
 namespace Soenneker.Quark;
 
 public sealed class StepPanelOptions : ComponentOptions
@@ -8,4 +7,3 @@ public sealed class StepPanelOptions : ComponentOptions
         Selector = ".q-step-panel";
     }
 }
-
