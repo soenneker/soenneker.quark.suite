@@ -71,7 +71,7 @@
     {
         var attributes = base.BuildAttributes();
 
-        BuildClassAttribute(attributes, (ref cls) =>
+        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
             AppendClass(ref cls, "q-icon");
             AppendClass(ref cls, "fa");
@@ -98,6 +98,8 @@
 
             if (Animation is not null && Animation != IconAnimation.None)
                 AppendClass(ref cls, Animation!.Value);
+
+            AddCss(ref sty, ref cls, Size);
         });
 
         if (RotateByDegrees.HasValue)
