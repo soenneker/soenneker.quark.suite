@@ -12,6 +12,9 @@
     [CascadingParameter]
     protected Field? ParentField { get; set; }
 
+    [Parameter]
+    public CssValue<ColumnSizeBuilder>? ColumnSize { get; set; }
+
     protected override void OnInitialized()
     {
         ParentField?.RegisterChild(this);
@@ -31,9 +34,27 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-field-body");
+            
+            if (IsHorizontal)
+            {
+                AppendClass(ref cls, "col");
+                AddColumnCss(ref cls, ColumnSize);
+            }
         });
 
         return attributes;
+    }
+
+    private static void AddColumnCss<T>(ref PooledStringBuilder cls, CssValue<T>? cssValue) where T : class, ICssBuilder
+    {
+        if (cssValue is { IsEmpty: false })
+        {
+            var css = cssValue.Value.ToString();
+            if (css.HasContent() && !cssValue.Value.IsCssStyle)
+            {
+                AppendClass(ref cls, css);
+            }
+        }
     }
 
 }

@@ -10,6 +10,9 @@
     [CascadingParameter]
     public Modal? ParentModal { get; set; }
 
+    [Parameter]
+    public bool Centered { get; set; }
+
     protected override Dictionary<string, object> BuildAttributes()
     {
         var attributes = base.BuildAttributes();
@@ -18,6 +21,11 @@
         {
             AppendClass(ref cls, "q-modal-content");
             AppendClass(ref cls, "modal-content");
+            
+            if (Centered)
+            {
+                AppendClass(ref cls, "text-center");
+            }
         });
 
         return attributes;
