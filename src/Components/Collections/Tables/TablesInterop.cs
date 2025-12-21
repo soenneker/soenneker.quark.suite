@@ -1,22 +1,20 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Soenneker.Asyncs.Initializers;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
-using Soenneker.Utils.AsyncSingleton;
 
 namespace Soenneker.Quark;
 
 /// <inheritdoc cref="ITablesInterop"/>
 public sealed class TablesInterop : ITablesInterop
 {
-    private readonly AsyncSingleton _styleInitializer;
+    private readonly AsyncInitializer _styleInitializer;
 
     public TablesInterop(IResourceLoader resourceLoader)
     {
-        _styleInitializer = new AsyncSingleton(async (token, _) =>
+        _styleInitializer = new AsyncInitializer(async token =>
         {
             await resourceLoader.LoadStyle("_content/Soenneker.Quark.Suite/css/table.css", cancellationToken: token);
-
-            return new object();
         });
     }
 

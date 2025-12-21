@@ -1,7 +1,7 @@
+using Soenneker.Asyncs.Initializers;
+using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
-using Soenneker.Utils.AsyncSingleton;
 
 namespace Soenneker.Quark;
 
@@ -9,7 +9,7 @@ namespace Soenneker.Quark;
 public sealed class BootstrapInterop : IBootstrapInterop
 {
     private readonly QuarkOptions _quarkOptions;
-    private readonly AsyncSingleton _initializer;
+    private readonly AsyncInitializer _initializer;
 
     private const string CdnBaseUrl = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist";
     private const string CdnCssPath = "/css/bootstrap.min.css";
@@ -30,7 +30,7 @@ public sealed class BootstrapInterop : IBootstrapInterop
     {
         _quarkOptions = quarkOptions;
 
-        _initializer = new AsyncSingleton(async (token, arg) =>
+        _initializer = new AsyncInitializer(async token =>
         {
             string cssUrl;
             string jsUrl;
@@ -59,8 +59,6 @@ public sealed class BootstrapInterop : IBootstrapInterop
                 await resourceLoader.LoadStyle(cssUrl, cancellationToken: token);
                 await resourceLoader.LoadScript(jsUrl, cancellationToken: token);
             }
-
-            return new object();
         });
     }
 

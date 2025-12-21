@@ -1,23 +1,22 @@
+using Soenneker.Asyncs.Initializers;
+using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
-using Soenneker.Utils.AsyncSingleton;
 
 namespace Soenneker.Quark;
 
 ///<inheritdoc cref="IStepsInterop"/>
 public sealed class StepsInterop : IStepsInterop
 {
-    private readonly AsyncSingleton _cssInitializer;
+    private readonly AsyncInitializer _cssInitializer;
 
     private const string _cssPath = "_content/Soenneker.Quark.Suite/css/steps.css";
 
     public StepsInterop(IResourceLoader resourceLoader)
     {
-        _cssInitializer = new AsyncSingleton(async (token, arg) =>
+        _cssInitializer = new AsyncInitializer(async token =>
         {
             await resourceLoader.LoadStyle(_cssPath, cancellationToken: token);
-            return new object();
         });
     }
 

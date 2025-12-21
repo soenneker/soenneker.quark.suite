@@ -1,23 +1,22 @@
+using Soenneker.Asyncs.Initializers;
+using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
-using Soenneker.Utils.AsyncSingleton;
 
 namespace Soenneker.Quark;
 
 ///<inheritdoc cref="IRadioInterop"/>
 public sealed class RadioInterop : IRadioInterop
 {
-    private readonly AsyncSingleton _initializer;
+    private readonly AsyncInitializer _initializer;
 
     public RadioInterop(IResourceLoader resourceLoader)
     {
         var resourceLoader1 = resourceLoader;
 
-        _initializer = new AsyncSingleton(async (token, _) =>
+        _initializer = new AsyncInitializer(async token =>
         {
             await resourceLoader1.LoadStyle("_content/Soenneker.Quark.Suite/css/radio.css", cancellationToken: token);
-            return new object();
         });
     }
 

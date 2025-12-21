@@ -1,23 +1,22 @@
+using Soenneker.Asyncs.Initializers;
+using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
-using Soenneker.Utils.AsyncSingleton;
 
 namespace Soenneker.Quark;
 
 ///<inheritdoc cref="IOffcanvasInterop"/>
 public sealed class OffcanvasInterop : IOffcanvasInterop
 {
-    private readonly AsyncSingleton _initializer;
+    private readonly AsyncInitializer _initializer;
 
     public OffcanvasInterop(IResourceLoader resourceLoader)
     {
         var resourceLoader1 = resourceLoader;
 
-        _initializer = new AsyncSingleton(async (token, _) =>
+        _initializer = new AsyncInitializer(async token =>
         {
             await resourceLoader1.LoadStyle("_content/Soenneker.Quark.Suite/css/offcanvas.css", cancellationToken: token);
-            return new object();
         });
     }
 

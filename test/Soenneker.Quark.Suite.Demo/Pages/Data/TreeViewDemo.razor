@@ -24,7 +24,7 @@
                         <CardBody>
                             <TreeView TNode="DemoNode"
                                       Nodes="@BasicNodes"
-                                      NodeContent="@(node => (builder) => builder.AddContent(0, node.Title))"
+                                      NodeContent="@(node => builder => builder.AddContent(0, node.Title))"
                                       GetChildNodes="@GetChildren"
                                       HasChildNodes="@HasChildren"
                                       SelectionMode="TreeViewSelectionMode.Single"
@@ -55,7 +55,7 @@
                         <CardBody>
                             <TreeView TNode="DemoNode"
                                       Nodes="@SingleSelectionNodes"
-                                      NodeContent="@(node => (builder) => builder.AddContent(0, node.Title))"
+                                      NodeContent="@(node => builder => builder.AddContent(0, node.Title))"
                                       GetChildNodes="@GetChildren"
                                       HasChildNodes="@HasChildren"
                                       SelectionMode="TreeViewSelectionMode.Single"
@@ -78,7 +78,7 @@
                         <CardBody>
                             <TreeView TNode="DemoNode"
                                       Nodes="@MultipleSelectionNodes"
-                                      NodeContent="@(node => (builder) => builder.AddContent(0, node.Title))"
+                                      NodeContent="@(node => builder => builder.AddContent(0, node.Title))"
                                       GetChildNodes="@GetChildren"
                                       HasChildNodes="@HasChildren"
                                       SelectionMode="TreeViewSelectionMode.Multiple"
@@ -124,7 +124,7 @@
                         <CardBody>
                             <TreeView TNode="AsyncDemoNode"
                                       Nodes="@AsyncNodes"
-                                      NodeContent="@(node => (builder) => builder.AddContent(0, node.Title))"
+                                      NodeContent="@(node => builder => builder.AddContent(0, node.Title))"
                                       GetChildNodesAsync="@GetChildrenAsync"
                                       HasChildNodesAsync="@HasChildrenAsync"
                                       SelectionMode="TreeViewSelectionMode.Single"
@@ -145,7 +145,7 @@
                         <CardBody>
                             <TreeView TNode="DemoNode"
                                       Nodes="@DisabledNodes"
-                                      NodeContent="@(node => (builder) => builder.AddContent(0, node.Title))"
+                                      NodeContent="@(node => builder => builder.AddContent(0, node.Title))"
                                       GetChildNodes="@GetChildren"
                                       HasChildNodes="@HasChildren"
                                       IsDisabled="@IsNodeDisabled"
@@ -167,7 +167,7 @@
                         <CardBody>
                             <TreeView TNode="DemoNode"
                                       Nodes="@LargeDatasetNodes"
-                                      NodeContent="@(node => (builder) => builder.AddContent(0, $"{node.Title} (Level {node.Level})"))"
+                                      NodeContent="@(node => builder => builder.AddContent(0, $"{node.Title} (Level {node.Level})"))"
                                       GetChildNodes="@GetChildren"
                                       HasChildNodes="@HasChildren"
                                       SelectionMode="TreeViewSelectionMode.Single"
@@ -372,7 +372,7 @@
 
     private bool IsNodeDisabled(DemoNode node) => node.IsDisabled;
 
-    private RenderFragment<DemoNode> RenderStyledNode => (node) => (builder) =>
+    private RenderFragment<DemoNode> RenderStyledNode => node => builder =>
     {
         builder.OpenElement(0, "div");
         builder.AddAttribute(1, "class", "d-flex align-items-center");

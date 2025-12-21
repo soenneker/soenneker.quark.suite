@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Utils.AtomicResources;
+using Soenneker.Atomics.Resources;
 
 namespace Soenneker.Quark;
 

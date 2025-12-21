@@ -1,9 +1,9 @@
-using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using Soenneker.Asyncs.Initializers;
+using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
-using Soenneker.Utils.AsyncSingleton;
 
 namespace Soenneker.Quark;
 
@@ -11,16 +11,15 @@ namespace Soenneker.Quark;
 public sealed class DatePickerInterop : IDatePickerInterop
 {
     private readonly IResourceLoader _resourceLoader;
-    private readonly AsyncSingleton _initializer;
+    private readonly AsyncInitializer _initializer;
 
     public DatePickerInterop(IJSRuntime jSRuntime, IResourceLoader resourceLoader)
     {
         _resourceLoader = resourceLoader;
 
-        _initializer = new AsyncSingleton(async (token, _) =>
+        _initializer = new AsyncInitializer(async token =>
         {
             await _resourceLoader.LoadStyle("_content/Soenneker.Quark.Suite/css/datepicker.css", cancellationToken: token);
-            return new object();
         });
     }
 

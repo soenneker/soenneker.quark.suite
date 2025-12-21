@@ -1,14 +1,14 @@
+using Soenneker.Asyncs.Initializers;
+using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
-using Soenneker.Utils.AsyncSingleton;
 
 namespace Soenneker.Quark;
 
 ///<inheritdoc cref="ISnackbarInterop"/>
 public sealed class SnackbarInterop : ISnackbarInterop
 {
-    private readonly AsyncSingleton _cssInitializer;
+    private readonly AsyncInitializer _cssInitializer;
 
     private const string _cssPath = "_content/Soenneker.Quark.Suite/css/snackbar.css";
 
@@ -16,10 +16,9 @@ public sealed class SnackbarInterop : ISnackbarInterop
     {
         var resourceLoader1 = resourceLoader;
 
-        _cssInitializer = new AsyncSingleton(async (token, arg) =>
+        _cssInitializer = new AsyncInitializer(async token =>
         {
             await resourceLoader1.LoadStyle(_cssPath, cancellationToken: token);
-            return new object();
         });
     }
 

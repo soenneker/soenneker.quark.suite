@@ -1,10 +1,9 @@
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Soenneker.Asyncs.Initializers;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
-using Soenneker.Utils.AsyncSingleton;
-
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Soenneker.Quark;
 
@@ -13,7 +12,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
 {
     private readonly IJSRuntime _jsRuntime;
     private readonly IResourceLoader _resourceLoader;
-    private readonly AsyncSingleton _initializer;
+    private readonly AsyncInitializer _initializer;
 
     private const string _modulePath = "Soenneker.Quark.Suite/js/monacointerop.js";
     private const string _moduleName = "MonacoInterop";
@@ -35,7 +34,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         _jsRuntime = jsRuntime;
         _resourceLoader = resourceLoader;
 
-        _initializer = new AsyncSingleton(async (token, _) =>
+        _initializer = new AsyncInitializer(async token =>
         {
             string cssUrl;
             string loaderUrl;
@@ -71,7 +70,6 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
             await _resourceLoader.ImportModuleAndWaitUntilAvailable(_modulePath, _moduleName, 100, token);
 
             await _jsRuntime.InvokeVoidAsync($"{_moduleName}.ensureConfigured", token, monacoBaseUrl);
-            return new object();
         });
     }
 
