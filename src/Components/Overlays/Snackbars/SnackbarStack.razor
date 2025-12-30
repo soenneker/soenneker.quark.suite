@@ -183,12 +183,15 @@
 		if (delay > 0)
 		{
 			var timer = new Timer(delay);
-			timer.Elapsed += async (sender, e) =>
+			string itemKey = item.Key;
+			System.Timers.ElapsedEventHandler handler = (sender, e) =>
 			{
 				timer.Stop();
+				timer.Elapsed -= handler;
 				timer.Dispose();
-				await HandleClosed(item.Key, SnackbarCloseReason.None);
+				_ = Task.Run(async () => await HandleClosed(itemKey, SnackbarCloseReason.None));
 			};
+			timer.Elapsed += handler;
 			timer.Start();
 			_autoHideTimers[item.Key] = timer;
 		}
@@ -199,6 +202,7 @@
 		// Cancel auto-hide timer if it exists
 		if (_autoHideTimers.TryGetValue(key, out var timer))
 		{
+			timer.Stop();
 			timer.Dispose();
 			_autoHideTimers.Remove(key);
 		}
@@ -212,10 +216,19 @@
 	{
 		foreach (var timer in _autoHideTimers.Values)
 		{
-			timer.Dispose();
+			try
+			{
+				timer.Stop();
+				timer.Dispose();
+			}
+			catch
+			{
+				// Ignore disposal errors
+			}
 		}
 
 		_autoHideTimers.Clear();
+		base.Dispose();
 	}
 
 }
