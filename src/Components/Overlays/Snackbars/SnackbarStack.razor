@@ -5,230 +5,215 @@
 @implements ISnackbarStack
 @inject ISnackbarInterop SnackbarInterop
 
-<CascadingValue Value="@this" IsFixed="true" >
-	@ChildContent
-	@foreach (var locationGroup in _notifications.GroupBy(n => n.Location ?? EffectiveLocation))
-	{
-		<div @attributes="BuildAttributes(locationGroup.Key)" >
-			@foreach (var item in locationGroup)
-			{
-				<Snackbar @key="@item.Key"
-				          Key="@item.Key"
-				          Visible="@item.Visible"
-				          BackgroundColor="@item.Color"
-				          AutoHideDelay="@(item.HideDelay ?? EffectiveDefaultDelay)"
-				          Closed="@(async e => await HandleClosed(e.Key, e.CloseReason))" >
-					@if (item.Content != null)
-					{
-						@item.Content
-					}
-					else
-					{
-						@item.Message
-					}
-				</Snackbar>
-			}
-		</div>
-	}
+<CascadingValue Value="@this" IsFixed="true">
+    @ChildContent
+
+    @foreach (var locationGroup in _notifications.GroupBy(n => n.Location ?? EffectiveLocation))
+    {
+        <div @attributes="BuildAttributes(locationGroup.Key)">
+            @foreach (var item in locationGroup)
+            {
+                <Snackbar @key="@item.Key"
+                          Key="@item.Key"
+                          Visible="@item.Visible"
+                          BackgroundColor="@item.Color"
+                          AutoHideDelay="@(item.HideDelay ?? EffectiveDefaultDelay)"
+                          Closed="@(async e => await HandleClosed(e.Key, e.CloseReason))">
+                    @if (item.Content != null)
+                    {
+                        @item.Content
+                    }
+                    else
+                    {
+                        @item.Message
+                    }
+                </Snackbar>
+            }
+        </div>
+    }
 </CascadingValue>
 
 @code {
-	private readonly List<SnackbarNotificationItem> _notifications = [];
-	private readonly Dictionary<string, Timer> _autoHideTimers = new();
-	private bool _isInitialized;
+    private readonly List<SnackbarNotificationItem> _notifications = [];
+    private readonly Dictionary<string, Timer> _autoHideTimers = new(StringComparer.Ordinal);
 
-	/// <summary>
-	/// Gets or sets the location where snackbars should appear.
-	/// </summary>
-	[Parameter]
-	public SnackbarLocation? Location { get; set; }
+    private bool _isInitialized;
+    private bool _disposed;
 
-	/// <summary>
-	/// Gets or sets the default delay in milliseconds before snackbars automatically hide.
-	/// </summary>
-	[Parameter]
-	public int? DefaultDelay { get; set; }
+    [Parameter]
+    public SnackbarLocation? Location { get; set; }
 
-	/// <summary>
-	/// Gets or sets the callback invoked when a snackbar is closed.
-	/// </summary>
-	[Parameter]
-	public EventCallback<SnackbarClosedEventArgs> Closed { get; set; }
+    [Parameter]
+    public int? DefaultDelay { get; set; }
 
-	private SnackbarLocation? _cachedEffectiveLocation;
-	private int? _cachedEffectiveDefaultDelay;
+    [Parameter]
+    public EventCallback<SnackbarClosedEventArgs> Closed { get; set; }
 
-	private SnackbarLocation EffectiveLocation
-	{
-		get
-		{
-			if (_cachedEffectiveLocation == null)
-			{
-				_cachedEffectiveLocation = Location ?? SnackbarLocation.BottomEnd;
-			}
+    private SnackbarLocation? _cachedEffectiveLocation;
+    private int? _cachedEffectiveDefaultDelay;
 
-			return _cachedEffectiveLocation;
-		}
-	}
+    private SnackbarLocation EffectiveLocation
+    {
+        get
+        {
+            _cachedEffectiveLocation ??= Location ?? SnackbarLocation.BottomEnd;
+            return _cachedEffectiveLocation;
+        }
+    }
 
-	private int EffectiveDefaultDelay
-	{
-		get
-		{
-			if (_cachedEffectiveDefaultDelay == null)
-			{
-				_cachedEffectiveDefaultDelay = DefaultDelay ?? 5000;
-			}
-			return _cachedEffectiveDefaultDelay.Value;
-		}
-	}
+    private int EffectiveDefaultDelay
+    {
+        get
+        {
+            _cachedEffectiveDefaultDelay ??= DefaultDelay ?? 5000;
+            return _cachedEffectiveDefaultDelay.Value;
+        }
+    }
 
-	protected override Dictionary<string, object> BuildAttributes()
-	{
-		return BuildAttributes(EffectiveLocation);
-	}
+    protected override Dictionary<string, object> BuildAttributes() => BuildAttributes(EffectiveLocation);
 
-	/// <summary>
-	/// Builds the attributes for the snackbar stack at the specified location.
-	/// </summary>
-	/// <param name="location">The location for the snackbar stack.</param>
-	/// <returns>A dictionary of attributes.</returns>
-	protected Dictionary<string, object> BuildAttributes(SnackbarLocation location)
-	{
-		var attributes = base.BuildAttributes();
-		var classes = "q-snackbar-stack snackbar-stack position-fixed p-3";
+    protected Dictionary<string, object> BuildAttributes(SnackbarLocation location)
+    {
+        var attributes = base.BuildAttributes();
+        var classes = "q-snackbar-stack snackbar-stack position-fixed p-3";
 
-		classes += location.Value switch
-		{
-			"top" => " top-0 start-50 translate-middle-x",
-			"top-start" => " top-0 start-0",
-			"top-end" => " top-0 end-0",
-			"bottom" => " bottom-0 start-50 translate-middle-x",
-			"bottom-start" => " bottom-0 start-0",
-			"bottom-end" => " bottom-0 end-0",
-			_ => " bottom-0 end-0"
-		};
+        classes += location.Value switch
+        {
+            "top" => " top-0 start-50 translate-middle-x",
+            "top-start" => " top-0 start-0",
+            "top-end" => " top-0 end-0",
+            "bottom" => " bottom-0 start-50 translate-middle-x",
+            "bottom-start" => " bottom-0 start-0",
+            "bottom-end" => " bottom-0 end-0",
+            _ => " bottom-0 end-0"
+        };
 
-		EnsureClassAttr(attributes, classes);
-		
-		attributes["style"] = "z-index: 1055;";
+        EnsureClassAttr(attributes, classes);
+        attributes["style"] = "z-index: 1055;";
 
-		return attributes;
-	}
+        return attributes;
+    }
 
-	protected override void OnParametersSet()
-	{
-		// Clear cache when parameters change
-		_cachedEffectiveLocation = null;
-		_cachedEffectiveDefaultDelay = null;
-		base.OnParametersSet();
-	}
+    protected override void OnParametersSet()
+    {
+        _cachedEffectiveLocation = null;
+        _cachedEffectiveDefaultDelay = null;
+        base.OnParametersSet();
+    }
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (firstRender && !_isInitialized)
-		{
-			await SnackbarInterop.Initialize();
-			_isInitialized = true;
-		}
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_isInitialized)
+        {
+            await SnackbarInterop.Initialize();
+            _isInitialized = true;
+        }
 
-		await base.OnAfterRenderAsync(firstRender);
-	}
+        await base.OnAfterRenderAsync(firstRender);
+    }
 
-	/// <summary>
-	/// Pushes a snackbar with the specified message.
-	/// </summary>
-	/// <param name="message">The message to display.</param>
-	/// <param name="color">The background color for the snackbar.</param>
-	/// <param name="options">Optional action to configure snackbar options.</param>
-	/// <param name="location">Optional location override for this snackbar.</param>
-	/// <returns>A value task that represents the asynchronous operation.</returns>
-	public async ValueTask Push(string message, CssValue<BackgroundColorBuilder>? color = null, Action<SnackbarOptions>? options = null, SnackbarLocation? location = null)
-	{
-		await Push(message, null, color, options, location);
-	}
+    public ValueTask Push(string message, CssValue<BackgroundColorBuilder>? color = null, Action<SnackbarOptions>? options = null, SnackbarLocation? location = null) => Push(message, null, color, options, location);
 
-	/// <summary>
-	/// Pushes a snackbar with the specified content.
-	/// </summary>
-	/// <param name="content">The render fragment content to display.</param>
-	/// <param name="color">The background color for the snackbar.</param>
-	/// <param name="options">Optional action to configure snackbar options.</param>
-	/// <param name="location">Optional location override for this snackbar.</param>
-	/// <returns>A value task that represents the asynchronous operation.</returns>
-	public async ValueTask Push(RenderFragment content, CssValue<BackgroundColorBuilder>? color = null, Action<SnackbarOptions>? options = null, SnackbarLocation? location = null)
-	{
-		await Push(null, content, color, options, location);
-	}
+    public ValueTask Push(RenderFragment content, CssValue<BackgroundColorBuilder>? color = null, Action<SnackbarOptions>? options = null, SnackbarLocation? location = null) => Push(null, content, color, options, location);
 
-	private async ValueTask Push(string? message, RenderFragment? content, CssValue<BackgroundColorBuilder>? color, Action<SnackbarOptions>? options, SnackbarLocation? location)
-	{
-		var snackbarOptions = new SnackbarOptions();
-		options?.Invoke(snackbarOptions);
+    private async ValueTask Push(string? message, RenderFragment? content, CssValue<BackgroundColorBuilder>? color, Action<SnackbarOptions>? options, SnackbarLocation? location)
+    {
+        if (_disposed)
+            return;
 
-		var item = new SnackbarNotificationItem(snackbarOptions.Key ?? Guid.NewGuid()
-				.ToString(), message ?? "", null, // No title in simplified version
-			color ?? Quark.BackgroundColor.Primary, content, // Use the content template
-			false, // No close button in simplified version
-			null, // No close text
-			false, // No action button in simplified version
-			null, // No action text
-			snackbarOptions.HideDelay, location);
+        var snackbarOptions = new SnackbarOptions();
+        options?.Invoke(snackbarOptions);
 
-		_notifications.Add(item);
-		await InvokeAsync(StateHasChanged);
+        var key = snackbarOptions.Key ?? Guid.NewGuid()
+                                             .ToString();
 
-		// Set up auto-hide timer if delay is specified
-		var delay = item.HideDelay ?? EffectiveDefaultDelay;
-		if (delay > 0)
-		{
-			var timer = new Timer(delay);
-			string itemKey = item.Key;
-			System.Timers.ElapsedEventHandler handler = (sender, e) =>
-			{
-				timer.Stop();
-				timer.Elapsed -= handler;
-				timer.Dispose();
-				_ = Task.Run(async () => await HandleClosed(itemKey, SnackbarCloseReason.None));
-			};
-			timer.Elapsed += handler;
-			timer.Start();
-			_autoHideTimers[item.Key] = timer;
-		}
-	}
+        var item = new SnackbarNotificationItem(key, message ?? "", null, color ?? Quark.BackgroundColor.Primary, content, false, null, false, null, snackbarOptions.HideDelay, location);
 
-	private async Task HandleClosed(string key, SnackbarCloseReason reason)
-	{
-		// Cancel auto-hide timer if it exists
-		if (_autoHideTimers.TryGetValue(key, out var timer))
-		{
-			timer.Stop();
-			timer.Dispose();
-			_autoHideTimers.Remove(key);
-		}
+        _notifications.Add(item);
+        await InvokeAsync(StateHasChanged);
 
-		_notifications.RemoveAll(x => x.Key == key);
-		await InvokeAsync(StateHasChanged);
-		await Closed.InvokeAsync(new SnackbarClosedEventArgs(key, reason));
-	}
+        var delay = item.HideDelay ?? EffectiveDefaultDelay;
+        if (delay <= 0)
+            return;
 
-	public override void Dispose()
-	{
-		foreach (var timer in _autoHideTimers.Values)
-		{
-			try
-			{
-				timer.Stop();
-				timer.Dispose();
-			}
-			catch
-			{
-				// Ignore disposal errors
-			}
-		}
+        // If the same key is reused, dispose the previous timer so we don't leak.
+        if (_autoHideTimers.TryGetValue(key, out var existing))
+        {
+            try
+            {
+                existing.Stop();
+                existing.Dispose();
+            }
+            catch
+            {
+            }
 
-		_autoHideTimers.Clear();
-		base.Dispose();
-	}
+            _autoHideTimers.Remove(key);
+        }
+
+        var timer = new Timer(delay)
+        {
+            AutoReset = false,
+            Enabled = false
+        };
+
+        timer.Elapsed += (_, _) =>
+        {
+            // Timer thread: never mutate component state here.
+            if (_disposed)
+                return;
+
+            _ = InvokeAsync(() => HandleClosed(key, SnackbarCloseReason.None));
+        };
+
+        _autoHideTimers[key] = timer;
+        timer.Start();
+    }
+
+    private async Task HandleClosed(string key, SnackbarCloseReason reason)
+    {
+        if (_disposed)
+            return;
+
+        // UI thread (InvokeAsync): safe to mutate collections without locks.
+        if (_autoHideTimers.Remove(key, out var timer))
+        {
+            try
+            {
+                timer.Stop();
+                timer.Dispose();
+            }
+            catch
+            {
+            }
+        }
+
+        _notifications.RemoveAll(x => x.Key == key);
+
+        await InvokeAsync(StateHasChanged);
+        await Closed.InvokeAsync(new SnackbarClosedEventArgs(key, reason));
+    }
+
+    public override void Dispose()
+    {
+        _disposed = true;
+
+        foreach (var timer in _autoHideTimers.Values)
+        {
+            try
+            {
+                timer.Stop();
+                timer.Dispose();
+            }
+            catch
+            {
+            }
+        }
+
+        _autoHideTimers.Clear();
+        _notifications.Clear();
+
+        base.Dispose();
+    }
 
 }
