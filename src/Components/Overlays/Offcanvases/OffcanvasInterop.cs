@@ -10,14 +10,17 @@ public sealed class OffcanvasInterop : IOffcanvasInterop
 {
     private readonly AsyncInitializer _initializer;
 
+    private readonly IResourceLoader _resourceLoader;
+
     public OffcanvasInterop(IResourceLoader resourceLoader)
     {
-        var resourceLoader1 = resourceLoader;
+        _resourceLoader = resourceLoader;
+        _initializer = new AsyncInitializer(InitializeCss);
+    }
 
-        _initializer = new AsyncInitializer(async token =>
-        {
-            await resourceLoader1.LoadStyle("_content/Soenneker.Quark.Suite/css/offcanvas.css", cancellationToken: token);
-        });
+    private ValueTask InitializeCss(CancellationToken token)
+    {
+        return _resourceLoader.LoadStyle("_content/Soenneker.Quark.Suite/css/offcanvas.css", cancellationToken: token);
     }
 
     public ValueTask Initialize(CancellationToken cancellationToken = default) => _initializer.Init(cancellationToken);

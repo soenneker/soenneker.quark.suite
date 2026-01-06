@@ -17,24 +17,26 @@ public sealed class DatePickerInterop : IDatePickerInterop
     {
         _resourceLoader = resourceLoader;
 
-        _initializer = new AsyncInitializer(async token =>
-        {
-            await _resourceLoader.LoadStyle("_content/Soenneker.Quark.Suite/css/datepicker.css", cancellationToken: token);
-        });
+        _initializer = new AsyncInitializer(InitializeCss);
+    }
+
+    private ValueTask InitializeCss(CancellationToken token)
+    {
+        return _resourceLoader.LoadStyle("_content/Soenneker.Quark.Suite/css/datepicker.css", cancellationToken: token);
     }
 
     public ValueTask Initialize(CancellationToken cancellationToken = default) => _initializer.Init(cancellationToken);
 
-    public async ValueTask Attach(ElementReference element, CancellationToken cancellationToken = default)
+    public ValueTask Attach(ElementReference element, CancellationToken cancellationToken = default)
     {
         // No-op: JS-free mode. Keep signature for compatibility.
-        await _initializer.Init(cancellationToken);
+        return _initializer.Init(cancellationToken);
     }
 
-    public async ValueTask RegisterOutsideClose<T>(ElementReference container, DotNetObjectReference<T> dotNetRef, string methodName, CancellationToken cancellationToken = default) where T : class
+    public ValueTask RegisterOutsideClose<T>(ElementReference container, DotNetObjectReference<T> dotNetRef, string methodName, CancellationToken cancellationToken = default) where T : class
     {
         // No-op: JS-free mode. Outside-close handled via backdrop overlay.
-        await _initializer.Init(cancellationToken);
+        return _initializer.Init(cancellationToken);
     }
 
     public async ValueTask DisposeAsync()

@@ -17,12 +17,17 @@ public sealed class FontAwesomeInterop : IFontAwesomeInterop
     /// Initializes a new instance of the FontAwesomeInterop class.
     /// </summary>
     /// <param name="resourceLoader">The resource loader used to load Font Awesome CSS.</param>
+    private readonly IResourceLoader _resourceLoader;
+
     public FontAwesomeInterop(IResourceLoader resourceLoader)
     {
-        _initializer = new AsyncInitializer(async token =>
-        {
-            await resourceLoader.LoadStyle(_fontAwesomeCssUrl, _fontAwesomeCssIntegrity, cancellationToken: token);
-        });
+        _resourceLoader = resourceLoader;
+        _initializer = new AsyncInitializer(InitializeCss);
+    }
+
+    private ValueTask InitializeCss(CancellationToken token)
+    {
+        return _resourceLoader.LoadStyle(_fontAwesomeCssUrl, _fontAwesomeCssIntegrity, cancellationToken: token);
     }
 
     /// <summary>

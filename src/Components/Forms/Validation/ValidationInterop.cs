@@ -10,14 +10,17 @@ public sealed class ValidationInterop : IValidationInterop
 {
     private readonly AsyncInitializer _initializer;
 
+    private readonly IResourceLoader _resourceLoader;
+
     public ValidationInterop(IResourceLoader resourceLoader)
     {
-        var loader = resourceLoader;
+        _resourceLoader = resourceLoader;
+        _initializer = new AsyncInitializer(InitializeCss);
+    }
 
-        _initializer = new AsyncInitializer(async token =>
-        {
-            await loader.LoadStyle("_content/Soenneker.Quark.Suite/css/validation.css", cancellationToken: token);
-        });
+    private ValueTask InitializeCss(CancellationToken token)
+    {
+        return _resourceLoader.LoadStyle("_content/Soenneker.Quark.Suite/css/validation.css", cancellationToken: token);
     }
 
     public ValueTask Initialize(CancellationToken cancellationToken = default) => _initializer.Init(cancellationToken);

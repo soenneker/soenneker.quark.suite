@@ -12,12 +12,17 @@ public sealed class StepsInterop : IStepsInterop
 
     private const string _cssPath = "_content/Soenneker.Quark.Suite/css/steps.css";
 
+    private readonly IResourceLoader _resourceLoader;
+
     public StepsInterop(IResourceLoader resourceLoader)
     {
-        _cssInitializer = new AsyncInitializer(async token =>
-        {
-            await resourceLoader.LoadStyle(_cssPath, cancellationToken: token);
-        });
+        _resourceLoader = resourceLoader;
+        _cssInitializer = new AsyncInitializer(InitializeCss);
+    }
+
+    private ValueTask InitializeCss(CancellationToken token)
+    {
+        return _resourceLoader.LoadStyle(_cssPath, cancellationToken: token);
     }
 
     public ValueTask Initialize(CancellationToken cancellationToken = default)

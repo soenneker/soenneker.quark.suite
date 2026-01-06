@@ -10,12 +10,17 @@ public sealed class TreeViewInterop : ITreeViewInterop
 {
     private readonly AsyncInitializer _initializer;
 
+    private readonly IResourceLoader _resourceLoader;
+
     public TreeViewInterop(IResourceLoader resourceLoader)
     {
-        _initializer = new AsyncInitializer(async token =>
-        {
-            await resourceLoader.LoadStyle("_content/Soenneker.Quark.Suite/css/treeview.css", cancellationToken: token);
-        });
+        _resourceLoader = resourceLoader;
+        _initializer = new AsyncInitializer(InitializeCss);
+    }
+
+    private ValueTask InitializeCss(CancellationToken token)
+    {
+        return _resourceLoader.LoadStyle("_content/Soenneker.Quark.Suite/css/treeview.css", cancellationToken: token);
     }
 
     public ValueTask Initialize(CancellationToken cancellationToken = default) => _initializer.Init(cancellationToken);

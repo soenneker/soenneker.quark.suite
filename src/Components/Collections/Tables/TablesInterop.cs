@@ -10,12 +10,17 @@ public sealed class TablesInterop : ITablesInterop
 {
     private readonly AsyncInitializer _styleInitializer;
 
+    private readonly IResourceLoader _resourceLoader;
+
     public TablesInterop(IResourceLoader resourceLoader)
     {
-        _styleInitializer = new AsyncInitializer(async token =>
-        {
-            await resourceLoader.LoadStyle("_content/Soenneker.Quark.Suite/css/table.css", cancellationToken: token);
-        });
+        _resourceLoader = resourceLoader;
+        _styleInitializer = new AsyncInitializer(InitializeCss);
+    }
+
+    private ValueTask InitializeCss(CancellationToken token)
+    {
+        return _resourceLoader.LoadStyle("_content/Soenneker.Quark.Suite/css/table.css", cancellationToken: token);
     }
 
     /// <summary>

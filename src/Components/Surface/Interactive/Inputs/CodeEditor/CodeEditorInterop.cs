@@ -29,48 +29,52 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     private const string _cssIntegrity = "sha256-22wc1geUOoYbR8dmDQ7wLvZPcXMZTXxLi85cmIFW5fg=";
     private const string _loaderIntegrity = "sha256-NbWd+AtBqLc78c6xWbRPBAVnwqtT9Od6PQAtncOdVdE=";
 
+    private readonly QuarkOptions _quarkOptions;
+
     public CodeEditorInterop(IJSRuntime jsRuntime, IResourceLoader resourceLoader, QuarkOptions quarkOptions)
     {
         _jsRuntime = jsRuntime;
         _resourceLoader = resourceLoader;
+        _quarkOptions = quarkOptions;
+        _initializer = new AsyncInitializer(Initialize);
+    }
 
-        _initializer = new AsyncInitializer(async token =>
+    private async ValueTask Initialize(CancellationToken token)
+    {
+        string cssUrl;
+        string loaderUrl;
+        string monacoBaseUrl;
+        bool useIntegrity;
+
+        if (_quarkOptions.CodeEditorUseCdn)
         {
-            string cssUrl;
-            string loaderUrl;
-            string monacoBaseUrl;
-            bool useIntegrity;
+            cssUrl = $"{_cdnBaseUrl}{_cdnCssPath}";
+            loaderUrl = $"{_cdnBaseUrl}{_cdnLoaderPath}";
+            monacoBaseUrl = $"{_cdnBaseUrl}{_cdnBasePath}";
+            useIntegrity = true;
+        }
+        else
+        {
+            cssUrl = _localCssPath;
+            loaderUrl = _localLoaderPath;
+            monacoBaseUrl = _localBasePath;
+            useIntegrity = false;
+        }
 
-            if (quarkOptions.CodeEditorUseCdn)
-            {
-                cssUrl = $"{_cdnBaseUrl}{_cdnCssPath}";
-                loaderUrl = $"{_cdnBaseUrl}{_cdnLoaderPath}";
-                monacoBaseUrl = $"{_cdnBaseUrl}{_cdnBasePath}";
-                useIntegrity = true;
-            }
-            else
-            {
-                cssUrl = _localCssPath;
-                loaderUrl = _localLoaderPath;
-                monacoBaseUrl = _localBasePath;
-                useIntegrity = false;
-            }
+        if (useIntegrity)
+        {
+            await _resourceLoader.LoadStyle(cssUrl, integrity: _cssIntegrity, cancellationToken: token);
+            await _resourceLoader.LoadScript(loaderUrl, integrity: _loaderIntegrity, cancellationToken: token);
+        }
+        else
+        {
+            await _resourceLoader.LoadStyle(cssUrl, cancellationToken: token);
+            await _resourceLoader.LoadScript(loaderUrl, cancellationToken: token);
+        }
 
-            if (useIntegrity)
-            {
-                await _resourceLoader.LoadStyle(cssUrl, integrity: _cssIntegrity, cancellationToken: token);
-                await _resourceLoader.LoadScript(loaderUrl, integrity: _loaderIntegrity, cancellationToken: token);
-            }
-            else
-            {
-                await _resourceLoader.LoadStyle(cssUrl, cancellationToken: token);
-                await _resourceLoader.LoadScript(loaderUrl, cancellationToken: token);
-            }
+        await _resourceLoader.ImportModuleAndWaitUntilAvailable(_modulePath, _moduleName, 100, token);
 
-            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_modulePath, _moduleName, 100, token);
-
-            await _jsRuntime.InvokeVoidAsync($"{_moduleName}.ensureConfigured", token, monacoBaseUrl);
-        });
+        await _jsRuntime.InvokeVoidAsync("MonacoInterop.ensureConfigured", token, monacoBaseUrl);
     }
 
     /// <summary>
@@ -90,7 +94,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     public async ValueTask CreateEditor(ElementReference container, string optionsJson, CancellationToken cancellationToken = default)
     {
         await _initializer.Init(cancellationToken);
-        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.createEditor", cancellationToken, container, optionsJson);
+        await _jsRuntime.InvokeVoidAsync("MonacoInterop.createEditor", cancellationToken, container, optionsJson);
     }
 
     /// <summary>
@@ -103,7 +107,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     public async ValueTask SetValue(ElementReference container, string value, CancellationToken cancellationToken = default)
     {
         await _initializer.Init(cancellationToken);
-        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.setValue", cancellationToken, container, value);
+        await _jsRuntime.InvokeVoidAsync("MonacoInterop.setValue", cancellationToken, container, value);
     }
 
     /// <summary>
@@ -115,7 +119,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     public async ValueTask<string?> GetValue(ElementReference container, CancellationToken cancellationToken = default)
     {
         await _initializer.Init(cancellationToken);
-        return await _jsRuntime.InvokeAsync<string?>($"{_moduleName}.getValue", cancellationToken, container);
+        return await _jsRuntime.InvokeAsync<string?>("MonacoInterop.getValue", cancellationToken, container);
     }
 
     /// <summary>
@@ -128,7 +132,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     public async ValueTask SetLanguage(ElementReference container, string language, CancellationToken cancellationToken = default)
     {
         await _initializer.Init(cancellationToken);
-        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.setLanguage", cancellationToken, container, language);
+        await _jsRuntime.InvokeVoidAsync("MonacoInterop.setLanguage", cancellationToken, container, language);
     }
 
     /// <summary>
@@ -140,7 +144,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     public async ValueTask SetTheme(string theme, CancellationToken cancellationToken = default)
     {
         await _initializer.Init(cancellationToken);
-        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.setTheme", cancellationToken, theme);
+        await _jsRuntime.InvokeVoidAsync("MonacoInterop.setTheme", cancellationToken, theme);
     }
 
     /// <summary>
@@ -151,7 +155,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     /// <returns>A value task representing the dispose operation.</returns>
     public async ValueTask DisposeEditor(ElementReference container, CancellationToken cancellationToken = default)
     {
-        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.disposeEditor", cancellationToken, container);
+        await _jsRuntime.InvokeVoidAsync("MonacoInterop.disposeEditor", cancellationToken, container);
     }
 
     /// <summary>
@@ -165,7 +169,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     public async ValueTask UpdateContentHeight(ElementReference container, int? minLines = null, int? maxLines = null, CancellationToken cancellationToken = default)
     {
         await _initializer.Init(cancellationToken);
-        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.updateContentHeight", cancellationToken, container, minLines, maxLines);
+        await _jsRuntime.InvokeVoidAsync("MonacoInterop.updateContentHeight", cancellationToken, container, minLines, maxLines);
     }
 
     /// <summary>
@@ -179,7 +183,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     public async ValueTask AddContentChangeListener(ElementReference container, int? minLines = null, int? maxLines = null, CancellationToken cancellationToken = default)
     {
         await _initializer.Init(cancellationToken);
-        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.addContentChangeListener", cancellationToken, container, null, minLines, maxLines);
+        await _jsRuntime.InvokeVoidAsync("MonacoInterop.addContentChangeListener", cancellationToken, container, null, minLines, maxLines);
     }
 
     public async ValueTask DisposeAsync()

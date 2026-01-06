@@ -26,40 +26,44 @@ public sealed class BootstrapInterop : IBootstrapInterop
     /// </summary>
     /// <param name="resourceLoader">The resource loader used to load Bootstrap CSS and JavaScript.</param>
     /// <param name="quarkOptions">The Quark configuration options.</param>
+    private readonly IResourceLoader _resourceLoader;
+
     public BootstrapInterop(IResourceLoader resourceLoader, QuarkOptions quarkOptions)
     {
+        _resourceLoader = resourceLoader;
         _quarkOptions = quarkOptions;
+        _initializer = new AsyncInitializer(InitializeResources);
+    }
 
-        _initializer = new AsyncInitializer(async token =>
+    private async ValueTask InitializeResources(CancellationToken token)
+    {
+        string cssUrl;
+        string jsUrl;
+        bool useIntegrity;
+
+        if (_quarkOptions.BootstrapUseCdn)
         {
-            string cssUrl;
-            string jsUrl;
-            bool useIntegrity;
+            cssUrl = $"{CdnBaseUrl}{CdnCssPath}";
+            jsUrl = $"{CdnBaseUrl}{CdnJsPath}";
+            useIntegrity = true;
+        }
+        else
+        {
+            cssUrl = LocalCssPath;
+            jsUrl = LocalJsPath;
+            useIntegrity = false;
+        }
 
-            if (_quarkOptions.BootstrapUseCdn)
-            {
-                cssUrl = $"{CdnBaseUrl}{CdnCssPath}";
-                jsUrl = $"{CdnBaseUrl}{CdnJsPath}";
-                useIntegrity = true;
-            }
-            else
-            {
-                cssUrl = LocalCssPath;
-                jsUrl = LocalJsPath;
-                useIntegrity = false;
-            }
-
-            if (useIntegrity)
-            {
-                await resourceLoader.LoadStyle(cssUrl, CssIntegrity, cancellationToken: token);
-                await resourceLoader.LoadScript(jsUrl, JsIntegrity, cancellationToken: token);
-            }
-            else
-            {
-                await resourceLoader.LoadStyle(cssUrl, cancellationToken: token);
-                await resourceLoader.LoadScript(jsUrl, cancellationToken: token);
-            }
-        });
+        if (useIntegrity)
+        {
+            await _resourceLoader.LoadStyle(cssUrl, CssIntegrity, cancellationToken: token);
+            await _resourceLoader.LoadScript(jsUrl, JsIntegrity, cancellationToken: token);
+        }
+        else
+        {
+            await _resourceLoader.LoadStyle(cssUrl, cancellationToken: token);
+            await _resourceLoader.LoadScript(jsUrl, cancellationToken: token);
+        }
     }
 
     /// <summary>
