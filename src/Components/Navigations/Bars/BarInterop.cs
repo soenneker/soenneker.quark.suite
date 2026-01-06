@@ -18,16 +18,16 @@ public sealed class BarInterop : IBarInterop
     public BarInterop(IResourceLoader resourceLoader)
     {
         _resourceLoader = resourceLoader;
-        _horizontalBarInitializer = new AsyncInitializer(InitializeHorizontalBar);
-        _sidebarInitializer = new AsyncInitializer(InitializeSidebar);
+        _horizontalBarInitializer = new AsyncInitializer(InitializeHorizontalBarScript);
+        _sidebarInitializer = new AsyncInitializer(InitializeSidebarScript);
     }
 
-    private ValueTask InitializeHorizontalBar(CancellationToken token)
+    private ValueTask InitializeHorizontalBarScript(CancellationToken token)
     {
         return _resourceLoader.LoadStyle(_horizontalBarCssPath, cancellationToken: token);
     }
 
-    private ValueTask InitializeSidebar(CancellationToken token)
+    private ValueTask InitializeSidebarScript(CancellationToken token)
     {
         return _resourceLoader.LoadStyle(_verticalBarCssPath, cancellationToken: token);
     }
