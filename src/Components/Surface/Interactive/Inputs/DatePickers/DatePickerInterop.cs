@@ -39,8 +39,8 @@ public sealed class DatePickerInterop : IDatePickerInterop
         return _initializer.Init(cancellationToken);
     }
 
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
     {
-        await _initializer.DisposeAsync();
+        return _initializer.DisposeAsync();
     }
 }

@@ -36,10 +36,10 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         _jsRuntime = jsRuntime;
         _resourceLoader = resourceLoader;
         _quarkOptions = quarkOptions;
-        _initializer = new AsyncInitializer(Initialize);
+        _initializer = new AsyncInitializer(InitializeResources);
     }
 
-    private async ValueTask Initialize(CancellationToken token)
+    private async ValueTask InitializeResources(CancellationToken token)
     {
         string cssUrl;
         string loaderUrl;
