@@ -10,6 +10,10 @@ namespace Soenneker.Quark;
 /// </summary>
 public static class Validators
 {
+    private static readonly Regex _alphaNumericRegex = new(@"^[a-zA-Z0-9]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+    private static readonly Regex _digitsOnlyRegex = new(@"^\d+$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+    private static readonly Regex _emailRegex = new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     /// <summary>
     /// Validates that the value is not empty.
     /// </summary>
@@ -66,14 +70,14 @@ public static class Validators
     /// </summary>
     public static readonly SimpleValidator IsAlphanumeric = new(
         "Only letters and numbers are allowed",
-        value => value is string s && Regex.IsMatch(s, @"^[a-zA-Z0-9]+$"));
+        value => value is string s && _alphaNumericRegex.IsMatch(s));
 
     /// <summary>
     /// Validates that the value contains only digits.
     /// </summary>
     public static readonly SimpleValidator IsDigitsOnly = new(
         "Only digits are allowed",
-        value => value is string s && Regex.IsMatch(s, @"^\d+$"));
+        value => value is string s && _digitsOnlyRegex.IsMatch(s));
 
     /// <summary>
     /// Creates a minimum length validator.
@@ -125,8 +129,7 @@ public static class Validators
 
         try
         {
-            var regex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-            return regex.IsMatch(email);
+            return _emailRegex.IsMatch(email);
         }
         catch
         {
