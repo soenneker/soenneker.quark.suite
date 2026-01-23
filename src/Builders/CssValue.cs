@@ -75,7 +75,7 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
     public bool IsCssStyle =>
         // style if it looks like "prop: val" OR (ColorBuilder with non-theme token)
         // OR (CSS unit value) OR standalone CSS values (var(), #fff, inherit, etc.)
-        _value.IndexOf(':') >= 0 || (_isColor && !IsKnownThemeOrSizeToken(_value)) ||
+        _value.Contains(':') || (_isColor && !IsKnownThemeOrSizeToken(_value)) ||
         LooksLikeCssUnit(_value) || LooksLikeStandaloneCssValue(_value);
 
     /// <summary>
@@ -93,11 +93,11 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         get
         {
             // Check if _styleValue looks like a style (contains colon)
-            if (!string.IsNullOrEmpty(_styleValue) && _styleValue.IndexOf(':') >= 0)
+            if (!string.IsNullOrEmpty(_styleValue) && _styleValue.Contains(':'))
                 return _styleValue;
 
             // Check if _value looks like a style (contains colon)
-            if (!string.IsNullOrEmpty(_value) && _value.IndexOf(':') >= 0)
+            if (!string.IsNullOrEmpty(_value) && _value.Contains(':'))
                 return _value;
 
             // Neither looks like a style, return empty
@@ -116,7 +116,11 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         if (selector.IsNullOrWhiteSpace())
             return this;
 
-        return new CssValue<TBuilder>(this, selector.Trim(), absolute);
+        var trimmed = selector.AsSpan().Trim();
+        if (trimmed.Length != selector.Length)
+            return new CssValue<TBuilder>(this, trimmed.ToString(), absolute);
+
+        return new CssValue<TBuilder>(this, selector, absolute);
     }
 
     private static bool IsKnownThemeOrSizeToken(string value)
@@ -136,7 +140,11 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
             return false;
 
         // Check if the value ends with common CSS units
-        var trimmed = value.Trim();
+        var trimmedSpan = value.AsSpan().Trim();
+        if (trimmedSpan.Length == 0)
+            return false;
+
+        var trimmed = trimmedSpan.Length == value.Length ? value : trimmedSpan.ToString();
 
         return trimmed.EndsWithIgnoreCase("px") || trimmed.EndsWithIgnoreCase("em") ||
                trimmed.EndsWithIgnoreCase("rem") || trimmed.EndsWithIgnoreCase("%") ||
@@ -151,10 +159,11 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         if (value.IsNullOrEmpty())
             return false;
 
-        var trimmed = value.Trim();
-
-        if (trimmed.Length == 0)
+        var trimmedSpan = value.AsSpan().Trim();
+        if (trimmedSpan.Length == 0)
             return false;
+
+        var trimmed = trimmedSpan.Length == value.Length ? value : trimmedSpan.ToString();
 
         if (trimmed.StartsWith("#", StringComparison.Ordinal) || trimmed.StartsWith("rgb", StringComparison.OrdinalIgnoreCase) ||
             trimmed.StartsWith("hsl", StringComparison.OrdinalIgnoreCase) || trimmed.StartsWith("var(", StringComparison.OrdinalIgnoreCase) ||
@@ -211,7 +220,14 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
     {
         if (_value.HasContent())
         {
-            var v = _value.Trim();
+            var trimmedSpan = _value.AsSpan().Trim();
+            if (trimmedSpan.Length == 0)
+            {
+                token = null;
+                return false;
+            }
+
+            var v = trimmedSpan.Length == _value.Length ? _value : trimmedSpan.ToString();
 
             if (_isSize)
             {

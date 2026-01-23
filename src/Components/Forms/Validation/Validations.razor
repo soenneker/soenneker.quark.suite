@@ -189,14 +189,36 @@
     public bool AllValidationsSuccessful => _validations.All(x => x.Status == ValidationStatus.Success);
     public bool HasFailedValidations => _validations.Any(x => x.Status == ValidationStatus.Error);
 
-    private IReadOnlyCollection<string> FailedValidations => _validations.Where(x => x.Status == ValidationStatus.Error && x.Messages?.Any() == true)
-        .SelectMany(x => x.Messages!)
-        .Concat(_validations.Any(v => v.Status == ValidationStatus.Error && (v.Messages is null || !v.Messages.Any()) && !_validations
-            .Where(v2 => v2.Status == ValidationStatus.Error && v2.Messages?.Any() == true)
-            .Contains(v))
-            ? new string[] { MissingFieldsErrorMessage ?? "One or more fields have an error." }
-            : Array.Empty<string>())
-        .ToList();
+    private IReadOnlyCollection<string> FailedValidations
+    {
+        get
+        {
+            var messages = new List<string>();
+            var hasErrorWithoutMessages = false;
+
+            foreach (var validation in _validations)
+            {
+                if (validation.Status != ValidationStatus.Error)
+                    continue;
+
+                if (validation.Messages is { } validationMessages && validationMessages.Any())
+                {
+                    messages.AddRange(validationMessages);
+                }
+                else
+                {
+                    hasErrorWithoutMessages = true;
+                }
+            }
+
+            if (hasErrorWithoutMessages)
+            {
+                messages.Add(MissingFieldsErrorMessage ?? "One or more fields have an error.");
+            }
+
+            return messages;
+        }
+    }
 
     protected override Dictionary<string, object> BuildAttributes()
     {

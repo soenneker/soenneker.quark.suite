@@ -69,22 +69,55 @@ public sealed class ValidationResult
         if (results == null || results.Length == 0)
             return None();
 
-        var errors = results.Where(r => r.Status == ValidationStatus.Error).ToList();
-        
-        if (errors.Count > 0)
+        var hasError = false;
+        List<string>? errorMessages = null;
+        List<string>? memberNames = null;
+        HashSet<string>? memberNameSet = null;
+
+        for (var i = 0; i < results.Length; i++)
         {
-            var allErrors = string.Join(" ", errors.Select(e => e.ErrorText).Where(e => !string.IsNullOrEmpty(e)));
-            var allMemberNames = errors.SelectMany(e => e.MemberNames ?? []).Distinct().ToList();
-            
-            return new ValidationResult
+            var result = results[i];
+            if (result.Status != ValidationStatus.Error)
+                continue;
+
+            hasError = true;
+
+            if (!string.IsNullOrEmpty(result.ErrorText))
             {
-                Status = ValidationStatus.Error,
-                ErrorText = allErrors,
-                MemberNames = allMemberNames.Count > 0 ? allMemberNames : null
-            };
+                errorMessages ??= [];
+                errorMessages.Add(result.ErrorText);
+            }
+
+            if (result.MemberNames is null)
+                continue;
+
+            foreach (var name in result.MemberNames)
+            {
+                if (string.IsNullOrEmpty(name))
+                    continue;
+
+                if (memberNameSet is null)
+                {
+                    memberNameSet = new HashSet<string>(StringComparer.Ordinal);
+                    memberNames = [];
+                }
+
+                if (memberNameSet.Add(name))
+                    memberNames!.Add(name);
+            }
         }
 
-        return Success();
+        if (!hasError)
+            return Success();
+
+        var allErrors = errorMessages is null ? string.Empty : string.Join(" ", errorMessages);
+
+        return new ValidationResult
+        {
+            Status = ValidationStatus.Error,
+            ErrorText = allErrors,
+            MemberNames = memberNames is { Count: > 0 } ? memberNames : null
+        };
     }
 }
 

@@ -645,7 +645,7 @@ public abstract class Component : CoreComponent, IComponent
             if (v.Value.IsCssStyle)
             {
                 // If it's already a full declaration (contains colon), use it as-is
-                if (s.IndexOf(':') >= 0)
+                if (s.Contains(':'))
                     AppendStyleDecl(ref styB, s);
                 else
                     // Format as property: value
@@ -667,7 +667,7 @@ public abstract class Component : CoreComponent, IComponent
             if (v.Value.IsCssStyle)
             {
                 // If it's already a full declaration (contains colon), use it as-is
-                if (s.IndexOf(':') >= 0)
+                if (s.Contains(':'))
                     AppendStyleDecl(ref styB, s);
                 else
                     // Format as property: value
@@ -688,7 +688,7 @@ public abstract class Component : CoreComponent, IComponent
         if (existing.IsNullOrEmpty()) 
             return toAdd;
 
-        return existing.Contains(toAdd!, StringComparison.Ordinal) ? existing : $"{existing} {toAdd}";
+        return existing.Contains(toAdd!, StringComparison.Ordinal) ? existing : string.Concat(existing, " ", toAdd);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

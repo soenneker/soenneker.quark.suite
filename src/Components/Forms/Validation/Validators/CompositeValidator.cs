@@ -19,7 +19,7 @@ public class CompositeValidator : QuarkValidator
     /// <param name="validators">The validators to combine.</param>
     public CompositeValidator(params IQuarkValidator[] validators)
     {
-        _validators = validators?.ToList() ?? [];
+        _validators = validators?.Length > 0 ? new List<IQuarkValidator>(validators) : [];
     }
 
     /// <summary>
@@ -51,8 +51,16 @@ public class CompositeValidator : QuarkValidator
     /// <returns>A <see cref="ValidationResult"/> containing the combined validation outcome.</returns>
     public override ValidationResult Validate(object value)
     {
-        var results = _validators.Select(validator => validator.Validate(value)).ToList();
-        return ValidationResult.Combine(results.ToArray());
+        if (_validators.Count == 0)
+            return ValidationResult.None();
+
+        var results = new ValidationResult[_validators.Count];
+        for (var i = 0; i < _validators.Count; i++)
+        {
+            results[i] = _validators[i].Validate(value);
+        }
+
+        return ValidationResult.Combine(results);
     }
 
     /// <summary>

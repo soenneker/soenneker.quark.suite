@@ -271,7 +271,7 @@
 
     public List<DataTableOrderRequest> GetCurrentOrders()
     {
-        return _currentOrders.ToList();
+        return _currentOrders.Count == 0 ? new List<DataTableOrderRequest>() : new List<DataTableOrderRequest>(_currentOrders);
     }
 
     public async ValueTask SetOrders(List<DataTableOrderRequest> orders)
@@ -371,7 +371,7 @@
             {
                 Column = $"Column_{columnIndex}",
                 Direction = nextDirection ?? string.Empty,
-                Orders = _currentOrders.ToList()
+                Orders = _currentOrders.Count == 0 ? new List<DataTableOrderRequest>() : new List<DataTableOrderRequest>(_currentOrders)
             };
 
             await OnOrder.InvokeAsync(args);

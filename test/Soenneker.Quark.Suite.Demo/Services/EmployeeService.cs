@@ -47,13 +47,13 @@ public class EmployeeService
         // Apply search
         if (serverSideRequest.Search?.Value.HasContent() == true)
         {
-            var searchTerm = serverSideRequest.Search.Value.ToLower();
+            var searchTerm = serverSideRequest.Search.Value;
             filteredData = filteredData.Where(e => 
-            e.Id.ToString().Contains(searchTerm) ||
-                e.Name.ToLower().Contains(searchTerm) ||
-                e.Department.ToLower().Contains(searchTerm) ||
-                e.Email.ToLower().Contains(searchTerm) ||
-                e.Status.ToLower().Contains(searchTerm));
+                e.Id.ToString().Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                e.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                e.Department.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                e.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                e.Status.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
         }
 
         // Apply sorting
@@ -70,14 +70,14 @@ public class EmployeeService
                 if (orderedData == null)
                 {
                     // First sort
-                    orderedData = order.Dir.ToLower() == "asc" 
+                    orderedData = string.Equals(order.Dir, "asc", StringComparison.OrdinalIgnoreCase)
                         ? filteredData.OrderBy(e => GetEmployeeProperty(e, order.Column))
                         : filteredData.OrderByDescending(e => GetEmployeeProperty(e, order.Column));
                 }
                 else
                 {
                     // Additional sorts
-                    orderedData = order.Dir.ToLower() == "asc" 
+                    orderedData = string.Equals(order.Dir, "asc", StringComparison.OrdinalIgnoreCase)
                         ? orderedData.ThenBy(e => GetEmployeeProperty(e, order.Column))
                         : orderedData.ThenByDescending(e => GetEmployeeProperty(e, order.Column));
                 }
@@ -130,12 +130,12 @@ public class EmployeeService
         // Apply search
         if (serverSideRequest.Search?.Value.HasContent() == true)
         {
-            var searchTerm = serverSideRequest.Search.Value.ToLower();
+            var searchTerm = serverSideRequest.Search.Value;
             filteredData = filteredData.Where(e => 
-                e.Name.ToLower().Contains(searchTerm) ||
-                e.Department.ToLower().Contains(searchTerm) ||
-                e.Email.ToLower().Contains(searchTerm) ||
-                e.Status.ToLower().Contains(searchTerm));
+                e.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                e.Department.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                e.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                e.Status.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
         }
 
         // Apply sorting
@@ -152,14 +152,14 @@ public class EmployeeService
                 if (orderedData == null)
                 {
                     // First sort
-                    orderedData = order.Dir.ToLower() == "asc" 
+                    orderedData = string.Equals(order.Dir, "asc", StringComparison.OrdinalIgnoreCase)
                         ? filteredData.OrderBy(e => GetEmployeeProperty(e, order.Column))
                         : filteredData.OrderByDescending(e => GetEmployeeProperty(e, order.Column));
                 }
                 else
                 {
                     // Additional sorts
-                    orderedData = order.Dir.ToLower() == "asc" 
+                    orderedData = string.Equals(order.Dir, "asc", StringComparison.OrdinalIgnoreCase)
                         ? orderedData.ThenBy(e => GetEmployeeProperty(e, order.Column))
                         : orderedData.ThenByDescending(e => GetEmployeeProperty(e, order.Column));
                 }
@@ -194,12 +194,12 @@ public class EmployeeService
         // Apply search
         if (serverSideRequest.Search?.Value.HasContent() == true)
         {
-            var searchTerm = serverSideRequest.Search.Value.ToLower();
+            var searchTerm = serverSideRequest.Search.Value;
             filteredData = filteredData.Where(e => 
-                e.Name.ToLower().Contains(searchTerm) ||
-                e.Department.ToLower().Contains(searchTerm) ||
-                e.Email.ToLower().Contains(searchTerm) ||
-                e.Status.ToLower().Contains(searchTerm));
+                e.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                e.Department.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                e.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                e.Status.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
         }
 
         // Apply sorting
@@ -216,14 +216,14 @@ public class EmployeeService
                 if (orderedData == null)
                 {
                     // First sort
-                    orderedData = order.Dir.ToLower() == "asc" 
+                    orderedData = string.Equals(order.Dir, "asc", StringComparison.OrdinalIgnoreCase)
                         ? filteredData.OrderBy(e => GetEmployeeProperty(e, order.Column))
                         : filteredData.OrderByDescending(e => GetEmployeeProperty(e, order.Column));
                 }
                 else
                 {
                     // Additional sorts
-                    orderedData = order.Dir.ToLower() == "asc" 
+                    orderedData = string.Equals(order.Dir, "asc", StringComparison.OrdinalIgnoreCase)
                         ? orderedData.ThenBy(e => GetEmployeeProperty(e, order.Column))
                         : orderedData.ThenByDescending(e => GetEmployeeProperty(e, order.Column));
                 }
