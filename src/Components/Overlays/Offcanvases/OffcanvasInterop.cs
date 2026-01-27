@@ -1,5 +1,7 @@
 using Soenneker.Asyncs.Initializers;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
+using Soenneker.Extensions.CancellationTokens;
+using Soenneker.Utils.CancellationScopes;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,6 +11,7 @@ namespace Soenneker.Quark;
 public sealed class OffcanvasInterop : IOffcanvasInterop
 {
     private readonly AsyncInitializer _initializer;
+    private readonly CancellationScope _cancellationScope = new();
 
     private readonly IResourceLoader _resourceLoader;
 
@@ -23,10 +26,17 @@ public sealed class OffcanvasInterop : IOffcanvasInterop
         return _resourceLoader.LoadStyle("_content/Soenneker.Quark.Suite/css/offcanvas.css", cancellationToken: token);
     }
 
-    public ValueTask Initialize(CancellationToken cancellationToken = default) => _initializer.Init(cancellationToken);
-
-    public ValueTask DisposeAsync()
+    public async ValueTask Initialize(CancellationToken cancellationToken = default)
     {
-        return _initializer.DisposeAsync();
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+            await _initializer.Init(linked);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _initializer.DisposeAsync();
+        await _cancellationScope.DisposeAsync();
     }
 }

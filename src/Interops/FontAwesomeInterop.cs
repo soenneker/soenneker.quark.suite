@@ -1,5 +1,7 @@
 using Soenneker.Asyncs.Initializers;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
+using Soenneker.Extensions.CancellationTokens;
+using Soenneker.Utils.CancellationScopes;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,6 +11,7 @@ namespace Soenneker.Quark;
 public sealed class FontAwesomeInterop : IFontAwesomeInterop
 {
     private readonly AsyncInitializer _initializer;
+    private readonly CancellationScope _cancellationScope = new();
 
     private const string _fontAwesomeCssUrl = "https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css";
     private const string _fontAwesomeCssIntegrity = "sha256-4rTIfo5GQTi/7UJqoyUJQKzxW8VN/YBH31+Cy+vTZj4=";
@@ -34,16 +37,20 @@ public sealed class FontAwesomeInterop : IFontAwesomeInterop
     /// Initializes Font Awesome CSS resources.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-    public ValueTask Initialize(CancellationToken cancellationToken = default)
+    public async ValueTask Initialize(CancellationToken cancellationToken = default)
     {
-        return _initializer.Init(cancellationToken);
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+            await _initializer.Init(linked);
     }
 
     /// <summary>
     /// Disposes of the Font Awesome interop resources.
     /// </summary>
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
-        return _initializer.DisposeAsync();
+        await _initializer.DisposeAsync();
+        await _cancellationScope.DisposeAsync();
     }
 }

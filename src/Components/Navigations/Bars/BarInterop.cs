@@ -1,5 +1,7 @@
 using Soenneker.Asyncs.Initializers;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
+using Soenneker.Extensions.CancellationTokens;
+using Soenneker.Utils.CancellationScopes;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,6 +13,7 @@ public sealed class BarInterop : IBarInterop
     private readonly AsyncInitializer _horizontalBarInitializer;
     private readonly AsyncInitializer _sidebarInitializer;
     private readonly IResourceLoader _resourceLoader;
+    private readonly CancellationScope _cancellationScope = new();
 
     private const string _horizontalBarCssPath = "_content/Soenneker.Quark.Suite/css/bars/horizontalbar.css";
     private const string _verticalBarCssPath = "_content/Soenneker.Quark.Suite/css/bars/verticalbar.css";
@@ -37,9 +40,12 @@ public sealed class BarInterop : IBarInterop
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A value task representing the initialization operation.</returns>
-    public ValueTask InitializeHorizontalBar(CancellationToken cancellationToken = default)
+    public async ValueTask InitializeHorizontalBar(CancellationToken cancellationToken = default)
     {
-        return _horizontalBarInitializer.Init(cancellationToken);
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+            await _horizontalBarInitializer.Init(linked);
     }
 
     /// <summary>
@@ -47,9 +53,12 @@ public sealed class BarInterop : IBarInterop
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A value task representing the initialization operation.</returns>
-    public ValueTask InitializeVerticalBar(CancellationToken cancellationToken = default)
+    public async ValueTask InitializeVerticalBar(CancellationToken cancellationToken = default)
     {
-        return _sidebarInitializer.Init(cancellationToken);
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+            await _sidebarInitializer.Init(linked);
     }
 
     public async ValueTask DisposeAsync()
@@ -57,5 +66,7 @@ public sealed class BarInterop : IBarInterop
         await _horizontalBarInitializer.DisposeAsync();
 
         await _sidebarInitializer.DisposeAsync();
+
+        await _cancellationScope.DisposeAsync();
     }
 }

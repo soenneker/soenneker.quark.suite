@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Soenneker.Asyncs.Initializers;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
+using Soenneker.Extensions.CancellationTokens;
+using Soenneker.Utils.CancellationScopes;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,6 +15,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     private readonly IJSRuntime _jsRuntime;
     private readonly IResourceLoader _resourceLoader;
     private readonly AsyncInitializer _initializer;
+    private readonly CancellationScope _cancellationScope = new();
 
     private const string _modulePath = "Soenneker.Quark.Suite/js/monacointerop.js";
     private const string _moduleName = "MonacoInterop";
@@ -82,7 +85,13 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A value task representing the initialization operation.</returns>
-    public ValueTask Initialize(CancellationToken cancellationToken = default) => _initializer.Init(cancellationToken);
+    public async ValueTask Initialize(CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+            await _initializer.Init(linked);
+    }
 
     /// <summary>
     /// Creates a new Monaco editor instance in the specified container.
@@ -93,8 +102,13 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     /// <returns>A value task representing the editor creation operation.</returns>
     public async ValueTask CreateEditor(ElementReference container, string optionsJson, CancellationToken cancellationToken = default)
     {
-        await _initializer.Init(cancellationToken);
-        await _jsRuntime.InvokeVoidAsync("MonacoInterop.createEditor", cancellationToken, container, optionsJson);
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            await _initializer.Init(linked);
+            await _jsRuntime.InvokeVoidAsync("MonacoInterop.createEditor", linked, container, optionsJson);
+        }
     }
 
     /// <summary>
@@ -106,8 +120,13 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     /// <returns>A value task representing the set value operation.</returns>
     public async ValueTask SetValue(ElementReference container, string value, CancellationToken cancellationToken = default)
     {
-        await _initializer.Init(cancellationToken);
-        await _jsRuntime.InvokeVoidAsync("MonacoInterop.setValue", cancellationToken, container, value);
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            await _initializer.Init(linked);
+            await _jsRuntime.InvokeVoidAsync("MonacoInterop.setValue", linked, container, value);
+        }
     }
 
     /// <summary>
@@ -118,8 +137,13 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     /// <returns>A value task that contains the editor content, or null if not available.</returns>
     public async ValueTask<string?> GetValue(ElementReference container, CancellationToken cancellationToken = default)
     {
-        await _initializer.Init(cancellationToken);
-        return await _jsRuntime.InvokeAsync<string?>("MonacoInterop.getValue", cancellationToken, container);
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            await _initializer.Init(linked);
+            return await _jsRuntime.InvokeAsync<string?>("MonacoInterop.getValue", linked, container);
+        }
     }
 
     /// <summary>
@@ -131,8 +155,13 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     /// <returns>A value task representing the set language operation.</returns>
     public async ValueTask SetLanguage(ElementReference container, string language, CancellationToken cancellationToken = default)
     {
-        await _initializer.Init(cancellationToken);
-        await _jsRuntime.InvokeVoidAsync("MonacoInterop.setLanguage", cancellationToken, container, language);
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            await _initializer.Init(linked);
+            await _jsRuntime.InvokeVoidAsync("MonacoInterop.setLanguage", linked, container, language);
+        }
     }
 
     /// <summary>
@@ -143,8 +172,13 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     /// <returns>A value task representing the set theme operation.</returns>
     public async ValueTask SetTheme(string theme, CancellationToken cancellationToken = default)
     {
-        await _initializer.Init(cancellationToken);
-        await _jsRuntime.InvokeVoidAsync("MonacoInterop.setTheme", cancellationToken, theme);
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            await _initializer.Init(linked);
+            await _jsRuntime.InvokeVoidAsync("MonacoInterop.setTheme", linked, theme);
+        }
     }
 
     /// <summary>
@@ -155,7 +189,10 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     /// <returns>A value task representing the dispose operation.</returns>
     public async ValueTask DisposeEditor(ElementReference container, CancellationToken cancellationToken = default)
     {
-        await _jsRuntime.InvokeVoidAsync("MonacoInterop.disposeEditor", cancellationToken, container);
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+            await _jsRuntime.InvokeVoidAsync("MonacoInterop.disposeEditor", linked, container);
     }
 
     /// <summary>
@@ -168,8 +205,13 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     /// <returns>A value task representing the update content height operation.</returns>
     public async ValueTask UpdateContentHeight(ElementReference container, int? minLines = null, int? maxLines = null, CancellationToken cancellationToken = default)
     {
-        await _initializer.Init(cancellationToken);
-        await _jsRuntime.InvokeVoidAsync("MonacoInterop.updateContentHeight", cancellationToken, container, minLines, maxLines);
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            await _initializer.Init(linked);
+            await _jsRuntime.InvokeVoidAsync("MonacoInterop.updateContentHeight", linked, container, minLines, maxLines);
+        }
     }
 
     /// <summary>
@@ -182,14 +224,20 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     /// <returns>A value task representing the add content change listener operation.</returns>
     public async ValueTask AddContentChangeListener(ElementReference container, int? minLines = null, int? maxLines = null, CancellationToken cancellationToken = default)
     {
-        await _initializer.Init(cancellationToken);
-        await _jsRuntime.InvokeVoidAsync("MonacoInterop.addContentChangeListener", cancellationToken, container, null, minLines, maxLines);
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            await _initializer.Init(linked);
+            await _jsRuntime.InvokeVoidAsync("MonacoInterop.addContentChangeListener", linked, container, null, minLines, maxLines);
+        }
     }
 
     public async ValueTask DisposeAsync()
     {
         await _resourceLoader.DisposeModule(_modulePath);
         await _initializer.DisposeAsync();
+        await _cancellationScope.DisposeAsync();
     }
 }
 

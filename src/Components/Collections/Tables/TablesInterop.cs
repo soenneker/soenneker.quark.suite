@@ -2,6 +2,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Soenneker.Asyncs.Initializers;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
+using Soenneker.Extensions.CancellationTokens;
+using Soenneker.Utils.CancellationScopes;
 
 namespace Soenneker.Quark;
 
@@ -9,6 +11,7 @@ namespace Soenneker.Quark;
 public sealed class TablesInterop : ITablesInterop
 {
     private readonly AsyncInitializer _styleInitializer;
+    private readonly CancellationScope _cancellationScope = new();
 
     private readonly IResourceLoader _resourceLoader;
 
@@ -28,13 +31,17 @@ public sealed class TablesInterop : ITablesInterop
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A value task representing the initialization operation.</returns>
-    public ValueTask Initialize(CancellationToken cancellationToken = default)
+    public async ValueTask Initialize(CancellationToken cancellationToken = default)
     {
-        return _styleInitializer.Init(cancellationToken);
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+            await _styleInitializer.Init(linked);
     }
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
-        return _styleInitializer.DisposeAsync();
+        await _styleInitializer.DisposeAsync();
+        await _cancellationScope.DisposeAsync();
     }
 }
