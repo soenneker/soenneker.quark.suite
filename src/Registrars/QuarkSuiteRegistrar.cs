@@ -13,7 +13,7 @@ public static class QuarkSuiteRegistrar
 {
     /// <summary>
     /// Adds all Quark Suite services to the service collection as scoped services.
-    /// Automatically registers QuarkOptions and ThemeProvider if not already registered.
+    /// Automatically registers QuarkOptions if not already registered.
     /// </summary>
     /// <param name="services">The service collection to add services to.</param>
     /// <returns>The service collection for method chaining.</returns>
@@ -22,10 +22,6 @@ public static class QuarkSuiteRegistrar
         // Auto-register QuarkOptions if not already registered
         if (services.All(descriptor => descriptor.ServiceType != typeof(QuarkOptions)))
             services.AddDefaultQuarkOptionsAsScoped();
-
-        // Auto-register ThemeProvider if not already registered
-        if (services.All(descriptor => descriptor.ServiceType != typeof(IThemeProvider)))
-            services.AddEmptyThemeProviderAsScoped();
 
         services
             .AddQuarkValidationAsScoped()

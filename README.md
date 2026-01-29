@@ -1,4 +1,4 @@
-﻿[![](https://img.shields.io/nuget/v/soenneker.quark.suite.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.quark.suite/)
+[![](https://img.shields.io/nuget/v/soenneker.quark.suite.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.quark.suite/)
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.quark.suite/publish-package.yml?style=for-the-badge)](https://github.com/soenneker/soenneker.quark.suite/actions/workflows/publish-package.yml)
 [![](https://img.shields.io/nuget/dt/soenneker.quark.suite.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.quark.suite/)
 [![](https://img.shields.io/badge/Demo-Live-blueviolet?style=for-the-badge&logo=github)](https://soenneker.github.io/soenneker.quark.suite/)
@@ -31,6 +31,31 @@ var host = builder.Build();
 await host.Services.LoadQuarkResources(); // Optional if you want to load resources via html
 
 ```
+
+## Theming
+
+Quark Suite supports two approaches:
+
+1) **Runtime theming with `ThemeHost`**  
+If you use `ThemeHost`, you must register an `IThemeProvider` in DI (it is not auto-registered).
+
+```csharp
+var themeProvider = new ThemeProvider();
+// Add themes to the provider here (themeProvider.AddTheme(...))
+
+builder.Services.AddThemeProviderAsScoped(themeProvider);
+```
+
+Use `ThemeHost` in your layout to emit the generated CSS:
+
+```razor
+<ThemeHost>
+    @Body
+</ThemeHost>
+```
+
+2) **Prebuilt CSS**  
+If you prefer static CSS, you can use the generated theme package `soenneker.quark.gen.themes` and include a prebuilt CSS file directly in your app (no `ThemeHost` or `IThemeProvider` required).
 
 ## Examples
 
