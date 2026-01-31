@@ -8,7 +8,7 @@ namespace Soenneker.Quark;
 /// </summary>
 public class EmailValidator : QuarkValidator
 {
-    private static readonly Regex EmailRegex = new(@"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,6}$", RegexOptions.IgnoreCase);
+    private static readonly Regex _emailRegex = new(@"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,6}$", RegexOptions.IgnoreCase);
     
     private readonly string _errorMessage;
 
@@ -39,7 +39,7 @@ public class EmailValidator : QuarkValidator
         if (value is not string email)
             return ValidationResult.Error(_errorMessage);
 
-        if (!email.HasContent() || !EmailRegex.IsMatch(email))
+        if (!email.HasContent() || !_emailRegex.IsMatch(email))
             return ValidationResult.Error(_errorMessage);
 
         return ValidationResult.Success();

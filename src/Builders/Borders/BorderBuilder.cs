@@ -129,7 +129,7 @@ public sealed class BorderBuilder : ICssBuilder
     private BorderBuilder AddRule(ElementSideType side)
     {
         var size = _rules.Count > 0 ? _rules[^1].Size : "0";
-        var bp = _rules.Count > 0 ? _rules[^1].breakpoint : null;
+        var bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
 
         if (_rules.Count > 0 && _rules[^1].Side == ElementSideType.All)
         {
@@ -184,7 +184,7 @@ public sealed class BorderBuilder : ICssBuilder
                 continue;
 
             var sideTok = GetSideToken(rule.Side);
-            var bpTok = BreakpointUtil.GetBreakpointToken(rule.breakpoint);
+            var bpTok = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
 
             if (!first)
                 sb.Append(' ');

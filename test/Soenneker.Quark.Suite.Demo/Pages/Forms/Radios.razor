@@ -306,20 +306,20 @@
                 <CardBody>
                     <Paragraph TextColor="TextColor.Muted">Radio buttons integrated with form validation</Paragraph>
 
-                    <Validations @ref="validations" Model="@formModel">
+                    <Validations @ref="_validations" Model="@_formModel">
                         <Validation Action="ValidatePaymentMethod">
                             <Div Margin="Margin.Is3.FromBottom">
                                 <Label Form="true">Payment Method</Label>
-                                <Radio Name="paymentGroup" Value="CreditCard" Checked="@(formModel.PaymentMethod == "CreditCard")" 
-                                       OnChange="@(e => formModel.PaymentMethod = "CreditCard")">
+                                <Radio Name="paymentGroup" Value="CreditCard" Checked="@(_formModel.PaymentMethod == "CreditCard")" 
+                                       OnChange="@(e => _formModel.PaymentMethod = "CreditCard")">
                                     Credit Card
                                 </Radio>
-                                <Radio Name="paymentGroup" Value="PayPal" Checked="@(formModel.PaymentMethod == "PayPal")" 
-                                       OnChange="@(e => formModel.PaymentMethod = "PayPal")">
+                                <Radio Name="paymentGroup" Value="PayPal" Checked="@(_formModel.PaymentMethod == "PayPal")" 
+                                       OnChange="@(e => _formModel.PaymentMethod = "PayPal")">
                                     PayPal
                                 </Radio>
-                                <Radio Name="paymentGroup" Value="BankTransfer" Checked="@(formModel.PaymentMethod == "BankTransfer")" 
-                                       OnChange="@(e => formModel.PaymentMethod = "BankTransfer")">
+                                <Radio Name="paymentGroup" Value="BankTransfer" Checked="@(_formModel.PaymentMethod == "BankTransfer")" 
+                                       OnChange="@(e => _formModel.PaymentMethod = "BankTransfer")">
                                     Bank Transfer
                                 </Radio>
                             </Div>
@@ -328,7 +328,7 @@
 
                         <Div Margin="Margin.Is3.FromTop">
                             <Button BackgroundColor="BackgroundColor.Primary" OnClick="SubmitForm">Submit Form</Button>
-                            <Span Margin="Margin.Is2.FromStart">@submitResult</Span>
+                            <Span Margin="Margin.Is2.FromStart">@_submitResult</Span>
                         </Div>
                     </Validations>
                 </CardBody>
@@ -404,9 +404,9 @@
     private string _sizeSelected = "Default";
 
     // Form integration
-    private Validations? validations;
-    private FormModel formModel = new();
-    private string submitResult = string.Empty;
+    private Validations? _validations;
+    private FormModel _formModel = new();
+    private string _submitResult = string.Empty;
 
     // Interactive demo
     private bool _masterSelected = false;
@@ -479,11 +479,11 @@
 
     private async Task SubmitForm()
     {
-        if (validations is null)
+        if (_validations is null)
             return;
 
-        var ok = await validations.Validate();
-        submitResult = ok ? "Form submitted successfully!" : "Please fix validation errors.";
+        var ok = await _validations.Validate();
+        _submitResult = ok ? "Form submitted successfully!" : "Please fix validation errors.";
         StateHasChanged();
     }
 

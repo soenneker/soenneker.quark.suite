@@ -6,5 +6,5 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Represents a single resize rule with optional BreakpointType.
 /// </summary>
-internal record ResizeRule(string Resize, BreakpointType? breakpoint = null);
+internal record ResizeRule(string Resize, BreakpointType? Breakpoint = null);
 

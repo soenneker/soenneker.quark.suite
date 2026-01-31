@@ -12,10 +12,10 @@ public sealed class AspectRatioBuilder : ICssBuilder
 {
     private readonly List<AspectRatioRule> _rules = new(4);
 
-    private const string _classAspect1x1 = "aspect-1x1";
-    private const string _classAspect4x3 = "aspect-4x3";
-    private const string _classAspect16x9 = "aspect-16x9";
-    private const string _classAspect21x9 = "aspect-21x9";
+    private const string _classAspect1X1 = "aspect-1x1";
+    private const string _classAspect4X3 = "aspect-4x3";
+    private const string _classAspect16X9 = "aspect-16x9";
+    private const string _classAspect21X9 = "aspect-21x9";
 
     internal AspectRatioBuilder(string ratio, BreakpointType? breakpoint = null)
     {
@@ -31,19 +31,19 @@ public sealed class AspectRatioBuilder : ICssBuilder
     /// <summary>
     /// Sets the aspect ratio to 1:1 (square).
     /// </summary>
-    public AspectRatioBuilder R1x1 => ChainWithRatio("1x1");
+    public AspectRatioBuilder R1X1 => ChainWithRatio("1x1");
     /// <summary>
     /// Sets the aspect ratio to 4:3.
     /// </summary>
-    public AspectRatioBuilder R4x3 => ChainWithRatio("4x3");
+    public AspectRatioBuilder R4X3 => ChainWithRatio("4x3");
     /// <summary>
     /// Sets the aspect ratio to 16:9.
     /// </summary>
-    public AspectRatioBuilder R16x9 => ChainWithRatio("16x9");
+    public AspectRatioBuilder R16X9 => ChainWithRatio("16x9");
     /// <summary>
     /// Sets the aspect ratio to 21:9.
     /// </summary>
-    public AspectRatioBuilder R21x9 => ChainWithRatio("21x9");
+    public AspectRatioBuilder R21X9 => ChainWithRatio("21x9");
 
     /// <summary>
     /// Applies the aspect ratio on phone breakpoint.
@@ -111,7 +111,7 @@ public sealed class AspectRatioBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -159,10 +159,10 @@ public sealed class AspectRatioBuilder : ICssBuilder
     {
         return ratio switch
         {
-            "1x1" => _classAspect1x1,
-            "4x3" => _classAspect4x3,
-            "16x9" => _classAspect16x9,
-            "21x9" => _classAspect21x9,
+            "1x1" => _classAspect1X1,
+            "4x3" => _classAspect4X3,
+            "16x9" => _classAspect16X9,
+            "21x9" => _classAspect21X9,
             _ => string.Empty
         };
     }

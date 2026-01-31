@@ -23,7 +23,7 @@
                     <Card>
                         <CardBody>
                             <TreeView TNode="DemoNode"
-                                      Nodes="@BasicNodes"
+                                      Nodes="@_basicNodes"
                                       NodeContent="@(node => builder => builder.AddContent(0, node.Title))"
                                       GetChildNodes="@GetChildren"
                                       HasChildNodes="@HasChildren"
@@ -54,7 +54,7 @@
                     <Card>
                         <CardBody>
                             <TreeView TNode="DemoNode"
-                                      Nodes="@SingleSelectionNodes"
+                                      Nodes="@_singleSelectionNodes"
                                       NodeContent="@(node => builder => builder.AddContent(0, node.Title))"
                                       GetChildNodes="@GetChildren"
                                       HasChildNodes="@HasChildren"
@@ -77,7 +77,7 @@
                     <Card>
                         <CardBody>
                             <TreeView TNode="DemoNode"
-                                      Nodes="@MultipleSelectionNodes"
+                                      Nodes="@_multipleSelectionNodes"
                                       NodeContent="@(node => builder => builder.AddContent(0, node.Title))"
                                       GetChildNodes="@GetChildren"
                                       HasChildNodes="@HasChildren"
@@ -100,7 +100,7 @@
                     <Card>
                         <CardBody>
                             <TreeView TNode="DemoNode"
-                                      Nodes="@StyledNodes"
+                                      Nodes="@_styledNodes"
                                       NodeContent="@RenderStyledNode"
                                       GetChildNodes="@GetChildren"
                                       HasChildNodes="@HasChildren"
@@ -123,7 +123,7 @@
                     <Card>
                         <CardBody>
                             <TreeView TNode="AsyncDemoNode"
-                                      Nodes="@AsyncNodes"
+                                      Nodes="@_asyncNodes"
                                       NodeContent="@(node => builder => builder.AddContent(0, node.Title))"
                                       GetChildNodesAsync="@GetChildrenAsync"
                                       HasChildNodesAsync="@HasChildrenAsync"
@@ -144,7 +144,7 @@
                     <Card>
                         <CardBody>
                             <TreeView TNode="DemoNode"
-                                      Nodes="@DisabledNodes"
+                                      Nodes="@_disabledNodes"
                                       NodeContent="@(node => builder => builder.AddContent(0, node.Title))"
                                       GetChildNodes="@GetChildren"
                                       HasChildNodes="@HasChildren"
@@ -166,7 +166,7 @@
                     <Card>
                         <CardBody>
                             <TreeView TNode="DemoNode"
-                                      Nodes="@LargeDatasetNodes"
+                                      Nodes="@_largeDatasetNodes"
                                       NodeContent="@(node => builder => builder.AddContent(0, $"{node.Title} (Level {node.Level})"))"
                                       GetChildNodes="@GetChildren"
                                       HasChildNodes="@HasChildren"
@@ -185,7 +185,7 @@
 @code {
 
     // Basic Example
-    private readonly ObservableCollection<DemoNode> BasicNodes =
+    private readonly ObservableCollection<DemoNode> _basicNodes =
     [
         new DemoNode("Documents", [
             new DemoNode("Work", [
@@ -206,7 +206,7 @@
     private IList<DemoNode> BasicExpandedNodes { get; set; } = new List<DemoNode>();
 
     // Single Selection Example
-    private readonly ObservableCollection<DemoNode> SingleSelectionNodes =
+    private readonly ObservableCollection<DemoNode> _singleSelectionNodes =
     [
         new DemoNode("File System", [
             new DemoNode("C:\\", [
@@ -226,7 +226,7 @@
     private IList<DemoNode> SingleSelectionExpandedNodes { get; set; } = new List<DemoNode>();
 
     // Multiple Selection Example
-    private readonly ObservableCollection<DemoNode> MultipleSelectionNodes =
+    private readonly ObservableCollection<DemoNode> _multipleSelectionNodes =
     [
         new DemoNode("Project Structure", [
             new DemoNode("src", [
@@ -248,7 +248,7 @@
     private IList<DemoNode> MultipleSelectionExpandedNodes { get; set; } = new List<DemoNode>();
 
     // Styled Example
-    private readonly ObservableCollection<DemoNode> StyledNodes =
+    private readonly ObservableCollection<DemoNode> _styledNodes =
     [
         new DemoNode("Development", [
             new DemoNode("Frontend", [
@@ -268,7 +268,7 @@
     private IList<DemoNode> StyledExpandedNodes { get; set; } = new List<DemoNode>();
 
     // Async Example
-    private readonly ObservableCollection<AsyncDemoNode> AsyncNodes =
+    private readonly ObservableCollection<AsyncDemoNode> _asyncNodes =
     [
         new AsyncDemoNode("Server 1"),
         new AsyncDemoNode("Server 2"),
@@ -278,7 +278,7 @@
     private IList<AsyncDemoNode> AsyncExpandedNodes { get; set; } = new List<AsyncDemoNode>();
 
     // Disabled Example
-    private readonly ObservableCollection<DemoNode> DisabledNodes =
+    private readonly ObservableCollection<DemoNode> _disabledNodes =
     [
         new DemoNode("Available Features", [
             new DemoNode("Feature A"),
@@ -293,7 +293,7 @@
     private IList<DemoNode> DisabledExpandedNodes { get; set; } = new List<DemoNode>();
 
     // Large Dataset Example
-    private readonly ObservableCollection<DemoNode> LargeDatasetNodes = [new DemoNode("Root", level: 0)];
+    private readonly ObservableCollection<DemoNode> _largeDatasetNodes = [new DemoNode("Root", level: 0)];
 
     private IList<DemoNode> LargeDatasetExpandedNodes { get; set; } = new List<DemoNode>();
 
@@ -409,7 +409,7 @@
 
     private void InitializeLargeDataset()
     {
-        var root = LargeDatasetNodes.First();
+        var root = _largeDatasetNodes.First();
         for (var i = 0; i < 5; i++)
         {
             var level1 = new DemoNode($"Category {i + 1}", level: 1);

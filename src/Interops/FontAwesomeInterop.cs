@@ -16,10 +16,6 @@ public sealed class FontAwesomeInterop : IFontAwesomeInterop
     private const string _fontAwesomeCssUrl = "https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css";
     private const string _fontAwesomeCssIntegrity = "sha256-4rTIfo5GQTi/7UJqoyUJQKzxW8VN/YBH31+Cy+vTZj4=";
 
-    /// <summary>
-    /// Initializes a new instance of the FontAwesomeInterop class.
-    /// </summary>
-    /// <param name="resourceLoader">The resource loader used to load Font Awesome CSS.</param>
     private readonly IResourceLoader _resourceLoader;
 
     public FontAwesomeInterop(IResourceLoader resourceLoader)

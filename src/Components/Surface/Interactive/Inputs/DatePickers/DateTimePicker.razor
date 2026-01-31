@@ -55,7 +55,7 @@
                 </div>
                 <span class="qcal-time-separator">:</span>
                 <div class="qnum-wrapper">
-                    <input class="qnum-input qnum-minute" type="number" aria-label="Minute" step="@MinuteStep" min="0" max="59" value="@_minute"
+                    <input class="qnum-input qnum-minute" type="number" aria-label="Minute" step="@_minuteStep" min="0" max="59" value="@_minute"
                            @oninput="OnMinuteInput" @onwheel="OnMinuteWheel" @onkeydown="OnMinuteKeyDown" />
                     <span class="qnum-arrowUp" @onclick="IncrementMinute"></span>
                     <span class="qnum-arrowDown" @onclick="DecrementMinute"></span>
@@ -159,7 +159,7 @@
     private int _hour; // 0-23
     private int _minute; // 0-59
     private bool _isAm;
-    private const int MinuteStep = 1;
+    private const int _minuteStep = 1;
     private DateTime? _lastValue;
     private bool _valueChanged;
 
@@ -456,8 +456,8 @@
 
     private Task IncrementHour() { _hour = (_hour + 1) % 24; _isAm = _hour < 12; return Commit(); }
     private Task DecrementHour() { _hour = (_hour + 23) % 24; _isAm = _hour < 12; return Commit(); }
-    private Task IncrementMinute() { _minute = (_minute + MinuteStep) % 60; return Commit(); }
-    private Task DecrementMinute() { _minute = (_minute + 60 - MinuteStep) % 60; return Commit(); }
+    private Task IncrementMinute() { _minute = (_minute + _minuteStep) % 60; return Commit(); }
+    private Task DecrementMinute() { _minute = (_minute + 60 - _minuteStep) % 60; return Commit(); }
     private Task SetAmPm(bool am) { _isAm = am; if (am && _hour >= 12) _hour -= 12; if (!am && _hour < 12) _hour += 12; return Commit(); }
     private Task ToggleAmPm() => SetAmPm(!_isAm);
     private Task OnHourWheel(WheelEventArgs e) => e.DeltaY < 0 ? IncrementHour() : DecrementHour();

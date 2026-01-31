@@ -139,7 +139,7 @@ public sealed class MarginBuilder : ICssBuilder
     private MarginBuilder AddRule(ElementSideType side)
     {
         var size = _rules.Count > 0 ? _rules[^1].Size : ScaleType.Is0Value;
-        var bp = _rules.Count > 0 ? _rules[^1].breakpoint : null;
+        var bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
 
         if (_rules.Count > 0 && _rules[^1].Side == ElementSideType.All)
         {
@@ -201,7 +201,7 @@ public sealed class MarginBuilder : ICssBuilder
                 continue;
 
             var sideTok = GetSideToken(rule.Side);
-            var bpTok = BreakpointUtil.GetBreakpointToken(rule.breakpoint);
+            var bpTok = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
 
             if (!first)
                 sb.Append(' ');

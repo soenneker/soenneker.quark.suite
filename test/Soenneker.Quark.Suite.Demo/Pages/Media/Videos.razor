@@ -87,10 +87,10 @@
                         <Column ColumnSize="@ColumnSize.Is12">
                             <Paragraph>Video with event callbacks for play, pause, and ended states.</Paragraph>
                             
-                            @if (!string.IsNullOrEmpty(videoStatus))
+                            @if (!string.IsNullOrEmpty(_videoStatus))
                             {
                                 <Alert BackgroundColor="@GetStatusColor()">
-                                    <Icon Name="@GetStatusIcon()" Margin="Margin.Is2.FromEnd"/> @videoStatus
+                                    <Icon Name="@GetStatusIcon()" Margin="Margin.Is2.FromEnd"/> @_videoStatus
                                 </Alert>
                             }
                             
@@ -168,10 +168,10 @@
                         <Column ColumnSize="@ColumnSize.Is12">
                             <Paragraph>Audio player with play/pause event tracking.</Paragraph>
                             
-                            @if (!string.IsNullOrEmpty(audioStatus))
+                            @if (!string.IsNullOrEmpty(_audioStatus))
                             {
                                 <Alert BackgroundColor="@BackgroundColor.Info">
-                                    <Icon Name="music" Margin="Margin.Is2.FromEnd"/> @audioStatus
+                                    <Icon Name="music" Margin="Margin.Is2.FromEnd"/> @_audioStatus
                                 </Alert>
                             }
                             
@@ -214,48 +214,48 @@
 </Container>
 
 @code {
-    private string? videoStatus;
-    private string? audioStatus;
+    private string? _videoStatus;
+    private string? _audioStatus;
 
     private void HandleVideoPlay(EventArgs args)
     {
-        videoStatus = "Video is playing";
+        _videoStatus = "Video is playing";
         Logger.LogInformation("Video started playing");
     }
 
     private void HandleVideoPause(EventArgs args)
     {
-        videoStatus = "Video paused";
+        _videoStatus = "Video paused";
         Logger.LogInformation("Video paused");
     }
 
     private void HandleVideoEnded(EventArgs args)
     {
-        videoStatus = "Video has ended";
+        _videoStatus = "Video has ended";
         Logger.LogInformation("Video ended");
     }
 
     private void HandleAudioPlay(EventArgs args)
     {
-        audioStatus = "Audio is playing";
+        _audioStatus = "Audio is playing";
         Logger.LogInformation("Audio started playing");
     }
 
     private void HandleAudioPause(EventArgs args)
     {
-        audioStatus = "Audio paused";
+        _audioStatus = "Audio paused";
         Logger.LogInformation("Audio paused");
     }
 
     private void HandleAudioEnded(EventArgs args)
     {
-        audioStatus = "Audio has ended";
+        _audioStatus = "Audio has ended";
         Logger.LogInformation("Audio ended");
     }
 
     private BackgroundColorBuilder GetStatusColor()
     {
-        return videoStatus switch
+        return _videoStatus switch
         {
             "Video is playing" => BackgroundColor.Success,
             "Video paused" => BackgroundColor.Warning,
@@ -266,7 +266,7 @@
 
     private string GetStatusIcon()
     {
-        return videoStatus switch
+        return _videoStatus switch
         {
             "Video is playing" => "play",
             "Video paused" => "pause",

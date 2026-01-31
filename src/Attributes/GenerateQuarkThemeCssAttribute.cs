@@ -1,8 +1,8 @@
 using System;
 
-namespace Soenneker.Quark.Suite.Attributes;
+namespace Soenneker.Quark;
 
-[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public sealed class GenerateQuarkThemeCssAttribute : Attribute
 {
     public GenerateQuarkThemeCssAttribute(string outputFilePath)

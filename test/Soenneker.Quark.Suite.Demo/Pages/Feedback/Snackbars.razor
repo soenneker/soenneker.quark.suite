@@ -238,39 +238,39 @@ private void ShowErrorSnackbar()
 </Container>
 
 <!-- Snackbar Stack Container -->
-<SnackbarStack @ref="snackbarStackRef" />
+<SnackbarStack @ref="_snackbarStackRef" />
 
 @code {
-    private SnackbarStack? snackbarStackRef;
+    private SnackbarStack? _snackbarStackRef;
 
     private async Task ShowBasicSnackbar()
     {
-        if (snackbarStackRef != null)
-            await snackbarStackRef.Push("This is a basic snackbar message", BackgroundColor.Primary);
+        if (_snackbarStackRef != null)
+            await _snackbarStackRef.Push("This is a basic snackbar message", BackgroundColor.Primary);
     }
 
     private async Task ShowSuccessSnackbar()
     {
-        if (snackbarStackRef != null)
-            await snackbarStackRef.Push("Operation completed successfully!", BackgroundColor.Success);
+        if (_snackbarStackRef != null)
+            await _snackbarStackRef.Push("Operation completed successfully!", BackgroundColor.Success);
     }
 
     private async Task ShowWarningSnackbar()
     {
-        if (snackbarStackRef != null)
-            await snackbarStackRef.Push("Warning: Please review your input", BackgroundColor.Warning);
+        if (_snackbarStackRef != null)
+            await _snackbarStackRef.Push("Warning: Please review your input", BackgroundColor.Warning);
     }
 
     private async Task ShowErrorSnackbar()
     {
-        if (snackbarStackRef != null)
-            await snackbarStackRef.Push("Error: Something went wrong", BackgroundColor.Danger);
+        if (_snackbarStackRef != null)
+            await _snackbarStackRef.Push("Error: Something went wrong", BackgroundColor.Danger);
     }
 
     private async Task ShowActionSnackbar()
     {
-        if (snackbarStackRef != null)
-            await snackbarStackRef.Push("File uploaded successfully", BackgroundColor.Success, options =>
+        if (_snackbarStackRef != null)
+            await _snackbarStackRef.Push("File uploaded successfully", BackgroundColor.Success, options =>
             {
                 options.ShowAction = true;
                 options.ActionText = "View";
@@ -279,8 +279,8 @@ private void ShowErrorSnackbar()
 
     private async Task ShowMultiActionSnackbar()
     {
-        if (snackbarStackRef != null)
-            await snackbarStackRef.Push("Changes not saved", BackgroundColor.Warning, options =>
+        if (_snackbarStackRef != null)
+            await _snackbarStackRef.Push("Changes not saved", BackgroundColor.Warning, options =>
             {
                 options.ShowAction = true;
                 options.ActionText = "Save";
@@ -290,8 +290,8 @@ private void ShowErrorSnackbar()
 
     private async Task ShowCustomDurationSnackbar(int duration)
     {
-        if (snackbarStackRef != null)
-            await snackbarStackRef.Push($"This snackbar will dismiss in {duration / 1000} seconds", BackgroundColor.Info, options =>
+        if (_snackbarStackRef != null)
+            await _snackbarStackRef.Push($"This snackbar will dismiss in {duration / 1000} seconds", BackgroundColor.Info, options =>
             {
                 options.HideDelay = duration;
             });
@@ -299,8 +299,8 @@ private void ShowErrorSnackbar()
 
     private async Task ShowPersistentSnackbar()
     {
-        if (snackbarStackRef != null)
-            await snackbarStackRef.Push("This snackbar requires manual dismissal", BackgroundColor.Danger, options =>
+        if (_snackbarStackRef != null)
+            await _snackbarStackRef.Push("This snackbar requires manual dismissal", BackgroundColor.Danger, options =>
             {
                 options.HideDelay = null; // Never auto-hide
                 options.ShowClose = true;
@@ -310,27 +310,27 @@ private void ShowErrorSnackbar()
 
     private async Task ShowCustomStyledSnackbar()
     {
-        if (snackbarStackRef != null)
-            await snackbarStackRef.Push("Custom styled snackbar with unique appearance", BackgroundColor.Info);
+        if (_snackbarStackRef != null)
+            await _snackbarStackRef.Push("Custom styled snackbar with unique appearance", BackgroundColor.Info);
     }
 
     private async Task ShowGradientSnackbar()
     {
-        if (snackbarStackRef != null)
-            await snackbarStackRef.Push("Gradient styled snackbar", BackgroundColor.Primary);
+        if (_snackbarStackRef != null)
+            await _snackbarStackRef.Push("Gradient styled snackbar", BackgroundColor.Primary);
     }
 
     private async Task AddToStack()
     {
-        if (snackbarStackRef != null)
+        if (_snackbarStackRef != null)
         {
-            await snackbarStackRef.Push("First snackbar in stack", BackgroundColor.Primary);
+            await _snackbarStackRef.Push("First snackbar in stack", BackgroundColor.Primary);
             await Task.Delay(500);
-            await snackbarStackRef.Push("Second snackbar in stack", BackgroundColor.Success);
+            await _snackbarStackRef.Push("Second snackbar in stack", BackgroundColor.Success);
             await Task.Delay(500);
-            await snackbarStackRef.Push("Third snackbar in stack", BackgroundColor.Warning);
+            await _snackbarStackRef.Push("Third snackbar in stack", BackgroundColor.Warning);
             await Task.Delay(500);
-            await snackbarStackRef.Push("Fourth snackbar in stack", BackgroundColor.Info);
+            await _snackbarStackRef.Push("Fourth snackbar in stack", BackgroundColor.Info);
         }
     }
 
@@ -338,13 +338,13 @@ private void ShowErrorSnackbar()
     {
         // Clear functionality would need to be implemented in the SnackbarStack
         // For now, we'll just show a message
-        if (snackbarStackRef != null)
-            await snackbarStackRef.Push("Stack cleared", BackgroundColor.Secondary);
+        if (_snackbarStackRef != null)
+            await _snackbarStackRef.Push("Stack cleared", BackgroundColor.Secondary);
     }
 
     private async Task ShowPositionedSnackbar(string position)
     {
-        if (snackbarStackRef != null)
+        if (_snackbarStackRef != null)
         {
             var location = position switch
             {
@@ -357,13 +357,13 @@ private void ShowErrorSnackbar()
                 _ => SnackbarLocation.BottomEnd
             };
             
-            await snackbarStackRef.Push($"Snackbar positioned at {position}", BackgroundColor.Primary, location: location);
+            await _snackbarStackRef.Push($"Snackbar positioned at {position}", BackgroundColor.Primary, location: location);
         }
     }
 
     private async Task ShowRichContentSnackbar()
     {
-        if (snackbarStackRef != null)
+        if (_snackbarStackRef != null)
         {
             var richContent = new RenderFragment(builder =>
             {
@@ -377,7 +377,7 @@ private void ShowErrorSnackbar()
                 builder.CloseElement();
             });
 
-            await snackbarStackRef.Push(richContent, BackgroundColor.Info, options =>
+            await _snackbarStackRef.Push(richContent, BackgroundColor.Info, options =>
             {
                 options.ShowAction = true;
                 options.ActionText = "View";
@@ -387,69 +387,69 @@ private void ShowErrorSnackbar()
 
     private async Task ShowAccessibleSnackbar()
     {
-        if (snackbarStackRef != null)
-            await snackbarStackRef.Push("This snackbar has proper accessibility features", BackgroundColor.Primary);
+        if (_snackbarStackRef != null)
+            await _snackbarStackRef.Push("This snackbar has proper accessibility features", BackgroundColor.Primary);
     }
 
     private async Task ShowLocationOverrideSnackbar()
     {
-        if (snackbarStackRef != null)
-            await snackbarStackRef.Push("This snackbar uses the location parameter to override the default position", BackgroundColor.Info, location: SnackbarLocation.Top);
+        if (_snackbarStackRef != null)
+            await _snackbarStackRef.Push("This snackbar uses the location parameter to override the default position", BackgroundColor.Info, location: SnackbarLocation.Top);
     }
 
     private async Task ShowMultipleLocationSnackbars()
     {
-        if (snackbarStackRef != null)
+        if (_snackbarStackRef != null)
         {
-            await snackbarStackRef.Push("Top-left snackbar", BackgroundColor.Primary, location: SnackbarLocation.TopStart);
+            await _snackbarStackRef.Push("Top-left snackbar", BackgroundColor.Primary, location: SnackbarLocation.TopStart);
             await Task.Delay(200);
-            await snackbarStackRef.Push("Top-center snackbar", BackgroundColor.Secondary, location: SnackbarLocation.Top);
+            await _snackbarStackRef.Push("Top-center snackbar", BackgroundColor.Secondary, location: SnackbarLocation.Top);
             await Task.Delay(200);
-            await snackbarStackRef.Push("Top-right snackbar", BackgroundColor.Success, location: SnackbarLocation.TopEnd);
+            await _snackbarStackRef.Push("Top-right snackbar", BackgroundColor.Success, location: SnackbarLocation.TopEnd);
             await Task.Delay(200);
-            await snackbarStackRef.Push("Bottom-left snackbar", BackgroundColor.Warning, location: SnackbarLocation.BottomStart);
+            await _snackbarStackRef.Push("Bottom-left snackbar", BackgroundColor.Warning, location: SnackbarLocation.BottomStart);
             await Task.Delay(200);
-            await snackbarStackRef.Push("Bottom-center snackbar", BackgroundColor.Info, location: SnackbarLocation.Bottom);
+            await _snackbarStackRef.Push("Bottom-center snackbar", BackgroundColor.Info, location: SnackbarLocation.Bottom);
             await Task.Delay(200);
-            await snackbarStackRef.Push("Bottom-right snackbar", BackgroundColor.Danger, location: SnackbarLocation.BottomEnd);
+            await _snackbarStackRef.Push("Bottom-right snackbar", BackgroundColor.Danger, location: SnackbarLocation.BottomEnd);
         }
     }
 
     // Action handlers
     private async Task HandleViewAction()
     {
-        if (snackbarStackRef != null)
-            await snackbarStackRef.Push("View action clicked!", BackgroundColor.Success);
+        if (_snackbarStackRef != null)
+            await _snackbarStackRef.Push("View action clicked!", BackgroundColor.Success);
     }
 
     private async Task HandleSaveAction()
     {
-        if (snackbarStackRef != null)
-            await snackbarStackRef.Push("Changes saved successfully!", BackgroundColor.Success);
+        if (_snackbarStackRef != null)
+            await _snackbarStackRef.Push("Changes saved successfully!", BackgroundColor.Success);
     }
 
     private async Task HandleDiscardAction()
     {
-        if (snackbarStackRef != null)
-            await snackbarStackRef.Push("Changes discarded", BackgroundColor.Warning);
+        if (_snackbarStackRef != null)
+            await _snackbarStackRef.Push("Changes discarded", BackgroundColor.Warning);
     }
 
     private async Task HandleDismissAction()
     {
-        if (snackbarStackRef != null)
-            await snackbarStackRef.Push("Snackbar dismissed", BackgroundColor.Info);
+        if (_snackbarStackRef != null)
+            await _snackbarStackRef.Push("Snackbar dismissed", BackgroundColor.Info);
     }
 
     private async Task HandleMarkReadAction()
     {
-        if (snackbarStackRef != null)
-            await snackbarStackRef.Push("Message marked as read", BackgroundColor.Success);
+        if (_snackbarStackRef != null)
+            await _snackbarStackRef.Push("Message marked as read", BackgroundColor.Success);
     }
 
     private async Task ShowThemeConfiguredSnackbar()
     {
-        if (snackbarStackRef != null)
-            await snackbarStackRef.Push("This snackbar uses theme-configured defaults (no explicit location or delay)", BackgroundColor.Info);
+        if (_snackbarStackRef != null)
+            await _snackbarStackRef.Push("This snackbar uses theme-configured defaults (no explicit location or delay)", BackgroundColor.Info);
     }
 
     protected override void OnInitialized()

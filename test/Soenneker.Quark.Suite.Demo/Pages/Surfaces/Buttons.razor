@@ -142,13 +142,13 @@
             <Div>
                 <H2>Loading Buttons</H2>
                 <Div Margin="Margin.Is3.FromEnd">
-                    <Button BackgroundColor="@(BackgroundColor.Primary)" Loading="isLoading" OnClick="HandleLoadingClick">
+                    <Button BackgroundColor="@(BackgroundColor.Primary)" Loading="_isLoading" OnClick="HandleLoadingClick">
                         Click to Load
                     </Button>
-                    <Button BackgroundColor="@(BackgroundColor.Success)" Loading="isLoading2" OnClick="HandleLoadingClick2">
+                    <Button BackgroundColor="@(BackgroundColor.Success)" Loading="_isLoading2" OnClick="HandleLoadingClick2">
                         Process Data
                     </Button>
-                    <Button BackgroundColor="@(BackgroundColor.Info)" Loading="isLoading3" OnClick="HandleLoadingClick3">
+                    <Button BackgroundColor="@(BackgroundColor.Info)" Loading="_isLoading3" OnClick="HandleLoadingClick3">
                         Custom Loading
                     </Button>
                 </Div>
@@ -159,7 +159,7 @@
             <Div>
                 <H2>Button with Custom Loading Template</H2>
                 <Div Margin="Margin.Is3.FromEnd">
-                    <Button BackgroundColor="@(BackgroundColor.Warning)" Loading="isLoading4" OnClick="HandleLoadingClick4" LoadingTemplate="@CustomLoadingTemplate">
+                    <Button BackgroundColor="@(BackgroundColor.Warning)" Loading="_isLoading4" OnClick="HandleLoadingClick4" LoadingTemplate="@CustomLoadingTemplate">
                         Custom Template
                     </Button>
                 </Div>
@@ -180,8 +180,8 @@
             <Div>
                 <H2>Click Events</H2>
                 <Div Margin="Margin.Is3.FromEnd">
-                    <Button BackgroundColor="@(BackgroundColor.Primary)" OnClick="HandleClickWithData">Click Counter: @clickCount</Button>
-                    <p class="text-muted">Last clicked at: @lastClickTime</p>
+                    <Button BackgroundColor="@(BackgroundColor.Primary)" OnClick="HandleClickWithData">Click Counter: @_clickCount</Button>
+                    <p class="text-muted">Last clicked at: @_lastClickTime</p>
                 </Div>
             </Div>
 
@@ -199,12 +199,12 @@
 </Container>
 
 @code {
-    private bool isLoading;
-    private bool isLoading2;
-    private bool isLoading3;
-    private bool isLoading4;
-    private int clickCount;
-    private string lastClickTime = "";
+    private bool _isLoading;
+    private bool _isLoading2;
+    private bool _isLoading3;
+    private bool _isLoading4;
+    private int _clickCount;
+    private string _lastClickTime = "";
 
     private RenderFragment CustomLoadingTemplate => @<div>
                                                         <span class="spinner-grow spinner-grow-sm me-2" role="status" aria-hidden="true"></span>
@@ -218,56 +218,56 @@
 
     private async Task HandleLoadingClick(MouseEventArgs args)
     {
-        isLoading = true;
+        _isLoading = true;
         StateHasChanged();
 
         // Simulate async operation
         await Task.Delay(3000);
 
-        isLoading = false;
+        _isLoading = false;
         StateHasChanged();
     }
 
     private async Task HandleLoadingClick2(MouseEventArgs args)
     {
-        isLoading2 = true;
+        _isLoading2 = true;
         StateHasChanged();
 
         // Simulate async operation
         await Task.Delay(2000);
 
-        isLoading2 = false;
+        _isLoading2 = false;
         StateHasChanged();
     }
 
     private async Task HandleLoadingClick3(MouseEventArgs args)
     {
-        isLoading3 = true;
+        _isLoading3 = true;
         StateHasChanged();
 
         // Simulate async operation
         await Task.Delay(2500);
 
-        isLoading3 = false;
+        _isLoading3 = false;
         StateHasChanged();
     }
 
     private async Task HandleLoadingClick4(MouseEventArgs args)
     {
-        isLoading4 = true;
+        _isLoading4 = true;
         StateHasChanged();
 
         // Simulate async operation
         await Task.Delay(4000);
 
-        isLoading4 = false;
+        _isLoading4 = false;
         StateHasChanged();
     }
 
     private async Task HandleClickWithData(MouseEventArgs args)
     {
-        clickCount++;
-        lastClickTime = DateTime.Now.ToString("HH:mm:ss");
+        _clickCount++;
+        _lastClickTime = DateTime.Now.ToString("HH:mm:ss");
         await Task.CompletedTask; // Ensure async method completes properly
     }
 

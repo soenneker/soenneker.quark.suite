@@ -60,7 +60,7 @@ public sealed class BootstrapBordersCssVariables : IBootstrapCssVariableGroup
     /// <summary>
     /// Border radius 2XL. Default: var(--bs-border-radius-xxl)
     /// </summary>
-    public string? BorderRadius2xl { get; set; }
+    public string? BorderRadius2Xl { get; set; }
 
     /// <summary>
     /// Border radius pill. Default: 50rem
@@ -188,8 +188,8 @@ public sealed class BootstrapBordersCssVariables : IBootstrapCssVariableGroup
             yield return ("--bs-border-radius-xl", BorderRadiusXl);
         if (BorderRadiusXxl.HasContent())
             yield return ("--bs-border-radius-xxl", BorderRadiusXxl);
-        if (BorderRadius2xl.HasContent())
-            yield return ("--bs-border-radius-2xl", BorderRadius2xl);
+        if (BorderRadius2Xl.HasContent())
+            yield return ("--bs-border-radius-2xl", BorderRadius2Xl);
         if (BorderRadiusPill.HasContent())
             yield return ("--bs-border-radius-pill", BorderRadiusPill);
         if (BorderWidth0.HasContent())

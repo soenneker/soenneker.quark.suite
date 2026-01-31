@@ -122,7 +122,7 @@ public sealed class InteractionBuilder : ICssBuilder
 
             if (userSelectClass.Length > 0)
             {
-                var bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
+                var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
                 if (bp.Length != 0)
                     userSelectClass = BreakpointUtil.InsertBreakpointType(userSelectClass, bp);
 
@@ -134,7 +134,7 @@ public sealed class InteractionBuilder : ICssBuilder
 
             if (pointerEventsClass.Length > 0)
             {
-                var bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
+                var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
                 if (bp.Length != 0)
                     pointerEventsClass = BreakpointUtil.InsertBreakpointType(pointerEventsClass, bp);
 

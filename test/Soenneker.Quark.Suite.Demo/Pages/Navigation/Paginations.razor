@@ -16,24 +16,24 @@
     <H2>Basic Pagination</H2>
     <Div Margin="Margin.Is3.FromEnd">
         <Pagination>
-            <PaginationItem Disabled="@(currentPage == 1)">
+            <PaginationItem Disabled="@(_currentPage == 1)">
                 <PaginationLink OnClick="@(() => GoToPage(1))">Previous</PaginationLink>
             </PaginationItem>
-            <PaginationItem Active="@(currentPage == 1)">
+            <PaginationItem Active="@(_currentPage == 1)">
                 <PaginationLink OnClick="@(() => GoToPage(1))">1</PaginationLink>
             </PaginationItem>
-            <PaginationItem Active="@(currentPage == 2)">
+            <PaginationItem Active="@(_currentPage == 2)">
                 <PaginationLink OnClick="@(() => GoToPage(2))">2</PaginationLink>
             </PaginationItem>
-            <PaginationItem Active="@(currentPage == 3)">
+            <PaginationItem Active="@(_currentPage == 3)">
                 <PaginationLink OnClick="@(() => GoToPage(3))">3</PaginationLink>
             </PaginationItem>
-            <PaginationItem Disabled="@(currentPage == 3)">
-                <PaginationLink OnClick="@(() => GoToPage(currentPage + 1))">Next</PaginationLink>
+            <PaginationItem Disabled="@(_currentPage == 3)">
+                <PaginationLink OnClick="@(() => GoToPage(_currentPage + 1))">Next</PaginationLink>
             </PaginationItem>
         </Pagination>
     </Div>
-    <Paragraph TextColor="TextColor.Muted">Basic pagination with 3 pages, currently on page @currentPage.</Paragraph>
+    <Paragraph TextColor="TextColor.Muted">Basic pagination with 3 pages, currently on page @_currentPage.</Paragraph>
 
     <CodeEditor ReadOnly="true" 
                 Language="@("html")" 
@@ -296,22 +296,22 @@
     <H2>Interactive Pagination</H2>
     <Div Margin="Margin.Is3.FromEnd">
         <Pagination>
-            <PaginationItem Disabled="@(currentPage == 1)">
-                <PaginationLink OnClick="@(() => GoToPage(currentPage - 1))">Previous</PaginationLink>
+            <PaginationItem Disabled="@(_currentPage == 1)">
+                <PaginationLink OnClick="@(() => GoToPage(_currentPage - 1))">Previous</PaginationLink>
             </PaginationItem>
             @for (var i = 1; i <= 5; i++)
             {
-                <PaginationItem Active="@(currentPage == i)">
+                <PaginationItem Active="@(_currentPage == i)">
                     <PaginationLink OnClick="@(() => GoToPage(i))">@i</PaginationLink>
                 </PaginationItem>
             }
-            <PaginationItem Disabled="@(currentPage == 5)">
-                <PaginationLink OnClick="@(() => GoToPage(currentPage + 1))">Next</PaginationLink>
+            <PaginationItem Disabled="@(_currentPage == 5)">
+                <PaginationLink OnClick="@(() => GoToPage(_currentPage + 1))">Next</PaginationLink>
             </PaginationItem>
         </Pagination>
     </Div>
     <Div Margin="Margin.Is3.FromEnd">
-        <Paragraph TextColor="TextColor.Muted">Current page: <Strong>@currentPage</Strong> of 5</Paragraph>
+        <Paragraph TextColor="TextColor.Muted">Current page: <Strong>@_currentPage</Strong> of 5</Paragraph>
         <Button BackgroundColor="BackgroundColor.Primary" Size="Size.Small" OnClick="@(() => GoToPage(1))">Go to First</Button>
         <Button BackgroundColor="BackgroundColor.Secondary" Size="Size.Small" OnClick="@(() => GoToPage(5))">Go to Last</Button>
         <Button BackgroundColor="BackgroundColor.Info" Size="Size.Small" OnClick="@GoToRandomPage">Random Page</Button>
@@ -430,13 +430,13 @@
 </Container>
 
 @code {
-    private int currentPage = 1;
+    private int _currentPage = 1;
 
     private void GoToPage(int page)
     {
         if (page >= 1 && page <= 5)
         {
-            currentPage = page;
+            _currentPage = page;
             StateHasChanged();
         }
     }
@@ -444,7 +444,7 @@
     private void GoToRandomPage()
     {
         var random = new Random();
-        currentPage = random.Next(1, 6);
+        _currentPage = random.Next(1, 6);
         StateHasChanged();
     }
 

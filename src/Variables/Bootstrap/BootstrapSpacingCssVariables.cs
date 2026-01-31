@@ -141,7 +141,7 @@ public sealed class BootstrapSpacingCssVariables : IBootstrapCssVariableGroup
     /// <summary>
     /// Container max width 2XL. Default: 1320px
     /// </summary>
-    public string? ContainerMaxWidth2xl { get; set; }
+    public string? ContainerMaxWidth2Xl { get; set; }
 
     // Container Padding
     /// <summary>
@@ -219,8 +219,8 @@ public sealed class BootstrapSpacingCssVariables : IBootstrapCssVariableGroup
             yield return ("--bs-container-max-width-lg", ContainerMaxWidthLg);
         if (ContainerMaxWidthXl.HasContent())
             yield return ("--bs-container-max-width-xl", ContainerMaxWidthXl);
-        if (ContainerMaxWidth2xl.HasContent())
-            yield return ("--bs-container-max-width-2xl", ContainerMaxWidth2xl);
+        if (ContainerMaxWidth2Xl.HasContent())
+            yield return ("--bs-container-max-width-2xl", ContainerMaxWidth2Xl);
         if (ContainerPaddingX.HasContent())
             yield return ("--bs-container-padding-x", ContainerPaddingX);
         if (ContainerPaddingY.HasContent())

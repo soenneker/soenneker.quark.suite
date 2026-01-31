@@ -83,7 +83,7 @@ public sealed class ClearfixBuilder : ICssBuilder
             var rule = _rules[i];
             var cls = _classClearfix;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 

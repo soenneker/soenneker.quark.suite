@@ -14,10 +14,10 @@ public sealed class RatioBuilder : ICssBuilder
 {
     private readonly List<RatioRule> _rules = new(4);
 
-    private const string _classRatio1x1 = "ratio ratio-1x1";
-    private const string _classRatio4x3 = "ratio ratio-4x3";
-    private const string _classRatio16x9 = "ratio ratio-16x9";
-    private const string _classRatio21x9 = "ratio ratio-21x9";
+    private const string _classRatio1X1 = "ratio ratio-1x1";
+    private const string _classRatio4X3 = "ratio ratio-4x3";
+    private const string _classRatio16X9 = "ratio ratio-16x9";
+    private const string _classRatio21X9 = "ratio ratio-21x9";
 
     internal RatioBuilder(string ratio, BreakpointType? breakpoint = null)
     {
@@ -33,19 +33,19 @@ public sealed class RatioBuilder : ICssBuilder
     /// <summary>
     /// Sets the ratio to 1:1 (square).
     /// </summary>
-    public RatioBuilder R1x1 => ChainWithRatio("1x1");
+    public RatioBuilder R1X1 => ChainWithRatio("1x1");
     /// <summary>
     /// Sets the ratio to 4:3.
     /// </summary>
-    public RatioBuilder R4x3 => ChainWithRatio("4x3");
+    public RatioBuilder R4X3 => ChainWithRatio("4x3");
     /// <summary>
     /// Sets the ratio to 16:9.
     /// </summary>
-    public RatioBuilder R16x9 => ChainWithRatio("16x9");
+    public RatioBuilder R16X9 => ChainWithRatio("16x9");
     /// <summary>
     /// Sets the ratio to 21:9.
     /// </summary>
-    public RatioBuilder R21x9 => ChainWithRatio("21x9");
+    public RatioBuilder R21X9 => ChainWithRatio("21x9");
 
     /// <summary>
     /// Applies the ratio on phone breakpoint.
@@ -113,7 +113,7 @@ public sealed class RatioBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -142,10 +142,10 @@ public sealed class RatioBuilder : ICssBuilder
     {
         return ratio switch
         {
-            "1x1" => _classRatio1x1,
-            "4x3" => _classRatio4x3,
-            "16x9" => _classRatio16x9,
-            "21x9" => _classRatio21x9,
+            "1x1" => _classRatio1X1,
+            "4x3" => _classRatio4X3,
+            "16x9" => _classRatio16X9,
+            "21x9" => _classRatio21X9,
             _ => string.Empty
         };
     }

@@ -105,7 +105,7 @@ public sealed class TextBreakBuilder : ICssBuilder
 
             var baseClass = _classTextBreak;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 baseClass = BreakpointUtil.InsertBreakpointType(baseClass, bp);
 

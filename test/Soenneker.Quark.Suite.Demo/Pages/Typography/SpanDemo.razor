@@ -101,7 +101,7 @@
                             Click me too
                         </Span>
                     </Paragraph>
-                    <Paragraph TextColor="TextColor.Muted">Click counts - Span 1: @clickCount1, Span 2: @clickCount2</Paragraph>
+                    <Paragraph TextColor="TextColor.Muted">Click counts - Span 1: @_clickCount1, Span 2: @_clickCount2</Paragraph>
                 </Div>
             </Div>
 
@@ -142,8 +142,8 @@
                     <H3>In Forms</H3>
                     <Div Margin="Margin.Is3.FromBottom">
                         <Label For="username" Form="true">Username <Span TextColor="TextColor.Danger">*</Span></Label>
-                        <TextEdit Id="username" Placeholder="Enter username" @bind-Text="usernameValue" />
-                        <Small Class="form-text" TextColor="TextColor.Muted">Available characters: <Span TextColor="TextColor.Success">@availableChars</Span> remaining</Small>
+                        <TextEdit Id="username" Placeholder="Enter username" @bind-Text="_usernameValue" />
+                        <Small Class="form-text" TextColor="TextColor.Muted">Available characters: <Span TextColor="TextColor.Success">@AvailableChars</Span> remaining</Small>
                     </Div>
                 </Div>
             </Div>
@@ -190,21 +190,21 @@
 </Container>
 
 @code {
-    private int clickCount1 = 0;
-    private int clickCount2 = 0;
-    private string usernameValue = string.Empty;
+    private int _clickCount1 = 0;
+    private int _clickCount2 = 0;
+    private string _usernameValue = string.Empty;
 
-    private int availableChars => Math.Max(0, 20 - (usernameValue?.Length ?? 0));
+    private int AvailableChars => Math.Max(0, 20 - (_usernameValue?.Length ?? 0));
 
     private void HandleSpanClick(MouseEventArgs args)
     {
-        clickCount1++;
+        _clickCount1++;
         StateHasChanged();
     }
 
     private void HandleSpanClick2(MouseEventArgs args)
     {
-        clickCount2++;
+        _clickCount2++;
         StateHasChanged();
     }
 

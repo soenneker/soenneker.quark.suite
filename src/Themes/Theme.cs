@@ -570,32 +570,32 @@ public sealed class Theme
     /// <summary>
     /// Gets or sets the H1 heading component styling options.
     /// </summary>
-    public H1Options? H1s { get; set; }
+    public H1Options? H1S { get; set; }
 
     /// <summary>
     /// Gets or sets the H2 heading component styling options.
     /// </summary>
-    public H2Options? H2s { get; set; }
+    public H2Options? H2S { get; set; }
 
     /// <summary>
     /// Gets or sets the H3 heading component styling options.
     /// </summary>
-    public H3Options? H3s { get; set; }
+    public H3Options? H3S { get; set; }
 
     /// <summary>
     /// Gets or sets the H4 heading component styling options.
     /// </summary>
-    public H4Options? H4s { get; set; }
+    public H4Options? H4S { get; set; }
 
     /// <summary>
     /// Gets or sets the H5 heading component styling options.
     /// </summary>
-    public H5Options? H5s { get; set; }
+    public H5Options? H5S { get; set; }
 
     /// <summary>
     /// Gets or sets the H6 heading component styling options.
     /// </summary>
-    public H6Options? H6s { get; set; }
+    public H6Options? H6S { get; set; }
 
     /// <summary>
     /// Gets or sets the blockquote component styling options.
@@ -1149,18 +1149,18 @@ public sealed class Theme
             yield return BarDropdownDividers;
         if (BarBrands != null)
             yield return BarBrands;
-        if (H1s != null)
-            yield return H1s;
-        if (H2s != null)
-            yield return H2s;
-        if (H3s != null)
-            yield return H3s;
-        if (H4s != null)
-            yield return H4s;
-        if (H5s != null)
-            yield return H5s;
-        if (H6s != null)
-            yield return H6s;
+        if (H1S != null)
+            yield return H1S;
+        if (H2S != null)
+            yield return H2S;
+        if (H3S != null)
+            yield return H3S;
+        if (H4S != null)
+            yield return H4S;
+        if (H5S != null)
+            yield return H5S;
+        if (H6S != null)
+            yield return H6S;
         if (Blockquotes != null)
             yield return Blockquotes;
         if (Leads != null)

@@ -6,6 +6,6 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Represents a single display size rule with optional BreakpointType.
 /// </summary>
-internal record DisplaySizeRule(string Size, BreakpointType? breakpoint = null);
+internal record DisplaySizeRule(string Size, BreakpointType? Breakpoint = null);
 
 

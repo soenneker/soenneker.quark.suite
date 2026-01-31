@@ -131,7 +131,7 @@ public sealed class PaddingBuilder : ICssBuilder
     {
         // Use last size & BreakpointType if present; default to ScaleType.Is0Value when absent
         var size = _rules.Count > 0 ? _rules[^1].Size : ScaleType.Is0Value;
-        var bp = _rules.Count > 0 ? _rules[^1].breakpoint : null;
+        var bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
 
         if (_rules.Count > 0 && _rules[^1].Side == ElementSideType.All)
         {
@@ -193,7 +193,7 @@ public sealed class PaddingBuilder : ICssBuilder
                 continue;
 
             var sideTok = GetSideToken(rule.Side); // "", "t", "e", "b", "s", "x", "y"
-            var bpTok = BreakpointUtil.GetBreakpointToken(rule.breakpoint); // "", "sm", "md", ...
+            var bpTok = BreakpointUtil.GetBreakpointToken(rule.Breakpoint); // "", "sm", "md", ...
 
             if (!first) sb.Append(' ');
             else first = false;

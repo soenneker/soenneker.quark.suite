@@ -110,7 +110,7 @@ public sealed class BorderRadiusBuilder : ICssBuilder
     private BorderRadiusBuilder AddRule(ElementSideType side, string cornerToken = "")
     {
         var size = _rules.Count > 0 ? _rules[^1].Size : "0";
-        var bp = _rules.Count > 0 ? _rules[^1].breakpoint : null;
+        var bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
 
         if (_rules.Count > 0 && _rules[^1].Side == ElementSideType.All)
         {
@@ -130,7 +130,7 @@ public sealed class BorderRadiusBuilder : ICssBuilder
         // If the last rule has a corner token but no size, update it instead of adding new
         if (_rules.Count > 0 && _rules[^1].CornerToken.HasContent() && !_rules[^1].Size.HasContent())
         {
-            _rules[^1] = new BorderRadiusRule(size, _rules[^1].Side, _rules[^1].breakpoint, _rules[^1].CornerToken);
+            _rules[^1] = new BorderRadiusRule(size, _rules[^1].Side, _rules[^1].Breakpoint, _rules[^1].CornerToken);
         }
         else
         {
@@ -145,7 +145,7 @@ public sealed class BorderRadiusBuilder : ICssBuilder
         // If the last rule has a corner token but no size, update it instead of adding new
         if (_rules.Count > 0 && _rules[^1].CornerToken.HasContent() && !_rules[^1].Size.HasContent())
         {
-            _rules[^1] = new BorderRadiusRule(scale.Value, _rules[^1].Side, _rules[^1].breakpoint, _rules[^1].CornerToken);
+            _rules[^1] = new BorderRadiusRule(scale.Value, _rules[^1].Side, _rules[^1].Breakpoint, _rules[^1].CornerToken);
         }
         else
         {
@@ -188,7 +188,7 @@ public sealed class BorderRadiusBuilder : ICssBuilder
                 continue;
 
             var cornerTok = rule.CornerToken;
-            var bpTok = BreakpointUtil.GetBreakpointToken(rule.breakpoint);
+            var bpTok = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
 
             if (!first)
                 sb.Append(' ');

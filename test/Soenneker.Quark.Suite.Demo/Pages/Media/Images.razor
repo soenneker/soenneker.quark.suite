@@ -72,14 +72,14 @@
                        OnLoad="OnImageLoad"
                        OnError="OnImageError"/>
 
-                @if (loadMessage.HasContent())
+                @if (_loadMessage.HasContent())
                 {
-                    <Alert BackgroundColor="BackgroundColor.Success" Margin="Margin.Is2.FromTop">@loadMessage</Alert>
+                    <Alert BackgroundColor="BackgroundColor.Success" Margin="Margin.Is2.FromTop">@_loadMessage</Alert>
                 }
 
-                @if (errorMessage.HasContent())
+                @if (_errorMessage.HasContent())
                 {
-                    <Alert BackgroundColor="BackgroundColor.Danger" Margin="Margin.Is2.FromTop">@errorMessage</Alert>
+                    <Alert BackgroundColor="BackgroundColor.Danger" Margin="Margin.Is2.FromTop">@_errorMessage</Alert>
                 }
 
                 <Hr/>
@@ -104,8 +104,8 @@
 </Container>
 
 @code {
-    private string? loadMessage;
-    private string? errorMessage;
+    private string? _loadMessage;
+    private string? _errorMessage;
 
     protected override void OnInitialized()
     {
@@ -114,15 +114,15 @@
 
     private void OnImageLoad(ProgressEventArgs args)
     {
-        loadMessage = "Image loaded successfully!";
-        errorMessage = null;
+        _loadMessage = "Image loaded successfully!";
+        _errorMessage = null;
         StateHasChanged();
     }
 
     private void OnImageError(ErrorEventArgs args)
     {
-        errorMessage = "Failed to load image!";
-        loadMessage = null;
+        _errorMessage = "Failed to load image!";
+        _loadMessage = null;
         StateHasChanged();
     }
 }

@@ -247,7 +247,7 @@
                     </UnorderedList>
                     
                     <Div Margin="Margin.Is3.FromTop">
-                        <Paragraph TextColor="TextColor.Muted">Last clicked: @lastClickedItem</Paragraph>
+                        <Paragraph TextColor="TextColor.Muted">Last clicked: @_lastClickedItem</Paragraph>
                     </Div>
                 </Div>
             </Div>
@@ -282,8 +282,8 @@
                     <UnorderedList ListStyle="ListStyle.Unstyled">
                         <UnorderedListItem Margin="Margin.Is3.FromBottom">
                             <Div Display="Display.Flex" AlignItems="AlignItems.Center">
-                                <Check @bind-Checked="todoItems[0].IsCompleted" Margin="Margin.Is3.FromEnd" />
-                                <TextEdit @bind-Value="todoItems[0].Text" Flex="Flex.Grow.Is1" />
+                                <Check @bind-Checked="_todoItems[0].IsCompleted" Margin="Margin.Is3.FromEnd" />
+                                <TextEdit @bind-Value="_todoItems[0].Text" Flex="Flex.Grow.Is1" />
                                 <Button BackgroundColor="@BackgroundColor.Danger" Size="@Size.Small" Margin="Margin.Is2.FromStart" @onclick="() => RemoveItem(0)">
                                     <Icon Name="trash" />
                                 </Button>
@@ -291,8 +291,8 @@
                         </UnorderedListItem>
                         <UnorderedListItem Margin="Margin.Is3.FromBottom">
                             <Div Display="Display.Flex" AlignItems="AlignItems.Center">
-                                <Check @bind-Checked="todoItems[1].IsCompleted" Margin="Margin.Is3.FromEnd" />
-                                <TextEdit @bind-Value="todoItems[1].Text" Flex="Flex.Grow.Is1" />
+                                <Check @bind-Checked="_todoItems[1].IsCompleted" Margin="Margin.Is3.FromEnd" />
+                                <TextEdit @bind-Value="_todoItems[1].Text" Flex="Flex.Grow.Is1" />
                                 <Button BackgroundColor="@BackgroundColor.Danger" Size="@Size.Small" Margin="Margin.Is2.FromStart" @onclick="() => RemoveItem(1)">
                                     <Icon Name="trash" />
                                 </Button>
@@ -300,8 +300,8 @@
                         </UnorderedListItem>
                         <UnorderedListItem Margin="Margin.Is3.FromBottom">
                             <Div Display="Display.Flex" AlignItems="AlignItems.Center">
-                                <Check @bind-Checked="todoItems[2].IsCompleted" Margin="Margin.Is3.FromEnd" />
-                                <TextEdit @bind-Value="todoItems[2].Text" Flex="Flex.Grow.Is1" />
+                                <Check @bind-Checked="_todoItems[2].IsCompleted" Margin="Margin.Is3.FromEnd" />
+                                <TextEdit @bind-Value="_todoItems[2].Text" Flex="Flex.Grow.Is1" />
                                 <Button BackgroundColor="@BackgroundColor.Danger" Size="@Size.Small" Margin="Margin.Is2.FromStart" @onclick="() => RemoveItem(2)">
                                     <Icon Name="trash" />
                                 </Button>
@@ -349,9 +349,9 @@
 </Container>
 
 @code {
-    private string lastClickedItem = "None";
+    private string _lastClickedItem = "None";
 
-    private List<TodoItem> todoItems =
+    private List<TodoItem> _todoItems =
     [
         new TodoItem { Text = "Complete project documentation", IsCompleted = false },
         new TodoItem { Text = "Review code changes", IsCompleted = true },
@@ -360,15 +360,15 @@
 
     private void HandleItemClick(int itemNumber)
     {
-        lastClickedItem = $"Task {itemNumber}";
+        _lastClickedItem = $"Task {itemNumber}";
         StateHasChanged();
     }
 
     private void RemoveItem(int index)
     {
-        if (index >= 0 && index < todoItems.Count)
+        if (index >= 0 && index < _todoItems.Count)
         {
-            todoItems.RemoveAt(index);
+            _todoItems.RemoveAt(index);
             StateHasChanged();
         }
     }

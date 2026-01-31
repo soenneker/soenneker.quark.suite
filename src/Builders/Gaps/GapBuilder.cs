@@ -134,7 +134,7 @@ public sealed class GapBuilder : ICssBuilder
 
         var lastIdx = _rules.Count - 1;
         var last = _rules[lastIdx];
-        _rules[lastIdx] = new GapRule(last.Size, last.breakpoint, direction);
+        _rules[lastIdx] = new GapRule(last.Size, last.Breakpoint, direction);
         return this;
     }
 
@@ -171,7 +171,7 @@ public sealed class GapBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
 
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);

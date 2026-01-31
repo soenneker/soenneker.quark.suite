@@ -49,13 +49,21 @@ public static class QuarkSuiteRegistrar
     public static async Task LoadQuarkResources(this IServiceProvider serviceProvider)
     {
         var quarkOptions = serviceProvider.GetRequiredService<QuarkOptions>();
-        var bootstrapInterop = serviceProvider.GetService<IBootstrapInterop>();
-        var fontAwesomeInterop = serviceProvider.GetService<IFontAwesomeInterop>();
 
-        if (quarkOptions.AutomaticBootstrapLoading && bootstrapInterop != null)
-            await bootstrapInterop.Initialize();
+        if (quarkOptions.AutomaticBootstrapLoading)
+        {
+            var bootstrapInterop = serviceProvider.GetService<IBootstrapInterop>();
 
-        if (quarkOptions.AutomaticFontAwesomeLoading && fontAwesomeInterop != null)
-            await fontAwesomeInterop.Initialize();
+            if (bootstrapInterop != null)
+                await bootstrapInterop.Initialize();
+        }
+
+        if (quarkOptions.AutomaticFontAwesomeLoading)
+        {
+            var fontAwesomeInterop = serviceProvider.GetService<IFontAwesomeInterop>();
+
+            if (fontAwesomeInterop != null)
+                await fontAwesomeInterop.Initialize();
+        }
     }
 }

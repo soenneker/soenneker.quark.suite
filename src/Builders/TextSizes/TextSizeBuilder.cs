@@ -127,7 +127,7 @@ public sealed class TextSizeBuilder : ICssBuilder
             if (sizeClass.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 sizeClass = BreakpointUtil.InsertBreakpointType(sizeClass, bp);
 

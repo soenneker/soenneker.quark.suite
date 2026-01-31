@@ -6,4 +6,4 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Represents a single border radius rule with optional BreakpointType.
 /// </summary>
-internal record BorderRadiusRule(string Size, ElementSideType Side, BreakpointType? breakpoint = null, string CornerToken = "");
+internal record BorderRadiusRule(string Size, ElementSideType Side, BreakpointType? Breakpoint = null, string CornerToken = "");

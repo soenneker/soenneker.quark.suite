@@ -37,7 +37,7 @@
                             <div class="p-3">
                                 <H5>Settings Content</H5>
                                 <Paragraph>This is the content for the Settings tab. Configuration options would go here.</Paragraph>
-                                <Switch @bind-Checked="setting1">Enable notifications</Switch>
+                                <Switch @bind-Checked="_setting1">Enable notifications</Switch>
                             </Div>
                         </Tab>
                     </Tabs>
@@ -66,23 +66,23 @@
             <div>
                 <H2>Controlled Tabs</H2>
                 <Div Margin="Margin.Is3.FromBottom">
-                    <Tabs SelectedTab="@selectedTab" OnSelectedTabChanged="HandleTabChanged">
+                    <Tabs SelectedTab="@_selectedTab" OnSelectedTabChanged="HandleTabChanged">
                         <Tab Name="controlled1" Title="First Tab">
                             <div class="p-3">
                                 <H5>First Tab Content</H5>
-                                <Paragraph>This is the first tab content. Current selected tab: <Strong>@selectedTab</Strong></Paragraph>
+                                <Paragraph>This is the first tab content. Current selected tab: <Strong>@_selectedTab</Strong></Paragraph>
                             </Div>
                         </Tab>
                         <Tab Name="controlled2" Title="Second Tab">
                             <div class="p-3">
                                 <H5>Second Tab Content</H5>
-                                <Paragraph>This is the second tab content. Current selected tab: <Strong>@selectedTab</Strong></Paragraph>
+                                <Paragraph>This is the second tab content. Current selected tab: <Strong>@_selectedTab</Strong></Paragraph>
                             </Div>
                         </Tab>
                         <Tab Name="controlled3" Title="Third Tab">
                             <div class="p-3">
                                 <H5>Third Tab Content</H5>
-                                <Paragraph>This is the third tab content. Current selected tab: <Strong>@selectedTab</Strong></Paragraph>
+                                <Paragraph>This is the third tab content. Current selected tab: <Strong>@_selectedTab</Strong></Paragraph>
                             </Div>
                         </Tab>
                     </Tabs>
@@ -255,8 +255,8 @@
             <div>
                 <H2>Dynamic Tabs</H2>
                 <Div Margin="Margin.Is3.FromBottom">
-                    <Tabs SelectedTab="@dynamicSelectedTab" OnSelectedTabChanged="HandleDynamicTabChanged">
-                        @foreach (var tab in dynamicTabs)
+                    <Tabs SelectedTab="@_dynamicSelectedTab" OnSelectedTabChanged="HandleDynamicTabChanged">
+                        @foreach (var tab in _dynamicTabs)
                         {
                             <Tab Name="@tab.Name" Title="@tab.Title">
                                 <div class="p-3">
@@ -273,18 +273,18 @@
                     <Button BackgroundColor="BackgroundColor.Danger" Size="Size.Small" OnClick="RemoveDynamicTab">Remove Last Tab</Button>
                     <Button BackgroundColor="BackgroundColor.Info" Size="Size.Small" OnClick="ClearDynamicTabs">Clear All Tabs</Button>
                 </Div>
-                <Paragraph TextColor="TextColor.Muted">Dynamic tabs count: <Strong>@dynamicTabs.Count</Strong></Paragraph>
+                <Paragraph TextColor="TextColor.Muted">Dynamic tabs count: <Strong>@_dynamicTabs.Count</Strong></Paragraph>
             </Div>
         </Column>
     </Row>
 </Container>
 
 @code {
-    private string selectedTab = "controlled1";
-    private string dynamicSelectedTab = "";
-    private List<DynamicTab> dynamicTabs = [];
-    private int dynamicTabCounter = 1;
-    private bool setting1;
+    private string _selectedTab = "controlled1";
+    private string _dynamicSelectedTab = "";
+    private List<DynamicTab> _dynamicTabs = [];
+    private int _dynamicTabCounter = 1;
+    private bool _setting1;
 
     public class DynamicTab
     {
@@ -294,35 +294,35 @@
 
     private async Task HandleTabChanged(string tabName)
     {
-        selectedTab = tabName;
+        _selectedTab = tabName;
         StateHasChanged();
         await Task.CompletedTask;
     }
 
     private async Task HandleDynamicTabChanged(string tabName)
     {
-        dynamicSelectedTab = tabName;
+        _dynamicSelectedTab = tabName;
         StateHasChanged();
         await Task.CompletedTask;
     }
 
     private async Task GoToFirstTab()
     {
-        selectedTab = "controlled1";
+        _selectedTab = "controlled1";
         StateHasChanged();
         await Task.CompletedTask;
     }
 
     private async Task GoToSecondTab()
     {
-        selectedTab = "controlled2";
+        _selectedTab = "controlled2";
         StateHasChanged();
         await Task.CompletedTask;
     }
 
     private async Task GoToThirdTab()
     {
-        selectedTab = "controlled3";
+        _selectedTab = "controlled3";
         StateHasChanged();
         await Task.CompletedTask;
     }
@@ -331,15 +331,15 @@
     {
         var newTab = new DynamicTab
         {
-            Name = $"dynamic{dynamicTabCounter}",
-            Title = $"Dynamic Tab {dynamicTabCounter}"
+            Name = $"dynamic{_dynamicTabCounter}",
+            Title = $"Dynamic Tab {_dynamicTabCounter}"
         };
-        dynamicTabs.Add(newTab);
-        dynamicTabCounter++;
+        _dynamicTabs.Add(newTab);
+        _dynamicTabCounter++;
         
-        if (dynamicTabs.Count == 1)
+        if (_dynamicTabs.Count == 1)
         {
-            dynamicSelectedTab = newTab.Name;
+            _dynamicSelectedTab = newTab.Name;
         }
         
         StateHasChanged();
@@ -348,14 +348,14 @@
 
     private async Task RemoveDynamicTab()
     {
-        if (dynamicTabs.Count > 0)
+        if (_dynamicTabs.Count > 0)
         {
-            var lastTab = dynamicTabs.Last();
-            dynamicTabs.Remove(lastTab);
+            var lastTab = _dynamicTabs.Last();
+            _dynamicTabs.Remove(lastTab);
             
-            if (dynamicSelectedTab == lastTab.Name)
+            if (_dynamicSelectedTab == lastTab.Name)
             {
-                dynamicSelectedTab = dynamicTabs.Count > 0 ? dynamicTabs.Last().Name : "";
+                _dynamicSelectedTab = _dynamicTabs.Count > 0 ? _dynamicTabs.Last().Name : "";
             }
         }
         
@@ -365,8 +365,8 @@
 
     private async Task ClearDynamicTabs()
     {
-        dynamicTabs.Clear();
-        dynamicSelectedTab = "";
+        _dynamicTabs.Clear();
+        _dynamicSelectedTab = "";
         StateHasChanged();
         await Task.CompletedTask;
     }
@@ -374,8 +374,8 @@
     protected override void OnInitialized()
     {
         // Initialize with a few dynamic tabs
-        dynamicTabs.Add(new DynamicTab { Name = "dynamic1", Title = "Dynamic Tab 1" });
-        dynamicTabs.Add(new DynamicTab { Name = "dynamic2", Title = "Dynamic Tab 2" });
-        dynamicSelectedTab = "dynamic1";
+        _dynamicTabs.Add(new DynamicTab { Name = "dynamic1", Title = "Dynamic Tab 1" });
+        _dynamicTabs.Add(new DynamicTab { Name = "dynamic2", Title = "Dynamic Tab 2" });
+        _dynamicSelectedTab = "dynamic1";
     }
 }
