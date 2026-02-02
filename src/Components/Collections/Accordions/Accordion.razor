@@ -1,5 +1,6 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using Soenneker.Blazor.Extensions.EventCallback
 @implements IAccordion
 
 <CascadingValue Name="ParentAccordion" Value="this">
@@ -34,10 +35,12 @@
     public bool Flush { get; set; }
 
     private readonly List<AccordionItem> _items = [];
-    private string? _autoId;
-    private bool _forceRender;
-    private int _expandedItemsKey;
-    private bool _expandedItemsChanged;
+
+    protected override void OnInitialized()
+    {
+        if (Id.IsNullOrEmpty())
+            Id = $"accordion_{Guid.NewGuid():N}";
+    }
 
     /// <summary>
     /// Registers an accordion item.
@@ -67,36 +70,56 @@
     /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task ToggleItem(string itemName)
     {
-        if (string.IsNullOrEmpty(itemName)) return;
+        if (string.IsNullOrEmpty(itemName))
+            return;
 
-        var newExpandedItems = new List<string>(ExpandedItems);
+        var current = ExpandedItems;
 
-        if (newExpandedItems.Contains(itemName))
+        string[] next;
+
+        if (!AllowMultiple)
         {
-            // Item is currently expanded, collapse it
-            newExpandedItems.Remove(itemName);
+            // single-open mode
+            if (current.Length == 1 && string.Equals(current[0], itemName, StringComparison.Ordinal))
+                next = [];
+            else
+                next = [itemName];
         }
         else
         {
-            // Item is collapsed, expand it
-            if (!AllowMultiple)
+            // multi-open mode
+            var idx = Array.IndexOf(current, itemName);
+
+            if (idx >= 0)
             {
-                // If only one item can be expanded at a time, clear all others
-                newExpandedItems.Clear();
+                if (current.Length == 1)
+                {
+                    next = [];
+                }
+                else
+                {
+                    next = new string[current.Length - 1];
+                    if (idx != 0)
+                        Array.Copy(current, 0, next, 0, idx);
+                    if (idx != current.Length - 1)
+                        Array.Copy(current, idx + 1, next, idx, current.Length - idx - 1);
+                }
             }
-            newExpandedItems.Add(itemName);
+            else
+            {
+                next = new string[current.Length + 1];
+                if (current.Length != 0)
+                    Array.Copy(current, next, current.Length);
+                next[^1] = itemName;
+            }
         }
 
-        ExpandedItems = newExpandedItems.ToArray();
+        ExpandedItems = next;
 
-        if (OnExpandedItemsChanged.HasDelegate)
-        {
-            await OnExpandedItemsChanged.InvokeAsync(ExpandedItems);
-        }
+        await OnExpandedItemsChanged.InvokeIfHasDelegate(next);
 
-        // Ensure a render even if base gate would block it
-        _forceRender = true;
-        StateHasChanged();
+        InvalidateRender();
+        Refresh();
     }
 
     /// <summary>
@@ -106,7 +129,8 @@
     /// <returns>True if the item is expanded; otherwise, false.</returns>
     public bool IsItemExpanded(string itemName)
     {
-        return ExpandedItems.Contains(itemName);
+        var arr = ExpandedItems;
+        return arr is not null && Array.IndexOf(arr, itemName) >= 0;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -124,42 +148,8 @@
             }
         });
 
-        // Ensure an id exists so children can reference this accordion as parent
-        if (!Id.HasContent())
-            Id = _autoId ??= $"accordion_{Guid.NewGuid():N}";
-
         attributes["id"] = Id!;
         attributes["role"] = "tablist";
-    }
-
-    protected override void OnParametersSet()
-    {
-        // Track external param-driven changes to ExpandedItems so we allow render
-        var key = 17;
-        if (ExpandedItems != null)
-        {
-            for (var i = 0; i < ExpandedItems.Length; i++)
-            {
-                key = HashCode.Combine(key, ExpandedItems[i]);
-            }
-        }
-
-        _expandedItemsChanged |= key != _expandedItemsKey;
-        _expandedItemsKey = key;
-
-        base.OnParametersSet();
-    }
-
-    protected override bool ShouldRender()
-    {
-        return _forceRender || _expandedItemsChanged || base.ShouldRender();
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        _forceRender = false;
-        _expandedItemsChanged = false;
-        await base.OnAfterRenderAsync(firstRender);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

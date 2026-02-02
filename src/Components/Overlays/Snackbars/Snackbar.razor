@@ -76,7 +76,7 @@
     {
         if (Visible) return Task.CompletedTask;
         Visible = true;
-        return InvokeAsync(StateHasChanged);
+        return RefreshOffThread();
     }
 
     /// <summary>
@@ -90,7 +90,7 @@
         if (!Visible) return;
 
         Visible = false;
-        await InvokeAsync(StateHasChanged);
+        await RefreshOffThread();
         await Closed.InvokeAsync(new SnackbarClosedEventArgs(Key, reason));
     }
 

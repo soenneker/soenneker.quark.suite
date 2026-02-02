@@ -137,8 +137,6 @@
     private bool _open;
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
     private string[] _dayNames = [];
-    private DateOnly? _lastValue;
-    private bool _valueChanged;
 
     private static DateOnly? Parse(ChangeEventArgs e)
     {
@@ -154,26 +152,40 @@
 
     private async Task HandleInput(ChangeEventArgs e)
     {
-        Value = Parse(e);
-        await ValueChanged.InvokeIfHasDelegate(Value);
+        var next = Parse(e);
+        var valueChanged = Value != next;
+        Value = next;
+        if (valueChanged)
+            await ValueChanged.InvokeIfHasDelegate(Value);
         await OnInput.InvokeIfHasDelegate(e);
 
         if (ParentValidation is not null)
             await ParentValidation.NotifyInputChanged(Value);
 
-        _valueChanged = true;
+        if (valueChanged)
+        {
+            InvalidateRender();
+            Refresh();
+        }
     }
 
     private async Task HandleChange(ChangeEventArgs e)
     {
-        Value = Parse(e);
-        await ValueChanged.InvokeIfHasDelegate(Value);
+        var next = Parse(e);
+        var valueChanged = Value != next;
+        Value = next;
+        if (valueChanged)
+            await ValueChanged.InvokeIfHasDelegate(Value);
         await OnChange.InvokeIfHasDelegate(e);
 
         if (ParentValidation is not null)
             await ParentValidation.NotifyInputChanged(Value);
 
-        _valueChanged = true;
+        if (valueChanged)
+        {
+            InvalidateRender();
+            Refresh();
+        }
     }
 
     private string? GetSizeClass()
@@ -219,7 +231,6 @@
             await DatePickerInterop.Attach(_ref);
         }
 
-        _valueChanged = false;
         await base.OnAfterRenderAsync(firstRender);
 
         if (firstRender)
@@ -231,24 +242,7 @@
                 _displayMonth = new DateOnly(Value.Value.Year, Value.Value.Month, 1);
             else
                 _displayMonth = new DateOnly(DateOnly.FromDateTime(DateTime.Today).Year, DateOnly.FromDateTime(DateTime.Today).Month, 1);
-            StateHasChanged();
         }
-    }
-
-    protected override void OnParametersSet()
-    {
-        if (Value != _lastValue)
-        {
-            _valueChanged = true;
-            _lastValue = Value;
-        }
-
-        base.OnParametersSet();
-    }
-
-    protected override bool ShouldRender()
-    {
-        return _valueChanged || base.ShouldRender();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -365,14 +359,16 @@
     {
         if (!_open)
             _open = true;
-        return InvokeAsync(StateHasChanged);
+        InvalidateRender();
+        Refresh();
+        return Task.CompletedTask;
     }
 
-    internal Task ClosePanel()
+    internal async Task ClosePanel()
     {
         if (_open)
             _open = false;
-        return InvokeAsync(StateHasChanged);
+        await RefreshOffThread();
     }
 
 
@@ -385,7 +381,6 @@
         {
             Value = date;
             await ValueChanged.InvokeAsync(Value);
-            _valueChanged = true;
         }
         
         if (ParentValidation is not null)
@@ -400,13 +395,17 @@
     private Task PrevMonth()
     {
         _displayMonth = _displayMonth.AddMonths(-1);
-        return InvokeAsync(StateHasChanged);
+        InvalidateRender();
+        Refresh();
+        return Task.CompletedTask;
     }
 
     private Task NextMonth()
     {
         _displayMonth = _displayMonth.AddMonths(1);
-        return InvokeAsync(StateHasChanged);
+        InvalidateRender();
+        Refresh();
+        return Task.CompletedTask;
     }
 
     protected override Task OnDisposeAsync()

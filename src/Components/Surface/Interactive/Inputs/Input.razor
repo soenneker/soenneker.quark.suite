@@ -113,9 +113,6 @@
     /// </summary>
     public virtual object? ValidationValue => ValidationValueSelector?.Invoke();
 
-    private string? _lastValue;
-    private bool _valueChanged;
-
     /// <summary>
     /// Called after the component has rendered.
     /// </summary>
@@ -128,27 +125,13 @@
             ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
 
-        _valueChanged = false;
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    protected override void OnParametersSet()
+    private async void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
     {
-        if (!string.Equals(Value, _lastValue, StringComparison.Ordinal))
-        {
-            _valueChanged = true;
-            _lastValue = Value;
-        }
-
-        base.OnParametersSet();
+        await RefreshOffThread();
     }
-
-    protected override bool ShouldRender()
-    {
-        return _valueChanged || base.ShouldRender();
-    }
-
-    private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e) => InvokeAsync(StateHasChanged);
 
     /// <summary>
     /// Handles the input event.
@@ -157,11 +140,12 @@
     protected virtual async Task HandleInput(ChangeEventArgs e)
     {
         var newValue = e.Value?.ToString();
+        var valueChanged = false;
         if (!string.Equals(Value, newValue, StringComparison.Ordinal))
         {
             Value = newValue;
             await ValueChanged.InvokeAsync(Value);
-            _valueChanged = true;
+            valueChanged = true;
         }
 
         if (OnInput.HasDelegate)
@@ -172,6 +156,12 @@
             var valueObj = ValidationValue;
             await ParentValidation.NotifyInputChanged(valueObj);
         }
+
+        if (valueChanged)
+        {
+            InvalidateRender();
+            Refresh();
+        }
     }
 
     /// <summary>
@@ -181,11 +171,12 @@
     protected virtual async Task HandleChange(ChangeEventArgs e)
     {
         var newValue = e.Value?.ToString();
+        var valueChanged = false;
         if (!string.Equals(Value, newValue, StringComparison.Ordinal))
         {
             Value = newValue;
             await ValueChanged.InvokeAsync(Value);
-            _valueChanged = true;
+            valueChanged = true;
         }
 
         await OnChange.InvokeIfHasDelegate(e);
@@ -194,6 +185,12 @@
         {
             var valueObj = ValidationValue;
             await ParentValidation.NotifyInputChanged(valueObj);
+        }
+
+        if (valueChanged)
+        {
+            InvalidateRender();
+            Refresh();
         }
     }
 

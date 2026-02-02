@@ -26,9 +26,6 @@
     private bool _hasMessage;
     private bool _hasDescription;
 
-    // Invalidate attribute cache when internal state changes without OnParametersSet
-    private int _attrsVersion;
-
     /// <summary>
     /// Gets or sets the alert style configuration.
     /// </summary>
@@ -58,9 +55,6 @@
     /// </summary>
     [Parameter]
     public EventCallback OnDismiss { get; set; }
-
-    // Alert has internal state; we want renders when we call StateHasChanged.
-    protected override bool ShouldRender() => true;
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -106,8 +100,7 @@
             return Task.CompletedTask;
 
         Visible = true;
-        _attrsVersion++;
-        return InvokeAsync(StateHasChanged);
+        return RefreshOffThread();
     }
 
     /// <summary>
@@ -119,8 +112,7 @@
             return Task.CompletedTask;
 
         Visible = false;
-        _attrsVersion++;
-        return InvokeAsync(StateHasChanged);
+        return RefreshOffThread();
     }
 
     /// <summary>
@@ -129,8 +121,7 @@
     public Task Toggle()
     {
         Visible = !Visible;
-        _attrsVersion++;
-        return InvokeAsync(StateHasChanged);
+        return RefreshOffThread();
     }
 
     internal void NotifyHasMessage()
@@ -139,8 +130,7 @@
             return;
 
         _hasMessage = true;
-        _attrsVersion++;
-        _ = InvokeAsync(StateHasChanged);
+        _ = RefreshOffThread();
     }
 
     internal void NotifyHasDescription()
@@ -149,8 +139,7 @@
             return;
 
         _hasDescription = true;
-        _attrsVersion++;
-        _ = InvokeAsync(StateHasChanged);
+        _ = RefreshOffThread();
     }
 
     private async Task HandleDismiss()
@@ -159,12 +148,12 @@
             return;
 
         Visible = false;
-        _attrsVersion++;
+        InvalidateRender();
 
         await OnDismiss.InvokeIfHasDelegate();
         await VisibleChanged.InvokeAsync(Visible);
 
-        await InvokeAsync(StateHasChanged);
+        Refresh();
     }
 
     protected virtual void ApplyAlertBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
@@ -209,7 +198,5 @@
         hc.Add(Visible);
         hc.Add(_hasMessage);
         hc.Add(_hasDescription);
-        // Forces attribute cache refresh when internal state changes without parameters changing
-        hc.Add(_attrsVersion);
     }
 }

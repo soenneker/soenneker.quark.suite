@@ -33,7 +33,8 @@
 
             _state = _state with { SelectedPanel = value };
             SelectedPanelChanged.InvokeAsync(_state.SelectedPanel);
-            StateHasChanged();
+            InvalidateRender();
+            Refresh();
         }
     }
 
@@ -60,7 +61,8 @@
                 _state = _state with { SelectedPanel = _parentStepsState.SelectedStep };
                 // Nudge render key so this component re-renders when the selected step changes
                 AriaDescribedBy = _state.SelectedPanel;
-                StateHasChanged();
+                InvalidateRender();
+                Refresh();
             }
         }
     }

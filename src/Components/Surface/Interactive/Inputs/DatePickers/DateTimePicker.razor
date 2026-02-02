@@ -160,8 +160,6 @@
     private int _minute; // 0-59
     private bool _isAm;
     private const int _minuteStep = 1;
-    private DateTime? _lastValue;
-    private bool _valueChanged;
 
     private static DateTime? Parse(ChangeEventArgs e)
     {
@@ -185,26 +183,40 @@
 
     private async Task HandleInput(ChangeEventArgs e)
     {
-        Value = Parse(e);
-        await ValueChanged.InvokeIfHasDelegate(Value);
+        var next = Parse(e);
+        var valueChanged = Value != next;
+        Value = next;
+        if (valueChanged)
+            await ValueChanged.InvokeIfHasDelegate(Value);
         await OnInput.InvokeIfHasDelegate(e);
 
         if (ParentValidation is not null)
             await ParentValidation.NotifyInputChanged(Value);
 
-        _valueChanged = true;
+        if (valueChanged)
+        {
+            InvalidateRender();
+            Refresh();
+        }
     }
 
     private async Task HandleChange(ChangeEventArgs e)
     {
-        Value = Parse(e);
-        await ValueChanged.InvokeIfHasDelegate(Value);
+        var next = Parse(e);
+        var valueChanged = Value != next;
+        Value = next;
+        if (valueChanged)
+            await ValueChanged.InvokeIfHasDelegate(Value);
         await OnChange.InvokeIfHasDelegate(e);
 
         if (ParentValidation is not null)
             await ParentValidation.NotifyInputChanged(Value);
 
-        _valueChanged = true;
+        if (valueChanged)
+        {
+            InvalidateRender();
+            Refresh();
+        }
     }
 
     private string? GetSizeClass()
@@ -266,27 +278,9 @@
             }
 
             _isAm = _hour < 12;
-            StateHasChanged();
         }
 
-        _valueChanged = false;
         await base.OnAfterRenderAsync(firstRender);
-    }
-
-    protected override void OnParametersSet()
-    {
-        if (Value != _lastValue)
-        {
-            _valueChanged = true;
-            _lastValue = Value;
-        }
-
-        base.OnParametersSet();
-    }
-
-    protected override bool ShouldRender()
-    {
-        return _valueChanged || base.ShouldRender();
     }
 
     private static string FormatDisplay(DateTime dt) => dt.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
@@ -410,37 +404,38 @@
     {
         if (!_open)
             _open = true;
-        return InvokeAsync(StateHasChanged);
+        InvalidateRender();
+        Refresh();
+        return Task.CompletedTask;
     }
 
-    internal Task ClosePanel()
+    internal async Task ClosePanel()
     {
         if (_open)
             _open = false;
-        return InvokeAsync(StateHasChanged);
+        await RefreshOffThread();
     }
 
 
-    private Task Commit()
+    private async Task Commit()
     {
         var date = _pendingDate ?? (Value.HasValue ? DateOnly.FromDateTime(Value.Value) : DateOnly.FromDateTime(DateTime.Today));
         var dt = new DateTime(date.Year, date.Month, date.Day, _hour, _minute, 0);
         
-        return InvokeAsync(async () =>
+        if (Value != dt)
         {
-            if (Value != dt)
-            {
-                Value = dt;
-                await ValueChanged.InvokeAsync(Value);
-                _valueChanged = true;
-            }
-            
-            if (ParentValidation is not null)
-            {
-                ParentValidation.MarkTouched();
-                await ParentValidation.NotifyInputChanged(Value);
-            }
-        });
+            Value = dt;
+            await ValueChanged.InvokeAsync(Value);
+        }
+        
+        if (ParentValidation is not null)
+        {
+            ParentValidation.MarkTouched();
+            await ParentValidation.NotifyInputChanged(Value);
+        }
+
+        InvalidateRender();
+        Refresh();
     }
 
     private async Task SelectDate(DateOnly date)
@@ -504,13 +499,17 @@
     private Task PrevMonth()
     {
         _displayMonth = _displayMonth.AddMonths(-1);
-        return InvokeAsync(StateHasChanged);
+        InvalidateRender();
+        Refresh();
+        return Task.CompletedTask;
     }
 
     private Task NextMonth()
     {
         _displayMonth = _displayMonth.AddMonths(1);
-        return InvokeAsync(StateHasChanged);
+        InvalidateRender();
+        Refresh();
+        return Task.CompletedTask;
     }
 
     protected override Task OnDisposeAsync()

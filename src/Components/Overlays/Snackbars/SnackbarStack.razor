@@ -121,7 +121,7 @@
 
         list.Add(item);
 
-        await InvokeAsync(StateHasChanged);
+        await RefreshOffThread();
 
         var delay = item.HideDelay ?? EffectiveDefaultDelay;
         if (delay <= 0)
@@ -189,7 +189,7 @@
                 kvp.Value.RemoveAll(x => x.Key == key);
         }
 
-        await InvokeAsync(StateHasChanged);
+        await RefreshOffThread();
         await Closed.InvokeAsync(new SnackbarClosedEventArgs(key, reason));
     }
 

@@ -95,8 +95,6 @@
     public Validation? ParentValidation { get; set; }
 
     private Input? _inputComponent;
-    private decimal? _lastValue;
-    private bool _valueChanged;
 
     public object? ValidationValue => Value;
 
@@ -164,29 +162,43 @@
 
     private async Task HandleInput(ChangeEventArgs e)
     {
-        Value = ParseDecimal(e);
-        await ValueChanged.InvokeIfHasDelegate(Value);
+        var next = ParseDecimal(e);
+        var valueChanged = !Nullable.Equals(Value, next);
+        Value = next;
+        if (valueChanged)
+            await ValueChanged.InvokeIfHasDelegate(Value);
         await OnInput.InvokeIfHasDelegate(e);
-        _valueChanged = true;
-
         if (ParentValidation is not null)
         {
             ParentValidation.MarkTouched();
             await ParentValidation.NotifyInputChanged(Value);
         }
+
+        if (valueChanged)
+        {
+            InvalidateRender();
+            Refresh();
+        }
     }
 
     private async Task HandleChange(ChangeEventArgs e)
     {
-        Value = ParseDecimal(e);
-        await ValueChanged.InvokeIfHasDelegate(Value);
+        var next = ParseDecimal(e);
+        var valueChanged = !Nullable.Equals(Value, next);
+        Value = next;
+        if (valueChanged)
+            await ValueChanged.InvokeIfHasDelegate(Value);
         await OnChange.InvokeIfHasDelegate(e);
-        _valueChanged = true;
-
         if (ParentValidation is not null)
         {
             ParentValidation.MarkTouched();
             await ParentValidation.NotifyInputChanged(Value);
+        }
+
+        if (valueChanged)
+        {
+            InvalidateRender();
+            Refresh();
         }
     }
 
@@ -198,29 +210,12 @@
             ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
 
-        _valueChanged = false;
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
+    private async void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
     {
-        InvokeAsync(StateHasChanged);
-    }
-
-    protected override void OnParametersSet()
-    {
-        if (Value != _lastValue)
-        {
-            _valueChanged = true;
-            _lastValue = Value;
-        }
-
-        base.OnParametersSet();
-    }
-
-    protected override bool ShouldRender()
-    {
-        return _valueChanged || base.ShouldRender();
+        await RefreshOffThread();
     }
 
     private Dictionary<string, object> BuildInputAttributes()

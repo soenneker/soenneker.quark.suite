@@ -90,6 +90,7 @@
         if (!_tabs.Contains(tab))
         {
             _tabs.Add(tab);
+            _ = RefreshOffThread();
         }
     }
 
@@ -100,6 +101,7 @@
     public void UnregisterTab(Tab tab)
     {
         _tabs.Remove(tab);
+        _ = RefreshOffThread();
     }
 
     /// <summary>
@@ -118,7 +120,8 @@
                 await OnSelectedTabChanged.InvokeAsync(tabName);
             }
 
-            StateHasChanged();
+            InvalidateRender();
+            Refresh();
         }
     }
 
@@ -143,17 +146,6 @@
         
         // Trigger a re-render when SelectedTab parameter changes
         // The Tab components will determine their active state based on the cascaded SelectedTab
-    }
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        base.OnAfterRender(firstRender);
-        
-        if (firstRender)
-        {
-            // Trigger a re-render to ensure proper initial state
-            StateHasChanged();
-        }
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

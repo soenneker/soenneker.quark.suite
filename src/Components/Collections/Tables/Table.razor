@@ -108,7 +108,6 @@
     private bool _isHandlingManualRequest; // Flag to prevent multiple simultaneous manual requests
     private int _manualRequestCount; // Counter to track manual request calls
     private TableOptions? _previousOptions;
-    private int? _lastRenderGateKey;
 
     protected override async Task OnInitializedAsync()
     {
@@ -129,24 +128,6 @@
         }
     }
 
-    protected override bool ShouldRender()
-    {
-        if (QuarkOptions.AlwaysRender)
-            return true;
-
-        // Re-render when loading state or key paging/search values change
-        // This ensures the loader disappears and rows appear promptly.
-        var key = HashCode.Combine(_isLoading, CurrentPage, PageSize, _searchTerm, _registeredColumns.Count, _hasLoadedOnce, TotalRecordsCount);
-
-        if (_lastRenderGateKey != key)
-        {
-            _lastRenderGateKey = key;
-            return true;
-        }
-
-        return base.ShouldRender();
-    }
-
     protected override async Task OnParametersSetAsync()
     {
         // Prevent infinite loops by checking if we're already updating parameters
@@ -165,9 +146,6 @@
 
         try
         {
-            // Update the backing field for Options
-            Options = Options;
-
             // Initialize total records and pages on first parameter set
             if (!_dataLoaded)
             {
@@ -186,7 +164,8 @@
                         Logger.LogDebug("Scheduling OnInteractionInternal for initial data load");
 
                     _isLoading = true; // ensure loader visible on first render
-                    await InvokeAsync(StateHasChanged);
+                    await RefreshOffThread();
+
                     _ = OnInteractionInternal();
                 }
 
@@ -271,7 +250,7 @@
 
     public List<DataTableOrderRequest> GetCurrentOrders()
     {
-        return _currentOrders.Count == 0 ? new List<DataTableOrderRequest>() : new List<DataTableOrderRequest>(_currentOrders);
+        return _currentOrders.Count == 0 ? [] : [.._currentOrders];
     }
 
     public async ValueTask SetOrders(List<DataTableOrderRequest> orders)
@@ -371,7 +350,7 @@
             {
                 Column = $"Column_{columnIndex}",
                 Direction = nextDirection ?? string.Empty,
-                Orders = _currentOrders.Count == 0 ? new List<DataTableOrderRequest>() : new List<DataTableOrderRequest>(_currentOrders)
+                Orders = _currentOrders.Count == 0 ? [] : [.._currentOrders]
             };
 
             await OnOrder.InvokeAsync(args);
@@ -380,12 +359,10 @@
 
     public int RegisterColumn(Th columnHeader)
     {
-        // Add the column to our list and return its index
         _registeredColumns.Add(columnHeader);
         var columnIndex = _registeredColumns.Count - 1;
 
-        if (Options.Debug)
-            Logger.LogDebug("Registered column {ColumnIndex} for component {ComponentType}", columnIndex, columnHeader.GetType().Name);
+        _ = RefreshOffThread(); // fire-and-forget is ok here
 
         return columnIndex;
     }
@@ -462,7 +439,7 @@
         _isHandlingManualRequest = true;
         _isLoading = true;
 
-        await InvokeAsync(StateHasChanged);
+        await RefreshOffThread();
 
         try
         {
@@ -510,7 +487,7 @@
             _isLoading = false;
             _isHandlingManualRequest = false;
 
-            await InvokeAsync(StateHasChanged);
+            await RefreshOffThread();
         }
     }
 
@@ -542,7 +519,7 @@
         await OnInteractionInternal();
     }
 
-    
+
 
     public async ValueTask CancelOperations()
     {
@@ -554,7 +531,7 @@
         _isLoading = false;
         _isHandlingManualRequest = false;
 
-        StateHasChanged();
+        await RefreshOffThread();
     }
 
     public void UpdateContinuationTokenPaging(int recordCount, string? continuationToken, string? tokenUsedForCurrentPage = null)
@@ -603,8 +580,30 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
+
         hc.Add(Visible);
+        hc.Add(_isLoading);
+
+        hc.Add(CurrentPage);
+        hc.Add(PageSize);
+        hc.Add(_searchTerm);
+
+        hc.Add(_registeredColumns.Count);
+
+        hc.Add(_hasLoadedOnce);
+        hc.Add(TotalRecordsCount);
+        hc.Add(TotalPages);
+
         hc.Add(TotalRecords);
         hc.Add(Options);
+
+        hc.Add(_currentOrders.Count);
+        for (int i = 0; i < _currentOrders.Count; i++)
+        {
+            var o = _currentOrders[i];
+            hc.Add(o.Column);
+            hc.Add(o.Dir);
+        }
     }
 }

@@ -299,12 +299,17 @@
                 _ = Task.Run(async () =>
                 {
                     await Task.Delay(100);
-                    _forceCollapseAll = false;
-                    await InvokeAsync(StateHasChanged);
+                    await InvokeAsync(() =>
+                    {
+                        _forceCollapseAll = false;
+                        InvalidateRender();
+                        Refresh();
+                    });
                 });
             }
 
-            StateHasChanged();
+            InvalidateRender();
+            Refresh();
             return;
         }
 
@@ -335,12 +340,14 @@
     {
         // Trigger collapse of all dropdowns by updating state
         _forceCollapseAll = true;
-        StateHasChanged();
+        InvalidateRender();
+        Refresh();
 
         // Reset the flag after a brief delay to allow for re-opening
         await Task.Delay(100);
         _forceCollapseAll = false;
-        StateHasChanged();
+        InvalidateRender();
+        Refresh();
     }
 
 

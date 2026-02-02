@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 namespace Soenneker.Quark;
@@ -263,5 +264,15 @@ public interface IComponent : ICoreComponent
     /// </summary>
     CssValue<LinkUnderlineBuilder>? LinkUnderline { get; set; }
 
+    /// <summary>
+    /// Requests a re-render even when render-gating is enabled.
+    /// Safe replacement for external StateHasChanged() callers.
+    /// </summary>
     void Refresh();
+
+    /// <summary>
+    /// Requests a re-render even when render-gating is enabled.
+    /// Safe replacement for external StateHasChanged() callers.
+    /// </summary>
+    Task RefreshOffThread();
 }

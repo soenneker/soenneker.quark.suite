@@ -17,14 +17,10 @@
 }
 else
 {
-    <input type="radio" checked="@Checked" @onchange="HandleChange" @attributes="BuildAttributes()" />
+    <input id="@Id" type="radio" checked="@Checked" @onchange="HandleChange" @attributes="BuildAttributes()" />
 }
 
 @code {
-
-
-    public override string? Id { get; set; } = $"radio-{Guid.NewGuid():N}";
-
     /// <summary>
     /// Gets or sets the callback invoked when the radio state changes.
     /// </summary>
@@ -51,44 +47,28 @@ else
     /// </summary>
     public object? ValidationValue => Checked;
 
-    private bool _initialized;
-    private bool _lastChecked;
-    private bool _checkedChanged;
+    protected override void OnInitialized()
+    {
+        if (Id.IsNullOrEmpty())
+            Id = $"radio_{Guid.NewGuid():N}";
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && !_initialized)
+        if (firstRender)
         {
             await RadioInterop.Initialize();
-            _initialized = true;
+
+            if (ParentValidation is not null)
+            {
+                await ParentValidation.InitializeInput(this);
+
+                if (CheckedExpression is not null)
+                    await ParentValidation.InitializeInputExpression(CheckedExpression);
+            }
         }
 
-        if (firstRender && ParentValidation is not null)
-        {
-            await ParentValidation.InitializeInput(this);
-
-            if (CheckedExpression is not null)
-                await ParentValidation.InitializeInputExpression(CheckedExpression);
-        }
-
-        _checkedChanged = false;
         await base.OnAfterRenderAsync(firstRender);
-    }
-
-    protected override void OnParametersSet()
-    {
-        if (Checked != _lastChecked)
-        {
-            _checkedChanged = true;
-            _lastChecked = Checked;
-        }
-
-        base.OnParametersSet();
-    }
-
-    protected override bool ShouldRender()
-    {
-        return _checkedChanged || base.ShouldRender();
     }
 
     private Dictionary<string, object> BuildWrapperAttributes()
@@ -129,9 +109,8 @@ else
         if (!Checked)
         {
             Checked = true;
-            await CheckedChanged.InvokeAsync(Checked);
-            _checkedChanged = true;
-            StateHasChanged();
+            await CheckedChanged.InvokeAsync(true);
+            InvalidateRender();
         }
 
         await OnChange.InvokeIfHasDelegate(e);
@@ -169,8 +148,6 @@ else
         if (Name.HasContent())
             attributes["name"] = Name;
     }
-
-    
 
     private string? GetValidationClass()
     {

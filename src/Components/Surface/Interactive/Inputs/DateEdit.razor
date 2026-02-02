@@ -224,20 +224,25 @@
 		await base.OnAfterRenderAsync(firstRender);
 	}
 
-	private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
+	private async void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
 	{
-		InvokeAsync(StateHasChanged);
+		await RefreshOffThread();
 	}
 
 	private async Task HandleInput(ChangeEventArgs e)
 	{
 		var value = e.Value?.ToString();
+		var valueChanged = false;
 		
 		if (DateExpression is not null || Date.HasValue || DateChanged.HasDelegate)
 		{
 			if (DateTime.TryParse(value, out var dateValue))
 			{
-				Date = dateValue;
+				if (Date != dateValue)
+				{
+					Date = dateValue;
+					valueChanged = true;
+				}
 			}
 			await DateChanged.InvokeIfHasDelegate(Date);
 		}
@@ -245,7 +250,11 @@
 		{
 			if (System.DateOnly.TryParse(value, out var dateOnlyValue))
 			{
-				DateOnly = dateOnlyValue;
+				if (DateOnly != dateOnlyValue)
+				{
+					DateOnly = dateOnlyValue;
+					valueChanged = true;
+				}
 			}
 			await DateOnlyChanged.InvokeIfHasDelegate(DateOnly);
 		}
@@ -256,6 +265,12 @@
 		{
 			ParentValidation.MarkTouched();
 			await ParentValidation.NotifyInputChanged(ValidationValue);
+		}
+
+		if (valueChanged)
+		{
+			InvalidateRender();
+			Refresh();
 		}
 	}
 
@@ -273,12 +288,17 @@
 	private async Task HandleChange(ChangeEventArgs e)
 	{
 		var value = e?.Value?.ToString();
+		var valueChanged = false;
 		
 		if (DateExpression is not null || Date.HasValue || DateChanged.HasDelegate)
 		{
 			if (DateTime.TryParse(value, out var dateValue))
 			{
-				Date = dateValue;
+				if (Date != dateValue)
+				{
+					Date = dateValue;
+					valueChanged = true;
+				}
 			}
 			await DateChanged.InvokeIfHasDelegate(Date);
 		}
@@ -286,7 +306,11 @@
 		{
 			if (System.DateOnly.TryParse(value, out var dateOnlyValue))
 			{
-				DateOnly = dateOnlyValue;
+				if (DateOnly != dateOnlyValue)
+				{
+					DateOnly = dateOnlyValue;
+					valueChanged = true;
+				}
 			}
 			await DateOnlyChanged.InvokeIfHasDelegate(DateOnly);
 		}
@@ -297,6 +321,12 @@
 		{
 			ParentValidation.MarkTouched();
 			await ParentValidation.NotifyInputChanged(ValidationValue);
+		}
+
+		if (valueChanged)
+		{
+			InvalidateRender();
+			Refresh();
 		}
 	}
 

@@ -2,48 +2,20 @@
 @inherits Soenneker.Quark.Element
 @implements IField
 
-<CascadingValue Name="ParentField" Value="@this" IsFixed>
-    <div @attributes="BuildAttributes()">
-        @ChildContent
-    </div>
+<CascadingValue Name="ParentField" Value="@this" IsFixed="true">
+    <CascadingValue Name="FieldHorizontal" Value="Horizontal" IsFixed="true">
+        <div @attributes="BuildAttributes()">
+            @ChildContent
+        </div>
+    </CascadingValue>
 </CascadingValue>
 
 @code {
-    private bool _horizontal;
-    private List<Component>? _childComponents;
-
     /// <summary>
     /// Gets or sets whether the field should be displayed horizontally.
     /// </summary>
     [Parameter]
-    public bool Horizontal
-    {
-        get => _horizontal;
-        set
-        {
-            _horizontal = value;
-            _childComponents?.ForEach(x => StateHasChanged());
-        }
-    }
-
-    /// <summary>
-    /// Registers a child component.
-    /// </summary>
-    /// <param name="component">The child component to register.</param>
-    internal void RegisterChild(Component component)
-    {
-        _childComponents ??= [];
-        _childComponents.Add(component);
-    }
-
-    /// <summary>
-    /// Unregisters a child component.
-    /// </summary>
-    /// <param name="component">The child component to unregister.</param>
-    internal void UnregisterChild(Component component)
-    {
-        _childComponents?.Remove(component);
-    }
+    public bool Horizontal { get; set; }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -53,8 +25,8 @@
         {
             AppendClass(ref cls, "q-field");
             AppendClass(ref cls, "form-group");
-            
-            if (_horizontal)
+
+            if (Horizontal)
                 AppendClass(ref cls, "row");
         });
     }

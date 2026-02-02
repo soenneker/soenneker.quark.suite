@@ -29,7 +29,7 @@
 
     protected override void OnInitialized()
     {
-        if (!Id.HasContent())
+        if (Id.IsNullOrEmpty())
             Id = $"collapse_{Guid.NewGuid():N}";
     }
 
@@ -37,6 +37,7 @@
     {
         Expanded = !Expanded;
 
+        InvalidateRender();
         Refresh();
 
         await OnExpandedChanged.InvokeIfHasDelegate(Expanded);
@@ -49,6 +50,7 @@
 
         Expanded = true;
 
+        InvalidateRender();
         Refresh();
 
         await OnExpandedChanged.InvokeIfHasDelegate(Expanded);
@@ -62,6 +64,7 @@
 
         Expanded = false;
 
+        InvalidateRender();
         Refresh();
 
         await OnExpandedChanged.InvokeIfHasDelegate(Expanded);

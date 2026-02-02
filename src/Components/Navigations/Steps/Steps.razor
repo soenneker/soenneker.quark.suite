@@ -43,7 +43,7 @@
                 AriaDescribedBy = _state.SelectedStep;
 
                 await SelectedStepChanged.InvokeIfHasDelegate(_state.SelectedStep);
-                StateHasChanged();
+                await RefreshOffThread();
             }
 
             // Subscribe to fragment changes
@@ -90,7 +90,8 @@
             // Nudge render key so this component re-renders and cascades the new state
             AriaDescribedBy = _state.SelectedStep;
             SelectedStepChanged.InvokeAsync(_state.SelectedStep);
-            StateHasChanged();
+            InvalidateRender();
+            Refresh();
         }
     }
 
@@ -104,7 +105,8 @@
         set
         {
             _state = _state with { RenderMode = value };
-            StateHasChanged();
+            InvalidateRender();
+            Refresh();
         }
     }
 
@@ -143,7 +145,8 @@
                 var initial = fragment.HasContent() && _stepItems.Contains(fragment) ? fragment : name;
                 _state = _state with { SelectedStep = initial };
                 AriaDescribedBy = _state.SelectedStep;
-                StateHasChanged();
+                InvalidateRender();
+                Refresh();
             }
         }
     }
@@ -252,7 +255,7 @@
 
     
 
-    private void HandleLocationChanged(object? sender, LocationChangedEventArgs args)
+    private async void HandleLocationChanged(object? sender, LocationChangedEventArgs args)
     {
         var fragment = GetFragment(args.Location);
         if (!fragment.HasContent())
@@ -263,7 +266,7 @@
             _state = _state with { SelectedStep = fragment };
             AriaDescribedBy = _state.SelectedStep;
             SelectedStepChanged.InvokeAsync(_state.SelectedStep);
-            StateHasChanged();
+            await RefreshOffThread();
         }
     }
 

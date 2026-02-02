@@ -37,18 +37,18 @@
         }
     }
 
-    private void OnStatusChanged(ValidationsStatusChangedEventArgs args)
+    private async void OnStatusChanged(ValidationsStatusChangedEventArgs args)
     {
         _status = args.Status;
         _visible = args.Status != ValidationStatus.None;
-        InvokeAsync(StateHasChanged);
+        await RefreshOffThread();
     }
 
-    private void OnClearingAll()
+    private async void OnClearingAll()
     {
         _visible = false;
         _status = ValidationStatus.None;
-        InvokeAsync(StateHasChanged);
+        await RefreshOffThread();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

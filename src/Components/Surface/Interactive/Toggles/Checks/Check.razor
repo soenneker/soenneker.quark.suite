@@ -80,9 +80,6 @@
 
     private ElementReference _inputRef;
     private bool _initialized;
-    private bool _lastChecked;
-    private bool _checkedChanged;
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && !_initialized)
@@ -101,29 +98,13 @@
             ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
 
-        _checkedChanged = false; // reset local render gate after any render
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    protected override void OnParametersSet()
+    private async void OnParentValidationStatusChanged(object? s, ValidationStatusChangedEventArgs e)
     {
-        // detect programmatic changes from parent (@bind updates, button clicks, etc.)
-        if (Checked != _lastChecked)
-        {
-            _checkedChanged = true;
-            _lastChecked = Checked;
-        }
-
-        base.OnParametersSet();
+        await RefreshOffThread();
     }
-
-    protected override bool ShouldRender()
-    {
-        // Render if value changed, or fallback to base gating (theme, attrs, etc.)
-        return _checkedChanged || base.ShouldRender();
-    }
-
-    private void OnParentValidationStatusChanged(object? s, ValidationStatusChangedEventArgs e) => InvokeAsync(StateHasChanged);
 
     public virtual Dictionary<string, object> BuildWrapperAttributes()
     {
@@ -211,9 +192,8 @@
         Checked = !Checked;
         await CheckedChanged.InvokeAsync(Checked);
 
-        // Ensure immediate visual update even if base render gate would skip
-        _checkedChanged = true;
-        StateHasChanged();
+        InvalidateRender();
+        Refresh();
 
         if (ParentValidation is not null)
         {

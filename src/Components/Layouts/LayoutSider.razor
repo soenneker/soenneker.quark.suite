@@ -56,7 +56,6 @@
         if (_sidebarVisible != Visible)
         {
             _sidebarVisible = Visible;
-            StateHasChanged();
         }
     }
 
@@ -64,7 +63,8 @@
     {
         _sidebarVisible = visible;
         await VisibleChanged.InvokeAsync(visible);
-        StateHasChanged();
+        InvalidateRender();
+        Refresh();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

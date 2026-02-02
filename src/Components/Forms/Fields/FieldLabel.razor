@@ -11,8 +11,6 @@
 </label>
 
 @code {
-    private bool _requiredIndicator;
-
     /// <summary>
     /// Gets or sets the for attribute, which associates the label with a form control.
     /// </summary>
@@ -23,32 +21,13 @@
     /// Gets or sets whether to show the required indicator.
     /// </summary>
     [Parameter]
-    public bool RequiredIndicator
-    {
-        get => _requiredIndicator;
-        set
-        {
-            _requiredIndicator = value;
-            StateHasChanged();
-        }
-    }
+    public bool RequiredIndicator { get; set; }
 
-    protected virtual bool IsHorizontal => ParentField?.Horizontal == true;
+    // Prefer a simple cascading bool rather than poking into ParentField.
+    [CascadingParameter(Name = "FieldHorizontal")]
+    protected bool FieldHorizontal { get; set; }
 
-    [CascadingParameter(Name = nameof(ParentField))]
-    protected Field? ParentField { get; set; }
-
-    protected override void OnInitialized()
-    {
-        ParentField?.RegisterChild(this);
-        base.OnInitialized();
-    }
-
-    protected override void OnDispose()
-    {
-        ParentField?.UnregisterChild(this);
-        base.OnDispose();
-    }
+    protected virtual bool IsHorizontal => FieldHorizontal;
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -61,7 +40,7 @@
         });
 
         if (For.HasContent())
-            attributes["for"] = For;
+            attributes["for"] = For!;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

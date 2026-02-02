@@ -346,16 +346,17 @@ public abstract class Component : CoreComponent, IComponent
     // Invalidate when internal state changes (not Parameters)
     private int _renderVersion;
 
-    /// <summary>
-    /// Requests a re-render even when render-gating is enabled.
-    /// Safe replacement for external StateHasChanged() callers.
-    /// </summary>
     public void Refresh()
     {
-        InvalidateRender(); // bumps _renderVersion + sets _shouldRender=true
+        InvalidateRender();
         StateHasChanged();
     }
 
+    public Task RefreshOffThread()
+    {
+        InvalidateRender();
+        return InvokeAsync(StateHasChanged);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void InvalidateRender()

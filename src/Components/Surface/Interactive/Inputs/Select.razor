@@ -89,9 +89,6 @@
     /// Gets the value used for validation.
     /// </summary>
     public object? ValidationValue => SelectedValue;
-    private TValue? _lastSelected;
-    private bool _valueChanged;
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && ParentValidation is not null)
@@ -104,23 +101,23 @@
             ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
 
-        _valueChanged = false;
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
+    private async void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
     {
-        InvokeAsync(StateHasChanged);
+        await RefreshOffThread();
     }
 
     private async Task HandleChange(ChangeEventArgs e)
     {
         var newValue = ConvertValue(e.Value?.ToString());
+        var valueChanged = false;
         if (!EqualityComparer<TValue>.Default.Equals(SelectedValue, newValue))
         {
             SelectedValue = newValue;
             await SelectedValueChanged.InvokeAsync(SelectedValue);
-            _valueChanged = true;
+            valueChanged = true;
         }
 
         await OnChange.InvokeIfHasDelegate(e);
@@ -130,22 +127,12 @@
             ParentValidation.MarkTouched();
             await ParentValidation.NotifyInputChanged(SelectedValue);
         }
-    }
 
-    protected override void OnParametersSet()
-    {
-        if (!EqualityComparer<TValue>.Default.Equals(SelectedValue, _lastSelected))
+        if (valueChanged)
         {
-            _valueChanged = true;
-            _lastSelected = SelectedValue;
+            InvalidateRender();
+            Refresh();
         }
-
-        base.OnParametersSet();
-    }
-
-    protected override bool ShouldRender()
-    {
-        return _valueChanged || base.ShouldRender();
     }
 
     private static TValue? ConvertValue(string? value)

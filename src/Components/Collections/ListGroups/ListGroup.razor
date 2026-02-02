@@ -1,6 +1,7 @@
 @namespace Soenneker.Quark
 
 @inherits Soenneker.Quark.Element
+@using Soenneker.Blazor.Extensions.EventCallback
 @implements IListGroup
 
 <CascadingValue Name="ParentListGroup" Value="@this" IsFixed="true">
@@ -66,7 +67,7 @@
         {
             AppendClass(ref cls, "q-list-group");
             AppendClass(ref cls, "list-group");
-            
+
             if (Flush)
                 AppendClass(ref cls, "list-group-flush");
             if (Scrollable)
@@ -74,7 +75,7 @@
         });
     }
 
-    
+
 
     /// <summary>
     /// Selects or deselects the specified item.
@@ -83,28 +84,37 @@
     /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task SelectItem(string name)
     {
+        if (string.IsNullOrEmpty(name))
+            return;
+
         if (SelectionMode == ListGroupSelectionMode.Single)
         {
-            SelectedItem = name;
-            await SelectedItemChanged.InvokeAsync(SelectedItem);
+            // Optional: if already selected, no-op unless you support deselect
+            if (!string.Equals(SelectedItem, name, StringComparison.Ordinal))
+            {
+                SelectedItem = name;
+                await SelectedItemChanged.InvokeIfHasDelegate(name);
+            }
         }
         else
         {
-            SelectedItems ??= [];
+            var current = SelectedItems;
 
-            if (SelectedItems.Contains(name))
-            {
-                SelectedItems.Remove(name);
-            }
+            // Copy (avoid mutating caller-owned list instance)
+            var next = current is null ? new List<string>(1) : new List<string>(current);
+
+            var idx = next.IndexOf(name);
+            if (idx >= 0)
+                next.RemoveAt(idx);
             else
-            {
-                SelectedItems.Add(name);
-            }
+                next.Add(name);
 
-            await SelectedItemsChanged.InvokeAsync(SelectedItems);
+            SelectedItems = next;
+
+            await SelectedItemsChanged.InvokeIfHasDelegate(next);
         }
 
-        StateHasChanged();
+        await RefreshOffThread();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

@@ -163,13 +163,13 @@
         _isShowing = true;
         _backdropVisible = true;
 
-        await InvokeAsync(StateHasChanged);
+        await RefreshOffThread();
         await Task.Yield();
 
         _active = true;
         if (!Id.IsNullOrWhiteSpace())
             OffcanvasCoordinator.Enter(Id);
-        await InvokeAsync(StateHasChanged);
+        await RefreshOffThread();
 
         await FinalizeTransitionAsync(() =>
         {
@@ -192,7 +192,7 @@
         _isHiding = true;
         _active = false;
 
-        await InvokeAsync(StateHasChanged);
+        await RefreshOffThread();
 
         await FinalizeTransitionAsync(async () =>
         {
@@ -265,11 +265,8 @@
 
         ClearTransitionCancellation();
 
-        await InvokeAsync(async () =>
-        {
-            await transitionComplete();
-            StateHasChanged();
-        });
+        await transitionComplete();
+        await RefreshOffThread();
 
         await callback.InvokeIfHasDelegate();
     }

@@ -96,8 +96,6 @@
     public Validation? ParentValidation { get; set; }
 
     private Input? _inputComponent;
-    private string? _lastValue;
-    private bool _valueChanged;
 
     public object? ValidationValue => Text;
 
@@ -143,53 +141,53 @@
             ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
 
-        _valueChanged = false;
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    protected override void OnParametersSet()
+    private async void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
     {
-        if (!string.Equals(Text, _lastValue, StringComparison.Ordinal))
-        {
-            _valueChanged = true;
-            _lastValue = Text;
-        }
-
-        base.OnParametersSet();
+        await RefreshOffThread();
     }
-
-    protected override bool ShouldRender()
-    {
-        return _valueChanged || base.ShouldRender();
-    }
-
-    private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e) => InvokeAsync(StateHasChanged);
 
     private async Task HandleInput(ChangeEventArgs e)
     {
-        Text = e.Value?.ToString();
-        await TextChanged.InvokeIfHasDelegate(Text);
+        var next = e.Value?.ToString();
+        var valueChanged = !string.Equals(Text, next, StringComparison.Ordinal);
+        Text = next;
+        if (valueChanged)
+            await TextChanged.InvokeIfHasDelegate(Text);
         await OnInput.InvokeIfHasDelegate(e);
-        _valueChanged = true;
-
         if (ParentValidation is not null)
         {
             ParentValidation.MarkTouched();
             await ParentValidation.NotifyInputChanged(Text);
+        }
+
+        if (valueChanged)
+        {
+            InvalidateRender();
+            Refresh();
         }
     }
 
     private async Task HandleChange(ChangeEventArgs e)
     {
-        Text = e.Value?.ToString();
-        await TextChanged.InvokeIfHasDelegate(Text);
+        var next = e.Value?.ToString();
+        var valueChanged = !string.Equals(Text, next, StringComparison.Ordinal);
+        Text = next;
+        if (valueChanged)
+            await TextChanged.InvokeIfHasDelegate(Text);
         await OnChange.InvokeIfHasDelegate(e);
-        _valueChanged = true;
-
         if (ParentValidation is not null)
         {
             ParentValidation.MarkTouched();
             await ParentValidation.NotifyInputChanged(Text);
+        }
+
+        if (valueChanged)
+        {
+            InvalidateRender();
+            Refresh();
         }
     }
 

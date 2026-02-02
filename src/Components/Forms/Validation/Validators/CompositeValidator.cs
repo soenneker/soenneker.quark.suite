@@ -19,7 +19,7 @@ public class CompositeValidator : QuarkValidator
     /// <param name="validators">The validators to combine.</param>
     public CompositeValidator(params IQuarkValidator[] validators)
     {
-        _validators = validators?.Length > 0 ? new List<IQuarkValidator>(validators) : [];
+        _validators = validators?.Length > 0 ? [..validators] : [];
     }
 
     /// <summary>

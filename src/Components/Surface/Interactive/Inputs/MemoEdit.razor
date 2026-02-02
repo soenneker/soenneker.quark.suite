@@ -82,8 +82,6 @@
     /// Gets the value used for validation.
     /// </summary>
     public object? ValidationValue => Value;
-    private string? _lastValue;
-    private bool _valueChanged;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
@@ -97,29 +95,12 @@
 			ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
 		}
 
-        _valueChanged = false;
         await base.OnAfterRenderAsync(firstRender);
 	}
 
-    protected override void OnParametersSet()
-    {
-        if (!string.Equals(Value, _lastValue, StringComparison.Ordinal))
-        {
-            _valueChanged = true;
-            _lastValue = Value;
-        }
-
-        base.OnParametersSet();
-    }
-
-    protected override bool ShouldRender()
-    {
-        return _valueChanged || base.ShouldRender();
-    }
-
-	private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
+	private async void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
 	{
-		InvokeAsync(StateHasChanged);
+		await RefreshOffThread();
 	}
 
 	private bool ShouldShowInvalid()
@@ -225,11 +206,12 @@
     private async Task HandleInput(ChangeEventArgs e)
 	{
 		var newValue = e?.Value?.ToString() ?? string.Empty;
+		var valueChanged = false;
 		if (Value != newValue)
 		{
 			Value = newValue;
 			await ValueChanged.InvokeAsync(Value);
-            _valueChanged = true;
+			valueChanged = true;
 		}
 
 		if (OnInput.HasDelegate)
@@ -240,16 +222,23 @@
 			ParentValidation.MarkTouched();
 			await ParentValidation.NotifyInputChanged(Value);
 		}
+
+		if (valueChanged)
+		{
+			InvalidateRender();
+			Refresh();
+		}
 	}
 
     private async Task HandleChange(ChangeEventArgs e)
 	{
 		var newValue = e?.Value?.ToString() ?? string.Empty;
+		var valueChanged = false;
 		if (Value != newValue)
 		{
 			Value = newValue;
 			await ValueChanged.InvokeAsync(Value);
-            _valueChanged = true;
+			valueChanged = true;
 		}
 
 		await OnChange.InvokeIfHasDelegate(e);
@@ -258,6 +247,12 @@
 		{
 			ParentValidation.MarkTouched();
 			await ParentValidation.NotifyInputChanged(Value);
+		}
+
+		if (valueChanged)
+		{
+			InvalidateRender();
+			Refresh();
 		}
 	}
 

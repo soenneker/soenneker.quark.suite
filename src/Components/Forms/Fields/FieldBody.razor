@@ -7,25 +7,14 @@
 </div>
 
 @code {
-    protected virtual bool IsHorizontal => ParentField?.Horizontal == true;
+    // Prefer a simple cascading bool rather than poking into ParentField.
+    [CascadingParameter(Name = "FieldHorizontal")]
+    protected bool FieldHorizontal { get; set; }
 
-    [CascadingParameter(Name = nameof(ParentField))]
-    protected Field? ParentField { get; set; }
+    protected virtual bool IsHorizontal => FieldHorizontal;
 
     [Parameter]
     public CssValue<ColumnSizeBuilder>? ColumnSize { get; set; }
-
-    protected override void OnInitialized()
-    {
-        ParentField?.RegisterChild(this);
-        base.OnInitialized();
-    }
-
-    protected override void OnDispose()
-    {
-        ParentField?.UnregisterChild(this);
-        base.OnDispose();
-    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -34,7 +23,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-field-body");
-            
+
             if (IsHorizontal)
             {
                 AppendClass(ref cls, "col");
@@ -43,17 +32,13 @@
         });
     }
 
-    
-
     private static void AddColumnCss<T>(ref PooledStringBuilder cls, CssValue<T>? cssValue) where T : class, ICssBuilder
     {
         if (cssValue is { IsEmpty: false })
         {
             var css = cssValue.Value.ToString();
             if (css.HasContent() && !cssValue.Value.IsCssStyle)
-            {
                 AppendClass(ref cls, css);
-            }
         }
     }
 

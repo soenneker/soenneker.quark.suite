@@ -7,7 +7,7 @@
 @inject ISwitchInterop SwitchInterop
 
 <div @attributes="BuildWrapperAttributes()">
-    <input id="@Id" type="checkbox" checked="@Checked" @onclick="HandleClick" @onchange="HandleChange" @attributes="BuildInputAttributes()"/>
+    <input id="@Id" type="checkbox" checked="@Checked" @onclick="HandleClick" @onchange="HandleChange" @attributes="BuildInputAttributes()" />
     @if (ChildContent != null)
     {
         <label @attributes="BuildLabelAttributes()">@ChildContent</label>
@@ -21,35 +21,21 @@
 @code {
     public override string? Id { get; set; } = $"switch-{Guid.NewGuid():N}";
 
-    /// <summary>
-    /// Gets or sets the label text for the switch.
-    /// </summary>
     [Parameter]
     public string? Label { get; set; }
 
-    /// <summary>
-    /// Gets or sets the size of the switch.
-    /// </summary>
     [Parameter]
     public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
 
-    /// <summary>
-    /// Gets or sets the callback invoked when the switch state changes.
-    /// </summary>
     [Parameter]
     public EventCallback<ChangeEventArgs> OnChange { get; set; }
 
     [CascadingParameter(Name = nameof(ParentValidation))]
     public Validation? ParentValidation { get; set; }
 
-    /// <summary>
-    /// Gets the value used for validation.
-    /// </summary>
     public object? ValidationValue => Checked;
 
     private bool _initialized;
-    private bool _lastChecked;
-    private bool _checkedChanged;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -67,24 +53,7 @@
             await ParentValidation.InitializeInput(this);
         }
 
-        _checkedChanged = false; // reset after render
         await base.OnAfterRenderAsync(firstRender);
-    }
-
-    protected override void OnParametersSet()
-    {
-        if (Checked != _lastChecked)
-        {
-            _checkedChanged = true;
-            _lastChecked = Checked;
-        }
-
-        base.OnParametersSet();
-    }
-
-    protected override bool ShouldRender()
-    {
-        return _checkedChanged || base.ShouldRender();
     }
 
     private string? GetColorClass()
@@ -95,10 +64,7 @@
             var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
 
             if (isTheme && token is not null)
-            {
-                // Bootstrap theme token (e.g., "primary", "secondary")
                 return $"form-check-input-{token}";
-            }
 
             var v = BackgroundColor.Value.ToString().Trim();
 
@@ -123,7 +89,7 @@
         if (isTheme && token is not null)
             return $"form-check-input-{token}";
 
-        return Size?.ToString() != null ? $"form-check-input-{Size}" : null;
+        return Size?.ToString() is { } s ? $"form-check-input-{s}" : null;
     }
 
     protected Dictionary<string, object> BuildWrapperAttributes()
@@ -137,14 +103,12 @@
             AppendClass(ref cls, "form-switch");
         });
 
-        // Only apply non-color related attributes to the wrapper
         if (Id.HasContent())
             attributes["id"] = Id;
 
         if (Style.HasContent())
             attributes["style"] = Style;
 
-        // Don't apply BackgroundColor to wrapper - it should only go to the input
         return attributes;
     }
 
@@ -177,11 +141,9 @@
                 AppendClass(ref cls, validationClass);
         });
 
-        // Handle custom CSS colors using BackgroundColor
         if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty && !BackgroundColor.Value.IsCssClass)
         {
             var v = BackgroundColor.Value.ToString().Trim();
-            // BackgroundColor already handles background-color, just add border-color
             BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, $"border-color:{v}"));
         }
 
@@ -206,28 +168,32 @@
         if (Disabled)
             return;
 
-        // Toggle the checked state
-        Checked = !Checked;
-        await CheckedChanged.InvokeAsync(Checked);
+        var next = !Checked;
+        if (next == Checked)
+            return;
 
-        _checkedChanged = true;
-        StateHasChanged();
+        Checked = next;
+        await CheckedChanged.InvokeAsync(next);
+
+        InvalidateRender();
+        Refresh();
 
         if (ParentValidation is not null)
         {
             ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(Checked);
+            await ParentValidation.NotifyInputChanged(next);
         }
     }
 
-    private async Task HandleChange(ChangeEventArgs e)
+    private Task HandleChange(ChangeEventArgs e)
     {
-        // This is called after onclick, primarily for OnChange event callback
-        await OnChange.InvokeIfHasDelegate(e);
+        return OnChange.InvokeIfHasDelegate(e);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
+
         hc.Add(Checked);
         hc.Add(Disabled);
         hc.Add(Name);
