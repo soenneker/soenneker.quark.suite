@@ -120,9 +120,7 @@ public sealed class BootstrapCardCssVariables : IBootstrapCssVariableGroup
     public string GetSelector()
     {
         return ".card";
-    }
-
-    /// <summary>
+    }    /// <summary>
     /// Gets the collection of CSS variables for the card component.
     /// </summary>
     /// <returns>An enumerable collection of CSS property name and value tuples.</returns>

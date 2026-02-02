@@ -386,8 +386,17 @@ public abstract class Component : CoreComponent, IComponent
     // -------- Attributes building (cached by render key) --------
     protected virtual IReadOnlyDictionary<string, object> BuildAttributes()
     {
+        // Refresh render key here so internal state changes invalidate the cache
+        var currentKey = _lastRenderKey;
+        if (!QuarkOptions.AlwaysRender)
+        {
+            currentKey = ComputeRenderKey();
+            if (currentKey != _lastRenderKey)
+                _lastRenderKey = currentKey;
+        }
+
         // Use cached attributes if render key hasn't changed
-        if (!QuarkOptions.AlwaysRender && _cachedAttrs is not null && _cachedAttrsKey == _lastRenderKey)
+        if (!QuarkOptions.AlwaysRender && _cachedAttrs is not null && _cachedAttrsKey == currentKey)
             return _cachedAttrs;
 
         var guess = 14 + (Attributes?.Count ?? 0);
@@ -486,7 +495,7 @@ public abstract class Component : CoreComponent, IComponent
 
             // Cache the computed attributes keyed by the render key
             _cachedAttrs = attrs;
-            _cachedAttrsKey = _lastRenderKey;
+            _cachedAttrsKey = currentKey;
 
             return attrs;
         }

@@ -50,9 +50,7 @@ public sealed class BootstrapAccordionButtonCssVariables : IBootstrapCssVariable
             yield return ("--bs-accordion-btn-bg", ButtonBackground);
 
         if (ButtonFocusBorderColor.HasContent())
-            yield return ("--bs-accordion-btn-focus-border-color", ButtonFocusBorderColor);
-
-        if (ButtonFocusBoxShadow.HasContent())
+            yield return ("--bs-accordion-btn-focus-border-color", ButtonFocusBorderColor);        if (ButtonFocusBoxShadow.HasContent())
             yield return ("--bs-accordion-btn-focus-box-shadow", ButtonFocusBoxShadow);
     }
 }

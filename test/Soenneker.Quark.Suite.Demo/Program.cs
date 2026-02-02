@@ -115,7 +115,7 @@ public sealed class Program
             var quarkOptions = new QuarkOptions
             {
                 Debug = true,
-                AutomaticBootstrapLoading = true,
+                AutomaticBootstrapLoading = false,
                 AutomaticFontAwesomeLoading = true
             };
 
