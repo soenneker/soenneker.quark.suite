@@ -1,6 +1,7 @@
 @namespace Soenneker.Quark
 
 @inherits Soenneker.Quark.Element
+@using Soenneker.Blazor.Extensions.EventCallback
 @implements ICollapse
 
 <div @attributes="BuildAttributes()">
@@ -8,12 +9,6 @@
 </div>
 
 @code {
-    /// <summary>
-    /// Gets a stable ID for this collapse element that can be referenced by toggles.
-    /// If not provided via <see cref="Id"/>, one will be generated.
-    /// </summary>
-    public string CollapseId => Id.HasContent() ? Id! : _autoId ??= $"collapse_{Guid.NewGuid():N}";
-
     /// <summary>
     /// Gets or sets whether the collapse is expanded.
     /// </summary>
@@ -32,86 +27,44 @@
     [Parameter]
     public bool Horizontal { get; set; }
 
-    /// <summary>
-    /// Toggles the expanded state of the collapse.
-    /// </summary>
-    /// <returns>A task representing the toggle operation.</returns>
+    protected override void OnInitialized()
+    {
+        if (!Id.HasContent())
+            Id = $"collapse_{Guid.NewGuid():N}";
+    }
+
     public async Task Toggle()
     {
         Expanded = !Expanded;
-        _forceRender = true;
-        
-        if (OnExpandedChanged.HasDelegate)
-        {
-            await OnExpandedChanged.InvokeAsync(Expanded);
-        }
-        
-        StateHasChanged();
+
+        Refresh();
+
+        await OnExpandedChanged.InvokeIfHasDelegate(Expanded);
     }
 
-    /// <summary>
-    /// Shows (expands) the collapse.
-    /// </summary>
-    /// <returns>A task representing the show operation.</returns>
     public async Task Show()
     {
-        if (!Expanded)
-        {
-            Expanded = true;
-            _forceRender = true;
-            
-            if (OnExpandedChanged.HasDelegate)
-            {
-                await OnExpandedChanged.InvokeAsync(Expanded);
-            }
-            
-            StateHasChanged();
-        }
+        if (Expanded)
+            return;
+
+        Expanded = true;
+
+        Refresh();
+
+        await OnExpandedChanged.InvokeIfHasDelegate(Expanded);
+
     }
 
-    /// <summary>
-    /// Hides (collapses) the collapse.
-    /// </summary>
-    /// <returns>A task representing the hide operation.</returns>
     public async Task Hide()
     {
-        if (Expanded)
-        {
-            Expanded = false;
-            _forceRender = true;
-            
-            if (OnExpandedChanged.HasDelegate)
-            {
-                await OnExpandedChanged.InvokeAsync(Expanded);
-            }
-            
-            StateHasChanged();
-        }
-    }
+        if (!Expanded)
+            return;
 
-    private bool _lastExpanded;
-    private bool _expandedChanged;
-    private bool _forceRender;
+        Expanded = false;
 
-    protected override void OnParametersSet()
-    {
-        // Track param-driven expanded changes so we can render even if base gate blocks it
-        _expandedChanged |= Expanded != _lastExpanded;
-        _lastExpanded = Expanded;
-        base.OnParametersSet();
-    }
+        Refresh();
 
-    protected override bool ShouldRender()
-    {
-        // Allow render when Expanded changes or when we explicitly request it
-        return _forceRender || _expandedChanged || base.ShouldRender();
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        _forceRender = false;
-        _expandedChanged = false;
-        await base.OnAfterRenderAsync(firstRender);
+        await OnExpandedChanged.InvokeIfHasDelegate(Expanded);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -122,23 +75,15 @@
         {
             AppendClass(ref cls, "q-collapse");
             AppendClass(ref cls, "collapse");
-            
+
             if (Horizontal)
                 AppendClass(ref cls, "collapse-horizontal");
             if (Expanded)
                 AppendClass(ref cls, "show");
         });
 
-        // Ensure an id exists so controls can target this collapse per Bootstrap docs
-        if (!Id.HasContent())
-            Id = _autoId ??= $"collapse_{Guid.NewGuid():N}";
-
         attributes["id"] = Id!;
     }
-
-    
-
-    private string? _autoId;
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

@@ -262,4 +262,6 @@ public interface IComponent : ICoreComponent
     /// Gets or sets the link underline configuration.
     /// </summary>
     CssValue<LinkUnderlineBuilder>? LinkUnderline { get; set; }
+
+    void Refresh();
 }

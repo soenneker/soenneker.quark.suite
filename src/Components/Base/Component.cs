@@ -342,7 +342,36 @@ public abstract class Component : CoreComponent, IComponent
     private int _lastRenderKey;
     private Dictionary<string, object>? _cachedAttrs;
     private int _cachedAttrsKey;
-    
+
+    // Invalidate when internal state changes (not Parameters)
+    private int _renderVersion;
+
+    /// <summary>
+    /// Requests a re-render even when render-gating is enabled.
+    /// Safe replacement for external StateHasChanged() callers.
+    /// </summary>
+    public void Refresh()
+    {
+        InvalidateRender(); // bumps _renderVersion + sets _shouldRender=true
+        StateHasChanged();
+    }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected void InvalidateRender()
+    {
+        unchecked { _renderVersion++; }
+
+        // recompute once per invalidation (rare), keeps BuildAttributes fast
+        _lastRenderKey = ComputeRenderKey();
+
+        // guarantee cache miss even if something odd happens
+        _cachedAttrs = null;
+        _cachedAttrsKey = 0;
+
+        _shouldRender = true;
+    }
+
     protected override bool ShouldRender()
     {
         if (QuarkOptions.AlwaysRender)
@@ -370,7 +399,7 @@ public abstract class Component : CoreComponent, IComponent
     {
         if (firstRender)
             _ = OnElementRefReady.InvokeIfHasDelegate(ElementRef);
-        
+
         return Task.CompletedTask;
     }
 
@@ -386,14 +415,8 @@ public abstract class Component : CoreComponent, IComponent
     // -------- Attributes building (cached by render key) --------
     protected virtual IReadOnlyDictionary<string, object> BuildAttributes()
     {
-        // Refresh render key here so internal state changes invalidate the cache
+        // We rely on OnParametersSet() + InvalidateRender() to keep _lastRenderKey current.
         var currentKey = _lastRenderKey;
-        if (!QuarkOptions.AlwaysRender)
-        {
-            currentKey = ComputeRenderKey();
-            if (currentKey != _lastRenderKey)
-                _lastRenderKey = currentKey;
-        }
 
         // Use cached attributes if render key hasn't changed
         if (!QuarkOptions.AlwaysRender && _cachedAttrs is not null && _cachedAttrsKey == currentKey)
@@ -407,10 +430,10 @@ public abstract class Component : CoreComponent, IComponent
 
         try
         {
-            if (Class.HasContent()) 
+            if (Class.HasContent())
                 cls.Append(Class!);
 
-            if (Style.HasContent()) 
+            if (Style.HasContent())
                 sty.Append(Style!);
 
             if (Id.HasContent()) attrs["id"] = Id!;
@@ -469,21 +492,36 @@ public abstract class Component : CoreComponent, IComponent
                 foreach (var kv in Attributes)
                 {
                     var k = kv.Key;
+                    var v = kv.Value;
 
-                    if (k is null)
-                        continue;
-
-                    if (k.EqualsIgnoreCase("class"))
+                    if (k is "class")
                     {
-                        AppendClass(ref cls, kv.Value?.ToString() ?? "");
+                        var s = v as string ?? v?.ToString();
+
+                        if (!string.IsNullOrEmpty(s))
+                            AppendClass(ref cls, s);
                     }
-                    else if (k.EqualsIgnoreCase("style"))
+                    else if (k is "style")
                     {
-                        AppendStyleDecl(ref sty, kv.Value?.ToString() ?? "");
+                        var s = v as string ?? v?.ToString();
+                        if (!string.IsNullOrEmpty(s))
+                            AppendStyleDecl(ref sty, s);
+                    }
+                    else if (k.Equals("class", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var s = v as string ?? v?.ToString();
+                        if (!string.IsNullOrEmpty(s))
+                            AppendClass(ref cls, s);
+                    }
+                    else if (k.Equals("style", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var s = v as string ?? v?.ToString();
+                        if (!string.IsNullOrEmpty(s))
+                            AppendStyleDecl(ref sty, s);
                     }
                     else
                     {
-                        attrs[k] = kv.Value!;
+                        attrs[k] = v!;
                     }
                 }
             }
@@ -523,6 +561,9 @@ public abstract class Component : CoreComponent, IComponent
     private int ComputeRenderKey()
     {
         var hc = new HashCode();
+
+        // Internal invalidation version (forces key to change when you call InvalidateRender())
+        hc.Add(_renderVersion);
 
         hc.Add(Class);
         hc.Add(Style);
@@ -576,9 +617,14 @@ public abstract class Component : CoreComponent, IComponent
 
         if (Attributes is not null)
         {
-            if (Attributes.TryGetValue("class", out var cls)) hc.Add(cls?.ToString());
-            if (Attributes.TryGetValue("style", out var sty)) hc.Add(sty?.ToString());
-            if (Attributes.TryGetValue("id", out var id)) hc.Add(id?.ToString());
+            if (Attributes.TryGetValue("class", out var clsObj))
+                hc.Add(clsObj is string s ? s : clsObj);
+
+            if (Attributes.TryGetValue("style", out var styObj))
+                hc.Add(styObj is string s ? s : styObj);
+
+            if (Attributes.TryGetValue("id", out var idObj))
+                hc.Add(idObj is string s ? s : idObj);
         }
 
         // derived components add their stuff here
@@ -595,21 +641,32 @@ public abstract class Component : CoreComponent, IComponent
     // ---------- Helpers ----------
     private static EventCallback<TArgs> Compose<TArgs>(ComponentBase owner, Func<TArgs, Task> ours, EventCallback<TArgs> users)
     {
-        var usersCopy = users; // stabilize
-        return EventCallback.Factory.Create<TArgs>(owner, async e =>
+        if (!users.HasDelegate)
+            return EventCallback.Factory.Create(owner, ours);
+
+        return EventCallback.Factory.Create<TArgs>(owner, e =>
         {
-            await ours(e);
-            await usersCopy.InvokeAsync(e);
+            var t = ours(e);
+            if (t.IsCompletedSuccessfully)
+                return users.InvokeAsync(e);
+
+            return AwaitBoth(t, users, e);
+
+            static async Task AwaitBoth(Task first, EventCallback<TArgs> u, TArgs arg)
+            {
+                await first.ConfigureAwait(false);
+                await u.InvokeAsync(arg).ConfigureAwait(false);
+            }
         });
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void AppendClass(ref PooledStringBuilder b, string s)
     {
-        if (s.IsNullOrEmpty()) 
+        if (s.IsNullOrEmpty())
             return;
 
-        if (b.Length != 0) 
+        if (b.Length != 0)
             b.Append(' ');
 
         b.Append(s);
@@ -641,6 +698,7 @@ public abstract class Component : CoreComponent, IComponent
         b.Append(fullDecl);
     }
 
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void AddCss<T>(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<T>? v) where T : class, ICssBuilder
     {
@@ -657,57 +715,57 @@ public abstract class Component : CoreComponent, IComponent
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected static void AddCss(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<HeightBuilder>? v, string propertyName)
+    protected static void AddCss(ref PooledStringBuilder styB, ref PooledStringBuilder clsB,
+        CssValue<WidthBuilder>? v, ReadOnlySpan<char> propertyName)
     {
-        if (v is { IsEmpty: false })
-        {
-            var s = v.Value.ToString();
-            if (s.Length == 0) return;
+        if (v is not { IsEmpty: false }) return;
 
-            if (v.Value.IsCssStyle)
-            {
-                // If it's already a full declaration (contains colon), use it as-is
-                if (s.Contains(':'))
-                    AppendStyleDecl(ref styB, s);
-                else
-                    // Format as property: value
-                    AppendStyleDecl(ref styB, $"{propertyName}: {s}");
-            }
-            else
-                AppendClass(ref clsB, s);
+        var s = v.Value.ToString();
+
+        if (s.Length == 0) return;
+
+        if (!v.Value.IsCssStyle)
+        {
+            AppendClass(ref clsB, s);
+            return;
         }
+
+        // raw decl already? keep as-is
+        if (s.AsSpan().IndexOf(':') >= 0)
+            AppendStyleDecl(ref styB, s);
+        else
+            AppendStyleDecl(ref styB, propertyName, s);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected static void AddCss(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<WidthBuilder>? v, string propertyName)
+    protected static void AddCss(ref PooledStringBuilder styB, ref PooledStringBuilder clsB,
+        CssValue<HeightBuilder>? v, ReadOnlySpan<char> propertyName)
     {
-        if (v is { IsEmpty: false })
-        {
-            var s = v.Value.ToString();
-            if (s.Length == 0) return;
+        if (v is not { IsEmpty: false }) return;
 
-            if (v.Value.IsCssStyle)
-            {
-                // If it's already a full declaration (contains colon), use it as-is
-                if (s.Contains(':'))
-                    AppendStyleDecl(ref styB, s);
-                else
-                    // Format as property: value
-                    AppendStyleDecl(ref styB, $"{propertyName}: {s}");
-            }
-            else
-                AppendClass(ref clsB, s);
+        var s = v.Value.ToString();
+        if (s.Length == 0) return;
+
+        if (!v.Value.IsCssStyle)
+        {
+            AppendClass(ref clsB, s);
+            return;
         }
+
+        if (s.AsSpan().IndexOf(':') >= 0)
+            AppendStyleDecl(ref styB, s);
+        else
+            AppendStyleDecl(ref styB, propertyName, s);
     }
 
     // === Attribute helpers (same surface as your original) ===
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static string EnsureClass(string? existing, string? toAdd)
     {
-        if (toAdd.IsNullOrEmpty()) 
+        if (toAdd.IsNullOrEmpty())
             return existing ?? string.Empty;
 
-        if (existing.IsNullOrEmpty()) 
+        if (existing.IsNullOrEmpty())
             return toAdd;
 
         return existing.Contains(toAdd!, StringComparison.Ordinal) ? existing : string.Concat(existing, " ", toAdd);
@@ -716,17 +774,17 @@ public abstract class Component : CoreComponent, IComponent
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static string AppendToClass(string? existing, string toAdd)
     {
-        if (toAdd.IsNullOrEmpty()) 
+        if (toAdd.IsNullOrEmpty())
             return existing ?? string.Empty;
 
-        if (existing.IsNullOrEmpty()) 
+        if (existing.IsNullOrEmpty())
             return toAdd;
 
         return $"{existing} {toAdd}";
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected static void EnsureClassAttr(IDictionary<string, object> attrs, string token)
+    protected static void EnsureClassAttr(Dictionary<string, object> attrs, string token)
     {
         attrs.TryGetValue("class", out var clsObj);
         var cls = EnsureClass(clsObj?.ToString(), token);
@@ -734,12 +792,12 @@ public abstract class Component : CoreComponent, IComponent
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected static void AppendToClassAttr(IDictionary<string, object> attrs, string token)
+    protected static void AppendToClassAttr(Dictionary<string, object> attrs, string token)
     {
         attrs.TryGetValue("class", out var clsObj);
         var cls = AppendToClass(clsObj?.ToString(), token);
 
-        if (cls.Length > 0) 
+        if (cls.Length > 0)
             attrs["class"] = cls;
     }
 
@@ -748,7 +806,7 @@ public abstract class Component : CoreComponent, IComponent
     /// Merges with any existing class attribute. Null or empty strings are automatically skipped.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected static void AppendClassAttribute(IDictionary<string, object> attrs, params string?[] classes)
+    protected static void AppendClassAttribute(Dictionary<string, object> attrs, params string?[] classes)
     {
         var cls = new PooledStringBuilder(64);
 
@@ -768,7 +826,7 @@ public abstract class Component : CoreComponent, IComponent
                 if (!c.IsNullOrWhiteSpace())
                     AppendClass(ref cls, c!);
             }
-            
+
             if (cls.Length > 0)
                 attrs["class"] = cls.ToString();
         }
@@ -784,7 +842,7 @@ public abstract class Component : CoreComponent, IComponent
     /// Use AppendClass(ref cls, "yourClass") within the callback to add classes.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected static void BuildClassAttribute(IDictionary<string, object> attrs, BuildClassAction builder)
+    protected static void BuildClassAttribute(Dictionary<string, object> attrs, BuildClassAction builder)
     {
         var cls = new PooledStringBuilder(64);
         try
@@ -797,9 +855,9 @@ public abstract class Component : CoreComponent, IComponent
                 if (existingStr.HasContent())
                     cls.Append(existingStr);
             }
-            
+
             builder(ref cls); // Let the component add classes
-            
+
             if (cls.Length > 0)
                 attrs["class"] = cls.ToString();
         }
@@ -815,7 +873,7 @@ public abstract class Component : CoreComponent, IComponent
     /// Use AppendStyle(ref sty, "name", "value") or AppendStyleDecl(ref sty, "full: decl") within the callback to add styles.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected static void BuildStyleAttribute(IDictionary<string, object> attrs, BuildStyleAction builder)
+    protected static void BuildStyleAttribute(Dictionary<string, object> attrs, BuildStyleAction builder)
     {
         var sty = new PooledStringBuilder(64);
         try
@@ -828,9 +886,9 @@ public abstract class Component : CoreComponent, IComponent
                 if (existingStr.HasContent())
                     sty.Append(existingStr);
             }
-            
+
             builder(ref sty); // Let the component add styles
-            
+
             if (sty.Length > 0)
                 attrs["style"] = sty.ToString();
         }
@@ -846,34 +904,62 @@ public abstract class Component : CoreComponent, IComponent
     /// Use AppendClass(ref cls, "yourClass") and AppendStyleDecl(ref sty, "full: decl") within the callback.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected static void BuildClassAndStyleAttributes(IDictionary<string, object> attrs, BuildClassAndStyleAction builder)
+    protected static void BuildClassAndStyleAttributes(Dictionary<string, object> attrs, BuildClassAndStyleAction builder)
     {
-        var cls = new PooledStringBuilder(64);
-        var sty = new PooledStringBuilder(64);
+        // Grab existing values with the lowest possible overhead.
+        attrs.TryGetValue("class", out var existingClassObj);
+        attrs.TryGetValue("style", out var existingStyleObj);
+
+        var existingClassStr = existingClassObj as string ?? existingClassObj?.ToString();
+        var existingStyleStr = existingStyleObj as string ?? existingStyleObj?.ToString();
+
+        var existingClassLen = existingClassStr?.Length ?? 0;
+        var existingStyleLen = existingStyleStr?.Length ?? 0;
+
+        // If you want to avoid renting larger buffers, seed capacity from existing lengths.
+        var cls = new PooledStringBuilder(Math.Max(32, existingClassLen + 32));
+        var sty = new PooledStringBuilder(Math.Max(32, existingStyleLen + 32));
+
         try
         {
-            // Include existing class first
-            if (attrs.TryGetValue("class", out var existingClass))
+            if (existingClassLen != 0)
+                cls.Append(existingClassStr!);
+
+            if (existingStyleLen != 0)
+                sty.Append(existingStyleStr!);
+
+            builder(ref cls, ref sty);
+
+            // ---- CLASS ----
+            if (cls.Length == 0)
             {
-                var existingStr = existingClass.ToString();
-                if (existingStr.HasContent())
-                    cls.Append(existingStr);
+                // Optional: remove to avoid rendering empty attributes
+                // attrs.Remove("class");
+            }
+            else if (existingClassObj is string && cls.Length == existingClassLen)
+            {
+                // Builder didn't change class -> keep the original string instance (no new string alloc).
+                attrs["class"] = existingClassObj;
+            }
+            else
+            {
+                attrs["class"] = cls.ToString();
             }
 
-            // Include existing style first
-            if (attrs.TryGetValue("style", out var existingStyle))
+            // ---- STYLE ----
+            if (sty.Length == 0)
             {
-                var existingStr = existingStyle.ToString();
-                if (existingStr.HasContent())
-                    sty.Append(existingStr);
+                // Optional: remove to avoid rendering empty attributes
+                // attrs.Remove("style");
             }
-            
-            builder(ref cls, ref sty); // Let the component add classes and styles
-            
-            if (cls.Length > 0)
-                attrs["class"] = cls.ToString();
-            if (sty.Length > 0)
+            else if (existingStyleObj is string && sty.Length == existingStyleLen)
+            {
+                attrs["style"] = existingStyleObj;
+            }
+            else
+            {
                 attrs["style"] = sty.ToString();
+            }
         }
         finally
         {
@@ -883,35 +969,41 @@ public abstract class Component : CoreComponent, IComponent
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected static void EnsureAttr<T>(IDictionary<string, object> attrs, string name, T value)
-    {
-        if (!attrs.ContainsKey(name)) attrs[name] = value!;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected static void SetOrRemove(IDictionary<string, object> attrs, string name, bool condition, object trueValue)
+    protected static void SetOrRemove(Dictionary<string, object> attrs, string name, bool condition, object trueValue)
     {
         if (condition) attrs[name] = trueValue;
         else attrs.Remove(name);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected static void AppendStyleDeclAttr(IDictionary<string, object> attrs, string fullDecl)
+    protected static void AppendStyleDeclAttr(Dictionary<string, object> attrs, string fullDecl)
     {
-        if (fullDecl.IsNullOrWhiteSpace()) return;
-        attrs.TryGetValue("style", out var styleObj);
-        var existing = styleObj?.ToString();
+        if (string.IsNullOrWhiteSpace(fullDecl)) return;
 
-        if (existing.IsNullOrEmpty())
+        attrs.TryGetValue("style", out var styleObj);
+
+        if (styleObj is string existing && existing.Length != 0)
         {
-            attrs["style"] = fullDecl;
+            using var b = new PooledStringBuilder(existing.Length + 2 + fullDecl.Length);
+
+            b.Append(existing);
+
+            if (existing.Length != 0)
+            {
+                if (existing[^1] != ';')
+                    b.Append(';');
+
+                b.Append(' ');
+            }
+
+            b.Append(fullDecl);
+            attrs["style"] = b.ToString();
+
             return;
         }
 
-        if (existing!.EndsWith(';'))
-            attrs["style"] = $"{existing} {fullDecl}";
-        else
-            attrs["style"] = $"{existing}; {fullDecl}";
+        // no existing
+        attrs["style"] = fullDecl;
     }
 
     /// <summary>
@@ -945,42 +1037,52 @@ public abstract class Component : CoreComponent, IComponent
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void AddColorCss(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<BackgroundColorBuilder>? v, string classPrefix,
-        string cssProperty)
+    private static void AddColorCss(ref PooledStringBuilder styB, ref PooledStringBuilder clsB,
+        CssValue<BackgroundColorBuilder>? v, ReadOnlySpan<char> classPrefix, ReadOnlySpan<char> cssProperty)
     {
-        if (v is { IsEmpty: false })
+        if (v is not { IsEmpty: false }) return;
+
+        if (v.Value.TryGetBootstrapThemeToken(out var token) && token is not null)
         {
-            var isTheme = v.Value.TryGetBootstrapThemeToken(out var token);
-
-            if (isTheme && token is not null)
-            {
-                AppendClass(ref clsB, $"{classPrefix}-{token}");
-            }
-            else
-            {
-                var result = v.Value.ToString();
-                if (!result.HasContent()) return;
-
-                if (v.Value.IsCssStyle)
-                    AppendStyleDecl(ref styB, $"{cssProperty}: {result}");
-                else
-                    AppendClass(ref clsB, $"{classPrefix}-{result}");
-            }
+            AppendClassToken(ref clsB, classPrefix, token);
+            return;
         }
+
+        var result = v.Value.ToString();
+        if (result.Length == 0) return;
+
+        if (v.Value.IsCssStyle)
+            AppendStyleDecl(ref styB, cssProperty, result);
+        else
+            AppendClassToken(ref clsB, classPrefix, result);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void AppendClassToken(ref PooledStringBuilder b, ReadOnlySpan<char> prefix, string token)
+    {
+        if (token.Length == 0) return;
+
+        if (b.Length != 0)
+            b.Append(' ');
+
+        b.Append(prefix);
+        b.Append('-');
+        b.Append(token);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected static void AppendStyleDecl(ref PooledStringBuilder b, ReadOnlySpan<char> name, string value)
+    {
+        if (value.Length == 0) return;
+
+        if (b.Length != 0)
+        {
+            b.Append(';');
+            b.Append(' ');
+        }
+
+        b.Append(name);
+        b.Append(": ");
+        b.Append(value);
     }
 }
-
-/// <summary>
-/// Delegate for building class attributes with a ref PooledStringBuilder
-/// </summary>
-public delegate void BuildClassAction(ref PooledStringBuilder builder);
-
-/// <summary>
-/// Delegate for building style attributes with a ref PooledStringBuilder  
-/// </summary>
-public delegate void BuildStyleAction(ref PooledStringBuilder builder);
-
-/// <summary>
-/// Delegate for building both class and style attributes with ref PooledStringBuilders
-/// </summary>
-public delegate void BuildClassAndStyleAction(ref PooledStringBuilder classBuilder, ref PooledStringBuilder styleBuilder);
