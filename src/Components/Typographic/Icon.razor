@@ -106,19 +106,7 @@
             BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, $"--fa-rotate-angle: {RotateByDegrees.Value}deg"));
     }
 
-    protected override void ComputeRenderKeyCore(ref HashCode hc)
-    {
-        hc.Add(Name);
-        hc.Add(IconStyle);
-        hc.Add(Family);
-        hc.Add(IconSize);
-        AddIf(ref hc, Size);
-        hc.Add(SpinReverse);
-        hc.Add(Rotate);
-        hc.Add(RotateByDegrees);
-        hc.Add(Flip);
-        hc.Add(IconAnimation);
-    }
+    
 
     private static string GetFamilyAndStyleClass(IconFamily? family, IconStyle? weight)
     {
@@ -144,6 +132,17 @@
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string NormalizeIconName(string icon) => icon.StartsWith("fa-", StringComparison.Ordinal) ? icon : $"fa-{icon}";
 
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Name);
+        hc.Add(IconStyle);
+        hc.Add(Family);
+        hc.Add(IconSize);
+        AddIf(ref hc, Size);
+        hc.Add(SpinReverse);
+        hc.Add(Rotate);
+        hc.Add(RotateByDegrees);
+        hc.Add(Flip);
+        hc.Add(IconAnimation);
+    }
 }
-
-

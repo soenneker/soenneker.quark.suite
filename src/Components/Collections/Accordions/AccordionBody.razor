@@ -51,13 +51,7 @@
         }
     }
 
-    protected override void ComputeRenderKeyCore(ref HashCode hc)
-    {
-        hc.Add(Expanded);
-        hc.Add(IsExpanded);
-        hc.Add(ParentAccordionItem?.Name);
-        hc.Add(ParentAccordion?.Id);
-    }
+    
 
     private bool _lastIsExpanded;
     private bool _expandedChanged;
@@ -79,5 +73,13 @@
     {
         _expandedChanged = false;
         await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Expanded);
+        hc.Add(IsExpanded);
+        hc.Add(ParentAccordionItem?.Name);
+        hc.Add(ParentAccordion?.Id);
     }
 }

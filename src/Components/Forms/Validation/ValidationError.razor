@@ -73,15 +73,7 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (
         });
     }
 
-    protected override void ComputeRenderKeyCore(ref HashCode hc)
-    {
-        hc.Add(ShowErrorMessages);
-        hc.Add(_visible);
-        hc.Add(_status);
-        hc.Add(_messages?.Count);
-        hc.Add(ParentValidation?.Status);
-        hc.Add(ParentValidation?.Messages?.Count());
-    }
+    
 
     public override void Dispose()
     {
@@ -93,4 +85,14 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (
             ParentValidations.ClearingAll -= OnClearingAll;
         }
     }
+
+	protected override void ComputeRenderKeyCore(ref HashCode hc)
+	{
+		hc.Add(ShowErrorMessages);
+		hc.Add(_visible);
+		hc.Add(_status);
+		hc.Add(_messages?.Count);
+		hc.Add(ParentValidation?.Status);
+		hc.Add(ParentValidation?.Messages?.Count());
+	}
 }

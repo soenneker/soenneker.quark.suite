@@ -95,19 +95,7 @@
         });
     }
 
-    protected override void ComputeRenderKeyCore(ref HashCode hc)
-    {
-        // Parameters/state that influence attributes/classes
-        AddIf(ref hc, AlertStyle);
-        hc.Add(Dismissible);
-        hc.Add(Visible);
-
-        hc.Add(_hasMessage);
-        hc.Add(_hasDescription);
-
-        // Forces attribute cache refresh when internal state changes without parameters changing
-        hc.Add(_attrsVersion);
-    }
+    
 
     /// <summary>
     /// Shows the alert.
@@ -211,5 +199,17 @@
 
             AppendStyleDecl(ref sty, "color: white");
         }
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        // Parameters/state that influence attributes/classes
+        AddIf(ref hc, AlertStyle);
+        hc.Add(Dismissible);
+        hc.Add(Visible);
+        hc.Add(_hasMessage);
+        hc.Add(_hasDescription);
+        // Forces attribute cache refresh when internal state changes without parameters changing
+        hc.Add(_attrsVersion);
     }
 }

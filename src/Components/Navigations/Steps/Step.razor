@@ -131,4 +131,13 @@
     {
         ParentSteps?.NotifyStepRemoved(Name ?? string.Empty);
     }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Name);
+        hc.Add(Completed);
+        hc.Add(Disabled);
+        hc.Add(OnClick.HasDelegate);
+        hc.Add(_parentStepsState?.SelectedStep);
+    }
 }

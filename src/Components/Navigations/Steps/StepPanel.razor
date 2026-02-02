@@ -86,15 +86,7 @@
         });
     }
 
-    protected override void ComputeRenderKeyCore(ref HashCode hc)
-    {
-        hc.Add(Name);
-        hc.Add(AriaDescribedBy);
-        hc.Add(Active);
-        hc.Add(RenderMode);
-        hc.Add(ParentStepsState?.SelectedStep);
-        hc.Add(ParentStepContentState?.SelectedPanel);
-    }
+    
 
     protected override void OnInitialized()
     {
@@ -115,5 +107,15 @@
     {
         ParentSteps?.NotifyStepPanelRemoved(Name);
         ParentStepContent?.NotifyStepPanelRemoved(Name);
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Name);
+        hc.Add(AriaDescribedBy);
+        hc.Add(Active);
+        hc.Add(RenderMode);
+        hc.Add(ParentStepsState?.SelectedStep);
+        hc.Add(ParentStepContentState?.SelectedPanel);
     }
 }

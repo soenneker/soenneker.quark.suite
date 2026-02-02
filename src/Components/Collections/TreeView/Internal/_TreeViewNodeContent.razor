@@ -104,6 +104,22 @@
 
         return ParentTreeView.ToggleCheckNode(NodeState.Node);
     }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(NodeState);
+        hc.Add(SelectionMode);
+        hc.Add(SelectedNodeStyling);
+        hc.Add(DisabledNodeStyling);
+        hc.Add(NodeStyling);
+        hc.Add(ParentTreeViewState.SelectedNode);
+        if (ParentTreeViewState.SelectedNodes is not null)
+        {
+            hc.Add(ParentTreeViewState.SelectedNodes.Count);
+            foreach (var node in ParentTreeViewState.SelectedNodes)
+            {
+                hc.Add(node);
+            }
+        }
+    }
 }
-
-

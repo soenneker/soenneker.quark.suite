@@ -166,5 +166,52 @@
 
         await InvokeAsync(StateHasChanged);
     }
-}
 
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(NodeContent);
+        hc.Add(SelectedNode);
+        hc.Add(SelectionMode);
+        hc.Add(AutoExpandAll);
+        hc.Add(Virtualize);
+        hc.Add(ToggleOnNodeClick);
+        hc.Add(ExpandIconName);
+        hc.Add(ExpandIconStyle);
+        hc.Add(ExpandIconSize);
+        hc.Add(CollapseIconName);
+        hc.Add(CollapseIconStyle);
+        hc.Add(CollapseIconSize);
+        hc.Add(NodeContextMenuPreventDefault);
+        hc.Add(GetChildNodes);
+        hc.Add(GetChildNodesAsync);
+        hc.Add(HasChildNodes);
+        hc.Add(HasChildNodesAsync);
+        hc.Add(IsDisabled);
+        hc.Add(NodeStyling);
+        hc.Add(SelectedNodeStyling);
+        hc.Add(DisabledNodeStyling);
+        hc.Add(NodeContextMenu);
+        if (Nodes is not null)
+        {
+            if (Nodes is ICollection<TNode> nodesCollection)
+                hc.Add(nodesCollection.Count);
+
+            foreach (var node in Nodes)
+                hc.Add(node);
+        }
+
+        if (SelectedNodes is not null)
+        {
+            hc.Add(SelectedNodes.Count);
+            foreach (var node in SelectedNodes)
+                hc.Add(node);
+        }
+
+        if (ExpandedNodes is not null)
+        {
+            hc.Add(ExpandedNodes.Count);
+            foreach (var node in ExpandedNodes)
+                hc.Add(node);
+        }
+    }
+}
