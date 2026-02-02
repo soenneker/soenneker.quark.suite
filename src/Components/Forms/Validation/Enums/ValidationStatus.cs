@@ -11,7 +11,7 @@ public sealed partial class ValidationStatus
     /// <summary>
     /// No validation has been performed yet.
     /// </summary>
-    public static readonly ValidationStatus None = new(null);
+    public static readonly ValidationStatus None = new("none");
 
     /// <summary>
     /// Validation passed successfully.
