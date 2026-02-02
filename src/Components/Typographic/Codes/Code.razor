@@ -29,9 +29,9 @@
     [Parameter]
     public string? Theme { get; set; } = "default";
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         if (Language.HasContent())
             attributes["data-language"] = Language;
@@ -51,7 +51,13 @@
                 }
             });
         }
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Language);
+        hc.Add(Inline);
+        hc.Add(Highlight);
+        hc.Add(Theme);
     }
 }

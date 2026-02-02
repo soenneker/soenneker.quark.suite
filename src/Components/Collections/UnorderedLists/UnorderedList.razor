@@ -19,10 +19,10 @@
     [Parameter]
     public CssValue<ListStyleTypeBuilder>? ListStyleType { get; set; }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attrs)
     {
-        var attrs = base.BuildAttributes();
-        
+        base.BuildAttributesCore(attrs);
+
         BuildClassAttribute(attrs, (ref cls) =>
         {
             AppendClass(ref cls, "q-unordered-list");
@@ -45,7 +45,11 @@
                 AppendStyleDeclAttr(attrs, styleStr);
             }
         }
-        
-        return attrs;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        AddIf(ref hc, ListVariant);
+        AddIf(ref hc, ListStyleType);
     }
 }

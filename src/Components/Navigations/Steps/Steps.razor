@@ -234,9 +234,9 @@
             _stepPanels.Remove(name);
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -248,8 +248,14 @@
             else if (RenderMode == StepsRenderMode.LazyReload)
                 AppendClass(ref cls, "steps-lazy-reload");
         });
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(AriaDescribedBy);
+        hc.Add(SelectedStep);
+        hc.Add(RenderMode);
+        hc.Add(Items is not null);
     }
 
     private void HandleLocationChanged(object? sender, LocationChangedEventArgs args)

@@ -47,10 +47,8 @@
     private readonly NodeStyling _disabledNodeStyling = new() { Background = Quark.BackgroundColor.Light, TextColor = Quark.BackgroundColor.Muted };
     private readonly NodeStyling _nodeStyling = new() { Background = Quark.BackgroundColor.Initial, TextColor = Quark.BackgroundColor.Initial };
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
-        
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-tree-view-node-content");
@@ -61,8 +59,6 @@
             else if (NodeState?.Disabled ?? false)
                 AppendClass(ref cls, "q-tree-view-node-disabled");
         });
-
-        return attributes;
     }
 
     protected override Task OnParametersSetAsync()

@@ -12,10 +12,8 @@
     [Parameter]
     public string LayoutClass { get; set; } = string.Empty;
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
-        
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-table-top-bar");
@@ -23,8 +21,6 @@
             if (LayoutClass.HasContent())
                 AppendClass(ref cls, LayoutClass);
         });
-        
-        return attributes;
     }
 
     private Dictionary<string, object> BuildWrapperAttributes()
@@ -32,5 +28,9 @@
         var attributes = new Dictionary<string, object>();
         BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "q-table-top-bar-wrapper"));
         return attributes;
+    }
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(LayoutClass);
     }
 }

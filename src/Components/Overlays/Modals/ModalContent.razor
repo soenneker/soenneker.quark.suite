@@ -13,10 +13,8 @@
     [Parameter]
     public bool Centered { get; set; }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
-
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-modal-content");
@@ -27,7 +25,10 @@
                 AppendClass(ref cls, "text-center");
             }
         });
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Centered);
     }
 }

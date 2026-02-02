@@ -72,14 +72,23 @@
         base.Dispose();
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-accordion-item");
             AppendClass(ref cls, "accordion-item");
         });
-        return attributes;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Name);
+        hc.Add(Expanded);
+        hc.Add(Disabled);
+        hc.Add(IsExpanded);
+        hc.Add(ParentAccordion?.Id);
     }
 }

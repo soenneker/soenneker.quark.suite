@@ -342,7 +342,7 @@ public abstract class Component : CoreComponent, IComponent
     private int _lastRenderKey;
     private Dictionary<string, object>? _cachedAttrs;
     private int _cachedAttrsKey;
-
+    
     protected override bool ShouldRender()
     {
         if (QuarkOptions.AlwaysRender)
@@ -384,14 +384,11 @@ public abstract class Component : CoreComponent, IComponent
 
 
     // -------- Attributes building (cached by render key) --------
-    protected virtual Dictionary<string, object> BuildAttributes()
+    protected virtual IReadOnlyDictionary<string, object> BuildAttributes()
     {
         // Use cached attributes if render key hasn't changed
-        if (!QuarkOptions.AlwaysRender && _cachedAttrs != null && _cachedAttrsKey == _lastRenderKey)
-        {
-            // Return a copy to prevent derived classes from mutating the cache
-            return new Dictionary<string, object>(_cachedAttrs);
-        }
+        if (!QuarkOptions.AlwaysRender && _cachedAttrs is not null && _cachedAttrsKey == _lastRenderKey)
+            return _cachedAttrs;
 
         var guess = 14 + (Attributes?.Count ?? 0);
         var attrs = new Dictionary<string, object>(guess);
@@ -485,6 +482,8 @@ public abstract class Component : CoreComponent, IComponent
             if (cls.Length > 0) attrs["class"] = cls.ToString();
             if (sty.Length > 0) attrs["style"] = sty.ToString();
 
+            BuildAttributesCore(attrs);
+
             // Cache the computed attributes keyed by the render key
             _cachedAttrs = attrs;
             _cachedAttrsKey = _lastRenderKey;
@@ -498,9 +497,15 @@ public abstract class Component : CoreComponent, IComponent
         }
     }
 
+    /// <summary>
+    /// Override to add component-specific attributes/classes/styles.
+    /// Called before caching. Do not store <paramref name="attrs"/>.
+    /// </summary>
+    protected virtual void BuildAttributesCore(Dictionary<string, object> attrs) { }
+
     // ---------- Render key computation ----------
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void AddIf<T>(ref HashCode hc, CssValue<T>? v) where T : class, ICssBuilder
+    protected static void AddIf<T>(ref HashCode hc, CssValue<T>? v) where T : class, ICssBuilder
     {
         if (v is { IsEmpty: false })
             hc.Add(v.Value); // struct add; no boxing
@@ -567,7 +572,15 @@ public abstract class Component : CoreComponent, IComponent
             if (Attributes.TryGetValue("id", out var id)) hc.Add(id?.ToString());
         }
 
+        // derived components add their stuff here
+        ComputeRenderKeyCore(ref hc);
+
         return hc.ToHashCode();
+    }
+
+    protected virtual void ComputeRenderKeyCore(ref HashCode hc)
+    {
+
     }
 
     // ---------- Helpers ----------

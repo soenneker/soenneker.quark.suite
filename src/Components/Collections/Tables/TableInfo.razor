@@ -16,14 +16,12 @@
 }
 
 @code {
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-table-info");
         });
-        return attributes;
     }
 
     [CascadingParameter]
@@ -48,4 +46,15 @@
 
     private int StartRecord => (ComputedCurrentPage - 1) * ComputedPageSize + 1;
     private int EndRecord => Math.Min(ComputedCurrentPage * ComputedPageSize, ComputedTotalRecords);
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(ShowInfo);
+        hc.Add(CurrentPage);
+        hc.Add(TotalRecords);
+        hc.Add(PageSize);
+        hc.Add(ComputedCurrentPage);
+        hc.Add(ComputedTotalRecords);
+        hc.Add(ComputedPageSize);
+    }
 } 

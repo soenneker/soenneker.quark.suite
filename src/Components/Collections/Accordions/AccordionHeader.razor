@@ -116,14 +116,25 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-accordion-header");
             AppendClass(ref cls, "accordion-header");
         });
-        return attributes;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(IconName);
+        hc.Add(Expanded);
+        hc.Add(Disabled);
+        hc.Add(FullWidth);
+        hc.Add(IsExpanded);
+        hc.Add(IsDisabled);
+        hc.Add(ParentAccordionItem?.Name);
     }
 }

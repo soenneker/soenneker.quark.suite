@@ -32,9 +32,9 @@
         return base.ShouldRender();
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -79,7 +79,12 @@
         {
             attributes["href"] = To;
         }
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(To);
+        hc.Add(Mode);
+        hc.Add(VerticalBarCollapsed);
     }
 }

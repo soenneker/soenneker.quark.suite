@@ -111,9 +111,9 @@
         return null;
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         if (!Class.HasContent())
         {
@@ -188,7 +188,20 @@
 
         if (OnAbort.HasDelegate)
             attributes["onabort"] = EventCallback.Factory.Create(this, OnAbort);
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Fluid);
+        hc.Add(Loading);
+        hc.Add(Decoding);
+        hc.Add(FetchPriority);
+        hc.Add(Sizes);
+        hc.Add(SrcSet);
+        hc.Add(CrossOrigin);
+        hc.Add(ReferrerPolicy);
+        hc.Add(UseMap);
+        hc.Add(IsMap);
+        hc.Add(LongDesc);
     }
 }

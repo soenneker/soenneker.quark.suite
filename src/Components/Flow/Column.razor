@@ -2,7 +2,7 @@
 @inherits Soenneker.Quark.Element
 @implements IColumn
 
-<div @attributes="BuildFlowAttributes()">
+<div @attributes="BuildAttributes()">
     @ChildContent
 </div>
 
@@ -19,9 +19,9 @@
     [Parameter]
     public CssValue<ColumnAutoBuilder>? ColumnAuto { get; set; }
 
-    protected virtual Dictionary<string, object> BuildFlowAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -33,8 +33,6 @@
             AddColumnCss(ref cls, ColumnOrder);
             AddColumnCss(ref cls, ColumnAuto);
         });
-
-        return attributes;
     }
 
     private static void AddColumnCss<T>(ref PooledStringBuilder cls, CssValue<T>? cssValue) where T : class, ICssBuilder
@@ -47,5 +45,13 @@
                 AppendClass(ref cls, css);
             }
         }
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        AddIf(ref hc, ColumnSize);
+        AddIf(ref hc, ColumnOffset);
+        AddIf(ref hc, ColumnOrder);
+        AddIf(ref hc, ColumnAuto);
     }
 }

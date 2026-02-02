@@ -26,10 +26,8 @@
 
     private bool _sidebarVisible = true;
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
-        
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-layout-sider");
@@ -43,8 +41,6 @@
         // Prevent aside from shrinking so content area can expand naturally
         // Use flex: 0 0 auto to maintain natural width without growing or shrinking
         BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, "flex: 0 0 auto"));
-
-        return attributes;
     }
 
     protected override async Task OnInitializedAsync()

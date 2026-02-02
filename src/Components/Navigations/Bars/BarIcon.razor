@@ -76,9 +76,10 @@
     [Parameter]
     public IconAnimation? IconAnimation { get; set; }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
+
         BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "q-bar-icon"));
         BuildStyleAttribute(attributes, (ref sty) =>
         {
@@ -86,7 +87,20 @@
             AppendStyleDecl(ref sty, "align-items: center");
             AppendStyleDecl(ref sty, "margin-right: 0.5rem");
         });
-        return attributes;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Name);
+        hc.Add(IconStyle);
+        hc.Add(Family);
+        hc.Add(IconSize);
+        AddIf(ref hc, Size);
+        hc.Add(SpinReverse);
+        hc.Add(Rotate);
+        hc.Add(RotateByDegrees);
+        hc.Add(Flip);
+        hc.Add(IconAnimation);
     }
 
 }

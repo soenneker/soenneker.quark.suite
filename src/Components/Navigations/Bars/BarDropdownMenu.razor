@@ -48,9 +48,9 @@
         return base.ShouldRender();
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         var shouldShow = Show && !VerticalBarCollapsed && !ForceCollapseAll;
 
@@ -62,7 +62,16 @@
             if (shouldShow)
                 AppendClass(ref cls, "show");
         });
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Show);
+        hc.Add(RightAligned);
+        hc.Add(Mode);
+        hc.Add(VerticalBarCollapsed);
+        hc.Add(CollapseParent);
+        hc.Add(ForceCollapseAll);
+        hc.Add(ParentDropdown?.CollapseId);
     }
 }

@@ -39,9 +39,9 @@
     [Parameter]
     public string? AriaLabel { get; set; }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -53,8 +53,6 @@
         {
             attributes["AriaLabel"] = "breadcrumb";
         }
-
-        return attributes;
     }
 
     private Dictionary<string, object> BuildListAttributes()
@@ -72,5 +70,14 @@
         });
 
         return attributes;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Large);
+        hc.Add(Small);
+        hc.Add(Divider);
+        hc.Add(DividerText);
+        hc.Add(AriaLabel);
     }
 }

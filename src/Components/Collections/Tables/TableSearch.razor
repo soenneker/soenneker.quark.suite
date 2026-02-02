@@ -12,14 +12,12 @@
 </div>
 
 @code {
-	protected override Dictionary<string, object> BuildAttributes()
+	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
 	{
-		var attributes = base.BuildAttributes();
 		BuildClassAttribute(attributes, (ref cls) =>
 		{
 			AppendClass(ref cls, "q-table-search");
 		});
-		return attributes;
 	}
 
 	[CascadingParameter]
@@ -76,6 +74,13 @@
 		await base.DisposeAsync();
 
 		await _debouncer.DisposeAsync();
+	}
+
+	protected override void ComputeRenderKeyCore(ref HashCode hc)
+	{
+		hc.Add(SearchTerm);
+		hc.Add(Placeholder);
+		hc.Add(DebounceMs);
 	}
 
 }

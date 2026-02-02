@@ -176,14 +176,12 @@
 		}
 	}
 
-	protected override Dictionary<string, object> BuildAttributes()
+	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
 	{
-		var attributes = base.BuildAttributes();
 		BuildClassAttribute(attributes, (ref cls) =>
 		{
 			AppendClass(ref cls, "q-table-pagination");
 		});
-		return attributes;
 	}
 
 	private Dictionary<string, object> BuildControlsAttributes()
@@ -191,6 +189,20 @@
 		var attributes = new Dictionary<string, object>();
 		BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "q-table-pagination-controls"));
 		return attributes;
+	}
+
+	protected override void ComputeRenderKeyCore(ref HashCode hc)
+	{
+		hc.Add(ShowPagination);
+		hc.Add(CurrentPage);
+		hc.Add(TotalPages);
+		hc.Add(TotalRecords);
+		hc.Add(PageSize);
+		hc.Add(MaxPageButtons);
+		hc.Add(ComputedCurrentPage);
+		hc.Add(ComputedTotalPages);
+		hc.Add(ComputedTotalRecords);
+		hc.Add(ComputedPageSize);
 	}
 
 }

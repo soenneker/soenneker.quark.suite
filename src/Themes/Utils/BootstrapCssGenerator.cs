@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Soenneker.Extensions.String;
 using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;

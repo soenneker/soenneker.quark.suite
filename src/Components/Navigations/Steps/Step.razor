@@ -74,15 +74,13 @@
 
     private int CalculatedIndex => Index ?? ParentSteps?.IndexOfStep(Name ?? string.Empty) ?? 1;
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-step");
             AppendClass(ref cls, "step-item");
         });
-        return attributes;
     }
 
     private Dictionary<string, object> BuildAnchorAttributes()
@@ -104,7 +102,7 @@
         attributes["role"] = "tab";
         attributes["aria-selected"] = Active ? "true" : "false";
         attributes["aria-current"] = Active ? "step" : null;
-
+        
         return attributes;
     }
 

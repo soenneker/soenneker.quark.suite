@@ -7,10 +7,14 @@
 @if (Visible)
 {
     <CascadingValue Value="@this" IsFixed>
-        <div @attributes="BuildAlertAttributes()" role="alert" >
+        <div @attributes="BuildAttributes()" role="alert">
             @if (Dismissible)
             {
-                <Button Type="@ButtonType.Button" Class="btn-close" OnClick="HandleDismiss" aria-label="Close" ></Button>
+                <Button Type="@ButtonType.Button"
+                        Class="btn-close"
+                        OnClick="HandleDismiss"
+                        aria-label="Close">
+                </Button>
             }
             @ChildContent
         </div>
@@ -21,6 +25,9 @@
     // Internal state tracking for child components
     private bool _hasMessage;
     private bool _hasDescription;
+
+    // Invalidate attribute cache when internal state changes without OnParametersSet
+    private int _attrsVersion;
 
     /// <summary>
     /// Gets or sets the alert style configuration.
@@ -51,114 +58,158 @@
     /// </summary>
     [Parameter]
     public EventCallback OnDismiss { get; set; }
-    
-    protected override bool ShouldRender()
-    {
-        // Alert has internal state that can change
-        return true;
-    }
-    
-    protected virtual Dictionary<string, object> BuildAlertAttributes()
-    {
-        var attributes = BuildAttributes();
 
-        BuildClassAttribute(attributes, (ref cls) =>
+    // Alert has internal state; we want renders when we call StateHasChanged.
+    protected override bool ShouldRender() => true;
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        // Build alert classes (and any alert-specific style) during attribute construction.
+        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
             AppendClass(ref cls, "q-alert");
             AppendClass(ref cls, "alert");
-            
+
             if (Dismissible)
             {
                 AppendClass(ref cls, "alert-dismissible");
                 AppendClass(ref cls, "fade");
             }
+
             if (Dismissible && Visible)
                 AppendClass(ref cls, "show");
+
             if (_hasMessage)
                 AppendClass(ref cls, "alert-has-message");
+
             if (_hasDescription)
                 AppendClass(ref cls, "alert-has-description");
-            if (AlertStyle is not null && !AlertStyle.Value.IsEmpty)
-                AppendClass(ref cls, AlertStyle.Value.ToString());
-        });
 
-        return attributes;
+            if (AlertStyle is { IsEmpty: false })
+                AppendClass(ref cls, AlertStyle.Value.ToString());
+
+            // If you want alert-specific background behavior, do it here
+            ApplyAlertBackgroundColor(ref sty, ref cls);
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        // Parameters/state that influence attributes/classes
+        AddIf(ref hc, AlertStyle);
+        hc.Add(Dismissible);
+        hc.Add(Visible);
+
+        hc.Add(_hasMessage);
+        hc.Add(_hasDescription);
+
+        // Forces attribute cache refresh when internal state changes without parameters changing
+        hc.Add(_attrsVersion);
     }
 
     /// <summary>
     /// Shows the alert.
     /// </summary>
-    /// <returns>A task representing the show operation.</returns>
     public Task Show()
     {
         if (Visible)
             return Task.CompletedTask;
 
         Visible = true;
+        _attrsVersion++;
         return InvokeAsync(StateHasChanged);
     }
 
     /// <summary>
     /// Hides the alert.
     /// </summary>
-    /// <returns>A task representing the hide operation.</returns>
     public Task Hide()
     {
         if (!Visible)
             return Task.CompletedTask;
 
         Visible = false;
+        _attrsVersion++;
         return InvokeAsync(StateHasChanged);
     }
 
     /// <summary>
     /// Toggles the visibility of the alert.
     /// </summary>
-    /// <returns>A task representing the toggle operation.</returns>
     public Task Toggle()
     {
         Visible = !Visible;
+        _attrsVersion++;
         return InvokeAsync(StateHasChanged);
     }
-    
+
     internal void NotifyHasMessage()
     {
+        if (_hasMessage)
+            return;
+
         _hasMessage = true;
-        InvokeAsync(StateHasChanged);
+        _attrsVersion++;
+        _ = InvokeAsync(StateHasChanged);
     }
 
     internal void NotifyHasDescription()
     {
+        if (_hasDescription)
+            return;
+
         _hasDescription = true;
-        InvokeAsync(StateHasChanged);
+        _attrsVersion++;
+        _ = InvokeAsync(StateHasChanged);
     }
 
     private async Task HandleDismiss()
     {
+        if (!Visible)
+            return;
+
         Visible = false;
+        _attrsVersion++;
 
         await OnDismiss.InvokeIfHasDelegate();
         await VisibleChanged.InvokeAsync(Visible);
+
+        await InvokeAsync(StateHasChanged);
     }
 
     protected virtual void ApplyAlertBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
-        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
-        {
-            var v = BackgroundColor.Value.ToString().Trim();
+        if (BackgroundColor is null || BackgroundColor.Value.IsEmpty)
+            return;
 
-            if (BackgroundColor.Value.IsCssClass)
+        // NOTE: Trim() allocates; avoid unless you truly need it.
+        var v = BackgroundColor.Value.ToString();
+        if (v.Length == 0)
+            return;
+
+        if (BackgroundColor.Value.IsCssClass)
+        {
+            // If already alert-*, keep it; else prefix alert-
+            if (v.StartsWith("alert-", StringComparison.Ordinal))
             {
-                if (v.StartsWith("alert-", StringComparison.Ordinal))
-                    AppendClass(ref cls, v);
-                else
-                    AppendClass(ref cls, $"alert-{v}");
             }
             else
             {
-                AppendStyleDecl(ref sty, $"border-color:{v}");
-                AppendStyleDecl(ref sty, "color:white");
+                // Avoid interpolation allocation
+                AppendClass(ref cls, "alert-");
             }
+
+            AppendClass(ref cls, v);
+        }
+        else
+        {
+            // Prefer a non-interpolated style append
+            AppendStyleDecl(ref sty, "border-color: ");
+            sty.Append(v);
+
+            AppendStyleDecl(ref sty, "color: white");
         }
     }
 }

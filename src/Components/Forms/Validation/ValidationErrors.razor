@@ -50,16 +50,22 @@
         InvokeAsync(StateHasChanged);
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-validation-errors");
             AppendClass(ref cls, "alert");
             AppendClass(ref cls, "alert-danger");
         });
-        return attributes;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(ShowErrorMessages);
+        hc.Add(_visible);
+        hc.Add(_status);
+        hc.Add(_messages?.Count);
     }
 
     public override void Dispose()

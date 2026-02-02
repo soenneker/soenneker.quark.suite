@@ -97,16 +97,22 @@
         return Task.CompletedTask;
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-steps-content");
             AppendClass(ref cls, "tab-content");
             AppendClass(ref cls, "mt-3");
         });
-        return attributes;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(AriaDescribedBy);
+        hc.Add(SelectedPanel);
     }
 }
 

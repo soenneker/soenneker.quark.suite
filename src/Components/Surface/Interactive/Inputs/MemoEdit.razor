@@ -172,9 +172,9 @@
 		return Size?.ToString() != null ? $"form-control-{Size}" : null;
 	}
 
-	protected override Dictionary<string, object> BuildAttributes()
+	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
 	{
-		var attributes = base.BuildAttributes();
+		base.BuildAttributesCore(attributes);
 
 		BuildClassAttribute(attributes, (ref cls) =>
 		{
@@ -220,8 +220,6 @@
 
 		if (AutoResize)
 			BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, "resize: vertical; min-height: 60px;"));
-
-		return attributes;
 	}
 
     private async Task HandleInput(ChangeEventArgs e)
@@ -269,6 +267,21 @@
 
 		if (ParentValidation is not null)
 			ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+	}
+
+	protected override void ComputeRenderKeyCore(ref HashCode hc)
+	{
+		hc.Add(Value);
+		hc.Add(Rows);
+		hc.Add(MaxLength);
+		hc.Add(MinLength);
+		hc.Add(Pattern);
+		hc.Add(AutoResize);
+		AddIf(ref hc, Size);
+		hc.Add(Placeholder);
+		hc.Add(Disabled);
+		hc.Add(ReadOnly);
+		hc.Add(Required);
 	}
 
 }

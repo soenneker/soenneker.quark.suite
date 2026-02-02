@@ -97,9 +97,9 @@
     [Parameter]
     public EventCallback<EventArgs> OnVolumeChange { get; set; }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "q-audio"));
 
@@ -149,8 +149,25 @@
 
         if (OnVolumeChange.HasDelegate)
             attributes["onvolumechange"] = EventCallback.Factory.Create(this, OnVolumeChange);
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Source);
+        hc.Add(Autoplay);
+        hc.Add(Loop);
+        hc.Add(Muted);
+        hc.Add(Controls);
+        hc.Add(Preload);
+        hc.Add(CrossOrigin);
+        hc.Add(OnLoadedMetadata);
+        hc.Add(OnCanPlay);
+        hc.Add(OnPlay);
+        hc.Add(OnPause);
+        hc.Add(OnEnded);
+        hc.Add(OnError);
+        hc.Add(OnTimeUpdate);
+        hc.Add(OnVolumeChange);
     }
 }
 

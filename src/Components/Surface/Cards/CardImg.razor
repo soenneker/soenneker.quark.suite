@@ -29,10 +29,8 @@
     [Parameter]
     public string? Alt { get; set; }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
-
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-card-img");
@@ -45,8 +43,14 @@
 
         if (Alt.HasContent())
             attributes["alt"] = Alt;
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Top);
+        hc.Add(Bottom);
+        hc.Add(Source);
+        hc.Add(Alt);
     }
 
 }

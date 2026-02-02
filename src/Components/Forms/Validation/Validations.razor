@@ -226,17 +226,26 @@
         }
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
-
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-validations");
         });
-
-        return attributes;
     }
 
     public event Action? ClearingAll;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Mode);
+        hc.Add(ValidateOnLoad);
+        hc.Add(GateErrorsUntilValidate);
+        hc.Add(EditContext);
+        hc.Add(Model);
+        hc.Add(ModelChanged);
+        hc.Add(MissingFieldsErrorMessage);
+        hc.Add(HandlerType);
+        hc.Add(ValidatedAll);
+        hc.Add(StatusChanged);
+    }
 }

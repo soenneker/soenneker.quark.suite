@@ -56,9 +56,9 @@
     [Parameter]
     public string? DropdownMenuTargetId { get; set; }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -72,8 +72,17 @@
             if (Disabled)
                 AppendClass(ref cls, "disabled");
         });
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Visible);
+        hc.Add(RightAligned);
+        hc.Add(Disabled);
+        hc.Add(Direction);
+        hc.Add(IsSubmenu);
+        hc.Add(IsGroup);
+        hc.Add(DropdownMenuTargetId);
     }
 }
 

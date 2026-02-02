@@ -58,10 +58,10 @@
     [Parameter]
     public EventCallback<List<string>> SelectedItemsChanged { get; set; }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
-        
+        base.BuildAttributesCore(attributes);
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-list-group");
@@ -72,8 +72,24 @@
             if (Scrollable)
                 AppendClass(ref cls, "list-group-scrollable");
         });
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Flush);
+        hc.Add(Scrollable);
+        hc.Add(Mode);
+        hc.Add(SelectionMode);
+        hc.Add(SelectedItem);
+
+        if (SelectedItems is not null)
+        {
+            hc.Add(SelectedItems.Count);
+            foreach (var item in SelectedItems)
+            {
+                hc.Add(item);
+            }
+        }
     }
 
     /// <summary>

@@ -26,9 +26,9 @@
     /// </summary>
     private bool IsExpanded => ParentAccordionItem?.IsExpanded ?? Expanded;
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -49,8 +49,14 @@
         {
             attributes["data-bs-parent"] = $"#{ParentAccordion.Id}";
         }
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Expanded);
+        hc.Add(IsExpanded);
+        hc.Add(ParentAccordionItem?.Name);
+        hc.Add(ParentAccordion?.Id);
     }
 
     private bool _lastIsExpanded;

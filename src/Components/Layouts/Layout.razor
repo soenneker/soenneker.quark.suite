@@ -53,10 +53,8 @@
 
     private bool _initialized;
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
-
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-layout");
@@ -69,8 +67,6 @@
 
         // a11y: reflect busy state when loading overlay shown
         SetOrRemove(attributes, "aria-busy", Loading, "true");
-
-        return attributes;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -104,7 +100,7 @@
         {
             BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, LoadingClass!));
         }
-        
+
         return attributes;
     }
 

@@ -85,9 +85,9 @@
         return Loading;
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "q-iframe"));
 
@@ -126,8 +126,20 @@
 
         if (OnError.HasDelegate)
             attributes["onerror"] = EventCallback.Factory.Create(this, OnError);
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Source);
+        hc.Add(Name);
+        hc.Add(Sandbox);
+        hc.Add(Allow);
+        hc.Add(Loading);
+        hc.Add(Lazy);
+        hc.Add(ReferrerPolicy);
+        hc.Add(AllowFullscreen);
+        hc.Add(AllowPaymentRequest);
+        hc.Add(SrcDoc);
     }
 }
 

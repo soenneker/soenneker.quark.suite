@@ -59,9 +59,9 @@
         return base.ShouldRender();
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -90,7 +90,16 @@
 
         if (Disabled == true)
             attributes["aria-disabled"] = "true";
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Disabled);
+        hc.Add(Indentation);
+        hc.Add(Expanded);
+        hc.Add(Mode);
+        hc.Add(SidebarCollapsed);
+        hc.Add(ForceCollapseAll);
+        hc.Add(ParentDropdown?.CollapseId);
     }
 }

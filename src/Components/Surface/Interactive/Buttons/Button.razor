@@ -148,9 +148,9 @@ else
     /// Builds the attributes dictionary for the button component.
     /// </summary>
     /// <returns>A dictionary of HTML attributes.</returns>
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         // Determine element kind
         var isLink = Type == ButtonType.Link || To.HasContent();
@@ -233,7 +233,6 @@ else
         }
 
         // If this is acting as a link, we already render <Anchor>; nothing special beyond attrs.
-        return attributes;
     }
 
     /// <summary>
@@ -288,6 +287,26 @@ else
                 AppendStyleDecl(ref sty, $"border-color:{v}");
             }
         }
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        AddIf(ref hc, Size);
+        hc.Add(Disabled);
+        hc.Add(Outline);
+        hc.Add(Block);
+        hc.Add(Loading);
+        hc.Add(Type);
+        hc.Add(LoadingTemplate);
+        hc.Add(Value);
+        hc.Add(Form);
+        hc.Add(AutoFocus);
+        hc.Add(To);
+        hc.Add(Name);
+        hc.Add(CollapseTarget);
+        hc.Add(CollapseTargetRef?.CollapseId);
+        hc.Add(Close);
+        hc.Add(Unstyled);
     }
 
 }

@@ -267,9 +267,9 @@
     /// Builds the attributes dictionary for the input component.
     /// </summary>
     /// <returns>A dictionary of HTML attributes.</returns>
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -298,8 +298,6 @@
         if (Disabled) attributes["disabled"] = true;
         if (ReadOnly) attributes["readonly"] = true;
         if (Required) attributes["required"] = true;
-
-        return attributes;
     }
 
     public override void Dispose()
@@ -307,6 +305,20 @@
         base.Dispose();
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Value);
+        hc.Add(Type);
+        hc.Add(Placeholder);
+        hc.Add(Disabled);
+        hc.Add(ReadOnly);
+        hc.Add(Required);
+        AddIf(ref hc, Size);
+        hc.Add(PlainText);
+        hc.Add(FloatingLabel);
+        hc.Add(Label);
     }
 
 }

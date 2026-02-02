@@ -8,11 +8,9 @@
 </Button>
 
 @code {
-	protected override Dictionary<string, object> BuildAttributes()
+	protected override void BuildAttributesCore(Dictionary<string, object> attrs)
 	{
 		// Start from base (already merged class/style there)
-		var attrs = base.BuildAttributes();
-
 		// Merge class: ensure the Bootstrap close button token is present exactly once
 		attrs.TryGetValue("class", out var classObj);
 		var cls = classObj?.ToString() ?? string.Empty;
@@ -27,6 +25,5 @@
 		attrs.TryAdd("aria-label", "Close");
 
 		// Leave any "@onclick:stopPropagation" etc. intact so they flow through to the inner element
-		return attrs;
 	}
 }

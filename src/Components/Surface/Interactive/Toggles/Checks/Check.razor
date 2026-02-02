@@ -160,7 +160,7 @@
 
     public virtual Dictionary<string, object> BuildInputAttributes()
     {
-        var attributes = base.BuildAttributes();
+        var attributes = new Dictionary<string, object>(base.BuildAttributes());
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -232,6 +232,20 @@
         base.Dispose();
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Checked);
+        hc.Add(Disabled);
+        hc.Add(Name);
+        hc.Add(Value);
+        AddIf(ref hc, Size);
+        hc.Add(Indeterminate);
+        hc.Add(Switch);
+        hc.Add(Inline);
+        hc.Add(Reverse);
+        hc.Add(Label);
     }
 
 }

@@ -64,9 +64,9 @@
         return base.ShouldRender();
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -122,8 +122,16 @@
                 }
             });
         }
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Target);
+        hc.Add(Mode);
+        hc.Add(BarMode);
+        hc.Add(MenuId);
+        hc.Add(SidebarCollapsed);
+        hc.Add(Disabled);
     }
 
     private async Task HandleToggle(MouseEventArgs args)

@@ -17,8 +17,10 @@ public abstract class Element : Component, IElement
 
     protected override void OnParametersSet()
     {
-        // Detect route/body swaps or any parent-provided fragment changes
-        _childContentChanged = !ReferenceEquals(ChildContent, _lastChildContentRef);
+        var cc = ChildContent;
+        _childContentChanged = !ReferenceEquals(cc, _lastChildContentRef);
+        _lastChildContentRef = cc;
+
         base.OnParametersSet();
     }
 
@@ -27,8 +29,14 @@ public abstract class Element : Component, IElement
         if (QuarkOptions.AlwaysRender)
             return true;
 
-        // Force a render when the fragment reference changes, otherwise defer to base render gate
-        return _childContentChanged || base.ShouldRender();
+        if (_childContentChanged)
+        {
+            // Consume the change so subsequent render-gate checks don’t keep firing
+            _childContentChanged = false;
+            return true;
+        }
+
+        return base.ShouldRender();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

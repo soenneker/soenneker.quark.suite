@@ -11,10 +11,9 @@
     [CascadingParameter]
     public BarMode Mode { get; set; } = BarMode.Horizontal;
 
-
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -31,7 +30,10 @@
                 AppendClass(ref cls, "navbar-nav");
             }
         });
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Mode);
     }
 }

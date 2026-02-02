@@ -204,9 +204,9 @@
         return null;
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -234,8 +234,6 @@
 
         if (Placeholder.HasContent())
             attributes["placeholder"] = Placeholder;
-
-        return attributes;
     }
 
     public override void Dispose()
@@ -244,5 +242,17 @@
 
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(SelectedValue);
+        hc.Add(Disabled);
+        hc.Add(Required);
+        AddIf(ref hc, Size);
+        hc.Add(Multiple);
+        hc.Add(Placeholder);
+        hc.Add(DefaultItemText);
+        hc.Add(DefaultItemValue);
     }
 }

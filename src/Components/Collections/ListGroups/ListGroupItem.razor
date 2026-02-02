@@ -29,9 +29,9 @@
     [CascadingParameter]
     protected ListGroup? ParentListGroup { get; set; }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         string? bgClass = null;
 
@@ -65,8 +65,14 @@
 
         if (Disabled)
             attributes["aria-disabled"] = "true";
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(ItemName);
+        hc.Add(Disabled);
+        hc.Add(Active);
+        hc.Add(ParentListGroup?.Mode);
     }
 
     protected override async Task HandleClick(MouseEventArgs e)

@@ -156,9 +156,9 @@
         }
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -171,7 +171,13 @@
             if (Justified)
                 AppendClass(ref cls, "nav-justified");
         });
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Pills);
+        hc.Add(Vertical);
+        hc.Add(Justified);
+        hc.Add(SelectedTab);
     }
 }

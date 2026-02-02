@@ -39,10 +39,8 @@
     [CascadingParameter]
     protected SnackbarStack? ParentSnackbar { get; set; }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attrs)
     {
-        var attrs = base.BuildAttributes();
-
         // base helpers from Component
         EnsureClassAttr(attrs, "q-snackbar");
         EnsureClassAttr(attrs, "snackbar-item");
@@ -58,8 +56,6 @@
         // Stable key
         if (Key.HasContent())
             attrs["data-snackbar-key"] = Key!;
-
-        return attrs;
     }
 
     private static Dictionary<string, object> GetContentAttributes()

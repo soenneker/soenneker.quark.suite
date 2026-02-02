@@ -109,9 +109,9 @@
         return ExpandedItems.Contains(itemName);
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -130,8 +130,21 @@
 
         attributes["id"] = Id!;
         attributes["role"] = "tablist";
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(AllowMultiple);
+        hc.Add(Flush);
+
+        if (ExpandedItems != null)
+        {
+            hc.Add(ExpandedItems.Length);
+            foreach (var item in ExpandedItems)
+            {
+                hc.Add(item);
+            }
+        }
     }
 
     protected override void OnParametersSet()

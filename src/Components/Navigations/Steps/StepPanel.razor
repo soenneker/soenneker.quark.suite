@@ -68,10 +68,10 @@
 
     private StepsRenderMode RenderMode => _parentStepsState?.RenderMode ?? StepsRenderMode.Default;
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
-        
+        base.BuildAttributesCore(attributes);
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-step-panel");
@@ -84,8 +84,16 @@
                 AppendClass(ref cls, "active");
             }
         });
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Name);
+        hc.Add(AriaDescribedBy);
+        hc.Add(Active);
+        hc.Add(RenderMode);
+        hc.Add(ParentStepsState?.SelectedStep);
+        hc.Add(ParentStepContentState?.SelectedPanel);
     }
 
     protected override void OnInitialized()

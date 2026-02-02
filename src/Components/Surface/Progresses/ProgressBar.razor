@@ -39,9 +39,9 @@
     [Parameter]
     public bool ShowLabel { get; set; } = true;
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         string? bgClass = null;
         if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
@@ -67,9 +67,14 @@
         });
 
         BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, $"width: {Value}%"));
-
-        return attributes;
     }
 
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Value);
+        hc.Add(Striped);
+        hc.Add(Animated);
+        hc.Add(ShowLabel);
+    }
 
 }

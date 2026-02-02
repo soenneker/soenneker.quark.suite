@@ -195,9 +195,9 @@
         return null;
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -272,8 +272,6 @@
             // Provide a grouping id to act as Bootstrap collapse parent so only one opens at a time
             attributes["id"] = _collapseGroupId;
         }
-
-        return attributes;
     }
 
 
@@ -342,6 +340,22 @@
         // Reset the flag after a brief delay to allow for re-opening
         await Task.Delay(100);
         _forceCollapseAll = false;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Mode);
+        hc.Add(Placement);
+        hc.Add(Alignment);
+        hc.Add(Expand);
+        hc.Add(Dark);
+        hc.Add(Transparent);
+        hc.Add(Visible);
+        hc.Add(CollapseMode);
+        hc.Add(MenuToggleBehavior);
+        hc.Add(Breakpoint);
+        hc.Add(NavigationBreakpoint);
+        hc.Add(VerticalBarVisible);
     }
 
     protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)

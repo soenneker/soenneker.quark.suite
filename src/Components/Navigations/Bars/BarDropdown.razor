@@ -20,9 +20,9 @@
 
     public string CollapseId { get; } = $"collapse-{Guid.NewGuid():N}";
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -32,7 +32,11 @@
                 AppendClass(ref cls, "w-100");
             }
         });
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(RightAligned);
+        hc.Add(Mode);
     }
 }

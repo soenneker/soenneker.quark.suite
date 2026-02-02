@@ -30,13 +30,16 @@
     [CascadingParameter]
     public ITable? Table { get; set; }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-table-no-data");
         });
-        return attributes;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Table?.HasLoadedOnce);
     }
 } 

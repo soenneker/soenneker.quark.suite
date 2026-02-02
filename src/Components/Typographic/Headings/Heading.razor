@@ -41,9 +41,9 @@ else
     public CssValue<DisplaySizeBuilder>? DisplaySize { get; set; }
 
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
@@ -51,8 +51,12 @@ else
             AddCss(ref sty, ref cls, Scale);
             AddCss(ref sty, ref cls, DisplaySize);
         });
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        AddIf(ref hc, Scale);
+        AddIf(ref hc, DisplaySize);
     }
 
     private static int GetHeadingLevel(CssValue<ScaleBuilder>? scale)

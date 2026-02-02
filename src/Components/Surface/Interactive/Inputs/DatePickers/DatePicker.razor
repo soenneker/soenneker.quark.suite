@@ -251,9 +251,9 @@
         return _valueChanged || base.ShouldRender();
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -289,8 +289,6 @@
         attributes["autocomplete"] = "off";
         attributes["oninput"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleInput);
         attributes["onchange"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleChange);
-
-        return attributes;
     }
 
     private Task HandleContainerRefReady(ElementReference el)
@@ -439,6 +437,18 @@
                     AppendClass(ref cls, $"form-control-{result}");
             }
         }
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Value);
+        hc.Add(Placeholder);
+        hc.Add(Disabled);
+        hc.Add(ReadOnly);
+        hc.Add(Required);
+        hc.Add(Min);
+        hc.Add(Max);
+        AddIf(ref hc, Size);
     }
 }
 

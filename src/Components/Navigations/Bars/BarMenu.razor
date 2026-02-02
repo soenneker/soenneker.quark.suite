@@ -35,9 +35,9 @@
         return base.ShouldRender();
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         if (Mode == BarMode.Horizontal)
         {
@@ -72,8 +72,13 @@
                     AppendStyleDecl(ref sty, "gap: 0.25rem");
             });
         }
-
-        return attributes;
     }
 
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Right);
+        hc.Add(Mode);
+        hc.Add(SidebarCollapsed);
+        hc.Add(MenuId);
+    }
 }

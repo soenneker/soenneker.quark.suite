@@ -90,10 +90,8 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
-
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-offcanvas");
@@ -131,8 +129,14 @@
 
         attributes["role"] = "dialog";
         attributes["aria-modal"] = "true";
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Placement);
+        hc.Add(AllowScroll);
+        hc.Add(ShowBackdrop);
+        hc.Add(TabIndex);
     }
 
     private Dictionary<string, object> BuildBackdropAttributes()

@@ -143,9 +143,9 @@ else
         }
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -168,8 +168,16 @@ else
 
         if (Name.HasContent())
             attributes["name"] = Name;
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Checked);
+        hc.Add(Disabled);
+        hc.Add(Name);
+        hc.Add(Value);
+        AddIf(ref hc, Size);
+        hc.Add(Inline);
     }
 
     private string? GetValidationClass()

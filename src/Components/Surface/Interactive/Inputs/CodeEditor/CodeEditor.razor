@@ -152,16 +152,16 @@
         return _valueChanged || base.ShouldRender();
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attrs)
     {
-        // Not used on wrapper div; preserve base for surface props if needed in future
-        return base.BuildAttributes();
+        // Not used on wrapper div; still apply base surface/interactive attributes
+        base.BuildAttributesCore(attrs);
     }
 
     private Dictionary<string, object> BuildContainerAttributes()
     {
-        var attrs = base.BuildAttributes();
-        
+        var attrs = new Dictionary<string, object>(base.BuildAttributes());
+
         // Monaco editor needs position: relative for proper rendering
         BuildStyleAttribute(attrs, (ref sty) =>
         {
@@ -184,6 +184,18 @@
         {
             await CodeEditorInterop.DisposeEditor(_container);
         }
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Text);
+        hc.Add(Language);
+        hc.Add(Theme);
+        hc.Add(WordWrap);
+        hc.Add(Minimap);
+        hc.Add(AutoHeight);
+        hc.Add(MinLines);
+        hc.Add(MaxLines);
     }
 
 }

@@ -30,10 +30,8 @@ else
     [Parameter]
     public bool Active { get; set; }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
-
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-breadcrumb-item");
@@ -47,8 +45,6 @@ else
         {
             attributes["aria-current"] = "page";
         }
-
-        return attributes;
     }
 
     private Dictionary<string, object> BuildListItemAttributes()
@@ -56,5 +52,10 @@ else
         var attributes = new Dictionary<string, object>();
         BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "breadcrumb-item"));
         return attributes;
+    }
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(To);
+        hc.Add(Active);
     }
 }

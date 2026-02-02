@@ -67,9 +67,9 @@
     [Parameter]
     public IconAnimation? IconAnimation { get; set; }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
@@ -104,8 +104,20 @@
 
         if (RotateByDegrees.HasValue)
             BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, $"--fa-rotate-angle: {RotateByDegrees.Value}deg"));
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Name);
+        hc.Add(IconStyle);
+        hc.Add(Family);
+        hc.Add(IconSize);
+        AddIf(ref hc, Size);
+        hc.Add(SpinReverse);
+        hc.Add(Rotate);
+        hc.Add(RotateByDegrees);
+        hc.Add(Flip);
+        hc.Add(IconAnimation);
     }
 
     private static string GetFamilyAndStyleClass(IconFamily? family, IconStyle? weight)

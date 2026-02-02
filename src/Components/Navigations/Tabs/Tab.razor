@@ -93,10 +93,8 @@
         base.Dispose();
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
-
         attributes["role"] = "presentation";
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -107,8 +105,6 @@
             if (Disabled)
                 AppendClass(ref cls, "disabled");
         });
-
-        return attributes;
     }
 
     private IReadOnlyDictionary<string, object> BuildButtonAttributes()

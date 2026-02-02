@@ -32,9 +32,9 @@
             await Clicked.InvokeIfHasDelegate(e);
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -61,7 +61,11 @@
         {
             attributes["disabled"] = true;
         }
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Disabled);
+        hc.Add(IsSplit);
     }
 }

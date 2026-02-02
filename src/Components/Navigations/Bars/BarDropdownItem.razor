@@ -34,9 +34,9 @@
     [Parameter]
     public double Indentation { get; set; } = 1.5d;
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -69,8 +69,13 @@
             attributes["aria-disabled"] = "true";
             attributes["tabindex"] = "-1";
         }
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(To);
+        hc.Add(Disabled);
+        hc.Add(Indentation);
     }
 
     /// <summary>

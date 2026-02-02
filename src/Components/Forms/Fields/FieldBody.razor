@@ -27,9 +27,9 @@
         base.OnDispose();
     }
 
-    protected override Dictionary<string, object> BuildAttributes()
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var attributes = base.BuildAttributes();
+        base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -41,8 +41,12 @@
                 AddColumnCss(ref cls, ColumnSize);
             }
         });
+    }
 
-        return attributes;
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        AddIf(ref hc, ColumnSize);
+        hc.Add(IsHorizontal);
     }
 
     private static void AddColumnCss<T>(ref PooledStringBuilder cls, CssValue<T>? cssValue) where T : class, ICssBuilder

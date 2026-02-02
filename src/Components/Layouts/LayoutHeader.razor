@@ -14,10 +14,8 @@
     [Parameter]
     public bool Fixed { get; set; }
 
-	protected override Dictionary<string, object> BuildAttributes()
+	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
 	{
-		var attributes = base.BuildAttributes();
-		
 		// Let inner content (eg. `Bar`) render the actual navbar. Keep this as a simple sticky container.
 		// Using sticky-top ensures the header participates in normal flow and pushes content down.
 		// Ensure full-viewport width so the bar spans entirely on mobile.
@@ -29,7 +27,10 @@
 			AppendClass(ref cls, "sticky-top");
 			AppendClass(ref cls, "w-100");
 		});
-		
-		return attributes;
 	}
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Fixed);
+    }
 }
