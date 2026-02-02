@@ -22,7 +22,7 @@ public interface IBarToggler : IElement
     /// <summary>
     /// Gets or sets the display mode of the toggler.
     /// </summary>
-    BarTogglerMode Mode { get; set; }
+    BarTogglerMode BarTogglerMode { get; set; }
 
     /// <summary>
     /// Gets or sets whether the toggler is disabled.

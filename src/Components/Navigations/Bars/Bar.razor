@@ -2,10 +2,10 @@
 @inherits Soenneker.Quark.CancellableElement
 @implements IBar
 
-@inject IBarInterop BarInterop 
+@inject IBarInterop BarInterop
 
-<CascadingValue Value="@Mode" IsFixed="true">
-    <CascadingValue Value="@HandleBarTogglerClick" IsFixed="true">
+<CascadingValue Name="Mode" Value="@Mode" IsFixed="true">
+    <CascadingValue Name="BarToggleHandler" Value="@HandleBarTogglerClick" IsFixed="true">
         <CascadingValue Name="VerticalBarCollapsed" Value="@_verticalBarCollapsed">
             <CascadingValue Name="CollapseParent" Value="@_collapseGroupId" IsFixed="true">
                 <CascadingValue Name="ForceCollapseAll" Value="@_forceCollapseAll">
@@ -75,10 +75,10 @@
     [Parameter]
     public BarMenuToggleBehavior MenuToggleBehavior { get; set; } = BarMenuToggleBehavior.AllowMultipleMenus;
 
-    [CascadingParameter]
+    [CascadingParameter(Name = nameof(VerticalBarVisible))]
     public bool VerticalBarVisible { get; set; } = true;
 
-    [CascadingParameter]
+    [CascadingParameter(Name = nameof(VerticalBarVisibleChanged))]
     public EventCallback<bool> VerticalBarVisibleChanged { get; set; }
 
     private readonly string _collapseGroupId = $"sidebar-accordion-{Guid.NewGuid():N}";
@@ -342,7 +342,7 @@
         _forceCollapseAll = false;
     }
 
-    
+
 
     protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
@@ -388,5 +388,6 @@
         hc.Add(Breakpoint);
         hc.Add(NavigationBreakpoint);
         hc.Add(VerticalBarVisible);
+        hc.Add(_verticalBarCollapsed);
     }
 }

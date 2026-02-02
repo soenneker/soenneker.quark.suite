@@ -13,7 +13,7 @@ public abstract class ValidationResultComponent : ComponentBase, IDisposable
     /// <summary>
     /// Gets or sets the reference to the parent validation.
     /// </summary>
-    [CascadingParameter]
+    [CascadingParameter(Name = nameof(ParentValidation))]
     protected Validation? ParentValidation { get; set; }
 
     /// <summary>

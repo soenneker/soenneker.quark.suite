@@ -14,13 +14,13 @@
     [Parameter]
     public bool Right { get; set; }
 
-    [CascadingParameter]
+    [CascadingParameter(Name = nameof(Mode))]
     public BarMode Mode { get; set; } = BarMode.Horizontal;
 
-    [CascadingParameter]
-    public bool SidebarCollapsed { get; set; }
+    [CascadingParameter(Name = nameof(VerticalBarCollapsed))]
+    public bool VerticalBarCollapsed { get; set; }
 
-    [CascadingParameter]
+    [CascadingParameter(Name = nameof(MenuId))]
     public string? MenuId { get; set; }
 
     protected override bool ShouldRender()
@@ -68,7 +68,7 @@
             {
                 AppendStyleDecl(ref sty, "width: 100%");
                 AppendStyleDecl(ref sty, "height: 100%");
-                if (SidebarCollapsed)
+                if (VerticalBarCollapsed)
                     AppendStyleDecl(ref sty, "gap: 0.25rem");
             });
         }
@@ -78,7 +78,7 @@
     {
         hc.Add(Right);
         hc.Add(Mode);
-        hc.Add(SidebarCollapsed);
+        hc.Add(VerticalBarCollapsed);
         hc.Add(MenuId);
     }
 }

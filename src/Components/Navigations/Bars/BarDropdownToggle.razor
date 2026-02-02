@@ -32,16 +32,16 @@
     [Parameter]
     public bool Expanded { get; set; }
 
-    [CascadingParameter]
+    [CascadingParameter(Name = nameof(Mode))]
     public BarMode Mode { get; set; } = BarMode.Horizontal;
 
-    [CascadingParameter]
+    [CascadingParameter(Name = nameof(ParentDropdown))]
     public BarDropdown? ParentDropdown { get; set; }
 
-    [CascadingParameter(Name = "VerticalBarCollapsed")]
-    public bool SidebarCollapsed { get; set; }
+    [CascadingParameter(Name = nameof(VerticalBarCollapsed))]
+    public bool VerticalBarCollapsed { get; set; }
     
-    [CascadingParameter(Name = "ForceCollapseAll")]
+    [CascadingParameter(Name = nameof(ForceCollapseAll))]
     public bool ForceCollapseAll { get; set; }
 
 
@@ -83,7 +83,7 @@
                 AppendClass(ref cls, "d-flex");
                 AppendClass(ref cls, "align-items-center");
                 AppendClass(ref cls, "position-relative");
-                if (!SidebarCollapsed)
+                if (!VerticalBarCollapsed)
                     AppendClass(ref cls, "w-100");
             }
         });
@@ -98,7 +98,7 @@
         hc.Add(Indentation);
         hc.Add(Expanded);
         hc.Add(Mode);
-        hc.Add(SidebarCollapsed);
+        hc.Add(VerticalBarCollapsed);
         hc.Add(ForceCollapseAll);
         hc.Add(ParentDropdown?.CollapseId);
     }

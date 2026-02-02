@@ -32,19 +32,19 @@
     /// Gets or sets the mode of the toggler.
     /// </summary>
     [Parameter]
-    public BarTogglerMode Mode { get; set; } = BarTogglerMode.Normal;
+    public BarTogglerMode BarTogglerMode { get; set; } = BarTogglerMode.Normal;
 
-	[CascadingParameter]
-	public BarMode BarMode { get; set; } = BarMode.Horizontal;
+	[CascadingParameter(Name = nameof(Mode))]
+	public BarMode Mode { get; set; } = BarMode.Horizontal;
 
-    [CascadingParameter]
+    [CascadingParameter(Name = nameof(BarToggleHandler))]
     public Func<MouseEventArgs, Task>? BarToggleHandler { get; set; }
 
-    [CascadingParameter]
+    [CascadingParameter(Name = nameof(MenuId))]
     public string? MenuId { get; set; }
 
-    [CascadingParameter]
-    public bool SidebarCollapsed { get; set; }
+    [CascadingParameter(Name = nameof(VerticalBarCollapsed))]
+    public bool VerticalBarCollapsed { get; set; }
 
     /// <summary>
     /// Gets or sets whether the toggler is disabled.
@@ -56,7 +56,7 @@
     {
         // For vertical bars, always render when sidebar collapse state might change
         // The base component's render key doesn't track cascading parameters
-        if (BarMode != BarMode.Horizontal)
+        if (Mode != BarMode.Horizontal)
         {
             return true;
         }
@@ -73,7 +73,7 @@
             AppendClass(ref cls, "q-bar-toggler");
             AppendClass(ref cls, "navbar-toggler");
             
-            if (BarMode != BarMode.Horizontal)
+            if (Mode != BarMode.Horizontal)
             {
                 AppendClass(ref cls, "sidebar-toggler");
                 AppendClass(ref cls, "p-2");
@@ -83,15 +83,15 @@
                 AppendClass(ref cls, "align-items-center");
                 AppendClass(ref cls, "position-relative");
                 
-                if (!SidebarCollapsed)
+                if (!VerticalBarCollapsed)
                     AppendClass(ref cls, "w-100");
             }
             
-            if (Mode == BarTogglerMode.Popout)
+            if (BarTogglerMode == BarTogglerMode.Popout)
                 AppendClass(ref cls, "navbar-toggler-popout");
         });
 
-        if (BarMode == BarMode.Horizontal)
+        if (Mode == BarMode.Horizontal)
         {
             var target = Target.HasContent() ? Target : MenuId.HasContent() ? $"#{MenuId}" : null;
             
@@ -113,7 +113,7 @@
                 AppendStyleDecl(ref sty, "border: none");
                 AppendStyleDecl(ref sty, "background: transparent");
 
-                if (SidebarCollapsed)
+                if (VerticalBarCollapsed)
                 {
                     AppendStyleDecl(ref sty, "margin: 0 !important");
                     AppendStyleDecl(ref sty, "padding-left: 20px !important");
@@ -145,9 +145,9 @@
     {
         hc.Add(Target);
         hc.Add(Mode);
-        hc.Add(BarMode);
+        hc.Add(BarTogglerMode);
         hc.Add(MenuId);
-        hc.Add(SidebarCollapsed);
+        hc.Add(VerticalBarCollapsed);
         hc.Add(Disabled);
     }
 }
