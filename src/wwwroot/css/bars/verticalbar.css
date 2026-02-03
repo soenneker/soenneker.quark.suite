@@ -27,10 +27,24 @@ html, body, #app { height: 100%; }
 .sidebar-collapsed .nav .nav-link .q-bar-icon { display: inline-flex !important; align-items: center; justify-content: center; }
 
 /* Only affect the dedicated sidebar toggler, not all buttons */
-.sidebar-collapsed .sidebar-toggler { font-size: 0; display: flex; align-items: center; justify-content: center; width: 100%; padding: 0.5rem; padding-left: 20px !important; padding-right: 8px !important; margin: 0 !important; box-sizing: border-box; }
+.sidebar-collapsed .sidebar-toggler { font-size: 0; display: flex; align-items: center; justify-content: center; }
 
 /* Keep the toggler visible and centered in collapsed mode */
-.sidebar-collapsed .navbar-toggler { font-size: 0; display: flex; align-items: center; justify-content: center; width: 100%; flex-shrink: 0; margin: 0; padding: 0.5rem; }
+.sidebar-collapsed .navbar-toggler { font-size: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+/* Collapsed sidebar toggler sizing and centering */
+.q-bar-toggler-collapsed {
+    width: 60px;
+    margin: 0 auto !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    box-sizing: border-box;
+}
+
+/* Remove icon offset so collapsed toggler centers */
+.q-bar-toggler-collapsed .q-bar-icon {
+    margin-right: 0 !important;
+}
 
 /* Hide brand content when sidebar is collapsed */
 /* Hide brand text but keep slot height stable; container remains */
@@ -272,6 +286,72 @@ aside, nav {
     display: flex !important;
     flex-direction: column !important;
     height: 100% !important;
+}
+
+/* Vertical bar header layout: brand and toggler on one row */
+.q-bar-vertical-inline,
+.q-bar-vertical-popout,
+.q-bar-vertical-small,
+.q-bar.d-flex.flex-column {
+    display: grid !important;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto 1fr;
+    align-items: center;
+    position: relative;
+}
+
+.q-bar-vertical-inline .q-bar-brand,
+.q-bar-vertical-popout .q-bar-brand,
+.q-bar-vertical-small .q-bar-brand,
+.q-bar.d-flex.flex-column .q-bar-brand {
+    grid-row: 1;
+    grid-column: 1;
+    justify-self: start;
+}
+
+.q-bar-vertical-inline .q-bar-toggler,
+.q-bar-vertical-popout .q-bar-toggler,
+.q-bar-vertical-small .q-bar-toggler,
+.q-bar.d-flex.flex-column .q-bar-toggler {
+    grid-row: 1;
+    grid-column: 2;
+    justify-self: end;
+    position: relative;
+    z-index: 2;
+}
+
+.q-bar-vertical-inline .q-bar-menu,
+.q-bar-vertical-popout .q-bar-menu,
+.q-bar-vertical-small .q-bar-menu,
+.q-bar.d-flex.flex-column .q-bar-menu {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    z-index: 1;
+}
+
+/* Collapse grid to single column when sidebar is collapsed */
+.sidebar-collapsed .q-bar-vertical-inline,
+.sidebar-collapsed .q-bar-vertical-popout,
+.sidebar-collapsed .q-bar-vertical-small,
+.sidebar-collapsed .q-bar.d-flex.flex-column,
+.sidebar-collapsed.q-bar-vertical-inline,
+.sidebar-collapsed.q-bar-vertical-popout,
+.sidebar-collapsed.q-bar-vertical-small,
+.sidebar-collapsed.q-bar.d-flex.flex-column {
+    grid-template-columns: 1fr;
+}
+
+/* Center toggler when bar is collapsed */
+.sidebar-collapsed .q-bar-vertical-inline .q-bar-toggler,
+.sidebar-collapsed .q-bar-vertical-popout .q-bar-toggler,
+.sidebar-collapsed .q-bar-vertical-small .q-bar-toggler,
+.sidebar-collapsed .q-bar.d-flex.flex-column .q-bar-toggler,
+.sidebar-collapsed.q-bar-vertical-inline .q-bar-toggler,
+.sidebar-collapsed.q-bar-vertical-popout .q-bar-toggler,
+.sidebar-collapsed.q-bar-vertical-small .q-bar-toggler,
+.sidebar-collapsed.q-bar.d-flex.flex-column .q-bar-toggler {
+    grid-column: 1;
+    justify-self: center;
 }
 
 /* Push BarEnd to the bottom in vertical bars */
