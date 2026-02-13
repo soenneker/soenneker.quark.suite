@@ -15,12 +15,12 @@ public static class BootstrapCssGenerator
         var selectorGroups = new Dictionary<string, List<string>>();
 
         // Process all CSS variable groups without reflection
-        foreach (var group in cssVariables.GetAllCssVariableGroups())
+        foreach (IBootstrapCssVariableGroup group in cssVariables.GetAllCssVariableGroups())
         {
-            var selector = group.GetSelector();
-            var variables = group.GetCssVariables();
+            string selector = group.GetSelector();
+            IEnumerable<(string CssPropertyName, string Value)> variables = group.GetCssVariables();
 
-            foreach (var (cssPropertyName, value) in variables)
+            foreach ((string cssPropertyName, string value) in variables)
             {
                 if (!selectorGroups.ContainsKey(selector))
                     selectorGroups[selector] = [];
@@ -34,11 +34,11 @@ public static class BootstrapCssGenerator
 
         using var css = new PooledStringBuilder();
 
-        foreach (var selectorGroup in selectorGroups)
+        foreach (KeyValuePair<string, List<string>> selectorGroup in selectorGroups)
         {
             css.Append($"{selectorGroup.Key} {{\n");
 
-            foreach (var variable in selectorGroup.Value)
+            foreach (string variable in selectorGroup.Value)
             {
                 css.Append(variable);
                 css.Append('\n');

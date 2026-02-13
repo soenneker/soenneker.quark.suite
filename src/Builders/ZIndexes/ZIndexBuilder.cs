@@ -58,32 +58,32 @@ public sealed class ZIndexBuilder : ICssBuilder
     /// <summary>
     /// Applies the z-index on phone breakpoint.
     /// </summary>
-    public ZIndexBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public ZIndexBuilder OnPhone => ChainBp(BreakpointType.Base);
 
     /// <summary>
     /// Applies the z-index on tablet breakpoint.
     /// </summary>
-    public ZIndexBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public ZIndexBuilder OnTablet => ChainBp(BreakpointType.Md);
 
     /// <summary>
     /// Applies the z-index on laptop breakpoint.
     /// </summary>
-    public ZIndexBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public ZIndexBuilder OnLaptop => ChainBp(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the z-index on desktop breakpoint.
     /// </summary>
-    public ZIndexBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public ZIndexBuilder OnDesktop => ChainBp(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the z-index on widescreen breakpoint.
     /// </summary>
-    public ZIndexBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public ZIndexBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
 
     /// <summary>
     /// Applies the z-index on ultrawide breakpoint.
     /// </summary>
-    public ZIndexBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public ZIndexBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ZIndexBuilder Chain(int value)
@@ -101,8 +101,8 @@ public sealed class ZIndexBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        ZIndexRule last = _rules[lastIdx];
         _rules[lastIdx] = new ZIndexRule(last.Value, bp);
         return this;
     }
@@ -119,8 +119,8 @@ public sealed class ZIndexBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = rule.Value switch
+            ZIndexRule rule = _rules[i];
+            string cls = rule.Value switch
             {
                 -1 => _classNeg1,
                 0 => _class0,
@@ -132,7 +132,7 @@ public sealed class ZIndexBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -156,7 +156,7 @@ public sealed class ZIndexBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            ZIndexRule rule = _rules[i];
             if (!first) sb.Append("; ");
             else first = false;
             sb.Append("z-index: ");

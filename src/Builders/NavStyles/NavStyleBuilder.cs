@@ -97,7 +97,7 @@ public class NavStyleBuilder : ICssBuilder
     private static string GetNavClass(NavStyle nav)
     {
         var baseClass = "nav";
-        var styleClass = nav.Type.Value switch
+        string styleClass = nav.Type.Value switch
         {
             NavStyleType.TabsValue => " nav-tabs",
             NavStyleType.PillsValue => " nav-pills",

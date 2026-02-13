@@ -6,7 +6,7 @@
 	<select value="@PageSize" @onchange="OnPageSizeChangedHandler" >
 		@for (var i = 0; i < PageSizeOptions.Length; i++)
 		{
-			var size = PageSizeOptions[i];
+			int size = PageSizeOptions[i];
 			<option value="@size" selected="@(size == PageSize)" >@size</option>
 		}
 	</select>
@@ -36,7 +36,7 @@
 
 	private async Task OnPageSizeChangedHandler(ChangeEventArgs e)
 	{
-		if (int.TryParse(e.Value?.ToString(), out var size) && size != PageSize)
+		if (int.TryParse(e.Value?.ToString(), out int size) && size != PageSize)
 		{
 			// Update PageSize for binding
 			PageSize = size;
@@ -62,7 +62,7 @@
 		if (PageSizeOptions is not null)
 		{
 			hc.Add(PageSizeOptions.Length);
-			foreach (var size in PageSizeOptions)
+			foreach (int size in PageSizeOptions)
 			{
 				hc.Add(size);
 			}

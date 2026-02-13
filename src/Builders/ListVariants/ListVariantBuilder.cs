@@ -44,27 +44,27 @@ public sealed class ListVariantBuilder : ICssBuilder
     /// <summary>
     /// Applies the list variant on phone breakpoint.
     /// </summary>
-    public ListVariantBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public ListVariantBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the list variant on tablet breakpoint.
     /// </summary>
-    public ListVariantBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public ListVariantBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the list variant on laptop breakpoint.
     /// </summary>
-    public ListVariantBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public ListVariantBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the list variant on desktop breakpoint.
     /// </summary>
-    public ListVariantBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public ListVariantBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the list variant on widescreen breakpoint.
     /// </summary>
-    public ListVariantBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public ListVariantBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
     /// <summary>
     /// Applies the list variant on ultrawide breakpoint.
     /// </summary>
-    public ListVariantBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public ListVariantBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ListVariantBuilder Chain(ListVariantType type)
@@ -82,8 +82,8 @@ public sealed class ListVariantBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        ListVariantRule last = _rules[lastIdx];
         _rules[lastIdx] = new ListVariantRule(last.Type, breakpoint);
         return this;
     }
@@ -102,9 +102,9 @@ public sealed class ListVariantBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var typeValue = rule.Type.Value;
-            var cls = typeValue switch
+            ListVariantRule rule = _rules[i];
+            string? typeValue = rule.Type.Value;
+            string cls = typeValue switch
             {
                 "unstyled" => _classUnstyled,
                 "inline" => _classInline,
@@ -115,7 +115,7 @@ public sealed class ListVariantBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -142,9 +142,9 @@ public sealed class ListVariantBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var typeValue = rule.Type.Value;
-            var style = typeValue switch
+            ListVariantRule rule = _rules[i];
+            string? typeValue = rule.Type.Value;
+            string? style = typeValue switch
             {
                 "unstyled" => "list-style: none; padding-left: 0;",
                 "inline" => "padding-left: 0; list-style: none;",

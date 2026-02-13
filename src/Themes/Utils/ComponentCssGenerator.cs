@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Soenneker.Utils.PooledStringBuilders;
@@ -16,7 +16,7 @@ public static class ComponentCssGenerator
         if (options is null)
             return string.Empty;
 
-        var rules = options.GetCssRules();
+        IEnumerable<ComponentCssRule>? rules = options.GetCssRules();
 
         if (rules is null)
             return string.Empty;
@@ -24,7 +24,7 @@ public static class ComponentCssGenerator
         Dictionary<string, List<string>>? blocks = null;
         List<string>? order = null;
 
-        foreach (var rule in rules)
+        foreach (ComponentCssRule rule in rules)
         {
             if (rule.Selector.IsNullOrWhiteSpace() || rule.Declaration.IsNullOrWhiteSpace())
                 continue;
@@ -32,7 +32,7 @@ public static class ComponentCssGenerator
             blocks ??= new Dictionary<string, List<string>>(8, StringComparer.Ordinal);
             order ??= new List<string>(8);
 
-            if (!blocks.TryGetValue(rule.Selector, out var declarations))
+            if (!blocks.TryGetValue(rule.Selector, out List<string>? declarations))
             {
                 declarations = [];
                 blocks[rule.Selector] = declarations;
@@ -47,21 +47,21 @@ public static class ComponentCssGenerator
 
         using var sb = new PooledStringBuilder();
 
-        foreach (var selector in order)
+        foreach (string selector in order)
         {
-            if (!blocks.TryGetValue(selector, out var declarations) || declarations.Count == 0)
+            if (!blocks.TryGetValue(selector, out List<string>? declarations) || declarations.Count == 0)
                 continue;
 
             sb.Append(selector);
             sb.Append(" {\n");
 
-            foreach (var declaration in declarations)
+            foreach (string declaration in declarations)
             {
                 if (declaration.IsNullOrWhiteSpace())
                     continue;
 
                 sb.Append("  ");
-                var trimmed = declaration.TrimEnd(';', ' ');
+                string trimmed = declaration.TrimEnd(';', ' ');
                 sb.Append(trimmed);
                 sb.Append(";\n");
             }

@@ -80,23 +80,23 @@ public sealed class TextStyleBuilder : ICssBuilder
     /// <summary>
     /// Applies the text style on phone breakpoint.
     /// </summary>
-    public TextStyleBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public TextStyleBuilder OnPhone => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the text style on tablet breakpoint.
     /// </summary>
-    public TextStyleBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public TextStyleBuilder OnTablet => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the text style on laptop breakpoint.
     /// </summary>
-    public TextStyleBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public TextStyleBuilder OnLaptop => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the text style on desktop breakpoint.
     /// </summary>
-    public TextStyleBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public TextStyleBuilder OnDesktop => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the text style on widescreen breakpoint.
     /// </summary>
-    public TextStyleBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public TextStyleBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
 
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
     private TextStyleBuilder ChainValue(string value)
@@ -115,8 +115,8 @@ public sealed class TextStyleBuilder : ICssBuilder
             return new TextStyleBuilder(newRules);
         }
 
-        var lastIdx = newRules.Count - 1;
-        var last = newRules[lastIdx];
+        int lastIdx = newRules.Count - 1;
+        TextStyleRule last = newRules[lastIdx];
         newRules[lastIdx] = new TextStyleRule(last.Value, bp);
         return new TextStyleBuilder(newRules);
     }
@@ -135,12 +135,12 @@ public sealed class TextStyleBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetClass(rule);
+            TextStyleRule rule = _rules[i];
+            string cls = GetClass(rule);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 

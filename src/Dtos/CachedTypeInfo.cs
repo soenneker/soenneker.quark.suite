@@ -1,4 +1,4 @@
-﻿namespace Soenneker.Quark.Dtos;
+namespace Soenneker.Quark.Dtos;
 
 /// <summary>
 /// Represents cached type information for CSS variable generation.

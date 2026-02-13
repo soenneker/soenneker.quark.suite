@@ -113,33 +113,33 @@ public sealed class MarginBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the margin on phone breakpoint.
 	/// </summary>
-    public MarginBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public MarginBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the margin on tablet breakpoint.
 	/// </summary>
-    public MarginBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public MarginBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the margin on laptop breakpoint.
 	/// </summary>
-    public MarginBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public MarginBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the margin on desktop breakpoint.
 	/// </summary>
-    public MarginBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public MarginBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the margin on widescreen breakpoint.
 	/// </summary>
-    public MarginBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public MarginBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
 	/// <summary>
 	/// Applies the margin on ultrawide breakpoint.
 	/// </summary>
-    public MarginBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public MarginBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private MarginBuilder AddRule(ElementSideType side)
     {
-        var size = _rules.Count > 0 ? _rules[^1].Size : ScaleType.Is0Value;
-        var bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
+        string? size = _rules.Count > 0 ? _rules[^1].Size : ScaleType.Is0Value;
+        BreakpointType? bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
 
         if (_rules.Count > 0 && _rules[^1].Side == ElementSideType.All)
         {
@@ -176,8 +176,8 @@ public sealed class MarginBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        MarginRule last = _rules[lastIdx];
         _rules[lastIdx] = new MarginRule(last.Size, last.Side, breakpoint);
         return this;
     }
@@ -193,15 +193,15 @@ public sealed class MarginBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            MarginRule rule = _rules[i];
 
-            var sizeTok = GetSizeToken(rule.Size);
+            string sizeTok = GetSizeToken(rule.Size);
 
             if (sizeTok.Length == 0)
                 continue;
 
-            var sideTok = GetSideToken(rule.Side);
-            var bpTok = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string sideTok = GetSideToken(rule.Side);
+            string bpTok = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
 
             if (!first)
                 sb.Append(' ');
@@ -239,8 +239,8 @@ public sealed class MarginBuilder : ICssBuilder
         {
             for (var i = 0; i < _rules.Count; i++)
             {
-                var rule = _rules[i];
-                var sizeVal = GetSizeValue(rule.Size);
+                MarginRule rule = _rules[i];
+                string? sizeVal = GetSizeValue(rule.Size);
                 if (sizeVal is null)
                     continue;
 

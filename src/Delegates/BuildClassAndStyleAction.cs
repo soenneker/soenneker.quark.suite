@@ -1,4 +1,4 @@
-﻿using Soenneker.Utils.PooledStringBuilders;
+using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark
 {

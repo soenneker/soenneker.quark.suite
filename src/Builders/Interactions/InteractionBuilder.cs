@@ -58,27 +58,27 @@ public sealed class InteractionBuilder : ICssBuilder
     /// <summary>
     /// Applies the interaction on phone breakpoint.
     /// </summary>
-    public InteractionBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public InteractionBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the interaction on tablet breakpoint.
     /// </summary>
-    public InteractionBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public InteractionBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the interaction on laptop breakpoint.
     /// </summary>
-    public InteractionBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public InteractionBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the interaction on desktop breakpoint.
     /// </summary>
-    public InteractionBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public InteractionBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the interaction on widescreen breakpoint.
     /// </summary>
-    public InteractionBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public InteractionBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
     /// <summary>
     /// Applies the interaction on ultrawide breakpoint.
     /// </summary>
-    public InteractionBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public InteractionBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private InteractionBuilder ChainWithInteraction(string userSelect, string pointerEvents)
@@ -96,8 +96,8 @@ public sealed class InteractionBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        InteractionRule last = _rules[lastIdx];
         _rules[lastIdx] = new InteractionRule(last.UserSelect, last.PointerEvents, breakpoint);
         return this;
     }
@@ -116,13 +116,13 @@ public sealed class InteractionBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var userSelectClass = GetUserSelectClass(rule.UserSelect);
-            var pointerEventsClass = GetPointerEventsClass(rule.PointerEvents);
+            InteractionRule rule = _rules[i];
+            string userSelectClass = GetUserSelectClass(rule.UserSelect);
+            string pointerEventsClass = GetPointerEventsClass(rule.PointerEvents);
 
             if (userSelectClass.Length > 0)
             {
-                var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+                string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
                 if (bp.Length != 0)
                     userSelectClass = BreakpointUtil.InsertBreakpointType(userSelectClass, bp);
 
@@ -134,7 +134,7 @@ public sealed class InteractionBuilder : ICssBuilder
 
             if (pointerEventsClass.Length > 0)
             {
-                var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+                string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
                 if (bp.Length != 0)
                     pointerEventsClass = BreakpointUtil.InsertBreakpointType(pointerEventsClass, bp);
 
@@ -162,9 +162,9 @@ public sealed class InteractionBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var userSelectValue = GetUserSelectValue(rule.UserSelect);
-            var pointerEventsValue = GetPointerEventsValue(rule.PointerEvents);
+            InteractionRule rule = _rules[i];
+            string? userSelectValue = GetUserSelectValue(rule.UserSelect);
+            string? pointerEventsValue = GetPointerEventsValue(rule.PointerEvents);
 
             if (userSelectValue is not null)
             {

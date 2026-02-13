@@ -147,7 +147,7 @@
 		if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
 		{
 			string? token = null;
-			var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
+			bool isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
 
 			if (isTheme && token is not null)
 			{
@@ -155,7 +155,7 @@
 				return $"form-control-{token}";
 			}
 
-			var v = BackgroundColor.Value.ToString().Trim();
+			string v = BackgroundColor.Value.ToString().Trim();
 
 			if (BackgroundColor.Value.IsCssClass)
 			{
@@ -174,7 +174,7 @@
 			return null;
 
 		string? token = null;
-		var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+		bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
 		if (isTheme && token is not null)
 			return $"form-control-{token}";
 
@@ -236,7 +236,7 @@
 		
 		if (DateExpression is not null || Date.HasValue || DateChanged.HasDelegate)
 		{
-			if (DateTime.TryParse(value, out var dateValue))
+			if (DateTime.TryParse(value, out DateTime dateValue))
 			{
 				if (Date != dateValue)
 				{
@@ -248,7 +248,7 @@
 		}
 		else if (DateOnlyExpression is not null || DateOnly.HasValue || DateOnlyChanged.HasDelegate)
 		{
-			if (System.DateOnly.TryParse(value, out var dateOnlyValue))
+			if (System.DateOnly.TryParse(value, out DateOnly dateOnlyValue))
 			{
 				if (DateOnly != dateOnlyValue)
 				{
@@ -292,7 +292,7 @@
 		
 		if (DateExpression is not null || Date.HasValue || DateChanged.HasDelegate)
 		{
-			if (DateTime.TryParse(value, out var dateValue))
+			if (DateTime.TryParse(value, out DateTime dateValue))
 			{
 				if (Date != dateValue)
 				{
@@ -304,7 +304,7 @@
 		}
 		else if (DateOnlyExpression is not null || DateOnly.HasValue || DateOnlyChanged.HasDelegate)
 		{
-			if (System.DateOnly.TryParse(value, out var dateOnlyValue))
+			if (System.DateOnly.TryParse(value, out DateOnly dateOnlyValue))
 			{
 				if (DateOnly != dateOnlyValue)
 				{
@@ -340,14 +340,14 @@
 		var attributes = new Dictionary<string, object>();
 
 		// Add current value
-		var currentValue = GetCurrentValue();
+		string currentValue = GetCurrentValue();
 		if (!string.IsNullOrEmpty(currentValue))
 			attributes["value"] = currentValue;
 
 		// Add DateEdit-specific attributes
 		if (Min != default)
 		{
-			var minString = InputMode.Value switch
+			string minString = InputMode.Value switch
 			{
 				"date" => Min.ToString("yyyy-MM-dd"),
 				"datetime-local" => Min.ToString("yyyy-MM-ddTHH:mm"),
@@ -358,7 +358,7 @@
 		}
 		else if (MinDateOnly != default)
 		{
-			var minString = InputMode.Value switch
+			string minString = InputMode.Value switch
 			{
 				"date" => MinDateOnly.ToString("yyyy-MM-dd"),
 				"datetime-local" => MinDateOnly.ToString("yyyy-MM-ddTHH:mm"),
@@ -370,7 +370,7 @@
 
 		if (Max != default)
 		{
-			var maxString = InputMode.Value switch
+			string maxString = InputMode.Value switch
 			{
 				"date" => Max.ToString("yyyy-MM-dd"),
 				"datetime-local" => Max.ToString("yyyy-MM-ddTHH:mm"),
@@ -381,7 +381,7 @@
 		}
 		else if (MaxDateOnly != default)
 		{
-			var maxString = InputMode.Value switch
+			string maxString = InputMode.Value switch
 			{
 				"date" => MaxDateOnly.ToString("yyyy-MM-dd"),
 				"datetime-local" => MaxDateOnly.ToString("yyyy-MM-ddTHH:mm"),

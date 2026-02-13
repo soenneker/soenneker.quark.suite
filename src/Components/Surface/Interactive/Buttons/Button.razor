@@ -134,7 +134,7 @@ else
             return null;
 
         string? token = null;
-        var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+        bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
 
         if (isTheme && token is not null)
             return $"btn-{token}";
@@ -153,10 +153,10 @@ else
         base.BuildAttributesCore(attributes);
 
         // Determine element kind
-        var isLink = Type == ButtonType.Link || To.HasContent();
+        bool isLink = Type == ButtonType.Link || To.HasContent();
 
         // Figure out disabled state (treat presence of "disabled" attribute as true)
-        var isDisabled = Disabled || Loading || attributes.ContainsKey("disabled");
+        bool isDisabled = Disabled || Loading || attributes.ContainsKey("disabled");
 
         // Links that are disabled/loading should not be in tab order (unless user explicitly set TabIndex)
         if (isLink && isDisabled && !attributes.ContainsKey("tabindex"))
@@ -177,7 +177,7 @@ else
 
             if (!Unstyled)
             {
-                var sizeClass = GetSizeClass();
+                string? sizeClass = GetSizeClass();
                 if (sizeClass is not null)
                     AppendClass(ref cls, sizeClass);
 
@@ -223,11 +223,11 @@ else
         if (AutoFocus) attributes["autofocus"] = true;
 
         // Bootstrap collapse auto-wiring if requested
-        var targetId = CollapseTargetRef?.Id ?? CollapseTarget;
+        string? targetId = CollapseTargetRef?.Id ?? CollapseTarget;
         if (targetId.HasContent())
         {
             attributes["data-bs-toggle"] = "collapse";
-            var selector = targetId!.StartsWith("#") ? targetId : $"#{targetId}";
+            string selector = targetId!.StartsWith("#") ? targetId : $"#{targetId}";
             attributes["data-bs-target"] = selector;
             attributes["aria-controls"] = selector.StartsWith("#") ? selector.Substring(1) : selector;
         }
@@ -242,7 +242,7 @@ else
     protected override async Task HandleClick(MouseEventArgs args)
     {
         // Respect disabled state at runtime, same semantics as in BuildAttributes
-        var isDisabled = Disabled || Loading || (Attributes is not null && Attributes.ContainsKey("disabled"));
+        bool isDisabled = Disabled || Loading || (Attributes is not null && Attributes.ContainsKey("disabled"));
         if (isDisabled)
             return;
 
@@ -262,13 +262,13 @@ else
     {
         if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty && !Close)
         {
-            var v = BackgroundColor.Value.ToString().Trim();
-            var isColorTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out var colorToken);
+            string v = BackgroundColor.Value.ToString().Trim();
+            bool isColorTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out string? colorToken);
 
             if (isColorTheme && colorToken is not null)
             {
                 // Bootstrap theme token (e.g., "primary", "secondary")
-                var prefix = Outline ? "btn-outline-" : "btn-";
+                string prefix = Outline ? "btn-outline-" : "btn-";
                 AppendClass(ref cls, $"{prefix}{colorToken}");
             }
             else if (BackgroundColor.Value.IsCssClass)
@@ -277,7 +277,7 @@ else
                     AppendClass(ref cls, v);
                 else
                 {
-                    var prefix = Outline ? "btn-outline-" : "btn-";
+                    string prefix = Outline ? "btn-outline-" : "btn-";
                     AppendClass(ref cls, $"{prefix}{v}");
                 }
             }

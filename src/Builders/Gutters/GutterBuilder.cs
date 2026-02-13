@@ -131,15 +131,15 @@ public sealed class GutterBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var key = (rule.Type, rule.Breakpoint);
+            GutterRule rule = _rules[i];
+            (GutterType Type, GutterBreakpoint? Breakpoint) key = (rule.Type, rule.Breakpoint);
             dedupedRules[key] = rule;
         }
 
         var classes = new List<string>();
-        foreach (var rule in dedupedRules.Values)
+        foreach (GutterRule rule in dedupedRules.Values)
         {
-            var className = GetGutterClass(rule);
+            string className = GetGutterClass(rule);
             if (!className.IsNullOrEmpty())
                 classes.Add(className);
         }
@@ -150,7 +150,7 @@ public sealed class GutterBuilder : ICssBuilder
     private static string GetGutterClass(GutterRule rule)
     {
         // Map axis
-        var prefix = rule.Type.Value switch
+        string prefix = rule.Type.Value switch
         {
             GutterType.AllValue => "g",
             GutterType.XValue => "gx",
@@ -161,7 +161,7 @@ public sealed class GutterBuilder : ICssBuilder
             return string.Empty;
 
         // Map breakpoint (no xs breakpoint in Bootstrap)
-        var breakpoint = rule.Breakpoint?.Value switch
+        string breakpoint = rule.Breakpoint?.Value switch
         {
             GutterBreakpoint.SmValue => "-sm",
             GutterBreakpoint.MdValue => "-md",

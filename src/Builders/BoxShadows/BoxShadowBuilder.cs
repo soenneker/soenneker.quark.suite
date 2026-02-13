@@ -50,27 +50,27 @@ public sealed class BoxShadowBuilder : ICssBuilder
     /// <summary>
     /// Applies the box shadow on phone breakpoint.
     /// </summary>
-    public BoxShadowBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public BoxShadowBuilder OnPhone => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the box shadow on tablet breakpoint.
     /// </summary>
-    public BoxShadowBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public BoxShadowBuilder OnTablet => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the box shadow on laptop breakpoint.
     /// </summary>
-    public BoxShadowBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public BoxShadowBuilder OnLaptop => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the box shadow on desktop breakpoint.
     /// </summary>
-    public BoxShadowBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public BoxShadowBuilder OnDesktop => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the box shadow on widescreen breakpoint.
     /// </summary>
-    public BoxShadowBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public BoxShadowBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
     /// <summary>
     /// Applies the box shadow on ultrawide breakpoint.
     /// </summary>
-    public BoxShadowBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public BoxShadowBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BoxShadowBuilder Chain(string value)
@@ -89,8 +89,8 @@ public sealed class BoxShadowBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        BoxShadowRule last = _rules[lastIdx];
         _rules[lastIdx] = new BoxShadowRule(last.Value, bp);
         return this;
     }
@@ -109,9 +109,9 @@ public sealed class BoxShadowBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            BoxShadowRule rule = _rules[i];
 
-            var baseClass = rule.Value switch
+            string baseClass = rule.Value switch
             {
                 "none" => _classNone,
                 "base" => _classBase,
@@ -123,7 +123,7 @@ public sealed class BoxShadowBuilder : ICssBuilder
             if (baseClass.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 baseClass = BreakpointUtil.InsertBreakpointType(baseClass, bp);
 

@@ -81,7 +81,7 @@
             _angleCss = string.Concat(FormatDouble0To2(_normalizedValue * 3.6d), "deg");
 
             // hue: 0..120, split ramp around 50
-            var hue = _normalizedValue <= 50
+            double hue = _normalizedValue <= 50
                 ? (_normalizedValue / 50d) * 60d
                 : 60d + ((_normalizedValue - 50d) / 50d) * 60d;
 
@@ -123,7 +123,7 @@
         Span<char> buffer = stackalloc char[32];
 
         // "0.##" keeps output short (same as your original intent)
-        if (value.TryFormat(buffer, out var written, "0.##", _inv))
+        if (value.TryFormat(buffer, out int written, "0.##", _inv))
             return new string(buffer[..written]);
 
         return value.ToString("0.##", _inv);

@@ -86,27 +86,27 @@ public sealed class LinkUnderlineBuilder : ICssBuilder
     /// <summary>
     /// Applies the link underline on phone breakpoint.
     /// </summary>
-    public LinkUnderlineBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public LinkUnderlineBuilder OnPhone => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the link underline on tablet breakpoint.
     /// </summary>
-    public LinkUnderlineBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public LinkUnderlineBuilder OnTablet => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the link underline on laptop breakpoint.
     /// </summary>
-    public LinkUnderlineBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public LinkUnderlineBuilder OnLaptop => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the link underline on desktop breakpoint.
     /// </summary>
-    public LinkUnderlineBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public LinkUnderlineBuilder OnDesktop => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the link underline on widescreen breakpoint.
     /// </summary>
-    public LinkUnderlineBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public LinkUnderlineBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
     /// <summary>
     /// Applies the link underline on ultrawide breakpoint.
     /// </summary>
-    public LinkUnderlineBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public LinkUnderlineBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private LinkUnderlineBuilder ChainOpacity(string value)
@@ -131,8 +131,8 @@ public sealed class LinkUnderlineBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        LinkUnderlineRule last = _rules[lastIdx];
         _rules[lastIdx] = new LinkUnderlineRule(last.Value, last.Type, bp);
         return this;
     }
@@ -149,7 +149,7 @@ public sealed class LinkUnderlineBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            LinkUnderlineRule rule = _rules[i];
             string cls;
 
             if (rule.Type == "opacity")
@@ -168,7 +168,7 @@ public sealed class LinkUnderlineBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -192,7 +192,7 @@ public sealed class LinkUnderlineBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            LinkUnderlineRule rule = _rules[i];
             string? css = null;
 
             if (rule.Type == "opacity")

@@ -59,27 +59,27 @@ public sealed class VisibilityBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the visibility on phone breakpoint.
 	/// </summary>
-    public VisibilityBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public VisibilityBuilder OnPhone => ChainBp(BreakpointType.Base);
 	/// <summary>
 	/// Applies the visibility on tablet breakpoint.
 	/// </summary>
-    public VisibilityBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public VisibilityBuilder OnTablet => ChainBp(BreakpointType.Md);
 	/// <summary>
 	/// Applies the visibility on laptop breakpoint.
 	/// </summary>
-    public VisibilityBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public VisibilityBuilder OnLaptop => ChainBp(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the visibility on desktop breakpoint.
 	/// </summary>
-    public VisibilityBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public VisibilityBuilder OnDesktop => ChainBp(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the visibility on widescreen breakpoint.
 	/// </summary>
-    public VisibilityBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public VisibilityBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
 	/// <summary>
 	/// Applies the visibility on ultrawide breakpoint.
 	/// </summary>
-    public VisibilityBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public VisibilityBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private VisibilityBuilder Chain(string value)
@@ -97,8 +97,8 @@ public sealed class VisibilityBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        VisibilityRule last = _rules[lastIdx];
         _rules[lastIdx] = new VisibilityRule(last.Value, bp);
         return this;
     }
@@ -115,8 +115,8 @@ public sealed class VisibilityBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = rule.Value switch
+            VisibilityRule rule = _rules[i];
+            string cls = rule.Value switch
             {
                 "invisible" => _classInvisible,
                 VisibilityKeyword.VisibleValue => _classVisible,
@@ -125,7 +125,7 @@ public sealed class VisibilityBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -149,8 +149,8 @@ public sealed class VisibilityBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var css = rule.Value switch
+            VisibilityRule rule = _rules[i];
+            string? css = rule.Value switch
             {
                 "invisible" => "visibility: hidden",
                 VisibilityKeyword.VisibleValue => "visibility: visible",

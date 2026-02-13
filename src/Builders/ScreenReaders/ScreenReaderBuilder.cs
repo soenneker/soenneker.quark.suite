@@ -39,27 +39,27 @@ public sealed class ScreenReaderBuilder : ICssBuilder
     /// <summary>
     /// Applies the screen reader on phone breakpoint.
     /// </summary>
-    public ScreenReaderBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public ScreenReaderBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the screen reader on tablet breakpoint.
     /// </summary>
-    public ScreenReaderBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public ScreenReaderBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the screen reader on laptop breakpoint.
     /// </summary>
-    public ScreenReaderBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public ScreenReaderBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the screen reader on desktop breakpoint.
     /// </summary>
-    public ScreenReaderBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public ScreenReaderBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the screen reader on widescreen breakpoint.
     /// </summary>
-    public ScreenReaderBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public ScreenReaderBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
     /// <summary>
     /// Applies the screen reader on ultrawide breakpoint.
     /// </summary>
-    public ScreenReaderBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public ScreenReaderBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScreenReaderBuilder ChainWithType(string type)
@@ -77,8 +77,8 @@ public sealed class ScreenReaderBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        ScreenReaderRule last = _rules[lastIdx];
         _rules[lastIdx] = new ScreenReaderRule(last.Type, breakpoint);
         return this;
     }
@@ -97,12 +97,12 @@ public sealed class ScreenReaderBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetScreenReaderClass(rule.Type);
+            ScreenReaderRule rule = _rules[i];
+            string cls = GetScreenReaderClass(rule.Type);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -129,8 +129,8 @@ public sealed class ScreenReaderBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var styleValue = GetScreenReaderStyle(rule.Type);
+            ScreenReaderRule rule = _rules[i];
+            string? styleValue = GetScreenReaderStyle(rule.Type);
 
             if (styleValue is null)
                 continue;

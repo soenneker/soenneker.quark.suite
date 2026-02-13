@@ -10,6 +10,7 @@ using Soenneker.Serilog.Sinks.Browser.Blazor.Registrars;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Serilog.Events;
 using Soenneker.Extensions.Configuration.Logging;
 using Soenneker.Extensions.Serilog.LogEventLevels;
 
@@ -126,7 +127,7 @@ public sealed class Program
             // Register demo services
             builder.Services.AddScoped<Services.EmployeeService>();
 
-            var host = builder.Build();
+            WebAssemblyHost host = builder.Build();
 
             var jsRuntime = (IJSRuntime)host.Services.GetService(typeof(IJSRuntime))!;
 
@@ -149,7 +150,7 @@ public sealed class Program
 
     private static IConfigurationRoot BuildConfig(WebAssemblyHostBuilder builder)
     {
-        var configRoot = builder.Configuration.Build();
+        IConfigurationRoot configRoot = builder.Configuration.Build();
 
         return configRoot;
     }
@@ -158,7 +159,7 @@ public sealed class Program
     {
         SelfLog.Enable(m => Console.Error.WriteLine(m));
 
-        var logEventLevel = configuration.GetLogEventLevel();
+        LogEventLevel logEventLevel = configuration.GetLogEventLevel();
 
         services.AddLogging(builder =>
         {

@@ -175,27 +175,27 @@ public sealed class TextColorBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the text color on phone breakpoint.
 	/// </summary>
-    public TextColorBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public TextColorBuilder OnPhone => ChainBp(BreakpointType.Base);
 	/// <summary>
 	/// Applies the text color on tablet breakpoint.
 	/// </summary>
-    public TextColorBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public TextColorBuilder OnTablet => ChainBp(BreakpointType.Md);
 	/// <summary>
 	/// Applies the text color on laptop breakpoint.
 	/// </summary>
-    public TextColorBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public TextColorBuilder OnLaptop => ChainBp(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the text color on desktop breakpoint.
 	/// </summary>
-    public TextColorBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public TextColorBuilder OnDesktop => ChainBp(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the text color on widescreen breakpoint.
 	/// </summary>
-    public TextColorBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public TextColorBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
 	/// <summary>
 	/// Applies the text color on ultrawide breakpoint.
 	/// </summary>
-    public TextColorBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public TextColorBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextColorBuilder ChainValue(string value)
@@ -213,8 +213,8 @@ public sealed class TextColorBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        TextColorRule last = _rules[lastIdx];
         _rules[lastIdx] = new TextColorRule(last.Value, bp);
         return this;
     }
@@ -233,12 +233,12 @@ public sealed class TextColorBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetClass(rule);
+            TextColorRule rule = _rules[i];
+            string cls = GetClass(rule);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -265,8 +265,8 @@ public sealed class TextColorBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var css = GetStyle(rule);
+            TextColorRule rule = _rules[i];
+            string? css = GetStyle(rule);
             if (css is null)
                 continue;
 
@@ -289,7 +289,7 @@ public sealed class TextColorBuilder : ICssBuilder
             return string.Empty;
 
         // First try to generate classes
-        var classResult = ToClass();
+        string classResult = ToClass();
         if (classResult.HasContent())
             return classResult;
 

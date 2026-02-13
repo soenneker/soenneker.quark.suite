@@ -210,32 +210,32 @@ public sealed class FlexBuilder : ICssBuilder
     /// <summary>
     /// Apply on phone devices (portrait phones, less than 576px).
     /// </summary>
-    public FlexBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public FlexBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
 
     /// <summary>
     /// Apply on tablet devices (tablets, 768px and up).
     /// </summary>
-    public FlexBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public FlexBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
 
     /// <summary>
     /// Apply on laptop devices (laptops, 992px and up).
     /// </summary>
-    public FlexBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public FlexBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
 
     /// <summary>
     /// Apply on desktop devices (desktops, 1200px and up).
     /// </summary>
-    public FlexBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public FlexBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
 
     /// <summary>
     /// Apply on wide screen devices (larger desktops, 1400px and up).
     /// </summary>
-    public FlexBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public FlexBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
 
     /// <summary>
     /// Apply on ultrawide devices (ultrawide screens, 1920px and up).
     /// </summary>
-    public FlexBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public FlexBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FlexBuilder ChainWithRule(string property, string value)
@@ -253,8 +253,8 @@ public sealed class FlexBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        FlexRule last = _rules[lastIdx];
         _rules[lastIdx] = new FlexRule(last.Property, last.Value, breakpoint);
         return this;
     }
@@ -272,12 +272,12 @@ public sealed class FlexBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetFlexClass(rule.Property, rule.Value);
+            FlexRule rule = _rules[i];
+            string cls = GetFlexClass(rule.Property, rule.Value);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -303,8 +303,8 @@ public sealed class FlexBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var css = GetCssProperty(rule.Property, rule.Value);
+            FlexRule rule = _rules[i];
+            string? css = GetCssProperty(rule.Property, rule.Value);
             if (css is null)
                 continue;
 

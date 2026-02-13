@@ -228,7 +228,7 @@
 
     public Task NotifyInputChanged<T>(T newValue, bool overrideNewValue = false)
     {
-        var newValidationValue = overrideNewValue ? newValue : _input?.ValidationValue;
+        object? newValidationValue = overrideNewValue ? newValue : _input?.ValidationValue;
         _lastKnownValue = newValidationValue;
 
         if (EditContext is not null && _hasFieldIdentifier)
@@ -251,7 +251,7 @@
 
     public ValidationStatus Validate()
     {
-        var value = _input?.ValidationValue ?? _lastKnownValue ?? string.Empty;
+        object value = _input?.ValidationValue ?? _lastKnownValue ?? string.Empty;
         _explicitlyValidated = true;
         return Validate(value);
     }
@@ -260,7 +260,7 @@
     {
         if (_input is not null && !_input.Disabled)
         {
-            var handler = GetValidationHandler();
+            IValidationHandler? handler = GetValidationHandler();
             handler?.Validate(this, newValidationValue);
         }
 
@@ -269,7 +269,7 @@
 
     public Task<ValidationStatus> ValidateAsync()
     {
-        var value = _input?.ValidationValue ?? _lastKnownValue ?? string.Empty;
+        object value = _input?.ValidationValue ?? _lastKnownValue ?? string.Empty;
         return ValidateAsync(value);
     }
 
@@ -286,11 +286,11 @@
 
             _cts = new CancellationTokenSource();
 
-            var token = _cts.Token;
+            CancellationToken token = _cts.Token;
 
             try
             {
-                var handler = GetValidationHandler();
+                IValidationHandler? handler = GetValidationHandler();
                 if (handler is not null)
                 {
                     token.ThrowIfCancellationRequested();
@@ -307,7 +307,7 @@
 
     private IValidationHandler? GetValidationHandler()
     {
-        var type = DetermineHandlerType();
+        Type? type = DetermineHandlerType();
         return type is not null ? ValidationHandlerFactory.Create(type) : null;
     }
 
@@ -342,7 +342,7 @@
 
     public void NotifyValidationStatusChanged(ValidationStatus status, IEnumerable<string>? messages = null)
     {
-        var shouldShowInvalidBefore = ShouldShowInvalid;
+        bool shouldShowInvalidBefore = ShouldShowInvalid;
 
         if (Status != status || Messages?.SequenceEqual(messages ?? []) == false)
         {
@@ -357,7 +357,7 @@
         else
         {
             // If visual gating changed (e.g., became touched), still notify listeners to refresh UI
-            var shouldShowInvalidAfter = ShouldShowInvalid;
+            bool shouldShowInvalidAfter = ShouldShowInvalid;
 
             if (shouldShowInvalidBefore != shouldShowInvalidAfter)
             {

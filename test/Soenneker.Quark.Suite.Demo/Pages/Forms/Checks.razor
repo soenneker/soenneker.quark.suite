@@ -234,7 +234,7 @@
 
     private void ValidateTerms(ValidatorEventArgs args)
     {
-        var isChecked = args.Value is bool b ? b : _demoModel.TermsAccepted;
+        bool isChecked = args.Value is bool b ? b : _demoModel.TermsAccepted;
         if (!isChecked)
         {
             args.Status = ValidationStatus.Error;
@@ -251,7 +251,7 @@
         if (_validations is null)
             return;
 
-        var ok = await _validations.Validate();
+        bool ok = await _validations.Validate();
         _submitResult = ok ? "Submitted!" : "Please fix validation errors.";
     }
 

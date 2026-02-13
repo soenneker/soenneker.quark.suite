@@ -30,7 +30,7 @@ public sealed class DatePickerInterop : IDatePickerInterop
 
     public async ValueTask Initialize(CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _initializer.Init(linked);
@@ -39,7 +39,7 @@ public sealed class DatePickerInterop : IDatePickerInterop
     public async ValueTask Attach(ElementReference element, CancellationToken cancellationToken = default)
     {
         // No-op: JS-free mode. Keep signature for compatibility.
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _initializer.Init(linked);
@@ -49,7 +49,7 @@ public sealed class DatePickerInterop : IDatePickerInterop
         CancellationToken cancellationToken = default) where T : class
     {
         // No-op: JS-free mode. Outside-close handled via backdrop overlay.
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _initializer.Init(linked);

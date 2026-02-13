@@ -111,7 +111,7 @@
 
     private async Task HandleChange(ChangeEventArgs e)
     {
-        var newValue = ConvertValue(e.Value?.ToString());
+        TValue? newValue = ConvertValue(e.Value?.ToString());
         var valueChanged = false;
         if (!EqualityComparer<TValue>.Default.Equals(SelectedValue, newValue))
         {
@@ -172,7 +172,7 @@
             return null;
 
         string? token = null;
-        var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+        bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
         if (isTheme && token is not null)
             return $"form-select-{token}";
 
@@ -201,11 +201,11 @@
             AppendClass(ref cls, "form-select");
             AppendClass(ref cls, "q-form-select");
             
-            var sizeClass = GetSizeClass();
+            string? sizeClass = GetSizeClass();
             if (sizeClass != null)
                 AppendClass(ref cls, sizeClass);
                 
-            var validationClass = GetValidationClass();
+            string? validationClass = GetValidationClass();
             if (validationClass != null)
                 AppendClass(ref cls, validationClass);
         });

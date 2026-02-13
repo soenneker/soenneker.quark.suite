@@ -158,7 +158,7 @@
         if (!Expand || Mode != BarMode.Horizontal)
             return null;
 
-        var breakpointToken = BreakpointUtil.GetBreakpointToken(Breakpoint);
+        string breakpointToken = BreakpointUtil.GetBreakpointToken(Breakpoint);
 
         if (breakpointToken.IsNullOrEmpty())
             return "navbar-expand-lg"; // Default
@@ -203,33 +203,33 @@
         {
             AppendClass(ref cls, "q-bar");
             AppendClass(ref cls, $"q-bar-{Mode.Value}");
-            var baseClass = GetBaseClass();
+            string baseClass = GetBaseClass();
             if (baseClass.HasContent())
                 AppendClass(ref cls, baseClass);
 
-            var placementClass = GetPlacementClass();
+            string? placementClass = GetPlacementClass();
             if (placementClass != null)
                 AppendClass(ref cls, placementClass);
 
-            var colorClass = GetColorClass();
+            string? colorClass = GetColorClass();
             if (colorClass != null)
                 AppendClass(ref cls, colorClass);
 
-            var verticalClass = GetVerticalClass();
+            string? verticalClass = GetVerticalClass();
             if (verticalClass != null)
                 AppendClass(ref cls, verticalClass);
 
-            var expandClass = GetExpandClass();
+            string? expandClass = GetExpandClass();
             if (expandClass != null)
                 AppendClass(ref cls, expandClass);
 
-            var alignmentClass = GetAlignmentClass();
+            string? alignmentClass = GetAlignmentClass();
             if (alignmentClass != null)
                 AppendClass(ref cls, alignmentClass);
 
             if (Mode == BarMode.Horizontal)
             {
-                var collapseClass = GetCollapseClass();
+                string? collapseClass = GetCollapseClass();
                 if (collapseClass != null)
                     AppendClass(ref cls, collapseClass);
             }
@@ -363,7 +363,7 @@
             }
             else
             {
-                var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out var token);
+                bool isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out string? token);
 
                 if (isTheme && token is not null)
                 {

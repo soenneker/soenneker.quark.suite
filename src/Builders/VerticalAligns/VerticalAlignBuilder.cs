@@ -82,32 +82,32 @@ public sealed class VerticalAlignBuilder : ICssBuilder
     /// <summary>
     /// Applies the vertical alignment on phone breakpoint.
     /// </summary>
-    public VerticalAlignBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public VerticalAlignBuilder OnPhone => ChainBp(BreakpointType.Base);
 
     /// <summary>
     /// Applies the vertical alignment on tablet breakpoint.
     /// </summary>
-    public VerticalAlignBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public VerticalAlignBuilder OnTablet => ChainBp(BreakpointType.Md);
 
     /// <summary>
     /// Applies the vertical alignment on laptop breakpoint.
     /// </summary>
-    public VerticalAlignBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public VerticalAlignBuilder OnLaptop => ChainBp(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the vertical alignment on desktop breakpoint.
     /// </summary>
-    public VerticalAlignBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public VerticalAlignBuilder OnDesktop => ChainBp(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the vertical alignment on widescreen breakpoint.
     /// </summary>
-    public VerticalAlignBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public VerticalAlignBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
 
     /// <summary>
     /// Applies the vertical alignment on ultrawide breakpoint.
     /// </summary>
-    public VerticalAlignBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public VerticalAlignBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private VerticalAlignBuilder Chain(string value)
@@ -125,8 +125,8 @@ public sealed class VerticalAlignBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        VerticalAlignRule last = _rules[lastIdx];
         _rules[lastIdx] = new VerticalAlignRule(last.Value, bp);
         return this;
     }
@@ -143,8 +143,8 @@ public sealed class VerticalAlignBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = rule.Value switch
+            VerticalAlignRule rule = _rules[i];
+            string cls = rule.Value switch
             {
                 VerticalAlignKeyword.BaselineValue => "align-baseline",
                 VerticalAlignKeyword.TopValue => "align-top",
@@ -157,7 +157,7 @@ public sealed class VerticalAlignBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -181,8 +181,8 @@ public sealed class VerticalAlignBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var val = rule.Value;
+            VerticalAlignRule rule = _rules[i];
+            string val = rule.Value;
             if (string.IsNullOrEmpty(val))
                 continue;
 

@@ -42,7 +42,7 @@ public sealed class BarInterop : IBarInterop
     /// <returns>A value task representing the initialization operation.</returns>
     public async ValueTask InitializeHorizontalBar(CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _horizontalBarInitializer.Init(linked);
@@ -55,7 +55,7 @@ public sealed class BarInterop : IBarInterop
     /// <returns>A value task representing the initialization operation.</returns>
     public async ValueTask InitializeVerticalBar(CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _sidebarInitializer.Init(linked);

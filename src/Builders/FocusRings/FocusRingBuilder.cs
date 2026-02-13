@@ -69,27 +69,27 @@ public sealed class FocusRingBuilder : ICssBuilder
     /// <summary>
     /// Applies the focus ring on phone breakpoint.
     /// </summary>
-    public FocusRingBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public FocusRingBuilder OnPhone => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the focus ring on tablet breakpoint.
     /// </summary>
-    public FocusRingBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public FocusRingBuilder OnTablet => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the focus ring on laptop breakpoint.
     /// </summary>
-    public FocusRingBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public FocusRingBuilder OnLaptop => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the focus ring on desktop breakpoint.
     /// </summary>
-    public FocusRingBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public FocusRingBuilder OnDesktop => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the focus ring on widescreen breakpoint.
     /// </summary>
-    public FocusRingBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public FocusRingBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
     /// <summary>
     /// Applies the focus ring on ultrawide breakpoint.
     /// </summary>
-    public FocusRingBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public FocusRingBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FocusRingBuilder Chain(string color)
@@ -107,8 +107,8 @@ public sealed class FocusRingBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        FocusRingRule last = _rules[lastIdx];
         _rules[lastIdx] = new FocusRingRule(last.Color, bp);
         return this;
     }
@@ -125,8 +125,8 @@ public sealed class FocusRingBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = rule.Color switch
+            FocusRingRule rule = _rules[i];
+            string cls = rule.Color switch
             {
                 "primary" => _classPrimary,
                 "secondary" => _classSecondary,
@@ -141,7 +141,7 @@ public sealed class FocusRingBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -165,8 +165,8 @@ public sealed class FocusRingBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cssVar = GetCssVariable(rule.Color);
+            FocusRingRule rule = _rules[i];
+            string? cssVar = GetCssVariable(rule.Color);
             if (cssVar is null)
                 continue;
 

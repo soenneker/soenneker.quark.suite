@@ -89,27 +89,27 @@ public sealed class ColumnOffsetBuilder : ICssBuilder
     /// <summary>
     /// Applies the column offset on phone breakpoint.
     /// </summary>
-    public ColumnOffsetBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public ColumnOffsetBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the column offset on tablet breakpoint.
     /// </summary>
-    public ColumnOffsetBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public ColumnOffsetBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the column offset on laptop breakpoint.
     /// </summary>
-    public ColumnOffsetBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public ColumnOffsetBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the column offset on desktop breakpoint.
     /// </summary>
-    public ColumnOffsetBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public ColumnOffsetBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the column offset on widescreen breakpoint.
     /// </summary>
-    public ColumnOffsetBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public ColumnOffsetBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
     /// <summary>
     /// Applies the column offset on ultrawide breakpoint.
     /// </summary>
-    public ColumnOffsetBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public ColumnOffsetBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ColumnOffsetBuilder ChainWithOffset(string offset)
@@ -127,8 +127,8 @@ public sealed class ColumnOffsetBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        ColumnOffsetRule last = _rules[lastIdx];
         _rules[lastIdx] = new ColumnOffsetRule(last.Offset, breakpoint);
         return this;
     }
@@ -147,12 +147,12 @@ public sealed class ColumnOffsetBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetColumnOffsetClass(rule.Offset);
+            ColumnOffsetRule rule = _rules[i];
+            string cls = GetColumnOffsetClass(rule.Offset);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 

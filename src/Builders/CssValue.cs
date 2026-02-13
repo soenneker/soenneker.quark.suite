@@ -116,7 +116,7 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         if (selector.IsNullOrWhiteSpace())
             return this;
 
-        var trimmed = selector.AsSpan().Trim();
+        ReadOnlySpan<char> trimmed = selector.AsSpan().Trim();
         if (trimmed.Length != selector.Length)
             return new CssValue<TBuilder>(this, trimmed.ToString(), absolute);
 
@@ -140,11 +140,11 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
             return false;
 
         // Check if the value ends with common CSS units
-        var trimmedSpan = value.AsSpan().Trim();
+        ReadOnlySpan<char> trimmedSpan = value.AsSpan().Trim();
         if (trimmedSpan.Length == 0)
             return false;
 
-        var trimmed = trimmedSpan.Length == value.Length ? value : trimmedSpan.ToString();
+        string trimmed = trimmedSpan.Length == value.Length ? value : trimmedSpan.ToString();
 
         return trimmed.EndsWithIgnoreCase("px") || trimmed.EndsWithIgnoreCase("em") ||
                trimmed.EndsWithIgnoreCase("rem") || trimmed.EndsWithIgnoreCase("%") ||
@@ -159,11 +159,11 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         if (value.IsNullOrEmpty())
             return false;
 
-        var trimmedSpan = value.AsSpan().Trim();
+        ReadOnlySpan<char> trimmedSpan = value.AsSpan().Trim();
         if (trimmedSpan.Length == 0)
             return false;
 
-        var trimmed = trimmedSpan.Length == value.Length ? value : trimmedSpan.ToString();
+        string trimmed = trimmedSpan.Length == value.Length ? value : trimmedSpan.ToString();
 
         if (trimmed.StartsWith("#", StringComparison.Ordinal) || trimmed.StartsWith("rgb", StringComparison.OrdinalIgnoreCase) ||
             trimmed.StartsWith("hsl", StringComparison.OrdinalIgnoreCase) || trimmed.StartsWith("var(", StringComparison.OrdinalIgnoreCase) ||
@@ -220,14 +220,14 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
     {
         if (_value.HasContent())
         {
-            var trimmedSpan = _value.AsSpan().Trim();
+            ReadOnlySpan<char> trimmedSpan = _value.AsSpan().Trim();
             if (trimmedSpan.Length == 0)
             {
                 token = null;
                 return false;
             }
 
-            var v = trimmedSpan.Length == _value.Length ? _value : trimmedSpan.ToString();
+            string v = trimmedSpan.Length == _value.Length ? _value : trimmedSpan.ToString();
 
             if (_isSize)
             {

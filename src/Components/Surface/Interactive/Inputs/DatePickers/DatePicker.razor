@@ -22,13 +22,13 @@
                 <button type="button" class="btn btn-sm btn-light qcal-nav" @onclick="NextMonth">›</button>
             </div>
             <div class="qcal-grid mt-2">
-                @foreach (var dow in _dayNames)
+                @foreach (string dow in _dayNames)
                 {
                     <div class="qcal-dow text-muted">@dow</div>
                 }
-                @foreach (var day in BuildMonthCells())
+                @foreach (Cell day in BuildMonthCells())
                 {
-                    var css = day.InMonth ? "qcal-day" : "qcal-day text-muted";
+                    string css = day.InMonth ? "qcal-day" : "qcal-day text-muted";
                     if (day.Date == DateOnly.FromDateTime(DateTime.Today))
                     {
                         css += " qcal-today";
@@ -144,7 +144,7 @@
             return null;
 
         var text = e.Value.ToString();
-        if (DateOnly.TryParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
+        if (DateOnly.TryParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateOnly result))
             return result;
 
         return null;
@@ -152,8 +152,8 @@
 
     private async Task HandleInput(ChangeEventArgs e)
     {
-        var next = Parse(e);
-        var valueChanged = Value != next;
+        DateOnly? next = Parse(e);
+        bool valueChanged = Value != next;
         Value = next;
         if (valueChanged)
             await ValueChanged.InvokeIfHasDelegate(Value);
@@ -171,8 +171,8 @@
 
     private async Task HandleChange(ChangeEventArgs e)
     {
-        var next = Parse(e);
-        var valueChanged = Value != next;
+        DateOnly? next = Parse(e);
+        bool valueChanged = Value != next;
         Value = next;
         if (valueChanged)
             await ValueChanged.InvokeIfHasDelegate(Value);
@@ -194,7 +194,7 @@
             return null;
 
         string? token = null;
-        var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+        bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
         if (isTheme && token is not null)
             return $"form-control-{token}";
 
@@ -254,11 +254,11 @@
             AppendClass(ref cls, "q-date-picker");
             AppendClass(ref cls, "form-control");
             
-            var sizeClass = GetSizeClass();
+            string? sizeClass = GetSizeClass();
             if (sizeClass != null)
                 AppendClass(ref cls, sizeClass);
                 
-            var validationClass = GetValidationClass();
+            string? validationClass = GetValidationClass();
             if (validationClass != null)
                 AppendClass(ref cls, validationClass);
         });
@@ -328,9 +328,9 @@
 
     private void InitializeDayNames()
     {
-        var culture = CultureInfo.CurrentCulture;
-        var first = culture.DateTimeFormat.FirstDayOfWeek;
-        var names = culture.DateTimeFormat.AbbreviatedDayNames;
+        CultureInfo culture = CultureInfo.CurrentCulture;
+        DayOfWeek first = culture.DateTimeFormat.FirstDayOfWeek;
+        string[] names = culture.DateTimeFormat.AbbreviatedDayNames;
         _dayNames = Enumerable.Range(0, 7)
             .Select(i => names[((int)first + i) % 7])
             .ToArray();
@@ -341,16 +341,16 @@
     private IEnumerable<Cell> BuildMonthCells()
     {
         var firstOfMonth = new DateOnly(_displayMonth.Year, _displayMonth.Month, 1);
-        var culture = CultureInfo.CurrentCulture;
-        var startDow = culture.DateTimeFormat.FirstDayOfWeek;
-        var offset = ((int)firstOfMonth.DayOfWeek - (int)startDow + 7) % 7;
-        var gridStart = firstOfMonth.AddDays(-offset);
+        CultureInfo culture = CultureInfo.CurrentCulture;
+        DayOfWeek startDow = culture.DateTimeFormat.FirstDayOfWeek;
+        int offset = ((int)firstOfMonth.DayOfWeek - (int)startDow + 7) % 7;
+        DateOnly gridStart = firstOfMonth.AddDays(-offset);
 
         for (var i = 0; i < 42; i++)
         {
-            var d = gridStart.AddDays(i);
-            var inMonth = d.Month == _displayMonth.Month;
-            var disabled = (Min.HasValue && d < Min.Value) || (Max.HasValue && d > Max.Value);
+            DateOnly d = gridStart.AddDays(i);
+            bool inMonth = d.Month == _displayMonth.Month;
+            bool disabled = (Min.HasValue && d < Min.Value) || (Max.HasValue && d > Max.Value);
             yield return new Cell(d, inMonth, disabled);
         }
     }
@@ -419,7 +419,7 @@
         if (BackgroundColor is { IsEmpty: false })
         {
             string? token = null;
-            var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
+            bool isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
 
             if (isTheme && token is not null)
             {

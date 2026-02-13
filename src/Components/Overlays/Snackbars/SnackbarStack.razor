@@ -7,13 +7,13 @@
 <CascadingValue Name="ParentSnackbar" Value="@this" IsFixed="true">
     @ChildContent
 
-    @foreach (var (location, items) in _byLocation)
+    @foreach ((SnackbarLocation location, List<SnackbarNotificationItem> items) in _byLocation)
     {
         if (items.Count == 0)
             continue;
 
         <div class="@GetContainerClass(location)" style="z-index: 1055;">
-            @foreach (var item in items)
+            @foreach (SnackbarNotificationItem item in items)
             {
                 <Snackbar @key="@item.Key"
                           Key="@item.Key"
@@ -103,9 +103,9 @@
         var snackbarOptions = new SnackbarOptions();
         options?.Invoke(snackbarOptions);
 
-        var key = snackbarOptions.Key ?? Guid.NewGuid()
-                                             .ToString("N");
-        var resolvedLocation = location ?? EffectiveLocation;
+        string key = snackbarOptions.Key ?? Guid.NewGuid()
+                                                .ToString("N");
+        SnackbarLocation resolvedLocation = location ?? EffectiveLocation;
 
         _keyToLocation[key] = resolvedLocation;
 
@@ -113,7 +113,7 @@
 
         _notifications.Add(item);
 
-        if (!_byLocation.TryGetValue(resolvedLocation, out var list))
+        if (!_byLocation.TryGetValue(resolvedLocation, out List<SnackbarNotificationItem>? list))
         {
             list = new List<SnackbarNotificationItem>(4);
             _byLocation[resolvedLocation] = list;
@@ -123,7 +123,7 @@
 
         await RefreshOffThread();
 
-        var delay = item.HideDelay ?? EffectiveDefaultDelay;
+        int delay = item.HideDelay ?? EffectiveDefaultDelay;
         if (delay <= 0)
             return;
 
@@ -132,7 +132,7 @@
 
     private void RestartAutoHide(string key, int delayMs)
     {
-        if (_autoHide.Remove(key, out var existing))
+        if (_autoHide.Remove(key, out CancellationTokenSource? existing))
         {
             existing.Cancel();
             existing.Dispose();
@@ -167,7 +167,7 @@
         if (_disposed)
             return;
 
-        if (_autoHide.Remove(key, out var cts))
+        if (_autoHide.Remove(key, out CancellationTokenSource? cts))
         {
             await cts.CancelAsync();
             cts.Dispose();
@@ -175,7 +175,7 @@
 
         _notifications.RemoveAll(x => x.Key == key);
 
-        if (_keyToLocation.Remove(key, out var loc) && _byLocation.TryGetValue(loc, out var list))
+        if (_keyToLocation.Remove(key, out SnackbarLocation? loc) && _byLocation.TryGetValue(loc, out List<SnackbarNotificationItem>? list))
         {
             list.RemoveAll(x => x.Key == key);
 
@@ -185,7 +185,7 @@
         else
         {
             // fallback safety (should be rare)
-            foreach (var kvp in _byLocation)
+            foreach (KeyValuePair<SnackbarLocation, List<SnackbarNotificationItem>> kvp in _byLocation)
                 kvp.Value.RemoveAll(x => x.Key == key);
         }
 
@@ -197,7 +197,7 @@
     {
         _disposed = true;
 
-        foreach (var cts in _autoHide.Values)
+        foreach (CancellationTokenSource cts in _autoHide.Values)
         {
             cts.Cancel();
             cts.Dispose();

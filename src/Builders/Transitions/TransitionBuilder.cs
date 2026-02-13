@@ -59,27 +59,27 @@ public sealed class TransitionBuilder : ICssBuilder
     /// <summary>
     /// Applies the transition on phone breakpoint.
     /// </summary>
-    public TransitionBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public TransitionBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the transition on tablet breakpoint.
     /// </summary>
-    public TransitionBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public TransitionBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the transition on laptop breakpoint.
     /// </summary>
-    public TransitionBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public TransitionBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the transition on desktop breakpoint.
     /// </summary>
-    public TransitionBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public TransitionBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the transition on widescreen breakpoint.
     /// </summary>
-    public TransitionBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public TransitionBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
     /// <summary>
     /// Applies the transition on ultrawide breakpoint.
     /// </summary>
-    public TransitionBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public TransitionBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TransitionBuilder ChainWithTransition(string transition)
@@ -97,8 +97,8 @@ public sealed class TransitionBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        TransitionRule last = _rules[lastIdx];
         _rules[lastIdx] = new TransitionRule(last.Transition, breakpoint);
         return this;
     }
@@ -117,12 +117,12 @@ public sealed class TransitionBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetTransitionClass(rule.Transition);
+            TransitionRule rule = _rules[i];
+            string cls = GetTransitionClass(rule.Transition);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -149,8 +149,8 @@ public sealed class TransitionBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var transitionValue = GetTransitionValue(rule.Transition);
+            TransitionRule rule = _rules[i];
+            string? transitionValue = GetTransitionValue(rule.Transition);
 
             if (transitionValue is null)
                 continue;

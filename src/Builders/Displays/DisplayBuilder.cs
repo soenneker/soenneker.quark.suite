@@ -93,27 +93,27 @@ public sealed class DisplayBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the display on phone breakpoint.
 	/// </summary>
-    public DisplayBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public DisplayBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the display on tablet breakpoint.
 	/// </summary>
-    public DisplayBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public DisplayBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the display on laptop breakpoint.
 	/// </summary>
-    public DisplayBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public DisplayBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the display on desktop breakpoint.
 	/// </summary>
-    public DisplayBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public DisplayBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the display on widescreen breakpoint.
 	/// </summary>
-    public DisplayBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public DisplayBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
 	/// <summary>
 	/// Applies the display on ultrawide breakpoint.
 	/// </summary>
-    public DisplayBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public DisplayBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private DisplayBuilder ChainWithDisplay(string display)
@@ -131,8 +131,8 @@ public sealed class DisplayBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        DisplayRule last = _rules[lastIdx];
         _rules[lastIdx] = new DisplayRule(last.Display, breakpoint);
         return this;
     }
@@ -151,12 +151,12 @@ public sealed class DisplayBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetDisplayClass(rule.Display);
+            DisplayRule rule = _rules[i];
+            string cls = GetDisplayClass(rule.Display);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -183,8 +183,8 @@ public sealed class DisplayBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var val = rule.Display;
+            DisplayRule rule = _rules[i];
+            string val = rule.Display;
             if (val.IsNullOrEmpty())
                 continue;
 

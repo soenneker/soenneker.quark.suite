@@ -106,32 +106,32 @@ public sealed class PositionOffsetBuilder : ICssBuilder
     /// <summary>
     /// Applies the position offset on phone breakpoint.
     /// </summary>
-    public PositionOffsetBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public PositionOffsetBuilder OnPhone => ChainBp(BreakpointType.Base);
 
     /// <summary>
     /// Applies the position offset on tablet breakpoint.
     /// </summary>
-    public PositionOffsetBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public PositionOffsetBuilder OnTablet => ChainBp(BreakpointType.Md);
 
     /// <summary>
     /// Applies the position offset on laptop breakpoint.
     /// </summary>
-    public PositionOffsetBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public PositionOffsetBuilder OnLaptop => ChainBp(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the position offset on desktop breakpoint.
     /// </summary>
-    public PositionOffsetBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public PositionOffsetBuilder OnDesktop => ChainBp(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the position offset on widescreen breakpoint.
     /// </summary>
-    public PositionOffsetBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public PositionOffsetBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
 
     /// <summary>
     /// Applies the position offset on ultrawide breakpoint.
     /// </summary>
-    public PositionOffsetBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public PositionOffsetBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PositionOffsetBuilder Chain(string property, string value)
@@ -149,8 +149,8 @@ public sealed class PositionOffsetBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        PositionOffsetRule last = _rules[lastIdx];
         _rules[lastIdx] = new PositionOffsetRule(last.Property, last.Value, bp);
         return this;
     }
@@ -168,12 +168,12 @@ public sealed class PositionOffsetBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetClass(rule.Property, rule.Value);
+            PositionOffsetRule rule = _rules[i];
+            string cls = GetClass(rule.Property, rule.Value);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -199,8 +199,8 @@ public sealed class PositionOffsetBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var css = GetStyle(rule.Property, rule.Value);
+            PositionOffsetRule rule = _rules[i];
+            string? css = GetStyle(rule.Property, rule.Value);
             if (css is null)
                 continue;
 
@@ -227,7 +227,7 @@ public sealed class PositionOffsetBuilder : ICssBuilder
             };
         }
 
-        var prefix = property switch
+        string prefix = property switch
         {
             "top" => "top",
             "bottom" => "bottom",
@@ -243,7 +243,7 @@ public sealed class PositionOffsetBuilder : ICssBuilder
     private static string? GetStyle(string property, string value)
     {
         if (property == "translate") return null;
-        var cssProp = property switch
+        string cssProp = property switch
         {
             "top" => "top",
             "bottom" => "bottom",
@@ -252,7 +252,7 @@ public sealed class PositionOffsetBuilder : ICssBuilder
             _ => string.Empty
         };
         if (cssProp.Length == 0) return null;
-        var cssVal = value switch
+        string cssVal = value switch
         {
             "0" => "0",
             "50" => "50%",

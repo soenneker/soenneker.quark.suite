@@ -42,7 +42,7 @@ public abstract class CancellableLayout : LayoutComponentBase, ICancellableLayou
 
     public Task Cancel()
     {
-        var cts = _atomic.TryGet();
+        CancellationTokenSource? cts = _atomic.TryGet();
         return cts is null ? Task.CompletedTask : cts.CancelAsync();
     }
 

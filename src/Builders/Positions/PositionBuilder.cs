@@ -69,27 +69,27 @@ public sealed class PositionBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the position on phone breakpoint.
 	/// </summary>
-    public PositionBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public PositionBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the position on tablet breakpoint.
 	/// </summary>
-    public PositionBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public PositionBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the position on laptop breakpoint.
 	/// </summary>
-    public PositionBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public PositionBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the position on desktop breakpoint.
 	/// </summary>
-    public PositionBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public PositionBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the position on widescreen breakpoint.
 	/// </summary>
-    public PositionBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public PositionBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
 	/// <summary>
 	/// Applies the position on ultrawide breakpoint.
 	/// </summary>
-    public PositionBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public PositionBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PositionBuilder ChainWithPosition(string position)
@@ -108,8 +108,8 @@ public sealed class PositionBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        PositionRule last = _rules[lastIdx];
         _rules[lastIdx] = new PositionRule(last.Position, breakpoint);
         return this;
     }
@@ -125,13 +125,13 @@ public sealed class PositionBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            PositionRule rule = _rules[i];
 
-            var baseClass = GetPositionClass(rule.Position);
+            string baseClass = GetPositionClass(rule.Position);
             if (baseClass.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 baseClass = BreakpointUtil.InsertBreakpointType(baseClass, bp);
 
@@ -157,7 +157,7 @@ public sealed class PositionBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            PositionRule rule = _rules[i];
             if (rule.Position.Length == 0)
                 continue;
 

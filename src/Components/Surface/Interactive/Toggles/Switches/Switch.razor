@@ -61,12 +61,12 @@
         if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
         {
             string? token = null;
-            var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
+            bool isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
 
             if (isTheme && token is not null)
                 return $"form-check-input-{token}";
 
-            var v = BackgroundColor.Value.ToString().Trim();
+            string v = BackgroundColor.Value.ToString().Trim();
 
             if (BackgroundColor.Value.IsCssClass)
             {
@@ -85,7 +85,7 @@
             return null;
 
         string? token = null;
-        var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+        bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
         if (isTheme && token is not null)
             return $"form-check-input-{token}";
 
@@ -128,22 +128,22 @@
         {
             AppendClass(ref cls, "form-check-input");
 
-            var colorClass = GetColorClass();
+            string? colorClass = GetColorClass();
             if (colorClass != null)
                 AppendClass(ref cls, colorClass);
 
-            var sizeClass = GetSizeClass();
+            string? sizeClass = GetSizeClass();
             if (sizeClass != null)
                 AppendClass(ref cls, sizeClass);
 
-            var validationClass = GetValidationClass();
+            string? validationClass = GetValidationClass();
             if (validationClass != null)
                 AppendClass(ref cls, validationClass);
         });
 
         if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty && !BackgroundColor.Value.IsCssClass)
         {
-            var v = BackgroundColor.Value.ToString().Trim();
+            string v = BackgroundColor.Value.ToString().Trim();
             BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, $"border-color:{v}"));
         }
 
@@ -168,7 +168,7 @@
         if (Disabled)
             return;
 
-        var next = !Checked;
+        bool next = !Checked;
         if (next == Checked)
             return;
 

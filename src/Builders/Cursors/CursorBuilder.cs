@@ -79,27 +79,27 @@ public sealed class CursorBuilder : ICssBuilder
     /// <summary>
     /// Applies the cursor on phone breakpoint.
     /// </summary>
-    public CursorBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public CursorBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the cursor on tablet breakpoint.
     /// </summary>
-    public CursorBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public CursorBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the cursor on laptop breakpoint.
     /// </summary>
-    public CursorBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public CursorBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the cursor on desktop breakpoint.
     /// </summary>
-    public CursorBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public CursorBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the cursor on widescreen breakpoint.
     /// </summary>
-    public CursorBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public CursorBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
     /// <summary>
     /// Applies the cursor on ultrawide breakpoint.
     /// </summary>
-    public CursorBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public CursorBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private CursorBuilder ChainWithCursor(string cursor)
@@ -117,8 +117,8 @@ public sealed class CursorBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        CursorRule last = _rules[lastIdx];
         _rules[lastIdx] = new CursorRule(last.Cursor, breakpoint);
         return this;
     }
@@ -137,12 +137,12 @@ public sealed class CursorBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetCursorClass(rule.Cursor);
+            CursorRule rule = _rules[i];
+            string cls = GetCursorClass(rule.Cursor);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -169,8 +169,8 @@ public sealed class CursorBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cursorValue = GetCursorValue(rule.Cursor);
+            CursorRule rule = _rules[i];
+            string? cursorValue = GetCursorValue(rule.Cursor);
 
             if (cursorValue is null)
                 continue;

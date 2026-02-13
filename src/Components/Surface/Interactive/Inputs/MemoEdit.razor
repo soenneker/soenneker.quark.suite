@@ -1,4 +1,5 @@
 @using System.Linq.Expressions
+@using System.Reflection
 @using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
@@ -108,8 +109,8 @@
 		if (ParentValidation is null || ParentValidation.Status != ValidationStatus.Error)
 			return false;
 
-		var showInvalidProp = ParentValidation.GetType().GetProperty("ShouldShowInvalid");
-		var showInvalid = showInvalidProp?.GetValue(ParentValidation) as bool? ?? true;
+		PropertyInfo? showInvalidProp = ParentValidation.GetType().GetProperty("ShouldShowInvalid");
+		bool showInvalid = showInvalidProp?.GetValue(ParentValidation) as bool? ?? true;
 		return showInvalid;
 	}
 
@@ -132,7 +133,7 @@
 	private string? GetColorClass()
     {
         string? token = null;
-        var isTheme = BackgroundColor?.TryGetBootstrapThemeToken(out token) == true;
+        bool isTheme = BackgroundColor?.TryGetBootstrapThemeToken(out token) == true;
 
 		if (isTheme && token is not null)
 			return $"form-control-{token}";
@@ -146,7 +147,7 @@
 			return null;
 
 		string? token = null;
-		var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+		bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
 		if (isTheme && token is not null)
 			return $"form-control-{token}";
 
@@ -162,15 +163,15 @@
 			AppendClass(ref cls, "q-memo-edit");
 			AppendClass(ref cls, "form-control");
 			
-			var colorClass = GetColorClass();
+			string? colorClass = GetColorClass();
 			if (colorClass != null)
 				AppendClass(ref cls, colorClass);
 				
-			var sizeClass = GetSizeClass();
+			string? sizeClass = GetSizeClass();
 			if (sizeClass != null)
 				AppendClass(ref cls, sizeClass);
 				
-			var validationClass = GetValidationClass();
+			string? validationClass = GetValidationClass();
 			if (validationClass != null)
 				AppendClass(ref cls, validationClass);
 		});
@@ -205,7 +206,7 @@
 
     private async Task HandleInput(ChangeEventArgs e)
 	{
-		var newValue = e?.Value?.ToString() ?? string.Empty;
+		string newValue = e?.Value?.ToString() ?? string.Empty;
 		var valueChanged = false;
 		if (Value != newValue)
 		{
@@ -232,7 +233,7 @@
 
     private async Task HandleChange(ChangeEventArgs e)
 	{
-		var newValue = e?.Value?.ToString() ?? string.Empty;
+		string newValue = e?.Value?.ToString() ?? string.Empty;
 		var valueChanged = false;
 		if (Value != newValue)
 		{

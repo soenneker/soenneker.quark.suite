@@ -1,6 +1,7 @@
 @page "/data/tables/topbar"
 @using System.Threading
 @using Soenneker.DataTables.Dtos.ServerSideRequest
+@using Soenneker.Dtos.Results.Paged
 @using Soenneker.Extensions.String
 @using Soenneker.Quark.Suite.Demo.Services
 @using Soenneker.Quark.Suite.Demo.Dtos
@@ -74,7 +75,7 @@
                     <Tbody>
                         @if (_employees != null)
                         {
-                            @foreach (var employee in _employees)
+                            @foreach (Employee employee in _employees)
                             {
                                 <Tr>
                                     <Td>@employee.Name</Td>
@@ -321,7 +322,7 @@
         // Add sorting if available
         if (_topbarTable?.SortBy.HasContent() == true)
         {
-            var columnIndex = GetColumnIndex(_topbarTable.SortBy);
+            int columnIndex = GetColumnIndex(_topbarTable.SortBy);
             if (columnIndex >= 0)
             {
                 serverRequest.Order.Add(new DataTableOrderRequest
@@ -332,7 +333,7 @@
             }
         }
 
-        var pagedResult = await EmployeeService.GetEmployeesPaged(serverRequest, CancellationToken.None);
+        PagedResult<Employee> pagedResult = await EmployeeService.GetEmployeesPaged(serverRequest, CancellationToken.None);
 
         // Apply department filter if selected
         _employees = pagedResult.Items;

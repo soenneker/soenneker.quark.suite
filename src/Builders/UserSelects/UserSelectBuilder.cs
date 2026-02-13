@@ -72,32 +72,32 @@ public sealed class UserSelectBuilder : ICssBuilder
     /// <summary>
     /// Applies the user select on phone breakpoint.
     /// </summary>
-    public UserSelectBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public UserSelectBuilder OnPhone => ChainBp(BreakpointType.Base);
 
     /// <summary>
     /// Applies the user select on tablet breakpoint.
     /// </summary>
-    public UserSelectBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public UserSelectBuilder OnTablet => ChainBp(BreakpointType.Md);
 
     /// <summary>
     /// Applies the user select on laptop breakpoint.
     /// </summary>
-    public UserSelectBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public UserSelectBuilder OnLaptop => ChainBp(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the user select on desktop breakpoint.
     /// </summary>
-    public UserSelectBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public UserSelectBuilder OnDesktop => ChainBp(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the user select on widescreen breakpoint.
     /// </summary>
-    public UserSelectBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public UserSelectBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
 
     /// <summary>
     /// Applies the user select on ultrawide breakpoint.
     /// </summary>
-    public UserSelectBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public UserSelectBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private UserSelectBuilder Chain(string value)
@@ -115,8 +115,8 @@ public sealed class UserSelectBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        UserSelectRule last = _rules[lastIdx];
         _rules[lastIdx] = new UserSelectRule(last.Value, bp);
         return this;
     }
@@ -133,8 +133,8 @@ public sealed class UserSelectBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = rule.Value switch
+            UserSelectRule rule = _rules[i];
+            string cls = rule.Value switch
             {
                 UserSelectKeyword.NoneValue => _classNone,
                 UserSelectKeyword.AutoValue => _classAuto,
@@ -144,7 +144,7 @@ public sealed class UserSelectBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -168,8 +168,8 @@ public sealed class UserSelectBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var val = rule.Value;
+            UserSelectRule rule = _rules[i];
+            string val = rule.Value;
             if (string.IsNullOrEmpty(val))
                 continue;
 

@@ -24,7 +24,7 @@ public sealed class OffcanvasCoordinator : IOffcanvasCoordinator
 
     public void Unregister(string id)
     {
-        if (!_enteredById.TryGetValue(id, out var entered))
+        if (!_enteredById.TryGetValue(id, out bool entered))
             return;
         if (entered)
         {
@@ -36,7 +36,7 @@ public sealed class OffcanvasCoordinator : IOffcanvasCoordinator
 
     public void Enter(string id)
     {
-        if (!_enteredById.TryGetValue(id, out var entered) || entered)
+        if (!_enteredById.TryGetValue(id, out bool entered) || entered)
             return;
         _enteredById[id] = true;
         _activeCount++;
@@ -45,7 +45,7 @@ public sealed class OffcanvasCoordinator : IOffcanvasCoordinator
 
     public void Exit(string id)
     {
-        if (!_enteredById.TryGetValue(id, out var entered) || !entered)
+        if (!_enteredById.TryGetValue(id, out bool entered) || !entered)
             return;
         _enteredById[id] = false;
         _activeCount = Math.Max(0, _activeCount - 1);

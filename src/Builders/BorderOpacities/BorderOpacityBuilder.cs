@@ -48,27 +48,27 @@ public sealed class BorderOpacityBuilder : ICssBuilder
     /// <summary>
     /// Applies the border opacity on phone breakpoint.
     /// </summary>
-    public BorderOpacityBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public BorderOpacityBuilder OnPhone => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the border opacity on tablet breakpoint.
     /// </summary>
-    public BorderOpacityBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public BorderOpacityBuilder OnTablet => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the border opacity on laptop breakpoint.
     /// </summary>
-    public BorderOpacityBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public BorderOpacityBuilder OnLaptop => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the border opacity on desktop breakpoint.
     /// </summary>
-    public BorderOpacityBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public BorderOpacityBuilder OnDesktop => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the border opacity on widescreen breakpoint.
     /// </summary>
-    public BorderOpacityBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public BorderOpacityBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
     /// <summary>
     /// Applies the border opacity on ultrawide breakpoint.
     /// </summary>
-    public BorderOpacityBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public BorderOpacityBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BorderOpacityBuilder Chain(int value)
@@ -86,8 +86,8 @@ public sealed class BorderOpacityBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        BorderOpacityRule last = _rules[lastIdx];
         _rules[lastIdx] = new BorderOpacityRule(last.Value, bp);
         return this;
     }
@@ -104,12 +104,12 @@ public sealed class BorderOpacityBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetClass(rule.Value);
+            BorderOpacityRule rule = _rules[i];
+            string cls = GetClass(rule.Value);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -133,8 +133,8 @@ public sealed class BorderOpacityBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var css = GetStyle(rule.Value);
+            BorderOpacityRule rule = _rules[i];
+            string? css = GetStyle(rule.Value);
             if (css is null)
                 continue;
 

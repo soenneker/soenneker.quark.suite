@@ -82,32 +82,32 @@ public sealed class FontWeightBuilder : ICssBuilder
     /// <summary>
     /// Applies the font weight on phone breakpoint.
     /// </summary>
-    public FontWeightBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public FontWeightBuilder OnPhone => ChainBp(BreakpointType.Base);
 
     /// <summary>
     /// Applies the font weight on tablet breakpoint.
     /// </summary>
-    public FontWeightBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public FontWeightBuilder OnTablet => ChainBp(BreakpointType.Md);
 
     /// <summary>
     /// Applies the font weight on laptop breakpoint.
     /// </summary>
-    public FontWeightBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public FontWeightBuilder OnLaptop => ChainBp(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the font weight on desktop breakpoint.
     /// </summary>
-    public FontWeightBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public FontWeightBuilder OnDesktop => ChainBp(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the font weight on widescreen breakpoint.
     /// </summary>
-    public FontWeightBuilder OnWideScreen => ChainBp(BreakpointType.Widescreen);
+    public FontWeightBuilder OnWideScreen => ChainBp(BreakpointType.Xxl);
 
     /// <summary>
     /// Applies the font weight on ultrawide breakpoint.
     /// </summary>
-    public FontWeightBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public FontWeightBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FontWeightBuilder Chain(string value)
@@ -125,8 +125,8 @@ public sealed class FontWeightBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        FontWeightRule last = _rules[lastIdx];
         _rules[lastIdx] = new FontWeightRule(last.Value, bp);
         return this;
     }
@@ -143,8 +143,8 @@ public sealed class FontWeightBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = rule.Value switch
+            FontWeightRule rule = _rules[i];
+            string cls = rule.Value switch
             {
                 FontWeightKeyword.LighterValue => _classLighter,
                 FontWeightKeyword.LightValue => _classLight,
@@ -157,7 +157,7 @@ public sealed class FontWeightBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -181,8 +181,8 @@ public sealed class FontWeightBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var css = rule.Value switch
+            FontWeightRule rule = _rules[i];
+            string? css = rule.Value switch
             {
                 FontWeightKeyword.LighterValue => "lighter",
                 FontWeightKeyword.LightValue => "300",

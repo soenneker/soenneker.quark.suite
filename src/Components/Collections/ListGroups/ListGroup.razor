@@ -98,12 +98,12 @@
         }
         else
         {
-            var current = SelectedItems;
+            List<string>? current = SelectedItems;
 
             // Copy (avoid mutating caller-owned list instance)
-            var next = current is null ? new List<string>(1) : new List<string>(current);
+            List<string> next = current is null ? new List<string>(1) : [..current];
 
-            var idx = next.IndexOf(name);
+            int idx = next.IndexOf(name);
             if (idx >= 0)
                 next.RemoveAt(idx);
             else
@@ -127,7 +127,7 @@
         if (SelectedItems is not null)
         {
             hc.Add(SelectedItems.Count);
-            foreach (var item in SelectedItems)
+            foreach (string item in SelectedItems)
             {
                 hc.Add(item);
             }

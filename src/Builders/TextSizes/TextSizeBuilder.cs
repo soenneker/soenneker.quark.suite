@@ -65,27 +65,27 @@ public sealed class TextSizeBuilder : ICssBuilder
     /// <summary>
     /// Applies the text size on phone breakpoint.
     /// </summary>
-    public TextSizeBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public TextSizeBuilder OnPhone => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the text size on tablet breakpoint.
     /// </summary>
-    public TextSizeBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public TextSizeBuilder OnTablet => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the text size on laptop breakpoint.
     /// </summary>
-    public TextSizeBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public TextSizeBuilder OnLaptop => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the text size on desktop breakpoint.
     /// </summary>
-    public TextSizeBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public TextSizeBuilder OnDesktop => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the text size on widescreen breakpoint.
     /// </summary>
-    public TextSizeBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public TextSizeBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
     /// <summary>
     /// Applies the text size on ultrawide breakpoint.
     /// </summary>
-    public TextSizeBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public TextSizeBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextSizeBuilder ChainSize(string size)
@@ -104,8 +104,8 @@ public sealed class TextSizeBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        TextSizeRule last = _rules[lastIdx];
         _rules[lastIdx] = new TextSizeRule(last.Size, bp);
         return this;
     }
@@ -121,13 +121,13 @@ public sealed class TextSizeBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            TextSizeRule rule = _rules[i];
 
-            var sizeClass = GetSizeClass(rule.Size);
+            string sizeClass = GetSizeClass(rule.Size);
             if (sizeClass.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 sizeClass = BreakpointUtil.InsertBreakpointType(sizeClass, bp);
 
@@ -153,9 +153,9 @@ public sealed class TextSizeBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            TextSizeRule rule = _rules[i];
 
-            var sizeValue = GetSizeValue(rule.Size);
+            string? sizeValue = GetSizeValue(rule.Size);
             if (sizeValue is null)
                 continue;
 

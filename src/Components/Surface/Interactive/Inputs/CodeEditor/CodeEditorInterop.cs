@@ -87,7 +87,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     /// <returns>A value task representing the initialization operation.</returns>
     public async ValueTask Initialize(CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _initializer.Init(linked);
@@ -102,7 +102,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     /// <returns>A value task representing the editor creation operation.</returns>
     public async ValueTask CreateEditor(ElementReference container, string optionsJson, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
         {
@@ -120,7 +120,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     /// <returns>A value task representing the set value operation.</returns>
     public async ValueTask SetValue(ElementReference container, string value, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
         {
@@ -137,7 +137,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     /// <returns>A value task that contains the editor content, or null if not available.</returns>
     public async ValueTask<string?> GetValue(ElementReference container, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
         {
@@ -155,7 +155,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     /// <returns>A value task representing the set language operation.</returns>
     public async ValueTask SetLanguage(ElementReference container, string language, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
         {
@@ -172,7 +172,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     /// <returns>A value task representing the set theme operation.</returns>
     public async ValueTask SetTheme(string theme, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
         {
@@ -189,7 +189,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     /// <returns>A value task representing the dispose operation.</returns>
     public async ValueTask DisposeEditor(ElementReference container, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("MonacoInterop.disposeEditor", linked, container);
@@ -205,7 +205,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     /// <returns>A value task representing the update content height operation.</returns>
     public async ValueTask UpdateContentHeight(ElementReference container, int? minLines = null, int? maxLines = null, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
         {
@@ -224,7 +224,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     /// <returns>A value task representing the add content change listener operation.</returns>
     public async ValueTask AddContentChangeListener(ElementReference container, int? minLines = null, int? maxLines = null, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
         {

@@ -54,27 +54,27 @@ public sealed class TransformBuilder : ICssBuilder
     /// <summary>
     /// Applies the transform on phone breakpoint.
     /// </summary>
-    public TransformBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public TransformBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the transform on tablet breakpoint.
     /// </summary>
-    public TransformBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public TransformBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the transform on laptop breakpoint.
     /// </summary>
-    public TransformBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public TransformBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the transform on desktop breakpoint.
     /// </summary>
-    public TransformBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public TransformBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the transform on widescreen breakpoint.
     /// </summary>
-    public TransformBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public TransformBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
     /// <summary>
     /// Applies the transform on ultrawide breakpoint.
     /// </summary>
-    public TransformBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public TransformBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TransformBuilder ChainWithTransform(string transform)
@@ -92,8 +92,8 @@ public sealed class TransformBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        TransformRule last = _rules[lastIdx];
         _rules[lastIdx] = new TransformRule(last.Transform, breakpoint);
         return this;
     }
@@ -112,12 +112,12 @@ public sealed class TransformBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetTransformClass(rule.Transform);
+            TransformRule rule = _rules[i];
+            string cls = GetTransformClass(rule.Transform);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -144,8 +144,8 @@ public sealed class TransformBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var transformValue = GetTransformValue(rule.Transform);
+            TransformRule rule = _rules[i];
+            string? transformValue = GetTransformValue(rule.Transform);
 
             if (transformValue is null)
                 continue;

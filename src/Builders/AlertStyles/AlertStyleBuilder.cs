@@ -211,7 +211,7 @@ public sealed class AlertStyleBuilder : ICssBuilder
 
     private static string GetAlertClass(AlertStyle alert)
     {
-        var baseClass = alert.Type.Value switch
+        string baseClass = alert.Type.Value switch
         {
             AlertType.PrimaryValue => "alert-primary",
             AlertType.SecondaryValue => "alert-secondary",
@@ -227,7 +227,7 @@ public sealed class AlertStyleBuilder : ICssBuilder
         if (baseClass.IsNullOrEmpty())
             return string.Empty;
 
-        var dismissibleClass = alert.Dismissible.Value switch
+        string dismissibleClass = alert.Dismissible.Value switch
         {
             AlertDismissibleType.DismissibleValue => " alert-dismissible",
             _ => string.Empty

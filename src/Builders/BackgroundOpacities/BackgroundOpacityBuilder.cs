@@ -48,27 +48,27 @@ public sealed class BackgroundOpacityBuilder : ICssBuilder
     /// <summary>
     /// Applies the background opacity on phone breakpoint.
     /// </summary>
-    public BackgroundOpacityBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public BackgroundOpacityBuilder OnPhone => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the background opacity on tablet breakpoint.
     /// </summary>
-    public BackgroundOpacityBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public BackgroundOpacityBuilder OnTablet => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the background opacity on laptop breakpoint.
     /// </summary>
-    public BackgroundOpacityBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public BackgroundOpacityBuilder OnLaptop => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the background opacity on desktop breakpoint.
     /// </summary>
-    public BackgroundOpacityBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public BackgroundOpacityBuilder OnDesktop => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the background opacity on widescreen breakpoint.
     /// </summary>
-    public BackgroundOpacityBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public BackgroundOpacityBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
     /// <summary>
     /// Applies the background opacity on ultrawide breakpoint.
     /// </summary>
-    public BackgroundOpacityBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public BackgroundOpacityBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BackgroundOpacityBuilder Chain(int value)
@@ -86,8 +86,8 @@ public sealed class BackgroundOpacityBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        BackgroundOpacityRule last = _rules[lastIdx];
         _rules[lastIdx] = new BackgroundOpacityRule(last.Value, bp);
         return this;
     }
@@ -105,12 +105,12 @@ public sealed class BackgroundOpacityBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetClass(rule.Value);
+            BackgroundOpacityRule rule = _rules[i];
+            string cls = GetClass(rule.Value);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -138,8 +138,8 @@ public sealed class BackgroundOpacityBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var css = GetStyle(rule.Value);
+            BackgroundOpacityRule rule = _rules[i];
+            string? css = GetStyle(rule.Value);
             if (css is null)
                 continue;
 

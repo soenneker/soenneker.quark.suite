@@ -49,27 +49,27 @@ public sealed class ResizeBuilder : ICssBuilder
     /// <summary>
     /// Applies the resize on phone breakpoint.
     /// </summary>
-    public ResizeBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public ResizeBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the resize on tablet breakpoint.
     /// </summary>
-    public ResizeBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public ResizeBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the resize on laptop breakpoint.
     /// </summary>
-    public ResizeBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public ResizeBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the resize on desktop breakpoint.
     /// </summary>
-    public ResizeBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public ResizeBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the resize on widescreen breakpoint.
     /// </summary>
-    public ResizeBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public ResizeBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
     /// <summary>
     /// Applies the resize on ultrawide breakpoint.
     /// </summary>
-    public ResizeBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public ResizeBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ResizeBuilder ChainWithResize(string resize)
@@ -87,8 +87,8 @@ public sealed class ResizeBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        ResizeRule last = _rules[lastIdx];
         _rules[lastIdx] = new ResizeRule(last.Resize, breakpoint);
         return this;
     }
@@ -107,12 +107,12 @@ public sealed class ResizeBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetResizeClass(rule.Resize);
+            ResizeRule rule = _rules[i];
+            string cls = GetResizeClass(rule.Resize);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -139,8 +139,8 @@ public sealed class ResizeBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var resizeValue = GetResizeValue(rule.Resize);
+            ResizeRule rule = _rules[i];
+            string? resizeValue = GetResizeValue(rule.Resize);
 
             if (resizeValue is null)
                 continue;

@@ -79,31 +79,31 @@ public sealed class ObjectFitBuilder : ICssBuilder
     /// <summary>
     /// Apply on phone devices (portrait phones, less than 576px).
     /// </summary>
-    public ObjectFitBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public ObjectFitBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
 
     /// <summary>
     /// Apply on mobile devices (landscape phones, 576px and up).
     /// </summary>
-    public ObjectFitBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public ObjectFitBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
 
     /// <summary>
     /// Apply on laptop devices (laptops, 992px and up).
     /// </summary>
-    public ObjectFitBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public ObjectFitBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
 
     /// <summary>
     /// Apply on desktop devices (desktops, 1200px and up).
     /// </summary>
-    public ObjectFitBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public ObjectFitBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
 
     /// <summary>
     /// Apply on wide screen devices (larger desktops, 1400px and up).
     /// </summary>
-    public ObjectFitBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public ObjectFitBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
     /// <summary>
     /// Applies the object fit on ultrawide breakpoint.
     /// </summary>
-    public ObjectFitBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public ObjectFitBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObjectFitBuilder ChainWithFit(string fit)
@@ -121,8 +121,8 @@ public sealed class ObjectFitBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        ObjectFitRule last = _rules[lastIdx];
         _rules[lastIdx] = new ObjectFitRule(last.Fit, breakpoint);
         return this;
     }
@@ -140,12 +140,12 @@ public sealed class ObjectFitBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetFitClass(rule.Fit);
+            ObjectFitRule rule = _rules[i];
+            string cls = GetFitClass(rule.Fit);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -171,8 +171,8 @@ public sealed class ObjectFitBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var val = rule.Fit;
+            ObjectFitRule rule = _rules[i];
+            string val = rule.Fit;
             if (string.IsNullOrEmpty(val))
                 continue;
 

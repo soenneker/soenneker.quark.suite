@@ -65,27 +65,27 @@ public sealed class TextTransformBuilder : ICssBuilder
     /// <summary>
     /// Applies the text transform on phone breakpoint.
     /// </summary>
-    public TextTransformBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public TextTransformBuilder OnPhone => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the text transform on tablet breakpoint.
     /// </summary>
-    public TextTransformBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public TextTransformBuilder OnTablet => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the text transform on laptop breakpoint.
     /// </summary>
-    public TextTransformBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public TextTransformBuilder OnLaptop => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the text transform on desktop breakpoint.
     /// </summary>
-    public TextTransformBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public TextTransformBuilder OnDesktop => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the text transform on widescreen breakpoint.
     /// </summary>
-    public TextTransformBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public TextTransformBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
     /// <summary>
     /// Applies the text transform on ultrawide breakpoint.
     /// </summary>
-    public TextTransformBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public TextTransformBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextTransformBuilder Chain(string value)
@@ -103,8 +103,8 @@ public sealed class TextTransformBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        TextTransformRule last = _rules[lastIdx];
         _rules[lastIdx] = new TextTransformRule(last.Value, bp);
         return this;
     }
@@ -121,8 +121,8 @@ public sealed class TextTransformBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = rule.Value switch
+            TextTransformRule rule = _rules[i];
+            string cls = rule.Value switch
             {
                 TextTransformKeyword.LowercaseValue => _classLower,
                 TextTransformKeyword.UppercaseValue => _classUpper,
@@ -132,7 +132,7 @@ public sealed class TextTransformBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -156,8 +156,8 @@ public sealed class TextTransformBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var val = rule.Value;
+            TextTransformRule rule = _rules[i];
+            string val = rule.Value;
             if (string.IsNullOrEmpty(val))
                 continue;
 

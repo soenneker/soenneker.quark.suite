@@ -16,10 +16,10 @@ public static class ComponentsCssGenerator
 
         using var css = new PooledStringBuilder();
 
-        foreach (var componentOptions in theme.GetAllComponentOptions())
+        foreach (ComponentOptions componentOptions in theme.GetAllComponentOptions())
         {
             // Generate CSS for this component and append if not empty
-            var componentCss = ComponentCssGenerator.Generate(componentOptions);
+            string componentCss = ComponentCssGenerator.Generate(componentOptions);
 
             if (componentCss.IsNullOrEmpty())
                 continue;

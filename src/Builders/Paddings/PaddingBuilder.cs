@@ -104,34 +104,34 @@ public sealed class PaddingBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the padding on phone breakpoint.
 	/// </summary>
-    public PaddingBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public PaddingBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the padding on tablet breakpoint.
 	/// </summary>
-    public PaddingBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public PaddingBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the padding on laptop breakpoint.
 	/// </summary>
-    public PaddingBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public PaddingBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the padding on desktop breakpoint.
 	/// </summary>
-    public PaddingBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public PaddingBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the padding on widescreen breakpoint.
 	/// </summary>
-    public PaddingBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public PaddingBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
 	/// <summary>
 	/// Applies the padding on ultrawide breakpoint.
 	/// </summary>
-    public PaddingBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public PaddingBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PaddingBuilder AddRule(ElementSideType side)
     {
         // Use last size & BreakpointType if present; default to ScaleType.Is0Value when absent
-        var size = _rules.Count > 0 ? _rules[^1].Size : ScaleType.Is0Value;
-        var bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
+        string? size = _rules.Count > 0 ? _rules[^1].Size : ScaleType.Is0Value;
+        BreakpointType? bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
 
         if (_rules.Count > 0 && _rules[^1].Side == ElementSideType.All)
         {
@@ -169,8 +169,8 @@ public sealed class PaddingBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        PaddingRule last = _rules[lastIdx];
         _rules[lastIdx] = new PaddingRule(last.Size, last.Side, breakpoint);
         return this;
     }
@@ -186,14 +186,14 @@ public sealed class PaddingBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            PaddingRule rule = _rules[i];
 
-            var sizeTok = GetSizeToken(rule.Size);
+            string sizeTok = GetSizeToken(rule.Size);
             if (sizeTok.Length == 0)
                 continue;
 
-            var sideTok = GetSideToken(rule.Side); // "", "t", "e", "b", "s", "x", "y"
-            var bpTok = BreakpointUtil.GetBreakpointToken(rule.Breakpoint); // "", "sm", "md", ...
+            string sideTok = GetSideToken(rule.Side); // "", "t", "e", "b", "s", "x", "y"
+            string bpTok = BreakpointUtil.GetBreakpointToken(rule.Breakpoint); // "", "sm", "md", ...
 
             if (!first) sb.Append(' ');
             else first = false;
@@ -230,8 +230,8 @@ public sealed class PaddingBuilder : ICssBuilder
         {
             for (var i = 0; i < _rules.Count; i++)
             {
-                var rule = _rules[i];
-                var sizeVal = GetSizeValue(rule.Size);
+                PaddingRule rule = _rules[i];
+                string? sizeVal = GetSizeValue(rule.Size);
                 if (sizeVal is null)
                     continue;
 

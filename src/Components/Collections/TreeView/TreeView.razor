@@ -131,7 +131,7 @@
 
     private async Task EnsureNodesLoaded()
     {
-        var nodes = Nodes;
+        IEnumerable<TNode>? nodes = Nodes;
 
         int capacity = 0;
         if (nodes is ICollection<TNode> c)
@@ -141,11 +141,11 @@
 
         if (nodes is not null)
         {
-            foreach (var node in nodes)
+            foreach (TNode node in nodes)
             {
-                var hasChildren = await DetermineHasChildren(node);
-                var expanded = ExpandedNodes.Contains(node);
-                var disabled = DetermineIsDisabled(node);
+                bool hasChildren = await DetermineHasChildren(node);
+                bool expanded = ExpandedNodes.Contains(node);
+                bool disabled = DetermineIsDisabled(node);
                 list.Add(new TreeViewNodeState<TNode>(node, hasChildren, expanded, disabled));
             }
         }
@@ -188,7 +188,7 @@
         if (_state.SelectionMode == TreeViewSelectionMode.Single)
             return;
 
-        var list = _state.SelectedNodes ??= new List<TNode>();
+        IList<TNode> list = _state.SelectedNodes ??= new List<TNode>();
 
         if (list.Contains(node))
             list.Remove(node);
@@ -212,7 +212,7 @@
         if (seq is ICollection<TNode> c)
             hc.Add(c.Count);
 
-        foreach (var n in seq)
+        foreach (TNode n in seq)
             hc.Add(n);
 
         return hc.ToHashCode();

@@ -74,27 +74,27 @@ public sealed class FloatBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the float on phone breakpoint.
 	/// </summary>
-    public FloatBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public FloatBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the float on tablet breakpoint.
 	/// </summary>
-    public FloatBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public FloatBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the float on laptop breakpoint.
 	/// </summary>
-    public FloatBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public FloatBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the float on desktop breakpoint.
 	/// </summary>
-    public FloatBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public FloatBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the float on widescreen breakpoint.
 	/// </summary>
-    public FloatBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public FloatBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
 	/// <summary>
 	/// Applies the float on ultrawide breakpoint.
 	/// </summary>
-    public FloatBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public FloatBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FloatBuilder ChainWithValue(string value)
@@ -112,8 +112,8 @@ public sealed class FloatBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        FloatRule last = _rules[lastIdx];
         _rules[lastIdx] = new FloatRule(last.Value, breakpoint);
         return this;
     }
@@ -132,9 +132,9 @@ public sealed class FloatBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            FloatRule rule = _rules[i];
 
-            var cls = rule.Value switch
+            string cls = rule.Value switch
             {
                 FloatKeyword.LeftValue => _classStart,
                 FloatKeyword.RightValue => _classEnd,
@@ -147,7 +147,7 @@ public sealed class FloatBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -174,9 +174,9 @@ public sealed class FloatBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            FloatRule rule = _rules[i];
 
-            var css = rule.Value switch
+            string? css = rule.Value switch
             {
                 FloatKeyword.LeftValue => "left",
                 FloatKeyword.RightValue => "right",

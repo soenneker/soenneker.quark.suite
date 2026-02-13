@@ -113,7 +113,7 @@
     {
         if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
         {
-            var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out var token);
+            bool isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out string? token);
 
             if (isTheme && token is not null)
             {
@@ -121,7 +121,7 @@
                 return $"form-control-{token}";
             }
 
-            var v = BackgroundColor.Value.ToString().Trim();
+            string v = BackgroundColor.Value.ToString().Trim();
 
             if (BackgroundColor.Value.IsCssClass)
             {
@@ -140,7 +140,7 @@
             return null;
 
         string? token = null;
-        var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+        bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
         if (isTheme && token is not null)
             return $"form-control-{token}";
 
@@ -154,7 +154,7 @@
 
         var text = e.Value.ToString();
 
-        if (decimal.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
+        if (decimal.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal result))
             return result;
 
         return null;
@@ -162,8 +162,8 @@
 
     private async Task HandleInput(ChangeEventArgs e)
     {
-        var next = ParseDecimal(e);
-        var valueChanged = !Nullable.Equals(Value, next);
+        decimal? next = ParseDecimal(e);
+        bool valueChanged = !Nullable.Equals(Value, next);
         Value = next;
         if (valueChanged)
             await ValueChanged.InvokeIfHasDelegate(Value);
@@ -183,8 +183,8 @@
 
     private async Task HandleChange(ChangeEventArgs e)
     {
-        var next = ParseDecimal(e);
-        var valueChanged = !Nullable.Equals(Value, next);
+        decimal? next = ParseDecimal(e);
+        bool valueChanged = !Nullable.Equals(Value, next);
         Value = next;
         if (valueChanged)
             await ValueChanged.InvokeIfHasDelegate(Value);

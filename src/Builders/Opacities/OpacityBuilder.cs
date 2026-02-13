@@ -51,32 +51,32 @@ public sealed class OpacityBuilder : ICssBuilder
     /// <summary>
     /// Applies the opacity on phone breakpoint.
     /// </summary>
-    public OpacityBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public OpacityBuilder OnPhone => ChainBp(BreakpointType.Base);
 
     /// <summary>
     /// Applies the opacity on tablet breakpoint.
     /// </summary>
-    public OpacityBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public OpacityBuilder OnTablet => ChainBp(BreakpointType.Md);
 
     /// <summary>
     /// Applies the opacity on laptop breakpoint.
     /// </summary>
-    public OpacityBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public OpacityBuilder OnLaptop => ChainBp(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the opacity on desktop breakpoint.
     /// </summary>
-    public OpacityBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public OpacityBuilder OnDesktop => ChainBp(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the opacity on widescreen breakpoint.
     /// </summary>
-    public OpacityBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public OpacityBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
 
     /// <summary>
     /// Applies the opacity on ultrawide breakpoint.
     /// </summary>
-    public OpacityBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public OpacityBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private OpacityBuilder Chain(int value)
@@ -94,8 +94,8 @@ public sealed class OpacityBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        OpacityRule last = _rules[lastIdx];
         _rules[lastIdx] = new OpacityRule(last.Value, bp);
         return this;
     }
@@ -112,12 +112,12 @@ public sealed class OpacityBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetClass(rule.Value);
+            OpacityRule rule = _rules[i];
+            string cls = GetClass(rule.Value);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -141,8 +141,8 @@ public sealed class OpacityBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var css = GetStyle(rule.Value);
+            OpacityRule rule = _rules[i];
+            string? css = GetStyle(rule.Value);
             if (css is null)
                 continue;
 

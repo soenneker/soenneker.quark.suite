@@ -85,32 +85,32 @@ public sealed class DisplaySizeBuilder : ICssBuilder
     /// <summary>
     /// Applies the display size on phone breakpoint.
     /// </summary>
-    public DisplaySizeBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public DisplaySizeBuilder OnPhone => ChainBp(BreakpointType.Base);
 
     /// <summary>
     /// Applies the display size on tablet breakpoint.
     /// </summary>
-    public DisplaySizeBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public DisplaySizeBuilder OnTablet => ChainBp(BreakpointType.Md);
 
     /// <summary>
     /// Applies the display size on laptop breakpoint.
     /// </summary>
-    public DisplaySizeBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public DisplaySizeBuilder OnLaptop => ChainBp(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the display size on desktop breakpoint.
     /// </summary>
-    public DisplaySizeBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public DisplaySizeBuilder OnDesktop => ChainBp(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the display size on widescreen breakpoint.
     /// </summary>
-    public DisplaySizeBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public DisplaySizeBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
 
     /// <summary>
     /// Applies the display size on ultrawide breakpoint.
     /// </summary>
-    public DisplaySizeBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public DisplaySizeBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private DisplaySizeBuilder ChainSize(string size)
@@ -129,8 +129,8 @@ public sealed class DisplaySizeBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        DisplaySizeRule last = _rules[lastIdx];
         _rules[lastIdx] = new DisplaySizeRule(last.Size, bp);
         return this;
     }
@@ -152,13 +152,13 @@ public sealed class DisplaySizeBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            DisplaySizeRule rule = _rules[i];
 
-            var sizeClass = GetSizeClass(rule.Size);
+            string sizeClass = GetSizeClass(rule.Size);
             if (sizeClass.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 sizeClass = BreakpointUtil.InsertBreakpointType(sizeClass, bp);
 
@@ -184,9 +184,9 @@ public sealed class DisplaySizeBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            DisplaySizeRule rule = _rules[i];
 
-            var sizeValue = GetSizeValue(rule.Size);
+            string? sizeValue = GetSizeValue(rule.Size);
             if (sizeValue is null)
                 continue;
 

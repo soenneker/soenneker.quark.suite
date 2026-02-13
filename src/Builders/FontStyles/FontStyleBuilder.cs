@@ -60,27 +60,27 @@ public sealed class FontStyleBuilder : ICssBuilder
     /// <summary>
     /// Applies the font style on phone breakpoint.
     /// </summary>
-    public FontStyleBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public FontStyleBuilder OnPhone => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the font style on tablet breakpoint.
     /// </summary>
-    public FontStyleBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public FontStyleBuilder OnTablet => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the font style on laptop breakpoint.
     /// </summary>
-    public FontStyleBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public FontStyleBuilder OnLaptop => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the font style on desktop breakpoint.
     /// </summary>
-    public FontStyleBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public FontStyleBuilder OnDesktop => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the font style on widescreen breakpoint.
     /// </summary>
-    public FontStyleBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public FontStyleBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
     /// <summary>
     /// Applies the font style on ultrawide breakpoint.
     /// </summary>
-    public FontStyleBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public FontStyleBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FontStyleBuilder Chain(string value)
@@ -98,8 +98,8 @@ public sealed class FontStyleBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        FontStyleRule last = _rules[lastIdx];
         _rules[lastIdx] = new FontStyleRule(last.Value, bp);
         return this;
     }
@@ -116,8 +116,8 @@ public sealed class FontStyleBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = rule.Value switch
+            FontStyleRule rule = _rules[i];
+            string cls = rule.Value switch
             {
                 FontStyleKeyword.ItalicValue => _classItalic,
                 FontStyleKeyword.NormalValue => _classNormal,
@@ -126,7 +126,7 @@ public sealed class FontStyleBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -150,8 +150,8 @@ public sealed class FontStyleBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var val = rule.Value;
+            FontStyleRule rule = _rules[i];
+            string val = rule.Value;
             if (string.IsNullOrEmpty(val))
                 continue;
 

@@ -60,27 +60,27 @@ public sealed class TextWrapBuilder : ICssBuilder
     /// <summary>
     /// Applies the text wrap on phone breakpoint.
     /// </summary>
-    public TextWrapBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public TextWrapBuilder OnPhone => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the text wrap on tablet breakpoint.
     /// </summary>
-    public TextWrapBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public TextWrapBuilder OnTablet => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the text wrap on laptop breakpoint.
     /// </summary>
-    public TextWrapBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public TextWrapBuilder OnLaptop => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the text wrap on desktop breakpoint.
     /// </summary>
-    public TextWrapBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public TextWrapBuilder OnDesktop => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the text wrap on widescreen breakpoint.
     /// </summary>
-    public TextWrapBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public TextWrapBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
     /// <summary>
     /// Applies the text wrap on ultrawide breakpoint.
     /// </summary>
-    public TextWrapBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public TextWrapBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextWrapBuilder Chain(string value)
@@ -98,8 +98,8 @@ public sealed class TextWrapBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        TextWrapRule last = _rules[lastIdx];
         _rules[lastIdx] = new TextWrapRule(last.Value, bp);
         return this;
     }
@@ -117,8 +117,8 @@ public sealed class TextWrapBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = rule.Value switch
+            TextWrapRule rule = _rules[i];
+            string cls = rule.Value switch
             {
                 TextWrapKeyword.WrapValue => _classWrap,
                 TextWrapKeyword.NoWrapValue => _classNoWrap,
@@ -128,7 +128,7 @@ public sealed class TextWrapBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -154,8 +154,8 @@ public sealed class TextWrapBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var css = rule.Value switch
+            TextWrapRule rule = _rules[i];
+            string? css = rule.Value switch
             {
                 TextWrapKeyword.WrapValue => "wrap",
                 TextWrapKeyword.NoWrapValue => "nowrap",

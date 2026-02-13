@@ -39,27 +39,27 @@ public sealed class LinkOffsetBuilder : ICssBuilder
     /// <summary>
     /// Applies the link offset on phone breakpoint.
     /// </summary>
-    public LinkOffsetBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public LinkOffsetBuilder OnPhone => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the link offset on tablet breakpoint.
     /// </summary>
-    public LinkOffsetBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public LinkOffsetBuilder OnTablet => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the link offset on laptop breakpoint.
     /// </summary>
-    public LinkOffsetBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public LinkOffsetBuilder OnLaptop => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the link offset on desktop breakpoint.
     /// </summary>
-    public LinkOffsetBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public LinkOffsetBuilder OnDesktop => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the link offset on widescreen breakpoint.
     /// </summary>
-    public LinkOffsetBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public LinkOffsetBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
     /// <summary>
     /// Applies the link offset on ultrawide breakpoint.
     /// </summary>
-    public LinkOffsetBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public LinkOffsetBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private LinkOffsetBuilder Chain(int value)
@@ -77,8 +77,8 @@ public sealed class LinkOffsetBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        LinkOffsetRule last = _rules[lastIdx];
         _rules[lastIdx] = new LinkOffsetRule(last.Value, bp);
         return this;
     }
@@ -95,12 +95,12 @@ public sealed class LinkOffsetBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetClass(rule.Value);
+            LinkOffsetRule rule = _rules[i];
+            string cls = GetClass(rule.Value);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -124,8 +124,8 @@ public sealed class LinkOffsetBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var css = GetStyle(rule.Value);
+            LinkOffsetRule rule = _rules[i];
+            string? css = GetStyle(rule.Value);
             if (css is null)
                 continue;
 

@@ -109,8 +109,8 @@ public sealed class BorderRadiusBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BorderRadiusBuilder AddRule(ElementSideType side, string cornerToken = "")
     {
-        var size = _rules.Count > 0 ? _rules[^1].Size : "0";
-        var bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
+        string size = _rules.Count > 0 ? _rules[^1].Size : "0";
+        BreakpointType? bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
 
         if (_rules.Count > 0 && _rules[^1].Side == ElementSideType.All)
         {
@@ -163,8 +163,8 @@ public sealed class BorderRadiusBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        BorderRadiusRule last = _rules[lastIdx];
         _rules[lastIdx] = new BorderRadiusRule(last.Size, last.Side, breakpoint, last.CornerToken);
         return this;
     }
@@ -180,15 +180,15 @@ public sealed class BorderRadiusBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            BorderRadiusRule rule = _rules[i];
 
-            var sizeTok = rule.Size;
+            string sizeTok = rule.Size;
 
             if (sizeTok.Length == 0)
                 continue;
 
-            var cornerTok = rule.CornerToken;
-            var bpTok = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string cornerTok = rule.CornerToken;
+            string bpTok = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
 
             if (!first)
                 sb.Append(' ');
@@ -232,8 +232,8 @@ public sealed class BorderRadiusBuilder : ICssBuilder
         {
             for (var i = 0; i < _rules.Count; i++)
             {
-                var rule = _rules[i];
-                var sizeVal = GetSizeValue(rule.Size);
+                BorderRadiusRule rule = _rules[i];
+                string? sizeVal = GetSizeValue(rule.Size);
 
                 if (sizeVal is null)
                     continue;

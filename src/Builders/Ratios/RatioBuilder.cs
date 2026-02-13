@@ -50,27 +50,27 @@ public sealed class RatioBuilder : ICssBuilder
     /// <summary>
     /// Applies the ratio on phone breakpoint.
     /// </summary>
-    public RatioBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public RatioBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the ratio on tablet breakpoint.
     /// </summary>
-    public RatioBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public RatioBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the ratio on laptop breakpoint.
     /// </summary>
-    public RatioBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public RatioBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the ratio on desktop breakpoint.
     /// </summary>
-    public RatioBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public RatioBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the ratio on widescreen breakpoint.
     /// </summary>
-    public RatioBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public RatioBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
     /// <summary>
     /// Applies the ratio on ultrawide breakpoint.
     /// </summary>
-    public RatioBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public RatioBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private RatioBuilder ChainWithRatio(string ratio)
@@ -88,8 +88,8 @@ public sealed class RatioBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        RatioRule last = _rules[lastIdx];
         _rules[lastIdx] = new RatioRule(last.Ratio, breakpoint);
         return this;
     }
@@ -108,12 +108,12 @@ public sealed class RatioBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetRatioClass(rule.Ratio);
+            RatioRule rule = _rules[i];
+            string cls = GetRatioClass(rule.Ratio);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 

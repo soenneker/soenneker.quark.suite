@@ -55,27 +55,27 @@ public sealed class WidthBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the width on phone breakpoint.
 	/// </summary>
-    public WidthBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public WidthBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the width on tablet breakpoint.
 	/// </summary>
-    public WidthBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public WidthBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the width on laptop breakpoint.
 	/// </summary>
-    public WidthBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public WidthBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the width on desktop breakpoint.
 	/// </summary>
-    public WidthBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public WidthBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the width on widescreen breakpoint.
 	/// </summary>
-    public WidthBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public WidthBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
 	/// <summary>
 	/// Applies the width on ultrawide breakpoint.
 	/// </summary>
-    public WidthBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public WidthBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private WidthBuilder ChainWithSize(string size)
@@ -93,8 +93,8 @@ public sealed class WidthBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        WidthRule last = _rules[lastIdx];
         _rules[lastIdx] = new WidthRule(last.Size, breakpoint);
         return this;
     }
@@ -113,12 +113,12 @@ public sealed class WidthBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetWidthClass(rule.Size);
+            WidthRule rule = _rules[i];
+            string cls = GetWidthClass(rule.Size);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -145,8 +145,8 @@ public sealed class WidthBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var val = GetWidthValue(rule.Size);
+            WidthRule rule = _rules[i];
+            string? val = GetWidthValue(rule.Size);
             if (val is null)
                 continue;
 

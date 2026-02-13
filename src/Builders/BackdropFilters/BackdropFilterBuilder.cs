@@ -79,27 +79,27 @@ public sealed class BackdropFilterBuilder : ICssBuilder
     /// <summary>
     /// Applies the backdrop filter on phone breakpoint.
     /// </summary>
-    public BackdropFilterBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public BackdropFilterBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the backdrop filter on tablet breakpoint.
     /// </summary>
-    public BackdropFilterBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public BackdropFilterBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the backdrop filter on laptop breakpoint.
     /// </summary>
-    public BackdropFilterBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public BackdropFilterBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the backdrop filter on desktop breakpoint.
     /// </summary>
-    public BackdropFilterBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public BackdropFilterBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the backdrop filter on widescreen breakpoint.
     /// </summary>
-    public BackdropFilterBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public BackdropFilterBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
     /// <summary>
     /// Applies the backdrop filter on ultrawide breakpoint.
     /// </summary>
-    public BackdropFilterBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public BackdropFilterBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BackdropFilterBuilder ChainWithFilter(string filter)
@@ -117,8 +117,8 @@ public sealed class BackdropFilterBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        BackdropFilterRule last = _rules[lastIdx];
         _rules[lastIdx] = new BackdropFilterRule(last.Filter, breakpoint);
         return this;
     }
@@ -137,12 +137,12 @@ public sealed class BackdropFilterBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetBackdropFilterClass(rule.Filter);
+            BackdropFilterRule rule = _rules[i];
+            string cls = GetBackdropFilterClass(rule.Filter);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -169,8 +169,8 @@ public sealed class BackdropFilterBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var filterValue = GetBackdropFilterValue(rule.Filter);
+            BackdropFilterRule rule = _rules[i];
+            string? filterValue = GetBackdropFilterValue(rule.Filter);
 
             if (filterValue is null)
                 continue;

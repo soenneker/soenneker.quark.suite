@@ -29,27 +29,27 @@ public sealed class StretchedLinkBuilder : ICssBuilder
     /// <summary>
     /// Applies the stretched link on phone breakpoint.
     /// </summary>
-    public StretchedLinkBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public StretchedLinkBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the stretched link on tablet breakpoint.
     /// </summary>
-    public StretchedLinkBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public StretchedLinkBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the stretched link on laptop breakpoint.
     /// </summary>
-    public StretchedLinkBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public StretchedLinkBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the stretched link on desktop breakpoint.
     /// </summary>
-    public StretchedLinkBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public StretchedLinkBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the stretched link on widescreen breakpoint.
     /// </summary>
-    public StretchedLinkBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public StretchedLinkBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
     /// <summary>
     /// Applies the stretched link on ultrawide breakpoint.
     /// </summary>
-    public StretchedLinkBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public StretchedLinkBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private StretchedLinkBuilder ChainWithBreakpoint(BreakpointType breakpoint)
@@ -60,8 +60,8 @@ public sealed class StretchedLinkBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        StretchedLinkRule last = _rules[lastIdx];
         _rules[lastIdx] = new StretchedLinkRule(breakpoint);
         return this;
     }
@@ -80,10 +80,10 @@ public sealed class StretchedLinkBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = _classStretchedLink;
+            StretchedLinkRule rule = _rules[i];
+            string cls = _classStretchedLink;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 

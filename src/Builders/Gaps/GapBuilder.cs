@@ -89,32 +89,32 @@ public sealed class GapBuilder : ICssBuilder
     /// <summary>
     /// Apply on phone devices (portrait phones, less than 576px).
     /// </summary>
-    public GapBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public GapBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
 
     /// <summary>
     /// Apply on mobile devices (landscape phones, 576px and up).
     /// </summary>
-    public GapBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public GapBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
 
     /// <summary>
     /// Apply on laptop devices (laptops, 992px and up).
     /// </summary>
-    public GapBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public GapBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
 
     /// <summary>
     /// Apply on desktop devices (desktops, 1200px and up).
     /// </summary>
-    public GapBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public GapBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
 
     /// <summary>
     /// Apply on wide screen devices (larger desktops, 1400px and up).
     /// </summary>
-    public GapBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public GapBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
 
     /// <summary>
     /// Apply on ultrawide devices (ultrawide screens, 1920px and up).
     /// </summary>
-    public GapBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public GapBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private GapBuilder ChainWithSize(string size)
@@ -132,8 +132,8 @@ public sealed class GapBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        GapRule last = _rules[lastIdx];
         _rules[lastIdx] = new GapRule(last.Size, last.Breakpoint, direction);
         return this;
     }
@@ -147,8 +147,8 @@ public sealed class GapBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        GapRule last = _rules[lastIdx];
         _rules[lastIdx] = new GapRule(last.Size, breakpoint, last.Direction);
         return this;
     }
@@ -166,12 +166,12 @@ public sealed class GapBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetSizeClass(rule.Size, rule.Direction);
+            GapRule rule = _rules[i];
+            string cls = GetSizeClass(rule.Size, rule.Direction);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
 
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
@@ -199,8 +199,8 @@ public sealed class GapBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var sizeValue = GetSizeValue(rule.Size);
+            GapRule rule = _rules[i];
+            string? sizeValue = GetSizeValue(rule.Size);
             if (sizeValue is null)
                 continue;
 

@@ -44,27 +44,27 @@ public sealed class TextOpacityBuilder : ICssBuilder
     /// <summary>
     /// Applies the text opacity on phone breakpoint.
     /// </summary>
-    public TextOpacityBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public TextOpacityBuilder OnPhone => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the text opacity on tablet breakpoint.
     /// </summary>
-    public TextOpacityBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public TextOpacityBuilder OnTablet => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the text opacity on laptop breakpoint.
     /// </summary>
-    public TextOpacityBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public TextOpacityBuilder OnLaptop => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the text opacity on desktop breakpoint.
     /// </summary>
-    public TextOpacityBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public TextOpacityBuilder OnDesktop => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the text opacity on widescreen breakpoint.
     /// </summary>
-    public TextOpacityBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public TextOpacityBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
     /// <summary>
     /// Applies the text opacity on ultrawide breakpoint.
     /// </summary>
-    public TextOpacityBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public TextOpacityBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextOpacityBuilder Chain(int value)
@@ -82,8 +82,8 @@ public sealed class TextOpacityBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        TextOpacityRule last = _rules[lastIdx];
         _rules[lastIdx] = new TextOpacityRule(last.Value, bp);
         return this;
     }
@@ -100,12 +100,12 @@ public sealed class TextOpacityBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetClass(rule.Value);
+            TextOpacityRule rule = _rules[i];
+            string cls = GetClass(rule.Value);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -129,8 +129,8 @@ public sealed class TextOpacityBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var css = GetStyle(rule.Value);
+            TextOpacityRule rule = _rules[i];
+            string? css = GetStyle(rule.Value);
             if (css is null)
                 continue;
 

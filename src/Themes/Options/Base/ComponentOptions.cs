@@ -419,14 +419,14 @@ public class ComponentOptions
         if (value is not { IsEmpty: false })
             return;
 
-        var declarations = ConvertToDeclarations(value.Value, fallbackProperty);
+        IEnumerable<string>? declarations = ConvertToDeclarations(value.Value, fallbackProperty);
 
         if (declarations is null)
             return;
 
-        var resolvedSelector = ResolveSelector(baseSelector, value.Value);
+        string resolvedSelector = ResolveSelector(baseSelector, value.Value);
 
-        foreach (var declaration in declarations)
+        foreach (string declaration in declarations)
         {
             if (!declaration.HasContent())
                 continue;
@@ -438,7 +438,7 @@ public class ComponentOptions
     private static IEnumerable<string>? ConvertToDeclarations<TBuilder>(CssValue<TBuilder> value, string? fallbackProperty)
         where TBuilder : class, ICssBuilder
     {
-        var styleValue = value.StyleValue;
+        string styleValue = value.StyleValue;
 
         if (styleValue.HasContent())
             return SplitDeclarations(styleValue);
@@ -458,11 +458,11 @@ public class ComponentOptions
 
     private static IEnumerable<string> SplitDeclarations(string value)
     {
-        var segments = value.Split(';');
+        string[] segments = value.Split(';');
 
-        foreach (var segment in segments)
+        foreach (string segment in segments)
         {
-            var trimmed = segment.Trim();
+            string trimmed = segment.Trim();
 
             if (trimmed.Length > 0)
                 yield return trimmed;
@@ -472,12 +472,12 @@ public class ComponentOptions
     private static string ResolveSelector<TBuilder>(string baseSelector, CssValue<TBuilder> value)
         where TBuilder : class, ICssBuilder
     {
-        var custom = value.CssSelector;
+        string? custom = value.CssSelector;
 
         if (custom.IsNullOrWhiteSpace())
             return baseSelector;
 
-        var trimmed = custom.Trim();
+        string trimmed = custom.Trim();
 
         if (value.SelectorIsAbsolute)
             return trimmed;
@@ -485,7 +485,7 @@ public class ComponentOptions
         if (trimmed.Contains('&'))
             return trimmed.Replace("&", baseSelector);
 
-        var first = trimmed[0];
+        char first = trimmed[0];
 
         if (first == ':' || first == '.' || first == '#' || first == '[')
             return baseSelector + trimmed;

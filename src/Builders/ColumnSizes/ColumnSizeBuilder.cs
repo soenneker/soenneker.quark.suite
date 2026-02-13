@@ -94,27 +94,27 @@ public sealed class ColumnSizeBuilder : ICssBuilder
     /// <summary>
     /// Applies the column size on phone breakpoint.
     /// </summary>
-    public ColumnSizeBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public ColumnSizeBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the column size on tablet breakpoint.
     /// </summary>
-    public ColumnSizeBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public ColumnSizeBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the column size on laptop breakpoint.
     /// </summary>
-    public ColumnSizeBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public ColumnSizeBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the column size on desktop breakpoint.
     /// </summary>
-    public ColumnSizeBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public ColumnSizeBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the column size on widescreen breakpoint.
     /// </summary>
-    public ColumnSizeBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public ColumnSizeBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
     /// <summary>
     /// Applies the column size on ultrawide breakpoint.
     /// </summary>
-    public ColumnSizeBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public ColumnSizeBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ColumnSizeBuilder ChainWithSize(string size)
@@ -132,8 +132,8 @@ public sealed class ColumnSizeBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        ColumnSizeRule last = _rules[lastIdx];
         _rules[lastIdx] = new ColumnSizeRule(last.Size, breakpoint);
         return this;
     }
@@ -152,12 +152,12 @@ public sealed class ColumnSizeBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetColumnSizeClass(rule.Size);
+            ColumnSizeRule rule = _rules[i];
+            string cls = GetColumnSizeClass(rule.Size);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 

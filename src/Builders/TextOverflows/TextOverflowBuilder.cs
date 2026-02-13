@@ -72,27 +72,27 @@ public sealed class TextOverflowBuilder : ICssBuilder
     /// <summary>
     /// Applies the text overflow on phone breakpoint.
     /// </summary>
-    public TextOverflowBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public TextOverflowBuilder OnPhone => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the text overflow on tablet breakpoint.
     /// </summary>
-    public TextOverflowBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public TextOverflowBuilder OnTablet => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the text overflow on laptop breakpoint.
     /// </summary>
-    public TextOverflowBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public TextOverflowBuilder OnLaptop => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the text overflow on desktop breakpoint.
     /// </summary>
-    public TextOverflowBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public TextOverflowBuilder OnDesktop => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the text overflow on widescreen breakpoint.
     /// </summary>
-    public TextOverflowBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public TextOverflowBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
     /// <summary>
     /// Applies the text overflow on ultrawide breakpoint.
     /// </summary>
-    public TextOverflowBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public TextOverflowBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextOverflowBuilder Chain(TextOverflowEnum value)
@@ -127,8 +127,8 @@ public sealed class TextOverflowBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        TextOverflowRule last = _rules[lastIdx];
 
         // Re-create the rule preserving its text-overflow value using the string value.
         _rules[lastIdx] = new TextOverflowRule(last.Value, bp);
@@ -146,14 +146,14 @@ public sealed class TextOverflowBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            TextOverflowRule rule = _rules[i];
 
             // Only Clip/Ellipsis map to a Bootstrap class; keywords don't.
-            var baseClass = GetTextOverflowClass(rule.Value);
+            string baseClass = GetTextOverflowClass(rule.Value);
             if (baseClass.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 baseClass = BreakpointUtil.InsertBreakpointType(baseClass, bp);
 
@@ -177,10 +177,10 @@ public sealed class TextOverflowBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            TextOverflowRule rule = _rules[i];
 
             // Always use the string value (covers Clip/Ellipsis and any keyword values)
-            var value = rule.Value;
+            string value = rule.Value;
 
             if (string.IsNullOrEmpty(value))
                 continue;

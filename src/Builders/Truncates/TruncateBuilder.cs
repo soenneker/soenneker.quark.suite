@@ -29,27 +29,27 @@ public sealed class TruncateBuilder : ICssBuilder
     /// <summary>
     /// Applies the truncate on phone breakpoint.
     /// </summary>
-    public TruncateBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public TruncateBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the truncate on tablet breakpoint.
     /// </summary>
-    public TruncateBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public TruncateBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the truncate on laptop breakpoint.
     /// </summary>
-    public TruncateBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public TruncateBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the truncate on desktop breakpoint.
     /// </summary>
-    public TruncateBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public TruncateBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the truncate on widescreen breakpoint.
     /// </summary>
-    public TruncateBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public TruncateBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
     /// <summary>
     /// Applies the truncate on ultrawide breakpoint.
     /// </summary>
-    public TruncateBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public TruncateBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TruncateBuilder ChainWithBreakpoint(BreakpointType breakpoint)
@@ -60,8 +60,8 @@ public sealed class TruncateBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        TruncateRule last = _rules[lastIdx];
         _rules[lastIdx] = new TruncateRule(breakpoint);
         return this;
     }
@@ -80,10 +80,10 @@ public sealed class TruncateBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = _classTextTruncate;
+            TruncateRule rule = _rules[i];
+            string cls = _classTextTruncate;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 

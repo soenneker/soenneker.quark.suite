@@ -39,27 +39,27 @@ public sealed class ScrollBehaviorBuilder : ICssBuilder
     /// <summary>
     /// Applies the scroll behavior on phone breakpoint.
     /// </summary>
-    public ScrollBehaviorBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public ScrollBehaviorBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the scroll behavior on tablet breakpoint.
     /// </summary>
-    public ScrollBehaviorBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public ScrollBehaviorBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the scroll behavior on laptop breakpoint.
     /// </summary>
-    public ScrollBehaviorBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public ScrollBehaviorBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the scroll behavior on desktop breakpoint.
     /// </summary>
-    public ScrollBehaviorBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public ScrollBehaviorBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the scroll behavior on widescreen breakpoint.
     /// </summary>
-    public ScrollBehaviorBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public ScrollBehaviorBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
     /// <summary>
     /// Applies the scroll behavior on ultrawide breakpoint.
     /// </summary>
-    public ScrollBehaviorBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public ScrollBehaviorBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScrollBehaviorBuilder ChainWithBehavior(string behavior)
@@ -77,8 +77,8 @@ public sealed class ScrollBehaviorBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        ScrollBehaviorRule last = _rules[lastIdx];
         _rules[lastIdx] = new ScrollBehaviorRule(last.Behavior, breakpoint);
         return this;
     }
@@ -97,12 +97,12 @@ public sealed class ScrollBehaviorBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetScrollBehaviorClass(rule.Behavior);
+            ScrollBehaviorRule rule = _rules[i];
+            string cls = GetScrollBehaviorClass(rule.Behavior);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -129,8 +129,8 @@ public sealed class ScrollBehaviorBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var behaviorValue = GetScrollBehaviorValue(rule.Behavior);
+            ScrollBehaviorRule rule = _rules[i];
+            string? behaviorValue = GetScrollBehaviorValue(rule.Behavior);
 
             if (behaviorValue is null)
                 continue;

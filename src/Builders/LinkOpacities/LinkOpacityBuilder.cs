@@ -47,27 +47,27 @@ public sealed class LinkOpacityBuilder : ICssBuilder
     /// <summary>
     /// Applies the link opacity on phone breakpoint.
     /// </summary>
-    public LinkOpacityBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public LinkOpacityBuilder OnPhone => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the link opacity on tablet breakpoint.
     /// </summary>
-    public LinkOpacityBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public LinkOpacityBuilder OnTablet => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the link opacity on laptop breakpoint.
     /// </summary>
-    public LinkOpacityBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public LinkOpacityBuilder OnLaptop => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the link opacity on desktop breakpoint.
     /// </summary>
-    public LinkOpacityBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public LinkOpacityBuilder OnDesktop => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the link opacity on widescreen breakpoint.
     /// </summary>
-    public LinkOpacityBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public LinkOpacityBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
     /// <summary>
     /// Applies the link opacity on ultrawide breakpoint.
     /// </summary>
-    public LinkOpacityBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public LinkOpacityBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private LinkOpacityBuilder Chain(int value)
@@ -85,8 +85,8 @@ public sealed class LinkOpacityBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        LinkOpacityRule last = _rules[lastIdx];
         _rules[lastIdx] = new LinkOpacityRule(last.Value, bp);
         return this;
     }
@@ -103,12 +103,12 @@ public sealed class LinkOpacityBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetClass(rule.Value);
+            LinkOpacityRule rule = _rules[i];
+            string cls = GetClass(rule.Value);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -132,8 +132,8 @@ public sealed class LinkOpacityBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var css = GetStyle(rule.Value);
+            LinkOpacityRule rule = _rules[i];
+            string? css = GetStyle(rule.Value);
             if (css is null)
                 continue;
 

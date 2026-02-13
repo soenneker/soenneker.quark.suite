@@ -70,7 +70,7 @@ public sealed class BootstrapInterop : IBootstrapInterop
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     public async ValueTask Initialize(CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _initializer.Init(linked);

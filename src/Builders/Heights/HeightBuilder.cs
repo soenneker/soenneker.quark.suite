@@ -54,27 +54,27 @@ public sealed class HeightBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the height on phone breakpoint.
 	/// </summary>
-    public HeightBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public HeightBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the height on tablet breakpoint.
 	/// </summary>
-    public HeightBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public HeightBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the height on laptop breakpoint.
 	/// </summary>
-    public HeightBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public HeightBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the height on desktop breakpoint.
 	/// </summary>
-    public HeightBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public HeightBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the height on widescreen breakpoint.
 	/// </summary>
-    public HeightBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public HeightBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
 	/// <summary>
 	/// Applies the height on ultrawide breakpoint.
 	/// </summary>
-    public HeightBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public HeightBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private HeightBuilder ChainWithSize(string size)
@@ -92,8 +92,8 @@ public sealed class HeightBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        HeightRule last = _rules[lastIdx];
         _rules[lastIdx] = new HeightRule(last.Size, breakpoint);
         return this;
     }
@@ -112,12 +112,12 @@ public sealed class HeightBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetHeightClass(rule.Size);
+            HeightRule rule = _rules[i];
+            string cls = GetHeightClass(rule.Size);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -144,8 +144,8 @@ public sealed class HeightBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var val = GetHeightValue(rule.Size);
+            HeightRule rule = _rules[i];
+            string? val = GetHeightValue(rule.Size);
             if (val is null)
                 continue;
 

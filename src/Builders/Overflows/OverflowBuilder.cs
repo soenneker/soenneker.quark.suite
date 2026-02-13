@@ -136,9 +136,9 @@ public sealed class OverflowBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            OverflowRule rule = _rules[i];
 
-            var baseClass = GetOverflowClass(rule.Overflow);
+            string baseClass = GetOverflowClass(rule.Overflow);
             if (baseClass.Length == 0)
                 continue;
 
@@ -162,7 +162,7 @@ public sealed class OverflowBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var value = _rules[i].Overflow;
+            string value = _rules[i].Overflow;
             if (string.IsNullOrEmpty(value))
                 continue;
 
@@ -179,7 +179,7 @@ public sealed class OverflowBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private string GetOverflowClass(string overflow)
     {
-        var baseClass = overflow switch
+        string baseClass = overflow switch
         {
             OverflowKeyword.AutoValue => "overflow-auto",
             OverflowKeyword.HiddenValue => "overflow-hidden",
@@ -192,7 +192,7 @@ public sealed class OverflowBuilder : ICssBuilder
             return baseClass;
 
         // Insert axis into class name: "overflow-auto" + "-x" = "overflow-x-auto"
-        var dashIndex = baseClass.IndexOf('-');
+        int dashIndex = baseClass.IndexOf('-');
         if (dashIndex > 0)
         {
             return baseClass.Insert(dashIndex, _axis);

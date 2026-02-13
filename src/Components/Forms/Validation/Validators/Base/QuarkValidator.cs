@@ -27,7 +27,7 @@ public abstract class QuarkValidator : IQuarkValidator
     /// </summary>
     public virtual ValidationResult Validate(ValidatorEventArgs args)
     {
-        var result = Validate(args.Value);
+        ValidationResult result = Validate(args.Value);
         
         // Sync the result with ValidatorEventArgs for backwards compatibility
         args.Status = result.Status;

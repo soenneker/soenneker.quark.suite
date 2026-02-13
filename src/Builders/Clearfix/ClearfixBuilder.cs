@@ -29,27 +29,27 @@ public sealed class ClearfixBuilder : ICssBuilder
     /// <summary>
     /// Applies the clearfix on phone breakpoint.
     /// </summary>
-    public ClearfixBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public ClearfixBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the clearfix on tablet breakpoint.
     /// </summary>
-    public ClearfixBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public ClearfixBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the clearfix on laptop breakpoint.
     /// </summary>
-    public ClearfixBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public ClearfixBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the clearfix on desktop breakpoint.
     /// </summary>
-    public ClearfixBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public ClearfixBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the clearfix on widescreen breakpoint.
     /// </summary>
-    public ClearfixBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public ClearfixBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
     /// <summary>
     /// Applies the clearfix on ultrawide breakpoint.
     /// </summary>
-    public ClearfixBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public ClearfixBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ClearfixBuilder ChainWithBreakpoint(BreakpointType breakpoint)
@@ -60,8 +60,8 @@ public sealed class ClearfixBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        ClearfixRule last = _rules[lastIdx];
         _rules[lastIdx] = new ClearfixRule(breakpoint);
         return this;
     }
@@ -80,10 +80,10 @@ public sealed class ClearfixBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = _classClearfix;
+            ClearfixRule rule = _rules[i];
+            string cls = _classClearfix;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 

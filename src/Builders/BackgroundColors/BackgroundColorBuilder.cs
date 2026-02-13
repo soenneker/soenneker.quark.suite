@@ -105,27 +105,27 @@ public sealed class BackgroundColorBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the background color on phone breakpoint.
 	/// </summary>
-    public BackgroundColorBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public BackgroundColorBuilder OnPhone => ChainBp(BreakpointType.Base);
 	/// <summary>
 	/// Applies the background color on tablet breakpoint.
 	/// </summary>
-    public BackgroundColorBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public BackgroundColorBuilder OnTablet => ChainBp(BreakpointType.Md);
 	/// <summary>
 	/// Applies the background color on laptop breakpoint.
 	/// </summary>
-    public BackgroundColorBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public BackgroundColorBuilder OnLaptop => ChainBp(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the background color on desktop breakpoint.
 	/// </summary>
-    public BackgroundColorBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public BackgroundColorBuilder OnDesktop => ChainBp(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the background color on widescreen breakpoint.
 	/// </summary>
-    public BackgroundColorBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public BackgroundColorBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
 	/// <summary>
 	/// Applies the background color on ultrawide breakpoint.
 	/// </summary>
-    public BackgroundColorBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public BackgroundColorBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BackgroundColorBuilder ChainValue(string value)
@@ -143,8 +143,8 @@ public sealed class BackgroundColorBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        BackgroundColorRule last = _rules[lastIdx];
         _rules[lastIdx] = new BackgroundColorRule(last.Value, bp);
         return this;
     }
@@ -163,12 +163,12 @@ public sealed class BackgroundColorBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetClass(rule);
+            BackgroundColorRule rule = _rules[i];
+            string cls = GetClass(rule);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -195,8 +195,8 @@ public sealed class BackgroundColorBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var css = GetStyle(rule);
+            BackgroundColorRule rule = _rules[i];
+            string? css = GetStyle(rule);
             if (css is null)
                 continue;
 
@@ -219,7 +219,7 @@ public sealed class BackgroundColorBuilder : ICssBuilder
             return string.Empty;
 
         // First try to generate classes
-        var classResult = ToClass();
+        string classResult = ToClass();
         if (classResult.HasContent())
             return classResult;
 

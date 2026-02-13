@@ -99,27 +99,27 @@ public sealed class ColumnOrderBuilder : ICssBuilder
     /// <summary>
     /// Applies the column order on phone breakpoint.
     /// </summary>
-    public ColumnOrderBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public ColumnOrderBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the column order on tablet breakpoint.
     /// </summary>
-    public ColumnOrderBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public ColumnOrderBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the column order on laptop breakpoint.
     /// </summary>
-    public ColumnOrderBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public ColumnOrderBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the column order on desktop breakpoint.
     /// </summary>
-    public ColumnOrderBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public ColumnOrderBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the column order on widescreen breakpoint.
     /// </summary>
-    public ColumnOrderBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public ColumnOrderBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
     /// <summary>
     /// Applies the column order on ultrawide breakpoint.
     /// </summary>
-    public ColumnOrderBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public ColumnOrderBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ColumnOrderBuilder ChainWithOrder(string order)
@@ -137,8 +137,8 @@ public sealed class ColumnOrderBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        ColumnOrderRule last = _rules[lastIdx];
         _rules[lastIdx] = new ColumnOrderRule(last.Order, breakpoint);
         return this;
     }
@@ -157,12 +157,12 @@ public sealed class ColumnOrderBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetColumnOrderClass(rule.Order);
+            ColumnOrderRule rule = _rules[i];
+            string cls = GetColumnOrderClass(rule.Order);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 

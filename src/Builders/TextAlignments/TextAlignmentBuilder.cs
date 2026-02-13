@@ -79,27 +79,27 @@ public sealed class TextAlignmentBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the text alignment on phone breakpoint.
 	/// </summary>
-    public TextAlignmentBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public TextAlignmentBuilder OnPhone => ChainBp(BreakpointType.Base);
 	/// <summary>
 	/// Applies the text alignment on tablet breakpoint.
 	/// </summary>
-    public TextAlignmentBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public TextAlignmentBuilder OnTablet => ChainBp(BreakpointType.Md);
 	/// <summary>
 	/// Applies the text alignment on laptop breakpoint.
 	/// </summary>
-    public TextAlignmentBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public TextAlignmentBuilder OnLaptop => ChainBp(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the text alignment on desktop breakpoint.
 	/// </summary>
-    public TextAlignmentBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public TextAlignmentBuilder OnDesktop => ChainBp(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the text alignment on widescreen breakpoint.
 	/// </summary>
-    public TextAlignmentBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public TextAlignmentBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
 	/// <summary>
 	/// Applies the text alignment on ultrawide breakpoint.
 	/// </summary>
-    public TextAlignmentBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public TextAlignmentBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextAlignmentBuilder Chain(string value)
@@ -118,8 +118,8 @@ public sealed class TextAlignmentBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        TextAlignmentRule last = _rules[lastIdx];
         _rules[lastIdx] = new TextAlignmentRule(last.Value, bp);
         return this;
     }
@@ -138,9 +138,9 @@ public sealed class TextAlignmentBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            TextAlignmentRule rule = _rules[i];
 
-            var baseClass = rule.Value switch
+            string baseClass = rule.Value switch
             {
                 TextAlignKeyword.StartValue => _classStart,
                 TextAlignKeyword.CenterValue => _classCenter,
@@ -151,7 +151,7 @@ public sealed class TextAlignmentBuilder : ICssBuilder
             if (baseClass.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 baseClass = BreakpointUtil.InsertBreakpointType(baseClass, bp);
 
@@ -180,9 +180,9 @@ public sealed class TextAlignmentBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            TextAlignmentRule rule = _rules[i];
 
-            var css = rule.Value switch
+            string css = rule.Value switch
             {
                 TextAlignKeyword.StartValue => _styleStart,
                 TextAlignKeyword.CenterValue => _styleCenter,

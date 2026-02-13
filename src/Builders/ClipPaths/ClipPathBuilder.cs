@@ -53,27 +53,27 @@ public sealed class ClipPathBuilder : ICssBuilder
     /// <summary>
     /// Applies the clip path on phone breakpoint.
     /// </summary>
-    public ClipPathBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public ClipPathBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the clip path on tablet breakpoint.
     /// </summary>
-    public ClipPathBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public ClipPathBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the clip path on laptop breakpoint.
     /// </summary>
-    public ClipPathBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public ClipPathBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the clip path on desktop breakpoint.
     /// </summary>
-    public ClipPathBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public ClipPathBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the clip path on widescreen breakpoint.
     /// </summary>
-    public ClipPathBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public ClipPathBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
     /// <summary>
     /// Applies the clip path on ultrawide breakpoint.
     /// </summary>
-    public ClipPathBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public ClipPathBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ClipPathBuilder ChainWithPath(string path)
@@ -91,8 +91,8 @@ public sealed class ClipPathBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        ClipPathRule last = _rules[lastIdx];
         _rules[lastIdx] = new ClipPathRule(last.Path, breakpoint);
         return this;
     }
@@ -111,12 +111,12 @@ public sealed class ClipPathBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetClipPathClass(rule.Path);
+            ClipPathRule rule = _rules[i];
+            string cls = GetClipPathClass(rule.Path);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -143,8 +143,8 @@ public sealed class ClipPathBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var pathValue = GetClipPathValue(rule.Path);
+            ClipPathRule rule = _rules[i];
+            string? pathValue = GetClipPathValue(rule.Path);
 
             if (pathValue is null)
                 continue;

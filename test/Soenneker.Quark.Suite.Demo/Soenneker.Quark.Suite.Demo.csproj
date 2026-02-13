@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
@@ -12,17 +12,30 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Remove="tailwind\**" />
+        <Content Remove="tailwind\**" />
+        <EmbeddedResource Remove="tailwind\**" />
+        <None Remove="tailwind\**" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.3" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.3" PrivateAssets="all" />
-        <PackageReference Include="Soenneker.DataTables.Extensions.ServerSideRequest" Version="4.0.73" />
+        <PackageReference Include="Soenneker.DataTables.Extensions.ServerSideRequest" Version="4.0.75" />
         <PackageReference Include="Soenneker.Dtos.Results.Paged" Version="4.0.16" />
-        <PackageReference Include="Soenneker.Extensions.Configuration.Logging" Version="4.0.98" />
-        <PackageReference Include="Soenneker.Extensions.Serilog.LogEventLevels" Version="4.0.139" />
-        <PackageReference Include="Soenneker.Serilog.Sinks.Browser.Blazor" Version="4.0.242" />
+        <PackageReference Include="Soenneker.Extensions.Configuration.Logging" Version="4.0.101" />
+        <PackageReference Include="Soenneker.Extensions.Serilog.LogEventLevels" Version="4.0.141" />
+        <PackageReference Include="Soenneker.Serilog.Sinks.Browser.Blazor" Version="4.0.245" />
         <PackageReference Include="Soenneker.Utils.AutoBogus" Version="4.0.846" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Soenneker.Quark.Suite.csproj" />
+        <!-- Sibling repo under Quark: soenneker.quark.gen.tailwind -->
+        <ProjectReference Include="..\..\..\soenneker.quark.gen.tailwind\src\Soenneker.Quark.Gen.Tailwind\Soenneker.Quark.Gen.Tailwind.csproj" Condition="Exists('..\..\..\soenneker.quark.gen.tailwind\src\Soenneker.Quark.Gen.Tailwind\Soenneker.Quark.Gen.Tailwind.csproj')" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <!-- Gen.Tailwind under suite/src (e.g. submodule) -->
+        <ProjectReference Include="..\..\src\Soenneker.Quark.Gen.Tailwind\Soenneker.Quark.Gen.Tailwind.csproj" Condition="!Exists('..\..\..\soenneker.quark.gen.tailwind\src\Soenneker.Quark.Gen.Tailwind\Soenneker.Quark.Gen.Tailwind.csproj') and Exists('..\..\src\Soenneker.Quark.Gen.Tailwind\Soenneker.Quark.Gen.Tailwind.csproj')" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <!-- Fallback when building without Quark workspace: use package so Tailwind targets run and TailwindElements.txt is generated -->
+        <PackageReference Include="Soenneker.Quark.Gen.Tailwind" Version="4.0.0" Condition="!Exists('..\..\..\soenneker.quark.gen.tailwind\src\Soenneker.Quark.Gen.Tailwind\Soenneker.Quark.Gen.Tailwind.csproj') and !Exists('..\..\src\Soenneker.Quark.Gen.Tailwind\Soenneker.Quark.Gen.Tailwind.csproj')" />
     </ItemGroup>
 </Project>

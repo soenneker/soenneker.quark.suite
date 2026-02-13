@@ -51,7 +51,7 @@ public sealed class TableContinuationTokenPaging
             throw new ArgumentException("pageNumber must be non-negative", nameof(pageNumber));
         }
 
-        if (_pageTokens.TryGetValue(pageNumber.ToString(), out var token))
+        if (_pageTokens.TryGetValue(pageNumber.ToString(), out string? token))
         {
             return token.IsNullOrEmpty() ? null : token;
         }
@@ -138,11 +138,11 @@ public sealed class TableContinuationTokenPaging
         }
 
         var knownRecords = 0;
-        var maxPage = -1;
+        int maxPage = -1;
 
-        foreach (var kvp in _pageCounts)
+        foreach (KeyValuePair<string, int> kvp in _pageCounts)
         {
-            if (int.TryParse(kvp.Key, out var pageNum))
+            if (int.TryParse(kvp.Key, out int pageNum))
             {
                 knownRecords += kvp.Value;
                 maxPage = Math.Max(maxPage, pageNum);
@@ -151,7 +151,7 @@ public sealed class TableContinuationTokenPaging
 
         if (_hasMorePages && maxPage >= 0)
         {
-            var avgRecordsPerPage = knownRecords / (maxPage + 1);
+            int avgRecordsPerPage = knownRecords / (maxPage + 1);
             return Math.Max(knownRecords + avgRecordsPerPage, (maxPage + 2) * pageSize);
         }
 
@@ -172,7 +172,7 @@ public sealed class TableContinuationTokenPaging
             throw new ArgumentException("requestedStart must be non-negative and pageSize must be positive");
         }
 
-        var requestedPage = requestedStart / pageSize;
+        int requestedPage = requestedStart / pageSize;
         _currentVirtualPage = requestedPage;
 
         // For the first page (page 0), always return null as the continuation token
@@ -182,7 +182,7 @@ public sealed class TableContinuationTokenPaging
         }
 
         // First, check if we have a direct token for the requested page
-        var directToken = GetContinuationToken(requestedPage);
+        string? directToken = GetContinuationToken(requestedPage);
         if (directToken.HasContent())
         {
             return directToken;
@@ -241,7 +241,7 @@ public sealed class TableContinuationTokenPaging
         {
             var knownRecords = 0;
 
-            foreach (var count in _pageCounts.Values)
+            foreach (int count in _pageCounts.Values)
             {
                 knownRecords += count;
             }
@@ -268,7 +268,7 @@ public sealed class TableContinuationTokenPaging
             throw new ArgumentException("pageSize must be positive", nameof(pageSize));
         }
 
-        var directToken = GetContinuationToken(requestedPage);
+        string? directToken = GetContinuationToken(requestedPage);
         if (directToken != null)
         {
             return directToken;
@@ -279,7 +279,7 @@ public sealed class TableContinuationTokenPaging
             return null;
         }
 
-        var closestPage = FindClosestPage(requestedPage);
+        int closestPage = FindClosestPage(requestedPage);
         if (closestPage >= 0)
         {
             return GetContinuationToken(closestPage);
@@ -295,14 +295,14 @@ public sealed class TableContinuationTokenPaging
     /// <returns>The closest page number, or -1 if no pages are found.</returns>
     private int FindClosestPage(int requestedPage)
     {
-        var closestPage = -1;
+        int closestPage = -1;
         var minDistance = int.MaxValue;
 
-        foreach (var kvp in _pageTokens)
+        foreach (KeyValuePair<string, string> kvp in _pageTokens)
         {
-            if (int.TryParse(kvp.Key, out var pageNum))
+            if (int.TryParse(kvp.Key, out int pageNum))
             {
-                var distance = Math.Abs(pageNum - requestedPage);
+                int distance = Math.Abs(pageNum - requestedPage);
                 
                 if (distance < minDistance || (distance == minDistance && pageNum < closestPage))
                 {

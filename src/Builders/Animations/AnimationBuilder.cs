@@ -57,32 +57,32 @@ public sealed class AnimationBuilder : ICssBuilder
     /// <summary>
     /// Applies the animation on phone breakpoint.
     /// </summary>
-    public AnimationBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public AnimationBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
 
     /// <summary>
     /// Applies the animation on tablet breakpoint.
     /// </summary>
-    public AnimationBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public AnimationBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
 
     /// <summary>
     /// Applies the animation on laptop breakpoint.
     /// </summary>
-    public AnimationBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public AnimationBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the animation on desktop breakpoint.
     /// </summary>
-    public AnimationBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public AnimationBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the animation on widescreen breakpoint.
     /// </summary>
-    public AnimationBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public AnimationBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
 
     /// <summary>
     /// Applies the animation on ultrawide breakpoint.
     /// </summary>
-    public AnimationBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public AnimationBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private AnimationBuilder ChainWithAnimation(string animation)
@@ -100,8 +100,8 @@ public sealed class AnimationBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        AnimationRule last = _rules[lastIdx];
         _rules[lastIdx] = new AnimationRule(last.Animation, breakpoint);
         return this;
     }
@@ -120,12 +120,12 @@ public sealed class AnimationBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetAnimationClass(rule.Animation);
+            AnimationRule rule = _rules[i];
+            string cls = GetAnimationClass(rule.Animation);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -154,8 +154,8 @@ public sealed class AnimationBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var animationValue = GetAnimationValue(rule.Animation);
+            AnimationRule rule = _rules[i];
+            string? animationValue = GetAnimationValue(rule.Animation);
 
             if (animationValue is null)
                 continue;

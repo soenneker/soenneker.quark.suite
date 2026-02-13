@@ -22,13 +22,13 @@
                 <button type="button" class="btn btn-sm btn-light qcal-nav" @onclick="NextMonth">›</button>
             </div>
             <div class="qcal-grid mt-2">
-                @foreach (var dow in _dayNames)
+                @foreach (string dow in _dayNames)
                 {
                     <div class="qcal-dow text-muted">@dow</div>
                 }
-                @foreach (var day in BuildMonthCells())
+                @foreach (Cell day in BuildMonthCells())
                 {
-                    var css = day.InMonth ? "qcal-day" : "qcal-day text-muted";
+                    string css = day.InMonth ? "qcal-day" : "qcal-day text-muted";
                     if (day.Date == DateOnly.FromDateTime(DateTime.Today))
                     {
                         css += " qcal-today";
@@ -171,11 +171,11 @@
         if (text.IsNullOrWhiteSpace())
             return null;
 
-        var normalized = text.Trim();
+        string normalized = text.Trim();
         if (normalized.Contains(' ') && !normalized.Contains('T'))
             normalized = normalized.Replace(' ', 'T');
 
-        if (DateTime.TryParse(normalized, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var result))
+        if (DateTime.TryParse(normalized, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime result))
             return result;
 
         return null;
@@ -183,8 +183,8 @@
 
     private async Task HandleInput(ChangeEventArgs e)
     {
-        var next = Parse(e);
-        var valueChanged = Value != next;
+        DateTime? next = Parse(e);
+        bool valueChanged = Value != next;
         Value = next;
         if (valueChanged)
             await ValueChanged.InvokeIfHasDelegate(Value);
@@ -202,8 +202,8 @@
 
     private async Task HandleChange(ChangeEventArgs e)
     {
-        var next = Parse(e);
-        var valueChanged = Value != next;
+        DateTime? next = Parse(e);
+        bool valueChanged = Value != next;
         Value = next;
         if (valueChanged)
             await ValueChanged.InvokeIfHasDelegate(Value);
@@ -225,7 +225,7 @@
             return null;
 
         string? token = null;
-        var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+        bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
         if (isTheme && token is not null)
             return $"form-control-{token}";
 
@@ -272,7 +272,7 @@
             else
             {
                 _displayMonth = DateOnly.FromDateTime(DateTime.Today);
-                var now = DateTime.Now;
+                DateTime now = DateTime.Now;
                 _hour = now.Hour;
                 _minute = now.Minute;
             }
@@ -295,11 +295,11 @@
             AppendClass(ref cls, "q-date-time-picker");
             AppendClass(ref cls, "form-control");
             
-            var sizeClass = GetSizeClass();
+            string? sizeClass = GetSizeClass();
             if (sizeClass != null)
                 AppendClass(ref cls, sizeClass);
                 
-            var validationClass = GetValidationClass();
+            string? validationClass = GetValidationClass();
             if (validationClass != null)
                 AppendClass(ref cls, validationClass);
         });
@@ -373,9 +373,9 @@
 
     private void InitializeDayNames()
     {
-        var culture = CultureInfo.CurrentCulture;
-        var first = culture.DateTimeFormat.FirstDayOfWeek;
-        var names = culture.DateTimeFormat.AbbreviatedDayNames;
+        CultureInfo culture = CultureInfo.CurrentCulture;
+        DayOfWeek first = culture.DateTimeFormat.FirstDayOfWeek;
+        string[] names = culture.DateTimeFormat.AbbreviatedDayNames;
         _dayNames = Enumerable.Range(0, 7)
             .Select(i => names[((int)first + i) % 7])
             .ToArray();
@@ -386,16 +386,16 @@
     private IEnumerable<Cell> BuildMonthCells()
     {
         var firstOfMonth = new DateOnly(_displayMonth.Year, _displayMonth.Month, 1);
-        var culture = CultureInfo.CurrentCulture;
-        var startDow = culture.DateTimeFormat.FirstDayOfWeek;
-        var offset = ((int)firstOfMonth.DayOfWeek - (int)startDow + 7) % 7;
-        var gridStart = firstOfMonth.AddDays(-offset);
+        CultureInfo culture = CultureInfo.CurrentCulture;
+        DayOfWeek startDow = culture.DateTimeFormat.FirstDayOfWeek;
+        int offset = ((int)firstOfMonth.DayOfWeek - (int)startDow + 7) % 7;
+        DateOnly gridStart = firstOfMonth.AddDays(-offset);
 
         for (var i = 0; i < 42; i++)
         {
-            var d = gridStart.AddDays(i);
-            var inMonth = d.Month == _displayMonth.Month;
-            var disabled = (Min.HasValue && d < DateOnly.FromDateTime(Min.Value)) || (Max.HasValue && d > DateOnly.FromDateTime(Max.Value));
+            DateOnly d = gridStart.AddDays(i);
+            bool inMonth = d.Month == _displayMonth.Month;
+            bool disabled = (Min.HasValue && d < DateOnly.FromDateTime(Min.Value)) || (Max.HasValue && d > DateOnly.FromDateTime(Max.Value));
             yield return new Cell(d, inMonth, disabled);
         }
     }
@@ -419,7 +419,7 @@
 
     private async Task Commit()
     {
-        var date = _pendingDate ?? (Value.HasValue ? DateOnly.FromDateTime(Value.Value) : DateOnly.FromDateTime(DateTime.Today));
+        DateOnly date = _pendingDate ?? (Value.HasValue ? DateOnly.FromDateTime(Value.Value) : DateOnly.FromDateTime(DateTime.Today));
         var dt = new DateTime(date.Year, date.Month, date.Day, _hour, _minute, 0);
         
         if (Value != dt)
@@ -473,11 +473,11 @@
     private Task OnHourInput(ChangeEventArgs e)
     {
         if (e?.Value is null) return Task.CompletedTask;
-        if (int.TryParse(e.Value.ToString(), out var v))
+        if (int.TryParse(e.Value.ToString(), out int v))
         {
             v = Math.Clamp(v, 1, 12);
             // preserve am/pm while mapping 12->0 for AM case
-            var baseHour = _isAm ? 0 : 12;
+            int baseHour = _isAm ? 0 : 12;
             _hour = v % 12 + baseHour;
             return Commit();
         }
@@ -487,7 +487,7 @@
     private Task OnMinuteInput(ChangeEventArgs e)
     {
         if (e?.Value is null) return Task.CompletedTask;
-        if (int.TryParse(e.Value.ToString(), out var v))
+        if (int.TryParse(e.Value.ToString(), out int v))
         {
             v = (v % 60 + 60) % 60;
             _minute = v;
@@ -523,7 +523,7 @@
         if (BackgroundColor is { IsEmpty: false })
         {
             string? token = null;
-            var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
+            bool isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
 
             if (isTheme && token is not null)
             {

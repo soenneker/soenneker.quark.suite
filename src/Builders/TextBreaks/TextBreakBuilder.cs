@@ -40,27 +40,27 @@ public sealed class TextBreakBuilder : ICssBuilder
     /// <summary>
     /// Applies the text break on phone breakpoint.
     /// </summary>
-    public TextBreakBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public TextBreakBuilder OnPhone => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the text break on tablet breakpoint.
     /// </summary>
-    public TextBreakBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public TextBreakBuilder OnTablet => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the text break on laptop breakpoint.
     /// </summary>
-    public TextBreakBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public TextBreakBuilder OnLaptop => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the text break on desktop breakpoint.
     /// </summary>
-    public TextBreakBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public TextBreakBuilder OnDesktop => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the text break on widescreen breakpoint.
     /// </summary>
-    public TextBreakBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public TextBreakBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
     /// <summary>
     /// Applies the text break on ultrawide breakpoint.
     /// </summary>
-    public TextBreakBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public TextBreakBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextBreakBuilder Chain(bool enabled)
@@ -79,8 +79,8 @@ public sealed class TextBreakBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        TextBreakRule last = _rules[lastIdx];
         _rules[lastIdx] = new TextBreakRule(last.Enabled, bp);
         return this;
     }
@@ -99,13 +99,13 @@ public sealed class TextBreakBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            TextBreakRule rule = _rules[i];
             if (!rule.Enabled)
                 continue;
 
-            var baseClass = _classTextBreak;
+            string baseClass = _classTextBreak;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 baseClass = BreakpointUtil.InsertBreakpointType(baseClass, bp);
 

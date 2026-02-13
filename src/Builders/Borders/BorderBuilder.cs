@@ -103,33 +103,33 @@ public sealed class BorderBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the border on phone breakpoint.
 	/// </summary>
-    public BorderBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public BorderBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the border on tablet breakpoint.
 	/// </summary>
-    public BorderBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public BorderBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the border on laptop breakpoint.
 	/// </summary>
-    public BorderBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public BorderBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the border on desktop breakpoint.
 	/// </summary>
-    public BorderBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public BorderBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the border on widescreen breakpoint.
 	/// </summary>
-    public BorderBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public BorderBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
 	/// <summary>
 	/// Applies the border on ultrawide breakpoint.
 	/// </summary>
-    public BorderBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public BorderBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BorderBuilder AddRule(ElementSideType side)
     {
-        var size = _rules.Count > 0 ? _rules[^1].Size : "0";
-        var bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
+        string size = _rules.Count > 0 ? _rules[^1].Size : "0";
+        BreakpointType? bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
 
         if (_rules.Count > 0 && _rules[^1].Side == ElementSideType.All)
         {
@@ -159,8 +159,8 @@ public sealed class BorderBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        BorderRule last = _rules[lastIdx];
         _rules[lastIdx] = new BorderRule(last.Size, last.Side, breakpoint);
         return this;
     }
@@ -176,15 +176,15 @@ public sealed class BorderBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            BorderRule rule = _rules[i];
 
-            var sizeTok = rule.Size;
+            string sizeTok = rule.Size;
 
             if (sizeTok.Length == 0)
                 continue;
 
-            var sideTok = GetSideToken(rule.Side);
-            var bpTok = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string sideTok = GetSideToken(rule.Side);
+            string bpTok = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
 
             if (!first)
                 sb.Append(' ');
@@ -223,8 +223,8 @@ public sealed class BorderBuilder : ICssBuilder
         {
             for (var i = 0; i < _rules.Count; i++)
             {
-                var rule = _rules[i];
-                var sizeVal = GetSizeValue(rule.Size);
+                BorderRule rule = _rules[i];
+                string? sizeVal = GetSizeValue(rule.Size);
 
                 if (sizeVal is null)
                     continue;

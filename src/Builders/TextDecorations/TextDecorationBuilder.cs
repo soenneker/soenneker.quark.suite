@@ -168,27 +168,27 @@ public sealed class TextDecorationBuilder : ICssBuilder
     /// <summary>
     /// Applies the text decoration on phone breakpoint.
     /// </summary>
-    public TextDecorationBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public TextDecorationBuilder OnPhone => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the text decoration on tablet breakpoint.
     /// </summary>
-    public TextDecorationBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public TextDecorationBuilder OnTablet => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the text decoration on laptop breakpoint.
     /// </summary>
-    public TextDecorationBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public TextDecorationBuilder OnLaptop => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the text decoration on desktop breakpoint.
     /// </summary>
-    public TextDecorationBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public TextDecorationBuilder OnDesktop => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the text decoration on widescreen breakpoint.
     /// </summary>
-    public TextDecorationBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public TextDecorationBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
     /// <summary>
     /// Applies the text decoration on ultrawide breakpoint.
     /// </summary>
-    public TextDecorationBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public TextDecorationBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextDecorationBuilder Chain(string value)
@@ -214,8 +214,8 @@ public sealed class TextDecorationBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        TextDecorationRule last = _rules[lastIdx];
         _rules[lastIdx] = new TextDecorationRule(last.Value, bp);
         return this;
     }
@@ -234,9 +234,9 @@ public sealed class TextDecorationBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            TextDecorationRule rule = _rules[i];
 
-            var baseClass = rule.Value switch
+            string baseClass = rule.Value switch
             {
                 TextDecorationLineKeyword.NoneValue => _classNone,
                 TextDecorationLineKeyword.UnderlineValue => _classUnderline,
@@ -247,7 +247,7 @@ public sealed class TextDecorationBuilder : ICssBuilder
             if (baseClass.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 baseClass = BreakpointUtil.InsertBreakpointType(baseClass, bp);
 
@@ -281,8 +281,8 @@ public sealed class TextDecorationBuilder : ICssBuilder
             // Line (underline, line-through, etc.)
             if (_rules.Count > 0)
             {
-                var rule = _rules[^1]; // Use the last rule
-                var lineValue = rule.Value switch
+                TextDecorationRule rule = _rules[^1]; // Use the last rule
+                string lineValue = rule.Value switch
                 {
                     TextDecorationLineKeyword.NoneValue => "none",
                     TextDecorationLineKeyword.UnderlineValue => "underline",

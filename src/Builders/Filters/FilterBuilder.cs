@@ -84,27 +84,27 @@ public sealed class FilterBuilder : ICssBuilder
     /// <summary>
     /// Applies the filter on phone breakpoint.
     /// </summary>
-    public FilterBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public FilterBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the filter on tablet breakpoint.
     /// </summary>
-    public FilterBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public FilterBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the filter on laptop breakpoint.
     /// </summary>
-    public FilterBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public FilterBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the filter on desktop breakpoint.
     /// </summary>
-    public FilterBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public FilterBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the filter on widescreen breakpoint.
     /// </summary>
-    public FilterBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public FilterBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
     /// <summary>
     /// Applies the filter on ultrawide breakpoint.
     /// </summary>
-    public FilterBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public FilterBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FilterBuilder ChainWithFilter(string filter)
@@ -122,8 +122,8 @@ public sealed class FilterBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        FilterRule last = _rules[lastIdx];
         _rules[lastIdx] = new FilterRule(last.Filter, breakpoint);
         return this;
     }
@@ -142,12 +142,12 @@ public sealed class FilterBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetFilterClass(rule.Filter);
+            FilterRule rule = _rules[i];
+            string cls = GetFilterClass(rule.Filter);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -174,8 +174,8 @@ public sealed class FilterBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var filterValue = GetFilterValue(rule.Filter);
+            FilterRule rule = _rules[i];
+            string? filterValue = GetFilterValue(rule.Filter);
 
             if (filterValue is null)
                 continue;

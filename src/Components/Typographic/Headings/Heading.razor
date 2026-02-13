@@ -3,8 +3,8 @@
 @implements IHeading
 
 @{
-    var level = GetHeadingLevel(Scale);
-    var attrs = BuildAttributes();
+    int level = GetHeadingLevel(Scale);
+    IReadOnlyDictionary<string, object> attrs = BuildAttributes();
 }
 
 @if (level == 1)
@@ -65,7 +65,7 @@ else
 
         if (s.Length >= 7 && s.AsSpan().StartsWith("scale-"))
         {
-            var d = s[^1] - '0';
+            int d = s[^1] - '0';
 
             if ((uint)(d - 1) <= 5)
                 return d; // 1..6

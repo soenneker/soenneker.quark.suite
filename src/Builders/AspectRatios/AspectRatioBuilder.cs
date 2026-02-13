@@ -48,27 +48,27 @@ public sealed class AspectRatioBuilder : ICssBuilder
     /// <summary>
     /// Applies the aspect ratio on phone breakpoint.
     /// </summary>
-    public AspectRatioBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Phone);
+    public AspectRatioBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the aspect ratio on tablet breakpoint.
     /// </summary>
-    public AspectRatioBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Tablet);
+    public AspectRatioBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the aspect ratio on laptop breakpoint.
     /// </summary>
-    public AspectRatioBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Laptop);
+    public AspectRatioBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the aspect ratio on desktop breakpoint.
     /// </summary>
-    public AspectRatioBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Desktop);
+    public AspectRatioBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the aspect ratio on widescreen breakpoint.
     /// </summary>
-    public AspectRatioBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Widescreen);
+    public AspectRatioBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
     /// <summary>
     /// Applies the aspect ratio on ultrawide breakpoint.
     /// </summary>
-    public AspectRatioBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Ultrawide);
+    public AspectRatioBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private AspectRatioBuilder ChainWithRatio(string ratio)
@@ -86,8 +86,8 @@ public sealed class AspectRatioBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        AspectRatioRule last = _rules[lastIdx];
         _rules[lastIdx] = new AspectRatioRule(last.Ratio, breakpoint);
         return this;
     }
@@ -106,12 +106,12 @@ public sealed class AspectRatioBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetAspectRatioClass(rule.Ratio);
+            AspectRatioRule rule = _rules[i];
+            string cls = GetAspectRatioClass(rule.Ratio);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -138,8 +138,8 @@ public sealed class AspectRatioBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var ratioValue = GetAspectRatioValue(rule.Ratio);
+            AspectRatioRule rule = _rules[i];
+            string? ratioValue = GetAspectRatioValue(rule.Ratio);
 
             if (ratioValue is null)
                 continue;

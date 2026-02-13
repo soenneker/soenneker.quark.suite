@@ -72,27 +72,27 @@ public sealed class TextBackgroundBuilder : ICssBuilder
     /// <summary>
     /// Applies the text background on phone breakpoint.
     /// </summary>
-    public TextBackgroundBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public TextBackgroundBuilder OnPhone => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the text background on tablet breakpoint.
     /// </summary>
-    public TextBackgroundBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public TextBackgroundBuilder OnTablet => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the text background on laptop breakpoint.
     /// </summary>
-    public TextBackgroundBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public TextBackgroundBuilder OnLaptop => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the text background on desktop breakpoint.
     /// </summary>
-    public TextBackgroundBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public TextBackgroundBuilder OnDesktop => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the text background on widescreen breakpoint.
     /// </summary>
-    public TextBackgroundBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public TextBackgroundBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
     /// <summary>
     /// Applies the text background on ultrawide breakpoint.
     /// </summary>
-    public TextBackgroundBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public TextBackgroundBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextBackgroundBuilder ChainValue(string value)
@@ -110,8 +110,8 @@ public sealed class TextBackgroundBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        TextBackgroundRule last = _rules[lastIdx];
         _rules[lastIdx] = new TextBackgroundRule(last.Value, bp);
         return this;
     }
@@ -130,12 +130,12 @@ public sealed class TextBackgroundBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetClass(rule);
+            TextBackgroundRule rule = _rules[i];
+            string cls = GetClass(rule);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 

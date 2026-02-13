@@ -48,27 +48,27 @@ public sealed class LineHeightBuilder : ICssBuilder
     /// <summary>
     /// Applies the line height on phone breakpoint.
     /// </summary>
-    public LineHeightBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public LineHeightBuilder OnPhone => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the line height on tablet breakpoint.
     /// </summary>
-    public LineHeightBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public LineHeightBuilder OnTablet => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the line height on laptop breakpoint.
     /// </summary>
-    public LineHeightBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public LineHeightBuilder OnLaptop => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the line height on desktop breakpoint.
     /// </summary>
-    public LineHeightBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public LineHeightBuilder OnDesktop => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the line height on widescreen breakpoint.
     /// </summary>
-    public LineHeightBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public LineHeightBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
     /// <summary>
     /// Applies the line height on ultrawide breakpoint.
     /// </summary>
-    public LineHeightBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public LineHeightBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private LineHeightBuilder Chain(string value)
@@ -86,8 +86,8 @@ public sealed class LineHeightBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        LineHeightRule last = _rules[lastIdx];
         _rules[lastIdx] = new LineHeightRule(last.Value, bp);
         return this;
     }
@@ -104,8 +104,8 @@ public sealed class LineHeightBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = rule.Value switch
+            LineHeightRule rule = _rules[i];
+            string cls = rule.Value switch
             {
                 ScaleType.Is1Value => _classLh1,
                 "sm" => _classLhSm,
@@ -116,7 +116,7 @@ public sealed class LineHeightBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -140,8 +140,8 @@ public sealed class LineHeightBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var css = rule.Value switch
+            LineHeightRule rule = _rules[i];
+            string css = rule.Value switch
             {
                 ScaleType.Is1Value => "1",
                 "sm" => "1.25",

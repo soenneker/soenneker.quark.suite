@@ -100,27 +100,27 @@ public sealed class ColorBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the color on phone breakpoint.
 	/// </summary>
-    public ColorBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public ColorBuilder OnPhone => ChainBp(BreakpointType.Base);
 	/// <summary>
 	/// Applies the color on tablet breakpoint.
 	/// </summary>
-    public ColorBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public ColorBuilder OnTablet => ChainBp(BreakpointType.Md);
 	/// <summary>
 	/// Applies the color on laptop breakpoint.
 	/// </summary>
-    public ColorBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public ColorBuilder OnLaptop => ChainBp(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the color on desktop breakpoint.
 	/// </summary>
-    public ColorBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public ColorBuilder OnDesktop => ChainBp(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the color on widescreen breakpoint.
 	/// </summary>
-    public ColorBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public ColorBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
 	/// <summary>
 	/// Applies the color on ultrawide breakpoint.
 	/// </summary>
-    public ColorBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public ColorBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ColorBuilder ChainValue(string value)
@@ -138,8 +138,8 @@ public sealed class ColorBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        ColorRule last = _rules[lastIdx];
         _rules[lastIdx] = new ColorRule(last.Value, bp);
         return this;
     }
@@ -158,12 +158,12 @@ public sealed class ColorBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var cls = GetClass(rule);
+            ColorRule rule = _rules[i];
+            string cls = GetClass(rule);
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -190,8 +190,8 @@ public sealed class ColorBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
-            var css = GetStyle(rule);
+            ColorRule rule = _rules[i];
+            string? css = GetStyle(rule);
             if (css is null)
                 continue;
 
@@ -214,7 +214,7 @@ public sealed class ColorBuilder : ICssBuilder
             return string.Empty;
 
         // First try to generate classes
-        var classResult = ToClass();
+        string classResult = ToClass();
         if (classResult.HasContent())
             return classResult;
 

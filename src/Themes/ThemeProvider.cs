@@ -34,7 +34,7 @@ public sealed class ThemeProvider : IThemeProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string? GenerateBootstrapCss()
     {
-        var currentTheme = GetCurrentTheme();
+        Theme? currentTheme = GetCurrentTheme();
 
         if (currentTheme?.BootstrapCssVariables == null)
             return null;
@@ -49,7 +49,7 @@ public sealed class ThemeProvider : IThemeProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string? GenerateComponentsCss()
     {
-        var currentTheme = GetCurrentTheme();
+        Theme? currentTheme = GetCurrentTheme();
 
         if (currentTheme == null)
             return null;

@@ -77,32 +77,32 @@ public sealed class PointerEventsBuilder : ICssBuilder
     /// <summary>
     /// Applies the pointer events on phone breakpoint.
     /// </summary>
-    public PointerEventsBuilder OnPhone => ChainBp(BreakpointType.Phone);
+    public PointerEventsBuilder OnPhone => ChainBp(BreakpointType.Base);
 
     /// <summary>
     /// Applies the pointer events on tablet breakpoint.
     /// </summary>
-    public PointerEventsBuilder OnTablet => ChainBp(BreakpointType.Tablet);
+    public PointerEventsBuilder OnTablet => ChainBp(BreakpointType.Md);
 
     /// <summary>
     /// Applies the pointer events on laptop breakpoint.
     /// </summary>
-    public PointerEventsBuilder OnLaptop => ChainBp(BreakpointType.Laptop);
+    public PointerEventsBuilder OnLaptop => ChainBp(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the pointer events on desktop breakpoint.
     /// </summary>
-    public PointerEventsBuilder OnDesktop => ChainBp(BreakpointType.Desktop);
+    public PointerEventsBuilder OnDesktop => ChainBp(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the pointer events on widescreen breakpoint.
     /// </summary>
-    public PointerEventsBuilder OnWidescreen => ChainBp(BreakpointType.Widescreen);
+    public PointerEventsBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
 
     /// <summary>
     /// Applies the pointer events on ultrawide breakpoint.
     /// </summary>
-    public PointerEventsBuilder OnUltrawide => ChainBp(BreakpointType.Ultrawide);
+    public PointerEventsBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PointerEventsBuilder Chain(string value)
@@ -121,8 +121,8 @@ public sealed class PointerEventsBuilder : ICssBuilder
             return this;
         }
 
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
+        int lastIdx = _rules.Count - 1;
+        PointerEventsRule last = _rules[lastIdx];
         _rules[lastIdx] = new PointerEventsRule(last.Value, bp);
         return this;
     }
@@ -141,9 +141,9 @@ public sealed class PointerEventsBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            PointerEventsRule rule = _rules[i];
 
-            var baseClass = rule.Value switch
+            string baseClass = rule.Value switch
             {
                 PointerEventsKeyword.NoneValue => _classNone,
                 PointerEventsKeyword.AutoValue => _classAuto,
@@ -153,7 +153,7 @@ public sealed class PointerEventsBuilder : ICssBuilder
             if (baseClass.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 baseClass = BreakpointUtil.InsertBreakpointType(baseClass, bp);
 
@@ -180,9 +180,9 @@ public sealed class PointerEventsBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            var rule = _rules[i];
+            PointerEventsRule rule = _rules[i];
 
-            var css = rule.Value switch
+            string css = rule.Value switch
             {
                 PointerEventsKeyword.NoneValue => _styleNone,
                 PointerEventsKeyword.AutoValue => _styleAuto,

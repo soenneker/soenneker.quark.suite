@@ -1,4 +1,5 @@
 @using System.Linq.Expressions
+@using System.Reflection
 @using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
@@ -153,7 +154,7 @@
 
         if (ParentValidation is not null)
         {
-            var valueObj = ValidationValue;
+            object? valueObj = ValidationValue;
             await ParentValidation.NotifyInputChanged(valueObj);
         }
 
@@ -183,7 +184,7 @@
 
         if (ParentValidation is not null)
         {
-            var valueObj = ValidationValue;
+            object? valueObj = ValidationValue;
             await ParentValidation.NotifyInputChanged(valueObj);
         }
 
@@ -199,8 +200,8 @@
         if (ParentValidation is null || ParentValidation.Status != ValidationStatus.Error)
             return false;
 
-        var showInvalidProp = ParentValidation.GetType().GetProperty("ShouldShowInvalid");
-        var showInvalid = showInvalidProp?.GetValue(ParentValidation) as bool? ?? true;
+        PropertyInfo? showInvalidProp = ParentValidation.GetType().GetProperty("ShouldShowInvalid");
+        bool showInvalid = showInvalidProp?.GetValue(ParentValidation) as bool? ?? true;
         return showInvalid;
     }
 
@@ -226,12 +227,12 @@
         if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
         {
             string? token = null;
-            var isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
+            bool isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
 
             if (isTheme && token is not null)
                 return $"form-control-{token}";
 
-            var v = BackgroundColor.Value.ToString().Trim();
+            string v = BackgroundColor.Value.ToString().Trim();
             if (BackgroundColor.Value.IsCssClass)
                 return v.StartsWith("form-control-", StringComparison.Ordinal) ? v : $"form-control-{v}";
         }
@@ -248,7 +249,7 @@
         if (Size == Quark.Size.Default) return null;
 
         string? token = null;
-        var isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+        bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
         if (isTheme && token is not null) return $"form-control-{token}";
 
         return Size?.ToString() != null ? $"form-control-{Size}" : null;
@@ -273,13 +274,13 @@
             AppendClass(ref cls, "q-input");
             AppendClass(ref cls, PlainText ? "form-control-plaintext" : "form-control");
 
-            var colorClass = GetColorClass();
+            string? colorClass = GetColorClass();
             if (colorClass is not null) AppendClass(ref cls, colorClass);
 
-            var sizeClass = GetSizeClass();
+            string? sizeClass = GetSizeClass();
             if (sizeClass is not null) AppendClass(ref cls, sizeClass);
 
-            var validationClass = GetValidationClass();
+            string? validationClass = GetValidationClass();
             if (validationClass is not null) AppendClass(ref cls, validationClass);
         });
 
@@ -287,7 +288,7 @@
 
         if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty && !BackgroundColor.Value.IsCssClass)
         {
-            var v = BackgroundColor.Value.ToString().Trim();
+            string v = BackgroundColor.Value.ToString().Trim();
             attributes["style"] = $"border-color:{v};";
         }
 
