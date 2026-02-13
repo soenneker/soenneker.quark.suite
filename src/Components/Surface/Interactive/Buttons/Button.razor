@@ -17,7 +17,7 @@ else
     <button @onclick="HandleClick" @attributes="BuildAttributes()">
         @if (Loading)
         {
-            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            <span class="animate-spin size-4 mr-2 inline-block rounded-full border-2 border-current border-t-transparent" role="status" aria-hidden="true"></span>
         }
         @if (LoadingTemplate is not null && Loading)
         {
@@ -135,13 +135,14 @@ else
 
         string? token = null;
         bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
-
-        if (isTheme && token is not null)
-            return $"btn-{token}";
-
-        // SizeBuilder now generates clean tokens like "lg", "sm" without prefix
-        var sizeValue = Size?.ToString();
-        return sizeValue.HasContent() ? $"btn-{sizeValue}" : null;
+        var sizeValue = token ?? Size?.ToString();
+        if (string.IsNullOrEmpty(sizeValue)) return null;
+        return sizeValue.ToLowerInvariant() switch
+        {
+            "sm" => "h-9 rounded-md px-3 text-xs",
+            "lg" => "h-11 rounded-md px-8",
+            _ => "h-10 px-4 py-2"
+        };
     }
 
     /// <summary>
@@ -162,17 +163,17 @@ else
         if (isLink && isDisabled && !attributes.ContainsKey("tabindex"))
             attributes["tabindex"] = -1;
 
-        // Add Bootstrap button classes unless explicitly unstyled
+        // Add Tailwind (Blueprint/shadcn) button classes unless explicitly unstyled
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-button");
             if (Close)
             {
-                AppendClass(ref cls, "btn-close");
+                AppendClass(ref cls, "rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none");
             }
             else if (!Unstyled)
             {
-                AppendClass(ref cls, "btn");
+                AppendClass(ref cls, "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed");
             }
 
             if (!Unstyled)
@@ -182,11 +183,11 @@ else
                     AppendClass(ref cls, sizeClass);
 
                 if (Block)
-                    AppendClass(ref cls, "btn-block");
+                    AppendClass(ref cls, "w-full");
             }
 
             if (isLink && isDisabled)
-                AppendClass(ref cls, "disabled");
+                AppendClass(ref cls, "pointer-events-none opacity-50");
         });
 
         // Common ARIA for loading/disabled
@@ -222,14 +223,12 @@ else
         if (Form.HasContent()) attributes["form"] = Form!;
         if (AutoFocus) attributes["autofocus"] = true;
 
-        // Bootstrap collapse auto-wiring if requested
+        // Collapse toggle wiring if requested (aria-controls for accessibility)
         string? targetId = CollapseTargetRef?.Id ?? CollapseTarget;
         if (targetId.HasContent())
         {
-            attributes["data-bs-toggle"] = "collapse";
-            string selector = targetId!.StartsWith("#") ? targetId : $"#{targetId}";
-            attributes["data-bs-target"] = selector;
-            attributes["aria-controls"] = selector.StartsWith("#") ? selector.Substring(1) : selector;
+            string id = targetId!.StartsWith("#") ? targetId.Substring(1) : targetId;
+            attributes["aria-controls"] = id;
         }
 
         // If this is acting as a link, we already render <Anchor>; nothing special beyond attrs.
@@ -264,26 +263,29 @@ else
         {
             string v = BackgroundColor.Value.ToString().Trim();
             bool isColorTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out string? colorToken);
+            string? token = isColorTheme ? colorToken : (BackgroundColor.Value.IsCssClass ? v : null);
 
-            if (isColorTheme && colorToken is not null)
+            if (token is not null)
             {
-                // Bootstrap theme token (e.g., "primary", "secondary")
-                string prefix = Outline ? "btn-outline-" : "btn-";
-                AppendClass(ref cls, $"{prefix}{colorToken}");
-            }
-            else if (BackgroundColor.Value.IsCssClass)
-            {
-                if (v.StartsWith("btn-", StringComparison.Ordinal))
-                    AppendClass(ref cls, v);
-                else
+                // Map theme tokens to shadcn/Tailwind button variants
+                string variant = (Outline ? "_outline_" : "_") + token.ToLowerInvariant();
+                string? tailwind = variant switch
                 {
-                    string prefix = Outline ? "btn-outline-" : "btn-";
-                    AppendClass(ref cls, $"{prefix}{v}");
-                }
+                    "_primary" => "bg-primary text-primary-foreground hover:bg-primary/90",
+                    "_secondary" => "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+                    "_destructive" or "_danger" => "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+                    "_outline_primary" or "_outline_secondary" or "_outline_danger" or "_outline_destructive" or "_outline_success" or "_outline_warning" or "_outline_info" => "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+                    "_outline_" => "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+                    "_success" => "bg-primary text-primary-foreground hover:bg-primary/90",
+                    "_warning" or "_info" or "_light" or "_dark" => "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+                    _ when Outline => "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+                    _ => "bg-primary text-primary-foreground hover:bg-primary/90"
+                };
+                if (tailwind is not null)
+                    AppendClass(ref cls, tailwind);
             }
             else
             {
-                // Build style efficiently - BackgroundColor already handles background-color
                 AppendStyleDecl(ref sty, $"border-color:{v}");
             }
         }

@@ -100,10 +100,9 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-tab");
-            AppendClass(ref cls, "nav-item");
-            
+            AppendClass(ref cls, "list-none");
             if (Disabled)
-                AppendClass(ref cls, "disabled");
+                AppendClass(ref cls, "opacity-50 pointer-events-none");
         });
     }
 
@@ -113,12 +112,13 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "nav-link");
-            
+            AppendClass(ref cls, "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50");
             if (IsActive)
-                AppendClass(ref cls, "active");
+                AppendClass(ref cls, "bg-background text-foreground shadow-sm");
+            else
+                AppendClass(ref cls, "text-muted-foreground hover:text-foreground");
             if (Disabled)
-                AppendClass(ref cls, "disabled");
+                AppendClass(ref cls, "opacity-50 pointer-events-none");
         });
 
         attributes["role"] = "tab";
@@ -126,17 +126,7 @@
         attributes["aria-selected"] = IsActive ? "true" : "false";
 
         if (Disabled)
-        {
             attributes["aria-disabled"] = "true";
-        }
-
-        // Only use Bootstrap's tab JavaScript for static tabs (when Target is set)
-        // For dynamic tabs, we handle the switching through our own logic
-        if (!string.IsNullOrEmpty(Target) && !Disabled)
-        {
-            attributes["data-bs-toggle"] = "tab";
-            attributes["data-bs-target"] = $"#{Target}";
-        }
 
         return attributes;
     }

@@ -173,20 +173,15 @@
 
         string? token = null;
         bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
-        if (isTheme && token is not null)
-            return $"form-select-{token}";
-
-        var sizeValue = Size?.ToString();
-        return sizeValue.HasContent() ? $"form-select-{sizeValue}" : null;
+        var sizeVal = token ?? Size?.ToString();
+        if (string.IsNullOrEmpty(sizeVal)) return null;
+        return sizeVal.ToLowerInvariant() switch { "sm" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
     }
 
     private string? GetValidationClass()
     {
         if (ParentValidation?.Status == ValidationStatus.Error)
-            return "is-invalid";
-
-        if (ParentValidation?.Status == ValidationStatus.Success)
-            return "is-valid";
+            return "border-destructive ring-destructive";
 
         return null;
     }
@@ -198,8 +193,8 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-select");
-            AppendClass(ref cls, "form-select");
             AppendClass(ref cls, "q-form-select");
+            AppendClass(ref cls, "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors md:text-sm");
             
             string? sizeClass = GetSizeClass();
             if (sizeClass != null)

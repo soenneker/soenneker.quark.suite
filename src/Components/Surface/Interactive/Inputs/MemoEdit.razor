@@ -136,7 +136,7 @@
         bool isTheme = BackgroundColor?.TryGetBootstrapThemeToken(out token) == true;
 
 		if (isTheme && token is not null)
-			return $"form-control-{token}";
+			return null;
 
 		return null;
 	}
@@ -148,10 +148,9 @@
 
 		string? token = null;
 		bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
-		if (isTheme && token is not null)
-			return $"form-control-{token}";
-
-		return Size?.ToString() != null ? $"form-control-{Size}" : null;
+		var sizeVal = token ?? Size?.ToString();
+		if (string.IsNullOrEmpty(sizeVal)) return null;
+		return sizeVal.ToLowerInvariant() switch { "sm" => "min-h-16 text-xs", "lg" => "min-h-24 text-base", _ => null };
 	}
 
 	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -161,7 +160,7 @@
 		BuildClassAttribute(attributes, (ref cls) =>
 		{
 			AppendClass(ref cls, "q-memo-edit");
-			AppendClass(ref cls, "form-control");
+			AppendClass(ref cls, "flex min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors md:text-sm");
 			
 			string? colorClass = GetColorClass();
 			if (colorClass != null)

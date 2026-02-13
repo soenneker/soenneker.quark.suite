@@ -33,22 +33,18 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-dropdown-menu");
-            AppendClass(ref cls, "dropdown-menu");
-            
-            if (Visible)
-                AppendClass(ref cls, "show");
-
+            AppendClass(ref cls, "absolute z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md");
+            if (!Visible)
+                AppendClass(ref cls, "hidden");
             if (RightAligned)
-                AppendClass(ref cls, "dropdown-menu-end");
-                
+                AppendClass(ref cls, "right-0");
             string? directionClass = Direction.Value switch
             {
-                Direction.UpValue => "dropup",
-                Direction.EndValue => "dropend",
-                Direction.StartValue => "dropstart",
-                _ => null
+                Direction.UpValue => "bottom-full mb-1",
+                Direction.EndValue => "left-full ml-1",
+                Direction.StartValue => "right-full mr-1",
+                _ => "top-full mt-1"
             };
-            
             if (directionClass != null)
                 AppendClass(ref cls, directionClass);
         });

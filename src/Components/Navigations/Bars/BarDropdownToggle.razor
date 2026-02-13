@@ -3,7 +3,7 @@
 @inherits Soenneker.Quark.Element
 @implements IBarDropdownToggle
 
-<button @attributes="BuildAttributes()" data-bs-toggle="collapse" data-bs-target="#@TargetId" aria-expanded="@((!ForceCollapseAll && Expanded).ToString().ToLower())">
+<button @attributes="BuildAttributes()" aria-expanded="@((!ForceCollapseAll && Expanded).ToString().ToLower())" aria-controls="@TargetId">
     @ChildContent
 </button>
 
@@ -66,25 +66,21 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-bar-dropdown-toggle");
-            AppendClass(ref cls, "btn");
-            AppendClass(ref cls, "btn-toggle");
-            AppendClass(ref cls, "align-items-center");
-            AppendClass(ref cls, "rounded");
+            AppendClass(ref cls, "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer");
+            AppendClass(ref cls, "rounded items-center");
             
             bool shouldBeCollapsed = ForceCollapseAll || !Expanded;
             if (shouldBeCollapsed)
-                AppendClass(ref cls, "collapsed");
+                AppendClass(ref cls, "aria-expanded:rotate-0");
             
             if (Disabled == true)
-                AppendClass(ref cls, "disabled");
+                AppendClass(ref cls, "opacity-50 cursor-not-allowed pointer-events-none");
 
             if (Mode != BarMode.Horizontal)
             {
-                AppendClass(ref cls, "d-flex");
-                AppendClass(ref cls, "align-items-center");
-                AppendClass(ref cls, "position-relative");
+                AppendClass(ref cls, "flex items-center relative");
                 if (!VerticalBarCollapsed)
-                    AppendClass(ref cls, "w-100");
+                    AppendClass(ref cls, "w-full");
             }
         });
 

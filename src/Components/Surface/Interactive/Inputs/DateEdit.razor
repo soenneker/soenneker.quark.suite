@@ -144,27 +144,6 @@
 
 	public string? GetColorClass()
 	{
-		if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
-		{
-			string? token = null;
-			bool isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
-
-			if (isTheme && token is not null)
-			{
-				// Bootstrap theme token (e.g., "primary", "secondary")
-				return $"form-control-{token}";
-			}
-
-			string v = BackgroundColor.Value.ToString().Trim();
-
-			if (BackgroundColor.Value.IsCssClass)
-			{
-				if (v.StartsWith("form-control-", StringComparison.Ordinal))
-					return v;
-				return $"form-control-{v}";
-			}
-		}
-
 		return null;
 	}
 
@@ -175,10 +154,9 @@
 
 		string? token = null;
 		bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
-		if (isTheme && token is not null)
-			return $"form-control-{token}";
-
-		return Size?.ToString() != null ? $"form-control-{Size}" : null;
+		var sizeVal = token ?? Size?.ToString();
+		if (string.IsNullOrEmpty(sizeVal)) return null;
+		return sizeVal.ToLowerInvariant() switch { "sm" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
 	}
 
 	private string GetCurrentValue()

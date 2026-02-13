@@ -64,22 +64,13 @@
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
             AppendClass(ref cls, "q-alert");
-            AppendClass(ref cls, "alert");
-
-            if (Dismissible)
-            {
-                AppendClass(ref cls, "alert-dismissible");
-                AppendClass(ref cls, "fade");
-            }
-
-            if (Dismissible && Visible)
-                AppendClass(ref cls, "show");
+            AppendClass(ref cls, "relative w-full rounded-lg border p-4 text-foreground");
 
             if (_hasMessage)
-                AppendClass(ref cls, "alert-has-message");
+                AppendClass(ref cls, "q-alert-has-message");
 
             if (_hasDescription)
-                AppendClass(ref cls, "alert-has-description");
+                AppendClass(ref cls, "q-alert-has-description");
 
             if (AlertStyle is { IsEmpty: false })
                 AppendClass(ref cls, AlertStyle.Value.ToString());
@@ -166,19 +157,19 @@
         if (v.Length == 0)
             return;
 
-        if (BackgroundColor.Value.IsCssClass)
+        if (BackgroundColor.Value.IsCssClass && v.StartsWith("alert-", StringComparison.Ordinal))
         {
-            // If already alert-*, keep it; else prefix alert-
-            if (v.StartsWith("alert-", StringComparison.Ordinal))
-            {
-            }
-            else
-            {
-                // Avoid interpolation allocation
-                AppendClass(ref cls, "alert-");
-            }
-
-            AppendClass(ref cls, v);
+            // Map alert variant to Tailwind/shadcn alert classes
+            var token = v.Length > 6 ? v.Substring(6) : null;
+            if (token is not null)
+                AppendClass(ref cls, token.ToLowerInvariant() switch
+                {
+                    "danger" => "border-alert-danger/30 bg-alert-danger-bg",
+                    "success" => "border-alert-success/30 bg-alert-success-bg",
+                    "warning" => "border-alert-warning/30 bg-alert-warning-bg",
+                    "info" => "border-alert-info/30 bg-alert-info-bg",
+                    _ => "bg-muted/30"
+                });
         }
         else
         {

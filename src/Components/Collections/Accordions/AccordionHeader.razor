@@ -57,26 +57,19 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-accordion-button");
-            AppendClass(ref cls, "accordion-button");
-            
+            AppendClass(ref cls, "flex w-full items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180");
             if (!FullWidth)
                 AppendClass(ref cls, "q-accordion-inline");
-
             if (!IsExpanded)
-                AppendClass(ref cls, "collapsed");
-
+                AppendClass(ref cls, "data-[state=closed]:[&+div]:hidden");
             if (IsDisabled)
-                AppendClass(ref cls, "disabled");
+                AppendClass(ref cls, "opacity-50 pointer-events-none");
         });
 
-        attributes["data-bs-toggle"] = "collapse";
         attributes["aria-expanded"] = IsExpanded ? "true" : "false";
 
         if (ParentAccordionItem?.Name.HasContent() == true)
-        {
-            attributes["data-bs-target"] = $"#collapse-{ParentAccordionItem.Name}";
             attributes["aria-controls"] = $"collapse-{ParentAccordionItem.Name}";
-        }
 
         if (IsDisabled)
         {
@@ -123,7 +116,6 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-accordion-header");
-            AppendClass(ref cls, "accordion-header");
         });
     }
 

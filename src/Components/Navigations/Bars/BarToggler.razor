@@ -71,26 +71,18 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-bar-toggler");
-            AppendClass(ref cls, "navbar-toggler");
+            AppendClass(ref cls, "inline-flex items-center justify-center p-2 rounded-md hover:bg-accent");
             
             if (Mode != BarMode.Horizontal)
             {
-                AppendClass(ref cls, "sidebar-toggler");
-                AppendClass(ref cls, "p-2");
-                AppendClass(ref cls, "my-2");
-                AppendClass(ref cls, "d-flex");
-                AppendClass(ref cls, "justify-content-center");
-                AppendClass(ref cls, "align-items-center");
-                AppendClass(ref cls, "position-relative");
+                AppendClass(ref cls, "sidebar-toggler my-2 flex justify-center items-center relative");
 
                 if (VerticalBarCollapsed)
-                {
                     AppendClass(ref cls, "q-bar-toggler-collapsed");
-                }
             }
             
             if (BarTogglerMode == BarTogglerMode.Popout)
-                AppendClass(ref cls, "navbar-toggler-popout");
+                AppendClass(ref cls, "q-bar-toggler-popout");
         });
 
         if (Mode == BarMode.Horizontal)
@@ -99,10 +91,9 @@
             
             if (target.HasContent())
             {
-                attributes["data-bs-toggle"] = "collapse";
-                attributes["data-bs-target"] = target!;
                 string controls = target!.StartsWith("#") ? target.Substring(1) : target!;
                 attributes["aria-controls"] = controls;
+                attributes["aria-expanded"] = "false";
             }
         }
         else

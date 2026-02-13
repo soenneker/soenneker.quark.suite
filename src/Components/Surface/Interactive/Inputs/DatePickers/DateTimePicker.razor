@@ -293,7 +293,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-date-time-picker");
-            AppendClass(ref cls, "form-control");
+            AppendClass(ref cls, "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors md:text-sm");
             
             string? sizeClass = GetSizeClass();
             if (sizeClass != null)
@@ -337,10 +337,7 @@
         var attrs = new Dictionary<string, object>(2);
         BuildClassAttribute(attrs, (ref cls) =>
         {
-            AppendClass(ref cls, "position-relative");
-            AppendClass(ref cls, "d-inline-block");
-            AppendClass(ref cls, "quark-date-container");
-            AppendClass(ref cls, "q-date-container");
+            AppendClass(ref cls, "relative inline-block quark-date-container q-date-container");
         });
         return attrs;
     }
@@ -351,13 +348,8 @@
 
         BuildClassAttribute(attrs, (ref cls) =>
         {
-            AppendClass(ref cls, "quark-calendar-panel");
-            AppendClass(ref cls, "q-calendar-panel");
-            AppendClass(ref cls, "shadow-lg");
-            AppendClass(ref cls, "border");
-            AppendClass(ref cls, "rounded-3");
-            AppendClass(ref cls, "bg-white");
-            AppendClass(ref cls, "p-3");
+            AppendClass(ref cls, "quark-calendar-panel q-calendar-panel");
+            AppendClass(ref cls, "shadow-lg border rounded-lg bg-background p-3");
         });
 
         BuildStyleAttribute(attrs, (ref sty) =>
@@ -525,20 +517,11 @@
             string? token = null;
             bool isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
 
-            if (isTheme && token is not null)
-            {
-                AppendClass(ref cls, $"form-control-{token}");
-            }
-            else
-            {
-                var result = BackgroundColor.ToString();
-                if (!result.HasContent()) return;
+            var result = BackgroundColor.ToString();
+            if (!result.HasContent()) return;
 
-                if (BackgroundColor.Value.IsCssStyle)
-                    AppendStyleDecl(ref sty, $"background-color: {result}");
-                else
-                    AppendClass(ref cls, $"form-control-{result}");
-            }
+            if (BackgroundColor.Value.IsCssStyle)
+                AppendStyleDecl(ref sty, $"background-color: {result}");
         }
     }
 

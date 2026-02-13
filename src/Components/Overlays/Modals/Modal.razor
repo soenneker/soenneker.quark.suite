@@ -59,24 +59,20 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-modal");
-            AppendClass(ref cls, "modal");
-            AppendClass(ref cls, "fade");
-
-            if (Visible)
-            {
-                AppendClass(ref cls, "show");
-            }
+            AppendClass(ref cls, "fixed inset-0 z-50 flex items-center justify-center");
+            if (!Visible)
+                AppendClass(ref cls, "pointer-events-none invisible");
         });
 
         if (Visible)
-            BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, "display: block"));
+            BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, "display: flex"));
 
         attributes["tabindex"] = -1;
         attributes["role"] = "dialog";
         attributes["aria-modal"] = "true";
 
         if (Static)
-            attributes["data-bs-backdrop"] = "static";
+            attributes["data-backdrop"] = "static";
     }
 
     
@@ -88,19 +84,15 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-modal-dialog");
-            AppendClass(ref cls, "modal-dialog");
-
-            if (Centered)
-            {
-                AppendClass(ref cls, "modal-dialog-centered");
-            }
+            AppendClass(ref cls, "grid w-full max-w-lg gap-4 border bg-background p-6 shadow-lg duration-200 sm:rounded-lg mx-4");
             if (Scrollable)
-            {
-                AppendClass(ref cls, "modal-dialog-scrollable");
-            }
+                AppendClass(ref cls, "max-h-[90vh] overflow-y-auto");
             if (ModalSize != null && !string.IsNullOrEmpty(ModalSize.Value))
             {
-                AppendClass(ref cls, $"modal-{ModalSize.Value}");
+                var size = ModalSize.Value.ToLowerInvariant();
+                if (size == "sm") AppendClass(ref cls, "max-w-sm");
+                else if (size == "lg") AppendClass(ref cls, "max-w-2xl");
+                else if (size == "xl") AppendClass(ref cls, "max-w-4xl");
             }
         });
 

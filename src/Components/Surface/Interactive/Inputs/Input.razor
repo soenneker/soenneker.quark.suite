@@ -213,8 +213,7 @@
     /// <returns>The validation class name, or null if no validation class should be applied.</returns>
     public virtual string? GetValidationClass()
     {
-        if (ShouldShowInvalid()) return "is-invalid";
-        if (ShouldShowValid()) return "is-valid";
+        if (ShouldShowInvalid()) return "border-destructive ring-destructive";
         return null;
     }
 
@@ -230,11 +229,11 @@
             bool isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
 
             if (isTheme && token is not null)
-                return $"form-control-{token}";
+                return null; // Tailwind uses semantic border/ring; theme tokens handled via CSS variables
 
             string v = BackgroundColor.Value.ToString().Trim();
             if (BackgroundColor.Value.IsCssClass)
-                return v.StartsWith("form-control-", StringComparison.Ordinal) ? v : $"form-control-{v}";
+                return v.StartsWith("form-control-", StringComparison.Ordinal) ? null : null;
         }
 
         return null;
@@ -250,9 +249,10 @@
 
         string? token = null;
         bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
-        if (isTheme && token is not null) return $"form-control-{token}";
-
-        return Size?.ToString() != null ? $"form-control-{Size}" : null;
+        if (isTheme && token is not null)
+            return token.ToLowerInvariant() switch { "sm" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
+        var sizeVal = Size?.ToString();
+        return sizeVal?.ToLowerInvariant() switch { "sm" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
     }
 
     /// <summary>
@@ -272,7 +272,9 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-input");
-            AppendClass(ref cls, PlainText ? "form-control-plaintext" : "form-control");
+            AppendClass(ref cls, PlainText
+                ? "flex w-full rounded-md border-0 bg-transparent py-2 text-base focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                : "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors md:text-sm aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-destructive");
 
             string? colorClass = GetColorClass();
             if (colorClass is not null) AppendClass(ref cls, colorClass);

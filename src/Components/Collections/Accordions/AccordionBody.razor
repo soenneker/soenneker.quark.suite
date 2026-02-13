@@ -3,7 +3,7 @@
 @implements IAccordionBody
 
 <div @attributes="BuildAttributes()">
-    <div Class="accordion-body q-accordion-body">
+    <div class="q-accordion-body pb-4 pt-0">
         @ChildContent
     </div>
 </div>
@@ -32,23 +32,13 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-accordion-body");
-            AppendClass(ref cls, "accordion-collapse");
-            AppendClass(ref cls, "collapse");
-            
-            if (IsExpanded)
-                AppendClass(ref cls, "show");
+            AppendClass(ref cls, "q-accordion-body-wrapper");
+            if (!IsExpanded)
+                AppendClass(ref cls, "hidden");
         });
 
         if (ParentAccordionItem?.Name.HasContent() == true)
-        {
             attributes["id"] = $"collapse-{ParentAccordionItem.Name}";
-        }
-
-        if (ParentAccordion?.Id.HasContent() == true)
-        {
-            attributes["data-bs-parent"] = $"#{ParentAccordion.Id}";
-        }
     }
 
     

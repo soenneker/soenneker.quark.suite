@@ -3,7 +3,7 @@
 @using Soenneker.Blazor.Extensions.EventCallback
 @implements IDropdownToggle
 
-<button @attributes="BuildAttributes()" type="button" data-bs-toggle="dropdown" aria-expanded="false" @onclick="OnClickHandler">
+<button @attributes="BuildAttributes()" type="button" aria-expanded="false" aria-haspopup="true" @onclick="OnClickHandler">
     @ChildContent
 </button>
 
@@ -39,22 +39,13 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-dropdown-toggle");
+            AppendClass(ref cls, "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed");
             if (IsSplit)
-            {
-                AppendClass(ref cls, "btn");
-                AppendClass(ref cls, "btn-outline-secondary");
-                AppendClass(ref cls, "dropdown-toggle");
-                AppendClass(ref cls, "dropdown-toggle-split");
-            }
+                AppendClass(ref cls, "border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2");
             else
-            {
-                AppendClass(ref cls, "btn");
-                AppendClass(ref cls, "btn-secondary");
-                AppendClass(ref cls, "dropdown-toggle");
-            }
-            
+                AppendClass(ref cls, "bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2");
             if (Disabled)
-                AppendClass(ref cls, "disabled");
+                AppendClass(ref cls, "pointer-events-none opacity-50");
         });
 
         if (Disabled)

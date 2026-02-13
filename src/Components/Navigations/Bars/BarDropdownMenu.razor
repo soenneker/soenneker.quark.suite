@@ -2,8 +2,8 @@
 @inherits Soenneker.Quark.Element
 @implements IBarDropdownMenu
 
-<div id="@ParentDropdown?.CollapseId" data-bs-parent="@CollapseParent" @attributes="BuildAttributes()">
-    <div class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+<div id="@ParentDropdown?.CollapseId" @attributes="BuildAttributes()">
+    <div class="space-y-1 py-1 text-sm">
         @ChildContent
     </div>
 </div>
@@ -57,10 +57,8 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-bar-dropdown-menu");
-            AppendClass(ref cls, "collapse");
-            
-            if (shouldShow)
-                AppendClass(ref cls, "show");
+            if (!shouldShow)
+                AppendClass(ref cls, "hidden");
         });
     }
 

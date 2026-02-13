@@ -122,60 +122,40 @@
     private string GetBaseClass()
     {
         if (Mode == BarMode.Horizontal)
-            return "navbar";
+            return "flex flex-wrap items-center gap-2";
 
-        // For vertical mode, don't use navbar classes to avoid collapse behavior
-        return "";
+        return "flex flex-col";
     }
 
     private string? GetPlacementClass()
     {
         if (Placement == BarPlacement.Fixed)
-            return $"fixed-{Placement.Value}";
-
+            return "fixed top-0 left-0 right-0 z-40";
         if (Placement == BarPlacement.Sticky)
-            return $"sticky-{Placement.Value}";
-
+            return "sticky top-0 z-40";
         return null;
     }
 
-    private string? GetColorClass()
-    {
-        if (Dark)
-            return "navbar-dark";
+    private string? GetColorClass() => null;
 
-        return "navbar-light";
-    }
-
-    private string? GetVerticalClass()
-    {
-        // For vertical mode, don't use navbar classes to avoid collapse behavior
-        return null;
-    }
+    private string? GetVerticalClass() => null;
 
     private string? GetExpandClass()
     {
         if (!Expand || Mode != BarMode.Horizontal)
             return null;
-
-        string breakpointToken = BreakpointUtil.GetBreakpointToken(Breakpoint);
-
-        if (breakpointToken.IsNullOrEmpty())
-            return "navbar-expand-lg"; // Default
-
-        return $"navbar-expand-{breakpointToken}";
+        return "md:flex";
     }
 
     private string? GetAlignmentClass()
     {
         if (Alignment == Alignment.Default)
             return null;
-
         return Alignment.Value switch
         {
-            Alignment.StartValue => "justify-content-start",
-            Alignment.CenterValue => "justify-content-center",
-            Alignment.EndValue => "justify-content-end",
+            Alignment.StartValue => "justify-start",
+            Alignment.CenterValue => "justify-center",
+            Alignment.EndValue => "justify-end",
             _ => null
         };
     }
@@ -183,15 +163,12 @@
     private string? GetCollapseClass()
     {
         if (!Visible)
-        {
             return CollapseMode.Value switch
             {
-                BarCollapseMode.HideValue => "navbar-hidden",
-                BarCollapseMode.SmallValue => "navbar-collapsed",
-                _ => "navbar-hidden"
+                BarCollapseMode.HideValue => "hidden",
+                BarCollapseMode.SmallValue => "q-bar-collapsed",
+                _ => "hidden"
             };
-        }
-
         return null;
     }
 
