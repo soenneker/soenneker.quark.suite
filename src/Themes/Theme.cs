@@ -921,11 +921,6 @@ public sealed class Theme
     public SnackbarOptions? Snackbar { get; set; }
 
     /// <summary>
-    /// Gets or sets the Bootstrap CSS variables configuration.
-    /// </summary>
-    public BootstrapCssVariables? BootstrapCssVariables { get; set; }
-
-    /// <summary>
     /// Gets all ComponentOptions instances in this theme without using reflection.
     /// </summary>
     /// <returns>An enumerable collection of all component options in this theme.</returns>

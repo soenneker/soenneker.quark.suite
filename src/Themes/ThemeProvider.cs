@@ -32,15 +32,7 @@ public sealed class ThemeProvider : IThemeProvider
     /// </summary>
     /// <returns>The generated Bootstrap CSS string, or null if generation fails.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public string? GenerateBootstrapCss()
-    {
-        Theme? currentTheme = GetCurrentTheme();
-
-        if (currentTheme?.BootstrapCssVariables == null)
-            return null;
-
-        return BootstrapCssGenerator.Generate(currentTheme.BootstrapCssVariables);
-    }
+    public string? GenerateBootstrapCss() => null;
 
     /// <summary>
     /// Generates component-specific CSS from the current theme configuration.

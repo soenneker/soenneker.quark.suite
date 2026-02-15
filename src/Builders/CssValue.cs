@@ -128,10 +128,7 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         if (value.IsNullOrEmpty())
             return false;
 
-        // For SizeBuilder, we accept size tokens; otherwise theme tokens (colors)
-        if (_isSize)
-            return BootstrapTokens.SizeTokens.Contains(value);
-        return BootstrapTokens.ThemeTokens.Contains(value);
+        return false;
     }
 
     private static bool LooksLikeCssUnit(string value)
@@ -218,35 +215,6 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
     /// <returns>true if a Bootstrap theme token was found; otherwise, false.</returns>
     public bool TryGetBootstrapThemeToken(out string? token)
     {
-        if (_value.HasContent())
-        {
-            ReadOnlySpan<char> trimmedSpan = _value.AsSpan().Trim();
-            if (trimmedSpan.Length == 0)
-            {
-                token = null;
-                return false;
-            }
-
-            string v = trimmedSpan.Length == _value.Length ? _value : trimmedSpan.ToString();
-
-            if (_isSize)
-            {
-                if (BootstrapTokens.SizeTokens.Contains(v))
-                {
-                    token = v;
-                    return true;
-                }
-            }
-            else
-            {
-                if (BootstrapTokens.ThemeTokens.Contains(v))
-                {
-                    token = v;
-                    return true;
-                }
-            }
-        }
-
         token = null;
         return false;
     }
