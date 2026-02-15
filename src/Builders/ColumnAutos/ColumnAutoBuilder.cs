@@ -106,19 +106,15 @@ public class ColumnAutoBuilder : ICssBuilder
 
     private static string GetColumnAutoClass(ColumnAuto columnAuto)
     {
-        return columnAuto.Type.Value switch
-        {
-            ColumnAutoType.AutoValue => columnAuto.Breakpoint.Value switch
-            {
-                ColumnAutoBreakpoint.SmValue => "col-sm-auto",
-                ColumnAutoBreakpoint.MdValue => "col-md-auto",
-                ColumnAutoBreakpoint.LgValue => "col-lg-auto",
-                ColumnAutoBreakpoint.XlValue => "col-xl-auto",
-                ColumnAutoBreakpoint.XxlValue => "col-xxl-auto",
-                _ => "col-auto"
-            },
-            _ => "col-auto"
-        };
+        const string colAuto = "col-auto";
+        if (columnAuto.Type.Value != ColumnAutoType.AutoValue)
+            return colAuto;
+        string? bp = columnAuto.Breakpoint.Value;
+        if (string.IsNullOrEmpty(bp))
+            return colAuto;
+        // Tailwind responsive: sm:col-auto, md:col-auto, etc. (2xl not xxl)
+        string tailwindBp = bp == "xxl" ? "2xl" : bp;
+        return $"{tailwindBp}:{colAuto}";
     }
 
     /// <summary>

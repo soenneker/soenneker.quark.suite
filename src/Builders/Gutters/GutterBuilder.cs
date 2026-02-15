@@ -6,7 +6,7 @@ using Soenneker.Quark.Enums;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Builder for Bootstrap gutter utilities.
+/// Builder for Tailwind gap (gutter) utilities on grid/flex layouts.
 /// </summary>
 public sealed class GutterBuilder : ICssBuilder
 {
@@ -149,29 +149,24 @@ public sealed class GutterBuilder : ICssBuilder
 
     private static string GetGutterClass(GutterRule rule)
     {
-        // Map axis
+        // Tailwind gap utilities: gap-{n}, gap-x-{n}, gap-y-{n}
         string prefix = rule.Type.Value switch
         {
-            GutterType.AllValue => "g",
-            GutterType.XValue => "gx",
-            GutterType.YValue => "gy",
+            GutterType.AllValue => "gap",
+            GutterType.XValue => "gap-x",
+            GutterType.YValue => "gap-y",
             _ => string.Empty
         };
         if (prefix.IsNullOrEmpty())
             return string.Empty;
 
-        // Map breakpoint (no xs breakpoint in Bootstrap)
-        string breakpoint = rule.Breakpoint?.Value switch
-        {
-            GutterBreakpoint.SmValue => "-sm",
-            GutterBreakpoint.MdValue => "-md",
-            GutterBreakpoint.LgValue => "-lg",
-            GutterBreakpoint.XlValue => "-xl",
-            GutterBreakpoint.XxlValue => "-xxl",
-            _ => string.Empty // base (mobile)
-        };
+        string baseClass = $"{prefix}-{rule.Value}";
+        if (rule.Breakpoint == null)
+            return baseClass;
 
-        return $"{prefix}{breakpoint}-{rule.Value}";
+        // Tailwind responsive: sm:gap-1, md:gap-x-2, etc. (Tailwind uses 2xl not xxl)
+        string bp = rule.Breakpoint.Value is "xxl" ? "2xl" : rule.Breakpoint.Value;
+        return string.IsNullOrEmpty(bp) ? baseClass : $"{bp}:{baseClass}";
     }
 
     /// <summary>

@@ -25,17 +25,12 @@ public static class QuarkSuiteRegistrar
 
         services
             .AddQuarkValidationAsScoped()
-            .AddQuarkBootstrapAsScoped()
             .AddQuarkTableAsScoped()
             .AddQuarkSnackbarAsScoped()
             .AddQuarkDatePickerAsScoped()
             .AddQuarkTreeViewAsScoped()
             .AddQuarkStepsAsScoped()
-            .AddQuarkBarAsScoped()
             .AddQuarkOffcanvasAsScoped()
-            .AddQuarkCheckAsScoped()
-            .AddQuarkSwitchAsScoped()
-            .AddQuarkRadioAsScoped()
             .AddQuarkCodeEditorAsScoped()
             .AddQuarkScoreAsScoped()
             .AddFontAwesomeAsScoped();
@@ -50,14 +45,6 @@ public static class QuarkSuiteRegistrar
     public static async Task LoadQuarkResources(this IServiceProvider serviceProvider)
     {
         var quarkOptions = serviceProvider.GetRequiredService<QuarkOptions>();
-
-        if (quarkOptions.AutomaticBootstrapLoading)
-        {
-            var bootstrapInterop = serviceProvider.GetService<IBootstrapInterop>();
-
-            if (bootstrapInterop != null)
-                await bootstrapInterop.Initialize();
-        }
 
         if (quarkOptions.AutomaticFontAwesomeLoading)
         {

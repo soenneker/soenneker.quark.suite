@@ -1,0 +1,160 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.CancellableElement
+
+<CascadingValue Name="Mode" Value="@BarMode.Horizontal" IsFixed="true">
+    <CascadingValue Name="BarToggleHandler" Value="@HandleBarTogglerClick" IsFixed="true">
+        <CascadingValue Name="VerticalBarCollapsed" Value="false">
+            <CascadingValue Name="CollapseParent" Value="@_collapseGroupId" IsFixed="true">
+                <CascadingValue Name="ForceCollapseAll" Value="@_forceCollapseAll">
+                    <CascadingValue Name="MenuId" Value="@_menuId" IsFixed="true">
+                        <nav @attributes="BuildAttributes()">
+                            @ChildContent
+                        </nav>
+                    </CascadingValue>
+                </CascadingValue>
+            </CascadingValue>
+        </CascadingValue>
+    </CascadingValue>
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public BarPlacement Placement { get; set; } = BarPlacement.Top;
+
+    [Parameter]
+    public Alignment Alignment { get; set; } = Alignment.Default;
+
+    [Parameter]
+    public bool Expand { get; set; } = true;
+
+    [Parameter]
+    public bool Dark { get; set; }
+
+    [Parameter]
+    public bool Transparent { get; set; }
+
+    [Parameter]
+    public bool Visible { get; set; } = true;
+
+    [Parameter]
+    public BarCollapseMode CollapseMode { get; set; } = BarCollapseMode.Hide;
+
+    [Parameter]
+    public BreakpointType? Breakpoint { get; set; }
+
+    [Parameter]
+    public BreakpointType? NavigationBreakpoint { get; set; }
+
+    private readonly string _collapseGroupId = $"navbar-accordion-{Guid.NewGuid():N}";
+    private readonly string _menuId = $"navbar-menu-{Guid.NewGuid():N}";
+    private bool _forceCollapseAll;
+
+    private string? GetPlacementClass()
+    {
+        if (Placement == BarPlacement.Fixed)
+            return "fixed top-0 left-0 right-0 z-40";
+        if (Placement == BarPlacement.Sticky)
+            return "sticky top-0 z-40";
+        return null;
+    }
+
+    private string? GetExpandClass() => Expand ? "md:flex" : null;
+
+    private string? GetAlignmentClass() => Alignment == Alignment.Default ? null : Alignment.Value switch
+    {
+        Alignment.StartValue => "justify-start",
+        Alignment.CenterValue => "justify-center",
+        Alignment.EndValue => "justify-end",
+        _ => null
+    };
+
+    private string? GetCollapseClass()
+    {
+        if (!Visible)
+            return CollapseMode.Value switch
+            {
+                BarCollapseMode.HideValue => "hidden",
+                BarCollapseMode.SmallValue => "q-bar-collapsed",
+                _ => "hidden"
+            };
+        return null;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-bar q-bar-horizontal");
+            AppendClass(ref cls, "flex flex-wrap items-center gap-2 w-full relative");
+            AppendClass(ref cls, "bg-background border-b border-border shadow-sm py-2 px-3");
+
+            string? placementClass = GetPlacementClass();
+            if (placementClass != null)
+                AppendClass(ref cls, placementClass);
+
+            string? expandClass = GetExpandClass();
+            if (expandClass != null)
+                AppendClass(ref cls, expandClass);
+
+            string? alignmentClass = GetAlignmentClass();
+            if (alignmentClass != null)
+                AppendClass(ref cls, alignmentClass);
+
+            string? collapseClass = GetCollapseClass();
+            if (collapseClass != null)
+                AppendClass(ref cls, collapseClass);
+        });
+    }
+
+    protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        if (BackgroundColor is { IsEmpty: false })
+        {
+            if (Transparent)
+                AppendClass(ref cls, "bg-transparent");
+            else
+            {
+                bool isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out string? token);
+                if (isTheme && token is not null)
+                    AppendClass(ref cls, $"bg-{token}");
+                else
+                {
+                    var result = BackgroundColor.ToString();
+                    if (result.HasContent())
+                    {
+                        if (BackgroundColor.Value.IsCssStyle)
+                            AppendStyleDecl(ref sty, $"background-color: {result}");
+                        else
+                            AppendClass(ref cls, $"bg-{result}");
+                    }
+                }
+            }
+        }
+    }
+
+    private async Task HandleBarTogglerClick(MouseEventArgs _)
+    {
+        _forceCollapseAll = true;
+        InvalidateRender();
+        Refresh();
+        await Task.Delay(100);
+        _forceCollapseAll = false;
+        InvalidateRender();
+        Refresh();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Placement);
+        hc.Add(Alignment);
+        hc.Add(Expand);
+        hc.Add(Dark);
+        hc.Add(Transparent);
+        hc.Add(Visible);
+        hc.Add(CollapseMode);
+        hc.Add(Breakpoint);
+        hc.Add(NavigationBreakpoint);
+    }
+}

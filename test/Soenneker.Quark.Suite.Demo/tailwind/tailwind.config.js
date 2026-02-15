@@ -1,9 +1,12 @@
-﻿export default {
+export default {
   content: [
     "./TailwindElements.txt",
     "./**/*.txt",
     "../**/*.razor",
     "../**/*.cshtml",
     "../**/*.html"
-  ]
+  ],
+  plugins: [
+  require("tw-animate-css")
+]
 };

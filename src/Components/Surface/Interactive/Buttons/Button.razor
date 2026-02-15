@@ -1,3 +1,4 @@
+@using System
 @using System.Runtime.CompilerServices
 @using Soenneker.Quark.Components.Surface.Interactive.Buttons.Abstract
 
@@ -31,6 +32,13 @@ else
 }
 
 @code {
+    private const string _shadcnButtonBase =
+        "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 " +
+        "rounded-lg border border-transparent bg-clip-padding text-sm font-medium " +
+        "focus-visible:ring-[3px] aria-invalid:ring-[3px] " +
+        "[&_svg:not([class*='size-'])]:size-4 inline-flex items-center justify-center whitespace-nowrap transition-all " +
+        "disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none shrink-0 [&_svg]:shrink-0 outline-none group/button select-none";
+
     /// <summary>
     /// Gets or sets the size of the button.
     /// </summary>
@@ -122,25 +130,92 @@ else
     public bool Close { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the button should render without Bootstrap button styling.
+    /// Gets or sets whether the button should render without default styling.
     /// </summary>
     [Parameter]
     public bool Unstyled { get; set; }
 
+    /// <summary>
+    /// Gets or sets the visual style variant (shadcn/ui). When set, overrides BackgroundColor/Outline.
+    /// </summary>
+    [Parameter]
+    public ButtonVariant? Variant { get; set; } = ButtonVariant.Default;
+
+    [Parameter]
+    public ButtonSizeVariant? SizeVariant { get; set; } = ButtonSizeVariant.Default;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private string? GetSizeClass()
+    private static string GetShadcnVariantClass(ButtonVariant variant)
+        => variant switch
+        {
+            // NOTE: shadcn snippet uses "[a]:hover:bg-primary/80" on default; on a <button> that selector won't matter.
+            // Keeping it as-is for fidelity.
+            ButtonVariant.Default =>
+                "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+
+            ButtonVariant.Outline =>
+                "border-border bg-background hover:bg-muted hover:text-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 aria-expanded:bg-muted aria-expanded:text-foreground",
+
+            ButtonVariant.Secondary =>
+                "bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+
+            ButtonVariant.Ghost =>
+                "hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 aria-expanded:bg-muted aria-expanded:text-foreground",
+
+            ButtonVariant.Destructive =>
+                "bg-destructive/10 hover:bg-destructive/20 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/20 text-destructive focus-visible:border-destructive/40 dark:hover:bg-destructive/30",
+
+            ButtonVariant.Link =>
+                "text-primary underline-offset-4 hover:underline",
+
+            _ => "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+        };
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string GetShadcnSizeVariantClass(ButtonSizeVariant size)
+        => size switch
+        {
+            ButtonSizeVariant.Default =>
+                "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+
+            ButtonSizeVariant.Small =>
+                "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+
+            ButtonSizeVariant.Large =>
+                "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
+
+            ButtonSizeVariant.Icon =>
+                "size-8",
+
+
+            ButtonSizeVariant.IconSmall =>
+                "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg",
+
+            ButtonSizeVariant.IconLarge =>
+                "size-9",
+
+            _ => "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        };
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private string? GetLegacySizeClass()
     {
         if (Size == Quark.Size.Default)
-            return null;
+            return "h-10 px-4 py-2";
 
         string? token = null;
         bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
         var sizeValue = token ?? Size?.ToString();
         if (string.IsNullOrEmpty(sizeValue)) return null;
+
         return sizeValue.ToLowerInvariant() switch
         {
+            "xs" => "h-8 rounded-md px-2.5 text-xs",
             "sm" => "h-9 rounded-md px-3 text-xs",
+            "md" => "h-10 px-4 py-2",
             "lg" => "h-11 rounded-md px-8",
+            "xl" => "h-11 rounded-md px-8 min-w-[8rem]",
+            "xxl" => "h-12 rounded-md px-10 min-w-[10rem]",
             _ => "h-10 px-4 py-2"
         };
     }
@@ -148,68 +223,89 @@ else
     /// <summary>
     /// Builds the attributes dictionary for the button component.
     /// </summary>
-    /// <returns>A dictionary of HTML attributes.</returns>
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        // Determine element kind
         bool isLink = Type == ButtonType.Link || To.HasContent();
-
-        // Figure out disabled state (treat presence of "disabled" attribute as true)
         bool isDisabled = Disabled || Loading || attributes.ContainsKey("disabled");
 
-        // Links that are disabled/loading should not be in tab order (unless user explicitly set TabIndex)
+        // shadcn-style data attrs (safe for both <button> and <a>)
+        attributes.TryAdd("data-slot", "button");
+        if (Variant.HasValue)
+            attributes["data-variant"] = Variant.Value.ToString().ToLowerInvariant();
+        if (SizeVariant.HasValue)
+            attributes["data-size"] = NormalizeSizeData(SizeVariant.Value);
+
         if (isLink && isDisabled && !attributes.ContainsKey("tabindex"))
             attributes["tabindex"] = -1;
 
-        // Add Tailwind (Blueprint/shadcn) button classes unless explicitly unstyled
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-button");
+
             if (Close)
             {
                 AppendClass(ref cls, "rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none");
             }
             else if (!Unstyled)
             {
-                AppendClass(ref cls, "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed");
-            }
+                // shadcn base
+                AppendClass(ref cls, _shadcnButtonBase);
 
-            if (!Unstyled)
-            {
-                string? sizeClass = GetSizeClass();
-                if (sizeClass is not null)
-                    AppendClass(ref cls, sizeClass);
+                // shadcn size (exact)
+                if (SizeVariant.HasValue)
+                {
+                    AppendClass(ref cls, GetShadcnSizeVariantClass(SizeVariant.Value));
+                }
+                else
+                {
+                    // fallback to your legacy size mapping if no shadcn SizeVariant provided
+                    string? legacy = GetLegacySizeClass();
+                    if (legacy is not null)
+                        AppendClass(ref cls, legacy);
+                }
 
                 if (Block)
                     AppendClass(ref cls, "w-full");
+
+                // If Variant is provided, apply shadcn variant class here and skip legacy background/border work later.
+                if (Variant.HasValue)
+                {
+                    AppendClass(ref cls, GetShadcnVariantClass(Variant.Value));
+                }
+                else
+                {
+                    // legacy “solid” marker stays if you're using BackgroundColor/Outline
+                    if (IsSolidVariant())
+                    {
+                        AppendClass(ref cls, "q-button-solid");
+                        AppendClass(ref cls, "border-0");
+                    }
+                }
             }
 
             if (isLink && isDisabled)
                 AppendClass(ref cls, "pointer-events-none opacity-50");
         });
 
-        // Common ARIA for loading/disabled
         if (Loading)
             attributes["aria-busy"] = "true";
 
-        // Only set type on real <button>
         if (!isLink)
             attributes["type"] = Type.Value;
 
-        // Real disabled vs. aria-disabled
         if (isLink)
         {
-            // Anchor can't be truly disabled; use ARIA
             if (isDisabled)
             {
                 attributes["aria-disabled"] = "true";
-                // role is already a good idea for link-as-button
                 attributes["role"] = "button";
             }
             else
+            {
                 attributes.TryAdd("role", "button");
+            }
         }
         else
         {
@@ -217,49 +313,79 @@ else
                 attributes["disabled"] = true;
         }
 
-        // Standard button/submit metadata
         if (Value.HasContent()) attributes["value"] = Value!;
         if (Name.HasContent()) attributes["name"] = Name!;
         if (Form.HasContent()) attributes["form"] = Form!;
         if (AutoFocus) attributes["autofocus"] = true;
 
-        // Collapse toggle wiring if requested (aria-controls for accessibility)
         string? targetId = CollapseTargetRef?.Id ?? CollapseTarget;
         if (targetId.HasContent())
         {
             string id = targetId!.StartsWith("#") ? targetId.Substring(1) : targetId;
             attributes["aria-controls"] = id;
         }
-
-        // If this is acting as a link, we already render <Anchor>; nothing special beyond attrs.
     }
 
-    /// <summary>
-    /// Handles the click event for the button.
-    /// </summary>
-    /// <param name="args">The mouse event arguments.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string NormalizeSizeData(ButtonSizeVariant v)
+        => v switch
+        {
+            ButtonSizeVariant.Default => "default",
+            ButtonSizeVariant.Small => "sm",
+            ButtonSizeVariant.Large => "lg",
+            ButtonSizeVariant.Icon => "icon",
+            ButtonSizeVariant.IconSmall => "icon-sm",
+            ButtonSizeVariant.IconLarge => "icon-lg",
+            _ => "default"
+        };
+
     protected override async Task HandleClick(MouseEventArgs args)
     {
-        // Respect disabled state at runtime, same semantics as in BuildAttributes
         bool isDisabled = Disabled || Loading || (Attributes is not null && Attributes.ContainsKey("disabled"));
         if (isDisabled)
             return;
 
-        // Programmatic navigation if To is set (and not a hash)
         if (To.HasContent() && !To!.StartsWith("#"))
             Navigation.NavigateTo(To!);
 
         await base.HandleClick(args);
     }
 
-    /// <summary>
-    /// Applies background color styling to the button.
-    /// </summary>
-    /// <param name="sty">The style string builder.</param>
-    /// <param name="cls">The class string builder.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsSolidVariant()
+    {
+        if (Variant.HasValue)
+            return Variant.Value is ButtonVariant.Default or ButtonVariant.Destructive or ButtonVariant.Secondary;
+
+        if (BackgroundColor is null || BackgroundColor.Value.IsEmpty)
+            return false;
+
+        if (Outline)
+            return false;
+
+        return BackgroundColor.Value.TryGetBootstrapThemeToken(out string? token) && token is not null
+            && !string.Equals(token, "outline", StringComparison.OrdinalIgnoreCase);
+    }
+
+    protected override void ApplyBorderColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        // When using shadcn Variant, border rules are handled by shadcn classes.
+        if (Variant.HasValue)
+            return;
+
+        if (!IsSolidVariant())
+            base.ApplyBorderColor(ref sty, ref cls);
+    }
+
     protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
-        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty && !Close)
+        if (Close) return;
+
+        // When using shadcn Variant, background rules are handled by shadcn classes.
+        if (Variant.HasValue)
+            return;
+
+        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
         {
             string v = BackgroundColor.Value.ToString().Trim();
             bool isColorTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out string? colorToken);
@@ -267,22 +393,21 @@ else
 
             if (token is not null)
             {
-                // Map theme tokens to shadcn/Tailwind button variants
                 string variant = (Outline ? "_outline_" : "_") + token.ToLowerInvariant();
-                string? tailwind = variant switch
+                string? tw = variant switch
                 {
                     "_primary" => "bg-primary text-primary-foreground hover:bg-primary/90",
                     "_secondary" => "bg-secondary text-secondary-foreground hover:bg-secondary/80",
                     "_destructive" or "_danger" => "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-                    "_outline_primary" or "_outline_secondary" or "_outline_danger" or "_outline_destructive" or "_outline_success" or "_outline_warning" or "_outline_info" => "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-                    "_outline_" => "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+                    "_outline_primary" or "_outline_secondary" or "_outline_danger" or "_outline_destructive" or "_outline_success" or "_outline_warning" or "_outline_info" or "_outline_" => "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
                     "_success" => "bg-primary text-primary-foreground hover:bg-primary/90",
                     "_warning" or "_info" or "_light" or "_dark" => "bg-secondary text-secondary-foreground hover:bg-secondary/80",
                     _ when Outline => "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
                     _ => "bg-primary text-primary-foreground hover:bg-primary/90"
                 };
-                if (tailwind is not null)
-                    AppendClass(ref cls, tailwind);
+
+                if (tw is not null)
+                    AppendClass(ref cls, tw);
             }
             else
             {
@@ -310,5 +435,7 @@ else
             hc.Add(CollapseTargetRef.Id);
         hc.Add(Close);
         hc.Add(Unstyled);
+        hc.Add(Variant);
+        hc.Add(SizeVariant);
     }
 }

@@ -4,8 +4,6 @@
 @inherits ToggleElement
 @implements Soenneker.Quark.IValidationInput
 @implements ISwitch
-@inject ISwitchInterop SwitchInterop
-
 <div @attributes="BuildWrapperAttributes()">
     <input id="@Id" type="checkbox" checked="@Checked" @onclick="HandleClick" @onchange="HandleChange" @attributes="BuildInputAttributes()" />
     @if (ChildContent != null)
@@ -35,16 +33,8 @@
 
     public object? ValidationValue => Checked;
 
-    private bool _initialized;
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && !_initialized)
-        {
-            await SwitchInterop.Initialize();
-            _initialized = true;
-        }
-
         if (firstRender && ParentValidation is not null)
         {
             if (CheckedExpression is not null)

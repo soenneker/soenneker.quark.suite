@@ -4,8 +4,6 @@
 @inherits ToggleElement
 @implements Soenneker.Quark.IValidationInput
 @implements IRadio
-@inject IRadioInterop RadioInterop
-
 @if (ChildContent != null)
 {
     <div @attributes="BuildWrapperAttributes()">
@@ -55,17 +53,12 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (firstRender && ParentValidation is not null)
         {
-            await RadioInterop.Initialize();
+            await ParentValidation.InitializeInput(this);
 
-            if (ParentValidation is not null)
-            {
-                await ParentValidation.InitializeInput(this);
-
-                if (CheckedExpression is not null)
-                    await ParentValidation.InitializeInputExpression(CheckedExpression);
-            }
+            if (CheckedExpression is not null)
+                await ParentValidation.InitializeInputExpression(CheckedExpression);
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -91,14 +84,17 @@ else
         if (Size == Quark.Size.Default)
             return null;
 
-        string? token = null;
-        bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
-        if (isTheme && token is not null)
-            return $"quark-radio-{token}";
-
-        // SizeBuilder now generates clean tokens like "lg", "sm" without prefix
-        var sizeValue = Size?.ToString();
-        return sizeValue.HasContent() ? $"quark-radio-{sizeValue}" : null;
+        var sizeValue = Size?.ToString()?.ToLowerInvariant();
+        return sizeValue switch
+        {
+            "xs" => "h-3 w-3",
+            "sm" => "h-3.5 w-3.5",
+            "md" => "h-4 w-4",
+            "lg" => "h-5 w-5",
+            "xl" => "h-7 w-7",
+            "xxl" => "h-8 w-8",
+            _ => sizeValue.HasContent() ? "h-4 w-4" : null
+        };
     }
 
     private async Task HandleChange(ChangeEventArgs e)

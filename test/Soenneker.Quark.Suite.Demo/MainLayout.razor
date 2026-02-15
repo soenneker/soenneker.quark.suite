@@ -1,26 +1,49 @@
-@layout RootLayout
-@using Soenneker.Quark.Suite.Demo.Pages.Shared
 @inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Routing
 
-<ThemeHost></ThemeHost>
-<Layout>
-    <LayoutHeader Fixed>
-        <TopMenu />
-    </LayoutHeader>
-    <Layout Sider>
-        <LayoutSider>
-            <LayoutSiderContent>
-                <SideMenu></SideMenu>
-            </LayoutSiderContent>
-        </LayoutSider>
-        <Layout>
-            <LayoutContent Padding="Padding.Is4.OnX">
-                @Body
-            </LayoutContent>
-        </Layout>
-    </Layout>
-</Layout>
+<PageTitle>Quark Suite Demo</PageTitle>
 
-@code {
+<div class="flex h-screen w-full overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="flex h-full w-sidebar shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
+        <div class="flex h-16 shrink-0 items-center gap-2 border-b border-sidebar-border px-4">
+            <a href="/" class="flex items-center gap-2">
+                <img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" alt="Quark Suite" class="size-8 rounded-lg" />
+                <span class="truncate font-semibold text-sidebar-foreground">Quark Suite</span>
+            </a>
+        </div>
+        <nav class="flex-1 overflow-auto p-2">
+            <div class="space-y-1">
+                <NavLink href="" Match="NavLinkMatch.All" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" ActiveClass="bg-sidebar-accent text-sidebar-accent-foreground">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    <span>Home</span>
+                </NavLink>
+                <NavLink href="surfaces/buttons" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" ActiveClass="bg-sidebar-accent text-sidebar-accent-foreground">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                    <span>Buttons</span>
+                </NavLink>
+                <NavLink href="surfaces/alerts" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" ActiveClass="bg-sidebar-accent text-sidebar-accent-foreground">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                    <span>Alerts</span>
+                </NavLink>
+            </div>
+        </nav>
+    </aside>
 
-}
+    <!-- Main content -->
+    <div class="flex flex-1 flex-col overflow-hidden">
+        <header class="flex h-16 shrink-0 items-center gap-4 border-b border-border bg-background px-4">
+            <button type="button" onclick="document.querySelector('aside')?.classList.toggle('hidden')" class="rounded-md p-2 hover:bg-accent md:hidden" aria-label="Toggle sidebar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+            </button>
+            <div class="ml-auto flex items-center gap-2">
+                <button type="button" onclick="window.toggleDarkMode?.()" class="rounded-md p-2 hover:bg-accent" aria-label="Toggle dark mode">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                </button>
+            </div>
+        </header>
+        <div class="flex-1 overflow-auto p-6 md:p-8">
+            @Body
+        </div>
+    </div>
+</div>

@@ -1,0 +1,158 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.CancellableElement
+
+<CascadingValue Name="Mode" Value="@BarMode.VerticalInline" IsFixed="true">
+    <CascadingValue Name="BarToggleHandler" Value="@HandleBarTogglerClick" IsFixed="true">
+        <CascadingValue Name="VerticalBarCollapsed" Value="@_verticalBarCollapsed">
+            <CascadingValue Name="CollapseParent" Value="@_collapseGroupId" IsFixed="true">
+                <CascadingValue Name="ForceCollapseAll" Value="@_forceCollapseAll">
+                    <CascadingValue Name="MenuId" Value="@_menuId" IsFixed="true">
+                        <nav @attributes="BuildAttributes()">
+                            @ChildContent
+                        </nav>
+                    </CascadingValue>
+                </CascadingValue>
+            </CascadingValue>
+        </CascadingValue>
+    </CascadingValue>
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public BarCollapseMode CollapseMode { get; set; } = BarCollapseMode.Small;
+
+    [Parameter]
+    public BreakpointType? Breakpoint { get; set; }
+
+    [Parameter]
+    public BreakpointType? NavigationBreakpoint { get; set; }
+
+    [CascadingParameter(Name = nameof(VerticalBarVisible))]
+    public bool VerticalBarVisible { get; set; } = true;
+
+    [CascadingParameter(Name = nameof(VerticalBarVisibleChanged))]
+    public EventCallback<bool> VerticalBarVisibleChanged { get; set; }
+
+    private readonly string _collapseGroupId = $"sidebar-accordion-{Guid.NewGuid():N}";
+    private readonly string _menuId = $"sidebar-menu-{Guid.NewGuid():N}";
+    private bool _verticalBarCollapsed;
+    private bool _forceCollapseAll;
+
+    protected override bool ShouldRender() => true;
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-bar q-bar-vertical-inline");
+            AppendClass(ref cls, "flex flex-col flex-shrink-0 border-r border-border");
+            AppendClass(ref cls, "transition-[width] duration-300 ease-in-out h-full");
+
+            if (!VerticalBarVisible)
+            {
+                AppendClass(ref cls, "overflow-hidden opacity-0");
+            }
+            else if (CollapseMode == BarCollapseMode.Small && _verticalBarCollapsed)
+            {
+                AppendClass(ref cls, "sidebar-collapsed q-sidebar-collapsed overflow-hidden");
+            }
+        });
+
+        BuildStyleAttribute(attributes, (ref sty) =>
+        {
+            if (!VerticalBarVisible)
+                AppendStyleDecl(ref sty, "width: 0");
+            else if (CollapseMode == BarCollapseMode.Small && _verticalBarCollapsed)
+                AppendStyleDecl(ref sty, "width: 60px");
+            else
+                AppendStyleDecl(ref sty, "width: 250px");
+            AppendStyleDecl(ref sty, "height: 100%");
+            AppendStyleDecl(ref sty, "flex: 0 0 auto");
+        });
+
+        attributes["id"] = _collapseGroupId;
+    }
+
+    protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        if (BackgroundColor is { IsEmpty: false } && !Transparent)
+        {
+            bool isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out string? token);
+            if (isTheme && token is not null)
+                AppendClass(ref cls, $"bg-{token}");
+            else
+            {
+                var result = BackgroundColor.ToString();
+                if (result.HasContent())
+                {
+                    if (BackgroundColor.Value.IsCssStyle)
+                        AppendStyleDecl(ref sty, $"background-color: {result}");
+                    else
+                        AppendClass(ref cls, $"bg-{result}");
+                }
+            }
+        }
+        else if (Transparent && BackgroundColor is { IsEmpty: false })
+            AppendClass(ref cls, "bg-transparent");
+    }
+
+    public async Task Toggle()
+    {
+        if (CollapseMode == BarCollapseMode.Small)
+        {
+            _verticalBarCollapsed = !_verticalBarCollapsed;
+            if (_verticalBarCollapsed)
+            {
+                _forceCollapseAll = true;
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(100);
+                    await InvokeAsync(() =>
+                    {
+                        _forceCollapseAll = false;
+                        InvalidateRender();
+                        Refresh();
+                    });
+                });
+            }
+            InvalidateRender();
+            Refresh();
+            return;
+        }
+
+        if (VerticalBarVisibleChanged.HasDelegate)
+            await VerticalBarVisibleChanged.InvokeAsync(!VerticalBarVisible);
+    }
+
+    private async Task HandleBarTogglerClick(MouseEventArgs _)
+    {
+        await CollapseAllDropdowns();
+        await Task.Delay(50);
+        await Toggle();
+    }
+
+    private async Task CollapseAllDropdowns()
+    {
+        _forceCollapseAll = true;
+        InvalidateRender();
+        Refresh();
+        await Task.Delay(100);
+        _forceCollapseAll = false;
+        InvalidateRender();
+        Refresh();
+    }
+
+    [Parameter]
+    public bool Transparent { get; set; }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(CollapseMode);
+        hc.Add(Breakpoint);
+        hc.Add(NavigationBreakpoint);
+        hc.Add(VerticalBarVisible);
+        hc.Add(_verticalBarCollapsed);
+    }
+}

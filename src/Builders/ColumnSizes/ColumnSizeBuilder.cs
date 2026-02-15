@@ -12,18 +12,19 @@ public sealed class ColumnSizeBuilder : ICssBuilder
 {
     private readonly List<ColumnSizeRule> _rules = new(4);
 
-    private const string _classCol1 = "col-1";
-    private const string _classCol2 = "col-2";
-    private const string _classCol3 = "col-3";
-    private const string _classCol4 = "col-4";
-    private const string _classCol5 = "col-5";
-    private const string _classCol6 = "col-6";
-    private const string _classCol7 = "col-7";
-    private const string _classCol8 = "col-8";
-    private const string _classCol9 = "col-9";
-    private const string _classCol10 = "col-10";
-    private const string _classCol11 = "col-11";
-    private const string _classCol12 = "col-12";
+    // Tailwind grid: col-span-1..col-span-12, col-auto
+    private const string _classCol1 = "col-span-1";
+    private const string _classCol2 = "col-span-2";
+    private const string _classCol3 = "col-span-3";
+    private const string _classCol4 = "col-span-4";
+    private const string _classCol5 = "col-span-5";
+    private const string _classCol6 = "col-span-6";
+    private const string _classCol7 = "col-span-7";
+    private const string _classCol8 = "col-span-8";
+    private const string _classCol9 = "col-span-9";
+    private const string _classCol10 = "col-span-10";
+    private const string _classCol11 = "col-span-11";
+    private const string _classCol12 = "col-span-12";
     private const string _classColAuto = "col-auto";
 
     internal ColumnSizeBuilder(string size, BreakpointType? breakpoint = null)
@@ -159,7 +160,7 @@ public sealed class ColumnSizeBuilder : ICssBuilder
 
             string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
-                cls = BreakpointUtil.InsertBreakpointType(cls, bp);
+                cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
             if (!first) sb.Append(' ');
             else first = false;

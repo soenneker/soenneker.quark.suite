@@ -278,9 +278,9 @@ public sealed class BorderColorBuilder : ICssBuilder
             "body-inverse-highlight" => "border-body-inverse-highlight",
             "body-inverse-muted" => "border-body-inverse-muted",
             "body-inverse-reset" => "border-body-inverse-reset",
-            "75" => "-75",
-            "50" => "-50",
-            "25" => "-25",
+            "75" => "border-opacity-75",
+            "50" => "border-opacity-50",
+            "25" => "border-opacity-25",
             _ => string.Empty
         };
     }

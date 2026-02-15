@@ -12,18 +12,19 @@ public sealed class ColumnOffsetBuilder : ICssBuilder
 {
     private readonly List<ColumnOffsetRule> _rules = new(4);
 
-    private const string _classOffset1 = "offset-1";
-    private const string _classOffset2 = "offset-2";
-    private const string _classOffset3 = "offset-3";
-    private const string _classOffset4 = "offset-4";
-    private const string _classOffset5 = "offset-5";
-    private const string _classOffset6 = "offset-6";
-    private const string _classOffset7 = "offset-7";
-    private const string _classOffset8 = "offset-8";
-    private const string _classOffset9 = "offset-9";
-    private const string _classOffset10 = "offset-10";
-    private const string _classOffset11 = "offset-11";
-    private const string _classOffset12 = "offset-12";
+    // Tailwind grid: col-start-2..col-start-13 (offset 1 = start at column 2)
+    private const string _classOffset1 = "col-start-2";
+    private const string _classOffset2 = "col-start-3";
+    private const string _classOffset3 = "col-start-4";
+    private const string _classOffset4 = "col-start-5";
+    private const string _classOffset5 = "col-start-6";
+    private const string _classOffset6 = "col-start-7";
+    private const string _classOffset7 = "col-start-8";
+    private const string _classOffset8 = "col-start-9";
+    private const string _classOffset9 = "col-start-10";
+    private const string _classOffset10 = "col-start-11";
+    private const string _classOffset11 = "col-start-12";
+    private const string _classOffset12 = "col-start-13";
 
     internal ColumnOffsetBuilder(string offset, BreakpointType? breakpoint = null)
     {
@@ -154,7 +155,7 @@ public sealed class ColumnOffsetBuilder : ICssBuilder
 
             string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
-                cls = BreakpointUtil.InsertBreakpointType(cls, bp);
+                cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
             if (!first) sb.Append(' ');
             else first = false;
