@@ -21,13 +21,25 @@
     {
         base.BuildAttributesCore(attributes);
 
+        attributes.TryAdd("role", "group");
+        attributes["data-slot"] = "field";
+        attributes["data-orientation"] = Horizontal ? "horizontal" : "vertical";
+
+        // shadcn Field - new-york-v4 ui/field.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-field");
-            AppendClass(ref cls, "space-y-2");
-
+            AppendClass(ref cls, "group/field flex w-full gap-3 data-[invalid=true]:text-destructive");
             if (Horizontal)
-                AppendClass(ref cls, "flex flex-wrap gap-4 items-baseline");
+            {
+                AppendClass(ref cls, "flex-row items-center");
+                AppendClass(ref cls, "[&>[data-slot=field-label]]:flex-auto");
+                AppendClass(ref cls, "has-[>[data-slot=field-content]]:items-start has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px");
+            }
+            else
+            {
+                AppendClass(ref cls, "flex-col [&>*]:w-full [&>.sr-only]:w-auto");
+            }
         });
     }
 

@@ -23,27 +23,27 @@
     [Parameter]
     public string? AriaLabel { get; set; }
 
+    // shadcn ButtonGroup - new-york-v4 ui/button-group.tsx
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
+        attributes.TryAdd("data-slot", "button-group");
+        attributes["data-orientation"] = Vertical ? "vertical" : "horizontal";
+        if (!attributes.ContainsKey("role"))
+            attributes["role"] = Role ?? "group";
+        if (AriaLabel.HasContent())
+            attributes["aria-label"] = AriaLabel;
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-button-group");
-            AppendClass(ref cls, Vertical ? "inline-flex flex-col" : "inline-flex flex-row");
+            AppendClass(ref cls, "flex w-fit items-stretch [&>*]:focus-visible:z-10 [&>*]:focus-visible:relative [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1 has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-md has-[>[data-slot=button-group]]:gap-2");
+            if (Vertical)
+                AppendClass(ref cls, "flex-col [&>*:not(:first-child)]:rounded-t-none [&>*:not(:first-child)]:border-t-0 [&>*:not(:last-child)]:rounded-b-none");
+            else
+                AppendClass(ref cls, "[&>*:not(:first-child)]:rounded-l-none [&>*:not(:first-child)]:border-l-0 [&>*:not(:last-child)]:rounded-r-none");
         });
-
-        // Set default role if not specified
-        if (!attributes.ContainsKey("role"))
-        {
-            attributes["role"] = Role ?? "group";
-        }
-
-        // Set aria-label if specified
-        if (AriaLabel.HasContent())
-        {
-            attributes["aria-label"] = AriaLabel;
-        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

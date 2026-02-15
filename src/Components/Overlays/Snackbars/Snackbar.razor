@@ -41,29 +41,26 @@
 
     protected override void BuildAttributesCore(Dictionary<string, object> attrs)
     {
-        // base helpers from Component
         EnsureClassAttr(attrs, "q-snackbar");
+        attrs.TryAdd("data-slot", "toast");
 
         if (Visible)
             EnsureClassAttr(attrs, "animate-in slide-in-from-top-full");
         else
             EnsureClassAttr(attrs, "hidden");
 
-        // ARIA visibility
         SetOrRemove(attrs, "aria-hidden", !Visible, "true");
 
-        // Stable key
         if (Key.HasContent())
             attrs["data-snackbar-key"] = Key!;
     }
 
+    // shadcn toast/sonner content - new-york-v4 style
     private static Dictionary<string, object> GetContentAttributes()
     {
-        var inner = new Dictionary<string, object>(1);
-
-        var cls = "pointer-events-auto w-full max-w-md rounded-lg border bg-background shadow-lg";
-        inner["class"] = cls;
-
+        var inner = new Dictionary<string, object>(2);
+        inner["data-slot"] = "toast-content";
+        inner["class"] = "pointer-events-auto w-full max-w-md rounded-lg border bg-background p-4 shadow-lg";
         return inner;
     }
 

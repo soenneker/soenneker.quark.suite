@@ -1,20 +1,12 @@
-using Soenneker.Quark.Enums;
-
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Represents a badge component for displaying labels or indicators.
+/// Represents a badge component for displaying labels or indicators (shadcn/ui).
 /// </summary>
 public interface IBadge : IElement
 {
     /// <summary>
-    /// Gets or sets the type of badge (e.g., badge, pill, dot).
+    /// Gets or sets the visual style variant (shadcn/ui).
     /// </summary>
-    BadgeType Type { get; set; }
-
-
-    /// <summary>
-    /// Gets or sets whether the badge should have rounded corners.
-    /// </summary>
-    bool Rounded { get; set; }
+    BadgeVariant Variant { get; set; }
 }

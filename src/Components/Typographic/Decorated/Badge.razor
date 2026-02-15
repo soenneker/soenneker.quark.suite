@@ -1,3 +1,5 @@
+@using System.Runtime.CompilerServices
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.DecoratedTypographicElement
 @implements IBadge
@@ -5,75 +7,51 @@
 <span @attributes="BuildAttributes()">@ChildContent</span>
 
 @code {
-    /// <summary>
-    /// Gets or sets the type of the badge.
-    /// </summary>
-    [Parameter]
-    public BadgeType Type { get; set; } = BadgeType.Badge;
+    // shadcn/ui badge base - exact copy from new-york-v4 ui/badge.tsx
+    private const string _shadcnBadgeBase =
+        "inline-flex items-center justify-center rounded-full border border-transparent px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden";
 
     /// <summary>
-    /// Gets or sets whether the badge should be rounded.
+    /// Gets or sets the visual style variant (shadcn/ui).
     /// </summary>
     [Parameter]
-    public bool Rounded { get; set; }
+    public BadgeVariant Variant { get; set; } = BadgeVariant.Default;
 
-    private string? GetTypeClass()
-    {
-        if (Type == BadgeType.Pill)
-            return "rounded-full";
-
-        if (Type == BadgeType.Dot)
-            return "w-2 h-2 rounded-full p-0";
-
-        return null;
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string GetShadcnVariantClass(BadgeVariant variant)
+        => variant switch
+        {
+            BadgeVariant.Default => "bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+            BadgeVariant.Secondary => "bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+            BadgeVariant.Destructive => "bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+            BadgeVariant.Outline => "border-border text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+            BadgeVariant.Ghost => "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+            BadgeVariant.Link => "text-primary underline-offset-4 [a&]:hover:underline",
+            _ => "bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+        };
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
+        attributes.TryAdd("data-slot", "badge");
+        attributes["data-variant"] = Variant.ToString().ToLowerInvariant();
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-badge");
-            AppendClass(ref cls, "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors");
-            
-            string? typeClass = GetTypeClass();
-
-            if (typeClass != null)
-                AppendClass(ref cls, typeClass);
-                
-            if (Rounded)
-                AppendClass(ref cls, "rounded-md");
+            AppendClass(ref cls, _shadcnBadgeBase);
+            AppendClass(ref cls, GetShadcnVariantClass(Variant));
         });
     }
 
-    
-
     protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
-        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
-        {
-            bool isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out string? token);
-
-            if (isTheme && token is not null)
-            {
-                AppendClass(ref cls, $"bg-{token}");
-            }
-            else
-            {
-                var colorValue = BackgroundColor.Value.ToString();
-
-                if (colorValue.HasContent() && BackgroundColor.Value.IsCssClass)
-                {
-                    AppendClass(ref cls, $"bg-{colorValue}");
-                }
-            }
-        }
+        // shadcn Badge: variant classes handle styling.
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
-        hc.Add(Type);
-        hc.Add(Rounded);
+        hc.Add(Variant);
     }
 }

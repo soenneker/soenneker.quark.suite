@@ -3,49 +3,44 @@
 @implements ITabs
 
 <CascadingValue Name="ParentTabs" Value="this">
-    @if (Vertical)
-    {
-        @* Vertical tabs layout *@
-        <div class="row">
-            <div class="col-3">
-                <div @attributes="BuildAttributes()" >
+    <div @attributes="BuildAttributes()">
+        @if (Vertical)
+        {
+            @* Vertical: TabsList left, content right - using grid for layout *@
+            <div class="grid grid-cols-[auto_1fr] gap-4">
+                <div role="tablist" class="group/tabs-list shrink-0" @attributes="BuildTabsListAttributes()">
                     @ChildContent
                 </div>
-            </div>
-            <div class="col-9">
-                <div class="tab-content">
+                <div class="min-w-0 flex-1 outline-none" role="tabpanel" data-slot="tabs-content">
                     @foreach (Tab tab in _tabs)
                     {
-                        if (tab.Name == SelectedTab && !string.IsNullOrEmpty(tab.Title))
+                        @if (tab.Name == SelectedTab)
                         {
-                            <div class="tab-pane active" role="tabpanel">
-                                @tab.ChildContent
-                            </div>
+                            @tab.ChildContent
+                            break;
                         }
                     }
                 </div>
             </div>
-        </div>
-    }
-    else
-    {
-        @* Horizontal tabs layout *@
-        <div @attributes="BuildAttributes()" >
-            @ChildContent
-        </div>
-        
-        <div class="tab-content">
-            @foreach (Tab tab in _tabs)
-            {
-                if (tab.Name == SelectedTab && !string.IsNullOrEmpty(tab.Title))
+        }
+        else
+        {
+            @* Horizontal: TabsList top, content below - shadcn structure *@
+            <div role="tablist" class="group/tabs-list w-fit" @attributes="BuildTabsListAttributes()">
+                @ChildContent
+            </div>
+            <div class="flex-1 outline-none mt-2" role="tabpanel" data-slot="tabs-content">
+                @foreach (Tab tab in _tabs)
                 {
-                    <div class="tab-pane active" role="tabpanel">
+                    @if (tab.Name == SelectedTab)
+                    {
                         @tab.ChildContent
-                    </div>
+                        break;
+                    }
                 }
-            }
-        </div>
-    }
+            </div>
+        }
+    </div>
 </CascadingValue>
 
 @code {
@@ -148,20 +143,38 @@
         // The Tab components will determine their active state based on the cascaded SelectedTab
     }
 
+    /// <summary>shadcn TabsList variant: default (bg-muted) or line (underline).</summary>
+    [Parameter]
+    public TabsListVariant TabsListVariant { get; set; } = TabsListVariant.Default;
+
+    private Dictionary<string, object> BuildTabsListAttributes()
+    {
+        var attrs = new Dictionary<string, object>();
+        attrs["data-slot"] = "tabs-list";
+        attrs["data-variant"] = TabsListVariant.ToString().ToLowerInvariant();
+        BuildClassAttribute(attrs, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-tabs-list rounded-lg p-[3px] text-muted-foreground inline-flex items-center justify-center");
+            AppendClass(ref cls, Vertical ? "h-fit flex-col" : "h-9");
+            if (TabsListVariant == TabsListVariant.Default)
+                AppendClass(ref cls, "bg-muted");
+            else
+                AppendClass(ref cls, "gap-1 bg-transparent rounded-none");
+            if (Justified)
+                AppendClass(ref cls, "w-full [&>.q-tab]:flex-1");
+        });
+        return attrs;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-
+        attributes["data-slot"] = "tabs";
+        attributes["data-orientation"] = Vertical ? "vertical" : "horizontal";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-tabs");
-            AppendClass(ref cls, "inline-flex items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground");
-            if (!Pills)
-                AppendClass(ref cls, "flex flex-wrap gap-1");
-            if (Vertical)
-                AppendClass(ref cls, "flex-col");
-            if (Justified)
-                AppendClass(ref cls, "w-full [&>.q-tab]:flex-1");
+            AppendClass(ref cls, "q-tabs group/tabs flex gap-2");
+            AppendClass(ref cls, Vertical ? "flex-col" : "flex-col");
         });
     }
 
@@ -170,6 +183,7 @@
         hc.Add(Pills);
         hc.Add(Vertical);
         hc.Add(Justified);
+        hc.Add(TabsListVariant);
         if (SelectedTab is not null)
             hc.Add(SelectedTab);
     }

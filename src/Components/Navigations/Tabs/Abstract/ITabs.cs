@@ -23,6 +23,11 @@ public interface ITabs : IElement
     bool Justified { get; set; }
 
     /// <summary>
+    /// Gets or sets the TabsList variant (default or line).
+    /// </summary>
+    TabsListVariant TabsListVariant { get; set; }
+
+    /// <summary>
     /// Gets or sets the currently selected tab name.
     /// </summary>
     string? SelectedTab { get; set; }

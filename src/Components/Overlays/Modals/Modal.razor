@@ -70,29 +70,30 @@
         attributes["tabindex"] = -1;
         attributes["role"] = "dialog";
         attributes["aria-modal"] = "true";
+        attributes.TryAdd("data-slot", "dialog");
 
         if (Static)
             attributes["data-backdrop"] = "static";
     }
 
-    
-
+    // shadcn DialogContent - new-york-v4 ui/dialog.tsx
     private Dictionary<string, object> BuildDialogAttributes()
     {
         var attributes = new Dictionary<string, object>();
+        attributes["data-slot"] = "dialog-content";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-modal-dialog");
-            AppendClass(ref cls, "grid w-full max-w-lg gap-4 border bg-background p-6 shadow-lg duration-200 sm:rounded-lg mx-4");
+            AppendClass(ref cls, "bg-background z-50 grid w-full max-w-[calc(100%-2rem)] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg mx-4");
             if (Scrollable)
                 AppendClass(ref cls, "max-h-[90vh] overflow-y-auto");
             if (ModalSize != null && !string.IsNullOrEmpty(ModalSize.Value))
             {
                 var size = ModalSize.Value.ToLowerInvariant();
-                if (size == "sm") AppendClass(ref cls, "max-w-sm");
-                else if (size == "lg") AppendClass(ref cls, "max-w-2xl");
-                else if (size == "xl") AppendClass(ref cls, "max-w-4xl");
+                if (size == "sm") AppendClass(ref cls, "sm:max-w-sm");
+                else if (size == "lg") AppendClass(ref cls, "sm:max-w-2xl");
+                else if (size == "xl") AppendClass(ref cls, "sm:max-w-4xl");
             }
         });
 

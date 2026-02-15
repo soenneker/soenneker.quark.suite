@@ -55,25 +55,19 @@ public interface IButton : IElement
     string? Name { get; set; }
 
     /// <summary>
-    /// Gets or sets the size of the button (shadcn: default, sm, lg, icon, icon-sm, icon-lg).
+    /// Gets or sets the size of the button (shadcn: default, xs, sm, lg, icon, icon-xs, icon-sm, icon-lg).
     /// </summary>
     ButtonSize Size { get; set; }
 
-
     /// <summary>
-    /// Gets or sets whether the button should use outline styling.
+    /// Gets or sets the visual style variant (shadcn/ui).
     /// </summary>
-    bool Outline { get; set; }
+    ButtonVariant Variant { get; set; }
 
     /// <summary>
     /// Gets or sets whether the button should span the full width of its container.
     /// </summary>
     bool Block { get; set; }
-
-    /// <summary>
-    /// Gets or sets whether the button should be rendered as a close button.
-    /// </summary>
-    bool Close { get; set; }
 
     /// <summary>
     /// Gets or sets the aria-label for accessibility.

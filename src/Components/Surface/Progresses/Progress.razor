@@ -29,25 +29,26 @@
     private string? GetSizeClass()
     {
         if (Size == Quark.Size.Default)
-            return null;
-
+            return "h-2";
         string? token = null;
         bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
         if (isTheme && token is not null)
-            return token.ToLowerInvariant() switch { "sm" => "h-2", "lg" => "h-4", _ => null };
+            return token.ToLowerInvariant() switch { "sm" => "h-1.5", "lg" => "h-4", _ => "h-2" };
         var s = Size?.ToString()?.ToLowerInvariant();
-        return s switch { "sm" => "h-2", "lg" => "h-4", _ => null };
+        return s switch { "sm" => "h-1.5", "lg" => "h-4", _ => "h-2" };
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
+        attributes.TryAdd("data-slot", "progress");
+
+        // shadcn Progress root - new-york-v4 ui/progress.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-progress");
-            AppendClass(ref cls, "h-4 w-full overflow-hidden rounded-full bg-secondary");
-            
+            AppendClass(ref cls, "bg-primary/20 relative w-full overflow-hidden rounded-full");
             string? sizeClass = GetSizeClass();
             if (sizeClass != null)
                 AppendClass(ref cls, sizeClass);

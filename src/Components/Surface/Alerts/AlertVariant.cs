@@ -1,7 +1,7 @@
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Defines the visual style variant for an Alert component (shadcn/blueprint style).
+/// Defines the visual style variant for an Alert component (shadcn style).
 /// </summary>
 /// <remarks>
 /// Each variant uses CSS custom properties for theming (e.g. --alert-success, --alert-info).

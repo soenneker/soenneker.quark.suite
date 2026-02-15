@@ -264,20 +264,27 @@
     /// <summary>
     /// Builds the attributes dictionary for the input component.
     /// </summary>
-    /// <returns>A dictionary of HTML attributes.</returns>
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
+        attributes.TryAdd("data-slot", "input");
+        attributes["type"] = GetInputType();
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-input");
-            AppendClass(ref cls, PlainText
-                ? "flex w-full rounded-md border-0 bg-transparent py-2 text-base focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                : "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors md:text-sm aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-destructive");
-
-            string? colorClass = GetColorClass();
-            if (colorClass is not null) AppendClass(ref cls, colorClass);
+            if (PlainText)
+            {
+                AppendClass(ref cls, "flex w-full rounded-md border-0 bg-transparent py-2 text-base focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm");
+            }
+            else
+            {
+                // shadcn/ui input - exact copy from new-york-v4 ui/input.tsx
+                AppendClass(ref cls, "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm");
+                AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]");
+                AppendClass(ref cls, "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive");
+            }
 
             string? sizeClass = GetSizeClass();
             if (sizeClass is not null) AppendClass(ref cls, sizeClass);
@@ -285,14 +292,6 @@
             string? validationClass = GetValidationClass();
             if (validationClass is not null) AppendClass(ref cls, validationClass);
         });
-
-        attributes["type"] = GetInputType();
-
-        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty && !BackgroundColor.Value.IsCssClass)
-        {
-            string v = BackgroundColor.Value.ToString().Trim();
-            attributes["style"] = $"border-color:{v};";
-        }
 
         if (Placeholder.HasContent()) attributes["placeholder"] = Placeholder;
         if (Disabled) attributes["disabled"] = true;

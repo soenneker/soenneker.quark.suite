@@ -12,9 +12,4 @@ public interface ILabel : IElement
     /// </summary>
     string? For { get; set; }
 
-    /// <summary>
-    /// Gets or sets whether to apply the Bootstrap form-label class for form styling.
-    /// </summary>
-    [Parameter]
-    bool Form { get; set; }
 }

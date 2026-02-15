@@ -137,6 +137,11 @@
     {
         base.BuildAttributesCore(attributes);
 
+        attributes.TryAdd("data-slot", "accordion");
+        attributes["id"] = Id!;
+        attributes["role"] = "tablist";
+
+        // shadcn Accordion - new-york-v4 ui/accordion.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-accordion");
@@ -144,9 +149,6 @@
             if (Flush)
                 AppendClass(ref cls, "border-0");
         });
-
-        attributes["id"] = Id!;
-        attributes["role"] = "tablist";
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

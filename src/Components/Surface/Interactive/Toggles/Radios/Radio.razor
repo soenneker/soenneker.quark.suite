@@ -8,7 +8,7 @@
 {
     <div @attributes="BuildWrapperAttributes()">
         <input id="@Id" type="radio" checked="@Checked" @onchange="HandleChange" @attributes="BuildAttributes()" />
-        <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="@Id">
+        <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-50" for="@Id">
             @ChildContent
         </label>
     </div>
@@ -115,18 +115,22 @@ else
         }
     }
 
+    // shadcn RadioGroupItem - new-york-v4 ui/radio-group.tsx
+    private const string _shadcnRadioItemBase =
+        "border-input text-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 aspect-square size-4 shrink-0 rounded-full border shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50";
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
+        attributes.TryAdd("data-slot", "radio-group-item");
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50");
-            
+            AppendClass(ref cls, _shadcnRadioItemBase);
             string? sizeClass = GetSizeClass();
             if (sizeClass != null)
                 AppendClass(ref cls, sizeClass);
-                
             string? validationClass = GetValidationClass();
             if (validationClass != null)
                 AppendClass(ref cls, validationClass);
@@ -134,22 +138,18 @@ else
 
         if (Disabled)
             attributes["disabled"] = true;
-
         if (Value.HasContent())
             attributes["value"] = Value;
-
         if (Name.HasContent())
             attributes["name"] = Name;
+        if (ParentValidation?.Status == ValidationStatus.Error)
+            attributes["aria-invalid"] = "true";
     }
 
     private string? GetValidationClass()
     {
         if (ParentValidation?.Status == ValidationStatus.Error)
-            return "is-invalid";
-
-        if (ParentValidation?.Status == ValidationStatus.Success)
-            return "is-valid";
-
+            return "border-destructive ring-destructive/20 dark:ring-destructive/40";
         return null;
     }
 

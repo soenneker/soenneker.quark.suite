@@ -11,21 +11,18 @@
     [Parameter]
     public string? For { get; set; }
 
-    /// <summary>
-    /// Gets or sets whether the label should use form styling.
-    /// </summary>
-    [Parameter]
-    public bool Form { get; set; }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
+        attributes.TryAdd("data-slot", "label");
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-label");
-            if (Form)
-                AppendClass(ref cls, "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70");
+            // shadcn/ui label - exact copy from new-york-v4 ui/label.tsx
+            AppendClass(ref cls, "flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50");
         });
 
         if (For.HasContent())
@@ -35,6 +32,5 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         hc.Add(For);
-        hc.Add(Form);
     }
 }
