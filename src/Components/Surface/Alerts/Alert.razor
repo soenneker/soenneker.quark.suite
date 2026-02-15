@@ -10,12 +10,17 @@
         <div @attributes="BuildAttributes()" role="alert">
             @if (Dismissible)
             {
-                <Button Type="@ButtonType.Button"
-                        Class="btn-close"
-                        OnClick="HandleDismiss"
-                        aria-label="Close">
-                </Button>
+                <div class="absolute right-2 top-2" data-slot="alert-action">
+                    <Button Type="@ButtonType.Button"
+                            Class="size-6 rounded-md p-0 opacity-70 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring"
+                            OnClick="HandleDismiss"
+                            aria-label="Close">
+                        <span class="sr-only">Close</span>
+                        <span aria-hidden="true">×</span>
+                    </Button>
+                </div>
             }
+            @AlertIcon
             @ChildContent
         </div>
     </CascadingValue>
@@ -25,9 +30,24 @@
     // Internal state tracking for child components
     private bool _hasMessage;
     private bool _hasDescription;
+    
+    [Parameter]
+    public AlertVariant Variant { get; set; } = AlertVariant.Default;
 
     /// <summary>
-    /// Gets or sets the alert style configuration.
+    /// Gets or sets whether to show a thick left accent border in the variant's color.
+    /// </summary>
+    [Parameter]
+    public bool AccentBorder { get; set; }
+
+    /// <summary>
+    /// Gets or sets an optional icon to display in the alert (e.g. SVG or icon component).
+    /// </summary>
+    [Parameter]
+    public RenderFragment? AlertIcon { get; set; }
+
+    /// <summary>
+    /// Gets or sets the alert style configuration. Used when Variant is Default.
     /// </summary>
     [Parameter]
     public CssValue<AlertStyleBuilder>? AlertStyle { get; set; }
@@ -61,22 +81,26 @@
         base.BuildAttributesCore(attributes);
 
         // Build alert classes (and any alert-specific style) during attribute construction.
+        attributes["data-slot"] = "alert";
+
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
             AppendClass(ref cls, "q-alert");
             AppendClass(ref cls, "relative w-full rounded-lg border p-4 text-foreground");
+            AppendClass(ref cls, AccentBorder ? "border-l-4" : null);
+            if (AlertIcon != null)
+                AppendClass(ref cls, "[&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&:has(svg)]:pl-11 [&>svg]:size-4");
 
-            if (_hasMessage)
-                AppendClass(ref cls, "q-alert-has-message");
-
-            if (_hasDescription)
-                AppendClass(ref cls, "q-alert-has-description");
-
-            if (AlertStyle is { IsEmpty: false })
+            if (Variant != AlertVariant.Default)
+                AppendClass(ref cls, AlertVariantClasses.GetVariantClasses(Variant, AccentBorder));
+            else if (AlertStyle is { IsEmpty: false })
                 AppendClass(ref cls, AlertStyle.Value.ToString());
+            else
+                AppendClass(ref cls, "bg-muted/30 [&>svg]:text-muted-foreground");
 
-            // If you want alert-specific background behavior, do it here
             ApplyAlertBackgroundColor(ref sty, ref cls);
+            if (!string.IsNullOrWhiteSpace(Class))
+                AppendClass(ref cls, Class!);
         });
     }
 
@@ -147,44 +171,50 @@
         Refresh();
     }
 
+    /// <summary>
+    /// Alert uses BackgroundColor only for shadcn variant (e.g. Danger -> destructive). Do not apply base bg-* classes.
+    /// </summary>
+    protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        // No-op: variant and colors are applied in ApplyAlertBackgroundColor during our BuildAttributesCore.
+    }
+
     protected virtual void ApplyAlertBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
         if (BackgroundColor is null || BackgroundColor.Value.IsEmpty)
             return;
 
-        // NOTE: Trim() allocates; avoid unless you truly need it.
         var v = BackgroundColor.Value.ToString();
         if (v.Length == 0)
             return;
 
+        string? token = null;
+        if (BackgroundColor.Value.TryGetBootstrapThemeToken(out token) && token is not null)
+        {
+            if (token.Equals("danger", StringComparison.OrdinalIgnoreCase))
+                AppendClass(ref cls, "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90");
+            return;
+        }
+
         if (BackgroundColor.Value.IsCssClass && v.StartsWith("alert-", StringComparison.Ordinal))
         {
-            // Map alert variant to Tailwind/shadcn alert classes
-            var token = v.Length > 6 ? v.Substring(6) : null;
-            if (token is not null)
-                AppendClass(ref cls, token.ToLowerInvariant() switch
-                {
-                    "danger" => "border-alert-danger/30 bg-alert-danger-bg",
-                    "success" => "border-alert-success/30 bg-alert-success-bg",
-                    "warning" => "border-alert-warning/30 bg-alert-warning-bg",
-                    "info" => "border-alert-info/30 bg-alert-info-bg",
-                    _ => "bg-muted/30"
-                });
+            var sub = v.Length > 6 ? v.Substring(6) : null;
+            if (sub is not null && sub.Equals("danger", StringComparison.OrdinalIgnoreCase))
+                AppendClass(ref cls, "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90");
+            return;
         }
-        else
-        {
-            // Prefer a non-interpolated style append
-            AppendStyleDecl(ref sty, "border-color: ");
-            sty.Append(v);
 
-            AppendStyleDecl(ref sty, "color: white");
-        }
+        AppendStyleDecl(ref sty, "border-color: ");
+        sty.Append(v);
+        AppendStyleDecl(ref sty, "color: white");
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
-        // Parameters/state that influence attributes/classes
         AddIf(ref hc, AlertStyle);
+        hc.Add(Variant);
+        hc.Add(AccentBorder);
+        hc.Add(AlertIcon != null);
         hc.Add(Dismissible);
         hc.Add(Visible);
         hc.Add(_hasMessage);

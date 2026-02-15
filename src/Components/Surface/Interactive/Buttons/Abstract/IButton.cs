@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Soenneker.Quark;
 using Soenneker.Quark.Enums;
 
 namespace Soenneker.Quark.Components.Surface.Interactive.Buttons.Abstract;
@@ -54,9 +55,9 @@ public interface IButton : IElement
     string? Name { get; set; }
 
     /// <summary>
-    /// Gets or sets the size of the button.
+    /// Gets or sets the size of the button (shadcn: default, sm, lg, icon, icon-sm, icon-lg).
     /// </summary>
-    CssValue<SizeBuilder>? Size { get; set; }
+    ButtonSize Size { get; set; }
 
 
     /// <summary>

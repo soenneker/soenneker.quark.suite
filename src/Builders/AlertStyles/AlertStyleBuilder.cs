@@ -1,10 +1,9 @@
-using Soenneker.Extensions.String;
 using Soenneker.Quark.Enums;
 
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Builder for Bootstrap alert utilities.
+/// Builder for shadcn-style alert variant classes (default and destructive).
 /// </summary>
 public sealed class AlertStyleBuilder : ICssBuilder
 {
@@ -211,29 +210,15 @@ public sealed class AlertStyleBuilder : ICssBuilder
 
     private static string GetAlertClass(AlertStyle alert)
     {
-        string baseClass = alert.Type.Value switch
+        var typeValue = alert.Type.Value;
+        return typeValue switch
         {
-            AlertType.PrimaryValue => "alert-primary",
-            AlertType.SecondaryValue => "alert-secondary",
-            AlertType.SuccessValue => "alert-success",
-            AlertType.DangerValue => "alert-danger",
-            AlertType.WarningValue => "alert-warning",
-            AlertType.InfoValue => "alert-info",
-            AlertType.LightValue => "alert-light",
-            AlertType.DarkValue => "alert-dark",
-            _ => string.Empty
+            "success" => AlertVariantClasses.GetVariantClasses(AlertVariant.Success, accentBorder: false),
+            "info" => AlertVariantClasses.GetVariantClasses(AlertVariant.Info, accentBorder: false),
+            "warning" => AlertVariantClasses.GetVariantClasses(AlertVariant.Warning, accentBorder: false),
+            "danger" => AlertVariantClasses.GetVariantClasses(AlertVariant.Danger, accentBorder: false),
+            _ => "bg-card text-card-foreground"
         };
-
-        if (baseClass.IsNullOrEmpty())
-            return string.Empty;
-
-        string dismissibleClass = alert.Dismissible.Value switch
-        {
-            AlertDismissibleType.DismissibleValue => " alert-dismissible",
-            _ => string.Empty
-        };
-
-        return $"{baseClass}{dismissibleClass}";
     }
 
     /// <summary>

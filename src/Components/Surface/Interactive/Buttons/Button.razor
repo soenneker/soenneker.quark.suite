@@ -32,18 +32,18 @@ else
 }
 
 @code {
+    // Matches shadcn/ui button base (focus-visible:ring-3, rounded-lg, text-sm for default size)
     private const string _shadcnButtonBase =
         "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 " +
-        "rounded-lg border border-transparent bg-clip-padding text-sm font-medium " +
-        "focus-visible:ring-[3px] aria-invalid:ring-[3px] " +
-        "[&_svg:not([class*='size-'])]:size-4 inline-flex items-center justify-center whitespace-nowrap transition-all " +
-        "disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none shrink-0 [&_svg]:shrink-0 outline-none group/button select-none";
+        "rounded-lg border border-transparent bg-clip-padding text-sm font-medium focus-visible:ring-3 aria-invalid:ring-3 " +
+        "inline-flex items-center justify-center whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 " +
+        "[&_svg]:pointer-events-none shrink-0 [&_svg]:shrink-0 outline-none group/button select-none";
 
     /// <summary>
-    /// Gets or sets the size of the button.
+    /// Gets or sets the size of the button (shadcn: default, sm, lg, icon, icon-sm, icon-lg).
     /// </summary>
     [Parameter]
-    public CssValue<SizeBuilder>? Size { get; set; }
+    public ButtonSize Size { get; set; } = ButtonSize.Default;
 
     /// <summary>
     /// Gets or sets whether the button is disabled.
@@ -141,15 +141,11 @@ else
     [Parameter]
     public ButtonVariant? Variant { get; set; } = ButtonVariant.Default;
 
-    [Parameter]
-    public ButtonSizeVariant? SizeVariant { get; set; } = ButtonSizeVariant.Default;
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string GetShadcnVariantClass(ButtonVariant variant)
         => variant switch
         {
-            // NOTE: shadcn snippet uses "[a]:hover:bg-primary/80" on default; on a <button> that selector won't matter.
-            // Keeping it as-is for fidelity.
+            // shadcn default: bg-primary text-primary-foreground [a]:hover:bg-primary/80
             ButtonVariant.Default =>
                 "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
 
@@ -172,53 +168,42 @@ else
         };
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string GetShadcnSizeVariantClass(ButtonSizeVariant size)
+    private static string GetShadcnSizeClass(ButtonSize size)
         => size switch
         {
-            ButtonSizeVariant.Default =>
+            ButtonSize.Default =>
                 "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
 
-            ButtonSizeVariant.Small =>
+            ButtonSize.Sm =>
                 "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
 
-            ButtonSizeVariant.Large =>
+            ButtonSize.Lg =>
                 "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
 
-            ButtonSizeVariant.Icon =>
+            ButtonSize.Icon =>
                 "size-8",
 
-
-            ButtonSizeVariant.IconSmall =>
+            ButtonSize.IconSm =>
                 "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg",
 
-            ButtonSizeVariant.IconLarge =>
+            ButtonSize.IconLg =>
                 "size-9",
 
             _ => "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
         };
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private string? GetLegacySizeClass()
-    {
-        if (Size == Quark.Size.Default)
-            return "h-10 px-4 py-2";
-
-        string? token = null;
-        bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
-        var sizeValue = token ?? Size?.ToString();
-        if (string.IsNullOrEmpty(sizeValue)) return null;
-
-        return sizeValue.ToLowerInvariant() switch
+    private static string GetSizeDataAttr(ButtonSize size)
+        => size switch
         {
-            "xs" => "h-8 rounded-md px-2.5 text-xs",
-            "sm" => "h-9 rounded-md px-3 text-xs",
-            "md" => "h-10 px-4 py-2",
-            "lg" => "h-11 rounded-md px-8",
-            "xl" => "h-11 rounded-md px-8 min-w-[8rem]",
-            "xxl" => "h-12 rounded-md px-10 min-w-[10rem]",
-            _ => "h-10 px-4 py-2"
+            ButtonSize.Default => "default",
+            ButtonSize.Sm => "sm",
+            ButtonSize.Lg => "lg",
+            ButtonSize.Icon => "icon",
+            ButtonSize.IconSm => "icon-sm",
+            ButtonSize.IconLg => "icon-lg",
+            _ => "default"
         };
-    }
 
     /// <summary>
     /// Builds the attributes dictionary for the button component.
@@ -234,8 +219,7 @@ else
         attributes.TryAdd("data-slot", "button");
         if (Variant.HasValue)
             attributes["data-variant"] = Variant.Value.ToString().ToLowerInvariant();
-        if (SizeVariant.HasValue)
-            attributes["data-size"] = NormalizeSizeData(SizeVariant.Value);
+        attributes["data-size"] = GetSizeDataAttr(Size);
 
         if (isLink && isDisabled && !attributes.ContainsKey("tabindex"))
             attributes["tabindex"] = -1;
@@ -253,18 +237,8 @@ else
                 // shadcn base
                 AppendClass(ref cls, _shadcnButtonBase);
 
-                // shadcn size (exact)
-                if (SizeVariant.HasValue)
-                {
-                    AppendClass(ref cls, GetShadcnSizeVariantClass(SizeVariant.Value));
-                }
-                else
-                {
-                    // fallback to your legacy size mapping if no shadcn SizeVariant provided
-                    string? legacy = GetLegacySizeClass();
-                    if (legacy is not null)
-                        AppendClass(ref cls, legacy);
-                }
+                // shadcn size
+                AppendClass(ref cls, GetShadcnSizeClass(Size));
 
                 if (Block)
                     AppendClass(ref cls, "w-full");
@@ -325,19 +299,6 @@ else
             attributes["aria-controls"] = id;
         }
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string NormalizeSizeData(ButtonSizeVariant v)
-        => v switch
-        {
-            ButtonSizeVariant.Default => "default",
-            ButtonSizeVariant.Small => "sm",
-            ButtonSizeVariant.Large => "lg",
-            ButtonSizeVariant.Icon => "icon",
-            ButtonSizeVariant.IconSmall => "icon-sm",
-            ButtonSizeVariant.IconLarge => "icon-lg",
-            _ => "default"
-        };
 
     protected override async Task HandleClick(MouseEventArgs args)
     {
@@ -418,7 +379,7 @@ else
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
-        AddIf(ref hc, Size);
+        hc.Add(Size);
         hc.Add(Disabled);
         hc.Add(Outline);
         hc.Add(Block);
@@ -436,6 +397,5 @@ else
         hc.Add(Close);
         hc.Add(Unstyled);
         hc.Add(Variant);
-        hc.Add(SizeVariant);
     }
 }

@@ -1,3 +1,5 @@
+using Soenneker.Quark;
+
 namespace Soenneker.Quark.Components.Surface.Interactive.Buttons.Abstract;
 
 /// <summary>
@@ -6,9 +8,9 @@ namespace Soenneker.Quark.Components.Surface.Interactive.Buttons.Abstract;
 public interface IButtonGroup : IElement
 {
     /// <summary>
-    /// Gets or sets the size of all buttons in the group.
+    /// Gets or sets the size of all buttons in the group (shadcn: default, sm, lg, icon, etc.).
     /// </summary>
-    CssValue<SizeBuilder>? Size { get; set; }
+    ButtonSize? Size { get; set; }
 
     /// <summary>
     /// Gets or sets whether the button group should be displayed vertically.

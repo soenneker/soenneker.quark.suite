@@ -1,10 +1,10 @@
-
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IAlertMessage
 
-<strong @attributes="BuildAttributes()">
+<div @attributes="BuildAttributes()">
     @ChildContent
-</strong>
+</div>
 
 @code {
     [CascadingParameter(Name = nameof(ParentAlert))]
@@ -18,11 +18,11 @@
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        // Apply notification message specific styling
+        attributes["data-slot"] = "alert-title";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-alert-message");
-            AppendClass(ref cls, "font-medium");
+            AppendClass(ref cls, "mb-1 font-medium leading-none tracking-tight");
         });
     }
 }

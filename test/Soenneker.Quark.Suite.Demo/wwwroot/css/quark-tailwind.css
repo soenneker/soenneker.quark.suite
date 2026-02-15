@@ -23,6 +23,7 @@
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
     --tracking-tight: -0.025em;
+    --radius-md: calc(var(--radius) - 2px);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
     --default-transition-duration: 150ms;
     --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -365,6 +366,10 @@
   .inline-flex {
     display: inline-flex;
   }
+  .size-8 {
+    width: calc(var(--spacing) * 8);
+    height: calc(var(--spacing) * 8);
+  }
   .h-3 {
     height: calc(var(--spacing) * 3);
   }
@@ -570,6 +575,9 @@
   .rounded {
     border-radius: 0.25rem;
   }
+  .rounded-\[min\(var\(--radius-md\)\,12px\)\] {
+    border-radius: min(var(--radius-md), 12px);
+  }
   .rounded-full {
     border-radius: calc(infinity * 1px);
   }
@@ -623,6 +631,12 @@
   }
   .bg-muted {
     background-color: var(--muted);
+  }
+  .bg-muted\/30 {
+    background-color: var(--muted);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--muted) 30%, transparent);
+    }
   }
   .bg-primary {
     background-color: var(--primary);
@@ -721,6 +735,9 @@
   .text-xs {
     font-size: var(--text-xs);
     line-height: var(--tw-leading, var(--text-xs--line-height));
+  }
+  .text-\[0\.8rem\] {
+    font-size: 0.8rem;
   }
   .leading-none {
     --tw-leading: 1;
@@ -961,7 +978,7 @@
       box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
     }
   }
-  .focus-visible\:ring-\[3px\] {
+  .focus-visible\:ring-3 {
     &:focus-visible {
       --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
       box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -1020,14 +1037,39 @@
       opacity: 50%;
     }
   }
+  .in-data-\[slot\=button-group\]\:rounded-lg {
+    :where(*[data-slot="button-group"]) & {
+      border-radius: var(--radius);
+    }
+  }
+  .has-data-\[icon\=inline-end\]\:pr-1\.5 {
+    &:has(*[data-icon="inline-end"]) {
+      padding-right: calc(var(--spacing) * 1.5);
+    }
+  }
   .has-data-\[icon\=inline-end\]\:pr-2 {
     &:has(*[data-icon="inline-end"]) {
       padding-right: calc(var(--spacing) * 2);
     }
   }
+  .has-data-\[icon\=inline-end\]\:pr-3 {
+    &:has(*[data-icon="inline-end"]) {
+      padding-right: calc(var(--spacing) * 3);
+    }
+  }
+  .has-data-\[icon\=inline-start\]\:pl-1\.5 {
+    &:has(*[data-icon="inline-start"]) {
+      padding-left: calc(var(--spacing) * 1.5);
+    }
+  }
   .has-data-\[icon\=inline-start\]\:pl-2 {
     &:has(*[data-icon="inline-start"]) {
       padding-left: calc(var(--spacing) * 2);
+    }
+  }
+  .has-data-\[icon\=inline-start\]\:pl-3 {
+    &:has(*[data-icon="inline-start"]) {
+      padding-left: calc(var(--spacing) * 3);
     }
   }
   .aria-expanded\:rotate-0 {
@@ -1060,7 +1102,7 @@
       border-color: var(--destructive);
     }
   }
-  .aria-invalid\:ring-\[3px\] {
+  .aria-invalid\:ring-3 {
     &[aria-invalid="true"] {
       --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
       box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -1082,6 +1124,16 @@
   .aria-\[invalid\=true\]\:ring-destructive {
     &[aria-invalid="true"] {
       --tw-ring-color: var(--destructive);
+    }
+  }
+  .\*\:data-\[slot\=alert-description\]\:text-destructive\/90 {
+    :is(& > *) {
+      &[data-slot="alert-description"] {
+        color: var(--destructive);
+        @supports (color: color-mix(in lab, red, red)) {
+          color: color-mix(in oklab, var(--destructive) 90%, transparent);
+        }
+      }
     }
   }
   .data-\[state\=checked\]\:bg-primary {
@@ -1197,6 +1249,23 @@
       }
     }
   }
+  .\[\&_svg\]\:pointer-events-none {
+    & svg {
+      pointer-events: none;
+    }
+  }
+  .\[\&_svg\]\:shrink-0 {
+    & svg {
+      flex-shrink: 0;
+    }
+  }
+  .data-\[state\=closed\]\:\[\&\+div\]\:hidden {
+    &[data-state="closed"] {
+      &+div {
+        display: none;
+      }
+    }
+  }
   .\[a\]\:hover\:bg-primary\/80 {
     &:is(a) {
       &:hover {
@@ -1207,6 +1276,21 @@
           }
         }
       }
+    }
+  }
+  .\[\&\>svg\]\:text-current {
+    &>svg {
+      color: currentcolor;
+    }
+  }
+  .\[\&\>svg\]\:text-muted-foreground {
+    &>svg {
+      color: var(--muted-foreground);
+    }
+  }
+  .\[\&\[data-state\=open\]\>svg\]\:rotate-180 {
+    &[data-state=open]>svg {
+      rotate: 180deg;
     }
   }
 }
@@ -1328,6 +1412,18 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --alert-success: oklch(0.647 0.194 149.214);
+  --alert-success-foreground: oklch(0.985 0 0);
+  --alert-success-bg: oklch(0.97 0.02 149);
+  --alert-info: oklch(0.488 0.243 264.376);
+  --alert-info-foreground: oklch(0.985 0 0);
+  --alert-info-bg: oklch(0.97 0.02 264);
+  --alert-warning: oklch(0.769 0.188 70.08);
+  --alert-warning-foreground: oklch(0.205 0 0);
+  --alert-warning-bg: oklch(0.98 0.03 70);
+  --alert-danger: oklch(0.577 0.245 27.325);
+  --alert-danger-foreground: oklch(0.985 0 0);
+  --alert-danger-bg: oklch(0.97 0.04 27);
 }
 .dark {
   --background: oklch(0.145 0 0);
@@ -1362,6 +1458,18 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
+  --alert-success: oklch(0.696 0.17 162.48);
+  --alert-success-foreground: oklch(0.985 0 0);
+  --alert-success-bg: oklch(0.25 0.04 162);
+  --alert-info: oklch(0.488 0.243 264.376);
+  --alert-info-foreground: oklch(0.985 0 0);
+  --alert-info-bg: oklch(0.25 0.04 264);
+  --alert-warning: oklch(0.769 0.188 70.08);
+  --alert-warning-foreground: oklch(0.205 0 0);
+  --alert-warning-bg: oklch(0.28 0.05 70);
+  --alert-danger: oklch(0.396 0.141 25.723);
+  --alert-danger-foreground: oklch(0.985 0 0);
+  --alert-danger-bg: oklch(0.28 0.06 27);
 }
 @layer base {
   * {
