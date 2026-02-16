@@ -49,6 +49,8 @@ else
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
             AppendClass(ref cls, "q-heading");
+            int headingLevel = GetHeadingLevel(Scale);
+            AppendClass(ref cls, GetHeadingSizeClass(headingLevel));
             AddCss(ref sty, ref cls, Scale);
             AddCss(ref sty, ref cls, DisplaySize);
         });
@@ -73,6 +75,19 @@ else
         }
 
         return fallback;
+    }
+
+    private static string GetHeadingSizeClass(int level)
+    {
+        return level switch
+        {
+            1 => "text-4xl font-bold tracking-tight",
+            2 => "text-3xl font-bold tracking-tight",
+            3 => "text-2xl font-semibold tracking-tight",
+            4 => "text-xl font-semibold",
+            5 => "text-lg font-medium",
+            _ => "text-base font-medium" // 6 or fallback
+        };
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
