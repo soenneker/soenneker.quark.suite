@@ -30,19 +30,26 @@
             if (IsHorizontal)
             {
                 AppendClass(ref cls, "min-w-0");
-                AddColumnCss(ref cls, ColumnSize);
+                bool columnSizeAdded = AddColumnCss(ref cls, ColumnSize);
+                if (!columnSizeAdded)
+                    AppendClass(ref cls, "col-span-12");
             }
         });
     }
 
-    private static void AddColumnCss<T>(ref PooledStringBuilder cls, CssValue<T>? cssValue) where T : class, ICssBuilder
+    /// <returns>True if a class was added.</returns>
+    private static bool AddColumnCss<T>(ref PooledStringBuilder cls, CssValue<T>? cssValue) where T : class, ICssBuilder
     {
         if (cssValue is { IsEmpty: false })
         {
             var css = cssValue.Value.ToString();
             if (css.HasContent() && !cssValue.Value.IsCssStyle)
+            {
                 AppendClass(ref cls, css);
+                return true;
+            }
         }
+        return false;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

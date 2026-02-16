@@ -88,29 +88,29 @@ public sealed class ColumnOffsetBuilder : ICssBuilder
     public ColumnOffsetBuilder O12 => ChainWithOffset("12");
 
     /// <summary>
-    /// Applies the column offset on phone breakpoint.
+    /// Applies the column offset at base (mobile-first default).
     /// </summary>
-    public ColumnOffsetBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public ColumnOffsetBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
-    /// Applies the column offset on tablet breakpoint.
+    /// Applies the column offset at sm breakpoint (≥640px).
     /// </summary>
-    public ColumnOffsetBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public ColumnOffsetBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
     /// <summary>
-    /// Applies the column offset on laptop breakpoint.
+    /// Applies the column offset at md breakpoint (≥768px).
     /// </summary>
-    public ColumnOffsetBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public ColumnOffsetBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
-    /// Applies the column offset on desktop breakpoint.
+    /// Applies the column offset at lg breakpoint (≥1024px).
     /// </summary>
-    public ColumnOffsetBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public ColumnOffsetBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
-    /// Applies the column offset on widescreen breakpoint.
+    /// Applies the column offset at xl breakpoint (≥1280px).
     /// </summary>
-    public ColumnOffsetBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ColumnOffsetBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the column offset on ultrawide breakpoint.
+    /// Applies the column offset at 2xl breakpoint (≥1536px).
     /// </summary>
-    public ColumnOffsetBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ColumnOffsetBuilder On2xl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ColumnOffsetBuilder ChainWithOffset(string offset)

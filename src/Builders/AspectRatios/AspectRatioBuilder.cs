@@ -46,29 +46,29 @@ public sealed class AspectRatioBuilder : ICssBuilder
     public AspectRatioBuilder R21X9 => ChainWithRatio("21x9");
 
     /// <summary>
-    /// Applies the aspect ratio on phone breakpoint.
+    /// Applies the aspect ratio at base (mobile-first default).
     /// </summary>
-    public AspectRatioBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public AspectRatioBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
-    /// Applies the aspect ratio on tablet breakpoint.
+    /// Applies the aspect ratio at sm breakpoint (≥640px).
     /// </summary>
-    public AspectRatioBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public AspectRatioBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
     /// <summary>
-    /// Applies the aspect ratio on laptop breakpoint.
+    /// Applies the aspect ratio at md breakpoint (≥768px).
     /// </summary>
-    public AspectRatioBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public AspectRatioBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
-    /// Applies the aspect ratio on desktop breakpoint.
+    /// Applies the aspect ratio at lg breakpoint (≥1024px).
     /// </summary>
-    public AspectRatioBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public AspectRatioBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
-    /// Applies the aspect ratio on widescreen breakpoint.
+    /// Applies the aspect ratio at xl breakpoint (≥1280px).
     /// </summary>
-    public AspectRatioBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
+    public AspectRatioBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the aspect ratio on ultrawide breakpoint.
+    /// Applies the aspect ratio at 2xl breakpoint (≥1536px).
     /// </summary>
-    public AspectRatioBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public AspectRatioBuilder On2xl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private AspectRatioBuilder ChainWithRatio(string ratio)

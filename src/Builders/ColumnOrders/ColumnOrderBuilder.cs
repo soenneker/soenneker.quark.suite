@@ -97,29 +97,29 @@ public sealed class ColumnOrderBuilder : ICssBuilder
     public ColumnOrderBuilder Last => ChainWithOrder("last");
 
     /// <summary>
-    /// Applies the column order on phone breakpoint.
+    /// Applies the column order at base (mobile-first default).
     /// </summary>
-    public ColumnOrderBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public ColumnOrderBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
-    /// Applies the column order on tablet breakpoint.
+    /// Applies the column order at sm breakpoint (≥640px).
     /// </summary>
-    public ColumnOrderBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public ColumnOrderBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
     /// <summary>
-    /// Applies the column order on laptop breakpoint.
+    /// Applies the column order at md breakpoint (≥768px).
     /// </summary>
-    public ColumnOrderBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public ColumnOrderBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
-    /// Applies the column order on desktop breakpoint.
+    /// Applies the column order at lg breakpoint (≥1024px).
     /// </summary>
-    public ColumnOrderBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public ColumnOrderBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
-    /// Applies the column order on widescreen breakpoint.
+    /// Applies the column order at xl breakpoint (≥1280px).
     /// </summary>
-    public ColumnOrderBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ColumnOrderBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the column order on ultrawide breakpoint.
+    /// Applies the column order at 2xl breakpoint (≥1536px).
     /// </summary>
-    public ColumnOrderBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ColumnOrderBuilder On2xl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ColumnOrderBuilder ChainWithOrder(string order)

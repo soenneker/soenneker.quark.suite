@@ -93,29 +93,29 @@ public sealed class ColumnSizeBuilder : ICssBuilder
     public ColumnSizeBuilder Auto => ChainWithSize("auto");
 
     /// <summary>
-    /// Applies the column size on phone breakpoint.
+    /// Applies the column size at base (mobile-first default).
     /// </summary>
-    public ColumnSizeBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public ColumnSizeBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
-    /// Applies the column size on tablet breakpoint.
+    /// Applies the column size at sm breakpoint (≥640px).
     /// </summary>
-    public ColumnSizeBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public ColumnSizeBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
     /// <summary>
-    /// Applies the column size on laptop breakpoint.
+    /// Applies the column size at md breakpoint (≥768px).
     /// </summary>
-    public ColumnSizeBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public ColumnSizeBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
-    /// Applies the column size on desktop breakpoint.
+    /// Applies the column size at lg breakpoint (≥1024px).
     /// </summary>
-    public ColumnSizeBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public ColumnSizeBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
-    /// Applies the column size on widescreen breakpoint.
+    /// Applies the column size at xl breakpoint (≥1280px).
     /// </summary>
-    public ColumnSizeBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ColumnSizeBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the column size on ultrawide breakpoint.
+    /// Applies the column size at 2xl breakpoint (≥1536px).
     /// </summary>
-    public ColumnSizeBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ColumnSizeBuilder On2xl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ColumnSizeBuilder ChainWithSize(string size)

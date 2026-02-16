@@ -70,29 +70,29 @@ public sealed class TextOverflowBuilder : ICssBuilder
 
     // ----- BreakpointType chaining -----
     /// <summary>
-    /// Applies the text overflow on phone breakpoint.
+    /// Applies the text overflow at base (mobile-first default).
     /// </summary>
-    public TextOverflowBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public TextOverflowBuilder OnBase => ChainBp(BreakpointType.Base);
     /// <summary>
-    /// Applies the text overflow on tablet breakpoint.
+    /// Applies the text overflow at sm breakpoint (≥640px).
     /// </summary>
-    public TextOverflowBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public TextOverflowBuilder OnSm => ChainBp(BreakpointType.Sm);
     /// <summary>
-    /// Applies the text overflow on laptop breakpoint.
+    /// Applies the text overflow at md breakpoint (≥768px).
     /// </summary>
-    public TextOverflowBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public TextOverflowBuilder OnMd => ChainBp(BreakpointType.Md);
     /// <summary>
-    /// Applies the text overflow on desktop breakpoint.
+    /// Applies the text overflow at lg breakpoint (≥1024px).
     /// </summary>
-    public TextOverflowBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public TextOverflowBuilder OnLg => ChainBp(BreakpointType.Lg);
     /// <summary>
-    /// Applies the text overflow on widescreen breakpoint.
+    /// Applies the text overflow at xl breakpoint (≥1280px).
     /// </summary>
-    public TextOverflowBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
+    public TextOverflowBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
-    /// Applies the text overflow on ultrawide breakpoint.
+    /// Applies the text overflow at 2xl breakpoint (≥1536px).
     /// </summary>
-    public TextOverflowBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public TextOverflowBuilder On2xl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextOverflowBuilder Chain(TextOverflowEnum value)

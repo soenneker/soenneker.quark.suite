@@ -85,25 +85,25 @@ public sealed class GutterBuilder : ICssBuilder
 
     // Breakpoint chaining methods
     /// <summary>
-    /// Applies the gutter on phone (small) breakpoint.
+    /// Applies the gutter at sm breakpoint (≥640px).
     /// </summary>
-    public GutterBuilder OnPhone => ChainBp(GutterBreakpoint.Sm);
+    public GutterBuilder OnSm => ChainBp(GutterBreakpoint.Sm);
     /// <summary>
-    /// Applies the gutter on tablet (medium) breakpoint.
+    /// Applies the gutter at md breakpoint (≥768px).
     /// </summary>
-    public GutterBuilder OnTablet => ChainBp(GutterBreakpoint.Md);
+    public GutterBuilder OnMd => ChainBp(GutterBreakpoint.Md);
     /// <summary>
-    /// Applies the gutter on laptop (large) breakpoint.
+    /// Applies the gutter at lg breakpoint (≥1024px).
     /// </summary>
-    public GutterBuilder OnLaptop => ChainBp(GutterBreakpoint.Lg);
+    public GutterBuilder OnLg => ChainBp(GutterBreakpoint.Lg);
     /// <summary>
-    /// Applies the gutter on desktop (extra large) breakpoint.
+    /// Applies the gutter at xl breakpoint (≥1280px).
     /// </summary>
-    public GutterBuilder OnDesktop => ChainBp(GutterBreakpoint.Xl);
+    public GutterBuilder OnXl => ChainBp(GutterBreakpoint.Xl);
     /// <summary>
-    /// Applies the gutter on widescreen (extra extra large) breakpoint.
+    /// Applies the gutter at 2xl breakpoint (≥1536px).
     /// </summary>
-    public GutterBuilder OnWidescreen => ChainBp(GutterBreakpoint.Xxl);
+    public GutterBuilder On2xl => ChainBp(GutterBreakpoint.Xxl);
 
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
     private GutterBuilder ChainBp(GutterBreakpoint breakpoint)
