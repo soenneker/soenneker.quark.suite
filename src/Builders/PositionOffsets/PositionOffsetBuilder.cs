@@ -122,6 +122,9 @@ public sealed class PositionOffsetBuilder : ICssBuilder
     /// Applies the position offset on desktop breakpoint.
     /// </summary>
     public PositionOffsetBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public PositionOffsetBuilder OnMd => ChainBp(BreakpointType.Md);
+    public PositionOffsetBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public PositionOffsetBuilder OnXl => ChainBp(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the position offset on widescreen breakpoint.

@@ -92,6 +92,9 @@ public sealed class TextAlignmentBuilder : ICssBuilder
 	/// Applies the text alignment on desktop breakpoint.
 	/// </summary>
     public TextAlignmentBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public TextAlignmentBuilder OnMd => ChainBp(BreakpointType.Md);
+    public TextAlignmentBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public TextAlignmentBuilder OnXl => ChainBp(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the text alignment on widescreen breakpoint.
 	/// </summary>

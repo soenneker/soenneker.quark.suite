@@ -126,6 +126,9 @@ public sealed class MarginBuilder : ICssBuilder
 	/// Applies the margin on desktop breakpoint.
 	/// </summary>
     public MarginBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public MarginBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
+    public MarginBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
+    public MarginBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the margin on widescreen breakpoint.
 	/// </summary>

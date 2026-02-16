@@ -93,6 +93,9 @@ public sealed class TextStyleBuilder : ICssBuilder
     /// Applies the text style on desktop breakpoint.
     /// </summary>
     public TextStyleBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public TextStyleBuilder OnMd => ChainBp(BreakpointType.Md);
+    public TextStyleBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public TextStyleBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the text style on widescreen breakpoint.
     /// </summary>

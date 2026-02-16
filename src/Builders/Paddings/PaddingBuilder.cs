@@ -117,6 +117,9 @@ public sealed class PaddingBuilder : ICssBuilder
 	/// Applies the padding on desktop breakpoint.
 	/// </summary>
     public PaddingBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public PaddingBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
+    public PaddingBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
+    public PaddingBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the padding on widescreen breakpoint.
 	/// </summary>
