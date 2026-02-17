@@ -25,7 +25,7 @@ public sealed class MarginBuilder : ICssBuilder
     private const string _token5 = "5";
     private const string _tokenAuto = "auto";
 
-    // ----- Side tokens (Bootstrap naming) -----
+    // ----- Side tokens (Tailwind: t=top, e=end, b=bottom, s=start, x=horizontal, y=vertical) -----
     private const string _sideT = "t";
     private const string _sideE = "e";
     private const string _sideB = "b";
@@ -211,20 +211,10 @@ public sealed class MarginBuilder : ICssBuilder
             else
                 first = false;
 
-            sb.Append(_baseToken);
-
-            if (sideTok.Length != 0)
-                sb.Append(sideTok);
-
-            sb.Append('-');
-
-            if (bpTok.Length != 0)
-            {
-                sb.Append(bpTok);
-                sb.Append('-');
-            }
-
-            sb.Append(sizeTok);
+            // Tailwind: mt-1, md:mt-1 (not Bootstrap mt-md-1)
+            string baseClass = _baseToken + (sideTok.Length != 0 ? sideTok : "") + "-" + sizeTok;
+            string cls = bpTok.Length != 0 ? BreakpointUtil.ApplyTailwindBreakpoint(baseClass, bpTok) : baseClass;
+            sb.Append(cls);
         }
 
         return sb.ToString();

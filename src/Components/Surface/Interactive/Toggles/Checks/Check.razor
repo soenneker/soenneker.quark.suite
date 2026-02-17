@@ -4,23 +4,29 @@
 @using Soenneker.Blazor.Extensions.EventCallback
 @implements ICheck
 <div @attributes="BuildWrapperAttributes()">
-    <input
-        @ref="_inputRef"
-        id="@Id"
-        type="checkbox"
-        checked="@Checked"
-        @onclick="HandleClick"
-        @onchange="HandleChange"
-        @attributes="BuildInputAttributes()"/>
-
-    @if (ChildContent is not null)
-    {
-        <label @attributes="BuildLabelAttributes()">@ChildContent</label>
-    }
-    else if (Label.HasContent())
-    {
-        <label @attributes="BuildLabelAttributes()">@Label</label>
-    }
+    <label @attributes="BuildLabelAttributes()">
+        <input
+            @ref="_inputRef"
+            id="@Id"
+            type="checkbox"
+            checked="@Checked"
+            @onchange="HandleChange"
+            @attributes="BuildInputAttributes()"/>
+        <span @attributes="BuildIndicatorAttributes()">
+            @if (Checked)
+            {
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 text-primary-foreground shrink-0"><path d="M20 6 9 17 4 12"/></svg>
+            }
+        </span>
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+        else if (Label.HasContent())
+        {
+            @Label
+        }
+    </label>
 </div>
 
 @code {
@@ -119,39 +125,53 @@
     public virtual Dictionary<string, object> BuildLabelAttributes()
     {
         var attributes = new Dictionary<string, object>();
-        // shadcn label alignment with checkbox
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-50"));
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "flex items-center gap-2 text-sm font-medium leading-none");
+            AppendClass(ref cls, "focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 rounded-[4px]");
+            if (Disabled)
+                AppendClass(ref cls, "cursor-not-allowed opacity-50");
+            else
+                AppendClass(ref cls, "cursor-pointer");
+        });
         attributes["for"] = Id!;
         return attributes;
     }
 
-    // shadcn/ui checkbox - new-york-v4 ui/checkbox.tsx (native checkbox with checked: mapping)
-    private const string _shadcnCheckboxBase =
-        "peer border-input dark:bg-input/30 size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 checked:bg-primary checked:border-primary checked:text-primary-foreground dark:checked:bg-primary aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive";
-
     public virtual Dictionary<string, object> BuildInputAttributes()
     {
         var attributes = new Dictionary<string, object>(base.BuildAttributes());
-
         attributes.TryAdd("data-slot", "checkbox");
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, _shadcnCheckboxBase);
-
-            string? sizeClass = GetSizeClass();
-            if (sizeClass != null)
-                AppendClass(ref cls, sizeClass);
-
-            string? validationClass = GetValidationClass();
-            if (validationClass != null)
-                AppendClass(ref cls, validationClass);
-        });
-
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "sr-only"));
         if (Disabled)
             attributes["disabled"] = true;
         if (ParentValidation?.Status == ValidationStatus.Error)
             attributes["aria-invalid"] = "true";
+        return attributes;
+    }
+
+    /// <summary>
+    /// Builds attributes for the visible indicator (shadcn-style box + check), classes only.
+    /// </summary>
+    public virtual Dictionary<string, object> BuildIndicatorAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "shrink-0 rounded-[4px] border shadow-xs transition-shadow flex items-center justify-center");
+            AppendClass(ref cls, "border-input dark:bg-input/30");
+            if (Checked)
+            {
+                AppendClass(ref cls, "bg-primary border-primary");
+            }
+            string? sizeClass = GetSizeClass();
+            AppendClass(ref cls, sizeClass ?? "size-4");
+            if (Disabled)
+                AppendClass(ref cls, "opacity-50");
+            string? validationClass = GetValidationClass();
+            if (validationClass != null)
+                AppendClass(ref cls, validationClass);
+        });
         return attributes;
     }
 
@@ -180,12 +200,9 @@
         };
     }
 
-    protected override async Task HandleClick(MouseEventArgs args)
+    private async Task HandleChange(ChangeEventArgs args)
     {
-        if (Disabled)
-            return;
-
-        Checked = !Checked;
+        Checked = args.Value is bool b && b;
         await CheckedChanged.InvokeAsync(Checked);
 
         InvalidateRender();
@@ -196,10 +213,7 @@
             ParentValidation.MarkTouched();
             await ParentValidation.NotifyInputChanged(Checked);
         }
-    }
 
-    private async Task HandleChange(ChangeEventArgs args)
-    {
         await OnChange.InvokeIfHasDelegate(args);
     }
 

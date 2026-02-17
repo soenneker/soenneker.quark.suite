@@ -125,7 +125,7 @@ public sealed class BoxShadowBuilder : ICssBuilder
 
             string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
-                baseClass = BreakpointUtil.InsertBreakpointType(baseClass, bp);
+                baseClass = BreakpointUtil.ApplyTailwindBreakpoint(baseClass, bp);
 
             if (!first)
                 sb.Append(' ');

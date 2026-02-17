@@ -1,42 +1,21 @@
 @page "/navigation/navs"
 @using Microsoft.Extensions.Logging
+@inject ILogger<Navs> Logger
 
-@inject ILogger<Index> Logger
+<PageTitle>Navs - Quark Suite</PageTitle>
 
-<Container Padding="Padding.Is4.OnY">
-    <Row>
-        <Column>
-            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Navs</H1>
-                <Paragraph Class="lead" TextColor="TextColor.Muted">This page demonstrates the Nav component - a simple wrapper for the HTML nav element.</Paragraph>
-            </Div>
-        </Column>
-    </Row>
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-3">
+        <H1 Class="text-4xl font-bold tracking-tight">Navs</H1>
+        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">
+            A simple wrapper for the HTML nav element. Use with list items and nav-link classes for consistent navigation styling.
+        </Paragraph>
+    </Div>
 
-    <Row Gap="Gap.Is4">
-        <Column>
-            <Div>
-                <H2>Basic Navigation</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Nav>
-                        <UnorderedList Class="nav">
-                            <UnorderedListItem Class="nav-item">
-                                <a class="nav-link active" href="">Home</a>
-                            </UnorderedListItem>
-                            <UnorderedListItem Class="nav-item">
-                                <a class="nav-link" href="about">About</a>
-                            </UnorderedListItem>
-                            <UnorderedListItem Class="nav-item">
-                                <a class="nav-link" href="contact">Contact</a>
-                            </UnorderedListItem>
-                        </UnorderedList>
-                    </Nav>
-                </Div>
-
-                <CodeEditor ReadOnly="true" 
-                            Language="@("html")" 
-                            AutoHeight="true" Margin="Margin.Is3.FromTop"
-                            Text="@(@"<Nav>
+    <Div Class="space-y-6">
+        <section class="space-y-4">
+            <DemoSection Title="Basic navigation" Description="Nav with UnorderedList and nav-link anchors."
+                        Code="@(@"<Nav>
     <UnorderedList Class=""nav"">
         <UnorderedListItem Class=""nav-item"">
             <a class=""nav-link active"" href="""">Home</a>
@@ -44,69 +23,72 @@
         <UnorderedListItem Class=""nav-item"">
             <a class=""nav-link"" href=""about"">About</a>
         </UnorderedListItem>
+        <UnorderedListItem Class=""nav-item"">
+            <a class=""nav-link"" href=""contact"">Contact</a>
+        </UnorderedListItem>
     </UnorderedList>
-</Nav>")" />
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Navigation with Custom Content</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Nav>
-                        <div class="navbar-nav">
-                            <a class="nav-link" href="">Home</a>
+</Nav>")">
+                <Nav>
+                    <UnorderedList Class="nav">
+                        <UnorderedListItem Class="nav-item">
+                            <a class="nav-link active" href="">Home</a>
+                        </UnorderedListItem>
+                        <UnorderedListItem Class="nav-item">
                             <a class="nav-link" href="about">About</a>
+                        </UnorderedListItem>
+                        <UnorderedListItem Class="nav-item">
                             <a class="nav-link" href="contact">Contact</a>
-                        </Div>
-                    </Nav>
-                </Div>
-            </Div>
+                        </UnorderedListItem>
+                    </UnorderedList>
+                </Nav>
+            </DemoSection>
+        </section>
 
-            <Hr/>
+        <section class="space-y-4">
+            <DemoSection Title="Nav with custom content" Description="Use a div with navbar-nav class for flexible content.">
+                <Nav>
+                    <div class="flex gap-2 flex-wrap">
+                        <a class="nav-link" href="">Home</a>
+                        <a class="nav-link" href="about">About</a>
+                        <a class="nav-link" href="contact">Contact</a>
+                    </div>
+                </Nav>
+            </DemoSection>
+        </section>
 
-            <Div>
-                <H2>Navigation with Bootstrap Classes</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Nav Class="navbar navbar-expand-lg navbar-light bg-light">
-                        <div class="container-fluid">
-                            <a class="navbar-brand" href="">My App</a>
-                            <div class="navbar-nav">
-                                <a class="nav-link" href="">Home</a>
-                                <a class="nav-link" href="about">About</a>
-                                <a class="nav-link" href="contact">Contact</a>
-                            </Div>
-                        </Div>
-                    </Nav>
-                </Div>
-            </Div>
+        <section class="space-y-4">
+            <DemoSection Title="Theme-aware nav" Description="Nav with background and border using design tokens.">
+                <Nav Class="flex gap-2 flex-wrap rounded-lg border border-border bg-muted/50 p-4">
+                    <a class="nav-link font-medium text-foreground hover:text-primary hover:underline" href="">Home</a>
+                    <a class="nav-link font-medium text-foreground hover:text-primary hover:underline" href="about">About</a>
+                    <a class="nav-link font-medium text-foreground hover:text-primary hover:underline" href="contact">Contact</a>
+                </Nav>
+            </DemoSection>
+        </section>
 
-            <Hr/>
+        <section class="space-y-4">
+            <DemoSection Title="With aria label" Description="Set AriaLabel for accessibility."
+                        Code="@(@"<Nav AriaLabel=""Main navigation menu"">
+    ...
+</Nav>")">
+                <Nav AriaLabel="Main navigation menu">
+                    <UnorderedList Class="nav">
+                        <UnorderedListItem Class="nav-item">
+                            <a class="nav-link" href="">Home</a>
+                        </UnorderedListItem>
+                        <UnorderedListItem Class="nav-item">
+                            <a class="nav-link" href="about">About</a>
+                        </UnorderedListItem>
+                    </UnorderedList>
+                </Nav>
+            </DemoSection>
+        </section>
+    </Div>
+</Div>
 
-            <Div>
-                <H2>Navigation with Custom Aria Label</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Nav AriaLabel="Main navigation menu" Class="navbar navbar-expand-lg navbar-dark bg-dark">
-                        <div class="container-fluid">
-                            <a class="navbar-brand" href="">My App</a>
-                            <div class="navbar-nav">
-                                <a class="nav-link" href="">Home</a>
-                                <a class="nav-link" href="about">About</a>
-                                <a class="nav-link" href="contact">Contact</a>
-                            </Div>
-                        </Div>
-                    </Nav>
-                </Div>
-            </Div>
-        </Column>
-    </Row>
-</Container>
-
-@code{
-
+@code {
     protected override void OnInitialized()
     {
         Logger.LogInformation("Navs demo page initialized");
     }
-
 }

@@ -1,228 +1,133 @@
 @page "/overlays/modals"
-@using Microsoft.Extensions.Logging
 
-@inject ILogger<Index> Logger
+<PageTitle>Modals - Quark Suite</PageTitle>
 
-<Container Padding="Padding.Is4.OnY">
-    <Row>
-        <Column>
-            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Modals</H1>
-                <Lead TextColor="TextColor.Muted">This page demonstrates the modal component functionality.</Lead>
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-3">
+        <H1 Class="text-4xl font-bold tracking-tight">Modals</H1>
+        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">
+            Dialog overlays for forms, confirmations, and supplemental content.
+        </Paragraph>
+    </Div>
+
+    <section class="space-y-4">
+        <DemoSection Title="Examples" Description="Click a button to open each modal variant. Close via X, backdrop click, or ESC.">
+            <Div Class="flex flex-wrap gap-2">
+            <Button BackgroundColor="BackgroundColor.Primary" OnClick="@(() => _showBasicModal = true)">Basic</Button>
+            <Button BackgroundColor="BackgroundColor.Success" OnClick="@(() => _showLargeModal = true)">Large</Button>
+            <Button BackgroundColor="BackgroundColor.Info" OnClick="@(() => _showCenteredModal = true)">Centered</Button>
+            <Button BackgroundColor="BackgroundColor.Warning" OnClick="@(() => _showStaticModal = true)">Static Backdrop</Button>
+            <Button BackgroundColor="BackgroundColor.Secondary" OnClick="@(() => _showScrollableModal = true)">Scrollable</Button>
+            <Button BackgroundColor="BackgroundColor.Dark" OnClick="@(() => _showNewComponentsModal = true)">New Components</Button>
             </Div>
-        </Column>
-    </Row>
+        </DemoSection>
 
-    <Row Gap="Gap.Is4">
-        <Column>
-            <Div>
-                <H2>Basic Modal</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Button BackgroundColor="@BackgroundColor.Primary" OnClick="@(() => _showBasicModal = true)">Show Basic Modal</Button>
-                </Div>
-
-                <CodeEditor ReadOnly="true" 
-                            Language="@("html")" 
-                            AutoHeight="true" Margin="Margin.Is3.FromTop"
-                            Text="@(@"<Button BackgroundColor=""@BackgroundColor.Primary"" 
-        OnClick=""@(() => ShowBasicModal = true)"">Show Modal</Button>
-
-<Modal @bind-Visible=""ShowBasicModal"">
-    <ModalHeader>
-        <ModalTitle>Basic Modal</ModalTitle>
-        <ModalCloseButton/>
-    </ModalHeader>
-    <ModalBody>
-        <Paragraph>Modal content goes here.</Paragraph>
-    </ModalBody>
+        <DemoSection Title="Usage" Description="Bind Visible and use ModalHeader, ModalBody, ModalFooter.">
+            <CodeEditor ReadOnly="true" Language="html" AutoHeight="true" Text="@(@"<Button OnClick=""@(() => show = true)"">Show Modal</Button>
+<Modal @bind-Visible=""show"">
+    <ModalHeader><ModalTitle>Title</ModalTitle><ModalCloseButton/></ModalHeader>
+    <ModalBody><Paragraph>Content...</Paragraph></ModalBody>
     <ModalFooter>
-        <Button BackgroundColor=""@BackgroundColor.Secondary"" 
-                OnClick=""@(() => ShowBasicModal = false)"">Close</Button>
-        <Button BackgroundColor=""@BackgroundColor.Primary"" 
-                OnClick=""@(() => ShowBasicModal = false)"">Save</Button>
+        <Button OnClick=""@(() => show = false)"">Close</Button>
+        <Button BackgroundColor=""BackgroundColor.Primary"">Save</Button>
     </ModalFooter>
-</Modal>")" />
-            </Div>
+</Modal>")"/>
+        </DemoSection>
+    </section>
+</Div>
 
-            <Hr/>
-
-            <Div>
-                <H2>Large Modal</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Button BackgroundColor="@BackgroundColor.Success" OnClick="@(() => _showLargeModal = true)">Show Large Modal</Button>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Centered Modal</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Button BackgroundColor="@BackgroundColor.Info" OnClick="@(() => _showCenteredModal = true)">Show Centered Modal</Button>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Static Backdrop Modal</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Button BackgroundColor="@BackgroundColor.Warning" OnClick="@(() => _showStaticModal = true)">Show Static Modal</Button>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Scrollable Modal</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Button BackgroundColor="@BackgroundColor.Secondary" OnClick="@(() => _showScrollableModal = true)">Show Scrollable Modal</Button>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>New Components Modal</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Button BackgroundColor="@BackgroundColor.Dark" OnClick="@(() => _showNewComponentsModal = true)">Show New Components Modal</Button>
-                </Div>
-            </Div>
-        </Column>
-    </Row>
-</Container>
-
-<!-- Basic Modal -->
-<Modal @bind-Visible="_showBasicModal" ModalSize="@ModalSizeType.Default">
+<Modal @bind-Visible="_showBasicModal">
     <ModalHeader>
         <ModalTitle Scale="@Scale.Is5">Basic Modal</ModalTitle>
         <ModalCloseButton/>
     </ModalHeader>
     <ModalBody>
-        <Paragraph>This is a basic modal with default settings.</Paragraph>
-        <Paragraph>You can close it by clicking the X button, clicking outside the modal, or pressing the ESC key.</Paragraph>
+        <Paragraph>Close via X, backdrop, or ESC.</Paragraph>
     </ModalBody>
     <ModalFooter>
-        <Button Type="@ButtonType.Button" BackgroundColor="@BackgroundColor.Secondary" OnClick="@(() => _showBasicModal = false)">Close</Button>
-        <Button Type="@ButtonType.Button" BackgroundColor="@BackgroundColor.Primary" OnClick="@(() => _showBasicModal = false)">Save changes</Button>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Secondary" OnClick="@(() => _showBasicModal = false)">Close</Button>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Primary" OnClick="@(() => _showBasicModal = false)">Save</Button>
     </ModalFooter>
 </Modal>
 
-<!-- Large Modal -->
 <Modal @bind-Visible="_showLargeModal" ModalSize="@ModalSizeType.Large">
     <ModalHeader>
         <ModalTitle Scale="@Scale.Is4">Large Modal</ModalTitle>
         <ModalCloseButton/>
     </ModalHeader>
     <ModalBody>
-        <Paragraph>This is a large modal using the Large size variant.</Paragraph>
-        <Paragraph>Large modals have more width and are useful for displaying more content.</Paragraph>
-        <Row>
-            <Column ColumnSize="ColumnSize.Is6.OnXl">
-                <H5>Column 1</H5>
-                <Paragraph>Some content in the first column.</Paragraph>
-            </Column>
-            <Column ColumnSize="ColumnSize.Is6.OnXl">
-                <H5>Column 2</H5>
-                <Paragraph>Some content in the second column.</Paragraph>
-            </Column>
-        </Row>
+        <Paragraph>More width for content.</Paragraph>
+        <Div Class="grid gap-4 md:grid-cols-2 mt-4">
+            <Div><H5>Column 1</H5><Paragraph Margin="Margin.Is0">Content 1</Paragraph></Div>
+            <Div><H5>Column 2</H5><Paragraph Margin="Margin.Is0">Content 2</Paragraph></Div>
+        </Div>
     </ModalBody>
     <ModalFooter>
-        <Button Type="@ButtonType.Button" BackgroundColor="@BackgroundColor.Secondary" OnClick="@(() => _showLargeModal = false)">Close</Button>
-        <Button Type="@ButtonType.Button" BackgroundColor="@BackgroundColor.Primary" OnClick="@(() => _showLargeModal = false)">Save changes</Button>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Secondary" OnClick="@(() => _showLargeModal = false)">Close</Button>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Primary" OnClick="@(() => _showLargeModal = false)">Save</Button>
     </ModalFooter>
 </Modal>
 
-<!-- Centered Modal -->
-<Modal @bind-Visible="_showCenteredModal" ModalSize="@ModalSizeType.Default" Centered="true">
+<Modal @bind-Visible="_showCenteredModal" Centered="true">
     <ModalHeader>
         <ModalTitle Scale="@Scale.Is5">Centered Modal</ModalTitle>
         <ModalCloseButton/>
     </ModalHeader>
     <ModalBody>
-        <Paragraph>This modal is vertically centered on the page.</Paragraph>
-        <Paragraph>The Centered property makes the modal appear in the middle of the viewport.</Paragraph>
+        <Paragraph>Vertically centered on the page.</Paragraph>
     </ModalBody>
     <ModalFooter>
-        <Button Type="@ButtonType.Button" BackgroundColor="@BackgroundColor.Secondary" OnClick="@(() => _showCenteredModal = false)">Close</Button>
-        <Button Type="@ButtonType.Button" BackgroundColor="@BackgroundColor.Primary" OnClick="@(() => _showCenteredModal = false)">Save changes</Button>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Secondary" OnClick="@(() => _showCenteredModal = false)">Close</Button>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Primary" OnClick="@(() => _showCenteredModal = false)">Save</Button>
     </ModalFooter>
 </Modal>
 
-<!-- Static Backdrop Modal -->
-<Modal @bind-Visible="_showStaticModal" ModalSize="@ModalSizeType.Default" Static="true">
+<Modal @bind-Visible="_showStaticModal" Static="true">
     <ModalHeader>
-        <ModalTitle Scale="@Scale.Is5">Static Backdrop Modal</ModalTitle>
+        <ModalTitle Scale="@Scale.Is5">Static Backdrop</ModalTitle>
         <ModalCloseButton/>
     </ModalHeader>
     <ModalBody>
-        <Paragraph>This modal has a static backdrop.</Paragraph>
-        <Paragraph>You cannot close it by clicking outside the modal - you must use the close button or programmatically close it.</Paragraph>
+        <Paragraph>Cannot close by clicking outside — use close button.</Paragraph>
     </ModalBody>
     <ModalFooter>
-        <Button Type="@ButtonType.Button" BackgroundColor="@BackgroundColor.Secondary" OnClick="@(() => _showStaticModal = false)">Close</Button>
-        <Button Type="@ButtonType.Button" BackgroundColor="@BackgroundColor.Primary" OnClick="@(() => _showStaticModal = false)">Save changes</Button>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Secondary" OnClick="@(() => _showStaticModal = false)">Close</Button>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Primary" OnClick="@(() => _showStaticModal = false)">Save</Button>
     </ModalFooter>
 </Modal>
 
-<!-- Scrollable Modal -->
-<Modal @bind-Visible="_showScrollableModal" ModalSize="@ModalSizeType.Default" Scrollable="true">
+<Modal @bind-Visible="_showScrollableModal" Scrollable="true">
     <ModalHeader>
         <ModalTitle Scale="@Scale.Is5">Scrollable Modal</ModalTitle>
         <ModalCloseButton/>
     </ModalHeader>
     <ModalBody>
-        <Paragraph>This modal is scrollable when content overflows.</Paragraph>
         @for (var i = 1; i <= 50; i++)
         {
-            <Paragraph>This is line @i of content to demonstrate scrolling.</Paragraph>
+            <Paragraph>Line @i</Paragraph>
         }
-        <Paragraph>You can scroll through all this content within the modal.</Paragraph>
     </ModalBody>
     <ModalFooter>
-        <Button Type="@ButtonType.Button" BackgroundColor="@BackgroundColor.Secondary" OnClick="@(() => _showScrollableModal = false)">Close</Button>
-        <Button Type="@ButtonType.Button" BackgroundColor="@BackgroundColor.Primary" OnClick="@(() => _showScrollableModal = false)">Save changes</Button>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Secondary" OnClick="@(() => _showScrollableModal = false)">Close</Button>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Primary" OnClick="@(() => _showScrollableModal = false)">Save</Button>
     </ModalFooter>
 </Modal>
 
-<!-- New Components Modal -->
 <Modal @bind-Visible="_showNewComponentsModal" ModalSize="@ModalSizeType.Large">
     <ModalHeader>
-        <ModalTitle Scale="@Scale.Is3">New Modal Components</ModalTitle>
+        <ModalTitle Scale="@Scale.Is3">New Components</ModalTitle>
         <ModalCloseButton/>
     </ModalHeader>
     <ModalBody>
-        <Paragraph>This modal demonstrates the new separate <Code>ModalTitle</Code> and <Code>ModalCloseButton</Code> components!</Paragraph>
-
-        <H5>Key Features:</H5>
+        <Paragraph Margin="Margin.Is0">Separate <Code Inline="true">ModalTitle</Code> and <Code Inline="true">ModalCloseButton</Code> components.</Paragraph>
         <UnorderedList>
-            <UnorderedListItem><Strong>ModalTitle:</Strong> Separate component with configurable heading size (Is1-Is6)</UnorderedListItem>
-            <UnorderedListItem><Strong>ModalCloseButton:</Strong> Reusable close button that automatically detects parent modal</UnorderedListItem>
-            <UnorderedListItem><Strong>Flexible Layout:</Strong> You can now arrange header content however you want</UnorderedListItem>
+            <UnorderedListItem><Strong>ModalTitle:</Strong> Configurable heading size</UnorderedListItem>
+            <UnorderedListItem><Strong>ModalCloseButton:</Strong> Auto-detects parent modal</UnorderedListItem>
         </UnorderedList>
-
-        <Alert BackgroundColor="BackgroundColor.Info" Margin="Margin.Is3.FromTop">
-            <H6>Before vs After:</H6>
-            <Paragraph><Strong>Old way:</Strong> ModalHeader with ModalTitle and ShowCloseButton parameters</Paragraph>
-            <Paragraph><Strong>New way:</Strong> ModalHeader as container + separate ModalTitle and ModalCloseButton components</Paragraph>
-        </Alert>
-
-        <H5>Different Title Sizes:</H5>
-        <Row>
-            <Column ColumnSize="ColumnSize.Is6.OnXl">
-                <H6>Small Title (Is6):</H6>
-                <ModalTitle Scale="@Scale.Is6">Small Modal Title</ModalTitle>
-            </Column>
-            <Column ColumnSize="ColumnSize.Is6.OnXl">
-                <H6>Large Title (Is2):</H6>
-                <ModalTitle Scale="@Scale.Is2">Large Modal Title</ModalTitle>
-            </Column>
-        </Row>
     </ModalBody>
     <ModalFooter>
-        <Button Type="@ButtonType.Button" BackgroundColor="@BackgroundColor.Secondary" OnClick="@(() => _showNewComponentsModal = false)">Close</Button>
-        <Button Type="@ButtonType.Button" BackgroundColor="@BackgroundColor.Primary" OnClick="@(() => _showNewComponentsModal = false)">Got it!</Button>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Secondary" OnClick="@(() => _showNewComponentsModal = false)">Close</Button>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Primary" OnClick="@(() => _showNewComponentsModal = false)">Got it!</Button>
     </ModalFooter>
 </Modal>
 
@@ -233,10 +138,4 @@
     private bool _showStaticModal;
     private bool _showScrollableModal;
     private bool _showNewComponentsModal;
-
-    protected override void OnInitialized()
-    {
-        Logger.LogInformation("Modal demo page initialized");
-    }
-
 }

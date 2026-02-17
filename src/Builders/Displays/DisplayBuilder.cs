@@ -158,7 +158,7 @@ public sealed class DisplayBuilder : ICssBuilder
 
             string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
-                cls = BreakpointUtil.InsertBreakpointType(cls, bp);
+                cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
             if (!first) sb.Append(' ');
             else first = false;
@@ -203,19 +203,20 @@ public sealed class DisplayBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string GetDisplayClass(string display)
     {
+        // Tailwind/shadcn display utilities (no d- prefix)
         return display switch
         {
-            DisplayKeyword.NoneValue => "d-none",
-            DisplayKeyword.InlineValue => "d-inline",
-            DisplayKeyword.InlineBlockValue => "d-inline-block",
-            DisplayKeyword.BlockValue => "d-block",
-            DisplayKeyword.FlexValue => "d-flex",
-            DisplayKeyword.InlineFlexValue => "d-inline-flex",
-            DisplayKeyword.GridValue => "d-grid",
-            DisplayKeyword.InlineGridValue => "d-inline-grid",
-            DisplayKeyword.TableValue => "d-table",
-            DisplayKeyword.TableCellValue => "d-table-cell",
-            DisplayKeyword.TableRowValue => "d-table-row",
+            DisplayKeyword.NoneValue => "hidden",
+            DisplayKeyword.InlineValue => "inline",
+            DisplayKeyword.InlineBlockValue => "inline-block",
+            DisplayKeyword.BlockValue => "block",
+            DisplayKeyword.FlexValue => "flex",
+            DisplayKeyword.InlineFlexValue => "inline-flex",
+            DisplayKeyword.GridValue => "grid",
+            DisplayKeyword.InlineGridValue => "inline-grid",
+            DisplayKeyword.TableValue => "table",
+            DisplayKeyword.TableCellValue => "table-cell",
+            DisplayKeyword.TableRowValue => "table-row",
             _ => string.Empty
         };
     }

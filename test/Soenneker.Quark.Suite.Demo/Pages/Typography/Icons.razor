@@ -1,196 +1,107 @@
 @page "/typography/icons"
-@using Microsoft.Extensions.Logging
 
-@inject ILogger<Index> Logger
+<PageTitle>Icons - Quark Suite</PageTitle>
 
-<Container Padding="Padding.Is4.OnY">
-    <Row>
-        <Column>
-            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Icons</H1>
-                <Paragraph Class="lead" TextColor="TextColor.Muted">This page demonstrates the Icon component with various configurations and features.</Paragraph>
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-3">
+        <H1 Class="text-4xl font-bold tracking-tight">Icons</H1>
+        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">
+            Font Awesome <Code Class="rounded bg-muted px-1.5 py-0.5 text-sm font-mono" Inline="true">Icon</Code> component with style, size, and animation options.
+        </Paragraph>
+    </Div>
+
+    <Section Class="space-y-6">
+        <H2 Class="text-2xl font-semibold tracking-tight">Playground</H2>
+        <Div Class="rounded-xl border bg-muted/30 p-6">
+            <Div Class="grid gap-6 lg:grid-cols-2">
+                <Div Class="space-y-3">
+                    <input class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" @bind="_iconName" @bind:event="oninput" placeholder="e.g. circle-check"/>
+                    <select class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" @bind="_iconStyle">
+                        <option value="@IconStyle.Solid">Solid</option>
+                        <option value="@IconStyle.Regular">Regular</option>
+                        <option value="@IconStyle.Light">Light</option>
+                    </select>
+                    <select class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" @bind="_size">
+                        <option value="@IconSize.Small">Small</option>
+                        <option value="@IconSize.Large">Large</option>
+                        <option value="@IconSize.Is2x">2x</option>
+                        <option value="@IconSize.Is3x">3x</option>
+                    </select>
+                    <Button Variant="ButtonVariant.Default" OnClick="RandomizeName">Random Icon</Button>
+                </Div>
+                <Div Class="flex items-center justify-center rounded-lg border bg-background p-8">
+                    <Icon Name="@_iconName" IconStyle="@_iconStyle" IconSize="@_size" Rotate="@_rotate" Flip="@_flip" IconAnimation="@_animation"/>
+                </Div>
             </Div>
-        </Column>
-    </Row>
-    
-    <Row Gap="Gap.Is4">
-        <Column>
-            <Section Class="surface" Margin="Margin.Is5.FromBottom">
-                <Div Class="surface-header d-flex align-items-center justify-content-between">
-                    <Strong>Playground</Strong>
-                </Div>
-                <Div Class="surface-body">
-                    <Row Gap="Gap.Is4">
-                        <Column ColumnSize="@ColumnSize.Is6.OnLg">
-                            <input class="form-control" @bind="_iconName" @bind:event="oninput" placeholder="e.g. circle-check" />
-                            <select class="form-select" @bind="_iconStyle">
-                                <option value="@IconStyle.Solid">Solid</option>
-                                <option value="@IconStyle.Regular">Regular</option>
-                                <option value="@IconStyle.Light">Light</option>
-                                <option value="@IconStyle.Thin">Thin</option>
-                                <option value="@IconStyle.Duotone">Duotone</option>
-                            </select>
-                            <select class="form-select" @bind="_family">
-                                <option value="@IconFamily.Classic">Classic</option>
-                                <option value="@IconFamily.Sharp">Sharp</option>
-                                <option value="@IconFamily.Chisel">Chisel</option>
-                            </select>
-                            <select class="form-select" @bind="_size">
-                                <option value="@IconSize.Small">Small</option>
-                                <option value="@IconSize.Large">Large</option>
-                                <option value="@IconSize.Is2x">2x</option>
-                                <option value="@IconSize.Is3x">3x</option>
-                                <option value="@IconSize.Is4x">4x</option>
-                                <option value="@IconSize.Is5x">5x</option>
-                                <option value="@IconSize.Is6x">6x</option>
-                                <option value="@IconSize.Is7x">7x</option>
-                                <option value="@IconSize.Is8x">8x</option>
-                                <option value="@IconSize.Is9x">9x</option>
-                                <option value="@IconSize.Is10x">10x</option>
-                            </select>
-                            <Button Class="btn btn-primary" OnClick="RandomizeName">Random Icon</Button>
-                        </Column>
-                        <Column ColumnSize="@ColumnSize.Is6.OnLg">
-                            <Div TextAlignment="TextAlignment.Center">
-                                <Icon Name="@_iconName" IconStyle="@_iconStyle" IconFamily="@_family" IconSize="@_size" IconRotate="@_rotate" IconFlip="@_flip" IconAnimation="@_animation" />
-                            </Div>
-                        </Column>
-                    </Row>
-                </Div>
-            </Section>
-        </Column>
-    </Row>
+        </Div>
+    </Section>
 
-    <Row Gap="Gap.Is4">
-        <Column>
-            <Section Class="surface" Margin="Margin.Is5.FromBottom">
-                <Div Class="surface-header d-flex align-items-center justify-content-between">
-                    <Strong>Icon Styles</Strong>
+    <Section Class="space-y-6">
+        <H2 Class="text-2xl font-semibold tracking-tight">Styles</H2>
+        <Div Class="grid gap-6 md:grid-cols-2">
+            <DemoSection Title="Solid">
+                <Div Class="flex flex-wrap gap-4">
+                    <Icon Name="circle-check" IconStyle="@IconStyle.Solid" IconSize="@IconSize.Is2x"/>
+                    <Icon Name="circle-xmark" IconStyle="@IconStyle.Solid" IconSize="@IconSize.Is2x"/>
+                    <Icon Name="star" IconStyle="@IconStyle.Solid" IconSize="@IconSize.Is2x"/>
+                    <Icon Name="heart" IconStyle="@IconStyle.Solid" IconSize="@IconSize.Is2x"/>
                 </Div>
-                <Div Class="surface-body">
-                    <CodeEditor ReadOnly="true" 
-                                Language="@("html")" 
-                                AutoHeight="true" Margin="Margin.Is3.FromBottom"
-                                Text="@(@"<Icon Name=""heart"" IconStyle=""@IconStyle.Solid"" IconSize=""@IconSize.Is2x""/>
-<Icon Name=""star"" IconStyle=""@IconStyle.Regular"" IconSize=""@IconSize.Is3x""/>
-<Icon Name=""circle-check"" IconStyle=""@IconStyle.Light""/>")" />
-                    <Row Gap="Gap.Is4">
-                        <Column ColumnSize="@ColumnSize.Is6.OnLg">
-                            <H3>Solid Icons</H3>
-                            <Div Class="icon-grid">
-                                <Icon Name="circle-check" IconStyle="@IconStyle.Solid" IconSize="@IconSize.Is2x" />
-                                <Icon Name="circle-xmark" IconStyle="@IconStyle.Solid" IconSize="@IconSize.Is2x" />
-                                <Icon Name="star" IconStyle="@IconStyle.Solid" IconSize="@IconSize.Is2x" />
-                                <Icon Name="heart" IconStyle="@IconStyle.Solid" IconSize="@IconSize.Is2x" />
-                            </Div>
-                        </Column>
-                        <Column ColumnSize="@ColumnSize.Is6.OnLg">
-                            <H3>Regular Icons</H3>
-                            <Div Class="icon-grid">
-                                <Icon Name="circle-check" IconStyle="@IconStyle.Regular" IconSize="@IconSize.Is2x" />
-                                <Icon Name="circle-xmark" IconStyle="@IconStyle.Regular" IconSize="@IconSize.Is2x" />
-                                <Icon Name="star" IconStyle="@IconStyle.Regular" IconSize="@IconSize.Is2x" />
-                                <Icon Name="heart" IconStyle="@IconStyle.Regular" IconSize="@IconSize.Is2x" />
-                            </Div>
-                        </Column>
-                    </Row>
+            </DemoSection>
+            <DemoSection Title="Regular">
+                <Div Class="flex flex-wrap gap-4">
+                    <Icon Name="circle-check" IconStyle="@IconStyle.Regular" IconSize="@IconSize.Is2x"/>
+                    <Icon Name="circle-xmark" IconStyle="@IconStyle.Regular" IconSize="@IconSize.Is2x"/>
+                    <Icon Name="star" IconStyle="@IconStyle.Regular" IconSize="@IconSize.Is2x"/>
                 </Div>
-            </Section>
-        </Column>
-    </Row>
+            </DemoSection>
+        </Div>
+    </Section>
 
-    <Row Gap="Gap.Is4">
-        <Column>
-            <Section Class="surface" Margin="Margin.Is5.FromBottom">
-                <Div Class="surface-header d-flex align-items-center justify-content-between">
-                    <Strong>Icon Sizes</Strong>
+    <Section Class="space-y-6">
+        <H2 Class="text-2xl font-semibold tracking-tight">Sizes & Colors</H2>
+        <Div Class="grid gap-6 md:grid-cols-2">
+            <DemoSection Title="Sizes">
+                <Div Class="flex flex-wrap items-center gap-4">
+                    <Icon Name="star" IconSize="@IconSize.Small"/>
+                    <Icon Name="star" IconSize="@IconSize.Large"/>
+                    <Icon Name="star" IconSize="@IconSize.Is2x"/>
+                    <Icon Name="star" IconSize="@IconSize.Is3x"/>
                 </Div>
-                <Div Class="surface-body">
-                    <Row Gap="Gap.Is4">
-                        <Column ColumnSize="@ColumnSize.Is6.OnLg">
-                            <H3>Size Variations</H3>
-                            <Div Class="icon-grid">
-                                <Icon Name="star" IconSize="@IconSize.Small" />
-                                <Icon Name="star" IconSize="@IconSize.Large" />
-                                <Icon Name="star" IconSize="@IconSize.Is2x" />
-                                <Icon Name="star" IconSize="@IconSize.Is3x" />
-                                <Icon Name="star" IconSize="@IconSize.Is4x" />
-                            </Div>
-                        </Column>
-                        <Column ColumnSize="@ColumnSize.Is6.OnLg">
-                            <H3>Color Variations</H3>
-                            <Div Class="icon-grid">
-                                <Icon Name="star" TextColor="@TextColor.Primary" IconSize="@IconSize.Is2x" />
-                                <Icon Name="star" TextColor="@TextColor.Success" IconSize="@IconSize.Is2x" />
-                                <Icon Name="star" TextColor="@TextColor.Warning" IconSize="@IconSize.Is2x" />
-                                <Icon Name="star" TextColor="@TextColor.Danger" IconSize="@IconSize.Is2x" />
-                            </Div>
-                        </Column>
-                    </Row>
+            </DemoSection>
+            <DemoSection Title="Colors">
+                <Div Class="flex flex-wrap gap-4">
+                    <Icon Name="star" TextColor="@TextColor.Primary" IconSize="@IconSize.Is2x"/>
+                    <Icon Name="star" TextColor="@TextColor.Success" IconSize="@IconSize.Is2x"/>
+                    <Icon Name="star" TextColor="@TextColor.Warning" IconSize="@IconSize.Is2x"/>
+                    <Icon Name="star" TextColor="@TextColor.Danger" IconSize="@IconSize.Is2x"/>
                 </Div>
-            </Section>
-        </Column>
-    </Row>
+            </DemoSection>
+        </Div>
+    </Section>
 
-    <Row Gap="Gap.Is4">
-        <Column>
-            <Section Class="surface" Margin="Margin.Is5.FromBottom">
-                <Div Class="surface-header d-flex align-items-center justify-content-between">
-                    <Strong>Icon Animations</Strong>
-                </Div>
-                <Div Class="surface-body">
-                    <Row Gap="Gap.Is4">
-                        <Column ColumnSize="@ColumnSize.Is6.OnLg">
-                            <H3>Animation Effects</H3>
-                            <Div Class="icon-grid">
-                                <Icon Name="spinner" IconAnimation="@IconAnimation.Spin" IconSize="@IconSize.Is2x" />
-                                <Icon Name="bell" IconAnimation="@IconAnimation.Shake" IconSize="@IconSize.Is2x" />
-                                <Icon Name="flag" IconAnimation="@IconAnimation.Pulse" IconSize="@IconSize.Is2x" />
-                                <Icon Name="heart" IconAnimation="@IconAnimation.Bounce" IconSize="@IconSize.Is2x" />
-                            </Div>
-                        </Column>
-                        <Column ColumnSize="@ColumnSize.Is6.OnLg">
-                            <H3>Transform Effects</H3>
-                            <Div Class="icon-grid">
-                                <Icon Name="arrow-right" Rotate="@IconRotate.R90" IconSize="@IconSize.Is2x" />
-                                <Icon Name="arrow-right" Rotate="@IconRotate.R180" IconSize="@IconSize.Is2x" />
-                                <Icon Name="arrow-right" Rotate="@IconRotate.R270" IconSize="@IconSize.Is2x" />
-                                <Icon Name="arrow-right" Flip="@IconFlip.Horizontal" IconSize="@IconSize.Is2x" />
-                            </Div>
-                        </Column>
-                    </Row>
-                </Div>
-            </Section>
-        </Column>
-    </Row>
-</Container>
+    <Section Class="space-y-6">
+        <H2 Class="text-2xl font-semibold tracking-tight">Animations & Transforms</H2>
+        <DemoSection>
+            <Div Class="flex flex-wrap gap-6">
+                <Icon Name="spinner" IconAnimation="@IconAnimation.Spin" IconSize="@IconSize.Is2x"/>
+                <Icon Name="bell" IconAnimation="@IconAnimation.Shake" IconSize="@IconSize.Is2x"/>
+                <Icon Name="heart" IconAnimation="@IconAnimation.Bounce" IconSize="@IconSize.Is2x"/>
+                <Icon Name="arrow-right" Rotate="@IconRotate.R90" IconSize="@IconSize.Is2x"/>
+                <Icon Name="arrow-right" Flip="@IconFlip.Horizontal" IconSize="@IconSize.Is2x"/>
+            </Div>
+        </DemoSection>
+    </Section>
+</Div>
 
 @code {
     private string _iconName = "circle-check";
     private IconStyle? _iconStyle = IconStyle.Solid;
-    private IconFamily _family = IconFamily.Classic;
     private IconSize _size = IconSize.Is2x;
     private IconRotate _rotate = IconRotate.None;
     private IconFlip _flip = IconFlip.None;
     private IconAnimation _animation = IconAnimation.None;
 
-    private readonly string[] _knownIconNames =
-    [
-        "circle-check", "circle-xmark", "circle-question", "circle-info",
-        "arrow-right", "arrow-left", "arrow-up", "arrow-down",
-        "star", "heart", "bell", "flag", "gear", "sync", "refresh",
-        "exclamation-triangle", "xmark", "hand", "bug", "spinner"
-    ];
+    private readonly string[] _knownIconNames = ["circle-check", "circle-xmark", "star", "heart", "bell", "flag", "spinner", "arrow-right", "gear"];
 
-    protected override void OnInitialized()
-    {
-        _iconName = _knownIconNames[Random.Shared.Next(_knownIconNames.Length)];
-    }
-
-    private void RandomizeName()
-    {
-        _iconName = _knownIconNames[Random.Shared.Next(_knownIconNames.Length)];
-    }
+    private void RandomizeName() => _iconName = _knownIconNames[Random.Shared.Next(_knownIconNames.Length)];
 }
-
-

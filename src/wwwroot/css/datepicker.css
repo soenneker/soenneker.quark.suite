@@ -1,20 +1,21 @@
-/* Base polished input */
+/* Base polished input – design tokens */
 .form-control.q-datepicker {
-    border-radius: .6rem;
-    border: 1px solid var(--bs-border-color, #dee2e6);
-    color: black;
+    border-radius: var(--radius);
+    border: 1px solid var(--input);
+    color: var(--foreground);
+    background-color: var(--background);
     padding-right: 2.5rem; /* room for icon */
-    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease, color .15s ease;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, color 0.15s ease;
 }
 
 .form-control.q-datepicker:hover {
-    border-color: color-mix(in srgb, var(--bs-border-color, #dee2e6) 70%, var(--bs-body-color, #212529));
+    border-color: var(--foreground);
 }
 
 .form-control.q-datepicker:focus {
     outline: none;
-    border-color: var(--bs-primary, #0d6efd);
-    box-shadow: 0 0 0 .2rem rgba(13,110,253,.2);
+    border-color: var(--ring);
+    box-shadow: 0 0 0 3px var(--ring);
 }
 
 /* Embedded calendar icon */
@@ -39,8 +40,8 @@ input[type="datetime-local"].form-control.q-datepicker::-webkit-calendar-picker-
 /* Placeholder polish */
 input[type="date"].form-control.q-datepicker::placeholder,
 input[type="datetime-local"].form-control.q-datepicker::placeholder {
-    color: #6c757d;
-    opacity: .8;
+    color: var(--muted-foreground);
+    opacity: 0.8;
 }
 
 /* Compact internal segments look crisper */
@@ -51,11 +52,11 @@ input[type="date"].form-control.q-datepicker::-webkit-datetime-edit {
 
 /* Calendar panel */
 .q-calendar-panel {
-    background-color: #fff;
+    background-color: var(--popover);
 }
 
 .q-calendar-panel .qcal-header .qcal-nav {
-    border-color: var(--bs-border-color, #dee2e6);
+    border-color: var(--border);
 }
 
 .q-calendar-panel .qcal-title {
@@ -76,26 +77,28 @@ input[type="date"].form-control.q-datepicker::-webkit-datetime-edit {
 
 .q-calendar-panel .qcal-day {
     border: 1px solid transparent;
-    background-color: #fff;
-    border-radius: .5rem;
-    padding: .35rem 0;
+    background-color: var(--popover);
+    border-radius: var(--radius-sm);
+    padding: 0.35rem 0;
     text-align: center;
     cursor: pointer;
-    transition: all .12s ease-in-out;
+    transition: all 0.12s ease-in-out;
+    color: var(--popover-foreground);
 }
 
 .q-calendar-panel .qcal-day:hover {
-    border-color: var(--bs-border-color, #dee2e6);
-    background-color: #f8f9fa;
+    border-color: var(--border);
+    background-color: var(--accent);
 }
 
 .q-calendar-panel .qcal-day.qcal-today {
-    outline: 2px solid rgba(13,110,253,.25);
+    outline: 2px solid var(--ring);
+    outline-offset: 1px;
 }
 
 .q-calendar-panel .qcal-day.qcal-selected {
-    background-color: var(--bs-primary, #0d6efd);
-    color: #fff;
+    background-color: var(--primary);
+    color: var(--primary-foreground);
 }
 
 .q-calendar-panel .qcal-day.disabled {
@@ -111,7 +114,7 @@ input[type="datetime-local"].form-control.q-datepicker:focus::-webkit-calendar-p
 
 /* Time UI */
 .q-calendar-panel .qcal-time {
-    border-top: 1px solid var(--bs-border-color, #dee2e6);
+    border-top: 1px solid var(--border);
     background-color: transparent;
     border-top-left-radius: .5rem;
     border-top-right-radius: .5rem;
@@ -139,7 +142,7 @@ input[type="datetime-local"].form-control.q-datepicker:focus::-webkit-calendar-p
     height: 50%;
     opacity: 0;
     cursor: pointer;
-    border: 1px solid rgba(57,57,57,0.15);
+    border: 1px solid var(--border);
     box-sizing: border-box;
 }
 .qnum-wrapper .qnum-arrowUp { top: 0; border-bottom: 0; }
@@ -181,7 +184,7 @@ input[type="datetime-local"].form-control.q-datepicker:focus::-webkit-calendar-p
     margin: 0;
     padding: 0 1.25rem 0 0; /* room for arrows */
     line-height: inherit;
-    color: #212529;
+    color: var(--foreground);
     font-size: 16px;
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
 }
@@ -205,14 +208,14 @@ input[type="datetime-local"].form-control.q-datepicker:focus::-webkit-calendar-p
 /* Subtle affordance on hover/focus for the digits */
 .qcal-time-group:hover .qcal-time-digit,
 .qcal-time-group:focus-within .qcal-time-digit {
-    border-color: color-mix(in srgb, var(--bs-border-color, #dee2e6) 40%, var(--bs-primary, #0d6efd));
+    border-color: var(--ring);
 }
 
 .qcal-time-separator {
     height: 36px;
     line-height: 40px;
     font-weight: 700;
-    color: #393939;
+    color: var(--foreground);
 }
 
 .qcal-time-ampm { display: flex; gap: .5rem; }
@@ -225,8 +228,8 @@ input[type="datetime-local"].form-control.q-datepicker:focus::-webkit-calendar-p
     line-height: 36px;
     font-size: 16px;
 }
-.qcal-time-ampm-toggle:focus { outline: 2px solid rgba(13,110,253,.3); outline-offset: 2px; }
-.qnum-input:hover, .qnum-input:focus, .qcal-time-ampm-toggle:hover, .qcal-time-ampm-toggle:focus { background: #eee; }
+.qcal-time-ampm-toggle:focus { outline: 2px solid var(--ring); outline-offset: 2px; }
+.qnum-input:hover, .qnum-input:focus, .qcal-time-ampm-toggle:hover, .qcal-time-ampm-toggle:focus { background: var(--accent); }
 
 /* Mobile/coarse pointers: no hover. Keep arrows visible and increase touch targets */
 @media (hover: none) and (pointer: coarse) {

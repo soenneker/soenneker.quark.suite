@@ -1,21 +1,25 @@
 @page "/navigation/paginations"
 
-<Container Padding="Padding.Is4.OnY">
-<Row>
-    <Column>
-        <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-            <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Paginations</H1>
-            <Paragraph Class="lead" TextColor="TextColor.Muted">This page demonstrates the Quark.Pagination component with various configurations and use cases.</Paragraph>
-        </Div>
-    </Column>
-</Row>
+<PageTitle>Paginations - Quark Suite</PageTitle>
 
-<Row Gap="Gap.Is4">
-<Column>
-<Div>
-    <H2>Basic Pagination</H2>
-    <Div Margin="Margin.Is3.FromEnd">
-        <Pagination>
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-3">
+        <H1 Class="text-4xl font-bold tracking-tight">Pagination</H1>
+        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">
+            Navigate between pages with Previous/Next and page numbers. Use PaginationItem with Active and Disabled.
+        </Paragraph>
+    </Div>
+
+    <Div Class="space-y-6">
+        <section class="space-y-4">
+            <DemoSection Title="Basic" Description="@_basicDescription"
+                        Code="@(@"<Pagination>
+    <PaginationItem Disabled=""@(currentPage == 1)"">
+        <PaginationLink OnClick=""@(() => GoToPage(1))"">Previous</PaginationLink>
+    </PaginationItem>
+    ...
+</Pagination>")">
+                <Pagination>
             <PaginationItem Disabled="@(_currentPage == 1)">
                 <PaginationLink OnClick="@(() => GoToPage(1))">Previous</PaginationLink>
             </PaginationItem>
@@ -32,35 +36,15 @@
                 <PaginationLink OnClick="@(() => GoToPage(_currentPage + 1))">Next</PaginationLink>
             </PaginationItem>
         </Pagination>
-    </Div>
-    <Paragraph TextColor="TextColor.Muted">Basic pagination with 3 pages, currently on page @_currentPage.</Paragraph>
+            </DemoSection>
+        </section>
 
-    <CodeEditor ReadOnly="true" 
-                Language="@("html")" 
-                AutoHeight="true" Margin="Margin.Is3.FromTop"
-                Text="@(@"<Pagination>
-    <PaginationItem Disabled=""@(currentPage == 1)"">
-        <PaginationLink OnClick=""@(() => GoToPage(1))"">Previous</PaginationLink>
-    </PaginationItem>
-    <PaginationItem Active=""@(currentPage == 1)"">
-        <PaginationLink OnClick=""@(() => GoToPage(1))"">1</PaginationLink>
-    </PaginationItem>
-    <PaginationItem Active=""@(currentPage == 2)"">
-        <PaginationLink OnClick=""@(() => GoToPage(2))"">2</PaginationLink>
-    </PaginationItem>
-    <PaginationItem Disabled=""@(currentPage == 3)"">
-        <PaginationLink OnClick=""@(() => GoToPage(currentPage + 1))"">Next</PaginationLink>
-    </PaginationItem>
-</Pagination>")" />
-</Div>
-
-<Hr/>
-
-<Div>
-    <H2>Pagination with Different Current Pages</H2>
-    <Div Margin="Margin.Is3.FromEnd">
-        <H5>Page 1 of 5</H5>
-        <Pagination>
+        <section class="space-y-4">
+            <DemoSection Title="Different current pages" Description="Page 1, 3, and 5 of 5 examples.">
+                <Div Class="space-y-4">
+                    <Div>
+                        <H5 Class="text-sm font-medium text-muted-foreground">Page 1 of 5</H5>
+                        <Pagination>
             <PaginationItem Disabled="true">
                 <PaginationLink>Previous</PaginationLink>
             </PaginationItem>
@@ -83,10 +67,10 @@
                 <PaginationLink>Next</PaginationLink>
             </PaginationItem>
         </Pagination>
-    </Div>
-    <Div Margin="Margin.Is3.FromEnd">
-        <H5>Page 3 of 5</H5>
-        <Pagination>
+                    </Div>
+                    <Div Margin="Margin.Is3.FromEnd">
+                        <H5 Class="text-sm font-medium text-muted-foreground">Page 3 of 5</H5>
+                        <Pagination>
             <PaginationItem>
                 <PaginationLink>Previous</PaginationLink>
             </PaginationItem>
@@ -109,10 +93,10 @@
                 <PaginationLink>Next</PaginationLink>
             </PaginationItem>
         </Pagination>
-    </Div>
-    <Div Margin="Margin.Is3.FromEnd">
-        <H5>Page 5 of 5</H5>
-        <Pagination>
+                    </Div>
+                    <Div>
+                        <H5 Class="text-sm font-medium text-muted-foreground">Page 5 of 5</H5>
+                        <Pagination>
             <PaginationItem>
                 <PaginationLink>Previous</PaginationLink>
             </PaginationItem>
@@ -135,15 +119,16 @@
                 <PaginationLink>Next</PaginationLink>
             </PaginationItem>
         </Pagination>
-    </Div>
-</Div>
+                    </Div>
+                </Div>
+            </DemoSection>
+        </section>
 
-<Hr/>
-
-<Div>
-    <H2>Pagination Sizes</H2>
-    <Div Margin="Margin.Is3.FromEnd">
-        <H5>Small Size</H5>
+        <section class="space-y-4">
+            <DemoSection Title="Sizes" Description="Small, default, and large.">
+                <Div Class="space-y-4">
+    <Div>
+        <H5 Class="text-sm font-medium text-muted-foreground">Small</H5>
         <Pagination Size="Size.Small">
             <PaginationItem>
                 <PaginationLink>Previous</PaginationLink>
@@ -162,8 +147,8 @@
             </PaginationItem>
         </Pagination>
     </Div>
-    <Div Margin="Margin.Is3.FromEnd">
-        <H5>Default Size</H5>
+    <Div>
+        <H5 Class="text-sm font-medium text-muted-foreground">Default</H5>
         <Pagination Size="Size.Default">
             <PaginationItem>
                 <PaginationLink>Previous</PaginationLink>
@@ -182,8 +167,8 @@
             </PaginationItem>
         </Pagination>
     </Div>
-    <Div Margin="Margin.Is3.FromEnd">
-        <H5>Large Size</H5>
+    <Div>
+        <H5 Class="text-sm font-medium text-muted-foreground">Large</H5>
         <Pagination Size="Size.Large">
             <PaginationItem>
                 <PaginationLink>Previous</PaginationLink>
@@ -202,14 +187,15 @@
             </PaginationItem>
         </Pagination>
     </Div>
-</Div>
+                </Div>
+            </DemoSection>
+        </section>
 
-<Hr/>
-
-<Div>
-    <H2>Pagination Colors</H2>
-    <Div Margin="Margin.Is3.FromEnd">
-        <H5>Primary Color</H5>
+        <section class="space-y-4">
+            <DemoSection Title="Colors" Description="Primary, success, danger, and warning variants.">
+                <Div Class="space-y-4">
+        <Div>
+        <H5 Class="text-sm font-medium text-muted-foreground">Primary</H5>
         <Pagination BackgroundColor="BackgroundColor.Primary">
             <PaginationItem>
                 <PaginationLink>Previous</PaginationLink>
@@ -228,8 +214,8 @@
             </PaginationItem>
         </Pagination>
     </Div>
-    <Div Margin="Margin.Is3.FromEnd">
-        <H5>Success Color</H5>
+    <Div>
+        <H5 Class="text-sm font-medium text-muted-foreground">Success</H5>
         <Pagination BackgroundColor="BackgroundColor.Success">
             <PaginationItem>
                 <PaginationLink>Previous</PaginationLink>
@@ -248,8 +234,8 @@
             </PaginationItem>
         </Pagination>
     </Div>
-    <Div Margin="Margin.Is3.FromEnd">
-        <H5>Danger Color</H5>
+    <Div>
+        <H5 Class="text-sm font-medium text-muted-foreground">Danger</H5>
         <Pagination BackgroundColor="BackgroundColor.Danger">
             <PaginationItem>
                 <PaginationLink>Previous</PaginationLink>
@@ -268,8 +254,8 @@
             </PaginationItem>
         </Pagination>
     </Div>
-    <Div Margin="Margin.Is3.FromEnd">
-        <H5>Warning Color</H5>
+    <Div>
+        <H5 Class="text-sm font-medium text-muted-foreground">Warning</H5>
         <Pagination BackgroundColor="BackgroundColor.Warning">
             <PaginationItem>
                 <PaginationLink>Previous</PaginationLink>
@@ -288,13 +274,12 @@
             </PaginationItem>
         </Pagination>
     </Div>
-</Div>
+                </Div>
+            </DemoSection>
+        </section>
 
-<Hr/>
-
-<Div>
-    <H2>Interactive Pagination</H2>
-    <Div Margin="Margin.Is3.FromEnd">
+        <section class="space-y-4">
+            <DemoSection Title="Interactive" Description="@($"Click to change page; current page {_currentPage} of 5.")">
         <Pagination>
             <PaginationItem Disabled="@(_currentPage == 1)">
                 <PaginationLink OnClick="@(() => GoToPage(_currentPage - 1))">Previous</PaginationLink>
@@ -309,20 +294,17 @@
                 <PaginationLink OnClick="@(() => GoToPage(_currentPage + 1))">Next</PaginationLink>
             </PaginationItem>
         </Pagination>
-    </Div>
-    <Div Margin="Margin.Is3.FromEnd">
-        <Paragraph TextColor="TextColor.Muted">Current page: <Strong>@_currentPage</Strong> of 5</Paragraph>
-        <Button BackgroundColor="BackgroundColor.Primary" Size="ButtonSize.Sm" OnClick="@(() => GoToPage(1))">Go to First</Button>
-        <Button BackgroundColor="BackgroundColor.Secondary" Size="ButtonSize.Sm" OnClick="@(() => GoToPage(5))">Go to Last</Button>
-        <Button BackgroundColor="BackgroundColor.Info" Size="ButtonSize.Sm" OnClick="@GoToRandomPage">Random Page</Button>
-    </Div>
-</Div>
+        <Div Class="flex flex-wrap gap-2 items-center mt-4">
+            <Paragraph Class="text-muted-foreground" Margin="Margin.Is0">Current page: <Strong>@_currentPage</Strong> of 5</Paragraph>
+            <Button Class="bg-primary text-primary-foreground" Size="ButtonSize.Sm" OnClick="@(() => GoToPage(1))">Go to First</Button>
+            <Button Class="bg-secondary text-secondary-foreground" Size="ButtonSize.Sm" OnClick="@(() => GoToPage(5))">Go to Last</Button>
+            <Button Class="bg-muted text-muted-foreground" Size="ButtonSize.Sm" OnClick="@GoToRandomPage">Random Page</Button>
+        </Div>
+            </DemoSection>
+        </section>
 
-<Hr/>
-
-<Div>
-    <H2>Large Pagination Example</H2>
-    <Div Margin="Margin.Is3.FromEnd">
+        <section class="space-y-4">
+            <DemoSection Title="Large example" Description="Large size with First/Last and ellipsis.">
         <Pagination Size="Size.Large">
             <PaginationItem>
                 <PaginationLink>First</PaginationLink>
@@ -364,17 +346,15 @@
                 <PaginationLink>Last</PaginationLink>
             </PaginationItem>
         </Pagination>
-    </Div>
-    <Paragraph TextColor="TextColor.Muted">Example with 100 pages, showing first/last and previous/next buttons.</Paragraph>
-</Div>
+            </DemoSection>
+        </section>
 
-<Hr/>
-
-<Div>
-    <H2>Disabled States</H2>
-    <Div Margin="Margin.Is3.FromEnd">
-        <H5>First Page (Previous/First disabled)</H5>
-        <Pagination>
+        <section class="space-y-4">
+            <DemoSection Title="Disabled states" Description="First page (Previous/First disabled) and last page (Next/Last disabled).">
+                <Div Class="space-y-4">
+                    <Div>
+                        <H5 Class="text-sm font-medium text-muted-foreground">First page</H5>
+                        <Pagination>
             <PaginationItem Disabled="true">
                 <PaginationLink>First</PaginationLink>
             </PaginationItem>
@@ -397,10 +377,10 @@
                 <PaginationLink>Last</PaginationLink>
             </PaginationItem>
         </Pagination>
-    </Div>
-    <Div Margin="Margin.Is3.FromEnd">
-        <H5>Last Page (Next/Last disabled)</H5>
-        <Pagination>
+                    </Div>
+                    <Div>
+                        <H5 Class="text-sm font-medium text-muted-foreground">Last page</H5>
+                        <Pagination>
             <PaginationItem>
                 <PaginationLink>First</PaginationLink>
             </PaginationItem>
@@ -423,14 +403,16 @@
                 <PaginationLink>Last</PaginationLink>
             </PaginationItem>
         </Pagination>
+                    </Div>
+                </Div>
+            </DemoSection>
+        </section>
     </Div>
 </Div>
-</Column>
-</Row>
-</Container>
 
 @code {
     private int _currentPage = 1;
+    private string _basicDescription => $"Basic pagination with 3 pages. Currently on page {_currentPage}.";
 
     private void GoToPage(int page)
     {

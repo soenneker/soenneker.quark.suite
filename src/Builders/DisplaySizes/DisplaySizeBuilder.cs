@@ -160,7 +160,7 @@ public sealed class DisplaySizeBuilder : ICssBuilder
 
             string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
-                sizeClass = BreakpointUtil.InsertBreakpointType(sizeClass, bp);
+                sizeClass = BreakpointUtil.ApplyTailwindBreakpoint(sizeClass, bp);
 
             if (!first)
                 sb.Append(' ');

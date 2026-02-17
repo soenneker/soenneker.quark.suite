@@ -124,7 +124,7 @@ public sealed class InteractionBuilder : ICssBuilder
             {
                 string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
                 if (bp.Length != 0)
-                    userSelectClass = BreakpointUtil.InsertBreakpointType(userSelectClass, bp);
+                    userSelectClass = BreakpointUtil.ApplyTailwindBreakpoint(userSelectClass, bp);
 
                 if (!first) sb.Append(' ');
                 else first = false;
@@ -136,7 +136,7 @@ public sealed class InteractionBuilder : ICssBuilder
             {
                 string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
                 if (bp.Length != 0)
-                    pointerEventsClass = BreakpointUtil.InsertBreakpointType(pointerEventsClass, bp);
+                    pointerEventsClass = BreakpointUtil.ApplyTailwindBreakpoint(pointerEventsClass, bp);
 
                 if (!first) sb.Append(' ');
                 else first = false;

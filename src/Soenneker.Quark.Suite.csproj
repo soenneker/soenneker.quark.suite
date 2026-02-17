@@ -89,4 +89,23 @@
         <PackageReference Include="Soenneker.Utils.Debounce" Version="4.0.28" />
         <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2404" />
     </ItemGroup>
+
+    <!-- Gen.Tailwind: use sibling repo when present (e.g. in Quark monorepo), else NuGet -->
+    <ItemGroup Condition="Exists('..\..\soenneker.quark.gen.tailwind\src\Soenneker.Quark.Gen.Tailwind\Soenneker.Quark.Gen.Tailwind.csproj')">
+        <ProjectReference Include="..\..\soenneker.quark.gen.tailwind\src\Soenneker.Quark.Gen.Tailwind\Soenneker.Quark.Gen.Tailwind.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    </ItemGroup>
+    <ItemGroup Condition="!Exists('..\..\soenneker.quark.gen.tailwind\src\Soenneker.Quark.Gen.Tailwind\Soenneker.Quark.Gen.Tailwind.csproj')">
+        <PackageReference Include="Soenneker.Quark.Gen.Tailwind" Version="4.0.0" />
+    </ItemGroup>
+
+    <!-- Exclude any in-repo Gen.Tailwind/BuildTasks source if present -->
+    <ItemGroup>
+        <Compile Remove="Soenneker.Quark.Gen.Tailwind.BuildTasks\**" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="tailwind\" />
+    </ItemGroup>
+
+    <!-- When using ProjectReference to Gen.Tailwind (monorepo), the SDK does not import the referenced project's .targets, so RunTailwindGeneratorBuildTasks never runs and the tailwind/ folder is never created. Import explicitly so the build task runs and tailwind/ is created. -->
+    <Import Project="..\..\soenneker.quark.gen.tailwind\src\Soenneker.Quark.Gen.Tailwind\Soenneker.Quark.Gen.Tailwind.targets" Condition="Exists('..\..\soenneker.quark.gen.tailwind\src\Soenneker.Quark.Gen.Tailwind\Soenneker.Quark.Gen.Tailwind.targets')" />
 </Project>

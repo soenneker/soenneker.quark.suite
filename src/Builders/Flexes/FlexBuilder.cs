@@ -279,7 +279,7 @@ public sealed class FlexBuilder : ICssBuilder
 
             string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
-                cls = BreakpointUtil.InsertBreakpointType(cls, bp);
+                cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
             if (!first) sb.Append(' ');
             else first = false;
@@ -319,15 +319,16 @@ public sealed class FlexBuilder : ICssBuilder
 
     private static string GetFlexClass(string property, string value)
     {
+        // Tailwind/shadcn flex utilities (no Bootstrap justify-content-* / align-items-* prefix)
         return property switch
         {
-            "display" => "d-flex",
+            "display" => "flex",
             "direction" => value switch
             {
                 "row" => "flex-row",
                 "row-reverse" => "flex-row-reverse",
-                "column" => "flex-column",
-                "column-reverse" => "flex-column-reverse",
+                "column" => "flex-col",
+                "column-reverse" => "flex-col-reverse",
                 _ => string.Empty
             },
             "wrap" => value switch
@@ -338,54 +339,54 @@ public sealed class FlexBuilder : ICssBuilder
             },
             "justify" => value switch
             {
-                "start" => "justify-content-start",
-                "end" => "justify-content-end",
-                "center" => "justify-content-center",
-                "between" => "justify-content-between",
-                "around" => "justify-content-around",
-                "evenly" => "justify-content-evenly",
+                "start" => "justify-start",
+                "end" => "justify-end",
+                "center" => "justify-center",
+                "between" => "justify-between",
+                "around" => "justify-around",
+                "evenly" => "justify-evenly",
                 _ => string.Empty
             },
             "align" => value switch
             {
-                "start" => "align-items-start",
-                "end" => "align-items-end",
-                "center" => "align-items-center",
-                "baseline" => "align-items-baseline",
-                "stretch" => "align-items-stretch",
+                "start" => "items-start",
+                "end" => "items-end",
+                "center" => "items-center",
+                "baseline" => "items-baseline",
+                "stretch" => "items-stretch",
                 _ => string.Empty
             },
             "align-content" => value switch
             {
-                "start" => "align-content-start",
-                "end" => "align-content-end",
-                "center" => "align-content-center",
-                "between" => "align-content-between",
-                "around" => "align-content-around",
-                "stretch" => "align-content-stretch",
+                "start" => "content-start",
+                "end" => "content-end",
+                "center" => "content-center",
+                "between" => "content-between",
+                "around" => "content-around",
+                "stretch" => "content-stretch",
                 _ => string.Empty
             },
             "align-self" => value switch
             {
-                "auto" => "align-self-auto",
-                "start" => "align-self-start",
-                "end" => "align-self-end",
-                "center" => "align-self-center",
-                "baseline" => "align-self-baseline",
-                "stretch" => "align-self-stretch",
+                "auto" => "self-auto",
+                "start" => "self-start",
+                "end" => "self-end",
+                "center" => "self-center",
+                "baseline" => "self-baseline",
+                "stretch" => "self-stretch",
                 _ => string.Empty
             },
-            "fill" => "flex-fill",
+            "fill" => "flex-1",
             "grow" => value switch
             {
-                "0" => "flex-grow-0",
-                "1" => "flex-grow-1",
+                "0" => "grow-0",
+                "1" => "grow",
                 _ => string.Empty
             },
             "shrink" => value switch
             {
-                "0" => "flex-shrink-0",
-                "1" => "flex-shrink-1",
+                "0" => "shrink-0",
+                "1" => "shrink",
                 _ => string.Empty
             },
             _ => string.Empty

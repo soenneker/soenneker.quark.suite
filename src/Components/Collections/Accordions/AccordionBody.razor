@@ -3,7 +3,7 @@
 @implements IAccordionBody
 
 <div @attributes="BuildAttributes()">
-    <div class="q-accordion-body pt-0 pb-4" data-slot="accordion-content-inner">
+    <div class="accordion-body q-accordion-body pt-0 pb-4" data-slot="accordion-content-inner">
         @ChildContent
     </div>
 </div>
@@ -31,6 +31,7 @@
         base.BuildAttributesCore(attributes);
 
         attributes.TryAdd("data-slot", "accordion-content");
+        attributes["data-state"] = IsExpanded ? "open" : "closed";
         // shadcn AccordionContent - new-york-v4 ui/accordion.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {

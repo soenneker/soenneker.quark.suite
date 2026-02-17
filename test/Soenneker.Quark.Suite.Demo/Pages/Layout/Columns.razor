@@ -1,34 +1,30 @@
 @page "/layout/columns"
 @using Microsoft.Extensions.Logging
-
 @inject ILogger<Index> Logger
 
-<Container Padding="Padding.Is4.OnY">
-    <Row>
-        <Column>
-            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Columns</H1>
-                <Paragraph Class="lead" TextColor="TextColor.Muted">This page demonstrates the Bootstrap Column component from Quark.Columns.</Paragraph>
-            </Div>
-        </Column>
-    </Row>
+<PageTitle>Columns - Quark Suite</PageTitle>
 
-    <Row Gap="Gap.Is4">
-        <Column>
-            <Div>
-                <H2>Basic Column Usage</H2>
-                <Paragraph>The Column component provides a Bootstrap column that automatically sizes and provides proper spacing.</Paragraph>
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-3">
+        <H1 Class="text-4xl font-bold tracking-tight">Columns</H1>
+        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">Bootstrap-style columns with sizing, offset, order, and responsive breakpoints.</Paragraph>
+    </Div>
 
-                <Row Margin="Margin.Is3.FromEnd">
-                    <Column BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.White" Padding="Padding.Is3">
-                        <H3>Column with Quark Properties</H3>
-                        <Paragraph>This column uses Quark properties (BackgroundColor, TextColor, Padding) instead of manual CSS classes.</Paragraph>
-                        <Paragraph><Strong>Result:</Strong> Uses proper Quark styling properties</Paragraph>
+    <Div Class="space-y-6">
+        <section class="space-y-4">
+            <DemoSection Title="Basic column" Description="Single column with Quark properties.">
+                <Row>
+                    <Column Class="bg-primary text-primary-foreground p-4 rounded-lg">
+                        <H3 Class="text-lg font-semibold">Column with Quark properties</H3>
+                        <Paragraph Margin="Margin.Is0">Uses BackgroundColor, TextColor, Padding (or Tailwind classes).</Paragraph>
                     </Column>
                 </Row>
+            </DemoSection>
+        </section>
 
-                <H2>Responsive Columns</H2>
-                <Row Margin="Margin.Is3.FromEnd">
+        <section class="space-y-4">
+            <DemoSection Title="Responsive columns" Description="Three equal columns (ColumnSize.Is4.OnMd).">
+                <Row>
                     <Column ColumnSize="@ColumnSize.Is4.OnMd" BackgroundColor="BackgroundColor.Success" TextColor="TextColor.White" Padding="Padding.Is3" TextAlignment="TextAlignment.Center">
                         <H4>Small Column</H4>
                         <Paragraph>This column uses ColumnSize.Is4.OnMd for responsive sizing.</Paragraph>
@@ -42,24 +38,12 @@
                         <Paragraph>This column completes the row with ColumnSize.Is4.OnMd.</Paragraph>
                     </Column>
                 </Row>
+            </DemoSection>
+        </section>
 
-                <CodeEditor ReadOnly="true" 
-                            Language="@("html")" 
-                            AutoHeight="true" Margin="Margin.Is3.FromTop.Is3.FromBottom"
-                            Text="@(@"<Row>
-    <Column ColumnSize=""@ColumnSize.Is4.OnMd"">
-        <H4>Column 1</H4>
-    </Column>
-    <Column ColumnSize=""@ColumnSize.Is4.OnMd"">
-        <H4>Column 2</H4>
-    </Column>
-    <Column ColumnSize=""@ColumnSize.Is4.OnMd"">
-        <H4>Column 3</H4>
-    </Column>
-</Row>")" />
-
-                <H2>Column Sizing Examples</H2>
-                <Row Margin="Margin.Is3.FromEnd">
+        <section class="space-y-4">
+            <DemoSection Title="Column sizing" Description="Half (Is6), one-third/two-thirds (Is4/Is8).">
+                <Row>
                     <Column ColumnSize="ColumnSize.Is6" BackgroundColor="BackgroundColor.Danger" TextColor="TextColor.White" Padding="Padding.Is3" TextAlignment="TextAlignment.Center">
                         <H4>Half Width</H4>
                         <Paragraph>This column takes up half the row width (ColumnSize.Is6).</Paragraph>
@@ -80,11 +64,12 @@
                         <Paragraph>This column takes up two thirds of the row (ColumnSize.Is8).</Paragraph>
                     </Column>
                 </Row>
+            </DemoSection>
+        </section>
 
-                <H2>Column CSS Values</H2>
-                <Paragraph>Now you can use CSS values for column sizing, offsetting, and ordering:</Paragraph>
-
-                <Row Margin="Margin.Is3.FromEnd">
+        <section class="space-y-4">
+            <DemoSection Title="Offset and order" Description="ColumnOffset and ColumnOrder examples.">
+                <Row>
                     <Column ColumnSize="@ColumnSize.Is6" BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.White" Padding="Padding.Is3" TextAlignment="TextAlignment.Center">
                         <H4>CSS Value Column Size</H4>
                         <Paragraph>This column uses ColumnSize.Is6 (equivalent to col-6).</Paragraph>
@@ -106,7 +91,7 @@
                     </Column>
                 </Row>
 
-                <Row Margin="Margin.Is3.FromEnd">
+                <Row>
                     <Column ColumnSize="@ColumnSize.Is4" ColumnOrder="ColumnOrder.O3" BackgroundColor="BackgroundColor.Danger" TextColor="TextColor.White" Padding="Padding.Is3" TextAlignment="TextAlignment.Center">
                         <H4>Order 3</H4>
                         <Paragraph>This column appears third due to ColumnOrder.O3.</Paragraph>
@@ -120,30 +105,21 @@
                         <Paragraph>This column appears second due to ColumnOrder.O2.</Paragraph>
                     </Column>
                 </Row>
+            </DemoSection>
+        </section>
 
-                <H2>Column Properties</H2>
+        <section class="space-y-4">
+            <DemoSection Title="Column features" Description="Id, Class, Style, ColumnSize, ColumnOffset, ColumnOrder, etc.">
+                <Div Class="rounded-lg border border-border bg-muted/50 p-4">
+                    <H3 Class="text-lg font-semibold">Column Features</H3>
+                    <Paragraph Margin="Margin.Is0">Column inherits Element properties; ColumnSize (Is1–Is12, Auto), ColumnOffset, ColumnOrder.</Paragraph>
+                </Div>
+            </DemoSection>
+        </section>
+
+        <section class="space-y-4">
+            <DemoSection Title="Auto-sizing" Description="Columns share space equally when no size is set.">
                 <Row>
-                    <Column ColumnSize="@ColumnSize.Is12" BackgroundColor="BackgroundColor.Info" TextColor="TextColor.White" Padding="Padding.Is3">
-                        <H3>Column Features</H3>
-                        <Paragraph>The Column component inherits all properties from the Element base class:</Paragraph>
-                        <UnorderedList>
-                            <UnorderedListItem><Strong>Id:</Strong> HTML id attribute</UnorderedListItem>
-                            <UnorderedListItem><Strong>Class:</Strong> CSS classes (Bootstrap utility classes supported)</UnorderedListItem>
-                            <UnorderedListItem><Strong>Style:</Strong> Inline CSS styles</UnorderedListItem>
-                            <UnorderedListItem><Strong>Title:</Strong> Tooltip text</UnorderedListItem>
-                            <UnorderedListItem><Strong>Hidden:</Strong> Visibility control</UnorderedListItem>
-                            <UnorderedListItem><Strong>Display:</Strong> CSS display property</UnorderedListItem>
-                            <UnorderedListItem><Strong>Margin/Padding:</Strong> Spacing utilities</UnorderedListItem>
-                            <UnorderedListItem><Strong>Event Handlers:</Strong> Click, focus, keyboard events</UnorderedListItem>
-                            <UnorderedListItem><Strong>ColumnSize:</Strong> CSS value for column sizing (Is1-Is12, Auto)</UnorderedListItem>
-                            <UnorderedListItem><Strong>ColumnOffset:</Strong> CSS value for column offsetting</UnorderedListItem>
-                            <UnorderedListItem><Strong>ColumnOrder:</Strong> CSS value for column ordering</UnorderedListItem>
-                        </UnorderedList>
-                    </Column>
-                </Row>
-
-                <H2>Auto-sizing Columns</H2>
-                <Row Margin="Margin.Is3.FromEnd">
                     <Column BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.White" Padding="Padding.Is3" TextAlignment="TextAlignment.Center">
                         <H4>Auto Column 1</H4>
                         <Paragraph>This column auto-sizes based on content.</Paragraph>
@@ -157,10 +133,10 @@
                         <Paragraph>All columns share the remaining space equally.</Paragraph>
                     </Column>
                 </Row>
-            </Div>
-        </Column>
-    </Row>
-</Container>
+            </DemoSection>
+        </section>
+    </Div>
+</Div>
 
 @code{
 

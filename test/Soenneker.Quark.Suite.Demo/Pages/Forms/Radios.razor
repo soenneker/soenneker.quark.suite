@@ -1,27 +1,24 @@
 @page "/forms/radios"
 @using Microsoft.Extensions.Logging
-
 @inject ILogger<Index> Logger
 
-<Container Padding="Padding.Is4.OnY">
-    <Row>
-        <Column>
-            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Radios</H1>
-                <Paragraph Class="lead" TextColor="TextColor.Muted">Comprehensive examples with forms and various states</Paragraph>
-            </Div>
-        </Column>
-    </Row>
+<PageTitle>Radios - Quark Suite</PageTitle>
 
-    <Row>
-        <Column>
-            <H2>🧪 BINDING TEST SECTION</H2>
-            <Alert BackgroundColor="BackgroundColor.Info" Margin="Margin.Is3.FromEnd">
-                <Strong>Test Instructions:</Strong> Select radio buttons below or click "Load Test Data" to verify binding works.
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-3">
+        <H1 Class="text-4xl font-bold tracking-tight">Radios</H1>
+        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">Radio groups with binding, disabled states, and inline/stacked layouts.</Paragraph>
+    </Div>
+
+    <Div Class="space-y-6">
+        <section class="space-y-4">
+            <DemoSection Title="Binding test" Description="@($"Select options or use buttons to verify two-way binding. Value: {_testRadio1 ?? "(none)"}.")">
+            <Alert Class="border-border bg-muted/50" Margin="Margin.Is0.FromBottom">
+                <Strong>Test:</Strong> Select radios or click "Load Test Data" to verify binding.
             </Alert>
 
-            <Div Margin="Margin.Is4.FromBottom" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Light" BorderRadius="BorderRadius.Default">
-                <H3 Margin="Margin.Is3.FromBottom">Two-Way Binding Test</H3>
+            <Div Class="p-4 rounded-lg border border-border bg-muted/30">
+                <H3 Class="text-lg font-semibold" Margin="Margin.Is0.FromBottom">Two-Way Binding</H3>
                 
                 <Div Margin="Margin.Is3.FromBottom">
                     <Label Form="true" FontWeight="FontWeight.Bold">Test Radio Group 1:</Label>
@@ -34,30 +31,29 @@
                     <Radio Name="testGroup1" Value="test3" Checked="@(_testRadio1 == "test3")" CheckedChanged="@((bool c) => { if (c) _testRadio1 = "test3"; })">
                         Test Option 3 (Pre-selected)
                     </Radio>
-                    <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
+                    <Div Class="mt-2 p-2 rounded border border-border bg-background">
                         <Strong>Bound Value:</Strong> <Code>@(_testRadio1 ?? "(none)")</Code>
                     </Div>
                 </Div>
 
-                <Div Margin="Margin.Is3.FromTop">
-                    <Button BackgroundColor="BackgroundColor.Primary" OnClick="LoadRadioTestData" Margin="Margin.Is2.FromEnd">Load Test Data (Select Option 2)</Button>
-                    <Button BackgroundColor="BackgroundColor.Secondary" OnClick="ClearRadioTestData" Margin="Margin.Is2.FromEnd">Clear Test Data</Button>
-                    <Button BackgroundColor="BackgroundColor.Warning" OnClick="UpdateRadioTestData">Select Random Option</Button>
+                <Div Class="flex flex-wrap gap-2 mt-4">
+                    <Button Class="bg-primary text-primary-foreground" OnClick="LoadRadioTestData">Load Test Data</Button>
+                    <Button Class="bg-secondary text-secondary-foreground" OnClick="ClearRadioTestData">Clear</Button>
+                    <Button Class="bg-muted text-muted-foreground" OnClick="UpdateRadioTestData">Random</Button>
                 </Div>
                 
-                <Div Margin="Margin.Is3.FromTop" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Success" Class="bg-opacity-10 rounded">
-                    <H4>Test Results:</H4>
-                    <UnorderedList Margin="Margin.Is0.FromBottom">
+                <Div Class="mt-4 p-3 rounded-lg border border-border bg-muted/30">
+                    <H4 Class="text-sm font-semibold">Results:</H4>
+                    <UnorderedList Margin="Margin.Is0">
                         <UnorderedListItem><Strong>Radio Group 1:</Strong> @(_testRadio1 ?? "(not set)")</UnorderedListItem>
                     </UnorderedList>
                 </Div>
             </Div>
+            </DemoSection>
+        </section>
 
-            <Hr />
-        </Column>
-    </Row>
-
-    <Row>
+        <section class="space-y-4">
+            <Row>
         <!-- Basic Usage -->
         <Column ColumnSize="@ColumnSize.Is6.OnLg" Margin="Margin.Is4.FromBottom">
             <Card Class="h-100">
@@ -381,7 +377,9 @@
             </Card>
         </Column>
     </Row>
-</Container>
+        </section>
+    </Div>
+</Div>
 
 @code {
     // Binding Test Fields

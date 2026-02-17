@@ -1,133 +1,50 @@
 @page "/typography/anchors"
-@using Microsoft.Extensions.Logging
 
-@inject ILogger<Index> Logger
+<Div Class="space-y-12">
+    <Div Class="space-y-3">
+        <H1 Class="text-4xl font-bold tracking-tight">Anchors</H1>
+        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">
+            Semantic links for navigation. Use <Code Inline="true" Class="rounded bg-muted px-1.5 py-0.5 text-sm font-mono">To</Code> and <Code Inline="true" Class="rounded bg-muted px-1.5 py-0.5 text-sm font-mono">Target</Code>.
+        </Paragraph>
+    </Div>
 
-<Container Padding="Padding.Is4.OnY">
-    <Row>
-        <Column>
-            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Anchors</H1>
-                <Paragraph Class="lead" TextColor="TextColor.Muted">This page demonstrates the HTML Anchor component from Quark.Anchors.</Paragraph>
+    <Section Class="space-y-6">
+        <DemoSection Title="Basic Links" Code="@(@"<Anchor To="""" TextColor=""TextColor.Primary"">NavLink</Anchor>
+<Anchor To=""https://example.com"" Target=""Target.Blank"">External</Anchor>")">
+            <Div Class="flex flex-wrap gap-4">
+                <Anchor To="" TextColor="TextColor.Primary">Basic NavLink</Anchor>
+                <Anchor To="https://example.com" Target="Target.Blank">External Link</Anchor>
             </Div>
-        </Column>
-    </Row>
+        </DemoSection>
+    </Section>
 
-    <Row Gap="Gap.Is4">
-        <Column>
-            <Div>
-                <H2>Basic Anchor Usage</H2>
-                <Paragraph>The Anchor component provides semantic HTML links for navigation and external references.</Paragraph>
+    <Section Class="space-y-6">
+        <H2 Class="text-2xl font-semibold tracking-tight">Navigation</H2>
+        <DemoSection>
+            <Nav Class="flex gap-4">
+                <Anchor To="" Class="text-primary hover:underline">Home</Anchor>
+                <Anchor To="about" Class="text-primary hover:underline">About</Anchor>
+                <Anchor To="services" Class="text-primary hover:underline">Services</Anchor>
+            </Nav>
+        </DemoSection>
+    </Section>
 
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Anchor To="" TextColor="TextColor.Primary">Basic NavLink</Anchor>
-                </Div>
-
-                <CodeEditor ReadOnly="true" 
-                            Language="@("html")" 
-                            AutoHeight="true" Margin="Margin.Is3.FromTop.Is3.FromBottom"
-                            Text="@(@"<Anchor To="""" TextColor=""TextColor.Primary"">Basic NavLink</Anchor>
-<Anchor To=""https://example.com"" Target=""_blank"">External Link</Anchor>")" />
-
-                <H2>Button Components (Better than Anchor with Button Classes)</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Button BackgroundColor="BackgroundColor.Primary" Margin="Margin.Is2.FromEnd">Primary Button</Button>
-                    <Button BackgroundColor="BackgroundColor.Secondary" Margin="Margin.Is2.FromEnd">Secondary Button</Button>
-                    <Button BackgroundColor="BackgroundColor.Success" Margin="Margin.Is2.FromEnd">Success Button</Button>
-                    <Button BackgroundColor="BackgroundColor.Danger">Danger Button</Button>
-                </Div>
-
-                <H2>Button Components with Different Sizes</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Button Variant="ButtonVariant.Default" Size="ButtonSize.Sm" Margin="Margin.Is2.FromEnd">Small Button</Button>
-                    <Button Variant="ButtonVariant.Default" Size="ButtonSize.Default" Margin="Margin.Is2.FromEnd">Normal Button</Button>
-                    <Button Variant="ButtonVariant.Default" Size="ButtonSize.Lg">Large Button</Button>
-                </Div>
-
-                <H2>Button Components with Outline Styling</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Button BackgroundColor="BackgroundColor.Primary" Outline="true" Margin="Margin.Is2.FromEnd">Outline Primary</Button>
-                    <Button BackgroundColor="BackgroundColor.Secondary" Outline="true" Margin="Margin.Is2.FromEnd">Outline Secondary</Button>
-                    <Button BackgroundColor="BackgroundColor.Success" Outline="true" Margin="Margin.Is2.FromEnd">Outline Success</Button>
-                    <Button BackgroundColor="BackgroundColor.Warning" Outline="true" Margin="Margin.Is2.FromEnd">Outline Warning</Button>
-                    <Button BackgroundColor="BackgroundColor.Danger" Outline="true">Outline Danger</Button>
-                </Div>
-
-                <H2>Navigation Links</H2>
-                <Nav Margin="Margin.Is3.FromEnd">
-                    <Anchor To="" Class="nav-link">Home</Anchor>
-                    <Anchor To="about" Class="nav-link">About</Anchor>
-                    <Anchor To="services" Class="nav-link">Services</Anchor>
-                    <Anchor To="contact" Class="nav-link">Contact</Anchor>
-                </Nav>
-
-                <H2>Button Components with Navigation</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Button BackgroundColor="BackgroundColor.Info" To="" Margin="Margin.Is2.FromEnd">
-                        Navigate to Home
-                    </Button>
-                    <Button BackgroundColor="BackgroundColor.Warning" To="about" Margin="Margin.Is2.FromEnd">
-                        Navigate to About
-                    </Button>
-                    <Button BackgroundColor="BackgroundColor.Dark" To="contact">
-                        Navigate to Contact
-                    </Button>
-                </Div>
-
-                <H2>Anchor with Custom Styling</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Anchor To="" TextDecoration="TextDecoration.None" FontWeight="FontWeight.Bold" TextColor="TextColor.Success">
-                        Custom Styled Link
-                    </Anchor>
-                </Div>
-
-                <H2>Anchor Properties</H2>
-                <Div BackgroundColor="BackgroundColor.Light" Padding="Padding.Is3" Margin="Margin.Is3.FromBottom">
-                    <H3>Anchor Features</H3>
-                    <Paragraph>The Anchor component inherits all properties from the TypographicElement base class:</Paragraph>
-                    <UnorderedList>
-                        <UnorderedListItem><Strong>Id:</Strong> HTML id attribute</UnorderedListItem>
-                        <UnorderedListItem><Strong>Class:</Strong> CSS classes (Bootstrap utility classes supported)</UnorderedListItem>
-                        <UnorderedListItem><Strong>Style:</Strong> Inline CSS styles</UnorderedListItem>
-                        <UnorderedListItem><Strong>Title:</Strong> Tooltip text</UnorderedListItem>
-                        <UnorderedListItem><Strong>Hidden:</Strong> Visibility control</UnorderedListItem>
-                        <UnorderedListItem><Strong>Display:</Strong> CSS display property</UnorderedListItem>
-                        <UnorderedListItem><Strong>Margin/Padding:</Strong> Spacing utilities</UnorderedListItem>
-                        <UnorderedListItem><Strong>TextColor:</Strong> Typography color control</UnorderedListItem>
-                        <UnorderedListItem><Strong>TextDecoration:</Strong> Underline, line-through, etc.</UnorderedListItem>
-                        <UnorderedListItem><Strong>FontWeight:</Strong> Bold, normal, light</UnorderedListItem>
-                        <UnorderedListItem><Strong>Event Handlers:</Strong> Click, focus, keyboard events</UnorderedListItem>
-                    </UnorderedList>
-                    <Paragraph>
-                        <Strong>Anchor-specific attributes:</Strong>
-                    </Paragraph>
-                    <UnorderedList>
-                        <UnorderedListItem><Strong>To:</Strong> Navigation destination (URL or path)</UnorderedListItem>
-                        <UnorderedListItem><Strong>Target:</Strong> Where to open the link (_blank, _self, etc.)</UnorderedListItem>
-                    </UnorderedList>
-                </Div>
-
-                <H2>Navigation Example</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Button To=""
-                            Title="Navigate to home page"
-                            BackgroundColor="BackgroundColor.Primary">
-                        Navigate to Home
-                    </Button>
-                    <Paragraph Class="form-text">This Button uses Blazor routing for client-side navigation.</Paragraph>
-                </Div>
+    <Section Class="space-y-6">
+        <H2 Class="text-2xl font-semibold tracking-tight">Button-style Links</H2>
+        <DemoSection>
+            <Div Class="flex flex-wrap gap-2">
+                <Button Variant="ButtonVariant.Default" To="">Navigate Home</Button>
+                <Button Variant="ButtonVariant.Outline" To="about">Navigate About</Button>
             </Div>
-        </Column>
-    </Row>
-</Container>
+        </DemoSection>
+    </Section>
 
-@code{
-
-    protected override void OnInitialized()
-    {
-        Logger.LogInformation("Anchor demo page initialized");
-    }
-
-}
-
-
+    <Section Class="space-y-6">
+        <H2 Class="text-2xl font-semibold tracking-tight">Styled</H2>
+        <DemoSection>
+            <Anchor To="" TextDecoration="TextDecoration.None" FontWeight="FontWeight.Bold" TextColor="TextColor.Success" Class="hover:underline">
+                Custom Styled Link
+            </Anchor>
+        </DemoSection>
+    </Section>
+</Div>

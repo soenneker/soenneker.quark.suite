@@ -1,241 +1,124 @@
 @page "/feedback/snackbars"
 
-<Container Padding="Padding.Is4.OnY">
-    <Row>
-        <Column>
-            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Snackbars</H1>
-                <Paragraph Class="lead" TextColor="TextColor.Muted">This page demonstrates the Snackbar components for displaying temporary notifications and messages.</Paragraph>
-            </Div>
-        </Column>
-    </Row>
+<PageTitle>Snackbars - Quark Suite</PageTitle>
 
-    <Row Gap="Gap.Is4">
-        <Column>
-            <Div>
-                <H2>Basic Snackbars</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Button BackgroundColor="@BackgroundColor.Primary" @onclick="ShowBasicSnackbar">Show Basic Snackbar</Button>
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Button BackgroundColor="@BackgroundColor.Success" @onclick="ShowSuccessSnackbar">Show Success Snackbar</Button>
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Button BackgroundColor="@BackgroundColor.Warning" @onclick="ShowWarningSnackbar">Show Warning Snackbar</Button>
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Button BackgroundColor="@BackgroundColor.Danger" @onclick="ShowErrorSnackbar">Show Error Snackbar</Button>
-                    </Div>
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-3">
+        <H1 Class="text-4xl font-bold tracking-tight">Snackbars</H1>
+        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">Temporary notifications with colors, actions, positioning, and auto-dismiss.</Paragraph>
+    </Div>
+
+    <Div Class="space-y-6">
+        <section class="space-y-4">
+            <DemoSection Title="Basic snackbars" Description="Primary, success, warning, and danger; auto-dismiss.">
+                <Div Class="flex flex-wrap gap-2">
+                    <Button Class="bg-primary text-primary-foreground" @onclick="ShowBasicSnackbar">Basic</Button>
+                    <Button Class="bg-primary text-primary-foreground" @onclick="ShowSuccessSnackbar">Success</Button>
+                    <Button Class="bg-primary text-primary-foreground" @onclick="ShowWarningSnackbar">Warning</Button>
+                    <Button Class="bg-primary text-primary-foreground" @onclick="ShowErrorSnackbar">Error</Button>
                 </Div>
-                <Paragraph TextColor="TextColor.Muted">Basic snackbars with different color schemes and auto-dismiss functionality.</Paragraph>
+            </DemoSection>
+        </section>
 
-                <CodeEditor ReadOnly="true" 
-                            Language="@("csharp")" 
-                            Margin="Margin.Is3.FromTop"
-                            AutoHeight="true"
-                            Text="@(@"// In your component's @code section:
-[Inject] private ISnackbarService SnackbarService { get; set; }
-
-private void ShowBasicSnackbar()
-{
-    SnackbarService.Show(""This is a basic snackbar message"");
-}
-
-private void ShowSuccessSnackbar()
-{
-    SnackbarService.Show(""Success!"", SnackbarColor.Success);
-}
-
-private void ShowErrorSnackbar()
-{
-    SnackbarService.Show(""Error occurred"", SnackbarColor.Danger);
-}")" />
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Snackbars with Actions</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Button BackgroundColor="@BackgroundColor.Info" @onclick="ShowActionSnackbar">Show Snackbar with Action</Button>
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Button BackgroundColor="@BackgroundColor.Secondary" @onclick="ShowMultiActionSnackbar">Show Multi-Action Snackbar</Button>
-                    </Div>
+        <section class="space-y-4">
+            <DemoSection Title="With actions" Description="Snackbars with action or multi-action buttons.">
+                <Div Class="flex flex-wrap gap-2">
+                    <Button Class="bg-primary text-primary-foreground" @onclick="ShowActionSnackbar">With action</Button>
+                    <Button Class="bg-secondary text-secondary-foreground" @onclick="ShowMultiActionSnackbar">Multi-action</Button>
                 </Div>
-                <Paragraph TextColor="TextColor.Muted">Snackbars with action buttons for user interaction.</Paragraph>
-            </Div>
+            </DemoSection>
+        </section>
 
-            <Hr/>
-
-            <Div>
-                <H2>Snackbars with Custom Duration</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Button BackgroundColor="@BackgroundColor.Primary" @onclick="() => ShowCustomDurationSnackbar(1000)">Show 1 Second Snackbar</Button>
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Button BackgroundColor="@BackgroundColor.Success" @onclick="() => ShowCustomDurationSnackbar(5000)">Show 5 Second Snackbar</Button>
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Button BackgroundColor="@BackgroundColor.Warning" @onclick="() => ShowCustomDurationSnackbar(10000)">Show 10 Second Snackbar</Button>
-                    </Div>
+        <section class="space-y-4">
+            <DemoSection Title="Custom duration" Description="1s, 5s, or 10s auto-dismiss.">
+                <Div Class="flex flex-wrap gap-2">
+                    <Button Class="bg-primary text-primary-foreground" @onclick="() => ShowCustomDurationSnackbar(1000)">1 second</Button>
+                    <Button Class="bg-primary text-primary-foreground" @onclick="() => ShowCustomDurationSnackbar(5000)">5 seconds</Button>
+                    <Button Class="bg-primary text-primary-foreground" @onclick="() => ShowCustomDurationSnackbar(10000)">10 seconds</Button>
                 </Div>
-                <Paragraph TextColor="TextColor.Muted">Snackbars with custom auto-dismiss durations.</Paragraph>
-            </Div>
+            </DemoSection>
+        </section>
 
-            <Hr/>
+        <section class="space-y-4">
+            <DemoSection Title="Persistent" Description="Requires manual dismissal.">
+                <Button Class="bg-primary text-primary-foreground" @onclick="ShowPersistentSnackbar">Show persistent snackbar</Button>
+            </DemoSection>
+        </section>
 
-            <Div>
-                <H2>Persistent Snackbars</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Button BackgroundColor="@BackgroundColor.Danger" @onclick="ShowPersistentSnackbar">Show Persistent Snackbar</Button>
-                    </Div>
+        <section class="space-y-4">
+            <DemoSection Title="Custom styling" Description="Custom and gradient styled snackbars.">
+                <Div Class="flex flex-wrap gap-2">
+                    <Button Class="bg-primary text-primary-foreground" @onclick="ShowCustomStyledSnackbar">Custom styled</Button>
+                    <Button Class="bg-primary text-primary-foreground" @onclick="ShowGradientSnackbar">Gradient</Button>
                 </Div>
-                <Paragraph TextColor="TextColor.Muted">Snackbars that don't auto-dismiss and require manual dismissal.</Paragraph>
-            </Div>
+            </DemoSection>
+        </section>
 
-            <Hr/>
-
-            <Div>
-                <H2>Snackbars with Custom Styling</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Button BackgroundColor="@BackgroundColor.Info" @onclick="ShowCustomStyledSnackbar">Show Custom Styled Snackbar</Button>
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Button BackgroundColor="@BackgroundColor.Primary" @onclick="ShowGradientSnackbar">Show Gradient Snackbar</Button>
-                    </Div>
+        <section class="space-y-4">
+            <DemoSection Title="Stack" Description="Add multiple snackbars; clear stack.">
+                <Div Class="flex flex-wrap gap-2">
+                    <Button Class="bg-primary text-primary-foreground" @onclick="AddToStack">Add to stack</Button>
+                    <Button Class="bg-secondary text-secondary-foreground" @onclick="ClearStack">Clear stack</Button>
                 </Div>
-                <Paragraph TextColor="TextColor.Muted">Snackbars with custom CSS styling and themes.</Paragraph>
-            </Div>
+            </DemoSection>
+        </section>
 
-            <Hr/>
-
-            <Div>
-                <H2>Snackbar Stack</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Button BackgroundColor="@BackgroundColor.Primary" @onclick="AddToStack">Add Multiple Snackbars to Stack</Button>
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Button BackgroundColor="@BackgroundColor.Secondary" @onclick="ClearStack">Clear All Snackbars</Button>
-                    </Div>
+        <section class="space-y-4">
+            <DemoSection Title="Positions" Description="Top/bottom, left/center/right.">
+                <Div Class="grid grid-cols-2 gap-2 max-w-md">
+                    <Button Class="bg-primary text-primary-foreground" @onclick="@(() => ShowPositionedSnackbar("top-left"))" Size="ButtonSize.Sm">Top Left</Button>
+                    <Button Class="bg-primary text-primary-foreground" @onclick="@(() => ShowPositionedSnackbar("top-center"))" Size="ButtonSize.Sm">Top Center</Button>
+                    <Button Class="bg-primary text-primary-foreground" @onclick="@(() => ShowPositionedSnackbar("top-right"))" Size="ButtonSize.Sm">Top Right</Button>
+                    <Button Class="bg-primary text-primary-foreground" @onclick="@(() => ShowPositionedSnackbar("bottom-left"))" Size="ButtonSize.Sm">Bottom Left</Button>
+                    <Button Class="bg-primary text-primary-foreground" @onclick="@(() => ShowPositionedSnackbar("bottom-center"))" Size="ButtonSize.Sm">Bottom Center</Button>
+                    <Button Class="bg-primary text-primary-foreground" @onclick="@(() => ShowPositionedSnackbar("bottom-right"))" Size="ButtonSize.Sm">Bottom Right</Button>
                 </Div>
-                <Paragraph TextColor="TextColor.Muted">Multiple snackbars stacked on top of each other.</Paragraph>
-            </Div>
+            </DemoSection>
+        </section>
 
-            <Hr/>
-
-            <Div>
-                <H2>Snackbar Positions</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Row>
-                        <Column Size="ColumnSize.Is6">
-                            <Div Margin="Margin.Is2.FromBottom">
-                                <Button BackgroundColor="@BackgroundColor.Primary" @onclick="@(() => ShowPositionedSnackbar("top-left"))" Size="ButtonSize.Sm" Width="Width.Is100">Top Left</Button>
-                            </Div>
-                            <Div Margin="Margin.Is2.FromBottom">
-                                <Button BackgroundColor="@BackgroundColor.Primary" @onclick="@(() => ShowPositionedSnackbar("top-center"))" Size="ButtonSize.Sm" Width="Width.Is100">Top Center</Button>
-                            </Div>
-                            <Div Margin="Margin.Is2.FromBottom">
-                                <Button BackgroundColor="@BackgroundColor.Primary" @onclick="@(() => ShowPositionedSnackbar("top-right"))" Size="ButtonSize.Sm" Width="Width.Is100">Top Right</Button>
-                            </Div>
-                        </Column>
-                        <Column Size="ColumnSize.Is6">
-                            <Div Margin="Margin.Is2.FromBottom">
-                                <Button BackgroundColor="@BackgroundColor.Success" @onclick="@(() => ShowPositionedSnackbar("bottom-left"))" Size="ButtonSize.Sm" Width="Width.Is100">Bottom Left</Button>
-                            </Div>
-                            <Div Margin="Margin.Is2.FromBottom">
-                                <Button BackgroundColor="@BackgroundColor.Success" @onclick="@(() => ShowPositionedSnackbar("bottom-center"))" Size="ButtonSize.Sm" Width="Width.Is100">Bottom Center</Button>
-                            </Div>
-                            <Div Margin="Margin.Is2.FromBottom">
-                                <Button BackgroundColor="@BackgroundColor.Success" @onclick="@(() => ShowPositionedSnackbar("bottom-right"))" Size="ButtonSize.Sm" Width="Width.Is100">Bottom Right</Button>
-                            </Div>
-                        </Column>
-                    </Row>
+        <section class="space-y-4">
+            <DemoSection Title="Location override" Description="Override default position; show at multiple locations.">
+                <Div Class="flex flex-wrap gap-2">
+                    <Button Class="bg-primary text-primary-foreground" @onclick="ShowLocationOverrideSnackbar">Location override</Button>
+                    <Button Class="bg-primary text-primary-foreground" @onclick="ShowMultipleLocationSnackbars">Multiple locations</Button>
                 </Div>
-                <Paragraph TextColor="TextColor.Muted">Snackbars positioned at different locations on the screen.</Paragraph>
-            </Div>
+            </DemoSection>
+        </section>
 
-            <Hr/>
+        <section class="space-y-4">
+            <DemoSection Title="Rich content" Description="Icons, formatted text, multiple lines.">
+                <Button Class="bg-primary text-primary-foreground" @onclick="ShowRichContentSnackbar">Rich content snackbar</Button>
+            </DemoSection>
+        </section>
 
-            <Div>
-                <H2>Snackbars with Location Parameter</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Button BackgroundColor="@BackgroundColor.Primary" @onclick="ShowLocationOverrideSnackbar">Show Snackbar with Location Override</Button>
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Button BackgroundColor="@BackgroundColor.Success" @onclick="ShowMultipleLocationSnackbars">Show Multiple Locations Simultaneously</Button>
-                    </Div>
-                </Div>
-                <Paragraph TextColor="TextColor.Muted">Snackbars with individual location overrides using the new location parameter.</Paragraph>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Snackbar with Rich Content</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Button BackgroundColor="@BackgroundColor.Info" @onclick="ShowRichContentSnackbar">Show Rich Content Snackbar</Button>
-                    </Div>
-                </Div>
-                <Paragraph TextColor="TextColor.Muted">Snackbars with icons, formatted text, and multiple lines.</Paragraph>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Snackbar Component Properties</H2>
-                <Div BackgroundColor="BackgroundColor.Light" Padding="Padding.Is3" Margin="Margin.Is3.FromBottom">
-                    <H3>Snackbar Features</H3>
-                    <Paragraph>Snackbar components provide comprehensive notification functionality:</Paragraph>
+        <section class="space-y-4">
+            <DemoSection Title="Snackbar features" Description="Overview of components and options.">
+                <Div Class="rounded-lg border border-border bg-muted/50 p-4">
+                    <H3 Class="text-lg font-semibold">Snackbar Features</H3>
+                    <Paragraph Margin="Margin.Is0">Snackbar components provide notification functionality:</Paragraph>
                     <UnorderedList>
-                        <UnorderedListItem><Strong>Snackbar:</Strong> Main notification component</UnorderedListItem>
-                        <UnorderedListItem><Strong>SnackbarBody:</Strong> Content area of the snackbar</UnorderedListItem>
-                        <UnorderedListItem><Strong>SnackbarHeader:</Strong> Header section with title</UnorderedListItem>
-                        <UnorderedListItem><Strong>SnackbarFooter:</Strong> Footer section with actions</UnorderedListItem>
-                        <UnorderedListItem><Strong>SnackbarAction:</Strong> Action buttons within snackbars</UnorderedListItem>
                         <UnorderedListItem><Strong>SnackbarStack:</Strong> Container for multiple snackbars</UnorderedListItem>
-                        <UnorderedListItem><Strong>Auto-dismiss:</Strong> Configurable auto-dismiss timing</UnorderedListItem>
-                        <UnorderedListItem><Strong>Positioning:</Strong> Flexible positioning options</UnorderedListItem>
-                        <UnorderedListItem><Strong>Styling:</Strong> Custom themes and colors</UnorderedListItem>
-                        <UnorderedListItem><Strong>Actions:</Strong> Interactive buttons and links</UnorderedListItem>
+                        <UnorderedListItem><Strong>Auto-dismiss:</Strong> Configurable timing</UnorderedListItem>
+                        <UnorderedListItem><Strong>Positioning:</Strong> Top/bottom, start/center/end</UnorderedListItem>
+                        <UnorderedListItem><Strong>Actions:</Strong> Buttons and close</UnorderedListItem>
                     </UnorderedList>
                 </Div>
-            </Div>
+            </DemoSection>
+        </section>
 
-            <Hr/>
+        <section class="space-y-4">
+            <DemoSection Title="Theme configuration" Description="Uses theme default location and delay.">
+                <Button Class="bg-primary text-primary-foreground" @onclick="ShowThemeConfiguredSnackbar">Theme-configured snackbar</Button>
+            </DemoSection>
+        </section>
 
-            <Div>
-                <H2>Theme Configuration</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Button BackgroundColor="@BackgroundColor.Primary" @onclick="ShowThemeConfiguredSnackbar">Show Theme-Configured Snackbar</Button>
-                    </Div>
-                </Div>
-                <Paragraph TextColor="TextColor.Muted">Snackbars that use theme-configured default location and delay settings.</Paragraph>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Accessibility Features</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Button BackgroundColor="@BackgroundColor.Primary" @onclick="ShowAccessibleSnackbar">Show Accessible Snackbar</Button>
-                    </Div>
-                </Div>
-                <Paragraph TextColor="TextColor.Muted">Snackbars with proper ARIA attributes and keyboard navigation support.</Paragraph>
-            </Div>
-        </Column>
-    </Row>
-</Container>
+        <section class="space-y-4">
+            <DemoSection Title="Accessibility" Description="ARIA attributes and keyboard support.">
+                <Button Class="bg-primary text-primary-foreground" @onclick="ShowAccessibleSnackbar">Accessible snackbar</Button>
+            </DemoSection>
+        </section>
+    </Div>
+</Div>
 
 <!-- Snackbar Stack Container -->
 <SnackbarStack @ref="_snackbarStackRef" />

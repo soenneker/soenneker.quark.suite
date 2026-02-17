@@ -1,20 +1,14 @@
 @page "/layout/layouts"
 
-<Container Padding="Padding.Is4.OnY">
-    <Row>
-        <Column>
-            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Layouts</H1>
-                <Paragraph Class="lead" TextColor="TextColor.Muted">This page demonstrates the Layout components for page structure and organization.</Paragraph>
-            </Div>
-        </Column>
-    </Row>
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-3">
+        <H1 Class="text-4xl font-bold tracking-tight">Layouts</H1>
+        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">Layout, LayoutHeader, LayoutContent, LayoutFooter, LayoutSider, and OverlayContainer for page structure.</Paragraph>
+    </Div>
 
-    <Row Gap="Gap.Is4">
-        <Column>
-            <Div>
-                <H2>Basic Layout Structure</H2>
-                <Div Margin="Margin.Is3.FromEnd">
+    <Div Class="space-y-6">
+        <section class="space-y-4">
+            <DemoSection Title="Basic structure" Description="Header, content, and footer.">
                     <Layout>
                         <LayoutHeader BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.White" Padding="Padding.Is3">
                             <H3 TextAlignment="TextAlignment.Center" Margin="Margin.Is0.FromBottom">Header</H3>
@@ -26,30 +20,11 @@
                             <Paragraph TextAlignment="TextAlignment.Center" Margin="Margin.Is0.FromBottom">Footer</Paragraph>
                         </LayoutFooter>
                     </Layout>
-                </Div>
-                <Paragraph TextColor="TextColor.Muted">The Layout component provides a basic page structure with header, content, and footer.</Paragraph>
+            </DemoSection>
+        </section>
 
-                <CodeEditor ReadOnly="true" 
-                            Language="@("html")" 
-                            AutoHeight="true" Margin="Margin.Is3.FromTop"
-                            Text="@(@"<Layout>
-    <LayoutHeader BackgroundColor=""BackgroundColor.Primary"" TextColor=""TextColor.White"" Padding=""Padding.Is3"">
-        <H3>Header</H3>
-    </LayoutHeader>
-    <LayoutContent Padding=""Padding.Is3"">
-        <Paragraph>Main content area.</Paragraph>
-    </LayoutContent>
-    <LayoutFooter BackgroundColor=""BackgroundColor.Secondary"" TextColor=""TextColor.White"" Padding=""Padding.Is3"">
-        <Paragraph>Footer</Paragraph>
-    </LayoutFooter>
-</Layout>")" />
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Layout with Sider</H2>
-                <Div Margin="Margin.Is3.FromEnd">
+        <section class="space-y-4">
+            <DemoSection Title="Layout with sider" Description="Sidebar with nav links.">
                     <Layout Sider>
                         <LayoutSider Width="@("200px")" Class="bg-light">
                             <LayoutSiderContent Padding="Padding.Is3">
@@ -70,14 +45,11 @@
                             </LayoutContent>
                         </Layout>
                     </Layout>
-                </Div>
-            </Div>
+            </DemoSection>
+        </section>
 
-            <Hr/>
-
-            <Div>
-                <H2>Fixed Header Layout</H2>
-                <Div Margin="Margin.Is3.FromEnd">
+        <section class="space-y-4">
+            <DemoSection Title="Fixed header" Description="Header fixed to viewport; content has top margin.">
                     <Layout>
                         <LayoutHeader Fixed BackgroundColor="BackgroundColor.Dark" TextColor="TextColor.White" Padding="Padding.Is3">
                             <H3 Margin="Margin.Is0.FromBottom">Fixed Header</H3>
@@ -87,26 +59,20 @@
                             <Paragraph>Notice how the content has top margin to account for the fixed header.</Paragraph>
                         </LayoutContent>
                     </Layout>
-                </Div>
-            </Div>
+            </DemoSection>
+        </section>
 
-            <Hr/>
-
-            <Div>
-                <H2>Layout Container</H2>
-                <Div Margin="Margin.Is3.FromEnd">
+        <section class="space-y-4">
+            <DemoSection Title="Layout container" Description="LayoutContainer wrapper with consistent styling.">
                     <LayoutContainer BackgroundColor="BackgroundColor.Light" Padding="Padding.Is3">
                         <H4>Layout Container</H4>
                         <Paragraph>LayoutContainer provides a wrapper for layout components with consistent styling.</Paragraph>
                     </LayoutContainer>
-                </Div>
-            </Div>
+            </DemoSection>
+        </section>
 
-            <Hr/>
-
-            <Div>
-                <H2>Complex Layout Example</H2>
-                <Div Margin="Margin.Is3.FromEnd">
+        <section class="space-y-4">
+            <DemoSection Title="Complex example" Description="Header, sidebar, main content with cards, footer.">
                     <Layout>
                         <LayoutHeader BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.White" Padding="Padding.Is3">
                             <Row>
@@ -174,41 +140,36 @@
                             </Layout>
                         </Layout>
                     </Layout>
-                </Div>
-            </Div>
+            </DemoSection>
+        </section>
 
-            <Hr/>
-
-            <Div>
-                <H2>Overlay Container</H2>
-                <Div Margin="Margin.Is3.FromEnd">
+        <section class="space-y-4">
+            <DemoSection Title="Overlay container" Description="Click to show overlay; close to hide.">
                     <Layout>
                         <LayoutContent Padding="Padding.Is3">
                             <H3>Overlay Container Demo</H3>
                             <Paragraph>Click the button to show an overlay container.</Paragraph>
-                            <Button BackgroundColor="@BackgroundColor.Primary" @onclick="ShowOverlay">Show Overlay</Button>
+                            <Button Class="bg-primary text-primary-foreground" @onclick="ShowOverlay">Show Overlay</Button>
                             
                             @if (_showOverlay)
                             {
                                 <OverlayContainer>
-                                    <Div Class="overlay-content" Style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 1000;">
+                                    <Div Class="fixed left-1/2 top-1/2 z-[1000] -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-5 shadow-lg">
                                         <H4>Overlay Content</H4>
-                                        <Paragraph>This is content in an overlay container.</Paragraph>
-                                        <Button BackgroundColor="@BackgroundColor.Secondary" @onclick="HideOverlay">Close</Button>
+                                        <Paragraph Margin="Margin.Is0">This is content in an overlay container.</Paragraph>
+                                        <Button Class="bg-secondary text-secondary-foreground" @onclick="HideOverlay">Close</Button>
                                     </Div>
                                 </OverlayContainer>
                             }
                         </LayoutContent>
                     </Layout>
-                </Div>
-            </Div>
+            </DemoSection>
+        </section>
 
-            <Hr/>
-
-            <Div>
-                <H2>Layout Component Properties</H2>
-                <Div BackgroundColor="BackgroundColor.Light" Padding="Padding.Is3" Margin="Margin.Is3.FromBottom">
-                    <H3>Layout Features</H3>
+        <section class="space-y-4">
+            <DemoSection Title="Layout features" Description="Overview of Layout, LayoutHeader, LayoutContent, LayoutFooter, LayoutSider, OverlayContainer.">
+                <Div Class="rounded-lg border border-border bg-muted/50 p-4">
+                    <H3 Class="text-lg font-semibold">Layout Features</H3>
                     <Paragraph>Layout components provide structured page organization:</Paragraph>
                     <UnorderedList>
                         <UnorderedListItem><Strong>Layout:</Strong> Main layout container with optional sider</UnorderedListItem>
@@ -221,13 +182,11 @@
                         <UnorderedListItem><Strong>OverlayContainer:</Strong> Container for overlay content</UnorderedListItem>
                     </UnorderedList>
                 </Div>
-            </Div>
+            </DemoSection>
+        </section>
 
-            <Hr/>
-
-            <Div>
-                <H2>Responsive Layout Example</H2>
-                <Div Margin="Margin.Is3.FromEnd">
+        <section class="space-y-4">
+            <DemoSection Title="Responsive layout" Description="Sidebar hidden on mobile (Breakpoint.Xl); columns adapt.">
                     <Layout>
                         <LayoutHeader BackgroundColor="BackgroundColor.Success" TextColor="TextColor.White" Padding="Padding.Is3">
                             <H3 Margin="Margin.Is0.FromBottom">Responsive Header</H3>
@@ -260,11 +219,10 @@
                             </Layout>
                         </Layout>
                     </Layout>
-                </Div>
-            </Div>
-        </Column>
-    </Row>
-</Container>
+            </DemoSection>
+        </section>
+    </Div>
+</Div>
 
 @code {
     private bool _showOverlay = false;

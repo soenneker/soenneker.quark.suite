@@ -1,25 +1,22 @@
 @page "/forms/sliders"
 
-<Container Padding="Padding.Is4.OnY">
-<Row>
-    <Column ColumnSize="@ColumnSize.Is12">
-        <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromBottom">
-            <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Sliders</H1>
-            <Paragraph Class="lead" TextColor="TextColor.Muted">This page demonstrates the Quark.Slider component with various configurations and use cases.</Paragraph>
-        </Div>
-    </Column>
-</Row>
+<PageTitle>Sliders - Quark Suite</PageTitle>
 
-<Row Gap="Gap.Is4">
-    <Column ColumnSize="@ColumnSize.Is12">
-        <Div>
-            <H2>🧪 BINDING TEST SECTION</H2>
-            <Alert BackgroundColor="BackgroundColor.Info" Margin="Margin.Is3.FromEnd">
-                <Strong>Test Instructions:</Strong> Move sliders below or click "Load Test Data" to verify binding works.
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-3">
+        <H1 Class="text-4xl font-bold tracking-tight">Sliders</H1>
+        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">Range input with Min, Max, Value binding, and styling options.</Paragraph>
+    </Div>
+
+    <Div Class="space-y-6">
+        <section class="space-y-4">
+            <DemoSection Title="Binding test" Description="Move sliders or use buttons to verify two-way binding.">
+            <Alert Class="border-border bg-muted/50" Margin="Margin.Is0.FromBottom">
+                <Strong>Test:</Strong> Move sliders or click "Load Test Data" to verify binding.
             </Alert>
 
-            <Div Margin="Margin.Is4.FromBottom" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Light" BorderRadius="BorderRadius.Default">
-                <H3 Margin="Margin.Is3.FromBottom">Two-Way Binding Test</H3>
+            <Div Class="p-4 rounded-lg border border-border bg-muted/30">
+                <H3 Class="text-lg font-semibold" Margin="Margin.Is0.FromBottom">Two-Way Binding</H3>
 
                 <Div Margin="Margin.Is3.FromBottom">
                     <Label For="testSlider1" FontWeight="FontWeight.Bold">Test Slider 1 (0-100):</Label>
@@ -37,14 +34,14 @@
                     </Div>
                 </Div>
 
-                <Div Margin="Margin.Is3.FromTop">
-                    <Button BackgroundColor="BackgroundColor.Primary" OnClick="LoadSliderTestData" Margin="Margin.Is2.FromEnd">Load Test Data</Button>
-                    <Button BackgroundColor="BackgroundColor.Secondary" OnClick="ClearSliderTestData" Margin="Margin.Is2.FromEnd">Clear Test Data (Set to 0)</Button>
-                    <Button BackgroundColor="BackgroundColor.Warning" OnClick="UpdateSliderTestData">Update to Random Values</Button>
+                <Div Class="flex flex-wrap gap-2 mt-4">
+                    <Button Class="bg-primary text-primary-foreground" OnClick="LoadSliderTestData">Load Test Data</Button>
+                    <Button Class="bg-secondary text-secondary-foreground" OnClick="ClearSliderTestData">Clear (0)</Button>
+                    <Button Class="bg-muted text-muted-foreground" OnClick="UpdateSliderTestData">Random</Button>
                 </Div>
 
-                <Div Margin="Margin.Is3.FromTop" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Success" Class="bg-opacity-10 rounded">
-                    <H4>Test Results:</H4>
+                <Div Class="mt-4 p-3 rounded-lg border border-border bg-muted/30">
+                    <H4 Class="text-sm font-semibold">Results:</H4>
                     <UnorderedList Margin="Margin.Is0.FromBottom">
                         <UnorderedListItem>
                             <Strong>Slider 1:</Strong> @_testSlider1.ToString("F1")
@@ -55,107 +52,86 @@
                     </UnorderedList>
                 </Div>
             </Div>
+            </DemoSection>
+        </section>
 
-            <Hr/>
-
-            <H2>Basic Slider</H2>
-            <Div Margin="Margin.Is3.FromBottom">
+        <section class="space-y-4">
+            <DemoSection Title="Basic" Description="@($"Current value: {_basicValue}.")">
                 <Slider Value="@_basicValue" OnValueChanged="HandleBasicValueChanged"/>
-            </Div>
-            <Paragraph TextColor="TextColor.Muted">Current value: <Strong>@_basicValue</Strong></Paragraph>
+            </DemoSection>
+        </section>
 
-            <CodeEditor ReadOnly="true" 
-                        Language="@("html")" 
-                        AutoHeight="true" Margin="Margin.Is3.FromTop"
-                        Text="@(@"<Slider Value=""@basicValue"" OnValueChanged=""HandleBasicValueChanged""/>")" />
-        </Div>
-
-        <Hr/>
-
-        <Div>
-            <H2>Slider with Min and Max</H2>
-            <Div Margin="Margin.Is3.FromBottom">
+        <section class="space-y-4">
+            <DemoSection Title="Min and max" Description="@($"Range 0–100; value {_minMaxValue}.")">
                 <Slider Min="0" Max="100" Value="@_minMaxValue" OnValueChanged="HandleMinMaxValueChanged"/>
-            </Div>
-            <Paragraph TextColor="TextColor.Muted">Current value: <Strong>@_minMaxValue</Strong> (Range: 0-100)</Paragraph>
+                <Paragraph Class="text-muted-foreground" Margin="Margin.Is0">Current value: <Strong>@_minMaxValue</Strong></Paragraph>
+            </DemoSection>
+        </section>
 
-            <CodeEditor ReadOnly="true" 
-                        Language="@("html")" 
-                        AutoHeight="true" Margin="Margin.Is3.FromTop"
-                        Text="@(@"<Slider Min=""0"" Max=""100"" Value=""@minMaxValue"" OnValueChanged=""HandleMinMaxValueChanged""/>")" />
-        </Div>
-
-        <Hr/>
-
-        <Div>
-            <H2>Slider with Step</H2>
-            <Div Margin="Margin.Is3.FromBottom">
+        <section class="space-y-4">
+            <DemoSection Title="Step" Description="@($"Step 5; value {_stepValue}.")">
                 <Slider Min="0" Max="100" Step="5" Value="@_stepValue" OnValueChanged="HandleStepValueChanged"/>
-            </Div>
-            <Paragraph TextColor="TextColor.Muted">Current value: <Strong>@_stepValue</Strong> (Step: 5)</Paragraph>
-        </Div>
+                <Paragraph Class="text-muted-foreground" Margin="Margin.Is0">Current value: <Strong>@_stepValue</Strong> (Step: 5)</Paragraph>
+            </DemoSection>
+        </section>
 
-        <Hr/>
+        <section class="space-y-4">
+            <DemoSection Title="Sizes" Description="Small, default, and large.">
+                <Div Class="space-y-4">
+                    <Div>
+                        <H5 Class="text-sm font-medium text-muted-foreground">Small</H5>
+                        <Slider Min="0" Max="100" Value="@_smallValue" Size="Size.Small" OnValueChanged="HandleSmallValueChanged"/>
+                        <Paragraph Class="text-muted-foreground" Margin="Margin.Is0">Value: <Strong>@_smallValue</Strong></Paragraph>
+                    </Div>
+                    <Div>
+                        <H5 Class="text-sm font-medium text-muted-foreground">Default</H5>
+                        <Slider Min="0" Max="100" Value="@_defaultValue" Size="Size.Default" OnValueChanged="HandleDefaultValueChanged"/>
+                        <Paragraph Class="text-muted-foreground" Margin="Margin.Is0">Value: <Strong>@_defaultValue</Strong></Paragraph>
+                    </Div>
+                    <Div>
+                        <H5 Class="text-sm font-medium text-muted-foreground">Large</H5>
+                        <Slider Min="0" Max="100" Value="@_largeValue" Size="Size.Large" OnValueChanged="HandleLargeValueChanged"/>
+                        <Paragraph Class="text-muted-foreground" Margin="Margin.Is0">Value: <Strong>@_largeValue</Strong></Paragraph>
+                    </Div>
+                </Div>
+            </DemoSection>
+        </section>
 
-        <Div>
-            <H2>Slider Sizes</H2>
-            <Div Margin="Margin.Is3.FromBottom">
-                <H5>Small Size</H5>
-                <Slider Min="0" Max="100" Value="@_smallValue" Size="Size.Small" OnValueChanged="HandleSmallValueChanged"/>
-                <Paragraph TextColor="TextColor.Muted">Small slider value: <Strong>@_smallValue</Strong></Paragraph>
-            </Div>
-            <Div Margin="Margin.Is3.FromBottom">
-                <H5>Default Size</H5>
-                <Slider Min="0" Max="100" Value="@_defaultValue" Size="Size.Default" OnValueChanged="HandleDefaultValueChanged"/>
-                <Paragraph TextColor="TextColor.Muted">Default slider value: <Strong>@_defaultValue</Strong></Paragraph>
-            </Div>
-            <Div Margin="Margin.Is3.FromBottom">
-                <H5>Large Size</H5>
-                <Slider Min="0" Max="100" Value="@_largeValue" Size="Size.Large" OnValueChanged="HandleLargeValueChanged"/>
-                <Paragraph TextColor="TextColor.Muted">Large slider value: <Strong>@_largeValue</Strong></Paragraph>
-            </Div>
-        </Div>
+        <section class="space-y-4">
+            <DemoSection Title="Colors" Description="Primary, success, warning, danger.">
+                <Div Class="space-y-4">
+                    <Div>
+                        <H5 Class="text-sm font-medium text-muted-foreground">Primary</H5>
+                        <Slider Min="0" Max="100" Value="@_primaryValue" Color="Color.Primary" OnValueChanged="HandlePrimaryValueChanged"/>
+                        <Paragraph Class="text-muted-foreground" Margin="Margin.Is0">@_primaryValue</Paragraph>
+                    </Div>
+                    <Div>
+                        <H5 Class="text-sm font-medium text-muted-foreground">Success</H5>
+                        <Slider Min="0" Max="100" Value="@_successValue" Color="Color.Success" OnValueChanged="HandleSuccessValueChanged"/>
+                        <Paragraph Class="text-muted-foreground" Margin="Margin.Is0">@_successValue</Paragraph>
+                    </Div>
+                    <Div>
+                        <H5 Class="text-sm font-medium text-muted-foreground">Warning</H5>
+                        <Slider Min="0" Max="100" Value="@_warningValue" Color="Color.Warning" OnValueChanged="HandleWarningValueChanged"/>
+                        <Paragraph Class="text-muted-foreground" Margin="Margin.Is0">@_warningValue</Paragraph>
+                    </Div>
+                    <Div>
+                        <H5 Class="text-sm font-medium text-muted-foreground">Danger</H5>
+                        <Slider Min="0" Max="100" Value="@_dangerValue" Color="Color.Danger" OnValueChanged="HandleDangerValueChanged"/>
+                        <Paragraph Class="text-muted-foreground" Margin="Margin.Is0">@_dangerValue</Paragraph>
+                    </Div>
+                </Div>
+            </DemoSection>
+        </section>
 
-        <Hr/>
-
-        <Div>
-            <H2>Slider Colors</H2>
-            <Div Margin="Margin.Is3.FromBottom">
-                <H5>Primary Color</H5>
-                <Slider Min="0" Max="100" Value="@_primaryValue" Color="Color.Primary" OnValueChanged="HandlePrimaryValueChanged"/>
-                <Paragraph TextColor="TextColor.Muted">Primary slider value: <Strong>@_primaryValue</Strong></Paragraph>
-            </Div>
-            <Div Margin="Margin.Is3.FromBottom">
-                <H5>Success Color</H5>
-                <Slider Min="0" Max="100" Value="@_successValue" Color="Color.Success" OnValueChanged="HandleSuccessValueChanged"/>
-                <Paragraph TextColor="TextColor.Muted">Success slider value: <Strong>@_successValue</Strong></Paragraph>
-            </Div>
-            <Div Margin="Margin.Is3.FromBottom">
-                <H5>Warning Color</H5>
-                <Slider Min="0" Max="100" Value="@_warningValue" Color="Color.Warning" OnValueChanged="HandleWarningValueChanged"/>
-                <Paragraph TextColor="TextColor.Muted">Warning slider value: <Strong>@_warningValue</Strong></Paragraph>
-            </Div>
-            <Div Margin="Margin.Is3.FromBottom">
-                <H5>Danger Color</H5>
-                <Slider Min="0" Max="100" Value="@_dangerValue" Color="Color.Danger" OnValueChanged="HandleDangerValueChanged"/>
-                <Paragraph TextColor="TextColor.Muted">Danger slider value: <Strong>@_dangerValue</Strong></Paragraph>
-            </Div>
-        </Div>
-
-        <Hr/>
-
-        <Div>
-            <H2>Disabled Slider</H2>
-            <Div Margin="Margin.Is3.FromBottom">
+        <section class="space-y-4">
+            <DemoSection Title="Disabled" Description="Slider is read-only.">
                 <Slider Min="0" Max="100" Value="50" Disabled="true"/>
-            </Div>
-            <Paragraph TextColor="TextColor.Muted">This slider is disabled and cannot be interacted with.</Paragraph>
-        </Div>
+            </DemoSection>
+        </section>
 
-        <Hr/>
-
-        <Div>
-            <H2>Range Slider (Min/Max Values)</H2>
+        <section class="space-y-4">
+            <DemoSection Title="Range (min/max)" Description="@($"Min {_rangeMin}, max {_rangeMax}.")">
             <Div Margin="Margin.Is3.FromBottom">
                 <Slider Min="0" Max="100" Value="@_rangeMin" OnValueChanged="HandleRangeMinChanged"/>
                 <Paragraph TextColor="TextColor.Muted">Min value: <Strong>@_rangeMin</Strong></Paragraph>
@@ -164,16 +140,15 @@
                 <Slider Min="0" Max="100" Value="@_rangeMax" OnValueChanged="HandleRangeMaxChanged"/>
                 <Paragraph TextColor="TextColor.Muted">Max value: <Strong>@_rangeMax</Strong></Paragraph>
             </Div>
-            <Div Margin="Margin.Is3.FromBottom">
-                <Paragraph TextColor="TextColor.Muted">Range: <Strong>@_rangeMin</Strong> - <Strong>@_rangeMax</Strong></Paragraph>
+            <Div>
+                <Paragraph Class="text-muted-foreground" Margin="Margin.Is0">Range: @_rangeMin – @_rangeMax</Paragraph>
             </Div>
-        </Div>
+            </DemoSection>
+        </section>
 
-        <Hr/>
-
-        <Div>
-            <H2>Slider with Labels</H2>
-            <Div Margin="Margin.Is3.FromBottom">
+        <section class="space-y-4">
+            <DemoSection Title="With labels" Description="@($"Labels 0–100; value {_labeledValue}.")">
+            <Div>
                 <Div Display="Display.Flex" JustifyContent="JustifyContent.Between" Margin="Margin.Is2.FromBottom">
                     <Span>0</Span>
                     <Span>25</Span>
@@ -182,42 +157,34 @@
                     <Span>100</Span>
                 </Div>
                 <Slider Min="0" Max="100" Value="@_labeledValue" OnValueChanged="HandleLabeledValueChanged"/>
-                <Paragraph TextColor="TextColor.Muted">Current value: <Strong>@_labeledValue</Strong></Paragraph>
+                <Paragraph Class="text-muted-foreground" Margin="Margin.Is0">Value: <Strong>@_labeledValue</Strong></Paragraph>
             </Div>
-        </Div>
+            </DemoSection>
+        </section>
 
-        <Hr/>
-
-        <Div>
-            <H2>Interactive Slider Controls</H2>
-            <Div Margin="Margin.Is3.FromBottom">
+        <section class="space-y-4">
+            <DemoSection Title="Interactive controls" Description="@($"Value {_interactiveValue}; buttons set 0, 50, 100, or random.")">
                 <Slider Min="0" Max="100" Value="@_interactiveValue" OnValueChanged="HandleInteractiveValueChanged"/>
-            </Div>
-            <Div Margin="Margin.Is3.FromBottom">
-                <Paragraph TextColor="TextColor.Muted">Current value: <Strong>@_interactiveValue</Strong></Paragraph>
-                <Button BackgroundColor="BackgroundColor.Primary" Size="ButtonSize.Sm" OnClick="SetToZero">Set to 0</Button>
-                <Button BackgroundColor="BackgroundColor.Secondary" Size="ButtonSize.Sm" OnClick="SetToFifty">Set to 50</Button>
-                <Button BackgroundColor="BackgroundColor.Success" Size="ButtonSize.Sm" OnClick="SetToHundred">Set to 100</Button>
-                <Button BackgroundColor="BackgroundColor.Info" Size="ButtonSize.Sm" OnClick="SetRandom">Random Value</Button>
-            </Div>
-        </Div>
+                <Div Class="flex flex-wrap gap-2 mt-4">
+                    <Button Class="bg-primary text-primary-foreground" Size="ButtonSize.Sm" OnClick="SetToZero">0</Button>
+                    <Button Class="bg-secondary text-secondary-foreground" Size="ButtonSize.Sm" OnClick="SetToFifty">50</Button>
+                    <Button Class="bg-primary text-primary-foreground" Size="ButtonSize.Sm" OnClick="SetToHundred">100</Button>
+                    <Button Class="bg-muted text-muted-foreground" Size="ButtonSize.Sm" OnClick="SetRandom">Random</Button>
+                </Div>
+            </DemoSection>
+        </section>
 
-        <Hr/>
-
-        <Div>
-            <H2>Slider with Custom Attributes</H2>
-            <Div Margin="Margin.Is3.FromBottom">
+        <section class="space-y-4">
+            <DemoSection Title="Custom attributes" Description="@($"Name, Id, Class; value {_customValue}.")">
                 <Slider Min="0" Max="100" Value="@_customValue"
                         OnValueChanged="HandleCustomValueChanged"
                         Name="customSlider"
                         Id="customSlider"
                         Class="custom-slider"/>
-            </Div>
-            <Paragraph TextColor="TextColor.Muted">Custom slider value: <Strong>@_customValue</Strong></Paragraph>
-        </Div>
-    </Column>
-</Row>
-</Container>
+            </DemoSection>
+        </section>
+    </Div>
+</Div>
 
 @code {
 

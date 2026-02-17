@@ -14,8 +14,9 @@ public sealed class TextOverflowBuilder : ICssBuilder
 {
     private readonly List<TextOverflowRule> _rules = new(4);
 
-    // ----- Class constants -----
-    private const string _classTruncate = "text-truncate";
+    // Tailwind: truncate (ellipsis), text-clip
+    private const string _classTruncate = "truncate";
+    private const string _classClip = "text-clip";
 
     // ----- CSS prefix -----
     private const string _textOverflowPrefix = "text-overflow: ";
@@ -155,7 +156,7 @@ public sealed class TextOverflowBuilder : ICssBuilder
 
             string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
-                baseClass = BreakpointUtil.InsertBreakpointType(baseClass, bp);
+                baseClass = BreakpointUtil.ApplyTailwindBreakpoint(baseClass, bp);
 
             if (!first) sb.Append(' ');
             else first = false;
@@ -198,14 +199,12 @@ public sealed class TextOverflowBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string GetTextOverflowClass(string textOverflow)
     {
-        switch (textOverflow)
+        return textOverflow switch
         {
-            case "clip":
-            case "ellipsis":
-                return _classTruncate;
-            default:
-                return string.Empty;
-        }
+            "clip" => _classClip,
+            "ellipsis" => _classTruncate,
+            _ => string.Empty
+        };
     }
 
 }

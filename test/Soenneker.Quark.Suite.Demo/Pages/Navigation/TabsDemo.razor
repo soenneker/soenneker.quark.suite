@@ -1,170 +1,148 @@
 @page "/navigation/tabs"
 
-<Container Fluid="true" Padding="Padding.Is4.OnY">
-    <Row>
-        <Column ColumnSize="ColumnSize.Is12">
-            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromBottom">
-                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Tabs</H1>
-                <Paragraph Class="lead" TextColor="TextColor.Muted">This page demonstrates the Quark.Tabs component with various configurations and use cases.</Paragraph>
-            </Div>
-        </Column>
-    </Row>
-    
-    <Row Gap="Gap.Is4">
-        <Column ColumnSize="ColumnSize.Is12">
-            <div>
-                <H2>Basic Tabs</H2>
-                <Div Margin="Margin.Is3.FromBottom">
-                    <Tabs>
+<PageTitle>Tabs - Quark Suite</PageTitle>
+
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-3">
+        <H1 Class="text-4xl font-bold tracking-tight">Tabs</H1>
+        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">Tabbed panels with Tab, Name, Title, and optional Pills or controlled SelectedTab.</Paragraph>
+    </Div>
+
+    <Div Class="space-y-6">
+        <section class="space-y-4">
+            <DemoSection Title="Basic tabs" Description="Tab components with Name and Title. First tab is selected by default."
+                        Code="@(@"<Tabs>
+    <Tab Name=""tab1"" Title=""Home""><Div Class=""p-3""><H5>Content</H5></Div></Tab>
+    <Tab Name=""tab2"" Title=""Profile""><Div Class=""p-3""><H5>Profile</H5></Div></Tab>
+</Tabs>")">
+                <Tabs>
                         <Tab Name="tab1" Title="Home">
-                            <div class="p-3">
+                            <Div Class="p-3">
                                 <H5>Home Content</H5>
                                 <Paragraph>This is the content for the Home tab. You can put any content here including other components.</Paragraph>
                                 <Button BackgroundColor="BackgroundColor.Primary">Action Button</Button>
                             </Div>
                         </Tab>
                         <Tab Name="tab2" Title="Profile">
-                            <div class="p-3">
+                            <Div Class="p-3">
                                 <H5>Profile Content</H5>
-                                <Paragraph>This is the content for the Profile tab. Here you might display user information or settings.</Paragraph>
-                                <div class="form-group">
-                                    <Label>Name:</Label>
+                                <Paragraph Margin="Margin.Is0">This is the content for the Profile tab. Here you might display user information or settings.</Paragraph>
+                                <Div Class="space-y-1">
+                                    <Label Form="true">Name:</Label>
                                     <TextEdit Placeholder="Enter your name" />
                                 </Div>
                             </Div>
                         </Tab>
                         <Tab Name="tab3" Title="Settings">
-                            <div class="p-3">
+                            <Div Class="p-3">
                                 <H5>Settings Content</H5>
                                 <Paragraph>This is the content for the Settings tab. Configuration options would go here.</Paragraph>
                                 <Switch @bind-Checked="_setting1">Enable notifications</Switch>
                             </Div>
                         </Tab>
                     </Tabs>
-                </Div>
+            </DemoSection>
+        </section>
 
-                <CodeEditor ReadOnly="true" 
-                            Language="@("html")" 
-                            AutoHeight="true" Margin="Margin.Is3.FromTop"
-                            Text="@(@"<Tabs>
-    <Tab Name=""tab1"" Title=""Home"">
-        <div class=""p-3"">
-            <H5>Home Content</H5>
-            <Paragraph>Tab content goes here.</Paragraph>
-        </div>
-    </Tab>
-    <Tab Name=""tab2"" Title=""Profile"">
-        <div class=""p-3"">
-            <H5>Profile Content</H5>
-        </div>
-    </Tab>
-</Tabs>")" />
-            </Div>
-
-            <Hr />
-
-            <div>
-                <H2>Controlled Tabs</H2>
-                <Div Margin="Margin.Is3.FromBottom">
+        <section class="space-y-4">
+            <DemoSection Title="Controlled tabs" Description="@($"SelectedTab and OnSelectedTabChanged; current: {_selectedTab}.")">
+                <Div Class="rounded-xl border border-border bg-muted/30 p-6">
                     <Tabs SelectedTab="@_selectedTab" OnSelectedTabChanged="HandleTabChanged">
                         <Tab Name="controlled1" Title="First Tab">
-                            <div class="p-3">
+                            <Div Class="p-3">
                                 <H5>First Tab Content</H5>
-                                <Paragraph>This is the first tab content. Current selected tab: <Strong>@_selectedTab</Strong></Paragraph>
+                                <Paragraph Margin="Margin.Is0">This is the first tab content. Current selected tab: <Strong>@_selectedTab</Strong></Paragraph>
                             </Div>
                         </Tab>
                         <Tab Name="controlled2" Title="Second Tab">
-                            <div class="p-3">
+                            <Div Class="p-3">
                                 <H5>Second Tab Content</H5>
-                                <Paragraph>This is the second tab content. Current selected tab: <Strong>@_selectedTab</Strong></Paragraph>
+                                <Paragraph Margin="Margin.Is0">This is the second tab content. Current selected tab: <Strong>@_selectedTab</Strong></Paragraph>
                             </Div>
                         </Tab>
                         <Tab Name="controlled3" Title="Third Tab">
-                            <div class="p-3">
+                            <Div Class="p-3">
                                 <H5>Third Tab Content</H5>
-                                <Paragraph>This is the third tab content. Current selected tab: <Strong>@_selectedTab</Strong></Paragraph>
+                                <Paragraph Margin="Margin.Is0">This is the third tab content. Current selected tab: <Strong>@_selectedTab</Strong></Paragraph>
                             </Div>
                         </Tab>
                     </Tabs>
                 </Div>
-                <Div Margin="Margin.Is3.FromBottom">
-                    <Button BackgroundColor="BackgroundColor.Primary" Size="ButtonSize.Sm" OnClick="GoToFirstTab">Go to First Tab</Button>
-                    <Button BackgroundColor="BackgroundColor.Secondary" Size="ButtonSize.Sm" OnClick="GoToSecondTab">Go to Second Tab</Button>
-                    <Button BackgroundColor="BackgroundColor.Success" Size="ButtonSize.Sm" OnClick="GoToThirdTab">Go to Third Tab</Button>
+                <Div Class="flex flex-wrap gap-2 mt-4">
+                    <Button Class="bg-primary text-primary-foreground" Size="ButtonSize.Sm" OnClick="GoToFirstTab">First</Button>
+                    <Button Class="bg-secondary text-secondary-foreground" Size="ButtonSize.Sm" OnClick="GoToSecondTab">Second</Button>
+                    <Button Class="bg-primary text-primary-foreground" Size="ButtonSize.Sm" OnClick="GoToThirdTab">Third</Button>
                 </Div>
-            </Div>
+            </DemoSection>
+        </section>
 
-            <Hr />
-
-            <div>
-                <H2>Tabs with Different Styles</H2>
-                <Div Margin="Margin.Is3.FromBottom">
-                    <H5>Pills Style</H5>
+        <section class="space-y-4">
+            <DemoSection Title="Pills style" Description="Pills variant for tab headers.">
+                <Div Class="rounded-xl border border-border bg-muted/30 p-6">
+                    <H5 Class="text-sm font-medium text-muted-foreground">Pills</H5>
                     <Tabs Pills="true">
                         <Tab Name="pills1" Title="Pill 1">
-                            <div class="p-3">
+                            <Div Class="p-3">
                                 <H5>Pill Tab 1</H5>
                                 <Paragraph>This tab uses the pills style for a different appearance.</Paragraph>
                             </Div>
                         </Tab>
                         <Tab Name="pills2" Title="Pill 2">
-                            <div class="p-3">
+                            <Div Class="p-3">
                                 <H5>Pill Tab 2</H5>
                                 <Paragraph>Another pill-style tab with different content.</Paragraph>
                             </Div>
                         </Tab>
                         <Tab Name="pills3" Title="Pill 3">
-                            <div class="p-3">
+                            <Div Class="p-3">
                                 <H5>Pill Tab 3</H5>
                                 <Paragraph>Third pill-style tab to demonstrate the styling.</Paragraph>
                             </Div>
                         </Tab>
                     </Tabs>
                 </Div>
-            </Div>
+            </DemoSection>
+        </section>
 
-            <Hr />
-
-            <div>
-                <H2>Tabs with Icons</H2>
-                <Div Margin="Margin.Is3.FromBottom">
+        <section class="space-y-4">
+            <DemoSection Title="Tabs with icons" Description="IconName on each tab (home, user, cog, envelope).">
+                <Div Class="rounded-xl border border-border bg-muted/30 p-6">
                     <Tabs>
                         <Tab Name="icon1" Title="Home" IconName="home">
-                            <div class="p-3">
+                            <Div Class="p-3">
                                 <H5>Home with Icon</H5>
                                 <Paragraph>This tab has a home icon in the title.</Paragraph>
                             </Div>
                         </Tab>
                         <Tab Name="icon2" Title="Profile" IconName="user">
-                            <div class="p-3">
+                            <Div Class="p-3">
                                 <H5>Profile with Icon</H5>
                                 <Paragraph>This tab has a user icon in the title.</Paragraph>
                             </Div>
                         </Tab>
                         <Tab Name="icon3" Title="Settings" IconName="cog">
-                            <div class="p-3">
+                            <Div Class="p-3">
                                 <H5>Settings with Icon</H5>
                                 <Paragraph>This tab has a settings icon in the title.</Paragraph>
                             </Div>
                         </Tab>
                         <Tab Name="icon4" Title="Messages" IconName="envelope">
-                            <div class="p-3">
+                            <Div Class="p-3">
                                 <H5>Messages with Icon</H5>
                                 <Paragraph>This tab has an envelope icon in the title.</Paragraph>
                             </Div>
                         </Tab>
                     </Tabs>
                 </Div>
-            </Div>
+            </DemoSection>
+        </section>
 
-            <Hr />
-
-            <div>
-                <H2>Vertical Tabs</H2>
-                <Div Margin="Margin.Is3.FromBottom">
+        <section class="space-y-4">
+            <DemoSection Title="Vertical tabs" Description="Tabs on the left side.">
+                <Div Class="rounded-xl border border-border bg-muted/30 p-6">
                     <Tabs Vertical="true">
                         <Tab Name="vertical1" Title="Dashboard">
-                            <div class="p-3">
+                            <Div Class="p-3">
                                 <H5>Dashboard Content</H5>
                                 <Paragraph>This is a vertical tab layout. The tabs are displayed on the left side.</Paragraph>
                                 <Row>
@@ -196,22 +174,22 @@
                             </Div>
                         </Tab>
                         <Tab Name="vertical2" Title="Analytics">
-                            <div class="p-3">
+                            <Div Class="p-3">
                                 <H5>Analytics Content</H5>
                                 <Paragraph>Analytics and reporting features would be displayed here.</Paragraph>
                                 <div class="progress mb-2">
-                                    <div class="progress-bar" style="width: 75%">75%</Div>
-                                </Div>
+                                    <div class="progress-bar" style="width: 75%">75%</div>
+                                </div>
                                 <div class="progress mb-2">
-                                    <div class="progress-bar bg-success" style="width: 60%">60%</Div>
-                                </Div>
+                                    <div class="progress-bar bg-success" style="width: 60%">60%</div>
+                                </div>
                                 <div class="progress">
-                                    <div class="progress-bar bg-warning" style="width: 40%">40%</Div>
-                                </Div>
+                                    <div class="progress-bar bg-warning" style="width: 40%">40%</div>
+                                </div>
                             </Div>
                         </Tab>
                         <Tab Name="vertical3" Title="Reports">
-                            <div class="p-3">
+                            <Div Class="p-3">
                                 <H5>Reports Content</H5>
                                 <Paragraph>Various reports and data visualization would be shown here.</Paragraph>
                                 <Button BackgroundColor="BackgroundColor.Primary">Generate Report</Button>
@@ -220,46 +198,44 @@
                         </Tab>
                     </Tabs>
                 </Div>
-            </Div>
+            </DemoSection>
+        </section>
 
-            <Hr />
-
-            <div>
-                <H2>Disabled Tabs</H2>
-                <Div Margin="Margin.Is3.FromBottom">
+        <section class="space-y-4">
+            <DemoSection Title="Disabled tab" Description="One tab is disabled.">
+                <Div Class="rounded-xl border border-border bg-muted/30 p-6">
                     <Tabs>
                         <Tab Name="disabled1" Title="Enabled Tab">
-                            <div class="p-3">
+                            <Div Class="p-3">
                                 <H5>This tab is enabled</H5>
                                 <Paragraph>You can interact with this tab normally.</Paragraph>
                             </Div>
                         </Tab>
                         <Tab Name="disabled2" Title="Disabled Tab" Disabled="true">
-                            <div class="p-3">
+                            <Div Class="p-3">
                                 <H5>This tab is disabled</H5>
                                 <Paragraph>This content won't be shown because the tab is disabled.</Paragraph>
                             </Div>
                         </Tab>
                         <Tab Name="disabled3" Title="Another Enabled Tab">
-                            <div class="p-3">
+                            <Div Class="p-3">
                                 <H5>This tab is also enabled</H5>
                                 <Paragraph>You can switch to this tab as well.</Paragraph>
                             </Div>
                         </Tab>
                     </Tabs>
                 </Div>
-            </Div>
+            </DemoSection>
+        </section>
 
-            <Hr />
-
-            <div>
-                <H2>Dynamic Tabs</H2>
-                <Div Margin="Margin.Is3.FromBottom">
+        <section class="space-y-4">
+            <DemoSection Title="Dynamic tabs" Description="@($"Add/remove tabs; count: {_dynamicTabs.Count}.")">
+                <Div Class="rounded-xl border border-border bg-muted/30 p-6">
                     <Tabs SelectedTab="@_dynamicSelectedTab" OnSelectedTabChanged="HandleDynamicTabChanged">
                         @foreach (DynamicTab tab in _dynamicTabs)
                         {
                             <Tab Name="@tab.Name" Title="@tab.Title">
-                                <div class="p-3">
+                                <Div Class="p-3">
                                     <H5>@tab.Title Content</H5>
                                     <Paragraph>This is dynamic tab content for: <Strong>@tab.Title</Strong></Paragraph>
                                     <Paragraph>Tab ID: <code>@tab.Name</code></Paragraph>
@@ -268,16 +244,15 @@
                         }
                     </Tabs>
                 </Div>
-                <Div Margin="Margin.Is3.FromBottom">
-                    <Button BackgroundColor="BackgroundColor.Primary" Size="ButtonSize.Sm" OnClick="AddDynamicTab">Add Tab</Button>
-                    <Button BackgroundColor="BackgroundColor.Danger" Size="ButtonSize.Sm" OnClick="RemoveDynamicTab">Remove Last Tab</Button>
-                    <Button BackgroundColor="BackgroundColor.Info" Size="ButtonSize.Sm" OnClick="ClearDynamicTabs">Clear All Tabs</Button>
+                <Div Class="flex flex-wrap gap-2 mt-4">
+                    <Button Class="bg-primary text-primary-foreground" Size="ButtonSize.Sm" OnClick="AddDynamicTab">Add Tab</Button>
+                    <Button Class="bg-destructive text-destructive-foreground" Size="ButtonSize.Sm" OnClick="RemoveDynamicTab">Remove Last</Button>
+                    <Button Class="bg-muted text-muted-foreground" Size="ButtonSize.Sm" OnClick="ClearDynamicTabs">Clear All</Button>
                 </Div>
-                <Paragraph TextColor="TextColor.Muted">Dynamic tabs count: <Strong>@_dynamicTabs.Count</Strong></Paragraph>
-            </Div>
-        </Column>
-    </Row>
-</Container>
+            </DemoSection>
+        </section>
+    </Div>
+</Div>
 
 @code {
     private string _selectedTab = "controlled1";

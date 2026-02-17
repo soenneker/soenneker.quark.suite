@@ -37,38 +37,38 @@ public sealed class GutterBuilder : ICssBuilder
 
     // Gutter type methods
     /// <summary>
-    /// Sets the horizontal (X) gutter value.
+    /// Sets the horizontal (X) gutter value. Tailwind gap-x-0..gap-x-12 (shadcn compatible).
     /// </summary>
-    /// <param name="value">The horizontal gutter value (0-5).</param>
+    /// <param name="value">The horizontal gutter value (0-12).</param>
     /// <returns>The builder instance for method chaining.</returns>
     public GutterBuilder X(int value)
     {
         var newRules = new List<GutterRule>(_rules);
-        newRules.Add(new GutterRule(Math.Clamp(value, 0, 5), GutterType.X, null));
+        newRules.Add(new GutterRule(Math.Clamp(value, 0, 12), GutterType.X, null));
         return new GutterBuilder(newRules);
     }
 
     /// <summary>
-    /// Sets the vertical (Y) gutter value.
+    /// Sets the vertical (Y) gutter value. Tailwind gap-y-0..gap-y-12 (shadcn compatible).
     /// </summary>
-    /// <param name="value">The vertical gutter value (0-5).</param>
+    /// <param name="value">The vertical gutter value (0-12).</param>
     /// <returns>The builder instance for method chaining.</returns>
     public GutterBuilder Y(int value)
     {
         var newRules = new List<GutterRule>(_rules);
-        newRules.Add(new GutterRule(Math.Clamp(value, 0, 5), GutterType.Y, null));
+        newRules.Add(new GutterRule(Math.Clamp(value, 0, 12), GutterType.Y, null));
         return new GutterBuilder(newRules);
     }
 
     /// <summary>
-    /// Sets both horizontal and vertical gutter values.
+    /// Sets both horizontal and vertical gutter values. Tailwind gap-0..gap-12 (shadcn compatible).
     /// </summary>
-    /// <param name="value">The gutter value for both axes (0-5).</param>
+    /// <param name="value">The gutter value for both axes (0-12).</param>
     /// <returns>The builder instance for method chaining.</returns>
     public GutterBuilder All(int value)
     {
         var newRules = new List<GutterRule>(_rules);
-        newRules.Add(new GutterRule(Math.Clamp(value, 0, 5), GutterType.All, null));
+        newRules.Add(new GutterRule(Math.Clamp(value, 0, 12), GutterType.All, null));
         return new GutterBuilder(newRules);
     }
 

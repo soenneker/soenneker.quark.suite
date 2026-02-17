@@ -14,24 +14,25 @@ public sealed class GapBuilder : ICssBuilder
 {
     private readonly List<GapRule> _rules = new(4);
 
+    // Tailwind: gap-*, gap-x-* (column), gap-y-* (row) — shadcn/Tailwind compatible
     private const string _classGap0 = "gap-0";
     private const string _classGap1 = "gap-1";
     private const string _classGap2 = "gap-2";
     private const string _classGap3 = "gap-3";
     private const string _classGap4 = "gap-4";
     private const string _classGap5 = "gap-5";
-    private const string _classColumnGap0 = "column-gap-0";
-    private const string _classColumnGap1 = "column-gap-1";
-    private const string _classColumnGap2 = "column-gap-2";
-    private const string _classColumnGap3 = "column-gap-3";
-    private const string _classColumnGap4 = "column-gap-4";
-    private const string _classColumnGap5 = "column-gap-5";
-    private const string _classRowGap0 = "row-gap-0";
-    private const string _classRowGap1 = "row-gap-1";
-    private const string _classRowGap2 = "row-gap-2";
-    private const string _classRowGap3 = "row-gap-3";
-    private const string _classRowGap4 = "row-gap-4";
-    private const string _classRowGap5 = "row-gap-5";
+    private const string _classGapX0 = "gap-x-0";
+    private const string _classGapX1 = "gap-x-1";
+    private const string _classGapX2 = "gap-x-2";
+    private const string _classGapX3 = "gap-x-3";
+    private const string _classGapX4 = "gap-x-4";
+    private const string _classGapX5 = "gap-x-5";
+    private const string _classGapY0 = "gap-y-0";
+    private const string _classGapY1 = "gap-y-1";
+    private const string _classGapY2 = "gap-y-2";
+    private const string _classGapY3 = "gap-y-3";
+    private const string _classGapY4 = "gap-y-4";
+    private const string _classGapY5 = "gap-y-5";
     private const string _stylePrefix = "gap: ";
 
     internal GapBuilder(string size, BreakpointType? breakpoint = null, string direction = "")
@@ -174,7 +175,7 @@ public sealed class GapBuilder : ICssBuilder
             string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
 
             if (bp.Length != 0)
-                cls = BreakpointUtil.InsertBreakpointType(cls, bp);
+                cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
             if (!first) 
                 sb.Append(' ');
@@ -232,12 +233,12 @@ public sealed class GapBuilder : ICssBuilder
         {
             return size switch
             {
-                ScaleType.Is0Value => _classColumnGap0,
-                ScaleType.Is1Value => _classColumnGap1,
-                ScaleType.Is2Value => _classColumnGap2,
-                ScaleType.Is3Value => _classColumnGap3,
-                ScaleType.Is4Value => _classColumnGap4,
-                ScaleType.Is5Value => _classColumnGap5,
+                ScaleType.Is0Value => _classGapX0,
+                ScaleType.Is1Value => _classGapX1,
+                ScaleType.Is2Value => _classGapX2,
+                ScaleType.Is3Value => _classGapX3,
+                ScaleType.Is4Value => _classGapX4,
+                ScaleType.Is5Value => _classGapX5,
                 _ => string.Empty
             };
         }
@@ -245,12 +246,12 @@ public sealed class GapBuilder : ICssBuilder
         {
             return size switch
             {
-                ScaleType.Is0Value => _classRowGap0,
-                ScaleType.Is1Value => _classRowGap1,
-                ScaleType.Is2Value => _classRowGap2,
-                ScaleType.Is3Value => _classRowGap3,
-                ScaleType.Is4Value => _classRowGap4,
-                ScaleType.Is5Value => _classRowGap5,
+                ScaleType.Is0Value => _classGapY0,
+                ScaleType.Is1Value => _classGapY1,
+                ScaleType.Is2Value => _classGapY2,
+                ScaleType.Is3Value => _classGapY3,
+                ScaleType.Is4Value => _classGapY4,
+                ScaleType.Is5Value => _classGapY5,
                 _ => string.Empty
             };
         }

@@ -1,52 +1,43 @@
-/* Quark Steps - Custom implementation without Bootstrap dependencies */
-
-/* Horizontal steps bar with connectors */
-.steps { 
-    display: flex; 
-    align-items: flex-start; 
-    margin: 0; 
-    padding: 0; 
-    list-style: none; 
+.steps {
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    padding: 0;
+    list-style: none;
     position: relative;
     width: 100%;
-    flex-wrap: wrap; /* allow content to wrap to next line if injected here */
+    flex-wrap: wrap;
 }
 
-/* Ensure steps and content stack vertically within any flex parent */
 .steps-container {
-    display: flex !important;            /* force vertical stacking regardless of parent flex */
+    display: flex !important;
     flex-direction: column !important;
     width: 100% !important;
     gap: 1rem;
 }
 
-/* Ensure children take full row width */
 .steps-container > .steps,
 .steps-container > .tab-content {
     width: 100% !important;
     flex: 0 0 auto !important;
 }
 
-/* Ensure content is block-level in case a framework overrides it */
 .steps-container > .tab-content {
     display: block !important;
 }
 
-/* If tab-content is rendered as a child of the steps list, force it below */
 .steps > .tab-content {
     flex: 0 0 100% !important;
     width: 100% !important;
 }
 
-/* each item is a step item */
-.steps .step-item { 
-    position: relative !important; 
-    display: flex !important; 
+.steps .step-item {
+    position: relative !important;
+    display: flex !important;
     flex: 1 !important;
     align-items: flex-start !important;
 }
 
-/* Each step is a small circle with a caption under it */
 .steps a {
     display: flex;
     flex-direction: column;
@@ -57,32 +48,29 @@
     border: 0 !important;
     background: transparent !important;
     text-decoration: none;
-    color: #6c757d;
+    color: var(--muted-foreground);
     width: 100%;
 }
 
-/* Reset unwanted pseudo-elements but preserve our connector lines */
 .steps .step-item *:not(i):not(.fa):not([class*="fa-"])::before,
 .steps .step-item *:not(i):not(.fa):not([class*="fa-"])::after {
     content: none !important;
     display: none !important;
 }
 
-/* Add connector line to all items except the last one */
 .steps li.step-item:not(:last-of-type)::after {
     content: "" !important;
     display: block !important;
     position: absolute !important;
-    top: 1.0625rem !important; /* Half of step-marker height (2.125rem) */
-    left: calc(50% + 1.0625rem) !important; /* Start from center of current marker + half marker width */
-    right: calc(-50% + 1.0625rem) !important; /* End at center of next marker - half marker width */
+    top: 1.0625rem !important;
+    left: calc(50% + 1.0625rem) !important;
+    right: calc(-50% + 1.0625rem) !important;
     height: 0.125rem !important;
-    background-color: var(--steps-connector-color, #cfd3d7) !important;
+    background-color: var(--border) !important;
     z-index: 1 !important;
     pointer-events: none !important;
 }
 
-/* Marker: circular number */
 .step-marker {
     position: relative;
     width: 2.125rem;
@@ -94,46 +82,50 @@
     border-radius: 50%;
     font-weight: 600;
     font-size: 0.85rem;
-    color: #6c757d;
-    background-color: transparent !important; /* Not filled by default */
-    border: 0.125rem solid #dee2e6;
+    color: var(--muted-foreground);
+    background-color: transparent !important;
+    border: 0.125rem solid var(--border);
     transition: all 0.2s ease;
     flex-shrink: 0;
     z-index: 2;
 }
 
-/* Active step marker - filled in */
 .steps a.active .step-marker {
-    color: var(--steps-marker-active-color, #fff) !important;
-    background-color: var(--steps-marker-active-bg, #343a40) !important;
-    border-color: var(--steps-marker-active-border, #343a40) !important;
+    color: var(--primary-foreground) !important;
+    background-color: var(--primary) !important;
+    border-color: var(--primary) !important;
 }
 
-/* make current step caption stand out a bit more */
 .steps a.active .step-description,
 .steps a.active .step-title {
-    color: var(--steps-text-active, #343a40);
+    color: var(--foreground);
     font-weight: 600;
 }
 
-/* neutralize any active link text color inside steps */
-.steps a.active { color: var(--steps-text-active, #343a40) !important; }
+.steps a.active {
+    color: var(--foreground) !important;
+}
 
-/* completed state - custom success styling */
 .steps a.text-success {
-    background-color: color-mix(in srgb, var(--steps-success, #198754) 10%, transparent);
-    border-color: color-mix(in srgb, var(--steps-success, #198754) 35%, transparent);
-    color: var(--steps-success, #198754);
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--chart-2);
+}
+
+.steps a.text-success .step-marker {
+    background-color: var(--chart-2) !important;
+    color: var(--primary-foreground) !important;
+    border-color: var(--chart-2) !important;
 }
 
 .steps a.disabled {
-    background-color: var(--steps-disabled-bg, #f8f9fa);
-    color: var(--steps-disabled-color, #6c757d);
+    background-color: var(--muted);
+    color: var(--muted-foreground);
     opacity: 0.6;
 }
 
-/* Title below marker */
-.step-description, .step-title {
+.step-description,
+.step-title {
     font-size: 0.9rem;
     line-height: 1.2;
     color: inherit;
@@ -141,17 +133,15 @@
     word-wrap: break-word;
 }
 
-/* content wrapper: breathable spacing and clean card-like surface */
 .tab-content {
     margin-top: 1.25rem;
     padding: 1.25rem;
-    background-color: var(--steps-content-bg, #fff);
-    border: 1px solid var(--steps-content-border, #dee2e6);
-    border-radius: var(--steps-content-radius, 0.75rem);
-    box-shadow: var(--steps-content-shadow, 0 0.125rem 0.25rem rgba(0,0,0,0.075));
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-/* panes should not be absolutely positioned; use custom fade show */
 .tab-pane {
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
@@ -164,13 +154,11 @@
     transform: none;
 }
 
-/* focus states for accessibility */
 .steps a:focus {
-    outline: 2px solid var(--steps-focus-outline, #0d6efd);
+    outline: 2px solid var(--ring);
     outline-offset: 2px;
 }
 
-/* improve spacing and alignment */
 .steps a {
     text-decoration: none;
     cursor: pointer;
@@ -186,16 +174,8 @@
     pointer-events: none;
 }
 
-/* step status indicators */
 .step-marker.step-marker-active {
     transform: scale(1.1);
-}
-
-/* completed step styling */
-.steps a.text-success .step-marker {
-    background-color: var(--steps-success, #198754);
-    color: var(--steps-marker-success-color, #fff);
-    border-color: var(--steps-success, #198754);
 }
 
 @media (max-width: 576px) {
@@ -205,19 +185,19 @@
         min-width: 1.75rem;
         font-size: 0.75rem;
     }
-    
-    /* Adjust connector line position for smaller markers */
+
     .steps li.step-item:not(:last-of-type)::after {
-        top: 0.875rem !important; /* Half of smaller step-marker height (1.75rem) */
-        left: calc(50% + 0.875rem) !important; /* Start from center of current marker + half marker width */
-        right: calc(-50% + 0.875rem) !important; /* End at center of next marker - half marker width */
+        top: 0.875rem !important;
+        left: calc(50% + 0.875rem) !important;
+        right: calc(-50% + 0.875rem) !important;
     }
-    
+
     .steps a {
         font-size: 0.875rem;
     }
-    
-    .step-description, .step-title {
+
+    .step-description,
+    .step-title {
         font-size: 0.8rem;
     }
 }

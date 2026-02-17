@@ -13,7 +13,7 @@ public sealed class TruncateBuilder : ICssBuilder
 {
     private readonly List<TruncateRule> _rules = new(4);
 
-    private const string _classTextTruncate = "text-truncate";
+    private const string _classTextTruncate = "truncate";
 
     internal TruncateBuilder(BreakpointType? breakpoint = null)
     {
@@ -85,7 +85,7 @@ public sealed class TruncateBuilder : ICssBuilder
 
             string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
-                cls = BreakpointUtil.InsertBreakpointType(cls, bp);
+                cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
             if (!first) sb.Append(' ');
             else first = false;

@@ -1,214 +1,98 @@
 @page "/overlays/offcanvas"
-@using Microsoft.Extensions.Logging
 
-@inject ILogger<Index> Logger
+<PageTitle>Offcanvas - Quark Suite</PageTitle>
 
-<Container Padding="Padding.Is4.OnY">
-    <Row>
-        <Column>
-            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Offcanvas</H1>
-                <Paragraph Class="lead" TextColor="TextColor.Muted">This page demonstrates the offcanvas component functionality.</Paragraph>
-            </Div>
-        </Column>
-    </Row>
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-3">
+        <H1 Class="text-4xl font-bold tracking-tight">Offcanvas</H1>
+        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">
+            Slide-in panels for navigation, filters, or supplemental content.
+        </Paragraph>
+    </Div>
 
-    <Row Gap="Gap.Is4">
-        <Column>
-            <Div>
-                <H2>Start Offcanvas</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Button BackgroundColor="@BackgroundColor.Primary" OnClick="@(() => ShowStartOffcanvas = true)">Show Start Offcanvas</Button>
-                </Div>
+    <Section Class="space-y-6">
+        <H2 Class="text-2xl font-semibold tracking-tight">Placements</H2>
+        <Div Class="flex flex-wrap gap-2">
+            <Button BackgroundColor="BackgroundColor.Primary" OnClick="@(() => _startOffcanvasRef?.Show())">Start</Button>
+            <Button BackgroundColor="BackgroundColor.Success" OnClick="@(() => _endOffcanvasRef?.Show())">End</Button>
+            <Button BackgroundColor="BackgroundColor.Info" OnClick="@(() => _topOffcanvasRef?.Show())">Top</Button>
+            <Button BackgroundColor="BackgroundColor.Warning" OnClick="@(() => _bottomOffcanvasRef?.Show())">Bottom</Button>
+        </Div>
+    </Section>
 
-                <CodeEditor ReadOnly="true" 
-                            Language="@("html")" 
-                            AutoHeight="true" Margin="Margin.Is3.FromTop"
-                            Text="@(@"<Button BackgroundColor=""@BackgroundColor.Primary"" 
-        OnClick=""@(() => ShowStartOffcanvas = true)"">Show Offcanvas</Button>
+    <Section Class="space-y-6">
+        <H2 Class="text-2xl font-semibold tracking-tight">Options</H2>
+        <Div Class="flex flex-wrap gap-2">
+            <Button BackgroundColor="BackgroundColor.Secondary" OnClick="@(() => _noBackdropOffcanvasRef?.Show())">No Backdrop</Button>
+            <Button BackgroundColor="BackgroundColor.Dark" OnClick="@(() => _scrollableOffcanvasRef?.Show())">Scrollable</Button>
+        </Div>
+    </Section>
 
-<Offcanvas @bind-Visible=""ShowStartOffcanvas"" Placement=""Placement.Start"">
-    <OffcanvasHeader>
-        <OffcanvasTitle>Offcanvas Title</OffcanvasTitle>
-        <OffcanvasCloseButton/>
-    </OffcanvasHeader>
-    <OffcanvasBody>
-        <Paragraph>Offcanvas content goes here.</Paragraph>
-    </OffcanvasBody>
-</Offcanvas>")" />
-            </Div>
+    <Section Class="space-y-6">
+        <H2 Class="text-2xl font-semibold tracking-tight">Code</H2>
+        <CodeEditor ReadOnly="true" Language="html" AutoHeight="true" Text="@(@"<Button OnClick=""@(() => offcanvasRef?.Show())"">Show</Button>
+<Offcanvas @ref=""offcanvasRef"" Placement=""PlacementType.Start"">
+    <OffcanvasHeader Title=""Title"" ShowCloseButton=""true""/>
+    <OffcanvasBody><Paragraph>Content...</Paragraph></OffcanvasBody>
+</Offcanvas>")"/>
+    </Section>
+</Div>
 
-            <Hr/>
-
-            <Div>
-                <H2>End Offcanvas</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Button BackgroundColor="@BackgroundColor.Success" OnClick="@(() => ShowEndOffcanvas = true)">Show End Offcanvas</Button>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Top Offcanvas</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Button BackgroundColor="@BackgroundColor.Info" OnClick="@(() => ShowTopOffcanvas = true)">Show Top Offcanvas</Button>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Bottom Offcanvas</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Button BackgroundColor="@BackgroundColor.Warning" OnClick="@(() => ShowBottomOffcanvas = true)">Show Bottom Offcanvas</Button>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>No Backdrop Offcanvas</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Button BackgroundColor="@BackgroundColor.Secondary" OnClick="@(() => ShowNoBackdropOffcanvas = true)">Show No Backdrop</Button>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Scrollable Offcanvas</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Button BackgroundColor="@BackgroundColor.Dark" OnClick="@(() => ShowScrollableOffcanvas = true)">Show Scrollable</Button>
-                </Div>
-            </Div>
-        </Column>
-    </Row>
-</Container>
-
-<!-- Start Offcanvas -->
 <Offcanvas @ref="_startOffcanvasRef" Placement="@PlacementType.Start" ShowBackdrop="true">
-    <OffcanvasHeader Title="Start Offcanvas" ShowCloseButton="true">
-    </OffcanvasHeader>
+    <OffcanvasHeader Title="Start Offcanvas" ShowCloseButton="true"/>
     <OffcanvasBody>
-        <p>This is a start offcanvas that slides in from the left side.</p>
-        <p>You can close it by clicking the X button, clicking outside the offcanvas, or pressing the ESC key.</p>
-
-        <h6>Features:</h6>
-        <ul>
-            <li>Slides in from the left</li>
-            <li>Has a backdrop</li>
-            <li>Can be closed by clicking outside</li>
-        </ul>
-
-        <Div Margin="Margin.Is3.FromTop">
-            <Button Class="btn-primary" OnClick="@(() => _startOffcanvasRef?.Hide())">Close Offcanvas</Button>
-        </Div>
+        <Paragraph Margin="Margin.Is0">Slides in from the left. Close via X, backdrop, or ESC.</Paragraph>
+        <H6 Class="font-semibold mt-2">Features:</H6>
+        <UnorderedList Class="list-disc pl-4 space-y-1">
+            <UnorderedListItem>Left placement</UnorderedListItem>
+            <UnorderedListItem>Backdrop</UnorderedListItem>
+            <UnorderedListItem>Click outside to close</UnorderedListItem>
+        </UnorderedList>
+        <Button Variant="ButtonVariant.Default" OnClick="@(() => _startOffcanvasRef?.Hide())" Class="mt-4">Close</Button>
     </OffcanvasBody>
 </Offcanvas>
 
-<!-- End Offcanvas -->
 <Offcanvas @ref="_endOffcanvasRef" Placement="@PlacementType.End" ShowBackdrop="true">
-    <OffcanvasHeader Title="End Offcanvas" ShowCloseButton="true">
-    </OffcanvasHeader>
+    <OffcanvasHeader Title="End Offcanvas" ShowCloseButton="true"/>
     <OffcanvasBody>
-        <p>This is an end offcanvas that slides in from the right side.</p>
-        <p>This is the default placement for offcanvas components.</p>
-
-        <h6>Features:</h6>
-        <ul>
-            <li>Slides in from the right</li>
-            <li>Has a backdrop</li>
-            <li>Default placement</li>
-        </ul>
-
-        <Div Margin="Margin.Is3.FromTop">
-            <Button Class="btn-success" OnClick="@(() => _endOffcanvasRef?.Hide())">Close Offcanvas</Button>
-        </Div>
+        <Paragraph Margin="Margin.Is0">Slides in from the right. Default placement.</Paragraph>
+        <Button Variant="ButtonVariant.Default" OnClick="@(() => _endOffcanvasRef?.Hide())" Class="mt-4">Close</Button>
     </OffcanvasBody>
 </Offcanvas>
 
-<!-- Top Offcanvas -->
 <Offcanvas @ref="_topOffcanvasRef" Placement="@PlacementType.Top" ShowBackdrop="true">
-    <OffcanvasHeader Title="Top Offcanvas" ShowCloseButton="true">
-    </OffcanvasHeader>
+    <OffcanvasHeader Title="Top Offcanvas" ShowCloseButton="true"/>
     <OffcanvasBody>
-        <p>This is a top offcanvas that slides in from the top of the screen.</p>
-        <p>Perfect for notifications or quick actions.</p>
-
-        <h6>Features:</h6>
-        <ul>
-            <li>Slides in from the top</li>
-            <li>Great for notifications</li>
-            <li>Compact height</li>
-        </ul>
-
-        <Div Margin="Margin.Is3.FromTop">
-            <Button Class="btn-info" OnClick="@(() => _topOffcanvasRef?.Hide())">Close Offcanvas</Button>
-        </Div>
+        <Paragraph Margin="Margin.Is0">Slides in from the top. Great for notifications.</Paragraph>
+        <Button Variant="ButtonVariant.Default" OnClick="@(() => _topOffcanvasRef?.Hide())" Class="mt-4">Close</Button>
     </OffcanvasBody>
 </Offcanvas>
 
-<!-- Bottom Offcanvas -->
 <Offcanvas @ref="_bottomOffcanvasRef" Placement="@PlacementType.Bottom" ShowBackdrop="true">
-    <OffcanvasHeader Title="Bottom Offcanvas" ShowCloseButton="true">
-    </OffcanvasHeader>
+    <OffcanvasHeader Title="Bottom Offcanvas" ShowCloseButton="true"/>
     <OffcanvasBody>
-        <p>This is a bottom offcanvas that slides in from the bottom of the screen.</p>
-        <p>Great for mobile-style interfaces or action sheets.</p>
-
-        <h6>Features:</h6>
-        <ul>
-            <li>Slides in from the bottom</li>
-            <li>Mobile-friendly</li>
-            <li>Action sheet style</li>
-        </ul>
-
-        <Div Margin="Margin.Is3.FromTop">
-            <Button Class="btn-warning" OnClick="@(() => _bottomOffcanvasRef?.Hide())">Close Offcanvas</Button>
-        </Div>
+        <Paragraph Margin="Margin.Is0">Slides in from the bottom. Mobile-friendly.</Paragraph>
+        <Button Variant="ButtonVariant.Default" OnClick="@(() => _bottomOffcanvasRef?.Hide())" Class="mt-4">Close</Button>
     </OffcanvasBody>
 </Offcanvas>
 
-<!-- No Backdrop Offcanvas -->
 <Offcanvas @ref="_noBackdropOffcanvasRef" Placement="@PlacementType.End" ShowBackdrop="false">
-    <OffcanvasHeader Title="No Backdrop Offcanvas" ShowCloseButton="true">
-    </OffcanvasHeader>
+    <OffcanvasHeader Title="No Backdrop" ShowCloseButton="true"/>
     <OffcanvasBody>
-        <p>This offcanvas doesn't have a backdrop.</p>
-        <p>You can still interact with the page content behind it.</p>
-
-        <h6>Features:</h6>
-        <ul>
-            <li>No backdrop overlay</li>
-            <li>Page remains interactive</li>
-            <li>Must use close button to close</li>
-        </ul>
-
-        <Div Margin="Margin.Is3.FromTop">
-            <Button Class="btn-secondary" OnClick="@(() => _noBackdropOffcanvasRef?.Hide())">Close Offcanvas</Button>
-        </Div>
+        <Paragraph Margin="Margin.Is0">No backdrop — page remains interactive. Must use close button.</Paragraph>
+        <Button Variant="ButtonVariant.Default" OnClick="@(() => _noBackdropOffcanvasRef?.Hide())" Class="mt-4">Close</Button>
     </OffcanvasBody>
 </Offcanvas>
 
-<!-- Scrollable Offcanvas -->
 <Offcanvas @ref="_scrollableOffcanvasRef" Placement="@PlacementType.End" ShowBackdrop="true">
-    <OffcanvasHeader Title="Scrollable Offcanvas" ShowCloseButton="true">
-    </OffcanvasHeader>
+    <OffcanvasHeader Title="Scrollable" ShowCloseButton="true"/>
     <OffcanvasBody>
-        <p>This offcanvas demonstrates scrollable content.</p>
-        <p>When content exceeds the viewport height, it becomes scrollable.</p>
-
+        <Paragraph Margin="Margin.Is0">Content overflows become scrollable.</Paragraph>
         @for (var i = 1; i <= 30; i++)
         {
-            <p>This is line @i of content to demonstrate scrolling within the offcanvas.</p>
+            <Paragraph Margin="Margin.Is0">Line @i</Paragraph>
         }
-
-        <p>You can scroll through all this content within the offcanvas.</p>
-
-        <Div Margin="Margin.Is3.FromTop">
-            <Button Class="btn-dark" OnClick="@(() => _scrollableOffcanvasRef?.Hide())">Close Offcanvas</Button>
-        </Div>
+        <Button Variant="ButtonVariant.Default" OnClick="@(() => _scrollableOffcanvasRef?.Hide())" Class="mt-4">Close</Button>
     </OffcanvasBody>
 </Offcanvas>
 
@@ -219,82 +103,4 @@
     private Offcanvas? _bottomOffcanvasRef;
     private Offcanvas? _noBackdropOffcanvasRef;
     private Offcanvas? _scrollableOffcanvasRef;
-
-    private bool ShowStartOffcanvas
-    {
-        get => _startOffcanvasRef?.IsVisible ?? false;
-        set
-        {
-            if (value)
-                _startOffcanvasRef?.Show();
-            else
-                _startOffcanvasRef?.Hide();
-        }
-    }
-
-    private bool ShowEndOffcanvas
-    {
-        get => _endOffcanvasRef?.IsVisible ?? false;
-        set
-        {
-            if (value)
-                _endOffcanvasRef?.Show();
-            else
-                _endOffcanvasRef?.Hide();
-        }
-    }
-
-    private bool ShowTopOffcanvas
-    {
-        get => _topOffcanvasRef?.IsVisible ?? false;
-        set
-        {
-            if (value)
-                _topOffcanvasRef?.Show();
-            else
-                _topOffcanvasRef?.Hide();
-        }
-    }
-
-    private bool ShowBottomOffcanvas
-    {
-        get => _bottomOffcanvasRef?.IsVisible ?? false;
-        set
-        {
-            if (value)
-                _bottomOffcanvasRef?.Show();
-            else
-                _bottomOffcanvasRef?.Hide();
-        }
-    }
-
-    private bool ShowNoBackdropOffcanvas
-    {
-        get => _noBackdropOffcanvasRef?.IsVisible ?? false;
-        set
-        {
-            if (value)
-                _noBackdropOffcanvasRef?.Show();
-            else
-                _noBackdropOffcanvasRef?.Hide();
-        }
-    }
-
-    private bool ShowScrollableOffcanvas
-    {
-        get => _scrollableOffcanvasRef?.IsVisible ?? false;
-        set
-        {
-            if (value)
-                _scrollableOffcanvasRef?.Show();
-            else
-                _scrollableOffcanvasRef?.Hide();
-        }
-    }
-
-    protected override void OnInitialized()
-    {
-        Logger.LogInformation("Offcanvas demo page initialized");
-    }
-
 }

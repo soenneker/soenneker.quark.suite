@@ -1,0 +1,23 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <!-- Run Tailwind CLI from tailwind/ with output ../wwwroot/css/quark-tailwind.css (Suite only). -->
+    <Target Name="RunTailwind"
+            BeforeTargets="Build"
+            Condition="'$(DesignTimeBuild)' != 'true' and Exists('$(ProjectDir)tailwind\package.json')">
+        <Exec WorkingDirectory="$(ProjectDir)tailwind"
+              Command="npm install --no-audit --no-fund &amp;&amp; npx @tailwindcss/cli -i input.css -o ../wwwroot/css/quark-tailwind.css -c tailwind.config.js"
+              ConsoleToMSBuild="true"
+              StandardOutputImportance="high"
+              StandardErrorImportance="high"
+              IgnoreExitCode="false" />
+    </Target>
+
+    <!-- Include generated CSS in output. -->
+    <Target Name="IncludeTailwindCss" AfterTargets="RunTailwind">
+        <ItemGroup Condition="Exists('$(ProjectDir)wwwroot\css\quark-tailwind.css')">
+            <Content Include="$(ProjectDir)wwwroot\css\quark-tailwind.css">
+                <Link>wwwroot\css\quark-tailwind.css</Link>
+                <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            </Content>
+        </ItemGroup>
+    </Target>
+</Project>

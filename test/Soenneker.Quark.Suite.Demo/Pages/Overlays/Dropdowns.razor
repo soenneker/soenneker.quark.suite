@@ -1,156 +1,117 @@
 @page "/overlays/dropdowns"
-@using Microsoft.Extensions.Logging
 
-@inject ILogger<Index> Logger
+<PageTitle>Dropdowns - Quark Suite</PageTitle>
 
-<Container Padding="Padding.Is4.OnY">
-    <Row>
-        <Column>
-            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Dropdowns</H1>
-                <Paragraph Class="lead" TextColor="TextColor.Muted">This page demonstrates the dropdown components functionality.</Paragraph>
-            </Div>
-        </Column>
-    </Row>
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-3">
+        <H1 Class="text-4xl font-bold tracking-tight">Dropdowns</H1>
+        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">
+            Toggle contextual overlays for actions and links. Use DropdownToggle, DropdownMenu, and DropdownItem.
+        </Paragraph>
+    </Div>
 
-    <Row Gap="Gap.Is4">
-        <Column>
-            <Div>
-
-                <H2>Basic Dropdown</H2>
-                <Dropdown>
-                    <DropdownToggle>
-                        Dropdown button
-                    </DropdownToggle>
-                    <DropdownMenu>
-                        <DropdownItem>Action</DropdownItem>
-                        <DropdownItem>Another action</DropdownItem>
-                        <DropdownItem>Something else here</DropdownItem>
-                    </DropdownMenu>
-                </Dropdown>
-
-                <CodeEditor ReadOnly="true" 
-                            Language="@("html")" 
-                            AutoHeight="true" Margin="Margin.Is3.FromTop"
-                            Text="@(@"<Dropdown>
-    <DropdownToggle>
-        Dropdown button
-    </DropdownToggle>
+    <Div Class="space-y-6">
+        <section class="space-y-4">
+        <DemoSection Title="Basic" Description="DropdownToggle opens DropdownMenu with DropdownItem entries." Code="@(@"<Dropdown>
+    <DropdownToggle>Dropdown button</DropdownToggle>
     <DropdownMenu>
         <DropdownItem>Action</DropdownItem>
         <DropdownItem>Another action</DropdownItem>
-        <DropdownItem>Something else here</DropdownItem>
     </DropdownMenu>
-</Dropdown>")" />
+</Dropdown>")">
+            <Dropdown>
+                <DropdownToggle>Dropdown button</DropdownToggle>
+                <DropdownMenu>
+                    <DropdownItem>Action</DropdownItem>
+                    <DropdownItem>Another action</DropdownItem>
+                    <DropdownItem>Something else here</DropdownItem>
+                </DropdownMenu>
+            </Dropdown>
+        </DemoSection>
+        </section>
 
-                <Br/><Br/>
-
-                <H2>Dropdown with Links</H2>
+        <section class="space-y-4">
+        <Div Class="flex flex-wrap gap-6">
+            <DemoSection Title="Links" Description="Use IsLink=true and Href for anchor items.">
                 <Dropdown>
-                    <DropdownToggle>
-                        Dropdown with Links
-                    </DropdownToggle>
+                    <DropdownToggle>Dropdown with Links</DropdownToggle>
                     <DropdownMenu>
                         <DropdownItem Href="#" IsLink="true">Action</DropdownItem>
                         <DropdownItem Href="#" IsLink="true">Another action</DropdownItem>
                         <DropdownDivider/>
-                        <DropdownItem Href="#" IsLink="true">Something else here</DropdownItem>
+                        <DropdownItem Href="#" IsLink="true">Separated link</DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
-
-                <Br/><Br/>
-
-                <H2>Right-Aligned Dropdown</H2>
+            </DemoSection>
+            <DemoSection Title="Right-aligned" Description="Set RightAligned=true to align menu to the right edge.">
                 <Dropdown RightAligned="true">
-                    <DropdownToggle>
-                        Right-aligned dropdown
-                    </DropdownToggle>
+                    <DropdownToggle>Right-aligned</DropdownToggle>
                     <DropdownMenu>
                         <DropdownItem>Action</DropdownItem>
                         <DropdownItem>Another action</DropdownItem>
-                        <DropdownItem>Something else here</DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
+            </DemoSection>
+        </Div>
+        </section>
 
-                <Br/><Br/>
+        <section class="space-y-4">
+        <DemoSection Title="Split button" Description="Use IsGroup=true with a Button and DropdownToggle IsSplit=true.">
+            <Dropdown IsGroup="true">
+                <Button Type="@ButtonType.Button" Variant="ButtonVariant.Default">Split button</Button>
+                <DropdownToggle IsSplit="true">
+                    <Span Class="sr-only">Toggle Dropdown</Span>
+                </DropdownToggle>
+                <DropdownMenu>
+                    <DropdownItem>Action</DropdownItem>
+                    <DropdownItem>Another action</DropdownItem>
+                    <DropdownDivider/>
+                    <DropdownItem>Separated link</DropdownItem>
+                </DropdownMenu>
+            </Dropdown>
+        </DemoSection>
+        </section>
 
-                <H2>Split Button Dropdown</H2>
-                <Dropdown IsGroup="true">
-                    <Button Type="@ButtonType.Button" Class="btn btn-primary">Split button</Button>
-                    <DropdownToggle IsSplit="true">
-                        <Span Class="visually-hidden">Toggle Dropdown</Span>
-                    </DropdownToggle>
-                    <DropdownMenu>
-                        <DropdownItem>Action</DropdownItem>
-                        <DropdownItem>Another action</DropdownItem>
-                        <DropdownItem>Something else here</DropdownItem>
-                        <DropdownDivider/>
-                        <DropdownItem>Separated link</DropdownItem>
-                    </DropdownMenu>
-                </Dropdown>
-
-                <Br/><Br/>
-
-                <H2>Dropdown with Active Item</H2>
+        <section class="space-y-4">
+        <Div Class="flex flex-wrap gap-6">
+            <DemoSection Title="Active item" Description="Set Active=true on the selected DropdownItem.">
                 <Dropdown>
-                    <DropdownToggle>
-                        Dropdown with Active Item
-                    </DropdownToggle>
+                    <DropdownToggle>With Active</DropdownToggle>
                     <DropdownMenu>
-                        <DropdownItem>Regular item</DropdownItem>
+                        <DropdownItem>Regular</DropdownItem>
                         <DropdownItem Active="true">Active item</DropdownItem>
-                        <DropdownItem>Another regular item</DropdownItem>
+                        <DropdownItem>Another</DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
-
-                <Br/><Br/>
-
-                <H2>Disabled Dropdown</H2>
+            </DemoSection>
+            <DemoSection Title="Disabled" Description="Set Disabled=true on Dropdown and DropdownToggle to disable opening.">
                 <Dropdown Disabled="true">
-                    <DropdownToggle Disabled="true">
-                        Disabled dropdown
-                    </DropdownToggle>
+                    <DropdownToggle Disabled="true">Disabled dropdown</DropdownToggle>
                     <DropdownMenu>
-                        <DropdownItem>This won't show</DropdownItem>
+                        <DropdownItem>Won't show</DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
+            </DemoSection>
+        </Div>
+        </section>
 
-                <Br/><Br/>
+        <section class="space-y-4">
+        <DemoSection Title="Click events" Description="@($"Last clicked: {_lastClicked}")">
+            <Dropdown>
+                <DropdownToggle Clicked="OnDropdownToggleClicked">Clickable Dropdown</DropdownToggle>
+                <DropdownMenu>
+                    <DropdownItem Clicked="OnItemClicked">Click me!</DropdownItem>
+                    <DropdownItem Clicked="OnItemClicked">Click me too!</DropdownItem>
+                </DropdownMenu>
+            </Dropdown>
+        </DemoSection>
+        </section>
+    </Div>
+</Div>
 
-                <H2>Dropdown with Click Events</H2>
-                <Dropdown>
-                    <DropdownToggle Clicked="OnDropdownToggleClicked">
-                        Clickable Dropdown
-                    </DropdownToggle>
-                    <DropdownMenu>
-                        <DropdownItem Clicked="OnItemClicked">Click me!</DropdownItem>
-                        <DropdownItem Clicked="OnItemClicked">Click me too!</DropdownItem>
-                    </DropdownMenu>
-                </Dropdown>
-
-                <Paragraph>Last clicked: @_lastClicked</Paragraph>
-            </Div>
-        </Column>
-    </Row>
-</Container>
-
-@code{
+@code {
     private string _lastClicked = "None";
 
-    protected override void OnInitialized()
-    {
-    }
-
-    private void OnDropdownToggleClicked(MouseEventArgs e)
-    {
-        _lastClicked = "Toggle clicked";
-        StateHasChanged();
-    }
-
-    private void OnItemClicked(MouseEventArgs e)
-    {
-        _lastClicked = DateTime.Now.ToString("HH:mm:ss");
-        StateHasChanged();
-    }
-
+    private void OnDropdownToggleClicked(MouseEventArgs _) { _lastClicked = "Toggle clicked"; StateHasChanged(); }
+    private void OnItemClicked(MouseEventArgs _) { _lastClicked = DateTime.Now.ToString("HH:mm:ss"); StateHasChanged(); }
 }

@@ -1,228 +1,68 @@
 @page "/typography/span-demo"
 
-<Container Padding="Padding.Is4.OnY">
-    <Row>
-        <Column>
-            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Span</H1>
-                <Paragraph Class="lead" TextColor="TextColor.Muted">This page demonstrates the Span component for inline text elements.</Paragraph>
+<PageTitle>Span - Quark Suite</PageTitle>
+
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-3">
+        <H1 Class="text-4xl font-bold tracking-tight">Span</H1>
+        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">
+            The <Code Inline="true" Class="rounded bg-muted px-1.5 py-0.5 text-sm font-mono">Span</Code> component for inline styling and grouping.
+        </Paragraph>
+    </Div>
+
+    <Section Class="space-y-6">
+        <DemoSection Title="Basic" Code="@(@"<Paragraph>Text with <Span>span inline</Span> in paragraph.</Paragraph>
+<Span TextColor=""TextColor.Primary"">Styled span</Span>")">
+            <Paragraph>Text with <Span>span elements</Span> for inline content.</Paragraph>
+        </DemoSection>
+    </Section>
+
+    <Section Class="space-y-6">
+        <H2 Class="text-2xl font-semibold tracking-tight">Colors & Font Styling</H2>
+        <DemoSection>
+            <Div Class="space-y-2">
+                <Paragraph>Colors: <Span TextColor="TextColor.Primary">Primary</Span> <Span TextColor="TextColor.Success">Success</Span> <Span TextColor="TextColor.Danger">Danger</Span></Paragraph>
+                <Paragraph>Weights: <Span FontWeight="FontWeight.Light">Light</Span> <Span FontWeight="FontWeight.Bold">Bold</Span></Paragraph>
+                <Paragraph Margin="Margin.Is0">Decoration: <Span TextDecoration="TextDecoration.Underline">Underline</Span> <Span TextDecoration="TextDecoration.LineThrough">Strikethrough</Span></Paragraph>
             </Div>
-        </Column>
-    </Row>
+        </DemoSection>
+    </Section>
 
-    <Row Gap="Gap.Is4">
-        <Column>
-            <Div>
-                <H2>Basic Span Usage</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Paragraph>This is normal text with <Span>span text inline</Span> within the paragraph.</Paragraph>
-                    <Paragraph>You can use <Span>span elements</Span> to style or group inline content.</Paragraph>
-                    <Span>This is standalone span text.</Span>
-                </Div>
-                <Paragraph TextColor="TextColor.Muted">The Span component creates HTML &lt;span&gt; elements for inline text styling.</Paragraph>
-
-                <CodeEditor ReadOnly="true" 
-                            Language="@("html")" 
-                            AutoHeight="true" Margin="Margin.Is3.FromTop"
-                            Text="@(@"<Paragraph>Text with <Span>span inline</Span> in paragraph.</Paragraph>
-<Span TextColor=""TextColor.Primary"">Styled span text</Span>")" />
+    <Section Class="space-y-6">
+        <H2 Class="text-2xl font-semibold tracking-tight">Forms & Badges</H2>
+        <Div Class="space-y-4">
+            <Div Class="space-y-1">
+                <Label Form="true">Username <Span TextColor="TextColor.Danger">*</Span></Label>
+                <TextEdit Id="span-username" Placeholder="Enter username" @bind-Text="_usernameValue" Class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"/>
+                <Small TextColor="TextColor.Muted">Characters remaining: <Span TextColor="TextColor.Success">@AvailableChars</Span></Small>
             </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Span with Different Colors</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Paragraph>Text with colored spans: <Span TextColor="TextColor.Primary">Primary</Span>, <Span TextColor="TextColor.Success">Success</Span>, <Span TextColor="TextColor.Warning">Warning</Span>, <Span TextColor="TextColor.Danger">Danger</Span></Paragraph>
-                    <Paragraph>Background colors: <Span BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.White" Padding="Padding.Is2.OnX.Is1.OnY">Primary BG</Span> <Span BackgroundColor="BackgroundColor.Success" TextColor="TextColor.White" Padding="Padding.Is2.OnX.Is1.OnY">Success BG</Span> <Span BackgroundColor="BackgroundColor.Warning" TextColor="TextColor.Dark" Padding="Padding.Is2.OnX.Is1.OnY">Warning BG</Span></Paragraph>
-                </Div>
+            <Div Class="flex flex-wrap gap-2">
+                <Span Class="rounded bg-green-600 px-2 py-0.5 text-white">Active</Span>
+                <Span Class="rounded bg-amber-500 px-2 py-0.5 text-white">Beta</Span>
+                <Span Class="rounded bg-secondary px-2 py-0.5 text-white">Tag 1</Span>
             </Div>
+        </Div>
+    </Section>
 
-            <Hr/>
-
-            <Div>
-                <H2>Span with Font Styling</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Paragraph>Font weights: <Span FontWeight="FontWeight.Light">Light</Span>, <Span FontWeight="FontWeight.Normal">Normal</Span>, <Span FontWeight="FontWeight.Bold">Bold</Span>, <Span FontWeight="FontWeight.Bolder">Bolder</Span></Paragraph>
-                    <Paragraph>Font styles: <Span FontStyle="FontStyle.Normal">Normal</Span>, <Span FontStyle="FontStyle.Italic">Italic</Span>, <Span Class="fst-oblique">Oblique</Span></Paragraph>
-                    <Paragraph>Text decoration: <Span TextDecoration="TextDecoration.None">None</Span>, <Span TextDecoration="TextDecoration.Underline">Underline</Span>, <Span TextDecoration="TextDecoration.LineThrough">Strikethrough</Span></Paragraph>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Span as Badges and Labels</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Paragraph>
-                        Status indicators: 
-                        <Span Class="badge bg-success">Active</Span>
-                        <Span Class="badge bg-warning text-dark">Pending</Span>
-                        <Span Class="badge bg-danger">Inactive</Span>
-                        <Span Class="badge bg-info">New</Span>
-                    </Paragraph>
-                    <Paragraph>
-                        Tags: 
-                        <Span Class="badge" BackgroundColor="BackgroundColor.Secondary" Margin="Margin.Is1.FromEnd">Tag 1</Span>
-                        <Span Class="badge" BackgroundColor="BackgroundColor.Secondary" Margin="Margin.Is1.FromEnd">Tag 2</Span>
-                        <Span Class="badge" BackgroundColor="BackgroundColor.Secondary" Margin="Margin.Is1.FromEnd">Tag 3</Span>
-                    </Paragraph>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Span with Custom Styling</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Paragraph>
-                        Custom styled spans: 
-                        <Span Class="custom-span" Style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4px 8px; border-radius: 4px;">
-                            Gradient Span
-                        </Span>
-                        <Span Margin="Margin.Is2.FromStart" Style="border: 2px solid #dc3545; padding: 2px 6px; border-radius: 3px; color: #dc3545;">
-                            Bordered Span
-                        </Span>
-                    </Paragraph>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Interactive Spans</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Paragraph>
-                        Clickable spans: 
-                        <Span TextColor="TextColor.Primary" Style="cursor: pointer; text-decoration: underline;" @onclick="HandleSpanClick" Title="Click me!">
-                            Click me
-                        </Span>
-                        <Span TextColor="TextColor.Success" Margin="Margin.Is3.FromStart" Style="cursor: pointer; text-decoration: underline;" @onclick="HandleSpanClick2" Title="Click me too!">
-                            Click me too
-                        </Span>
-                    </Paragraph>
-                    <Paragraph TextColor="TextColor.Muted">Click counts - Span 1: @_clickCount1, Span 2: @_clickCount2</Paragraph>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Span with Spacing and Layout</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Paragraph>
-                        Spans with margins: 
-                        <Span BackgroundColor="BackgroundColor.Light" Padding="Padding.Is1" Margin="Margin.Is2.FromEnd">Margin End</Span>
-                        <Span BackgroundColor="BackgroundColor.Light" Padding="Padding.Is1" Margin="Margin.Is2.FromStart">Margin Start</Span>
-                        <Span BackgroundColor="BackgroundColor.Light" Padding="Padding.Is1" Margin="Margin.Is2.OnX">Margin X</Span>
-                    </Paragraph>
-                    <Paragraph>
-                        Spans with padding: 
-                        <Span BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.White" Padding="Padding.Is3.OnX.Is2.OnY">More Padding</Span>
-                        <Span BackgroundColor="BackgroundColor.Success" TextColor="TextColor.White" Padding="Padding.Is3" Margin="Margin.Is2.FromStart">Even More Padding</Span>
-                    </Paragraph>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Span in Different Contexts</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <H3>In Headers</H3>
-                    <H4>Welcome <Span TextColor="TextColor.Primary">John</Span> to our <Span TextColor="TextColor.Success">Premium</Span> service</H4>
-                    
-                    <H3>In Lists</H3>
-                    <UnorderedList>
-                        <UnorderedListItem>Feature A <Span Class="badge bg-success">Available</Span></UnorderedListItem>
-                        <UnorderedListItem>Feature B <Span Class="badge bg-warning text-dark">Beta</Span></UnorderedListItem>
-                        <UnorderedListItem>Feature C <Span Class="badge bg-secondary">Coming Soon</Span></UnorderedListItem>
-                    </UnorderedList>
-                    
-                    <H3>In Forms</H3>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="username" Form="true">Username <Span TextColor="TextColor.Danger">*</Span></Label>
-                        <TextEdit Id="username" Placeholder="Enter username" @bind-Text="_usernameValue" />
-                        <Small Class="form-text" TextColor="TextColor.Muted">Available characters: <Span TextColor="TextColor.Success">@AvailableChars</Span> remaining</Small>
-                    </Div>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Span Component Properties</H2>
-                <Div BackgroundColor="BackgroundColor.Light" Padding="Padding.Is3" Margin="Margin.Is3.FromBottom">
-                    <H3>Span Features</H3>
-                    <Paragraph>The Span component inherits all properties from the Element base class:</Paragraph>
-                    <UnorderedList>
-                        <UnorderedListItem><Strong>Id:</Strong> HTML id attribute</UnorderedListItem>
-                        <UnorderedListItem><Strong>Class:</Strong> CSS classes (Bootstrap utility classes supported)</UnorderedListItem>
-                        <UnorderedListItem><Strong>Style:</Strong> Inline CSS styles</UnorderedListItem>
-                        <UnorderedListItem><Strong>Title:</Strong> Tooltip text</UnorderedListItem>
-                        <UnorderedListItem><Strong>Hidden:</Strong> Visibility control</UnorderedListItem>
-                        <UnorderedListItem><Strong>Display:</Strong> CSS display property</UnorderedListItem>
-                        <UnorderedListItem><Strong>Margin/Padding:</Strong> Spacing utilities</UnorderedListItem>
-                        <UnorderedListItem><Strong>Event Handlers:</Strong> Click, focus, keyboard events</UnorderedListItem>
-                    </UnorderedList>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Accessibility Features</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Paragraph>
-                        Span with ARIA attributes: 
-                        <Span Role="button" TabIndex="0" AriaLabel="Click to expand details" @onclick="HandleAccessibleClick" @onkeypress="HandleKeyPress">
-                            Expand Details
-                        </Span>
-                    </Paragraph>
-                    <Paragraph>
-                        Span with title attribute: 
-                        <Span Title="This span provides additional context">Hover for info</Span>
-                    </Paragraph>
-                </Div>
-            </Div>
-        </Column>
-    </Row>
-</Container>
+    <Section Class="space-y-6">
+        <H2 Class="text-2xl font-semibold tracking-tight">Interactive</H2>
+        <DemoSection>
+            <Paragraph>
+                <Span TextColor="TextColor.Primary" Class="cursor-pointer hover:underline" @onclick="HandleClick" Title="Click me!">Click me</Span>
+                <Span TextColor="TextColor.Success" Class="ml-4 cursor-pointer hover:underline" @onclick="HandleClick2" Title="Click me too!">Click me too</Span>
+            </Paragraph>
+            <Small TextColor="TextColor.Muted">Clicks: @_clickCount1, @_clickCount2</Small>
+        </DemoSection>
+    </Section>
+</Div>
 
 @code {
-    private int _clickCount1 = 0;
-    private int _clickCount2 = 0;
+    private int _clickCount1;
+    private int _clickCount2;
     private string _usernameValue = string.Empty;
 
     private int AvailableChars => Math.Max(0, 20 - (_usernameValue?.Length ?? 0));
 
-    private void HandleSpanClick(MouseEventArgs args)
-    {
-        _clickCount1++;
-        StateHasChanged();
-    }
-
-    private void HandleSpanClick2(MouseEventArgs args)
-    {
-        _clickCount2++;
-        StateHasChanged();
-    }
-
-    private void HandleAccessibleClick(MouseEventArgs args)
-    {
-        // Handle click for accessible span
-        StateHasChanged();
-    }
-
-    private void HandleKeyPress(KeyboardEventArgs args)
-    {
-        if (args.Key == "Enter" || args.Key == " ")
-        {
-            HandleAccessibleClick(new MouseEventArgs());
-        }
-    }
-
-    protected override void OnInitialized()
-    {
-    }
+    private void HandleClick(MouseEventArgs _) { _clickCount1++; StateHasChanged(); }
+    private void HandleClick2(MouseEventArgs _) { _clickCount2++; StateHasChanged(); }
 }

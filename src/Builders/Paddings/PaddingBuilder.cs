@@ -20,7 +20,7 @@ public sealed class PaddingBuilder : ICssBuilder
     private const string _token0 = "0";
     private const string _tokenAuto = "auto";
 
-    // ----- Side tokens (Bootstrap naming) -----
+    // ----- Side tokens (Tailwind: t=top, e=end, b=bottom, s=start, x=horizontal, y=vertical) -----
     private const string _sideT = "t";
     private const string _sideE = "e";
     private const string _sideB = "b";
@@ -201,20 +201,10 @@ public sealed class PaddingBuilder : ICssBuilder
             if (!first) sb.Append(' ');
             else first = false;
 
-            // Build: p{side?}-{bp?}-{size}
-            sb.Append(_baseToken);
-            if (sideTok.Length != 0)
-                sb.Append(sideTok);
-
-            sb.Append('-');
-
-            if (bpTok.Length != 0)
-            {
-                sb.Append(bpTok);
-                sb.Append('-');
-            }
-
-            sb.Append(sizeTok);
+            // Tailwind: p-4, md:p-4 (not Bootstrap p-md-4)
+            string baseClass = _baseToken + (sideTok.Length != 0 ? sideTok : "") + "-" + sizeTok;
+            string cls = bpTok.Length != 0 ? BreakpointUtil.ApplyTailwindBreakpoint(baseClass, bpTok) : baseClass;
+            sb.Append(cls);
         }
 
         return sb.ToString();

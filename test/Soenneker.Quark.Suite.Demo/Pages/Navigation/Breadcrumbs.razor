@@ -1,139 +1,116 @@
 @page "/navigation/breadcrumbs"
 @using Microsoft.Extensions.Logging
+@inject ILogger<Breadcrumbs> Logger
 
-@inject ILogger<Index> Logger
+<PageTitle>Breadcrumbs - Quark Suite</PageTitle>
 
-<Container Padding="Padding.Is4.OnY">
-    <Row>
-        <Column>
-            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Breadcrumbs</H1>
-                <Paragraph Class="lead" TextColor="TextColor.Muted">This page demonstrates some of the common usages for the breadcrumbs library.</Paragraph>
-            </Div>
-        </Column>
-    </Row>
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-3">
+        <H1 Class="text-4xl font-bold tracking-tight">Breadcrumbs</H1>
+        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">
+            Navigational hierarchy showing the current location. Use BreadcrumbItem with To for links and Active for the current page.
+        </Paragraph>
+    </Div>
 
-    <Row Gap="Gap.Is4">
-        <Column>
-            <Div>
-                <H2>Basic Breadcrumbs</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Breadcrumb>
-                        <BreadcrumbItem To="">Home</BreadcrumbItem>
-                        <BreadcrumbItem To="library">Library</BreadcrumbItem>
-                        <BreadcrumbItem Active="true">Data</BreadcrumbItem>
-                    </Breadcrumb>
-                </Div>
-
-                <CodeEditor ReadOnly="true" 
-                            Language="@("html")" 
-                            AutoHeight="true" Margin="Margin.Is3.FromTop"
-                            Text="@(@"<Breadcrumb>
+    <Div Class="space-y-6">
+        <section class="space-y-4">
+            <DemoSection Title="Basic" Description="Simple breadcrumb trail with Home, Library, and current page."
+                        Code="@(@"<Breadcrumb>
     <BreadcrumbItem To="""">Home</BreadcrumbItem>
     <BreadcrumbItem To=""library"">Library</BreadcrumbItem>
     <BreadcrumbItem Active=""true"">Data</BreadcrumbItem>
-</Breadcrumb>")" />
-            </Div>
+</Breadcrumb>")">
+                <Breadcrumb>
+                    <BreadcrumbItem To="">Home</BreadcrumbItem>
+                    <BreadcrumbItem To="library">Library</BreadcrumbItem>
+                    <BreadcrumbItem Active="true">Data</BreadcrumbItem>
+                </Breadcrumb>
+            </DemoSection>
+        </section>
 
-            <Hr/>
+        <section class="space-y-4">
+            <DemoSection Title="More levels" Description="Deep hierarchy for product or documentation paths.">
+                <Breadcrumb>
+                    <BreadcrumbItem To="">Home</BreadcrumbItem>
+                    <BreadcrumbItem To="products">Products</BreadcrumbItem>
+                    <BreadcrumbItem To="products/electronics">Electronics</BreadcrumbItem>
+                    <BreadcrumbItem To="products/electronics/phones">Phones</BreadcrumbItem>
+                    <BreadcrumbItem Active="true">iPhone 15</BreadcrumbItem>
+                </Breadcrumb>
+            </DemoSection>
+        </section>
 
-            <Div>
-                <H2>Breadcrumbs with More Levels</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Breadcrumb>
-                        <BreadcrumbItem To="">Home</BreadcrumbItem>
-                        <BreadcrumbItem To="products">Products</BreadcrumbItem>
-                        <BreadcrumbItem To="products/electronics">Electronics</BreadcrumbItem>
-                        <BreadcrumbItem To="products/electronics/phones">Phones</BreadcrumbItem>
-                        <BreadcrumbItem Active="true">iPhone 15</BreadcrumbItem>
-                    </Breadcrumb>
+        <section class="space-y-4">
+            <DemoSection Title="With icons" Description="Add Icon inside BreadcrumbItem for visual context.">
+                <Breadcrumb>
+                    <BreadcrumbItem To="">
+                        <Icon Name="house" /> Home
+                    </BreadcrumbItem>
+                    <BreadcrumbItem To="dashboard">
+                        <Icon Name="gauge" /> Dashboard
+                    </BreadcrumbItem>
+                    <BreadcrumbItem To="dashboard/settings">
+                        <Icon Name="gear" /> Settings
+                    </BreadcrumbItem>
+                    <BreadcrumbItem Active="true">
+                        <Icon Name="user" /> Profile
+                    </BreadcrumbItem>
+                </Breadcrumb>
+            </DemoSection>
+        </section>
+
+        <section class="space-y-4">
+            <DemoSection Title="Large" Description="Set Large=true for bigger text and spacing.">
+                <Breadcrumb Large="true">
+                    <BreadcrumbItem To="">Home</BreadcrumbItem>
+                    <BreadcrumbItem To="documentation">Documentation</BreadcrumbItem>
+                    <BreadcrumbItem To="documentation/components">Components</BreadcrumbItem>
+                    <BreadcrumbItem Active="true">Breadcrumbs</BreadcrumbItem>
+                </Breadcrumb>
+            </DemoSection>
+        </section>
+
+        <section class="space-y-4">
+            <DemoSection Title="With aria label" Description="Set AriaLabel on Breadcrumb for accessibility.">
+                <Breadcrumb AriaLabel="Product navigation breadcrumb">
+                    <BreadcrumbItem To="">Store</BreadcrumbItem>
+                    <BreadcrumbItem To="category/electronics">Electronics</BreadcrumbItem>
+                    <BreadcrumbItem To="category/electronics/computers">Computers</BreadcrumbItem>
+                    <BreadcrumbItem Active="true">Laptops</BreadcrumbItem>
+                </Breadcrumb>
+            </DemoSection>
+        </section>
+
+        <section class="space-y-4">
+            <DemoSection Title="Context examples" Description="E-commerce and documentation styles.">
+                <Div Class="space-y-4">
+                    <Div>
+                        <H4 Class="text-sm font-medium text-muted-foreground mb-2">E-commerce</H4>
+                        <Breadcrumb>
+                            <BreadcrumbItem To="">Store</BreadcrumbItem>
+                            <BreadcrumbItem To="category/clothing">Clothing</BreadcrumbItem>
+                            <BreadcrumbItem To="category/clothing/mens">Men's</BreadcrumbItem>
+                            <BreadcrumbItem Active="true">Blue Cotton Shirt</BreadcrumbItem>
+                        </Breadcrumb>
+                    </Div>
+                    <Div>
+                        <H4 Class="text-sm font-medium text-muted-foreground mb-2">Documentation</H4>
+                        <Breadcrumb>
+                            <BreadcrumbItem To="docs">Documentation</BreadcrumbItem>
+                            <BreadcrumbItem To="docs/api">API Reference</BreadcrumbItem>
+                            <BreadcrumbItem To="docs/api/authentication">Authentication</BreadcrumbItem>
+                            <BreadcrumbItem Active="true">OAuth 2.0</BreadcrumbItem>
+                        </Breadcrumb>
+                    </Div>
                 </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Breadcrumbs with Icons</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Breadcrumb>
-                        <BreadcrumbItem To="">
-                            <Icon Name="house" /> Home
-                        </BreadcrumbItem>
-                        <BreadcrumbItem To="dashboard">
-                            <Icon Name="gauge" /> Dashboard
-                        </BreadcrumbItem>
-                        <BreadcrumbItem To="dashboard/settings">
-                            <Icon Name="gear" /> Settings
-                        </BreadcrumbItem>
-                        <BreadcrumbItem Active="true">
-                            <Icon Name="user" /> Profile
-                        </BreadcrumbItem>
-                    </Breadcrumb>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Large Breadcrumbs</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Breadcrumb Large="true">
-                        <BreadcrumbItem To="">Home</BreadcrumbItem>
-                        <BreadcrumbItem To="documentation">Documentation</BreadcrumbItem>
-                        <BreadcrumbItem To="documentation/components">Components</BreadcrumbItem>
-                        <BreadcrumbItem Active="true">Breadcrumbs</BreadcrumbItem>
-                    </Breadcrumb>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Breadcrumbs with Custom Aria Label</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Breadcrumb AriaLabel="Product navigation breadcrumb">
-                        <BreadcrumbItem To="">Store</BreadcrumbItem>
-                        <BreadcrumbItem To="category/electronics">Electronics</BreadcrumbItem>
-                        <BreadcrumbItem To="category/electronics/computers">Computers</BreadcrumbItem>
-                        <BreadcrumbItem Active="true">Laptops</BreadcrumbItem>
-                    </Breadcrumb>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Breadcrumbs in Different Contexts</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <H4>E-commerce Site</H4>
-                    <Breadcrumb>
-                        <BreadcrumbItem To="">Store</BreadcrumbItem>
-                        <BreadcrumbItem To="category/clothing">Clothing</BreadcrumbItem>
-                        <BreadcrumbItem To="category/clothing/mens">Men's</BreadcrumbItem>
-                        <BreadcrumbItem To="category/clothing/mens/shirts">Shirts</BreadcrumbItem>
-                        <BreadcrumbItem Active="true">Blue Cotton Shirt</BreadcrumbItem>
-                    </Breadcrumb>
-                </Div>
-
-                <Div Margin="Margin.Is3.FromEnd">
-                    <H4>Documentation Site</H4>
-                    <Breadcrumb>
-                        <BreadcrumbItem To="docs">Documentation</BreadcrumbItem>
-                        <BreadcrumbItem To="docs/api">API Reference</BreadcrumbItem>
-                        <BreadcrumbItem To="docs/api/authentication">Authentication</BreadcrumbItem>
-                        <BreadcrumbItem Active="true">OAuth 2.0</BreadcrumbItem>
-                    </Breadcrumb>
-                </Div>
-            </Div>
-        </Column>
-    </Row>
-</Container>
+            </DemoSection>
+        </section>
+    </Div>
+</Div>
 
 @code {
-
     protected override void OnInitialized()
-    { 
+    {
         Logger.LogInformation("Breadcrumbs demo page initialized");
     }
-
 }
