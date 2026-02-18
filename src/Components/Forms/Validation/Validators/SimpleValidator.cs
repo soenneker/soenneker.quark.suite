@@ -15,7 +15,7 @@ public class SimpleValidator : IQuarkValidator
     /// <summary>
     /// Initializes a new instance of the SimpleValidator class.
     /// </summary>
-    /// <param name="errorMessage">The error message to display when validation fails.</param>
+    /// <param name="errorMessage">The error message to display When validation fails.</param>
     /// <param name="validate">The validation function that returns true if valid, false if invalid.</param>
     public SimpleValidator(string errorMessage, Func<object?, bool> validate)
     {

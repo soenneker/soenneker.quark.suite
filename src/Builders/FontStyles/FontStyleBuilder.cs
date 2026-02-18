@@ -13,8 +13,9 @@ public sealed class FontStyleBuilder : ICssBuilder
 {
     private readonly List<FontStyleRule> _rules = new(4);
 
-    private const string _classItalic = "fst-italic";
-    private const string _classNormal = "fst-normal";
+    // Tailwind font-style utilities (for Quark Suite / shadcn)
+    private const string _classItalic = "italic";
+    private const string _classNormal = "not-italic";
     private const string _stylePrefix = "font-style: ";
 
     internal FontStyleBuilder(string value, BreakpointType? breakpoint = null)

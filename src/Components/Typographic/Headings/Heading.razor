@@ -38,9 +38,6 @@ else
     [Parameter]
     public CssValue<ScaleBuilder>? Scale { get; set; }
 
-    [Parameter]
-    public CssValue<DisplaySizeBuilder>? DisplaySize { get; set; }
-
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -52,7 +49,6 @@ else
             int headingLevel = GetHeadingLevel(Scale);
             AppendClass(ref cls, GetHeadingSizeClass(headingLevel));
             AddCss(ref sty, ref cls, Scale);
-            AddCss(ref sty, ref cls, DisplaySize);
         });
     }
 
@@ -93,6 +89,5 @@ else
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         AddIf(ref hc, Scale);
-        AddIf(ref hc, DisplaySize);
     }
 }

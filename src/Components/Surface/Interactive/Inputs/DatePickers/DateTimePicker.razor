@@ -7,7 +7,6 @@
 @inherits Soenneker.Quark.Element
 @implements Soenneker.Quark.IValidationInput
 @implements IDateTimePicker
-@inject IDatePickerInterop DatePickerInterop
 
 <div OnElementRefReady="HandleContainerRefReady" @attributes="GetContainerAttributes()">
     <input @ref="_ref" type="text" value="@(Value.HasValue ? FormatDisplay(Value.Value) : "")" @attributes="BuildAttributes()" />
@@ -16,10 +15,10 @@
     {
         <div class="quark-date-backdrop" style="position: fixed; inset: 0; z-index: 1075;" @onclick="ClosePanel"></div>
         <div @attributes="BuildPanelAttributes()" @onclick:stopPropagation="true">
-            <div class="qcal-header d-flex align-items-center justify-content-between">
-                <button type="button" class="btn btn-sm btn-light qcal-nav" @onclick="PrevMonth">‹</button>
-                <div class="qcal-title fw-semibold">@_displayMonth.ToString("MMMM yyyy", CultureInfo.CurrentUICulture)</div>
-                <button type="button" class="btn btn-sm btn-light qcal-nav" @onclick="NextMonth">›</button>
+            <div class="qcal-header flex items-center justify-between">
+                <button type="button" class="qcal-nav inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-2 text-sm shadow-xs hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" @onclick="PrevMonth">‹</button>
+                <div class="qcal-title font-semibold">@_displayMonth.ToString("MMMM yyyy", CultureInfo.CurrentUICulture)</div>
+                <button type="button" class="qcal-nav inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-2 text-sm shadow-xs hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" @onclick="NextMonth">›</button>
             </div>
             <div class="qcal-grid mt-2">
                 @foreach (string dow in _dayNames)
@@ -125,19 +124,19 @@
     public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
 
     /// <summary>
-    /// Gets or sets the callback invoked when the value changes.
+    /// Gets or sets the callback invoked When the value changes.
     /// </summary>
     [Parameter]
     public EventCallback<DateTime?> ValueChanged { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the input changes.
+    /// Gets or sets the callback invoked When the input changes.
     /// </summary>
     [Parameter]
     public EventCallback<ChangeEventArgs> OnChange { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the input value changes.
+    /// Gets or sets the callback invoked When the input value changes.
     /// </summary>
     [Parameter]
     public EventCallback<ChangeEventArgs> OnInput { get; set; }
@@ -222,15 +221,11 @@
 
     private string? GetSizeClass()
     {
-        if (Size == Quark.Size.Default)
-            return null;
-
+        if (Size == Quark.Size.Default) return null;
         string? token = null;
-        bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
-        if (isTheme && token is not null)
-            return $"form-control-{token}";
-
-        return Size?.ToString() != null ? $"form-control-{Size}" : null;
+        bool isTheme = Size?.TryGetThemeToken(out token) == true;
+        var sizeVal = token ?? Size?.ToString();
+        return sizeVal?.ToLowerInvariant() switch { "sm" or "xs" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
     }
 
 
@@ -259,10 +254,8 @@
 
         if (firstRender)
         {
-            await DatePickerInterop.Initialize();
-            await DatePickerInterop.Attach(_ref);
             _outsideRef = DotNetObjectReference.Create(new DateTimePickerOutsideCloseProxy(this));
-            await DatePickerInterop.RegisterOutsideClose(_containerRef, _outsideRef, nameof(DateTimePickerOutsideCloseProxy.Close));
+
             InitializeDayNames();
             if (Value.HasValue)
             {
@@ -290,7 +283,6 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-date-time-picker");
@@ -516,7 +508,7 @@
         if (BackgroundColor is { IsEmpty: false })
         {
             string? token = null;
-            bool isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
+            bool isTheme = BackgroundColor.Value.TryGetThemeToken(out token);
 
             var result = BackgroundColor.ToString();
             if (!result.HasContent()) return;

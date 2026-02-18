@@ -3,14 +3,10 @@
 <PageTitle>Sliders - Quark Suite</PageTitle>
 
 <Div Class="space-y-8 max-w-4xl">
-    <Div Class="space-y-3">
-        <H1 Class="text-4xl font-bold tracking-tight">Sliders</H1>
-        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">Range input with Min, Max, Value binding, and styling options.</Paragraph>
-    </Div>
-
     <Div Class="space-y-6">
         <section class="space-y-4">
-            <DemoSection Title="Binding test" Description="Move sliders or use buttons to verify two-way binding.">
+            <DemoSection Title="Binding test" Description="Move sliders or use buttons to verify two-way binding." Code="@(@"<Slider Id=""testSlider1"" @bind-Value=""_testSlider1"" Min=""0"" Max=""100""/>
+<Slider Id=""testSlider2"" @bind-Value=""_testSlider2"" Min=""0"" Max=""100""/>")">
             <Alert Class="border-border bg-muted/50" Margin="Margin.Is0.FromBottom">
                 <Strong>Test:</Strong> Move sliders or click "Load Test Data" to verify binding.
             </Alert>
@@ -18,21 +14,25 @@
             <Div Class="p-4 rounded-lg border border-border bg-muted/30">
                 <H3 Class="text-lg font-semibold" Margin="Margin.Is0.FromBottom">Two-Way Binding</H3>
 
-                <Div Margin="Margin.Is3.FromBottom">
-                    <Label For="testSlider1" FontWeight="FontWeight.Bold">Test Slider 1 (0-100):</Label>
-                    <Slider @bind-Value="_testSlider1" Min="0" Max="100"/>
-                    <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
-                        <Strong>Bound Value:</Strong> <Code>@_testSlider1.ToString("F1")</Code>
-                    </Div>
-                </Div>
+                <Field>
+                    <FieldLabel For="testSlider1">Test Slider 1 (0-100):</FieldLabel>
+                    <FieldBody>
+                        <Slider Id="testSlider1" @bind-Value="_testSlider1" Min="0" Max="100"/>
+                        <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
+                            <Strong>Bound Value:</Strong> <Code>@_testSlider1.ToString("F1")</Code>
+                        </Div>
+                    </FieldBody>
+                </Field>
 
-                <Div Margin="Margin.Is3.FromBottom">
-                    <Label For="testSlider2" FontWeight="FontWeight.Bold">Test Slider 2 (Pre-set to 75):</Label>
-                    <Slider @bind-Value="_testSlider2" Min="0" Max="100"/>
-                    <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
-                        <Strong>Bound Value:</Strong> <Code>@_testSlider2.ToString("F1")</Code>
-                    </Div>
-                </Div>
+                <Field>
+                    <FieldLabel For="testSlider2">Test Slider 2 (Pre-set to 75):</FieldLabel>
+                    <FieldBody>
+                        <Slider Id="testSlider2" @bind-Value="_testSlider2" Min="0" Max="100"/>
+                        <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
+                            <Strong>Bound Value:</Strong> <Code>@_testSlider2.ToString("F1")</Code>
+                        </Div>
+                    </FieldBody>
+                </Field>
 
                 <Div Class="flex flex-wrap gap-2 mt-4">
                     <Button Class="bg-primary text-primary-foreground" OnClick="LoadSliderTestData">Load Test Data</Button>
@@ -56,27 +56,29 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Basic" Description="@($"Current value: {_basicValue}.")">
+            <DemoSection Title="Basic" Description="@($"Current value: {_basicValue}.")" Code="@(@"<Slider Value=""@_basicValue"" OnValueChanged=""HandleBasicValueChanged""/>")">
                 <Slider Value="@_basicValue" OnValueChanged="HandleBasicValueChanged"/>
             </DemoSection>
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Min and max" Description="@($"Range 0–100; value {_minMaxValue}.")">
+            <DemoSection Title="Min and max" Description="@($"Range 0–100; value {_minMaxValue}.")" Code="@(@"<Slider Min=""0"" Max=""100"" Value=""@_minMaxValue"" OnValueChanged=""HandleMinMaxValueChanged""/>")">
                 <Slider Min="0" Max="100" Value="@_minMaxValue" OnValueChanged="HandleMinMaxValueChanged"/>
                 <Paragraph Class="text-muted-foreground" Margin="Margin.Is0">Current value: <Strong>@_minMaxValue</Strong></Paragraph>
             </DemoSection>
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Step" Description="@($"Step 5; value {_stepValue}.")">
+            <DemoSection Title="Step" Description="@($"Step 5; value {_stepValue}.")" Code="@(@"<Slider Min=""0"" Max=""100"" Step=""5"" Value=""@_stepValue"" OnValueChanged=""HandleStepValueChanged""/>")">
                 <Slider Min="0" Max="100" Step="5" Value="@_stepValue" OnValueChanged="HandleStepValueChanged"/>
                 <Paragraph Class="text-muted-foreground" Margin="Margin.Is0">Current value: <Strong>@_stepValue</Strong> (Step: 5)</Paragraph>
             </DemoSection>
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Sizes" Description="Small, default, and large.">
+            <DemoSection Title="Sizes" Description="Small, default, and large." Code="@(@"<Slider Min=""0"" Max=""100"" Value=""@_smallValue"" Size=""Size.Small"" OnValueChanged=""...""/>
+<Slider Min=""0"" Max=""100"" Value=""@_defaultValue"" Size=""Size.Default"" OnValueChanged=""...""/>
+<Slider Min=""0"" Max=""100"" Value=""@_largeValue"" Size=""Size.Large"" OnValueChanged=""...""/>")">
                 <Div Class="space-y-4">
                     <Div>
                         <H5 Class="text-sm font-medium text-muted-foreground">Small</H5>
@@ -98,7 +100,9 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Colors" Description="Primary, success, warning, danger.">
+            <DemoSection Title="Colors" Description="Primary, success, warning, danger." Code="@(@"<Slider Min=""0"" Max=""100"" Value=""@_primaryValue"" Color=""Color.Primary"" OnValueChanged=""...""/>
+<Slider Min=""0"" Max=""100"" Value=""@_successValue"" Color=""Color.Success"" OnValueChanged=""...""/>
+<Slider Min=""0"" Max=""100"" Value=""@_dangerValue"" Color=""Color.Danger"" OnValueChanged=""...""/>")">
                 <Div Class="space-y-4">
                     <Div>
                         <H5 Class="text-sm font-medium text-muted-foreground">Primary</H5>
@@ -125,13 +129,13 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Disabled" Description="Slider is read-only.">
+            <DemoSection Title="Disabled" Description="Slider is read-only." Code="@(@"<Slider Min=""0"" Max=""100"" Value=""50"" Disabled=""true""/>")">
                 <Slider Min="0" Max="100" Value="50" Disabled="true"/>
             </DemoSection>
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Range (min/max)" Description="@($"Min {_rangeMin}, max {_rangeMax}.")">
+            <DemoSection Title="Range (min/max)" Description="@($"Min {_rangeMin}, max {_rangeMax}.")" Code="@(@"<Slider Min=""0"" Max=""100"" @bind-Min=""_rangeMin"" @bind-Max=""_rangeMax"" .../>")">
             <Div Margin="Margin.Is3.FromBottom">
                 <Slider Min="0" Max="100" Value="@_rangeMin" OnValueChanged="HandleRangeMinChanged"/>
                 <Paragraph TextColor="TextColor.Muted">Min value: <Strong>@_rangeMin</Strong></Paragraph>
@@ -147,7 +151,7 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="With labels" Description="@($"Labels 0–100; value {_labeledValue}.")">
+            <DemoSection Title="With labels" Description="@($"Labels 0–100; value {_labeledValue}.")" Code="@(@"<Slider Min=""0"" Max=""100"" Value=""@_labeledValue"" MinLabel=""0"" MaxLabel=""100"" OnValueChanged=""...""/>")">
             <Div>
                 <Div Display="Display.Flex" JustifyContent="JustifyContent.Between" Margin="Margin.Is2.FromBottom">
                     <Span>0</Span>

@@ -7,7 +7,7 @@ namespace Soenneker.Quark;
 
 /// <summary>
 /// High-performance text background combination builder.
-/// Produces Bootstrap text-bg utility classes that set both text and background colors.
+/// Produces theme utility classes that set both text and background colors (e.g. q-text-bg-*).
 /// </summary>
 public sealed class TextBackgroundBuilder : ICssBuilder
 {
@@ -150,12 +150,11 @@ public sealed class TextBackgroundBuilder : ICssBuilder
 
     /// <summary>
     /// Gets the CSS style string for the current configuration.
-    /// Text-bg classes should always use Bootstrap classes, not inline styles.
+    /// Text-bg is applied via theme classes, not inline styles.
     /// </summary>
-    /// <returns>An empty string, as text-bg classes are handled via classes.</returns>
+    /// <returns>An empty string, as text-bg is handled via classes.</returns>
     public string ToStyle()
     {
-        // Text-bg classes should always use Bootstrap classes, not inline styles
         return string.Empty;
     }
 
@@ -172,17 +171,17 @@ public sealed class TextBackgroundBuilder : ICssBuilder
     {
         return rule.Value switch
         {
-            "primary" => "text-bg-primary",
-            "secondary" => "text-bg-secondary",
-            "success" => "text-bg-success",
-            "danger" => "text-bg-danger",
-            "warning" => "text-bg-warning",
-            "info" => "text-bg-info",
-            "light" => "text-bg-light",
-            "dark" => "text-bg-dark",
-            "body" => "text-bg-body",
-            "body-secondary" => "text-bg-body-secondary",
-            "body-tertiary" => "text-bg-body-tertiary",
+            "primary" => "q-text-bg-primary",
+            "secondary" => "q-text-bg-secondary",
+            "success" => "q-text-bg-success",
+            "danger" => "q-text-bg-danger",
+            "warning" => "q-text-bg-warning",
+            "info" => "q-text-bg-info",
+            "light" => "q-text-bg-light",
+            "dark" => "q-text-bg-dark",
+            "body" => "q-text-bg-body",
+            "body-secondary" => "q-text-bg-body-secondary",
+            "body-tertiary" => "q-text-bg-body-tertiary",
             _ => string.Empty
         };
     }

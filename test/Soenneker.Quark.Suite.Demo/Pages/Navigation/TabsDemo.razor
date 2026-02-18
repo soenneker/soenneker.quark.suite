@@ -3,11 +3,6 @@
 <PageTitle>Tabs - Quark Suite</PageTitle>
 
 <Div Class="space-y-8 max-w-4xl">
-    <Div Class="space-y-3">
-        <H1 Class="text-4xl font-bold tracking-tight">Tabs</H1>
-        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">Tabbed panels with Tab, Name, Title, and optional Pills or controlled SelectedTab.</Paragraph>
-    </Div>
-
     <Div Class="space-y-6">
         <section class="space-y-4">
             <DemoSection Title="Basic tabs" Description="Tab components with Name and Title. First tab is selected by default."
@@ -45,7 +40,11 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Controlled tabs" Description="@($"SelectedTab and OnSelectedTabChanged; current: {_selectedTab}.")">
+            <DemoSection Title="Controlled tabs" Description="@($"SelectedTab and OnSelectedTabChanged; current: {_selectedTab}.")" Code="@(@"<Tabs SelectedTab=""_selectedTab"" OnSelectedTabChanged=""HandleTabChanged"">
+    <Tab Name=""controlled1"" Title=""First Tab""><Div Class=""p-3"">First content</Div></Tab>
+    <Tab Name=""controlled2"" Title=""Second Tab""><Div Class=""p-3"">Second content</Div></Tab>
+    <Tab Name=""controlled3"" Title=""Third Tab""><Div Class=""p-3"">Third content</Div></Tab>
+</Tabs>")">
                 <Div Class="rounded-xl border border-border bg-muted/30 p-6">
                     <Tabs SelectedTab="@_selectedTab" OnSelectedTabChanged="HandleTabChanged">
                         <Tab Name="controlled1" Title="First Tab">
@@ -77,7 +76,11 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Pills style" Description="Pills variant for tab headers.">
+            <DemoSection Title="Pills style" Description="Pills variant for tab headers." Code="@(@"<Tabs Pills=""true"">
+    <Tab Name=""pills1"" Title=""Pill 1""><Div Class=""p-3"">Pill Tab 1</Div></Tab>
+    <Tab Name=""pills2"" Title=""Pill 2""><Div Class=""p-3"">Pill Tab 2</Div></Tab>
+    <Tab Name=""pills3"" Title=""Pill 3""><Div Class=""p-3"">Pill Tab 3</Div></Tab>
+</Tabs>")">
                 <Div Class="rounded-xl border border-border bg-muted/30 p-6">
                     <H5 Class="text-sm font-medium text-muted-foreground">Pills</H5>
                     <Tabs Pills="true">
@@ -105,7 +108,11 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Tabs with icons" Description="IconName on each tab (home, user, cog, envelope).">
+            <DemoSection Title="Tabs with icons" Description="IconName on each tab (home, user, cog, envelope)." Code="@(@"<Tabs>
+    <Tab Name=""icon1"" Title=""Home"" IconName=""home""><Div Class=""p-3"">Home with Icon</Div></Tab>
+    <Tab Name=""icon2"" Title=""Profile"" IconName=""user""><Div Class=""p-3"">Profile with Icon</Div></Tab>
+    <Tab Name=""icon3"" Title=""Settings"" IconName=""cog""><Div Class=""p-3"">Settings with Icon</Div></Tab>
+</Tabs>")">
                 <Div Class="rounded-xl border border-border bg-muted/30 p-6">
                     <Tabs>
                         <Tab Name="icon1" Title="Home" IconName="home">
@@ -138,7 +145,11 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Vertical tabs" Description="Tabs on the left side.">
+            <DemoSection Title="Vertical tabs" Description="Tabs on the left side." Code="@(@"<Tabs Vertical=""true"">
+    <Tab Name=""vertical1"" Title=""Dashboard""><Div Class=""p-3"">Dashboard content</Div></Tab>
+    <Tab Name=""vertical2"" Title=""Analytics""><Div Class=""p-3"">Analytics content</Div></Tab>
+    <Tab Name=""vertical3"" Title=""Reports""><Div Class=""p-3"">Reports content</Div></Tab>
+</Tabs>")">
                 <Div Class="rounded-xl border border-border bg-muted/30 p-6">
                     <Tabs Vertical="true">
                         <Tab Name="vertical1" Title="Dashboard">
@@ -202,7 +213,11 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Disabled tab" Description="One tab is disabled.">
+            <DemoSection Title="Disabled tab" Description="One tab is disabled." Code="@(@"<Tabs>
+    <Tab Name=""disabled1"" Title=""Enabled Tab""><Div Class=""p-3"">This tab is enabled</Div></Tab>
+    <Tab Name=""disabled2"" Title=""Disabled Tab"" Disabled=""true""><Div Class=""p-3"">Disabled content</Div></Tab>
+    <Tab Name=""disabled3"" Title=""Another Enabled Tab""><Div Class=""p-3"">Also enabled</Div></Tab>
+</Tabs>")">
                 <Div Class="rounded-xl border border-border bg-muted/30 p-6">
                     <Tabs>
                         <Tab Name="disabled1" Title="Enabled Tab">
@@ -229,7 +244,13 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Dynamic tabs" Description="@($"Add/remove tabs; count: {_dynamicTabs.Count}.")">
+            <DemoSection Title="Dynamic tabs" Description="@($"Add/remove tabs; count: {_dynamicTabs.Count}.")" Code="@(@"<Tabs SelectedTab=""_dynamicSelectedTab"" OnSelectedTabChanged=""HandleDynamicTabChanged"">
+    @foreach (DynamicTab tab in _dynamicTabs) {
+        <Tab Name=""@tab.Name"" Title=""@tab.Title""><Div Class=""p-3"">@tab.Content</Div></Tab>
+    }
+</Tabs>
+<Button OnClick=""AddTab"">Add Tab</Button>
+<Button OnClick=""RemoveTab"">Remove Tab</Button>")">
                 <Div Class="rounded-xl border border-border bg-muted/30 p-6">
                     <Tabs SelectedTab="@_dynamicSelectedTab" OnSelectedTabChanged="HandleDynamicTabChanged">
                         @foreach (DynamicTab tab in _dynamicTabs)

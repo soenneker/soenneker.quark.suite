@@ -9,23 +9,18 @@
 @inject ILogger<PagedResultDemo> Logger
 @inject EmployeeService EmployeeService
 
-<PageTitle>PagedResult Demo - Table</PageTitle>
+<PageTitle>PagedResult Demo - Quark Suite</PageTitle>
 
-<Div class="demo-hero">
-    <Container>
-        <Row>
-            <Column ColumnSize="ColumnSize.Is12" Class="text-center">
-                <Div class="hero-content">
-                    <Div class="demo-icon">✨</Div>
-                    <H1 Class="demo-title">PagedResult Demo</H1>
-                    <Paragraph Class="demo-subtitle">Advanced pagination with continuation tokens and comprehensive debug information.</Paragraph>
-                </Div>
-            </Column>
-        </Row>
-    </Container>
-</Div>
-
-<Container>
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-6">
+    <DemoSection Title="PagedResult Table" Description="Table with PagedResult, continuation tokens, TableInfo, TablePagination." Code="@(@"<Table @ref=""_quarkTable"" OnInteraction=""OnInteraction"" Options=""_tableOptions"" TotalRecords=""@_totalRecords"">
+    <TableSearch Placeholder=""Search...""/>
+    <TableElement>
+        <Thead><Tr><Th Data=""Name"">Name</Th><Th Data=""Email"">Email</Th></Tr></Thead>
+        <Tbody>@foreach (var item in _items) { <Tr><Td>@item.Name</Td><Td>@item.Email</Td></Tr> }</Tbody>
+    </TableElement>
+    <TableBottomBar><TableInfo/><TablePagination/></TableBottomBar>
+</Table>")">
     <Card Class="demo-card">
         <CardHeader>
             <Div class="card-header-content">
@@ -82,42 +77,7 @@
             </Table>
         </CardBody>
     </Card>
-
-    <Card Margin="Margin.Is4.FromTop">
-        <CardHeader>
-            <H4>Code Example</H4>
-        </CardHeader>
-        <CardBody>
-            <CodeEditor ReadOnly="true" 
-                        Language="@("html")" 
-                        AutoHeight="true" Text="@(@"<Table @ref=""_quarkTable"" 
-       OnInteraction=""OnInteraction""
-       Options=""_pageOptions""
-       TotalRecords=""@_totalRecords"">
-    <TableElement>
-        <Thead>
-            <Tr>
-                <Th Data=""Name"">Name</Th>
-                <Th Data=""Email"">Email</Th>
-            </Tr>
-        </Thead>
-        <Tbody>
-            @foreach (var item in _items)
-            {
-                <Tr>
-                    <Td>@item.Name</Td>
-                    <Td>@item.Email</Td>
-                </Tr>
-            }
-        </Tbody>
-    </TableElement>
-    <TableBottomBar>
-        <TableInfo/>
-        <TablePagination/>
-    </TableBottomBar>
-</Table>")" />
-        </CardBody>
-    </Card>
+    </DemoSection>
 
     <!-- Debug Information -->
     @if (_quarkTable != null)
@@ -185,7 +145,8 @@
             </CardBody>
         </Card>
     }
-</Container>
+    </Div>
+</Div>
 
 <style>
     .demo-hero {

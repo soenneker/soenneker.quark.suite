@@ -128,7 +128,26 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         if (value.IsNullOrEmpty())
             return false;
 
-        return false;
+        return value.Length <= 20 && (value.Equals("xs", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("sm", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("md", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("lg", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("xl", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("xxl", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("primary", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("secondary", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("success", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("danger", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("warning", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("info", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("light", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("dark", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("body", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("body-secondary", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("body-tertiary", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("link", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("muted", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("white", StringComparison.OrdinalIgnoreCase));
     }
 
     private static bool LooksLikeCssUnit(string value)
@@ -209,13 +228,18 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
     public static bool operator !=(CssValue<TBuilder> a, CssValue<TBuilder> b) => !a.Equals(b);
 
     /// <summary>
-    /// Attempts to extract a Bootstrap theme token from this CSS value.
+    /// Attempts to extract a theme token from this CSS value (e.g. size or color token for theme mapping).
     /// </summary>
-    /// <param name="token">When this method returns, contains the Bootstrap theme token if found; otherwise, null.</param>
-    /// <returns>true if a Bootstrap theme token was found; otherwise, false.</returns>
-    public bool TryGetBootstrapThemeToken(out string? token)
+    /// <param name="token">When this method returns, contains the theme token if found; otherwise, null.</param>
+    /// <returns>true if a theme token was found; otherwise, false.</returns>
+    public bool TryGetThemeToken(out string? token)
     {
         token = null;
-        return false;
+        if (_value.IsNullOrEmpty())
+            return false;
+        if (!IsKnownThemeOrSizeToken(_value))
+            return false;
+        token = _value;
+        return true;
     }
 }

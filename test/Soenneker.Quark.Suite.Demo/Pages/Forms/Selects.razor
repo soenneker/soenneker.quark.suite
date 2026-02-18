@@ -1,265 +1,184 @@
 @page "/forms/selects"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
 
-<Container Padding="Padding.Is4.OnY">
-<Row>
-    <Column>
-        <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-            <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Select Components</H1>
-            <Paragraph Class="lead" TextColor="TextColor.Muted">Dropdown select components for choosing from a list of options.</Paragraph>
-        </Div>
-    </Column>
-</Row>
+<PageTitle>Select Component - Quark Suite</PageTitle>
 
-<Row>
-    <Column>
-        <H2>🧪 BINDING TEST SECTION</H2>
-        <Alert BackgroundColor="BackgroundColor.Info" Margin="Margin.Is3.FromEnd">
-            <Strong>Test Instructions:</Strong> Select options below or click "Load Test Data" to verify binding works.
-        </Alert>
-
-        <Div Margin="Margin.Is4.FromBottom" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Light" BorderRadius="BorderRadius.Default">
-            <H3 Margin="Margin.Is3.FromBottom">Two-Way Binding Test</H3>
-
-            <Div Margin="Margin.Is3.FromBottom">
-                <Label For="testSelect1" Form="true" FontWeight="FontWeight.Bold">Test Select 1 (String):</Label>
-                <Select TValue="string" Id="testSelect1" @bind-SelectedValue="_testSelect1" DefaultItemText="Select an option...">
-                    <SelectItem TValue="string" Value="@("option1")" Text="Option 1"/>
-                    <SelectItem TValue="string" Value="@("option2")" Text="Option 2"/>
-                    <SelectItem TValue="string" Value="@("option3")" Text="Option 3"/>
-                    <SelectItem TValue="string" Value="@("option4")" Text="Option 4"/>
+<div class="space-y-8 max-w-4xl">
+    <section class="space-y-4">
+        <DemoSection Title="Basic Select" Description="A simple select with a list of options." Code="@(@"<Select TValue=""string"" @bind-SelectedValue=""_selectedFruit"" DefaultItemText=""Select a fruit..."">
+    <SelectItem TValue=""string"" Value=""apple"" Text=""Apple"" />
+    <SelectItem TValue=""string"" Value=""banana"" Text=""Banana"" />
+    <SelectItem TValue=""string"" Value=""blueberry"" Text=""Blueberry"" />
+    <SelectItem TValue=""string"" Value=""grapes"" Text=""Grapes"" />
+    <SelectItem TValue=""string"" Value=""pineapple"" Text=""Pineapple"" />
+</Select>")">
+            <div class="flex items-center gap-4">
+                <Select TValue="string" @bind-SelectedValue="_selectedFruit" DefaultItemText="Select a fruit...">
+                    <SelectItem TValue="string" Value="@("apple")" Text="Apple" />
+                    <SelectItem TValue="string" Value="@("banana")" Text="Banana" />
+                    <SelectItem TValue="string" Value="@("blueberry")" Text="Blueberry" />
+                    <SelectItem TValue="string" Value="@("grapes")" Text="Grapes" />
+                    <SelectItem TValue="string" Value="@("pineapple")" Text="Pineapple" />
                 </Select>
-                <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
-                    <Strong>Bound Value:</Strong> <Code>@(_testSelect1 ?? "(empty)")</Code>
-                </Div>
-            </Div>
+                @if (!string.IsNullOrEmpty(_selectedFruit))
+                {
+                    <p class="text-sm">Selected: <strong>@_selectedFruit</strong></p>
+                }
+            </div>
+        </DemoSection>
+    </section>
 
-            <Div Margin="Margin.Is3.FromBottom">
-                <Label For="testSelect2" Form="true" FontWeight="FontWeight.Bold">Test Select 2 (Int, Pre-populated with 2):</Label>
-                <Select TValue="int" Id="testSelect2" @bind-SelectedValue="_testSelect2" DefaultItemText="Select a number...">
-                    <SelectItem TValue="int" Value="1" Text="One"/>
-                    <SelectItem TValue="int" Value="2" Text="Two"/>
-                    <SelectItem TValue="int" Value="3" Text="Three"/>
-                    <SelectItem TValue="int" Value="4" Text="Four"/>
+    <section class="space-y-4">
+        <DemoSection Title="Grouped Options" Description="Organize related items into labeled groups." Code="@(@"<Select TValue=""string"" @bind-SelectedValue=""_selectedAnimal"" DefaultItemText=""Select an animal..."">
+    <SelectGroup Label=""Mammals"">
+        <SelectItem TValue=""string"" Value=""cat"" Text=""Cat"" />
+        <SelectItem TValue=""string"" Value=""dog"" Text=""Dog"" />
+        <SelectItem TValue=""string"" Value=""elephant"" Text=""Elephant"" />
+    </SelectGroup>
+    <SelectGroup Label=""Birds"">
+        <SelectItem TValue=""string"" Value=""eagle"" Text=""Eagle"" />
+        <SelectItem TValue=""string"" Value=""parrot"" Text=""Parrot"" />
+        <SelectItem TValue=""string"" Value=""penguin"" Text=""Penguin"" />
+    </SelectGroup>
+</Select>")">
+            <div class="flex items-center gap-4">
+                <Select TValue="string" @bind-SelectedValue="_selectedAnimal" DefaultItemText="Select an animal...">
+                    <SelectGroup Label="Mammals">
+                        <SelectItem TValue="string" Value="@("cat")" Text="Cat" />
+                        <SelectItem TValue="string" Value="@("dog")" Text="Dog" />
+                        <SelectItem TValue="string" Value="@("elephant")" Text="Elephant" />
+                    </SelectGroup>
+                    <SelectGroup Label="Birds">
+                        <SelectItem TValue="string" Value="@("eagle")" Text="Eagle" />
+                        <SelectItem TValue="string" Value="@("parrot")" Text="Parrot" />
+                        <SelectItem TValue="string" Value="@("penguin")" Text="Penguin" />
+                    </SelectGroup>
                 </Select>
-                <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
-                    <Strong>Bound Value:</Strong> <Code>@_testSelect2</Code>
-                </Div>
-            </Div>
+                @if (!string.IsNullOrEmpty(_selectedAnimal))
+                {
+                    <p class="text-sm">Selected: <strong>@_selectedAnimal</strong></p>
+                }
+            </div>
+        </DemoSection>
+    </section>
 
-            <Div Margin="Margin.Is3.FromTop">
-                <Button BackgroundColor="BackgroundColor.Primary" OnClick="LoadSelectTestData" Margin="Margin.Is2.FromEnd">Load Test Data</Button>
-                <Button BackgroundColor="BackgroundColor.Secondary" OnClick="ClearSelectTestData" Margin="Margin.Is2.FromEnd">Clear Test Data</Button>
-                <Button BackgroundColor="BackgroundColor.Warning" OnClick="UpdateSelectTestData">Update to Different Values</Button>
-            </Div>
+    <section class="space-y-4">
+        <DemoSection Title="Scrollable Long List" Description="Handle many options with native select scrolling." Code="@(@"<Select TValue=""string"" @bind-SelectedValue=""_selectedCountry"" DefaultItemText=""Select a country..."">
+    @foreach (var country in _countries) {
+        <SelectItem TValue=""string"" Value=""@country"" Text=""@country"" />
+    }
+</Select>")">
+            <div class="flex items-center gap-4">
+                <Select TValue="string" @bind-SelectedValue="_selectedCountry" DefaultItemText="Select a country...">
+                    @foreach (var country in _countries)
+                    {
+                        <SelectItem TValue="string" Value="@country" Text="@country" />
+                    }
+                </Select>
+                @if (!string.IsNullOrEmpty(_selectedCountry))
+                {
+                    <p class="text-sm">Selected: <strong>@_selectedCountry</strong></p>
+                }
+            </div>
+        </DemoSection>
+    </section>
 
-            <Div Margin="Margin.Is3.FromTop" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Success" Class="bg-opacity-10 rounded">
-                <H4>Test Results:</H4>
-                <UnorderedList Margin="Margin.Is0.FromBottom">
-                    <UnorderedListItem>
-                        <Strong>Select 1 (string):</Strong> @(_testSelect1 ?? "(not set)")
-                    </UnorderedListItem>
-                    <UnorderedListItem>
-                        <Strong>Select 2 (int):</Strong> @_testSelect2
-                    </UnorderedListItem>
-                </UnorderedList>
-            </Div>
-        </Div>
+    <section class="space-y-4">
+        <DemoSection Title="Generic Type Support" Description="Select supports generic values, including numbers." Code="@(@"<Select TValue=""int"" @bind-SelectedValue=""_selectedNumber"" DefaultItemText=""Select a number..."">
+    <SelectItem TValue=""int"" Value=""1"" Text=""One"" />
+    <SelectItem TValue=""int"" Value=""2"" Text=""Two"" />
+    <SelectItem TValue=""int"" Value=""3"" Text=""Three"" />
+    <SelectItem TValue=""int"" Value=""4"" Text=""Four"" />
+    <SelectItem TValue=""int"" Value=""5"" Text=""Five"" />
+</Select>")">
+            <div class="flex items-center gap-4">
+                <Select TValue="int" @bind-SelectedValue="_selectedNumber" DefaultItemText="Select a number...">
+                    <SelectItem TValue="int" Value="1" Text="One" />
+                    <SelectItem TValue="int" Value="2" Text="Two" />
+                    <SelectItem TValue="int" Value="3" Text="Three" />
+                    <SelectItem TValue="int" Value="4" Text="Four" />
+                    <SelectItem TValue="int" Value="5" Text="Five" />
+                </Select>
+                @if (_selectedNumber > 0)
+                {
+                    <p class="text-sm">Selected: <strong>@_selectedNumber</strong></p>
+                }
+            </div>
+        </DemoSection>
+    </section>
 
-        <Hr/>
-    </Column>
-</Row>
-
-<Row>
-    <Column ColumnSize="@ColumnSize.Is6.OnMd">
-        <Card>
-            <CardHeader>
-                <H4>Basic Select</H4>
-            </CardHeader>
-            <CardBody>
-                <CodeEditor ReadOnly="true" 
-                            Language="@("html")" 
-                            AutoHeight="true" Margin="Margin.Is3.FromBottom"
-                            Text="@(@"<Select TValue=""string"" @bind-SelectedValue=""_selectedValue"" 
-        DefaultItemText=""Select an option..."">
-    <SelectItem TValue=""string"" Value=""@(\""option1\"")"" Text=""Option 1""/>
-    <SelectItem TValue=""string"" Value=""@(\""option2\"")"" Text=""Option 2""/>
-    <SelectItem TValue=""string"" Value=""@(\""option3\"")"" Text=""Option 3""/>
-</Select>")" />
-
-                <Field>
-                    <FieldLabel>Choose a country</FieldLabel>
-                    <Select TValue="string" @bind-SelectedValue="_selectedCountry" DefaultItemText="Select a country...">
-                        <SelectItem TValue="string" Value="@("us")" Text="United States"/>
-                        <SelectItem TValue="string" Value="@("ca")" Text="Canada"/>
-                        <SelectItem TValue="string" Value="@("mx")" Text="Mexico"/>
-                        <SelectItem TValue="string" Value="@("uk")" Text="United Kingdom"/>
-                        <SelectItem TValue="string" Value="@("de")" Text="Germany"/>
-                        <SelectItem TValue="string" Value="@("fr")" Text="France"/>
+    <section class="space-y-4">
+        <DemoSection Title="Form Validation" Description="Select integrated with EditForm and validation messaging." Code="@(@"<EditForm Model=""_formModel"" OnValidSubmit=""HandleSubmit"" class=""max-w-md space-y-4"">
+    <DataAnnotationsValidator />
+    <label class=""text-sm font-medium"">Favorite Fruit</label>
+    <Select TValue=""string"" @bind-SelectedValue=""_formModel.Fruit"" DefaultItemText=""Select a fruit..."">
+        <SelectItem TValue=""string"" Value=""apple"" Text=""Apple"" />
+        <SelectItem TValue=""string"" Value=""banana"" Text=""Banana"" />
+        <SelectItem TValue=""string"" Value=""blueberry"" Text=""Blueberry"" />
+    </Select>
+    <ValidationMessage For=""@(() => _formModel.Fruit)"" class=""text-sm text-destructive"" />
+    <Button Type=""ButtonType.Submit"" Variant=""ButtonVariant.Default"">Submit</Button>
+</EditForm>")">
+            <EditForm Model="_formModel" OnValidSubmit="HandleSubmit" class="max-w-md space-y-4">
+                <DataAnnotationsValidator />
+                <div class="space-y-2">
+                    <label class="text-sm font-medium">Favorite Fruit</label>
+                    <Select TValue="string" @bind-SelectedValue="_formModel.Fruit" DefaultItemText="Select a fruit...">
+                        <SelectItem TValue="string" Value="@("apple")" Text="Apple" />
+                        <SelectItem TValue="string" Value="@("banana")" Text="Banana" />
+                        <SelectItem TValue="string" Value="@("blueberry")" Text="Blueberry" />
                     </Select>
-                </Field>
-                <Small TextColor="@TextColor.Secondary">
-                    Selected: @_selectedCountry
-                </Small>
-            </CardBody>
-        </Card>
-    </Column>
-
-    <Column ColumnSize="@ColumnSize.Is6.OnMd">
-        <Card>
-            <CardHeader>
-                <H4>Select with Groups</H4>
-            </CardHeader>
-            <CardBody>
-                <Field>
-                    <FieldLabel>Choose a city</FieldLabel>
-                    <Select TValue="string" @bind-SelectedValue="_selectedCity" DefaultItemText="Select a city...">
-                        <SelectGroup Label="North America">
-                            <SelectItem TValue="string" Value="@("nyc")" Text="New York"/>
-                            <SelectItem TValue="string" Value="@("la")" Text="Los Angeles"/>
-                            <SelectItem TValue="string" Value="@("toronto")" Text="Toronto"/>
-                        </SelectGroup>
-                        <SelectGroup Label="Europe">
-                            <SelectItem TValue="string" Value="@("london")" Text="London"/>
-                            <SelectItem TValue="string" Value="@("paris")" Text="Paris"/>
-                            <SelectItem TValue="string" Value="@("berlin")" Text="Berlin"/>
-                        </SelectGroup>
-                    </Select>
-                </Field>
-                <Small TextColor="@TextColor.Secondary">
-                    Selected: @_selectedCity
-                </Small>
-            </CardBody>
-        </Card>
-    </Column>
-</Row>
-
-<Row Margin="Margin.Is4.FromTop">
-    <Column ColumnSize="@ColumnSize.Is6.OnMd">
-        <Card>
-            <CardHeader>
-                <H4>Numeric Select</H4>
-            </CardHeader>
-            <CardBody>
-                <Field>
-                    <FieldLabel>Choose a number</FieldLabel>
-                    <Select TValue="int" @bind-SelectedValue="_selectedNumber" DefaultItemText="Pick a number...">
-                        <SelectItem TValue="int" Value="@(1)" Text="One"/>
-                        <SelectItem TValue="int" Value="@(2)" Text="Two"/>
-                        <SelectItem TValue="int" Value="@(3)" Text="Three"/>
-                        <SelectItem TValue="int" Value="@(4)" Text="Four"/>
-                        <SelectItem TValue="int" Value="@(5)" Text="Five"/>
-                    </Select>
-                </Field>
-                <Small TextColor="@TextColor.Secondary">
-                    Selected: @_selectedNumber
-                </Small>
-            </CardBody>
-        </Card>
-    </Column>
-
-    <Column ColumnSize="@ColumnSize.Is6.OnMd">
-        <Card>
-            <CardHeader>
-                <H4>Select with Custom Options</H4>
-            </CardHeader>
-            <CardBody>
-                <Field>
-                    <FieldLabel>Choose a framework</FieldLabel>
-                    <Select TValue="string" @bind-SelectedValue="_selectedFramework" DefaultItemText="Select framework...">
-                        <SelectItem TValue="string" Value="@("blazor")">
-                            <Icon Name="microsoft" Margin="Margin.Is1.FromEnd"/>
-                            Blazor
-                        </SelectItem>
-                        <SelectItem TValue="string" Value="@("react")">
-                            <Icon Name="react" Margin="Margin.Is1.FromEnd"/>
-                            React
-                        </SelectItem>
-                        <SelectItem TValue="string" Value="@("vue")">
-                            <Icon Name="vue" Margin="Margin.Is1.FromEnd"/>
-                            Vue.js
-                        </SelectItem>
-                        <SelectItem TValue="string" Value="@("angular")">
-                            <Icon Name="angular" Margin="Margin.Is1.FromEnd"/>
-                            Angular
-                        </SelectItem>
-                    </Select>
-                </Field>
-                <Small TextColor="@TextColor.Secondary">
-                    Selected: @_selectedFramework
-                </Small>
-            </CardBody>
-        </Card>
-    </Column>
-</Row>
-
-<Row Margin="Margin.Is4.FromTop">
-    <Column ColumnSize="@ColumnSize.Is6.OnMd">
-        <Card>
-            <CardHeader>
-                <H4>Disabled Select</H4>
-            </CardHeader>
-            <CardBody>
-                <Field>
-                    <FieldLabel>Disabled dropdown</FieldLabel>
-                    <Select TValue="string" @bind-SelectedValue="_disabledValue" Disabled="true" DefaultItemText="This is disabled...">
-                        <SelectItem TValue="string" Value="@("option1")" Text="Option 1"/>
-                        <SelectItem TValue="string" Value="@("option2")" Text="Option 2"/>
-                    </Select>
-                </Field>
-            </CardBody>
-        </Card>
-    </Column>
-
-    <Column ColumnSize="@ColumnSize.Is6.OnMd">
-        <Card>
-            <CardHeader>
-                <H4>Required Select</H4>
-            </CardHeader>
-            <CardBody>
-                <Field>
-                    <FieldLabel>Required field <Text TextColor="@TextColor.Danger">*</Text></FieldLabel>
-                    <Select TValue="string" @bind-SelectedValue="_requiredValue" Required="true" DefaultItemText="Please select...">
-                        <SelectItem TValue="string" Value="@("yes")" Text="Yes"/>
-                        <SelectItem TValue="string" Value="@("no")" Text="No"/>
-                        <SelectItem TValue="string" Value="@("maybe")" Text="Maybe"/>
-                    </Select>
-                </Field>
-            </CardBody>
-        </Card>
-    </Column>
-</Row>
-</Container>
+                    <ValidationMessage For="@(() => _formModel.Fruit)" class="text-sm text-destructive" />
+                </div>
+                <div class="flex gap-4">
+                    <Button Type="@ButtonType.Submit" Variant="ButtonVariant.Default">Submit</Button>
+                    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" OnClick="@(_ => ResetForm())">Reset</Button>
+                </div>
+                @if (!string.IsNullOrEmpty(_formMessage))
+                {
+                    <div class="p-4 bg-card rounded-lg border">
+                        <p class="text-sm">@_formMessage</p>
+                    </div>
+                }
+            </EditForm>
+        </DemoSection>
+    </section>
+</div>
 
 @code {
-
-    // Binding Test Fields
-    private string? _testSelect1;
-    private int _testSelect2 = 2;
-
+    private string? _selectedFruit;
+    private string? _selectedAnimal;
     private string? _selectedCountry;
-    private string? _selectedCity;
     private int _selectedNumber;
-    private string? _selectedFramework;
-    private string? _disabledValue = "option1";
-    private string? _requiredValue;
 
-    private void LoadSelectTestData()
+    private readonly string[] _countries =
     {
-        _testSelect1 = "option3";
-        _testSelect2 = 4;
+        "Afghanistan", "Albania", "Algeria", "Andorra", "Angola",
+        "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
+        "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus",
+        "Belgium", "Belize", "Benin", "Bhutan", "Bolivia",
+        "Brazil", "Bulgaria", "Canada", "Chile", "China",
+        "Colombia", "Croatia", "Czech Republic", "Denmark", "Egypt"
+    };
+
+    private SelectFormModel _formModel = new();
+    private string? _formMessage;
+
+    private void HandleSubmit()
+    {
+        _formMessage = $"Submitted! Fruit: {_formModel.Fruit}";
     }
 
-    private void ClearSelectTestData()
+    private void ResetForm()
     {
-        _testSelect1 = null;
-        _testSelect2 = 0;
+        _formModel = new();
+        _formMessage = null;
     }
 
-    private void UpdateSelectTestData()
+    private sealed class SelectFormModel
     {
-        var options = new[] { "option1", "option2", "option3", "option4" };
-        _testSelect1 = options[new Random().Next(options.Length)];
-        _testSelect2 = new Random().Next(1, 5);
+        [Required(ErrorMessage = "Please select a fruit.")]
+        public string? Fruit { get; set; }
     }
-
 }

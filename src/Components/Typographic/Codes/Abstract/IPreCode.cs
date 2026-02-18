@@ -21,7 +21,7 @@ public interface IPreCode : IElement
     string? Theme { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the code block should be scrollable when content overflows.
+    /// Gets or sets whether the code block should be scrollable When content overflows.
     /// </summary>
     bool Scrollable { get; set; }
 }

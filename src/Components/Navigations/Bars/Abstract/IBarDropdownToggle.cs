@@ -9,7 +9,7 @@ namespace Soenneker.Quark;
 public interface IBarDropdownToggle : IElement
 {
     /// <summary>
-    /// Gets or sets the callback invoked when the toggle is clicked.
+    /// Gets or sets the callback invoked When the toggle is clicked.
     /// </summary>
     EventCallback<MouseEventArgs> OnToggle { get; set; }
 

@@ -164,12 +164,12 @@ public sealed class LinkOpacityBuilder : ICssBuilder
     {
         return value switch
         {
-            10 => "--bs-link-opacity: 0.1",
-            25 => "--bs-link-opacity: 0.25",
-            50 => "--bs-link-opacity: 0.5",
-            75 => "--bs-link-opacity: 0.75",
-            100 => "--bs-link-opacity: 1",
-            _ => $"--bs-link-opacity: {value}"
+            10 => "--tw-link-opacity: 0.1",
+            25 => "--tw-link-opacity: 0.25",
+            50 => "--tw-link-opacity: 0.5",
+            75 => "--tw-link-opacity: 0.75",
+            100 => "--tw-link-opacity: 1",
+            _ => $"--tw-link-opacity: {value}"
         };
     }
 

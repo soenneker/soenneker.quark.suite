@@ -3,7 +3,7 @@ using Intellenum;
 namespace Soenneker.Quark.Enums;
 
 /// <summary>
-/// Represents Bootstrap nav style types.
+/// Represents nav style types.
 /// </summary>
 [Intellenum<string>]
 public sealed partial class NavStyleType

@@ -3,7 +3,11 @@
 @inherits Soenneker.Quark.Element
 @implements IProgress
 
-<div @attributes="BuildAttributes()">
+<div @attributes="BuildAttributes()"
+     role="progressbar"
+     aria-valuemin="0"
+     aria-valuemax="@Max"
+     aria-valuenow="@Value">
     @ChildContent
 </div>
 
@@ -26,29 +30,39 @@
     [Parameter]
     public bool Animated { get; set; }
 
+    /// <summary>
+    /// Gets or sets the current value exposed for ARIA progress semantics.
+    /// </summary>
+    [Parameter]
+    public int Value { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ARIA max value for progress semantics.
+    /// </summary>
+    [Parameter]
+    public int Max { get; set; } = 100;
+
     private string? GetSizeClass()
     {
         if (Size == Quark.Size.Default)
-            return "h-2";
+            return null; // base includes h-2
         string? token = null;
-        bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+        bool isTheme = Size?.TryGetThemeToken(out token) == true;
         if (isTheme && token is not null)
-            return token.ToLowerInvariant() switch { "sm" => "h-1.5", "lg" => "h-4", _ => "h-2" };
+            return token.ToLowerInvariant() switch { "sm" => "h-1.5", "lg" => "h-4", _ => null };
         var s = Size?.ToString()?.ToLowerInvariant();
-        return s switch { "sm" => "h-1.5", "lg" => "h-4", _ => "h-2" };
+        return s switch { "sm" => "h-1.5", "lg" => "h-4", _ => null };
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        attributes.TryAdd("data-slot", "progress");
-
         // shadcn Progress root - new-york-v4 ui/progress.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-progress");
-            AppendClass(ref cls, "bg-primary/20 relative w-full overflow-hidden rounded-full");
+            AppendClass(ref cls, "relative h-2 w-full overflow-hidden rounded-full bg-primary/20");
             string? sizeClass = GetSizeClass();
             if (sizeClass != null)
                 AppendClass(ref cls, sizeClass);
@@ -60,5 +74,7 @@
         AddIf(ref hc, Size);
         hc.Add(Striped);
         hc.Add(Animated);
+        hc.Add(Value);
+        hc.Add(Max);
     }
 }

@@ -24,7 +24,7 @@
     public decimal? Value { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the numeric value changes.
+    /// Gets or sets the callback invoked When the numeric value changes.
     /// </summary>
     [Parameter]
     public EventCallback<decimal?> ValueChanged { get; set; }
@@ -78,7 +78,7 @@
     public string? Label { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the input value changes.
+    /// Gets or sets the callback invoked When the input value changes.
     /// </summary>
     [Parameter]
     public EventCallback<ChangeEventArgs> OnChange { get; set; }
@@ -112,40 +112,16 @@
 
     public string? GetColorClass()
     {
-        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
-        {
-            bool isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out string? token);
-
-            if (isTheme && token is not null)
-            {
-                // Bootstrap theme token (e.g., "primary", "secondary")
-                return $"form-control-{token}";
-            }
-
-            string v = BackgroundColor.Value.ToString().Trim();
-
-            if (BackgroundColor.Value.IsCssClass)
-            {
-                if (v.StartsWith("form-control-", StringComparison.Ordinal))
-                    return v;
-                return $"form-control-{v}";
-            }
-        }
-
         return null;
     }
 
     public string? GetSizeClass()
     {
-        if (Size == Quark.Size.Default)
-            return null;
-
+        if (Size == Quark.Size.Default) return null;
         string? token = null;
-        bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
-        if (isTheme && token is not null)
-            return $"form-control-{token}";
-
-        return Size?.ToString() != null ? $"form-control-{Size}" : null;
+        bool isTheme = Size?.TryGetThemeToken(out token) == true;
+        var sizeVal = token ?? Size?.ToString();
+        return sizeVal?.ToLowerInvariant() switch { "sm" or "xs" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
     }
 
     private static decimal? ParseDecimal(ChangeEventArgs e)

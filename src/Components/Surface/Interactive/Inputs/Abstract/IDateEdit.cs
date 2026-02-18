@@ -61,12 +61,12 @@ public interface IDateEdit : IInput
     DateInputMode InputMode { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the DateTime value changes.
+    /// Gets or sets the callback invoked When the DateTime value changes.
     /// </summary>
     EventCallback<DateTime?> DateChanged { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the DateOnly value changes.
+    /// Gets or sets the callback invoked When the DateOnly value changes.
     /// </summary>
     EventCallback<DateOnly?> DateOnlyChanged { get; set; }
 

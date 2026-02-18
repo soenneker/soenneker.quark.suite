@@ -12,10 +12,11 @@ public sealed class LineHeightBuilder : ICssBuilder
 {
     private readonly List<LineHeightRule> _rules = new(4);
 
-    private const string _classLh1 = "lh-1";
-    private const string _classLhSm = "lh-sm";
-    private const string _classLhBase = "lh-base";
-    private const string _classLhLg = "lh-lg";
+    // Tailwind leading (line-height) utilities (for Quark Suite / shadcn)
+    private const string _classLh1 = "leading-none";
+    private const string _classLhSm = "leading-snug";
+    private const string _classLhBase = "leading-normal";
+    private const string _classLhLg = "leading-relaxed";
 
     internal LineHeightBuilder(string value, BreakpointType? breakpoint = null)
     {

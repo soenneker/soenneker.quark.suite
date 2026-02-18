@@ -5,9 +5,5 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IFieldBody : IComponent
 {
-    /// <summary>
-    /// Gets or sets the column size for horizontal layouts.
-    /// </summary>
-    CssValue<ColumnSizeBuilder>? ColumnSize { get; set; }
 }
 

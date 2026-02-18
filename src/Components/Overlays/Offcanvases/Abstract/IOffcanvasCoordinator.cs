@@ -12,7 +12,7 @@ public interface IOffcanvasCoordinator
     /// </summary>
     int ActiveCount { get; }
     /// <summary>
-    /// Event raised when the offcanvas state changes.
+    /// Event raised When the offcanvas state changes.
     /// </summary>
     event Action? StateChanged;
 

@@ -14,7 +14,7 @@ public interface IDropdown : IElement
     bool Visible { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the visibility state changes.
+    /// Gets or sets the callback invoked When the visibility state changes.
     /// </summary>
     EventCallback<bool> VisibleChanged { get; set; }
 

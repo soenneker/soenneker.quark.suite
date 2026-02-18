@@ -6,8 +6,8 @@ using Soenneker.Utils.PooledStringBuilders;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Bootstrap ratio container builder for maintaining aspect ratios.
-/// Produces Bootstrap ratio utility classes like ratio-16x9.
+/// Ratio container builder for maintaining aspect ratios.
+/// Produces ratio utility classes like ratio-16x9.
 /// Note: This is different from AspectRatioBuilder which uses the aspect-ratio CSS property.
 /// </summary>
 public sealed class RatioBuilder : ICssBuilder
@@ -128,12 +128,12 @@ public sealed class RatioBuilder : ICssBuilder
 
     /// <summary>
     /// Gets the CSS style string for the current configuration.
-    /// Bootstrap ratio utilities should use classes, not inline styles.
+    /// Ratio utilities should use classes, not inline styles.
     /// </summary>
     /// <returns>An empty string, as ratios are handled via classes.</returns>
     public string ToStyle()
     {
-        // Bootstrap ratio utilities should use classes, not inline styles
+        // Ratio utilities should use classes, not inline styles
         return string.Empty;
     }
 

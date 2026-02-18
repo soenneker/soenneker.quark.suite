@@ -8,16 +8,14 @@
 {
     <CascadingValue Name="ParentModal" Value="@this">
         <div @onkeydown="HandleKeyDown" @onclick="HandleBackdropClick" @attributes="BuildAttributes()">
+            @if (ShowBackdrop)
+            {
+                <div class="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"></div>
+            }
             <div @attributes="BuildDialogAttributes()" @onclick:stopPropagation="true">
-                <div class="q-modal-content modal-content">
-                    @ChildContent
-                </div>
+                @ChildContent
             </div>
         </div>
-        @if (ShowBackdrop)
-        {
-            <div class="modal-backdrop fade show q-modal-backdrop"></div>
-        }
     </CascadingValue>
 }
 
@@ -38,7 +36,7 @@
     /// Gets or sets the size of the modal.
     /// </summary>
     [Parameter]
-    public ModalSizeType? ModalSize { get; set; }
+    public ModalSize? ModalSize { get; set; }
 
     /// <summary>
     /// Gets or sets whether the modal backdrop is static (doesn't close on click).
@@ -47,7 +45,7 @@
     public bool Static { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the backdrop is clicked.
+    /// Gets or sets the callback invoked When the backdrop is clicked.
     /// </summary>
     [Parameter]
     public EventCallback OnBackdropClick { get; set; }
@@ -59,7 +57,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-modal");
-            AppendClass(ref cls, "fixed inset-0 z-50 flex items-center justify-center");
+            AppendClass(ref cls, "fixed inset-0 z-50");
             if (!Visible)
                 AppendClass(ref cls, "pointer-events-none invisible");
         });
@@ -68,9 +66,7 @@
             BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, "display: flex"));
 
         attributes["tabindex"] = -1;
-        attributes["role"] = "dialog";
-        attributes["aria-modal"] = "true";
-        attributes.TryAdd("data-slot", "dialog");
+        attributes["data-state"] = Visible ? "open" : "closed";
 
         if (Static)
             attributes["data-backdrop"] = "static";
@@ -80,12 +76,12 @@
     private Dictionary<string, object> BuildDialogAttributes()
     {
         var attributes = new Dictionary<string, object>();
-        attributes["data-slot"] = "dialog-content";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-modal-dialog");
-            AppendClass(ref cls, "bg-background z-50 grid w-full max-w-[calc(100%-2rem)] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg mx-4");
+            AppendClass(ref cls, "fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 outline-none sm:max-w-lg");
+            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95");
             if (Scrollable)
                 AppendClass(ref cls, "max-h-[90vh] overflow-y-auto");
             if (ModalSize != null && !string.IsNullOrEmpty(ModalSize.Value))
@@ -96,6 +92,10 @@
                 else if (size == "xl") AppendClass(ref cls, "sm:max-w-4xl");
             }
         });
+
+        attributes["role"] = "dialog";
+        attributes["aria-modal"] = "true";
+        attributes["data-state"] = Visible ? "open" : "closed";
 
         return attributes;
     }

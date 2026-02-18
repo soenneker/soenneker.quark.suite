@@ -1,10 +1,10 @@
 @namespace Soenneker.Quark
 @inject IThemeProvider ThemeProvider
 
-@if (_bootstrapCss.HasContent())
+@if (_globalCss.HasContent())
 {
     <style>
-        @_bootstrapCss
+        @_globalCss
     </style>
 }
 
@@ -23,7 +23,7 @@
 }
 
 @code {
-    private string? _bootstrapCss;
+    private string? _globalCss;
 
     private string? _componentsCss;
 
@@ -35,7 +35,7 @@
 
     protected override void OnParametersSet()
     {
-        _bootstrapCss = ThemeProvider.GenerateBootstrapCss();
+        _globalCss = ThemeProvider.GenerateGlobalCss();
 
         _componentsCss = ThemeProvider.GenerateComponentsCss();
     }

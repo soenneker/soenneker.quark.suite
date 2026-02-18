@@ -18,12 +18,12 @@ public interface IValidation : IDisposable
     ValidationStatus Status { get; }
 
     /// <summary>
-    /// Compiled regular expression used when pattern-based validation is enabled.
+    /// Compiled regular expression used When pattern-based validation is enabled.
     /// </summary>
     Regex? Pattern { get; }
 
     /// <summary>
-    /// The bound <see cref="FieldIdentifier"/> when using data-annotation validation.
+    /// The bound <see cref="FieldIdentifier"/> When using data-annotation validation.
     /// </summary>
     FieldIdentifier FieldIdentifier { get; }
 

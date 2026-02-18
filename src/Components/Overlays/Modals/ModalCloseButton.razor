@@ -2,9 +2,10 @@
 @inherits Soenneker.Quark.Element
 @implements IModalCloseButton
 
-<Button Type="@ButtonType.Button" OnClick="HandleClick" @attributes="BuildAttributes()">
+<Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" OnClick="HandleClick" @attributes="BuildAttributes()">
     @if (ChildContent == null)
     {
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         <span class="sr-only">Close</span>
     }
     else
@@ -15,7 +16,7 @@
 
 @code {
     /// <summary>
-    /// Gets or sets whether the modal should automatically close when the button is clicked.
+    /// Gets or sets whether the modal should automatically close When the button is clicked.
     /// </summary>
     [Parameter]
     public bool AutoClose { get; set; } = true;
@@ -25,12 +26,12 @@
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        attributes.TryAdd("data-slot", "dialog-close");
+        base.BuildAttributesCore(attributes);
         // shadcn Dialog close button - new-york-v4 ui/dialog.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-modal-close-button");
-            AppendClass(ref cls, "absolute right-4 top-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none ring-offset-background");
+            AppendClass(ref cls, "absolute right-0 top-0 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-none disabled:pointer-events-none ring-offset-background");
         });
 
         if (!attributes.ContainsKey("aria-label"))

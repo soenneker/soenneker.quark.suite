@@ -118,7 +118,7 @@ public sealed class TextOverflowBuilder : ICssBuilder
         return this;
     }
 
-    /// <summary>Apply a BreakpointType to the most recent rule (or bootstrap with Clip if empty).</summary>
+    /// <summary>Apply a BreakpointType to the most recent rule (or seed with Clip if empty).</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextOverflowBuilder ChainBp(BreakpointType bp)
     {
@@ -149,7 +149,7 @@ public sealed class TextOverflowBuilder : ICssBuilder
         {
             TextOverflowRule rule = _rules[i];
 
-            // Only Clip/Ellipsis map to a Bootstrap class; keywords don't.
+            // Only Clip/Ellipsis map to utility classes; keywords don't.
             string baseClass = GetTextOverflowClass(rule.Value);
             if (baseClass.Length == 0)
                 continue;

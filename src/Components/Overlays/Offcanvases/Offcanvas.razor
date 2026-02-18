@@ -25,7 +25,7 @@
     [Parameter] public PlacementType Placement { get; set; } = PlacementType.End;
 
     /// <summary>
-    /// Gets or sets whether scrolling is allowed when the offcanvas is open.
+    /// Gets or sets whether scrolling is allowed When the offcanvas is open.
     /// </summary>
     [Parameter] public bool AllowScroll { get; set; }
 
@@ -35,17 +35,17 @@
     [Parameter] public bool ShowBackdrop { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets the callback invoked when the offcanvas is shown.
+    /// Gets or sets the callback invoked When the offcanvas is shown.
     /// </summary>
     [Parameter] public EventCallback OnShow { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the offcanvas is hidden.
+    /// Gets or sets the callback invoked When the offcanvas is hidden.
     /// </summary>
     [Parameter] public EventCallback OnHide { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the backdrop is clicked.
+    /// Gets or sets the callback invoked When the backdrop is clicked.
     /// </summary>
     [Parameter] public EventCallback OnBackdropClick { get; set; }
 
@@ -62,7 +62,6 @@
     private bool _initialized;
     private bool _active;
     private bool _isShowing;
-    private bool _isHiding;
     private bool _backdropVisible;
     private CancellationTokenSource? _transitionCancellation;
     private readonly string _generatedId = $"offcanvas-{Guid.NewGuid():N}";
@@ -92,62 +91,57 @@
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        attributes.TryAdd("data-slot", "sheet");
-        // shadcn Sheet - new-york-v4 ui/sheet.tsx
+        base.BuildAttributesCore(attributes);
+
+        bool open = _active || _isShowing;
+        string state = open ? "open" : "closed";
+
+        // shadcn SheetContent - new-york-v4 ui/sheet.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-offcanvas");
-            AppendClass(ref cls, "fixed inset-y-0 z-50 bg-background shadow-lg transition-transform duration-200 ease-in-out");
-            
+            AppendClass(ref cls, "fixed z-50 flex flex-col gap-4 bg-background shadow-lg transition ease-in-out");
+            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500");
+
             switch (Placement.Value)
             {
                 case PlacementType.StartValue:
-                    AppendClass(ref cls, "q-offcanvas-start");
+                    AppendClass(ref cls, "inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm");
                     break;
                 case PlacementType.EndValue:
-                    AppendClass(ref cls, "q-offcanvas-end");
+                    AppendClass(ref cls, "inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm");
                     break;
                 case PlacementType.TopValue:
-                    AppendClass(ref cls, "q-offcanvas-top");
+                    AppendClass(ref cls, "inset-x-0 top-0 h-auto border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top");
                     break;
                 case PlacementType.BottomValue:
-                    AppendClass(ref cls, "q-offcanvas-bottom");
+                    AppendClass(ref cls, "inset-x-0 bottom-0 h-auto border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom");
                     break;
             }
-            
-            AppendClass(ref cls, "q-offcanvas-shadow");
-            
-            if (_isShowing)
-                AppendClass(ref cls, "q-offcanvas-showing");
-            
-            if (_active)
-                AppendClass(ref cls, "q-offcanvas-show");
-            
-            if (_isHiding)
-                AppendClass(ref cls, "q-offcanvas-hiding");
         });
 
-        // Id and Style are already handled by base.BuildAttributes()
-
+        attributes["data-state"] = state;
         attributes["role"] = "dialog";
         attributes["aria-modal"] = "true";
+        if (TabIndex.HasValue)
+            attributes["tabindex"] = TabIndex.Value;
     }
 
     
 
     private Dictionary<string, object> BuildBackdropAttributes()
     {
+        bool open = _active || _isShowing;
+        string state = open ? "open" : "closed";
         var attributes = new Dictionary<string, object>();
-        
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-offcanvas-backdrop");
-            AppendClass(ref cls, "q-offcanvas-fade");
-            
-            if (_active || _isShowing)
-                AppendClass(ref cls, "q-offcanvas-show");
+            // shadcn SheetOverlay - new-york-v4 ui/sheet.tsx
+            AppendClass(ref cls, "fixed inset-0 z-50 bg-black/50");
+            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0");
         });
-        
+
+        attributes["data-state"] = state;
         return attributes;
     }
 
@@ -161,7 +155,6 @@
 
         CancellationToken token = StartNewTransition();
 
-        _isHiding = false;
         _isShowing = true;
         _backdropVisible = true;
 
@@ -191,14 +184,12 @@
         CancellationToken token = StartNewTransition();
 
         _isShowing = false;
-        _isHiding = true;
         _active = false;
 
         await RefreshOffThread();
 
         await FinalizeTransitionAsync(async () =>
         {
-            _isHiding = false;
             _backdropVisible = false;
             if (!Id.IsNullOrWhiteSpace())
                 OffcanvasCoordinator.Exit(Id);

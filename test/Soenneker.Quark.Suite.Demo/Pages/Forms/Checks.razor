@@ -1,258 +1,203 @@
 @page "/forms/checks"
-@using Microsoft.Extensions.Logging
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
 
-@inject ILogger<Index> Logger
+<PageTitle>Checkbox Component - Quark Suite</PageTitle>
 
-<Container Padding="Padding.Is4.OnY">
-    <Row>
-        <Column>
-            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Checks</H1>
-                <Paragraph Class="lead" TextColor="TextColor.Muted">This page demonstrates the Check component - a checkbox input wrapper.</Paragraph>
-            </Div>
-        </Column>
-    </Row>
+<div class="space-y-8 max-w-4xl">
+    <div class="space-y-4">
+        <DemoSection Title="Basic Usage" Description="Simple checkbox with label using two-way binding." Code="@(@"<Check @bind-Checked=""_basicChecked"" Id=""basic-checkbox"">Accept terms and conditions</Check>
+<p class=""text-sm text-muted-foreground"">Current state: @(_basicChecked ? ""Checked ✓"" : ""Unchecked"")</p>")">
+            <div class="space-y-3">
+                <Check @bind-Checked="_basicChecked" Id="basic-checkbox">Accept terms and conditions</Check>
+                <p class="text-sm text-muted-foreground">Current state: @(_basicChecked ? "Checked ✓" : "Unchecked")</p>
+            </div>
+        </DemoSection>
+    </div>
 
-    <Row Gap="Gap.Is4">
-        <Column>
-            <Div>
+    <div class="space-y-4">
+        <DemoSection Title="Multiple Options" Description="Group of checkboxes for multiple selections." Code="@(@"<Check @bind-Checked=""_option1"" Id=""option1"">Email notifications</Check>
+<Check @bind-Checked=""_option2"" Id=""option2"">SMS notifications</Check>
+<Check @bind-Checked=""_option3"" Id=""option3"">Push notifications</Check>")">
+            <div class="space-y-3">
+                <Check @bind-Checked="_option1" Id="option1">Email notifications</Check>
+                <Check @bind-Checked="_option2" Id="option2">SMS notifications</Check>
+                <Check @bind-Checked="_option3" Id="option3">Push notifications</Check>
+                <p class="text-sm text-muted-foreground">Selected: @string.Join(", ", GetSelectedOptions())</p>
+            </div>
+        </DemoSection>
+    </div>
 
-                <H2>🧪 BINDING TEST SECTION</H2>
-                <Alert BackgroundColor="BackgroundColor.Info" Margin="Margin.Is3.FromEnd">
-                    <Strong>Test Instructions:</Strong> Toggle checkboxes below or click "Load Test Data" to verify binding works.
-                </Alert>
+    <div class="space-y-4">
+        <DemoSection Title="Indeterminate" Description="A parent checkbox that reflects child checkbox state." Code="@(@"<Check Checked=""_selectAllChecked"" CheckedChanged=""HandleSelectAllChanged"" Indeterminate=""_selectAllIndeterminate"" Id=""select-all"">Select all</Check>
+<div class=""ml-6 space-y-3"">
+    <Check Checked=""_itemRead"" CheckedChanged=""(v => { _itemRead = v; UpdateSelectAll(); })"" Id=""item-read"">Read</Check>
+    <Check Checked=""_itemWrite"" CheckedChanged=""(v => { _itemWrite = v; UpdateSelectAll(); })"" Id=""item-write"">Write</Check>
+    <Check Checked=""_itemExecute"" CheckedChanged=""(v => { _itemExecute = v; UpdateSelectAll(); })"" Id=""item-execute"">Execute</Check>
+</div>")">
+            <div class="space-y-3">
+                <Check Checked="@_selectAllChecked" CheckedChanged="HandleSelectAllChanged" Indeterminate="@_selectAllIndeterminate" Id="select-all">Select all</Check>
+                <div class="ml-6 space-y-3">
+                    <Check Checked="@_itemRead" CheckedChanged="@(v => { _itemRead = v; UpdateSelectAll(); })" Id="item-read">Read</Check>
+                    <Check Checked="@_itemWrite" CheckedChanged="@(v => { _itemWrite = v; UpdateSelectAll(); })" Id="item-write">Write</Check>
+                    <Check Checked="@_itemExecute" CheckedChanged="@(v => { _itemExecute = v; UpdateSelectAll(); })" Id="item-execute">Execute</Check>
+                </div>
+            </div>
+        </DemoSection>
+    </div>
 
-                <Div Margin="Margin.Is4.FromBottom" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Light" BorderRadius="BorderRadius.Default">
-                    <H3 Margin="Margin.Is3.FromBottom">Two-Way Binding Test</H3>
+    <div class="space-y-4">
+        <DemoSection Title="Disabled State" Description="Checkboxes that cannot be interacted with." Code="@(@"<Check Disabled=""true"" Checked=""false"" Id=""disabled-unchecked"">Disabled (unchecked)</Check>
+<Check Disabled=""true"" Checked=""true"" Id=""disabled-checked"">Disabled (checked)</Check>")">
+            <div class="space-y-3">
+                <Check Disabled="true" Checked="false" Id="disabled-unchecked">Disabled (unchecked)</Check>
+                <Check Disabled="true" Checked="true" Id="disabled-checked">Disabled (checked)</Check>
+            </div>
+        </DemoSection>
+    </div>
 
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Check @bind-Checked="_testCheck1">
-                            Test Checkbox 1
-                        </Check>
-                        <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
-                            <Strong>Bound Value:</Strong> <Code>@_testCheck1</Code>
-                        </Div>
-                    </Div>
+    <div class="space-y-4">
+        <DemoSection Title="Form Validation" Description="Checkbox integrated with Blazor EditForm validation." Code="@(@"<EditForm Model=""_formModel"" OnValidSubmit=""HandleValidSubmit"" class=""space-y-4"">
+    <DataAnnotationsValidator />
+    <Check @bind-Checked=""_formModel.AcceptTerms"" Id=""terms"">I accept the terms and conditions</Check>
+    <ValidationMessage For=""@(() => _formModel.AcceptTerms)"" class=""text-sm text-destructive"" />
+    <Check @bind-Checked=""_formModel.Subscribe"" Id=""subscribe"">Subscribe to newsletter (optional)</Check>
+    <Button Type=""ButtonType.Submit"" Variant=""ButtonVariant.Default"">Submit</Button>
+</EditForm>")">
+            <EditForm Model="_formModel" OnValidSubmit="HandleValidSubmit" class="space-y-4">
+                <DataAnnotationsValidator />
+                <div class="space-y-3">
+                    <Check @bind-Checked="_formModel.AcceptTerms" Id="terms">I accept the terms and conditions</Check>
+                    <ValidationMessage For="@(() => _formModel.AcceptTerms)" class="text-sm text-destructive" />
+                </div>
+                <div class="space-y-3">
+                    <Check @bind-Checked="_formModel.Subscribe" Id="subscribe">Subscribe to newsletter (optional)</Check>
+                </div>
+                <div class="flex gap-4">
+                    <Button Type="@ButtonType.Submit" Variant="ButtonVariant.Default">Submit</Button>
+                    <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" OnClick="@(_ => ResetForm())">Reset</Button>
+                </div>
+                @if (!string.IsNullOrEmpty(_formMessage))
+                {
+                    <div class="p-4 bg-card rounded-lg border">
+                        <p class="text-sm">@_formMessage</p>
+                    </div>
+                }
+            </EditForm>
+        </DemoSection>
+    </div>
 
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Check @bind-Checked="_testCheck2">
-                            Test Checkbox 2 (Pre-checked)
-                        </Check>
-                        <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
-                            <Strong>Bound Value:</Strong> <Code>@_testCheck2</Code>
-                        </Div>
-                    </Div>
+    <div class="space-y-4">
+        <DemoSection Title="Interactive" Description="Checkbox with custom state messaging." Code="@(@"<Check @bind-Checked=""_interactiveCheckedState"" Id=""interactive"">Toggle feature flag</Check>
+@if (_interactiveCheckedState) { ... enabled message ... } else { ... disabled message ... }")">
+            <div class="space-y-3">
+                <Check @bind-Checked="_interactiveCheckedState" Id="interactive">Toggle feature flag</Check>
+                @if (_interactiveCheckedState)
+                {
+                    <div class="p-4 bg-primary/10 rounded-lg border border-primary">
+                        <p class="text-sm">Feature is enabled! Last toggled at @_lastToggleTime</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="p-4 bg-muted rounded-lg">
+                        <p class="text-sm text-muted-foreground">Feature is disabled.</p>
+                    </div>
+                }
+            </div>
+        </DemoSection>
+    </div>
 
-                    <Div Margin="Margin.Is3.FromTop">
-                        <Button BackgroundColor="BackgroundColor.Primary" OnClick="LoadCheckTestData" Margin="Margin.Is2.FromEnd">Load Test Data (Check All)</Button>
-                        <Button BackgroundColor="BackgroundColor.Secondary" OnClick="ClearCheckTestData" Margin="Margin.Is2.FromEnd">Clear Test Data (Uncheck All)</Button>
-                        <Button BackgroundColor="BackgroundColor.Warning" OnClick="ToggleCheckTestData">Toggle Values</Button>
-                    </Div>
+    <div class="space-y-4">
+        <DemoSection Title="Accessibility" Description="Keyboard navigation and screen reader support." Code="@(@"<p>Tab focuses checkboxes in sequence.</p>
+<p>Space and Enter toggle focused checkboxes.</p>
+<p>ARIA state is exposed via role, aria-checked, and aria-disabled.</p>")">
+            <div class="space-y-2 text-sm">
+                <p>Tab focuses checkboxes in sequence.</p>
+                <p>Space and Enter toggle focused checkboxes.</p>
+                <p>ARIA state is exposed via role, aria-checked, and aria-disabled.</p>
+            </div>
+        </DemoSection>
+    </div>
+</div>
 
-                    <Div Margin="Margin.Is3.FromTop" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Success" Class="bg-opacity-10 rounded">
-                        <H4>Test Results:</H4>
-                        <UnorderedList Margin="Margin.Is0.FromBottom">
-                            <UnorderedListItem>
-                                <Strong>Check 1:</Strong> @_testCheck1
-                            </UnorderedListItem>
-                            <UnorderedListItem>
-                                <Strong>Check 2:</Strong> @_testCheck2
-                            </UnorderedListItem>
-                        </UnorderedList>
-                    </Div>
-                </Div>
+@code {
+    private bool _basicChecked;
 
-                <Hr/>
+    private bool _option1 = true;
+    private bool _option2;
+    private bool _option3 = true;
 
-                <H2>Basic Checkbox</H2>
-                <Check @bind-Checked="_isChecked1">
-                    Basic checkbox
-                </Check>
+    private bool _selectAllChecked;
+    private bool _selectAllIndeterminate;
+    private bool _itemRead = true;
+    private bool _itemWrite;
+    private bool _itemExecute;
 
-                <CodeEditor ReadOnly="true" 
-                            Language="@("html")" 
-                            AutoHeight="true" Margin="Margin.Is3.FromTop"
-                            Text="@(@"<Check @bind-Checked=""isChecked1"">
-    Basic checkbox
-</Check>")" />
-                <Paragraph>Checked: @_isChecked1</Paragraph>
-
-                <Br/>
-
-                <H2>Checkbox with ChildContent (New)</H2>
-                <Check @bind-Checked="_isChecked2">
-                    This checkbox has content inside it
-                </Check>
-                <Check @bind-Checked="_isChecked3">
-                    Another checkbox with <Strong>bold text</Strong> inside
-                </Check>
-                <Paragraph>isChecked2: @_isChecked2, isChecked3: @_isChecked3</Paragraph>
-
-                <Br/>
-
-                <H2>Different Sizes</H2>
-                <Check @bind-Checked="_isChecked6" Size="@Size.ExtraSmall">
-                    Extra Small checkbox
-                </Check>
-                <Check @bind-Checked="_isChecked7" Size="@Size.Small">
-                    Small checkbox
-                </Check>
-                <Check @bind-Checked="_isChecked8" Size="@Size.Medium">
-                    Medium checkbox (default)
-                </Check>
-                <Check @bind-Checked="_isChecked9" Size="@Size.Large">
-                    Large checkbox
-                </Check>
-                <Check @bind-Checked="_isChecked10" Size="@Size.ExtraLarge">
-                    Extra Large checkbox
-                </Check>
-                <Check @bind-Checked="_isChecked11" Size="@Size.ExtraExtraLarge">
-                    Extra Extra Large checkbox
-                </Check>
-
-                <Br/>
-
-                <H2>Disabled Checkbox</H2>
-                <Check @bind-Checked="_isChecked12" Disabled="true">
-                    Disabled checkbox
-                </Check>
-
-                <Br/>
-
-                <H2>Indeterminate Checkbox</H2>
-                <Check @bind-Checked="_isChecked13" Indeterminate="true">
-                    Indeterminate checkbox
-                </Check>
-
-                <Br/>
-
-                <H2>Inline Checkboxes</H2>
-                <Check @bind-Checked="_isChecked15" Inline="true">
-                    First inline
-                </Check>
-                <Check @bind-Checked="_isChecked16" Inline="true">
-                    Second inline
-                </Check>
-                <Check @bind-Checked="_isChecked17" Inline="true">
-                    Third inline
-                </Check>
-
-                <Br/>
-
-                <H2>Event Handling</H2>
-                <Check @bind-Checked="_isChecked14" OnChange="HandleChange">
-                    Checkbox with change event
-                </Check>
-                <Paragraph>Last change event: @_lastChangeEvent</Paragraph>
-
-                <Br/>
-
-                <H2>Validation</H2>
-                <Paragraph>This example requires the checkbox to be checked.</Paragraph>
-
-                <Validations @ref="_validations" Model="@_demoModel">
-                    <Validation Action="ValidateTerms">
-                        <Check @bind-Checked="_demoModel.TermsAccepted">
-                            I accept the terms and conditions
-                        </Check>
-                        <ValidationError Margin="Margin.Is2.FromTop"/>
-                    </Validation>
-
-                    <Div Margin="Margin.Is2.FromTop">
-                        <Button Class="btn btn-primary" OnClick="Submit">Submit</Button>
-                        <Span Margin="Margin.Is2.FromStart">@_submitResult</Span>
-                    </Div>
-                </Validations>
-            </Div>
-        </Column>
-    </Row>
-</Container>
-
-@code{
-
-    // Binding Test Fields
-    private bool _testCheck1;
-    private bool _testCheck2 = true;
-
-    private bool _isChecked1;
-    private bool _isChecked2;
-    private bool _isChecked3;
-    private bool _isChecked6; // Extra Small
-    private bool _isChecked7; // Small
-    private bool _isChecked8; // Medium
-    private bool _isChecked9; // Large
-    private bool _isChecked10; // Extra Large
-    private bool _isChecked11; // Extra Extra Large
-    private bool _isChecked12 = true; // Disabled
-    private bool _isChecked13; // Indeterminate
-    private bool _isChecked14; // Event handling
-    private bool _isChecked15; // Inline
-    private bool _isChecked16; // Inline
-    private bool _isChecked17; // Inline
-    private string _lastChangeEvent = "None";
-
-    private Validations? _validations;
-
-    private class DemoModel
+    private bool _interactiveChecked;
+    private bool _interactiveCheckedState
     {
-        public bool TermsAccepted { get; set; }
+        get => _interactiveChecked;
+        set
+        {
+            _interactiveChecked = value;
+            if (value)
+                _lastToggleTime = DateTime.Now.ToString("HH:mm:ss");
+        }
     }
+    private string _lastToggleTime = "";
 
-    private DemoModel _demoModel = new();
-    private string _submitResult = string.Empty;
+    private FormModel _formModel = new();
+    private string _formMessage = "";
 
     protected override void OnInitialized()
     {
-        Logger.LogInformation("Checks demo page initialized");
+        UpdateSelectAll();
     }
 
-    private void LoadCheckTestData()
+    private void HandleSelectAllChanged(bool value)
     {
-        _testCheck1 = true;
-        _testCheck2 = true;
-        Logger.LogInformation("Check test data loaded - all checked");
+        _selectAllChecked = value;
+        _selectAllIndeterminate = false;
+        _itemRead = value;
+        _itemWrite = value;
+        _itemExecute = value;
     }
 
-    private void ClearCheckTestData()
+    private void UpdateSelectAll()
     {
-        _testCheck1 = false;
-        _testCheck2 = false;
-        Logger.LogInformation("Check test data cleared - all unchecked");
+        var all = _itemRead && _itemWrite && _itemExecute;
+        var none = !_itemRead && !_itemWrite && !_itemExecute;
+        _selectAllChecked = all;
+        _selectAllIndeterminate = !all && !none;
     }
 
-    private void ToggleCheckTestData()
+    private void HandleValidSubmit()
     {
-        _testCheck1 = !_testCheck1;
-        _testCheck2 = !_testCheck2;
-        Logger.LogInformation("Check test data toggled");
+        _formMessage = $"Submitted at {DateTime.Now:HH:mm:ss}. Terms: {_formModel.AcceptTerms}, Subscribe: {_formModel.Subscribe}";
     }
 
-    private void HandleChange(ChangeEventArgs args)
+    private void ResetForm()
     {
-        _lastChangeEvent = $"Value: {args.Value}, Type: {args.Value?.GetType().Name}";
+        _formModel = new FormModel();
+        _formMessage = "";
     }
 
-    private void ValidateTerms(ValidatorEventArgs args)
+    private List<string> GetSelectedOptions()
     {
-        bool isChecked = args.Value is bool b ? b : _demoModel.TermsAccepted;
-        if (!isChecked)
-        {
-            args.Status = ValidationStatus.Error;
-            args.ErrorText = "You must accept the terms.";
-        }
-        else
-        {
-            args.Status = ValidationStatus.Success;
-        }
+        var selected = new List<string>();
+        if (_option1) selected.Add("Email");
+        if (_option2) selected.Add("SMS");
+        if (_option3) selected.Add("Push");
+        return selected.Count > 0 ? selected : new List<string> { "None" };
     }
 
-    private async Task Submit()
+    private sealed class FormModel
     {
-        if (_validations is null)
-            return;
+        [Required(ErrorMessage = "You must accept terms.")]
+        [Range(typeof(bool), "true", "true", ErrorMessage = "You must accept terms.")]
+        public bool AcceptTerms { get; set; }
 
-        bool ok = await _validations.Validate();
-        _submitResult = ok ? "Submitted!" : "Please fix validation errors.";
+        public bool Subscribe { get; set; }
     }
-
 }

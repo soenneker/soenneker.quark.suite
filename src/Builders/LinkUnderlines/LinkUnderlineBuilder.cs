@@ -256,12 +256,12 @@ public sealed class LinkUnderlineBuilder : ICssBuilder
     {
         return value switch
         {
-            "0" => "--bs-link-underline-opacity: 0",
-            "10" => "--bs-link-underline-opacity: 0.1",
-            "25" => "--bs-link-underline-opacity: 0.25",
-            "50" => "--bs-link-underline-opacity: 0.5",
-            "75" => "--bs-link-underline-opacity: 0.75",
-            "100" => "--bs-link-underline-opacity: 1",
+            "0" => "--tw-link-underline-opacity: 0",
+            "10" => "--tw-link-underline-opacity: 0.1",
+            "25" => "--tw-link-underline-opacity: 0.25",
+            "50" => "--tw-link-underline-opacity: 0.5",
+            "75" => "--tw-link-underline-opacity: 0.75",
+            "100" => "--tw-link-underline-opacity: 1",
             _ => null
         };
     }
@@ -271,14 +271,14 @@ public sealed class LinkUnderlineBuilder : ICssBuilder
     {
         return value switch
         {
-            "primary" => "--bs-link-underline: var(--bs-primary)",
-            "secondary" => "--bs-link-underline: var(--bs-secondary)",
-            "success" => "--bs-link-underline: var(--bs-success)",
-            "info" => "--bs-link-underline: var(--bs-info)",
-            "warning" => "--bs-link-underline: var(--bs-warning)",
-            "danger" => "--bs-link-underline: var(--bs-danger)",
-            "light" => "--bs-link-underline: var(--bs-light)",
-            "dark" => "--bs-link-underline: var(--bs-dark)",
+            "primary" => "--tw-link-underline: var(--primary)",
+            "secondary" => "--tw-link-underline: var(--secondary)",
+            "success" => "--tw-link-underline: var(--success)",
+            "info" => "--tw-link-underline: var(--info)",
+            "warning" => "--tw-link-underline: var(--warning)",
+            "danger" => "--tw-link-underline: var(--danger)",
+            "light" => "--tw-link-underline: var(--light)",
+            "dark" => "--tw-link-underline: var(--dark)",
             _ => null
         };
     }

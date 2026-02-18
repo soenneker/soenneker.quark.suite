@@ -124,6 +124,51 @@ public interface IComponent : ICoreComponent
     CssValue<GapBuilder>? Gap { get; set; }
 
     /// <summary>
+    /// Gets or sets grid utility classes (grid-cols, col-span, place-items, and related).
+    /// </summary>
+    CssValue<GridBuilder>? Grid { get; set; }
+
+    /// <summary>
+    /// Gets or sets spacing-between-children utility classes (space-x/space-y and reverse variants).
+    /// </summary>
+    CssValue<SpaceBuilder>? Space { get; set; }
+
+    /// <summary>
+    /// Gets or sets divide utility classes (divide-x/y, color, opacity, style, reverse).
+    /// </summary>
+    CssValue<DivideBuilder>? Divide { get; set; }
+
+    /// <summary>
+    /// Gets or sets ring-offset utility classes.
+    /// </summary>
+    CssValue<RingOffsetBuilder>? RingOffset { get; set; }
+
+    /// <summary>
+    /// Gets or sets SVG fill utility classes.
+    /// </summary>
+    CssValue<FillBuilder>? Fill { get; set; }
+
+    /// <summary>
+    /// Gets or sets SVG stroke utility classes.
+    /// </summary>
+    CssValue<StrokeBuilder>? Stroke { get; set; }
+
+    /// <summary>
+    /// Gets or sets gradient utility classes (bg-gradient-to/from/via/to).
+    /// </summary>
+    CssValue<GradientBuilder>? Gradient { get; set; }
+
+    /// <summary>
+    /// Gets or sets letter-spacing utility classes (tracking-*).
+    /// </summary>
+    CssValue<LetterSpacingBuilder>? LetterSpacing { get; set; }
+
+    /// <summary>
+    /// Gets or sets alignment utility classes (justify/items/content/self/justify-items/justify-self).
+    /// </summary>
+    CssValue<AlignBuilder>? AlignUtility { get; set; }
+
+    /// <summary>
     /// Gets or sets the opacity configuration.
     /// </summary>
     CssValue<OpacityBuilder>? Opacity { get; set; }
@@ -144,7 +189,7 @@ public interface IComponent : ICoreComponent
     CssValue<UserSelectBuilder>? UserSelect { get; set; }
 
     /// <summary>
-    /// Gets or sets the cursor style when hovering over the element.
+    /// Gets or sets the cursor style When hovering over the element.
     /// </summary>
     CssValue<CursorBuilder>? Cursor { get; set; }
 
@@ -179,7 +224,7 @@ public interface IComponent : ICoreComponent
     CssValue<TextColorBuilder>? TextColor { get; set; }
 
     /// <summary>
-    /// Invoked when the element is clicked.
+    /// Invoked When the element is clicked.
     /// </summary>
     EventCallback<MouseEventArgs> OnClick { get; set; }
 
@@ -198,11 +243,6 @@ public interface IComponent : ICoreComponent
     /// Gets or sets the backdrop filter configuration.
     /// </summary>
     CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
-
-    /// <summary>
-    /// Gets or sets the clearfix configuration.
-    /// </summary>
-    CssValue<ClearfixBuilder>? Clearfix { get; set; }
 
     /// <summary>
     /// Gets or sets the clip path configuration.
@@ -235,11 +275,6 @@ public interface IComponent : ICoreComponent
     CssValue<ScrollBehaviorBuilder>? ScrollBehavior { get; set; }
 
     /// <summary>
-    /// Gets or sets the stretched link configuration.
-    /// </summary>
-    CssValue<StretchedLinkBuilder>? StretchedLink { get; set; }
-
-    /// <summary>
     /// Gets or sets the CSS transform configuration.
     /// </summary>
     CssValue<TransformBuilder>? Transform { get; set; }
@@ -265,13 +300,13 @@ public interface IComponent : ICoreComponent
     CssValue<LinkUnderlineBuilder>? LinkUnderline { get; set; }
 
     /// <summary>
-    /// Requests a re-render even when render-gating is enabled.
+    /// Requests a re-render even When render-gating is enabled.
     /// Safe replacement for external StateHasChanged() callers.
     /// </summary>
     void Refresh();
 
     /// <summary>
-    /// Requests a re-render even when render-gating is enabled.
+    /// Requests a re-render even When render-gating is enabled.
     /// Safe replacement for external StateHasChanged() callers.
     /// </summary>
     Task RefreshOffThread();

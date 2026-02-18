@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using Soenneker.Quark;
 using Soenneker.Quark.Enums;
 
 namespace Soenneker.Quark.Components.Surface.Interactive.Buttons.Abstract;
@@ -25,7 +24,7 @@ public interface IButton : IElement
     bool Loading { get; set; }
 
     /// <summary>
-    /// Gets or sets the template to display when the button is loading.
+    /// Gets or sets the template to display When the button is loading.
     /// </summary>
     RenderFragment? LoadingTemplate { get; set; }
 
@@ -40,12 +39,12 @@ public interface IButton : IElement
     string? Form { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the button should automatically receive focus when the page loads.
+    /// Gets or sets whether the button should automatically receive focus When the page loads.
     /// </summary>
     bool AutoFocus { get; set; }
 
     /// <summary>
-    /// Gets or sets the URL to navigate to (when Type is Link).
+    /// Gets or sets the URL to navigate to (When Type is Link).
     /// </summary>
     string? To { get; set; }
 

@@ -7,33 +7,13 @@
 </nav>
 
 @code {
-    /// <summary>
-    /// Gets or sets the navigation style.
-    /// </summary>
-    [Parameter]
-    public CssValue<NavStyleBuilder>? NavStyle { get; set; }
-
     // shadcn navigation - new-york-v4 (nav/sidebar)
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
 	{
         base.BuildAttributesCore(attributes);
-
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-nav");
-            if (NavStyle is not null && !NavStyle.Value.IsEmpty)
-            {
-                var navClass = NavStyle.Value.ToString();
-                if (navClass.HasContent())
-                {
-                    AppendClass(ref cls, navClass);
-                }
-            }
         });
 	}
-
-    protected override void ComputeRenderKeyCore(ref HashCode hc)
-    {
-        AddIf(ref hc, NavStyle);
-    }
 }

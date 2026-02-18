@@ -19,7 +19,7 @@ public interface ITextEdit : IInput
     int MaxLength { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the text value changes.
+    /// Gets or sets the callback invoked When the text value changes.
     /// </summary>
     EventCallback<string?> TextChanged { get; set; }
 

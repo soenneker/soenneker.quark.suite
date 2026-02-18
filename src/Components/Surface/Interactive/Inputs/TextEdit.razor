@@ -25,7 +25,7 @@
     public string? Text { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the text value changes.
+    /// Gets or sets the callback invoked When the text value changes.
     /// </summary>
     [Parameter]
     public EventCallback<string?> TextChanged { get; set; }
@@ -79,7 +79,7 @@
     public string? Label { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the input value changes.
+    /// Gets or sets the callback invoked When the input value changes.
     /// </summary>
     [Parameter]
     public EventCallback<ChangeEventArgs> OnChange { get; set; }
@@ -109,29 +109,16 @@
 
     public string? GetColorClass()
     {
-        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
-        {
-            string? token = null;
-            bool isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
-            if (isTheme && token is not null) return $"form-control-{token}";
-
-            string v = BackgroundColor.Value.ToString().Trim();
-            if (BackgroundColor.Value.IsCssClass)
-                return v.StartsWith("form-control-", StringComparison.Ordinal) ? v : $"form-control-{v}";
-        }
-
         return null;
     }
 
     public string? GetSizeClass()
     {
         if (Size == Quark.Size.Default) return null;
-
         string? token = null;
-        bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
-        if (isTheme && token is not null) return $"form-control-{token}";
-
-        return Size?.ToString() != null ? $"form-control-{Size}" : null;
+        bool isTheme = Size?.TryGetThemeToken(out token) == true;
+        var sizeVal = token ?? Size?.ToString();
+        return sizeVal?.ToLowerInvariant() switch { "sm" or "xs" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

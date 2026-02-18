@@ -111,7 +111,7 @@ public sealed class TextAlignmentBuilder : ICssBuilder
         return this;
     }
 
-    /// <summary>Apply a BreakpointType to the most recent rule (or bootstrap with a default if empty).</summary>
+    /// <summary>Apply a BreakpointType to the most recent rule (or seed with a default if empty).</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextAlignmentBuilder ChainBp(BreakpointType bp)
     {

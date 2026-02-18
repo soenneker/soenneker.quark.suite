@@ -7,36 +7,19 @@
 </div>
 
 @code {
-    [Parameter]
-    public CssValue<ColumnSizeBuilder>? ColumnSize { get; set; }
-
-    [Parameter]
-    public CssValue<ColumnOffsetBuilder>? ColumnOffset { get; set; }
-
-    [Parameter]
-    public CssValue<ColumnOrderBuilder>? ColumnOrder { get; set; }
-
-    [Parameter]
-    public CssValue<ColumnAutoBuilder>? ColumnAuto { get; set; }
-
     // shadcn grid column - new-york-v4 (grid layout)
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-col");
             AppendClass(ref cls, "min-w-0");
 
-            bool columnSizeAdded = AddColumnCss(ref cls, ColumnSize);
+            bool columnClassAdded = AddColumnCss(ref cls, Grid);
 
-            if (!columnSizeAdded)
+            if (!columnClassAdded)
                 AppendClass(ref cls, "col-span-12");
-
-            AddColumnCss(ref cls, ColumnOffset);
-            AddColumnCss(ref cls, ColumnOrder);
-            AddColumnCss(ref cls, ColumnAuto);
         });
     }
 
@@ -57,9 +40,6 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
-        AddIf(ref hc, ColumnSize);
-        AddIf(ref hc, ColumnOffset);
-        AddIf(ref hc, ColumnOrder);
-        AddIf(ref hc, ColumnAuto);
+        AddIf(ref hc, Grid);
     }
 }

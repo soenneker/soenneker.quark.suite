@@ -56,7 +56,7 @@ public sealed class Program
             var quarkOptions = new QuarkOptions
             {
                 Debug = true,
-                AutomaticBootstrapLoading = false,
+                AutomaticFrameworkResourceLoading = false,
                 AutomaticFontAwesomeLoading = true
             };
 

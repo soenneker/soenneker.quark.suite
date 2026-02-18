@@ -20,7 +20,7 @@ public interface IDatePicker : IElement
     Expression<Func<DateOnly?>>? ValueExpression { get; set; }
 
     /// <summary>
-    /// Gets or sets the placeholder text displayed when the input is empty.
+    /// Gets or sets the placeholder text displayed When the input is empty.
     /// </summary>
     string? Placeholder { get; set; }
 
@@ -55,12 +55,12 @@ public interface IDatePicker : IElement
     CssValue<SizeBuilder>? Size { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the value changes.
+    /// Gets or sets the callback invoked When the value changes.
     /// </summary>
     EventCallback<DateOnly?> ValueChanged { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the input value changes.
+    /// Gets or sets the callback invoked When the input value changes.
     /// </summary>
     EventCallback<ChangeEventArgs> OnChange { get; set; }
 

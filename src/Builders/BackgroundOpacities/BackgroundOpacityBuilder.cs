@@ -7,7 +7,7 @@ namespace Soenneker.Quark;
 
 /// <summary>
 /// High-performance background opacity builder.
-/// Produces Bootstrap utility classes when possible, otherwise falls back to inline style.
+/// Produces Tailwind utility classes When possible, otherwise falls back to inline style.
 /// </summary>
 public sealed class BackgroundOpacityBuilder : ICssBuilder
 {
@@ -173,12 +173,12 @@ public sealed class BackgroundOpacityBuilder : ICssBuilder
     {
         return value switch
         {
-            10 => "--bs-bg-opacity: 0.1",
-            25 => "--bs-bg-opacity: 0.25",
-            50 => "--bs-bg-opacity: 0.5",
-            75 => "--bs-bg-opacity: 0.75",
-            100 => "--bs-bg-opacity: 1",
-            _ => $"--bs-bg-opacity: {value}"
+            10 => "--tw-bg-opacity: 0.1",
+            25 => "--tw-bg-opacity: 0.25",
+            50 => "--tw-bg-opacity: 0.5",
+            75 => "--tw-bg-opacity: 0.75",
+            100 => "--tw-bg-opacity: 1",
+            _ => $"--tw-bg-opacity: {value}"
         };
     }
 }

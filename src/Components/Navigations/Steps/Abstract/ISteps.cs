@@ -20,7 +20,7 @@ public interface ISteps : IElement
     StepsRenderMode RenderMode { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the selected step changes.
+    /// Gets or sets the callback invoked When the selected step changes.
     /// </summary>
     EventCallback<string> SelectedStepChanged { get; set; }
 

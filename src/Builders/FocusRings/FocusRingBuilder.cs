@@ -173,7 +173,7 @@ public sealed class FocusRingBuilder : ICssBuilder
             if (!first) sb.Append("; ");
             else first = false;
 
-            sb.Append("--bs-focus-ring-color: ");
+            sb.Append("--qt-focus-ring: ");
             sb.Append(cssVar);
         }
         return sb.ToString();
@@ -184,14 +184,14 @@ public sealed class FocusRingBuilder : ICssBuilder
     {
         return color switch
         {
-            "primary" => "var(--bs-primary-rgb)",
-            "secondary" => "var(--bs-secondary-rgb)",
-            "success" => "var(--bs-success-rgb)",
-            "info" => "var(--bs-info-rgb)",
-            "warning" => "var(--bs-warning-rgb)",
-            "danger" => "var(--bs-danger-rgb)",
-            "light" => "var(--bs-light-rgb)",
-            "dark" => "var(--bs-dark-rgb)",
+            "primary" => "var(--primary)",
+            "secondary" => "var(--secondary)",
+            "success" => "var(--success)",
+            "info" => "var(--info)",
+            "warning" => "var(--warning)",
+            "danger" => "var(--danger)",
+            "light" => "var(--light)",
+            "dark" => "var(--dark)",
             _ => null
         };
     }

@@ -2,7 +2,7 @@
 @inherits Soenneker.Quark.Element
 @implements IProgressBar
 
-<div @attributes="BuildAttributes()" role="progressbar" aria-valuenow="@Value" aria-valuemin="0" aria-valuemax="100" >
+<div @attributes="BuildAttributes()">
     @if (ShowLabel)
     {
         @($"{Value}%")
@@ -53,8 +53,6 @@
             }
         }
 
-        attributes.TryAdd("data-slot", "progress-indicator");
-
         // shadcn Progress indicator - new-york-v4 ui/progress.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -68,7 +66,8 @@
                 AppendClass(ref cls, bgClass);
         });
 
-        BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, $"width: {Value}%"));
+        int clamped = Math.Clamp(Value, 0, 100);
+        BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, $"transform: translateX(-{100 - clamped}%);"));
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

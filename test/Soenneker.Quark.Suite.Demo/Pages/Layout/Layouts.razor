@@ -1,14 +1,15 @@
 @page "/layout/layouts"
 
-<Div Class="space-y-8 max-w-4xl">
-    <Div Class="space-y-3">
-        <H1 Class="text-4xl font-bold tracking-tight">Layouts</H1>
-        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">Layout, LayoutHeader, LayoutContent, LayoutFooter, LayoutSider, and OverlayContainer for page structure.</Paragraph>
-    </Div>
+<PageTitle>Layouts - Quark Suite</PageTitle>
 
+<Div Class="space-y-8 max-w-4xl">
     <Div Class="space-y-6">
         <section class="space-y-4">
-            <DemoSection Title="Basic structure" Description="Header, content, and footer.">
+            <DemoSection Title="Basic structure" Description="Header, content, and footer." Code="@(@"<Layout>
+    <LayoutHeader BackgroundColor=""BackgroundColor.Primary"" Padding=""Padding.Is3"">Header</LayoutHeader>
+    <LayoutContent Padding=""Padding.Is3"">Main content</LayoutContent>
+    <LayoutFooter BackgroundColor=""BackgroundColor.Secondary"" Padding=""Padding.Is3"">Footer</LayoutFooter>
+</Layout>")">
                     <Layout>
                         <LayoutHeader BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.White" Padding="Padding.Is3">
                             <H3 TextAlignment="TextAlignment.Center" Margin="Margin.Is0.FromBottom">Header</H3>
@@ -24,9 +25,17 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Layout with sider" Description="Sidebar with nav links.">
+            <DemoSection Title="Layout with sider" Description="Sidebar with nav links." Code="@(@"<Layout Sider>
+    <LayoutSider Width=""200px"">
+        <LayoutSiderContent>Sidebar nav</LayoutSiderContent>
+    </LayoutSider>
+    <Layout>
+        <LayoutHeader>Header</LayoutHeader>
+        <LayoutContent>Content</LayoutContent>
+    </Layout>
+</Layout>")">
                     <Layout Sider>
-                        <LayoutSider Width="@("200px")" Class="bg-light">
+                        <LayoutSider Width="@("200px")" Class="q-sidebar-bg">
                             <LayoutSiderContent Padding="Padding.Is3">
                                 <H4>Sidebar</H4>
                                 <UnorderedList ListStyle="ListStyle.Unstyled">
@@ -49,7 +58,10 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Fixed header" Description="Header fixed to viewport; content has top margin.">
+            <DemoSection Title="Fixed header" Description="Header fixed to viewport; content has top margin." Code="@(@"<Layout>
+    <LayoutHeader Fixed BackgroundColor=""BackgroundColor.Dark"">Fixed Header</LayoutHeader>
+    <LayoutContent Style=""margin-top: 80px;"">Content below fixed header</LayoutContent>
+</Layout>")">
                     <Layout>
                         <LayoutHeader Fixed BackgroundColor="BackgroundColor.Dark" TextColor="TextColor.White" Padding="Padding.Is3">
                             <H3 Margin="Margin.Is0.FromBottom">Fixed Header</H3>
@@ -63,7 +75,10 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Layout container" Description="LayoutContainer wrapper with consistent styling.">
+            <DemoSection Title="Layout container" Description="LayoutContainer wrapper with consistent styling." Code="@(@"<LayoutContainer BackgroundColor=""BackgroundColor.Light"" Padding=""Padding.Is3"">
+    <H4>Layout Container</H4>
+    <Paragraph>Content</Paragraph>
+</LayoutContainer>")">
                     <LayoutContainer BackgroundColor="BackgroundColor.Light" Padding="Padding.Is3">
                         <H4>Layout Container</H4>
                         <Paragraph>LayoutContainer provides a wrapper for layout components with consistent styling.</Paragraph>
@@ -72,7 +87,14 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Complex example" Description="Header, sidebar, main content with cards, footer.">
+            <DemoSection Title="Complex example" Description="Header, sidebar, main content with cards, footer." Code="@(@"<Layout>
+    <LayoutHeader>Header</LayoutHeader>
+    <Layout Sider>
+        <LayoutSider>Sidebar</LayoutSider>
+        <Layout><LayoutContent>Cards...</LayoutContent></Layout>
+    </Layout>
+    <LayoutFooter>Footer</LayoutFooter>
+</Layout>")">
                     <Layout>
                         <LayoutHeader BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.White" Padding="Padding.Is3">
                             <Row>
@@ -86,7 +108,7 @@
                         </LayoutHeader>
                         
                         <Layout Sider>
-                            <LayoutSider Width="@("250px")" Class="bg-light border-end">
+                            <LayoutSider Width="@("250px")" Class="q-sidebar-bg border-end">
                                 <LayoutSiderContent Padding="Padding.Is3">
                                     <H4>Navigation</H4>
                                     <Nav Vertical>
@@ -105,7 +127,7 @@
                             
                             <Layout>
                                 <LayoutContent Padding="Padding.Is4">
-                                    <H2>Main Content Area</H2>
+                                    <H2 Class="text-lg font-semibold tracking-tight">Main Content Area</H2>
                                     <Paragraph>This is a complex layout with header, sidebar, and main content area.</Paragraph>
                                     <Row Gap="Gap.Is3">
                                         <Column Size="ColumnSize.Is6">
@@ -193,7 +215,7 @@
                         </LayoutHeader>
                         
                         <Layout Sider Breakpoint="@BreakpointType.Xl">
-                            <LayoutSider Class="bg-light">
+                            <LayoutSider Class="q-sidebar-bg">
                                 <LayoutSiderContent Padding="Padding.Is3">
                                     <H4>Responsive Sidebar</H4>
                                     <Paragraph TextColor="TextColor.Muted">This sidebar is hidden on mobile devices.</Paragraph>
@@ -202,7 +224,7 @@
                             
                             <Layout>
                                 <LayoutContent Padding="Padding.Is3">
-                                    <H2>Responsive Content</H2>
+                                    <H2 Class="text-lg font-semibold tracking-tight">Responsive Content</H2>
                                     <Paragraph>This layout adapts to different screen sizes.</Paragraph>
                                     <Row>
                                         <Column Size="ColumnSize.Is12" SizeMedium="ColumnSize.Is6" SizeLarge="ColumnSize.Is4">

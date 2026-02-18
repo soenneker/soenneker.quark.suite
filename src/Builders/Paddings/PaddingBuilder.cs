@@ -132,7 +132,7 @@ public sealed class PaddingBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PaddingBuilder AddRule(ElementSideType side)
     {
-        // Use last size & BreakpointType if present; default to ScaleType.Is0Value when absent
+        // Use last size & BreakpointType if present; default to ScaleType.Is0Value When absent
         string? size = _rules.Count > 0 ? _rules[^1].Size : ScaleType.Is0Value;
         BreakpointType? bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
 
@@ -201,7 +201,7 @@ public sealed class PaddingBuilder : ICssBuilder
             if (!first) sb.Append(' ');
             else first = false;
 
-            // Tailwind: p-4, md:p-4 (not Bootstrap p-md-4)
+            // Tailwind-style: p-4, md:p-4 (breakpoint-prefixed)
             string baseClass = _baseToken + (sideTok.Length != 0 ? sideTok : "") + "-" + sizeTok;
             string cls = bpTok.Length != 0 ? BreakpointUtil.ApplyTailwindBreakpoint(baseClass, bpTok) : baseClass;
             sb.Append(cls);
@@ -334,9 +334,9 @@ public sealed class PaddingBuilder : ICssBuilder
             case ElementSideType.TopBottomValue:
                 return _sideY;
             case ElementSideType.InlineStartValue:
-                return _sideS; // Bootstrap uses "s" for start
+                return _sideS; // inline-start
             case ElementSideType.InlineEndValue:
-                return _sideE; // Bootstrap uses "e" for end
+                return _sideE; // inline-end
             default:
                 return string.Empty;
         }

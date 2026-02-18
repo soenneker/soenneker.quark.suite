@@ -45,42 +45,42 @@ public interface IAudio : IElement
     string? CrossOrigin { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when audio metadata has loaded.
+    /// Gets or sets the callback invoked When audio metadata has loaded.
     /// </summary>
     EventCallback<ProgressEventArgs> OnLoadedMetadata { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the audio can start playing.
+    /// Gets or sets the callback invoked When the audio can start playing.
     /// </summary>
     EventCallback<EventArgs> OnCanPlay { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the audio starts playing.
+    /// Gets or sets the callback invoked When the audio starts playing.
     /// </summary>
     EventCallback<EventArgs> OnPlay { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the audio is paused.
+    /// Gets or sets the callback invoked When the audio is paused.
     /// </summary>
     EventCallback<EventArgs> OnPause { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the audio has ended.
+    /// Gets or sets the callback invoked When the audio has ended.
     /// </summary>
     EventCallback<EventArgs> OnEnded { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when an audio error occurs.
+    /// Gets or sets the callback invoked When an audio error occurs.
     /// </summary>
     EventCallback<ErrorEventArgs> OnError { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the playing position changes.
+    /// Gets or sets the callback invoked When the playing position changes.
     /// </summary>
     EventCallback<EventArgs> OnTimeUpdate { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the volume changes.
+    /// Gets or sets the callback invoked When the volume changes.
     /// </summary>
     EventCallback<EventArgs> OnVolumeChange { get; set; }
 }

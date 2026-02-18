@@ -12,13 +12,14 @@ public sealed class FontWeightBuilder : ICssBuilder
 {
     private readonly List<FontWeightRule> _rules = new(6);
 
-    private const string _classLighter = "fw-lighter";
-    private const string _classLight = "fw-light";
-    private const string _classNormal = "fw-normal";
-    private const string _classMedium = "fw-medium";
-    private const string _classSemibold = "fw-semibold";
-    private const string _classBold = "fw-bold";
-    private const string _classBolder = "fw-bolder";
+    // Tailwind font-weight utilities (for Quark Suite / shadcn)
+    private const string _classLighter = "font-extralight";
+    private const string _classLight = "font-light";
+    private const string _classNormal = "font-normal";
+    private const string _classMedium = "font-medium";
+    private const string _classSemibold = "font-semibold";
+    private const string _classBold = "font-bold";
+    private const string _classBolder = "font-extrabold";
     private const string _stylePrefix = "font-weight: ";
 
     internal FontWeightBuilder(string value, BreakpointType? breakpoint = null)
@@ -159,7 +160,7 @@ public sealed class FontWeightBuilder : ICssBuilder
 
             string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
-                cls = BreakpointUtil.InsertBreakpointType(cls, bp);
+                cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
             if (!first) sb.Append(' ');
             else first = false;

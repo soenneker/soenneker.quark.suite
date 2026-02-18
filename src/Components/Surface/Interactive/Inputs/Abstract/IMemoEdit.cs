@@ -13,7 +13,7 @@ public interface IMemoEdit : IComponent
     string? Value { get; set; }
 
     /// <summary>
-    /// Gets or sets the placeholder text displayed when the textarea is empty.
+    /// Gets or sets the placeholder text displayed When the textarea is empty.
     /// </summary>
     string? Placeholder { get; set; }
 
@@ -64,12 +64,12 @@ public interface IMemoEdit : IComponent
     CssValue<SizeBuilder>? Size { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the value changes.
+    /// Gets or sets the callback invoked When the value changes.
     /// </summary>
     EventCallback<string?> ValueChanged { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the textarea value changes.
+    /// Gets or sets the callback invoked When the textarea value changes.
     /// </summary>
     EventCallback<ChangeEventArgs> OnChange { get; set; }
 

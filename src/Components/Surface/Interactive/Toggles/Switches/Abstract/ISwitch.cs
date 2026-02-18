@@ -30,12 +30,12 @@ public interface ISwitch : IComponent
     CssValue<SizeBuilder>? Size { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the checked state changes.
+    /// Gets or sets the callback invoked When the checked state changes.
     /// </summary>
     EventCallback<bool> CheckedChanged { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the switch is toggled.
+    /// Gets or sets the callback invoked When the switch is toggled.
     /// </summary>
     EventCallback<ChangeEventArgs> OnChange { get; set; }
 

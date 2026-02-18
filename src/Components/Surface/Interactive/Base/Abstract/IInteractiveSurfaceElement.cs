@@ -9,7 +9,7 @@ namespace Soenneker.Quark;
 public interface IInteractiveSurfaceElement : ISurfaceElement
 {
     /// <summary>
-    /// Gets or sets the focus ring style when the element is focused.
+    /// Gets or sets the focus ring style When the element is focused.
     /// </summary>
     CssValue<FocusRingBuilder>? FocusRing { get; set; }
 
@@ -39,32 +39,32 @@ public interface IInteractiveSurfaceElement : ISurfaceElement
     string? AriaDescribedBy { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the element is double-clicked.
+    /// Gets or sets the callback invoked When the element is double-clicked.
     /// </summary>
     EventCallback<MouseEventArgs> OnDoubleClick { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the mouse enters the element.
+    /// Gets or sets the callback invoked When the mouse enters the element.
     /// </summary>
     EventCallback<MouseEventArgs> OnMouseOver { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the mouse leaves the element.
+    /// Gets or sets the callback invoked When the mouse leaves the element.
     /// </summary>
     EventCallback<MouseEventArgs> OnMouseOut { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when a key is pressed while the element is focused.
+    /// Gets or sets the callback invoked When a key is pressed while the element is focused.
     /// </summary>
     EventCallback<KeyboardEventArgs> OnKeyDown { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the element receives focus.
+    /// Gets or sets the callback invoked When the element receives focus.
     /// </summary>
     EventCallback<FocusEventArgs> OnFocus { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the element loses focus.
+    /// Gets or sets the callback invoked When the element loses focus.
     /// </summary>
     EventCallback<FocusEventArgs> OnBlur { get; set; }
 }

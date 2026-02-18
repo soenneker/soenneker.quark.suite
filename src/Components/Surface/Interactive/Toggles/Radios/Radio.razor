@@ -4,23 +4,34 @@
 @inherits ToggleElement
 @implements Soenneker.Quark.IValidationInput
 @implements IRadio
-@if (ChildContent != null)
-{
-    <div @attributes="BuildWrapperAttributes()">
-        <input id="@Id" type="radio" checked="@Checked" @onchange="HandleChange" @attributes="BuildAttributes()" />
-        <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-50" for="@Id">
+<div @attributes="BuildWrapperAttributes()">
+    <label @attributes="BuildLabelAttributes()">
+        <button
+            id="@Id"
+            type="button"
+            role="radio"
+            aria-checked="@Checked.ToString().ToLowerInvariant()"
+            aria-disabled="@Disabled.ToString().ToLowerInvariant()"
+            data-state="@(Checked ? "checked" : "unchecked")"
+            disabled="@Disabled"
+            tabindex="@(Disabled ? -1 : 0)"
+            @onclick="HandleClick"
+            @attributes="BuildIndicatorAttributes()">
+            @if (Checked)
+            {
+                <span class="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary"></span>
+            }
+        </button>
+        @if (ChildContent != null)
+        {
             @ChildContent
-        </label>
-    </div>
-}
-else
-{
-    <input id="@Id" type="radio" checked="@Checked" @onchange="HandleChange" @attributes="BuildAttributes()" />
-}
+        }
+    </label>
+</div>
 
 @code {
     /// <summary>
-    /// Gets or sets the callback invoked when the radio state changes.
+    /// Gets or sets the callback invoked When the radio state changes.
     /// </summary>
     [Parameter]
     public EventCallback<ChangeEventArgs> OnChange { get; set; }
@@ -97,7 +108,7 @@ else
         };
     }
 
-    private async Task HandleChange(ChangeEventArgs e)
+    protected override async Task HandleClick(MouseEventArgs e)
     {
         if (!Checked)
         {
@@ -106,7 +117,7 @@ else
             InvalidateRender();
         }
 
-        await OnChange.InvokeIfHasDelegate(e);
+        await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = Checked });
 
         if (ParentValidation is not null)
         {
@@ -117,33 +128,44 @@ else
 
     // shadcn RadioGroupItem - new-york-v4 ui/radio-group.tsx
     private const string _shadcnRadioItemBase =
-        "border-input text-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 aspect-square size-4 shrink-0 rounded-full border shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50";
+        "border-input text-primary focus-visible:border-ring focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 aspect-square shrink-0 rounded-full border shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] relative flex items-center justify-center";
 
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    private Dictionary<string, object> BuildLabelAttributes()
     {
-        base.BuildAttributesCore(attributes);
-
-        attributes.TryAdd("data-slot", "radio-group-item");
-
+        var attributes = new Dictionary<string, object>();
         BuildClassAttribute(attributes, (ref cls) =>
         {
+            AppendClass(ref cls, "flex items-center gap-2 text-sm font-medium leading-none");
+            AppendClass(ref cls, "focus-within:outline-none rounded-[4px] cursor-pointer");
+            if (Disabled)
+                AppendClass(ref cls, "cursor-not-allowed opacity-50");
+        });
+        attributes["for"] = Id!;
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildIndicatorAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-radio-input");
             AppendClass(ref cls, _shadcnRadioItemBase);
+            AppendClass(ref cls, "data-[state=checked]:border-primary");
             string? sizeClass = GetSizeClass();
-            if (sizeClass != null)
-                AppendClass(ref cls, sizeClass);
+            AppendClass(ref cls, sizeClass ?? "size-4");
+            if (Disabled)
+                AppendClass(ref cls, "opacity-50");
             string? validationClass = GetValidationClass();
             if (validationClass != null)
                 AppendClass(ref cls, validationClass);
         });
+        return attributes;
+    }
 
-        if (Disabled)
-            attributes["disabled"] = true;
-        if (Value.HasContent())
-            attributes["value"] = Value;
-        if (Name.HasContent())
-            attributes["name"] = Name;
-        if (ParentValidation?.Status == ValidationStatus.Error)
-            attributes["aria-invalid"] = "true";
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
     }
 
     private string? GetValidationClass()

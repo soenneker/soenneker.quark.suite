@@ -8,7 +8,7 @@ namespace Soenneker.Quark;
 
 /// <summary>
 /// High-performance background color builder.
-/// Produces Bootstrap utility classes when possible, otherwise falls back to inline style.
+/// Produces Tailwind utility tokens When possible, otherwise falls back to inline style.
 /// </summary>
 public sealed class BackgroundColorBuilder : ICssBuilder
 {

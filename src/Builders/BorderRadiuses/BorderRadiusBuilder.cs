@@ -308,14 +308,14 @@ public sealed class BorderRadiusBuilder : ICssBuilder
         return size switch
         {
             ScaleType.Is0Value => "0",
-            "" => "var(--bs-border-radius)",
+            "" => "var(--radius)",
             "pill" => "50rem",
             "circle" => "50%",
-            "1" => "var(--bs-border-radius-sm)",
-            "2" => "var(--bs-border-radius)",
-            "3" => "var(--bs-border-radius-lg)",
-            "4" => "var(--bs-border-radius-xl)",
-            "5" => "var(--bs-border-radius-xxl)",
+            "1" => "var(--radius-sm)",
+            "2" => "var(--radius)",
+            "3" => "var(--radius-lg)",
+            "4" => "var(--radius-xl)",
+            "5" => "calc(var(--radius-xl) + 4px)",
             _ => size
         };
     }

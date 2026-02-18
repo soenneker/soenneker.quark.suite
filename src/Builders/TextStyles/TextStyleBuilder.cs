@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Builder for Bootstrap text utilities.
+/// Builder for text utility classes.
 /// </summary>
 public sealed class TextStyleBuilder : ICssBuilder
 {
@@ -162,14 +162,14 @@ public sealed class TextStyleBuilder : ICssBuilder
         return styleRule.Value switch
         {
             "wrap" => "text-wrap",
-            "nowrap" => "text-nowrap",
-            "truncate" => "text-truncate",
-            "lowercase" => "text-lowercase",
-            "uppercase" => "text-uppercase",
-            "capitalize" => "text-capitalize",
+            "nowrap" => "whitespace-nowrap",
+            "truncate" => "truncate",
+            "lowercase" => "lowercase",
+            "uppercase" => "uppercase",
+            "capitalize" => "capitalize",
             "reset" => "text-reset",
-            "muted" => "text-muted",
-            "emphasis" => "text-emphasis",
+            "muted" => "text-muted-foreground",
+            "emphasis" => "font-semibold",
             _ => string.Empty
         };
     }

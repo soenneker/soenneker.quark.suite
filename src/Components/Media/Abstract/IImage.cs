@@ -79,22 +79,22 @@ public interface IImage : IComponent
     string? LongDesc { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the image loads successfully.
+    /// Gets or sets the callback invoked When the image loads successfully.
     /// </summary>
     EventCallback<ProgressEventArgs> OnLoad { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the image fails to load.
+    /// Gets or sets the callback invoked When the image fails to load.
     /// </summary>
     EventCallback<ErrorEventArgs> OnError { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the image starts loading.
+    /// Gets or sets the callback invoked When the image starts loading.
     /// </summary>
     EventCallback<ProgressEventArgs> OnLoadStart { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the image loading is aborted.
+    /// Gets or sets the callback invoked When the image loading is aborted.
     /// </summary>
     EventCallback<ProgressEventArgs> OnAbort { get; set; }
 }

@@ -15,7 +15,7 @@ public interface IBarToggler : IElement
     string? Target { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the toggler is clicked.
+    /// Gets or sets the callback invoked When the toggler is clicked.
     /// </summary>
     EventCallback<MouseEventArgs> OnToggle { get; set; }
 

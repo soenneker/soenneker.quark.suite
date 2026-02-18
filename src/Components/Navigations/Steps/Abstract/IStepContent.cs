@@ -14,7 +14,7 @@ public interface IStepContent : IElement
     string SelectedPanel { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the selected panel changes.
+    /// Gets or sets the callback invoked When the selected panel changes.
     /// </summary>
     EventCallback<string> SelectedPanelChanged { get; set; }
 

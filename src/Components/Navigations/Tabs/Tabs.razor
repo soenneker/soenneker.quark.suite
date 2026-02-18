@@ -11,7 +11,7 @@
                 <div role="tablist" class="group/tabs-list shrink-0" @attributes="BuildTabsListAttributes()">
                     @ChildContent
                 </div>
-                <div class="min-w-0 flex-1 outline-none" role="tabpanel" data-slot="tabs-content">
+                <div id="@(SelectedTab.HasContent() ? $"tab-content-{SelectedTab}" : null)" class="min-w-0 flex-1 mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" role="tabpanel" aria-labelledby="@(SelectedTab.HasContent() ? $"tab-trigger-{SelectedTab}" : null)">
                     @foreach (Tab tab in _tabs)
                     {
                         @if (tab.Name == SelectedTab)
@@ -29,7 +29,7 @@
             <div role="tablist" class="group/tabs-list w-fit" @attributes="BuildTabsListAttributes()">
                 @ChildContent
             </div>
-            <div class="flex-1 outline-none mt-2" role="tabpanel" data-slot="tabs-content">
+            <div id="@(SelectedTab.HasContent() ? $"tab-content-{SelectedTab}" : null)" aria-labelledby="@(SelectedTab.HasContent() ? $"tab-trigger-{SelectedTab}" : null)" class="flex-1 mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" role="tabpanel">
                 @foreach (Tab tab in _tabs)
                 {
                     @if (tab.Name == SelectedTab)
@@ -69,7 +69,7 @@
     public string? SelectedTab { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the selected tab changes.
+    /// Gets or sets the callback invoked When the selected tab changes.
     /// </summary>
     [Parameter]
     public EventCallback<string> OnSelectedTabChanged { get; set; }
@@ -139,26 +139,25 @@
     {
         base.OnParametersSet();
         
-        // Trigger a re-render when SelectedTab parameter changes
+        // Trigger a re-render When SelectedTab parameter changes
         // The Tab components will determine their active state based on the cascaded SelectedTab
     }
 
-    /// <summary>shadcn TabsList variant: default (bg-muted) or line (underline).</summary>
+    /// <summary>TabsList variant: default (bg-muted) or line (underline).</summary>
     [Parameter]
     public TabsListVariant TabsListVariant { get; set; } = TabsListVariant.Default;
 
     private Dictionary<string, object> BuildTabsListAttributes()
     {
         var attrs = new Dictionary<string, object>();
-        attrs["data-slot"] = "tabs-list";
         attrs["data-variant"] = TabsListVariant.ToString().ToLowerInvariant();
+        attrs["aria-orientation"] = Vertical ? "vertical" : "horizontal";
+        // TabsList: inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground
         BuildClassAttribute(attrs, (ref cls) =>
         {
-            AppendClass(ref cls, "q-tabs-list rounded-lg p-[3px] text-muted-foreground inline-flex items-center justify-center");
-            AppendClass(ref cls, Vertical ? "h-fit flex-col" : "h-9");
-            if (TabsListVariant == TabsListVariant.Default)
-                AppendClass(ref cls, "bg-muted");
-            else
+            AppendClass(ref cls, "q-tabs-list inline-flex items-center justify-center rounded-md bg-muted p-1 text-muted-foreground");
+            AppendClass(ref cls, Vertical ? "h-fit flex-col" : "h-10");
+            if (TabsListVariant != TabsListVariant.Default)
                 AppendClass(ref cls, "gap-1 bg-transparent rounded-none");
             if (Justified)
                 AppendClass(ref cls, "w-full [&>.q-tab]:flex-1");
@@ -169,12 +168,11 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        attributes["data-slot"] = "tabs";
         attributes["data-orientation"] = Vertical ? "vertical" : "horizontal";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-tabs group/tabs flex gap-2");
-            AppendClass(ref cls, Vertical ? "flex-col" : "flex-col");
+            AppendClass(ref cls, Vertical ? "flex-row" : "flex-col");
         });
     }
 

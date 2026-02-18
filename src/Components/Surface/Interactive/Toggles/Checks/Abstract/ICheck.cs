@@ -45,12 +45,12 @@ public interface ICheck : IComponent
     bool Reverse { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the checked state changes.
+    /// Gets or sets the callback invoked When the checked state changes.
     /// </summary>
     EventCallback<bool> CheckedChanged { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the checkbox value changes.
+    /// Gets or sets the callback invoked When the checkbox value changes.
     /// </summary>
     EventCallback<ChangeEventArgs> OnChange { get; set; }
 

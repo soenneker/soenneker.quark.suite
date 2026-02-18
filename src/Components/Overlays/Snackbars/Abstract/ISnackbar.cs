@@ -24,7 +24,7 @@ public interface ISnackbar : IElement
     int AutoHideDelay { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the snackbar is closed.
+    /// Gets or sets the callback invoked When the snackbar is closed.
     /// </summary>
     EventCallback<SnackbarClosedEventArgs> Closed { get; set; }
 

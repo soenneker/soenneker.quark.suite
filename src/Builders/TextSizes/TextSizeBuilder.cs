@@ -13,13 +13,13 @@ public sealed class TextSizeBuilder : ICssBuilder
 {
     private readonly List<TextSizeRule> _rules = new(4);
 
-    // ----- Class name constants -----
-    private const string _fs1 = "fs-1";
-    private const string _fs2 = "fs-2";
-    private const string _fs3 = "fs-3";
-    private const string _fs4 = "fs-4";
-    private const string _fs5 = "fs-5";
-    private const string _fs6 = "fs-6";
+    // Tailwind text size utilities (for Quark Suite / shadcn). 1=largest, 6=smallest.
+    private const string _fs1 = "text-4xl";
+    private const string _fs2 = "text-3xl";
+    private const string _fs3 = "text-2xl";
+    private const string _fs4 = "text-xl";
+    private const string _fs5 = "text-base";
+    private const string _fs6 = "text-sm";
 
     // ----- CSS prefix (compile-time) -----
     private const string _fontSizePrefix = "font-size: ";
@@ -94,7 +94,7 @@ public sealed class TextSizeBuilder : ICssBuilder
         return this;
     }
 
-    /// <summary>Apply a BreakpointType to the most recent rule (or bootstrap with "4" if empty).</summary>
+    /// <summary>Apply a BreakpointType to the most recent rule (or seed with "4" if empty).</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextSizeBuilder ChainBp(BreakpointType bp)
     {
@@ -127,9 +127,9 @@ public sealed class TextSizeBuilder : ICssBuilder
             if (sizeClass.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
-                sizeClass = BreakpointUtil.InsertBreakpointType(sizeClass, bp);
+                sizeClass = BreakpointUtil.ApplyTailwindBreakpoint(sizeClass, bp);
 
             if (!first)
                 sb.Append(' ');
@@ -174,7 +174,6 @@ public sealed class TextSizeBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string GetSizeClass(string size)
     {
-        // Bootstrap 5 font-size mapping
         return size switch
         {
             "1" => _fs1,
@@ -190,7 +189,7 @@ public sealed class TextSizeBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string? GetSizeValue(string size)
     {
-        // Use Bootstrap CSS variables for inline styles
+        // Use theme CSS variables for inline styles
         return size switch
         {
             "1" => "calc(1.375rem + 1.5vw)",

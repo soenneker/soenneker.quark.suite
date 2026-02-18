@@ -161,6 +161,51 @@ public class ComponentOptions
     public CssValue<GapBuilder>? Gap { get; set; }
 
     /// <summary>
+    /// Gets or sets grid utility classes (grid-cols, col-span, place-items, and related).
+    /// </summary>
+    public CssValue<GridBuilder>? Grid { get; set; }
+
+    /// <summary>
+    /// Gets or sets spacing-between-children utility classes (space-x/space-y and reverse variants).
+    /// </summary>
+    public CssValue<SpaceBuilder>? Space { get; set; }
+
+    /// <summary>
+    /// Gets or sets divide utility classes (divide-x/y, color, opacity, style, reverse).
+    /// </summary>
+    public CssValue<DivideBuilder>? Divide { get; set; }
+
+    /// <summary>
+    /// Gets or sets ring-offset utility classes.
+    /// </summary>
+    public CssValue<RingOffsetBuilder>? RingOffset { get; set; }
+
+    /// <summary>
+    /// Gets or sets SVG fill utility classes.
+    /// </summary>
+    public CssValue<FillBuilder>? Fill { get; set; }
+
+    /// <summary>
+    /// Gets or sets SVG stroke utility classes.
+    /// </summary>
+    public CssValue<StrokeBuilder>? Stroke { get; set; }
+
+    /// <summary>
+    /// Gets or sets gradient utility classes (bg-gradient-to/from/via/to).
+    /// </summary>
+    public CssValue<GradientBuilder>? Gradient { get; set; }
+
+    /// <summary>
+    /// Gets or sets letter-spacing utility classes (tracking-*).
+    /// </summary>
+    public CssValue<LetterSpacingBuilder>? LetterSpacing { get; set; }
+
+    /// <summary>
+    /// Gets or sets alignment utility classes (justify/items/content/self/justify-items/justify-self).
+    /// </summary>
+    public CssValue<AlignBuilder>? AlignUtility { get; set; }
+
+    /// <summary>
     /// Gets or sets the CSS border configuration.
     /// </summary>
     public CssValue<BorderBuilder>? Border { get; set; }
@@ -246,11 +291,6 @@ public class ComponentOptions
     public CssValue<BorderRadiusBuilder>? BorderRadius { get; set; }
 
     /// <summary>
-    /// Gets or sets the CSS clearfix configuration.
-    /// </summary>
-    public CssValue<ClearfixBuilder>? Clearfix { get; set; }
-
-    /// <summary>
     /// Gets or sets the CSS clip-path configuration.
     /// </summary>
     public CssValue<ClipPathBuilder>? ClipPath { get; set; }
@@ -289,11 +329,6 @@ public class ComponentOptions
     /// Gets or sets the CSS scroll-behavior configuration.
     /// </summary>
     public CssValue<ScrollBehaviorBuilder>? ScrollBehavior { get; set; }
-
-    /// <summary>
-    /// Gets or sets the CSS stretched-link configuration.
-    /// </summary>
-    public CssValue<StretchedLinkBuilder>? StretchedLink { get; set; }
 
     /// <summary>
     /// Gets or sets the CSS transform configuration.
@@ -374,6 +409,15 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, TextDecoration, "text-decoration");
         AddRules(buffer, baseSelector, Flex, "flex");
         AddRules(buffer, baseSelector, Gap, "gap");
+        AddRules(buffer, baseSelector, Grid, null);
+        AddRules(buffer, baseSelector, Space, null);
+        AddRules(buffer, baseSelector, Divide, null);
+        AddRules(buffer, baseSelector, RingOffset, null);
+        AddRules(buffer, baseSelector, Fill, null);
+        AddRules(buffer, baseSelector, Stroke, null);
+        AddRules(buffer, baseSelector, Gradient, null);
+        AddRules(buffer, baseSelector, LetterSpacing, null);
+        AddRules(buffer, baseSelector, AlignUtility, null);
         AddRules(buffer, baseSelector, Border, "border");
         AddRules(buffer, baseSelector, Opacity, "opacity");
         AddRules(buffer, baseSelector, ZIndex, "z-index");
@@ -391,7 +435,6 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, AspectRatio, "aspect-ratio");
         AddRules(buffer, baseSelector, BackdropFilter, "backdrop-filter");
         AddRules(buffer, baseSelector, BorderRadius, "border-radius");
-        AddRules(buffer, baseSelector, Clearfix, null);
         AddRules(buffer, baseSelector, ClipPath, "clip-path");
         AddRules(buffer, baseSelector, Cursor, "cursor");
         AddRules(buffer, baseSelector, Filter, "filter");
@@ -400,7 +443,6 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Resize, "resize");
         AddRules(buffer, baseSelector, ScreenReader, null);
         AddRules(buffer, baseSelector, ScrollBehavior, "scroll-behavior");
-        AddRules(buffer, baseSelector, StretchedLink, null);
         AddRules(buffer, baseSelector, Transform, "transform");
         AddRules(buffer, baseSelector, Transition, "transition");
         AddRules(buffer, baseSelector, Truncate, null);

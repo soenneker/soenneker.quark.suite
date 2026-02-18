@@ -3,15 +3,18 @@
 <PageTitle>Modals - Quark Suite</PageTitle>
 
 <Div Class="space-y-8 max-w-4xl">
-    <Div Class="space-y-3">
-        <H1 Class="text-4xl font-bold tracking-tight">Modals</H1>
-        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">
-            Dialog overlays for forms, confirmations, and supplemental content.
-        </Paragraph>
-    </Div>
-
     <section class="space-y-4">
-        <DemoSection Title="Examples" Description="Click a button to open each modal variant. Close via X, backdrop click, or ESC.">
+        <DemoSection Title="Examples" Description="Click a button to open each modal variant. Close via X, backdrop click, or ESC." Code="@(@"<Button OnClick=""@(() => _showBasicModal = true)"">Basic</Button>
+<Button OnClick=""@(() => _showLargeModal = true)"">Large</Button>
+<Button OnClick=""@(() => _showCenteredModal = true)"">Centered</Button>
+<Modal @bind-Visible=""_showBasicModal"">
+    <ModalHeader><ModalTitle>Basic Modal</ModalTitle><ModalCloseButton/></ModalHeader>
+    <ModalBody><Paragraph>Close via X, backdrop, or ESC.</Paragraph></ModalBody>
+    <ModalFooter>
+        <Button OnClick=""@(() => _showBasicModal = false)"">Close</Button>
+        <Button BackgroundColor=""BackgroundColor.Primary"">Save</Button>
+    </ModalFooter>
+</Modal>")">
             <Div Class="flex flex-wrap gap-2">
             <Button BackgroundColor="BackgroundColor.Primary" OnClick="@(() => _showBasicModal = true)">Basic</Button>
             <Button BackgroundColor="BackgroundColor.Success" OnClick="@(() => _showLargeModal = true)">Large</Button>
@@ -22,8 +25,7 @@
             </Div>
         </DemoSection>
 
-        <DemoSection Title="Usage" Description="Bind Visible and use ModalHeader, ModalBody, ModalFooter.">
-            <CodeEditor ReadOnly="true" Language="html" AutoHeight="true" Text="@(@"<Button OnClick=""@(() => show = true)"">Show Modal</Button>
+        <DemoSection Title="Usage" Description="Bind Visible and use ModalHeader, ModalBody, ModalFooter." Code="@(@"<Button OnClick=""@(() => show = true)"">Show Modal</Button>
 <Modal @bind-Visible=""show"">
     <ModalHeader><ModalTitle>Title</ModalTitle><ModalCloseButton/></ModalHeader>
     <ModalBody><Paragraph>Content...</Paragraph></ModalBody>
@@ -31,7 +33,10 @@
         <Button OnClick=""@(() => show = false)"">Close</Button>
         <Button BackgroundColor=""BackgroundColor.Primary"">Save</Button>
     </ModalFooter>
-</Modal>")"/>
+</Modal>")">
+            <Div Class="rounded-lg border bg-muted/30 p-4">
+                <Paragraph Margin="Margin.Is0">Use <Code Inline="true">bind-Visible</Code> for two-way binding. ModalHeader, ModalBody, ModalFooter structure the dialog. Close via ModalCloseButton, backdrop click, or ESC.</Paragraph>
+            </Div>
         </DemoSection>
     </section>
 </Div>
@@ -50,7 +55,7 @@
     </ModalFooter>
 </Modal>
 
-<Modal @bind-Visible="_showLargeModal" ModalSize="@ModalSizeType.Large">
+<Modal @bind-Visible="_showLargeModal" ModalSize="@ModalSize.Large">
     <ModalHeader>
         <ModalTitle Scale="@Scale.Is4">Large Modal</ModalTitle>
         <ModalCloseButton/>
@@ -113,7 +118,7 @@
     </ModalFooter>
 </Modal>
 
-<Modal @bind-Visible="_showNewComponentsModal" ModalSize="@ModalSizeType.Large">
+<Modal @bind-Visible="_showNewComponentsModal" ModalSize="@ModalSize.Large">
     <ModalHeader>
         <ModalTitle Scale="@Scale.Is3">New Components</ModalTitle>
         <ModalCloseButton/>

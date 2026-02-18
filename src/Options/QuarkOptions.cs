@@ -11,14 +11,14 @@ public sealed class QuarkOptions
     public bool Debug { get; set; }
 
     /// <summary>
-    /// Gets or sets whether to automatically load Bootstrap
+    /// Gets or sets whether to automatically load framework resources
     /// </summary>
-    public bool AutomaticBootstrapLoading { get; set; } = true;
+    public bool AutomaticFrameworkResourceLoading { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets whether to use CDN for Bootstrap resources. If false, local paths will be used.
+    /// Gets or sets whether to use CDN for framework resources. If false, local paths will be used.
     /// </summary>
-    public bool BootstrapUseCdn { get; set; } = true;
+    public bool FrameworkUseCdn { get; set; } = true;
 
     /// <summary>
     /// Gets or sets whether to automatically load Font Awesome

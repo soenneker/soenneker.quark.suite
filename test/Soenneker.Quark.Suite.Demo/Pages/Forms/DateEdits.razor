@@ -3,56 +3,50 @@
 
 @inject ILogger<Index> Logger
 
-<Container Padding="Padding.Is4.OnY">
-    <Row>
-        <Column>
-            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">DateEdits</H1>
-                <Paragraph Class="lead" TextColor="TextColor.Muted">This page demonstrates the DateEdit component functionality.</Paragraph>
-            </Div>
-        </Column>
-    </Row>
+<PageTitle>DateEdits - Quark Suite</PageTitle>
 
-    <Row Gap="Gap.Is4">
-        <Column>
-            <H2>🧪 BINDING TEST SECTION</H2>
-            <Alert BackgroundColor="BackgroundColor.Info" Margin="Margin.Is3.FromEnd">
-                <Strong>Test Instructions:</Strong> Select dates below or click "Load Test Data" to verify binding works.
-            </Alert>
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-6">
+        <section class="space-y-4">
+            <DemoSection Title="Binding test" Description="Select dates below or click 'Load Test Data' to verify binding works." Code="@(@"<DateEdit Id=""testDate1"" Placeholder=""Select a date..."" @bind-Date=""_testDate1""/>
+<DateEdit Id=""testDate2"" @bind-Date=""_testDate2""/>")">
+                <Div Class="p-4 rounded-lg border border-border bg-muted/30 space-y-4">
+                    <H3 Class="text-lg font-semibold" Margin="Margin.Is0.FromBottom">Two-Way Binding</H3>
 
-            <Div Margin="Margin.Is4.FromBottom" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Light" BorderRadius="BorderRadius.Default">
-                <H3 Margin="Margin.Is3.FromBottom">Two-Way Binding Test</H3>
+                    <Field>
+                        <FieldLabel For="testDate1">Test Date 1:</FieldLabel>
+                        <FieldBody>
+                            <DateEdit Id="testDate1"
+                                      Placeholder="Select a date..."
+                                      @bind-Date="_testDate1"/>
+                            <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" Class="rounded border border-border bg-background">
+                                <Strong>Bound Value:</Strong> <Code>@(_testDate1?.ToString("yyyy-MM-dd") ?? "(empty)")</Code>
+                            </Div>
+                        </FieldBody>
+                    </Field>
 
-                <Div Margin="Margin.Is3.FromBottom">
-                    <Label For="testDate1" Form="true" FontWeight="FontWeight.Bold">Test Date 1:</Label>
-                    <DateEdit Id="testDate1"
-                              Placeholder="Select a date..."
-                              @bind-Date="_testDate1"/>
-                    <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
-                        <Strong>Bound Value:</Strong> <Code>@(_testDate1?.ToString("yyyy-MM-dd") ?? "(empty)")</Code>
+                    <Field>
+                        <FieldLabel For="testDate2">Test Date 2 (Pre-populated with today):</FieldLabel>
+                        <FieldBody>
+                            <DateEdit Id="testDate2"
+                                      Placeholder="Select a date..."
+                                      @bind-Date="_testDate2"/>
+                            <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" Class="rounded border border-border bg-background">
+                                <Strong>Bound Value:</Strong> <Code>@(_testDate2?.ToString("yyyy-MM-dd") ?? "(empty)")</Code>
+                            </Div>
+                        </FieldBody>
+                    </Field>
+
+                    <Div Class="flex flex-wrap gap-2 mt-4">
+                        <Button Class="bg-primary text-primary-foreground" OnClick="LoadDateTestData">Load Test Data</Button>
+                        <Button Class="bg-secondary text-secondary-foreground" OnClick="ClearDateTestData">Clear Test Data</Button>
+                        <Button Class="bg-muted text-muted-foreground" OnClick="UpdateDateTestData">Update to Random Dates</Button>
                     </Div>
-                </Div>
 
-                <Div Margin="Margin.Is3.FromBottom">
-                    <Label For="testDate2" Form="true" FontWeight="FontWeight.Bold">Test Date 2 (Pre-populated with today):</Label>
-                    <DateEdit Id="testDate2"
-                              Placeholder="Select a date..."
-                              @bind-Date="_testDate2"/>
-                    <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
-                        <Strong>Bound Value:</Strong> <Code>@(_testDate2?.ToString("yyyy-MM-dd") ?? "(empty)")</Code>
-                    </Div>
-                </Div>
-
-                <Div Margin="Margin.Is3.FromTop">
-                    <Button BackgroundColor="BackgroundColor.Primary" OnClick="LoadDateTestData" Margin="Margin.Is2.FromEnd">Load Test Data</Button>
-                    <Button BackgroundColor="BackgroundColor.Secondary" OnClick="ClearDateTestData" Margin="Margin.Is2.FromEnd">Clear Test Data</Button>
-                    <Button BackgroundColor="BackgroundColor.Warning" OnClick="UpdateDateTestData">Update to Random Dates</Button>
-                </Div>
-
-                <Div Margin="Margin.Is3.FromTop" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Success" Class="bg-opacity-10 rounded">
-                    <H4>Test Results:</H4>
-                    <UnorderedList Margin="Margin.Is0.FromBottom">
-                        <UnorderedListItem>
+                    <Div Class="mt-4 p-3 rounded-lg border border-border bg-muted/30">
+                        <H4 Class="text-sm font-semibold">Test Results:</H4>
+                        <UnorderedList Margin="Margin.Is0.FromBottom">
+                            <UnorderedListItem>
                             <Strong>Date 1:</Strong> @(_testDate1?.ToString("yyyy-MM-dd") ?? "(not set)")
                         </UnorderedListItem>
                         <UnorderedListItem>
@@ -61,107 +55,69 @@
                     </UnorderedList>
                 </Div>
             </Div>
+            </DemoSection>
+        </section>
 
             <Hr/>
 
-            <Row Margin="Margin.Is4.FromTop">
-                <Column ColumnSize="@ColumnSize.Is6.OnMd">
-                    <H3>Basic Date Input</H3>
+            <DemoSection Title="Basic Date Input" Description="DateEdit with Date and DateChanged." Code="@(@"<DateEdit Date=""@_basicDate"" DateChanged=""@((DateTime? value) => _basicDate = value)"" Placeholder=""Select a date""/>")">
+                <DateEdit Date="@_basicDate" DateChanged="@((DateTime? value) => _basicDate = value)" Placeholder="Select a date"/>
+                <Paragraph Margin="Margin.Is2.FromTop">Selected date: @_basicDate?.ToString("yyyy-MM-dd")</Paragraph>
+            </DemoSection>
 
-                    <CodeEditor ReadOnly="true" 
-                                Language="@("html")" 
-                                AutoHeight="true" Margin="Margin.Is3.FromBottom"
-                                Text="@(@"<DateEdit Date=""@basicDate"" 
-          DateChanged=""@((DateTime? value) => basicDate = value)"" 
-          Placeholder=""Select a date""/>")" />
+            <DemoSection Title="Date and Time Input" Description="InputMode.DateTime." Code="@(@"<DateEdit Date=""@_dateTimeValue"" DateChanged=""@((DateTime? value) => _dateTimeValue = value)"" InputMode=""DateInputMode.DateTime"" Placeholder=""Select date and time""/>")">
+                <DateEdit Date="@_dateTimeValue" DateChanged="@((DateTime? value) => _dateTimeValue = value)" InputMode="DateInputMode.DateTime" Placeholder="Select date and time"/>
+                <Paragraph Margin="Margin.Is2.FromTop">Selected date/time: @_dateTimeValue?.ToString("yyyy-MM-dd HH:mm")</Paragraph>
+            </DemoSection>
 
-                    <DateEdit Date="@_basicDate" DateChanged="@((DateTime? value) => _basicDate = value)" Placeholder="Select a date"/>
-                    <Paragraph Margin="Margin.Is2.FromTop">Selected date: @_basicDate?.ToString("yyyy-MM-dd")</Paragraph>
-                </Column>
+            <DemoSection Title="Month Input" Description="InputMode.Month." Code="@(@"<DateEdit Date=""@_monthValue"" DateChanged=""..."" InputMode=""DateInputMode.Month"" Placeholder=""Select month""/>")">
+                <DateEdit Date="@_monthValue" DateChanged="@((DateTime? value) => _monthValue = value)" InputMode="DateInputMode.Month" Placeholder="Select month"/>
+                <Paragraph Margin="Margin.Is2.FromTop">Selected month: @_monthValue?.ToString("yyyy-MM")</Paragraph>
+            </DemoSection>
 
-                <Column ColumnSize="@ColumnSize.Is6.OnMd">
-                    <H3>Date and Time Input</H3>
-                    <DateEdit Date="@_dateTimeValue" DateChanged="@((DateTime? value) => _dateTimeValue = value)" InputMode="DateInputMode.DateTime" Placeholder="Select date and time"/>
-                    <Paragraph Margin="Margin.Is2.FromTop">Selected date/time: @_dateTimeValue?.ToString("yyyy-MM-dd HH:mm")</Paragraph>
-                </Column>
-            </Row>
+            <DemoSection Title="Date with Min/Max" Description="Min and Max constrain range." Code="@(@"<DateEdit Date=""@_restrictedDate"" DateChanged=""..."" Min=""@DateTime.Today"" Max=""@DateTime.Today.AddDays(30)"" Placeholder=""Next 30 days""/>")">
+                <DateEdit Date="@_restrictedDate" DateChanged="@((DateTime? value) => _restrictedDate = value)" Min="@(DateTime.Today)" Max="@(DateTime.Today.AddDays(30))" Placeholder="Select date (next 30 days)"/>
+                <Paragraph Margin="Margin.Is2.FromTop">Selected date: @_restrictedDate?.ToString("yyyy-MM-dd")</Paragraph>
+            </DemoSection>
 
-            <Row Margin="Margin.Is4.FromTop">
-                <Column ColumnSize="@ColumnSize.Is6.OnMd">
-                    <H3>Month Input</H3>
-                    <DateEdit Date="@_monthValue" DateChanged="@((DateTime? value) => _monthValue = value)" InputMode="DateInputMode.Month" Placeholder="Select month"/>
-                    <Paragraph Margin="Margin.Is2.FromTop">Selected month: @_monthValue?.ToString("yyyy-MM")</Paragraph>
-                </Column>
+            <DemoSection Title="Disabled and ReadOnly" Description="Disabled and ReadOnly states." Code="@(@"<DateEdit Date=""@DateTime.Today"" Disabled=""true""/>
+<DateEdit Date=""@DateTime.Today"" ReadOnly=""true""/>")">
+                <H3>Disabled</H3>
+                <DateEdit Date="@(DateTime.Today)" Disabled="true"/>
+                <Paragraph Margin="Margin.Is2.FromTop">This input is disabled</Paragraph>
+                <H3>ReadOnly</H3>
+                <DateEdit Date="@(DateTime.Today)" ReadOnly="true"/>
+                <Paragraph Margin="Margin.Is2.FromTop">This input is read-only</Paragraph>
+            </DemoSection>
 
-                <Column ColumnSize="@ColumnSize.Is6.OnMd">
-                    <H3>Date with Min/Max</H3>
-                    <DateEdit Date="@_restrictedDate" DateChanged="@((DateTime? value) => _restrictedDate = value)" Min="@(DateTime.Today)" Max="@(DateTime.Today.AddDays(30))" Placeholder="Select date (next 30 days)"/>
-                    <Paragraph Margin="Margin.Is2.FromTop">Selected date: @_restrictedDate?.ToString("yyyy-MM-dd")</Paragraph>
-                </Column>
-            </Row>
+            <DemoSection Title="Required and Step" Description="Required and Step attributes." Code="@(@"<DateEdit Date=""@_requiredDate"" DateChanged=""..."" Required=""true"" Placeholder=""Required field""/>
+<DateEdit Date=""@_stepDate"" DateChanged=""..."" Step=""7"" Placeholder=""Weekly intervals""/>")">
+                <H3>Required Date Input</H3>
+                <DateEdit Date="@_requiredDate" DateChanged="@((DateTime? value) => _requiredDate = value)" Required="true" Placeholder="Required field"/>
+                <Paragraph Margin="Margin.Is2.FromTop">Selected date: @_requiredDate?.ToString("yyyy-MM-dd")</Paragraph>
+                <H3>Date with Step</H3>
+                <DateEdit Date="@_stepDate" DateChanged="@((DateTime? value) => _stepDate = value)" Step="7" Placeholder="Weekly intervals"/>
+                <Paragraph Margin="Margin.Is2.FromTop">Selected date: @_stepDate?.ToString("yyyy-MM-dd")</Paragraph>
+            </DemoSection>
 
-            <Row Margin="Margin.Is4.FromTop">
-                <Column ColumnSize="@ColumnSize.Is6.OnMd">
-                    <H3>Disabled Date Input</H3>
-                    <DateEdit Date="@(DateTime.Today)" Disabled="true"/>
-                    <Paragraph Margin="Margin.Is2.FromTop">This input is disabled</Paragraph>
-                </Column>
+            <DemoSection Title="DateOnly" Description="DateOnly and DateOnlyChanged with MinDateOnly/MaxDateOnly." Code="@(@"<DateEdit DateOnly=""@_dateOnlyValue"" DateOnlyChanged=""@((DateOnly? value) => _dateOnlyValue = value)"" Placeholder=""Select date""/>
+<DateEdit DateOnly=""@_restrictedDateOnly"" DateOnlyChanged=""..."" MinDateOnly=""..."" MaxDateOnly=""..."" Placeholder=""Next 30 days""/>")">
+                <H3>DateOnly Input</H3>
+                <DateEdit DateOnly="@_dateOnlyValue" DateOnlyChanged="@((DateOnly? value) => _dateOnlyValue = value)" Placeholder="Select a date (DateOnly)"/>
+                <Paragraph Margin="Margin.Is2.FromTop">Selected DateOnly: @_dateOnlyValue?.ToString("yyyy-MM-dd")</Paragraph>
+                <H3>DateOnly with Min/Max</H3>
+                <DateEdit DateOnly="@_restrictedDateOnly" DateOnlyChanged="@((DateOnly? value) => _restrictedDateOnly = value)" MinDateOnly="@(DateOnly.FromDateTime(DateTime.Today))" MaxDateOnly="@(DateOnly.FromDateTime(DateTime.Today.AddDays(30)))" Placeholder="Select date (next 30 days)"/>
+                <Paragraph Margin="Margin.Is2.FromTop">Selected DateOnly: @_restrictedDateOnly?.ToString("yyyy-MM-dd")</Paragraph>
+            </DemoSection>
 
-                <Column ColumnSize="@ColumnSize.Is6.OnMd">
-                    <H3>ReadOnly Date Input</H3>
-                    <DateEdit Date="@(DateTime.Today)" ReadOnly="true"/>
-                    <Paragraph Margin="Margin.Is2.FromTop">This input is read-only</Paragraph>
-                </Column>
-            </Row>
-
-            <Row Margin="Margin.Is4.FromTop">
-                <Column ColumnSize="@ColumnSize.Is6.OnMd">
-                    <H3>Required Date Input</H3>
-                    <DateEdit Date="@_requiredDate" DateChanged="@((DateTime? value) => _requiredDate = value)" Required="true" Placeholder="Required field"/>
-                    <Paragraph Margin="Margin.Is2.FromTop">Selected date: @_requiredDate?.ToString("yyyy-MM-dd")</Paragraph>
-                </Column>
-
-                <Column ColumnSize="@ColumnSize.Is6.OnMd">
-                    <H3>Date with Step</H3>
-                    <DateEdit Date="@_stepDate" DateChanged="@((DateTime? value) => _stepDate = value)" Step="7" Placeholder="Weekly intervals"/>
-                    <Paragraph Margin="Margin.Is2.FromTop">Selected date: @_stepDate?.ToString("yyyy-MM-dd")</Paragraph>
-                </Column>
-            </Row>
-
-            <Row Margin="Margin.Is4.FromTop">
-                <Column ColumnSize="@ColumnSize.Is6.OnMd">
-                    <H3>DateOnly Input</H3>
-                    <DateEdit DateOnly="@_dateOnlyValue" DateOnlyChanged="@((DateOnly? value) => _dateOnlyValue = value)" Placeholder="Select a date (DateOnly)"/>
-                    <Paragraph Margin="Margin.Is2.FromTop">Selected DateOnly: @_dateOnlyValue?.ToString("yyyy-MM-dd")</Paragraph>
-                </Column>
-
-                <Column ColumnSize="@ColumnSize.Is6.OnMd">
-                    <H3>DateOnly with Min/Max</H3>
-                    <DateEdit DateOnly="@_restrictedDateOnly"
-                              DateOnlyChanged="@((DateOnly? value) => _restrictedDateOnly = value)"
-                              MinDateOnly="@(DateOnly.FromDateTime(DateTime.Today))"
-                              MaxDateOnly="@(DateOnly.FromDateTime(DateTime.Today.AddDays(30)))"
-                              Placeholder="Select date (next 30 days)"/>
-                    <Paragraph Margin="Margin.Is2.FromTop">Selected DateOnly: @_restrictedDateOnly?.ToString("yyyy-MM-dd")</Paragraph>
-                </Column>
-            </Row>
-
-            <Row Margin="Margin.Is4.FromTop">
-                <Column>
-                    <H3>Event Handling</H3>
-                    <DateEdit Date="@_eventDate"
-                              DateChanged="@((DateTime? value) => _eventDate = value)"
-                              OnChange="OnDateChange"
-                              OnInput="OnDateInput"
-                              Placeholder="Watch events in console"/>
-                    <Paragraph Margin="Margin.Is2.FromTop">Selected date: @_eventDate?.ToString("yyyy-MM-dd")</Paragraph>
-                    <Paragraph>Last change event: @_lastChangeEvent</Paragraph>
-                    <Paragraph>Last input event: @_lastInputEvent</Paragraph>
-                </Column>
-            </Row>
-        </Column>
-    </Row>
-</Container>
+            <DemoSection Title="Event Handling" Description="OnChange and OnInput." Code="@(@"<DateEdit Date=""@_eventDate"" DateChanged=""..."" OnChange=""OnDateChange"" OnInput=""OnDateInput"" Placeholder=""Watch events""/>")">
+                <DateEdit Date="@_eventDate" DateChanged="@((DateTime? value) => _eventDate = value)" OnChange="OnDateChange" OnInput="OnDateInput" Placeholder="Watch events in console"/>
+                <Paragraph Margin="Margin.Is2.FromTop">Selected date: @_eventDate?.ToString("yyyy-MM-dd")</Paragraph>
+                <Paragraph Margin="Margin.Is0">Last change event: @_lastChangeEvent</Paragraph>
+                <Paragraph Margin="Margin.Is0">Last input event: @_lastInputEvent</Paragraph>
+            </DemoSection>
+    </Div>
+</Div>
 
 @code {
 

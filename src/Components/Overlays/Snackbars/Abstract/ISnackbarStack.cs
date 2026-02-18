@@ -22,7 +22,7 @@ public interface ISnackbarStack : IElement
     int? DefaultDelay { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when a snackbar is closed.
+    /// Gets or sets the callback invoked When a snackbar is closed.
     /// </summary>
     EventCallback<SnackbarClosedEventArgs> Closed { get; set; }
 

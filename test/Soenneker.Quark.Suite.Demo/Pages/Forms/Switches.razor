@@ -1,76 +1,59 @@
 @page "/forms/switches"
 
-<Container Margin="Margin.Is4.FromTop">
-    <Row>
-        <Column>
-            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Switches</H1>
-                <Paragraph Class="lead" TextColor="TextColor.Muted">This page demonstrates the Switch component with various configurations and features.</Paragraph>
-            </Div>
-        </Column>
-    </Row>
+<PageTitle>Switches - Quark Suite</PageTitle>
 
-    <!-- Binding Test Section -->
-    <Row Margin="Margin.Is4.FromBottom">
-        <Column ColumnSize="ColumnSize.Is12">
-            <H2>🧪 BINDING TEST SECTION</H2>
-            <Alert BackgroundColor="BackgroundColor.Info" Margin="Margin.Is3.FromEnd">
-                <Strong>Test Instructions:</Strong> Toggle switches below or click "Load Test Data" to verify binding works.
-            </Alert>
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-6">
+        <section class="space-y-4">
+            <!-- Binding Test Section -->
+            <DemoSection Title="Binding test" Description="Toggle switches below or click 'Load Test Data' to verify binding works." Code="@(@"<Switch @bind-Checked=""_testSwitch1"">Test Switch 1</Switch>
+<Switch @bind-Checked=""_testSwitch2"">Test Switch 2 (Pre-enabled)</Switch>
+<Button OnClick=""LoadSwitchTestData"">Load Test Data (Enable All)</Button>")">
+                <Div Class="p-4 rounded-lg border border-border bg-muted/30 space-y-4">
+                    <H3 Class="text-lg font-semibold" Margin="Margin.Is0.FromBottom">Two-Way Binding</H3>
 
-            <Div Margin="Margin.Is4.FromBottom" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Light" BorderRadius="BorderRadius.Default">
-                <H3 Margin="Margin.Is3.FromBottom">Two-Way Binding Test</H3>
-                
-                <Div Margin="Margin.Is3.FromBottom">
-                    <Switch @bind-Checked="_testSwitch1">
-                        Test Switch 1
-                    </Switch>
-                    <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
-                        <Strong>Bound Value:</Strong> <Code>@_testSwitch1</Code>
+                    <Div Margin="Margin.Is3.FromBottom">
+                        <Switch @bind-Checked="_testSwitch1">
+                            Test Switch 1
+                        </Switch>
+                        <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" Class="rounded border border-border bg-background">
+                            <Strong>Bound Value:</Strong> <Code>@_testSwitch1</Code>
+                        </Div>
+                    </Div>
+
+                    <Div Margin="Margin.Is3.FromBottom">
+                        <Switch @bind-Checked="_testSwitch2">
+                            Test Switch 2 (Pre-enabled)
+                        </Switch>
+                        <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" Class="rounded border border-border bg-background">
+                            <Strong>Bound Value:</Strong> <Code>@_testSwitch2</Code>
+                        </Div>
+                    </Div>
+
+                    <Div Class="flex flex-wrap gap-2 mt-4">
+                        <Button Class="bg-primary text-primary-foreground" OnClick="LoadSwitchTestData">Load Test Data (Enable All)</Button>
+                        <Button Class="bg-secondary text-secondary-foreground" OnClick="ClearSwitchTestData">Clear Test Data (Disable All)</Button>
+                        <Button Class="bg-muted text-muted-foreground" OnClick="ToggleSwitchTestData">Toggle Values</Button>
+                    </Div>
+
+                    <Div Class="mt-4 p-3 rounded-lg border border-border bg-muted/30">
+                        <H4 Class="text-sm font-semibold">Test Results:</H4>
+                        <UnorderedList Margin="Margin.Is0.FromBottom">
+                            <UnorderedListItem><Strong>Switch 1:</Strong> @_testSwitch1</UnorderedListItem>
+                            <UnorderedListItem><Strong>Switch 2:</Strong> @_testSwitch2</UnorderedListItem>
+                        </UnorderedList>
                     </Div>
                 </Div>
+            </DemoSection>
+        </section>
 
-                <Div Margin="Margin.Is3.FromBottom">
-                    <Switch @bind-Checked="_testSwitch2">
-                        Test Switch 2 (Pre-enabled)
-                    </Switch>
-                    <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
-                        <Strong>Bound Value:</Strong> <Code>@_testSwitch2</Code>
-                    </Div>
-                </Div>
-
-                <Div Margin="Margin.Is3.FromTop">
-                    <Button BackgroundColor="BackgroundColor.Primary" OnClick="LoadSwitchTestData" Margin="Margin.Is2.FromEnd">Load Test Data (Enable All)</Button>
-                    <Button BackgroundColor="BackgroundColor.Secondary" OnClick="ClearSwitchTestData" Margin="Margin.Is2.FromEnd">Clear Test Data (Disable All)</Button>
-                    <Button BackgroundColor="BackgroundColor.Warning" OnClick="ToggleSwitchTestData">Toggle Values</Button>
-                </Div>
-                
-                <Div Margin="Margin.Is3.FromTop" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Success" Class="bg-opacity-10 rounded">
-                    <H4>Test Results:</H4>
-                    <UnorderedList Margin="Margin.Is0.FromBottom">
-                        <UnorderedListItem><Strong>Switch 1:</Strong> @_testSwitch1</UnorderedListItem>
-                        <UnorderedListItem><Strong>Switch 2:</Strong> @_testSwitch2</UnorderedListItem>
-                    </UnorderedList>
-                </Div>
-            </Div>
-
-            <Hr />
-        </Column>
-    </Row>
-
-    <!-- ChildContent Support (New) -->
-    <Row Margin="Margin.Is4.FromBottom">
-        <Column ColumnSize="ColumnSize.Is12">
-            <H2>ChildContent Support (New)</H2>
-            <Card>
-                <CardBody>
-                    <CodeEditor ReadOnly="true" 
-                                Language="@("html")" 
-                                AutoHeight="true" Margin="Margin.Is3.FromBottom"
-                                Text="@(@"<Switch @bind-Checked=""isEnabled"">
-    Enable Feature
-</Switch>")" />
-
+        <section class="space-y-4">
+            <DemoSection Title="ChildContent Support" Description="Use ChildContent for rich labels or the Label property for simple text." Code="@(@"<Switch @bind-Checked=""isEnabled"">
+    Enable notifications
+</Switch>
+<Switch @bind-Checked=""isEnabled"">
+    Dark mode with <Strong>bold text</Strong>
+</Switch>")">
                     <Row>
                         <Column ColumnSize="ColumnSize.Is6.OnXl">
                             <H5>Using ChildContent</H5>
@@ -88,17 +71,12 @@
                             <Paragraph TextColor="TextColor.Muted" Margin="Margin.Is2.FromTop">The Label property is still supported for backward compatibility</Paragraph>
                         </Column>
                     </Row>
-                </CardBody>
-            </Card>
-        </Column>
-    </Row>
+            </DemoSection>
+        </section>
 
-    <!-- Basic Switches -->
-    <Row Margin="Margin.Is4.FromBottom">
-        <Column ColumnSize="ColumnSize.Is12">
-            <H2>Basic Switches</H2>
-            <Card>
-                <CardBody>
+        <section class="space-y-4">
+            <DemoSection Title="Basic Switches" Description="Simple switch with ChildContent or without a label." Code="@(@"<Switch @bind-Checked=""isEnabled"">Enable notifications</Switch>
+<Switch @bind-Checked=""noLabel"" />")">
                     <Row>
                         <Column ColumnSize="ColumnSize.Is6.OnXl">
                             <H5>Simple Switch</H5>
@@ -113,17 +91,13 @@
                             <Paragraph TextColor="TextColor.Muted" Margin="Margin.Is2.FromTop">Status: @(_noLabelChecked ? "On" : "Off")</Paragraph>
                         </Column>
                     </Row>
-                </CardBody>
-            </Card>
-        </Column>
-    </Row>
+            </DemoSection>
+        </section>
 
-    <!-- Color Variants -->
-    <Row Margin="Margin.Is4.FromBottom">
-        <Column ColumnSize="ColumnSize.Is12">
-            <H2>Color Variants</H2>
-            <Card>
-                <CardBody>
+        <section class="space-y-4">
+            <DemoSection Title="Color Variants" Description="BackgroundColor for semantic switch styling." Code="@(@"<Switch BackgroundColor=""BackgroundColor.Primary"" @bind-Checked=""value"">Primary</Switch>
+<Switch BackgroundColor=""BackgroundColor.Success"" @bind-Checked=""value"">Success</Switch>
+<Switch BackgroundColor=""BackgroundColor.Danger"" @bind-Checked=""value"">Danger</Switch>")">
                     <Row>
                         <Column ColumnSize="ColumnSize.Is4.OnXl">
                             <H6>Primary</H6>
@@ -164,17 +138,13 @@
                             </Switch>
                         </Column>
                     </Row>
-                </CardBody>
-            </Card>
-        </Column>
-    </Row>
+            </DemoSection>
+        </section>
 
-    <!-- Size Variants -->
-    <Row Margin="Margin.Is4.FromBottom">
-        <Column ColumnSize="ColumnSize.Is12">
-            <H2>Size Variants</H2>
-            <Card>
-                <CardBody>
+        <section class="space-y-4">
+            <DemoSection Title="Size Variants" Description="Size.Small, Default, Large." Code="@(@"<Switch Label=""Small Switch"" Size=""Size.Small"" @bind-Checked=""value""/>
+<Switch Label=""Default Switch"" Size=""Size.Default"" @bind-Checked=""value""/>
+<Switch Label=""Large Switch"" Size=""Size.Large"" @bind-Checked=""value""/>")">
                     <Row>
                         <Column ColumnSize="ColumnSize.Is4.OnXl">
                             <H6>Small</H6>
@@ -189,17 +159,12 @@
                             <Switch Label="Large Switch" Size="Size.Large" @bind-Checked="_largeChecked" />
                         </Column>
                     </Row>
-                </CardBody>
-            </Card>
-        </Column>
-    </Row>
+            </DemoSection>
+        </section>
 
-    <!-- Disabled State -->
-    <Row Margin="Margin.Is4.FromBottom">
-        <Column ColumnSize="ColumnSize.Is12">
-            <H2>Disabled State</H2>
-            <Card>
-                <CardBody>
+        <section class="space-y-4">
+            <DemoSection Title="Disabled State" Description="Disabled switches (checked or unchecked)." Code="@(@"<Switch Label=""Disabled unchecked"" Disabled=""true"" Checked=""false""/>
+<Switch Label=""Disabled checked"" Disabled=""true"" Checked=""true""/>")">
                     <Row>
                         <Column ColumnSize="ColumnSize.Is6.OnXl">
                             <H6>Disabled (Unchecked)</H6>
@@ -210,17 +175,12 @@
                             <Switch Label="This switch is disabled and checked" Disabled="true" Checked="true" />
                         </Column>
                     </Row>
-                </CardBody>
-            </Card>
-        </Column>
-    </Row>
+            </DemoSection>
+        </section>
 
-    <!-- Event Handling -->
-    <Row Margin="Margin.Is4.FromBottom">
-        <Column ColumnSize="ColumnSize.Is12">
-            <H2>Event Handling</H2>
-            <Card>
-                <CardBody>
+        <section class="space-y-4">
+            <DemoSection Title="Event Handling" Description="OnClick and OnChange event handlers." Code="@(@"<Switch Label=""Click me"" @bind-Checked=""value"" OnClick=""OnSwitchClick""/>
+<Switch Label=""Change me"" @bind-Checked=""value"" OnChange=""OnSwitchChange""/>")">
                     <Row>
                         <Column ColumnSize="ColumnSize.Is6.OnXl">
                             <H6>Click Events</H6>
@@ -233,17 +193,15 @@
                             <Paragraph TextColor="TextColor.Muted" Margin="Margin.Is2.FromTop">Last change: @_lastChangeEvent</Paragraph>
                         </Column>
                     </Row>
-                </CardBody>
-            </Card>
-        </Column>
-    </Row>
+            </DemoSection>
+        </section>
 
-    <!-- Form Integration -->
-    <Row Margin="Margin.Is4.FromBottom">
-        <Column ColumnSize="ColumnSize.Is12">
-            <H2>Form Integration</H2>
-            <Card>
-                <CardBody>
+        <section class="space-y-4">
+            <DemoSection Title="Form Integration" Description="Switches in forms with bind-Checked." Code="@(@"<form>
+    <Switch Label=""Email notifications"" @bind-Checked=""data.EmailNotifications""/>
+    <Switch Label=""SMS notifications"" @bind-Checked=""data.SmsNotifications""/>
+    <Button OnClick=""SubmitForm"">Submit</Button>
+</form>")">
                     <form>
                         <Div Margin="Margin.Is3.FromBottom">
                             <H6>User Preferences</H6>
@@ -257,17 +215,12 @@
                         <H6>Form Data:</H6>
                         <Div ElementType="ElementType.Pre" BackgroundColor="BackgroundColor.Light" Padding="Padding.Is2" BorderRadius="BorderRadius.Default">@GetFormDataJson()</Div>
                     </Div>
-                </CardBody>
-            </Card>
-        </Column>
-    </Row>
+            </DemoSection>
+        </section>
 
-    <!-- Interactive Demo -->
-    <Row Margin="Margin.Is4.FromBottom">
-        <Column ColumnSize="ColumnSize.Is12">
-            <H2>Interactive Demo</H2>
-            <Card>
-                <CardBody>
+        <section class="space-y-4">
+            <DemoSection Title="Interactive Demo" Description="Master switch controlling disabled child switches." Code="@(@"<Switch Label=""Toggle all"" @bind-Checked=""_masterSwitch""/>
+<Switch Label=""Option 1"" Checked=""_masterSwitch"" Disabled=""true""/>")">
                     <Row>
                         <Column ColumnSize="ColumnSize.Is6.OnXl">
                             <H6>Master Switch</H6>
@@ -280,11 +233,10 @@
                             <Switch Label="Option 3" Checked="_masterSwitch" Disabled="true" />
                         </Column>
                     </Row>
-                </CardBody>
-            </Card>
-        </Column>
-    </Row>
-</Container>
+            </DemoSection>
+        </section>
+    </Div>
+</Div>
 
 @code {
     // Binding Test Fields

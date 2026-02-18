@@ -7,20 +7,28 @@
 @inject ILogger<BasicDemo> Logger
 @inject EmployeeService EmployeeService
 
-<PageTitle>Basic Demo - Table</PageTitle>
+<PageTitle>Basic Demo - Quark Suite</PageTitle>
 
-<Container Padding="Padding.Is4.OnY">
-    <Row>
-        <Column>
-            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Basic Table Demo</H1>
-                <Paragraph Class="lead" TextColor="TextColor.Muted">A simple demonstration of Table with basic features including search, sorting, and pagination.</Paragraph>
-            </Div>
-        </Column>
-    </Row>
-
-    <Row Gap="Gap.Is4">
-        <Column>
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-6">
+    <DemoSection Title="Basic Table" Description="Table with TableSearch, Th, Tbody, TableBottomBar, TableInfo, TablePagination." Code="@(@"<Table @ref=""_table"" OnInteraction=""OnInteraction"" Options=""_tableOptions"" TotalRecords=""@_totalRecords"">
+    <TableSearch Placeholder=""Search...""></TableSearch>
+    <TableElement>
+        <Thead>
+            <Tr>
+                <Th Data=""Name"" Sortable=""true"" Searchable=""true"">Name</Th>
+                <Th Data=""Email"" Sortable=""true"">Email</Th>
+                <Th Data=""Status"" Sortable=""true"">Status</Th>
+            </Tr>
+        </Thead>
+        <Tbody>
+            @foreach (var item in _items) {
+                <Tr><Td>@item.Name</Td><Td>@item.Email</Td><Td>@item.Status</Td></Tr>
+            }
+        </Tbody>
+    </TableElement>
+    <TableBottomBar><TableInfo /><TablePagination /></TableBottomBar>
+</Table>")">
     <Card Class="demo-card">
         <CardHeader>
             <Div class="card-header-content">
@@ -85,51 +93,9 @@
             </Table>
         </CardBody>
     </Card>
-
-    <Card Margin="Margin.Is4.FromTop">
-        <CardHeader>
-            <H4>Code Example</H4>
-        </CardHeader>
-        <CardBody>
-            <CodeEditor ReadOnly="true" 
-                        Language="@("html")" 
-                        AutoHeight="true" Text="@(@"<Table @ref=""_table"" 
-       OnInteraction=""OnInteraction""
-       Options=""_tableOptions""
-       TotalRecords=""@_totalRecords"">
-
-    <TableSearch Placeholder=""Search...""></TableSearch>
-
-    <TableElement>
-        <Thead>
-            <Tr>
-                <Th Data=""Name"" Sortable=""true"" Searchable=""true"">Name</Th>
-                <Th Data=""Email"" Sortable=""true"">Email</Th>
-                <Th Data=""Status"" Sortable=""true"">Status</Th>
-            </Tr>
-        </Thead>
-        <Tbody>
-            @foreach (var item in _items)
-            {
-                <Tr>
-                    <Td>@item.Name</Td>
-                    <Td>@item.Email</Td>
-                    <Td>@item.Status</Td>
-                </Tr>
-            }
-        </Tbody>
-    </TableElement>
-    
-    <TableBottomBar>
-        <TableInfo />
-        <TablePagination />
-    </TableBottomBar>
-</Table>")" />
-        </CardBody>
-    </Card>
-        </Column>
-    </Row>
-</Container>
+    </DemoSection>
+    </Div>
+</Div>
 
 <style>
     .demo-card {

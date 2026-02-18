@@ -4,65 +4,61 @@
 
 @inject ILogger<Index> Logger
 
-<Container Padding="Padding.Is4.OnY">
-    <Row>
-        <Column>
-            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">TextEdits</H1>
-                <Paragraph Class="lead" TextColor="TextColor.Muted">This page demonstrates some of the common usages for the TextEdit component with validation support.</Paragraph>
-            </Div>
-        </Column>
-    </Row>
+<PageTitle>TextEdits - Quark Suite</PageTitle>
 
-    <Row Gap="Gap.Is4">
-        <Column>
-            <Div>
-                <H2>🧪 BINDING TEST SECTION</H2>
-                <Alert BackgroundColor="BackgroundColor.Info" Margin="Margin.Is3.FromBottom">
-                    <Strong>Test Instructions:</Strong> Type in the fields below or click "Load Test Data" to verify binding works.
-                </Alert>
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-6">
+        <section class="space-y-4">
+            <DemoSection Title="Binding test" Description="Type in the fields below or click 'Load Test Data' to verify binding works." Code="@(@"<TextEdit Id=""testInput1"" Placeholder=""Type something..."" @bind-Text=""_testField1""/>
+<TextEdit Id=""testInput2"" @bind-Text=""_testField2""/>
+<TextEdit Id=""testInput3"" @bind-Text=""_testField3""/>")">
+                <Div Class="p-4 rounded-lg border border-border bg-muted/30 space-y-4">
+                    <H3 Class="text-lg font-semibold" Margin="Margin.Is0.FromBottom">Two-Way Binding</H3>
 
-                <Div Margin="Margin.Is4.FromBottom" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Light" BorderRadius="BorderRadius.Default">
-                    <H3 Margin="Margin.Is3.FromBottom">Two-Way Binding Test</H3>
+                    <Field>
+                        <FieldLabel For="testInput1">Test Field 1:</FieldLabel>
+                        <FieldBody>
+                            <TextEdit Id="testInput1"
+                                      Placeholder="Type something here..."
+                                      @bind-Text="_testField1"/>
+                            <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" Class="rounded border border-border bg-background">
+                                <Strong>Bound Value:</Strong> <Code>@(_testField1 ?? "(empty)")</Code>
+                            </Div>
+                        </FieldBody>
+                    </Field>
 
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="testInput1" Form="true" FontWeight="FontWeight.Bold">Test Field 1:</Label>
-                        <TextEdit Id="testInput1"
-                                  Placeholder="Type something here..."
-                                  @bind-Text="_testField1"/>
-                        <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
-                            <Strong>Bound Value:</Strong> <Code>@(_testField1 ?? "(empty)")</Code>
-                        </Div>
+                    <Field>
+                        <FieldLabel For="testInput2">Test Field 2:</FieldLabel>
+                        <FieldBody>
+                            <TextEdit Id="testInput2"
+                                      Placeholder="Type something here..."
+                                      @bind-Text="_testField2"/>
+                            <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" Class="rounded border border-border bg-background">
+                                <Strong>Bound Value:</Strong> <Code>@(_testField2 ?? "(empty)")</Code>
+                            </Div>
+                        </FieldBody>
+                    </Field>
+
+                    <Field>
+                        <FieldLabel For="testInput3">Test Field 3 (Pre-populated):</FieldLabel>
+                        <FieldBody>
+                            <TextEdit Id="testInput3"
+                                      Placeholder="This should show pre-populated value..."
+                                      @bind-Text="_testField3"/>
+                            <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" Class="rounded border border-border bg-background">
+                                <Strong>Bound Value:</Strong> <Code>@(_testField3 ?? "(empty)")</Code>
+                            </Div>
+                        </FieldBody>
+                    </Field>
+
+                    <Div Class="flex flex-wrap gap-2 mt-4">
+                        <Button Class="bg-primary text-primary-foreground" OnClick="LoadTestData">Load Test Data</Button>
+                        <Button Class="bg-secondary text-secondary-foreground" OnClick="ClearTestData">Clear Test Data</Button>
+                        <Button Class="bg-muted text-muted-foreground" OnClick="UpdateTestData">Update to Random Values</Button>
                     </Div>
 
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="testInput2" Form="true" FontWeight="FontWeight.Bold">Test Field 2:</Label>
-                        <TextEdit Id="testInput2"
-                                  Placeholder="Type something here..."
-                                  @bind-Text="_testField2"/>
-                        <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
-                            <Strong>Bound Value:</Strong> <Code>@(_testField2 ?? "(empty)")</Code>
-                        </Div>
-                    </Div>
-
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="testInput3" Form="true" FontWeight="FontWeight.Bold">Test Field 3 (Pre-populated):</Label>
-                        <TextEdit Id="testInput3"
-                                  Placeholder="This should show pre-populated value..."
-                                  @bind-Text="_testField3"/>
-                        <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
-                            <Strong>Bound Value:</Strong> <Code>@(_testField3 ?? "(empty)")</Code>
-                        </Div>
-                    </Div>
-
-                    <Div Margin="Margin.Is3.FromTop">
-                        <Button BackgroundColor="BackgroundColor.Primary" OnClick="LoadTestData" Margin="Margin.Is2.FromEnd">Load Test Data</Button>
-                        <Button BackgroundColor="BackgroundColor.Secondary" OnClick="ClearTestData" Margin="Margin.Is2.FromEnd">Clear Test Data</Button>
-                        <Button BackgroundColor="BackgroundColor.Warning" OnClick="UpdateTestData">Update to Random Values</Button>
-                    </Div>
-
-                    <Div Margin="Margin.Is3.FromTop" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Success" Class="bg-opacity-10 rounded">
-                        <H4>Test Results:</H4>
+                    <Div Class="mt-4 p-3 rounded-lg border border-border bg-muted/30">
+                        <H4 Class="text-sm font-semibold">Test Results:</H4>
                         <UnorderedList Margin="Margin.Is0.FromBottom">
                             <UnorderedListItem>
                                 <Strong>Field 1:</Strong> @(_testField1 ?? "(not set)")
@@ -76,120 +72,139 @@
                         </UnorderedList>
                     </Div>
                 </Div>
+            </DemoSection>
+        </section>
 
-                <Hr/>
+        <DemoSection Title="Basic TextEdit" Description="Standard binding and expression tree binding." Code="@(@"<Field>
+    <FieldLabel For=""basicInput"">Basic Input</FieldLabel>
+    <FieldBody>
+        <TextEdit Id=""basicInput"" Placeholder=""Enter some text..."" @bind-Text=""_basicValue""/>
+    </FieldBody>
+</Field>
+<TextEdit Id=""expressionInput"" Placeholder=""Uses expression tree..."" @bind-Text=""_expressionValue""/>")">
+                <Field>
+                    <FieldLabel For="basicInput">Basic Input (Standard binding)</FieldLabel>
+                    <FieldBody>
+                        <TextEdit Id="basicInput" Placeholder="Enter some text..." @bind-Text="_basicValue"/>
+                        <Small Class="form-text" TextColor="TextColor.Muted">Current value: @_basicValue</Small>
+                    </FieldBody>
+                </Field>
+                <Field>
+                    <FieldLabel For="expressionInput">Expression Tree Binding</FieldLabel>
+                    <FieldBody>
+                        <TextEdit Id="expressionInput" Placeholder="Uses expression tree..." @bind-Text="_expressionValue"/>
+                        <Small Class="form-text" TextColor="TextColor.Muted">Current value: @_expressionValue</Small>
+                    </FieldBody>
+                </Field>
+        </DemoSection>
 
-                <H2>Basic TextEdit</H2>
-                <Div Margin="Margin.Is3.FromBottom">
-                    <Label For="basicInput" Form="true">Basic Input (Standard binding)</Label>
-                    <TextEdit Id="basicInput"
-                              Placeholder="Enter some text..."
-                              @bind-Text="_basicValue"/>
-                    <Small Class="form-text" TextColor="TextColor.Muted">Current value: @_basicValue</Small>
-                </Div>
-
-                <Div Margin="Margin.Is3.FromBottom">
-                    <Label For="expressionInput" Form="true">Expression Tree Binding</Label>
-                    <TextEdit Id="expressionInput"
-                              Placeholder="Uses expression tree..."
-                              @bind-Text="_expressionValue"/>
-                    <Small Class="form-text" TextColor="TextColor.Muted">Current value: @_expressionValue</Small>
-                </Div>
-
-                <CodeEditor ReadOnly="true" 
-                            Language="@("html")" 
-                            AutoHeight="true" Margin="Margin.Is3.FromBottom"
-                            Text="@(@"<Label For=""basicInput"" Form=""true"">Basic Input</Label>
-<TextEdit Id=""basicInput""
-          Placeholder=""Enter some text...""
-          @bind-Text=""_basicValue""/>
-
-<Label For=""expressionInput"" Form=""true"">Expression Tree Binding</Label>
-<TextEdit Id=""expressionInput""
-          Placeholder=""Uses expression tree...""
-          @bind-Text=""_expressionValue""/>")" />
-
-                <Hr/>
-
-                <H2>TextEdit with Validation</H2>
+                <DemoSection Title="TextEdit with Validation" Description="Validations, Validation, ValidationError with TextEdit." Code="@(@"<Validations Model=""_validationModel"">
+    <Validation Action=""@ValidateRequired"">
+        <TextEdit Id=""validatedInput"" Placeholder=""Required..."" @bind-Text=""_validationModel.RequiredField""/>
+        <ValidationError/>
+    </Validation>
+</Validations>")">
                 <Validations Model="_validationModel">
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="validatedInput" Form="true">Required Field</Label>
-                        <Validation Action="@ValidateRequired">
-                            <TextEdit Id="validatedInput"
-                                      Placeholder="This field is required..."
-                                      @bind-Text="_validationModel.RequiredField"/>
-                            <ValidationError/>
-                        </Validation>
-                    </Div>
+                    <Div Class="space-y-4">
+                        <Field>
+                            <FieldLabel For="validatedInput" RequiredIndicator="true">Required Field</FieldLabel>
+                            <FieldBody>
+                                <Validation Action="@ValidateRequired">
+                                    <TextEdit Id="validatedInput"
+                                              Placeholder="This field is required..."
+                                              @bind-Text="_validationModel.RequiredField"/>
+                                    <ValidationError/>
+                                </Validation>
+                            </FieldBody>
+                        </Field>
 
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="emailInput" Form="true">Email Field</Label>
-                        <Validation Action="@ValidateEmail">
-                            <TextEdit Id="emailInput"
-                                      Placeholder="Enter a valid email..."
-                                      @bind-Text="_validationModel.EmailField"/>
-                            <ValidationError/>
-                        </Validation>
-                    </Div>
+                        <Field>
+                            <FieldLabel For="emailInput">Email Field</FieldLabel>
+                            <FieldBody>
+                                <Validation Action="@ValidateEmail">
+                                    <TextEdit Id="emailInput"
+                                              Placeholder="Enter a valid email..."
+                                              @bind-Text="_validationModel.EmailField"/>
+                                    <ValidationError/>
+                                </Validation>
+                            </FieldBody>
+                        </Field>
 
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="patternInput" Form="true">Phone Number (Pattern Validation)</Label>
-                        <Validation UsePattern="true" PatternString="^[\d\s\-\(\)\+]+$">
-                            <TextEdit Id="patternInput"
-                                      Placeholder="Enter phone number..."
-                                      @bind-Text="_validationModel.PhoneField"/>
-                            <ValidationError/>
-                        </Validation>
+                        <Field>
+                            <FieldLabel For="patternInput">Phone Number (Pattern Validation)</FieldLabel>
+                            <FieldBody>
+                                <Validation UsePattern="true" PatternString="^[\d\s\-\(\)\+]+$">
+                                    <TextEdit Id="patternInput"
+                                              Placeholder="Enter phone number..."
+                                              @bind-Text="_validationModel.PhoneField"/>
+                                    <ValidationError/>
+                                </Validation>
+                            </FieldBody>
+                        </Field>
                     </Div>
                 </Validations>
+                </DemoSection>
 
-                <Hr/>
-
-                <H2>Form with Multiple Validations</H2>
+                <DemoSection Title="Form with Multiple Validations" Description="Validations with Row/Column layout and Validate All." Code="@(@"<Validations @ref=""_validationsRef"" Model=""_formModel"">
+    <Field>
+        <FieldLabel For=""firstName"" RequiredIndicator=""true"">First Name</FieldLabel>
+        <FieldBody>
+            <Validation Action=""@ValidateRequired"">
+                <TextEdit Id=""firstName"" @bind-Text=""_formModel.FirstName""/>
+                <ValidationError/>
+            </Validation>
+        </FieldBody>
+    </Field>
+    <Button OnClick=""ValidateAll"">Validate All Fields</Button>
+</Validations>")">
                 <Validations @ref="_validationsRef" Model="_formModel">
                     <Row>
                         <Column ColumnSize="ColumnSize.Is6.OnXl">
-                            <Div Margin="Margin.Is3.FromBottom">
-                                <Label For="firstName" Form="true">First Name</Label>
-                                <Validation Action="@ValidateRequired">
-                                    <TextEdit Id="firstName"
-                                              Placeholder="First name..."
-                                              @bind-Text="_formModel.FirstName"/>
-                                    <ValidationError/>
-                                </Validation>
-                            </Div>
+                            <Field>
+                                <FieldLabel For="firstName" RequiredIndicator="true">First Name</FieldLabel>
+                                <FieldBody>
+                                    <Validation Action="@ValidateRequired">
+                                        <TextEdit Id="firstName"
+                                                  Placeholder="First name..."
+                                                  @bind-Text="_formModel.FirstName"/>
+                                        <ValidationError/>
+                                    </Validation>
+                                </FieldBody>
+                            </Field>
                         </Column>
                         <Column ColumnSize="ColumnSize.Is6.OnXl">
-                            <Div Margin="Margin.Is3.FromBottom">
-                                <Label For="lastName" Form="true">Last Name</Label>
-                                <Validation Action="@ValidateRequired">
-                                    <TextEdit Id="lastName"
-                                              Placeholder="Last name..."
-                                              @bind-Text="_formModel.LastName"/>
-                                    <ValidationError/>
-                                </Validation>
-                            </Div>
+                            <Field>
+                                <FieldLabel For="lastName" RequiredIndicator="true">Last Name</FieldLabel>
+                                <FieldBody>
+                                    <Validation Action="@ValidateRequired">
+                                        <TextEdit Id="lastName"
+                                                  Placeholder="Last name..."
+                                                  @bind-Text="_formModel.LastName"/>
+                                        <ValidationError/>
+                                    </Validation>
+                                </FieldBody>
+                            </Field>
                         </Column>
                     </Row>
 
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="company" Form="true">Company</Label>
-                        <Validation Action="@ValidateCompany">
-                            <TextEdit Id="company"
-                                      Placeholder="Company name..."
-                                      @bind-Text="_formModel.Company"/>
-                            <ValidationError/>
-                        </Validation>
-                    </Div>
+                    <Field>
+                        <FieldLabel For="company">Company</FieldLabel>
+                        <FieldBody>
+                            <Validation Action="@ValidateCompany">
+                                <TextEdit Id="company"
+                                          Placeholder="Company name..."
+                                          @bind-Text="_formModel.Company"/>
+                                <ValidationError/>
+                            </Validation>
+                        </FieldBody>
+                    </Field>
 
                     <Button BackgroundColor="BackgroundColor.Primary" OnClick="ValidateAll">Validate All Fields</Button>
                     <Button BackgroundColor="BackgroundColor.Secondary" OnClick="ClearAll" Margin="Margin.Is2.FromStart">Clear All</Button>
                 </Validations>
-            </Div>
-        </Column>
-    </Row>
-</Container>
+                </DemoSection>
+    </Div>
+</Div>
 
 @code{
 

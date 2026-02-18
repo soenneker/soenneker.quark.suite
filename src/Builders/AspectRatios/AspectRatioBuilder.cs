@@ -12,10 +12,11 @@ public sealed class AspectRatioBuilder : ICssBuilder
 {
     private readonly List<AspectRatioRule> _rules = new(4);
 
-    private const string _classAspect1X1 = "aspect-1x1";
-    private const string _classAspect4X3 = "aspect-4x3";
-    private const string _classAspect16X9 = "aspect-16x9";
-    private const string _classAspect21X9 = "aspect-21x9";
+    // Tailwind aspect ratio utilities (for Quark Suite / shadcn)
+    private const string _classAspect1X1 = "aspect-square";
+    private const string _classAspect4X3 = "aspect-[4/3]";
+    private const string _classAspect16X9 = "aspect-video";
+    private const string _classAspect21X9 = "aspect-[21/9]";
 
     internal AspectRatioBuilder(string ratio, BreakpointType? breakpoint = null)
     {

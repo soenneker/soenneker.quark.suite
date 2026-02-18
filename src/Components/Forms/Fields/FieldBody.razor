@@ -13,14 +13,9 @@
 
     protected virtual bool IsHorizontal => FieldHorizontal;
 
-    [Parameter]
-    public CssValue<ColumnSizeBuilder>? ColumnSize { get; set; }
-
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-
-        attributes.TryAdd("data-slot", "field-content");
 
         // shadcn FieldContent - new-york-v4 ui/field.tsx
         BuildClassAttribute(attributes, (ref cls) =>
@@ -30,8 +25,8 @@
             if (IsHorizontal)
             {
                 AppendClass(ref cls, "min-w-0");
-                bool columnSizeAdded = AddColumnCss(ref cls, ColumnSize);
-                if (!columnSizeAdded)
+                bool columnClassAdded = AddColumnCss(ref cls, Grid);
+                if (!columnClassAdded)
                     AppendClass(ref cls, "col-span-12");
             }
         });
@@ -54,7 +49,7 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
-        AddIf(ref hc, ColumnSize);
+        AddIf(ref hc, Grid);
         hc.Add(IsHorizontal);
     }
 }

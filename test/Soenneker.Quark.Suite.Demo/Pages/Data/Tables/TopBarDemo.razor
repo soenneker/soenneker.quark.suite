@@ -8,23 +8,40 @@
 
 @inject EmployeeService EmployeeService
 
-<PageTitle>TopBar Demo - Table</PageTitle>
+<PageTitle>TopBar Demo - Quark Suite</PageTitle>
 
-<Div class="demo-hero">
-    <Container>
-        <Row>
-            <Column ColumnSize="ColumnSize.Is12" Class="text-center">
-                <Div class="hero-content">
-                    <Div class="demo-icon">🎛️</Div>
-                    <H1 Class="demo-title">TopBar Table Demo</H1>
-                    <Paragraph Class="demo-subtitle">Custom topbar with search and controls layout for enhanced user experience.</Paragraph>
-                </Div>
-            </Column>
-        </Row>
-    </Container>
-</Div>
-
-<Container>
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-6">
+        <DemoSection Title="TopBar Table" Description="Table with TableTopBar (search, filters, actions), TableElement, TableBottomBar." Code="@(@"<Table Options=""_tableOptions"" TotalRecords=""@_totalRecords"">
+    <TableTopBar>
+        <TableLeft>
+            <TableSearch Placeholder=""Search..."" />
+        </TableLeft>
+        <TableRight>
+            <select class=""custom-select"" @onchange=""HandleFilter"">
+                <option value="""">All Items</option>
+                <option value=""Option1"">Option 1</option>
+            </select>
+        </TableRight>
+    </TableTopBar>
+    <TableElement>
+        <Thead>
+            <Tr>
+                <Th Data=""Name"">Name</Th>
+            </Tr>
+        </Thead>
+        <Tbody>
+            @foreach (var item in _items)
+            {
+                <Tr><Td>@item.Name</Td></Tr>
+            }
+        </Tbody>
+    </TableElement>
+    <TableBottomBar>
+        <TableInfo />
+        <TablePagination />
+    </TableBottomBar>
+</Table>")">
     <Card Class="demo-card">
         <CardHeader>
             <Div class="card-header-content">
@@ -98,47 +115,9 @@
             </Table>
         </CardBody>
     </Card>
-
-    <Card Margin="Margin.Is4.FromTop">
-        <CardHeader>
-            <H4>Code Example</H4>
-        </CardHeader>
-        <CardBody>
-            <CodeEditor ReadOnly="true" 
-                        Language="@("html")" 
-                        AutoHeight="true" Text="@(@"<Table Options=""_tableOptions"" TotalRecords=""@_totalRecords"">
-    <TableTopBar>
-        <TableLeft>
-            <TableSearch Placeholder=""Search..."" />
-        </TableLeft>
-        <TableRight>
-            <select class=""custom-select"" @onchange=""HandleFilter"">
-                <option value="""">All Items</option>
-                <option value=""Option1"">Option 1</option>
-            </select>
-        </TableRight>
-    </TableTopBar>
-    <TableElement>
-        <Thead>
-            <Tr>
-                <Th Data=""Name"">Name</Th>
-            </Tr>
-        </Thead>
-        <Tbody>
-            @foreach (var item in _items)
-            {
-                <Tr><Td>@item.Name</Td></Tr>
-            }
-        </Tbody>
-    </TableElement>
-    <TableBottomBar>
-        <TableInfo />
-        <TablePagination />
-    </TableBottomBar>
-</Table>")" />
-        </CardBody>
-    </Card>
-</Container>
+        </DemoSection>
+    </Div>
+</Div>
 
 <style>
     .demo-hero {
@@ -366,7 +345,7 @@
 
         if (_topbarTable != null)
         {
-            await _topbarTable.GoToPage(1); // Reset to first page when filtering
+            await _topbarTable.GoToPage(1); // Reset to first page When filtering
         }
 
         await LoadEmployees();

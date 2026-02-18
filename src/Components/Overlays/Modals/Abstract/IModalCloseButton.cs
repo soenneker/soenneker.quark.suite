@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 public interface IModalCloseButton : IElement
 {
     /// <summary>
-    /// Gets or sets whether the modal should automatically close when the button is clicked.
+    /// Gets or sets whether the modal should automatically close When the button is clicked.
     /// </summary>
     bool AutoClose { get; set; }
 }

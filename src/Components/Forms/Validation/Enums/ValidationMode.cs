@@ -14,7 +14,7 @@ public sealed partial class ValidationMode
     public static readonly ValidationMode Auto = new("auto");
 
     /// <summary>
-    /// Manual validation mode - validates only when explicitly triggered.
+    /// Manual validation mode - validates only When explicitly triggered.
     /// </summary>
     public static readonly ValidationMode Manual = new("manual");
 }

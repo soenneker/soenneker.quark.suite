@@ -7,7 +7,7 @@ namespace Soenneker.Quark;
 
 /// <summary>
 /// High-performance border opacity builder.
-/// Produces Bootstrap utility classes when possible, otherwise falls back to inline style.
+/// Produces Tailwind utility classes When possible, otherwise falls back to inline style.
 /// </summary>
 public sealed class BorderOpacityBuilder : ICssBuilder
 {
@@ -165,12 +165,12 @@ public sealed class BorderOpacityBuilder : ICssBuilder
     {
         return value switch
         {
-            10 => "--bs-border-opacity: 0.1",
-            25 => "--bs-border-opacity: 0.25",
-            50 => "--bs-border-opacity: 0.5",
-            75 => "--bs-border-opacity: 0.75",
-            100 => "--bs-border-opacity: 1",
-            _ => $"--bs-border-opacity: {value}"
+            10 => "--tw-border-opacity: 0.1",
+            25 => "--tw-border-opacity: 0.25",
+            50 => "--tw-border-opacity: 0.5",
+            75 => "--tw-border-opacity: 0.75",
+            100 => "--tw-border-opacity: 1",
+            _ => $"--tw-border-opacity: {value}"
         };
     }
 

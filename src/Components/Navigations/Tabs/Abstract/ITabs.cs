@@ -33,7 +33,7 @@ public interface ITabs : IElement
     string? SelectedTab { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback that is invoked when the selected tab changes.
+    /// Gets or sets the callback that is invoked When the selected tab changes.
     /// </summary>
     EventCallback<string> OnSelectedTabChanged { get; set; }
 }

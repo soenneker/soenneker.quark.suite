@@ -22,7 +22,7 @@ public sealed class MaxLengthValidator : QuarkValidator
     /// Initializes a new instance of the MaxLengthValidator class with a custom error message.
     /// </summary>
     /// <param name="maxLength">The maximum allowed length.</param>
-    /// <param name="errorMessage">The error message to display when validation fails.</param>
+    /// <param name="errorMessage">The error message to display When validation fails.</param>
     public MaxLengthValidator(int maxLength, string errorMessage)
     {
         _maxLength = maxLength;

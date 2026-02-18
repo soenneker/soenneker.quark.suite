@@ -1,16 +1,88 @@
+@using Soenneker.Blazor.Extensions.EventCallback
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements ISnackbar
 
-<CascadingValue Value="@this" IsFixed="true" >
-    <div @attributes="BuildAttributes()" role="alert" aria-live="assertive" aria-atomic="true" >
-        <div @attributes="GetContentAttributes()" >
+<CascadingValue Value="@this" IsFixed="true">
+    <div @attributes="BuildAttributes()" role="alert" aria-live="assertive" aria-atomic="true">
+        @if (ChildContent is not null)
+        {
             @ChildContent
-        </div>
+        }
+        else
+        {
+            <div class="grid gap-1">
+                @if (SnackbarTitle.HasContent())
+                {
+                    <div class="text-sm font-semibold">@SnackbarTitle</div>
+                }
+                @if (Message.HasContent())
+                {
+                    <div class="text-sm opacity-90">@Message</div>
+                }
+            </div>
+        }
+
+        @if (ShowAction && ActionText.HasContent())
+        {
+            <button type="button" class="@GetActionClass()" @onclick="HandleActionClick">
+                @ActionText
+            </button>
+        }
+
+        @if (ShowClose)
+        {
+            <button type="button" class="@GetCloseClass()" @onclick="HandleCloseClick" aria-label="Close">
+                <span aria-hidden="true" class="size-4">X</span>
+                <span class="sr-only">@GetCloseText()</span>
+            </button>
+        }
     </div>
 </CascadingValue>
 
 @code {
+
+    /// <summary>
+    /// Optional title text.
+    /// </summary>
+    [Parameter]
+    public string? SnackbarTitle { get; set; }
+
+    /// <summary>
+    /// Optional message text When ChildContent is not provided.
+    /// </summary>
+    [Parameter]
+    public string? Message { get; set; }
+
+    /// <summary>
+    /// Whether the close button is shown.
+    /// </summary>
+    [Parameter]
+    public bool ShowClose { get; set; } = true;
+
+    /// <summary>
+    /// Label for close semantics.
+    /// </summary>
+    [Parameter]
+    public string? CloseText { get; set; }
+
+    /// <summary>
+    /// Whether an action button is shown.
+    /// </summary>
+    [Parameter]
+    public bool ShowAction { get; set; }
+
+    /// <summary>
+    /// Action button text.
+    /// </summary>
+    [Parameter]
+    public string? ActionText { get; set; }
+
+    /// <summary>
+    /// Callback for the action button.
+    /// </summary>
+    [Parameter]
+    public EventCallback ActionClicked { get; set; }
 
     /// <summary>
     /// Gets or sets the unique key for the snackbar.
@@ -31,7 +103,7 @@
     public int AutoHideDelay { get; set; } = 5000;
 
     /// <summary>
-    /// Gets or sets the callback invoked when the snackbar is closed.
+    /// Gets or sets the callback invoked When the snackbar is closed.
     /// </summary>
     [Parameter]
     public EventCallback<SnackbarClosedEventArgs> Closed { get; set; }
@@ -41,28 +113,25 @@
 
     protected override void BuildAttributesCore(Dictionary<string, object> attrs)
     {
+        // shadcn toast item classes
+        EnsureClassAttr(attrs, "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all");
+        EnsureClassAttr(attrs, "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full");
         EnsureClassAttr(attrs, "q-snackbar");
-        attrs.TryAdd("data-slot", "toast");
 
-        if (Visible)
-            EnsureClassAttr(attrs, "animate-in slide-in-from-top-full");
-        else
-            EnsureClassAttr(attrs, "hidden");
-
+        attrs["data-state"] = Visible ? "open" : "closed";
         SetOrRemove(attrs, "aria-hidden", !Visible, "true");
 
         if (Key.HasContent())
             attrs["data-snackbar-key"] = Key!;
     }
 
-    // shadcn toast/sonner content - new-york-v4 style
-    private static Dictionary<string, object> GetContentAttributes()
-    {
-        var inner = new Dictionary<string, object>(2);
-        inner["data-slot"] = "toast-content";
-        inner["class"] = "pointer-events-auto w-full max-w-md rounded-lg border bg-background p-4 shadow-lg";
-        return inner;
-    }
+    private string GetActionClass() =>
+        "inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
+
+    private string GetCloseClass() =>
+        "absolute top-2 right-2 rounded-md p-1 opacity-0 transition-opacity text-foreground/50 hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring group-hover:opacity-100";
+
+    private string GetCloseText() => CloseText.HasContent() ? CloseText! : "Close";
 
     /// <summary>
     /// Shows the snackbar.
@@ -90,11 +159,22 @@
         await Closed.InvokeAsync(new SnackbarClosedEventArgs(Key, reason));
     }
 
+    private async Task HandleCloseClick(MouseEventArgs _)
+    {
+        await Hide(SnackbarCloseReason.UserClosed);
+    }
+
+    private async Task HandleActionClick(MouseEventArgs _)
+    {
+        await ActionClicked.InvokeIfHasDelegate();
+        await Hide(SnackbarCloseReason.UserClosed);
+    }
+
     protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
         if (BackgroundColor is { IsEmpty: false })
         {
-            bool isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out string? token);
+            bool isTheme = BackgroundColor.Value.TryGetThemeToken(out string? token);
 
             if (isTheme && token is not null)
             {
@@ -118,5 +198,11 @@
         hc.Add(Key);
         hc.Add(Visible);
         hc.Add(AutoHideDelay);
+        hc.Add(SnackbarTitle);
+        hc.Add(Message);
+        hc.Add(ShowClose);
+        hc.Add(CloseText);
+        hc.Add(ShowAction);
+        hc.Add(ActionText);
     }
 }

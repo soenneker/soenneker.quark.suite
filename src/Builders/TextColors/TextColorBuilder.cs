@@ -8,7 +8,7 @@ namespace Soenneker.Quark;
 
 /// <summary>
 /// High-performance text color builder.
-/// Produces Bootstrap text color utility classes.
+/// Produces text color utility classes.
 /// </summary>
 public sealed class TextColorBuilder : ICssBuilder
 {

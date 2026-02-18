@@ -15,7 +15,7 @@ public interface IToggleElement : IInteractiveSurfaceElement
     bool Checked { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the checked state changes.
+    /// Gets or sets the callback invoked When the checked state changes.
     /// </summary>
     EventCallback<bool> CheckedChanged { get; set; }
 

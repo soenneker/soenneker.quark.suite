@@ -319,7 +319,7 @@ public sealed class FlexBuilder : ICssBuilder
 
     private static string GetFlexClass(string property, string value)
     {
-        // Tailwind/shadcn flex utilities (no Bootstrap justify-content-* / align-items-* prefix)
+        // Tailwind/shadcn-style flex utilities
         return property switch
         {
             "display" => "flex",

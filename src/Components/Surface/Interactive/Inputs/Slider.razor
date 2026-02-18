@@ -6,16 +6,32 @@
 @inherits InputSurfaceElement
 @implements ISlider
 
-<div class="q-slider">
-    <Input @ref="_inputComponent" 
-           Type="range"
-           @attributes="BuildInputAttributes()" 
-           OnInput="HandleInput"
-           OnChange="HandleChange" />
+@{
+	var valuePercent = Max > Min ? ((Value - Min) / (Max - Min)) * 100.0 : 0.0;
+	var valuePercentStr = valuePercent.ToString("F2", CultureInfo.InvariantCulture) + "%";
+}
+
+@* shadcn new-york-v4 ui/slider.tsx – all styling via Tailwind, only --value-percent is inline for dynamic width/position *@
+<div class="relative flex w-full touch-none select-none items-center data-[disabled]:opacity-50" style="--value-percent: @valuePercentStr" data-disabled="@(Disabled ? "true" : null)">
+	<div class="relative h-1.5 w-full grow overflow-hidden rounded-full bg-muted">
+		<div class="absolute h-full w-[var(--value-percent)] rounded-full bg-primary"></div>
+	</div>
+	<div class="absolute left-[var(--value-percent)] top-1/2 size-4 shrink-0 -translate-x-1/2 -translate-y-1/2 pointer-events-none rounded-full border border-primary bg-white shadow-sm transition-[color,box-shadow] after:absolute after:-inset-2 after:content-['']"></div>
+	<input type="range"
+	       class="absolute inset-0 z-10 m-0 h-full w-full cursor-pointer opacity-0"
+	       value="@Value.ToString(CultureInfo.InvariantCulture)"
+	       min="@Min.ToString(CultureInfo.InvariantCulture)"
+	       max="@Max.ToString(CultureInfo.InvariantCulture)"
+	       step="@Step.ToString(CultureInfo.InvariantCulture)"
+	       disabled="@Disabled"
+	       readonly="@ReadOnly"
+	       required="@Required"
+	       @oninput="HandleInput"
+	       @onchange="HandleChange" />
 </div>
 
 @code {
-    // shadcn - new-york-v4
+	// shadcn - new-york-v4
 	/// <summary>
 	/// Gets or sets the slider value.
 	/// </summary>
@@ -47,7 +63,7 @@
 	public double Step { get; set; } = 1;
 
 	/// <summary>
-	/// Gets or sets the callback invoked when the slider value changes.
+	/// Gets or sets the callback invoked When the slider value changes.
 	/// </summary>
 	[Parameter]
 	public EventCallback<double> ValueChanged { get; set; }
@@ -77,7 +93,7 @@
 	public string? Label { get; set; }
 
 	/// <summary>
-	/// Gets or sets the callback invoked when the input value changes.
+	/// Gets or sets the callback invoked When the input value changes.
 	/// </summary>
 	[Parameter]
 	public EventCallback<ChangeEventArgs> OnChange { get; set; }
@@ -94,10 +110,20 @@
 	[CascadingParameter(Name = nameof(ParentValidation))]
 	public Validation? ParentValidation { get; set; }
 
-	private Input? _inputComponent;
 	private double _lastValue;
 	private bool _valueChanged;
 	public object? ValidationValue => Value;
+
+	public string? GetColorClass() => null;
+
+	public string? GetSizeClass()
+	{
+		if (Size == Quark.Size.Default) return null;
+		string? token = null;
+		bool isTheme = Size?.TryGetThemeToken(out token) == true;
+		var sizeVal = token ?? Size?.ToString();
+		return sizeVal?.ToLowerInvariant() switch { "sm" or "xs" => "h-6", "lg" => "h-10", _ => null };
+	}
 
 	public string? GetValidationClass()
 	{
@@ -108,45 +134,6 @@
 			return "is-valid";
 
 		return null;
-	}
-
-	public string? GetColorClass()
-	{
-		if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
-		{
-			string? token = null;
-			bool isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
-
-			if (isTheme && token is not null)
-			{
-				// Bootstrap theme token (e.g., "primary", "secondary")
-				return $"form-control-{token}";
-			}
-
-			string v = BackgroundColor.Value.ToString().Trim();
-
-			if (BackgroundColor.Value.IsCssClass)
-			{
-				if (v.StartsWith("form-control-", StringComparison.Ordinal))
-					return v;
-				return $"form-control-{v}";
-			}
-		}
-
-		return null;
-	}
-
-	public string? GetSizeClass()
-	{
-		if (Size == Quark.Size.Default)
-			return null;
-
-		string? token = null;
-		bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
-		if (isTheme && token is not null)
-			return $"form-control-{token}";
-
-		return Size?.ToString() != null ? $"form-control-{Size}" : null;
 	}
 
 	private static double ParseDouble(ChangeEventArgs e)
@@ -211,47 +198,6 @@
 	protected override bool ShouldRender()
 	{
 		return _valueChanged || base.ShouldRender();
-	}
-
-	private Dictionary<string, object> BuildInputAttributes()
-	{
-		var attributes = new Dictionary<string, object>();
-
-		// Add Slider-specific attributes
-		attributes["value"] = Value.ToString(CultureInfo.InvariantCulture);
-		attributes["min"] = Min.ToString(CultureInfo.InvariantCulture);
-		attributes["max"] = Max.ToString(CultureInfo.InvariantCulture);
-		attributes["step"] = Step.ToString(CultureInfo.InvariantCulture);
-
-		// Pass through Input component properties
-		if (Placeholder.HasContent())
-			attributes["placeholder"] = Placeholder;
-
-		if (Disabled)
-			attributes["disabled"] = true;
-
-		if (ReadOnly)
-			attributes["readonly"] = true;
-
-		if (Required)
-			attributes["required"] = true;
-
-		if (Size != Quark.Size.Default)
-			attributes["size"] = Size;
-
-		if (PlainText)
-			attributes["plaintext"] = true;
-
-		if (FloatingLabel)
-			attributes["floatinglabel"] = true;
-
-		if (Label.HasContent())
-			attributes["label"] = Label;
-
-		// Override the Input component's default classes for slider-specific styling
-		attributes["class"] = "form-range";
-
-		return attributes;
 	}
 
 	protected override void ComputeRenderKeyCore(ref HashCode hc)

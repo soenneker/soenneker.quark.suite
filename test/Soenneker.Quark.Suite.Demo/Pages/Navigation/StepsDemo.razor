@@ -3,14 +3,21 @@
 <PageTitle>Steps - Quark Suite</PageTitle>
 
 <Div Class="space-y-8 max-w-4xl">
-    <Div Class="space-y-3">
-        <H1 Class="text-4xl font-bold tracking-tight">Steps</H1>
-        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">Multi-step workflows with navigation, validation, and custom content.</Paragraph>
-    </Div>
-
     <Div Class="space-y-6">
         <section class="space-y-4">
-            <DemoSection Title="Basic steps" Description="@($"Three steps with Previous/Next; current step {_currentStep}.")">
+            <DemoSection Title="Basic steps" Description="@($"Three steps with Previous/Next; current step {_currentStep}.")" Code="@(@"<Steps @ref=""_basicStepsRef"" @bind-SelectedStep=""_currentStep"">
+    <Step Name=""step1"">
+        <StepMarker><Span>1</Span></StepMarker>
+        <StepCaption><Div Class=""step-title"">Step 1</Div></StepCaption>
+    </Step>
+    <Step Name=""step2"">...</Step>
+    <Step Name=""step3"">...</Step>
+    <StepContent>
+        <StepPanel Name=""step1"">Content for step 1</StepPanel>
+        <StepPanel Name=""step2"">Content for step 2</StepPanel>
+        <StepPanel Name=""step3"">Content for step 3</StepPanel>
+    </StepContent>
+</Steps>")">
         <Steps @ref="_basicStepsRef" @bind-SelectedStep="_currentStep" BackgroundColor="@("#FFFFFF")">
             <Step Name="step1">
                 <StepMarker>
@@ -62,7 +69,16 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Steps with validation" Description="Personal → Contact → Review with form fields.">
+            <DemoSection Title="Steps with validation" Description="Personal → Contact → Review with form fields." Code="@(@"<Steps @ref=""_validationStepsRef"" @bind-SelectedStep=""_currentValidationStep"">
+    <Step Name=""personal""><StepMarker><Span>1</Span></StepMarker><StepCaption>Personal</StepCaption></Step>
+    <Step Name=""contact""><StepMarker><Span>2</Span></StepMarker><StepCaption>Contact</StepCaption></Step>
+    <Step Name=""review""><StepMarker><Span>3</Span></StepMarker><StepCaption>Review</StepCaption></Step>
+    <StepContent>
+        <StepPanel Name=""personal"">...</StepPanel>
+        <StepPanel Name=""contact"">...</StepPanel>
+        <StepPanel Name=""review"">...</StepPanel>
+    </StepContent>
+</Steps>")">
         <Steps @ref="_validationStepsRef" @bind-SelectedStep="_currentValidationStep">
             <Step Name="personal">
                 <StepMarker>
@@ -90,25 +106,33 @@
             </Step>
 
             <StepContent>
-                <StepPanel Name="personal">
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="firstName" Form="true">First Name</Label>
-                        <TextEdit Id="firstName" @bind-Value="_personalInfo.FirstName"/>
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="lastName" Form="true">Last Name</Label>
-                        <TextEdit Id="lastName" @bind-Value="_personalInfo.LastName"/>
-                    </Div>
+                <StepPanel Name="personal" Class="space-y-4">
+                    <Field>
+                        <FieldLabel For="firstName">First Name</FieldLabel>
+                        <FieldBody>
+                            <TextEdit Id="firstName" @bind-Value="_personalInfo.FirstName"/>
+                        </FieldBody>
+                    </Field>
+                    <Field>
+                        <FieldLabel For="lastName">Last Name</FieldLabel>
+                        <FieldBody>
+                            <TextEdit Id="lastName" @bind-Value="_personalInfo.LastName"/>
+                        </FieldBody>
+                    </Field>
                 </StepPanel>
-                <StepPanel Name="contact">
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="email" Form="true">Email</Label>
-                        <TextEdit Id="email" Type="email" @bind-Value="_personalInfo.Email"/>
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="phone" Form="true">Phone</Label>
-                        <TextEdit Id="phone" Type="tel" @bind-Value="_personalInfo.Phone"/>
-                    </Div>
+                <StepPanel Name="contact" Class="space-y-4">
+                    <Field>
+                        <FieldLabel For="email">Email</FieldLabel>
+                        <FieldBody>
+                            <TextEdit Id="email" Type="email" @bind-Value="_personalInfo.Email"/>
+                        </FieldBody>
+                    </Field>
+                    <Field>
+                        <FieldLabel For="phone">Phone</FieldLabel>
+                        <FieldBody>
+                            <TextEdit Id="phone" Type="tel" @bind-Value="_personalInfo.Phone"/>
+                        </FieldBody>
+                    </Field>
                 </StepPanel>
                 <StepPanel Name="review">
                     <H4>Review Your Information</H4>
@@ -249,47 +273,63 @@
             </Step>
 
             <StepContent>
-                <StepPanel Name="account">
+                <StepPanel Name="account" Class="space-y-4">
                     <H4>Account Creation</H4>
                     <Paragraph>Create your account to get started.</Paragraph>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="username" Form="true">Username</Label>
-                        <TextEdit Id="username" @bind-Value="_accountInfo.Username"/>
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="password" Form="true">Password</Label>
-                        <TextEdit Id="password" Type="password" @bind-Value="_accountInfo.Password"/>
-                    </Div>
+                    <Field>
+                        <FieldLabel For="username">Username</FieldLabel>
+                        <FieldBody>
+                            <TextEdit Id="username" @bind-Value="_accountInfo.Username"/>
+                        </FieldBody>
+                    </Field>
+                    <Field>
+                        <FieldLabel For="password">Password</FieldLabel>
+                        <FieldBody>
+                            <TextEdit Id="password" Type="password" @bind-Value="_accountInfo.Password"/>
+                        </FieldBody>
+                    </Field>
                 </StepPanel>
-                <StepPanel Name="profile">
+                <StepPanel Name="profile" Class="space-y-4">
                     <H4>Profile Information</H4>
                     <Paragraph>Tell us about yourself.</Paragraph>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="bio" Form="true">Bio</Label>
-                        <MemoEdit Id="bio" @bind-Value="_accountInfo.Bio" Rows="3"/>
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="website" Form="true">Website</Label>
-                        <TextEdit Id="website" Type="url" @bind-Value="_accountInfo.Website"/>
-                    </Div>
+                    <Field>
+                        <FieldLabel For="bio">Bio</FieldLabel>
+                        <FieldBody>
+                            <MemoEdit Id="bio" @bind-Value="_accountInfo.Bio" Rows="3"/>
+                        </FieldBody>
+                    </Field>
+                    <Field>
+                        <FieldLabel For="website">Website</FieldLabel>
+                        <FieldBody>
+                            <TextEdit Id="website" Type="url" @bind-Value="_accountInfo.Website"/>
+                        </FieldBody>
+                    </Field>
                 </StepPanel>
-                <StepPanel Name="preferences">
+                <StepPanel Name="preferences" Class="space-y-4">
                     <H4>Account Preferences</H4>
                     <Paragraph>Configure your account preferences.</Paragraph>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Check @bind-Checked="_accountInfo.EmailNotifications"/> Email Notifications
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Check @bind-Checked="_accountInfo.SmsNotifications"/> SMS Notifications
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="language" Form="true">Language</Label>
-                        <Select Id="language" @bind-SelectedValue="_accountInfo.Language">
-                            <SelectItem Value="@("english")">English</SelectItem>
-                            <SelectItem Value="@("spanish")">Spanish</SelectItem>
-                            <SelectItem Value="@("french")">French</SelectItem>
-                        </Select>
-                    </Div>
+                    <Field>
+                        <FieldLabel For="emailNotifications">Email Notifications</FieldLabel>
+                        <FieldBody>
+                            <Check Id="emailNotifications" @bind-Checked="_accountInfo.EmailNotifications"/>
+                        </FieldBody>
+                    </Field>
+                    <Field>
+                        <FieldLabel For="smsNotifications">SMS Notifications</FieldLabel>
+                        <FieldBody>
+                            <Check Id="smsNotifications" @bind-Checked="_accountInfo.SmsNotifications"/>
+                        </FieldBody>
+                    </Field>
+                    <Field>
+                        <FieldLabel For="language">Language</FieldLabel>
+                        <FieldBody>
+                            <Select Id="language" @bind-SelectedValue="_accountInfo.Language">
+                                <SelectItem Value="@("english")">English</SelectItem>
+                                <SelectItem Value="@("spanish")">Spanish</SelectItem>
+                                <SelectItem Value="@("french")">French</SelectItem>
+                            </Select>
+                        </FieldBody>
+                    </Field>
                 </StepPanel>
             </StepContent>
         </Steps>

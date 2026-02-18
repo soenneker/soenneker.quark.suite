@@ -211,7 +211,7 @@ public sealed class MarginBuilder : ICssBuilder
             else
                 first = false;
 
-            // Tailwind: mt-1, md:mt-1 (not Bootstrap mt-md-1)
+            // Tailwind: mt-1, md:mt-1 (not legacy mt-md-1 syntax)
             string baseClass = _baseToken + (sideTok.Length != 0 ? sideTok : "") + "-" + sizeTok;
             string cls = bpTok.Length != 0 ? BreakpointUtil.ApplyTailwindBreakpoint(baseClass, bpTok) : baseClass;
             sb.Append(cls);

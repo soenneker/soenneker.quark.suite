@@ -44,12 +44,12 @@ public interface IBar : ICancellableElement
     bool Visible { get; set; }
 
     /// <summary>
-    /// Gets or sets the collapse behavior when the bar is hidden.
+    /// Gets or sets the collapse behavior When the bar is hidden.
     /// </summary>
     BarCollapseMode CollapseMode { get; set; }
 
     /// <summary>
-    /// Gets or sets the behavior when multiple menus are toggled.
+    /// Gets or sets the behavior When multiple menus are toggled.
     /// </summary>
     BarMenuToggleBehavior MenuToggleBehavior { get; set; }
 

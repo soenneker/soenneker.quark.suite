@@ -2,27 +2,32 @@
 @inherits Soenneker.Quark.Component
 @implements IHr
 
-<div role="separator" @attributes="BuildAttributes()"></div>
+<div role="@(Decorative ? "none" : "separator")" @attributes="BuildAttributes()"></div>
 
 @code {
     /// <summary>Orientation: horizontal (default) or vertical. Matches shadcn Separator.</summary>
     [Parameter]
     public SeparatorOrientation Orientation { get; set; } = SeparatorOrientation.Horizontal;
 
+    /// <summary>Whether the separator is decorative only.</summary>
+    [Parameter]
+    public bool Decorative { get; set; } = true;
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        attributes["data-slot"] = "separator";
         attributes["data-orientation"] = Orientation.ToString().ToLowerInvariant();
-        attributes["aria-orientation"] = Orientation.ToString().ToLowerInvariant();
+        if (!Decorative)
+            attributes["aria-orientation"] = Orientation.ToString().ToLowerInvariant();
         // shadcn Separator - new-york-v4 ui/separator.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-hr q-separator bg-border shrink-0");
-            AppendClass(ref cls, Orientation == SeparatorOrientation.Horizontal
-                ? "h-px w-full"
-                : "h-full w-px min-h-4");
+            AppendClass(ref cls, "q-hr q-separator bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px data-[orientation=vertical]:min-h-4");
         });
     }
 
-    protected override void ComputeRenderKeyCore(ref HashCode hc) => hc.Add(Orientation);
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Orientation);
+        hc.Add(Decorative);
+    }
 }

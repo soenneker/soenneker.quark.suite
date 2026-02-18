@@ -17,7 +17,7 @@
     public string? Text { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the code text changes.
+    /// Gets or sets the callback invoked When the code text changes.
     /// </summary>
     [Parameter]
     public EventCallback<string?> TextChanged { get; set; }
@@ -162,11 +162,12 @@
     private Dictionary<string, object> BuildContainerAttributes()
     {
         var attrs = new Dictionary<string, object>(base.BuildAttributes());
-
         // Monaco editor needs position: relative for proper rendering
         BuildStyleAttribute(attrs, (ref sty) =>
         {
             AppendStyleDecl(ref sty, "position: relative");
+            AppendStyleDecl(ref sty, "width: 100%");
+            AppendStyleDecl(ref sty, "min-width: 0");
         });
 
         BuildClassAttribute(attrs, (ref cls) =>

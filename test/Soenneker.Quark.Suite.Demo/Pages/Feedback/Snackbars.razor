@@ -3,14 +3,14 @@
 <PageTitle>Snackbars - Quark Suite</PageTitle>
 
 <Div Class="space-y-8 max-w-4xl">
-    <Div Class="space-y-3">
-        <H1 Class="text-4xl font-bold tracking-tight">Snackbars</H1>
-        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">Temporary notifications with colors, actions, positioning, and auto-dismiss.</Paragraph>
-    </Div>
-
     <Div Class="space-y-6">
         <section class="space-y-4">
-            <DemoSection Title="Basic snackbars" Description="Primary, success, warning, and danger; auto-dismiss.">
+            <DemoSection Title="Basic snackbars" Description="Primary, success, warning, and danger; auto-dismiss." Code="@(@"<SnackbarStack @ref=""_snackbarStackRef""/>
+<Button @onclick=""ShowBasicSnackbar"">Basic</Button>
+// In code: await _snackbarStackRef.Push(""This is a basic snackbar message"", BackgroundColor.Primary);
+// await _snackbarStackRef.Push(""Success!"", BackgroundColor.Success);
+// await _snackbarStackRef.Push(""Warning"", BackgroundColor.Warning);
+// await _snackbarStackRef.Push(""Error"", BackgroundColor.Danger);")">
                 <Div Class="flex flex-wrap gap-2">
                     <Button Class="bg-primary text-primary-foreground" @onclick="ShowBasicSnackbar">Basic</Button>
                     <Button Class="bg-primary text-primary-foreground" @onclick="ShowSuccessSnackbar">Success</Button>
@@ -21,7 +21,11 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="With actions" Description="Snackbars with action or multi-action buttons.">
+            <DemoSection Title="With actions" Description="Snackbars with action or multi-action buttons." Code="@(@"await _snackbarStackRef.Push(""File uploaded successfully"", BackgroundColor.Success, options => {
+    options.ShowAction = true;
+    options.ActionText = ""View"";
+});
+// Multi-action: options.ShowAction = true; options.ActionText = ""Save""; options.ShowClose = true;")">
                 <Div Class="flex flex-wrap gap-2">
                     <Button Class="bg-primary text-primary-foreground" @onclick="ShowActionSnackbar">With action</Button>
                     <Button Class="bg-secondary text-secondary-foreground" @onclick="ShowMultiActionSnackbar">Multi-action</Button>
@@ -30,7 +34,9 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Custom duration" Description="1s, 5s, or 10s auto-dismiss.">
+            <DemoSection Title="Custom duration" Description="1s, 5s, or 10s auto-dismiss." Code="@(@"await _snackbarStackRef.Push(""Dismiss in 5s"", BackgroundColor.Info, options => {
+    options.HideDelay = 5000; // milliseconds
+});")">
                 <Div Class="flex flex-wrap gap-2">
                     <Button Class="bg-primary text-primary-foreground" @onclick="() => ShowCustomDurationSnackbar(1000)">1 second</Button>
                     <Button Class="bg-primary text-primary-foreground" @onclick="() => ShowCustomDurationSnackbar(5000)">5 seconds</Button>
@@ -40,13 +46,18 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Persistent" Description="Requires manual dismissal.">
+            <DemoSection Title="Persistent" Description="Requires manual dismissal." Code="@(@"await _snackbarStackRef.Push(""Requires manual dismissal"", BackgroundColor.Danger, options => {
+    options.HideDelay = null; // Never auto-hide
+    options.ShowClose = true;
+    options.CloseText = ""Dismiss"";
+});")">
                 <Button Class="bg-primary text-primary-foreground" @onclick="ShowPersistentSnackbar">Show persistent snackbar</Button>
             </DemoSection>
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Custom styling" Description="Custom and gradient styled snackbars.">
+            <DemoSection Title="Custom styling" Description="Custom and gradient styled snackbars." Code="@(@"await _snackbarStackRef.Push(""Custom styled snackbar"", BackgroundColor.Info);
+await _snackbarStackRef.Push(""Gradient styled"", BackgroundColor.Primary);")">
                 <Div Class="flex flex-wrap gap-2">
                     <Button Class="bg-primary text-primary-foreground" @onclick="ShowCustomStyledSnackbar">Custom styled</Button>
                     <Button Class="bg-primary text-primary-foreground" @onclick="ShowGradientSnackbar">Gradient</Button>
@@ -55,7 +66,9 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Stack" Description="Add multiple snackbars; clear stack.">
+            <DemoSection Title="Stack" Description="Add multiple snackbars; clear stack." Code="@(@"await _snackbarStackRef.Push(""First"", BackgroundColor.Primary);
+await _snackbarStackRef.Push(""Second"", BackgroundColor.Success);
+await _snackbarStackRef.Push(""Third"", BackgroundColor.Warning);")">
                 <Div Class="flex flex-wrap gap-2">
                     <Button Class="bg-primary text-primary-foreground" @onclick="AddToStack">Add to stack</Button>
                     <Button Class="bg-secondary text-secondary-foreground" @onclick="ClearStack">Clear stack</Button>
@@ -64,7 +77,8 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Positions" Description="Top/bottom, left/center/right.">
+            <DemoSection Title="Positions" Description="Top/bottom, left/center/right." Code="@(@"await _snackbarStackRef.Push(""Top Left"", ..., location: SnackbarLocation.TopStart);
+// Top, TopEnd, BottomStart, Bottom, BottomEnd")">
                 <Div Class="grid grid-cols-2 gap-2 max-w-md">
                     <Button Class="bg-primary text-primary-foreground" @onclick="@(() => ShowPositionedSnackbar("top-left"))" Size="ButtonSize.Sm">Top Left</Button>
                     <Button Class="bg-primary text-primary-foreground" @onclick="@(() => ShowPositionedSnackbar("top-center"))" Size="ButtonSize.Sm">Top Center</Button>
@@ -77,7 +91,8 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Location override" Description="Override default position; show at multiple locations.">
+            <DemoSection Title="Location override" Description="Override default position; show at multiple locations." Code="@(@"Push(..., location: SnackbarLocation.TopEnd);
+// Override default stack location per call")">
                 <Div Class="flex flex-wrap gap-2">
                     <Button Class="bg-primary text-primary-foreground" @onclick="ShowLocationOverrideSnackbar">Location override</Button>
                     <Button Class="bg-primary text-primary-foreground" @onclick="ShowMultipleLocationSnackbars">Multiple locations</Button>
@@ -86,15 +101,19 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Rich content" Description="Icons, formatted text, multiple lines.">
+            <DemoSection Title="Rich content" Description="Icons, formatted text, multiple lines." Code="@(@"await _snackbarStackRef.Push with custom content / RenderFragment
+for icons, formatted text, multiple lines")">
                 <Button Class="bg-primary text-primary-foreground" @onclick="ShowRichContentSnackbar">Rich content snackbar</Button>
             </DemoSection>
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Snackbar features" Description="Overview of components and options.">
+            <DemoSection Title="Snackbar features" Description="Overview of components and options." Code="@(@"SnackbarStack: container for multiple snackbars
+Auto-dismiss: configurable HideDelay (ms)
+Positioning: TopStart, Top, TopEnd, BottomStart, Bottom, BottomEnd
+Actions: ShowAction, ActionText, ShowClose, CloseText")">
                 <Div Class="rounded-lg border border-border bg-muted/50 p-4">
-                    <H3 Class="text-lg font-semibold">Snackbar Features</H3>
+                    <Paragraph Class="text-lg font-semibold">Snackbar Features</Paragraph>
                     <Paragraph Margin="Margin.Is0">Snackbar components provide notification functionality:</Paragraph>
                     <UnorderedList>
                         <UnorderedListItem><Strong>SnackbarStack:</Strong> Container for multiple snackbars</UnorderedListItem>
@@ -107,13 +126,15 @@
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Theme configuration" Description="Uses theme default location and delay.">
+            <DemoSection Title="Theme configuration" Description="Uses theme default location and delay." Code="@(@"SnackbarStack uses theme defaults for location and HideDelay
+When not overridden per Push() call")">
                 <Button Class="bg-primary text-primary-foreground" @onclick="ShowThemeConfiguredSnackbar">Theme-configured snackbar</Button>
             </DemoSection>
         </section>
 
         <section class="space-y-4">
-            <DemoSection Title="Accessibility" Description="ARIA attributes and keyboard support.">
+            <DemoSection Title="Accessibility" Description="ARIA attributes and keyboard support." Code="@(@"Snackbars expose ARIA live region and role=""status""
+Keyboard: Escape to dismiss When focusable")">
                 <Button Class="bg-primary text-primary-foreground" @onclick="ShowAccessibleSnackbar">Accessible snackbar</Button>
             </DemoSection>
         </section>

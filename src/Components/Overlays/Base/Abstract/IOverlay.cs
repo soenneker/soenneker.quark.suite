@@ -13,7 +13,7 @@ public interface IOverlay : IComponent
     bool Visible { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the visibility state changes.
+    /// Gets or sets the callback invoked When the visibility state changes.
     /// </summary>
     EventCallback<bool> VisibleChanged { get; set; }
 
@@ -23,22 +23,22 @@ public interface IOverlay : IComponent
     bool ShowBackdrop { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the overlay should close when the backdrop is clicked.
+    /// Gets or sets whether the overlay should close When the backdrop is clicked.
     /// </summary>
     bool CloseOnBackdropClick { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the overlay should close when the Escape key is pressed.
+    /// Gets or sets whether the overlay should close When the Escape key is pressed.
     /// </summary>
     bool CloseOnEscape { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the overlay is shown.
+    /// Gets or sets the callback invoked When the overlay is shown.
     /// </summary>
     EventCallback OnShow { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the overlay is hidden.
+    /// Gets or sets the callback invoked When the overlay is hidden.
     /// </summary>
     EventCallback OnHide { get; set; }
 }

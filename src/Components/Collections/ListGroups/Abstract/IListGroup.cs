@@ -36,7 +36,7 @@ public interface IListGroup : IElement
     string? SelectedItem { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the selected item changes.
+    /// Gets or sets the callback invoked When the selected item changes.
     /// </summary>
     EventCallback<string> SelectedItemChanged { get; set; }
 
@@ -46,7 +46,7 @@ public interface IListGroup : IElement
     List<string>? SelectedItems { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the selected items change.
+    /// Gets or sets the callback invoked When the selected items change.
     /// </summary>
     EventCallback<List<string>> SelectedItemsChanged { get; set; }
 

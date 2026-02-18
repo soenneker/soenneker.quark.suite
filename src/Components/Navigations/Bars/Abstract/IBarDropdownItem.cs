@@ -9,12 +9,12 @@ namespace Soenneker.Quark;
 public interface IBarDropdownItem : IElement
 {
     /// <summary>
-    /// Gets or sets the URL to navigate to when the item is clicked.
+    /// Gets or sets the URL to navigate to When the item is clicked.
     /// </summary>
     string? To { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the item is clicked.
+    /// Gets or sets the callback invoked When the item is clicked.
     /// </summary>
     EventCallback<MouseEventArgs> Clicked { get; set; }
 

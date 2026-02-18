@@ -13,8 +13,8 @@ public sealed class TextBreakBuilder : ICssBuilder
 {
     private readonly List<TextBreakRule> _rules = new(4);
 
-    // ----- Class/Style constants -----
-    private const string _classTextBreak = "text-break";
+    // Tailwind word-break utility (for Quark Suite / shadcn)
+    private const string _classTextBreak = "break-words";
     private const string _styleBreakWord = "word-wrap: break-word"; // keep alias to match your original
 
     internal TextBreakBuilder(bool enabled, BreakpointType? breakpoint = null)
@@ -69,7 +69,7 @@ public sealed class TextBreakBuilder : ICssBuilder
         return this;
     }
 
-    /// <summary>Apply a BreakpointType to the most recent rule (or bootstrap with <c>true</c> if empty).</summary>
+    /// <summary>Apply a BreakpointType to the most recent rule (or seed with <c>true</c> if empty).</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextBreakBuilder ChainBp(BreakpointType bp)
     {
@@ -107,7 +107,7 @@ public sealed class TextBreakBuilder : ICssBuilder
 
             string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
-                baseClass = BreakpointUtil.InsertBreakpointType(baseClass, bp);
+                baseClass = BreakpointUtil.ApplyTailwindBreakpoint(baseClass, bp);
 
             if (!first) sb.Append(' ');
             else first = false;

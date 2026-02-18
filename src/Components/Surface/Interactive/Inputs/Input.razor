@@ -20,7 +20,7 @@
     public string? Value { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the value changes.
+    /// Gets or sets the callback invoked When the value changes.
     /// </summary>
     [Parameter]
     public EventCallback<string?> ValueChanged { get; set; }
@@ -38,7 +38,7 @@
     public virtual string? Type { get; set; }
 
     /// <summary>
-    /// Gets or sets the placeholder text displayed when the input is empty.
+    /// Gets or sets the placeholder text displayed When the input is empty.
     /// </summary>
     [Parameter]
     public string? Placeholder { get; set; }
@@ -86,7 +86,7 @@
     public string? Label { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the input value changes.
+    /// Gets or sets the callback invoked When the input value changes.
     /// </summary>
     [Parameter]
     public EventCallback<ChangeEventArgs> OnChange { get; set; }
@@ -213,8 +213,7 @@
     /// <returns>The validation class name, or null if no validation class should be applied.</returns>
     public virtual string? GetValidationClass()
     {
-        if (ShouldShowInvalid()) return "border-destructive ring-destructive";
-        return null;
+        return null; // aria-invalid classes in base handle validation styling
     }
 
     /// <summary>
@@ -226,7 +225,7 @@
         if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
         {
             string? token = null;
-            bool isTheme = BackgroundColor.Value.TryGetBootstrapThemeToken(out token);
+            bool isTheme = BackgroundColor.Value.TryGetThemeToken(out token);
 
             if (isTheme && token is not null)
                 return null; // Tailwind uses semantic border/ring; theme tokens handled via CSS variables
@@ -248,7 +247,7 @@
         if (Size == Quark.Size.Default) return null;
 
         string? token = null;
-        bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+        bool isTheme = Size?.TryGetThemeToken(out token) == true;
         if (isTheme && token is not null)
             return token.ToLowerInvariant() switch { "sm" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
         var sizeVal = Size?.ToString();
@@ -268,7 +267,6 @@
     {
         base.BuildAttributesCore(attributes);
 
-        attributes.TryAdd("data-slot", "input");
         attributes["type"] = GetInputType();
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -280,10 +278,14 @@
             }
             else
             {
-                // shadcn/ui input - exact copy from new-york-v4 ui/input.tsx
-                AppendClass(ref cls, "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm");
-                AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]");
-                AppendClass(ref cls, "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive");
+                // shadcn input
+                AppendClass(ref cls, "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background");
+                AppendClass(ref cls, "file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground");
+                AppendClass(ref cls, "placeholder:text-muted-foreground");
+                AppendClass(ref cls, "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2");
+                AppendClass(ref cls, "disabled:cursor-not-allowed disabled:opacity-50");
+                AppendClass(ref cls, "aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-destructive");
+                AppendClass(ref cls, "transition-colors md:text-sm");
             }
 
             string? sizeClass = GetSizeClass();
@@ -293,6 +295,7 @@
             if (validationClass is not null) AppendClass(ref cls, validationClass);
         });
 
+        if (ShouldShowInvalid()) attributes["aria-invalid"] = "true";
         if (Placeholder.HasContent()) attributes["placeholder"] = Placeholder;
         if (Disabled) attributes["disabled"] = true;
         if (ReadOnly) attributes["readonly"] = true;

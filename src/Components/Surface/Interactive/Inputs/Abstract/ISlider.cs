@@ -35,7 +35,7 @@ public interface ISlider : IInput
     double Step { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the value changes.
+    /// Gets or sets the callback invoked When the value changes.
     /// </summary>
     EventCallback<double> ValueChanged { get; set; }
 }

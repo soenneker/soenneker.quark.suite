@@ -12,14 +12,20 @@
         if (items.Count == 0)
             continue;
 
-        <div class="@GetContainerClass(location)" style="z-index: 1055;">
+        <div class="@GetContainerClass(location)">
             @foreach (SnackbarNotificationItem item in items)
             {
                 <Snackbar @key="@item.Key"
                           Key="@item.Key"
+                          SnackbarTitle="@item.Title"
+                          Message="@item.Message"
                           Visible="@item.Visible"
                           BackgroundColor="@item.Color"
                           AutoHideDelay="@(item.HideDelay ?? EffectiveDefaultDelay)"
+                          ShowClose="@item.ShowClose"
+                          CloseText="@item.CloseText"
+                          ShowAction="@item.ShowAction"
+                          ActionText="@item.ActionText"
                           Closed="OnSnackbarClosed">
                     @if (item.Content != null)
                     {
@@ -75,17 +81,17 @@
 
     private static string GetContainerClass(SnackbarLocation location)
     {
-        const string baseClasses = "q-snackbar-stack snackbar-stack position-fixed p-3";
+        const string baseClasses = "q-snackbar-stack fixed z-[100] flex max-h-screen w-full flex-col-reverse gap-2 p-4 sm:flex-col md:max-w-[420px]";
 
         return location.Value switch
         {
-            "top" => baseClasses + " top-0 start-50 translate-middle-x",
-            "top-start" => baseClasses + " top-0 start-0",
-            "top-end" => baseClasses + " top-0 end-0",
-            "bottom" => baseClasses + " bottom-0 start-50 translate-middle-x",
-            "bottom-start" => baseClasses + " bottom-0 start-0",
-            "bottom-end" => baseClasses + " bottom-0 end-0",
-            _ => baseClasses + " bottom-0 end-0"
+            "top" => baseClasses + " top-0 left-1/2 -translate-x-1/2",
+            "top-start" => baseClasses + " top-0 left-0",
+            "top-end" => baseClasses + " top-0 right-0",
+            "bottom" => baseClasses + " bottom-0 left-1/2 -translate-x-1/2",
+            "bottom-start" => baseClasses + " bottom-0 left-0",
+            "bottom-end" => baseClasses + " bottom-0 right-0",
+            _ => baseClasses + " bottom-0 right-0"
         };
     }
 
@@ -110,7 +116,18 @@
 
         _keyToLocation[key] = resolvedLocation;
 
-        var item = new SnackbarNotificationItem(key, message ?? "", null, color ?? Quark.BackgroundColor.Primary, content, false, null, false, null, snackbarOptions.HideDelay, resolvedLocation);
+        var item = new SnackbarNotificationItem(
+            key,
+            message ?? "",
+            null,
+            color ?? Quark.BackgroundColor.Transparent,
+            content,
+            snackbarOptions.ShowClose,
+            snackbarOptions.CloseText,
+            snackbarOptions.ShowAction,
+            snackbarOptions.ActionText,
+            snackbarOptions.HideDelay,
+            resolvedLocation);
 
         _notifications.Add(item);
 

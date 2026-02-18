@@ -15,7 +15,7 @@ public interface IOffcanvas : IElement
     PlacementType Placement { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the page should remain scrollable when offcanvas is open.
+    /// Gets or sets whether the page should remain scrollable When offcanvas is open.
     /// </summary>
     bool AllowScroll { get; set; }
 
@@ -25,17 +25,17 @@ public interface IOffcanvas : IElement
     bool ShowBackdrop { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the offcanvas is shown.
+    /// Gets or sets the callback invoked When the offcanvas is shown.
     /// </summary>
     EventCallback OnShow { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the offcanvas is hidden.
+    /// Gets or sets the callback invoked When the offcanvas is hidden.
     /// </summary>
     EventCallback OnHide { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the backdrop is clicked.
+    /// Gets or sets the callback invoked When the backdrop is clicked.
     /// </summary>
     EventCallback OnBackdropClick { get; set; }
 

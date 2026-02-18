@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 public interface IBarBrand : IElement
 {
     /// <summary>
-    /// Gets or sets the URL to navigate to when the brand is clicked.
+    /// Gets or sets the URL to navigate to When the brand is clicked.
     /// </summary>
     string? To { get; set; }
 }

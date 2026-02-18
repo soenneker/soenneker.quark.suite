@@ -13,9 +13,10 @@ public sealed class TextTransformBuilder : ICssBuilder
 {
     private readonly List<TextTransformRule> _rules = new(4);
 
-    private const string _classLower = "text-lowercase";
-    private const string _classUpper = "text-uppercase";
-    private const string _classCap = "text-capitalize";
+    // Tailwind text-transform utilities (for Quark Suite / shadcn)
+    private const string _classLower = "lowercase";
+    private const string _classUpper = "uppercase";
+    private const string _classCap = "capitalize";
     private const string _stylePrefix = "text-transform: ";
 
     internal TextTransformBuilder(string value, BreakpointType? breakpoint = null)

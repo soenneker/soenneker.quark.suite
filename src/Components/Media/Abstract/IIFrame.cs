@@ -59,12 +59,12 @@ public interface IIFrame : IComponent
     string? SrcDoc { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the iframe loads successfully.
+    /// Gets or sets the callback invoked When the iframe loads successfully.
     /// </summary>
     EventCallback<ProgressEventArgs> OnLoad { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the iframe fails to load.
+    /// Gets or sets the callback invoked When the iframe fails to load.
     /// </summary>
     EventCallback<ErrorEventArgs> OnError { get; set; }
 }

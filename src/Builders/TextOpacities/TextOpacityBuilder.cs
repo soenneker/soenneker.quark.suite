@@ -7,7 +7,7 @@ namespace Soenneker.Quark;
 
 /// <summary>
 /// High-performance text opacity builder.
-/// Produces Bootstrap utility classes when possible, otherwise falls back to inline style.
+/// Produces Tailwind utility classes When possible, otherwise falls back to inline style.
 /// </summary>
 public sealed class TextOpacityBuilder : ICssBuilder
 {
@@ -160,11 +160,11 @@ public sealed class TextOpacityBuilder : ICssBuilder
     {
         return value switch
         {
-            25 => "--bs-text-opacity: 0.25",
-            50 => "--bs-text-opacity: 0.5",
-            75 => "--bs-text-opacity: 0.75",
-            100 => "--bs-text-opacity: 1",
-            _ => $"--bs-text-opacity: {value}"
+            25 => "--tw-text-opacity: 0.25",
+            50 => "--tw-text-opacity: 0.5",
+            75 => "--tw-text-opacity: 0.75",
+            100 => "--tw-text-opacity: 1",
+            _ => $"--tw-text-opacity: {value}"
         };
     }
 

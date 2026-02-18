@@ -7,7 +7,7 @@ using Soenneker.Utils.PooledStringBuilders;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Builder for Bootstrap list variant classes with fluent API for chaining rules.
+/// Builder for list variant utility classes with fluent API for chaining rules.
 /// </summary>
 public sealed class ListVariantBuilder : ICssBuilder
 {

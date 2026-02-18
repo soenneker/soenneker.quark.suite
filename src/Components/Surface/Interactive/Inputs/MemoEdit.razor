@@ -53,7 +53,7 @@
 	public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
 
 	/// <summary>
-	/// Gets or sets the callback invoked when the value changes.
+	/// Gets or sets the callback invoked When the value changes.
 	/// </summary>
 	[Parameter]
 	public EventCallback<string?> ValueChanged { get; set; }
@@ -65,13 +65,13 @@
 	public Expression<Func<string?>>? ValueExpression { get; set; }
 
 	/// <summary>
-	/// Gets or sets the callback invoked when the input changes.
+	/// Gets or sets the callback invoked When the input changes.
 	/// </summary>
 	[Parameter]
 	public EventCallback<ChangeEventArgs> OnChange { get; set; }
 
 	/// <summary>
-	/// Gets or sets the callback invoked when the input value changes.
+	/// Gets or sets the callback invoked When the input value changes.
 	/// </summary>
 	[Parameter]
 	public EventCallback<ChangeEventArgs> OnInput { get; set; }
@@ -122,14 +122,14 @@
 	private string? GetValidationClass()
 	{
 		if (ShouldShowInvalid())
-			return "border-destructive";
+			return "border-destructive ring-destructive/20 dark:ring-destructive/40";
 		return null;
 	}
 
 	private string? GetColorClass()
     {
         string? token = null;
-        bool isTheme = BackgroundColor?.TryGetBootstrapThemeToken(out token) == true;
+        bool isTheme = BackgroundColor?.TryGetThemeToken(out token) == true;
 
 		if (isTheme && token is not null)
 			return null;
@@ -143,7 +143,7 @@
 			return null;
 
 		string? token = null;
-		bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+		bool isTheme = Size?.TryGetThemeToken(out token) == true;
 		var sizeVal = token ?? Size?.ToString();
 		if (string.IsNullOrEmpty(sizeVal)) return null;
 		return sizeVal.ToLowerInvariant() switch { "sm" => "min-h-16 text-xs", "lg" => "min-h-24 text-base", _ => null };
@@ -152,8 +152,6 @@
 	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
 	{
 		base.BuildAttributesCore(attributes);
-
-		attributes.TryAdd("data-slot", "textarea");
 
 		BuildClassAttribute(attributes, (ref cls) =>
 		{
@@ -187,6 +185,9 @@
 
 		if (MaxLength > 0)
 			attributes["maxlength"] = MaxLength;
+
+		if (ShouldShowInvalid())
+			attributes["aria-invalid"] = "true";
 
 		if (MinLength > 0)
 			attributes["minlength"] = MinLength;

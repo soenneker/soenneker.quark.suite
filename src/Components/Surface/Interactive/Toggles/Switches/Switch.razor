@@ -9,7 +9,7 @@
         <span class="group/switch relative inline-flex shrink-0">
             <input id="@Id" type="checkbox" checked="@Checked" @onclick="HandleClick" @onchange="HandleChange" @attributes="BuildInputAttributes()" />
             <span @attributes="BuildTrackAttributes()">
-                <span data-slot="switch-thumb" class="pointer-events-none block size-4 rounded-full bg-background shadow-xs ring-0 transition-transform translate-x-0 dark:bg-foreground group-has-[:checked]/switch:translate-x-[calc(100%-2px)]"></span>
+                <span class="@GetThumbClass()"></span>
             </span>
         </span>
         @if (ChildContent != null)
@@ -63,7 +63,6 @@
     protected Dictionary<string, object> BuildWrapperAttributes()
     {
         var attributes = new Dictionary<string, object>();
-
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-switch");
@@ -86,16 +85,17 @@
         return attributes;
     }
 
-    // shadcn Switch - new-york-v4 ui/switch.tsx (track: peer data-[state=checked]:bg-primary data-[state=unchecked]:bg-input, thumb: bg-background)
+    // Switch track: peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent, transition-colors, focus-visible:ring-2, disabled:*, size, checked:bg-primary / bg-input
     private Dictionary<string, object> BuildTrackAttributes()
     {
         var attributes = new Dictionary<string, object>();
         bool sm = IsSmSize();
-        attributes["data-slot"] = "switch";
         attributes["data-size"] = sm ? "sm" : "default";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "inline-flex shrink-0 cursor-pointer items-center rounded-full border border-transparent bg-input shadow-xs transition-colors outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/80 peer-[:checked]:bg-primary data-[size=default]:h-[1.15rem] data-[size=default]:w-8 data-[size=sm]:h-3.5 data-[size=sm]:w-6");
+            AppendClass(ref cls, "group/switch peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background peer-disabled:cursor-not-allowed peer-disabled:opacity-50");
+            AppendClass(ref cls, Checked ? "bg-primary" : "bg-input");
+            AppendClass(ref cls, sm ? "h-5 w-9" : "h-6 w-11");
             string? v = GetValidationClass();
             if (v != null) AppendClass(ref cls, v);
         });
@@ -108,6 +108,8 @@
         attributes["class"] = "sr-only peer";
         if (Disabled)
             attributes["disabled"] = true;
+        if (ParentValidation?.Status == ValidationStatus.Error)
+            attributes["aria-invalid"] = "true";
         return attributes;
     }
 
@@ -116,6 +118,15 @@
         if (ParentValidation?.Status == ValidationStatus.Error)
             return "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive";
         return null;
+    }
+
+    // Switch thumb: pointer-events-none block rounded-full bg-background shadow-lg ring-0 transition-transform + size + translate
+    private string GetThumbClass()
+    {
+        bool sm = IsSmSize();
+        string size = sm ? "h-4 w-4" : "h-5 w-5";
+        string translate = Checked ? (sm ? "translate-x-4" : "translate-x-5") : "translate-x-0";
+        return $"pointer-events-none block rounded-full bg-background shadow-lg ring-0 transition-transform {size} {translate}";
     }
 
     protected override async Task HandleClick(MouseEventArgs args)

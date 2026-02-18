@@ -1,50 +1,43 @@
 @page "/forms/datepickers"
 
-<Container Padding="Padding.Is4.OnY">
-    <Row>
-        <Column>
-            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Date Pickers</H1>
-                <Paragraph Class="lead" TextColor="TextColor.Muted">This page demonstrates the DatePicker and DateTimePicker components.</Paragraph>
-            </Div>
-        </Column>
-    </Row>
+<PageTitle>Date Pickers - Quark Suite</PageTitle>
 
-    <Row Gap="Gap.Is4">
-        <Column>
-            <Div>
-                <H2>🧪 BINDING TEST SECTION</H2>
-                <Alert BackgroundColor="BackgroundColor.Info" Margin="Margin.Is3.FromEnd">
-                    <Strong>Test Instructions:</Strong> Select dates below or click "Load Test Data" to verify binding works.
-                </Alert>
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-6">
+        <section class="space-y-4">
+            <DemoSection Title="Binding test" Description="Select dates below or click 'Load Test Data' to verify binding works." Code="@(@"<DatePicker Id=""testDatePicker1"" @bind-Value=""_testDatePicker1""/>
+<DatePicker Id=""testDatePicker2"" @bind-Value=""_testDatePicker2""/>")">
+                <Div Class="p-4 rounded-lg border border-border bg-muted/30 space-y-4">
+                    <H3 Class="text-lg font-semibold" Margin="Margin.Is0.FromBottom">Two-Way Binding</H3>
 
-                <Div Margin="Margin.Is4.FromBottom" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Light" BorderRadius="BorderRadius.Default">
-                    <H3 Margin="Margin.Is3.FromBottom">Two-Way Binding Test</H3>
+                    <Field>
+                        <FieldLabel For="testDatePicker1">Test DatePicker 1:</FieldLabel>
+                        <FieldBody>
+                            <DatePicker Id="testDatePicker1" @bind-Value="_testDatePicker1"/>
+                            <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" Class="rounded border border-border bg-background">
+                                <Strong>Bound Value:</Strong> <Code>@(_testDatePicker1?.ToString("yyyy-MM-dd") ?? "(empty)")</Code>
+                            </Div>
+                        </FieldBody>
+                    </Field>
 
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="testDatePicker1" Form="true" FontWeight="FontWeight.Bold">Test DatePicker 1:</Label>
-                        <DatePicker @bind-Value="_testDatePicker1"/>
-                        <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
-                            <Strong>Bound Value:</Strong> <Code>@(_testDatePicker1?.ToString("yyyy-MM-dd") ?? "(empty)")</Code>
-                        </Div>
+                    <Field>
+                        <FieldLabel For="testDatePicker2">Test DatePicker 2 (Pre-set to today):</FieldLabel>
+                        <FieldBody>
+                            <DatePicker Id="testDatePicker2" @bind-Value="_testDatePicker2"/>
+                            <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" Class="rounded border border-border bg-background">
+                                <Strong>Bound Value:</Strong> <Code>@(_testDatePicker2?.ToString("yyyy-MM-dd") ?? "(empty)")</Code>
+                            </Div>
+                        </FieldBody>
+                    </Field>
+
+                    <Div Class="flex flex-wrap gap-2 mt-4">
+                        <Button Class="bg-primary text-primary-foreground" OnClick="LoadDatePickerTestData">Load Test Data</Button>
+                        <Button Class="bg-secondary text-secondary-foreground" OnClick="ClearDatePickerTestData">Clear Test Data</Button>
+                        <Button Class="bg-muted text-muted-foreground" OnClick="UpdateDatePickerTestData">Update to Random Dates</Button>
                     </Div>
 
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="testDatePicker2" Form="true" FontWeight="FontWeight.Bold">Test DatePicker 2 (Pre-set to today):</Label>
-                        <DatePicker @bind-Value="_testDatePicker2"/>
-                        <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
-                            <Strong>Bound Value:</Strong> <Code>@(_testDatePicker2?.ToString("yyyy-MM-dd") ?? "(empty)")</Code>
-                        </Div>
-                    </Div>
-
-                    <Div Margin="Margin.Is3.FromTop">
-                        <Button BackgroundColor="BackgroundColor.Primary" OnClick="LoadDatePickerTestData" Margin="Margin.Is2.FromEnd">Load Test Data</Button>
-                        <Button BackgroundColor="BackgroundColor.Secondary" OnClick="ClearDatePickerTestData" Margin="Margin.Is2.FromEnd">Clear Test Data</Button>
-                        <Button BackgroundColor="BackgroundColor.Warning" OnClick="UpdateDatePickerTestData">Update to Random Dates</Button>
-                    </Div>
-
-                    <Div Margin="Margin.Is3.FromTop" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Success" Class="bg-opacity-10 rounded">
-                        <H4>Test Results:</H4>
+                    <Div Class="mt-4 p-3 rounded-lg border border-border bg-muted/30">
+                        <H4 Class="text-sm font-semibold">Test Results:</H4>
                         <UnorderedList Margin="Margin.Is0.FromBottom">
                             <UnorderedListItem>
                                 <Strong>DatePicker 1:</Strong> @(_testDatePicker1?.ToString("yyyy-MM-dd") ?? "(not set)")
@@ -55,49 +48,27 @@
                         </UnorderedList>
                     </Div>
                 </Div>
+            </DemoSection>
+        </section>
 
-                <Hr/>
-
-                <Section Margin="Margin.Is4.FromBottom.Is5.OnMd.FromBottom">
-                    <Row Gap="Gap.Is4">
-                        <Column ColumnSize="@ColumnSize.Is6.OnLg">
-                            <Div Class="demo-card h-100" Padding="Padding.Is4">
-                                <H3 Class="card-title">DateOnly</H3>
-                                <Paragraph Class="section-subtitle" Margin="Margin.Is3.FromBottom">Simple date selection with a lightweight UI.</Paragraph>
-                                <Div Margin="Margin.Is2.FromBottom">
-                                    <Label Form="true">Pick a date</Label>
-                                    <DatePicker @bind-Value="_dateOnly"/>
-                                </Div>
-                                <Div Class="value-chip" Margin="Margin.Is2.FromTop">
-                                    <Span Class="dot"></Span><Span>Value: @_dateOnly?.ToString("yyyy-MM-dd")</Span>
-                                </Div>
-
-                                <CodeEditor ReadOnly="true" 
-                                            Language="@("html")" 
-                                            AutoHeight="true" Margin="Margin.Is3.FromTop"
-                                            Text="@(@"<Label Form=""true"">Pick a date</Label>
-<DatePicker @bind-Value=""_dateOnly""/>")" />
-                            </Div>
-                        </Column>
-                        <Column ColumnSize="@ColumnSize.Is6.OnLg">
-                            <Div Class="demo-card h-100" Padding="Padding.Is4">
-                                <H3 Class="card-title">DateTime</H3>
-                                <Paragraph Class="section-subtitle" Margin="Margin.Is3.FromBottom">Choose both date and time in one control.</Paragraph>
-                                <Div Margin="Margin.Is2.FromBottom">
-                                    <Label Form="true">Pick a date and time</Label>
-                                    <DateTimePicker @bind-Value="_dateTime"/>
-                                </Div>
-                                <Div Class="value-chip" Margin="Margin.Is2.FromTop">
-                                    <Span Class="dot"></Span><Span>Value: @_dateTime?.ToString("yyyy-MM-dd HH:mm:ss")</Span>
-                                </Div>
-                            </Div>
-                        </Column>
-                    </Row>
-                </Section>
+        <DemoSection Title="DateOnly" Description="Simple date selection with DatePicker." Code="@(@"<Label Form=""true"">Pick a date</Label>
+<DatePicker @bind-Value=""_dateOnly""/>")">
+            <Label Form="true">Pick a date</Label>
+            <DatePicker @bind-Value="_dateOnly"/>
+            <Div Class="value-chip" Margin="Margin.Is2.FromTop">
+                <Span Class="dot"></Span><Span>Value: @_dateOnly?.ToString("yyyy-MM-dd")</Span>
             </Div>
-        </Column>
-    </Row>
-</Container>
+        </DemoSection>
+        <DemoSection Title="DateTime" Description="Date and time with DateTimePicker." Code="@(@"<Label Form=""true"">Pick a date and time</Label>
+<DateTimePicker @bind-Value=""_dateTime""/>")">
+            <Label Form="true">Pick a date and time</Label>
+            <DateTimePicker @bind-Value="_dateTime"/>
+            <Div Class="value-chip" Margin="Margin.Is2.FromTop">
+                <Span Class="dot"></Span><Span>Value: @_dateTime?.ToString("yyyy-MM-dd HH:mm:ss")</Span>
+            </Div>
+        </DemoSection>
+    </Div>
+</Div>
 
 @code{
 

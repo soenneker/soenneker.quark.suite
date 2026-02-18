@@ -65,42 +65,42 @@ public interface IVideo : IElement
     bool DisablePictureInPicture { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when video metadata has loaded.
+    /// Gets or sets the callback invoked When video metadata has loaded.
     /// </summary>
     EventCallback<ProgressEventArgs> OnLoadedMetadata { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the video can start playing.
+    /// Gets or sets the callback invoked When the video can start playing.
     /// </summary>
     EventCallback<EventArgs> OnCanPlay { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the video starts playing.
+    /// Gets or sets the callback invoked When the video starts playing.
     /// </summary>
     EventCallback<EventArgs> OnPlay { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the video is paused.
+    /// Gets or sets the callback invoked When the video is paused.
     /// </summary>
     EventCallback<EventArgs> OnPause { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the video has ended.
+    /// Gets or sets the callback invoked When the video has ended.
     /// </summary>
     EventCallback<EventArgs> OnEnded { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when a video error occurs.
+    /// Gets or sets the callback invoked When a video error occurs.
     /// </summary>
     EventCallback<ErrorEventArgs> OnError { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the playing position changes.
+    /// Gets or sets the callback invoked When the playing position changes.
     /// </summary>
     EventCallback<EventArgs> OnTimeUpdate { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the volume changes.
+    /// Gets or sets the callback invoked When the volume changes.
     /// </summary>
     EventCallback<EventArgs> OnVolumeChange { get; set; }
 }

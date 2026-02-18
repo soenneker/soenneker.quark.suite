@@ -111,7 +111,7 @@ public sealed class PointerEventsBuilder : ICssBuilder
         return this;
     }
 
-    /// <summary>Apply a BreakpointType to the most recent rule (or bootstrap with "auto" if empty).</summary>
+    /// <summary>Apply a BreakpointType to the most recent rule (or seed with "auto" if empty).</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PointerEventsBuilder ChainBp(BreakpointType bp)
     {

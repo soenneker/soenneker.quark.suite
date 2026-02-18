@@ -16,10 +16,11 @@ public sealed class TextDecorationBuilder : ICssBuilder
     private string? _color;
     private string? _thickness;
 
-    // ----- Class name constants (compile-time) -----
-    private const string _classNone = "text-decoration-none";
-    private const string _classUnderline = "text-decoration-underline";
-    private const string _classLineThrough = "text-decoration-line-through";
+    // Tailwind text-decoration utilities (for Quark Suite / shadcn)
+    private const string _classNone = "no-underline";
+    private const string _classUnderline = "underline";
+    private const string _classLineThrough = "line-through";
+    private const string _classOverline = "overline";
 
     internal TextDecorationBuilder(string value, BreakpointType? breakpoint = null)
     {
@@ -98,7 +99,7 @@ public sealed class TextDecorationBuilder : ICssBuilder
     /// <summary>
     /// Sets the text decoration color to the specified value.
     /// </summary>
-    /// <param name="color">The color value (e.g., "#ff0000", "red", "var(--bs-primary)").</param>
+    /// <param name="color">The color value (e.g., "#ff0000", "red", "var(--primary)").</param>
     /// <returns>This builder instance for method chaining.</returns>
     public TextDecorationBuilder Color(string color)
     {
@@ -109,35 +110,35 @@ public sealed class TextDecorationBuilder : ICssBuilder
     /// <summary>
     /// Sets the text decoration color to primary theme color.
     /// </summary>
-    public TextDecorationBuilder Primary => Color("var(--bs-primary)");
+    public TextDecorationBuilder Primary => Color("var(--primary)");
     /// <summary>
     /// Sets the text decoration color to secondary theme color.
     /// </summary>
-    public TextDecorationBuilder Secondary => Color("var(--bs-secondary)");
+    public TextDecorationBuilder Secondary => Color("var(--secondary)");
     /// <summary>
     /// Sets the text decoration color to success theme color.
     /// </summary>
-    public TextDecorationBuilder Success => Color("var(--bs-success)");
+    public TextDecorationBuilder Success => Color("var(--success)");
     /// <summary>
     /// Sets the text decoration color to danger theme color.
     /// </summary>
-    public TextDecorationBuilder Danger => Color("var(--bs-danger)");
+    public TextDecorationBuilder Danger => Color("var(--danger)");
     /// <summary>
     /// Sets the text decoration color to warning theme color.
     /// </summary>
-    public TextDecorationBuilder Warning => Color("var(--bs-warning)");
+    public TextDecorationBuilder Warning => Color("var(--warning)");
     /// <summary>
     /// Sets the text decoration color to info theme color.
     /// </summary>
-    public TextDecorationBuilder Info => Color("var(--bs-info)");
+    public TextDecorationBuilder Info => Color("var(--info)");
     /// <summary>
     /// Sets the text decoration color to light theme color.
     /// </summary>
-    public TextDecorationBuilder Light => Color("var(--bs-light)");
+    public TextDecorationBuilder Light => Color("var(--light)");
     /// <summary>
     /// Sets the text decoration color to dark theme color.
     /// </summary>
-    public TextDecorationBuilder Dark => Color("var(--bs-dark)");
+    public TextDecorationBuilder Dark => Color("var(--dark)");
 
     // Thickness methods
     /// <summary>
@@ -204,7 +205,7 @@ public sealed class TextDecorationBuilder : ICssBuilder
         return this;
     }
 
-    /// <summary>Apply a BreakpointType to the most recent rule (or bootstrap with a default if empty).</summary>
+    /// <summary>Apply a BreakpointType to the most recent rule (or seed with a default if empty).</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextDecorationBuilder ChainBp(BreakpointType bp)
     {
@@ -241,6 +242,7 @@ public sealed class TextDecorationBuilder : ICssBuilder
                 TextDecorationLineKeyword.NoneValue => _classNone,
                 TextDecorationLineKeyword.UnderlineValue => _classUnderline,
                 TextDecorationLineKeyword.LineThroughValue => _classLineThrough,
+                TextDecorationLineKeyword.OverlineValue => _classOverline,
                 _ => string.Empty
             };
 
@@ -249,7 +251,7 @@ public sealed class TextDecorationBuilder : ICssBuilder
 
             string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
-                baseClass = BreakpointUtil.InsertBreakpointType(baseClass, bp);
+                baseClass = BreakpointUtil.ApplyTailwindBreakpoint(baseClass, bp);
 
             if (!first)
                 sb.Append(' ');

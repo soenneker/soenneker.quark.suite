@@ -188,8 +188,7 @@ public sealed class CursorBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string GetCursorClass(string cursor)
     {
-        // Bootstrap doesn't have cursor utility classes, so always return empty
-        // Cursor styles should be applied via inline styles using ToStyle()
+        // Cursor utility classes are theme-dependent; apply via inline styles using ToStyle()
         return string.Empty;
     }
 

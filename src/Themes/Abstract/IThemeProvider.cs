@@ -18,10 +18,10 @@ public interface IThemeProvider
     Dictionary<string, Theme>? Themes { get; set; }
 
     /// <summary>
-    /// Generates Bootstrap CSS from the current theme configuration.
+    /// Generates global CSS from the current theme configuration.
     /// </summary>
-    /// <returns>The generated Bootstrap CSS string, or null if generation fails.</returns>
-    string? GenerateBootstrapCss();
+    /// <returns>The generated global CSS string, or null if generation fails.</returns>
+    string? GenerateGlobalCss();
 
     /// <summary>
     /// Generates component-specific CSS from the current theme configuration.

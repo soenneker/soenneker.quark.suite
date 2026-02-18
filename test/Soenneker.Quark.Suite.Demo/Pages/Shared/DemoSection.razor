@@ -1,7 +1,6 @@
-<Div Class="space-y-4">
-    @if (Title != null || Description != null)
-    {
-        <Div Class="space-y-1.5">
+<Div Class="w-full rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+    <Div Class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 p-4 border-b border-border">
+        <Div Class="space-y-1.5 min-w-0 flex-1">
             @if (Title != null)
             {
                 <H2 Class="text-lg font-semibold tracking-tight">@Title</H2>
@@ -11,14 +10,40 @@
                 <Paragraph Class="text-sm text-muted-foreground" Margin="Margin.Is0">@Description</Paragraph>
             }
         </Div>
-    }
-    <Div Class="rounded-lg border border-border bg-muted/50 p-6">
-        @ChildContent
+        @if (Code != null)
+        {
+            <Div Class="flex items-center gap-1 shrink-0">
+                <div class="inline-flex rounded-md border border-border bg-muted/50 overflow-hidden" role="group">
+                    <button type="button"
+                            class="px-3 py-1.5 text-sm font-medium transition-colors @(_showCode ? "text-muted-foreground bg-transparent hover:bg-muted/80" : "bg-primary text-primary-foreground")"
+                            @onclick="@(() => ToggleCode(false))">
+                        Preview
+                    </button>
+                    <button type="button"
+                            class="px-3 py-1.5 text-sm font-medium transition-colors border-l border-border @(_showCode ? "bg-primary text-primary-foreground" : "text-muted-foreground bg-transparent hover:bg-muted/80")"
+                            @onclick="@(() => ToggleCode(true))">
+                        Code
+                    </button>
+                </div>
+                <button type="button"
+                        class="p-2 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                        title="@_copyButtonLabel"
+                        @onclick="CopyCodeAsync">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                </button>
+            </Div>
+        }
     </Div>
-    @if (Code != null)
+    @if (_showCode && Code != null)
     {
-        <Div Class="rounded-lg border border-border bg-muted overflow-hidden">
-            <CodeEditor ReadOnly="true" Language="@(CodeLanguage ?? "html")" AutoHeight="true" Text="@Code" />
+        <Div Class="w-full min-w-0 overflow-hidden bg-[#1e1e1e] min-h-[120px]">
+            <CodeEditor ReadOnly="true" Language="@(CodeLanguage ?? "html")" AutoHeight="true" Text="@Code" Class="w-full min-w-0" />
+        </Div>
+    }
+    else
+    {
+        <Div Class="p-6 bg-muted/30">
+            @ChildContent
         </Div>
     }
 </Div>

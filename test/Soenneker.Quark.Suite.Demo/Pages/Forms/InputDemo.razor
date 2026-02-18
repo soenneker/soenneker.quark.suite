@@ -1,314 +1,168 @@
 @page "/forms/input-demo"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
 
-<Container Padding="Padding.Is4.OnY">
-    <Row>
-        <Column>
-            <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-                <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">Input</H1>
-                <Paragraph Class="lead" TextColor="TextColor.Muted">This page demonstrates the Input component for basic text input fields.</Paragraph>
-            </Div>
-        </Column>
-    </Row>
+<PageTitle>Input Component - Quark Suite</PageTitle>
 
-    <Row Gap="Gap.Is4">
-        <Column>
-            <Div>
-                <H2>Basic Input Fields</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="basicInput" Form="true">Basic Input</Label>
-                        <Input Id="basicInput" Placeholder="Enter some text..." @bind-Value="_basicValue" />
-                        <Small Class="form-text" TextColor="TextColor.Muted">Current value: @_basicValue</Small>
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="readonlyInput" Form="true">Read-only Input</Label>
-                        <Input Id="readonlyInput" Value="This is read-only" ReadOnly />
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="disabledInput" Form="true">Disabled Input</Label>
-                        <Input Id="disabledInput" Value="This is disabled" Disabled />
-                    </Div>
-                </Div>
-                <Paragraph TextColor="TextColor.Muted">The Input component creates HTML &lt;input&gt; elements for text input.</Paragraph>
+<div class="space-y-8 max-w-4xl">
+    <div class="space-y-4">
+        <DemoSection Title="When to use Input" Description="Use Input for straightforward string-based text fields." Code="@(@"<Input Type=""text"" Placeholder=""Enter your text..."" />")">
+            <div class="rounded-lg border bg-card p-6 space-y-4">
+                <p class="text-sm text-muted-foreground">
+                    Use <code class="text-xs bg-muted px-1 py-0.5 rounded">Input</code> for straightforward string-based text fields.
+                </p>
+            </div>
+        </DemoSection>
+    </div>
 
-                <CodeEditor ReadOnly="true" 
-                            Language="@("html")" 
-                            AutoHeight="true" Margin="Margin.Is3.FromTop"
-                            Text="@(@"<Label For=""basicInput"" Form=""true"">Basic Input</Label>
-<Input Id=""basicInput"" Placeholder=""Enter some text..."" @bind-Value=""basicValue"" />
+    <div class="space-y-4">
+        <DemoSection Title="Default" Description="A simple text input with placeholder." Code="@(@"<Input Type=""text"" Placeholder=""Enter your text..."" />")">
+            <div class="max-w-md">
+                <Input Type="text" Placeholder="Enter your text..." />
+            </div>
+        </DemoSection>
+    </div>
 
-<Label For=""readonlyInput"" Form=""true"">Read-only Input</Label>
-<Input Id=""readonlyInput"" Value=""This is read-only"" ReadOnly />")" />
-            </Div>
+    <div class="space-y-4">
+        <DemoSection Title="Input Types" Description="Different HTML input types." Code="@(@"<Input Type=""text"" Placeholder=""Text"" />
+<Input Type=""email"" Placeholder=""you@example.com"" />
+<Input Type=""password"" Placeholder=""Password"" />
+<Input Type=""number"" Placeholder=""123"" />
+<Input Type=""search"" Placeholder=""Search..."" />
+<Input Type=""date"" />
+<Input Type=""time"" />
+<Input Type=""file"" />")">
+            <div class="space-y-4 max-w-md">
+                <div class="space-y-2"><label class="text-sm font-medium">Text</label><Input Type="text" Placeholder="Text" /></div>
+                <div class="space-y-2"><label class="text-sm font-medium">Email</label><Input Type="email" Placeholder="you@example.com" /></div>
+                <div class="space-y-2"><label class="text-sm font-medium">Password</label><Input Type="password" Placeholder="Password" /></div>
+                <div class="space-y-2"><label class="text-sm font-medium">Number</label><Input Type="number" Placeholder="123" /></div>
+                <div class="space-y-2"><label class="text-sm font-medium">Search</label><Input Type="search" Placeholder="Search..." /></div>
+                <div class="space-y-2"><label class="text-sm font-medium">Date</label><Input Type="date" /></div>
+                <div class="space-y-2"><label class="text-sm font-medium">Time</label><Input Type="time" /></div>
+                <div class="space-y-2"><label class="text-sm font-medium">File</label><Input Type="file" /></div>
+            </div>
+        </DemoSection>
+    </div>
 
-            <Hr/>
+    <div class="space-y-4">
+        <DemoSection Title="Disabled and Required" Description="Input states for disabled and required forms." Code="@(@"<Input Type=""text"" Placeholder=""Disabled input"" Disabled=""true"" Value=""Cannot edit this"" />
+<Input Type=""text"" Placeholder=""Required input"" Required=""true"" />")">
+            <div class="max-w-md space-y-4">
+                <Input Type="text" Placeholder="Disabled input" Disabled="true" Value="Cannot edit this" />
+                <Input Type="text" Placeholder="Required input" Required="true" />
+            </div>
+        </DemoSection>
+    </div>
 
-            <Div>
-                <H2>Input Types</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="textInput" Form="true">Text Input</Label>
-                        <Input Id="textInput" Type="text" Placeholder="Text input" @bind-Value="_textValue" />
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="passwordInput" Form="true">Password Input</Label>
-                        <Input Id="passwordInput" Type="password" Placeholder="Enter password" @bind-Value="_passwordValue" />
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="emailInput" Form="true">Email Input</Label>
-                        <Input Id="emailInput" Type="email" Placeholder="Enter email" @bind-Value="_emailValue" />
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="numberInput" Form="true">Number Input</Label>
-                        <Input Id="numberInput" Type="number" Placeholder="Enter number" @bind-Value="_numberValue" />
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="telInput" Form="true">Telephone Input</Label>
-                        <Input Id="telInput" Type="tel" Placeholder="Enter phone number" @bind-Value="_telValue" />
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="urlInput" Form="true">URL Input</Label>
-                        <Input Id="urlInput" Type="url" Placeholder="Enter URL" @bind-Value="_urlValue" />
-                    </Div>
-                </Div>
-            </Div>
+    <div class="space-y-4">
+        <DemoSection Title="Accessibility (ARIA)" Description="Inputs with ARIA labels and invalid state." Code="@(@"<Input Type=""text"" Placeholder=""Full name"" aria-label=""User full name"" />
+<Input Type=""text"" Placeholder=""Username"" aria-describedby=""username-help"" />
+<p id=""username-help"" class=""text-sm text-muted-foreground"">Username must be unique.</p>
+<Input Type=""email"" Value=""invalid-email"" aria-invalid=""true"" />")">
+            <div class="max-w-md space-y-4">
+                <Input Type="text" Placeholder="Full name" aria-label="User full name" />
+                <Input Type="text" Placeholder="Username" aria-describedby="username-help" />
+                <p id="username-help" class="text-sm text-muted-foreground">Username must be unique.</p>
+                <Input Type="email" Value="invalid-email" aria-invalid="true" />
+            </div>
+        </DemoSection>
+    </div>
 
-            <Hr/>
+    <div class="space-y-4">
+        <DemoSection Title="Two-Way Binding" Description="Real-time updates using Value and ValueChanged." Code="@(@"<Input Type=""text"" Value=""@_boundValue"" ValueChanged=""@((v) => _boundValue = v)"" Placeholder=""Start typing..."" />
+<div class=""rounded-lg border p-4 bg-muted/50"">
+    <p class=""text-sm font-medium mb-1"">Current value:</p>
+    <p class=""text-sm font-mono"">@(_boundValue ?? ""(null)"")</p>
+</div>")">
+            <div class="max-w-md space-y-4">
+                <Input Type="text" Value="@_boundValue" ValueChanged="@((v) => _boundValue = v)" Placeholder="Start typing..." />
+                <div class="rounded-lg border p-4 bg-muted/50">
+                    <p class="text-sm font-medium mb-1">Current value:</p>
+                    <p class="text-sm font-mono">@(_boundValue ?? "(null)")</p>
+                </div>
+            </div>
+        </DemoSection>
+    </div>
 
-            <Div>
-                <H2>Input with Validation</H2>
-                <Validations Model="_validationModel">
-                    <Div Margin="Margin.Is3.FromEnd">
-                        <Div Margin="Margin.Is3.FromBottom">
-                            <Label For="requiredInput" Form="true">Required Field <Span TextColor="TextColor.Danger">*</Span></Label>
-                            <Validation Action="@ValidateRequired">
-                                <Input Id="requiredInput" Placeholder="This field is required" @bind-Value="_validationModel.RequiredField" />
-                                <ValidationError />
-                            </Validation>
-                        </Div>
-                        <Div Margin="Margin.Is3.FromBottom">
-                            <Label For="emailValidation" Form="true">Email Validation</Label>
-                            <Validation Action="@ValidateEmail">
-                                <Input Id="emailValidation" Type="email" Placeholder="Enter valid email" @bind-Value="_validationModel.EmailField" />
-                                <ValidationError />
-                            </Validation>
-                        </Div>
-                    </Div>
-                </Validations>
-            </Div>
+    <div class="space-y-4">
+        <DemoSection Title="Custom Styling" Description="Override styles with Class." Code="@(@"<Input Type=""text"" Placeholder=""Blue border"" Class=""border-blue-500 focus-visible:ring-blue-500"" />
+<Input Type=""search"" Placeholder=""Rounded full"" Class=""rounded-full"" />
+<Input Type=""text"" Value=""Valid input"" Class=""border-green-500 focus-visible:ring-green-500"" />")">
+            <div class="space-y-4 max-w-md">
+                <Input Type="text" Placeholder="Blue border" Class="border-blue-500 focus-visible:ring-blue-500" />
+                <Input Type="search" Placeholder="Rounded full" Class="rounded-full" />
+                <Input Type="text" Value="Valid input" Class="border-green-500 focus-visible:ring-green-500" />
+            </div>
+        </DemoSection>
+    </div>
 
-            <Hr/>
+    <div class="space-y-4">
+        <DemoSection Title="Form Validation" Description="Input integrated with EditForm validation." Code="@(@"<EditForm Model=""_formModel"" OnValidSubmit=""HandleValidSubmit"" class=""max-w-md space-y-4"">
+    <DataAnnotationsValidator />
+    <label class=""text-sm font-medium"">Name</label>
+    <Input Type=""text"" @bind-Value=""_formModel.Name"" Placeholder=""Enter your name"" />
+    <ValidationMessage For=""@(() => _formModel.Name)"" class=""text-sm text-destructive"" />
+    <label class=""text-sm font-medium"">Email</label>
+    <Input Type=""email"" @bind-Value=""_formModel.Email"" Placeholder=""Enter your email"" />
+    <ValidationMessage For=""@(() => _formModel.Email)"" class=""text-sm text-destructive"" />
+    <Button Type=""ButtonType.Submit"" Variant=""ButtonVariant.Default"">Submit</Button>
+</EditForm>")">
+        <EditForm Model="_formModel" OnValidSubmit="HandleValidSubmit" class="max-w-md space-y-4">
+            <DataAnnotationsValidator />
 
-            <Div>
-                <H2>Input with Different Sizes</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="smallInput" Form="true">Small Input</Label>
-                        <Input Id="smallInput" Class="form-control-sm" Placeholder="Small input" @bind-Value="_smallValue" />
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="normalInput" Form="true">Normal Input</Label>
-                        <Input Id="normalInput" Placeholder="Normal input" @bind-Value="_normalValue" />
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="largeInput" Form="true">Large Input</Label>
-                        <Input Id="largeInput" Class="form-control-lg" Placeholder="Large input" @bind-Value="_largeValue" />
-                    </Div>
-                </Div>
-            </Div>
+            <div class="space-y-2">
+                <label class="text-sm font-medium">Name</label>
+                <Input Type="text" @bind-Value="_formModel.Name" Placeholder="Enter your name" />
+                <ValidationMessage For="@(() => _formModel.Name)" class="text-sm text-destructive" />
+            </div>
 
-            <Hr/>
+            <div class="space-y-2">
+                <label class="text-sm font-medium">Email</label>
+                <Input Type="email" @bind-Value="_formModel.Email" Placeholder="Enter your email" />
+                <ValidationMessage For="@(() => _formModel.Email)" class="text-sm text-destructive" />
+            </div>
 
-            <Div>
-                <H2>Input with Custom Styling</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="customInput" Form="true">Custom Styled Input</Label>
-                        <Input Id="customInput" 
-                               Class="custom-input" 
-                               Style="border: 2px solid #6f42c1; border-radius: 10px; padding: 10px; background-color: #f8f9fa;" 
-                               Placeholder="Custom styled input" 
-                               @bind-Value="_customValue" />
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="gradientInput" Form="true">Gradient Border Input</Label>
-                        <Input Id="gradientInput" 
-                               Class="gradient-input" 
-                               Style="border: 2px solid transparent; background: linear-gradient(white, white) padding-box, linear-gradient(135deg, #667eea, #764ba2) border-box; border-radius: 8px;" 
-                               Placeholder="Gradient border input" 
-                               @bind-Value="_gradientValue" />
-                    </Div>
-                </Div>
-            </Div>
+            <div class="flex gap-4">
+                <Button Type="@ButtonType.Submit" Variant="ButtonVariant.Default">Submit</Button>
+                <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" OnClick="@(_ => ResetForm())">Reset</Button>
+            </div>
 
-            <Hr/>
-
-            <Div>
-                <H2>Input with Icons and Add-ons</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="iconInput" Form="true">Input with Icon</Label>
-                        <Div Class="input-group">
-                            <Span Class="input-group-text">
-                                <Icon Name="search" />
-                            </Span>
-                            <Input Id="iconInput" Placeholder="Search..." @bind-Value="_searchValue" />
-                        </Div>
-                    </Div>
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="currencyInput" Form="true">Currency Input</Label>
-                        <Div Class="input-group">
-                            <Span Class="input-group-text">$</Span>
-                            <Input Id="currencyInput" Type="number" Placeholder="0.00" @bind-Value="_currencyValue" />
-                            <Span Class="input-group-text">.00</Span>
-                        </Div>
-                    </Div>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Input Events</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="eventInput" Form="true">Input with Events</Label>
-                        <Input Id="eventInput" 
-                               Placeholder="Type here to see events" 
-                               @bind-Value="_eventValue"
-                               @oninput="HandleInput"
-                               @onfocus="HandleFocus"
-                               @onblur="HandleBlur" />
-                        <Small Class="form-text" TextColor="TextColor.Muted">
-                            Events: Input(@_inputCount), Focus(@_focusCount), Blur(@_blurCount)
-                        </Small>
-                    </Div>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Input Component Properties</H2>
-                <Div BackgroundColor="BackgroundColor.Light" Padding="Padding.Is3" Margin="Margin.Is3.FromBottom">
-                    <H3>Input Features</H3>
-                    <Paragraph>The Input component inherits all properties from the Element base class plus:</Paragraph>
-                    <UnorderedList>
-                        <UnorderedListItem><Strong>Type:</Strong> Input type (text, password, email, number, etc.)</UnorderedListItem>
-                        <UnorderedListItem><Strong>Value:</Strong> Input value</UnorderedListItem>
-                        <UnorderedListItem><Strong>Placeholder:</Strong> Placeholder text</UnorderedListItem>
-                        <UnorderedListItem><Strong>ReadOnly:</Strong> Read-only state</UnorderedListItem>
-                        <UnorderedListItem><Strong>Disabled:</Strong> Disabled state</UnorderedListItem>
-                        <UnorderedListItem><Strong>Required:</Strong> Required validation</UnorderedListItem>
-                        <UnorderedListItem><Strong>AutoComplete:</Strong> Auto-complete behavior</UnorderedListItem>
-                        <UnorderedListItem><Strong>MaxLength:</Strong> Maximum character length</UnorderedListItem>
-                        <UnorderedListItem><Strong>Pattern:</Strong> Input pattern validation</UnorderedListItem>
-                        <UnorderedListItem><Strong>Event Handlers:</Strong> Input, focus, blur, change events</UnorderedListItem>
-                    </UnorderedList>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <Div>
-                <H2>Accessibility Features</H2>
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Div Margin="Margin.Is3.FromBottom">
-                        <Label For="accessibleInput" Form="true">Accessible Input</Label>
-                        <Input Id="accessibleInput" 
-                               Placeholder="Accessible input field" 
-                               AriaLabel="Enter your information"
-                               AriaDescribedBy="input-help"
-                               @bind-Value="_accessibleValue" />
-                        <Small Id="input-help" Class="form-text" TextColor="TextColor.Muted">This input has proper ARIA attributes for accessibility.</Small>
-                    </Div>
-                </Div>
-            </Div>
-        </Column>
-    </Row>
-</Container>
+            @if (!string.IsNullOrEmpty(_formMessage))
+            {
+                <div class="p-4 bg-card rounded-lg border">
+                    <p class="text-sm">@_formMessage</p>
+                </div>
+            }
+        </EditForm>
+        </DemoSection>
+    </div>
+</div>
 
 @code {
-    private string _basicValue = string.Empty;
-    private string _textValue = string.Empty;
-    private string _passwordValue = string.Empty;
-    private string _emailValue = string.Empty;
-    private string _numberValue = string.Empty;
-    private string _telValue = string.Empty;
-    private string _urlValue = string.Empty;
-    private string _smallValue = string.Empty;
-    private string _normalValue = string.Empty;
-    private string _largeValue = string.Empty;
-    private string _customValue = string.Empty;
-    private string _gradientValue = string.Empty;
-    private string _searchValue = string.Empty;
-    private string _currencyValue = string.Empty;
-    private string _eventValue = string.Empty;
-    private string _accessibleValue = string.Empty;
+    private string? _boundValue;
+    private InputFormModel _formModel = new();
+    private string? _formMessage;
 
-    private int _inputCount = 0;
-    private int _focusCount = 0;
-    private int _blurCount = 0;
-
-    private ValidationModel _validationModel = new();
-
-    private void HandleInput(ChangeEventArgs e)
+    private void HandleValidSubmit()
     {
-        _inputCount++;
-        StateHasChanged();
+        _formMessage = $"Form submitted! Name: {_formModel.Name}, Email: {_formModel.Email}";
     }
 
-    private void HandleFocus(FocusEventArgs e)
+    private void ResetForm()
     {
-        _focusCount++;
-        StateHasChanged();
+        _formModel = new();
+        _formMessage = null;
     }
 
-    private void HandleBlur(FocusEventArgs e)
+    private sealed class InputFormModel
     {
-        _blurCount++;
-        StateHasChanged();
-    }
+        [Required(ErrorMessage = "Name is required.")]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = "Name must be between 2 and 50 characters.")]
+        public string? Name { get; set; }
 
-    private void ValidateRequired(ValidatorEventArgs e)
-    {
-        if (string.IsNullOrWhiteSpace(e.Value?.ToString()))
-        {
-            e.Status = ValidationStatus.Error;
-            e.ErrorText = "This field is required.";
-        }
-        else
-        {
-            e.Status = ValidationStatus.Success;
-        }
-    }
-
-    private void ValidateEmail(ValidatorEventArgs e)
-    {
-        var email = e.Value?.ToString();
-        if (string.IsNullOrWhiteSpace(email))
-        {
-            e.Status = ValidationStatus.Error;
-            e.ErrorText = "Email is required.";
-        }
-        else if (!email.Contains("@") || !email.Contains("."))
-        {
-            e.Status = ValidationStatus.Error;
-            e.ErrorText = "Please enter a valid email address.";
-        }
-        else
-        {
-            e.Status = ValidationStatus.Success;
-        }
-    }
-
-    public class ValidationModel
-    {
-        public string RequiredField { get; set; } = string.Empty;
-        public string EmailField { get; set; } = string.Empty;
-    }
-
-    protected override void OnInitialized()
-    {
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
+        public string? Email { get; set; }
     }
 }

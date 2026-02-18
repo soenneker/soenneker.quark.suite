@@ -17,7 +17,7 @@ public abstract class ToggleElement : InteractiveSurfaceElement, IToggleElement
     public bool Checked { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the checked state changes.
+    /// Gets or sets the callback invoked When the checked state changes.
     /// </summary>
     [Parameter]
     public EventCallback<bool> CheckedChanged { get; set; }

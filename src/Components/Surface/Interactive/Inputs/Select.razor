@@ -7,13 +7,28 @@
 @implements Soenneker.Quark.IValidationInput
 @implements ISelect<TValue>
 
-<select value="@SelectedValue?.ToString()" @onchange="HandleChange" @attributes="BuildAttributes()">
-    @if (DefaultItemText.HasContent())
-    {
-        <option value="@GetDefaultItemValueString()" selected="@IsDefaultItemSelected()">@DefaultItemText</option>
-    }
-    @ChildContent
-</select>
+<div class="group/native-select relative w-fit has-[select:disabled]:opacity-50">
+    <select value="@SelectedValue?.ToString()" @onchange="HandleChange" @attributes="BuildAttributes()">
+        @if (DefaultItemText.HasContent())
+        {
+            <option value="@GetDefaultItemValueString()" selected="@IsDefaultItemSelected()">@DefaultItemText</option>
+        }
+        @ChildContent
+    </select>
+    <svg class="text-muted-foreground pointer-events-none absolute top-1/2 right-3.5 size-4 -translate-y-1/2 opacity-50 select-none"
+         aria-hidden="true"
+         xmlns="http://www.w3.org/2000/svg"
+         width="24"
+         height="24"
+         viewBox="0 0 24 24"
+         fill="none"
+         stroke="currentColor"
+         stroke-width="2"
+         stroke-linecap="round"
+         stroke-linejoin="round">
+        <path d="m6 9 6 6 6-6"></path>
+    </svg>
+</div>
 
 @code {
     // shadcn - new-york-v4
@@ -30,13 +45,13 @@
     public Expression<Func<TValue>>? SelectedValueExpression { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the selected value changes.
+    /// Gets or sets the callback invoked When the selected value changes.
     /// </summary>
     [Parameter]
     public EventCallback<TValue?> SelectedValueChanged { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the selection changes.
+    /// Gets or sets the callback invoked When the selection changes.
     /// </summary>
     [Parameter]
     public EventCallback<ChangeEventArgs> OnChange { get; set; }
@@ -173,16 +188,16 @@
             return null;
 
         string? token = null;
-        bool isTheme = Size?.TryGetBootstrapThemeToken(out token) == true;
+        bool isTheme = Size?.TryGetThemeToken(out token) == true;
         var sizeVal = token ?? Size?.ToString();
         if (string.IsNullOrEmpty(sizeVal)) return null;
-        return sizeVal.ToLowerInvariant() switch { "sm" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
+        return sizeVal.ToLowerInvariant() switch { "sm" or "xs" => "h-8 py-1", "lg" => "h-11 py-2", _ => null };
     }
 
     private string? GetValidationClass()
     {
         if (ParentValidation?.Status == ValidationStatus.Error)
-            return "border-destructive ring-destructive";
+            return "border-destructive ring-destructive/20 dark:ring-destructive/40";
 
         return null;
     }
@@ -194,8 +209,10 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-select");
-            AppendClass(ref cls, "q-form-select");
-            AppendClass(ref cls, "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors md:text-sm");
+            // shadcn native-select - new-york-v4 ui/native-select.tsx
+            AppendClass(ref cls, "border-input placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 dark:hover:bg-input/50 h-9 w-full min-w-0 appearance-none rounded-md border bg-transparent px-3 py-2 pr-9 text-sm shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed");
+            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]");
+            AppendClass(ref cls, "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive");
             
             string? sizeClass = GetSizeClass();
             if (sizeClass != null)
@@ -205,6 +222,9 @@
             if (validationClass != null)
                 AppendClass(ref cls, validationClass);
         });
+
+        if (ParentValidation?.Status == ValidationStatus.Error)
+            attributes["aria-invalid"] = "true";
 
         if (Disabled)
             attributes["disabled"] = true;

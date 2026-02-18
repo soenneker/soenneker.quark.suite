@@ -16,12 +16,12 @@ public sealed class ListStyleTypeBuilder : ICssBuilder
 
     /// <summary>
     /// Gets the CSS class string for the current configuration.
-    /// list-style-type is a CSS property, not a Bootstrap class, so this returns an empty string.
+    /// list-style-type is a CSS property, not a class utility, so this returns an empty string.
     /// </summary>
     /// <returns>An empty string.</returns>
     public string ToClass()
     {
-        // list-style-type is a CSS property, not a Bootstrap class
+        // list-style-type is a CSS property, not a class utility
         return string.Empty;
     }
 

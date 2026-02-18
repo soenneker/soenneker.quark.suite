@@ -8,7 +8,7 @@ namespace Soenneker.Quark;
 
 /// <summary>
 /// High-performance border color builder.
-/// Produces Bootstrap border color utility classes.
+/// Produces border color utility classes.
 /// </summary>
 public sealed class BorderColorBuilder : ICssBuilder
 {

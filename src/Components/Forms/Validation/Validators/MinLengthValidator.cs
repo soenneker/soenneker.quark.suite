@@ -22,7 +22,7 @@ public sealed class MinLengthValidator : QuarkValidator
     /// Initializes a new instance of the MinLengthValidator class with a custom error message.
     /// </summary>
     /// <param name="minLength">The minimum required length.</param>
-    /// <param name="errorMessage">The error message to display when validation fails.</param>
+    /// <param name="errorMessage">The error message to display When validation fails.</param>
     public MinLengthValidator(int minLength, string errorMessage)
     {
         _minLength = minLength;

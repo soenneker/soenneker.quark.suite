@@ -30,12 +30,12 @@ public interface IRadio : IElement
     string? Name { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the checked state changes.
+    /// Gets or sets the callback invoked When the checked state changes.
     /// </summary>
     EventCallback<bool> CheckedChanged { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the radio button is selected.
+    /// Gets or sets the callback invoked When the radio button is selected.
     /// </summary>
     EventCallback<ChangeEventArgs> OnChange { get; set; }
 

@@ -20,7 +20,7 @@ public sealed class RequiredValidator : QuarkValidator
     /// <summary>
     /// Initializes a new instance of the RequiredValidator class with a custom error message.
     /// </summary>
-    /// <param name="errorMessage">The error message to display when validation fails.</param>
+    /// <param name="errorMessage">The error message to display When validation fails.</param>
     public RequiredValidator(string errorMessage)
     {
         _errorMessage = errorMessage;

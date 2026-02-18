@@ -23,7 +23,7 @@
     public string[] ExpandedItems { get; set; } = [];
 
     /// <summary>
-    /// Gets or sets the callback invoked when the expanded items change.
+    /// Gets or sets the callback invoked When the expanded items change.
     /// </summary>
     [Parameter]
     public EventCallback<string[]> OnExpandedItemsChanged { get; set; }
@@ -137,16 +137,13 @@
     {
         base.BuildAttributesCore(attributes);
 
-        attributes.TryAdd("data-slot", "accordion");
         attributes["id"] = Id!;
-        attributes["role"] = "tablist";
+        // shadcn/Radix accordion uses heading+button pattern, not tablist
 
-        // shadcn Accordion - new-york-v4 ui/accordion.tsx
+        // shadcn Accordion - new-york-v4: root has no layout classes; q-accordion for flush + CSS vars
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "accordion");
             AppendClass(ref cls, "q-accordion");
-            AppendClass(ref cls, "space-y-0");
             if (Flush)
             {
                 AppendClass(ref cls, "accordion-flush");

@@ -18,7 +18,7 @@ public interface IAccordion : IElement
     string[] ExpandedItems { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback that is invoked when the expanded items change.
+    /// Gets or sets the callback that is invoked When the expanded items change.
     /// </summary>
     EventCallback<string[]> OnExpandedItemsChanged { get; set; }
 

@@ -79,7 +79,7 @@ public sealed class BoxShadowBuilder : ICssBuilder
         return this;
     }
 
-    /// <summary>Apply a BreakpointType to the most recent rule (or bootstrap with "base" if empty).</summary>
+    /// <summary>Apply a BreakpointType to the most recent rule (or seed with "base" if empty).</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BoxShadowBuilder ChainBp(BreakpointType bp)
     {

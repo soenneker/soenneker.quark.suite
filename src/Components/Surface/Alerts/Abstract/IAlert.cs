@@ -8,13 +8,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IAlert : IElement
 {
-
-    /// <summary>
-    /// Gets or sets the alert styling configuration.
-    /// </summary>
-    CssValue<AlertStyleBuilder>? AlertStyle { get; set; }
-
-
     /// <summary>
     /// Gets or sets whether the alert can be dismissed by the user.
     /// </summary>
@@ -26,12 +19,12 @@ public interface IAlert : IElement
     bool Visible { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the visibility state changes.
+    /// Gets or sets the callback invoked When the visibility state changes.
     /// </summary>
     EventCallback<bool> VisibleChanged { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the alert is dismissed.
+    /// Gets or sets the callback invoked When the alert is dismissed.
     /// </summary>
     EventCallback OnDismiss { get; set; }
 

@@ -13,7 +13,7 @@ public interface ICollapse : IElement
     bool Expanded { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback that is invoked when the expanded state changes.
+    /// Gets or sets the callback that is invoked When the expanded state changes.
     /// </summary>
     EventCallback<bool> OnExpandedChanged { get; set; }
 

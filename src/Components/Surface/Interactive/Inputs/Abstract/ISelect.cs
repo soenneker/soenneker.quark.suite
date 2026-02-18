@@ -21,12 +21,12 @@ public interface ISelect<TValue> : IElement
     Expression<Func<TValue>>? SelectedValueExpression { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the selected value changes.
+    /// Gets or sets the callback invoked When the selected value changes.
     /// </summary>
     EventCallback<TValue?> SelectedValueChanged { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the selection changes.
+    /// Gets or sets the callback invoked When the selection changes.
     /// </summary>
     EventCallback<ChangeEventArgs> OnChange { get; set; }
 
@@ -51,7 +51,7 @@ public interface ISelect<TValue> : IElement
     bool Multiple { get; set; }
 
     /// <summary>
-    /// Gets or sets the placeholder text displayed when no option is selected.
+    /// Gets or sets the placeholder text displayed When no option is selected.
     /// </summary>
     string? Placeholder { get; set; }
 

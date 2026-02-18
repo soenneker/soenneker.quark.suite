@@ -10,7 +10,6 @@ public abstract class DecoratedTypographicElement : TypographicElement, IDecorat
     [Parameter] public CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
     [Parameter] public CssValue<BackgroundOpacityBuilder>? BackgroundOpacity { get; set; }
     [Parameter] public CssValue<BorderOpacityBuilder>? BorderOpacity { get; set; }
-    [Parameter] public CssValue<DisplaySizeBuilder>? DisplaySize { get; set; }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -21,7 +20,6 @@ public abstract class DecoratedTypographicElement : TypographicElement, IDecorat
             AddCss(ref sty, ref cls, BoxShadow);
             AddCss(ref sty, ref cls, BackgroundOpacity);
             AddCss(ref sty, ref cls, BorderOpacity);
-            AddCss(ref sty, ref cls, DisplaySize);
         });
     }
 
@@ -30,6 +28,5 @@ public abstract class DecoratedTypographicElement : TypographicElement, IDecorat
         AddIf(ref hc, BoxShadow);
         AddIf(ref hc, BackgroundOpacity);
         AddIf(ref hc, BorderOpacity);
-        AddIf(ref hc, DisplaySize);
     }
 }

@@ -35,6 +35,16 @@
     /// </summary>
     public bool IsExpanded => ParentAccordion?.IsItemExpanded(Name ?? string.Empty) ?? Expanded;
 
+    /// <summary>
+    /// Gets the ID for this item's trigger button (for aria-labelledby on content).
+    /// </summary>
+    public string TriggerId => Name.HasContent() ? $"accordion-trigger-{Name}" : string.Empty;
+
+    /// <summary>
+    /// Gets the ID for this item's content region.
+    /// </summary>
+    public string ContentId => Name.HasContent() ? $"collapse-{Name}" : string.Empty;
+
     private bool _lastIsExpanded;
     private bool _expandedChanged;
 
@@ -76,11 +86,9 @@
     {
         base.BuildAttributesCore(attributes);
 
-        attributes.TryAdd("data-slot", "accordion-item");
-        // shadcn AccordionItem - new-york-v4 ui/accordion.tsx
+        // shadcn AccordionItem - new-york-v4: border-b last:border-b-0; q-accordion-item for flush selector
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "accordion-item");
             AppendClass(ref cls, "q-accordion-item");
             AppendClass(ref cls, "border-b border-border last:border-b-0");
         });

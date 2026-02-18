@@ -14,7 +14,7 @@ public interface IDetails : IElement
     bool Open { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the open state changes.
+    /// Gets or sets the callback invoked When the open state changes.
     /// </summary>
     EventCallback<EventArgs> OnToggle { get; set; }
 }

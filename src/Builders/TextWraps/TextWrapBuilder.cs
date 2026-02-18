@@ -13,8 +13,9 @@ public sealed class TextWrapBuilder : ICssBuilder
 {
     private readonly List<TextWrapRule> _rules = new(4);
 
+    // Tailwind text-wrap / whitespace utilities (for Quark Suite / shadcn)
     private const string _classWrap = "text-wrap";
-    private const string _classNoWrap = "text-nowrap";
+    private const string _classNoWrap = "whitespace-nowrap";
     private const string _stylePrefix = "text-wrap: ";
 
     internal TextWrapBuilder(string value, BreakpointType? breakpoint = null)

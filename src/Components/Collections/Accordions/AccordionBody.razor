@@ -2,9 +2,12 @@
 @inherits Soenneker.Quark.Element
 @implements IAccordionBody
 
+@* grid animation (no keyframes), role=region, aria-labelledby *@
 <div @attributes="BuildAttributes()">
-    <div class="accordion-body q-accordion-body pt-0 pb-4" data-slot="accordion-content-inner">
-        @ChildContent
+    <div class="overflow-hidden min-h-0">
+        <div class="pb-4 pt-0 text-sm">
+            @ChildContent
+        </div>
     </div>
 </div>
 
@@ -30,19 +33,18 @@
     {
         base.BuildAttributesCore(attributes);
 
-        attributes.TryAdd("data-slot", "accordion-content");
         attributes["data-state"] = IsExpanded ? "open" : "closed";
-        // shadcn AccordionContent - new-york-v4 ui/accordion.tsx
+        attributes["role"] = "region";
+        if (ParentAccordionItem?.TriggerId.HasContent() == true)
+            attributes["aria-labelledby"] = ParentAccordionItem.TriggerId;
+        // grid animation (0fr -> 1fr), no keyframes
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-accordion-body-wrapper");
-            AppendClass(ref cls, "overflow-hidden text-sm");
-            if (!IsExpanded)
-                AppendClass(ref cls, "hidden");
+            AppendClass(ref cls, "grid grid-rows-[0fr] transition-[grid-template-rows] duration-200 ease-out data-[state=open]:grid-rows-[1fr]");
         });
 
-        if (ParentAccordionItem?.Name.HasContent() == true)
-            attributes["id"] = $"collapse-{ParentAccordionItem.Name}";
+        if (ParentAccordionItem?.ContentId.HasContent() == true)
+            attributes["id"] = ParentAccordionItem.ContentId;
     }
 
     

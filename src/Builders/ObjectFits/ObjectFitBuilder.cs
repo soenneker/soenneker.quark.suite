@@ -12,11 +12,12 @@ public sealed class ObjectFitBuilder : ICssBuilder
 {
     private readonly List<ObjectFitRule> _rules = new(4);
 
-    private const string _classContain = "object-fit-contain";
-    private const string _classCover = "object-fit-cover";
-    private const string _classFill = "object-fit-fill";
-    private const string _classScale = "object-fit-scale";
-    private const string _classNone = "object-fit-none";
+    // Tailwind object-fit utilities (for Quark Suite / shadcn)
+    private const string _classContain = "object-contain";
+    private const string _classCover = "object-cover";
+    private const string _classFill = "object-fill";
+    private const string _classScale = "object-scale-down";
+    private const string _classNone = "object-none";
     private const string _stylePrefix = "object-fit: ";
 
     internal ObjectFitBuilder(string fit, BreakpointType? breakpoint = null)
@@ -145,9 +146,9 @@ public sealed class ObjectFitBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
-                cls = BreakpointUtil.InsertBreakpointType(cls, bp);
+                cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
             if (!first) sb.Append(' ');
             else first = false;

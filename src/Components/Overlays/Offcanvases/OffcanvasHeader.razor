@@ -5,12 +5,15 @@
 <div @attributes="BuildAttributes()">
     @if (Title is not null)
     {
-        <h5 class="q-offcanvas-title">@Title</h5>
+        <h5 class="q-offcanvas-title text-foreground font-semibold">@Title</h5>
     }
     @ChildContent
     @if (ShowCloseButton)
     {
-        <Button Type="@ButtonType.Button" Class="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2" OnClick="HandleClose"></Button>
+        <Button Type="@ButtonType.Button" Class="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary data-[state=open]:text-muted-foreground" OnClick="HandleClose" aria-label="Close">
+            <span aria-hidden="true" class="size-4">X</span>
+            <span class="sr-only">Close</span>
+        </Button>
     }
     
 </div>
@@ -28,10 +31,12 @@
 
     protected override void BuildAttributesCore(Dictionary<string, object> attrs)
     {
+        base.BuildAttributesCore(attrs);
         BuildClassAttribute(attrs, (ref cls) =>
         {
             AppendClass(ref cls, "q-offcanvas-header");
-            AppendClass(ref cls, "flex items-center justify-between p-4 border-b");
+            // shadcn SheetHeader - new-york-v4 ui/sheet.tsx
+            AppendClass(ref cls, "flex flex-col gap-1.5 p-4");
         });
     }
 

@@ -3,14 +3,7 @@
 <PageTitle>Collapses - Quark Suite</PageTitle>
 
 <Div Class="space-y-8 max-w-4xl">
-    <Div Class="space-y-3">
-        <H1 Class="text-4xl font-bold tracking-tight">Collapses</H1>
-        <Paragraph Class="text-xl text-muted-foreground" Margin="Margin.Is0">
-            Toggle the visibility of content with smooth animations.
-        </Paragraph>
-    </Div>
-
-    <Section Class="space-y-6">
+    <div class="space-y-4">
         <DemoSection Title="Basic" Code="@(@"<Button CollapseTarget=""basicCollapse"">Toggle</Button>
 <Collapse Id=""basicCollapse"">
     <Card><CardBody><Paragraph>Content...</Paragraph></CardBody></Card>
@@ -26,15 +19,15 @@
                 </Collapse>
             </Div>
         </DemoSection>
-    </Section>
 
-    <Section Class="space-y-6">
-        <H2 Class="text-2xl font-semibold tracking-tight">Multiple Targets</H2>
-        <DemoSection>
+        <DemoSection Title="Multiple Targets" Description="Buttons toggle different collapse elements; one button can toggle both." Code="@(@"<Button CollapseTarget=""firstCollapse"">First</Button>
+<Button CollapseTarget=""secondCollapse"">Second</Button>
+<Collapse Id=""firstCollapse""><Card><CardBody>First collapsible.</CardBody></Card></Collapse>
+<Collapse Id=""secondCollapse""><Card><CardBody>Second collapsible.</CardBody></Card></Collapse>")">
             <Div Class="flex flex-wrap gap-2 mb-4">
                 <Button BackgroundColor="BackgroundColor.Primary" CollapseTarget="firstCollapse">First</Button>
                 <Button BackgroundColor="BackgroundColor.Secondary" CollapseTarget="secondCollapse">Second</Button>
-                <Button BackgroundColor="BackgroundColor.Success" Attributes="@(new Dictionary<string, object> { { "data-bs-toggle", "collapse" }, { "data-bs-target", ".multi-collapse" }, { "aria-controls", "firstCollapse secondCollapse" } })">Both</Button>
+                <Button BackgroundColor="BackgroundColor.Success" Attributes="@(new Dictionary<string, object> { { "data-toggle", "collapse" }, { "data-target", ".multi-collapse" }, { "aria-controls", "firstCollapse secondCollapse" } })">Both</Button>
             </Div>
             <Div Class="grid gap-4 md:grid-cols-2">
                 <Collapse Class="multi-collapse" Id="firstCollapse">
@@ -45,11 +38,11 @@
                 </Collapse>
             </Div>
         </DemoSection>
-    </Section>
 
-    <Section Class="space-y-6">
-        <H2 Class="text-2xl font-semibold tracking-tight">Horizontal</H2>
-        <DemoSection>
+        <DemoSection Title="Horizontal" Description="Horizontal=true animates width instead of height." Code="@(@"<Button CollapseTarget=""horizontalCollapse"">Toggle Horizontal</Button>
+<Collapse Id=""horizontalCollapse"" Horizontal=""true"">
+    <Card Class=""w-[300px]""><CardBody>Horizontal collapse animates width.</CardBody></Card>
+</Collapse>")">
             <Div Class="space-y-2">
                 <Button BackgroundColor="BackgroundColor.Primary" CollapseTarget="horizontalCollapse">Toggle Horizontal</Button>
                 <Div Class="flex">
@@ -63,11 +56,18 @@
                 </Div>
             </Div>
         </DemoSection>
-    </Section>
 
-    <Section Class="space-y-6">
-        <H2 Class="text-2xl font-semibold tracking-tight">Form in Collapse</H2>
-        <DemoSection>
+        <DemoSection Title="Form in Collapse" Description="Form fields inside collapsible content." Code="@(@"<Button CollapseTarget=""formCollapse"">Toggle Form</Button>
+<Collapse Id=""formCollapse"">
+    <Card>
+        <CardHeader>Contact Form</CardHeader>
+        <CardBody>
+            <Field><FieldLabel>Name</FieldLabel><FieldBody><TextEdit @bind-Value=""_formName""/></FieldBody></Field>
+            <Field><FieldLabel>Email</FieldLabel><FieldBody><TextEdit @bind-Value=""_formEmail""/></FieldBody></Field>
+            <Button OnClick=""SubmitForm"">Submit</Button>
+        </CardBody>
+    </Card>
+</Collapse>")">
             <Div Class="space-y-2">
                 <Button BackgroundColor="BackgroundColor.Info" CollapseTarget="formCollapse">Toggle Form</Button>
                 <Collapse Id="formCollapse">
@@ -86,11 +86,13 @@
                 </Collapse>
             </Div>
         </DemoSection>
-    </Section>
 
-    <Section Class="space-y-6">
-        <H2 Class="text-2xl font-semibold tracking-tight">Programmatic Control</H2>
-        <DemoSection Description="@($"State: {(_programmaticCollapseExpanded ? "Expanded" : "Collapsed")}")">
+        <DemoSection Title="Programmatic Control" Description="@($"State: {(_programmaticCollapseExpanded ? "Expanded" : "Collapsed")}")" Code="@(@"<Button OnClick=""ShowProgrammaticCollapse"">Show</Button>
+<Button OnClick=""HideProgrammaticCollapse"">Hide</Button>
+<Button OnClick=""ToggleProgrammaticCollapse"">Toggle</Button>
+<Collapse @ref=""_programmaticCollapse"" Expanded=""_programmaticCollapseExpanded"">
+    <Card><CardBody>Content controlled by Expanded binding.</CardBody></Card>
+</Collapse>")">
             <Div Class="flex gap-2 mb-4">
                 <Button BackgroundColor="BackgroundColor.Primary" OnClick="ShowProgrammaticCollapse">Show</Button>
                 <Button BackgroundColor="BackgroundColor.Secondary" OnClick="HideProgrammaticCollapse">Hide</Button>
@@ -104,7 +106,7 @@
                 </Card>
             </Collapse>
         </DemoSection>
-    </Section>
+    </div>
 </Div>
 
 @code {

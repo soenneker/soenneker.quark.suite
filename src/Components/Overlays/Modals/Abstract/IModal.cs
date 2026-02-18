@@ -15,7 +15,7 @@ public interface IModal : IElement
     bool Visible { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the visibility state changes.
+    /// Gets or sets the callback invoked When the visibility state changes.
     /// </summary>
     EventCallback<bool> VisibleChanged { get; set; }
 
@@ -37,7 +37,7 @@ public interface IModal : IElement
     /// <summary>
     /// Gets or sets the size of the modal (small, default, large, extra-large, fullscreen).
     /// </summary>
-    ModalSizeType? ModalSize { get; set; }
+    ModalSize? ModalSize { get; set; }
 
     /// <summary>
     /// Gets or sets whether the modal is static (cannot be closed by clicking backdrop or pressing Escape).
@@ -45,17 +45,17 @@ public interface IModal : IElement
     bool Static { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the modal is shown.
+    /// Gets or sets the callback invoked When the modal is shown.
     /// </summary>
     EventCallback OnShow { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the modal is hidden.
+    /// Gets or sets the callback invoked When the modal is hidden.
     /// </summary>
     EventCallback OnHide { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the backdrop is clicked.
+    /// Gets or sets the callback invoked When the backdrop is clicked.
     /// </summary>
     EventCallback OnBackdropClick { get; set; }
 

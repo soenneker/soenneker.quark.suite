@@ -13,6 +13,7 @@ public sealed class FloatBuilder : ICssBuilder
 {
     private readonly List<FloatRule> _rules = new(4);
 
+    // Tailwind float utilities (for Quark Suite / shadcn). Start/End for RTL; Left/Right map to same.
     private const string _classStart = "float-start";
     private const string _classEnd = "float-end";
     private const string _classNone = "float-none";
@@ -147,9 +148,9 @@ public sealed class FloatBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
-                cls = BreakpointUtil.InsertBreakpointType(cls, bp);
+                cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
             if (!first) sb.Append(' ');
             else first = false;

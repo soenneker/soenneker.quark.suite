@@ -98,7 +98,7 @@ public sealed class PositionBuilder : ICssBuilder
         return this;
     }
 
-    /// <summary>Apply a BreakpointType to the most recent rule (or bootstrap with "static" if empty).</summary>
+    /// <summary>Apply a BreakpointType to the most recent rule (or seed with "static" if empty).</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PositionBuilder ChainWithBreakpoint(BreakpointType breakpoint)
     {

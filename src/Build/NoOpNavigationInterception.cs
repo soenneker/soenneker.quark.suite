@@ -5,7 +5,7 @@ namespace Soenneker.Quark.Build;
 
 /// <summary>
 /// No-op implementation of <see cref="INavigationInterception"/> for headless build-time
-/// Blazor rendering (e.g. Tailwind class extraction). Use when registering build-time
+/// Blazor rendering (e.g. Tailwind class extraction). Use When registering build-time
 /// services via <see cref="ConfigureBuildTimeServicesAttribute"/>.
 /// </summary>
 public sealed class NoOpNavigationInterception : INavigationInterception

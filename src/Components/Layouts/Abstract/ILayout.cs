@@ -23,7 +23,7 @@ public interface ILayout : IElement
     string? LoadingClass { get; set; }
 
     /// <summary>
-    /// Gets or sets the template to display when loading.
+    /// Gets or sets the template to display When loading.
     /// </summary>
     RenderFragment? LoadingTemplate { get; set; }
 }

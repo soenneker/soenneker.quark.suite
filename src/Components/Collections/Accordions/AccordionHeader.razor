@@ -2,21 +2,34 @@
 @inherits Soenneker.Quark.Element
 @implements IAccordionHeader
 
-<h2 @attributes="BuildAttributes()">
-    <Button
-        Type="@ButtonType.Button"
-        Unstyled="true"
-        OnClick="HandleClick"
-        TabIndex="@(Disabled ? -1 : null)"
-        @attributes="BuildButtonAttributes()">
-        @if (IconName.HasContent())
-        {
-            <Icon Name="@IconName" />
-        }
-        @ChildContent
-        <Icon Name="@(IsExpanded ? "chevron-up" : "chevron-down")" Class="accordion-icon q-accordion-icon" />
-    </Button>
-</h2>
+@* h3 + native button + inline SVG chevron with data-state for rotation *@
+<h3 @attributes="BuildAttributes()">
+    <button type="button"
+            @onclick="HandleClick"
+            @onkeydown="HandleKeyDown"
+            @attributes="BuildButtonAttributes()">
+        <div class="flex flex-1 items-center justify-between gap-4 py-4 font-medium transition-all hover:underline @(FullWidth ? "w-full" : "")">
+            @if (IconName.HasContent())
+            {
+                <Icon Name="@IconName" />
+            }
+            @ChildContent
+            <svg class="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 data-[state=open]:rotate-180"
+                 data-state="@(IsExpanded ? "open" : "closed")"
+                 xmlns="http://www.w3.org/2000/svg"
+                 width="24"
+                 height="24"
+                 viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="2"
+                 stroke-linecap="round"
+                 stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </div>
+    </button>
+</h3>
 
 @code {
 
@@ -53,41 +66,43 @@
     private IReadOnlyDictionary<string, object> BuildButtonAttributes()
     {
         var attributes = new Dictionary<string, object>();
-        
-        attributes["data-slot"] = "accordion-trigger";
-        // shadcn AccordionTrigger - new-york-v4 ui/accordion.tsx
+
+        // trigger: flex w-full, focus ring, disabled (same semantics as shadcn)
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "accordion-button");
-            AppendClass(ref cls, "q-accordion-button");
-            AppendClass(ref cls, "flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50");
-            if (!IsExpanded)
-                AppendClass(ref cls, "collapsed");
+            AppendClass(ref cls, "flex w-full items-center justify-between text-left text-sm font-medium transition-all outline-none rounded-md focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50");
             if (!FullWidth)
                 AppendClass(ref cls, "q-accordion-inline");
-            if (IsDisabled)
-                AppendClass(ref cls, "opacity-50 pointer-events-none");
         });
 
+        if (ParentAccordionItem?.TriggerId.HasContent() == true)
+            attributes["id"] = ParentAccordionItem.TriggerId;
         attributes["aria-expanded"] = IsExpanded ? "true" : "false";
+        if (ParentAccordionItem?.ContentId.HasContent() == true)
+            attributes["aria-controls"] = ParentAccordionItem.ContentId;
         attributes["data-state"] = IsExpanded ? "open" : "closed";
-
-        if (ParentAccordionItem?.Name.HasContent() == true)
-            attributes["aria-controls"] = $"collapse-{ParentAccordionItem.Name}";
-
         if (IsDisabled)
         {
             attributes["aria-disabled"] = "true";
+            attributes["disabled"] = true;
         }
 
         return attributes;
     }
 
-    protected override async Task HandleClick(MouseEventArgs args)
+    private void HandleClick()
     {
         if (!IsDisabled && ParentAccordionItem?.ParentAccordion != null && ParentAccordionItem.Name.HasContent())
+            _ = ParentAccordionItem.ParentAccordion.ToggleItem(ParentAccordionItem.Name);
+    }
+
+    private void HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (IsDisabled) return;
+        if (e.Key == " " || e.Key == "Enter")
         {
-            await ParentAccordionItem.ParentAccordion.ToggleItem(ParentAccordionItem.Name);
+            if (ParentAccordionItem?.ParentAccordion != null && ParentAccordionItem.Name.HasContent())
+                _ = ParentAccordionItem.ParentAccordion.ToggleItem(ParentAccordionItem.Name);
         }
     }
 
@@ -117,11 +132,9 @@
     {
         base.BuildAttributesCore(attributes);
 
-        attributes.TryAdd("data-slot", "accordion-header");
+        // header wrapper flex only
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "accordion-header");
-            AppendClass(ref cls, "q-accordion-header");
             AppendClass(ref cls, "flex");
         });
     }

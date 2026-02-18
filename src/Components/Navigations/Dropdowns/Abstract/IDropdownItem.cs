@@ -24,7 +24,7 @@ public interface IDropdownItem : IElement
     bool IsLink { get; set; }
 
     /// <summary>
-    /// Gets or sets the URL to navigate to when the item is clicked (only applicable when IsLink is true).
+    /// Gets or sets the URL to navigate to When the item is clicked (only applicable When IsLink is true).
     /// </summary>
     string? Href { get; set; }
 
@@ -34,7 +34,7 @@ public interface IDropdownItem : IElement
     string? Target { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the item is clicked.
+    /// Gets or sets the callback invoked When the item is clicked.
     /// </summary>
     EventCallback<MouseEventArgs> Clicked { get; set; }
 }

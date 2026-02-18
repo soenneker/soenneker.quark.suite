@@ -28,11 +28,11 @@ public sealed class ThemeProvider : IThemeProvider
     }
 
     /// <summary>
-    /// Generates Bootstrap CSS from the current theme configuration.
+    /// Generates global CSS from the current theme configuration.
     /// </summary>
-    /// <returns>The generated Bootstrap CSS string, or null if generation fails.</returns>
+    /// <returns>The generated global CSS string, or null if generation fails.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public string? GenerateBootstrapCss() => null;
+    public string? GenerateGlobalCss() => null;
 
     /// <summary>
     /// Generates component-specific CSS from the current theme configuration.

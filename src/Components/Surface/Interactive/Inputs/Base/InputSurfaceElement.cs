@@ -27,7 +27,7 @@ public abstract class InputSurfaceElement : InteractiveSurfaceElement, IInputSur
     public string? Name { get; set; }
 
     /// <summary>
-    /// Gets or sets the placeholder text displayed when the input is empty.
+    /// Gets or sets the placeholder text displayed When the input is empty.
     /// </summary>
     [Parameter]
     public string? Placeholder { get; set; }
@@ -39,7 +39,7 @@ public abstract class InputSurfaceElement : InteractiveSurfaceElement, IInputSur
     public bool Required { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the input should automatically receive focus when the page loads.
+    /// Gets or sets whether the input should automatically receive focus When the page loads.
     /// </summary>
     [Parameter]
     public bool AutoFocus { get; set; }

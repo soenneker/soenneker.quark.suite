@@ -4,218 +4,170 @@
 
 @inject ILogger<Index> Logger
 
-<Container Padding="Padding.Is4.OnY">
-<Row>
-    <Column>
-        <Div TextAlignment="TextAlignment.Center" Margin="Margin.Is5.FromEnd">
-            <H1 DisplaySize="DisplaySize.Is4" FontWeight="FontWeight.Bold" TextColor="TextColor.Primary">MemoEdits</H1>
-            <Paragraph Class="lead" TextColor="TextColor.Muted">This page demonstrates the MemoEdit component - a multi-line text input control with various customization options.</Paragraph>
+<PageTitle>MemoEdits - Quark Suite</PageTitle>
+
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-6">
+        <Div Class="space-y-4">
+            <DemoSection Title="Binding test" Description="Type in the fields below or click 'Load Test Data' to verify binding works." Code="@(@"<MemoEdit Id=""testMemo1"" Placeholder=""Type something..."" @bind-Value=""_testMemo1""/>
+<MemoEdit Id=""testMemo2"" Rows=""5"" @bind-Value=""_testMemo2""/>")">
+                <Div Class="p-4 rounded-lg border border-border bg-muted/30 space-y-4">
+                    <Paragraph Class="text-lg font-semibold" Margin="Margin.Is0.FromBottom">Two-Way Binding</Paragraph>
+
+                    <Field>
+                        <FieldLabel For="testMemo1">Test Memo 1:</FieldLabel>
+                        <FieldBody>
+                            <MemoEdit Id="testMemo1"
+                                      Placeholder="Type something here..."
+                                      @bind-Value="_testMemo1"/>
+                            <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" Class="rounded border border-border bg-background">
+                                <Strong>Bound Value:</Strong> <Code>@(_testMemo1 ?? "(empty)")</Code>
+                            </Div>
+                        </FieldBody>
+                    </Field>
+
+                    <Field>
+                        <FieldLabel For="testMemo2">Test Memo 2 (Pre-populated):</FieldLabel>
+                        <FieldBody>
+                            <MemoEdit Id="testMemo2"
+                                      Placeholder="Type something here..."
+                                      @bind-Value="_testMemo2"
+                                      Rows="5"/>
+                            <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" Class="rounded border border-border bg-background">
+                                <Strong>Bound Value:</Strong> <Code>@(_testMemo2 ?? "(empty)")</Code>
+                            </Div>
+                        </FieldBody>
+                    </Field>
+
+                    <Div Class="flex flex-wrap gap-2 mt-4">
+                        <Button Class="bg-primary text-primary-foreground" OnClick="LoadMemoTestData">Load Test Data</Button>
+                        <Button Class="bg-secondary text-secondary-foreground" OnClick="ClearMemoTestData">Clear Test Data</Button>
+                        <Button Class="bg-muted text-muted-foreground" OnClick="UpdateMemoTestData">Update to Random Values</Button>
+                    </Div>
+
+                    <Div Class="mt-4 p-3 rounded-lg border border-border bg-muted/30">
+                        <Paragraph Class="text-sm font-semibold" Margin="Margin.Is0.FromBottom">Test Results:</Paragraph>
+                        <UnorderedList Margin="Margin.Is0.FromBottom">
+                            <UnorderedListItem>
+                                <Strong>Memo 1:</Strong> @(_testMemo1 ?? "(not set)")
+                            </UnorderedListItem>
+                            <UnorderedListItem>
+                                <Strong>Memo 2:</Strong> @(_testMemo2 ?? "(not set)")
+                            </UnorderedListItem>
+                        </UnorderedList>
+                    </Div>
+                </Div>
+            </DemoSection>
         </Div>
-    </Column>
-</Row>
 
-<Row Gap="Gap.Is4">
-    <Column>
-        <Div>
-            <H2>🧪 BINDING TEST SECTION</H2>
-                <Alert BackgroundColor="BackgroundColor.Info" Margin="Margin.Is3.FromEnd">
-                <Strong>Test Instructions:</Strong> Type in the fields below or click "Load Test Data" to verify binding works.
-            </Alert>
-
-            <Div Margin="Margin.Is4.FromBottom" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Light" BorderRadius="BorderRadius.Default">
-                <H3 Margin="Margin.Is3.FromBottom">Two-Way Binding Test</H3>
-
-                <Div Margin="Margin.Is3.FromBottom">
-                    <Label For="testMemo1" Form="true" FontWeight="FontWeight.Bold">Test Memo 1:</Label>
-                    <MemoEdit Id="testMemo1"
-                              Placeholder="Type something here..."
-                              @bind-Value="_testMemo1"/>
-                    <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
-                        <Strong>Bound Value:</Strong> <Code>@(_testMemo1 ?? "(empty)")</Code>
-                    </Div>
-                </Div>
-
-                <Div Margin="Margin.Is3.FromBottom">
-                    <Label For="testMemo2" Form="true" FontWeight="FontWeight.Bold">Test Memo 2 (Pre-populated):</Label>
-                    <MemoEdit Id="testMemo2"
-                              Placeholder="Type something here..."
-                              @bind-Value="_testMemo2"
-                              Rows="5"/>
-                    <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
-                        <Strong>Bound Value:</Strong> <Code>@(_testMemo2 ?? "(empty)")</Code>
-                    </Div>
-                </Div>
-
-                <Div Margin="Margin.Is3.FromTop">
-                    <Button BackgroundColor="BackgroundColor.Primary" OnClick="LoadMemoTestData" Margin="Margin.Is2.FromEnd">Load Test Data</Button>
-                    <Button BackgroundColor="BackgroundColor.Secondary" OnClick="ClearMemoTestData" Margin="Margin.Is2.FromEnd">Clear Test Data</Button>
-                    <Button BackgroundColor="BackgroundColor.Warning" OnClick="UpdateMemoTestData">Update to Random Values</Button>
-                </Div>
-
-                <Div Margin="Margin.Is3.FromTop" Padding="Padding.Is3" BackgroundColor="BackgroundColor.Success" Class="bg-opacity-10 rounded">
-                    <H4>Test Results:</H4>
-                    <UnorderedList Margin="Margin.Is0.FromBottom">
-                        <UnorderedListItem>
-                            <Strong>Memo 1:</Strong> @(_testMemo1 ?? "(not set)")
-                        </UnorderedListItem>
-                        <UnorderedListItem>
-                            <Strong>Memo 2:</Strong> @(_testMemo2 ?? "(not set)")
-                        </UnorderedListItem>
-                    </UnorderedList>
-                </Div>
-            </Div>
-
-            <Hr/>
-
-            <H2>Basic Usage</H2>
-            <H3>Default MemoEdit</H3>
+        <DemoSection Title="Basic Usage" Description="Default MemoEdit with placeholder and binding." Code="@(@"<MemoEdit @bind-Value=""_basicValue"" Placeholder=""Enter your text here..."" Rows=""5""/>")">
+            <Paragraph Class="font-semibold">Default MemoEdit</Paragraph>
             <MemoEdit @bind-Value="_basicValue" Placeholder="Enter your text here..."/>
-            <Paragraph>
-                <Strong>Value:</Strong> @_basicValue
-            </Paragraph>
+            <Paragraph Margin="Margin.Is0"><Strong>Value:</Strong> @_basicValue</Paragraph>
+        </DemoSection>
 
-            <CodeEditor ReadOnly="true" 
-                        Language="@("html")" 
-                        AutoHeight="true" Margin="Margin.Is3.FromTop"
-                        Text="@(@"<MemoEdit @bind-Value=""basicValue"" 
-          Placeholder=""Enter your text here..."" 
-          Rows=""5""/>")" />
-        </Div>
-
-        <Div Class="demo-section">
-            <H2>Size Variations</H2>
-            <H3>Small Size</H3>
+        <DemoSection Title="Size Variations" Description="Size.Small and Size.Large." Code="@(@"<MemoEdit @bind-Value=""_smallValue"" Size=""Size.Small"" Placeholder=""Small...""/>
+<MemoEdit @bind-Value=""_largeValue"" Size=""Size.Large"" Placeholder=""Large...""/>")">
+            <Paragraph Class="font-semibold">Small Size</Paragraph>
             <MemoEdit @bind-Value="_smallValue" Size="Size.Small" Placeholder="Small memo edit..."/>
-
-            <H3>Large Size</H3>
+            <Paragraph Class="font-semibold mt-4">Large Size</Paragraph>
             <MemoEdit @bind-Value="_largeValue" Size="Size.Large" Placeholder="Large memo edit..."/>
-        </Div>
+        </DemoSection>
 
-        <Div Class="demo-section">
-            <H2>Color Variations</H2>
-            <H3>Primary Color</H3>
+        <DemoSection Title="Color Variations" Description="Color.Primary, Success, Warning, Danger." Code="@(@"<MemoEdit @bind-Value=""_primaryValue"" Color=""Color.Primary"" Placeholder=""Primary...""/>
+<MemoEdit @bind-Value=""_successValue"" Color=""Color.Success"" Placeholder=""Success...""/>
+<MemoEdit @bind-Value=""_dangerValue"" Color=""Color.Danger"" Placeholder=""Danger...""/>")">
+            <Paragraph Class="font-semibold">Primary Color</Paragraph>
             <MemoEdit @bind-Value="_primaryValue" Color="Color.Primary" Placeholder="Primary color memo..."/>
-
-            <H3>Success Color</H3>
+            <Paragraph Class="font-semibold mt-4">Success Color</Paragraph>
             <MemoEdit @bind-Value="_successValue" Color="Color.Success" Placeholder="Success color memo..."/>
-
-            <H3>Warning Color</H3>
+            <Paragraph Class="font-semibold mt-4">Warning Color</Paragraph>
             <MemoEdit @bind-Value="_warningValue" Color="Color.Warning" Placeholder="Warning color memo..."/>
-
-            <H3>Danger Color</H3>
+            <Paragraph Class="font-semibold mt-4">Danger Color</Paragraph>
             <MemoEdit @bind-Value="_dangerValue" Color="Color.Danger" Placeholder="Danger color memo..."/>
-        </Div>
+        </DemoSection>
 
-        <Div Class="demo-section">
-            <H2>Row Configuration</H2>
-            <H3>2 Rows</H3>
+        <DemoSection Title="Row Configuration" Description="Rows attribute for height." Code="@(@"<MemoEdit @bind-Value=""_rows2Value"" Rows=""2"" Placeholder=""2 rows...""/>
+<MemoEdit @bind-Value=""_rows5Value"" Rows=""5"" Placeholder=""5 rows...""/>
+<MemoEdit @bind-Value=""_rows8Value"" Rows=""8"" Placeholder=""8 rows...""/>")">
+            <Paragraph Class="font-semibold">2 Rows</Paragraph>
             <MemoEdit @bind-Value="_rows2Value" Rows="2" Placeholder="2 rows memo..."/>
-
-            <H3>5 Rows</H3>
+            <Paragraph Class="font-semibold mt-4">5 Rows</Paragraph>
             <MemoEdit @bind-Value="_rows5Value" Rows="5" Placeholder="5 rows memo..."/>
-
-            <H3>8 Rows</H3>
+            <Paragraph Class="font-semibold mt-4">8 Rows</Paragraph>
             <MemoEdit @bind-Value="_rows8Value" Rows="8" Placeholder="8 rows memo..."/>
-        </Div>
+        </DemoSection>
 
-        <Div Class="demo-section">
-            <H2>Auto Resize</H2>
+        <DemoSection Title="Auto Resize" Description="AutoResize=true." Code="@(@"<MemoEdit @bind-Value=""_autoResizeValue"" AutoResize=""true"" Placeholder=""Resizes as you type...""/>")">
             <MemoEdit @bind-Value="_autoResizeValue" AutoResize="true" Placeholder="This memo edit will resize as you type..."/>
-        </Div>
+        </DemoSection>
 
-        <Div Class="demo-section">
-            <H2>Validation Features</H2>
-            <H3>Required Field</H3>
+        <DemoSection Title="Validation Features" Description="Required, MaxLength, MinLength." Code="@(@"<MemoEdit @bind-Value=""_requiredValue"" Required=""true"" Placeholder=""Required...""/>
+<MemoEdit @bind-Value=""_maxLengthValue"" MaxLength=""100"" Placeholder=""Max 100 chars...""/>
+<MemoEdit @bind-Value=""_minLengthValue"" MinLength=""10"" Placeholder=""Min 10 chars...""/>")">
+            <Paragraph Class="font-semibold">Required Field</Paragraph>
             <MemoEdit @bind-Value="_requiredValue" Required="true" Placeholder="This field is required..."/>
-
-            <H3>Max Length (100 characters)</H3>
+            <Paragraph Class="font-semibold mt-4">Max Length (100 characters)</Paragraph>
             <MemoEdit @bind-Value="_maxLengthValue" MaxLength="100" Placeholder="Maximum 100 characters allowed..."/>
-            <Paragraph>
-                <Small>Characters: @(_maxLengthValue?.Length ?? 0)/100</Small>
-            </Paragraph>
-
-            <H3>Min Length (10 characters)</H3>
+            <Paragraph Margin="Margin.Is0"><Small>Characters: @(_maxLengthValue?.Length ?? 0)/100</Small></Paragraph>
+            <Paragraph Class="font-semibold mt-4">Min Length (10 characters)</Paragraph>
             <MemoEdit @bind-Value="_minLengthValue" MinLength="10" Placeholder="Minimum 10 characters required..."/>
-        </Div>
+        </DemoSection>
 
-        <Div Class="demo-section">
-            <H2>State Variations</H2>
-            <H3>Disabled</H3>
+        <DemoSection Title="State Variations" Description="Disabled and ReadOnly." Code="@(@"<MemoEdit @bind-Value=""_disabledValue"" Disabled=""true"" Placeholder=""Disabled...""/>
+<MemoEdit @bind-Value=""_readOnlyValue"" ReadOnly=""true"" Placeholder=""Read only...""/>")">
+            <Paragraph Class="font-semibold">Disabled</Paragraph>
             <MemoEdit @bind-Value="_disabledValue" Disabled="true" Placeholder="This memo edit is disabled..."/>
-
-            <H3>Read Only</H3>
+            <Paragraph Class="font-semibold mt-4">Read Only</Paragraph>
             <MemoEdit @bind-Value="_readOnlyValue" ReadOnly="true" Placeholder="This memo edit is read only..."/>
-        </Div>
+        </DemoSection>
 
-        <Div Class="demo-section">
-            <H2>Event Handling</H2>
-            <H3>With Change Event</H3>
+        <DemoSection Title="Event Handling" Description="OnChange and OnInput." Code="@(@"<MemoEdit @bind-Value=""_changeValue"" OnChange=""OnChangeHandler"" Placeholder=""Type to see change...""/>
+<MemoEdit @bind-Value=""_inputValue"" OnInput=""OnInputHandler"" Placeholder=""Type to see input...""/>")">
+            <Paragraph Class="font-semibold">With Change Event</Paragraph>
             <MemoEdit @bind-Value="_changeValue" OnChange="OnChangeHandler" Placeholder="Type to see change events..."/>
-            <Paragraph>
-                <Strong>Last Change:</Strong> @_lastChangeTime
-            </Paragraph>
-
-            <H3>With Input Event</H3>
+            <Paragraph Margin="Margin.Is0"><Strong>Last Change:</Strong> @_lastChangeTime</Paragraph>
+            <Paragraph Class="font-semibold mt-4">With Input Event</Paragraph>
             <MemoEdit @bind-Value="_inputValue" OnInput="OnInputHandler" Placeholder="Type to see input events..."/>
-            <Paragraph>
-                <Strong>Last Input:</Strong> @_lastInputTime
-            </Paragraph>
-        </Div>
+            <Paragraph Margin="Margin.Is0"><Strong>Last Input:</Strong> @_lastInputTime</Paragraph>
+        </DemoSection>
 
-        <Div Class="demo-section">
-            <H2>Form Integration Example</H2>
-            <Div Class="form-example">
-                <H3>Contact Form</H3>
-                <Div Class="form-group">
-                    <label>Message:</Label>
-                    <MemoEdit @bind-Value="_contactMessage"
-                              Rows="4"
-                              Required="true"
-                              MaxLength="500"
-                              Color="Color.Primary"
-                              Placeholder="Enter your message here..."/>
-                </Div>
-                <Div Class="form-group">
-                    <label>Additional Notes:</Label>
-                    <MemoEdit @bind-Value="_additionalNotes"
-                              Rows="3"
-                              AutoResize="true"
-                              Color="@Color.Secondary"
-                              Placeholder="Any additional notes..."/>
-                </Div>
-                <Button Class="btn btn-primary" OnClick="SubmitForm">
-                    Submit
-                </Button>
-                <Paragraph>
-                    <Strong>Form Status:</Strong> <span class="@GetStatusClass()">@_formStatus</span>
-                </Paragraph>
-            </Div>
-        </Div>
+        <DemoSection Title="Form Integration Example" Description="Field, FieldLabel, MemoEdit with validation." Code="@(@"<Field>
+    <FieldLabel For=""contactMessage"" RequiredIndicator=""true"">Message:</FieldLabel>
+    <FieldBody>
+        <MemoEdit Id=""contactMessage"" @bind-Value=""_contactMessage"" Rows=""4"" Required=""true"" MaxLength=""500"" Placeholder=""Enter message...""/>
+    </FieldBody>
+</Field>")">
+            <Paragraph Class="font-semibold">Contact Form</Paragraph>
+            <Field>
+                <FieldLabel For="contactMessage" RequiredIndicator="true">Message:</FieldLabel>
+                <FieldBody>
+                    <MemoEdit Id="contactMessage" @bind-Value="_contactMessage" Rows="4" Required="true" MaxLength="500" Color="Color.Primary" Placeholder="Enter your message here..."/>
+                </FieldBody>
+            </Field>
+            <Field>
+                <FieldLabel For="additionalNotes">Additional Notes:</FieldLabel>
+                <FieldBody>
+                    <MemoEdit Id="additionalNotes" @bind-Value="_additionalNotes" Rows="3" AutoResize="true" Color="@Color.Secondary" Placeholder="Any additional notes..."/>
+                </FieldBody>
+            </Field>
+            <Button Class="btn btn-primary" OnClick="SubmitForm">Submit</Button>
+            <Paragraph Margin="Margin.Is0"><Strong>Form Status:</Strong> <span class="@GetStatusClass()">@_formStatus</span></Paragraph>
+        </DemoSection>
 
-        <Div Class="demo-section">
-            <H2>Character Counter</H2>
-            <MemoEdit @bind-Value="_counterValue"
-                      MaxLength="200"
-                      OnInput="OnCounterInput"
-                      Placeholder="Type to see character counter..."/>
-            <Div Class="@($"char-counter {GetCounterClass()}")">
-                @(_counterValue?.Length ?? 0)/200
-            </Div>
-        </Div>
+        <DemoSection Title="Character Counter" Description="MaxLength with counter display." Code="@(@"<MemoEdit @bind-Value=""_counterValue"" MaxLength=""200"" OnInput=""OnCounterInput"" Placeholder=""Type to see counter...""/>
+<div>@(_counterValue?.Length ?? 0)/200</div>")">
+            <MemoEdit @bind-Value="_counterValue" MaxLength="200" OnInput="OnCounterInput" Placeholder="Type to see character counter..."/>
+            <Div Class="@($"char-counter {GetCounterClass()}")">@(_counterValue?.Length ?? 0)/200</Div>
+        </DemoSection>
 
-        <Div Class="demo-section">
-            <H2>Pre-filled Content</H2>
-            <MemoEdit @bind-Value="_prefilledValue"
-                      Rows="6"
-                      Color="Color.Info"
-                      Placeholder="This has pre-filled content..."/>
-            <Button Class="btn btn-primary" OnClick="LoadSampleContent" Style="margin-top: 10px;">
-                Load Sample Content
-            </Button>
-        </Div>
-    </Column>
-</Row>
-</Container>
+        <DemoSection Title="Pre-filled Content" Description="Initial value and Load Sample Content." Code="@(@"<MemoEdit @bind-Value=""_prefilledValue"" Rows=""6"" Color=""Color.Info"" Placeholder=""Pre-filled...""/>
+<Button OnClick=""LoadSampleContent"">Load Sample Content</Button>")">
+            <MemoEdit @bind-Value="_prefilledValue" Rows="6" Color="Color.Info" Placeholder="This has pre-filled content..."/>
+            <Button Class="btn btn-primary" OnClick="LoadSampleContent" Style="margin-top: 10px;">Load Sample Content</Button>
+        </DemoSection>
+    </Div>
+</Div>
 
 @code {
 
@@ -327,7 +279,7 @@ It includes:
 
 The component automatically handles:
 • Resizing
-• Scrolling when needed
+• Scrolling When needed
 • Proper text wrapping
 
 You can edit this content to see how the component behaves with different amounts of text.";

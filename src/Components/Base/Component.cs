@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using Soenneker.Blazor.Extensions.EventCallback;
 using Soenneker.Extensions.String;
+using Soenneker.Quark.Utilities;
 using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
@@ -165,6 +166,60 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<GapBuilder>? Gap { get; set; }
 
     /// <summary>
+    /// Gets or sets grid utility classes (grid-cols, col-span, place-items, and related).
+    /// </summary>
+    [Parameter]
+    public CssValue<GridBuilder>? Grid { get; set; }
+
+    /// <summary>
+    /// Gets or sets spacing-between-children utility classes (space-x/space-y and reverse variants).
+    /// </summary>
+    [Parameter]
+    public CssValue<SpaceBuilder>? Space { get; set; }
+
+    /// <summary>
+    /// Gets or sets divide utility classes (divide-x/y, color, opacity, style, reverse).
+    /// </summary>
+    [Parameter]
+    public CssValue<DivideBuilder>? Divide { get; set; }
+
+    /// <summary>
+    /// Gets or sets ring-offset utility classes.
+    /// </summary>
+    [Parameter]
+    public CssValue<RingOffsetBuilder>? RingOffset { get; set; }
+
+    /// <summary>
+    /// Gets or sets SVG fill utility classes.
+    /// </summary>
+    [Parameter]
+    public CssValue<FillBuilder>? Fill { get; set; }
+
+    /// <summary>
+    /// Gets or sets SVG stroke utility classes.
+    /// </summary>
+    [Parameter]
+    public CssValue<StrokeBuilder>? Stroke { get; set; }
+
+    /// <summary>
+    /// Gets or sets gradient utility classes (bg-gradient-to/from/via/to).
+    /// </summary>
+    [Parameter]
+    public CssValue<GradientBuilder>? Gradient { get; set; }
+
+    /// <summary>
+    /// Gets or sets letter-spacing utility classes (tracking-*).
+    /// </summary>
+    [Parameter]
+    public CssValue<LetterSpacingBuilder>? LetterSpacing { get; set; }
+
+    /// <summary>
+    /// Gets or sets alignment utility classes (justify/items/content/self/justify-items/justify-self).
+    /// </summary>
+    [Parameter]
+    public CssValue<AlignBuilder>? AlignUtility { get; set; }
+
+    /// <summary>
     /// Gets or sets the CSS opacity configuration.
     /// </summary>
     [Parameter]
@@ -189,7 +244,7 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<UserSelectBuilder>? UserSelect { get; set; }
 
     /// <summary>
-    /// Gets or sets the cursor style when hovering over the element.
+    /// Gets or sets the cursor style When hovering over the element.
     /// </summary>
     [Parameter]
     public CssValue<CursorBuilder>? Cursor { get; set; }
@@ -243,12 +298,6 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
 
     /// <summary>
-    /// Gets or sets the CSS clearfix configuration.
-    /// </summary>
-    [Parameter]
-    public CssValue<ClearfixBuilder>? Clearfix { get; set; }
-
-    /// <summary>
     /// Gets or sets the CSS clip-path configuration.
     /// </summary>
     [Parameter]
@@ -285,12 +334,6 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<ScrollBehaviorBuilder>? ScrollBehavior { get; set; }
 
     /// <summary>
-    /// Gets or sets the CSS stretched link configuration.
-    /// </summary>
-    [Parameter]
-    public CssValue<StretchedLinkBuilder>? StretchedLink { get; set; }
-
-    /// <summary>
     /// Gets or sets the CSS transform configuration.
     /// </summary>
     [Parameter]
@@ -321,13 +364,13 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<LinkUnderlineBuilder>? LinkUnderline { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the component is clicked.
+    /// Gets or sets the callback invoked When the component is clicked.
     /// </summary>
     [Parameter]
     public EventCallback<MouseEventArgs> OnClick { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the element reference is ready after the first render.
+    /// Gets or sets the callback invoked When the element reference is ready after the first render.
     /// </summary>
     [Parameter]
     public EventCallback<ElementReference> OnElementRefReady { get; set; }
@@ -343,7 +386,7 @@ public abstract class Component : CoreComponent, IComponent
     private Dictionary<string, object>? _cachedAttrs;
     private int _cachedAttrsKey;
 
-    // Invalidate when internal state changes (not Parameters)
+    // Invalidate When internal state changes (not Parameters)
     private int _renderVersion;
 
     public void Refresh()
@@ -431,9 +474,7 @@ public abstract class Component : CoreComponent, IComponent
 
         try
         {
-            if (Class.HasContent())
-                cls.Append(Class!);
-
+            // Build class order: component/CssValues first, then Class (user override), then Attributes/AdditionalAttributes
             if (Style.HasContent())
                 sty.Append(Style!);
 
@@ -450,6 +491,15 @@ public abstract class Component : CoreComponent, IComponent
             ApplyTextColor(ref sty, ref cls);
             AddCss(ref sty, ref cls, Flex);
             AddCss(ref sty, ref cls, Gap);
+            AddCss(ref sty, ref cls, Grid);
+            AddCss(ref sty, ref cls, Space);
+            AddCss(ref sty, ref cls, Divide);
+            AddCss(ref sty, ref cls, RingOffset);
+            AddCss(ref sty, ref cls, Fill);
+            AddCss(ref sty, ref cls, Stroke);
+            AddCss(ref sty, ref cls, Gradient);
+            AddCss(ref sty, ref cls, LetterSpacing);
+            AddCss(ref sty, ref cls, AlignUtility);
             AddCss(ref sty, ref cls, VerticalAlign);
             AddCss(ref sty, ref cls, Float);
             AddCss(ref sty, ref cls, Visibility);
@@ -460,14 +510,12 @@ public abstract class Component : CoreComponent, IComponent
             AddCss(ref sty, ref cls, Cursor);
             AddCss(ref sty, ref cls, Animation);
             AddCss(ref sty, ref cls, BackdropFilter);
-            AddCss(ref sty, ref cls, Clearfix);
             AddCss(ref sty, ref cls, ClipPath);
             AddCss(ref sty, ref cls, Filter);
             AddCss(ref sty, ref cls, Ratio);
             AddCss(ref sty, ref cls, Resize);
             AddCss(ref sty, ref cls, ScreenReader);
             AddCss(ref sty, ref cls, ScrollBehavior);
-            AddCss(ref sty, ref cls, StretchedLink);
             AddCss(ref sty, ref cls, Transform);
             AddCss(ref sty, ref cls, Transition);
             AddCss(ref sty, ref cls, LinkOpacity);
@@ -487,6 +535,10 @@ public abstract class Component : CoreComponent, IComponent
             AddCss(ref sty, ref cls, Overflow);
             AddCss(ref sty, ref cls, OverflowX);
             AddCss(ref sty, ref cls, OverflowY);
+
+            // User Class and Attributes class last so overrides win
+            if (Class.HasContent())
+                AppendClass(ref cls, Class!);
 
             if (Attributes is not null)
             {
@@ -532,6 +584,10 @@ public abstract class Component : CoreComponent, IComponent
 
             BuildAttributesCore(attrs);
 
+            // Resolve Tailwind conflicts so user/override classes win
+            if (attrs.TryGetValue("class", out var classObj) && classObj is string classStr && classStr.Length > 0)
+                attrs["class"] = ClassNames.Combine(classStr);
+
             // Cache the computed attributes keyed by the render key
             _cachedAttrs = attrs;
             _cachedAttrsKey = currentKey;
@@ -563,7 +619,7 @@ public abstract class Component : CoreComponent, IComponent
     {
         var hc = new HashCode();
 
-        // Internal invalidation version (forces key to change when you call InvalidateRender())
+        // Internal invalidation version (forces key to change When you call InvalidateRender())
         hc.Add(_renderVersion);
 
         hc.Add(Class);
@@ -596,6 +652,15 @@ public abstract class Component : CoreComponent, IComponent
         AddIf(ref hc, OverflowY);
         AddIf(ref hc, Flex);
         AddIf(ref hc, Gap);
+        AddIf(ref hc, Grid);
+        AddIf(ref hc, Space);
+        AddIf(ref hc, Divide);
+        AddIf(ref hc, RingOffset);
+        AddIf(ref hc, Fill);
+        AddIf(ref hc, Stroke);
+        AddIf(ref hc, Gradient);
+        AddIf(ref hc, LetterSpacing);
+        AddIf(ref hc, AlignUtility);
         AddIf(ref hc, Opacity);
         AddIf(ref hc, ZIndex);
         AddIf(ref hc, PointerEvents);
@@ -603,13 +668,11 @@ public abstract class Component : CoreComponent, IComponent
         AddIf(ref hc, Cursor);
         AddIf(ref hc, Animation);
         AddIf(ref hc, BackdropFilter);
-        AddIf(ref hc, Clearfix);
         AddIf(ref hc, ClipPath);
         AddIf(ref hc, Filter);
         AddIf(ref hc, Resize);
         AddIf(ref hc, ScreenReader);
         AddIf(ref hc, ScrollBehavior);
-        AddIf(ref hc, StretchedLink);
         AddIf(ref hc, Transform);
         AddIf(ref hc, Transition);
         AddIf(ref hc, LinkOpacity);
@@ -1043,7 +1106,7 @@ public abstract class Component : CoreComponent, IComponent
     {
         if (v is not { IsEmpty: false }) return;
 
-        if (v.Value.TryGetBootstrapThemeToken(out string? token) && token is not null)
+        if (v.Value.TryGetThemeToken(out string? token) && token is not null)
         {
             AppendClassToken(ref clsB, classPrefix, token);
             return;

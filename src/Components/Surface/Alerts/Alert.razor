@@ -10,15 +10,13 @@
         <div @attributes="BuildAttributes()" role="alert">
             @if (Dismissible)
             {
-                <div class="absolute right-2 top-2" data-slot="alert-action">
-                    <Button Type="@ButtonType.Button"
-                            Class="size-6 rounded-md p-0 opacity-70 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring"
-                            OnClick="HandleDismiss"
-                            aria-label="Close">
-                        <span class="sr-only">Close</span>
-                        <span aria-hidden="true">×</span>
-                    </Button>
-                </div>
+                <Button Type="@ButtonType.Button"
+                        Class="absolute right-4 top-4 size-6 rounded-sm p-0 opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+                        OnClick="HandleDismiss"
+                        aria-label="Close">
+                    <span class="sr-only">Close</span>
+                    <span aria-hidden="true">×</span>
+                </Button>
             }
             @AlertIcon
             @ChildContent
@@ -47,12 +45,6 @@
     public RenderFragment? AlertIcon { get; set; }
 
     /// <summary>
-    /// Gets or sets the alert style configuration. Used when Variant is Default.
-    /// </summary>
-    [Parameter]
-    public CssValue<AlertStyleBuilder>? AlertStyle { get; set; }
-
-    /// <summary>
     /// Gets or sets whether the alert can be dismissed.
     /// </summary>
     [Parameter]
@@ -65,13 +57,13 @@
     public bool Visible { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets the callback invoked when the visibility state changes.
+    /// Gets or sets the callback invoked When the visibility state changes.
     /// </summary>
     [Parameter]
     public EventCallback<bool> VisibleChanged { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked when the alert is dismissed.
+    /// Gets or sets the callback invoked When the alert is dismissed.
     /// </summary>
     [Parameter]
     public EventCallback OnDismiss { get; set; }
@@ -81,8 +73,6 @@
         base.BuildAttributesCore(attributes);
 
         // Build alert classes (and any alert-specific style) during attribute construction.
-        attributes["data-slot"] = "alert";
-
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
             AppendClass(ref cls, "q-alert");
@@ -90,11 +80,9 @@
             AppendClass(ref cls, "relative w-full rounded-lg border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current");
 
             if (Variant == AlertVariant.Danger)
-                AppendClass(ref cls, "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90");
+                AppendClass(ref cls, "text-destructive bg-card [&>svg]:text-current [&_.q-alert-description]:text-destructive/90");
             else if (Variant != AlertVariant.Default)
                 AppendClass(ref cls, AlertVariantClasses.GetVariantClasses(Variant, AccentBorder));
-            else if (AlertStyle is { IsEmpty: false })
-                AppendClass(ref cls, AlertStyle.Value.ToString());
             else
                 AppendClass(ref cls, "bg-card text-card-foreground");
 
@@ -189,10 +177,10 @@
             return;
 
         string? token = null;
-        if (BackgroundColor.Value.TryGetBootstrapThemeToken(out token) && token is not null)
+        if (BackgroundColor.Value.TryGetThemeToken(out token) && token is not null)
         {
             if (token.Equals("danger", StringComparison.OrdinalIgnoreCase))
-                AppendClass(ref cls, "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90");
+                AppendClass(ref cls, "text-destructive bg-card [&>svg]:text-current [&_.q-alert-description]:text-destructive/90");
             return;
         }
 
@@ -200,7 +188,7 @@
         {
             var sub = v.Length > 6 ? v.Substring(6) : null;
             if (sub is not null && sub.Equals("danger", StringComparison.OrdinalIgnoreCase))
-                AppendClass(ref cls, "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90");
+                AppendClass(ref cls, "text-destructive bg-card [&>svg]:text-current [&_.q-alert-description]:text-destructive/90");
             return;
         }
 
@@ -211,7 +199,6 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
-        AddIf(ref hc, AlertStyle);
         hc.Add(Variant);
         hc.Add(AccentBorder);
         hc.Add(AlertIcon != null);
