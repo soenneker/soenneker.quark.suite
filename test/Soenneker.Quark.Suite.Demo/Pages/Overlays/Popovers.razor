@@ -1,0 +1,100 @@
+@page "/overlays/popovers"
+
+<PageTitle>Popovers - Quark Suite</PageTitle>
+
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-6">
+        <section class="space-y-4">
+            <DemoSection Title="Basic popover"
+                         Description="shadcn-style popover with trigger and content."
+                         Code="@BasicCode">
+                <Popover>
+                    <PopoverTrigger>
+                        <Button Variant="ButtonVariant.Outline">Open popover</Button>
+                    </PopoverTrigger>
+                    <PopoverContent Class="w-80">
+                        <Div Class="grid gap-4">
+                            <PopoverHeader>
+                                <PopoverTitle>Dimensions</PopoverTitle>
+                                <PopoverDescription>Set the dimensions for the layer.</PopoverDescription>
+                            </PopoverHeader>
+                            <Div Class="grid gap-2">
+                                <Div Class="grid grid-cols-3 items-center gap-4">
+                                    <Label Form="true">Width</Label>
+                                    <Div Class="col-span-2 h-8 rounded-md border px-3 py-1 text-sm text-muted-foreground">100%</Div>
+                                </Div>
+                                <Div Class="grid grid-cols-3 items-center gap-4">
+                                    <Label Form="true">Max. width</Label>
+                                    <Div Class="col-span-2 h-8 rounded-md border px-3 py-1 text-sm text-muted-foreground">300px</Div>
+                                </Div>
+                                <Div Class="grid grid-cols-3 items-center gap-4">
+                                    <Label Form="true">Height</Label>
+                                    <Div Class="col-span-2 h-8 rounded-md border px-3 py-1 text-sm text-muted-foreground">25px</Div>
+                                </Div>
+                            </Div>
+                        </Div>
+                    </PopoverContent>
+                </Popover>
+            </DemoSection>
+        </section>
+
+        <section class="space-y-4">
+            <DemoSection Title="Controlled state"
+                         Description="@($"Open: {_open}. Use DisableAutoOpen for explicit visibility control.")"
+                         Code="@ControlledCode">
+                <Div Class="flex flex-wrap items-start gap-3">
+                    <Button Class="bg-primary text-primary-foreground" OnClick="TogglePopover">
+                        Toggle popover
+                    </Button>
+
+                    <Popover>
+                        <PopoverTrigger>
+                            <Button Variant="ButtonVariant.Outline">Info</Button>
+                        </PopoverTrigger>
+                        <PopoverContent Open="_open" DisableAutoOpen="true" Align="start">
+                            <PopoverHeader>
+                                <PopoverTitle>Controlled popover</PopoverTitle>
+                                <PopoverDescription>
+                                    This content is driven by the <Code Inline="true">Open</Code> parameter.
+                                </PopoverDescription>
+                            </PopoverHeader>
+                        </PopoverContent>
+                    </Popover>
+                </Div>
+            </DemoSection>
+        </section>
+    </Div>
+</Div>
+
+@code {
+    private bool _open;
+
+    private Task TogglePopover()
+    {
+        _open = !_open;
+        return Task.CompletedTask;
+    }
+
+    private const string BasicCode =
+@"<Popover>
+    <PopoverTrigger>
+        <Button Variant=""ButtonVariant.Outline"">Open popover</Button>
+    </PopoverTrigger>
+    <PopoverContent Class=""w-80"">
+        <PopoverHeader>
+            <PopoverTitle>Dimensions</PopoverTitle>
+            <PopoverDescription>Set the dimensions for the layer.</PopoverDescription>
+        </PopoverHeader>
+    </PopoverContent>
+</Popover>";
+
+    private const string ControlledCode =
+@"<Popover>
+    <PopoverTrigger>
+        <Button Variant=""ButtonVariant.Outline"">Info</Button>
+    </PopoverTrigger>
+    <PopoverContent Open=""_open"" DisableAutoOpen=""true"">
+        Controlled content...
+    </PopoverContent>
+</Popover>";
+}

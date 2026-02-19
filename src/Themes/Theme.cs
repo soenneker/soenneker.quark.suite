@@ -48,11 +48,6 @@ public sealed class Theme
     public BadgeOptions? Badges { get; set; }
 
     /// <summary>
-    /// Gets or sets the bar component styling options.
-    /// </summary>
-    public BarOptions? Bars { get; set; }
-
-    /// <summary>
     /// Gets or sets the breadcrumb component styling options.
     /// </summary>
     public BreadcrumbOptions? Breadcrumbs { get; set; }
@@ -495,77 +490,6 @@ public sealed class Theme
     /// </summary>
     public PreCodeOptions? PreCodes { get; set; }
 
-    // Bar components
-    /// <summary>
-    /// Gets or sets the bar toggler component styling options.
-    /// </summary>
-    public BarTogglerOptions? BarTogglers { get; set; }
-
-    /// <summary>
-    /// Gets or sets the bar start component styling options.
-    /// </summary>
-    public BarStartOptions? BarStarts { get; set; }
-
-    /// <summary>
-    /// Gets or sets the bar menu component styling options.
-    /// </summary>
-    public BarMenuOptions? BarMenus { get; set; }
-
-    /// <summary>
-    /// Gets or sets the bar link component styling options.
-    /// </summary>
-    public BarLinkOptions? BarLinks { get; set; }
-
-    /// <summary>
-    /// Gets or sets the bar label component styling options.
-    /// </summary>
-    public BarLabelOptions? BarLabels { get; set; }
-
-    /// <summary>
-    /// Gets or sets the bar item component styling options.
-    /// </summary>
-    public BarItemOptions? BarItems { get; set; }
-
-    /// <summary>
-    /// Gets or sets the bar icon component styling options.
-    /// </summary>
-    public BarIconOptions? BarIcons { get; set; }
-
-    /// <summary>
-    /// Gets or sets the bar end component styling options.
-    /// </summary>
-    public BarEndOptions? BarEnds { get; set; }
-
-    /// <summary>
-    /// Gets or sets the bar dropdown toggle component styling options.
-    /// </summary>
-    public BarDropdownToggleOptions? BarDropdownToggles { get; set; }
-
-    /// <summary>
-    /// Gets or sets the bar dropdown component styling options.
-    /// </summary>
-    public BarDropdownOptions? BarDropdowns { get; set; }
-
-    /// <summary>
-    /// Gets or sets the bar dropdown menu component styling options.
-    /// </summary>
-    public BarDropdownMenuOptions? BarDropdownMenus { get; set; }
-
-    /// <summary>
-    /// Gets or sets the bar dropdown item component styling options.
-    /// </summary>
-    public BarDropdownItemOptions? BarDropdownItems { get; set; }
-
-    /// <summary>
-    /// Gets or sets the bar dropdown divider component styling options.
-    /// </summary>
-    public BarDropdownDividerOptions? BarDropdownDividers { get; set; }
-
-    /// <summary>
-    /// Gets or sets the bar brand component styling options.
-    /// </summary>
-    public BarBrandOptions? BarBrands { get; set; }
-
     // Typographic components
     /// <summary>
     /// Gets or sets the H1 heading component styling options.
@@ -940,8 +864,6 @@ public sealed class Theme
             yield return Anchors;
         if (Badges != null)
             yield return Badges;
-        if (Bars != null)
-            yield return Bars;
         if (Breadcrumbs != null)
             yield return Breadcrumbs;
         if (Buttons != null)
@@ -1116,34 +1038,6 @@ public sealed class Theme
             yield return Smalls;
         if (PreCodes != null)
             yield return PreCodes;
-        if (BarTogglers != null)
-            yield return BarTogglers;
-        if (BarStarts != null)
-            yield return BarStarts;
-        if (BarMenus != null)
-            yield return BarMenus;
-        if (BarLinks != null)
-            yield return BarLinks;
-        if (BarLabels != null)
-            yield return BarLabels;
-        if (BarItems != null)
-            yield return BarItems;
-        if (BarIcons != null)
-            yield return BarIcons;
-        if (BarEnds != null)
-            yield return BarEnds;
-        if (BarDropdownToggles != null)
-            yield return BarDropdownToggles;
-        if (BarDropdowns != null)
-            yield return BarDropdowns;
-        if (BarDropdownMenus != null)
-            yield return BarDropdownMenus;
-        if (BarDropdownItems != null)
-            yield return BarDropdownItems;
-        if (BarDropdownDividers != null)
-            yield return BarDropdownDividers;
-        if (BarBrands != null)
-            yield return BarBrands;
         if (H1S != null)
             yield return H1S;
         if (H2S != null)

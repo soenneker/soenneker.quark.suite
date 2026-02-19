@@ -1,0 +1,44 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public bool Open { get; set; }
+
+    [Parameter]
+    public string Side { get; set; } = "bottom";
+
+    [Parameter]
+    public bool DisableAutoOpen { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "menubar-content";
+        attributes["data-state"] = Open ? "open" : "closed";
+        attributes["data-side"] = Side;
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "q-menubar-content");
+            AppendClass(ref cls, "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[12rem] origin-(--radix-menubar-content-transform-origin) overflow-hidden rounded-md border p-1 shadow-md");
+            AppendClass(ref cls, "absolute top-full left-0 mt-2");
+            AppendClass(ref cls, "data-[state=closed]:hidden data-[state=open]:block");
+
+            if (!DisableAutoOpen)
+                AppendClass(ref cls, "group-hover/menubar-menu:block group-focus-within/menubar-menu:block");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Open);
+        hc.Add(Side);
+        hc.Add(DisableAutoOpen);
+    }
+}

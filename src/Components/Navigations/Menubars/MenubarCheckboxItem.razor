@@ -1,0 +1,44 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
+        @if (Checked)
+        {
+            <span class="size-4 leading-none">✓</span>
+        }
+    </span>
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public bool Checked { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "menubar-checkbox-item";
+        attributes["data-state"] = Checked ? "checked" : "unchecked";
+        attributes["data-disabled"] = Disabled ? "true" : "false";
+
+        if (Disabled)
+            attributes["aria-disabled"] = "true";
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "q-menubar-checkbox-item");
+            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-xs py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Checked);
+        hc.Add(Disabled);
+    }
+}

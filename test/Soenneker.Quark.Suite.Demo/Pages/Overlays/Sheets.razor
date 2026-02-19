@@ -1,0 +1,117 @@
+@page "/overlays/sheets"
+
+<PageTitle>Sheets - Quark Suite</PageTitle>
+
+<Div Class="space-y-8 max-w-4xl">
+    <section class="space-y-4">
+        <DemoSection Title="Default sheet"
+                     Description="shadcn-style sheet with right-side content and close button."
+                     Code="@DefaultCode">
+            <Sheet @bind-Visible="_showDefaultSheet">
+                <SheetTrigger>
+                    <Button Variant="ButtonVariant.Outline">Open sheet</Button>
+                </SheetTrigger>
+                <SheetContent Side="right">
+                    <SheetHeader>
+                        <SheetTitle>Edit profile</SheetTitle>
+                        <SheetDescription>
+                            Make changes to your profile here. Click save when you are done.
+                        </SheetDescription>
+                    </SheetHeader>
+                    <Div Class="grid gap-4 px-4">
+                        <Div Class="grid gap-2">
+                            <Label Form="true">Name</Label>
+                            <TextEdit Placeholder="Jane Doe" />
+                        </Div>
+                        <Div Class="grid gap-2">
+                            <Label Form="true">Username</Label>
+                            <TextEdit Placeholder="jane" />
+                        </Div>
+                    </Div>
+                    <SheetFooter>
+                        <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showDefaultSheet = false)">Cancel</Button>
+                        <Button OnClick="@(() => _showDefaultSheet = false)">Save changes</Button>
+                    </SheetFooter>
+                </SheetContent>
+            </Sheet>
+        </DemoSection>
+
+        <DemoSection Title="Side variants"
+                     Description="Sheet can slide from left, right, top, or bottom."
+                     Code="@SidesCode">
+            <Div Class="flex flex-wrap gap-2">
+                <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showLeft = true)">Left</Button>
+                <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showRight = true)">Right</Button>
+                <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showTop = true)">Top</Button>
+                <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showBottom = true)">Bottom</Button>
+            </Div>
+
+            <Sheet @bind-Visible="_showLeft">
+                <SheetContent Side="left">
+                    <SheetHeader>
+                        <SheetTitle>Left sheet</SheetTitle>
+                        <SheetDescription>Slides in from the left.</SheetDescription>
+                    </SheetHeader>
+                </SheetContent>
+            </Sheet>
+
+            <Sheet @bind-Visible="_showRight">
+                <SheetContent Side="right">
+                    <SheetHeader>
+                        <SheetTitle>Right sheet</SheetTitle>
+                        <SheetDescription>Slides in from the right.</SheetDescription>
+                    </SheetHeader>
+                </SheetContent>
+            </Sheet>
+
+            <Sheet @bind-Visible="_showTop">
+                <SheetContent Side="top">
+                    <SheetHeader>
+                        <SheetTitle>Top sheet</SheetTitle>
+                        <SheetDescription>Slides in from the top.</SheetDescription>
+                    </SheetHeader>
+                </SheetContent>
+            </Sheet>
+
+            <Sheet @bind-Visible="_showBottom">
+                <SheetContent Side="bottom">
+                    <SheetHeader>
+                        <SheetTitle>Bottom sheet</SheetTitle>
+                        <SheetDescription>Slides in from the bottom.</SheetDescription>
+                    </SheetHeader>
+                </SheetContent>
+            </Sheet>
+        </DemoSection>
+    </section>
+</Div>
+
+@code {
+    private bool _showDefaultSheet;
+    private bool _showLeft;
+    private bool _showRight;
+    private bool _showTop;
+    private bool _showBottom;
+
+    private const string DefaultCode =
+@"<Sheet @bind-Visible=""show"">
+    <SheetTrigger>
+        <Button Variant=""ButtonVariant.Outline"">Open sheet</Button>
+    </SheetTrigger>
+    <SheetContent Side=""right"">
+        <SheetHeader>
+            <SheetTitle>Edit profile</SheetTitle>
+            <SheetDescription>Make changes to your profile here.</SheetDescription>
+        </SheetHeader>
+        <SheetFooter>
+            <Button Variant=""ButtonVariant.Outline"">Cancel</Button>
+            <Button>Save changes</Button>
+        </SheetFooter>
+    </SheetContent>
+</Sheet>";
+
+    private const string SidesCode =
+@"<Sheet @bind-Visible=""leftOpen""><SheetContent Side=""left"">...</SheetContent></Sheet>
+<Sheet @bind-Visible=""rightOpen""><SheetContent Side=""right"">...</SheetContent></Sheet>
+<Sheet @bind-Visible=""topOpen""><SheetContent Side=""top"">...</SheetContent></Sheet>
+<Sheet @bind-Visible=""bottomOpen""><SheetContent Side=""bottom"">...</SheetContent></Sheet>";
+}

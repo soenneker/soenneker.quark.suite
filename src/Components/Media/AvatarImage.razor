@@ -1,0 +1,37 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<img @attributes="BuildAttributes()" />
+
+@code {
+    [Parameter]
+    public string? Src { get; set; }
+
+    [Parameter]
+    public string? Alt { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "avatar-image";
+
+        if (Src.HasContent())
+            attributes["src"] = Src!;
+
+        if (Alt.HasContent())
+            attributes["alt"] = Alt!;
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "q-avatar-image");
+            AppendClass(ref cls, "aspect-square size-full");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Src);
+        hc.Add(Alt);
+    }
+}

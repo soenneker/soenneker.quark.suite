@@ -1,0 +1,23 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements ISheetDescription
+
+<Paragraph @attributes="BuildAttributes()">
+    @ChildContent
+</Paragraph>
+
+@code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        // shadcn SheetDescription - new-york-v4 ui/sheet.tsx
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-sheet-description");
+            AppendClass(ref cls, "text-muted-foreground text-sm");
+        });
+
+        attributes["data-slot"] = "sheet-description";
+    }
+}

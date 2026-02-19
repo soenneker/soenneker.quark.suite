@@ -1,0 +1,105 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IAlertDialogContent
+
+@if (ParentAlertDialog?.Visible == true)
+{
+    <div @onkeydown="HandleKeyDown" @onclick="HandleBackdropClick" @attributes="BuildContainerAttributes()">
+        @if (ParentAlertDialog.ShowBackdrop)
+        {
+            <div @attributes="BuildOverlayAttributes()"></div>
+        }
+        <div @onclick:stopPropagation="true" @attributes="BuildAttributes()">
+            @ChildContent
+        </div>
+    </div>
+}
+
+@code {
+    [CascadingParameter(Name = nameof(ParentAlertDialog))]
+    public AlertDialog? ParentAlertDialog { get; set; }
+
+    /// <summary>
+    /// Gets or sets the size variant of the alert dialog content ("default" or "sm").
+    /// </summary>
+    [Parameter]
+    public string Size { get; set; } = "default";
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        string normalizedSize = Size.ToLowerInvariant() switch
+        {
+            "sm" => "sm",
+            _ => "default"
+        };
+
+        // shadcn AlertDialogContent - new-york-v4 ui/alert-dialog.tsx
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-alert-dialog-content");
+            AppendClass(ref cls, "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 group/alert-dialog-content fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-lg");
+        });
+
+        attributes["role"] = "alertdialog";
+        attributes["aria-modal"] = "true";
+        attributes["data-size"] = normalizedSize;
+        attributes["data-state"] = ParentAlertDialog?.Visible == true ? "open" : "closed";
+    }
+
+    private Dictionary<string, object> BuildContainerAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-alert-dialog");
+            AppendClass(ref cls, "fixed inset-0 z-50");
+        });
+
+        attributes["tabindex"] = -1;
+        attributes["data-state"] = ParentAlertDialog?.Visible == true ? "open" : "closed";
+
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildOverlayAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+
+        // shadcn AlertDialogOverlay - new-york-v4 ui/alert-dialog.tsx
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-alert-dialog-overlay");
+            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50");
+        });
+
+        attributes["data-state"] = ParentAlertDialog?.Visible == true ? "open" : "closed";
+
+        return attributes;
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (ParentAlertDialog?.CloseOnEscape == true && e.Key == "Escape")
+            await ParentAlertDialog.Hide();
+    }
+
+    private async Task HandleBackdropClick(MouseEventArgs _)
+    {
+        if (ParentAlertDialog is null || !ParentAlertDialog.CloseOnBackdropClick)
+            return;
+
+        await ParentAlertDialog.OnBackdropClick.InvokeIfHasDelegate();
+        await ParentAlertDialog.Hide();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Size);
+        hc.Add(ParentAlertDialog?.Visible ?? false);
+    }
+}

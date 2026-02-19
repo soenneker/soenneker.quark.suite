@@ -1,0 +1,48 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements ISheetClose
+
+<Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" OnClick="HandleCloseClick" @attributes="BuildAttributes()">
+    @if (ChildContent is null)
+    {
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        <span class="sr-only">Close</span>
+    }
+    else
+    {
+        @ChildContent
+    }
+</Button>
+
+@code {
+    [CascadingParameter(Name = nameof(ParentSheet))]
+    public Sheet? ParentSheet { get; set; }
+
+    [Parameter]
+    public bool AutoClose { get; set; } = true;
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "sheet-close";
+
+        // shadcn Sheet close button - new-york-v4 ui/sheet.tsx
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-sheet-close");
+            AppendClass(ref cls, "ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none");
+        });
+    }
+
+    private async Task HandleCloseClick(MouseEventArgs _)
+    {
+        if (AutoClose && ParentSheet is not null)
+            await ParentSheet.Hide();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(AutoClose);
+    }
+}

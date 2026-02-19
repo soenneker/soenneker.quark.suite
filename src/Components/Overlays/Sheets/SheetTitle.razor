@@ -1,0 +1,23 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements ISheetTitle
+
+<Heading Scale="@Scale.Is5" @attributes="BuildAttributes()">
+    @ChildContent
+</Heading>
+
+@code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        // shadcn SheetTitle - new-york-v4 ui/sheet.tsx
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-sheet-title");
+            AppendClass(ref cls, "text-foreground font-semibold");
+        });
+
+        attributes["data-slot"] = "sheet-title";
+    }
+}

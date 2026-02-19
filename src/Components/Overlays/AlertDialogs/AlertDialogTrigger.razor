@@ -1,0 +1,57 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IAlertDialogTrigger
+
+<div @onclick="HandleActivate" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    [CascadingParameter(Name = nameof(ParentAlertDialog))]
+    public AlertDialog? ParentAlertDialog { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the trigger is disabled.
+    /// </summary>
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "alert-dialog-trigger";
+        attributes["role"] = "button";
+        attributes["tabindex"] = Disabled ? -1 : 0;
+
+        if (Disabled)
+            attributes["aria-disabled"] = "true";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-alert-dialog-trigger");
+            if (Disabled)
+                AppendClass(ref cls, "pointer-events-none opacity-50");
+        });
+    }
+
+    private async Task HandleActivate()
+    {
+        if (!Disabled && ParentAlertDialog != null)
+            await ParentAlertDialog.Show();
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (Disabled)
+            return;
+
+        if (e.Key is "Enter" or " ")
+            await HandleActivate();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Disabled);
+    }
+}

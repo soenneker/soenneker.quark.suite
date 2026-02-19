@@ -1,0 +1,23 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements ISheetHeader
+
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        // shadcn SheetHeader - new-york-v4 ui/sheet.tsx
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-sheet-header");
+            AppendClass(ref cls, "flex flex-col gap-1.5 p-4");
+        });
+
+        attributes["data-slot"] = "sheet-header";
+    }
+}

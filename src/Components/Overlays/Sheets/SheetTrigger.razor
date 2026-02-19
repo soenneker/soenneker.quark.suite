@@ -1,0 +1,54 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements ISheetTrigger
+
+<div @onclick="HandleActivate" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    [CascadingParameter(Name = nameof(ParentSheet))]
+    public Sheet? ParentSheet { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "sheet-trigger";
+        attributes["role"] = "button";
+        attributes["tabindex"] = Disabled ? -1 : 0;
+
+        if (Disabled)
+            attributes["aria-disabled"] = "true";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-sheet-trigger");
+            if (Disabled)
+                AppendClass(ref cls, "pointer-events-none opacity-50");
+        });
+    }
+
+    private async Task HandleActivate()
+    {
+        if (!Disabled && ParentSheet is not null)
+            await ParentSheet.Show();
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (Disabled)
+            return;
+
+        if (e.Key is "Enter" or " ")
+            await HandleActivate();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Disabled);
+    }
+}

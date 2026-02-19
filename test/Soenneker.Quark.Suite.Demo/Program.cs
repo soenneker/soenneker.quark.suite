@@ -41,10 +41,6 @@ public sealed class Program
                 Anchors = new AnchorOptions
                 {
                     TextDecoration = TextDecoration.None
-                },
-                BarDropdownItems = new BarDropdownItemOptions
-                {
-                    BackgroundColor = "#FFFFFF"
                 }
             };
 

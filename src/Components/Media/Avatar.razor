@@ -1,0 +1,34 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    /// <summary>
+    /// Size token aligned with shadcn avatar sizing.
+    /// Supported values: default, sm, lg.
+    /// </summary>
+    [Parameter]
+    public string Size { get; set; } = "default";
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "avatar";
+        attributes["data-size"] = Size;
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "q-avatar");
+            AppendClass(ref cls, "group/avatar relative flex size-8 shrink-0 overflow-hidden rounded-full select-none data-[size=lg]:size-10 data-[size=sm]:size-6");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Size);
+    }
+}

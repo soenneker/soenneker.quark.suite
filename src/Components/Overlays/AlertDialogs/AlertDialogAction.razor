@@ -1,0 +1,65 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IAlertDialogAction
+
+<Button Type="@ButtonType.Button" Variant="@Variant" Size="@Size" OnClick="HandleActionClick" @attributes="BuildAttributes()">
+    @ChildContent
+</Button>
+
+@code {
+    [CascadingParameter(Name = nameof(ParentAlertDialog))]
+    public AlertDialog? ParentAlertDialog { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the parent alert dialog should automatically close when clicked.
+    /// </summary>
+    [Parameter]
+    public bool AutoClose { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the callback invoked when the action is clicked.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnAction { get; set; }
+
+    /// <summary>
+    /// Gets or sets the visual style variant of the action button.
+    /// </summary>
+    [Parameter]
+    public ButtonVariant Variant { get; set; } = ButtonVariant.Default;
+
+    /// <summary>
+    /// Gets or sets the size of the action button.
+    /// </summary>
+    [Parameter]
+    public ButtonSize Size { get; set; } = ButtonSize.Default;
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "alert-dialog-action";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-alert-dialog-action");
+        });
+    }
+
+    private async Task HandleActionClick(MouseEventArgs _)
+    {
+        await OnAction.InvokeIfHasDelegate();
+
+        if (AutoClose && ParentAlertDialog != null)
+            await ParentAlertDialog.Hide();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(AutoClose);
+        hc.Add(Variant);
+        hc.Add(Size);
+    }
+}

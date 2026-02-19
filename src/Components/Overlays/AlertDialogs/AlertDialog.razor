@@ -1,0 +1,53 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Overlay
+@implements IAlertDialog
+
+<CascadingValue Name="ParentAlertDialog" Value="@this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    /// <summary>
+    /// Gets or sets the callback invoked when the backdrop is clicked.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnBackdropClick { get; set; }
+
+    /// <summary>
+    /// Shows the alert dialog.
+    /// </summary>
+    public async Task Show()
+    {
+        if (Visible)
+            return;
+
+        Visible = true;
+        await VisibleChanged.InvokeAsync(Visible);
+        await OnShow.InvokeIfHasDelegate();
+        await RefreshOffThread();
+    }
+
+    /// <summary>
+    /// Hides the alert dialog.
+    /// </summary>
+    public async Task Hide()
+    {
+        if (!Visible)
+            return;
+
+        Visible = false;
+        await VisibleChanged.InvokeAsync(Visible);
+        await OnHide.InvokeIfHasDelegate();
+        await RefreshOffThread();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Visible);
+        hc.Add(ShowBackdrop);
+        hc.Add(CloseOnBackdropClick);
+        hc.Add(CloseOnEscape);
+    }
+}

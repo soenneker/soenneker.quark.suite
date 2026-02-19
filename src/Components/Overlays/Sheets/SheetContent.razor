@@ -1,0 +1,129 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements ISheetContent
+
+@if (ParentSheet?.Visible == true)
+{
+    <div @onkeydown="HandleKeyDown" @onclick="HandleBackdropClick" @attributes="BuildContainerAttributes()">
+        @if (ParentSheet.ShowBackdrop)
+        {
+            <div @attributes="BuildOverlayAttributes()"></div>
+        }
+        <div @onclick:stopPropagation="true" @attributes="BuildAttributes()">
+            @ChildContent
+            @if (ShowCloseButton)
+            {
+                <SheetClose />
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [CascadingParameter(Name = nameof(ParentSheet))]
+    public Sheet? ParentSheet { get; set; }
+
+    /// <summary>
+    /// Gets or sets which side the sheet slides from ("top", "right", "bottom", "left").
+    /// </summary>
+    [Parameter]
+    public string Side { get; set; } = "right";
+
+    /// <summary>
+    /// Gets or sets whether a close button should be rendered in the sheet.
+    /// </summary>
+    [Parameter]
+    public bool ShowCloseButton { get; set; } = true;
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        string side = Side.ToLowerInvariant() switch
+        {
+            "left" => "left",
+            "top" => "top",
+            "bottom" => "bottom",
+            _ => "right"
+        };
+
+        // shadcn SheetContent - new-york-v4 ui/sheet.tsx
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-sheet-content");
+            AppendClass(ref cls, "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500");
+            if (side == "right")
+                AppendClass(ref cls, "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 h-full w-3/4 border-l sm:max-w-sm");
+            else if (side == "left")
+                AppendClass(ref cls, "data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left inset-y-0 left-0 h-full w-3/4 border-r sm:max-w-sm");
+            else if (side == "top")
+                AppendClass(ref cls, "data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top inset-x-0 top-0 h-auto border-b");
+            else
+                AppendClass(ref cls, "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 h-auto border-t");
+        });
+
+        attributes["data-slot"] = "sheet-content";
+        attributes["data-state"] = ParentSheet?.Visible == true ? "open" : "closed";
+        attributes["data-side"] = side;
+        attributes["role"] = "dialog";
+        attributes["aria-modal"] = "true";
+    }
+
+    private Dictionary<string, object> BuildContainerAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-sheet");
+            AppendClass(ref cls, "fixed inset-0 z-50");
+        });
+
+        attributes["tabindex"] = -1;
+        attributes["data-state"] = ParentSheet?.Visible == true ? "open" : "closed";
+        attributes["data-slot"] = "sheet";
+
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildOverlayAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+
+        // shadcn SheetOverlay - new-york-v4 ui/sheet.tsx
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-sheet-overlay");
+            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50");
+        });
+
+        attributes["data-state"] = ParentSheet?.Visible == true ? "open" : "closed";
+        attributes["data-slot"] = "sheet-overlay";
+
+        return attributes;
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (ParentSheet?.CloseOnEscape == true && e.Key == "Escape")
+            await ParentSheet.Hide();
+    }
+
+    private async Task HandleBackdropClick(MouseEventArgs _)
+    {
+        if (ParentSheet is null || !ParentSheet.CloseOnBackdropClick)
+            return;
+
+        await ParentSheet.OnBackdropClick.InvokeIfHasDelegate();
+        await ParentSheet.Hide();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Side);
+        hc.Add(ShowCloseButton);
+        hc.Add(ParentSheet?.Visible ?? false);
+    }
+}

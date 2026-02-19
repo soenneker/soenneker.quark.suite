@@ -1,0 +1,32 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<button @attributes="BuildAttributes()">
+    @ChildContent
+</button>
+
+@code {
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["type"] = "button";
+        attributes["data-slot"] = "popover-trigger";
+
+        if (Disabled)
+            attributes["disabled"] = true;
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "q-popover-trigger");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Disabled);
+    }
+}

@@ -1,0 +1,127 @@
+@page "/overlays/alert-dialogs"
+
+<PageTitle>Alert Dialogs - Quark Suite</PageTitle>
+
+<Div Class="space-y-8 max-w-4xl">
+    <section class="space-y-4">
+        <DemoSection Title="Default alert dialog"
+                     Description="shadcn-style confirmation dialog with trigger, title, description, and actions."
+                     Code="@DefaultCode">
+            <AlertDialog @bind-Visible="_showDefaultAlert" CloseOnBackdropClick="false" CloseOnEscape="false">
+                <AlertDialogTrigger>
+                    <Button Variant="ButtonVariant.Outline">Show dialog</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete your account and remove your data from our servers.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction OnAction="HandleContinue">Continue</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </DemoSection>
+
+        <DemoSection Title="Destructive confirm"
+                     Description="Use a destructive variant for dangerous actions."
+                     Code="@DestructiveCode">
+            <AlertDialog @bind-Visible="_showDestructiveAlert" CloseOnBackdropClick="false" CloseOnEscape="false">
+                <Button Variant="ButtonVariant.Destructive" OnClick="@(() => _showDestructiveAlert = true)">Delete project</Button>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete this project?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This permanently removes all records for this project and cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Keep project</AlertDialogCancel>
+                        <AlertDialogAction Variant="ButtonVariant.Destructive" OnAction="HandleDelete">Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </DemoSection>
+
+        <DemoSection Title="Small dialog"
+                     Description="Use Size='sm' for compact confirmations."
+                     Code="@SmallCode">
+            <AlertDialog @bind-Visible="_showSmallAlert" CloseOnBackdropClick="false" CloseOnEscape="false">
+                <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showSmallAlert = true)">Archive item</Button>
+                <AlertDialogContent Size="sm">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Archive item?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            You can restore this item later from archives.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction>Archive</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </DemoSection>
+    </section>
+</Div>
+
+@code {
+    private bool _showDefaultAlert;
+    private bool _showDestructiveAlert;
+    private bool _showSmallAlert;
+
+    private Task HandleContinue() => Task.CompletedTask;
+    private Task HandleDelete() => Task.CompletedTask;
+
+    private const string DefaultCode =
+@"<AlertDialog @bind-Visible=""show"" CloseOnBackdropClick=""false"" CloseOnEscape=""false"">
+    <AlertDialogTrigger>
+        <Button Variant=""ButtonVariant.Outline"">Show dialog</Button>
+    </AlertDialogTrigger>
+    <AlertDialogContent>
+        <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+                This action cannot be undone.
+            </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction>Continue</AlertDialogAction>
+        </AlertDialogFooter>
+    </AlertDialogContent>
+</AlertDialog>";
+
+    private const string DestructiveCode =
+@"<AlertDialog @bind-Visible=""showDelete"" CloseOnBackdropClick=""false"" CloseOnEscape=""false"">
+    <Button Variant=""ButtonVariant.Destructive"" OnClick=""@(() => showDelete = true)"">Delete project</Button>
+    <AlertDialogContent>
+        <AlertDialogHeader>
+            <AlertDialogTitle>Delete this project?</AlertDialogTitle>
+            <AlertDialogDescription>This action is permanent.</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+            <AlertDialogCancel>Keep project</AlertDialogCancel>
+            <AlertDialogAction Variant=""ButtonVariant.Destructive"">Delete</AlertDialogAction>
+        </AlertDialogFooter>
+    </AlertDialogContent>
+</AlertDialog>";
+
+    private const string SmallCode =
+@"<AlertDialog @bind-Visible=""showSmall"" CloseOnBackdropClick=""false"" CloseOnEscape=""false"">
+    <Button Variant=""ButtonVariant.Outline"" OnClick=""@(() => showSmall = true)"">Archive item</Button>
+    <AlertDialogContent Size=""sm"">
+        <AlertDialogHeader>
+            <AlertDialogTitle>Archive item?</AlertDialogTitle>
+            <AlertDialogDescription>You can restore this later.</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction>Archive</AlertDialogAction>
+        </AlertDialogFooter>
+    </AlertDialogContent>
+</AlertDialog>";
+}
