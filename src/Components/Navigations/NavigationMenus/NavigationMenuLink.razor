@@ -1,0 +1,52 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements INavigationMenuLink
+
+<a @attributes="BuildAttributes()">
+    @ChildContent
+</a>
+
+@code {
+    [Parameter]
+    public string? Href { get; set; }
+
+    [Parameter]
+    public bool Active { get; set; }
+
+    [Parameter]
+    public string? Target { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "navigation-menu-link";
+        attributes["data-active"] = Active ? "true" : "false";
+
+        if (Href.HasContent())
+            attributes["href"] = Href!;
+
+        if (Target.HasContent())
+            attributes["target"] = Target!;
+
+        if (Active)
+            attributes["aria-current"] = "page";
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "q-navigation-menu-link");
+            AppendClass(ref cls, "data-[active=true]:focus:bg-accent data-[active=true]:hover:bg-accent data-[active=true]:bg-accent/50 data-[active=true]:text-accent-foreground");
+            AppendClass(ref cls, "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground");
+            AppendClass(ref cls, "focus-visible:ring-ring/50 [&_svg:not([class*='text-'])]:text-muted-foreground");
+            AppendClass(ref cls, "flex flex-col gap-1 rounded-sm p-2 text-sm transition-all outline-none focus-visible:ring-[3px] focus-visible:outline-1");
+            AppendClass(ref cls, "[&_svg:not([class*='size-'])]:size-4");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Href);
+        hc.Add(Active);
+        hc.Add(Target);
+    }
+}

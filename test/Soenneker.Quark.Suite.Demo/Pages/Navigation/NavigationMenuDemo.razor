@@ -1,0 +1,126 @@
+@page "/navigation/navigation-menu"
+
+<PageTitle>Navigation Menu - Quark Suite</PageTitle>
+
+<Div Class="space-y-8 max-w-5xl">
+    <Div Class="space-y-6">
+        <section class="space-y-4">
+            <DemoSection Title="shadcn-style navigation menu"
+                        Description="Composed with NavigationMenu, list, item, trigger, content, and links."
+                        Code="@BasicCode">
+                <Div Class="rounded-xl border border-border p-4">
+                    <NavigationMenu Viewport="false" Class="w-full justify-start">
+                        <NavigationMenuList Class="justify-start">
+                            <NavigationMenuItem>
+                                <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
+                                <NavigationMenuContent Motion="from-start">
+                                    <Div Class="grid gap-2 p-2 md:w-[420px] lg:w-[520px]">
+                                        <NavigationMenuLink Href="/components" Active="true">
+                                            <Span Class="font-medium leading-none">Components</Span>
+                                            <Span Class="text-muted-foreground">Production-ready Quark UI primitives.</Span>
+                                        </NavigationMenuLink>
+                                        <NavigationMenuLink Href="/typography/headings">
+                                            <Span Class="font-medium leading-none">Typography</Span>
+                                            <Span Class="text-muted-foreground">Headings, text, labels, and utilities.</Span>
+                                        </NavigationMenuLink>
+                                        <NavigationMenuLink Href="/surfaces/buttons">
+                                            <Span Class="font-medium leading-none">Buttons</Span>
+                                            <Span Class="text-muted-foreground">Action surfaces with multiple variants.</Span>
+                                        </NavigationMenuLink>
+                                    </Div>
+                                </NavigationMenuContent>
+                            </NavigationMenuItem>
+
+                            <NavigationMenuItem>
+                                <NavigationMenuTrigger>Guides</NavigationMenuTrigger>
+                                <NavigationMenuContent Motion="from-end">
+                                    <Div Class="grid w-[380px] gap-2 p-2">
+                                        <NavigationMenuLink Href="/utils/themes">
+                                            <Span Class="font-medium leading-none">Theming</Span>
+                                            <Span Class="text-muted-foreground">Use design tokens across light and dark modes.</Span>
+                                        </NavigationMenuLink>
+                                        <NavigationMenuLink Href="/utils/semantic-html">
+                                            <Span Class="font-medium leading-none">Semantic HTML</Span>
+                                            <Span Class="text-muted-foreground">Use semantic wrappers with Tailwind styling.</Span>
+                                        </NavigationMenuLink>
+                                    </Div>
+                                </NavigationMenuContent>
+                            </NavigationMenuItem>
+
+                            <NavigationMenuItem>
+                                <NavigationMenuLink Href="/navigation/sidebar">
+                                    <Span Class="font-medium">Sidebar</Span>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+                        </NavigationMenuList>
+                    </NavigationMenu>
+                </Div>
+            </DemoSection>
+        </section>
+
+        <section class="space-y-4">
+            <DemoSection Title="Indicator and controlled state"
+                        Description="Manually control open/visible data states without bar components."
+                        Code="@ControlledCode">
+                <Div Class="rounded-xl border border-border p-4 space-y-3">
+                    <NavigationMenu Viewport="false" Class="justify-start">
+                        <NavigationMenuList Class="justify-start">
+                            <NavigationMenuItem Open="_productsOpen">
+                                <NavigationMenuTrigger Open="_productsOpen">Products</NavigationMenuTrigger>
+                                <NavigationMenuContent Open="_productsOpen" DisableAutoOpen="true">
+                                    <Div Class="w-[320px] p-2">
+                                        <NavigationMenuLink Href="#">Quark Suite</NavigationMenuLink>
+                                        <NavigationMenuLink Href="#">Quark Bench</NavigationMenuLink>
+                                    </Div>
+                                </NavigationMenuContent>
+                            </NavigationMenuItem>
+                        </NavigationMenuList>
+                        <NavigationMenuIndicator Visible="_productsOpen" />
+                    </NavigationMenu>
+
+                    <Button Size="ButtonSize.Sm"
+                            Class="bg-primary text-primary-foreground"
+                            OnClick="ToggleProductsMenu">
+                        Toggle Products Menu State
+                    </Button>
+                </Div>
+            </DemoSection>
+        </section>
+    </Div>
+</Div>
+
+@code {
+    private bool _productsOpen;
+
+    private Task ToggleProductsMenu()
+    {
+        _productsOpen = !_productsOpen;
+        return Task.CompletedTask;
+    }
+
+    private const string BasicCode =
+@"<NavigationMenu Viewport=""false"">
+    <NavigationMenuList>
+        <NavigationMenuItem>
+            <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
+            <NavigationMenuContent>
+                <NavigationMenuLink Href=""/components"">Components</NavigationMenuLink>
+                <NavigationMenuLink Href=""/typography/headings"">Typography</NavigationMenuLink>
+            </NavigationMenuContent>
+        </NavigationMenuItem>
+    </NavigationMenuList>
+</NavigationMenu>";
+
+    private const string ControlledCode =
+@"<NavigationMenu Viewport=""false"">
+    <NavigationMenuList>
+        <NavigationMenuItem Open=""_productsOpen"">
+            <NavigationMenuTrigger Open=""_productsOpen"">Products</NavigationMenuTrigger>
+            <NavigationMenuContent Open=""_productsOpen"" DisableAutoOpen=""true"">
+                <NavigationMenuLink Href=""#"">Quark Suite</NavigationMenuLink>
+            </NavigationMenuContent>
+        </NavigationMenuItem>
+    </NavigationMenuList>
+    <NavigationMenuIndicator Visible=""_productsOpen"" />
+</NavigationMenu>";
+}

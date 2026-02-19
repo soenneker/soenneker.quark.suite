@@ -1,0 +1,22 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements INavigationMenuList
+
+<ul @attributes="BuildAttributes()">
+    @ChildContent
+</ul>
+
+@code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "navigation-menu-list";
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "q-navigation-menu-list");
+            AppendClass(ref cls, "group flex flex-1 list-none items-center justify-center gap-1");
+        });
+    }
+}

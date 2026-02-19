@@ -1,0 +1,52 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements INavigationMenuTrigger
+
+<button @attributes="BuildAttributes()">
+    @ChildContent
+    @if (ShowChevron)
+    {
+        <Icon Name="chevron-down"
+              Class="relative top-[1px] ml-1 size-3 transition duration-300 group-data-[state=open]:rotate-180" />
+    }
+</button>
+
+@code {
+    [Parameter]
+    public bool Open { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public bool ShowChevron { get; set; } = true;
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["type"] = "button";
+        attributes["data-slot"] = "navigation-menu-trigger";
+        attributes["data-state"] = Open ? "open" : "closed";
+
+        if (Disabled)
+            attributes["disabled"] = true;
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "q-navigation-menu-trigger group");
+            AppendClass(ref cls, "inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium");
+            AppendClass(ref cls, "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground");
+            AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
+            AppendClass(ref cls, "data-[state=open]:hover:bg-accent data-[state=open]:text-accent-foreground data-[state=open]:focus:bg-accent data-[state=open]:bg-accent/50");
+            AppendClass(ref cls, "focus-visible:ring-ring/50 outline-none transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Open);
+        hc.Add(Disabled);
+        hc.Add(ShowChevron);
+    }
+}
