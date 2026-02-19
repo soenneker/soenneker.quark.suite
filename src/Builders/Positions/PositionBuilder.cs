@@ -66,51 +66,10 @@ public sealed class PositionBuilder : ICssBuilder
 	/// </summary>
     public PositionBuilder Unset => ChainWithPosition(GlobalKeyword.UnsetValue);
 
-	/// <summary>
-	/// Applies the position on phone breakpoint.
-	/// </summary>
-    public PositionBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
-	/// <summary>
-	/// Applies the position on tablet breakpoint.
-	/// </summary>
-    public PositionBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
-	/// <summary>
-	/// Applies the position on laptop breakpoint.
-	/// </summary>
-    public PositionBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
-	/// <summary>
-	/// Applies the position on desktop breakpoint.
-	/// </summary>
-    public PositionBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
-	/// <summary>
-	/// Applies the position on widescreen breakpoint.
-	/// </summary>
-    public PositionBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-	/// <summary>
-	/// Applies the position on ultrawide breakpoint.
-	/// </summary>
-    public PositionBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PositionBuilder ChainWithPosition(string position)
     {
         _rules.Add(new PositionRule(position, null));
-        return this;
-    }
-
-    /// <summary>Apply a BreakpointType to the most recent rule (or seed with "static" if empty).</summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private PositionBuilder ChainWithBreakpoint(BreakpointType breakpoint)
-    {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new PositionRule(PositionKeyword.StaticValue, breakpoint));
-            return this;
-        }
-
-        int lastIdx = _rules.Count - 1;
-        PositionRule last = _rules[lastIdx];
-        _rules[lastIdx] = new PositionRule(last.Position, breakpoint);
         return this;
     }
 
@@ -187,8 +146,4 @@ public sealed class PositionBuilder : ICssBuilder
             _ => string.Empty
         };
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string GetBp(BreakpointType? breakpoint) => breakpoint?.Value ?? string.Empty;
-
 }

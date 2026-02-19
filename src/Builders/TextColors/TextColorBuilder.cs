@@ -172,50 +172,10 @@ public sealed class TextColorBuilder : ICssBuilder
 	/// </summary>
     public TextColorBuilder Opacity25 => ChainValue("25");
 
-	/// <summary>
-	/// Applies the text color on phone breakpoint.
-	/// </summary>
-    public TextColorBuilder OnPhone => ChainBp(BreakpointType.Base);
-	/// <summary>
-	/// Applies the text color on tablet breakpoint.
-	/// </summary>
-    public TextColorBuilder OnTablet => ChainBp(BreakpointType.Md);
-	/// <summary>
-	/// Applies the text color on laptop breakpoint.
-	/// </summary>
-    public TextColorBuilder OnLaptop => ChainBp(BreakpointType.Lg);
-	/// <summary>
-	/// Applies the text color on desktop breakpoint.
-	/// </summary>
-    public TextColorBuilder OnDesktop => ChainBp(BreakpointType.Xl);
-	/// <summary>
-	/// Applies the text color on widescreen breakpoint.
-	/// </summary>
-    public TextColorBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-	/// <summary>
-	/// Applies the text color on ultrawide breakpoint.
-	/// </summary>
-    public TextColorBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextColorBuilder ChainValue(string value)
     {
         _rules.Add(new TextColorRule(value, null));
-        return this;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private TextColorBuilder ChainBp(BreakpointType bp)
-    {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new TextColorRule("primary", bp));
-            return this;
-        }
-
-        int lastIdx = _rules.Count - 1;
-        TextColorRule last = _rules[lastIdx];
-        _rules[lastIdx] = new TextColorRule(last.Value, bp);
         return this;
     }
 

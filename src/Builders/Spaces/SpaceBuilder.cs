@@ -14,8 +14,6 @@ public sealed class SpaceBuilder : ICssBuilder
         _rules.Add(new SpaceRule(utility, value, breakpoint));
     }
 
-    public SpaceBuilder X(int value) => Chain("space-x", value.ToString());
-    public SpaceBuilder Y(int value) => Chain("space-y", value.ToString());
     public SpaceBuilder XReverse => Chain("space-x-reverse", "");
     public SpaceBuilder YReverse => Chain("space-y-reverse", "");
 
@@ -38,7 +36,7 @@ public sealed class SpaceBuilder : ICssBuilder
     {
         if (_rules.Count == 0)
         {
-            _rules.Add(new SpaceRule("space-x", "0", breakpoint));
+            _rules.Add(new SpaceRule("space-x-0", "", breakpoint));
             return this;
         }
 

@@ -7,14 +7,20 @@
 </div>
 
 @code {
-    // CardHeader: flex flex-col space-y-1.5 p-6
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        Space ??= Quark.Space.Y.Is2;
+    }
+
+    // CardHeader: flex flex-col space-y-* p-6 (Space default above so consumers can override)
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-card-header");
-            AppendClass(ref cls, "flex flex-col space-y-1.5 p-6");
+            AppendClass(ref cls, "flex flex-col p-6");
         });
     }
 }

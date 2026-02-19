@@ -76,54 +76,10 @@ public sealed class TextAlignmentBuilder : ICssBuilder
 	/// </summary>
     public TextAlignmentBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
-	/// <summary>
-	/// Applies the text alignment on phone breakpoint.
-	/// </summary>
-    public TextAlignmentBuilder OnPhone => ChainBp(BreakpointType.Base);
-	/// <summary>
-	/// Applies the text alignment on tablet breakpoint.
-	/// </summary>
-    public TextAlignmentBuilder OnTablet => ChainBp(BreakpointType.Md);
-	/// <summary>
-	/// Applies the text alignment on laptop breakpoint.
-	/// </summary>
-    public TextAlignmentBuilder OnLaptop => ChainBp(BreakpointType.Lg);
-	/// <summary>
-	/// Applies the text alignment on desktop breakpoint.
-	/// </summary>
-    public TextAlignmentBuilder OnDesktop => ChainBp(BreakpointType.Xl);
-    public TextAlignmentBuilder OnMd => ChainBp(BreakpointType.Md);
-    public TextAlignmentBuilder OnLg => ChainBp(BreakpointType.Lg);
-    public TextAlignmentBuilder OnXl => ChainBp(BreakpointType.Xl);
-	/// <summary>
-	/// Applies the text alignment on widescreen breakpoint.
-	/// </summary>
-    public TextAlignmentBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-	/// <summary>
-	/// Applies the text alignment on ultrawide breakpoint.
-	/// </summary>
-    public TextAlignmentBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextAlignmentBuilder Chain(string value)
     {
         _rules.Add(new TextAlignmentRule(value, null));
-        return this;
-    }
-
-    /// <summary>Apply a BreakpointType to the most recent rule (or seed with a default if empty).</summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private TextAlignmentBuilder ChainBp(BreakpointType bp)
-    {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new TextAlignmentRule(TextAlignKeyword.StartValue, bp));
-            return this;
-        }
-
-        int lastIdx = _rules.Count - 1;
-        TextAlignmentRule last = _rules[lastIdx];
-        _rules[lastIdx] = new TextAlignmentRule(last.Value, bp);
         return this;
     }
 
@@ -213,11 +169,4 @@ public sealed class TextAlignmentBuilder : ICssBuilder
 
         return sb.ToString();
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string GetBp(BreakpointType? breakpoint)
-    {
-        return breakpoint?.Value ?? string.Empty;
-    }
-
 }

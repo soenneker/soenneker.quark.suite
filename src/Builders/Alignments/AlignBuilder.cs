@@ -14,44 +14,44 @@ public sealed class AlignBuilder : ICssBuilder
         _rules.Add(new AlignRule(utility, value, breakpoint));
     }
 
-    public AlignBuilder JustifyStart => Chain("justify", "start");
-    public AlignBuilder JustifyEnd => Chain("justify", "end");
-    public AlignBuilder JustifyCenter => Chain("justify", "center");
-    public AlignBuilder JustifyBetween => Chain("justify", "between");
-    public AlignBuilder JustifyAround => Chain("justify", "around");
-    public AlignBuilder JustifyEvenly => Chain("justify", "evenly");
+    public AlignBuilder JustifyStart => Chain("justify-start", "");
+    public AlignBuilder JustifyEnd => Chain("justify-end", "");
+    public AlignBuilder JustifyCenter => Chain("justify-center", "");
+    public AlignBuilder JustifyBetween => Chain("justify-between", "");
+    public AlignBuilder JustifyAround => Chain("justify-around", "");
+    public AlignBuilder JustifyEvenly => Chain("justify-evenly", "");
 
-    public AlignBuilder ItemsStart => Chain("items", "start");
-    public AlignBuilder ItemsEnd => Chain("items", "end");
-    public AlignBuilder ItemsCenter => Chain("items", "center");
-    public AlignBuilder ItemsBaseline => Chain("items", "baseline");
-    public AlignBuilder ItemsStretch => Chain("items", "stretch");
+    public AlignBuilder ItemsStart => Chain("items-start", "");
+    public AlignBuilder ItemsEnd => Chain("items-end", "");
+    public AlignBuilder ItemsCenter => Chain("items-center", "");
+    public AlignBuilder ItemsBaseline => Chain("items-baseline", "");
+    public AlignBuilder ItemsStretch => Chain("items-stretch", "");
 
-    public AlignBuilder ContentStart => Chain("content", "start");
-    public AlignBuilder ContentEnd => Chain("content", "end");
-    public AlignBuilder ContentCenter => Chain("content", "center");
-    public AlignBuilder ContentBetween => Chain("content", "between");
-    public AlignBuilder ContentAround => Chain("content", "around");
-    public AlignBuilder ContentEvenly => Chain("content", "evenly");
-    public AlignBuilder ContentStretch => Chain("content", "stretch");
+    public AlignBuilder ContentStart => Chain("content-start", "");
+    public AlignBuilder ContentEnd => Chain("content-end", "");
+    public AlignBuilder ContentCenter => Chain("content-center", "");
+    public AlignBuilder ContentBetween => Chain("content-between", "");
+    public AlignBuilder ContentAround => Chain("content-around", "");
+    public AlignBuilder ContentEvenly => Chain("content-evenly", "");
+    public AlignBuilder ContentStretch => Chain("content-stretch", "");
 
-    public AlignBuilder SelfAuto => Chain("self", "auto");
-    public AlignBuilder SelfStart => Chain("self", "start");
-    public AlignBuilder SelfEnd => Chain("self", "end");
-    public AlignBuilder SelfCenter => Chain("self", "center");
-    public AlignBuilder SelfStretch => Chain("self", "stretch");
-    public AlignBuilder SelfBaseline => Chain("self", "baseline");
+    public AlignBuilder SelfAuto => Chain("self-auto", "");
+    public AlignBuilder SelfStart => Chain("self-start", "");
+    public AlignBuilder SelfEnd => Chain("self-end", "");
+    public AlignBuilder SelfCenter => Chain("self-center", "");
+    public AlignBuilder SelfStretch => Chain("self-stretch", "");
+    public AlignBuilder SelfBaseline => Chain("self-baseline", "");
 
-    public AlignBuilder JustifyItemsStart => Chain("justify-items", "start");
-    public AlignBuilder JustifyItemsEnd => Chain("justify-items", "end");
-    public AlignBuilder JustifyItemsCenter => Chain("justify-items", "center");
-    public AlignBuilder JustifyItemsStretch => Chain("justify-items", "stretch");
+    public AlignBuilder JustifyItemsStart => Chain("justify-items-start", "");
+    public AlignBuilder JustifyItemsEnd => Chain("justify-items-end", "");
+    public AlignBuilder JustifyItemsCenter => Chain("justify-items-center", "");
+    public AlignBuilder JustifyItemsStretch => Chain("justify-items-stretch", "");
 
-    public AlignBuilder JustifySelfAuto => Chain("justify-self", "auto");
-    public AlignBuilder JustifySelfStart => Chain("justify-self", "start");
-    public AlignBuilder JustifySelfEnd => Chain("justify-self", "end");
-    public AlignBuilder JustifySelfCenter => Chain("justify-self", "center");
-    public AlignBuilder JustifySelfStretch => Chain("justify-self", "stretch");
+    public AlignBuilder JustifySelfAuto => Chain("justify-self-auto", "");
+    public AlignBuilder JustifySelfStart => Chain("justify-self-start", "");
+    public AlignBuilder JustifySelfEnd => Chain("justify-self-end", "");
+    public AlignBuilder JustifySelfCenter => Chain("justify-self-center", "");
+    public AlignBuilder JustifySelfStretch => Chain("justify-self-stretch", "");
 
     public AlignBuilder OnBase => ChainBreakpoint(BreakpointType.Base);
     public AlignBuilder OnSm => ChainBreakpoint(BreakpointType.Sm);
@@ -72,7 +72,7 @@ public sealed class AlignBuilder : ICssBuilder
     {
         if (_rules.Count == 0)
         {
-            _rules.Add(new AlignRule("items", "start", breakpoint));
+            _rules.Add(new AlignRule("items-start", "", breakpoint));
             return this;
         }
 
@@ -93,7 +93,7 @@ public sealed class AlignBuilder : ICssBuilder
         for (var i = 0; i < _rules.Count; i++)
         {
             AlignRule rule = _rules[i];
-            string cls = $"{rule.Utility}-{rule.Value}";
+            string cls = rule.Value.Length == 0 ? rule.Utility : $"{rule.Utility}-{rule.Value}";
             string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);

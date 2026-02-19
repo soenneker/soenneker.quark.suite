@@ -83,31 +83,6 @@ public sealed class LinkUnderlineBuilder : ICssBuilder
     /// </summary>
     public LinkUnderlineBuilder Dark => ChainColor("dark");
 
-    /// <summary>
-    /// Applies the link underline on phone breakpoint.
-    /// </summary>
-    public LinkUnderlineBuilder OnPhone => ChainBp(BreakpointType.Base);
-    /// <summary>
-    /// Applies the link underline on tablet breakpoint.
-    /// </summary>
-    public LinkUnderlineBuilder OnTablet => ChainBp(BreakpointType.Md);
-    /// <summary>
-    /// Applies the link underline on laptop breakpoint.
-    /// </summary>
-    public LinkUnderlineBuilder OnLaptop => ChainBp(BreakpointType.Lg);
-    /// <summary>
-    /// Applies the link underline on desktop breakpoint.
-    /// </summary>
-    public LinkUnderlineBuilder OnDesktop => ChainBp(BreakpointType.Xl);
-    /// <summary>
-    /// Applies the link underline on widescreen breakpoint.
-    /// </summary>
-    public LinkUnderlineBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the link underline on ultrawide breakpoint.
-    /// </summary>
-    public LinkUnderlineBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private LinkUnderlineBuilder ChainOpacity(string value)
     {
@@ -119,21 +94,6 @@ public sealed class LinkUnderlineBuilder : ICssBuilder
     private LinkUnderlineBuilder ChainColor(string value)
     {
         _rules.Add(new LinkUnderlineRule(value, "color", null));
-        return this;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private LinkUnderlineBuilder ChainBp(BreakpointType bp)
-    {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new LinkUnderlineRule("", "base", bp));
-            return this;
-        }
-
-        int lastIdx = _rules.Count - 1;
-        LinkUnderlineRule last = _rules[lastIdx];
-        _rules[lastIdx] = new LinkUnderlineRule(last.Value, last.Type, bp);
         return this;
     }
 

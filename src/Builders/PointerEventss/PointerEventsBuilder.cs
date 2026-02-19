@@ -74,56 +74,10 @@ public sealed class PointerEventsBuilder : ICssBuilder
     /// </summary>
     public PointerEventsBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
-    /// <summary>
-    /// Applies the pointer events on phone breakpoint.
-    /// </summary>
-    public PointerEventsBuilder OnPhone => ChainBp(BreakpointType.Base);
-
-    /// <summary>
-    /// Applies the pointer events on tablet breakpoint.
-    /// </summary>
-    public PointerEventsBuilder OnTablet => ChainBp(BreakpointType.Md);
-
-    /// <summary>
-    /// Applies the pointer events on laptop breakpoint.
-    /// </summary>
-    public PointerEventsBuilder OnLaptop => ChainBp(BreakpointType.Lg);
-
-    /// <summary>
-    /// Applies the pointer events on desktop breakpoint.
-    /// </summary>
-    public PointerEventsBuilder OnDesktop => ChainBp(BreakpointType.Xl);
-
-    /// <summary>
-    /// Applies the pointer events on widescreen breakpoint.
-    /// </summary>
-    public PointerEventsBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-
-    /// <summary>
-    /// Applies the pointer events on ultrawide breakpoint.
-    /// </summary>
-    public PointerEventsBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PointerEventsBuilder Chain(string value)
     {
         _rules.Add(new PointerEventsRule(value, null));
-        return this;
-    }
-
-    /// <summary>Apply a BreakpointType to the most recent rule (or seed with "auto" if empty).</summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private PointerEventsBuilder ChainBp(BreakpointType bp)
-    {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new PointerEventsRule(PointerEventsKeyword.Auto, bp));
-            return this;
-        }
-
-        int lastIdx = _rules.Count - 1;
-        PointerEventsRule last = _rules[lastIdx];
-        _rules[lastIdx] = new PointerEventsRule(last.Value, bp);
         return this;
     }
 
@@ -205,8 +159,4 @@ public sealed class PointerEventsBuilder : ICssBuilder
 
         return sb.ToString();
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string GetBp(BreakpointType? breakpoint) => breakpoint?.Value ?? string.Empty;
-
 }

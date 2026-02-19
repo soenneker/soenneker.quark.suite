@@ -14,12 +14,12 @@ public sealed class LetterSpacingBuilder : ICssBuilder
         _rules.Add(new LetterSpacingRule(utility, value, breakpoint));
     }
 
-    public LetterSpacingBuilder Tighter => Chain("tracking", "tighter");
-    public LetterSpacingBuilder Tight => Chain("tracking", "tight");
-    public LetterSpacingBuilder Normal => Chain("tracking", "normal");
-    public LetterSpacingBuilder Wide => Chain("tracking", "wide");
-    public LetterSpacingBuilder Wider => Chain("tracking", "wider");
-    public LetterSpacingBuilder Widest => Chain("tracking", "widest");
+    public LetterSpacingBuilder Tighter => Chain("tracking-tighter", "");
+    public LetterSpacingBuilder Tight => Chain("tracking-tight", "");
+    public LetterSpacingBuilder Normal => Chain("tracking-normal", "");
+    public LetterSpacingBuilder Wide => Chain("tracking-wide", "");
+    public LetterSpacingBuilder Wider => Chain("tracking-wider", "");
+    public LetterSpacingBuilder Widest => Chain("tracking-widest", "");
     public LetterSpacingBuilder Token(string value) => Chain("tracking", value);
 
     public LetterSpacingBuilder OnBase => ChainBreakpoint(BreakpointType.Base);
@@ -41,7 +41,7 @@ public sealed class LetterSpacingBuilder : ICssBuilder
     {
         if (_rules.Count == 0)
         {
-            _rules.Add(new LetterSpacingRule("tracking", "normal", breakpoint));
+            _rules.Add(new LetterSpacingRule("tracking-normal", "", breakpoint));
             return this;
         }
 
@@ -61,7 +61,7 @@ public sealed class LetterSpacingBuilder : ICssBuilder
         for (var i = 0; i < _rules.Count; i++)
         {
             LetterSpacingRule rule = _rules[i];
-            string cls = $"{rule.Utility}-{rule.Value}";
+            string cls = rule.Value.Length == 0 ? rule.Utility : $"{rule.Utility}-{rule.Value}";
             string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
