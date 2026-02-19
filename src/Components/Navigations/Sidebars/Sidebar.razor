@@ -1,0 +1,134 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+@if (Collapsible == SidebarCollapsible.None)
+{
+    <div @attributes="BuildAttributes()">
+        @ChildContent
+    </div>
+}
+else
+{
+    <div @attributes="BuildAttributes()">
+        <div @attributes="BuildGapAttributes()"></div>
+        <div @attributes="BuildContainerAttributes()">
+            <div @attributes="BuildInnerAttributes()">
+                @ChildContent
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public SidebarSide Side { get; set; } = SidebarSide.Left;
+
+    [Parameter]
+    public SidebarVariant Variant { get; set; } = SidebarVariant.Sidebar;
+
+    [Parameter]
+    public SidebarCollapsible Collapsible { get; set; } = SidebarCollapsible.Offcanvas;
+
+    [CascadingParameter(Name = "SidebarContextState")]
+    public SidebarContextState? State { get; set; }
+
+    private static string ToDataSide(SidebarSide side) => side == SidebarSide.Right ? "right" : "left";
+    private static string ToDataVariant(SidebarVariant variant) => variant.ToString().ToLowerInvariant();
+    private static string ToDataCollapsible(SidebarCollapsible collapsible) => collapsible.ToString().ToLowerInvariant();
+
+    private bool IsCollapsed => State is not null && !State.Open;
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "sidebar";
+        attributes["data-side"] = ToDataSide(Side);
+        attributes["data-variant"] = ToDataVariant(Variant);
+        attributes["data-state"] = IsCollapsed ? "collapsed" : "expanded";
+        attributes["data-collapsible"] = IsCollapsed ? ToDataCollapsible(Collapsible) : "";
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "q-sidebar");
+
+            if (Collapsible == SidebarCollapsible.None)
+            {
+                AppendClass(ref cls, "bg-sidebar text-sidebar-foreground flex h-full w-(--sidebar-width) flex-col");
+                return;
+            }
+
+            AppendClass(ref cls, "group peer text-sidebar-foreground hidden md:block");
+        });
+    }
+
+    private Dictionary<string, object> BuildGapAttributes()
+    {
+        var attributes = new Dictionary<string, object>(8)
+        {
+            ["data-slot"] = "sidebar-gap"
+        };
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear");
+            AppendClass(ref cls, "group-data-[collapsible=offcanvas]:w-0");
+            AppendClass(ref cls, "group-data-[side=right]:rotate-180");
+
+            if (Variant is SidebarVariant.Floating or SidebarVariant.Inset)
+                AppendClass(ref cls, "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]");
+            else
+                AppendClass(ref cls, "group-data-[collapsible=icon]:w-(--sidebar-width-icon)");
+        });
+
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildContainerAttributes()
+    {
+        var attributes = new Dictionary<string, object>(10);
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex");
+
+            if (Side == SidebarSide.Left)
+                AppendClass(ref cls, "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]");
+            else
+                AppendClass(ref cls, "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]");
+
+            if (Variant is SidebarVariant.Floating or SidebarVariant.Inset)
+                AppendClass(ref cls, "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]");
+            else
+                AppendClass(ref cls, "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l");
+        });
+
+        attributes["data-slot"] = "sidebar-container";
+
+        return attributes;
+    }
+
+    private static Dictionary<string, object> BuildInnerAttributes()
+    {
+        var attributes = new Dictionary<string, object>(4)
+        {
+            ["data-slot"] = "sidebar-inner",
+            ["data-sidebar"] = "sidebar"
+        };
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "bg-sidebar group-data-[variant=floating]:border-sidebar-border flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm");
+        });
+
+        return attributes;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Side);
+        hc.Add(Variant);
+        hc.Add(Collapsible);
+        hc.Add(State?.Open);
+    }
+}

@@ -1,0 +1,100 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+@if (To.HasContent())
+{
+    <Anchor To="@To" Target="@Target" @attributes="BuildAttributes()">
+        @ChildContent
+    </Anchor>
+}
+else
+{
+    <button @onclick="HandleClick" @attributes="BuildAttributes()">
+        @ChildContent
+    </button>
+}
+
+@code {
+    [Parameter]
+    public SidebarMenuButtonVariant Variant { get; set; } = SidebarMenuButtonVariant.Default;
+
+    [Parameter]
+    public SidebarMenuButtonSize Size { get; set; } = SidebarMenuButtonSize.Default;
+
+    [Parameter]
+    public bool Active { get; set; }
+
+    [Parameter]
+    public string? To { get; set; }
+
+    [Parameter]
+    public Target? Target { get; set; }
+
+    [Parameter]
+    public string? Tooltip { get; set; }
+
+    private static string GetVariantClass(SidebarMenuButtonVariant variant)
+    {
+        return variant switch
+        {
+            SidebarMenuButtonVariant.Default => "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+            SidebarMenuButtonVariant.Outline => "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
+            _ => "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        };
+    }
+
+    private static string GetSizeClass(SidebarMenuButtonSize size)
+    {
+        return size switch
+        {
+            SidebarMenuButtonSize.Default => "h-8 text-sm",
+            SidebarMenuButtonSize.Sm => "h-7 text-xs",
+            SidebarMenuButtonSize.Lg => "h-12 text-sm group-data-[collapsible=icon]:p-0!",
+            _ => "h-8 text-sm"
+        };
+    }
+
+    private static string GetDataSize(SidebarMenuButtonSize size)
+    {
+        return size switch
+        {
+            SidebarMenuButtonSize.Default => "default",
+            SidebarMenuButtonSize.Sm => "sm",
+            SidebarMenuButtonSize.Lg => "lg",
+            _ => "default"
+        };
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "sidebar-menu-button";
+        attributes["data-sidebar"] = "menu-button";
+        attributes["data-size"] = GetDataSize(Size);
+        attributes["data-active"] = Active ? "true" : "false";
+        if (Tooltip.HasContent())
+            attributes["title"] = Tooltip!;
+
+        if (!To.HasContent())
+            attributes["type"] = "button";
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "q-sidebar-menu-button");
+            AppendClass(ref cls, "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0");
+            AppendClass(ref cls, GetVariantClass(Variant));
+            AppendClass(ref cls, GetSizeClass(Size));
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Variant);
+        hc.Add(Size);
+        hc.Add(Active);
+        hc.Add(To);
+        hc.Add(Target);
+        hc.Add(Tooltip);
+    }
+}

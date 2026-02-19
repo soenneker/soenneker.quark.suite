@@ -1,0 +1,39 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<button @onclick="HandleRailClick" @attributes="BuildAttributes()"></button>
+
+@code {
+    [CascadingParameter(Name = "SidebarProvider")]
+    public SidebarProvider? SidebarProvider { get; set; }
+
+    private async Task HandleRailClick(MouseEventArgs args)
+    {
+        if (SidebarProvider is not null)
+            await SidebarProvider.ToggleSidebar();
+
+        await base.HandleClick(args);
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "sidebar-rail";
+        attributes["data-sidebar"] = "rail";
+        attributes["type"] = "button";
+        attributes["aria-label"] = "Toggle Sidebar";
+        attributes["title"] = "Toggle Sidebar";
+        attributes["tabindex"] = -1;
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "q-sidebar-rail");
+            AppendClass(ref cls, "hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] sm:flex");
+            AppendClass(ref cls, "in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize");
+            AppendClass(ref cls, "[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize");
+            AppendClass(ref cls, "hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full");
+            AppendClass(ref cls, "[[data-side=left][data-collapsible=offcanvas]_&]:-right-2");
+            AppendClass(ref cls, "[[data-side=right][data-collapsible=offcanvas]_&]:-left-2");
+        });
+    }
+}

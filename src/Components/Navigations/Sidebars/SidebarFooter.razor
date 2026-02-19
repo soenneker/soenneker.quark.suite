@@ -1,0 +1,21 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "sidebar-footer";
+        attributes["data-sidebar"] = "footer";
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "q-sidebar-footer");
+            AppendClass(ref cls, "flex flex-col gap-2 p-2");
+        });
+    }
+}

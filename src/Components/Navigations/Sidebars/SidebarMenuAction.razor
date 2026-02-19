@@ -1,0 +1,36 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<button @onclick="HandleClick" @attributes="BuildAttributes()">
+    @ChildContent
+</button>
+
+@code {
+    [Parameter]
+    public bool ShowOnHover { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "sidebar-menu-action";
+        attributes["data-sidebar"] = "menu-action";
+        attributes["type"] = "button";
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "q-sidebar-menu-action");
+            AppendClass(ref cls, "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground peer-hover/menu-button:text-sidebar-accent-foreground absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-hidden transition-transform focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0");
+            AppendClass(ref cls, "after:absolute after:-inset-2 md:after:hidden");
+            AppendClass(ref cls, "peer-data-[size=sm]/menu-button:top-1 peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5");
+            AppendClass(ref cls, "group-data-[collapsible=icon]:hidden");
+
+            if (ShowOnHover)
+                AppendClass(ref cls, "peer-data-[active=true]/menu-button:text-sidebar-accent-foreground group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 md:opacity-0");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(ShowOnHover);
+    }
+}

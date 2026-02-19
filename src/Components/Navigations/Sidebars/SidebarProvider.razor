@@ -1,0 +1,97 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<CascadingValue Name="SidebarProvider" Value="this">
+    <CascadingValue Name="SidebarContextState" Value="GetState()">
+        <div @attributes="BuildAttributes()">
+            @ChildContent
+        </div>
+    </CascadingValue>
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public bool DefaultOpen { get; set; } = true;
+
+    [Parameter]
+    public bool? Open { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OpenChanged { get; set; }
+
+    [Parameter]
+    public bool OpenMobile { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OpenMobileChanged { get; set; }
+
+    [Parameter]
+    public bool IsMobile { get; set; }
+
+    private bool _openInternal = true;
+
+    protected override void OnInitialized()
+    {
+        _openInternal = DefaultOpen;
+        base.OnInitialized();
+    }
+
+    public bool GetOpen() => Open ?? _openInternal;
+
+    public SidebarContextState GetState()
+    {
+        return new SidebarContextState
+        {
+            Open = GetOpen(),
+            OpenMobile = OpenMobile,
+            IsMobile = IsMobile
+        };
+    }
+
+    public async Task SetOpen(bool value)
+    {
+        if (Open is null)
+            _openInternal = value;
+
+        await OpenChanged.InvokeAsync(value);
+        InvalidateRender();
+        await RefreshOffThread();
+    }
+
+    public async Task SetOpenMobile(bool value)
+    {
+        OpenMobile = value;
+        await OpenMobileChanged.InvokeAsync(value);
+        InvalidateRender();
+        await RefreshOffThread();
+    }
+
+    public Task ToggleSidebar()
+    {
+        return IsMobile ? SetOpenMobile(!OpenMobile) : SetOpen(!GetOpen());
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "sidebar-wrapper";
+
+        BuildClassAndStyleAttributes(attributes, (ref PooledStringBuilder cls, ref PooledStringBuilder sty) =>
+        {
+            AppendClass(ref cls, "q-sidebar-wrapper");
+            AppendClass(ref cls, "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full");
+            AppendStyleDecl(ref sty, "--sidebar-width: 16rem");
+            AppendStyleDecl(ref sty, "--sidebar-width-icon: 3rem");
+            AppendStyleDecl(ref sty, "--sidebar-width-mobile: 18rem");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(DefaultOpen);
+        hc.Add(Open);
+        hc.Add(OpenMobile);
+        hc.Add(IsMobile);
+    }
+}

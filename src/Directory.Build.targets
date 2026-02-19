@@ -4,7 +4,7 @@
             BeforeTargets="Build"
             Condition="'$(DesignTimeBuild)' != 'true' and Exists('$(ProjectDir)tailwind\package.json')">
         <Exec WorkingDirectory="$(ProjectDir)tailwind"
-              Command="npm install --no-audit --no-fund &amp;&amp; npx @tailwindcss/cli -i input.css -o ../wwwroot/css/quark-tailwind.css -c tailwind.config.js"
+              Command="npm install --no-audit --no-fund &amp;&amp; npx @tailwindcss/cli -i input.css -o ../wwwroot/css/quark-tailwind.css -c tailwind.config.js &amp;&amp; npx @tailwindcss/cli -i input.css -o ../wwwroot/css/quark-tailwind.min.css -c tailwind.config.js --minify"
               ConsoleToMSBuild="true"
               StandardOutputImportance="high"
               StandardErrorImportance="high"
@@ -16,6 +16,12 @@
         <ItemGroup Condition="Exists('$(ProjectDir)wwwroot\css\quark-tailwind.css')">
             <Content Include="$(ProjectDir)wwwroot\css\quark-tailwind.css">
                 <Link>wwwroot\css\quark-tailwind.css</Link>
+                <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            </Content>
+        </ItemGroup>
+        <ItemGroup Condition="Exists('$(ProjectDir)wwwroot\css\quark-tailwind.min.css')">
+            <Content Include="$(ProjectDir)wwwroot\css\quark-tailwind.min.css">
+                <Link>wwwroot\css\quark-tailwind.min.css</Link>
                 <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             </Content>
         </ItemGroup>

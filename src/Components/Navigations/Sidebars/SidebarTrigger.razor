@@ -1,0 +1,45 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<button @onclick="HandleTriggerClick" @attributes="BuildAttributes()">
+    @if (ChildContent is null)
+    {
+        <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+            <path d="M9 3v18"></path>
+        </svg>
+        <span class="sr-only">Toggle Sidebar</span>
+    }
+    else
+    {
+        @ChildContent
+    }
+</button>
+
+@code {
+    [CascadingParameter(Name = "SidebarProvider")]
+    public SidebarProvider? SidebarProvider { get; set; }
+
+    private async Task HandleTriggerClick(MouseEventArgs args)
+    {
+        if (SidebarProvider is not null)
+            await SidebarProvider.ToggleSidebar();
+
+        await base.HandleClick(args);
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "sidebar-trigger";
+        attributes["data-sidebar"] = "trigger";
+        attributes["type"] = "button";
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "q-sidebar-trigger");
+            AppendClass(ref cls, "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50");
+            AppendClass(ref cls, "size-7");
+        });
+    }
+}

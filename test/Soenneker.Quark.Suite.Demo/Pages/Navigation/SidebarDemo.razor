@@ -1,0 +1,93 @@
+@page "/navigation/sidebar"
+
+<PageTitle>Sidebar - Quark Suite</PageTitle>
+
+<Div Class="space-y-8 max-w-6xl">
+    <Div Class="space-y-6">
+        <section class="space-y-4">
+            <DemoSection Title="shadcn-style sidebar" Description="Composed with SidebarProvider, Sidebar, groups, and menu primitives." Code="@SidebarCode">
+                <Div Class="h-[480px] overflow-hidden rounded-xl border border-border">
+                    <SidebarProvider Open="_open" OpenChanged="OnOpenChanged">
+                        <Sidebar Collapsible="SidebarCollapsible.Icon">
+                            <SidebarHeader>
+                                <Anchor To="#" Class="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-sidebar-accent">
+                                    <Span Class="size-2 rounded-full bg-primary"></Span>
+                                    <Span Class="truncate group-data-[collapsible=icon]:hidden">Acme App</Span>
+                                </Anchor>
+                            </SidebarHeader>
+                            <SidebarContent>
+                                <SidebarGroup>
+                                    <SidebarGroupLabel>Platform</SidebarGroupLabel>
+                                    <SidebarGroupContent>
+                                        <SidebarMenu>
+                                            <SidebarMenuItem><SidebarMenuButton To="#" Active="true"><span>Dashboard</span></SidebarMenuButton></SidebarMenuItem>
+                                            <SidebarMenuItem><SidebarMenuButton To="#"><span>Projects</span></SidebarMenuButton></SidebarMenuItem>
+                                            <SidebarMenuItem><SidebarMenuButton To="#"><span>Team</span></SidebarMenuButton></SidebarMenuItem>
+                                            <SidebarMenuItem><SidebarMenuButton To="#"><span>Settings</span></SidebarMenuButton></SidebarMenuItem>
+                                        </SidebarMenu>
+                                    </SidebarGroupContent>
+                                </SidebarGroup>
+                                <SidebarGroup>
+                                    <SidebarGroupLabel>Analytics</SidebarGroupLabel>
+                                    <SidebarGroupContent>
+                                        <SidebarMenu>
+                                            <SidebarMenuItem><SidebarMenuButton To="#"><span>Reports</span></SidebarMenuButton></SidebarMenuItem>
+                                            <SidebarMenuItem><SidebarMenuButton To="#"><span>Revenue</span></SidebarMenuButton></SidebarMenuItem>
+                                        </SidebarMenu>
+                                    </SidebarGroupContent>
+                                </SidebarGroup>
+                            </SidebarContent>
+                            <SidebarRail />
+                        </Sidebar>
+                        <SidebarInset>
+                            <Div Class="flex h-full flex-col">
+                                <Div Class="flex h-14 items-center border-b px-3">
+                                    <SidebarTrigger />
+                                    <Paragraph Class="ml-3 font-medium" Margin="Margin.Is0">Sidebar Demo</Paragraph>
+                                </Div>
+                                <Div Class="p-4">
+                                    <Paragraph Class="text-muted-foreground" Margin="Margin.Is0">
+                                        Use the trigger to collapse/expand. Group labels auto-hide in icon mode.
+                                    </Paragraph>
+                                </Div>
+                            </Div>
+                        </SidebarInset>
+                    </SidebarProvider>
+                </Div>
+            </DemoSection>
+        </section>
+    </Div>
+</Div>
+
+@code {
+    private bool _open = true;
+
+    private Task OnOpenChanged(bool open)
+    {
+        _open = open;
+        return Task.CompletedTask;
+    }
+
+    private const string SidebarCode =
+@"<SidebarProvider Open=""_open"" OpenChanged=""OnOpenChanged"">
+    <Sidebar Collapsible=""SidebarCollapsible.Icon"">
+        <SidebarHeader>...</SidebarHeader>
+        <SidebarContent>
+            <SidebarGroup>
+                <SidebarGroupLabel>Platform</SidebarGroupLabel>
+                <SidebarGroupContent>
+                    <SidebarMenu>
+                        <SidebarMenuItem><SidebarMenuButton To=""#"" Active=""true"">Dashboard</SidebarMenuButton></SidebarMenuItem>
+                        <SidebarMenuItem><SidebarMenuButton To=""#"">Projects</SidebarMenuButton></SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
+        </SidebarContent>
+        <SidebarRail />
+    </Sidebar>
+    <SidebarInset>
+        <SidebarTrigger />
+        <!-- page content -->
+    </SidebarInset>
+</SidebarProvider>";
+}
