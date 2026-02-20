@@ -92,8 +92,8 @@ public sealed class HeightBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        HeightRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new HeightRule(last.Size, breakpoint);
         return this;
     }
@@ -112,12 +112,12 @@ public sealed class HeightBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            HeightRule rule = _rules[i];
-            string cls = GetHeightClass(rule.Size);
+            var rule = _rules[i];
+            var cls = GetHeightClass(rule.Size);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -144,8 +144,8 @@ public sealed class HeightBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            HeightRule rule = _rules[i];
-            string? val = GetHeightValue(rule.Size);
+            var rule = _rules[i];
+            var val = GetHeightValue(rule.Size);
             if (val is null)
                 continue;
 

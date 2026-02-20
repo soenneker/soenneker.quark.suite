@@ -2,43 +2,17 @@
 @inherits Soenneker.Quark.Element
 @implements IOverlayContainer
 
-@inject IOffcanvasCoordinator OffcanvasCoordinator
-@inject IOffcanvasInterop OffcanvasInterop
-
 <div @attributes="BuildAttributes()">
     @ChildContent
 </div>
 
 @code {
-    // shadcn - new-york-v4
-    protected override async Task OnInitializedAsync()
-    {
-        OffcanvasCoordinator.StateChanged += HandleChanged;
-        await OffcanvasInterop.Initialize();
-        await base.OnInitializedAsync();
-    }
-
-    private void HandleChanged()
-    {
-        _ = RefreshOffThread();
-    }
-
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-overlay-container");
-            
-            if (OffcanvasCoordinator.ActiveCount > 0)
-                AppendClass(ref cls, "q-offcanvas-open");
         });
     }
-
-    public override ValueTask DisposeAsync()
-    {
-        OffcanvasCoordinator.StateChanged -= HandleChanged;
-        return base.DisposeAsync();
-    }
-
 }

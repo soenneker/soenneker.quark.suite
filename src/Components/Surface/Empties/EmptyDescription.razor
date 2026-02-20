@@ -1,0 +1,21 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IEmptyDescription
+
+<div @attributes="BuildAttributes()">@ChildContent</div>
+
+@code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "empty-description";
+
+        // shadcn/ui empty-description base - exact copy from new-york-v4 ui/empty.tsx
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-empty-description");
+            AppendClass(ref cls, "text-muted-foreground [&>a:hover]:text-primary text-sm/relaxed [&>a]:underline [&>a]:underline-offset-4");
+        });
+    }
+}

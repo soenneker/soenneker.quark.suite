@@ -1,0 +1,53 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IItem
+
+<div @attributes="BuildAttributes()">@ChildContent</div>
+
+@code {
+    [Parameter]
+    public ItemVariant Variant { get; set; } = ItemVariant.Default;
+
+    [Parameter]
+    public ItemSize Size { get; set; } = ItemSize.Default;
+
+    private static string GetVariantClass(ItemVariant variant)
+        => variant switch
+        {
+            ItemVariant.Default => "bg-transparent",
+            ItemVariant.Outline => "border-border",
+            ItemVariant.Muted => "bg-muted/50",
+            _ => "bg-transparent"
+        };
+
+    private static string GetSizeClass(ItemSize size)
+        => size switch
+        {
+            ItemSize.Default => "p-4 gap-4",
+            ItemSize.Small => "py-3 px-4 gap-2.5",
+            _ => "p-4 gap-4"
+        };
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "item";
+        attributes["data-variant"] = Variant.ToString().ToLowerInvariant();
+        attributes["data-size"] = Size == ItemSize.Small ? "sm" : "default";
+
+        // shadcn/ui item base - exact copy from new-york-v4 ui/item.tsx
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-item");
+            AppendClass(ref cls, "group/item flex items-center border border-transparent text-sm rounded-md transition-colors [a]:hover:bg-accent/50 [a]:transition-colors duration-100 flex-wrap outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]");
+            AppendClass(ref cls, GetVariantClass(Variant));
+            AppendClass(ref cls, GetSizeClass(Size));
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Variant);
+        hc.Add(Size);
+    }
+}

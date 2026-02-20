@@ -1,0 +1,39 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IItemMedia
+
+<div @attributes="BuildAttributes()">@ChildContent</div>
+
+@code {
+    [Parameter]
+    public ItemMediaVariant Variant { get; set; } = ItemMediaVariant.Default;
+
+    private static string GetVariantClass(ItemMediaVariant variant)
+        => variant switch
+        {
+            ItemMediaVariant.Default => "bg-transparent",
+            ItemMediaVariant.Icon => "size-8 border rounded-sm bg-muted [&_svg:not([class*='size-'])]:size-4",
+            ItemMediaVariant.Image => "size-10 rounded-sm overflow-hidden [&_img]:size-full [&_img]:object-cover",
+            _ => "bg-transparent"
+        };
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "item-media";
+        attributes["data-variant"] = Variant.ToString().ToLowerInvariant();
+
+        // shadcn/ui item-media base - exact copy from new-york-v4 ui/item.tsx
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-item-media");
+            AppendClass(ref cls, "flex shrink-0 items-center justify-center gap-2 group-has-[[data-slot=item-description]]/item:self-start [&_svg]:pointer-events-none group-has-[[data-slot=item-description]]/item:translate-y-0.5");
+            AppendClass(ref cls, GetVariantClass(Variant));
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Variant);
+    }
+}

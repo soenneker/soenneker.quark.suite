@@ -1,0 +1,30 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()" role="group" aria-roledescription="slide">
+    @ChildContent
+</div>
+
+@code {
+    [CascadingParameter(Name = "ParentCarousel")]
+    private Carousel? ParentCarousel { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "carousel-item";
+
+        var horizontal = ParentCarousel?.Orientation != "vertical";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-carousel-item");
+            AppendClass(ref cls, "min-w-0 shrink-0 grow-0 basis-full");
+            if (horizontal)
+                AppendClass(ref cls, "pl-4");
+            else
+                AppendClass(ref cls, "pt-4");
+        });
+    }
+}

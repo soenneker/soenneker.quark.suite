@@ -41,8 +41,8 @@ public sealed class FillBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        FillRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new FillRule(last.Utility, last.Value, breakpoint);
         return this;
     }
@@ -53,12 +53,12 @@ public sealed class FillBuilder : ICssBuilder
             return string.Empty;
 
         using var sb = new PooledStringBuilder();
-        bool first = true;
+        var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            FillRule rule = _rules[i];
-            string cls = $"{rule.Utility}-{rule.Value}";
-            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            var rule = _rules[i];
+            var cls = $"{rule.Utility}-{rule.Value}";
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 

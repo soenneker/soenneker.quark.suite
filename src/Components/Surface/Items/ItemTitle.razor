@@ -1,0 +1,18 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IItemTitle
+
+<div @attributes="BuildAttributes()">@ChildContent</div>
+
+@code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "item-title";
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-item-title");
+            AppendClass(ref cls, "flex w-fit items-center gap-2 text-sm leading-snug font-medium");
+        });
+    }
+}

@@ -41,7 +41,7 @@ public sealed class ThemeProvider : IThemeProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string? GenerateComponentsCss()
     {
-        Theme? currentTheme = GetCurrentTheme();
+        var currentTheme = GetCurrentTheme();
 
         if (currentTheme == null)
             return null;

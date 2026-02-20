@@ -76,7 +76,7 @@ public sealed class ValidationResult
 
         for (var i = 0; i < results.Length; i++)
         {
-            ValidationResult result = results[i];
+            var result = results[i];
             if (result.Status != ValidationStatus.Error)
                 continue;
 
@@ -91,7 +91,7 @@ public sealed class ValidationResult
             if (result.MemberNames is null)
                 continue;
 
-            foreach (string name in result.MemberNames)
+            foreach (var name in result.MemberNames)
             {
                 if (string.IsNullOrEmpty(name))
                     continue;
@@ -110,7 +110,7 @@ public sealed class ValidationResult
         if (!hasError)
             return Success();
 
-        string allErrors = errorMessages is null ? string.Empty : string.Join(" ", errorMessages);
+        var allErrors = errorMessages is null ? string.Empty : string.Join(" ", errorMessages);
 
         return new ValidationResult
         {

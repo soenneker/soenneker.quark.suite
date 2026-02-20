@@ -1,0 +1,42 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IEmptyMedia
+
+<div @attributes="BuildAttributes()">@ChildContent</div>
+
+@code {
+    /// <summary>
+    /// Gets or sets the visual style variant.
+    /// </summary>
+    [Parameter]
+    public EmptyMediaVariant Variant { get; set; } = EmptyMediaVariant.Default;
+
+    private static string GetVariantClass(EmptyMediaVariant variant)
+        => variant switch
+        {
+            EmptyMediaVariant.Default => "bg-transparent",
+            EmptyMediaVariant.Icon => "bg-muted text-foreground flex size-10 shrink-0 items-center justify-center rounded-lg [&_svg:not([class*='size-'])]:size-6",
+            _ => "bg-transparent"
+        };
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "empty-icon";
+        attributes["data-variant"] = Variant.ToString().ToLowerInvariant();
+
+        // shadcn/ui empty-icon base - exact copy from new-york-v4 ui/empty.tsx
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-empty-media");
+            AppendClass(ref cls, "flex shrink-0 items-center justify-center mb-2 [&_svg]:pointer-events-none [&_svg]:shrink-0");
+            AppendClass(ref cls, GetVariantClass(Variant));
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Variant);
+    }
+}

@@ -97,9 +97,9 @@ public sealed class TextAlignmentBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            TextAlignmentRule rule = _rules[i];
+            var rule = _rules[i];
 
-            string baseClass = rule.Value switch
+            var baseClass = rule.Value switch
             {
                 TextAlignKeyword.StartValue => _classStart,
                 TextAlignKeyword.CenterValue => _classCenter,
@@ -110,7 +110,7 @@ public sealed class TextAlignmentBuilder : ICssBuilder
             if (baseClass.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 baseClass = BreakpointUtil.ApplyTailwindBreakpoint(baseClass, bp);
 
@@ -139,9 +139,9 @@ public sealed class TextAlignmentBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            TextAlignmentRule rule = _rules[i];
+            var rule = _rules[i];
 
-            string css = rule.Value switch
+            var css = rule.Value switch
             {
                 TextAlignKeyword.StartValue => _styleStart,
                 TextAlignKeyword.CenterValue => _styleCenter,

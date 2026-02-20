@@ -29,7 +29,7 @@ public sealed class ScoreInterop : IScoreInterop
 
     public async ValueTask Initialize(CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
         using (source)
             await _initializer.Init(linked);

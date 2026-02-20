@@ -16,7 +16,7 @@ internal sealed class ValidatorHandler : IValidationHandler
         if (ctx.Validator is not null)
         {
             // Use the new ValidationResult API
-            ValidationResult result = ctx.Validator.Validate(args);
+            var result = ctx.Validator.Validate(args);
             
             // ValidatorEventArgs should already be synced by the validator
             // but ensure it's set in case of custom implementations
@@ -56,7 +56,7 @@ internal sealed class ValidatorHandler : IValidationHandler
         if (ctx.Validator is not null)
         {
             // Use the new ValidationResult API
-            ValidationResult result = await ctx.Validator.ValidateAsync(args, cancellationToken);
+            var result = await ctx.Validator.ValidateAsync(args, cancellationToken);
             
             // ValidatorEventArgs should already be synced by the validator
             // but ensure it's set in case of custom implementations

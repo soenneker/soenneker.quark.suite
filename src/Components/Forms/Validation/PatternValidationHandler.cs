@@ -14,8 +14,8 @@ internal sealed class PatternValidationHandler : IValidationHandler
             return;
         }
 
-        bool isMatch = ctx.Pattern.IsMatch(value?.ToString() ?? string.Empty);
-        string? errorMessage = ctx.PatternMessage.HasContent() ? ctx.PatternMessage : "Value does not match the required pattern.";
+        var isMatch = ctx.Pattern.IsMatch(value?.ToString() ?? string.Empty);
+        var errorMessage = ctx.PatternMessage.HasContent() ? ctx.PatternMessage : "Value does not match the required pattern.";
         ctx.NotifyValidationStatusChanged(isMatch ? ValidationStatus.Success : ValidationStatus.Error,
             isMatch ? null : new[] { errorMessage });
     }

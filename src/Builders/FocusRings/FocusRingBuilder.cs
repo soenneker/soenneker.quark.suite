@@ -107,8 +107,8 @@ public sealed class FocusRingBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        FocusRingRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new FocusRingRule(last.Color, bp);
         return this;
     }
@@ -125,8 +125,8 @@ public sealed class FocusRingBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            FocusRingRule rule = _rules[i];
-            string cls = rule.Color switch
+            var rule = _rules[i];
+            var cls = rule.Color switch
             {
                 "primary" => _classPrimary,
                 "secondary" => _classSecondary,
@@ -141,7 +141,7 @@ public sealed class FocusRingBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -165,8 +165,8 @@ public sealed class FocusRingBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            FocusRingRule rule = _rules[i];
-            string? cssVar = GetCssVariable(rule.Color);
+            var rule = _rules[i];
+            var cssVar = GetCssVariable(rule.Color);
             if (cssVar is null)
                 continue;
 

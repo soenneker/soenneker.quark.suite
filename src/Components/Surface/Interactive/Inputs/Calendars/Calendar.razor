@@ -1,0 +1,144 @@
+@using System.Globalization
+@using System.Linq
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    <div class="q-calendar-header flex items-center justify-between mb-4">
+        <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" OnClick="PrevMonth" aria-label="Previous month">‹</Button>
+        <div class="q-calendar-title font-semibold text-sm">@_displayMonth.ToString("MMMM yyyy", CultureInfo.CurrentUICulture)</div>
+        <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" OnClick="NextMonth" aria-label="Next month">›</Button>
+    </div>
+    <div class="q-calendar-weekdays flex mb-2">
+        @foreach (var dow in _dayNames)
+        {
+            <div class="q-calendar-weekday flex-1 text-center text-muted-foreground text-xs font-normal">@dow</div>
+        }
+    </div>
+    <div class="q-calendar-grid grid grid-cols-7 gap-1">
+        @foreach (var day in BuildMonthCells())
+        {
+            var css = "q-calendar-day relative flex aspect-square w-full items-center justify-center rounded-md text-sm";
+            if (!day.InMonth) css += " text-muted-foreground";
+            if (day.Date == DateOnly.FromDateTime(DateTime.Today)) css += " bg-accent text-accent-foreground";
+            if (Value.HasValue && day.Date == Value.Value) css += " bg-primary text-primary-foreground";
+            if (day.Disabled) css += " opacity-50 pointer-events-none";
+
+            <button type="button" class="@css" disabled="@day.Disabled" @onclick="() => SelectDate(day.Date)">@day.Date.Day</button>
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// Gets or sets the selected date.
+    /// </summary>
+    [Parameter]
+    public DateOnly? Value { get; set; }
+
+    /// <summary>
+    /// Gets or sets callback when date is selected.
+    /// </summary>
+    [Parameter]
+    public EventCallback<DateOnly?> ValueChanged { get; set; }
+
+    /// <summary>
+    /// Gets or sets the minimum selectable date.
+    /// </summary>
+    [Parameter]
+    public DateOnly? Min { get; set; }
+
+    /// <summary>
+    /// Gets or sets the maximum selectable date.
+    /// </summary>
+    [Parameter]
+    public DateOnly? Max { get; set; }
+
+    private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
+    private string[] _dayNames = [];
+
+    protected override void OnInitialized()
+    {
+        InitializeDayNames();
+        if (Value.HasValue)
+            _displayMonth = new DateOnly(Value.Value.Year, Value.Value.Month, 1);
+        else
+            _displayMonth = new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1);
+    }
+
+    private void InitializeDayNames()
+    {
+        var culture = CultureInfo.CurrentCulture;
+        var first = culture.DateTimeFormat.FirstDayOfWeek;
+        var names = culture.DateTimeFormat.AbbreviatedDayNames;
+        _dayNames = Enumerable.Range(0, 7).Select(i => names[((int)first + i) % 7]).ToArray();
+    }
+
+    private record Cell(DateOnly Date, bool InMonth, bool Disabled);
+
+    private IEnumerable<Cell> BuildMonthCells()
+    {
+        var firstOfMonth = new DateOnly(_displayMonth.Year, _displayMonth.Month, 1);
+        var culture = CultureInfo.CurrentCulture;
+        var startDow = culture.DateTimeFormat.FirstDayOfWeek;
+        var offset = ((int)firstOfMonth.DayOfWeek - (int)startDow + 7) % 7;
+        var gridStart = firstOfMonth.AddDays(-offset);
+
+        for (var i = 0; i < 42; i++)
+        {
+            var d = gridStart.AddDays(i);
+            var inMonth = d.Month == _displayMonth.Month;
+            var disabled = (Min.HasValue && d < Min.Value) || (Max.HasValue && d > Max.Value);
+            yield return new Cell(d, inMonth, disabled);
+        }
+    }
+
+    private async Task SelectDate(DateOnly date)
+    {
+        if ((Min.HasValue && date < Min.Value) || (Max.HasValue && date > Max.Value)) return;
+        Value = date;
+        await ValueChanged.InvokeAsync(Value);
+        InvalidateRender();
+        Refresh();
+    }
+
+    private Task PrevMonth()
+    {
+        _displayMonth = _displayMonth.AddMonths(-1);
+        InvalidateRender();
+        Refresh();
+        return Task.CompletedTask;
+    }
+
+    private Task NextMonth()
+    {
+        _displayMonth = _displayMonth.AddMonths(1);
+        InvalidateRender();
+        Refresh();
+        return Task.CompletedTask;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "calendar";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-calendar");
+            AppendClass(ref cls, "bg-background p-3 rounded-md [--cell-size:2rem]");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Value);
+        hc.Add(Min);
+        hc.Add(Max);
+        hc.Add(_displayMonth);
+    }
+}

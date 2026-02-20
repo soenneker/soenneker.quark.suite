@@ -1,0 +1,65 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IInputGroupTextarea
+
+<TextArea Value="@Value"
+          ValueChanged="HandleValueChanged"
+          Placeholder="@Placeholder"
+          Disabled="@Disabled"
+          ReadOnly="@ReadOnly"
+          Required="@Required"
+          Rows="@Rows"
+          Attributes="BuildInnerAttributes()" />
+
+@code {
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    [Parameter]
+    public string? Placeholder { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public bool ReadOnly { get; set; }
+
+    [Parameter]
+    public bool Required { get; set; }
+
+    [Parameter]
+    public int? Rows { get; set; }
+
+    private async Task HandleValueChanged(string? value)
+    {
+        Value = value;
+        await ValueChanged.InvokeIfHasDelegate(value);
+    }
+
+    private Dictionary<string, object> BuildInnerAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+        attributes["data-slot"] = "input-group-control";
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-input-group-textarea");
+            AppendClass(ref cls, "flex-1 resize-none rounded-none border-0 bg-transparent py-3 shadow-none focus-visible:ring-0 dark:bg-transparent");
+        });
+        return attributes;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Value);
+        hc.Add(Placeholder);
+        hc.Add(Disabled);
+        hc.Add(ReadOnly);
+        hc.Add(Required);
+        hc.Add(Rows);
+    }
+}

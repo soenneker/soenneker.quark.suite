@@ -128,8 +128,8 @@ public sealed class BorderBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BorderBuilder AddRule(ElementSideType side)
     {
-        string size = _rules.Count > 0 ? _rules[^1].Size : "0";
-        BreakpointType? bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
+        var size = _rules.Count > 0 ? _rules[^1].Size : "0";
+        var bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
 
         if (_rules.Count > 0 && _rules[^1].Side == ElementSideType.All)
         {
@@ -159,8 +159,8 @@ public sealed class BorderBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        BorderRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new BorderRule(last.Size, last.Side, breakpoint);
         return this;
     }
@@ -176,15 +176,15 @@ public sealed class BorderBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            BorderRule rule = _rules[i];
+            var rule = _rules[i];
 
-            string sizeTok = rule.Size;
+            var sizeTok = rule.Size;
 
             if (sizeTok.Length == 0)
                 continue;
 
-            string sideTok = GetSideToken(rule.Side);
-            string bpTok = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var sideTok = GetSideToken(rule.Side);
+            var bpTok = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
 
             if (!first)
                 sb.Append(' ');
@@ -223,8 +223,8 @@ public sealed class BorderBuilder : ICssBuilder
         {
             for (var i = 0; i < _rules.Count; i++)
             {
-                BorderRule rule = _rules[i];
-                string? sizeVal = GetSizeValue(rule.Size);
+                var rule = _rules[i];
+                var sizeVal = GetSizeValue(rule.Size);
 
                 if (sizeVal is null)
                     continue;

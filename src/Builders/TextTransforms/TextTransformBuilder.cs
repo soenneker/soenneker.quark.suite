@@ -104,8 +104,8 @@ public sealed class TextTransformBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        TextTransformRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new TextTransformRule(last.Value, bp);
         return this;
     }
@@ -122,8 +122,8 @@ public sealed class TextTransformBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            TextTransformRule rule = _rules[i];
-            string cls = rule.Value switch
+            var rule = _rules[i];
+            var cls = rule.Value switch
             {
                 TextTransformKeyword.LowercaseValue => _classLower,
                 TextTransformKeyword.UppercaseValue => _classUpper,
@@ -133,7 +133,7 @@ public sealed class TextTransformBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -157,8 +157,8 @@ public sealed class TextTransformBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            TextTransformRule rule = _rules[i];
-            string val = rule.Value;
+            var rule = _rules[i];
+            var val = rule.Value;
             if (string.IsNullOrEmpty(val))
                 continue;
 

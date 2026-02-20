@@ -1,0 +1,59 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<CascadingValue Name="ParentContextMenu" Value="@this" IsFixed="true">
+    @ChildContent
+</CascadingValue>
+
+@if (Open)
+{
+    <div class="fixed inset-0 z-40" @onclick="Close"></div>
+    <div @attributes="BuildContentAttributes()" @onclick:stopPropagation="true">
+        @_content
+    </div>
+}
+
+@code {
+    internal bool Open { get; set; }
+    internal double X { get; set; }
+    internal double Y { get; set; }
+    internal RenderFragment? _content;
+
+    internal void RegisterContent(RenderFragment content) => _content = content;
+
+    internal void Show(double x, double y)
+    {
+        X = x;
+        Y = y;
+        Open = true;
+        InvalidateRender();
+        Refresh();
+    }
+
+    internal void Close()
+    {
+        if (Open)
+        {
+            Open = false;
+            _content = null;
+            InvalidateRender();
+            Refresh();
+        }
+    }
+
+    private Dictionary<string, object> BuildContentAttributes()
+    {
+        var attrs = new Dictionary<string, object>();
+        attrs["data-slot"] = "context-menu-content";
+        attrs["style"] = $"position: fixed; left: {X}px; top: {Y}px; z-index: 50;";
+        BuildClassAttribute(attrs, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-context-menu-content");
+            AppendClass(ref cls, "min-w-[8rem] max-h-[min(var(--available-height,300px),300px)] overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md");
+            AppendClass(ref cls, "animate-in fade-in-80 zoom-in-95 slide-in-from-top-2");
+        });
+        return attrs;
+    }
+}

@@ -1,0 +1,47 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<InputGroup>
+    <InputGroupInput Value="@GetDisplayValue()" ValueChanged="HandleValueChanged" Disabled="@(ParentCombobox?.Disabled ?? false)" Placeholder="@Placeholder" />
+    <InputGroupAddon Align="InputGroupAddonAlign.InlineEnd">
+        <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.IconXs" Type="ButtonType.Button" @onclick="ToggleOpen" Disabled="@(ParentCombobox?.Disabled ?? false)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </Button>
+    </InputGroupAddon>
+</InputGroup>
+
+@code {
+    [CascadingParameter(Name = "ParentCombobox")]
+    private Combobox? ParentCombobox { get; set; }
+
+    [Parameter]
+    public string Placeholder { get; set; } = "Search...";
+
+    private string GetDisplayValue()
+    {
+        if (ParentCombobox == null) return "";
+        return ParentCombobox.Open ? (ParentCombobox.Search ?? "") : (ParentCombobox.Value ?? "");
+    }
+
+    private async Task HandleValueChanged(string? value)
+    {
+        if (ParentCombobox != null)
+        {
+            await ParentCombobox.SetSearch(value ?? "");
+            await ParentCombobox.SetOpen(true);
+        }
+    }
+
+    private async Task ToggleOpen(MouseEventArgs _)
+    {
+        if (ParentCombobox != null)
+            await ParentCombobox.SetOpen(!ParentCombobox.Open);
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+    }
+}

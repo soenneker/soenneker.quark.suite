@@ -94,8 +94,8 @@ public sealed class OpacityBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        OpacityRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new OpacityRule(last.Value, bp);
         return this;
     }
@@ -112,12 +112,12 @@ public sealed class OpacityBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            OpacityRule rule = _rules[i];
-            string cls = GetClass(rule.Value);
+            var rule = _rules[i];
+            var cls = GetClass(rule.Value);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -141,8 +141,8 @@ public sealed class OpacityBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            OpacityRule rule = _rules[i];
-            string? css = GetStyle(rule.Value);
+            var rule = _rules[i];
+            var css = GetStyle(rule.Value);
             if (css is null)
                 continue;
 

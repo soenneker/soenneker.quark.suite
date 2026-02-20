@@ -1,0 +1,59 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildWrapperAttributes()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-4 shrink-0 opacity-50">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+    </svg>
+    <input value="@Value" @oninput="HandleInput" @onkeydown="HandleKeyDown" @onkeydown:preventDefault @attributes="BuildAttributes()" placeholder="@Placeholder" />
+</div>
+
+@code {
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    [Parameter]
+    public string Placeholder { get; set; } = "Type a command or search...";
+
+    private async Task HandleInput(ChangeEventArgs e)
+    {
+        Value = e.Value?.ToString() ?? "";
+        await ValueChanged.InvokeAsync(Value);
+    }
+
+    private void HandleKeyDown(KeyboardEventArgs _)
+    {
+        // Enter: default prevented via @onkeydown:preventDefault
+        // Escape: propagates to close command dialog
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "command-input";
+        attributes["type"] = "text";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-command-input");
+            AppendClass(ref cls, "flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50");
+        });
+    }
+
+    private Dictionary<string, object> BuildWrapperAttributes()
+    {
+        var attrs = new Dictionary<string, object>();
+        attrs["data-slot"] = "command-input-wrapper";
+        BuildClassAttribute(attrs, (ref cls) =>
+        {
+            AppendClass(ref cls, "flex h-9 items-center gap-2 border-b px-3");
+        });
+        return attrs;
+    }
+}

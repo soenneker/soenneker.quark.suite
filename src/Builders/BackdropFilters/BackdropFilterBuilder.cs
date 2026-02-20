@@ -117,8 +117,8 @@ public sealed class BackdropFilterBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        BackdropFilterRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new BackdropFilterRule(last.Filter, breakpoint);
         return this;
     }
@@ -137,12 +137,12 @@ public sealed class BackdropFilterBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            BackdropFilterRule rule = _rules[i];
-            string cls = GetBackdropFilterClass(rule.Filter);
+            var rule = _rules[i];
+            var cls = GetBackdropFilterClass(rule.Filter);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -169,8 +169,8 @@ public sealed class BackdropFilterBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            BackdropFilterRule rule = _rules[i];
-            string? filterValue = GetBackdropFilterValue(rule.Filter);
+            var rule = _rules[i];
+            var filterValue = GetBackdropFilterValue(rule.Filter);
 
             if (filterValue is null)
                 continue;

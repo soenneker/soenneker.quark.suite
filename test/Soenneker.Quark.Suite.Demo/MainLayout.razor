@@ -1,7 +1,10 @@
 @inherits LayoutComponentBase
+@inject Soenneker.Quark.Suite.Demo.Services.ThemeService ThemeService
+@implements IDisposable
 
 <PageTitle>Quark Suite Demo</PageTitle>
 
+<CascadingValue Value="ThemeService">
 <SidebarProvider Open="_sidebarOpen" OpenChanged="OnSidebarOpenChanged">
     <Sidebar Collapsible="SidebarCollapsible.Icon">
         <SidebarHeader>
@@ -9,26 +12,7 @@
                 <img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" alt="Quark Suite" class="size-8 shrink-0 rounded-lg" />
                 <span class="truncate group-data-[collapsible=icon]:hidden">Quark Suite</span>
             </a>
-            <SidebarMenu>
-                <SidebarMenuItem>
-                    <NavLink href="" Match="NavLinkMatch.All" class="@TopNavLinkClass" ActiveClass="@ActiveClass">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                        <span>Home</span>
-                    </NavLink>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                    <NavLink href="getting-started" class="@TopNavLinkClass" ActiveClass="@ActiveClass">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-                        <span>Getting Started</span>
-                    </NavLink>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                    <NavLink href="components" class="@TopNavLinkClass" ActiveClass="@ActiveClass">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-                        <span>Components</span>
-                    </NavLink>
-                </SidebarMenuItem>
-            </SidebarMenu>
+            <p class="px-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">Docs-style demo shell</p>
         </SidebarHeader>
 
         <SidebarContent>
@@ -61,10 +45,12 @@
                     <SidebarMenu>
                         <SidebarMenuItem><NavLink href="surfaces/cards" class="@NavLinkClass" ActiveClass="@ActiveClass">Cards</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="surfaces/alerts" class="@NavLinkClass" ActiveClass="@ActiveClass">Alerts</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="surfaces/listgroups" class="@NavLinkClass" ActiveClass="@ActiveClass">List Groups</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="surfaces/accordions" class="@NavLinkClass" ActiveClass="@ActiveClass">Accordions</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="surfaces/buttons" class="@NavLinkClass" ActiveClass="@ActiveClass">Buttons</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="surfaces/button-groups" class="@NavLinkClass" ActiveClass="@ActiveClass">Button Groups</NavLink></SidebarMenuItem>
+                        <SidebarMenuItem><NavLink href="surfaces/skeletons" class="@NavLinkClass" ActiveClass="@ActiveClass">Skeletons</NavLink></SidebarMenuItem>
+                        <SidebarMenuItem><NavLink href="surfaces/empties" class="@NavLinkClass" ActiveClass="@ActiveClass">Empties</NavLink></SidebarMenuItem>
+                        <SidebarMenuItem><NavLink href="surfaces/items" class="@NavLinkClass" ActiveClass="@ActiveClass">Items</NavLink></SidebarMenuItem>
                     </SidebarMenu>
                 </SidebarGroupContent>
             </SidebarGroup>
@@ -74,6 +60,8 @@
                 <SidebarGroupContent>
                     <SidebarMenu>
                         <SidebarMenuItem><NavLink href="forms/input-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Input</NavLink></SidebarMenuItem>
+                        <SidebarMenuItem><NavLink href="forms/input-groups" class="@NavLinkClass" ActiveClass="@ActiveClass">Input Groups</NavLink></SidebarMenuItem>
+                        <SidebarMenuItem><NavLink href="forms/textareas" class="@NavLinkClass" ActiveClass="@ActiveClass">TextArea</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="forms/textedits" class="@NavLinkClass" ActiveClass="@ActiveClass">Text Edits</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="forms/numericedit-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Numeric Edit</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="forms/dateedits" class="@NavLinkClass" ActiveClass="@ActiveClass">Date Edits</NavLink></SidebarMenuItem>
@@ -81,10 +69,12 @@
                         <SidebarMenuItem><NavLink href="forms/memoedits" class="@NavLinkClass" ActiveClass="@ActiveClass">Memo Edits</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="forms/code-editor" class="@NavLinkClass" ActiveClass="@ActiveClass">Code Editor</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="forms/selects" class="@NavLinkClass" ActiveClass="@ActiveClass">Selects</NavLink></SidebarMenuItem>
+                        <SidebarMenuItem><NavLink href="forms/native-selects" class="@NavLinkClass" ActiveClass="@ActiveClass">Native Select</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="forms/sliders" class="@NavLinkClass" ActiveClass="@ActiveClass">Sliders</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="forms/checks" class="@NavLinkClass" ActiveClass="@ActiveClass">Checkboxes</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="forms/radios" class="@NavLinkClass" ActiveClass="@ActiveClass">Radios</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="forms/switches" class="@NavLinkClass" ActiveClass="@ActiveClass">Switches</NavLink></SidebarMenuItem>
+                        <SidebarMenuItem><NavLink href="forms/toggles" class="@NavLinkClass" ActiveClass="@ActiveClass">Toggles</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="forms/fields" class="@NavLinkClass" ActiveClass="@ActiveClass">Fields</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="forms/fieldsets-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Fieldsets</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="forms/validation-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Validation</NavLink></SidebarMenuItem>
@@ -98,7 +88,6 @@
                     <SidebarMenu>
                         <SidebarMenuItem><NavLink href="layout/containers" class="@NavLinkClass" ActiveClass="@ActiveClass">Containers</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="layout/columns" class="@NavLinkClass" ActiveClass="@ActiveClass">Rows & Columns</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="layout/layouts" class="@NavLinkClass" ActiveClass="@ActiveClass">Layouts</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="layout/divs" class="@NavLinkClass" ActiveClass="@ActiveClass">Divs</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="layout/position-offset" class="@NavLinkClass" ActiveClass="@ActiveClass">Position Offset</NavLink></SidebarMenuItem>
                     </SidebarMenu>
@@ -112,7 +101,6 @@
                         <SidebarMenuItem><NavLink href="overlays/modals" class="@NavLinkClass" ActiveClass="@ActiveClass">Modals</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="overlays/alert-dialogs" class="@NavLinkClass" ActiveClass="@ActiveClass">Alert Dialogs</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="overlays/sheets" class="@NavLinkClass" ActiveClass="@ActiveClass">Sheets</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="overlays/offcanvas" class="@NavLinkClass" ActiveClass="@ActiveClass">Offcanvas</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="overlays/collapses" class="@NavLinkClass" ActiveClass="@ActiveClass">Collapses</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="overlays/dropdowns" class="@NavLinkClass" ActiveClass="@ActiveClass">Dropdowns</NavLink></SidebarMenuItem>
                     </SidebarMenu>
@@ -124,7 +112,7 @@
                 <SidebarGroupContent>
                     <SidebarMenu>
                         <SidebarMenuItem><NavLink href="navigation/sidebar" class="@NavLinkClass" ActiveClass="@ActiveClass">Sidebar</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="navigation/navs" class="@NavLinkClass" ActiveClass="@ActiveClass">Navs</NavLink></SidebarMenuItem>
+                        <SidebarMenuItem><NavLink href="navigation/navigation-menu" class="@NavLinkClass" ActiveClass="@ActiveClass">Navigation Menu</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="navigation/breadcrumbs" class="@NavLinkClass" ActiveClass="@ActiveClass">Breadcrumbs</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="navigation/paginations" class="@NavLinkClass" ActiveClass="@ActiveClass">Paginations</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="navigation/tabs" class="@NavLinkClass" ActiveClass="@ActiveClass">Tabs</NavLink></SidebarMenuItem>
@@ -169,6 +157,7 @@
                     <SidebarMenu>
                         <SidebarMenuItem><NavLink href="surfaces/alerts" class="@NavLinkClass" ActiveClass="@ActiveClass">Alerts</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="feedback/snackbars" class="@NavLinkClass" ActiveClass="@ActiveClass">Snackbars</NavLink></SidebarMenuItem>
+                        <SidebarMenuItem><NavLink href="feedback/spinners" class="@NavLinkClass" ActiveClass="@ActiveClass">Spinners</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="feedback/progresses" class="@NavLinkClass" ActiveClass="@ActiveClass">Progress Bars</NavLink></SidebarMenuItem>
                         <SidebarMenuItem><NavLink href="feedback/scores" class="@NavLinkClass" ActiveClass="@ActiveClass">Scores</NavLink></SidebarMenuItem>
                     </SidebarMenu>
@@ -194,11 +183,29 @@
     </Sidebar>
 
     <SidebarInset>
-        <header class="flex h-16 shrink-0 items-center gap-4 border-b bg-background px-4 z-10 focus:outline-none">
+        <header class="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-4 border-b bg-background px-4 focus:outline-none">
             <SidebarTrigger />
+            <a href="/" class="flex min-w-0 items-center gap-2 rounded-md px-2 py-1.5 hover:bg-accent">
+                <img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" alt="Quark Suite" class="size-6 shrink-0 rounded-sm" />
+                <span class="text-sm font-medium">Docs</span>
+            </a>
+            <nav class="hidden md:flex items-center gap-1">
+                <NavLink href="" Match="NavLinkMatch.All" class="@TopNavLinkClass" ActiveClass="@TopActiveClass">Introduction</NavLink>
+                <NavLink href="components" class="@TopNavLinkClass" ActiveClass="@TopActiveClass">Components</NavLink>
+                <NavLink href="surfaces/cards" class="@TopNavLinkClass" ActiveClass="@TopActiveClass">Blocks</NavLink>
+                <NavLink href="data/tables/basic" class="@TopNavLinkClass" ActiveClass="@TopActiveClass">Charts</NavLink>
+            </nav>
             <div class="ml-auto flex items-center gap-2">
-                <button type="button" onclick="window.toggleDarkMode?.()" class="rounded-md p-2 hover:bg-accent" aria-label="Toggle dark mode">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                <Input Type="search" Placeholder="Search documentation..." Class="hidden md:flex w-64" />
+                <button type="button" @onclick="ToggleTheme" class="rounded-md p-2 hover:bg-accent" aria-label="Toggle dark mode">
+                    @if (ThemeService.IsDark)
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 1 0 9 9 9 9 0 1 1-9-9z"/></svg>
+                    }
+                    else
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                    }
                 </button>
             </div>
         </header>
@@ -209,21 +216,52 @@
         </div>
     </SidebarInset>
 </SidebarProvider>
+</CascadingValue>
 
 @code {
     private bool _sidebarOpen = true;
 
-    private const string TopNavLinkClass =
-        "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 h-8";
+    private const string TopNavLinkClass = "rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground";
+
+    private const string TopActiveClass = "bg-accent text-foreground font-medium";
 
     private const string NavLinkClass =
         "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 h-8";
 
     private const string ActiveClass = "bg-sidebar-accent text-sidebar-accent-foreground font-medium";
 
+    protected override void OnInitialized()
+    {
+        ThemeService.ThemeChanged += OnThemeChanged;
+    }
+
     private Task OnSidebarOpenChanged(bool open)
     {
         _sidebarOpen = open;
         return Task.CompletedTask;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        await ThemeService.InitializeAsync();
+        StateHasChanged();
+    }
+
+    private async Task ToggleTheme()
+    {
+        await ThemeService.ToggleAsync();
+    }
+
+    private void OnThemeChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ThemeService.ThemeChanged -= OnThemeChanged;
     }
 }

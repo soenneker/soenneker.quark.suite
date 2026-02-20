@@ -138,8 +138,8 @@ public sealed class ColorBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        ColorRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new ColorRule(last.Value, bp);
         return this;
     }
@@ -158,12 +158,12 @@ public sealed class ColorBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            ColorRule rule = _rules[i];
-            string cls = GetClass(rule);
+            var rule = _rules[i];
+            var cls = GetClass(rule);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -190,8 +190,8 @@ public sealed class ColorBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            ColorRule rule = _rules[i];
-            string? css = GetStyle(rule);
+            var rule = _rules[i];
+            var css = GetStyle(rule);
             if (css is null)
                 continue;
 
@@ -214,7 +214,7 @@ public sealed class ColorBuilder : ICssBuilder
             return string.Empty;
 
         // First try to generate classes
-        string classResult = ToClass();
+        var classResult = ToClass();
         if (classResult.HasContent())
             return classResult;
 

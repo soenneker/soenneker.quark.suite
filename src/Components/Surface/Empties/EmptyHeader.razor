@@ -1,0 +1,21 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IEmptyHeader
+
+<div @attributes="BuildAttributes()">@ChildContent</div>
+
+@code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "empty-header";
+
+        // shadcn/ui empty-header base - exact copy from new-york-v4 ui/empty.tsx
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-empty-header");
+            AppendClass(ref cls, "flex max-w-sm flex-col items-center gap-2 text-center");
+        });
+    }
+}

@@ -42,16 +42,16 @@ public static class BreakpointUtil
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string InsertBreakpointType(string className, string bp)
     {
-        int dashIndex = className.IndexOf('-');
+        var dashIndex = className.IndexOf('-');
 
         if (dashIndex > 0)
         {
-            int len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
+            var len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
 
             return string.Create(len, (className, dashIndex, bp), static (dst, s) =>
             {
                 s.className.AsSpan(0, s.dashIndex).CopyTo(dst);
-                int idx = s.dashIndex;
+                var idx = s.dashIndex;
                 dst[idx++] = '-';
                 s.bp.AsSpan().CopyTo(dst[idx..]);
                 idx += s.bp.Length;
@@ -62,7 +62,7 @@ public static class BreakpointUtil
         return string.Create(bp.Length + 1 + className.Length, (className, bp), static (dst, s) =>
         {
             s.bp.AsSpan().CopyTo(dst);
-            int idx = s.bp.Length;
+            var idx = s.bp.Length;
             dst[idx++] = '-';
             s.className.AsSpan().CopyTo(dst[idx..]);
         });
@@ -83,7 +83,7 @@ public static class BreakpointUtil
         return string.Create(bp.Length + 1 + className.Length, (className, bp), static (dst, s) =>
         {
             s.bp.AsSpan().CopyTo(dst);
-            int idx = s.bp.Length;
+            var idx = s.bp.Length;
             dst[idx++] = ':';
             s.className.AsSpan().CopyTo(dst[idx..]);
         });

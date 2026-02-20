@@ -1,0 +1,100 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.InteractiveSurfaceElement
+
+<button @onclick="HandleClick" @attributes="BuildAttributes()">
+    @ChildContent
+</button>
+
+@code {
+    [CascadingParameter(Name = "ParentToggleGroup")]
+    private ToggleGroup? ParentToggleGroup { get; set; }
+
+    /// <summary>
+    /// Gets or sets the value for this toggle when used in a group.
+    /// </summary>
+    [Parameter]
+    public string? Value { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the toggle is disabled.
+    /// </summary>
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    /// <summary>
+    /// Gets or sets visual variant (overrides group).
+    /// </summary>
+    [Parameter]
+    public ToggleVariant? Variant { get; set; }
+
+    /// <summary>
+    /// Gets or sets size (overrides group).
+    /// </summary>
+    [Parameter]
+    public ToggleSize? Size { get; set; }
+
+    private bool Pressed => ParentToggleGroup?.IsPressed(Value) ?? false;
+
+    private static string GetVariantClass(ToggleVariant variant)
+        => variant switch
+        {
+            ToggleVariant.Default => "bg-transparent",
+            ToggleVariant.Outline => "border border-input bg-transparent shadow-xs hover:bg-accent hover:text-accent-foreground",
+            _ => "bg-transparent"
+        };
+
+    private static string GetSizeClass(ToggleSize size)
+        => size switch
+        {
+            ToggleSize.Default => "h-9 px-3 min-w-0 shrink-0",
+            ToggleSize.Small => "h-8 px-1.5 min-w-0 shrink-0",
+            ToggleSize.Large => "h-10 px-2.5 min-w-0 shrink-0",
+            _ => "h-9 px-3 min-w-0 shrink-0"
+        };
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        var variant = Variant ?? ParentToggleGroup?.Variant ?? ToggleVariant.Default;
+        var size = Size ?? ParentToggleGroup?.Size ?? ToggleSize.Default;
+
+        attributes["type"] = "button";
+        attributes["data-slot"] = "toggle-group-item";
+        attributes["data-value"] = Value ?? "";
+        attributes["aria-pressed"] = Pressed ? "true" : "false";
+        attributes["data-state"] = Pressed ? "on" : "off";
+        if (Disabled)
+            attributes["disabled"] = true;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-toggle-group-item");
+            AppendClass(ref cls, "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium hover:bg-muted hover:text-muted-foreground disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 whitespace-nowrap");
+            AppendClass(ref cls, GetVariantClass(variant));
+            AppendClass(ref cls, GetSizeClass(size));
+            AppendClass(ref cls, "data-[spacing=0]:rounded-none data-[spacing=0]:shadow-none data-[spacing=0]:first:rounded-l-md data-[spacing=0]:last:rounded-r-md data-[spacing=0]:data-[variant=outline]:border-l-0 data-[spacing=0]:data-[variant=outline]:first:border-l");
+        });
+    }
+
+    protected override async Task HandleClick(MouseEventArgs e)
+    {
+        if (Disabled || ParentToggleGroup == null)
+            return;
+
+        await ParentToggleGroup.SelectValue(Value);
+        await OnClick.InvokeIfHasDelegate(e);
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Value);
+        hc.Add(Disabled);
+        hc.Add(Variant);
+        hc.Add(Size);
+        hc.Add(ParentToggleGroup?.IsPressed(Value));
+    }
+}

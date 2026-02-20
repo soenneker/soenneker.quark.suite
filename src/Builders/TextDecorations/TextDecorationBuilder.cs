@@ -215,8 +215,8 @@ public sealed class TextDecorationBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        TextDecorationRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new TextDecorationRule(last.Value, bp);
         return this;
     }
@@ -235,9 +235,9 @@ public sealed class TextDecorationBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            TextDecorationRule rule = _rules[i];
+            var rule = _rules[i];
 
-            string baseClass = rule.Value switch
+            var baseClass = rule.Value switch
             {
                 TextDecorationLineKeyword.NoneValue => _classNone,
                 TextDecorationLineKeyword.UnderlineValue => _classUnderline,
@@ -249,7 +249,7 @@ public sealed class TextDecorationBuilder : ICssBuilder
             if (baseClass.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 baseClass = BreakpointUtil.ApplyTailwindBreakpoint(baseClass, bp);
 
@@ -283,8 +283,8 @@ public sealed class TextDecorationBuilder : ICssBuilder
             // Line (underline, line-through, etc.)
             if (_rules.Count > 0)
             {
-                TextDecorationRule rule = _rules[^1]; // Use the last rule
-                string lineValue = rule.Value switch
+                var rule = _rules[^1]; // Use the last rule
+                var lineValue = rule.Value switch
                 {
                     TextDecorationLineKeyword.NoneValue => "none",
                     TextDecorationLineKeyword.UnderlineValue => "underline",

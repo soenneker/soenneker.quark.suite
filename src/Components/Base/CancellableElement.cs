@@ -14,7 +14,7 @@ public abstract class CancellableElement : CancellableComponent, ICancellableEle
 
     protected override void OnParametersSet()
     {
-        RenderFragment? cc = ChildContent;
+        var cc = ChildContent;
         _childContentChanged = !ReferenceEquals(cc, _lastChildContentRef);
         _lastChildContentRef = cc;
 

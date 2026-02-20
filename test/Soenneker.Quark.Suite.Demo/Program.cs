@@ -62,8 +62,9 @@ public sealed class Program
 
             // Register demo services
             builder.Services.AddScoped<Services.EmployeeService>();
+            builder.Services.AddScoped<Services.ThemeService>();
 
-            WebAssemblyHost host = builder.Build();
+            var host = builder.Build();
 
             var jsRuntime = (IJSRuntime)host.Services.GetService(typeof(IJSRuntime))!;
 
@@ -86,7 +87,7 @@ public sealed class Program
 
     private static IConfigurationRoot BuildConfig(WebAssemblyHostBuilder builder)
     {
-        IConfigurationRoot configRoot = builder.Configuration.Build();
+        var configRoot = builder.Configuration.Build();
 
         return configRoot;
     }
@@ -95,7 +96,7 @@ public sealed class Program
     {
         SelfLog.Enable(m => Console.Error.WriteLine(m));
 
-        LogEventLevel logEventLevel = configuration.GetLogEventLevel();
+        var logEventLevel = configuration.GetLogEventLevel();
 
         services.AddLogging(builder =>
         {

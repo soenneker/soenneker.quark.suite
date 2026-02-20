@@ -1,0 +1,72 @@
+@page "/forms/native-selects"
+
+<PageTitle>Native Select - Quark Suite</PageTitle>
+
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-6">
+        <section class="space-y-4">
+            <DemoSection Title="Basic NativeSelect" Description="Simple native select control with binding."
+                        Code="@(@"<NativeSelect @bind-Value=""_fruit"">
+    <NativeSelectOption Value="""">Select a fruit...</NativeSelectOption>
+    <NativeSelectOption Value=""apple"">Apple</NativeSelectOption>
+    <NativeSelectOption Value=""banana"">Banana</NativeSelectOption>
+</NativeSelect>")">
+                <Div Class="flex items-center gap-4">
+                    <NativeSelect @bind-Value="_fruit">
+                        <NativeSelectOption Value="">Select a fruit...</NativeSelectOption>
+                        <NativeSelectOption Value="apple">Apple</NativeSelectOption>
+                        <NativeSelectOption Value="banana">Banana</NativeSelectOption>
+                        <NativeSelectOption Value="blueberry">Blueberry</NativeSelectOption>
+                    </NativeSelect>
+                    <Span Class="text-sm text-muted-foreground">Selected: @(_fruit ?? "(none)")</Span>
+                </Div>
+            </DemoSection>
+        </section>
+
+        <section class="space-y-4">
+            <DemoSection Title="Grouped Options" Description="Use option groups to organize long lists."
+                        Code="@(@"<NativeSelect @bind-Value=""_animal"">
+    <NativeSelectOptGroup Label=""Mammals"">
+        <NativeSelectOption Value=""cat"">Cat</NativeSelectOption>
+    </NativeSelectOptGroup>
+    <NativeSelectOptGroup Label=""Birds"">
+        <NativeSelectOption Value=""eagle"">Eagle</NativeSelectOption>
+    </NativeSelectOptGroup>
+</NativeSelect>")">
+                <NativeSelect @bind-Value="_animal">
+                    <NativeSelectOption Value="">Select an animal...</NativeSelectOption>
+                    <NativeSelectOptGroup Label="Mammals">
+                        <NativeSelectOption Value="cat">Cat</NativeSelectOption>
+                        <NativeSelectOption Value="dog">Dog</NativeSelectOption>
+                    </NativeSelectOptGroup>
+                    <NativeSelectOptGroup Label="Birds">
+                        <NativeSelectOption Value="eagle">Eagle</NativeSelectOption>
+                        <NativeSelectOption Value="parrot">Parrot</NativeSelectOption>
+                    </NativeSelectOptGroup>
+                </NativeSelect>
+            </DemoSection>
+        </section>
+
+        <section class="space-y-4">
+            <DemoSection Title="Size and state" Description="Small size and disabled state."
+                        Code="@(@"<NativeSelect Size=""NativeSelectSize.Small"">...</NativeSelect>
+<NativeSelect Disabled=""true"">...</NativeSelect>")">
+                <Div Class="space-y-3">
+                    <NativeSelect Size="NativeSelectSize.Small" @bind-Value="_sizeDemo">
+                        <NativeSelectOption Value="">Small size</NativeSelectOption>
+                        <NativeSelectOption Value="one">Option one</NativeSelectOption>
+                    </NativeSelect>
+                    <NativeSelect Disabled="true" Value="">
+                        <NativeSelectOption Value="">Disabled select</NativeSelectOption>
+                    </NativeSelect>
+                </Div>
+            </DemoSection>
+        </section>
+    </Div>
+</Div>
+
+@code {
+    private string? _fruit;
+    private string? _animal;
+    private string? _sizeDemo;
+}

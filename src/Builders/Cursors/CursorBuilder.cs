@@ -117,8 +117,8 @@ public sealed class CursorBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        CursorRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new CursorRule(last.Cursor, breakpoint);
         return this;
     }
@@ -137,12 +137,12 @@ public sealed class CursorBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            CursorRule rule = _rules[i];
-            string cls = GetCursorClass(rule.Cursor);
+            var rule = _rules[i];
+            var cls = GetCursorClass(rule.Cursor);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -169,8 +169,8 @@ public sealed class CursorBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            CursorRule rule = _rules[i];
-            string? cursorValue = GetCursorValue(rule.Cursor);
+            var rule = _rules[i];
+            var cursorValue = GetCursorValue(rule.Cursor);
 
             if (cursorValue is null)
                 continue;

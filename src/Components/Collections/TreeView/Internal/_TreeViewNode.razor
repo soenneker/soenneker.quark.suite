@@ -15,7 +15,7 @@
         }
         else
         {
-            @foreach (TreeViewNodeState<TNode> nodeState in NodeStates)
+            @foreach (var nodeState in NodeStates)
             {
                 @NodeFragment(nodeState)
             }
@@ -71,7 +71,7 @@
             // Expand without repainting per node; repaint once at end.
             var any = false;
 
-            foreach (TreeViewNodeState<TNode> node in NodeStates)
+            foreach (var node in NodeStates)
             {
                 if (node.HasChildren && !node.Expanded)
                 {
@@ -97,7 +97,7 @@
 
         if (NodeStates is not null)
         {
-            foreach (TreeViewNodeState<TNode> node in NodeStates)
+            foreach (var node in NodeStates)
             {
                 if (node.Expanded && node.HasChildren && node.Children.Count == 0)
                 {
@@ -219,11 +219,11 @@
         if (children is null)
             return;
 
-        foreach (TNode child in children)
+        foreach (var child in children)
         {
-            bool hasChildren = await DetermineHasChildren(child);
-            bool expanded = ExpandedNodes.Contains(child);
-            bool disabled = DetermineIsDisabled(child);
+            var hasChildren = await DetermineHasChildren(child);
+            var expanded = ExpandedNodes.Contains(child);
+            var disabled = DetermineIsDisabled(child);
 
             nodeState.Children.Add(new TreeViewNodeState<TNode>(child, hasChildren, expanded, disabled));
         }
@@ -295,7 +295,7 @@
 
             // sample a few keys for change detection without O(n) walk every time
             var sample = 0;
-            foreach (TreeViewNodeState<TNode> ns in NodeStates)
+            foreach (var ns in NodeStates)
             {
                 hc.Add(ns.Key);
                 if (++sample == 3)

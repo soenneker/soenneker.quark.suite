@@ -1,0 +1,41 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" @onclick="ScrollPrev" Disabled="@(!_canScrollPrev)" @attributes="BuildAttributes()">
+    <span class="sr-only">Previous slide</span>
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+</Button>
+
+@code {
+    [CascadingParameter(Name = "ParentCarousel")]
+    private Carousel? ParentCarousel { get; set; }
+
+    private bool _canScrollPrev = true;
+
+    private void ScrollPrev()
+    {
+        // CSS scroll-snap: scroll the carousel content left/up
+        _canScrollPrev = false;
+        InvalidateRender();
+        Refresh();
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "carousel-previous";
+
+        var horizontal = ParentCarousel?.Orientation != "vertical";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-carousel-previous");
+            AppendClass(ref cls, "absolute size-8 rounded-full");
+            if (horizontal)
+                AppendClass(ref cls, "top-1/2 -left-12 -translate-y-1/2");
+            else
+                AppendClass(ref cls, "-top-12 left-1/2 -translate-x-1/2 rotate-90");
+        });
+    }
+}

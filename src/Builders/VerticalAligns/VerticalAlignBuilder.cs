@@ -125,8 +125,8 @@ public sealed class VerticalAlignBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        VerticalAlignRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new VerticalAlignRule(last.Value, bp);
         return this;
     }
@@ -143,8 +143,8 @@ public sealed class VerticalAlignBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            VerticalAlignRule rule = _rules[i];
-            string cls = rule.Value switch
+            var rule = _rules[i];
+            var cls = rule.Value switch
             {
                 VerticalAlignKeyword.BaselineValue => "align-baseline",
                 VerticalAlignKeyword.TopValue => "align-top",
@@ -157,7 +157,7 @@ public sealed class VerticalAlignBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -181,8 +181,8 @@ public sealed class VerticalAlignBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            VerticalAlignRule rule = _rules[i];
-            string val = rule.Value;
+            var rule = _rules[i];
+            var val = rule.Value;
             if (string.IsNullOrEmpty(val))
                 continue;
 

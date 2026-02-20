@@ -88,8 +88,8 @@ public sealed class RatioBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        RatioRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new RatioRule(last.Ratio, breakpoint);
         return this;
     }
@@ -108,12 +108,12 @@ public sealed class RatioBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            RatioRule rule = _rules[i];
-            string cls = GetRatioClass(rule.Ratio);
+            var rule = _rules[i];
+            var cls = GetRatioClass(rule.Ratio);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 

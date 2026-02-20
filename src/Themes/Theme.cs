@@ -18,26 +18,6 @@ public sealed class Theme
     public AlertOptions? Alerts { get; set; }
 
     /// <summary>
-    /// Gets or sets the accordion component styling options.
-    /// </summary>
-    public AccordionOptions? Accordions { get; set; }
-
-    /// <summary>
-    /// Gets or sets the accordion item component styling options.
-    /// </summary>
-    public AccordionItemOptions? AccordionItems { get; set; }
-
-    /// <summary>
-    /// Gets or sets the accordion header component styling options.
-    /// </summary>
-    public AccordionHeaderOptions? AccordionHeaders { get; set; }
-
-    /// <summary>
-    /// Gets or sets the accordion body component styling options.
-    /// </summary>
-    public AccordionBodyOptions? AccordionBodys { get; set; }
-
-    /// <summary>
     /// Gets or sets the anchor component styling options.
     /// </summary>
     public AnchorOptions? Anchors { get; set; }
@@ -133,21 +113,6 @@ public sealed class Theme
     public LabelOptions? Labels { get; set; }
 
     /// <summary>
-    /// Gets or sets the layout component styling options.
-    /// </summary>
-    public LayoutOptions? Layouts { get; set; }
-
-    /// <summary>
-    /// Gets or sets the list group component styling options.
-    /// </summary>
-    public ListGroupOptions? ListGroups { get; set; }
-
-    /// <summary>
-    /// Gets or sets the list group item component styling options.
-    /// </summary>
-    public ListGroupItemOptions? ListGroupItems { get; set; }
-
-    /// <summary>
     /// Gets or sets the memo edit component styling options.
     /// </summary>
     public MemoEditOptions? MemoEdits { get; set; }
@@ -166,11 +131,6 @@ public sealed class Theme
     /// Gets or sets the numeric edit component styling options.
     /// </summary>
     public NumericEditOptions? NumericEdits { get; set; }
-
-    /// <summary>
-    /// Gets or sets the offcanvas component styling options.
-    /// </summary>
-    public OffcanvasOptions? Offcanvases { get; set; }
 
     /// <summary>
     /// Gets or sets the ordered list component styling options.
@@ -424,16 +384,6 @@ public sealed class Theme
 
     // Modal components
     /// <summary>
-    /// Gets or sets the offcanvas header component styling options.
-    /// </summary>
-    public OffcanvasHeaderOptions? OffcanvasHeaders { get; set; }
-
-    /// <summary>
-    /// Gets or sets the offcanvas body component styling options.
-    /// </summary>
-    public OffcanvasBodyOptions? OffcanvasBodys { get; set; }
-
-    /// <summary>
     /// Gets or sets the modal title component styling options.
     /// </summary>
     public ModalTitleOptions? ModalTitles { get; set; }
@@ -683,19 +633,9 @@ public sealed class Theme
 
     // Surface components
     /// <summary>
-    /// Gets or sets the progress bar component styling options.
-    /// </summary>
-    public ProgressBarOptions? ProgressBars { get; set; }
-
-    /// <summary>
     /// Gets or sets the callout component styling options.
     /// </summary>
     public CalloutOptions? Callouts { get; set; }
-
-    /// <summary>
-    /// Gets or sets the panel component styling options.
-    /// </summary>
-    public PanelOptions? Panels { get; set; }
 
     // Input components
     /// <summary>
@@ -722,37 +662,6 @@ public sealed class Theme
     /// Gets or sets the date time picker component styling options.
     /// </summary>
     public DateTimePickerOptions? DateTimePickers { get; set; }
-
-    // Layout components
-    /// <summary>
-    /// Gets or sets the layout header component styling options.
-    /// </summary>
-    public LayoutHeaderOptions? LayoutHeaders { get; set; }
-
-    /// <summary>
-    /// Gets or sets the layout footer component styling options.
-    /// </summary>
-    public LayoutFooterOptions? LayoutFooters { get; set; }
-
-    /// <summary>
-    /// Gets or sets the layout content component styling options.
-    /// </summary>
-    public LayoutContentOptions? LayoutContents { get; set; }
-
-    /// <summary>
-    /// Gets or sets the layout container component styling options.
-    /// </summary>
-    public LayoutContainerOptions? LayoutContainers { get; set; }
-
-    /// <summary>
-    /// Gets or sets the layout sider component styling options.
-    /// </summary>
-    public LayoutSiderOptions? LayoutSiders { get; set; }
-
-    /// <summary>
-    /// Gets or sets the layout sider content component styling options.
-    /// </summary>
-    public LayoutSiderContentOptions? LayoutSiderContents { get; set; }
 
     /// <summary>
     /// Gets or sets the overlay container component styling options.
@@ -852,14 +761,6 @@ public sealed class Theme
     {
         if (Alerts != null)
             yield return Alerts;
-        if (Accordions != null)
-            yield return Accordions;
-        if (AccordionItems != null)
-            yield return AccordionItems;
-        if (AccordionHeaders != null)
-            yield return AccordionHeaders;
-        if (AccordionBodys != null)
-            yield return AccordionBodys;
         if (Anchors != null)
             yield return Anchors;
         if (Badges != null)
@@ -898,12 +799,6 @@ public sealed class Theme
             yield return Images;
         if (Labels != null)
             yield return Labels;
-        if (Layouts != null)
-            yield return Layouts;
-        if (ListGroups != null)
-            yield return ListGroups;
-        if (ListGroupItems != null)
-            yield return ListGroupItems;
         if (MemoEdits != null)
             yield return MemoEdits;
         if (Modals != null)
@@ -912,8 +807,6 @@ public sealed class Theme
             yield return Navs;
         if (NumericEdits != null)
             yield return NumericEdits;
-        if (Offcanvases != null)
-            yield return Offcanvases;
         if (OrderedLists != null)
             yield return OrderedLists;
         if (OrderedListItems != null)
@@ -1012,10 +905,6 @@ public sealed class Theme
             yield return PaginationItems;
         if (BreadcrumbItems != null)
             yield return BreadcrumbItems;
-        if (OffcanvasHeaders != null)
-            yield return OffcanvasHeaders;
-        if (OffcanvasBodys != null)
-            yield return OffcanvasBodys;
         if (ModalTitles != null)
             yield return ModalTitles;
         if (ModalHeaders != null)
@@ -1112,12 +1001,8 @@ public sealed class Theme
             yield return AlertMessages;
         if (AlertDescriptions != null)
             yield return AlertDescriptions;
-        if (ProgressBars != null)
-            yield return ProgressBars;
         if (Callouts != null)
             yield return Callouts;
-        if (Panels != null)
-            yield return Panels;
         if (SelectItems != null)
             yield return SelectItems;
         if (SelectGroups != null)
@@ -1128,18 +1013,6 @@ public sealed class Theme
             yield return Inputs;
         if (DateTimePickers != null)
             yield return DateTimePickers;
-        if (LayoutHeaders != null)
-            yield return LayoutHeaders;
-        if (LayoutFooters != null)
-            yield return LayoutFooters;
-        if (LayoutContents != null)
-            yield return LayoutContents;
-        if (LayoutContainers != null)
-            yield return LayoutContainers;
-        if (LayoutSiders != null)
-            yield return LayoutSiders;
-        if (LayoutSiderContents != null)
-            yield return LayoutSiderContents;
         if (OverlayContainers != null)
             yield return OverlayContainers;
         if (Tab != null)

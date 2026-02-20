@@ -118,8 +118,8 @@ public sealed class TextStyleBuilder : ICssBuilder
             return new TextStyleBuilder(newRules);
         }
 
-        int lastIdx = newRules.Count - 1;
-        TextStyleRule last = newRules[lastIdx];
+        var lastIdx = newRules.Count - 1;
+        var last = newRules[lastIdx];
         newRules[lastIdx] = new TextStyleRule(last.Value, bp);
         return new TextStyleBuilder(newRules);
     }
@@ -138,12 +138,12 @@ public sealed class TextStyleBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            TextStyleRule rule = _rules[i];
-            string cls = GetClass(rule);
+            var rule = _rules[i];
+            var cls = GetClass(rule);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 

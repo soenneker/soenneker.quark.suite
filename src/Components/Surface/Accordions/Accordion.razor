@@ -1,0 +1,119 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.SurfaceElement
+@implements IAccordion
+
+<CascadingValue Name="ParentAccordion" Value="this" IsFixed="true">
+    <div @attributes="BuildAttributes()">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public bool Multiple { get; set; }
+
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    [Parameter]
+    public System.Collections.Generic.IReadOnlyCollection<string>? Values { get; set; }
+
+    [Parameter]
+    public EventCallback<System.Collections.Generic.IReadOnlyCollection<string>> ValuesChanged { get; set; }
+
+    private readonly HashSet<string> _openValues = [];
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        _openValues.Clear();
+
+        if (Multiple)
+        {
+            if (Values is not null)
+            {
+                foreach (var value in Values)
+                {
+                    if (value.HasContent())
+                        _openValues.Add(value);
+                }
+            }
+
+            return;
+        }
+
+        if (Value.HasContent())
+            _openValues.Add(Value!);
+    }
+
+    internal bool IsItemOpen(string value)
+    {
+        return _openValues.Contains(value);
+    }
+
+    internal async Task ToggleItem(string value)
+    {
+        if (!value.HasContent())
+            return;
+
+        if (Multiple)
+        {
+            if (!_openValues.Add(value))
+                _openValues.Remove(value);
+
+            if (ValuesChanged.HasDelegate)
+                await ValuesChanged.InvokeAsync(_openValues.ToArray());
+        }
+        else
+        {
+            string? nextValue;
+            if (_openValues.Contains(value))
+            {
+                _openValues.Clear();
+                nextValue = null;
+            }
+            else
+            {
+                _openValues.Clear();
+                _openValues.Add(value);
+                nextValue = value;
+            }
+
+            Value = nextValue;
+
+            if (ValueChanged.HasDelegate)
+                await ValueChanged.InvokeAsync(nextValue);
+        }
+
+        InvalidateRender();
+        Refresh();
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "accordion";
+        attributes["data-multiple"] = Multiple ? "true" : "false";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-accordion");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Multiple);
+        hc.Add(Value);
+
+        foreach (var openValue in _openValues.OrderBy(static x => x))
+        {
+            hc.Add(openValue);
+        }
+    }
+}

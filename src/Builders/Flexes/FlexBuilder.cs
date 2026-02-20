@@ -253,8 +253,8 @@ public sealed class FlexBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        FlexRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new FlexRule(last.Property, last.Value, breakpoint);
         return this;
     }
@@ -272,12 +272,12 @@ public sealed class FlexBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            FlexRule rule = _rules[i];
-            string cls = GetFlexClass(rule.Property, rule.Value);
+            var rule = _rules[i];
+            var cls = GetFlexClass(rule.Property, rule.Value);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -303,8 +303,8 @@ public sealed class FlexBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            FlexRule rule = _rules[i];
-            string? css = GetCssProperty(rule.Property, rule.Value);
+            var rule = _rules[i];
+            var css = GetCssProperty(rule.Property, rule.Value);
             if (css is null)
                 continue;
 

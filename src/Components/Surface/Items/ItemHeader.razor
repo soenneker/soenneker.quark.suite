@@ -1,0 +1,18 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IItemHeader
+
+<div @attributes="BuildAttributes()">@ChildContent</div>
+
+@code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "item-header";
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-item-header");
+            AppendClass(ref cls, "flex basis-full items-center justify-between gap-2");
+        });
+    }
+}

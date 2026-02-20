@@ -97,8 +97,8 @@ public sealed class VisibilityBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        VisibilityRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new VisibilityRule(last.Value, bp);
         return this;
     }
@@ -115,8 +115,8 @@ public sealed class VisibilityBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            VisibilityRule rule = _rules[i];
-            string cls = rule.Value switch
+            var rule = _rules[i];
+            var cls = rule.Value switch
             {
                 "invisible" => _classInvisible,
                 VisibilityKeyword.VisibleValue => _classVisible,
@@ -125,7 +125,7 @@ public sealed class VisibilityBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -149,8 +149,8 @@ public sealed class VisibilityBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            VisibilityRule rule = _rules[i];
-            string? css = rule.Value switch
+            var rule = _rules[i];
+            var css = rule.Value switch
             {
                 "invisible" => "visibility: hidden",
                 VisibilityKeyword.VisibleValue => "visibility: visible",

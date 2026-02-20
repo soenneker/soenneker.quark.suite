@@ -122,8 +122,8 @@ public sealed class FilterBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        FilterRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new FilterRule(last.Filter, breakpoint);
         return this;
     }
@@ -142,12 +142,12 @@ public sealed class FilterBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            FilterRule rule = _rules[i];
-            string cls = GetFilterClass(rule.Filter);
+            var rule = _rules[i];
+            var cls = GetFilterClass(rule.Filter);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -174,8 +174,8 @@ public sealed class FilterBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            FilterRule rule = _rules[i];
-            string? filterValue = GetFilterValue(rule.Filter);
+            var rule = _rules[i];
+            var filterValue = GetFilterValue(rule.Filter);
 
             if (filterValue is null)
                 continue;

@@ -60,8 +60,8 @@ public sealed class TruncateBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        TruncateRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new TruncateRule(breakpoint);
         return this;
     }
@@ -80,10 +80,10 @@ public sealed class TruncateBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            TruncateRule rule = _rules[i];
-            string cls = _classTextTruncate;
+            var rule = _rules[i];
+            var cls = _classTextTruncate;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 

@@ -87,8 +87,8 @@ public sealed class LineHeightBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        LineHeightRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new LineHeightRule(last.Value, bp);
         return this;
     }
@@ -105,8 +105,8 @@ public sealed class LineHeightBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            LineHeightRule rule = _rules[i];
-            string cls = rule.Value switch
+            var rule = _rules[i];
+            var cls = rule.Value switch
             {
                 ScaleType.Is1Value => _classLh1,
                 "sm" => _classLhSm,
@@ -117,7 +117,7 @@ public sealed class LineHeightBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -141,8 +141,8 @@ public sealed class LineHeightBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            LineHeightRule rule = _rules[i];
-            string css = rule.Value switch
+            var rule = _rules[i];
+            var css = rule.Value switch
             {
                 ScaleType.Is1Value => "1",
                 "sm" => "1.25",

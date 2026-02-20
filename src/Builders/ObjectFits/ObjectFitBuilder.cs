@@ -122,8 +122,8 @@ public sealed class ObjectFitBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        ObjectFitRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new ObjectFitRule(last.Fit, breakpoint);
         return this;
     }
@@ -141,12 +141,12 @@ public sealed class ObjectFitBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            ObjectFitRule rule = _rules[i];
-            string cls = GetFitClass(rule.Fit);
+            var rule = _rules[i];
+            var cls = GetFitClass(rule.Fit);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -172,8 +172,8 @@ public sealed class ObjectFitBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            ObjectFitRule rule = _rules[i];
-            string val = rule.Fit;
+            var rule = _rules[i];
+            var val = rule.Fit;
             if (string.IsNullOrEmpty(val))
                 continue;
 

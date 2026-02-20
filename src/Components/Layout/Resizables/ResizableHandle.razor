@@ -1,0 +1,48 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    @if (WithHandle)
+    {
+        <div class="bg-border z-10 flex h-4 w-3 items-center justify-center rounded-xs border">
+            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 5v14M16 5v14"/></svg>
+        </div>
+    }
+</div>
+
+@code {
+    [CascadingParameter(Name = "ParentResizablePanelGroup")]
+    private ResizablePanelGroup? ParentPanelGroup { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether to show a visible grip handle.
+    /// </summary>
+    [Parameter]
+    public bool WithHandle { get; set; }
+
+    private bool IsVertical => ParentPanelGroup?.Orientation == "vertical";
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "resizable-handle";
+        attributes["role"] = "separator";
+        attributes["aria-orientation"] = IsVertical ? "vertical" : "horizontal";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-resizable-handle");
+            AppendClass(ref cls, "bg-border relative flex w-px items-center justify-center after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1");
+            if (IsVertical)
+                AppendClass(ref cls, "h-px w-full after:left-0 after:h-1 after:w-full after:translate-x-0 after:-translate-y-1/2 [&>div]:rotate-90");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(WithHandle);
+        hc.Add(IsVertical);
+    }
+}

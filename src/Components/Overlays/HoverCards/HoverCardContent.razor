@@ -1,0 +1,47 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    /// <summary>
+    /// Gets or sets horizontal alignment: start, center, or end.
+    /// </summary>
+    [Parameter]
+    public string Align { get; set; } = "center";
+
+    /// <summary>
+    /// Gets or sets offset in pixels from the trigger.
+    /// </summary>
+    [Parameter]
+    public int SideOffset { get; set; } = 4;
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "hover-card-content";
+        attributes["data-align"] = Align;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-hover-card-content");
+            AppendClass(ref cls, "bg-popover text-popover-foreground z-50 w-64 rounded-md border p-4 shadow-md outline-hidden");
+            AppendClass(ref cls, "absolute top-full left-1/2 -translate-x-1/2");
+            AppendClass(ref cls, "opacity-0 invisible group-hover/hover-card:opacity-100 group-hover/hover-card:visible group-focus-within/hover-card:opacity-100 group-focus-within/hover-card:visible transition-opacity");
+            AppendClass(ref cls, "data-[align=start]:left-0 data-[align=start]:translate-x-0 data-[align=end]:right-0 data-[align=end]:left-auto data-[align=end]:translate-x-0");
+            AppendClass(ref cls, "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2");
+        });
+
+        attributes["style"] = $"margin-top: {SideOffset}px;";
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Align);
+        hc.Add(SideOffset);
+    }
+}

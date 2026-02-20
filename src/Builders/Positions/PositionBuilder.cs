@@ -84,13 +84,13 @@ public sealed class PositionBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            PositionRule rule = _rules[i];
+            var rule = _rules[i];
 
-            string baseClass = GetPositionClass(rule.Position);
+            var baseClass = GetPositionClass(rule.Position);
             if (baseClass.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 baseClass = BreakpointUtil.InsertBreakpointType(baseClass, bp);
 
@@ -116,7 +116,7 @@ public sealed class PositionBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            PositionRule rule = _rules[i];
+            var rule = _rules[i];
             if (rule.Position.Length == 0)
                 continue;
 

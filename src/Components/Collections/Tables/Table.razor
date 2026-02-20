@@ -10,7 +10,7 @@
     <CascadingValue Value="@_isLoading" Name="IsLoading" >
 		@if (Visible)
 		{
-			<div Id="@ElementId" Class="q-table-wrapper">
+			<div Id="@ElementId" Class="q-table-wrapper relative w-full">
             @* shadcn table-container - new-york-v4 ui/table.tsx *@
             <div Class="q-table-container relative w-full overflow-x-auto">
                 @if (!_isLoading && ChildContent == null)
@@ -21,7 +21,7 @@
                 }
                 else
                 {
-                    <div Class="q-table-with-search">
+                    <div Class="q-table-with-search w-full">
                         @if (ChildContent != null)
                         {
                             @ChildContent
@@ -81,12 +81,12 @@
     {
         get
         {
-            DataTableOrderRequest? firstOrder = _currentOrders.FirstOrDefault();
+            var firstOrder = _currentOrders.FirstOrDefault();
 
             if (firstOrder == null)
                 return null;
 
-            Th? column = GetColumn(firstOrder.Column);
+            var column = GetColumn(firstOrder.Column);
             return column?.Data;
         }
     }
@@ -281,24 +281,18 @@
             return null;
         }
 
-        DataTableOrderRequest? order = _currentOrders.FirstOrDefault(o => o.Column == columnIndex);
+        var order = _currentOrders.FirstOrDefault(o => o.Column == columnIndex);
         return order?.Dir;
     }
 
     public string GetSortClassByIndex(int columnIndex)
     {
-        string? direction = GetSortDirection(columnIndex);
-        return direction switch
-        {
-            "asc" => "quark-table-sorted-asc",
-            "desc" => "quark-table-sorted-desc",
-            _ => string.Empty
-        };
+        return string.Empty;
     }
 
     public string GetSortIndicatorByIndex(int columnIndex)
     {
-        string? direction = GetSortDirection(columnIndex);
+        var direction = GetSortDirection(columnIndex);
         return direction switch
         {
             "asc" => " ↑",
@@ -316,8 +310,8 @@
             Logger.LogDebug("HandleColumnSort called for column index: {ColumnIndex}", columnIndex);
 
         // Find existing order for this column
-        DataTableOrderRequest? existing = _currentOrders.FirstOrDefault(o => o.Column == columnIndex);
-        string? nextDirection = existing?.Dir switch
+        var existing = _currentOrders.FirstOrDefault(o => o.Column == columnIndex);
+        var nextDirection = existing?.Dir switch
         {
             "asc" => "desc",
             "desc" => null,
@@ -361,7 +355,7 @@
     public int RegisterColumn(Th columnHeader)
     {
         _registeredColumns.Add(columnHeader);
-        int columnIndex = _registeredColumns.Count - 1;
+        var columnIndex = _registeredColumns.Count - 1;
 
         _ = RefreshOffThread(); // fire-and-forget is ok here
 
@@ -382,7 +376,7 @@
 
     private bool IsColumnSortable(int columnIndex)
     {
-        Th? column = GetColumn(columnIndex);
+        var column = GetColumn(columnIndex);
         return column?.Sortable ?? false;
     }
 
@@ -390,7 +384,7 @@
     {
         var columns = new List<DataTableColumnRequest>();
 
-        foreach (Th column in _registeredColumns)
+        foreach (var column in _registeredColumns)
         {
             columns.Add(new DataTableColumnRequest
             {
@@ -445,10 +439,10 @@
         try
         {
             // Calculate the actual start position based on current page
-            int actualStart = (CurrentPage - 1) * PageSize;
+            var actualStart = (CurrentPage - 1) * PageSize;
 
             // Use continuation token paging to get the appropriate token
-            string? continuationToken = _continuationTokenPaging.UpdateVirtualPage(actualStart, PageSize, _continuationToken);
+            var continuationToken = _continuationTokenPaging.UpdateVirtualPage(actualStart, PageSize, _continuationToken);
 
             var request = new DataTableServerSideRequest
             {
@@ -547,7 +541,7 @@
         // This prevents conflicts between the continuation token paging system and the provided TotalRecords
         if (TotalRecords <= 0)
         {
-            int oldTotalRecords = TotalRecordsCount;
+            var oldTotalRecords = TotalRecordsCount;
             TotalRecordsCount = _continuationTokenPaging.CalculateTotalRecords(PageSize);
             if (Options.Debug)
                 Logger.LogDebug("Updated _totalRecords from {OldTotal} to {NewTotal} (TotalRecords parameter is {ParamTotal})", oldTotalRecords, TotalRecordsCount, TotalRecords);
@@ -558,7 +552,7 @@
                 Logger.LogDebug("Keeping _totalRecords as {CurrentTotal} (TotalRecords parameter is {ParamTotal})", TotalRecordsCount, TotalRecords);
         }
 
-        int oldTotalPages = TotalPages;
+        var oldTotalPages = TotalPages;
         TotalPages = (int) Math.Ceiling((double) TotalRecordsCount / PageSize);
 
         if (Options.Debug)
@@ -600,9 +594,9 @@
         hc.Add(Options);
 
         hc.Add(_currentOrders.Count);
-        for (int i = 0; i < _currentOrders.Count; i++)
+        for (var i = 0; i < _currentOrders.Count; i++)
         {
-            DataTableOrderRequest o = _currentOrders[i];
+            var o = _currentOrders[i];
             hc.Add(o.Column);
             hc.Add(o.Dir);
         }

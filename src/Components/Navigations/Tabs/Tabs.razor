@@ -12,7 +12,7 @@
                     @ChildContent
                 </div>
                 <div id="@(SelectedTab.HasContent() ? $"tab-content-{SelectedTab}" : null)" class="min-w-0 flex-1 mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" role="tabpanel" aria-labelledby="@(SelectedTab.HasContent() ? $"tab-trigger-{SelectedTab}" : null)">
-                    @foreach (Tab tab in _tabs)
+                    @foreach (var tab in _tabs)
                     {
                         @if (tab.Name == SelectedTab)
                         {
@@ -30,7 +30,7 @@
                 @ChildContent
             </div>
             <div id="@(SelectedTab.HasContent() ? $"tab-content-{SelectedTab}" : null)" aria-labelledby="@(SelectedTab.HasContent() ? $"tab-trigger-{SelectedTab}" : null)" class="flex-1 mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" role="tabpanel">
-                @foreach (Tab tab in _tabs)
+                @foreach (var tab in _tabs)
                 {
                     @if (tab.Name == SelectedTab)
                     {
@@ -127,7 +127,7 @@
         // If no selected tab is specified, select the first tab
         if (string.IsNullOrEmpty(SelectedTab) && _tabs.Count > 0)
         {
-            Tab? firstTab = _tabs.FirstOrDefault(t => !t.Disabled);
+            var firstTab = _tabs.FirstOrDefault(t => !t.Disabled);
             if (firstTab != null)
             {
                 SelectedTab = firstTab.Name;

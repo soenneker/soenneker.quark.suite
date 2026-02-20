@@ -97,8 +97,8 @@ public sealed class TransitionBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        TransitionRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new TransitionRule(last.Transition, breakpoint);
         return this;
     }
@@ -117,12 +117,12 @@ public sealed class TransitionBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            TransitionRule rule = _rules[i];
-            string cls = GetTransitionClass(rule.Transition);
+            var rule = _rules[i];
+            var cls = GetTransitionClass(rule.Transition);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -149,8 +149,8 @@ public sealed class TransitionBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            TransitionRule rule = _rules[i];
-            string? transitionValue = GetTransitionValue(rule.Transition);
+            var rule = _rules[i];
+            var transitionValue = GetTransitionValue(rule.Transition);
 
             if (transitionValue is null)
                 continue;

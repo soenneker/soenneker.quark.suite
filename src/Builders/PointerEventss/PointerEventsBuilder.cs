@@ -95,9 +95,9 @@ public sealed class PointerEventsBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            PointerEventsRule rule = _rules[i];
+            var rule = _rules[i];
 
-            string baseClass = rule.Value switch
+            var baseClass = rule.Value switch
             {
                 PointerEventsKeyword.NoneValue => _classNone,
                 PointerEventsKeyword.AutoValue => _classAuto,
@@ -107,7 +107,7 @@ public sealed class PointerEventsBuilder : ICssBuilder
             if (baseClass.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 baseClass = BreakpointUtil.InsertBreakpointType(baseClass, bp);
 
@@ -134,9 +134,9 @@ public sealed class PointerEventsBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            PointerEventsRule rule = _rules[i];
+            var rule = _rules[i];
 
-            string css = rule.Value switch
+            var css = rule.Value switch
             {
                 PointerEventsKeyword.NoneValue => _styleNone,
                 PointerEventsKeyword.AutoValue => _styleAuto,

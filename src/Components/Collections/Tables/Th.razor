@@ -79,7 +79,7 @@
 		if (Align.IsNullOrWhiteSpace())
 			return string.Empty;
 
-		string align = Align.ToLowerInvariantFast();
+		var align = Align.ToLowerInvariantFast();
 
 		return align switch
 		{
@@ -101,13 +101,13 @@
 			AppendClass(ref cls, "text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]");
 			if (Sortable)
 			{
-				string? sortClass = GetSortClass();
-				if (sortClass != null)
+				var sortClass = GetSortClass();
+				if (sortClass.HasContent())
 					AppendClass(ref cls, sortClass);
 			}
 		});
 
-		string alignStyle = GetAlignStyle();
+		var alignStyle = GetAlignStyle();
 		if (Sortable || alignStyle.HasContent())
 		{
 			BuildStyleAttribute(attributes, (ref sty) =>

@@ -152,8 +152,8 @@ public sealed class PositionOffsetBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        PositionOffsetRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new PositionOffsetRule(last.Property, last.Value, bp);
         return this;
     }
@@ -171,12 +171,12 @@ public sealed class PositionOffsetBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            PositionOffsetRule rule = _rules[i];
-            string cls = GetClass(rule.Property, rule.Value);
+            var rule = _rules[i];
+            var cls = GetClass(rule.Property, rule.Value);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -202,8 +202,8 @@ public sealed class PositionOffsetBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            PositionOffsetRule rule = _rules[i];
-            string? css = GetStyle(rule.Property, rule.Value);
+            var rule = _rules[i];
+            var css = GetStyle(rule.Property, rule.Value);
             if (css is null)
                 continue;
 
@@ -230,7 +230,7 @@ public sealed class PositionOffsetBuilder : ICssBuilder
             };
         }
 
-        string prefix = property switch
+        var prefix = property switch
         {
             "top" => "top",
             "bottom" => "bottom",
@@ -246,7 +246,7 @@ public sealed class PositionOffsetBuilder : ICssBuilder
     private static string? GetStyle(string property, string value)
     {
         if (property == "translate") return null;
-        string cssProp = property switch
+        var cssProp = property switch
         {
             "top" => "top",
             "bottom" => "bottom",
@@ -255,7 +255,7 @@ public sealed class PositionOffsetBuilder : ICssBuilder
             _ => string.Empty
         };
         if (cssProp.Length == 0) return null;
-        string cssVal = value switch
+        var cssVal = value switch
         {
             "0" => "0",
             "50" => "50%",

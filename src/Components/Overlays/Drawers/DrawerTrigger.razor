@@ -1,0 +1,31 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @onclick="OpenDrawer" @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    [CascadingParameter(Name = "ParentDrawer")]
+    private Drawer? ParentDrawer { get; set; }
+
+    private async Task OpenDrawer(MouseEventArgs _)
+    {
+        await (ParentDrawer?.Show() ?? Task.CompletedTask);
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "drawer-trigger";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-drawer-trigger");
+            AppendClass(ref cls, "inline-flex cursor-pointer");
+        });
+    }
+}

@@ -77,8 +77,8 @@ public sealed class ScrollBehaviorBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        ScrollBehaviorRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new ScrollBehaviorRule(last.Behavior, breakpoint);
         return this;
     }
@@ -97,12 +97,12 @@ public sealed class ScrollBehaviorBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            ScrollBehaviorRule rule = _rules[i];
-            string cls = GetScrollBehaviorClass(rule.Behavior);
+            var rule = _rules[i];
+            var cls = GetScrollBehaviorClass(rule.Behavior);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -129,8 +129,8 @@ public sealed class ScrollBehaviorBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            ScrollBehaviorRule rule = _rules[i];
-            string? behaviorValue = GetScrollBehaviorValue(rule.Behavior);
+            var rule = _rules[i];
+            var behaviorValue = GetScrollBehaviorValue(rule.Behavior);
 
             if (behaviorValue is null)
                 continue;

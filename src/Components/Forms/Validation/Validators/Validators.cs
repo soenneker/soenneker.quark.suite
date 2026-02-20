@@ -107,7 +107,7 @@ public static class Validators
     /// <returns>A validator that checks minimum value.</returns>
     public static SimpleValidator MinValue(decimal minValue, string? message = null) => new(
         message ?? $"Must be at least {minValue}",
-        value => value is string s && decimal.TryParse(s, out decimal num) && num >= minValue);
+        value => value is string s && decimal.TryParse(s, out var num) && num >= minValue);
 
     /// <summary>
     /// Creates a maximum value validator.
@@ -117,7 +117,7 @@ public static class Validators
     /// <returns>A validator that checks maximum value.</returns>
     public static SimpleValidator MaxValue(decimal maxValue, string? message = null) => new(
         message ?? $"Must be no more than {maxValue}",
-        value => value is string s && decimal.TryParse(s, out decimal num) && num <= maxValue);
+        value => value is string s && decimal.TryParse(s, out var num) && num <= maxValue);
 
     /// <summary>
     /// Simple email validation using regex.

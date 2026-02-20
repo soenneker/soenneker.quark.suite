@@ -14,7 +14,7 @@ internal sealed class DataAnnotationValidationHandler : IValidationHandler
         if (ctx.EditContext is not null)
         {
             var store = new ValidationMessageStore(ctx.EditContext);
-            FieldIdentifier field = ctx.FieldIdentifier;
+            var field = ctx.FieldIdentifier;
             store.Clear(field);
 
             var results = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
@@ -23,15 +23,15 @@ internal sealed class DataAnnotationValidationHandler : IValidationHandler
                 MemberName = field.FieldName
             };
 
-            object? propertyValue = field.Model?.GetType().GetProperty(field.FieldName)?.GetValue(field.Model);
+            var propertyValue = field.Model?.GetType().GetProperty(field.FieldName)?.GetValue(field.Model);
             System.ComponentModel.DataAnnotations.Validator.TryValidateProperty(
                 propertyValue,
                 validationContext,
                 results);
 
-            foreach (System.ComponentModel.DataAnnotations.ValidationResult r in results)
+            foreach (var r in results)
             {
-                string message = r.ErrorMessage ?? "Invalid";
+                var message = r.ErrorMessage ?? "Invalid";
                 messages.Add(message);
                 store.Add(field, message);
             }

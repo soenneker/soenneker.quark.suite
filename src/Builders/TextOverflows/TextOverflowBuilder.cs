@@ -128,8 +128,8 @@ public sealed class TextOverflowBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        TextOverflowRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
 
         // Re-create the rule preserving its text-overflow value using the string value.
         _rules[lastIdx] = new TextOverflowRule(last.Value, bp);
@@ -147,14 +147,14 @@ public sealed class TextOverflowBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            TextOverflowRule rule = _rules[i];
+            var rule = _rules[i];
 
             // Only Clip/Ellipsis map to utility classes; keywords don't.
-            string baseClass = GetTextOverflowClass(rule.Value);
+            var baseClass = GetTextOverflowClass(rule.Value);
             if (baseClass.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 baseClass = BreakpointUtil.ApplyTailwindBreakpoint(baseClass, bp);
 
@@ -178,10 +178,10 @@ public sealed class TextOverflowBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            TextOverflowRule rule = _rules[i];
+            var rule = _rules[i];
 
             // Always use the string value (covers Clip/Ellipsis and any keyword values)
-            string value = rule.Value;
+            var value = rule.Value;
 
             if (string.IsNullOrEmpty(value))
                 continue;

@@ -8,50 +8,31 @@
      aria-valuemin="0"
      aria-valuemax="@Max"
      aria-valuenow="@Value">
-    @ChildContent
+    <div data-slot="progress-indicator"
+         class="q-progress-indicator bg-primary h-full w-full flex-1 transition-all"
+         style="@GetIndicatorStyle()"></div>
 </div>
 
 @code {
     /// <summary>
-    /// Gets or sets the size of the progress bar.
-    /// </summary>
-    [Parameter]
-    public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
-
-    /// <summary>
-    /// Gets or sets whether the progress bar should be striped.
-    /// </summary>
-    [Parameter]
-    public bool Striped { get; set; }
-
-    /// <summary>
-    /// Gets or sets whether the progress bar should be animated.
-    /// </summary>
-    [Parameter]
-    public bool Animated { get; set; }
-
-    /// <summary>
-    /// Gets or sets the current value exposed for ARIA progress semantics.
+    /// Gets or sets the current progress value (0–100).
     /// </summary>
     [Parameter]
     public int Value { get; set; }
 
     /// <summary>
-    /// Gets or sets the ARIA max value for progress semantics.
+    /// Gets or sets the maximum value for ARIA semantics.
     /// </summary>
     [Parameter]
     public int Max { get; set; } = 100;
 
-    private string? GetSizeClass()
+    private string GetIndicatorStyle()
     {
-        if (Size == Quark.Size.Default)
-            return null; // base includes h-2
-        string? token = null;
-        bool isTheme = Size?.TryGetThemeToken(out token) == true;
-        if (isTheme && token is not null)
-            return token.ToLowerInvariant() switch { "sm" => "h-1.5", "lg" => "h-4", _ => null };
-        var s = Size?.ToString()?.ToLowerInvariant();
-        return s switch { "sm" => "h-1.5", "lg" => "h-4", _ => null };
+        var val = Value;
+        if (val < 0) val = 0;
+        if (val > Max) val = Max;
+        var pct = Max > 0 ? (val * 100.0 / Max) : 0;
+        return $"transform: translateX(-{100 - pct:F0}%);";
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -62,18 +43,12 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-progress");
-            AppendClass(ref cls, "relative h-2 w-full overflow-hidden rounded-full bg-primary/20");
-            string? sizeClass = GetSizeClass();
-            if (sizeClass != null)
-                AppendClass(ref cls, sizeClass);
+            AppendClass(ref cls, "bg-primary/20 relative h-2 w-full overflow-hidden rounded-full");
         });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
-        AddIf(ref hc, Size);
-        hc.Add(Striped);
-        hc.Add(Animated);
         hc.Add(Value);
         hc.Add(Max);
     }

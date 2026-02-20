@@ -131,8 +131,8 @@ public sealed class DisplayBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        DisplayRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new DisplayRule(last.Display, breakpoint);
         return this;
     }
@@ -151,12 +151,12 @@ public sealed class DisplayBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            DisplayRule rule = _rules[i];
-            string cls = GetDisplayClass(rule.Display);
+            var rule = _rules[i];
+            var cls = GetDisplayClass(rule.Display);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -183,8 +183,8 @@ public sealed class DisplayBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            DisplayRule rule = _rules[i];
-            string val = rule.Display;
+            var rule = _rules[i];
+            var val = rule.Display;
             if (val.IsNullOrEmpty())
                 continue;
 

@@ -1,0 +1,21 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IEmptyContent
+
+<div @attributes="BuildAttributes()">@ChildContent</div>
+
+@code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "empty-content";
+
+        // shadcn/ui empty-content base - exact copy from new-york-v4 ui/empty.tsx
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-empty-content");
+            AppendClass(ref cls, "flex w-full max-w-sm min-w-0 flex-col items-center gap-4 text-sm text-balance");
+        });
+    }
+}

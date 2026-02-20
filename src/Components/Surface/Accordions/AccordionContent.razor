@@ -1,0 +1,55 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.SurfaceElement
+@implements IAccordionContent
+
+<div @attributes="BuildAttributes()">
+    <div @attributes="BuildInnerAttributes()">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [CascadingParameter(Name = nameof(ParentAccordionItem))]
+    public AccordionItem? ParentAccordionItem { get; set; }
+
+    private bool IsOpen => ParentAccordionItem?.IsOpen == true;
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "accordion-content";
+        attributes["data-state"] = IsOpen ? "open" : "closed";
+        attributes["aria-hidden"] = IsOpen ? "false" : "true";
+
+        if (ParentAccordionItem is not null)
+        {
+            attributes["id"] = ParentAccordionItem.ContentId;
+            attributes["aria-labelledby"] = ParentAccordionItem.TriggerId;
+        }
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-accordion-content");
+            AppendClass(ref cls, "data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm grid transition-all duration-200 ease-in-out");
+            AppendClass(ref cls, IsOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0");
+        });
+    }
+
+    private Dictionary<string, object> BuildInnerAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "pt-0 pb-4 min-h-0");
+        });
+
+        return attributes;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(IsOpen);
+    }
+}

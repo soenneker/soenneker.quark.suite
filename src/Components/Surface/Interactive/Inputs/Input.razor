@@ -154,7 +154,7 @@
 
         if (ParentValidation is not null)
         {
-            object? valueObj = ValidationValue;
+            var valueObj = ValidationValue;
             await ParentValidation.NotifyInputChanged(valueObj);
         }
 
@@ -184,7 +184,7 @@
 
         if (ParentValidation is not null)
         {
-            object? valueObj = ValidationValue;
+            var valueObj = ValidationValue;
             await ParentValidation.NotifyInputChanged(valueObj);
         }
 
@@ -200,8 +200,8 @@
         if (ParentValidation is null || ParentValidation.Status != ValidationStatus.Error)
             return false;
 
-        PropertyInfo? showInvalidProp = ParentValidation.GetType().GetProperty("ShouldShowInvalid");
-        bool showInvalid = showInvalidProp?.GetValue(ParentValidation) as bool? ?? true;
+        var showInvalidProp = ParentValidation.GetType().GetProperty("ShouldShowInvalid");
+        var showInvalid = showInvalidProp?.GetValue(ParentValidation) as bool? ?? true;
         return showInvalid;
     }
 
@@ -225,12 +225,12 @@
         if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
         {
             string? token = null;
-            bool isTheme = BackgroundColor.Value.TryGetThemeToken(out token);
+            var isTheme = BackgroundColor.Value.TryGetThemeToken(out token);
 
             if (isTheme && token is not null)
                 return null; // Tailwind uses semantic border/ring; theme tokens handled via CSS variables
 
-            string v = BackgroundColor.Value.ToString().Trim();
+            var v = BackgroundColor.Value.ToString().Trim();
             if (BackgroundColor.Value.IsCssClass)
                 return v.StartsWith("form-control-", StringComparison.Ordinal) ? null : null;
         }
@@ -247,7 +247,7 @@
         if (Size == Quark.Size.Default) return null;
 
         string? token = null;
-        bool isTheme = Size?.TryGetThemeToken(out token) == true;
+        var isTheme = Size?.TryGetThemeToken(out token) == true;
         if (isTheme && token is not null)
             return token.ToLowerInvariant() switch { "sm" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
         var sizeVal = Size?.ToString();
@@ -288,10 +288,10 @@
                 AppendClass(ref cls, "transition-colors md:text-sm");
             }
 
-            string? sizeClass = GetSizeClass();
+            var sizeClass = GetSizeClass();
             if (sizeClass is not null) AppendClass(ref cls, sizeClass);
 
-            string? validationClass = GetValidationClass();
+            var validationClass = GetValidationClass();
             if (validationClass is not null) AppendClass(ref cls, validationClass);
         });
 

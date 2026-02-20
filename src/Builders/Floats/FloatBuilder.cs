@@ -113,8 +113,8 @@ public sealed class FloatBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        FloatRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new FloatRule(last.Value, breakpoint);
         return this;
     }
@@ -133,9 +133,9 @@ public sealed class FloatBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            FloatRule rule = _rules[i];
+            var rule = _rules[i];
 
-            string cls = rule.Value switch
+            var cls = rule.Value switch
             {
                 FloatKeyword.LeftValue => _classStart,
                 FloatKeyword.RightValue => _classEnd,
@@ -148,7 +148,7 @@ public sealed class FloatBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -175,9 +175,9 @@ public sealed class FloatBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            FloatRule rule = _rules[i];
+            var rule = _rules[i];
 
-            string? css = rule.Value switch
+            var css = rule.Value switch
             {
                 FloatKeyword.LeftValue => "left",
                 FloatKeyword.RightValue => "right",

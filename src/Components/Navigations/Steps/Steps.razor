@@ -37,7 +37,7 @@
             await StepsInterop.Initialize();
 
             // Sync initial selection from URL fragment if present
-            string fragment = GetFragment();
+            var fragment = GetFragment();
             if (fragment.HasContent() && _stepItems.Contains(fragment) && fragment != _state.SelectedStep)
             {
                 _state = _state with { SelectedStep = fragment };
@@ -76,7 +76,7 @@
             if (value == _state.SelectedStep)
                 return;
 
-            bool allowNavigation = NavigationAllowed?.Invoke(new StepNavigationContext
+            var allowNavigation = NavigationAllowed?.Invoke(new StepNavigationContext
             {
                 CurrentStepName = _state.SelectedStep,
                 CurrentStepIndex = IndexOfStep(_state.SelectedStep),
@@ -142,8 +142,8 @@
             // Set initial selected step if not already set
             if (string.IsNullOrEmpty(_state.SelectedStep))
             {
-                string fragment = GetFragment();
-                string initial = fragment.HasContent() && _stepItems.Contains(fragment) ? fragment : name;
+                var fragment = GetFragment();
+                var initial = fragment.HasContent() && _stepItems.Contains(fragment) ? fragment : name;
                 _state = _state with { SelectedStep = initial };
                 AriaDescribedBy = _state.SelectedStep;
                 InvalidateRender();
@@ -179,14 +179,14 @@
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task NextStep()
     {
-        int selectedStepIndex = _stepItems.IndexOf(SelectedStep);
+        var selectedStepIndex = _stepItems.IndexOf(SelectedStep);
 
         if (selectedStepIndex == -1 || selectedStepIndex == _stepItems.Count - 1)
         {
             return Task.CompletedTask;
         }
 
-        string nextStep = _stepItems[selectedStepIndex + 1];
+        var nextStep = _stepItems[selectedStepIndex + 1];
         SelectedStep = nextStep;
         return Task.CompletedTask;
     }
@@ -197,7 +197,7 @@
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task PreviousStep()
     {
-        int selectedStepIndex = _stepItems.IndexOf(SelectedStep);
+        var selectedStepIndex = _stepItems.IndexOf(SelectedStep);
 
         if (selectedStepIndex <= 0)
         {
@@ -257,7 +257,7 @@
 
     private async void HandleLocationChanged(object? sender, LocationChangedEventArgs args)
     {
-        string fragment = GetFragment(args.Location);
+        var fragment = GetFragment(args.Location);
         if (!fragment.HasContent())
             return;
 
@@ -272,11 +272,11 @@
 
     private string GetFragment(string? uri = null)
     {
-        string current = uri ?? Navigation.Uri;
+        var current = uri ?? Navigation.Uri;
         try
         {
             var u = new Uri(current);
-            string frag = u.Fragment;
+            var frag = u.Fragment;
             return string.IsNullOrEmpty(frag) ? string.Empty : frag.TrimStart('#');
         }
         catch

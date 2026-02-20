@@ -43,12 +43,12 @@ public class EmployeeService
         _logger.LogDebug("Server-side request: Start={Start}, Length={Length}, Search='{Search}', ContinuationToken='{Token}'", 
             serverSideRequest.Start, serverSideRequest.Length, serverSideRequest.Search?.Value, serverSideRequest.ContinuationToken ?? "null");
 
-        IEnumerable<Employee> filteredData = _employees.AsEnumerable();
+        var filteredData = _employees.AsEnumerable();
 
         // Apply search
         if (serverSideRequest.Search?.Value.HasContent() == true)
         {
-            string? searchTerm = serverSideRequest.Search.Value;
+            var searchTerm = serverSideRequest.Search.Value;
             filteredData = filteredData.Where(e => 
                 e.Id.ToString().Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                 e.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
@@ -64,7 +64,7 @@ public class EmployeeService
             
             IOrderedEnumerable<Employee>? orderedData = null;
             
-            foreach (DataTableOrderRequest order in serverSideRequest.Order)
+            foreach (var order in serverSideRequest.Order)
             {
                 _logger.LogDebug("Sorting column {Column} in direction {Direction}", order.Column, order.Dir);
                 
@@ -90,8 +90,8 @@ public class EmployeeService
             }
         }
 
-        int totalRecords = filteredData.Count();
-        IEnumerable<Employee> pagedData = filteredData.Skip(serverSideRequest.Start).Take(serverSideRequest.Length);
+        var totalRecords = filteredData.Count();
+        var pagedData = filteredData.Skip(serverSideRequest.Start).Take(serverSideRequest.Length);
 
         var tableData = new List<List<string>>();
 
@@ -106,7 +106,7 @@ public class EmployeeService
             "Id"
         ]);
 
-        foreach (Employee employee in pagedData)
+        foreach (var employee in pagedData)
         {
             tableData.Add([
                 employee.Name,
@@ -126,12 +126,12 @@ public class EmployeeService
 
     public async Task<List<Employee>> GetFilteredEmployees(DataTableServerSideRequest serverSideRequest, CancellationToken cancellationToken = default)
     {
-        IEnumerable<Employee> filteredData = _employees.AsEnumerable();
+        var filteredData = _employees.AsEnumerable();
 
         // Apply search
         if (serverSideRequest.Search?.Value.HasContent() == true)
         {
-            string? searchTerm = serverSideRequest.Search.Value;
+            var searchTerm = serverSideRequest.Search.Value;
             filteredData = filteredData.Where(e => 
                 e.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                 e.Department.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
@@ -146,7 +146,7 @@ public class EmployeeService
             
             IOrderedEnumerable<Employee>? orderedData = null;
             
-            foreach (DataTableOrderRequest order in serverSideRequest.Order)
+            foreach (var order in serverSideRequest.Order)
             {
                 _logger.LogDebug("Sorting column {Column} in direction {Direction}", order.Column, order.Dir);
                 
@@ -190,12 +190,12 @@ public class EmployeeService
         _logger.LogDebug("GetEmployeesPaged: Start={Start}, Length={Length}, Search='{Search}', ContinuationToken='{Token}'", 
             serverSideRequest.Start, serverSideRequest.Length, serverSideRequest.Search?.Value, serverSideRequest.ContinuationToken ?? "null");
 
-        IEnumerable<Employee> filteredData = _employees.AsEnumerable();
+        var filteredData = _employees.AsEnumerable();
 
         // Apply search
         if (serverSideRequest.Search?.Value.HasContent() == true)
         {
-            string? searchTerm = serverSideRequest.Search.Value;
+            var searchTerm = serverSideRequest.Search.Value;
             filteredData = filteredData.Where(e => 
                 e.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                 e.Department.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
@@ -210,7 +210,7 @@ public class EmployeeService
             
             IOrderedEnumerable<Employee>? orderedData = null;
             
-            foreach (DataTableOrderRequest order in serverSideRequest.Order)
+            foreach (var order in serverSideRequest.Order)
             {
                 _logger.LogDebug("Sorting column {Column} in direction {Direction}", order.Column, order.Dir);
                 
@@ -236,8 +236,8 @@ public class EmployeeService
             }
         }
 
-        int totalRecords = filteredData.Count();
-        List<Employee> pagedData = filteredData.Skip(serverSideRequest.Start).Take(serverSideRequest.Length).ToList();
+        var totalRecords = filteredData.Count();
+        var pagedData = filteredData.Skip(serverSideRequest.Start).Take(serverSideRequest.Length).ToList();
 
         // Simulate continuation token logic
         string? continuationToken = null;

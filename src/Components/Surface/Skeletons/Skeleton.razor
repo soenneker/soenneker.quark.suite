@@ -1,0 +1,19 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements ISkeleton
+
+<div @attributes="BuildAttributes()">@ChildContent</div>
+
+@code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        // shadcn/ui skeleton base - exact copy from new-york-v4 ui/skeleton.tsx
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-skeleton");
+            AppendClass(ref cls, "bg-accent animate-pulse rounded-md");
+        });
+    }
+}

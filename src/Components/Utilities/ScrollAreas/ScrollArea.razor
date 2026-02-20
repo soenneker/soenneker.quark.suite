@@ -1,0 +1,37 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    <div @attributes="BuildViewportAttributes()">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "scroll-area";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-scroll-area");
+            AppendClass(ref cls, "relative overflow-hidden");
+        });
+    }
+
+    private Dictionary<string, object> BuildViewportAttributes()
+    {
+        var attrs = new Dictionary<string, object>();
+        attrs["data-slot"] = "scroll-area-viewport";
+        BuildClassAttribute(attrs, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-scroll-area-viewport");
+            AppendClass(ref cls, "h-full w-full rounded-[inherit] overflow-auto outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-1 transition-[color,box-shadow]");
+            AppendClass(ref cls, "[&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar]:h-2.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border");
+        });
+        attrs["tabindex"] = 0;
+        return attrs;
+    }
+}

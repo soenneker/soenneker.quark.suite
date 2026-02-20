@@ -104,8 +104,8 @@ public sealed class TextSizeBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        TextSizeRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new TextSizeRule(last.Size, bp);
         return this;
     }
@@ -121,13 +121,13 @@ public sealed class TextSizeBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            TextSizeRule rule = _rules[i];
+            var rule = _rules[i];
 
-            string sizeClass = GetSizeClass(rule.Size);
+            var sizeClass = GetSizeClass(rule.Size);
             if (sizeClass.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 sizeClass = BreakpointUtil.ApplyTailwindBreakpoint(sizeClass, bp);
 
@@ -153,9 +153,9 @@ public sealed class TextSizeBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            TextSizeRule rule = _rules[i];
+            var rule = _rules[i];
 
-            string? sizeValue = GetSizeValue(rule.Size);
+            var sizeValue = GetSizeValue(rule.Size);
             if (sizeValue is null)
                 continue;
 

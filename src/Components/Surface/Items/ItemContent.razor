@@ -1,0 +1,18 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IItemContent
+
+<div @attributes="BuildAttributes()">@ChildContent</div>
+
+@code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "item-content";
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-item-content");
+            AppendClass(ref cls, "flex flex-1 flex-col gap-1 [&+[data-slot=item-content]]:flex-none");
+        });
+    }
+}

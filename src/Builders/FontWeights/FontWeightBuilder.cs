@@ -126,8 +126,8 @@ public sealed class FontWeightBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        FontWeightRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new FontWeightRule(last.Value, bp);
         return this;
     }
@@ -144,8 +144,8 @@ public sealed class FontWeightBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            FontWeightRule rule = _rules[i];
-            string cls = rule.Value switch
+            var rule = _rules[i];
+            var cls = rule.Value switch
             {
                 FontWeightKeyword.LighterValue => _classLighter,
                 FontWeightKeyword.LightValue => _classLight,
@@ -158,7 +158,7 @@ public sealed class FontWeightBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -182,8 +182,8 @@ public sealed class FontWeightBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            FontWeightRule rule = _rules[i];
-            string? css = rule.Value switch
+            var rule = _rules[i];
+            var css = rule.Value switch
             {
                 FontWeightKeyword.LighterValue => "lighter",
                 FontWeightKeyword.LightValue => "300",

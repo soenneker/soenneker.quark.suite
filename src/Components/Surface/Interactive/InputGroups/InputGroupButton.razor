@@ -1,0 +1,46 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IInputGroupButton
+
+<Button Type="@Type" Variant="@Variant" Size="@Size" Attributes="BuildAttributes()">@ChildContent</Button>
+
+@code {
+    [Parameter]
+    public ButtonSize Size { get; set; } = ButtonSize.Xs;
+
+    [Parameter]
+    public ButtonVariant Variant { get; set; } = ButtonVariant.Ghost;
+
+    [Parameter]
+    public ButtonType Type { get; set; } = ButtonType.Button;
+
+    private static string GetSizeClass(ButtonSize size)
+        => size switch
+        {
+            ButtonSize.Xs => "h-6 gap-1 px-2 rounded-[calc(var(--radius)-5px)] [&>svg:not([class*='size-'])]:size-3.5 has-[>svg]:px-2",
+            ButtonSize.Sm => "h-8 px-2.5 gap-1.5 rounded-md has-[>svg]:px-2.5",
+            ButtonSize.IconXs => "size-6 rounded-[calc(var(--radius)-5px)] p-0 has-[>svg]:p-0",
+            ButtonSize.IconSm => "size-8 p-0 has-[>svg]:p-0",
+            _ => "h-6 gap-1 px-2 rounded-[calc(var(--radius)-5px)] [&>svg:not([class*='size-'])]:size-3.5 has-[>svg]:px-2"
+        };
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "input-group-button";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-input-group-button");
+            AppendClass(ref cls, "text-sm shadow-none flex gap-2 items-center");
+            AppendClass(ref cls, GetSizeClass(Size));
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Size);
+        hc.Add(Variant);
+        hc.Add(Type);
+    }
+}

@@ -1,0 +1,38 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements INativeSelectOption
+
+<option @attributes="BuildAttributes()">@ChildContent</option>
+
+@code {
+    /// <summary>
+    /// Gets or sets the option value.
+    /// </summary>
+    [Parameter]
+    public string? Value { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether this option is disabled.
+    /// </summary>
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "native-select-option";
+
+        if (!string.IsNullOrWhiteSpace(Value))
+            attributes["value"] = Value!;
+
+        if (Disabled)
+            attributes["disabled"] = true;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Value);
+        hc.Add(Disabled);
+    }
+}

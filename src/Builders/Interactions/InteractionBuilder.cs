@@ -96,8 +96,8 @@ public sealed class InteractionBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        InteractionRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new InteractionRule(last.UserSelect, last.PointerEvents, breakpoint);
         return this;
     }
@@ -116,13 +116,13 @@ public sealed class InteractionBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            InteractionRule rule = _rules[i];
-            string userSelectClass = GetUserSelectClass(rule.UserSelect);
-            string pointerEventsClass = GetPointerEventsClass(rule.PointerEvents);
+            var rule = _rules[i];
+            var userSelectClass = GetUserSelectClass(rule.UserSelect);
+            var pointerEventsClass = GetPointerEventsClass(rule.PointerEvents);
 
             if (userSelectClass.Length > 0)
             {
-                string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+                var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
                 if (bp.Length != 0)
                     userSelectClass = BreakpointUtil.ApplyTailwindBreakpoint(userSelectClass, bp);
 
@@ -134,7 +134,7 @@ public sealed class InteractionBuilder : ICssBuilder
 
             if (pointerEventsClass.Length > 0)
             {
-                string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+                var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
                 if (bp.Length != 0)
                     pointerEventsClass = BreakpointUtil.ApplyTailwindBreakpoint(pointerEventsClass, bp);
 
@@ -162,9 +162,9 @@ public sealed class InteractionBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            InteractionRule rule = _rules[i];
-            string? userSelectValue = GetUserSelectValue(rule.UserSelect);
-            string? pointerEventsValue = GetPointerEventsValue(rule.PointerEvents);
+            var rule = _rules[i];
+            var userSelectValue = GetUserSelectValue(rule.UserSelect);
+            var pointerEventsValue = GetPointerEventsValue(rule.PointerEvents);
 
             if (userSelectValue is not null)
             {

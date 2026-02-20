@@ -1,0 +1,34 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @oncontextmenu="HandleContextMenu" @oncontextmenu:preventDefault @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    [CascadingParameter(Name = "ParentContextMenu")]
+    private ContextMenu? ParentContextMenu { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "context-menu-trigger";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-context-menu-trigger");
+            AppendClass(ref cls, "inline-block cursor-context-menu");
+        });
+    }
+
+    private void HandleContextMenu(MouseEventArgs e)
+    {
+        if (ParentContextMenu != null)
+        {
+            ParentContextMenu.X = e.ClientX;
+            ParentContextMenu.Y = e.ClientY;
+            ParentContextMenu.Show(e.ClientX, e.ClientY);
+        }
+    }
+}

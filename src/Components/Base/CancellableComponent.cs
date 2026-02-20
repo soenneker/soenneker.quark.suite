@@ -51,7 +51,7 @@ public abstract class CancellableComponent : Component, ICancellableComponent
     /// <returns>A task representing the cancellation operation.</returns>
     public Task Cancel()
     {
-        CancellationTokenSource? cts = _cancellationTokenSource.TryGet();
+        var cts = _cancellationTokenSource.TryGet();
         return cts is null ? Task.CompletedTask : cts.CancelAsync();
     }
 

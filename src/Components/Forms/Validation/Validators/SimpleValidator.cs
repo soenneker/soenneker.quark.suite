@@ -30,7 +30,7 @@ public class SimpleValidator : IQuarkValidator
     /// <returns>A <see cref="ValidationResult"/> containing the validation outcome.</returns>
     public ValidationResult Validate(object value)
     {
-        bool isValid = _validate(value);
+        var isValid = _validate(value);
         return isValid ? ValidationResult.Success() : ValidationResult.Error(_errorMessage);
     }
 
@@ -52,7 +52,7 @@ public class SimpleValidator : IQuarkValidator
     /// <returns>A <see cref="ValidationResult"/> containing the validation outcome.</returns>
     public ValidationResult Validate(ValidatorEventArgs args)
     {
-        ValidationResult result = Validate(args.Value);
+        var result = Validate(args.Value);
         
         // Sync the result with ValidatorEventArgs for backwards compatibility
         args.Status = result.Status;

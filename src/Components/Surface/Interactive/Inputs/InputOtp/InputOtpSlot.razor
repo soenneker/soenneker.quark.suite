@@ -1,0 +1,56 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    @(GetChar())
+    @if (IsActive && GetChar() == null)
+    {
+        <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <div class="animate-pulse bg-foreground h-4 w-px"></div>
+        </div>
+    }
+</div>
+
+@code {
+    [CascadingParameter(Name = "ParentInputOtp")]
+    private InputOtp? ParentInputOtp { get; set; }
+
+    /// <summary>
+    /// Gets or sets the slot index (0-based).
+    /// </summary>
+    [Parameter]
+    public int Index { get; set; }
+
+    private char? GetChar() => ParentInputOtp?.GetSlot(Index);
+    private bool IsActive => ParentInputOtp != null && ParentInputOtp.ActiveIndex == Index;
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "input-otp-slot";
+        attributes["data-index"] = Index.ToString();
+        attributes["data-active"] = IsActive ? "true" : "false";
+        if (ParentInputOtp?.Disabled == true)
+            attributes["aria-disabled"] = "true";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-input-otp-slot");
+            AppendClass(ref cls, "relative flex h-9 w-9 items-center justify-center border border-input text-sm shadow-xs transition-all outline-none first:rounded-l-md first:border-l last:rounded-r-md");
+            AppendClass(ref cls, "dark:bg-input/30");
+            AppendClass(ref cls, "data-[active=true]:z-10 data-[active=true]:ring-2 data-[active=true]:ring-ring data-[active=true]:ring-offset-2");
+            AppendClass(ref cls, "aria-invalid:border-destructive data-[active=true]:aria-invalid:ring-destructive/20 data-[active=true]:aria-invalid:border-destructive");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Index);
+        hc.Add(GetChar());
+        hc.Add(IsActive);
+    }
+}

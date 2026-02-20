@@ -109,7 +109,7 @@ public sealed class LinkUnderlineBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            LinkUnderlineRule rule = _rules[i];
+            var rule = _rules[i];
             string cls;
 
             if (rule.Type == "opacity")
@@ -128,7 +128,7 @@ public sealed class LinkUnderlineBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.InsertBreakpointType(cls, bp);
 
@@ -152,7 +152,7 @@ public sealed class LinkUnderlineBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            LinkUnderlineRule rule = _rules[i];
+            var rule = _rules[i];
             string? css = null;
 
             if (rule.Type == "opacity")

@@ -35,7 +35,7 @@ public sealed class FontAwesomeInterop : IFontAwesomeInterop
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     public async ValueTask Initialize(CancellationToken cancellationToken = default)
     {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
         using (source)
             await _initializer.Init(linked);

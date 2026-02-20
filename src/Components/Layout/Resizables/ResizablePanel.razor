@@ -1,0 +1,55 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    /// <summary>
+    /// Gets or sets the default size as a flex grow value (1 = equal, 2 = twice, etc.).
+    /// </summary>
+    [Parameter]
+    public int DefaultSize { get; set; } = 1;
+
+    /// <summary>
+    /// Gets or sets minimum size in pixels.
+    /// </summary>
+    [Parameter]
+    public int? MinSize { get; set; }
+
+    /// <summary>
+    /// Gets or sets maximum size in pixels.
+    /// </summary>
+    [Parameter]
+    public int? MaxSize { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "resizable-panel";
+
+        var style = new List<string> { $"flex: {DefaultSize} 1 0%" };
+        if (MinSize.HasValue)
+            style.Add($"min-width: {MinSize}px");
+        if (MaxSize.HasValue)
+            style.Add($"max-width: {MaxSize}px");
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-resizable-panel");
+            AppendClass(ref cls, "overflow-auto");
+        });
+
+        attributes["style"] = string.Join("; ", style);
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(DefaultSize);
+        hc.Add(MinSize);
+        hc.Add(MaxSize);
+    }
+}

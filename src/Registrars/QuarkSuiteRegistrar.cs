@@ -27,10 +27,10 @@ public static class QuarkSuiteRegistrar
             .AddQuarkValidationAsScoped()
             .AddQuarkTableAsScoped()
             .AddQuarkSnackbarAsScoped()
+            .AddQuarkThemeAsScoped()
             .AddQuarkDatePickerAsScoped()
             .AddQuarkTreeViewAsScoped()
             .AddQuarkStepsAsScoped()
-            .AddQuarkOffcanvasAsScoped()
             .AddQuarkCodeEditorAsScoped()
             .AddQuarkScoreAsScoped()
             .AddFontAwesomeAsScoped();

@@ -1,0 +1,41 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    <div class="bg-border relative flex-1 rounded-full"></div>
+</div>
+
+@code {
+    /// <summary>
+    /// Gets or sets the orientation: vertical or horizontal.
+    /// </summary>
+    [Parameter]
+    public string Orientation { get; set; } = "vertical";
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "scroll-area-scrollbar";
+        attributes["role"] = "scrollbar";
+        attributes["aria-orientation"] = Orientation;
+
+        var isVertical = Orientation != "horizontal";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-scroll-bar");
+            AppendClass(ref cls, "flex touch-none select-none p-px transition-colors");
+            if (isVertical)
+                AppendClass(ref cls, "h-full w-2.5 border-l border-l-transparent");
+            else
+                AppendClass(ref cls, "h-2.5 flex-col border-t border-t-transparent");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Orientation);
+    }
+}

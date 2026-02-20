@@ -127,7 +127,7 @@
 
     private async Task HandleChange(ChangeEventArgs e)
     {
-        TValue? newValue = ConvertValue(e.Value?.ToString());
+        var newValue = ConvertValue(e.Value?.ToString());
         var valueChanged = false;
         if (!EqualityComparer<TValue>.Default.Equals(SelectedValue, newValue))
         {
@@ -188,7 +188,7 @@
             return null;
 
         string? token = null;
-        bool isTheme = Size?.TryGetThemeToken(out token) == true;
+        var isTheme = Size?.TryGetThemeToken(out token) == true;
         var sizeVal = token ?? Size?.ToString();
         if (string.IsNullOrEmpty(sizeVal)) return null;
         return sizeVal.ToLowerInvariant() switch { "sm" or "xs" => "h-8 py-1", "lg" => "h-11 py-2", _ => null };
@@ -214,11 +214,11 @@
             AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]");
             AppendClass(ref cls, "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive");
             
-            string? sizeClass = GetSizeClass();
+            var sizeClass = GetSizeClass();
             if (sizeClass != null)
                 AppendClass(ref cls, sizeClass);
                 
-            string? validationClass = GetValidationClass();
+            var validationClass = GetValidationClass();
             if (validationClass != null)
                 AppendClass(ref cls, validationClass);
         });

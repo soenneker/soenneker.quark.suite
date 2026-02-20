@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
 
 
 namespace Soenneker.Quark.Registrars;
@@ -17,7 +16,7 @@ public static class TableRegistrar
     /// <returns>The service collection for chaining</returns>
     public static IServiceCollection AddQuarkTableAsScoped(this IServiceCollection services)
     {
-        services.AddResourceLoaderAsScoped().TryAddScoped<ITablesInterop, TablesInterop>();
+        services.TryAddScoped<ITablesInterop, TablesInterop>();
         return services;
     }
 }

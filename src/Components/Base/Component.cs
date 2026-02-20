@@ -434,7 +434,7 @@ public abstract class Component : CoreComponent, IComponent
             return;
         }
 
-        int key = ComputeRenderKey();
+        var key = ComputeRenderKey();
         _shouldRender = key != _lastRenderKey;
         _lastRenderKey = key;
     }
@@ -460,13 +460,13 @@ public abstract class Component : CoreComponent, IComponent
     protected virtual IReadOnlyDictionary<string, object> BuildAttributes()
     {
         // We rely on OnParametersSet() + InvalidateRender() to keep _lastRenderKey current.
-        int currentKey = _lastRenderKey;
+        var currentKey = _lastRenderKey;
 
         // Use cached attributes if render key hasn't changed
         if (!QuarkOptions.AlwaysRender && _cachedAttrs is not null && _cachedAttrsKey == currentKey)
             return _cachedAttrs;
 
-        int guess = 14 + (Attributes?.Count ?? 0);
+        var guess = 14 + (Attributes?.Count ?? 0);
         var attrs = new Dictionary<string, object>(guess);
 
         var cls = new PooledStringBuilder(64);
@@ -542,33 +542,33 @@ public abstract class Component : CoreComponent, IComponent
 
             if (Attributes is not null)
             {
-                foreach (KeyValuePair<string, object> kv in Attributes)
+                foreach (var kv in Attributes)
                 {
-                    string k = kv.Key;
-                    object? v = kv.Value;
+                    var k = kv.Key;
+                    var v = kv.Value;
 
                     if (k is "class")
                     {
-                        string? s = v as string ?? v?.ToString();
+                        var s = v as string ?? v?.ToString();
 
                         if (!string.IsNullOrEmpty(s))
                             AppendClass(ref cls, s);
                     }
                     else if (k is "style")
                     {
-                        string? s = v as string ?? v?.ToString();
+                        var s = v as string ?? v?.ToString();
                         if (!string.IsNullOrEmpty(s))
                             AppendStyleDecl(ref sty, s);
                     }
                     else if (k.Equals("class", StringComparison.OrdinalIgnoreCase))
                     {
-                        string? s = v as string ?? v?.ToString();
+                        var s = v as string ?? v?.ToString();
                         if (!string.IsNullOrEmpty(s))
                             AppendClass(ref cls, s);
                     }
                     else if (k.Equals("style", StringComparison.OrdinalIgnoreCase))
                     {
-                        string? s = v as string ?? v?.ToString();
+                        var s = v as string ?? v?.ToString();
                         if (!string.IsNullOrEmpty(s))
                             AppendStyleDecl(ref sty, s);
                     }
@@ -681,13 +681,13 @@ public abstract class Component : CoreComponent, IComponent
 
         if (Attributes is not null)
         {
-            if (Attributes.TryGetValue("class", out object? clsObj))
+            if (Attributes.TryGetValue("class", out var clsObj))
                 hc.Add(clsObj is string s ? s : clsObj);
 
-            if (Attributes.TryGetValue("style", out object? styObj))
+            if (Attributes.TryGetValue("style", out var styObj))
                 hc.Add(styObj is string s ? s : styObj);
 
-            if (Attributes.TryGetValue("id", out object? idObj))
+            if (Attributes.TryGetValue("id", out var idObj))
                 hc.Add(idObj is string s ? s : idObj);
         }
 
@@ -710,7 +710,7 @@ public abstract class Component : CoreComponent, IComponent
 
         return EventCallback.Factory.Create<TArgs>(owner, e =>
         {
-            Task t = ours(e);
+            var t = ours(e);
             if (t.IsCompletedSuccessfully)
                 return users.InvokeAsync(e);
 
@@ -850,16 +850,16 @@ public abstract class Component : CoreComponent, IComponent
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void EnsureClassAttr(Dictionary<string, object> attrs, string token)
     {
-        attrs.TryGetValue("class", out object? clsObj);
-        string cls = EnsureClass(clsObj?.ToString(), token);
+        attrs.TryGetValue("class", out var clsObj);
+        var cls = EnsureClass(clsObj?.ToString(), token);
         if (cls.Length > 0) attrs["class"] = cls;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void AppendToClassAttr(Dictionary<string, object> attrs, string token)
     {
-        attrs.TryGetValue("class", out object? clsObj);
-        string cls = AppendToClass(clsObj?.ToString(), token);
+        attrs.TryGetValue("class", out var clsObj);
+        var cls = AppendToClass(clsObj?.ToString(), token);
 
         if (cls.Length > 0)
             attrs["class"] = cls;
@@ -877,7 +877,7 @@ public abstract class Component : CoreComponent, IComponent
         try
         {
             // Include existing class first
-            if (attrs.TryGetValue("class", out object? existing))
+            if (attrs.TryGetValue("class", out var existing))
             {
                 var existingStr = existing.ToString();
 
@@ -885,7 +885,7 @@ public abstract class Component : CoreComponent, IComponent
                     cls.Append(existingStr);
             }
 
-            foreach (string? c in classes)
+            foreach (var c in classes)
             {
                 if (!c.IsNullOrWhiteSpace())
                     AppendClass(ref cls, c!);
@@ -912,7 +912,7 @@ public abstract class Component : CoreComponent, IComponent
         try
         {
             // Include existing class first
-            if (attrs.TryGetValue("class", out object? existing))
+            if (attrs.TryGetValue("class", out var existing))
             {
                 var existingStr = existing.ToString();
 
@@ -943,7 +943,7 @@ public abstract class Component : CoreComponent, IComponent
         try
         {
             // Include existing style first
-            if (attrs.TryGetValue("style", out object? existing))
+            if (attrs.TryGetValue("style", out var existing))
             {
                 var existingStr = existing.ToString();
 
@@ -971,14 +971,14 @@ public abstract class Component : CoreComponent, IComponent
     protected static void BuildClassAndStyleAttributes(Dictionary<string, object> attrs, BuildClassAndStyleAction builder)
     {
         // Grab existing values with the lowest possible overhead.
-        attrs.TryGetValue("class", out object? existingClassObj);
-        attrs.TryGetValue("style", out object? existingStyleObj);
+        attrs.TryGetValue("class", out var existingClassObj);
+        attrs.TryGetValue("style", out var existingStyleObj);
 
-        string? existingClassStr = existingClassObj as string ?? existingClassObj?.ToString();
-        string? existingStyleStr = existingStyleObj as string ?? existingStyleObj?.ToString();
+        var existingClassStr = existingClassObj as string ?? existingClassObj?.ToString();
+        var existingStyleStr = existingStyleObj as string ?? existingStyleObj?.ToString();
 
-        int existingClassLen = existingClassStr?.Length ?? 0;
-        int existingStyleLen = existingStyleStr?.Length ?? 0;
+        var existingClassLen = existingClassStr?.Length ?? 0;
+        var existingStyleLen = existingStyleStr?.Length ?? 0;
 
         // If you want to avoid renting larger buffers, seed capacity from existing lengths.
         var cls = new PooledStringBuilder(Math.Max(32, existingClassLen + 32));
@@ -1044,7 +1044,7 @@ public abstract class Component : CoreComponent, IComponent
     {
         if (string.IsNullOrWhiteSpace(fullDecl)) return;
 
-        attrs.TryGetValue("style", out object? styleObj);
+        attrs.TryGetValue("style", out var styleObj);
 
         if (styleObj is string existing && existing.Length != 0)
         {
@@ -1106,7 +1106,7 @@ public abstract class Component : CoreComponent, IComponent
     {
         if (v is not { IsEmpty: false }) return;
 
-        if (v.Value.TryGetThemeToken(out string? token) && token is not null)
+        if (v.Value.TryGetThemeToken(out var token) && token is not null)
         {
             AppendClassToken(ref clsB, classPrefix, token);
             return;

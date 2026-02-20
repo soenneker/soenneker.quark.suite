@@ -82,8 +82,8 @@ public sealed class ListVariantBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        ListVariantRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new ListVariantRule(last.Type, breakpoint);
         return this;
     }
@@ -102,9 +102,9 @@ public sealed class ListVariantBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            ListVariantRule rule = _rules[i];
-            string? typeValue = rule.Type.Value;
-            string cls = typeValue switch
+            var rule = _rules[i];
+            var typeValue = rule.Type.Value;
+            var cls = typeValue switch
             {
                 "unstyled" => _classUnstyled,
                 "inline" => _classInline,
@@ -115,7 +115,7 @@ public sealed class ListVariantBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -142,9 +142,9 @@ public sealed class ListVariantBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            ListVariantRule rule = _rules[i];
-            string? typeValue = rule.Type.Value;
-            string? style = typeValue switch
+            var rule = _rules[i];
+            var typeValue = rule.Type.Value;
+            var style = typeValue switch
             {
                 "unstyled" => "list-style: none; padding-left: 0;",
                 "inline" => "padding-left: 0; list-style: none;",

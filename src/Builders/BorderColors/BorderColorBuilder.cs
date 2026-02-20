@@ -188,8 +188,8 @@ public sealed class BorderColorBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            BorderColorRule rule = _rules[i];
-            string cls = GetClass(rule);
+            var rule = _rules[i];
+            var cls = GetClass(rule);
             if (cls.Length == 0)
                 continue;
 
@@ -216,8 +216,8 @@ public sealed class BorderColorBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            BorderColorRule rule = _rules[i];
-            string? css = GetStyle(rule);
+            var rule = _rules[i];
+            var css = GetStyle(rule);
             if (css is null)
                 continue;
 
@@ -240,7 +240,7 @@ public sealed class BorderColorBuilder : ICssBuilder
             return string.Empty;
 
         // First try to generate classes
-        string classResult = ToClass();
+        var classResult = ToClass();
         if (classResult.HasContent())
             return classResult;
 

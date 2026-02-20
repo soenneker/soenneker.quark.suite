@@ -1,0 +1,42 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<Modal Visible="@Visible" VisibleChanged="@VisibleChanged" OnBackdropClick="@Close" Static="false">
+    <ModalHeader>
+        <ModalTitle Class="sr-only">@Title</ModalTitle>
+        @if (ShowCloseButton)
+        {
+            <ModalCloseButton />
+        }
+    </ModalHeader>
+    <ModalBody Class="overflow-hidden p-0">
+        <Command>
+            @ChildContent
+        </Command>
+    </ModalBody>
+</Modal>
+
+@code {
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter]
+    public new string Title { get; set; } = "Command Palette";
+
+    [Parameter]
+    public string Description { get; set; } = "Search for a command to run...";
+
+    [Parameter]
+    public bool ShowCloseButton { get; set; } = true;
+
+    private async Task Close()
+    {
+        Visible = false;
+        await VisibleChanged.InvokeAsync(Visible);
+    }
+}

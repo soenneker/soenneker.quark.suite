@@ -119,7 +119,7 @@
     {
         if (Size == Quark.Size.Default) return null;
         string? token = null;
-        bool isTheme = Size?.TryGetThemeToken(out token) == true;
+        var isTheme = Size?.TryGetThemeToken(out token) == true;
         var sizeVal = token ?? Size?.ToString();
         return sizeVal?.ToLowerInvariant() switch { "sm" or "xs" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
     }
@@ -131,7 +131,7 @@
 
         var text = e.Value.ToString();
 
-        if (decimal.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal result))
+        if (decimal.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
             return result;
 
         return null;
@@ -139,8 +139,8 @@
 
     private async Task HandleInput(ChangeEventArgs e)
     {
-        decimal? next = ParseDecimal(e);
-        bool valueChanged = !Nullable.Equals(Value, next);
+        var next = ParseDecimal(e);
+        var valueChanged = !Nullable.Equals(Value, next);
         Value = next;
         if (valueChanged)
             await ValueChanged.InvokeIfHasDelegate(Value);
@@ -160,8 +160,8 @@
 
     private async Task HandleChange(ChangeEventArgs e)
     {
-        decimal? next = ParseDecimal(e);
-        bool valueChanged = !Nullable.Equals(Value, next);
+        var next = ParseDecimal(e);
+        var valueChanged = !Nullable.Equals(Value, next);
         Value = next;
         if (valueChanged)
             await ValueChanged.InvokeIfHasDelegate(Value);

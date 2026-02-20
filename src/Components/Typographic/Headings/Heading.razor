@@ -3,8 +3,8 @@
 @implements IHeading
 
 @{
-    int level = GetHeadingLevel(Scale);
-    IReadOnlyDictionary<string, object> attrs = BuildAttributes();
+    var level = GetHeadingLevel(Scale);
+    var attrs = BuildAttributes();
 }
 
 @if (level == 1)
@@ -46,7 +46,7 @@ else
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
             AppendClass(ref cls, "q-heading");
-            int headingLevel = GetHeadingLevel(Scale);
+            var headingLevel = GetHeadingLevel(Scale);
             AppendClass(ref cls, GetHeadingSizeClass(headingLevel));
             AddCss(ref sty, ref cls, Scale);
         });
@@ -64,7 +64,7 @@ else
 
         if (s.Length >= 7 && s.AsSpan().StartsWith("scale-"))
         {
-            int d = s[^1] - '0';
+            var d = s[^1] - '0';
 
             if ((uint)(d - 1) <= 5)
                 return d; // 1..6

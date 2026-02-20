@@ -2,233 +2,115 @@
 
 <PageTitle>Accordion - Quark Suite</PageTitle>
 
-@{
-    var _defaultExpanded = new[] { "item-1" };
-    var _faqExpanded = new[] { "faq-1" };
-    var _flushExpanded = new[] { "flush1" };
-    var _iconExpanded = new[] { "icon1" };
-    var _enabledExpanded = new[] { "enabled1" };
-    var _richExpanded = new[] { "rich-1" };
-}
-
-<Div Class="space-y-8 max-w-4xl">
-    <Div Class="space-y-6">
-        <section class="space-y-4">
-            <DemoSection Title="Default" Description="A basic accordion with the first item open by default. Click headers to expand or collapse." Code="@(@"<Accordion ExpandedItems=""new[] { ""item-1"" }"">
-    <AccordionItem Name=""item-1"">
-        <AccordionHeader>Is it accessible?</AccordionHeader>
-        <AccordionBody>Yes. It adheres to the WAI-ARIA design pattern.</AccordionBody>
-    </AccordionItem>
-    <AccordionItem Name=""item-2"">
-        <AccordionHeader>Is it styled?</AccordionHeader>
-        <AccordionBody>Yes. It comes with default styles that match the rest of the suite.</AccordionBody>
-    </AccordionItem>
-    <AccordionItem Name=""item-3"">
-        <AccordionHeader>Is it animated?</AccordionHeader>
-        <AccordionBody>Yes. The chevron rotates on expand/collapse.</AccordionBody>
+<div class="space-y-8 max-w-4xl">
+    <div class="space-y-4">
+        <DemoSection Title="Single (default)" Description="Only one item open at a time." Code="@(@"<Accordion>
+    <AccordionItem Value=""item-1"">
+        <AccordionTrigger>Is it accessible?</AccordionTrigger>
+        <AccordionContent>Yes. Uses semantic button semantics with aria attributes.</AccordionContent>
     </AccordionItem>
 </Accordion>")">
-                <Accordion ExpandedItems="_defaultExpanded">
-                    <AccordionItem Name="item-1">
-                        <AccordionHeader>Is it accessible?</AccordionHeader>
-                        <AccordionBody>
-                            <Paragraph Margin="Margin.Is0">Yes. It adheres to the WAI-ARIA design pattern.</Paragraph>
-                        </AccordionBody>
-                    </AccordionItem>
-                    <AccordionItem Name="item-2">
-                        <AccordionHeader>Is it styled?</AccordionHeader>
-                        <AccordionBody>
-                            <Paragraph Margin="Margin.Is0">Yes. It comes with default styles that match the rest of the suite.</Paragraph>
-                        </AccordionBody>
-                    </AccordionItem>
-                    <AccordionItem Name="item-3">
-                        <AccordionHeader>Is it animated?</AccordionHeader>
-                        <AccordionBody>
-                            <Paragraph Margin="Margin.Is0">Yes. The chevron rotates on expand/collapse.</Paragraph>
-                        </AccordionBody>
-                    </AccordionItem>
-                </Accordion>
-            </DemoSection>
-        </section>
+            <Accordion Class="w-full">
+                <AccordionItem Value="item-1">
+                    <AccordionTrigger>Is it accessible?</AccordionTrigger>
+                    <AccordionContent>
+                        <Paragraph Margin="Margin.Is0">
+                            Yes. Quark's Accordion uses semantic triggers with aria attributes and keyboard-focus styles.
+                        </Paragraph>
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem Value="item-2">
+                    <AccordionTrigger>Does it support custom styling?</AccordionTrigger>
+                    <AccordionContent>
+                        <Paragraph Margin="Margin.Is0">
+                            Yes. Add Tailwind utilities through <code>Class</code> on any accordion primitive.
+                        </Paragraph>
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem Value="item-3">
+                    <AccordionTrigger>Can I render complex content?</AccordionTrigger>
+                    <AccordionContent>
+                        <Div Class="space-y-2">
+                            <Paragraph Margin="Margin.Is0">You can place any Quark components inside accordion content.</Paragraph>
+                            <Button Size="ButtonSize.Sm">Example Action</Button>
+                        </Div>
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
+        </DemoSection>
 
-        <section class="space-y-4">
-            <DemoSection Title="FAQ example" Description="Common use case for accordions.">
-                <Accordion ExpandedItems="_faqExpanded">
-                    <AccordionItem Name="faq-1">
-                        <AccordionHeader>What payment methods do you accept?</AccordionHeader>
-                        <AccordionBody>
-                            <Paragraph Margin="Margin.Is0">We accept all major credit cards (Visa, MasterCard, American Express), PayPal, and bank transfers for enterprise customers.</Paragraph>
-                        </AccordionBody>
-                    </AccordionItem>
-                    <AccordionItem Name="faq-2">
-                        <AccordionHeader>How long does shipping take?</AccordionHeader>
-                        <AccordionBody>
-                            <Paragraph Margin="Margin.Is0">Standard shipping typically takes 5–7 business days. Express shipping options are available for 2–3 day delivery.</Paragraph>
-                        </AccordionBody>
-                    </AccordionItem>
-                    <AccordionItem Name="faq-3">
-                        <AccordionHeader>What is your return policy?</AccordionHeader>
-                        <AccordionBody>
-                            <Paragraph Margin="Margin.Is0">We offer a 30-day money-back guarantee. Items must be returned in original condition with all packaging and accessories.</Paragraph>
-                        </AccordionBody>
-                    </AccordionItem>
-                    <AccordionItem Name="faq-4">
-                        <AccordionHeader>Do you offer technical support?</AccordionHeader>
-                        <AccordionBody>
-                            <Paragraph Margin="Margin.Is0">Yes. We provide 24/7 technical support via email and live chat. Phone support is available Monday–Friday, 9AM–5PM.</Paragraph>
-                        </AccordionBody>
-                    </AccordionItem>
-                </Accordion>
-            </DemoSection>
-        </section>
+        <DemoSection Title="Multiple mode" Description="Allow many items open at once via Multiple=true." Code="@(@"<Accordion Multiple=""true"">
+    <AccordionItem Value=""a"">...</AccordionItem>
+    <AccordionItem Value=""b"">...</AccordionItem>
+</Accordion>")">
+            <Accordion Multiple="true" Class="w-full">
+                <AccordionItem Value="multi-a">
+                    <AccordionTrigger>First section</AccordionTrigger>
+                    <AccordionContent>
+                        <Paragraph Margin="Margin.Is0">This accordion allows multiple expanded items.</Paragraph>
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem Value="multi-b">
+                    <AccordionTrigger>Second section</AccordionTrigger>
+                    <AccordionContent>
+                        <Paragraph Margin="Margin.Is0">Open this without closing the first one.</Paragraph>
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem Value="multi-c" Disabled="true">
+                    <AccordionTrigger>Disabled item</AccordionTrigger>
+                    <AccordionContent>
+                        <Paragraph Margin="Margin.Is0">Disabled items are non-interactive.</Paragraph>
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
+        </DemoSection>
 
-        <section class="space-y-4">
-            <DemoSection Title="Multiple open items" Description="Allow multiple items to be open simultaneously with AllowMultiple.">
-                <Accordion AllowMultiple="true">
-                    <AccordionItem Name="multi1">
-                        <AccordionHeader>Performance</AccordionHeader>
-                        <AccordionBody>
-                            <Paragraph Margin="Margin.Is0" Class="mb-2">Blazing fast rendering with optimized algorithms.</Paragraph>
-                            <ul class="list-disc list-inside space-y-1 text-sm">
-                                <li>Minimal re-renders</li>
-                                <li>Virtual scrolling support</li>
-                                <li>Lazy loading capabilities</li>
-                            </ul>
-                        </AccordionBody>
+        <DemoSection Title="Controlled value" Description="@($"Current open item: {_selectedItem ?? "none"}")" Code="@(@"<Accordion Value=""_selectedItem"" ValueChanged=""HandleAccordionValueChanged"">...</Accordion>")">
+            <Div Class="space-y-3">
+                <Div Class="flex flex-wrap gap-2">
+                    <Button Size="ButtonSize.Sm" OnClick="OpenFirst">Open first</Button>
+                    <Button Size="ButtonSize.Sm" Variant="ButtonVariant.Secondary" OnClick="OpenSecond">Open second</Button>
+                    <Button Size="ButtonSize.Sm" Variant="ButtonVariant.Outline" OnClick="CloseAll">Close all</Button>
+                </Div>
+                <Accordion Value="@_selectedItem" ValueChanged="HandleAccordionValueChanged" Class="w-full">
+                    <AccordionItem Value="control-1">
+                        <AccordionTrigger>Controlled item one</AccordionTrigger>
+                        <AccordionContent>
+                            <Paragraph Margin="Margin.Is0">This section is controlled by external state.</Paragraph>
+                        </AccordionContent>
                     </AccordionItem>
-                    <AccordionItem Name="multi2">
-                        <AccordionHeader>Customization</AccordionHeader>
-                        <AccordionBody>
-                            <Paragraph Margin="Margin.Is0" Class="mb-2">Fully customizable to match your brand.</Paragraph>
-                            <ul class="list-disc list-inside space-y-1 text-sm">
-                                <li>Theme system</li>
-                                <li>Custom styling</li>
-                                <li>Component composition</li>
-                            </ul>
-                        </AccordionBody>
-                    </AccordionItem>
-                    <AccordionItem Name="multi3">
-                        <AccordionHeader>Accessibility</AccordionHeader>
-                        <AccordionBody>
-                            <Paragraph Margin="Margin.Is0" Class="mb-2">Built with accessibility in mind.</Paragraph>
-                            <ul class="list-disc list-inside space-y-1 text-sm">
-                                <li>WCAG 2.1 compliant</li>
-                                <li>Screen reader support</li>
-                                <li>Keyboard navigation</li>
-                            </ul>
-                        </AccordionBody>
+                    <AccordionItem Value="control-2">
+                        <AccordionTrigger>Controlled item two</AccordionTrigger>
+                        <AccordionContent>
+                            <Paragraph Margin="Margin.Is0">Use buttons above or click this trigger directly.</Paragraph>
+                        </AccordionContent>
                     </AccordionItem>
                 </Accordion>
-            </DemoSection>
-        </section>
+            </Div>
+        </DemoSection>
+    </div>
+</div>
 
-        <section class="space-y-4">
-            <DemoSection Title="Flush" Description="Flush accordion with no borders or rounded corners between items.">
-                <Accordion Flush="true" ExpandedItems="_flushExpanded">
-                    <AccordionItem Name="flush1">
-                        <AccordionHeader>Flush item #1</AccordionHeader>
-                        <AccordionBody>
-                            <Paragraph Margin="Margin.Is0">Flush accordion with no borders or background. Items flow together without visual breaks.</Paragraph>
-                        </AccordionBody>
-                    </AccordionItem>
-                    <AccordionItem Name="flush2">
-                        <AccordionHeader>Flush item #2</AccordionHeader>
-                        <AccordionBody>
-                            <Paragraph Margin="Margin.Is0">Another flush item.</Paragraph>
-                        </AccordionBody>
-                    </AccordionItem>
-                </Accordion>
-            </DemoSection>
-        </section>
+@code {
+    private string? _selectedItem = "control-1";
 
-        <section class="space-y-4">
-            <DemoSection Title="With icons" Description="Optional IconName on AccordionHeader for context.">
-                <Accordion ExpandedItems="_iconExpanded">
-                    <AccordionItem Name="icon1">
-                        <AccordionHeader IconName="info-circle">Information</AccordionHeader>
-                        <AccordionBody>
-                            <Paragraph Margin="Margin.Is0">This item has an information icon in the header.</Paragraph>
-                        </AccordionBody>
-                    </AccordionItem>
-                    <AccordionItem Name="icon2">
-                        <AccordionHeader IconName="warning">Warning</AccordionHeader>
-                        <AccordionBody>
-                            <Paragraph Margin="Margin.Is0">This item has a warning icon.</Paragraph>
-                        </AccordionBody>
-                    </AccordionItem>
-                    <AccordionItem Name="icon3">
-                        <AccordionHeader IconName="check-circle">Success</AccordionHeader>
-                        <AccordionBody>
-                            <Paragraph Margin="Margin.Is0">This item has a success icon.</Paragraph>
-                        </AccordionBody>
-                    </AccordionItem>
-                </Accordion>
-            </DemoSection>
-        </section>
+    private Task HandleAccordionValueChanged(string? value)
+    {
+        _selectedItem = value;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
 
-        <section class="space-y-4">
-            <DemoSection Title="Disabled item" Description="Set Disabled on an AccordionItem to prevent toggling.">
-                <Accordion ExpandedItems="_enabledExpanded">
-                    <AccordionItem Name="enabled1">
-                        <AccordionHeader>Enabled item</AccordionHeader>
-                        <AccordionBody>
-                            <Paragraph Margin="Margin.Is0">This item can be expanded and collapsed normally.</Paragraph>
-                        </AccordionBody>
-                    </AccordionItem>
-                    <AccordionItem Name="disabled1" Disabled="true">
-                        <AccordionHeader>Disabled item</AccordionHeader>
-                        <AccordionBody>
-                            <Paragraph Margin="Margin.Is0">This item is disabled and cannot be expanded.</Paragraph>
-                        </AccordionBody>
-                    </AccordionItem>
-                    <AccordionItem Name="enabled2">
-                        <AccordionHeader>Another enabled item</AccordionHeader>
-                        <AccordionBody>
-                            <Paragraph Margin="Margin.Is0">This item works normally even When others are disabled.</Paragraph>
-                        </AccordionBody>
-                    </AccordionItem>
-                </Accordion>
-            </DemoSection>
-        </section>
+    private Task SetSelected(string? value)
+    {
+        _selectedItem = value;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
 
-        <section class="space-y-4">
-            <DemoSection Title="Rich content" Description="Accordion items can contain any content, including code blocks and lists.">
-                <Accordion ExpandedItems="_richExpanded">
-                    <AccordionItem Name="rich-1">
-                        <AccordionHeader>Step 1: Installation</AccordionHeader>
-                        <AccordionBody>
-                            <Div Class="space-y-2">
-                                <Paragraph Margin="Margin.Is0">Install the package using your preferred package manager:</Paragraph>
-                                <Div Class="rounded-md bg-muted p-4">
-                                    <Code Class="text-sm font-mono">dotnet add package Soenneker.Quark.Suite</Code>
-                                </Div>
-                            </Div>
-                        </AccordionBody>
-                    </AccordionItem>
-                    <AccordionItem Name="rich-2">
-                        <AccordionHeader>Step 2: Configuration</AccordionHeader>
-                        <AccordionBody>
-                            <Div Class="space-y-2">
-                                <Paragraph Margin="Margin.Is0">Add the services and components to your app:</Paragraph>
-                                <Div Class="rounded-md bg-muted p-4">
-                                    <Code Class="text-sm font-mono">builder.Services.AddQuarkSuite();</Code>
-                                </Div>
-                            </Div>
-                        </AccordionBody>
-                    </AccordionItem>
-                    <AccordionItem Name="rich-3">
-                        <AccordionHeader>Step 3: Usage</AccordionHeader>
-                        <AccordionBody>
-                            <Div Class="space-y-2">
-                                <Paragraph Margin="Margin.Is0">Use the Accordion in your pages:</Paragraph>
-                                <Div Class="rounded-md bg-muted p-4">
-                                    <Code Class="text-sm font-mono">&lt;Accordion&gt;&lt;AccordionItem Name="item1"&gt;...&lt;/AccordionItem&gt;&lt;/Accordion&gt;</Code>
-                                </Div>
-                            </Div>
-                        </AccordionBody>
-                    </AccordionItem>
-                </Accordion>
-            </DemoSection>
-        </section>
-    </Div>
-</Div>
+    private Task OpenFirst(MouseEventArgs args) => SetSelected("control-1");
+
+    private Task OpenSecond(MouseEventArgs args) => SetSelected("control-2");
+
+    private Task CloseAll(MouseEventArgs args) => SetSelected(null);
+}

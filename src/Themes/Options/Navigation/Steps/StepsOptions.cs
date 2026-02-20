@@ -87,7 +87,7 @@ public sealed class StepsOptions : ComponentOptions
     {
         var buffer = new List<ComponentCssRule>(32);
 
-        IEnumerable<ComponentCssRule> baseRules = base.GetCssRules();
+        var baseRules = base.GetCssRules();
         buffer.AddRange(baseRules);
 
         if (Active != null)

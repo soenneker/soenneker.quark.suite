@@ -1,0 +1,55 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @onclick="HandleItemClick" @attributes="BuildAttributes()" role="option">
+    @ChildContent
+</div>
+
+@code {
+    [CascadingParameter(Name = "ParentCombobox")]
+    private Combobox? ParentCombobox { get; set; }
+
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    private bool IsSelected => ParentCombobox?.Value == Value;
+
+    private async Task HandleItemClick(MouseEventArgs _)
+    {
+        if (!Disabled && ParentCombobox != null)
+            await ParentCombobox.Select(Value);
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "combobox-item";
+        attributes["data-value"] = Value ?? "";
+        attributes["data-selected"] = IsSelected ? "true" : "false";
+        if (Disabled)
+            attributes["aria-disabled"] = "true";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-combobox-item");
+            AppendClass(ref cls, "relative flex cursor-default select-none items-center rounded-sm px-2 py-2 text-sm outline-none");
+            AppendClass(ref cls, "data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground");
+            AppendClass(ref cls, "hover:bg-accent hover:text-accent-foreground");
+            AppendClass(ref cls, "data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Value);
+        hc.Add(Disabled);
+        hc.Add(IsSelected);
+    }
+}

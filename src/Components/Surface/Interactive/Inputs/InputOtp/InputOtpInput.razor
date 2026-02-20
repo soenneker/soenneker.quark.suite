@@ -1,0 +1,51 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<input type="text"
+       inputmode="numeric"
+       autocomplete="one-time-code"
+       maxlength="@(ParentInputOtp?.Length ?? 6)"
+       value="@(ParentInputOtp?.Value ?? "")"
+       @oninput="HandleInput"
+       @onkeydown="HandleKeyDown"
+       @attributes="BuildAttributes()" />
+
+@code {
+    [CascadingParameter(Name = "ParentInputOtp")]
+    private InputOtp? ParentInputOtp { get; set; }
+
+    private async Task HandleInput(ChangeEventArgs e)
+    {
+        if (ParentInputOtp == null) return;
+        var v = e.Value?.ToString() ?? "";
+        v = new string(v.Where(char.IsDigit).ToArray());
+        await ParentInputOtp.SetValue(v);
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (ParentInputOtp == null) return;
+        var v = ParentInputOtp.Value ?? "";
+        if (e.Key == "Backspace" && v.Length > 0)
+        {
+            await ParentInputOtp.SetValue(v[..^1]);
+        }
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "input-otp-input";
+        if (ParentInputOtp?.Disabled == true)
+            attributes["disabled"] = true;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-input-otp-input");
+            AppendClass(ref cls, "sr-only");
+        });
+    }
+}

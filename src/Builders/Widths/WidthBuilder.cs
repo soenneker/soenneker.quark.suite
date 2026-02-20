@@ -93,8 +93,8 @@ public sealed class WidthBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        WidthRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new WidthRule(last.Size, breakpoint);
         return this;
     }
@@ -113,12 +113,12 @@ public sealed class WidthBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            WidthRule rule = _rules[i];
-            string cls = GetWidthClass(rule.Size);
+            var rule = _rules[i];
+            var cls = GetWidthClass(rule.Size);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -145,8 +145,8 @@ public sealed class WidthBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            WidthRule rule = _rules[i];
-            string? val = GetWidthValue(rule.Size);
+            var rule = _rules[i];
+            var val = GetWidthValue(rule.Size);
             if (val is null)
                 continue;
 

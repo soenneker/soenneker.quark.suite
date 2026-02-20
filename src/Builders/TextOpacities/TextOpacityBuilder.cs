@@ -82,8 +82,8 @@ public sealed class TextOpacityBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        TextOpacityRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new TextOpacityRule(last.Value, bp);
         return this;
     }
@@ -100,12 +100,12 @@ public sealed class TextOpacityBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            TextOpacityRule rule = _rules[i];
-            string cls = GetClass(rule.Value);
+            var rule = _rules[i];
+            var cls = GetClass(rule.Value);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -129,8 +129,8 @@ public sealed class TextOpacityBuilder : ICssBuilder
         var first = true;
         for (var i = 0; i < _rules.Count; i++)
         {
-            TextOpacityRule rule = _rules[i];
-            string? css = GetStyle(rule.Value);
+            var rule = _rules[i];
+            var css = GetStyle(rule.Value);
             if (css is null)
                 continue;
 

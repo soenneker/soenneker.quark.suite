@@ -89,8 +89,8 @@ public sealed class BoxShadowBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        BoxShadowRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new BoxShadowRule(last.Value, bp);
         return this;
     }
@@ -109,9 +109,9 @@ public sealed class BoxShadowBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            BoxShadowRule rule = _rules[i];
+            var rule = _rules[i];
 
-            string baseClass = rule.Value switch
+            var baseClass = rule.Value switch
             {
                 "none" => _classNone,
                 "base" => _classBase,
@@ -123,7 +123,7 @@ public sealed class BoxShadowBuilder : ICssBuilder
             if (baseClass.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 baseClass = BreakpointUtil.ApplyTailwindBreakpoint(baseClass, bp);
 

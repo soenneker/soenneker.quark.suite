@@ -1,0 +1,91 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<CascadingValue Name="ParentCombobox" Value="@this" IsFixed="true">
+    <div @attributes="BuildAttributes()" @onfocusout="HandleFocusOut">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    [Parameter]
+    public string? Search { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> SearchChanged { get; set; }
+
+    [Parameter]
+    public bool Open { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OpenChanged { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    internal async Task Select(string? v)
+    {
+        Value = v;
+        Search = v ?? "";
+        Open = false;
+        await ValueChanged.InvokeAsync(v);
+        await OpenChanged.InvokeAsync(false);
+        InvalidateRender();
+        Refresh();
+    }
+
+    internal async Task SetOpen(bool open)
+    {
+        Open = open;
+        await OpenChanged.InvokeAsync(open);
+        InvalidateRender();
+        Refresh();
+    }
+
+    internal async Task SetSearch(string? s)
+    {
+        Search = s ?? "";
+        await SearchChanged.InvokeAsync(Search);
+        InvalidateRender();
+        Refresh();
+    }
+
+    private async Task HandleFocusOut(FocusEventArgs _)
+    {
+        await Task.Delay(150);
+        await SetOpen(false);
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "combobox";
+        attributes["data-state"] = Open ? "open" : "closed";
+        if (Disabled)
+            attributes["data-disabled"] = "true";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-combobox");
+            AppendClass(ref cls, "relative");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Value);
+        hc.Add(Search);
+        hc.Add(Open);
+        hc.Add(Disabled);
+    }
+}

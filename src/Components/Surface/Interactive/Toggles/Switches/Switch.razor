@@ -89,14 +89,14 @@
     private Dictionary<string, object> BuildTrackAttributes()
     {
         var attributes = new Dictionary<string, object>();
-        bool sm = IsSmSize();
+        var sm = IsSmSize();
         attributes["data-size"] = sm ? "sm" : "default";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "group/switch peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background peer-disabled:cursor-not-allowed peer-disabled:opacity-50");
             AppendClass(ref cls, Checked ? "bg-primary" : "bg-input");
             AppendClass(ref cls, sm ? "h-5 w-9" : "h-6 w-11");
-            string? v = GetValidationClass();
+            var v = GetValidationClass();
             if (v != null) AppendClass(ref cls, v);
         });
         return attributes;
@@ -123,9 +123,9 @@
     // Switch thumb: pointer-events-none block rounded-full bg-background shadow-lg ring-0 transition-transform + size + translate
     private string GetThumbClass()
     {
-        bool sm = IsSmSize();
-        string size = sm ? "h-4 w-4" : "h-5 w-5";
-        string translate = Checked ? (sm ? "translate-x-4" : "translate-x-5") : "translate-x-0";
+        var sm = IsSmSize();
+        var size = sm ? "h-4 w-4" : "h-5 w-5";
+        var translate = Checked ? (sm ? "translate-x-4" : "translate-x-5") : "translate-x-0";
         return $"pointer-events-none block rounded-full bg-background shadow-lg ring-0 transition-transform {size} {translate}";
     }
 
@@ -134,7 +134,7 @@
         if (Disabled)
             return;
 
-        bool next = !Checked;
+        var next = !Checked;
         if (next == Checked)
             return;
 

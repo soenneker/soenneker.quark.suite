@@ -1,0 +1,60 @@
+@using Microsoft.AspNetCore.Components.Forms
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<EditForm Model="@Model" OnValidSubmit="@(async () => await HandleValidSubmit())" OnInvalidSubmit="@(async () => await HandleInvalidSubmit())" @attributes="BuildAttributes()">
+    @ChildContent
+</EditForm>
+
+@code {
+    /// <summary>
+    /// Gets or sets the form model.
+    /// </summary>
+    [Parameter]
+    public object? Model { get; set; }
+
+    /// <summary>
+    /// Gets or sets callback when form is submitted and valid.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    /// <summary>
+    /// Gets or sets callback when form is submitted and invalid.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnInvalidSubmit { get; set; }
+
+    private async Task HandleValidSubmit()
+    {
+        // EditContext passed via EditForm - user can use DataAnnotationsValidator
+        if (OnValidSubmit.HasDelegate)
+            await OnValidSubmit.InvokeAsync();
+    }
+
+    private async Task HandleInvalidSubmit()
+    {
+        if (OnInvalidSubmit.HasDelegate)
+            await OnInvalidSubmit.InvokeAsync();
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "form";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-form");
+            AppendClass(ref cls, "space-y-6");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Model);
+    }
+}

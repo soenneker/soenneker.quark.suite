@@ -100,11 +100,11 @@
         _state.SelectedNodes = SelectedNodes ?? _state.SelectedNodes ?? new List<TNode>();
 
         // Only rebuild root node states When the effective inputs that affect them change
-        int nodesKey = HashSeq(Nodes);
-        int expandedKey = HashSeq(ExpandedNodes);
-        int selectedKey = HashSeq(SelectedNodes);
+        var nodesKey = HashSeq(Nodes);
+        var expandedKey = HashSeq(ExpandedNodes);
+        var selectedKey = HashSeq(SelectedNodes);
 
-        bool rebuild = nodesKey != _nodesKey || expandedKey != _expandedKey;
+        var rebuild = nodesKey != _nodesKey || expandedKey != _expandedKey;
 
         _nodesKey = nodesKey;
         _expandedKey = expandedKey;
@@ -132,9 +132,9 @@
 
     private async Task EnsureNodesLoaded()
     {
-        IEnumerable<TNode>? nodes = Nodes;
+        var nodes = Nodes;
 
-        int capacity = 0;
+        var capacity = 0;
         if (nodes is ICollection<TNode> c)
             capacity = c.Count;
 
@@ -142,11 +142,11 @@
 
         if (nodes is not null)
         {
-            foreach (TNode node in nodes)
+            foreach (var node in nodes)
             {
-                bool hasChildren = await DetermineHasChildren(node);
-                bool expanded = ExpandedNodes.Contains(node);
-                bool disabled = DetermineIsDisabled(node);
+                var hasChildren = await DetermineHasChildren(node);
+                var expanded = ExpandedNodes.Contains(node);
+                var disabled = DetermineIsDisabled(node);
                 list.Add(new TreeViewNodeState<TNode>(node, hasChildren, expanded, disabled));
             }
         }
@@ -189,7 +189,7 @@
         if (_state.SelectionMode == TreeViewSelectionMode.Single)
             return;
 
-        IList<TNode> list = _state.SelectedNodes ??= new List<TNode>();
+        var list = _state.SelectedNodes ??= new List<TNode>();
 
         if (list.Contains(node))
             list.Remove(node);
@@ -213,7 +213,7 @@
         if (seq is ICollection<TNode> c)
             hc.Add(c.Count);
 
-        foreach (TNode n in seq)
+        foreach (var n in seq)
             hc.Add(n);
 
         return hc.ToHashCode();

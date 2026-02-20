@@ -1,0 +1,51 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IInputGroupAddon
+
+<div @attributes="BuildAttributes()">@ChildContent</div>
+
+@code {
+    [Parameter]
+    public InputGroupAddonAlign Align { get; set; } = InputGroupAddonAlign.InlineStart;
+
+    private static string GetAlignValue(InputGroupAddonAlign align)
+        => align switch
+        {
+            InputGroupAddonAlign.InlineStart => "inline-start",
+            InputGroupAddonAlign.InlineEnd => "inline-end",
+            InputGroupAddonAlign.BlockStart => "block-start",
+            InputGroupAddonAlign.BlockEnd => "block-end",
+            _ => "inline-start"
+        };
+
+    private static string GetAlignClass(InputGroupAddonAlign align)
+        => align switch
+        {
+            InputGroupAddonAlign.InlineStart => "order-first pl-3 has-[>button]:ml-[-0.45rem] has-[>kbd]:ml-[-0.35rem]",
+            InputGroupAddonAlign.InlineEnd => "order-last pr-3 has-[>button]:mr-[-0.45rem] has-[>kbd]:mr-[-0.35rem]",
+            InputGroupAddonAlign.BlockStart => "order-first w-full justify-start px-3 pt-3 [.border-b]:pb-3 group-has-[>input]/input-group:pt-2.5",
+            InputGroupAddonAlign.BlockEnd => "order-last w-full justify-start px-3 pb-3 [.border-t]:pt-3 group-has-[>input]/input-group:pb-2.5",
+            _ => "order-first pl-3 has-[>button]:ml-[-0.45rem] has-[>kbd]:ml-[-0.35rem]"
+        };
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["role"] = "group";
+        attributes["data-slot"] = "input-group-addon";
+        attributes["data-align"] = GetAlignValue(Align);
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-input-group-addon");
+            AppendClass(ref cls, "text-muted-foreground flex h-auto cursor-text items-center justify-center gap-2 py-1.5 text-sm font-medium select-none [&>svg:not([class*='size-'])]:size-4 [&>kbd]:rounded-[calc(var(--radius)-5px)] group-data-[disabled=true]/input-group:opacity-50");
+            AppendClass(ref cls, GetAlignClass(Align));
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Align);
+    }
+}

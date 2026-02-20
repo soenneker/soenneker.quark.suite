@@ -91,8 +91,8 @@ public sealed class ClipPathBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        ClipPathRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new ClipPathRule(last.Path, breakpoint);
         return this;
     }
@@ -111,12 +111,12 @@ public sealed class ClipPathBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            ClipPathRule rule = _rules[i];
-            string cls = GetClipPathClass(rule.Path);
+            var rule = _rules[i];
+            var cls = GetClipPathClass(rule.Path);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -143,8 +143,8 @@ public sealed class ClipPathBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            ClipPathRule rule = _rules[i];
-            string? pathValue = GetClipPathValue(rule.Path);
+            var rule = _rules[i];
+            var pathValue = GetClipPathValue(rule.Path);
 
             if (pathValue is null)
                 continue;

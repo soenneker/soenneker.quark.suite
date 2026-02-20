@@ -1,0 +1,49 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+@if (ParentCombobox?.Open == true)
+{
+    <div @attributes="BuildAttributes()" @onclick:stopPropagation="true">
+        @ChildContent
+    </div>
+}
+
+@code {
+    [CascadingParameter(Name = "ParentCombobox")]
+    private Combobox? ParentCombobox { get; set; }
+
+    [Parameter]
+    public string Side { get; set; } = "bottom";
+
+    [Parameter]
+    public int SideOffset { get; set; } = 6;
+
+    [Parameter]
+    public string Align { get; set; } = "start";
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "combobox-content";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-combobox-content");
+            AppendClass(ref cls, "absolute z-50 mt-1 max-h-96 min-w-[8rem] overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md");
+            AppendClass(ref cls, "animate-in fade-in-0 zoom-in-95");
+            AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2");
+        });
+
+        attributes["style"] = Side == "bottom" ? $"top: calc(100% + {SideOffset}px); left: 0;" : $"bottom: calc(100% + {SideOffset}px); left: 0;";
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Side);
+        hc.Add(SideOffset);
+        hc.Add(Align);
+        hc.Add(ParentCombobox?.Open ?? false);
+    }
+}

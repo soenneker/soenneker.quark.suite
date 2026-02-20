@@ -1,22 +1,17 @@
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Represents a progress bar container component for displaying task completion.
+/// Represents a progress component for displaying task completion.
 /// </summary>
 public interface IProgress : IElement
 {
     /// <summary>
-    /// Gets or sets the size of the progress bar.
+    /// Gets or sets the current progress value (0–100).
     /// </summary>
-    CssValue<SizeBuilder>? Size { get; set; }
+    int Value { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the progress bar should have striped styling.
+    /// Gets or sets the maximum value for ARIA semantics.
     /// </summary>
-    bool Striped { get; set; }
-
-    /// <summary>
-    /// Gets or sets whether the progress bar should be animated.
-    /// </summary>
-    bool Animated { get; set; }
+    int Max { get; set; }
 }

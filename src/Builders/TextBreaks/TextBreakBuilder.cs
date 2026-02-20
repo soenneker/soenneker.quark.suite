@@ -79,8 +79,8 @@ public sealed class TextBreakBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        TextBreakRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new TextBreakRule(last.Enabled, bp);
         return this;
     }
@@ -99,13 +99,13 @@ public sealed class TextBreakBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            TextBreakRule rule = _rules[i];
+            var rule = _rules[i];
             if (!rule.Enabled)
                 continue;
 
-            string baseClass = _classTextBreak;
+            var baseClass = _classTextBreak;
 
-            string bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 baseClass = BreakpointUtil.ApplyTailwindBreakpoint(baseClass, bp);
 

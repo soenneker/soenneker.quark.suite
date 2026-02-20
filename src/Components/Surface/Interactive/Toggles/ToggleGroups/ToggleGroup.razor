@@ -1,0 +1,135 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<CascadingValue Name="ParentToggleGroup" Value="@this" IsFixed="true">
+    <div @attributes="BuildAttributes()">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    /// <summary>
+    /// Gets or sets the type of toggle group: single (one at a time) or multiple (allow multiple pressed).
+    /// </summary>
+    [Parameter]
+    public ToggleGroupType Type { get; set; } = ToggleGroupType.Single;
+
+    /// <summary>
+    /// Gets or sets the value for single-type groups.
+    /// </summary>
+    [Parameter]
+    public string? Value { get; set; }
+
+    /// <summary>
+    /// Gets or sets callback when single value changes.
+    /// </summary>
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    /// <summary>
+    /// Gets or sets the values for multiple-type groups.
+    /// </summary>
+    [Parameter]
+    public string[]? Values { get; set; }
+
+    /// <summary>
+    /// Gets or sets callback when multiple values change.
+    /// </summary>
+    [Parameter]
+    public EventCallback<string[]> ValueChangedMultiple { get; set; }
+
+    /// <summary>
+    /// Gets or sets visual variant.
+    /// </summary>
+    [Parameter]
+    public ToggleVariant Variant { get; set; } = ToggleVariant.Default;
+
+    /// <summary>
+    /// Gets or sets size.
+    /// </summary>
+    [Parameter]
+    public ToggleSize Size { get; set; } = ToggleSize.Default;
+
+    /// <summary>
+    /// Gets or sets spacing between items (0 = no gap, uses default gap).
+    /// </summary>
+    [Parameter]
+    public int Spacing { get; set; }
+
+    private static string GetVariantClass(ToggleVariant variant)
+        => variant switch
+        {
+            ToggleVariant.Default => "",
+            ToggleVariant.Outline => "data-[variant=outline]:shadow-xs",
+            _ => ""
+        };
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "toggle-group";
+        attributes["data-type"] = Type.ToString().ToLowerInvariant();
+        attributes["data-variant"] = Variant.ToString().ToLowerInvariant();
+        attributes["data-size"] = Size.ToString().ToLowerInvariant();
+        attributes["data-spacing"] = Spacing.ToString();
+        if (Spacing > 0)
+            attributes["style"] = $"--toggle-gap: {Spacing}px";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-toggle-group");
+            AppendClass(ref cls, "group/toggle-group flex w-fit items-center rounded-md");
+            if (Spacing > 0)
+                AppendClass(ref cls, "gap-[var(--toggle-gap,0.5rem)]");
+            else
+                AppendClass(ref cls, "gap-0");
+            AppendClass(ref cls, "data-[spacing=0]:data-[variant=outline]:shadow-xs");
+            AppendClass(ref cls, GetVariantClass(Variant));
+        });
+    }
+
+    internal async Task SelectValue(string? v)
+    {
+        if (Type == ToggleGroupType.Single)
+        {
+            Value = v;
+            await ValueChanged.InvokeAsync(v);
+        }
+        else
+        {
+            var list = Values?.ToList() ?? new List<string>();
+            if (v != null)
+            {
+                if (list.Contains(v))
+                    list.Remove(v);
+                else
+                    list.Add(v);
+            }
+            Values = list.ToArray();
+            await ValueChangedMultiple.InvokeAsync(Values);
+        }
+        InvalidateRender();
+        Refresh();
+    }
+
+    internal bool IsPressed(string? v)
+    {
+        if (string.IsNullOrEmpty(v)) return false;
+        if (Type == ToggleGroupType.Single)
+            return Value == v;
+        return Values?.Contains(v) ?? false;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Type);
+        hc.Add(Value);
+        hc.Add(Variant);
+        hc.Add(Size);
+        hc.Add(Spacing);
+        if (Values != null)
+            foreach (var x in Values) hc.Add(x);
+    }
+}

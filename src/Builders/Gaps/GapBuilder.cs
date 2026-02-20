@@ -133,8 +133,8 @@ public sealed class GapBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        GapRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new GapRule(last.Size, last.Breakpoint, direction);
         return this;
     }
@@ -148,8 +148,8 @@ public sealed class GapBuilder : ICssBuilder
             return this;
         }
 
-        int lastIdx = _rules.Count - 1;
-        GapRule last = _rules[lastIdx];
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
         _rules[lastIdx] = new GapRule(last.Size, breakpoint, last.Direction);
         return this;
     }
@@ -167,12 +167,12 @@ public sealed class GapBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            GapRule rule = _rules[i];
-            string cls = GetSizeClass(rule.Size, rule.Direction);
+            var rule = _rules[i];
+            var cls = GetSizeClass(rule.Size, rule.Direction);
             if (cls.Length == 0)
                 continue;
 
-            string bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
 
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
@@ -200,8 +200,8 @@ public sealed class GapBuilder : ICssBuilder
 
         for (var i = 0; i < _rules.Count; i++)
         {
-            GapRule rule = _rules[i];
-            string? sizeValue = GetSizeValue(rule.Size);
+            var rule = _rules[i];
+            var sizeValue = GetSizeValue(rule.Size);
             if (sizeValue is null)
                 continue;
 

@@ -120,7 +120,7 @@
 	{
 		if (Size == Quark.Size.Default) return null;
 		string? token = null;
-		bool isTheme = Size?.TryGetThemeToken(out token) == true;
+		var isTheme = Size?.TryGetThemeToken(out token) == true;
 		var sizeVal = token ?? Size?.ToString();
 		return sizeVal?.ToLowerInvariant() switch { "sm" or "xs" => "h-6", "lg" => "h-10", _ => null };
 	}
@@ -143,7 +143,7 @@
 
 		var text = e.Value.ToString();
 
-		if (double.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out double result))
+		if (double.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
 			return result;
 
 		return 0d;
@@ -151,7 +151,7 @@
 
 	private async Task HandleInput(ChangeEventArgs e)
 	{
-		double newValue = ParseDouble(e);
+		var newValue = ParseDouble(e);
 		if (Value != newValue)
 		{
 			Value = newValue;
@@ -163,7 +163,7 @@
 
 	private async Task HandleChange(ChangeEventArgs e)
 	{
-		double newValue = ParseDouble(e);
+		var newValue = ParseDouble(e);
 		if (Value != newValue)
 		{
 			Value = newValue;

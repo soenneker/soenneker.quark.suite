@@ -1,0 +1,23 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<CascadingValue Name="ParentTooltip" Value="@this" IsFixed="true">
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+</CascadingValue>
+
+@code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "tooltip";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-tooltip");
+            AppendClass(ref cls, "group/tooltip relative inline-block");
+        });
+    }
+}
