@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 using Serilog.Events;
 using Soenneker.Extensions.Configuration.Logging;
 using Soenneker.Extensions.Serilog.LogEventLevels;
+using Soenneker.Quark;
+using Soenneker.Quark.Gen.Lucide.Generated;
 
 namespace Soenneker.Quark.Suite.Demo;
 
@@ -59,6 +61,7 @@ public sealed class Program
             builder.Services.AddQuarkOptionsAsScoped(quarkOptions);
 
             builder.Services.AddQuarkSuiteAsScoped();
+            builder.Services.AddLucideIconsAsScoped();
 
             // Register demo services
             builder.Services.AddScoped<Services.EmployeeService>();

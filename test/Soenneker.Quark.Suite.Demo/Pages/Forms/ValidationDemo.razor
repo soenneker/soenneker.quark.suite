@@ -382,7 +382,7 @@
             return;
         }
 
-        if (decimal.TryParse(e.Value.ToString(), out decimal age))
+        if (decimal.TryParse(e.Value.ToString(), out var age))
         {
             if (age < 0 || age > 150)
             {
@@ -486,7 +486,7 @@
         var website = e.Value?.ToString();
         if (!string.IsNullOrWhiteSpace(website))
         {
-            if (!Uri.TryCreate(website, UriKind.Absolute, out Uri? uri) || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+            if (!Uri.TryCreate(website, UriKind.Absolute, out var uri) || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
             {
                 e.Status = ValidationStatus.Error;
                 e.ErrorText = "Please enter a valid website URL (including http:// or https://).";

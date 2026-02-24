@@ -48,7 +48,15 @@
     <ItemGroup>
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="4.0.433" />
         <PackageReference Include="Soenneker.Extensions.CancellationTokens" Version="4.0.7" />
+        <PackageReference Include="Soenneker.Lucide.Enums.Icons" Version="4.0.5" />
+        <PackageReference Include="Soenneker.Lucide.Icons" Version="4.0.16" />
         <PackageReference Include="Soenneker.Quark.Components.Core.Cancellable" Version="4.0.39" />
+        <PackageReference Include="Soenneker.Quark.Gen.Lucide.Abstractions" Version="4.0.2" />
+        <PackageReference Include="Soenneker.Quark.Gen.Tailwind" Version="4.0.14">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+
         <PackageReference Include="Soenneker.Utils.CancellationScopes" Version="4.0.23" />
         <PackageReference Include="Soenneker.Quark.Enums.BoxShadows" Version="4.0.18" />
         <PackageReference Include="Soenneker.Quark.Enums.Breakpoints" Version="4.0.17" />
@@ -81,21 +89,13 @@
         <PackageReference Include="Soenneker.Quark.Enums.UserSelects" Version="4.0.19" />
         <PackageReference Include="Soenneker.Quark.Enums.VerticalAligns" Version="4.0.18" />
         <PackageReference Include="Soenneker.Quark.Enums.Visibilities" Version="4.0.18" />
-        <PackageReference Include="Soenneker.Utils.PooledStringBuilders" Version="4.0.10" />
+        <PackageReference Include="Soenneker.Utils.PooledStringBuilders" Version="4.0.12" />
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1591" />
         <PackageReference Include="Soenneker.DataTables.Dtos.ServerResponse" Version="4.0.6" />
         <PackageReference Include="Soenneker.DataTables.Dtos.ServerSideRequest" Version="4.0.9" />
         <PackageReference Include="Soenneker.DataTables.Dtos.Column" Version="4.0.10" />
         <PackageReference Include="Soenneker.Utils.Debounce" Version="4.0.28" />
-        <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2404" />
-    </ItemGroup>
-
-    <!-- Gen.Tailwind: use sibling repo when present (e.g. in Quark monorepo), else NuGet -->
-    <ItemGroup Condition="Exists('..\..\soenneker.quark.gen.tailwind\src\Soenneker.Quark.Gen.Tailwind\Soenneker.Quark.Gen.Tailwind.csproj')">
-        <ProjectReference Include="..\..\soenneker.quark.gen.tailwind\src\Soenneker.Quark.Gen.Tailwind\Soenneker.Quark.Gen.Tailwind.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    </ItemGroup>
-    <ItemGroup Condition="!Exists('..\..\soenneker.quark.gen.tailwind\src\Soenneker.Quark.Gen.Tailwind\Soenneker.Quark.Gen.Tailwind.csproj')">
-        <PackageReference Include="Soenneker.Quark.Gen.Tailwind" Version="4.0.0" />
+        <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2408" />
     </ItemGroup>
 
     <!-- Exclude any in-repo Gen.Tailwind/BuildTasks source if present -->
@@ -106,6 +106,4 @@
       <Folder Include="tailwind\" />
     </ItemGroup>
 
-    <!-- When using ProjectReference to Gen.Tailwind (monorepo), the SDK does not import the referenced project's .targets, so RunTailwindGeneratorBuildTasks never runs and the tailwind/ folder is never created. Import explicitly so the build task runs and tailwind/ is created. -->
-    <Import Project="..\..\soenneker.quark.gen.tailwind\src\Soenneker.Quark.Gen.Tailwind\Soenneker.Quark.Gen.Tailwind.targets" Condition="Exists('..\..\soenneker.quark.gen.tailwind\src\Soenneker.Quark.Gen.Tailwind\Soenneker.Quark.Gen.Tailwind.targets')" />
 </Project>

@@ -1,0 +1,226 @@
+@namespace Soenneker.Quark
+@inherits TypographicElement
+@using System.Globalization
+@using System.Runtime.CompilerServices
+@using Soenneker.Lucide.Enums.Icons
+@using Soenneker.Quark.Gen.Lucide.Abstractions
+
+@if (_svgWithAttributes is { } svgMarkup)
+{
+    @((MarkupString)svgMarkup)
+}
+@ChildContent
+
+@code {
+    [Parameter]
+    public LucideIcon Icon { get; set; }
+
+    [Inject]
+    private ILucideIconSvgProvider? SvgProvider { get; set; }
+
+    private string? _svgWithAttributes;
+
+    private LucideIcon _lastIcon;
+    private string? _iconNameCache;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (!EqualityComparer<LucideIcon>.Default.Equals(_lastIcon, Icon) || _iconNameCache is null)
+        {
+            _lastIcon = Icon;
+            _iconNameCache = Icon.ToString();
+        }
+
+        _svgWithAttributes = GetSvgWithAttributes();
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        BuildClassAttribute(attributes, static (ref cls) => AppendClass(ref cls, "q-lucide"));
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Icon);
+    }
+
+    private string? GetSvgWithAttributes()
+    {
+        var iconName = _iconNameCache;
+        if (iconName is null)
+            return null;
+
+        var raw = SvgProvider?.GetSvg(iconName);
+        if (string.IsNullOrEmpty(raw))
+            return null;
+
+        var attrs = BuildAttributes();
+        return InjectAttributesIntoSvg(raw, attrs);
+    }
+
+    private static string InjectAttributesIntoSvg(string svg, IReadOnlyDictionary<string, object> attributes)
+    {
+        if (attributes.Count == 0)
+            return svg;
+
+        var svgStart = svg.IndexOf("<svg", StringComparison.OrdinalIgnoreCase);
+        if (svgStart < 0)
+            return svg;
+
+        var tagEnd = svg.IndexOf('>', svgStart);
+        if (tagEnd < 0)
+            return svg;
+
+        var attrSb = new PooledStringBuilder(128);
+
+        foreach (var kv in attributes)
+        {
+            var key = kv.Key;
+            var v = kv.Value;
+
+            if (key.Length == 0)
+                continue;
+
+            if (IsClassKey(key))
+            {
+                if (v is string cls && cls.Length > 0)
+                {
+                    attrSb.Append(" class=\"");
+                    AppendEscapedHtmlAttribute(ref attrSb, cls);
+                    attrSb.Append('"');
+                }
+                continue;
+            }
+
+            if (IsStyleKey(key))
+            {
+                if (v is string sty && sty.Length > 0)
+                {
+                    attrSb.Append(" style=\"");
+                    AppendEscapedHtmlAttribute(ref attrSb, sty);
+                    attrSb.Append('"');
+                }
+                continue;
+            }
+
+            if (IsHiddenKey(key))
+            {
+                if (v is true || (v is string hs && (hs == "true" || hs == "hidden")))
+                    attrSb.Append(" hidden");
+                continue;
+            }
+
+            if (!IsSvgSafeAttribute(key) || v is null)
+                continue;
+
+            if (v is bool b)
+            {
+                if (b)
+                {
+                    attrSb.Append(' ');
+                    attrSb.Append(key);
+                }
+                continue;
+            }
+
+            if (v is string s)
+            {
+                if (s.Length == 0)
+                    continue;
+
+                attrSb.Append(' ');
+                attrSb.Append(key);
+                attrSb.Append("=\"");
+                AppendEscapedHtmlAttribute(ref attrSb, s);
+                attrSb.Append('"');
+                continue;
+            }
+
+            var val = v switch
+            {
+                int i => i.ToString(CultureInfo.InvariantCulture),
+                long l => l.ToString(CultureInfo.InvariantCulture),
+                uint ui => ui.ToString(CultureInfo.InvariantCulture),
+                ulong ul => ul.ToString(CultureInfo.InvariantCulture),
+                float f => f.ToString("R", CultureInfo.InvariantCulture),
+                double d => d.ToString("R", CultureInfo.InvariantCulture),
+                decimal m => m.ToString(CultureInfo.InvariantCulture),
+                IFormattable fmt => fmt.ToString(null, CultureInfo.InvariantCulture),
+                _ => v.ToString()
+            };
+
+            if (val.HasContent())
+            {
+                attrSb.Append(' ');
+                attrSb.Append(key);
+                attrSb.Append("=\"");
+                AppendEscapedHtmlAttribute(ref attrSb, val);
+                attrSb.Append('"');
+            }
+        }
+
+        if (attrSb.Length == 0)
+            return svg;
+
+        // Compose final string (no Insert, no string.Create, no intermediate attr string)
+        var prefix = svg.AsSpan(0, tagEnd);   // excludes '>'
+        var suffix = svg.AsSpan(tagEnd);      // includes '>'
+
+        using var final = new PooledStringBuilder(svg.Length + attrSb.Length);
+
+        final.Append(prefix);
+        final.Append(attrSb.AsSpan()); // <-- remove this line if you don't have AsSpan()
+        final.Append(suffix);
+
+        return final.ToStringAndDispose();
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsClassKey(string key)
+        => key.Length == 5
+           && (key[0] == 'c' || key[0] == 'C')
+           && key.Equals("class", StringComparison.OrdinalIgnoreCase);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsStyleKey(string key)
+        => key.Length == 5
+           && (key[0] == 's' || key[0] == 'S')
+           && key.Equals("style", StringComparison.OrdinalIgnoreCase);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsHiddenKey(string key)
+        => key.Length == 6
+           && (key[0] == 'h' || key[0] == 'H')
+           && key.Equals("hidden", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsSvgSafeAttribute(string key)
+    {
+        return key.Length > 0
+            && (key.StartsWith("aria-", StringComparison.OrdinalIgnoreCase)
+                || key.StartsWith("data-", StringComparison.OrdinalIgnoreCase)
+                || key.Equals("id", StringComparison.OrdinalIgnoreCase)
+                || key.Equals("title", StringComparison.OrdinalIgnoreCase)
+                || key.Equals("role", StringComparison.OrdinalIgnoreCase)
+                || key.Equals("tabindex", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static void AppendEscapedHtmlAttribute(ref PooledStringBuilder sb, string value)
+    {
+        for (var i = 0; i < value.Length; i++)
+        {
+            var c = value[i];
+            switch (c)
+            {
+                case '&': sb.Append("&amp;"); break;
+                case '"': sb.Append("&quot;"); break;
+                case '<': sb.Append("&lt;"); break;
+                case '>': sb.Append("&gt;"); break;
+                default: sb.Append(c); break;
+            }
+        }
+    }
+}
