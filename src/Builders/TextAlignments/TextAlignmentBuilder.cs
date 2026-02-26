@@ -21,7 +21,7 @@ public sealed class TextAlignmentBuilder : ICssBuilder
     // ----- CSS prefix (compile-time) -----
     private const string _textAlignPrefix = "text-align: ";
 
-    // ----- Style constants (compile-time, Intellenum *Value are const) -----
+    // ----- Style constants (compile-time, EnumValue *Value are const) -----
     private const string _styleStart = $"{_textAlignPrefix}{TextAlignKeyword.StartValue}";
     private const string _styleCenter = $"{_textAlignPrefix}{TextAlignKeyword.CenterValue}";
     private const string _styleEnd = $"{_textAlignPrefix}{TextAlignKeyword.EndValue}";

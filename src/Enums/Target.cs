@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark.Enums;
 
 /// <summary>
 /// Target attribute enumeration for anchor elements.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class Target
 {
     /// <summary>

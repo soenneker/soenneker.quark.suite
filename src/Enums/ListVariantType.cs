@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark.Enums;
 
 /// <summary>
 /// Represents the Bootstrap list variant types.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class ListVariantType
 {
     /// <summary>

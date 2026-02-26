@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark.Enums;
 
 /// <summary>
 /// Represents Bootstrap alert types.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class AlertType
 {
     /// <summary>

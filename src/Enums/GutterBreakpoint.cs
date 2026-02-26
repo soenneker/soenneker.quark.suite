@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark.Enums;
 
 /// <summary>
 /// Represents the breakpoint for responsive gutters.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class GutterBreakpoint
 {
     /// <summary>

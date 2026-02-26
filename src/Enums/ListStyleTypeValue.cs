@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark.Enums;
 
 /// <summary>
 /// Represents CSS list-style-type values for ordered and unordered lists.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class ListStyleTypeValue
 {
     /// <summary>

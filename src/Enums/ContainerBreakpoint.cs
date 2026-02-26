@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark.Enums;
 
 /// <summary>
 /// Represents the breakpoint for responsive containers.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class ContainerBreakpoint
 {
     /// <summary>

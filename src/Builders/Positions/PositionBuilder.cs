@@ -137,7 +137,7 @@ public sealed class PositionBuilder : ICssBuilder
     {
         return position switch
         {
-            // Intellenum<string> *Value constants are compile-time consts, safe in switch
+            // EnumValue<string> *Value constants are compile-time consts, safe in switch
             PositionKeyword.StaticValue => _classStatic,
             PositionKeyword.RelativeValue => _classRelative,
             PositionKeyword.AbsoluteValue => _classAbsolute,

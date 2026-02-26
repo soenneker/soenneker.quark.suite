@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark.Enums;
 
 /// <summary>
 /// Represents modal dialog size options.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class ModalSize
 {
     /// <summary>

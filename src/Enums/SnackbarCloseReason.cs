@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Specifies the reason that a snackbar was closed.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class SnackbarCloseReason
 {
     /// <summary>

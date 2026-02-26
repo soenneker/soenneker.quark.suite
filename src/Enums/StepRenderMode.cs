@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Legacy Quark step render mode. Replaced by <see cref="StepsRenderMode"/>.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class StepRenderMode
 {
     /// <summary>

@@ -1,4 +1,4 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark.Enums;
 
@@ -6,7 +6,7 @@ namespace Soenneker.Quark.Enums;
 /// An enumeration for Quark, representing Bootstrap column size values.
 /// This enum contains the standard Bootstrap column size values used for grid layout.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class ColumnSizeType
 {
     /// <summary>

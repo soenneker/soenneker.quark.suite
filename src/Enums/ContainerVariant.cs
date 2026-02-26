@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark.Enums;
 
 /// <summary>
 /// Represents the variant of container.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class ContainerVariant
 {
     /// <summary>

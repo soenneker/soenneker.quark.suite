@@ -1,4 +1,4 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark.Enums;
 
@@ -6,7 +6,7 @@ namespace Soenneker.Quark.Enums;
 /// An enumeration for Quark, representing Bootstrap column order values.
 /// This enum contains the standard Bootstrap column order values used for grid layout.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public partial class ColumnOrderType
 {
     /// <summary>

@@ -17,7 +17,7 @@ public sealed class PointerEventsBuilder : ICssBuilder
     private const string _classNone = "pe-none";
     private const string _classAuto = "pe-auto";
 
-    // ----- CSS prefix & style constants (Intellenum *Value are const, so const-interp is fine) -----
+    // ----- CSS prefix & style constants (EnumValue *Value are const, so const-interp is fine) -----
     private const string _pointerEventsPrefix = "pointer-events: ";
 
     private const string _styleNone = $"{_pointerEventsPrefix}none";

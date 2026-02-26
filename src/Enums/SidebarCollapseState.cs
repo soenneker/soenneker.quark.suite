@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark.Enums;
 
 /// <summary>
 /// Defines the collapse state of the sidebar component.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class SidebarCollapseState
 {
     /// <summary>

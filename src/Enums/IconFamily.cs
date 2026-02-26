@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark.Enums;
 
 /// <summary>
 /// Represents Font Awesome icon family styles.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class IconFamily
 {
     /// <summary>

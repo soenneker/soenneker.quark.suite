@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark.Enums;
 
 /// <summary>
 /// Defines the direction for dropdown placement.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class Direction
 {
     /// <summary>

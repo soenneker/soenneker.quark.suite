@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark.Enums;
 
 /// <summary>
 /// Badge type enumeration.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class BadgeType
 {
     /// <summary>

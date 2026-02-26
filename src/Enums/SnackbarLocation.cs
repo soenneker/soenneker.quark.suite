@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Defines the snackbar location.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class SnackbarLocation
 {
     /// <summary>

@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark.Enums;
 
 /// <summary>
 /// Represents rotation transformations for Font Awesome icons.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class IconRotate
 {
     /// <summary>

@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark;
 
 /// <summary>
 /// An enumeration for Quark, representing validation mode.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class ValidationMode
 {
     /// <summary>

@@ -1,11 +1,11 @@
-using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark.Enums;
 
 /// <summary>
 /// Hints at the type of data that might be entered by the user while editing the DateEdit component.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class DateInputMode
 {
     /// <summary>
