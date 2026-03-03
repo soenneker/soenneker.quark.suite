@@ -65,27 +65,23 @@ public sealed class FocusRingBuilder : ICssBuilder
     /// <summary>
     /// Applies the focus ring on phone breakpoint.
     /// </summary>
-    public FocusRingBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public FocusRingBuilder OnBase => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the focus ring on tablet breakpoint.
     /// </summary>
-    public FocusRingBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public FocusRingBuilder OnMd => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the focus ring on laptop breakpoint.
     /// </summary>
-    public FocusRingBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public FocusRingBuilder OnLg => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the focus ring on desktop breakpoint.
     /// </summary>
-    public FocusRingBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public FocusRingBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the focus ring on widescreen breakpoint.
     /// </summary>
-    public FocusRingBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the focus ring on ultrawide breakpoint.
-    /// </summary>
-    public FocusRingBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public FocusRingBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FocusRingBuilder Chain(string color)
@@ -161,12 +157,3 @@ public sealed class FocusRingBuilder : ICssBuilder
     public string ToStyle() => string.Empty;
 
 }
-
- 
-
-
-
-
-
-
-

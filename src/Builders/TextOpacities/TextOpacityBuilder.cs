@@ -44,27 +44,23 @@ public sealed class TextOpacityBuilder : ICssBuilder
     /// <summary>
     /// Applies the text opacity on phone breakpoint.
     /// </summary>
-    public TextOpacityBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public TextOpacityBuilder OnBase => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the text opacity on tablet breakpoint.
     /// </summary>
-    public TextOpacityBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public TextOpacityBuilder OnMd => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the text opacity on laptop breakpoint.
     /// </summary>
-    public TextOpacityBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public TextOpacityBuilder OnLg => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the text opacity on desktop breakpoint.
     /// </summary>
-    public TextOpacityBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public TextOpacityBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the text opacity on widescreen breakpoint.
     /// </summary>
-    public TextOpacityBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the text opacity on ultrawide breakpoint.
-    /// </summary>
-    public TextOpacityBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public TextOpacityBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextOpacityBuilder Chain(int value)
@@ -169,5 +165,3 @@ public sealed class TextOpacityBuilder : ICssBuilder
     }
 
 }
-
-

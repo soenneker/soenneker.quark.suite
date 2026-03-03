@@ -61,27 +61,23 @@ public sealed class FontStyleBuilder : ICssBuilder
     /// <summary>
     /// Applies the font style on phone breakpoint.
     /// </summary>
-    public FontStyleBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public FontStyleBuilder OnBase => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the font style on tablet breakpoint.
     /// </summary>
-    public FontStyleBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public FontStyleBuilder OnMd => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the font style on laptop breakpoint.
     /// </summary>
-    public FontStyleBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public FontStyleBuilder OnLg => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the font style on desktop breakpoint.
     /// </summary>
-    public FontStyleBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public FontStyleBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the font style on widescreen breakpoint.
     /// </summary>
-    public FontStyleBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the font style on ultrawide breakpoint.
-    /// </summary>
-    public FontStyleBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public FontStyleBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FontStyleBuilder Chain(string value)
@@ -167,5 +163,3 @@ public sealed class FontStyleBuilder : ICssBuilder
 
 
 }
-
- 

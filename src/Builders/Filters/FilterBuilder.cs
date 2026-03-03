@@ -84,27 +84,23 @@ public sealed class FilterBuilder : ICssBuilder
     /// <summary>
     /// Applies the filter on phone breakpoint.
     /// </summary>
-    public FilterBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public FilterBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the filter on tablet breakpoint.
     /// </summary>
-    public FilterBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public FilterBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the filter on laptop breakpoint.
     /// </summary>
-    public FilterBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public FilterBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the filter on desktop breakpoint.
     /// </summary>
-    public FilterBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public FilterBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the filter on widescreen breakpoint.
     /// </summary>
-    public FilterBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the filter on ultrawide breakpoint.
-    /// </summary>
-    public FilterBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public FilterBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FilterBuilder ChainWithFilter(string filter)
@@ -239,4 +235,3 @@ public sealed class FilterBuilder : ICssBuilder
         return ToClass();
     }
 }
-

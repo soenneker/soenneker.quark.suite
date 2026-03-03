@@ -40,27 +40,23 @@ public sealed class TextBreakBuilder : ICssBuilder
     /// <summary>
     /// Applies the text break on phone breakpoint.
     /// </summary>
-    public TextBreakBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public TextBreakBuilder OnBase => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the text break on tablet breakpoint.
     /// </summary>
-    public TextBreakBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public TextBreakBuilder OnMd => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the text break on laptop breakpoint.
     /// </summary>
-    public TextBreakBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public TextBreakBuilder OnLg => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the text break on desktop breakpoint.
     /// </summary>
-    public TextBreakBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public TextBreakBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the text break on widescreen breakpoint.
     /// </summary>
-    public TextBreakBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the text break on ultrawide breakpoint.
-    /// </summary>
-    public TextBreakBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public TextBreakBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextBreakBuilder Chain(bool enabled)
@@ -148,4 +144,3 @@ public sealed class TextBreakBuilder : ICssBuilder
     private static string GetBp(BreakpointType? breakpoint) => breakpoint?.Value ?? string.Empty;
 
 }
-

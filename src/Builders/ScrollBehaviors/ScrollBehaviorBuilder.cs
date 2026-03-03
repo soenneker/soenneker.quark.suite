@@ -39,27 +39,23 @@ public sealed class ScrollBehaviorBuilder : ICssBuilder
     /// <summary>
     /// Applies the scroll behavior on phone breakpoint.
     /// </summary>
-    public ScrollBehaviorBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public ScrollBehaviorBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the scroll behavior on tablet breakpoint.
     /// </summary>
-    public ScrollBehaviorBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public ScrollBehaviorBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the scroll behavior on laptop breakpoint.
     /// </summary>
-    public ScrollBehaviorBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public ScrollBehaviorBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the scroll behavior on desktop breakpoint.
     /// </summary>
-    public ScrollBehaviorBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public ScrollBehaviorBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the scroll behavior on widescreen breakpoint.
     /// </summary>
-    public ScrollBehaviorBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the scroll behavior on ultrawide breakpoint.
-    /// </summary>
-    public ScrollBehaviorBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ScrollBehaviorBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScrollBehaviorBuilder ChainWithBehavior(string behavior)
@@ -176,4 +172,3 @@ public sealed class ScrollBehaviorBuilder : ICssBuilder
         return ToClass();
     }
 }
-

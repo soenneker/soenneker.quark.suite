@@ -51,32 +51,27 @@ public sealed class OpacityBuilder : ICssBuilder
     /// <summary>
     /// Applies the opacity on phone breakpoint.
     /// </summary>
-    public OpacityBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public OpacityBuilder OnBase => ChainBp(BreakpointType.Base);
 
     /// <summary>
     /// Applies the opacity on tablet breakpoint.
     /// </summary>
-    public OpacityBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public OpacityBuilder OnMd => ChainBp(BreakpointType.Md);
 
     /// <summary>
     /// Applies the opacity on laptop breakpoint.
     /// </summary>
-    public OpacityBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public OpacityBuilder OnLg => ChainBp(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the opacity on desktop breakpoint.
     /// </summary>
-    public OpacityBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public OpacityBuilder OnXl => ChainBp(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the opacity on widescreen breakpoint.
     /// </summary>
-    public OpacityBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-
-    /// <summary>
-    /// Applies the opacity on ultrawide breakpoint.
-    /// </summary>
-    public OpacityBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public OpacityBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private OpacityBuilder Chain(int value)
@@ -182,5 +177,3 @@ public sealed class OpacityBuilder : ICssBuilder
         };
     }
 }
-
- 

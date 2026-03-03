@@ -79,27 +79,23 @@ public sealed class CursorBuilder : ICssBuilder
     /// <summary>
     /// Applies the cursor on phone breakpoint.
     /// </summary>
-    public CursorBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public CursorBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the cursor on tablet breakpoint.
     /// </summary>
-    public CursorBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public CursorBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the cursor on laptop breakpoint.
     /// </summary>
-    public CursorBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public CursorBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the cursor on desktop breakpoint.
     /// </summary>
-    public CursorBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public CursorBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the cursor on widescreen breakpoint.
     /// </summary>
-    public CursorBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the cursor on ultrawide breakpoint.
-    /// </summary>
-    public CursorBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public CursorBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private CursorBuilder ChainWithCursor(string cursor)

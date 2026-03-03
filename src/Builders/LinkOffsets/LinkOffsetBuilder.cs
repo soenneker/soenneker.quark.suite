@@ -39,27 +39,23 @@ public sealed class LinkOffsetBuilder : ICssBuilder
     /// <summary>
     /// Applies the link offset on phone breakpoint.
     /// </summary>
-    public LinkOffsetBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public LinkOffsetBuilder OnBase => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the link offset on tablet breakpoint.
     /// </summary>
-    public LinkOffsetBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public LinkOffsetBuilder OnMd => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the link offset on laptop breakpoint.
     /// </summary>
-    public LinkOffsetBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public LinkOffsetBuilder OnLg => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the link offset on desktop breakpoint.
     /// </summary>
-    public LinkOffsetBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public LinkOffsetBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the link offset on widescreen breakpoint.
     /// </summary>
-    public LinkOffsetBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the link offset on ultrawide breakpoint.
-    /// </summary>
-    public LinkOffsetBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public LinkOffsetBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private LinkOffsetBuilder Chain(int value)
@@ -162,5 +158,3 @@ public sealed class LinkOffsetBuilder : ICssBuilder
     }
 
 }
-
-

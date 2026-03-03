@@ -50,27 +50,23 @@ public sealed class BoxShadowBuilder : ICssBuilder
     /// <summary>
     /// Applies the box shadow on phone breakpoint.
     /// </summary>
-    public BoxShadowBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public BoxShadowBuilder OnBase => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the box shadow on tablet breakpoint.
     /// </summary>
-    public BoxShadowBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public BoxShadowBuilder OnMd => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the box shadow on laptop breakpoint.
     /// </summary>
-    public BoxShadowBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public BoxShadowBuilder OnLg => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the box shadow on desktop breakpoint.
     /// </summary>
-    public BoxShadowBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public BoxShadowBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the box shadow on widescreen breakpoint.
     /// </summary>
-    public BoxShadowBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the box shadow on ultrawide breakpoint.
-    /// </summary>
-    public BoxShadowBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public BoxShadowBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BoxShadowBuilder Chain(string value)

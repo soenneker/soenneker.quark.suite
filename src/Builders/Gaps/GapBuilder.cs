@@ -90,32 +90,31 @@ public sealed class GapBuilder : ICssBuilder
     /// <summary>
     /// Apply on phone devices (portrait phones, less than 576px).
     /// </summary>
-    public GapBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public GapBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
 
     /// <summary>
     /// Apply on mobile devices (landscape phones, 576px and up).
     /// </summary>
-    public GapBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public GapBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
 
     /// <summary>
     /// Apply on laptop devices (laptops, 992px and up).
     /// </summary>
-    public GapBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public GapBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
 
     /// <summary>
     /// Apply on desktop devices (desktops, 1200px and up).
     /// </summary>
-    public GapBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public GapBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
 
     /// <summary>
     /// Apply on wide screen devices (larger desktops, 1400px and up).
     /// </summary>
-    public GapBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
+    public GapBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     /// <summary>
     /// Apply on ultrawide devices (ultrawide screens, 1920px and up).
     /// </summary>
-    public GapBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private GapBuilder ChainWithSize(string size)

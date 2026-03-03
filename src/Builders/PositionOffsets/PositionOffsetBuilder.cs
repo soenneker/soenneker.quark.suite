@@ -106,35 +106,27 @@ public sealed class PositionOffsetBuilder : ICssBuilder
     /// <summary>
     /// Applies the position offset on phone breakpoint.
     /// </summary>
-    public PositionOffsetBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public PositionOffsetBuilder OnBase => ChainBp(BreakpointType.Base);
 
     /// <summary>
     /// Applies the position offset on tablet breakpoint.
     /// </summary>
-    public PositionOffsetBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public PositionOffsetBuilder OnMd => ChainBp(BreakpointType.Md);
 
     /// <summary>
     /// Applies the position offset on laptop breakpoint.
     /// </summary>
-    public PositionOffsetBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public PositionOffsetBuilder OnLg => ChainBp(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the position offset on desktop breakpoint.
     /// </summary>
-    public PositionOffsetBuilder OnDesktop => ChainBp(BreakpointType.Xl);
-    public PositionOffsetBuilder OnMd => ChainBp(BreakpointType.Md);
-    public PositionOffsetBuilder OnLg => ChainBp(BreakpointType.Lg);
     public PositionOffsetBuilder OnXl => ChainBp(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the position offset on widescreen breakpoint.
     /// </summary>
-    public PositionOffsetBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-
-    /// <summary>
-    /// Applies the position offset on ultrawide breakpoint.
-    /// </summary>
-    public PositionOffsetBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public PositionOffsetBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PositionOffsetBuilder Chain(string property, string value)
@@ -267,4 +259,3 @@ public sealed class PositionOffsetBuilder : ICssBuilder
     }
 
 }
-

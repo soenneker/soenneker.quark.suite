@@ -103,27 +103,23 @@ public sealed class BorderBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the border on phone breakpoint.
 	/// </summary>
-    public BorderBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public BorderBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the border on tablet breakpoint.
 	/// </summary>
-    public BorderBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public BorderBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the border on laptop breakpoint.
 	/// </summary>
-    public BorderBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public BorderBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the border on desktop breakpoint.
 	/// </summary>
-    public BorderBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public BorderBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the border on widescreen breakpoint.
 	/// </summary>
-    public BorderBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-	/// <summary>
-	/// Applies the border on ultrawide breakpoint.
-	/// </summary>
-    public BorderBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public BorderBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BorderBuilder AddRule(ElementSideType side)

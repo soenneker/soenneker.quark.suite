@@ -39,27 +39,23 @@ public sealed class ScreenReaderBuilder : ICssBuilder
     /// <summary>
     /// Applies the screen reader on phone breakpoint.
     /// </summary>
-    public ScreenReaderBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public ScreenReaderBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the screen reader on tablet breakpoint.
     /// </summary>
-    public ScreenReaderBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public ScreenReaderBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the screen reader on laptop breakpoint.
     /// </summary>
-    public ScreenReaderBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public ScreenReaderBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the screen reader on desktop breakpoint.
     /// </summary>
-    public ScreenReaderBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public ScreenReaderBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the screen reader on widescreen breakpoint.
     /// </summary>
-    public ScreenReaderBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the screen reader on ultrawide breakpoint.
-    /// </summary>
-    public ScreenReaderBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ScreenReaderBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScreenReaderBuilder ChainWithType(string type)
@@ -175,4 +171,3 @@ public sealed class ScreenReaderBuilder : ICssBuilder
         return ToClass();
     }
 }
-

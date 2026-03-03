@@ -66,27 +66,23 @@ public sealed class TextTransformBuilder : ICssBuilder
     /// <summary>
     /// Applies the text transform on phone breakpoint.
     /// </summary>
-    public TextTransformBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public TextTransformBuilder OnBase => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the text transform on tablet breakpoint.
     /// </summary>
-    public TextTransformBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public TextTransformBuilder OnMd => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the text transform on laptop breakpoint.
     /// </summary>
-    public TextTransformBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public TextTransformBuilder OnLg => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the text transform on desktop breakpoint.
     /// </summary>
-    public TextTransformBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public TextTransformBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the text transform on widescreen breakpoint.
     /// </summary>
-    public TextTransformBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the text transform on ultrawide breakpoint.
-    /// </summary>
-    public TextTransformBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public TextTransformBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextTransformBuilder Chain(string value)
@@ -175,5 +171,3 @@ public sealed class TextTransformBuilder : ICssBuilder
     private static string GetBp(BreakpointType? breakpoint) => breakpoint?.Value ?? string.Empty;
 
 }
-
- 

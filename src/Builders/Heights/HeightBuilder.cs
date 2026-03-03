@@ -46,12 +46,11 @@ public sealed class HeightBuilder : ICssBuilder
 
     public HeightBuilder Auto => ChainWithSize("auto");
 
-    public HeightBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
-    public HeightBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
-    public HeightBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
-    public HeightBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
-    public HeightBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-    public HeightBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public HeightBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    public HeightBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
+    public HeightBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
+    public HeightBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
+    public HeightBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     /// <summary>
     /// Applies an arbitrary Tailwind height token (e.g. "72", "[18rem]", "full").

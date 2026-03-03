@@ -93,27 +93,23 @@ public sealed class DisplayBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the display on phone breakpoint.
 	/// </summary>
-    public DisplayBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public DisplayBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the display on tablet breakpoint.
 	/// </summary>
-    public DisplayBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public DisplayBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the display on laptop breakpoint.
 	/// </summary>
-    public DisplayBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public DisplayBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the display on desktop breakpoint.
 	/// </summary>
-    public DisplayBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public DisplayBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the display on widescreen breakpoint.
 	/// </summary>
-    public DisplayBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-	/// <summary>
-	/// Applies the display on ultrawide breakpoint.
-	/// </summary>
-    public DisplayBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public DisplayBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private DisplayBuilder ChainWithDisplay(string display)

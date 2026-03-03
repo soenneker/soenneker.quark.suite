@@ -65,28 +65,23 @@ public sealed class TextSizeBuilder : ICssBuilder
     /// <summary>
     /// Applies the text size on phone breakpoint.
     /// </summary>
-    public TextSizeBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public TextSizeBuilder OnBase => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the text size on tablet breakpoint.
     /// </summary>
-    public TextSizeBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public TextSizeBuilder OnMd => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the text size on laptop breakpoint.
     /// </summary>
-    public TextSizeBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public TextSizeBuilder OnLg => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the text size on desktop breakpoint.
     /// </summary>
-    public TextSizeBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public TextSizeBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the text size on widescreen breakpoint.
     /// </summary>
-    public TextSizeBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the text size on ultrawide breakpoint.
-    /// </summary>
-    public TextSizeBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
-
+    public TextSizeBuilder OnXxl => ChainBp(BreakpointType.Xxl);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextSizeBuilder ChainSize(string size)
     {

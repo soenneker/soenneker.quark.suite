@@ -83,32 +83,27 @@ public sealed class FontWeightBuilder : ICssBuilder
     /// <summary>
     /// Applies the font weight on phone breakpoint.
     /// </summary>
-    public FontWeightBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public FontWeightBuilder OnBase => ChainBp(BreakpointType.Base);
 
     /// <summary>
     /// Applies the font weight on tablet breakpoint.
     /// </summary>
-    public FontWeightBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public FontWeightBuilder OnMd => ChainBp(BreakpointType.Md);
 
     /// <summary>
     /// Applies the font weight on laptop breakpoint.
     /// </summary>
-    public FontWeightBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public FontWeightBuilder OnLg => ChainBp(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the font weight on desktop breakpoint.
     /// </summary>
-    public FontWeightBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public FontWeightBuilder OnXl => ChainBp(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the font weight on widescreen breakpoint.
     /// </summary>
-    public FontWeightBuilder OnWideScreen => ChainBp(BreakpointType.Xxl);
-
-    /// <summary>
-    /// Applies the font weight on ultrawide breakpoint.
-    /// </summary>
-    public FontWeightBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public FontWeightBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FontWeightBuilder Chain(string value)

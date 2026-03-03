@@ -82,32 +82,27 @@ public sealed class VerticalAlignBuilder : ICssBuilder
     /// <summary>
     /// Applies the vertical alignment on phone breakpoint.
     /// </summary>
-    public VerticalAlignBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public VerticalAlignBuilder OnBase => ChainBp(BreakpointType.Base);
 
     /// <summary>
     /// Applies the vertical alignment on tablet breakpoint.
     /// </summary>
-    public VerticalAlignBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public VerticalAlignBuilder OnMd => ChainBp(BreakpointType.Md);
 
     /// <summary>
     /// Applies the vertical alignment on laptop breakpoint.
     /// </summary>
-    public VerticalAlignBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public VerticalAlignBuilder OnLg => ChainBp(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the vertical alignment on desktop breakpoint.
     /// </summary>
-    public VerticalAlignBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public VerticalAlignBuilder OnXl => ChainBp(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the vertical alignment on widescreen breakpoint.
     /// </summary>
-    public VerticalAlignBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-
-    /// <summary>
-    /// Applies the vertical alignment on ultrawide breakpoint.
-    /// </summary>
-    public VerticalAlignBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public VerticalAlignBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private VerticalAlignBuilder Chain(string value)
@@ -199,5 +194,3 @@ public sealed class VerticalAlignBuilder : ICssBuilder
     private static string GetBp(BreakpointType? breakpoint) => breakpoint?.Value ?? string.Empty;
 
 }
-
- 

@@ -59,27 +59,23 @@ public sealed class VisibilityBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the visibility on phone breakpoint.
 	/// </summary>
-    public VisibilityBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public VisibilityBuilder OnBase => ChainBp(BreakpointType.Base);
 	/// <summary>
 	/// Applies the visibility on tablet breakpoint.
 	/// </summary>
-    public VisibilityBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public VisibilityBuilder OnMd => ChainBp(BreakpointType.Md);
 	/// <summary>
 	/// Applies the visibility on laptop breakpoint.
 	/// </summary>
-    public VisibilityBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public VisibilityBuilder OnLg => ChainBp(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the visibility on desktop breakpoint.
 	/// </summary>
-    public VisibilityBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public VisibilityBuilder OnXl => ChainBp(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the visibility on widescreen breakpoint.
 	/// </summary>
-    public VisibilityBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-	/// <summary>
-	/// Applies the visibility on ultrawide breakpoint.
-	/// </summary>
-    public VisibilityBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public VisibilityBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private VisibilityBuilder Chain(string value)
@@ -175,5 +171,3 @@ public sealed class VisibilityBuilder : ICssBuilder
     private static string GetBp(BreakpointType? breakpoint) => breakpoint?.Value ?? string.Empty;
 
 }
-
- 

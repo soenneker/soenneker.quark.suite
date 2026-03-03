@@ -75,27 +75,23 @@ public sealed class FloatBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the float on phone breakpoint.
 	/// </summary>
-    public FloatBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public FloatBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the float on tablet breakpoint.
 	/// </summary>
-    public FloatBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public FloatBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the float on laptop breakpoint.
 	/// </summary>
-    public FloatBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public FloatBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the float on desktop breakpoint.
 	/// </summary>
-    public FloatBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public FloatBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the float on widescreen breakpoint.
 	/// </summary>
-    public FloatBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-	/// <summary>
-	/// Applies the float on ultrawide breakpoint.
-	/// </summary>
-    public FloatBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public FloatBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FloatBuilder ChainWithValue(string value)

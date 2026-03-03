@@ -65,12 +65,11 @@ public sealed class WidthBuilder : ICssBuilder
 
     public WidthBuilder Auto => ChainWithSize("auto");
 
-    public WidthBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
-    public WidthBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
-    public WidthBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
-    public WidthBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
-    public WidthBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-    public WidthBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public WidthBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    public WidthBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
+    public WidthBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
+    public WidthBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
+    public WidthBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     /// <summary>
     /// Applies an arbitrary Tailwind width token (e.g. "72", "[18rem]", "full").

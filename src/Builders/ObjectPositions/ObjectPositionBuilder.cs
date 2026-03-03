@@ -73,27 +73,23 @@ public sealed class ObjectPositionBuilder : ICssBuilder
     /// <summary>
     /// Applies the object position on phone breakpoint.
     /// </summary>
-    public ObjectPositionBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public ObjectPositionBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the object position on tablet breakpoint.
     /// </summary>
-    public ObjectPositionBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public ObjectPositionBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the object position on laptop breakpoint.
     /// </summary>
-    public ObjectPositionBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public ObjectPositionBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the object position on desktop breakpoint.
     /// </summary>
-    public ObjectPositionBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public ObjectPositionBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the object position on widescreen breakpoint.
     /// </summary>
-    public ObjectPositionBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the object position on ultrawide breakpoint.
-    /// </summary>
-    public ObjectPositionBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ObjectPositionBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObjectPositionBuilder ChainWithPosition(string position)

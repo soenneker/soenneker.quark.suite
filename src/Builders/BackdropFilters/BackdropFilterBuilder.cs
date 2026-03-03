@@ -79,27 +79,23 @@ public sealed class BackdropFilterBuilder : ICssBuilder
     /// <summary>
     /// Applies the backdrop filter on phone breakpoint.
     /// </summary>
-    public BackdropFilterBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public BackdropFilterBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the backdrop filter on tablet breakpoint.
     /// </summary>
-    public BackdropFilterBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public BackdropFilterBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the backdrop filter on laptop breakpoint.
     /// </summary>
-    public BackdropFilterBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public BackdropFilterBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the backdrop filter on desktop breakpoint.
     /// </summary>
-    public BackdropFilterBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public BackdropFilterBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the backdrop filter on widescreen breakpoint.
     /// </summary>
-    public BackdropFilterBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the backdrop filter on ultrawide breakpoint.
-    /// </summary>
-    public BackdropFilterBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public BackdropFilterBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BackdropFilterBuilder ChainWithFilter(string filter)
@@ -232,4 +228,3 @@ public sealed class BackdropFilterBuilder : ICssBuilder
         return ToClass();
     }
 }
-

@@ -72,27 +72,23 @@ public sealed class TextBackgroundBuilder : ICssBuilder
     /// <summary>
     /// Applies the text background on phone breakpoint.
     /// </summary>
-    public TextBackgroundBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public TextBackgroundBuilder OnBase => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the text background on tablet breakpoint.
     /// </summary>
-    public TextBackgroundBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public TextBackgroundBuilder OnMd => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the text background on laptop breakpoint.
     /// </summary>
-    public TextBackgroundBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public TextBackgroundBuilder OnLg => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the text background on desktop breakpoint.
     /// </summary>
-    public TextBackgroundBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public TextBackgroundBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the text background on widescreen breakpoint.
     /// </summary>
-    public TextBackgroundBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the text background on ultrawide breakpoint.
-    /// </summary>
-    public TextBackgroundBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public TextBackgroundBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextBackgroundBuilder ChainValue(string value)
@@ -187,4 +183,3 @@ public sealed class TextBackgroundBuilder : ICssBuilder
     }
 
 }
-

@@ -210,32 +210,31 @@ public sealed class FlexBuilder : ICssBuilder
     /// <summary>
     /// Apply on phone devices (portrait phones, less than 576px).
     /// </summary>
-    public FlexBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public FlexBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
 
     /// <summary>
     /// Apply on tablet devices (tablets, 768px and up).
     /// </summary>
-    public FlexBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public FlexBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
 
     /// <summary>
     /// Apply on laptop devices (laptops, 992px and up).
     /// </summary>
-    public FlexBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public FlexBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
 
     /// <summary>
     /// Apply on desktop devices (desktops, 1200px and up).
     /// </summary>
-    public FlexBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public FlexBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
 
     /// <summary>
     /// Apply on wide screen devices (larger desktops, 1400px and up).
     /// </summary>
-    public FlexBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
+    public FlexBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     /// <summary>
     /// Apply on ultrawide devices (ultrawide screens, 1920px and up).
     /// </summary>
-    public FlexBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FlexBuilder ChainWithRule(string property, string value)
@@ -469,4 +468,3 @@ public sealed class FlexBuilder : ICssBuilder
     }
 
 }
-

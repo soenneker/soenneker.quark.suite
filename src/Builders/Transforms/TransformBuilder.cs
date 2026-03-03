@@ -54,27 +54,23 @@ public sealed class TransformBuilder : ICssBuilder
     /// <summary>
     /// Applies the transform on phone breakpoint.
     /// </summary>
-    public TransformBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public TransformBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the transform on tablet breakpoint.
     /// </summary>
-    public TransformBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public TransformBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the transform on laptop breakpoint.
     /// </summary>
-    public TransformBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public TransformBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the transform on desktop breakpoint.
     /// </summary>
-    public TransformBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public TransformBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the transform on widescreen breakpoint.
     /// </summary>
-    public TransformBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the transform on ultrawide breakpoint.
-    /// </summary>
-    public TransformBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public TransformBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TransformBuilder ChainWithTransform(string transform)
@@ -197,4 +193,3 @@ public sealed class TransformBuilder : ICssBuilder
         return ToClass();
     }
 }
-

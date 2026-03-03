@@ -48,27 +48,23 @@ public sealed class BackgroundOpacityBuilder : ICssBuilder
     /// <summary>
     /// Applies the background opacity on phone breakpoint.
     /// </summary>
-    public BackgroundOpacityBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public BackgroundOpacityBuilder OnBase => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the background opacity on tablet breakpoint.
     /// </summary>
-    public BackgroundOpacityBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public BackgroundOpacityBuilder OnMd => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the background opacity on laptop breakpoint.
     /// </summary>
-    public BackgroundOpacityBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public BackgroundOpacityBuilder OnLg => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the background opacity on desktop breakpoint.
     /// </summary>
-    public BackgroundOpacityBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public BackgroundOpacityBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the background opacity on widescreen breakpoint.
     /// </summary>
-    public BackgroundOpacityBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the background opacity on ultrawide breakpoint.
-    /// </summary>
-    public BackgroundOpacityBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public BackgroundOpacityBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BackgroundOpacityBuilder Chain(int value)

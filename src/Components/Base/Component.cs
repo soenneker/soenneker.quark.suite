@@ -364,6 +364,120 @@ public abstract class Component : CoreComponent, IComponent
     public CssValue<LinkUnderlineBuilder>? LinkUnderline { get; set; }
 
     /// <summary>
+    /// Gets or sets the inset (top/right/bottom/left) configuration.
+    /// </summary>
+    [Parameter]
+    public CssValue<InsetBuilder>? Inset { get; set; }
+
+    /// <summary>
+    /// Gets or sets the start (inset-inline-start) configuration.
+    /// </summary>
+    [Parameter]
+    public CssValue<StartBuilder>? Start { get; set; }
+
+    /// <summary>
+    /// Gets or sets the end (inset-inline-end) configuration.
+    /// </summary>
+    [Parameter]
+    public CssValue<EndBuilder>? End { get; set; }
+
+    /// <summary>
+    /// Gets or sets the CSS isolation configuration.
+    /// </summary>
+    [Parameter]
+    public CssValue<IsolationBuilder>? Isolation { get; set; }
+
+    /// <summary>
+    /// Gets or sets the CSS contain configuration.
+    /// </summary>
+    [Parameter]
+    public CssValue<ContainBuilder>? Contain { get; set; }
+
+    /// <summary>
+    /// Gets or sets the stroke width configuration.
+    /// </summary>
+    [Parameter]
+    public CssValue<StrokeWidthBuilder>? StrokeWidth { get; set; }
+
+    /// <summary>
+    /// Gets or sets the stroke line cap configuration.
+    /// </summary>
+    [Parameter]
+    public CssValue<StrokeLineCapBuilder>? StrokeLineCap { get; set; }
+
+    /// <summary>
+    /// Gets or sets the stroke line join configuration.
+    /// </summary>
+    [Parameter]
+    public CssValue<StrokeLineJoinBuilder>? StrokeLineJoin { get; set; }
+
+    /// <summary>
+    /// Gets or sets the fill-rule (SVG) configuration.
+    /// </summary>
+    [Parameter]
+    public CssValue<FillRuleBuilder>? FillRule { get; set; }
+
+    /// <summary>
+    /// Gets or sets the scroll snap type configuration.
+    /// </summary>
+    [Parameter]
+    public CssValue<ScrollSnapBuilder>? ScrollSnap { get; set; }
+
+    /// <summary>
+    /// Gets or sets the scroll snap align configuration.
+    /// </summary>
+    [Parameter]
+    public CssValue<ScrollSnapAlignBuilder>? ScrollSnapAlign { get; set; }
+
+    /// <summary>
+    /// Gets or sets the scroll snap stop configuration.
+    /// </summary>
+    [Parameter]
+    public CssValue<ScrollSnapStopBuilder>? ScrollSnapStop { get; set; }
+
+    /// <summary>
+    /// Gets or sets the scroll margin configuration.
+    /// </summary>
+    [Parameter]
+    public CssValue<ScrollMarginBuilder>? ScrollMargin { get; set; }
+
+    /// <summary>
+    /// Gets or sets the scroll padding configuration.
+    /// </summary>
+    [Parameter]
+    public CssValue<ScrollPaddingBuilder>? ScrollPadding { get; set; }
+
+    /// <summary>
+    /// Gets or sets the accent color configuration.
+    /// </summary>
+    [Parameter]
+    public CssValue<AccentColorBuilder>? AccentColor { get; set; }
+
+    /// <summary>
+    /// Gets or sets the caret color configuration.
+    /// </summary>
+    [Parameter]
+    public CssValue<CaretColorBuilder>? CaretColor { get; set; }
+
+    /// <summary>
+    /// Gets or sets the outline style configuration.
+    /// </summary>
+    [Parameter]
+    public CssValue<OutlineStyleBuilder>? OutlineStyle { get; set; }
+
+    /// <summary>
+    /// Gets or sets the mix-blend-mode configuration.
+    /// </summary>
+    [Parameter]
+    public CssValue<MixBlendModeBuilder>? MixBlendMode { get; set; }
+
+    /// <summary>
+    /// Gets or sets the background-blend-mode configuration.
+    /// </summary>
+    [Parameter]
+    public CssValue<BackgroundBlendModeBuilder>? BackgroundBlendMode { get; set; }
+
+    /// <summary>
     /// Gets or sets the callback invoked When the component is clicked.
     /// </summary>
     [Parameter]
@@ -521,6 +635,25 @@ public abstract class Component : CoreComponent, IComponent
             AddCss(ref sty, ref cls, LinkOpacity);
             AddCss(ref sty, ref cls, LinkOffset);
             AddCss(ref sty, ref cls, LinkUnderline);
+            AddCss(ref sty, ref cls, Inset);
+            AddCss(ref sty, ref cls, Start);
+            AddCss(ref sty, ref cls, End);
+            AddCss(ref sty, ref cls, Isolation);
+            AddCss(ref sty, ref cls, Contain);
+            AddCss(ref sty, ref cls, StrokeWidth);
+            AddCss(ref sty, ref cls, StrokeLineCap);
+            AddCss(ref sty, ref cls, StrokeLineJoin);
+            AddCss(ref sty, ref cls, FillRule);
+            AddCss(ref sty, ref cls, ScrollSnap);
+            AddCss(ref sty, ref cls, ScrollSnapAlign);
+            AddCss(ref sty, ref cls, ScrollSnapStop);
+            AddCss(ref sty, ref cls, ScrollMargin);
+            AddCss(ref sty, ref cls, ScrollPadding);
+            AddCss(ref sty, ref cls, AccentColor);
+            AddCss(ref sty, ref cls, CaretColor);
+            AddCss(ref sty, ref cls, OutlineStyle);
+            AddCss(ref sty, ref cls, MixBlendMode);
+            AddCss(ref sty, ref cls, BackgroundBlendMode);
 
             AddCss(ref sty, ref cls, Margin);
             AddCss(ref sty, ref cls, Padding);
@@ -678,6 +811,25 @@ public abstract class Component : CoreComponent, IComponent
         AddIf(ref hc, LinkOpacity);
         AddIf(ref hc, LinkOffset);
         AddIf(ref hc, LinkUnderline);
+        AddIf(ref hc, Inset);
+        AddIf(ref hc, Start);
+        AddIf(ref hc, End);
+        AddIf(ref hc, Isolation);
+        AddIf(ref hc, Contain);
+        AddIf(ref hc, StrokeWidth);
+        AddIf(ref hc, StrokeLineCap);
+        AddIf(ref hc, StrokeLineJoin);
+        AddIf(ref hc, FillRule);
+        AddIf(ref hc, ScrollSnap);
+        AddIf(ref hc, ScrollSnapAlign);
+        AddIf(ref hc, ScrollSnapStop);
+        AddIf(ref hc, ScrollMargin);
+        AddIf(ref hc, ScrollPadding);
+        AddIf(ref hc, AccentColor);
+        AddIf(ref hc, CaretColor);
+        AddIf(ref hc, OutlineStyle);
+        AddIf(ref hc, MixBlendMode);
+        AddIf(ref hc, BackgroundBlendMode);
 
         if (Attributes is not null)
         {

@@ -59,27 +59,23 @@ public sealed class TransitionBuilder : ICssBuilder
     /// <summary>
     /// Applies the transition on phone breakpoint.
     /// </summary>
-    public TransitionBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public TransitionBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the transition on tablet breakpoint.
     /// </summary>
-    public TransitionBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public TransitionBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the transition on laptop breakpoint.
     /// </summary>
-    public TransitionBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public TransitionBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the transition on desktop breakpoint.
     /// </summary>
-    public TransitionBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public TransitionBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the transition on widescreen breakpoint.
     /// </summary>
-    public TransitionBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the transition on ultrawide breakpoint.
-    /// </summary>
-    public TransitionBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public TransitionBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TransitionBuilder ChainWithTransition(string transition)
@@ -204,4 +200,3 @@ public sealed class TransitionBuilder : ICssBuilder
         return ToClass();
     }
 }
-

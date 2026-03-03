@@ -169,27 +169,23 @@ public sealed class BackgroundColorBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the background color on phone breakpoint.
 	/// </summary>
-    public BackgroundColorBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public BackgroundColorBuilder OnBase => ChainBp(BreakpointType.Base);
 	/// <summary>
 	/// Applies the background color on tablet breakpoint.
 	/// </summary>
-    public BackgroundColorBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public BackgroundColorBuilder OnMd => ChainBp(BreakpointType.Md);
 	/// <summary>
 	/// Applies the background color on laptop breakpoint.
 	/// </summary>
-    public BackgroundColorBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public BackgroundColorBuilder OnLg => ChainBp(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the background color on desktop breakpoint.
 	/// </summary>
-    public BackgroundColorBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public BackgroundColorBuilder OnXl => ChainBp(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the background color on widescreen breakpoint.
 	/// </summary>
-    public BackgroundColorBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-	/// <summary>
-	/// Applies the background color on ultrawide breakpoint.
-	/// </summary>
-    public BackgroundColorBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public BackgroundColorBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BackgroundColorBuilder ChainValue(string value)

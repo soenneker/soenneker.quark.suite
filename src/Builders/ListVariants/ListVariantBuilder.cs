@@ -44,27 +44,23 @@ public sealed class ListVariantBuilder : ICssBuilder
     /// <summary>
     /// Applies the list variant on phone breakpoint.
     /// </summary>
-    public ListVariantBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public ListVariantBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the list variant on tablet breakpoint.
     /// </summary>
-    public ListVariantBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public ListVariantBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the list variant on laptop breakpoint.
     /// </summary>
-    public ListVariantBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public ListVariantBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the list variant on desktop breakpoint.
     /// </summary>
-    public ListVariantBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public ListVariantBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the list variant on widescreen breakpoint.
     /// </summary>
-    public ListVariantBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the list variant on ultrawide breakpoint.
-    /// </summary>
-    public ListVariantBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ListVariantBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ListVariantBuilder Chain(ListVariantType type)
@@ -173,5 +169,3 @@ public sealed class ListVariantBuilder : ICssBuilder
         return ToClass();
     }
 }
-
-

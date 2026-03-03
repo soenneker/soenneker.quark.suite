@@ -61,27 +61,23 @@ public sealed class TextWrapBuilder : ICssBuilder
     /// <summary>
     /// Applies the text wrap on phone breakpoint.
     /// </summary>
-    public TextWrapBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public TextWrapBuilder OnBase => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the text wrap on tablet breakpoint.
     /// </summary>
-    public TextWrapBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public TextWrapBuilder OnMd => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the text wrap on laptop breakpoint.
     /// </summary>
-    public TextWrapBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public TextWrapBuilder OnLg => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the text wrap on desktop breakpoint.
     /// </summary>
-    public TextWrapBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public TextWrapBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the text wrap on widescreen breakpoint.
     /// </summary>
-    public TextWrapBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the text wrap on ultrawide breakpoint.
-    /// </summary>
-    public TextWrapBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public TextWrapBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextWrapBuilder Chain(string value)
@@ -185,5 +181,3 @@ public sealed class TextWrapBuilder : ICssBuilder
     private static string GetBp(BreakpointType? breakpoint) => breakpoint?.Value ?? string.Empty;
 
 }
-
- 

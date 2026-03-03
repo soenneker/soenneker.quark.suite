@@ -72,32 +72,27 @@ public sealed class UserSelectBuilder : ICssBuilder
     /// <summary>
     /// Applies the user select on phone breakpoint.
     /// </summary>
-    public UserSelectBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public UserSelectBuilder OnBase => ChainBp(BreakpointType.Base);
 
     /// <summary>
     /// Applies the user select on tablet breakpoint.
     /// </summary>
-    public UserSelectBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public UserSelectBuilder OnMd => ChainBp(BreakpointType.Md);
 
     /// <summary>
     /// Applies the user select on laptop breakpoint.
     /// </summary>
-    public UserSelectBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public UserSelectBuilder OnLg => ChainBp(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the user select on desktop breakpoint.
     /// </summary>
-    public UserSelectBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public UserSelectBuilder OnXl => ChainBp(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the user select on widescreen breakpoint.
     /// </summary>
-    public UserSelectBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-
-    /// <summary>
-    /// Applies the user select on ultrawide breakpoint.
-    /// </summary>
-    public UserSelectBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public UserSelectBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private UserSelectBuilder Chain(string value)
@@ -184,5 +179,3 @@ public sealed class UserSelectBuilder : ICssBuilder
 
 
 }
-
- 

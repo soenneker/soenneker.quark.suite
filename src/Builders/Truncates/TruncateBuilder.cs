@@ -29,27 +29,23 @@ public sealed class TruncateBuilder : ICssBuilder
     /// <summary>
     /// Applies the truncate on phone breakpoint.
     /// </summary>
-    public TruncateBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public TruncateBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the truncate on tablet breakpoint.
     /// </summary>
-    public TruncateBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public TruncateBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the truncate on laptop breakpoint.
     /// </summary>
-    public TruncateBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public TruncateBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the truncate on desktop breakpoint.
     /// </summary>
-    public TruncateBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public TruncateBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the truncate on widescreen breakpoint.
     /// </summary>
-    public TruncateBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the truncate on ultrawide breakpoint.
-    /// </summary>
-    public TruncateBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public TruncateBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TruncateBuilder ChainWithBreakpoint(BreakpointType breakpoint)
@@ -128,4 +124,3 @@ public sealed class TruncateBuilder : ICssBuilder
         return ToClass();
     }
 }
-

@@ -164,27 +164,23 @@ public sealed class ColorBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the color on phone breakpoint.
 	/// </summary>
-    public ColorBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public ColorBuilder OnBase => ChainBp(BreakpointType.Base);
 	/// <summary>
 	/// Applies the color on tablet breakpoint.
 	/// </summary>
-    public ColorBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public ColorBuilder OnMd => ChainBp(BreakpointType.Md);
 	/// <summary>
 	/// Applies the color on laptop breakpoint.
 	/// </summary>
-    public ColorBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public ColorBuilder OnLg => ChainBp(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the color on desktop breakpoint.
 	/// </summary>
-    public ColorBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public ColorBuilder OnXl => ChainBp(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the color on widescreen breakpoint.
 	/// </summary>
-    public ColorBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-	/// <summary>
-	/// Applies the color on ultrawide breakpoint.
-	/// </summary>
-    public ColorBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public ColorBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ColorBuilder ChainValue(string value)

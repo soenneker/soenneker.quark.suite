@@ -80,26 +80,23 @@ public sealed class TextStyleBuilder : ICssBuilder
     /// <summary>
     /// Applies the text style on phone breakpoint.
     /// </summary>
-    public TextStyleBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public TextStyleBuilder OnBase => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the text style on tablet breakpoint.
     /// </summary>
-    public TextStyleBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public TextStyleBuilder OnMd => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the text style on laptop breakpoint.
     /// </summary>
-    public TextStyleBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public TextStyleBuilder OnLg => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the text style on desktop breakpoint.
     /// </summary>
-    public TextStyleBuilder OnDesktop => ChainBp(BreakpointType.Xl);
-    public TextStyleBuilder OnMd => ChainBp(BreakpointType.Md);
-    public TextStyleBuilder OnLg => ChainBp(BreakpointType.Lg);
     public TextStyleBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the text style on widescreen breakpoint.
     /// </summary>
-    public TextStyleBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
+    public TextStyleBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
     private TextStyleBuilder ChainValue(string value)

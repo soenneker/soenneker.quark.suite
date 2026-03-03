@@ -113,31 +113,23 @@ public sealed class MarginBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the margin on phone breakpoint.
 	/// </summary>
-    public MarginBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public MarginBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the margin on tablet breakpoint.
 	/// </summary>
-    public MarginBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public MarginBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the margin on laptop breakpoint.
 	/// </summary>
-    public MarginBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public MarginBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the margin on desktop breakpoint.
 	/// </summary>
-    public MarginBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
-    public MarginBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
-    public MarginBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     public MarginBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the margin on widescreen breakpoint.
 	/// </summary>
-    public MarginBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-	/// <summary>
-	/// Applies the margin on ultrawide breakpoint.
-	/// </summary>
-    public MarginBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
-
+    public MarginBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private MarginBuilder AddRule(ElementSideType side)
     {

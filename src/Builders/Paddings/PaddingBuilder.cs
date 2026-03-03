@@ -104,30 +104,23 @@ public sealed class PaddingBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the padding on phone breakpoint.
 	/// </summary>
-    public PaddingBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public PaddingBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the padding on tablet breakpoint.
 	/// </summary>
-    public PaddingBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public PaddingBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the padding on laptop breakpoint.
 	/// </summary>
-    public PaddingBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public PaddingBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the padding on desktop breakpoint.
 	/// </summary>
-    public PaddingBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
-    public PaddingBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
-    public PaddingBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     public PaddingBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the padding on widescreen breakpoint.
 	/// </summary>
-    public PaddingBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-	/// <summary>
-	/// Applies the padding on ultrawide breakpoint.
-	/// </summary>
-    public PaddingBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public PaddingBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PaddingBuilder AddRule(ElementSideType side)
@@ -360,4 +353,3 @@ public sealed class PaddingBuilder : ICssBuilder
     }
 
 }
-

@@ -169,27 +169,23 @@ public sealed class TextDecorationBuilder : ICssBuilder
     /// <summary>
     /// Applies the text decoration on phone breakpoint.
     /// </summary>
-    public TextDecorationBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public TextDecorationBuilder OnBase => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the text decoration on tablet breakpoint.
     /// </summary>
-    public TextDecorationBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public TextDecorationBuilder OnMd => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the text decoration on laptop breakpoint.
     /// </summary>
-    public TextDecorationBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public TextDecorationBuilder OnLg => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the text decoration on desktop breakpoint.
     /// </summary>
-    public TextDecorationBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public TextDecorationBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the text decoration on widescreen breakpoint.
     /// </summary>
-    public TextDecorationBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the text decoration on ultrawide breakpoint.
-    /// </summary>
-    public TextDecorationBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public TextDecorationBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextDecorationBuilder Chain(string value)

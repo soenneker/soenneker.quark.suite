@@ -57,32 +57,27 @@ public sealed class AnimationBuilder : ICssBuilder
     /// <summary>
     /// Applies the animation on phone breakpoint.
     /// </summary>
-    public AnimationBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public AnimationBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
 
     /// <summary>
     /// Applies the animation on tablet breakpoint.
     /// </summary>
-    public AnimationBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public AnimationBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
 
     /// <summary>
     /// Applies the animation on laptop breakpoint.
     /// </summary>
-    public AnimationBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public AnimationBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the animation on desktop breakpoint.
     /// </summary>
-    public AnimationBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public AnimationBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the animation on widescreen breakpoint.
     /// </summary>
-    public AnimationBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-
-    /// <summary>
-    /// Applies the animation on ultrawide breakpoint.
-    /// </summary>
-    public AnimationBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public AnimationBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private AnimationBuilder ChainWithAnimation(string animation)

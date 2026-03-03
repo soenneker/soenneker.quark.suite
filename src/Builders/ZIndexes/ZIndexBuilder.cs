@@ -58,32 +58,27 @@ public sealed class ZIndexBuilder : ICssBuilder
     /// <summary>
     /// Applies the z-index on phone breakpoint.
     /// </summary>
-    public ZIndexBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public ZIndexBuilder OnBase => ChainBp(BreakpointType.Base);
 
     /// <summary>
     /// Applies the z-index on tablet breakpoint.
     /// </summary>
-    public ZIndexBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public ZIndexBuilder OnMd => ChainBp(BreakpointType.Md);
 
     /// <summary>
     /// Applies the z-index on laptop breakpoint.
     /// </summary>
-    public ZIndexBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public ZIndexBuilder OnLg => ChainBp(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the z-index on desktop breakpoint.
     /// </summary>
-    public ZIndexBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public ZIndexBuilder OnXl => ChainBp(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the z-index on widescreen breakpoint.
     /// </summary>
-    public ZIndexBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-
-    /// <summary>
-    /// Applies the z-index on ultrawide breakpoint.
-    /// </summary>
-    public ZIndexBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public ZIndexBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ZIndexBuilder Chain(int value)
@@ -167,6 +162,3 @@ public sealed class ZIndexBuilder : ICssBuilder
 
 
 }
-
- 
-

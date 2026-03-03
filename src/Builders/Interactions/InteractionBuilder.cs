@@ -58,27 +58,23 @@ public sealed class InteractionBuilder : ICssBuilder
     /// <summary>
     /// Applies the interaction on phone breakpoint.
     /// </summary>
-    public InteractionBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public InteractionBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the interaction on tablet breakpoint.
     /// </summary>
-    public InteractionBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public InteractionBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the interaction on laptop breakpoint.
     /// </summary>
-    public InteractionBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public InteractionBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the interaction on desktop breakpoint.
     /// </summary>
-    public InteractionBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public InteractionBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the interaction on widescreen breakpoint.
     /// </summary>
-    public InteractionBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the interaction on ultrawide breakpoint.
-    /// </summary>
-    public InteractionBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public InteractionBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private InteractionBuilder ChainWithInteraction(string userSelect, string pointerEvents)

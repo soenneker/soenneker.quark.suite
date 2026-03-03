@@ -80,31 +80,27 @@ public sealed class ObjectFitBuilder : ICssBuilder
     /// <summary>
     /// Apply on phone devices (portrait phones, less than 576px).
     /// </summary>
-    public ObjectFitBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public ObjectFitBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
 
     /// <summary>
     /// Apply on mobile devices (landscape phones, 576px and up).
     /// </summary>
-    public ObjectFitBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public ObjectFitBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
 
     /// <summary>
     /// Apply on laptop devices (laptops, 992px and up).
     /// </summary>
-    public ObjectFitBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public ObjectFitBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
 
     /// <summary>
     /// Apply on desktop devices (desktops, 1200px and up).
     /// </summary>
-    public ObjectFitBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public ObjectFitBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
 
     /// <summary>
     /// Apply on wide screen devices (larger desktops, 1400px and up).
     /// </summary>
-    public ObjectFitBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the object fit on ultrawide breakpoint.
-    /// </summary>
-    public ObjectFitBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ObjectFitBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObjectFitBuilder ChainWithFit(string fit)
@@ -202,5 +198,3 @@ public sealed class ObjectFitBuilder : ICssBuilder
     }
 
 }
-
-

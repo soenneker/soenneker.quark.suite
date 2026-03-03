@@ -49,27 +49,23 @@ public sealed class LineHeightBuilder : ICssBuilder
     /// <summary>
     /// Applies the line height on phone breakpoint.
     /// </summary>
-    public LineHeightBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public LineHeightBuilder OnBase => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the line height on tablet breakpoint.
     /// </summary>
-    public LineHeightBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public LineHeightBuilder OnMd => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the line height on laptop breakpoint.
     /// </summary>
-    public LineHeightBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public LineHeightBuilder OnLg => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the line height on desktop breakpoint.
     /// </summary>
-    public LineHeightBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public LineHeightBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the line height on widescreen breakpoint.
     /// </summary>
-    public LineHeightBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the line height on ultrawide breakpoint.
-    /// </summary>
-    public LineHeightBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public LineHeightBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private LineHeightBuilder Chain(string value)
@@ -162,5 +158,3 @@ public sealed class LineHeightBuilder : ICssBuilder
 
 
 }
-
- 

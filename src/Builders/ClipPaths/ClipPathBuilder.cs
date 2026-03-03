@@ -53,27 +53,23 @@ public sealed class ClipPathBuilder : ICssBuilder
     /// <summary>
     /// Applies the clip path on phone breakpoint.
     /// </summary>
-    public ClipPathBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public ClipPathBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the clip path on tablet breakpoint.
     /// </summary>
-    public ClipPathBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public ClipPathBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the clip path on laptop breakpoint.
     /// </summary>
-    public ClipPathBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public ClipPathBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the clip path on desktop breakpoint.
     /// </summary>
-    public ClipPathBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public ClipPathBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the clip path on widescreen breakpoint.
     /// </summary>
-    public ClipPathBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the clip path on ultrawide breakpoint.
-    /// </summary>
-    public ClipPathBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ClipPathBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ClipPathBuilder ChainWithPath(string path)

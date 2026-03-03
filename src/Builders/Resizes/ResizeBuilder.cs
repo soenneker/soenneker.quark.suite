@@ -49,27 +49,23 @@ public sealed class ResizeBuilder : ICssBuilder
     /// <summary>
     /// Applies the resize on phone breakpoint.
     /// </summary>
-    public ResizeBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public ResizeBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the resize on tablet breakpoint.
     /// </summary>
-    public ResizeBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public ResizeBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the resize on laptop breakpoint.
     /// </summary>
-    public ResizeBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public ResizeBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the resize on desktop breakpoint.
     /// </summary>
-    public ResizeBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public ResizeBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the resize on widescreen breakpoint.
     /// </summary>
-    public ResizeBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the resize on ultrawide breakpoint.
-    /// </summary>
-    public ResizeBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ResizeBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ResizeBuilder ChainWithResize(string resize)
@@ -190,4 +186,3 @@ public sealed class ResizeBuilder : ICssBuilder
         return ToClass();
     }
 }
-

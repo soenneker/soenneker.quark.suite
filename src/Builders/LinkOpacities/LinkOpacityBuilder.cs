@@ -47,27 +47,23 @@ public sealed class LinkOpacityBuilder : ICssBuilder
     /// <summary>
     /// Applies the link opacity on phone breakpoint.
     /// </summary>
-    public LinkOpacityBuilder OnPhone => ChainBp(BreakpointType.Base);
+    public LinkOpacityBuilder OnBase => ChainBp(BreakpointType.Base);
     /// <summary>
     /// Applies the link opacity on tablet breakpoint.
     /// </summary>
-    public LinkOpacityBuilder OnTablet => ChainBp(BreakpointType.Md);
+    public LinkOpacityBuilder OnMd => ChainBp(BreakpointType.Md);
     /// <summary>
     /// Applies the link opacity on laptop breakpoint.
     /// </summary>
-    public LinkOpacityBuilder OnLaptop => ChainBp(BreakpointType.Lg);
+    public LinkOpacityBuilder OnLg => ChainBp(BreakpointType.Lg);
     /// <summary>
     /// Applies the link opacity on desktop breakpoint.
     /// </summary>
-    public LinkOpacityBuilder OnDesktop => ChainBp(BreakpointType.Xl);
+    public LinkOpacityBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
     /// Applies the link opacity on widescreen breakpoint.
     /// </summary>
-    public LinkOpacityBuilder OnWidescreen => ChainBp(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the link opacity on ultrawide breakpoint.
-    /// </summary>
-    public LinkOpacityBuilder OnUltrawide => ChainBp(BreakpointType.Xxl);
+    public LinkOpacityBuilder OnXxl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private LinkOpacityBuilder Chain(int value)
@@ -174,5 +170,3 @@ public sealed class LinkOpacityBuilder : ICssBuilder
     }
 
 }
-
-

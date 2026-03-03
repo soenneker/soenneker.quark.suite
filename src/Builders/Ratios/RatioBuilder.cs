@@ -50,27 +50,23 @@ public sealed class RatioBuilder : ICssBuilder
     /// <summary>
     /// Applies the ratio on phone breakpoint.
     /// </summary>
-    public RatioBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
+    public RatioBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the ratio on tablet breakpoint.
     /// </summary>
-    public RatioBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
+    public RatioBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the ratio on laptop breakpoint.
     /// </summary>
-    public RatioBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
+    public RatioBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the ratio on desktop breakpoint.
     /// </summary>
-    public RatioBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
+    public RatioBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the ratio on widescreen breakpoint.
     /// </summary>
-    public RatioBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-    /// <summary>
-    /// Applies the ratio on ultrawide breakpoint.
-    /// </summary>
-    public RatioBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+    public RatioBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private RatioBuilder ChainWithRatio(string ratio)
@@ -159,4 +155,3 @@ public sealed class RatioBuilder : ICssBuilder
         return ToClass();
     }
 }
-
