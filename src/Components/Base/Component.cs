@@ -1106,19 +1106,22 @@ public abstract class Component : CoreComponent, IComponent
     {
         if (v is not { IsEmpty: false }) return;
 
+        var result = v.Value.ToString();
+        if (result.Length == 0) return;
+
+        if (v.Value.IsCssStyle)
+        {
+            AppendStyleDecl(ref styB, cssProperty, result);
+            return;
+        }
+
         if (v.Value.TryGetThemeToken(out var token) && token is not null)
         {
             AppendClassToken(ref clsB, classPrefix, token);
             return;
         }
 
-        var result = v.Value.ToString();
-        if (result.Length == 0) return;
-
-        if (v.Value.IsCssStyle)
-            AppendStyleDecl(ref styB, cssProperty, result);
-        else
-            AppendClassToken(ref clsB, classPrefix, result);
+        AppendClass(ref clsB, result);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

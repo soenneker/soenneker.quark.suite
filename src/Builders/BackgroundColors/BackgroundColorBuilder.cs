@@ -34,6 +34,70 @@ public sealed class BackgroundColorBuilder : ICssBuilder
 	/// </summary>
     public BackgroundColorBuilder Secondary => ChainValue("secondary");
 	/// <summary>
+	/// Sets the background color to primary-foreground.
+	/// </summary>
+    public BackgroundColorBuilder PrimaryForeground => ChainValue("primary-foreground");
+	/// <summary>
+	/// Sets the background color to secondary-foreground.
+	/// </summary>
+    public BackgroundColorBuilder SecondaryForeground => ChainValue("secondary-foreground");
+	/// <summary>
+	/// Sets the background color to destructive.
+	/// </summary>
+    public BackgroundColorBuilder Destructive => ChainValue("destructive");
+	/// <summary>
+	/// Sets the background color to destructive-foreground.
+	/// </summary>
+    public BackgroundColorBuilder DestructiveForeground => ChainValue("destructive-foreground");
+	/// <summary>
+	/// Sets the background color to muted-foreground.
+	/// </summary>
+    public BackgroundColorBuilder MutedForeground => ChainValue("muted-foreground");
+	/// <summary>
+	/// Sets the background color to accent.
+	/// </summary>
+    public BackgroundColorBuilder Accent => ChainValue("accent");
+	/// <summary>
+	/// Sets the background color to accent-foreground.
+	/// </summary>
+    public BackgroundColorBuilder AccentForeground => ChainValue("accent-foreground");
+	/// <summary>
+	/// Sets the background color to popover.
+	/// </summary>
+    public BackgroundColorBuilder Popover => ChainValue("popover");
+	/// <summary>
+	/// Sets the background color to popover-foreground.
+	/// </summary>
+    public BackgroundColorBuilder PopoverForeground => ChainValue("popover-foreground");
+	/// <summary>
+	/// Sets the background color to card.
+	/// </summary>
+    public BackgroundColorBuilder Card => ChainValue("card");
+	/// <summary>
+	/// Sets the background color to card-foreground.
+	/// </summary>
+    public BackgroundColorBuilder CardForeground => ChainValue("card-foreground");
+	/// <summary>
+	/// Sets the background color to background.
+	/// </summary>
+    public BackgroundColorBuilder Background => ChainValue("background");
+	/// <summary>
+	/// Sets the background color to foreground.
+	/// </summary>
+    public BackgroundColorBuilder Foreground => ChainValue("foreground");
+	/// <summary>
+	/// Sets the background color to border.
+	/// </summary>
+    public BackgroundColorBuilder Border => ChainValue("border");
+	/// <summary>
+	/// Sets the background color to input.
+	/// </summary>
+    public BackgroundColorBuilder Input => ChainValue("input");
+	/// <summary>
+	/// Sets the background color to ring.
+	/// </summary>
+    public BackgroundColorBuilder Ring => ChainValue("ring");
+	/// <summary>
 	/// Sets the background color to success.
 	/// </summary>
     public BackgroundColorBuilder Success => ChainValue("success");
@@ -232,8 +296,50 @@ public sealed class BackgroundColorBuilder : ICssBuilder
     {
         return rule.Value switch
         {
-            "primary" or "secondary" or "success" or "danger" or "warning" or "info" or "light" or "dark" or "link" or "muted" or "white"
-                or "black" or "transparent" => rule.Value,
+            "primary" => "bg-primary",
+            "primary-foreground" => "bg-primary-foreground",
+            "secondary" => "bg-secondary",
+            "secondary-foreground" => "bg-secondary-foreground",
+            "destructive" => "bg-destructive",
+            "destructive-foreground" => "bg-destructive-foreground",
+            "muted-foreground" => "bg-muted-foreground",
+            "accent" => "bg-accent",
+            "accent-foreground" => "bg-accent-foreground",
+            "popover" => "bg-popover",
+            "popover-foreground" => "bg-popover-foreground",
+            "card" => "bg-card",
+            "card-foreground" => "bg-card-foreground",
+            "background" => "bg-background",
+            "foreground" => "bg-foreground",
+            "border" => "bg-border",
+            "input" => "bg-input",
+            "ring" => "bg-ring",
+            "success" => "bg-success",
+            "danger" => "bg-destructive",
+            "warning" => "bg-warning",
+            "info" => "bg-info",
+            "light" => "bg-white",
+            "dark" => "bg-black",
+            "link" => "bg-accent",
+            "muted" => "bg-muted",
+            "white" => "bg-white",
+            "black" => "bg-black",
+            "transparent" => "bg-transparent",
+            "body" => "bg-background",
+            "body-secondary" => "bg-secondary",
+            "body-tertiary" => "bg-muted",
+            "body-emphasis" => "bg-accent",
+            "body-highlight" => "bg-accent",
+            "body-muted" => "bg-muted",
+            "body-reset" => "bg-background",
+            "body-inverse" => "bg-foreground",
+            "body-inverse-secondary" => "bg-secondary-foreground",
+            "body-inverse-tertiary" => "bg-muted-foreground",
+            "body-inverse-emphasis" => "bg-primary-foreground",
+            "body-inverse-highlight" => "bg-accent-foreground",
+            "body-inverse-muted" => "bg-muted-foreground",
+            "body-inverse-reset" => "bg-background",
+            _ when rule.Value.StartsWith("bg-") => rule.Value,
             _ => string.Empty
         };
     }
@@ -241,11 +347,7 @@ public sealed class BackgroundColorBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string? GetStyle(BackgroundColorRule rule)
     {
-        return rule.Value switch
-        {
-            "primary" or "secondary" or "success" or "danger" or "warning" or "info" or "light" or "dark" or "link" or "muted" or "white" or "black" or "transparent" => null,
-            _ => rule.Value
-        };
+        return GetClass(rule).Length != 0 ? null : rule.Value;
     }
 
 }

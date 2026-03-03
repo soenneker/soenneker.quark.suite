@@ -6,18 +6,12 @@ using Soenneker.Utils.PooledStringBuilders;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Simplified height builder with fluent API for chaining height rules.
+/// Height builder with fluent API for chaining height rules.
+/// Tailwind-first and shadcn-friendly (h-* and common tokens).
 /// </summary>
 public sealed class HeightBuilder : ICssBuilder
 {
     private readonly List<HeightRule> _rules = new(4);
-
-    private const string _classH25 = "h-25";
-    private const string _classH50 = "h-50";
-    private const string _classH75 = "h-75";
-    private const string _classH100 = "h-100";
-    private const string _classHAuto = "h-auto";
-    private const string _heightPrefix = "height: ";
 
     internal HeightBuilder(string size, BreakpointType? breakpoint = null)
     {
@@ -30,51 +24,39 @@ public sealed class HeightBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
-	/// <summary>
-	/// Sets the height to 25%.
-	/// </summary>
     public HeightBuilder Is25 => ChainWithSize("25");
-	/// <summary>
-	/// Sets the height to 50%.
-	/// </summary>
     public HeightBuilder Is50 => ChainWithSize("50");
-	/// <summary>
-	/// Sets the height to 75%.
-	/// </summary>
     public HeightBuilder Is75 => ChainWithSize("75");
-	/// <summary>
-	/// Sets the height to 100%.
-	/// </summary>
     public HeightBuilder Is100 => ChainWithSize("100");
-	/// <summary>
-	/// Sets the height to auto.
-	/// </summary>
+
+    public HeightBuilder Is0 => ChainWithSize("0");
+    public HeightBuilder IsPx => ChainWithSize("px");
+    public HeightBuilder IsFull => ChainWithSize("full");
+    public HeightBuilder IsScreen => ChainWithSize("screen");
+    public HeightBuilder IsFit => ChainWithSize("fit");
+    public HeightBuilder IsMin => ChainWithSize("min");
+    public HeightBuilder IsMax => ChainWithSize("max");
+
+    public HeightBuilder Is1of2 => ChainWithSize("1/2");
+    public HeightBuilder Is1of3 => ChainWithSize("1/3");
+    public HeightBuilder Is2of3 => ChainWithSize("2/3");
+    public HeightBuilder Is1of4 => ChainWithSize("1/4");
+    public HeightBuilder Is2of4 => ChainWithSize("2/4");
+    public HeightBuilder Is3of4 => ChainWithSize("3/4");
+
     public HeightBuilder Auto => ChainWithSize("auto");
 
-	/// <summary>
-	/// Applies the height on phone breakpoint.
-	/// </summary>
     public HeightBuilder OnPhone => ChainWithBreakpoint(BreakpointType.Base);
-	/// <summary>
-	/// Applies the height on tablet breakpoint.
-	/// </summary>
     public HeightBuilder OnTablet => ChainWithBreakpoint(BreakpointType.Md);
-	/// <summary>
-	/// Applies the height on laptop breakpoint.
-	/// </summary>
     public HeightBuilder OnLaptop => ChainWithBreakpoint(BreakpointType.Lg);
-	/// <summary>
-	/// Applies the height on desktop breakpoint.
-	/// </summary>
     public HeightBuilder OnDesktop => ChainWithBreakpoint(BreakpointType.Xl);
-	/// <summary>
-	/// Applies the height on widescreen breakpoint.
-	/// </summary>
     public HeightBuilder OnWidescreen => ChainWithBreakpoint(BreakpointType.Xxl);
-	/// <summary>
-	/// Applies the height on ultrawide breakpoint.
-	/// </summary>
     public HeightBuilder OnUltrawide => ChainWithBreakpoint(BreakpointType.Xxl);
+
+    /// <summary>
+    /// Applies an arbitrary Tailwind height token (e.g. "72", "[18rem]", "full").
+    /// </summary>
+    public HeightBuilder Token(string token) => ChainWithSize(token);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private HeightBuilder ChainWithSize(string size)
@@ -88,7 +70,7 @@ public sealed class HeightBuilder : ICssBuilder
     {
         if (_rules.Count == 0)
         {
-            _rules.Add(new HeightRule("100", breakpoint));
+            _rules.Add(new HeightRule("full", breakpoint));
             return this;
         }
 
@@ -98,10 +80,6 @@ public sealed class HeightBuilder : ICssBuilder
         return this;
     }
 
-	/// <summary>
-	/// Gets the CSS class string for the current configuration.
-	/// </summary>
-	/// <returns>The CSS class string.</returns>
     public string ToClass()
     {
         if (_rules.Count == 0)
@@ -130,62 +108,50 @@ public sealed class HeightBuilder : ICssBuilder
         return sb.ToString();
     }
 
-	/// <summary>
-	/// Gets the CSS style string for the current configuration.
-	/// </summary>
-	/// <returns>The CSS style string.</returns>
-    public string ToStyle()
-    {
-        if (_rules.Count == 0)
-            return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var rule = _rules[i];
-            var val = GetHeightValue(rule.Size);
-            if (val is null)
-                continue;
-
-            if (!first) sb.Append("; ");
-            else first = false;
-
-            sb.Append(_heightPrefix);
-            sb.Append(val);
-        }
-
-        return sb.ToString();
-    }
+    public string ToStyle() => string.Empty;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string GetHeightClass(string size)
     {
         return size switch
         {
-            "25" => _classH25,
-            "50" => _classH50,
-            "75" => _classH75,
-            "100" => _classH100,
-            "auto" => _classHAuto,
+            "25" => "h-1/4",
+            "50" => "h-1/2",
+            "75" => "h-3/4",
+            "100" => "h-full",
+            "0" => "h-0",
+            "px" => "h-px",
+            "full" => "h-full",
+            "screen" => "h-screen",
+            "fit" => "h-fit",
+            "min" => "h-min",
+            "max" => "h-max",
+            "1/2" => "h-1/2",
+            "1/3" => "h-1/3",
+            "2/3" => "h-2/3",
+            "1/4" => "h-1/4",
+            "2/4" => "h-2/4",
+            "3/4" => "h-3/4",
+            "14" => "h-14",
+            "16" => "h-16",
+            "20" => "h-20",
+            "24" => "h-24",
+            "28" => "h-28",
+            "32" => "h-32",
+            "36" => "h-36",
+            "40" => "h-40",
+            "44" => "h-44",
+            "48" => "h-48",
+            "52" => "h-52",
+            "56" => "h-56",
+            "60" => "h-60",
+            "64" => "h-64",
+            "72" => "h-72",
+            "80" => "h-80",
+            "96" => "h-96",
+            "auto" => "h-auto",
+            _ when size.StartsWith("h-") => size,
             _ => string.Empty
         };
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string? GetHeightValue(string size)
-    {
-        return size switch
-        {
-            "25" => "25%",
-            "50" => "50%",
-            "75" => "75%",
-            "100" => "100%",
-            "auto" => "auto",
-            _ => size
-        };
-    }
-
-
 }

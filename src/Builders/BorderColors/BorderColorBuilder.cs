@@ -36,6 +36,86 @@ public sealed class BorderColorBuilder : ICssBuilder
     public BorderColorBuilder Secondary => ChainValue("secondary");
 
     /// <summary>
+    /// Sets the border color to primary-foreground.
+    /// </summary>
+    public BorderColorBuilder PrimaryForeground => ChainValue("primary-foreground");
+
+    /// <summary>
+    /// Sets the border color to secondary-foreground.
+    /// </summary>
+    public BorderColorBuilder SecondaryForeground => ChainValue("secondary-foreground");
+
+    /// <summary>
+    /// Sets the border color to destructive.
+    /// </summary>
+    public BorderColorBuilder Destructive => ChainValue("destructive");
+
+    /// <summary>
+    /// Sets the border color to destructive-foreground.
+    /// </summary>
+    public BorderColorBuilder DestructiveForeground => ChainValue("destructive-foreground");
+
+    /// <summary>
+    /// Sets the border color to muted-foreground.
+    /// </summary>
+    public BorderColorBuilder MutedForeground => ChainValue("muted-foreground");
+
+    /// <summary>
+    /// Sets the border color to accent.
+    /// </summary>
+    public BorderColorBuilder Accent => ChainValue("accent");
+
+    /// <summary>
+    /// Sets the border color to accent-foreground.
+    /// </summary>
+    public BorderColorBuilder AccentForeground => ChainValue("accent-foreground");
+
+    /// <summary>
+    /// Sets the border color to popover.
+    /// </summary>
+    public BorderColorBuilder Popover => ChainValue("popover");
+
+    /// <summary>
+    /// Sets the border color to popover-foreground.
+    /// </summary>
+    public BorderColorBuilder PopoverForeground => ChainValue("popover-foreground");
+
+    /// <summary>
+    /// Sets the border color to card.
+    /// </summary>
+    public BorderColorBuilder Card => ChainValue("card");
+
+    /// <summary>
+    /// Sets the border color to card-foreground.
+    /// </summary>
+    public BorderColorBuilder CardForeground => ChainValue("card-foreground");
+
+    /// <summary>
+    /// Sets the border color to background.
+    /// </summary>
+    public BorderColorBuilder Background => ChainValue("background");
+
+    /// <summary>
+    /// Sets the border color to foreground.
+    /// </summary>
+    public BorderColorBuilder Foreground => ChainValue("foreground");
+
+    /// <summary>
+    /// Sets the border color to border token.
+    /// </summary>
+    public BorderColorBuilder Border => ChainValue("border");
+
+    /// <summary>
+    /// Sets the border color to input.
+    /// </summary>
+    public BorderColorBuilder Input => ChainValue("input");
+
+    /// <summary>
+    /// Sets the border color to ring.
+    /// </summary>
+    public BorderColorBuilder Ring => ChainValue("ring");
+
+    /// <summary>
     /// Sets the border color to success.
     /// </summary>
     public BorderColorBuilder Success => ChainValue("success");
@@ -254,24 +334,40 @@ public sealed class BorderColorBuilder : ICssBuilder
         return rule.Value switch
         {
             "primary" => "border-primary",
+            "primary-foreground" => "border-primary-foreground",
             "secondary" => "border-secondary",
+            "secondary-foreground" => "border-secondary-foreground",
+            "destructive" => "border-destructive",
+            "destructive-foreground" => "border-destructive-foreground",
+            "muted-foreground" => "border-muted-foreground",
+            "accent" => "border-accent",
+            "accent-foreground" => "border-accent-foreground",
+            "popover" => "border-popover",
+            "popover-foreground" => "border-popover-foreground",
+            "card" => "border-card",
+            "card-foreground" => "border-card-foreground",
+            "background" => "border-background",
+            "foreground" => "border-foreground",
+            "border" => "border-border",
+            "input" => "border-input",
+            "ring" => "border-ring",
             "success" => "border-success",
-            "danger" => "border-danger",
+            "danger" => "border-destructive",
             "warning" => "border-warning",
             "info" => "border-info",
-            "light" => "border-light",
-            "dark" => "border-dark",
+            "light" => "border-white",
+            "dark" => "border-black",
             "muted" => "border-muted",
             "white" => "border-white",
             "black" => "border-black",
-            "body" => "border-body",
-            "body-secondary" => "border-body-secondary",
-            "body-tertiary" => "border-body-tertiary",
-            "body-emphasis" => "border-body-emphasis",
-            "body-highlight" => "border-body-highlight",
-            "body-muted" => "border-body-muted",
-            "body-reset" => "border-body-reset",
-            "body-inverse" => "border-body-inverse",
+            "body" => "border-border",
+            "body-secondary" => "border-secondary",
+            "body-tertiary" => "border-muted",
+            "body-emphasis" => "border-foreground",
+            "body-highlight" => "border-accent",
+            "body-muted" => "border-muted",
+            "body-reset" => "border-border",
+            "body-inverse" => "border-background",
             "body-inverse-secondary" => "border-body-inverse-secondary",
             "body-inverse-tertiary" => "border-body-inverse-tertiary",
             "body-inverse-emphasis" => "border-body-inverse-emphasis",
@@ -281,6 +377,7 @@ public sealed class BorderColorBuilder : ICssBuilder
             "75" => "border-opacity-75",
             "50" => "border-opacity-50",
             "25" => "border-opacity-25",
+            _ when rule.Value.StartsWith("border-") => rule.Value,
             _ => string.Empty
         };
     }
@@ -288,8 +385,7 @@ public sealed class BorderColorBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string? GetStyle(BorderColorRule rule)
     {
-        // Border colors should always generate classes, not styles
-        return null;
+        return GetClass(rule).Length != 0 ? null : rule.Value;
     }
 
 }
