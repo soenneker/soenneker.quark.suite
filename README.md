@@ -5,7 +5,7 @@
 
 # ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Quark.Suite
 
-**Blazor component library for .NET — Bootstrap 5, full theming, and type-safe CSS utilities.**
+**Blazor component library for .NET — Shadcn/Tailwind, full theming, and type-safe CSS utilities.**
 
 ## Highlights
 
