@@ -128,26 +128,43 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
         if (value.IsNullOrEmpty())
             return false;
 
-        return value.Length <= 20 && (value.Equals("xs", StringComparison.OrdinalIgnoreCase) ||
+        return value.Equals("xs", StringComparison.OrdinalIgnoreCase) ||
                value.Equals("sm", StringComparison.OrdinalIgnoreCase) ||
                value.Equals("md", StringComparison.OrdinalIgnoreCase) ||
                value.Equals("lg", StringComparison.OrdinalIgnoreCase) ||
                value.Equals("xl", StringComparison.OrdinalIgnoreCase) ||
                value.Equals("xxl", StringComparison.OrdinalIgnoreCase) ||
                value.Equals("primary", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("primary-foreground", StringComparison.OrdinalIgnoreCase) ||
                value.Equals("secondary", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("secondary-foreground", StringComparison.OrdinalIgnoreCase) ||
                value.Equals("success", StringComparison.OrdinalIgnoreCase) ||
                value.Equals("danger", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("destructive", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("destructive-foreground", StringComparison.OrdinalIgnoreCase) ||
                value.Equals("warning", StringComparison.OrdinalIgnoreCase) ||
                value.Equals("info", StringComparison.OrdinalIgnoreCase) ||
                value.Equals("light", StringComparison.OrdinalIgnoreCase) ||
                value.Equals("dark", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("background", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("foreground", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("card", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("card-foreground", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("popover", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("popover-foreground", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("accent", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("accent-foreground", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("input", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("ring", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("border", StringComparison.OrdinalIgnoreCase) ||
                value.Equals("body", StringComparison.OrdinalIgnoreCase) ||
                value.Equals("body-secondary", StringComparison.OrdinalIgnoreCase) ||
                value.Equals("body-tertiary", StringComparison.OrdinalIgnoreCase) ||
                value.Equals("link", StringComparison.OrdinalIgnoreCase) ||
                value.Equals("muted", StringComparison.OrdinalIgnoreCase) ||
-               value.Equals("white", StringComparison.OrdinalIgnoreCase));
+               value.Equals("muted-foreground", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("white", StringComparison.OrdinalIgnoreCase) ||
+               value.Equals("black", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool LooksLikeCssUnit(string value)

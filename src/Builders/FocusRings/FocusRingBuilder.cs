@@ -13,14 +13,6 @@ public sealed class FocusRingBuilder : ICssBuilder
 {
     private readonly List<FocusRingRule> _rules = new(4);
 
-    private const string _classPrimary = "focus-ring-primary";
-    private const string _classSecondary = "focus-ring-secondary";
-    private const string _classSuccess = "focus-ring-success";
-    private const string _classInfo = "focus-ring-info";
-    private const string _classWarning = "focus-ring-warning";
-    private const string _classDanger = "focus-ring-danger";
-    private const string _classLight = "focus-ring-light";
-    private const string _classDark = "focus-ring-dark";
 
     internal FocusRingBuilder(string color, BreakpointType? breakpoint = null)
     {
@@ -36,6 +28,7 @@ public sealed class FocusRingBuilder : ICssBuilder
     /// <summary>
     /// Sets the focus ring color to primary.
     /// </summary>
+    public FocusRingBuilder Ring => Chain("ring");
     public FocusRingBuilder Primary => Chain("primary");
     /// <summary>
     /// Sets the focus ring color to secondary.
@@ -57,6 +50,9 @@ public sealed class FocusRingBuilder : ICssBuilder
     /// Sets the focus ring color to danger.
     /// </summary>
     public FocusRingBuilder Danger => Chain("danger");
+    public FocusRingBuilder Destructive => Chain("destructive");
+    public FocusRingBuilder Muted => Chain("muted");
+    public FocusRingBuilder Accent => Chain("accent");
     /// <summary>
     /// Sets the focus ring color to light.
     /// </summary>
@@ -128,14 +124,19 @@ public sealed class FocusRingBuilder : ICssBuilder
             var rule = _rules[i];
             var cls = rule.Color switch
             {
-                "primary" => _classPrimary,
-                "secondary" => _classSecondary,
-                "success" => _classSuccess,
-                "info" => _classInfo,
-                "warning" => _classWarning,
-                "danger" => _classDanger,
-                "light" => _classLight,
-                "dark" => _classDark,
+                "ring" => "focus-visible:ring-ring",
+                "primary" => "focus-visible:ring-primary",
+                "secondary" => "focus-visible:ring-secondary",
+                "destructive" => "focus-visible:ring-destructive",
+                "muted" => "focus-visible:ring-muted",
+                "accent" => "focus-visible:ring-accent",
+                "success" => "focus-visible:ring-success",
+                "info" => "focus-visible:ring-info",
+                "warning" => "focus-visible:ring-warning",
+                "danger" => "focus-visible:ring-destructive",
+                "light" => "focus-visible:ring-white",
+                "dark" => "focus-visible:ring-black",
+                _ when rule.Color.StartsWith("focus-visible:ring-") => rule.Color,
                 _ => string.Empty
             };
             if (cls.Length == 0)
@@ -155,46 +156,9 @@ public sealed class FocusRingBuilder : ICssBuilder
 
     /// <summary>
     /// Gets the CSS style string for the current configuration.
+    /// Focus rings are class-based in shadcn/Tailwind.
     /// </summary>
-    /// <returns>The CSS style string.</returns>
-    public string ToStyle()
-    {
-        if (_rules.Count == 0) return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var rule = _rules[i];
-            var cssVar = GetCssVariable(rule.Color);
-            if (cssVar is null)
-                continue;
-
-            if (!first) sb.Append("; ");
-            else first = false;
-
-            sb.Append("--qt-focus-ring: ");
-            sb.Append(cssVar);
-        }
-        return sb.ToString();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string? GetCssVariable(string color)
-    {
-        return color switch
-        {
-            "primary" => "var(--primary)",
-            "secondary" => "var(--secondary)",
-            "success" => "var(--success)",
-            "info" => "var(--info)",
-            "warning" => "var(--warning)",
-            "danger" => "var(--danger)",
-            "light" => "var(--light)",
-            "dark" => "var(--dark)",
-            _ => null
-        };
-    }
+    public string ToStyle() => string.Empty;
 
 }
 

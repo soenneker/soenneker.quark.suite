@@ -34,6 +34,70 @@ public sealed class TextColorBuilder : ICssBuilder
 	/// </summary>
     public TextColorBuilder Secondary => ChainValue("secondary");
 	/// <summary>
+	/// Sets the text color to primary-foreground.
+	/// </summary>
+    public TextColorBuilder PrimaryForeground => ChainValue("primary-foreground");
+	/// <summary>
+	/// Sets the text color to secondary-foreground.
+	/// </summary>
+    public TextColorBuilder SecondaryForeground => ChainValue("secondary-foreground");
+	/// <summary>
+	/// Sets the text color to destructive.
+	/// </summary>
+    public TextColorBuilder Destructive => ChainValue("destructive");
+	/// <summary>
+	/// Sets the text color to destructive-foreground.
+	/// </summary>
+    public TextColorBuilder DestructiveForeground => ChainValue("destructive-foreground");
+	/// <summary>
+	/// Sets the text color to muted-foreground.
+	/// </summary>
+    public TextColorBuilder MutedForeground => ChainValue("muted-foreground");
+	/// <summary>
+	/// Sets the text color to accent.
+	/// </summary>
+    public TextColorBuilder Accent => ChainValue("accent");
+	/// <summary>
+	/// Sets the text color to accent-foreground.
+	/// </summary>
+    public TextColorBuilder AccentForeground => ChainValue("accent-foreground");
+	/// <summary>
+	/// Sets the text color to popover.
+	/// </summary>
+    public TextColorBuilder Popover => ChainValue("popover");
+	/// <summary>
+	/// Sets the text color to popover-foreground.
+	/// </summary>
+    public TextColorBuilder PopoverForeground => ChainValue("popover-foreground");
+	/// <summary>
+	/// Sets the text color to card.
+	/// </summary>
+    public TextColorBuilder Card => ChainValue("card");
+	/// <summary>
+	/// Sets the text color to card-foreground.
+	/// </summary>
+    public TextColorBuilder CardForeground => ChainValue("card-foreground");
+	/// <summary>
+	/// Sets the text color to background.
+	/// </summary>
+    public TextColorBuilder Background => ChainValue("background");
+	/// <summary>
+	/// Sets the text color to foreground.
+	/// </summary>
+    public TextColorBuilder Foreground => ChainValue("foreground");
+	/// <summary>
+	/// Sets the text color to border.
+	/// </summary>
+    public TextColorBuilder Border => ChainValue("border");
+	/// <summary>
+	/// Sets the text color to input.
+	/// </summary>
+    public TextColorBuilder Input => ChainValue("input");
+	/// <summary>
+	/// Sets the text color to ring.
+	/// </summary>
+    public TextColorBuilder Ring => ChainValue("ring");
+	/// <summary>
 	/// Sets the text color to success.
 	/// </summary>
     public TextColorBuilder Success => ChainValue("success");
@@ -263,41 +327,58 @@ public sealed class TextColorBuilder : ICssBuilder
         return rule.Value switch
         {
             "primary" => "text-primary",
+            "primary-foreground" => "text-primary-foreground",
             "secondary" => "text-secondary",
+            "secondary-foreground" => "text-secondary-foreground",
+            "destructive" => "text-destructive",
+            "destructive-foreground" => "text-destructive-foreground",
+            "muted-foreground" => "text-muted-foreground",
+            "accent" => "text-accent",
+            "accent-foreground" => "text-accent-foreground",
+            "popover" => "text-popover",
+            "popover-foreground" => "text-popover-foreground",
+            "card" => "text-card",
+            "card-foreground" => "text-card-foreground",
+            "background" => "text-background",
+            "foreground" => "text-foreground",
+            "border" => "text-border",
+            "input" => "text-input",
+            "ring" => "text-ring",
             "success" => "text-success",
-            "danger" => "text-danger",
+            "danger" => "text-destructive",
             "warning" => "text-warning",
             "info" => "text-info",
-            "light" => "text-light",
-            "dark" => "text-dark",
-            "muted" => "text-muted",
+            "light" => "text-white",
+            "dark" => "text-black",
+            "muted" => "text-muted-foreground",
             "white" => "text-white",
             "black" => "text-black",
-            "body" => "text-body",
-            "body-secondary" => "text-body-secondary",
-            "body-tertiary" => "text-body-tertiary",
-            "body-emphasis" => "text-body-emphasis",
-            "body-highlight" => "text-body-highlight",
-            "body-muted" => "text-body-muted",
-            "body-reset" => "text-body-reset",
-            "body-inverse" => "text-body-inverse",
-            "body-inverse-secondary" => "text-body-inverse-secondary",
-            "body-inverse-tertiary" => "text-body-inverse-tertiary",
-            "body-inverse-emphasis" => "text-body-inverse-emphasis",
-            "body-inverse-highlight" => "text-body-inverse-highlight",
-            "body-inverse-muted" => "text-body-inverse-muted",
-            "body-inverse-reset" => "text-body-inverse-reset",
-            "primary-emphasis" => "text-primary-emphasis",
-            "secondary-emphasis" => "text-secondary-emphasis",
-            "success-emphasis" => "text-success-emphasis",
-            "danger-emphasis" => "text-danger-emphasis",
-            "warning-emphasis" => "text-warning-emphasis",
-            "info-emphasis" => "text-info-emphasis",
-            "light-emphasis" => "text-light-emphasis",
-            "dark-emphasis" => "text-dark-emphasis",
-            "75" => "-75",
-            "50" => "-50",
-            "25" => "-25",
+            "body" => "text-foreground",
+            "body-secondary" => "text-muted-foreground",
+            "body-tertiary" => "text-muted-foreground",
+            "body-emphasis" => "text-foreground",
+            "body-highlight" => "text-foreground",
+            "body-muted" => "text-muted-foreground",
+            "body-reset" => "text-foreground",
+            "body-inverse" => "text-background",
+            "body-inverse-secondary" => "text-secondary-foreground",
+            "body-inverse-tertiary" => "text-muted-foreground",
+            "body-inverse-emphasis" => "text-primary-foreground",
+            "body-inverse-highlight" => "text-accent-foreground",
+            "body-inverse-muted" => "text-muted-foreground",
+            "body-inverse-reset" => "text-foreground",
+            "primary-emphasis" => "text-primary",
+            "secondary-emphasis" => "text-secondary",
+            "success-emphasis" => "text-success",
+            "danger-emphasis" => "text-destructive",
+            "warning-emphasis" => "text-warning",
+            "info-emphasis" => "text-info",
+            "light-emphasis" => "text-white",
+            "dark-emphasis" => "text-black",
+            "75" => "text-opacity-75",
+            "50" => "text-opacity-50",
+            "25" => "text-opacity-25",
+            _ when rule.Value.StartsWith("text-") => rule.Value,
             _ => string.Empty
         };
     }
@@ -305,8 +386,7 @@ public sealed class TextColorBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string? GetStyle(TextColorRule rule)
     {
-        // Text colors should always generate classes, not styles
-        return null;
+        return GetClass(rule).Length != 0 ? null : rule.Value;
     }
 
 }

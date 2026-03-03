@@ -34,6 +34,70 @@ public sealed class ColorBuilder : ICssBuilder
 	/// </summary>
     public ColorBuilder Secondary => ChainValue("secondary");
 	/// <summary>
+	/// Sets the color to primary-foreground.
+	/// </summary>
+    public ColorBuilder PrimaryForeground => ChainValue("primary-foreground");
+	/// <summary>
+	/// Sets the color to secondary-foreground.
+	/// </summary>
+    public ColorBuilder SecondaryForeground => ChainValue("secondary-foreground");
+	/// <summary>
+	/// Sets the color to destructive.
+	/// </summary>
+    public ColorBuilder Destructive => ChainValue("destructive");
+	/// <summary>
+	/// Sets the color to destructive-foreground.
+	/// </summary>
+    public ColorBuilder DestructiveForeground => ChainValue("destructive-foreground");
+	/// <summary>
+	/// Sets the color to muted-foreground.
+	/// </summary>
+    public ColorBuilder MutedForeground => ChainValue("muted-foreground");
+	/// <summary>
+	/// Sets the color to accent.
+	/// </summary>
+    public ColorBuilder Accent => ChainValue("accent");
+	/// <summary>
+	/// Sets the color to accent-foreground.
+	/// </summary>
+    public ColorBuilder AccentForeground => ChainValue("accent-foreground");
+	/// <summary>
+	/// Sets the color to popover.
+	/// </summary>
+    public ColorBuilder Popover => ChainValue("popover");
+	/// <summary>
+	/// Sets the color to popover-foreground.
+	/// </summary>
+    public ColorBuilder PopoverForeground => ChainValue("popover-foreground");
+	/// <summary>
+	/// Sets the color to card.
+	/// </summary>
+    public ColorBuilder Card => ChainValue("card");
+	/// <summary>
+	/// Sets the color to card-foreground.
+	/// </summary>
+    public ColorBuilder CardForeground => ChainValue("card-foreground");
+	/// <summary>
+	/// Sets the color to background.
+	/// </summary>
+    public ColorBuilder Background => ChainValue("background");
+	/// <summary>
+	/// Sets the color to foreground.
+	/// </summary>
+    public ColorBuilder Foreground => ChainValue("foreground");
+	/// <summary>
+	/// Sets the color to border.
+	/// </summary>
+    public ColorBuilder Border => ChainValue("border");
+	/// <summary>
+	/// Sets the color to input.
+	/// </summary>
+    public ColorBuilder Input => ChainValue("input");
+	/// <summary>
+	/// Sets the color to ring.
+	/// </summary>
+    public ColorBuilder Ring => ChainValue("ring");
+	/// <summary>
 	/// Sets the color to success.
 	/// </summary>
     public ColorBuilder Success => ChainValue("success");
@@ -227,8 +291,35 @@ public sealed class ColorBuilder : ICssBuilder
     {
         return rule.Value switch
         {
-            "primary" or "secondary" or "success" or "danger" or "warning" or "info" or "light" or "dark" or "link" or "muted" or "white"
-                or "black" => rule.Value,
+            "primary" => "text-primary",
+            "primary-foreground" => "text-primary-foreground",
+            "secondary" => "text-secondary",
+            "secondary-foreground" => "text-secondary-foreground",
+            "destructive" => "text-destructive",
+            "destructive-foreground" => "text-destructive-foreground",
+            "muted" => "text-muted",
+            "muted-foreground" => "text-muted-foreground",
+            "accent" => "text-accent",
+            "accent-foreground" => "text-accent-foreground",
+            "popover" => "text-popover",
+            "popover-foreground" => "text-popover-foreground",
+            "card" => "text-card",
+            "card-foreground" => "text-card-foreground",
+            "background" => "text-background",
+            "foreground" => "text-foreground",
+            "border" => "text-border",
+            "input" => "text-input",
+            "ring" => "text-ring",
+            "success" => "text-success",
+            "danger" => "text-destructive",
+            "warning" => "text-warning",
+            "info" => "text-info",
+            "light" => "text-white",
+            "dark" => "text-black",
+            "link" => "text-primary",
+            "white" => "text-white",
+            "black" => "text-black",
+            _ when rule.Value.StartsWith("text-") => rule.Value,
             _ => string.Empty
         };
     }
@@ -236,11 +327,7 @@ public sealed class ColorBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string? GetStyle(ColorRule rule)
     {
-        return rule.Value switch
-        {
-            "primary" or "secondary" or "success" or "danger" or "warning" or "info" or "light" or "dark" or "link" or "muted" or "white" or "black" => null,
-            _ => rule.Value
-        };
+        return GetClass(rule).Length != 0 ? null : rule.Value;
     }
 
 }

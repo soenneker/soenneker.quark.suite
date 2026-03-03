@@ -1,87 +1,47 @@
 using Soenneker.Quark.Enums;
 
-
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Color utility with fluent API and Bootstrap-first approach.
+/// Generic color utility aligned with shadcn/Tailwind semantic tokens.
 /// </summary>
 public static class Color
 {
-    /// <summary>
-    /// Gets a color builder with primary theme color.
-    /// </summary>
     public static ColorBuilder Primary => new("primary");
-    /// <summary>
-    /// Gets a color builder with secondary theme color.
-    /// </summary>
+    public static ColorBuilder PrimaryForeground => new("primary-foreground");
     public static ColorBuilder Secondary => new("secondary");
-    /// <summary>
-    /// Gets a color builder with success theme color.
-    /// </summary>
-    public static ColorBuilder Success => new("success");
-    /// <summary>
-    /// Gets a color builder with danger theme color.
-    /// </summary>
-    public static ColorBuilder Danger => new("danger");
-    /// <summary>
-    /// Gets a color builder with warning theme color.
-    /// </summary>
-    public static ColorBuilder Warning => new("warning");
-    /// <summary>
-    /// Gets a color builder with info theme color.
-    /// </summary>
-    public static ColorBuilder Info => new("info");
-    /// <summary>
-    /// Gets a color builder with light theme color.
-    /// </summary>
-    public static ColorBuilder Light => new("light");
-    /// <summary>
-    /// Gets a color builder with dark theme color.
-    /// </summary>
-    public static ColorBuilder Dark => new("dark");
-    /// <summary>
-    /// Gets a color builder with link color.
-    /// </summary>
-    public static ColorBuilder Link => new("link");
-    /// <summary>
-    /// Gets a color builder with muted color.
-    /// </summary>
+    public static ColorBuilder SecondaryForeground => new("secondary-foreground");
+    public static ColorBuilder Destructive => new("destructive");
+    public static ColorBuilder DestructiveForeground => new("destructive-foreground");
     public static ColorBuilder Muted => new("muted");
+    public static ColorBuilder MutedForeground => new("muted-foreground");
+    public static ColorBuilder Accent => new("accent");
+    public static ColorBuilder AccentForeground => new("accent-foreground");
+    public static ColorBuilder Popover => new("popover");
+    public static ColorBuilder PopoverForeground => new("popover-foreground");
+    public static ColorBuilder Card => new("card");
+    public static ColorBuilder CardForeground => new("card-foreground");
+    public static ColorBuilder Background => new("background");
+    public static ColorBuilder Foreground => new("foreground");
+    public static ColorBuilder Border => new("border");
+    public static ColorBuilder Input => new("input");
+    public static ColorBuilder Ring => new("ring");
 
-    /// <summary>
-    /// Gets a color builder with white color.
-    /// </summary>
+    public static ColorBuilder Success => new("success");
+    public static ColorBuilder Danger => new("danger");
+    public static ColorBuilder Warning => new("warning");
+    public static ColorBuilder Info => new("info");
+    public static ColorBuilder Light => new("light");
+    public static ColorBuilder Dark => new("dark");
+    public static ColorBuilder Link => new("link");
     public static ColorBuilder White => new("white");
-
-    /// <summary>
-    /// Gets a color builder with black color.
-    /// </summary>
     public static ColorBuilder Black => new("black");
 
-    /// <summary>
-    /// Gets a color builder with inherit keyword.
-    /// </summary>
     public static ColorBuilder Inherit => new(GlobalKeyword.InheritValue);
-    /// <summary>
-    /// Gets a color builder with initial keyword.
-    /// </summary>
     public static ColorBuilder Initial => new(GlobalKeyword.InitialValue);
-    /// <summary>
-    /// Gets a color builder with revert keyword.
-    /// </summary>
     public static ColorBuilder Revert => new(GlobalKeyword.RevertValue);
-    /// <summary>
-    /// Gets a color builder with revert-layer keyword.
-    /// </summary>
     public static ColorBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
-    /// <summary>
-    /// Gets a color builder with unset keyword.
-    /// </summary>
     public static ColorBuilder Unset => new(GlobalKeyword.UnsetValue);
 
-    /// <summary>
-    /// Create from an arbitrary CSS color value (e.g., "#ff0000", "rgb(10 20 30 / 0.5)").
-    /// </summary>
     public static ColorBuilder FromCss(string css) => new(css);
 }
