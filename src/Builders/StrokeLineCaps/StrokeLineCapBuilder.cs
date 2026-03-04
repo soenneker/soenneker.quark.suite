@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Stroke line cap builder. Tailwind: stroke-cap-auto, stroke-cap-round, stroke-cap-square, stroke-cap-butt.
 /// </summary>
+[TailwindPrefix("stroke-cap-", Responsive = true)]
 public sealed class StrokeLineCapBuilder : ICssBuilder
 {
     private readonly List<StrokeLineCapRule> _rules = new(4);

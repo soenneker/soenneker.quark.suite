@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// High-performance text wrap builder with fluent API for chaining text wrap rules.
 /// </summary>
+[TailwindPrefix("text-", Responsive = true)]
 public sealed class TextWrapBuilder : ICssBuilder
 {
     private readonly List<TextWrapRule> _rules = new(4);
@@ -62,6 +64,10 @@ public sealed class TextWrapBuilder : ICssBuilder
     /// Applies the text wrap on phone breakpoint.
     /// </summary>
     public TextWrapBuilder OnBase => ChainBp(BreakpointType.Base);
+    /// <summary>
+    /// Applies the text wrap on small breakpoint (≥640px).
+    /// </summary>
+    public TextWrapBuilder OnSm => ChainBp(BreakpointType.Sm);
     /// <summary>
     /// Applies the text wrap on tablet breakpoint.
     /// </summary>

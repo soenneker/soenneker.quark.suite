@@ -24,6 +24,7 @@ public static class QuarkSuiteRegistrar
             services.AddDefaultQuarkOptionsAsScoped();
 
         services
+            .AddScoped<ICollapseCoordinator, CollapseCoordinator>()
             .AddQuarkValidationAsScoped()
             .AddQuarkTableAsScoped()
             .AddQuarkSnackbarAsScoped()

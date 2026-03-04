@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 
@@ -6,6 +7,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Builder for text utility classes.
 /// </summary>
+[TailwindPrefix("font-", Responsive = true)]
 public sealed class TextStyleBuilder : ICssBuilder
 {
     private readonly List<TextStyleRule> _rules = new(4);
@@ -81,6 +83,10 @@ public sealed class TextStyleBuilder : ICssBuilder
     /// Applies the text style on phone breakpoint.
     /// </summary>
     public TextStyleBuilder OnBase => ChainBp(BreakpointType.Base);
+    /// <summary>
+    /// Applies the text style on small breakpoint (≥640px).
+    /// </summary>
+    public TextStyleBuilder OnSm => ChainBp(BreakpointType.Sm);
     /// <summary>
     /// Applies the text style on tablet breakpoint.
     /// </summary>

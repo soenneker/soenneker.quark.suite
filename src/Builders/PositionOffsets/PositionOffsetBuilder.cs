@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified position offset builder with fluent API for chaining position offset rules.
 /// </summary>
+[TailwindPrefix("top-", Responsive = true)]
 public sealed class PositionOffsetBuilder : ICssBuilder
 {
     private readonly List<PositionOffsetRule> _rules = new(6);
@@ -107,6 +109,11 @@ public sealed class PositionOffsetBuilder : ICssBuilder
     /// Applies the position offset on phone breakpoint.
     /// </summary>
     public PositionOffsetBuilder OnBase => ChainBp(BreakpointType.Base);
+
+    /// <summary>
+    /// Applies the position offset on small breakpoint (≥640px).
+    /// </summary>
+    public PositionOffsetBuilder OnSm => ChainBp(BreakpointType.Sm);
 
     /// <summary>
     /// Applies the position offset on tablet breakpoint.

@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Inset (top/right/bottom/left) builder with fluent API. Tailwind: inset-*, top-*, right-*, bottom-*, left-*, start-*, end-*.
 /// </summary>
+[TailwindPrefix("inset-", Responsive = true)]
 public sealed class InsetBuilder : ICssBuilder
 {
     private readonly List<InsetRule> _rules = new(4);

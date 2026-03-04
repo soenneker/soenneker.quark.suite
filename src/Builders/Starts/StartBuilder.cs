@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Start (inset-inline-start) builder. Tailwind: start-*.
 /// </summary>
+[TailwindPrefix("start-", Responsive = true)]
 public sealed class StartBuilder : ICssBuilder
 {
     private readonly List<StartRule> _rules = new(4);

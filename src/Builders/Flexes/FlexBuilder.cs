@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified flex builder with fluent API for chaining flex rules.
 /// </summary>
+[TailwindPrefix("flex", Responsive = true)]
 public sealed class FlexBuilder : ICssBuilder
 {
     private readonly List<FlexRule> _rules = new(8);
@@ -211,6 +213,11 @@ public sealed class FlexBuilder : ICssBuilder
     /// Apply on phone devices (portrait phones, less than 576px).
     /// </summary>
     public FlexBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+
+    /// <summary>
+    /// Apply on small screens (≥640px).
+    /// </summary>
+    public FlexBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
 
     /// <summary>
     /// Apply on tablet devices (tablets, 768px and up).

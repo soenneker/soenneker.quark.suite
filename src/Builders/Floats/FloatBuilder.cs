@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified float builder with fluent API for chaining float rules.
 /// </summary>
+[TailwindPrefix("float-", Responsive = true)]
 public sealed class FloatBuilder : ICssBuilder
 {
     private readonly List<FloatRule> _rules = new(4);
@@ -76,6 +78,10 @@ public sealed class FloatBuilder : ICssBuilder
 	/// Applies the float on phone breakpoint.
 	/// </summary>
     public FloatBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+	/// <summary>
+	/// Applies the float on small breakpoint (≥640px).
+	/// </summary>
+    public FloatBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
 	/// <summary>
 	/// Applies the float on tablet breakpoint.
 	/// </summary>

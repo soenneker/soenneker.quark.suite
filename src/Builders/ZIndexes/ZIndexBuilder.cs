@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified z-index builder with fluent API for chaining z-index rules.
 /// </summary>
+[TailwindPrefix("z-", Responsive = true)]
 public sealed class ZIndexBuilder : ICssBuilder
 {
     private readonly List<ZIndexRule> _rules = new(4);
@@ -59,6 +61,11 @@ public sealed class ZIndexBuilder : ICssBuilder
     /// Applies the z-index on phone breakpoint.
     /// </summary>
     public ZIndexBuilder OnBase => ChainBp(BreakpointType.Base);
+
+    /// <summary>
+    /// Applies the z-index on small breakpoint (≥640px).
+    /// </summary>
+    public ZIndexBuilder OnSm => ChainBp(BreakpointType.Sm);
 
     /// <summary>
     /// Applies the z-index on tablet breakpoint.

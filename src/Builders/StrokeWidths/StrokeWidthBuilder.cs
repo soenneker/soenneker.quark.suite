@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Stroke width builder for SVG/CSS. Tailwind: stroke-0, stroke-1, stroke-2.
 /// </summary>
+[TailwindPrefix("stroke-", Responsive = true)]
 public sealed class StrokeWidthBuilder : ICssBuilder
 {
     private readonly List<StrokeWidthRule> _rules = new(4);

@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+[TailwindPrefix("divide-", Responsive = true)]
 public sealed class DivideBuilder : ICssBuilder
 {
     private readonly List<DivideRule> _rules = new(8);

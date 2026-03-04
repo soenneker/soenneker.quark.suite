@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -10,6 +11,7 @@ namespace Soenneker.Quark;
 /// High-performance background color builder.
 /// Produces Tailwind utility tokens When possible, otherwise falls back to inline style.
 /// </summary>
+[TailwindPrefix("bg-", Responsive = true)]
 public sealed class BackgroundColorBuilder : ICssBuilder
 {
     private readonly List<BackgroundColorRule> _rules = new(4);
@@ -170,6 +172,10 @@ public sealed class BackgroundColorBuilder : ICssBuilder
 	/// Applies the background color on phone breakpoint.
 	/// </summary>
     public BackgroundColorBuilder OnBase => ChainBp(BreakpointType.Base);
+	/// <summary>
+	/// Applies the background color on small breakpoint (≥640px).
+	/// </summary>
+    public BackgroundColorBuilder OnSm => ChainBp(BreakpointType.Sm);
 	/// <summary>
 	/// Applies the background color on tablet breakpoint.
 	/// </summary>

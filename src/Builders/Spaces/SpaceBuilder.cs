@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+[TailwindPrefix("space-", Responsive = true)]
 public sealed class SpaceBuilder : ICssBuilder
 {
     private readonly List<SpaceRule> _rules = new(6);

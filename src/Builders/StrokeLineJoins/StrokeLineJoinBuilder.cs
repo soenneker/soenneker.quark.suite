@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Stroke line join builder. Tailwind: stroke-join-auto, stroke-join-round, stroke-join-bevel, stroke-join-miter.
 /// </summary>
+[TailwindPrefix("stroke-join-", Responsive = true)]
 public sealed class StrokeLineJoinBuilder : ICssBuilder
 {
     private readonly List<StrokeLineJoinRule> _rules = new(4);

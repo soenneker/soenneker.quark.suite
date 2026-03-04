@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+[TailwindPrefix("ring-offset-", Responsive = true)]
 public sealed class RingOffsetBuilder : ICssBuilder
 {
     private readonly List<RingOffsetRule> _rules = new(4);

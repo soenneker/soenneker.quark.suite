@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+[TailwindPrefix("content-", Responsive = true)]
 public sealed class AlignBuilder : ICssBuilder
 {
     private readonly List<AlignRule> _rules = new(8);

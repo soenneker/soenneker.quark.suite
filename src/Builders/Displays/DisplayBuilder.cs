@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -10,6 +11,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified display builder with fluent API for chaining display rules.
 /// </summary>
+[TailwindPrefix("block", Responsive = true)]
 public sealed class DisplayBuilder : ICssBuilder
 {
     private readonly List<DisplayRule> _rules = new(4);
@@ -94,6 +96,10 @@ public sealed class DisplayBuilder : ICssBuilder
 	/// Applies the display on phone breakpoint.
 	/// </summary>
     public DisplayBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+	/// <summary>
+	/// Applies the display on small breakpoint (≥640px).
+	/// </summary>
+    public DisplayBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
 	/// <summary>
 	/// Applies the display on tablet breakpoint.
 	/// </summary>

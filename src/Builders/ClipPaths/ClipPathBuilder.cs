@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified clip path builder with fluent API for chaining clip path rules.
 /// </summary>
+[TailwindPrefix("clip-", Responsive = true)]
 public sealed class ClipPathBuilder : ICssBuilder
 {
     private readonly List<ClipPathRule> _rules = new(4);
@@ -54,6 +56,10 @@ public sealed class ClipPathBuilder : ICssBuilder
     /// Applies the clip path on phone breakpoint.
     /// </summary>
     public ClipPathBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    /// <summary>
+    /// Applies the clip path on small breakpoint (≥640px).
+    /// </summary>
+    public ClipPathBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the clip path on tablet breakpoint.
     /// </summary>

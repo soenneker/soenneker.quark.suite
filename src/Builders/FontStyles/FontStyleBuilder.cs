@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// High-performance font style builder with fluent API for chaining font style rules.
 /// </summary>
+[TailwindPrefix("italic", Responsive = true)]
 public sealed class FontStyleBuilder : ICssBuilder
 {
     private readonly List<FontStyleRule> _rules = new(4);
@@ -62,6 +64,10 @@ public sealed class FontStyleBuilder : ICssBuilder
     /// Applies the font style on phone breakpoint.
     /// </summary>
     public FontStyleBuilder OnBase => ChainBp(BreakpointType.Base);
+    /// <summary>
+    /// Applies the font style on small breakpoint (≥640px).
+    /// </summary>
+    public FontStyleBuilder OnSm => ChainBp(BreakpointType.Sm);
     /// <summary>
     /// Applies the font style on tablet breakpoint.
     /// </summary>

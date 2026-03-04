@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using Soenneker.Extensions.String;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified gap builder with fluent API for chaining gap rules.
 /// </summary>
+[TailwindPrefix("gap-", Responsive = true)]
 public sealed class GapBuilder : ICssBuilder
 {
     private readonly List<GapRule> _rules = new(4);
@@ -91,6 +93,11 @@ public sealed class GapBuilder : ICssBuilder
     /// Apply on phone devices (portrait phones, less than 576px).
     /// </summary>
     public GapBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+
+    /// <summary>
+    /// Apply on small screens (≥640px).
+    /// </summary>
+    public GapBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
 
     /// <summary>
     /// Apply on mobile devices (landscape phones, 576px and up).

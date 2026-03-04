@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified visibility builder with fluent API for chaining visibility rules.
 /// </summary>
+[TailwindPrefix("visible", Responsive = true)]
 public sealed class VisibilityBuilder : ICssBuilder
 {
     private readonly List<VisibilityRule> _rules = new(4);
@@ -60,6 +62,10 @@ public sealed class VisibilityBuilder : ICssBuilder
 	/// Applies the visibility on phone breakpoint.
 	/// </summary>
     public VisibilityBuilder OnBase => ChainBp(BreakpointType.Base);
+	/// <summary>
+	/// Applies the visibility on small breakpoint (≥640px).
+	/// </summary>
+    public VisibilityBuilder OnSm => ChainBp(BreakpointType.Sm);
 	/// <summary>
 	/// Applies the visibility on tablet breakpoint.
 	/// </summary>

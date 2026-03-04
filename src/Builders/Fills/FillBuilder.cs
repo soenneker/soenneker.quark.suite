@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+[TailwindPrefix("fill-", Responsive = true)]
 public sealed class FillBuilder : ICssBuilder
 {
     private readonly List<FillRule> _rules = new(4);

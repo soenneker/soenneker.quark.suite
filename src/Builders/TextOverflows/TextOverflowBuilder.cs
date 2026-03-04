@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -10,6 +11,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// High-performance text-overflow builder with fluent API for chaining rules.
 /// </summary>
+[TailwindPrefix("text-", Responsive = true)]
 public sealed class TextOverflowBuilder : ICssBuilder
 {
     private readonly List<TextOverflowRule> _rules = new(4);

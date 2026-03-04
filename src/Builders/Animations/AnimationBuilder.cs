@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified animation builder with fluent API for chaining animation rules.
 /// </summary>
+[TailwindPrefix("animate-", Responsive = true)]
 public sealed class AnimationBuilder : ICssBuilder
 {
     private readonly List<AnimationRule> _rules = new(4);
@@ -58,6 +60,11 @@ public sealed class AnimationBuilder : ICssBuilder
     /// Applies the animation on phone breakpoint.
     /// </summary>
     public AnimationBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+
+    /// <summary>
+    /// Applies the animation on small breakpoint (≥640px).
+    /// </summary>
+    public AnimationBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
 
     /// <summary>
     /// Applies the animation on tablet breakpoint.

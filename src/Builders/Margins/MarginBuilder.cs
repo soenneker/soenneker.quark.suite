@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified margin builder with fluent API for chaining margin rules.
 /// </summary>
+[TailwindPrefix("m-", Responsive = true)]
 public sealed class MarginBuilder : ICssBuilder
 {
     private readonly List<MarginRule> _rules = new(4);
@@ -114,6 +116,10 @@ public sealed class MarginBuilder : ICssBuilder
 	/// Applies the margin on phone breakpoint.
 	/// </summary>
     public MarginBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+	/// <summary>
+	/// Applies the margin on small breakpoint (≥640px).
+	/// </summary>
+    public MarginBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
 	/// <summary>
 	/// Applies the margin on tablet breakpoint.
 	/// </summary>

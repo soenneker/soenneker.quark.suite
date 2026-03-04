@@ -1,11 +1,14 @@
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using Soenneker.Blazor.Extensions.EventCallback
 @implements IDropdown
 
-<div @attributes="BuildAttributes()">
-    @ChildContent
-</div>
+<CascadingValue Name="ParentDropdown" Value="this" IsFixed="true">
+    <div @attributes="BuildAttributes()">
+        @ChildContent
+    </div>
+</CascadingValue>
 
 @code {
     // shadcn - new-york-v4
@@ -57,6 +60,38 @@
     [Parameter]
     public string? DropdownMenuTargetId { get; set; }
 
+    internal string MenuId => DropdownMenuTargetId.HasContent() ? DropdownMenuTargetId! : $"{Id}_menu";
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        if (Id.IsNullOrEmpty())
+            Id = $"dropdown_{Guid.NewGuid():N}";
+    }
+
+    internal async Task Toggle()
+    {
+        if (Disabled)
+            return;
+
+        Visible = !Visible;
+        InvalidateRender();
+        Refresh();
+        await VisibleChanged.InvokeIfHasDelegate(Visible);
+    }
+
+    internal async Task Hide()
+    {
+        if (!Visible)
+            return;
+
+        Visible = false;
+        InvalidateRender();
+        Refresh();
+        await VisibleChanged.InvokeIfHasDelegate(false);
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -64,7 +99,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-dropdown");
-            AppendClass(ref cls, IsGroup ? "inline-flex" : IsSubmenu ? "relative" : "relative");
+            AppendClass(ref cls, IsGroup ? "inline-flex" : "relative");
             
             if (Visible)
                 AppendClass(ref cls, "show");

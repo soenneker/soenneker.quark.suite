@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Scroll snap stop builder. Tailwind: snap-stop-normal, snap-stop-always.
 /// </summary>
+[TailwindPrefix("snap-stop-", Responsive = true)]
 public sealed class ScrollSnapStopBuilder : ICssBuilder
 {
     private readonly List<ScrollSnapStopRule> _rules = new(4);

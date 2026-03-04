@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// Size builder with fluent API for chaining size rules.
 /// Supports both legacy semantic tokens (sm/lg) and shadcn/Tailwind size utilities (e.g. size-5).
 /// </summary>
+[TailwindPrefix("size-", Responsive = true)]
 public sealed class SizeBuilder : ICssBuilder
 {
     private readonly List<SizeRule> _rules = new(4);

@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified filter builder with fluent API for chaining filter rules.
 /// </summary>
+[TailwindPrefix("filter", Responsive = true)]
 public sealed class FilterBuilder : ICssBuilder
 {
     private readonly List<FilterRule> _rules = new(4);
@@ -85,6 +87,10 @@ public sealed class FilterBuilder : ICssBuilder
     /// Applies the filter on phone breakpoint.
     /// </summary>
     public FilterBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    /// <summary>
+    /// Applies the filter on small breakpoint (≥640px).
+    /// </summary>
+    public FilterBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the filter on tablet breakpoint.
     /// </summary>

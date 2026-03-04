@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// High-performance box shadow builder with fluent API for chaining box shadow rules.
 /// </summary>
+[TailwindPrefix("shadow-", Responsive = true)]
 public sealed class BoxShadowBuilder : ICssBuilder
 {
     private readonly List<BoxShadowRule> _rules = new(4);
@@ -51,6 +53,10 @@ public sealed class BoxShadowBuilder : ICssBuilder
     /// Applies the box shadow on phone breakpoint.
     /// </summary>
     public BoxShadowBuilder OnBase => ChainBp(BreakpointType.Base);
+    /// <summary>
+    /// Applies the box shadow on small breakpoint (≥640px).
+    /// </summary>
+    public BoxShadowBuilder OnSm => ChainBp(BreakpointType.Sm);
     /// <summary>
     /// Applies the box shadow on tablet breakpoint.
     /// </summary>

@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified resize builder with fluent API for chaining resize rules.
 /// </summary>
+[TailwindPrefix("resize-", Responsive = true)]
 public sealed class ResizeBuilder : ICssBuilder
 {
     private readonly List<ResizeRule> _rules = new(4);
@@ -50,6 +52,10 @@ public sealed class ResizeBuilder : ICssBuilder
     /// Applies the resize on phone breakpoint.
     /// </summary>
     public ResizeBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    /// <summary>
+    /// Applies the resize on small breakpoint (≥640px).
+    /// </summary>
+    public ResizeBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the resize on tablet breakpoint.
     /// </summary>

@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -10,6 +11,7 @@ namespace Soenneker.Quark;
 /// High-performance generic color builder.
 /// Produces theme utility classes When possible, otherwise falls back to inline style.
 /// </summary>
+[TailwindPrefix("text-", Responsive = true)]
 public sealed class ColorBuilder : ICssBuilder
 {
     private readonly List<ColorRule> _rules = new(4);
@@ -165,6 +167,10 @@ public sealed class ColorBuilder : ICssBuilder
 	/// Applies the color on phone breakpoint.
 	/// </summary>
     public ColorBuilder OnBase => ChainBp(BreakpointType.Base);
+	/// <summary>
+	/// Applies the color on small breakpoint (≥640px).
+	/// </summary>
+    public ColorBuilder OnSm => ChainBp(BreakpointType.Sm);
 	/// <summary>
 	/// Applies the color on tablet breakpoint.
 	/// </summary>

@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// End (inset-inline-end) builder. Tailwind: end-*.
 /// </summary>
+[TailwindPrefix("end-", Responsive = true)]
 public sealed class EndBuilder : ICssBuilder
 {
     private readonly List<EndRule> _rules = new(4);

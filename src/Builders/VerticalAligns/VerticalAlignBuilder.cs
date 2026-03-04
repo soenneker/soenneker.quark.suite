@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified vertical alignment builder with fluent API for chaining vertical alignment rules.
 /// </summary>
+[TailwindPrefix("align-", Responsive = true)]
 public sealed class VerticalAlignBuilder : ICssBuilder
 {
     private readonly List<VerticalAlignRule> _rules = new(6);
@@ -83,6 +85,11 @@ public sealed class VerticalAlignBuilder : ICssBuilder
     /// Applies the vertical alignment on phone breakpoint.
     /// </summary>
     public VerticalAlignBuilder OnBase => ChainBp(BreakpointType.Base);
+
+    /// <summary>
+    /// Applies the vertical alignment on small breakpoint (≥640px).
+    /// </summary>
+    public VerticalAlignBuilder OnSm => ChainBp(BreakpointType.Sm);
 
     /// <summary>
     /// Applies the vertical alignment on tablet breakpoint.

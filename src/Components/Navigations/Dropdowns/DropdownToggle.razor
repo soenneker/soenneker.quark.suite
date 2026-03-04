@@ -3,7 +3,7 @@
 @using Soenneker.Blazor.Extensions.EventCallback
 @implements IDropdownToggle
 
-<button @attributes="BuildAttributes()" type="button" aria-expanded="false" aria-haspopup="true" @onclick="OnClickHandler">
+<button @attributes="BuildAttributes()" type="button" aria-haspopup="true" @onclick="OnClickHandler">
     @ChildContent
 </button>
 
@@ -27,10 +27,18 @@
     [Parameter]
     public EventCallback<MouseEventArgs> Clicked { get; set; }
 
+    [CascadingParameter(Name = nameof(ParentDropdown))]
+    public Dropdown? ParentDropdown { get; set; }
+
     private async Task OnClickHandler(MouseEventArgs e)
     {
-        if (!Disabled)
-            await Clicked.InvokeIfHasDelegate(e);
+        if (Disabled || ParentDropdown?.Disabled == true)
+            return;
+
+        if (ParentDropdown is not null)
+            await ParentDropdown.Toggle();
+
+        await Clicked.InvokeIfHasDelegate(e);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -48,7 +56,12 @@
                 AppendClass(ref cls, "pointer-events-none opacity-50");
         });
 
-        if (Disabled)
+        attributes["aria-expanded"] = ParentDropdown?.Visible == true ? "true" : "false";
+
+        if (ParentDropdown is not null)
+            attributes["aria-controls"] = ParentDropdown.MenuId;
+
+        if (Disabled || ParentDropdown?.Disabled == true)
         {
             attributes["disabled"] = true;
         }
@@ -58,5 +71,7 @@
     {
         hc.Add(Disabled);
         hc.Add(IsSplit);
+        hc.Add(ParentDropdown?.Visible == true);
+        hc.Add(ParentDropdown?.Disabled == true);
     }
 }

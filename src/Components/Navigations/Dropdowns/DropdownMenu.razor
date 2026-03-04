@@ -27,6 +27,15 @@
     [Parameter]
     public Direction Direction { get; set; } = Direction.Default;
 
+    [CascadingParameter(Name = nameof(ParentDropdown))]
+    public Dropdown? ParentDropdown { get; set; }
+
+    private bool ResolvedVisible => ParentDropdown?.Visible ?? Visible;
+
+    private bool ResolvedRightAligned => ParentDropdown?.RightAligned ?? RightAligned;
+
+    private Direction ResolvedDirection => ParentDropdown?.Direction ?? Direction;
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -35,11 +44,11 @@
         {
             AppendClass(ref cls, "q-dropdown-menu");
             AppendClass(ref cls, "absolute z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md");
-            if (!Visible)
+            if (!ResolvedVisible)
                 AppendClass(ref cls, "hidden");
-            if (RightAligned)
+            if (ResolvedRightAligned)
                 AppendClass(ref cls, "right-0");
-            var directionClass = Direction.Value switch
+            var directionClass = ResolvedDirection.Value switch
             {
                 Direction.UpValue => "bottom-full mb-1",
                 Direction.EndValue => "left-full ml-1",
@@ -49,12 +58,15 @@
             if (directionClass != null)
                 AppendClass(ref cls, directionClass);
         });
+
+        if (ParentDropdown is not null)
+            attributes["id"] = ParentDropdown.MenuId;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
-        hc.Add(Visible);
-        hc.Add(RightAligned);
-        hc.Add(Direction);
+        hc.Add(ResolvedVisible);
+        hc.Add(ResolvedRightAligned);
+        hc.Add(ResolvedDirection);
     }
 }

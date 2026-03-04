@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -10,6 +11,7 @@ namespace Soenneker.Quark;
 /// High-performance border color builder.
 /// Produces border color utility classes.
 /// </summary>
+[TailwindPrefix("border-", Responsive = true)]
 public sealed class BorderColorBuilder : ICssBuilder
 {
     private readonly List<BorderColorRule> _rules = new(4);

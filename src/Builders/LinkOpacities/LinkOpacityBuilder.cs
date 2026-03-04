@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// High-performance link opacity builder with fluent API for chaining link opacity rules.
 /// </summary>
+[TailwindPrefix("underline-opacity-", Responsive = true)]
 public sealed class LinkOpacityBuilder : ICssBuilder
 {
     private readonly List<LinkOpacityRule> _rules = new(4);
@@ -48,6 +50,10 @@ public sealed class LinkOpacityBuilder : ICssBuilder
     /// Applies the link opacity on phone breakpoint.
     /// </summary>
     public LinkOpacityBuilder OnBase => ChainBp(BreakpointType.Base);
+    /// <summary>
+    /// Applies the link opacity on small breakpoint (≥640px).
+    /// </summary>
+    public LinkOpacityBuilder OnSm => ChainBp(BreakpointType.Sm);
     /// <summary>
     /// Applies the link opacity on tablet breakpoint.
     /// </summary>

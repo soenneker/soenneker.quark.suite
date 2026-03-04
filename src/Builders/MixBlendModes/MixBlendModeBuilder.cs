@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Mix-blend-mode builder. Tailwind: mix-blend-normal, mix-blend-multiply, etc.
 /// </summary>
+[TailwindPrefix("mix-blend-", Responsive = true)]
 public sealed class MixBlendModeBuilder : ICssBuilder
 {
     private readonly List<MixBlendModeRule> _rules = new(4);

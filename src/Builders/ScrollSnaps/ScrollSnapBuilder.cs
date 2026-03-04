@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Scroll snap type builder. Tailwind: snap-none, snap-x, snap-y, snap-both, snap-mandatory, snap-proximity.
 /// </summary>
+[TailwindPrefix("snap-", Responsive = true)]
 public sealed class ScrollSnapBuilder : ICssBuilder
 {
     private readonly List<ScrollSnapRule> _rules = new(4);

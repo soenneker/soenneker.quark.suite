@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// SVG fill-rule builder. Tailwind: fill-rule-evenodd, fill-rule-nonzero.
 /// </summary>
+[TailwindPrefix("fill-rule-", Responsive = true)]
 public sealed class FillRuleBuilder : ICssBuilder
 {
     private readonly List<FillRuleRule> _rules = new(4);

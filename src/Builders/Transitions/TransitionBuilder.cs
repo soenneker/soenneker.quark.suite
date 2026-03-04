@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified transition builder with fluent API for chaining transition rules.
 /// </summary>
+[TailwindPrefix("transition-", Responsive = true)]
 public sealed class TransitionBuilder : ICssBuilder
 {
     private readonly List<TransitionRule> _rules = new(4);
@@ -60,6 +62,10 @@ public sealed class TransitionBuilder : ICssBuilder
     /// Applies the transition on phone breakpoint.
     /// </summary>
     public TransitionBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    /// <summary>
+    /// Applies the transition on small breakpoint (≥640px).
+    /// </summary>
+    public TransitionBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the transition on tablet breakpoint.
     /// </summary>

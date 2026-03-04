@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// High-performance link underline builder with fluent API for chaining link underline rules.
 /// </summary>
+[TailwindPrefix("underline-", Responsive = true)]
 public sealed class LinkUnderlineBuilder : ICssBuilder
 {
     private readonly List<LinkUnderlineRule> _rules = new(4);

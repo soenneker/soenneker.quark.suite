@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// High-performance text size builder with fluent API for chaining text size rules.
 /// </summary>
+[TailwindPrefix("text-", Responsive = true)]
 public sealed class TextSizeBuilder : ICssBuilder
 {
     private readonly List<TextSizeRule> _rules = new(4);
@@ -66,6 +68,10 @@ public sealed class TextSizeBuilder : ICssBuilder
     /// Applies the text size on phone breakpoint.
     /// </summary>
     public TextSizeBuilder OnBase => ChainBp(BreakpointType.Base);
+    /// <summary>
+    /// Applies the text size on small breakpoint (≥640px).
+    /// </summary>
+    public TextSizeBuilder OnSm => ChainBp(BreakpointType.Sm);
     /// <summary>
     /// Applies the text size on tablet breakpoint.
     /// </summary>

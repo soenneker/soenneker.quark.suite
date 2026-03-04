@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// High-performance border opacity builder.
 /// Produces Tailwind utility classes When possible, otherwise falls back to inline style.
 /// </summary>
+[TailwindPrefix("border-opacity-", Responsive = true)]
 public sealed class BorderOpacityBuilder : ICssBuilder
 {
     private readonly List<BorderOpacityRule> _rules = new(4);
@@ -49,6 +51,10 @@ public sealed class BorderOpacityBuilder : ICssBuilder
     /// Applies the border opacity on phone breakpoint.
     /// </summary>
     public BorderOpacityBuilder OnBase => ChainBp(BreakpointType.Base);
+    /// <summary>
+    /// Applies the border opacity on small breakpoint (≥640px).
+    /// </summary>
+    public BorderOpacityBuilder OnSm => ChainBp(BreakpointType.Sm);
     /// <summary>
     /// Applies the border opacity on tablet breakpoint.
     /// </summary>

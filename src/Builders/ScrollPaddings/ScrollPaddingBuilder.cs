@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Scroll padding builder. Tailwind: scroll-p-*, scroll-pt-*, scroll-pr-*, etc.
 /// </summary>
+[TailwindPrefix("scroll-p", Responsive = true)]
 public sealed class ScrollPaddingBuilder : ICssBuilder
 {
     private readonly List<ScrollPaddingRule> _rules = new(4);

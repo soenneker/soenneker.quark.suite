@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// Height builder with fluent API for chaining height rules.
 /// Tailwind-first and shadcn-friendly (h-* and common tokens).
 /// </summary>
+[TailwindPrefix("h-", Responsive = true)]
 public sealed class HeightBuilder : ICssBuilder
 {
     private readonly List<HeightRule> _rules = new(4);
@@ -47,6 +49,7 @@ public sealed class HeightBuilder : ICssBuilder
     public HeightBuilder Auto => ChainWithSize("auto");
 
     public HeightBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    public HeightBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
     public HeightBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
     public HeightBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     public HeightBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);

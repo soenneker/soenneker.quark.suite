@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified interaction builder with fluent API for chaining interaction rules.
 /// </summary>
+[TailwindPrefix("pointer-events-", Responsive = true)]
 public sealed class InteractionBuilder : ICssBuilder
 {
     private readonly List<InteractionRule> _rules = new(4);
@@ -59,6 +61,10 @@ public sealed class InteractionBuilder : ICssBuilder
     /// Applies the interaction on phone breakpoint.
     /// </summary>
     public InteractionBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    /// <summary>
+    /// Applies the interaction on small breakpoint (≥640px).
+    /// </summary>
+    public InteractionBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the interaction on tablet breakpoint.
     /// </summary>

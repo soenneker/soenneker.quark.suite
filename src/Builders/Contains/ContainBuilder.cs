@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// CSS contain builder. Tailwind: contain-none, contain-size, contain-layout, contain-style, contain-paint, contain-strict, contain-content.
 /// </summary>
+[TailwindPrefix("contain-", Responsive = true)]
 public sealed class ContainBuilder : ICssBuilder
 {
     private readonly List<ContainRule> _rules = new(4);

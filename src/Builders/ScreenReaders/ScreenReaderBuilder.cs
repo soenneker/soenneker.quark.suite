@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified screen reader builder with fluent API for chaining screen reader rules.
 /// </summary>
+[TailwindPrefix("sr-", Responsive = true)]
 public sealed class ScreenReaderBuilder : ICssBuilder
 {
     private readonly List<ScreenReaderRule> _rules = new(4);
@@ -40,6 +42,10 @@ public sealed class ScreenReaderBuilder : ICssBuilder
     /// Applies the screen reader on phone breakpoint.
     /// </summary>
     public ScreenReaderBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    /// <summary>
+    /// Applies the screen reader on small breakpoint (≥640px).
+    /// </summary>
+    public ScreenReaderBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the screen reader on tablet breakpoint.
     /// </summary>

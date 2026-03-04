@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified truncate builder with fluent API for chaining truncate rules.
 /// </summary>
+[TailwindPrefix("truncate", Responsive = true)]
 public sealed class TruncateBuilder : ICssBuilder
 {
     private readonly List<TruncateRule> _rules = new(4);
@@ -30,6 +32,10 @@ public sealed class TruncateBuilder : ICssBuilder
     /// Applies the truncate on phone breakpoint.
     /// </summary>
     public TruncateBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    /// <summary>
+    /// Applies the truncate on small breakpoint (≥640px).
+    /// </summary>
+    public TruncateBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the truncate on tablet breakpoint.
     /// </summary>

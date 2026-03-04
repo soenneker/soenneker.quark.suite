@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+[TailwindPrefix("bg-gradient-to-", Responsive = true)]
 public sealed class GradientBuilder : ICssBuilder
 {
     private readonly List<GradientRule> _rules = new(6);

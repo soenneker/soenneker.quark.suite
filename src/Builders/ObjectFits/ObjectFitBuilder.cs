@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified object-fit builder with fluent API for chaining object-fit rules.
 /// </summary>
+[TailwindPrefix("object-", Responsive = true)]
 public sealed class ObjectFitBuilder : ICssBuilder
 {
     private readonly List<ObjectFitRule> _rules = new(4);
@@ -81,6 +83,11 @@ public sealed class ObjectFitBuilder : ICssBuilder
     /// Apply on phone devices (portrait phones, less than 576px).
     /// </summary>
     public ObjectFitBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+
+    /// <summary>
+    /// Apply on small screens (≥640px).
+    /// </summary>
+    public ObjectFitBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
 
     /// <summary>
     /// Apply on mobile devices (landscape phones, 576px and up).

@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified text break builder with fluent API for chaining text break rules.
 /// </summary>
+[TailwindPrefix("break-", Responsive = true)]
 public sealed class TextBreakBuilder : ICssBuilder
 {
     private readonly List<TextBreakRule> _rules = new(4);
@@ -41,6 +43,10 @@ public sealed class TextBreakBuilder : ICssBuilder
     /// Applies the text break on phone breakpoint.
     /// </summary>
     public TextBreakBuilder OnBase => ChainBp(BreakpointType.Base);
+    /// <summary>
+    /// Applies the text break on small breakpoint (≥640px).
+    /// </summary>
+    public TextBreakBuilder OnSm => ChainBp(BreakpointType.Sm);
     /// <summary>
     /// Applies the text break on tablet breakpoint.
     /// </summary>

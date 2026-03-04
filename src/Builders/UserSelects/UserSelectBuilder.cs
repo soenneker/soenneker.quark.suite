@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified user select builder with fluent API for chaining user select rules.
 /// </summary>
+[TailwindPrefix("select-", Responsive = true)]
 public sealed class UserSelectBuilder : ICssBuilder
 {
     private readonly List<UserSelectRule> _rules = new(4);
@@ -73,6 +75,11 @@ public sealed class UserSelectBuilder : ICssBuilder
     /// Applies the user select on phone breakpoint.
     /// </summary>
     public UserSelectBuilder OnBase => ChainBp(BreakpointType.Base);
+
+    /// <summary>
+    /// Applies the user select on small breakpoint (≥640px).
+    /// </summary>
+    public UserSelectBuilder OnSm => ChainBp(BreakpointType.Sm);
 
     /// <summary>
     /// Applies the user select on tablet breakpoint.

@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Caret color builder for text inputs. Tailwind: caret-primary, caret-transparent, caret-*.
 /// </summary>
+[TailwindPrefix("caret-", Responsive = true)]
 public sealed class CaretColorBuilder : ICssBuilder
 {
     private readonly List<CaretColorRule> _rules = new(4);

@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified cursor builder with fluent API for chaining cursor rules.
 /// </summary>
+[TailwindPrefix("cursor-", Responsive = true)]
 public sealed class CursorBuilder : ICssBuilder
 {
     private readonly List<CursorRule> _rules = new(4);
@@ -80,6 +82,10 @@ public sealed class CursorBuilder : ICssBuilder
     /// Applies the cursor on phone breakpoint.
     /// </summary>
     public CursorBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    /// <summary>
+    /// Applies the cursor on small breakpoint (≥640px).
+    /// </summary>
+    public CursorBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the cursor on tablet breakpoint.
     /// </summary>

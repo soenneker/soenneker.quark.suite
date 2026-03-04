@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -10,6 +11,7 @@ namespace Soenneker.Quark;
 /// Produces ratio utility classes like ratio-16x9.
 /// Note: This is different from AspectRatioBuilder which uses the aspect-ratio CSS property.
 /// </summary>
+[TailwindPrefix("aspect-", Responsive = true)]
 public sealed class RatioBuilder : ICssBuilder
 {
     private readonly List<RatioRule> _rules = new(4);
@@ -51,6 +53,10 @@ public sealed class RatioBuilder : ICssBuilder
     /// Applies the ratio on phone breakpoint.
     /// </summary>
     public RatioBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    /// <summary>
+    /// Applies the ratio on small breakpoint (≥640px).
+    /// </summary>
+    public RatioBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the ratio on tablet breakpoint.
     /// </summary>

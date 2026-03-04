@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// High-performance background opacity builder.
 /// Produces Tailwind utility classes When possible, otherwise falls back to inline style.
 /// </summary>
+[TailwindPrefix("bg-opacity-", Responsive = true)]
 public sealed class BackgroundOpacityBuilder : ICssBuilder
 {
     private readonly List<BackgroundOpacityRule> _rules = new(4);
@@ -49,6 +51,10 @@ public sealed class BackgroundOpacityBuilder : ICssBuilder
     /// Applies the background opacity on phone breakpoint.
     /// </summary>
     public BackgroundOpacityBuilder OnBase => ChainBp(BreakpointType.Base);
+    /// <summary>
+    /// Applies the background opacity on small breakpoint (≥640px).
+    /// </summary>
+    public BackgroundOpacityBuilder OnSm => ChainBp(BreakpointType.Sm);
     /// <summary>
     /// Applies the background opacity on tablet breakpoint.
     /// </summary>

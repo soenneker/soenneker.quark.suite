@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Scroll margin builder. Tailwind: scroll-m-*, scroll-mt-*, scroll-mr-*, etc.
 /// </summary>
+[TailwindPrefix("scroll-m", Responsive = true)]
 public sealed class ScrollMarginBuilder : ICssBuilder
 {
     private readonly List<ScrollMarginRule> _rules = new(4);

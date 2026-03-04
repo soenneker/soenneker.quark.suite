@@ -3,6 +3,7 @@
 @inherits Soenneker.Quark.Element
 @using Soenneker.Blazor.Extensions.EventCallback
 @implements ICollapse
+@inject ICollapseCoordinator CollapseCoordinator
 
 <div @attributes="BuildAttributes()">
     @ChildContent
@@ -30,8 +31,12 @@
 
     protected override void OnInitialized()
     {
+        base.OnInitialized();
+
         if (Id.IsNullOrEmpty())
             Id = $"collapse_{Guid.NewGuid():N}";
+
+        CollapseCoordinator.Register(this);
     }
 
     public async Task Toggle()
@@ -91,5 +96,41 @@
         hc.Add(Expanded);
         hc.Add(Horizontal);
         hc.Add(Id);
+    }
+
+    internal bool HasCssClass(string className)
+    {
+        if (className.IsNullOrEmpty())
+            return false;
+
+        if (ClassContainsToken(Class, className))
+            return true;
+
+        if (Attributes is not null && Attributes.TryGetValue("class", out var classObj))
+            return ClassContainsToken(classObj?.ToString(), className);
+
+        return false;
+    }
+
+    private static bool ClassContainsToken(string? classes, string token)
+    {
+        if (classes.IsNullOrWhiteSpace())
+            return false;
+
+        var values = classes.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        foreach (var value in values)
+        {
+            if (string.Equals(value, token, StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
+    }
+
+    public override void Dispose()
+    {
+        CollapseCoordinator.Unregister(this);
+        base.Dispose();
     }
 }

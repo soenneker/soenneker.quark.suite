@@ -1,13 +1,15 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
+using Soenneker.Utils.PooledStringBuilders;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Accent color builder for form controls. Tailwind: accent-auto, accent-primary, accent-*.
 /// </summary>
+[TailwindPrefix("accent-", Responsive = true)]
 public sealed class AccentColorBuilder : ICssBuilder
 {
     private readonly List<AccentColorRule> _rules = new(4);

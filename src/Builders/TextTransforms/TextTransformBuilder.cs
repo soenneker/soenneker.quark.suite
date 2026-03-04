@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// High-performance text transform builder with fluent API for chaining text transform rules.
 /// </summary>
+[TailwindPrefix("uppercase", Responsive = true)]
 public sealed class TextTransformBuilder : ICssBuilder
 {
     private readonly List<TextTransformRule> _rules = new(4);
@@ -67,6 +69,10 @@ public sealed class TextTransformBuilder : ICssBuilder
     /// Applies the text transform on phone breakpoint.
     /// </summary>
     public TextTransformBuilder OnBase => ChainBp(BreakpointType.Base);
+    /// <summary>
+    /// Applies the text transform on small breakpoint (≥640px).
+    /// </summary>
+    public TextTransformBuilder OnSm => ChainBp(BreakpointType.Sm);
     /// <summary>
     /// Applies the text transform on tablet breakpoint.
     /// </summary>

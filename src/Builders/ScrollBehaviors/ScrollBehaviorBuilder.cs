@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified scroll behavior builder with fluent API for chaining scroll behavior rules.
 /// </summary>
+[TailwindPrefix("scroll-", Responsive = true)]
 public sealed class ScrollBehaviorBuilder : ICssBuilder
 {
     private readonly List<ScrollBehaviorRule> _rules = new(4);
@@ -40,6 +42,10 @@ public sealed class ScrollBehaviorBuilder : ICssBuilder
     /// Applies the scroll behavior on phone breakpoint.
     /// </summary>
     public ScrollBehaviorBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    /// <summary>
+    /// Applies the scroll behavior on small breakpoint (≥640px).
+    /// </summary>
+    public ScrollBehaviorBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the scroll behavior on tablet breakpoint.
     /// </summary>

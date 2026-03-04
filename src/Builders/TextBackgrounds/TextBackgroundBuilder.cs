@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// High-performance text background combination builder.
 /// Produces theme utility classes that set both text and background colors (e.g. q-text-bg-*).
 /// </summary>
+[TailwindPrefix("q-text-bg-", Responsive = true)]
 public sealed class TextBackgroundBuilder : ICssBuilder
 {
     private readonly List<TextBackgroundRule> _rules = new(4);
@@ -73,6 +75,10 @@ public sealed class TextBackgroundBuilder : ICssBuilder
     /// Applies the text background on phone breakpoint.
     /// </summary>
     public TextBackgroundBuilder OnBase => ChainBp(BreakpointType.Base);
+    /// <summary>
+    /// Applies the text background on small breakpoint (≥640px).
+    /// </summary>
+    public TextBackgroundBuilder OnSm => ChainBp(BreakpointType.Sm);
     /// <summary>
     /// Applies the text background on tablet breakpoint.
     /// </summary>

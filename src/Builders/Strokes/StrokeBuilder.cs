@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
+[TailwindPrefix("stroke-", Responsive = true)]
 public sealed class StrokeBuilder : ICssBuilder
 {
     private readonly List<StrokeRule> _rules = new(4);

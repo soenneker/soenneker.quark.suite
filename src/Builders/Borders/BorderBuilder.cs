@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using Soenneker.Extensions.String;
 
@@ -11,6 +12,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified border builder with fluent API for chaining border rules.
 /// </summary>
+[TailwindPrefix("border-", Responsive = true)]
 public sealed class BorderBuilder : ICssBuilder
 {
     private readonly List<BorderRule> _rules = new(4);
@@ -104,6 +106,10 @@ public sealed class BorderBuilder : ICssBuilder
 	/// Applies the border on phone breakpoint.
 	/// </summary>
     public BorderBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+	/// <summary>
+	/// Applies the border on small breakpoint (≥640px).
+	/// </summary>
+    public BorderBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
 	/// <summary>
 	/// Applies the border on tablet breakpoint.
 	/// </summary>

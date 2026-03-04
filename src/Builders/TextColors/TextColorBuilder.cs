@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -10,6 +11,7 @@ namespace Soenneker.Quark;
 /// High-performance text color builder.
 /// Produces text color utility classes.
 /// </summary>
+[TailwindPrefix("text-", Responsive = true)]
 public sealed class TextColorBuilder : ICssBuilder
 {
     private readonly List<TextColorRule> _rules = new(4);

@@ -2,6 +2,13 @@
 
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
+    <!-- Local Gen.Tailwind project path (when building from Quark repo). Use project ref so build runs without pushing to NuGet. --><!--
+    <PropertyGroup>
+        <_QuarkGenTailwindProjectPath>$(MSBuildProjectDirectory)\..\..\soenneker.quark.gen.tailwind\src\Soenneker.Quark.Gen.Tailwind\Soenneker.Quark.Gen.Tailwind.csproj</_QuarkGenTailwindProjectPath>
+        <_QuarkGenTailwindTargetsPath>$(MSBuildProjectDirectory)\..\..\soenneker.quark.gen.tailwind\src\Soenneker.Quark.Gen.Tailwind\Soenneker.Quark.Gen.Tailwind.targets</_QuarkGenTailwindTargetsPath>
+    </PropertyGroup>-->
+    <Import Project="$(_QuarkGenTailwindTargetsPath)" Condition="Exists('$(_QuarkGenTailwindTargetsPath)')" />
+
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
@@ -53,12 +60,18 @@
         <PackageReference Include="Soenneker.Lucide.Icons" Version="4.0.24" />
         <PackageReference Include="Soenneker.Quark.Components.Core.Cancellable" Version="4.0.39" />
         <PackageReference Include="Soenneker.Quark.Gen.Lucide.Abstractions" Version="4.0.2" />
-        <PackageReference Include="Soenneker.Quark.Gen.Tailwind" Version="4.0.25">
+        <!-- Prefer local Gen.Tailwind project when present so build runs without NuGet push; fallback to package. -->
+        <ProjectReference Include="$(_QuarkGenTailwindProjectPath)" Condition="Exists('$(_QuarkGenTailwindProjectPath)')">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>build; buildTransitive</IncludeAssets>
+          <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+        </ProjectReference>
+        <PackageReference Include="Soenneker.Quark.Gen.Tailwind" Version="4.0.28" Condition="!Exists('$(_QuarkGenTailwindProjectPath)')">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Soenneker.Utils.CancellationScopes" Version="4.0.23" />
-        <PackageReference Include="Soenneker.Quark.Enums.BoxShadows" Version="4.0.24" />
+        <PackageReference Include="Soenneker.Quark.Enums.BoxShadows" Version="4.0.25" />
         <PackageReference Include="Soenneker.Quark.Enums.Breakpoints" Version="4.0.23" />
         <PackageReference Include="Soenneker.Quark.Enums.ButtonTypes" Version="4.0.15" />
         <PackageReference Include="Soenneker.Quark.Enums.ColorTypes" Version="4.0.15" />
@@ -87,19 +100,15 @@
         <PackageReference Include="Soenneker.Quark.Enums.TextTransforms" Version="4.0.23" />
         <PackageReference Include="Soenneker.Quark.Enums.TextWraps" Version="4.0.23" />
         <PackageReference Include="Soenneker.Quark.Enums.UserSelects" Version="4.0.24" />
-        <PackageReference Include="Soenneker.Quark.Enums.VerticalAligns" Version="4.0.24" />
+        <PackageReference Include="Soenneker.Quark.Enums.VerticalAligns" Version="4.0.25" />
         <PackageReference Include="Soenneker.Quark.Enums.Visibilities" Version="4.0.25" />
         <PackageReference Include="Soenneker.Utils.PooledStringBuilders" Version="4.0.12" />
-        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1595" />
+        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1596" />
         <PackageReference Include="Soenneker.DataTables.Dtos.ServerResponse" Version="4.0.6" />
         <PackageReference Include="Soenneker.DataTables.Dtos.ServerSideRequest" Version="4.0.9" />
         <PackageReference Include="Soenneker.DataTables.Dtos.Column" Version="4.0.10" />
         <PackageReference Include="Soenneker.Utils.Debounce" Version="4.0.28" />
-        <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2432" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="tailwind\" />
+        <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2433" />
     </ItemGroup>
 
 </Project>

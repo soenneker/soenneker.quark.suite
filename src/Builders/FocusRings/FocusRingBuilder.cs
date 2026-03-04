@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// High-performance focus ring builder with fluent API for chaining focus ring rules.
 /// </summary>
+[TailwindPrefix("ring-", Responsive = true)]
 public sealed class FocusRingBuilder : ICssBuilder
 {
     private readonly List<FocusRingRule> _rules = new(4);
@@ -66,6 +68,10 @@ public sealed class FocusRingBuilder : ICssBuilder
     /// Applies the focus ring on phone breakpoint.
     /// </summary>
     public FocusRingBuilder OnBase => ChainBp(BreakpointType.Base);
+    /// <summary>
+    /// Applies the focus ring on small breakpoint (≥640px).
+    /// </summary>
+    public FocusRingBuilder OnSm => ChainBp(BreakpointType.Sm);
     /// <summary>
     /// Applies the focus ring on tablet breakpoint.
     /// </summary>

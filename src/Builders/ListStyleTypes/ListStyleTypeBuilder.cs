@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 
 namespace Soenneker.Quark;
@@ -5,6 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Builder for CSS list-style-type property.
 /// </summary>
+[TailwindPrefix("list-", Responsive = false)]
 public sealed class ListStyleTypeBuilder : ICssBuilder
 {
     private readonly ListStyleTypeValue _value;

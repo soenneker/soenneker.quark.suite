@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified object position builder with fluent API for chaining object position rules.
 /// </summary>
+[TailwindPrefix("object-", Responsive = true)]
 public sealed class ObjectPositionBuilder : ICssBuilder
 {
     private readonly List<ObjectPositionRule> _rules = new(4);
@@ -74,6 +76,10 @@ public sealed class ObjectPositionBuilder : ICssBuilder
     /// Applies the object position on phone breakpoint.
     /// </summary>
     public ObjectPositionBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    /// <summary>
+    /// Applies the object position on small breakpoint (≥640px).
+    /// </summary>
+    public ObjectPositionBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the object position on tablet breakpoint.
     /// </summary>

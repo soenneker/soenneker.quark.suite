@@ -5,6 +5,7 @@
 @inherits InteractiveSurfaceElement
 @implements IButton
 @inject NavigationManager Navigation
+@inject ICollapseCoordinator CollapseCoordinator
 
 @if (Type == ButtonType.Link)
 {
@@ -110,6 +111,12 @@ else
     [Parameter]
     public ButtonVariant Variant { get; set; } = ButtonVariant.Default;
 
+    /// <summary>
+    /// Gets or sets one or more collapse targets (id, #id, .class, or space/comma-delimited list).
+    /// </summary>
+    [Parameter]
+    public string? CollapseTarget { get; set; }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string GetShadcnVariantClass(ButtonVariant variant)
         => variant switch
@@ -186,6 +193,9 @@ else
         if (Loading)
             attributes["aria-busy"] = "true";
 
+        if (CollapseTarget.HasContent())
+            attributes["aria-controls"] = CollapseTarget!;
+
         if (!isLink)
             attributes["type"] = Type.Value;
 
@@ -222,6 +232,14 @@ else
         if (To.HasContent() && !To!.StartsWith("#"))
             Navigation.NavigateTo(To!);
 
+        if (CollapseTarget.HasContent())
+            await CollapseCoordinator.ToggleTargets(CollapseTarget);
+        else if (Attributes is not null
+                 && Attributes.TryGetValue("data-toggle", out var dataToggleObj)
+                 && string.Equals(dataToggleObj?.ToString(), "collapse", StringComparison.OrdinalIgnoreCase)
+                 && Attributes.TryGetValue("data-target", out var dataTargetObj))
+            await CollapseCoordinator.ToggleTargets(dataTargetObj?.ToString());
+
         await base.HandleClick(args);
     }
 
@@ -249,5 +267,6 @@ else
         hc.Add(To);
         hc.Add(Name);
         hc.Add(Variant);
+        hc.Add(CollapseTarget);
     }
 }

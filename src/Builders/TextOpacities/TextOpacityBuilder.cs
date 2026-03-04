@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// High-performance text opacity builder.
 /// Produces Tailwind utility classes When possible, otherwise falls back to inline style.
 /// </summary>
+[TailwindPrefix("text-opacity-", Responsive = true)]
 public sealed class TextOpacityBuilder : ICssBuilder
 {
     private readonly List<TextOpacityRule> _rules = new(4);
@@ -45,6 +47,10 @@ public sealed class TextOpacityBuilder : ICssBuilder
     /// Applies the text opacity on phone breakpoint.
     /// </summary>
     public TextOpacityBuilder OnBase => ChainBp(BreakpointType.Base);
+    /// <summary>
+    /// Applies the text opacity on small breakpoint (≥640px).
+    /// </summary>
+    public TextOpacityBuilder OnSm => ChainBp(BreakpointType.Sm);
     /// <summary>
     /// Applies the text opacity on tablet breakpoint.
     /// </summary>

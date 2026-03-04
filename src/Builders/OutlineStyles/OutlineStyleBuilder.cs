@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Outline style builder. Tailwind: outline-none, outline, outline-dashed, outline-dotted, outline-double.
 /// </summary>
+[TailwindPrefix("outline-", Responsive = true)]
 public sealed class OutlineStyleBuilder : ICssBuilder
 {
     private readonly List<OutlineStyleRule> _rules = new(4);

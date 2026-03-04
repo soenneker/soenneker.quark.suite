@@ -1,6 +1,7 @@
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Soenneker.Quark.Attributes;
 using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// Width builder with fluent API for chaining width rules.
 /// Tailwind-first and shadcn-friendly (w-*, including fractions and common tokens).
 /// </summary>
+[TailwindPrefix("w-", Responsive = true)]
 public sealed class WidthBuilder : ICssBuilder
 {
     private readonly List<WidthRule> _rules = new(4);
@@ -66,6 +68,7 @@ public sealed class WidthBuilder : ICssBuilder
     public WidthBuilder Auto => ChainWithSize("auto");
 
     public WidthBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    public WidthBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
     public WidthBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
     public WidthBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
     public WidthBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);

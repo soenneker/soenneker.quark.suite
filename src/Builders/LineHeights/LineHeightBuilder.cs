@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// High-performance line height builder with fluent API for chaining line height rules.
 /// </summary>
+[TailwindPrefix("leading-", Responsive = true)]
 public sealed class LineHeightBuilder : ICssBuilder
 {
     private readonly List<LineHeightRule> _rules = new(4);
@@ -50,6 +52,10 @@ public sealed class LineHeightBuilder : ICssBuilder
     /// Applies the line height on phone breakpoint.
     /// </summary>
     public LineHeightBuilder OnBase => ChainBp(BreakpointType.Base);
+    /// <summary>
+    /// Applies the line height on small breakpoint (≥640px).
+    /// </summary>
+    public LineHeightBuilder OnSm => ChainBp(BreakpointType.Sm);
     /// <summary>
     /// Applies the line height on tablet breakpoint.
     /// </summary>

@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified aspect ratio builder with fluent API for chaining aspect ratio rules.
 /// </summary>
+[TailwindPrefix("aspect-", Responsive = true)]
 public sealed class AspectRatioBuilder : ICssBuilder
 {
     private readonly List<AspectRatioRule> _rules = new(4);

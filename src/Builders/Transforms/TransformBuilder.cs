@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified transform builder with fluent API for chaining transform rules.
 /// </summary>
+[TailwindPrefix("transform", Responsive = true)]
 public sealed class TransformBuilder : ICssBuilder
 {
     private readonly List<TransformRule> _rules = new(4);
@@ -55,6 +57,10 @@ public sealed class TransformBuilder : ICssBuilder
     /// Applies the transform on phone breakpoint.
     /// </summary>
     public TransformBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    /// <summary>
+    /// Applies the transform on small breakpoint (≥640px).
+    /// </summary>
+    public TransformBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the transform on tablet breakpoint.
     /// </summary>

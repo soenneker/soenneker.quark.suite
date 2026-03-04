@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Background-blend-mode builder. Tailwind: bg-blend-normal, bg-blend-multiply, etc.
 /// </summary>
+[TailwindPrefix("bg-blend-", Responsive = true)]
 public sealed class BackgroundBlendModeBuilder : ICssBuilder
 {
     private readonly List<BackgroundBlendModeRule> _rules = new(4);

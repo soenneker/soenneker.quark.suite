@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// High-performance text alignment builder with fluent API for chaining text alignment rules.
 /// </summary>
+[TailwindPrefix("text-", Responsive = true)]
 public sealed class TextAlignmentBuilder : ICssBuilder
 {
     private readonly List<TextAlignmentRule> _rules = new(4);

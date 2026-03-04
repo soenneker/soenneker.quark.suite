@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// High-performance link offset builder with fluent API for chaining link offset rules.
 /// </summary>
+[TailwindPrefix("underline-offset-", Responsive = true)]
 public sealed class LinkOffsetBuilder : ICssBuilder
 {
     private readonly List<LinkOffsetRule> _rules = new(4);
@@ -40,6 +42,10 @@ public sealed class LinkOffsetBuilder : ICssBuilder
     /// Applies the link offset on phone breakpoint.
     /// </summary>
     public LinkOffsetBuilder OnBase => ChainBp(BreakpointType.Base);
+    /// <summary>
+    /// Applies the link offset on small breakpoint (≥640px).
+    /// </summary>
+    public LinkOffsetBuilder OnSm => ChainBp(BreakpointType.Sm);
     /// <summary>
     /// Applies the link offset on tablet breakpoint.
     /// </summary>

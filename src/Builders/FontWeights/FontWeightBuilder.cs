@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// High-performance font weight builder with fluent API for chaining font weight rules.
 /// </summary>
+[TailwindPrefix("font-", Responsive = true)]
 public sealed class FontWeightBuilder : ICssBuilder
 {
     private readonly List<FontWeightRule> _rules = new(6);
@@ -84,6 +86,11 @@ public sealed class FontWeightBuilder : ICssBuilder
     /// Applies the font weight on phone breakpoint.
     /// </summary>
     public FontWeightBuilder OnBase => ChainBp(BreakpointType.Base);
+
+    /// <summary>
+    /// Applies the font weight on small breakpoint (≥640px).
+    /// </summary>
+    public FontWeightBuilder OnSm => ChainBp(BreakpointType.Sm);
 
     /// <summary>
     /// Applies the font weight on tablet breakpoint.

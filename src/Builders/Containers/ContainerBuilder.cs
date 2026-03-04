@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Runtime.CompilerServices;
 
@@ -6,6 +7,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Builder for Bootstrap container utilities.
 /// </summary>
+[TailwindPrefix("container", Responsive = false)]
 public sealed class ContainerBuilder : ICssBuilder
 {
     private ContainerRule? _rule;

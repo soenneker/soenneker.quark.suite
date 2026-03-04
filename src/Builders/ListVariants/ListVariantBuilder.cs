@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Builder for list variant utility classes with fluent API for chaining rules.
 /// </summary>
+[TailwindPrefix("list-", Responsive = true)]
 public sealed class ListVariantBuilder : ICssBuilder
 {
     private readonly List<ListVariantRule> _rules = new(4);
@@ -45,6 +47,10 @@ public sealed class ListVariantBuilder : ICssBuilder
     /// Applies the list variant on phone breakpoint.
     /// </summary>
     public ListVariantBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    /// <summary>
+    /// Applies the list variant on small breakpoint (≥640px).
+    /// </summary>
+    public ListVariantBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the list variant on tablet breakpoint.
     /// </summary>

@@ -2,6 +2,7 @@ using Soenneker.Quark.Enums;
 
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Soenneker.Quark.Attributes;
 using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
@@ -9,6 +10,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// High-performance padding builder with fluent API for chaining padding rules.
 /// </summary>
+[TailwindPrefix("p-", Responsive = true)]
 public sealed class PaddingBuilder : ICssBuilder
 {
     private readonly List<PaddingRule> _rules = new(4);
@@ -105,6 +107,10 @@ public sealed class PaddingBuilder : ICssBuilder
 	/// Applies the padding on phone breakpoint.
 	/// </summary>
     public PaddingBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+	/// <summary>
+	/// Applies the padding on small breakpoint (≥640px).
+	/// </summary>
+    public PaddingBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
 	/// <summary>
 	/// Applies the padding on tablet breakpoint.
 	/// </summary>

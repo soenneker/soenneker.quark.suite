@@ -1,3 +1,4 @@
+using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// CSS isolation builder. Tailwind: isolation-auto, isolation-isolate.
 /// </summary>
+[TailwindPrefix("isolation-", Responsive = true)]
 public sealed class IsolationBuilder : ICssBuilder
 {
     private readonly List<IsolationRule> _rules = new(4);
