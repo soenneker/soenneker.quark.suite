@@ -10,7 +10,7 @@
         <div @onkeydown="HandleKeyDown" @onclick="HandleBackdropClick" @attributes="BuildAttributes()">
             @if (ShowBackdrop)
             {
-                <div class="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"></div>
+                <div class="fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0" data-slot="dialog-overlay" data-state="@(Visible ? "open" : "closed")"></div>
             }
             <div @attributes="BuildDialogAttributes()" @onclick:stopPropagation="true">
                 @ChildContent
@@ -54,6 +54,7 @@
     {
         base.BuildAttributesCore(attributes);
 
+        attributes["data-slot"] = "dialog";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-modal");
@@ -77,6 +78,7 @@
     {
         var attributes = new Dictionary<string, object>();
 
+        attributes["data-slot"] = "dialog-content";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-modal-dialog");

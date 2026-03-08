@@ -1,0 +1,21 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements ICardAction
+
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    // shadcn - new-york-v4 ui/card.tsx CardAction
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "card-action";
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-card-action");
+            AppendClass(ref cls, "col-start-2 row-span-2 row-start-1 self-start justify-self-end");
+        });
+    }
+}

@@ -1,0 +1,48 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @onmouseenter="OpenSubmenu" @onmouseleave="CloseSubmenu" @attributes="BuildAttributes()">
+    <CascadingValue Name="ParentContextMenuSub" Value="@this" IsFixed="true">
+        @ChildContent
+    </CascadingValue>
+</div>
+
+@code {
+    internal bool Open { get; private set; }
+
+    internal void OpenSubmenu()
+    {
+        if (!Open)
+        {
+            Open = true;
+            InvalidateRender();
+            Refresh();
+        }
+    }
+
+    internal void CloseSubmenu()
+    {
+        if (Open)
+        {
+            Open = false;
+            InvalidateRender();
+            Refresh();
+        }
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "context-menu-sub";
+        attributes["data-state"] = Open ? "open" : "closed";
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-context-menu-sub relative");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Open);
+    }
+}

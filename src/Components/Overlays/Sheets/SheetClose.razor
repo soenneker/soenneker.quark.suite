@@ -2,17 +2,17 @@
 @inherits Soenneker.Quark.Element
 @implements ISheetClose
 
-<Button Type="@ButtonType.Button" Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" OnClick="HandleCloseClick" @attributes="BuildAttributes()">
+<button type="button" @onclick="HandleCloseClick" @attributes="BuildAttributes()">
     @if (ChildContent is null)
     {
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="size-4"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         <span class="sr-only">Close</span>
     }
     else
     {
         @ChildContent
     }
-</Button>
+</button>
 
 @code {
     [CascadingParameter(Name = nameof(ParentSheet))]
@@ -26,12 +26,13 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "sheet-close";
+        attributes["data-state"] = ParentSheet?.Visible == true ? "open" : "closed";
 
         // shadcn Sheet close button - new-york-v4 ui/sheet.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-sheet-close");
-            AppendClass(ref cls, "ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none");
+            AppendClass(ref cls, "absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-secondary");
         });
     }
 

@@ -37,13 +37,18 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "select-item";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-select-item");
         });
 
         if (Value != null)
-            attributes["value"] = Value.ToString();
+        {
+            var stringValue = Value.ToString();
+            if (stringValue != null)
+                attributes["value"] = stringValue;
+        }
 
         if (Disabled)
             attributes["disabled"] = true;

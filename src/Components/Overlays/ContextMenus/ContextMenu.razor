@@ -44,13 +44,16 @@
     private Dictionary<string, object> BuildContentAttributes()
     {
         var attrs = new Dictionary<string, object>();
+        attrs["data-state"] = Open ? "open" : "closed";
+        attrs["data-side"] = "bottom";
         attrs["data-slot"] = "context-menu-content";
         attrs["style"] = $"position: fixed; left: {X}px; top: {Y}px; z-index: 50;";
         BuildClassAttribute(attrs, (ref cls) =>
         {
             AppendClass(ref cls, "q-context-menu-content");
-            AppendClass(ref cls, "min-w-[8rem] max-h-[min(var(--available-height,300px),300px)] overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md");
-            AppendClass(ref cls, "animate-in fade-in-80 zoom-in-95 slide-in-from-top-2");
+            AppendClass(ref cls, "z-50 max-h-(--radix-context-menu-content-available-height) min-w-[8rem] origin-(--radix-context-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md");
+            AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
+            AppendClass(ref cls, "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
         });
         return attrs;
     }

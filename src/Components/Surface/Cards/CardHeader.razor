@@ -7,20 +7,15 @@
 </div>
 
 @code {
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-        Space ??= Quark.Space.Y.Is2;
-    }
-
-    // CardHeader: flex flex-col space-y-* p-6 (Space default above so consumers can override)
+    // shadcn - new-york-v4 ui/card.tsx CardHeader
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "card-header";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-card-header");
-            AppendClass(ref cls, "flex flex-col p-6");
+            AppendClass(ref cls, "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6");
         });
     }
 }

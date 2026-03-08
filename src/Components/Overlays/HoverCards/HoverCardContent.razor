@@ -6,6 +6,15 @@
 </div>
 
 @code {
+    [Parameter]
+    public bool Open { get; set; }
+
+    /// <summary>
+    /// Gets or sets side placement: top, right, bottom, or left.
+    /// </summary>
+    [Parameter]
+    public string Side { get; set; } = "bottom";
+
     /// <summary>
     /// Gets or sets horizontal alignment: start, center, or end.
     /// </summary>
@@ -18,30 +27,48 @@
     [Parameter]
     public int SideOffset { get; set; } = 4;
 
+    [Parameter]
+    public bool DisableAutoOpen { get; set; }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "hover-card-content";
+        attributes["data-state"] = Open ? "open" : "closed";
+        attributes["data-side"] = Side;
         attributes["data-align"] = Align;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-hover-card-content");
-            AppendClass(ref cls, "bg-popover text-popover-foreground z-50 w-64 rounded-md border p-4 shadow-md outline-hidden");
-            AppendClass(ref cls, "absolute top-full left-1/2 -translate-x-1/2");
-            AppendClass(ref cls, "opacity-0 invisible group-hover/hover-card:opacity-100 group-hover/hover-card:visible group-focus-within/hover-card:opacity-100 group-focus-within/hover-card:visible transition-opacity");
-            AppendClass(ref cls, "data-[align=start]:left-0 data-[align=start]:translate-x-0 data-[align=end]:right-0 data-[align=end]:left-auto data-[align=end]:translate-x-0");
-            AppendClass(ref cls, "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2");
+            AppendClass(ref cls, "z-50 w-64 origin-(--radix-hover-card-content-transform-origin) rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-hidden data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
+            AppendClass(ref cls, "absolute top-full mt-1");
+            AppendClass(ref cls, "data-[state=closed]:hidden data-[state=open]:block");
+            AppendClass(ref cls, "data-[align=start]:left-0 data-[align=center]:left-1/2 data-[align=center]:-translate-x-1/2 data-[align=end]:right-0");
+
+            if (!DisableAutoOpen)
+                AppendClass(ref cls, "group-hover/hover-card:block group-focus-within/hover-card:block");
         });
 
-        attributes["style"] = $"margin-top: {SideOffset}px;";
+        var offsetStyle = Side switch
+        {
+            "top" => $"margin-bottom: {SideOffset}px;",
+            "left" => $"margin-right: {SideOffset}px;",
+            "right" => $"margin-left: {SideOffset}px;",
+            _ => $"margin-top: {SideOffset}px;"
+        };
+
+        attributes["style"] = offsetStyle;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Open);
+        hc.Add(Side);
         hc.Add(Align);
         hc.Add(SideOffset);
+        hc.Add(DisableAutoOpen);
     }
 }

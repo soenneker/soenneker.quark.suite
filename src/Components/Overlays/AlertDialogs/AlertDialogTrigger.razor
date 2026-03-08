@@ -2,9 +2,9 @@
 @inherits Soenneker.Quark.Element
 @implements IAlertDialogTrigger
 
-<div @onclick="HandleActivate" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
+<button type="button" @onclick="HandleActivate" @attributes="BuildAttributes()">
     @ChildContent
-</div>
+</button>
 
 @code {
     [CascadingParameter(Name = nameof(ParentAlertDialog))]
@@ -21,11 +21,9 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "alert-dialog-trigger";
-        attributes["role"] = "button";
-        attributes["tabindex"] = Disabled ? -1 : 0;
 
         if (Disabled)
-            attributes["aria-disabled"] = "true";
+            attributes["disabled"] = true;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -39,15 +37,6 @@
     {
         if (!Disabled && ParentAlertDialog != null)
             await ParentAlertDialog.Show();
-    }
-
-    private async Task HandleKeyDown(KeyboardEventArgs e)
-    {
-        if (Disabled)
-            return;
-
-        if (e.Key is "Enter" or " ")
-            await HandleActivate();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

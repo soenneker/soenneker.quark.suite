@@ -9,7 +9,7 @@
         <span class="group/switch relative inline-flex shrink-0">
             <input id="@Id" type="checkbox" checked="@Checked" @onclick="HandleClick" @onchange="HandleChange" @attributes="BuildInputAttributes()" />
             <span @attributes="BuildTrackAttributes()">
-                <span class="@GetThumbClass()"></span>
+                <span @attributes="BuildThumbAttributes()"></span>
             </span>
         </span>
         @if (ChildContent != null)
@@ -63,6 +63,7 @@
     protected Dictionary<string, object> BuildWrapperAttributes()
     {
         var attributes = new Dictionary<string, object>();
+        attributes["data-slot"] = "switch";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-switch");
@@ -93,7 +94,7 @@
         attributes["data-size"] = sm ? "sm" : "default";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/switch peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background peer-disabled:cursor-not-allowed peer-disabled:opacity-50");
+            AppendClass(ref cls, "group/switch peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors outline-none peer-focus-visible:ring-[3px] peer-focus-visible:ring-ring/50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50");
             AppendClass(ref cls, Checked ? "bg-primary" : "bg-input");
             AppendClass(ref cls, sm ? "h-5 w-9" : "h-6 w-11");
             var v = GetValidationClass();
@@ -127,6 +128,17 @@
         var size = sm ? "h-4 w-4" : "h-5 w-5";
         var translate = Checked ? (sm ? "translate-x-4" : "translate-x-5") : "translate-x-0";
         return $"pointer-events-none block rounded-full bg-background shadow-lg ring-0 transition-transform {size} {translate}";
+    }
+
+    private Dictionary<string, object> BuildThumbAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+        attributes["data-slot"] = "switch-thumb";
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, GetThumbClass());
+        });
+        return attributes;
     }
 
     protected override async Task HandleClick(MouseEventArgs args)

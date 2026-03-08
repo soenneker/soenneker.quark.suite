@@ -5,10 +5,10 @@
 <Div Class="space-y-8 max-w-4xl">
     <Div Class="space-y-6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Basic avatar"
-                         Description="shadcn-style Avatar with image and fallback."
+            <DemoSection Title="Latest shadcn v4 avatar demo"
+                         Description="Avatar examples aligned to the latest shadcn demo layout."
                          Code="@BasicCode">
-                <Div Class="flex flex-wrap items-center gap-4">
+                <Div Class="flex flex-row flex-wrap items-center gap-12">
                     <Avatar>
                         <AvatarImage Src="https://github.com/shadcn.png" Alt="shadcn" />
                         <AvatarFallback>CN</AvatarFallback>
@@ -18,45 +18,50 @@
                         <AvatarImage Src="https://github.com/evilrabbit.png" Alt="evilrabbit" />
                         <AvatarFallback>ER</AvatarFallback>
                     </Avatar>
+
+                    <AvatarGroup Class="*:data-[slot=avatar]:grayscale">
+                        <Avatar>
+                            <AvatarImage Src="https://github.com/shadcn.png" Alt="shadcn" />
+                            <AvatarFallback>CN</AvatarFallback>
+                        </Avatar>
+                        <Avatar>
+                            <AvatarImage Src="https://github.com/maxleiter.png" Alt="maxleiter" />
+                            <AvatarFallback>LR</AvatarFallback>
+                        </Avatar>
+                        <Avatar>
+                            <AvatarImage Src="https://github.com/evilrabbit.png" Alt="evilrabbit" />
+                            <AvatarFallback>ER</AvatarFallback>
+                        </Avatar>
+                    </AvatarGroup>
                 </Div>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Sizes"
-                         Description="Use Size=sm|default|lg."
-                         Code="@SizeCode">
-                <Div Class="flex items-center gap-4">
+            <DemoSection Title="Sizes, badges, and group count"
+                         Description="Quark-specific avatar additions using the same shadcn v4 class patterns."
+                         Code="@ExtrasCode">
+                <Div Class="flex flex-wrap items-center gap-6">
                     <Avatar Size="sm">
                         <AvatarFallback>SM</AvatarFallback>
+                        <AvatarBadge />
                     </Avatar>
                     <Avatar>
                         <AvatarFallback>DF</AvatarFallback>
+                        <AvatarBadge>
+                            <Icon Name="check" Class="size-2" />
+                        </AvatarBadge>
                     </Avatar>
                     <Avatar Size="lg">
                         <AvatarFallback>LG</AvatarFallback>
+                        <AvatarBadge />
                     </Avatar>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Avatar group"
-                         Description="Stacked avatars using shadcn utility classes."
-                         Code="@GroupCode">
-                <Div Class="*:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:grayscale">
-                    <Avatar>
-                        <AvatarImage Src="https://github.com/shadcn.png" Alt="shadcn" />
-                        <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                    <Avatar>
-                        <AvatarImage Src="https://github.com/maxleiter.png" Alt="maxleiter" />
-                        <AvatarFallback>ML</AvatarFallback>
-                    </Avatar>
-                    <Avatar>
-                        <AvatarImage Src="https://github.com/evilrabbit.png" Alt="evilrabbit" />
-                        <AvatarFallback>ER</AvatarFallback>
-                    </Avatar>
+                    <AvatarGroup>
+                        <Avatar Size="sm"><AvatarFallback>JD</AvatarFallback></Avatar>
+                        <Avatar><AvatarFallback>MP</AvatarFallback></Avatar>
+                        <Avatar Size="lg"><AvatarFallback>RL</AvatarFallback></Avatar>
+                        <AvatarGroupCount>+5</AvatarGroupCount>
+                    </AvatarGroup>
                 </Div>
             </DemoSection>
         </Section>
@@ -65,20 +70,32 @@
 
 @code {
     private const string BasicCode =
-@"<Avatar>
-    <AvatarImage Src=""https://github.com/shadcn.png"" Alt=""@shadcn"" />
-    <AvatarFallback>CN</AvatarFallback>
-</Avatar>";
-
-    private const string SizeCode =
-@"<Avatar Size=""sm""><AvatarFallback>SM</AvatarFallback></Avatar>
-<Avatar><AvatarFallback>DF</AvatarFallback></Avatar>
-<Avatar Size=""lg""><AvatarFallback>LG</AvatarFallback></Avatar>";
-
-    private const string GroupCode =
-@"<Div Class=""*:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2"">
-    <Avatar>...</Avatar>
-    <Avatar>...</Avatar>
-    <Avatar>...</Avatar>
+@"<Div Class=""flex flex-row flex-wrap items-center gap-12"">
+    <Avatar>
+        <AvatarImage Src=""https://github.com/shadcn.png"" Alt=""@shadcn"" />
+        <AvatarFallback>CN</AvatarFallback>
+    </Avatar>
+    <Avatar Class=""rounded-lg"">
+        <AvatarImage Src=""https://github.com/evilrabbit.png"" Alt=""@evilrabbit"" />
+        <AvatarFallback>ER</AvatarFallback>
+    </Avatar>
+    <AvatarGroup Class=""*:data-[slot=avatar]:grayscale"">
+        <Avatar>...</Avatar>
+        <Avatar>...</Avatar>
+        <Avatar>...</Avatar>
+    </AvatarGroup>
 </Div>";
+
+    private const string ExtrasCode =
+@"<Avatar Size=""sm"">
+    <AvatarFallback>SM</AvatarFallback>
+    <AvatarBadge />
+</Avatar>
+
+<AvatarGroup>
+    <Avatar Size=""sm""><AvatarFallback>JD</AvatarFallback></Avatar>
+    <Avatar><AvatarFallback>MP</AvatarFallback></Avatar>
+    <Avatar Size=""lg""><AvatarFallback>RL</AvatarFallback></Avatar>
+    <AvatarGroupCount>+5</AvatarGroupCount>
+</AvatarGroup>";
 }

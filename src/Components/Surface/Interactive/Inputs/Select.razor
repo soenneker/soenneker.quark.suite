@@ -7,7 +7,7 @@
 @implements Soenneker.Quark.IValidationInput
 @implements ISelect<TValue>
 
-<div class="group/native-select relative w-full has-[select:disabled]:opacity-50">
+<div @attributes="BuildWrapperAttributes()">
     <select value="@SelectedValue?.ToString()" @onchange="HandleChange" @attributes="BuildAttributes()">
         @if (DefaultItemText.HasContent())
         {
@@ -205,6 +205,7 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "select-trigger";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -237,6 +238,18 @@
 
         if (Placeholder.HasContent())
             attributes["placeholder"] = Placeholder;
+    }
+
+    private Dictionary<string, object> BuildWrapperAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+        attributes["data-slot"] = "select";
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-select-wrapper");
+            AppendClass(ref cls, "group/native-select relative w-full has-[select:disabled]:opacity-50");
+        });
+        return attributes;
     }
 
     public override void Dispose()

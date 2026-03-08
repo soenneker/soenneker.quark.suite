@@ -3,9 +3,34 @@
 
 <div @attributes="BuildAttributes()">
     @ChildContent
+    @if (ShowArrow)
+    {
+        <div class="z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] bg-foreground fill-foreground" aria-hidden="true"></div>
+    }
 </div>
 
 @code {
+    [Parameter]
+    public bool Open { get; set; }
+
+    /// <summary>
+    /// Gets or sets side placement: top, right, bottom, or left.
+    /// </summary>
+    [Parameter]
+    public string Side { get; set; } = "top";
+
+    /// <summary>
+    /// Gets or sets whether hover/focus should auto-open the tooltip.
+    /// </summary>
+    [Parameter]
+    public bool DisableAutoOpen { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the decorative arrow is shown.
+    /// </summary>
+    [Parameter]
+    public bool ShowArrow { get; set; } = true;
+
     /// <summary>
     /// Gets or sets offset from the trigger in pixels.
     /// </summary>
@@ -17,25 +42,41 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "tooltip-content";
+        attributes["data-state"] = Open ? "open" : "closed";
+        attributes["data-side"] = Side;
         attributes["role"] = "tooltip";
 
-        var offset = SideOffset > 0 ? SideOffset : 4;
+        var offset = SideOffset >= 0 ? SideOffset : 0;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-tooltip-content");
-            AppendClass(ref cls, "bg-foreground text-background z-50 w-fit rounded-md px-3 py-1.5 text-xs text-balance");
+            AppendClass(ref cls, "z-50 w-fit origin-(--radix-tooltip-content-transform-origin) rounded-md bg-foreground px-3 py-1.5 text-xs text-balance text-background data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
             AppendClass(ref cls, "absolute left-1/2 -translate-x-1/2 bottom-full");
-            AppendClass(ref cls, "opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible group-focus-within/tooltip:opacity-100 group-focus-within/tooltip:visible transition-opacity pointer-events-none");
-            AppendClass(ref cls, "animate-in fade-in-0 zoom-in-95");
+            AppendClass(ref cls, "pointer-events-none data-[state=closed]:hidden data-[state=open]:block");
+
+            if (!DisableAutoOpen)
+                AppendClass(ref cls, "group-hover/tooltip:block group-focus-within/tooltip:block");
         });
 
-        attributes["style"] = $"margin-bottom: {offset}px;";
+        var offsetStyle = Side switch
+        {
+            "bottom" => $"margin-top: {offset}px;",
+            "left" => $"margin-right: {offset}px;",
+            "right" => $"margin-left: {offset}px;",
+            _ => $"margin-bottom: {offset}px;"
+        };
+
+        attributes["style"] = offsetStyle;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Open);
+        hc.Add(Side);
         hc.Add(SideOffset);
+        hc.Add(DisableAutoOpen);
+        hc.Add(ShowArrow);
     }
 }

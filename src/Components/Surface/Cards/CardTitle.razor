@@ -2,19 +2,20 @@
 @inherits Soenneker.Quark.Element
 @implements ICardTitle
 
-<Heading Scale="@Scale.Is5" @attributes="BuildAttributes()">
+<div @attributes="BuildAttributes()">
     @ChildContent
-</Heading>
+</div>
 
 @code {
-    // CardTitle: text-2xl font-semibold leading-none tracking-tight
+    // shadcn - new-york-v4 ui/card.tsx CardTitle
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "card-title";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-card-title");
-            AppendClass(ref cls, "text-2xl font-semibold leading-none tracking-tight");
+            AppendClass(ref cls, "leading-none font-semibold");
         });
     }
 }

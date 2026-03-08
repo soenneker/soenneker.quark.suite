@@ -1,0 +1,23 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<span @attributes="BuildAttributes()">
+    @ChildContent
+</span>
+
+@code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "avatar-badge";
+
+        BuildClassAttribute(attributes, (ref PooledStringBuilder cls) =>
+        {
+            AppendClass(ref cls, "q-avatar-badge");
+            AppendClass(ref cls, "absolute right-0 bottom-0 z-10 inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground ring-2 ring-background select-none");
+            AppendClass(ref cls, "group-data-[size=sm]/avatar:size-2 group-data-[size=sm]/avatar:[&>svg]:hidden");
+            AppendClass(ref cls, "group-data-[size=default]/avatar:size-2.5 group-data-[size=default]/avatar:[&>svg]:size-2");
+            AppendClass(ref cls, "group-data-[size=lg]/avatar:size-3 group-data-[size=lg]/avatar:[&>svg]:size-2");
+        });
+    }
+}

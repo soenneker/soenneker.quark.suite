@@ -1,0 +1,96 @@
+@page "/overlays/context-menus"
+
+<PageTitle>Context Menus - Quark Suite</PageTitle>
+
+<Div Class="space-y-8 max-w-4xl">
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Context menu demo"
+                     Description="shadcn v4 context menu structure ported to Blazor with checkbox, radio group, and submenu behavior."
+                     Code="@ContextMenuCode">
+            <ContextMenu>
+                <ContextMenuTrigger Class="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">
+                    Right click here
+                </ContextMenuTrigger>
+                <ContextMenuContent>
+                    <Div Class="w-52">
+                        <ContextMenuItem Inset="true">
+                            Back
+                            <ContextMenuShortcut>Ctrl+[</ContextMenuShortcut>
+                        </ContextMenuItem>
+                        <ContextMenuItem Inset="true" Disabled="true">
+                            Forward
+                            <ContextMenuShortcut>Ctrl+]</ContextMenuShortcut>
+                        </ContextMenuItem>
+                        <ContextMenuItem Inset="true">
+                            Reload
+                            <ContextMenuShortcut>Ctrl+R</ContextMenuShortcut>
+                        </ContextMenuItem>
+                        <ContextMenuSub>
+                            <ContextMenuSubTrigger Inset="true">More Tools</ContextMenuSubTrigger>
+                            <ContextMenuSubContent Class="w-44">
+                                <ContextMenuItem>Save Page...</ContextMenuItem>
+                                <ContextMenuItem>Create Shortcut...</ContextMenuItem>
+                                <ContextMenuItem>Name Window...</ContextMenuItem>
+                                <ContextMenuSeparator />
+                                <ContextMenuItem>Developer Tools</ContextMenuItem>
+                                <ContextMenuSeparator />
+                                <ContextMenuItem Variant="destructive">Delete</ContextMenuItem>
+                            </ContextMenuSubContent>
+                        </ContextMenuSub>
+                        <ContextMenuSeparator />
+                        <ContextMenuCheckboxItem @bind-Checked="_showBookmarks">
+                            Show Bookmarks
+                        </ContextMenuCheckboxItem>
+                        <ContextMenuCheckboxItem @bind-Checked="_showFullUrls">
+                            Show Full URLs
+                        </ContextMenuCheckboxItem>
+                        <ContextMenuSeparator />
+                        <ContextMenuRadioGroup>
+                            <ContextMenuLabel Inset="true">People</ContextMenuLabel>
+                            <ContextMenuRadioItem Selected="@IsPedroSelected" SelectedChanged="@(selected => OnPersonSelected("pedro", selected))">
+                                Pedro Duarte
+                            </ContextMenuRadioItem>
+                            <ContextMenuRadioItem Selected="@IsColmSelected" SelectedChanged="@(selected => OnPersonSelected("colm", selected))">
+                                Colm Tuite
+                            </ContextMenuRadioItem>
+                        </ContextMenuRadioGroup>
+                    </Div>
+                </ContextMenuContent>
+            </ContextMenu>
+        </DemoSection>
+    </Section>
+</Div>
+
+@code {
+    private bool _showBookmarks = true;
+    private bool _showFullUrls;
+    private string _selectedPerson = "pedro";
+    private bool IsPedroSelected => _selectedPerson == "pedro";
+    private bool IsColmSelected => _selectedPerson == "colm";
+
+    private void OnPersonSelected(string person, bool selected)
+    {
+        if (selected)
+            _selectedPerson = person;
+    }
+
+    private const string ContextMenuCode =
+@"<ContextMenu>
+    <ContextMenuTrigger Class=""flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm"">
+        Right click here
+    </ContextMenuTrigger>
+    <ContextMenuContent>
+        <Div Class=""w-52"">
+            <ContextMenuItem Inset=""true"">Back<ContextMenuShortcut>Ctrl+[</ContextMenuShortcut></ContextMenuItem>
+            <ContextMenuSub>
+                <ContextMenuSubTrigger Inset=""true"">More Tools</ContextMenuSubTrigger>
+                <ContextMenuSubContent Class=""w-44"">
+                    <ContextMenuItem Variant=""destructive"">Delete</ContextMenuItem>
+                </ContextMenuSubContent>
+            </ContextMenuSub>
+            <ContextMenuCheckboxItem @bind-Checked=""showBookmarks"">Show Bookmarks</ContextMenuCheckboxItem>
+            <ContextMenuRadioGroup>...</ContextMenuRadioGroup>
+        </Div>
+    </ContextMenuContent>
+</ContextMenu>";
+}

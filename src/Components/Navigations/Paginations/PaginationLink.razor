@@ -29,11 +29,15 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "pagination-link";
+        attributes["data-active"] = Active ? "true" : "false";
+        if (Active)
+            attributes["aria-current"] = "page";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-pagination-link");
-            AppendClass(ref cls, "inline-flex items-center justify-center rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 w-10");
+            AppendClass(ref cls, "inline-flex items-center justify-center rounded-md text-sm font-medium border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground size-9");
             if (Active)
                 AppendClass(ref cls, "bg-primary text-primary-foreground border-primary");
             if (Disabled)

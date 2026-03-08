@@ -114,9 +114,10 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attrs)
     {
         // shadcn toast item classes
-        EnsureClassAttr(attrs, "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all");
+        EnsureClassAttr(attrs, "group pointer-events-auto relative flex w-full items-center justify-between gap-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all");
         EnsureClassAttr(attrs, "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full");
         EnsureClassAttr(attrs, "q-snackbar");
+        attrs["data-slot"] = "toast";
 
         attrs["data-state"] = Visible ? "open" : "closed";
         SetOrRemove(attrs, "aria-hidden", !Visible, "true");
@@ -126,10 +127,10 @@
     }
 
     private string GetActionClass() =>
-        "inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
+        "inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-secondary focus:outline-none focus:ring-[3px] focus:ring-ring/50 disabled:pointer-events-none disabled:opacity-50";
 
     private string GetCloseClass() =>
-        "absolute top-2 right-2 rounded-md p-1 opacity-0 transition-opacity text-foreground/50 hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring group-hover:opacity-100";
+        "absolute top-2 right-2 rounded-md p-1 opacity-0 transition-opacity text-foreground/50 hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-[3px] focus:ring-ring/50 group-hover:opacity-100";
 
     private string GetCloseText() => CloseText.HasContent() ? CloseText! : "Close";
 

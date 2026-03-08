@@ -1,0 +1,35 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+@if (ParentContextMenuSub?.Open == true)
+{
+    <div @attributes="BuildAttributes()">
+        @ChildContent
+    </div>
+}
+
+@code {
+    [CascadingParameter(Name = "ParentContextMenuSub")]
+    private ContextMenuSub? ParentContextMenuSub { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "context-menu-sub-content";
+        attributes["data-state"] = ParentContextMenuSub?.Open == true ? "open" : "closed";
+        attributes["data-side"] = "right";
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-context-menu-sub-content");
+            AppendClass(ref cls, "absolute top-0 left-full ml-1");
+            AppendClass(ref cls, "z-50 min-w-[8rem] origin-(--radix-context-menu-content-transform-origin) overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg");
+            AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
+            AppendClass(ref cls, "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(ParentContextMenuSub?.Open ?? false);
+    }
+}

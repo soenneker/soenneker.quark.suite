@@ -1,0 +1,21 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements ICardDescription
+
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    // shadcn - new-york-v4 ui/card.tsx CardDescription
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "card-description";
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-card-description");
+            AppendClass(ref cls, "text-sm text-muted-foreground");
+        });
+    }
+}

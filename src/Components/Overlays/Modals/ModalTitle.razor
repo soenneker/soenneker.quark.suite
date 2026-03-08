@@ -2,13 +2,13 @@
 @inherits Soenneker.Quark.Element
 @implements IModalTitle
 
-<Heading Scale="@Scale" @attributes="BuildAttributes()">
+<div @attributes="BuildAttributes()">
     @ChildContent
-</Heading>
+</div>
 
 @code {
     /// <summary>
-    /// Gets or sets the scale/size of the modal title.
+    /// Backward-compatibility parameter; shadcn title styles are fixed.
     /// </summary>
     [Parameter]
     public CssValue<ScaleBuilder>? Scale { get; set; } = Quark.Scale.Is5;
@@ -16,6 +16,8 @@
     // shadcn DialogTitle - new-york-v4 ui/dialog.tsx
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "dialog-title";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-modal-title");

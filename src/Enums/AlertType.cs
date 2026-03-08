@@ -3,7 +3,7 @@ using Soenneker.Gen.EnumValues;
 namespace Soenneker.Quark.Enums;
 
 /// <summary>
-/// Represents Bootstrap alert types.
+/// Represents alert variant types (e.g. success, danger, warning).
 /// </summary>
 [EnumValue<string>]
 public sealed partial class AlertType

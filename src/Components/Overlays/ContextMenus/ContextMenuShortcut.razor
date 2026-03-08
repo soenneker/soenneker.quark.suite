@@ -1,0 +1,19 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<span @attributes="BuildAttributes()">
+    @ChildContent
+</span>
+
+@code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "context-menu-shortcut";
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-context-menu-shortcut");
+            AppendClass(ref cls, "ml-auto text-xs tracking-widest text-muted-foreground");
+        });
+    }
+}
