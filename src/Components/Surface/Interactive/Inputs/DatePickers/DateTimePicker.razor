@@ -13,55 +13,55 @@
 
     @if (_open)
     {
-        <div class="quark-date-backdrop" style="position: fixed; inset: 0; z-index: 1075;" @onclick="ClosePanel"></div>
+        <div class="fixed inset-0 z-40" @onclick="ClosePanel"></div>
         <div @attributes="BuildPanelAttributes()" @onclick:stopPropagation="true">
-            <div class="qcal-header flex items-center justify-between">
-                <button type="button" class="qcal-nav inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-2 text-sm shadow-xs hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" @onclick="PrevMonth">‹</button>
-                <div class="qcal-title font-semibold">@_displayMonth.ToString("MMMM yyyy", CultureInfo.CurrentUICulture)</div>
-                <button type="button" class="qcal-nav inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-2 text-sm shadow-xs hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" @onclick="NextMonth">›</button>
+            <div class="mb-2 flex items-center justify-between">
+                <button type="button" class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-input bg-background text-sm shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" @onclick="PrevMonth">‹</button>
+                <div class="text-sm font-medium">@_displayMonth.ToString("MMMM yyyy", CultureInfo.CurrentUICulture)</div>
+                <button type="button" class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-input bg-background text-sm shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" @onclick="NextMonth">›</button>
             </div>
-            <div class="qcal-grid mt-2">
+            <div class="grid grid-cols-7 gap-1">
                 @foreach (var dow in _dayNames)
                 {
-                    <div class="qcal-dow text-muted">@dow</div>
+                    <div class="flex h-8 items-center justify-center text-xs font-normal text-muted-foreground">@dow</div>
                 }
                 @foreach (var day in BuildMonthCells())
                 {
-                    var css = day.InMonth ? "qcal-day" : "qcal-day text-muted";
-                    if (day.Date == DateOnly.FromDateTime(DateTime.Today))
-                    {
-                        css += " qcal-today";
-                    }
-                    if (Value.HasValue && day.Date == DateOnly.FromDateTime(Value.Value))
-                    {
-                        css += " qcal-selected";
-                    }
-                    if (day.Disabled)
-                    {
-                        css += " disabled";
-                    }
-
-                    <button type="button" class="@css" disabled="@day.Disabled" @onclick="() => SelectDate(day.Date)">@day.Date.Day</button>
+                    <button type="button" class="@GetDayClass(day)" disabled="@day.Disabled" @onclick="() => SelectDate(day.Date)">@day.Date.Day</button>
                 }
             </div>
 
-            <div class="qcal-time qcal-time-full">
-                <div class="qnum-wrapper">
-                    <input class="qnum-input qnum-hour" type="number" aria-label="Hour" step="1" min="1" max="12" value="@DisplayHour"
-                           @oninput="OnHourInput" @onwheel="OnHourWheel" @onkeydown="OnHourKeyDown" />
-                    <span class="qnum-arrowUp" @onclick="IncrementHour"></span>
-                    <span class="qnum-arrowDown" @onclick="DecrementHour"></span>
+            <div class="mt-3 flex items-center gap-2 border-t pt-3">
+                <div class="flex items-center gap-1">
+                    <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-input bg-background text-sm shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" @onclick="DecrementHour">-</button>
+                    <input class="h-8 w-14 rounded-md border border-input bg-background px-2 text-center text-sm shadow-xs outline-none transition-[color,box-shadow] [appearance:textfield] focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                           type="number"
+                           aria-label="Hour"
+                           step="1"
+                           min="1"
+                           max="12"
+                           value="@DisplayHour"
+                           @oninput="OnHourInput"
+                           @onwheel="OnHourWheel"
+                           @onkeydown="OnHourKeyDown" />
+                    <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-input bg-background text-sm shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" @onclick="IncrementHour">+</button>
                 </div>
-                <span class="qcal-time-separator">:</span>
-                <div class="qnum-wrapper">
-                    <input class="qnum-input qnum-minute" type="number" aria-label="Minute" step="@_minuteStep" min="0" max="59" value="@_minute"
-                           @oninput="OnMinuteInput" @onwheel="OnMinuteWheel" @onkeydown="OnMinuteKeyDown" />
-                    <span class="qnum-arrowUp" @onclick="IncrementMinute"></span>
-                    <span class="qnum-arrowDown" @onclick="DecrementMinute"></span>
+                <span class="text-sm text-muted-foreground">:</span>
+                <div class="flex items-center gap-1">
+                    <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-input bg-background text-sm shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" @onclick="DecrementMinute">-</button>
+                    <input class="h-8 w-14 rounded-md border border-input bg-background px-2 text-center text-sm shadow-xs outline-none transition-[color,box-shadow] [appearance:textfield] focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                           type="number"
+                           aria-label="Minute"
+                           step="@_minuteStep"
+                           min="0"
+                           max="59"
+                           value="@_minute"
+                           @oninput="OnMinuteInput"
+                           @onwheel="OnMinuteWheel"
+                           @onkeydown="OnMinuteKeyDown" />
+                    <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-input bg-background text-sm shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" @onclick="IncrementMinute">+</button>
                 </div>
-                <div class="qcal-time-ampm">
-                    <button type="button" class="qcal-time-ampm-toggle" title="Click to toggle" @onclick="ToggleAmPm">@(_isAm ? "AM" : "PM")</button>
-                </div>
+                <button type="button" class="ml-1 inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-3 text-xs font-medium shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" title="Click to toggle" @onclick="ToggleAmPm">@(_isAm ? "AM" : "PM")</button>
             </div>
         </div>
     }
@@ -231,12 +231,6 @@
 
     private string? GetValidationClass()
     {
-        if (ParentValidation?.Status == ValidationStatus.Error)
-            return "is-invalid";
-
-        if (ParentValidation?.Status == ValidationStatus.Success)
-            return "is-valid";
-
         return null;
     }
 
@@ -277,7 +271,7 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private static string FormatDisplay(DateTime dt) => dt.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+    private static string FormatDisplay(DateTime dt) => dt.ToString("yyyy-MM-dd hh:mm tt", CultureInfo.InvariantCulture);
     private int DisplayHour => _hour % 12 == 0 ? 12 : _hour % 12;
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -286,7 +280,9 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-date-time-picker");
-            AppendClass(ref cls, "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors md:text-sm");
+            AppendClass(ref cls, "border-input placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 dark:hover:bg-input/50 h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50");
+            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]");
+            AppendClass(ref cls, "aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-destructive/20 dark:aria-[invalid=true]:ring-destructive/40");
             
             var sizeClass = GetSizeClass();
             if (sizeClass != null)
@@ -309,6 +305,9 @@
         if (Required)
             attributes["required"] = true;
 
+        if (ParentValidation?.Status == ValidationStatus.Error)
+            attributes["aria-invalid"] = "true";
+
         // min/max intentionally omitted for text input (handled in panel)
 
         attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, OpenPanel);
@@ -330,28 +329,19 @@
         var attrs = new Dictionary<string, object>(2);
         BuildClassAttribute(attrs, (ref cls) =>
         {
-            AppendClass(ref cls, "relative inline-block quark-date-container q-date-container");
+            AppendClass(ref cls, "relative w-full quark-date-container q-date-container");
         });
         return attrs;
     }
 
     private static Dictionary<string, object> BuildPanelAttributes()
     {
-        var attrs = new Dictionary<string, object>(4);
+        var attrs = new Dictionary<string, object>(2);
 
         BuildClassAttribute(attrs, (ref cls) =>
         {
             AppendClass(ref cls, "quark-calendar-panel q-calendar-panel");
-            AppendClass(ref cls, "shadow-lg border rounded-lg bg-background p-3");
-        });
-
-        BuildStyleAttribute(attrs, (ref sty) =>
-        {
-            AppendStyleDecl(ref sty, "position: absolute");
-            AppendStyleDecl(ref sty, "top: calc(100% + .25rem)");
-            AppendStyleDecl(ref sty, "left: 0");
-            AppendStyleDecl(ref sty, "z-index: 1080");
-            AppendStyleDecl(ref sty, "min-width: 18rem");
+            AppendClass(ref cls, "absolute left-0 top-[calc(100%+0.25rem)] z-50 min-w-[18rem] rounded-md border bg-popover p-3 text-popover-foreground shadow-md");
         });
         return attrs;
     }
@@ -367,6 +357,24 @@
     }
 
     private readonly record struct Cell(DateOnly Date, bool InMonth, bool Disabled);
+
+    private string GetDayClass(Cell day)
+    {
+        var css = "relative flex aspect-square h-8 w-8 items-center justify-center rounded-md text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50";
+
+        if (!day.InMonth)
+            css += " text-muted-foreground opacity-50";
+
+        if (day.Date == DateOnly.FromDateTime(DateTime.Today))
+            css += " bg-accent text-accent-foreground";
+
+        if (Value.HasValue && day.Date == DateOnly.FromDateTime(Value.Value))
+            css += " bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground";
+        else
+            css += " hover:bg-accent hover:text-accent-foreground";
+
+        return css;
+    }
 
     private IEnumerable<Cell> BuildMonthCells()
     {

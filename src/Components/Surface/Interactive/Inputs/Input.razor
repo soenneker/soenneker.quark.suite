@@ -221,19 +221,6 @@
     /// <returns>The color class name, or null if no color class should be applied.</returns>
     public virtual string? GetColorClass()
     {
-        if (BackgroundColor is not null && !BackgroundColor.Value.IsEmpty)
-        {
-            string? token = null;
-            var isTheme = BackgroundColor.Value.TryGetThemeToken(out token);
-
-            if (isTheme && token is not null)
-                return null; // Tailwind uses semantic border/ring; theme tokens handled via CSS variables
-
-            var v = BackgroundColor.Value.ToString().Trim();
-            if (BackgroundColor.Value.IsCssClass)
-                return v.StartsWith("form-control-", StringComparison.Ordinal) ? null : null;
-        }
-
         return null;
     }
 
