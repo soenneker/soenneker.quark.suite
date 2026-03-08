@@ -1,0 +1,28 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+@* shadcn - new-york-v4 ui/pagination.tsx PaginationPrevious *@
+<PaginationItem>
+    <PaginationLink To="@To" OnClick="@OnClick" Disabled="@Disabled" @attributes="BuildAttributes()" aria-label="Go to previous page">
+        <Icon Name="chevron-left" class="size-4" />
+        <span class="hidden sm:inline">Previous</span>
+    </PaginationLink>
+</PaginationItem>
+
+@code {
+    [Parameter] public string? To { get; set; }
+    [Parameter] public new EventCallback<MouseEventArgs> OnClick { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "gap-1 px-2.5 sm:pl-2.5"));
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(To);
+        hc.Add(Disabled);
+    }
+}

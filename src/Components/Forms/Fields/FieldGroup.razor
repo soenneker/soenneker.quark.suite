@@ -1,0 +1,21 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+@* shadcn - new-york-v4 ui/field.tsx FieldGroup *@
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "field-group";
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-field-group");
+            AppendClass(ref cls, "group/field-group flex w-full flex-col gap-7");
+            AppendClass(ref cls, "data-[slot=checkbox-group]:gap-3 [&>[data-slot=field-group]]:gap-4");
+        });
+    }
+}

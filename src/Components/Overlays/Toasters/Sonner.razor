@@ -1,0 +1,58 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+@* shadcn - new-york-v4 ui/sonner.tsx (Toaster / Toast container)
+   Sonner-style toaster. Wraps SnackbarStack with Sonner theming (--normal-bg, --radius).
+   Use SnackbarStack or inject ISnackbarStack to call Push() for toasts. *@
+<div @attributes="BuildAttributes()">
+    <SnackbarStack Location="@Location"
+                   DefaultDelay="@DefaultDelay"
+                   Closed="@Closed">
+        @ChildContent
+    </SnackbarStack>
+</div>
+
+@code {
+    /// <summary>
+    /// Toast position. Default bottom-end (Sonner-style).
+    /// </summary>
+    [Parameter]
+    public SnackbarLocation? Location { get; set; }
+
+    /// <summary>
+    /// Default auto-hide delay in ms.
+    /// </summary>
+    [Parameter]
+    public int? DefaultDelay { get; set; }
+
+    /// <summary>
+    /// Callback when a toast is closed.
+    /// </summary>
+    [Parameter]
+    public EventCallback<SnackbarClosedEventArgs> Closed { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "sonner";
+        attributes["style"] = GetSonnerStyle();
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-sonner toaster group");
+        });
+    }
+
+    private string GetSonnerStyle()
+    {
+        var baseStyle = "--normal-bg: var(--popover); --normal-text: var(--popover-foreground); --normal-border: var(--border); --border-radius: var(--radius);";
+        return Style.HasContent() ? $"{baseStyle} {Style}" : baseStyle;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Location);
+        hc.Add(DefaultDelay);
+    }
+}

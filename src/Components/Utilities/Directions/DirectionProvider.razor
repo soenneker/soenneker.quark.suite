@@ -1,0 +1,37 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+@* shadcn - new-york-v4 ui/direction.tsx (Radix UI Direction)
+   Provides RTL/LTR text direction for descendant components. *@
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    /// <summary>
+    /// Text direction: "ltr", "rtl", or "auto".
+    /// Matches Radix Direction.DirectionProvider dir prop.
+    /// </summary>
+    [Parameter]
+    public string Dir { get; set; } = "ltr";
+
+    private string DirValue => Dir?.ToLowerInvariant() switch
+    {
+        "rtl" => "rtl",
+        "auto" => "auto",
+        _ => "ltr"
+    };
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "direction-provider";
+        attributes["dir"] = DirValue;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Dir);
+    }
+}

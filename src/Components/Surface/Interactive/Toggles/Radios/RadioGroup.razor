@@ -1,0 +1,105 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IRadioGroup
+
+@* shadcn - new-york-v4 ui/radio-group.tsx (Radix UI RadioGroup)
+   Wraps Radio components; cascades Name, Value, ValueChanged, Disabled. *@
+<CascadingValue Name="ParentRadioGroup" Value="@this" IsFixed="true">
+    <div @attributes="BuildAttributes()"
+         role="radiogroup"
+         aria-label="@AriaLabel"
+         aria-orientation="@OrientationValue"
+         aria-disabled="@(Disabled ? "true" : "false")">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    private string? _name;
+
+    /// <summary>
+    /// Selected value (matches the Value of the selected Radio).
+    /// </summary>
+    [Parameter]
+    public string? Value { get; set; }
+
+    /// <summary>
+    /// Callback when the selected value changes.
+    /// </summary>
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    /// <summary>
+    /// Name used for grouping (cascaded to Radio children). If null, a unique name is generated.
+    /// </summary>
+    [Parameter]
+    public string? Name { get; set; }
+
+    /// <summary>
+    /// Whether the whole group is disabled.
+    /// </summary>
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    /// <summary>
+    /// Orientation: "horizontal" or "vertical".
+    /// </summary>
+    [Parameter]
+    public string Orientation { get; set; } = "vertical";
+
+    /// <summary>
+    /// Aria label for the radiogroup.
+    /// </summary>
+    [Parameter]
+    public string? AriaLabel { get; set; }
+
+    private string OrientationValue => Orientation?.ToLowerInvariant() == "horizontal" ? "horizontal" : "vertical";
+
+    /// <summary>
+    /// Gets the effective name for the group (generated if not set).
+    /// </summary>
+    public string EffectiveName => _name ??= Name ?? $"radiogroup_{Guid.NewGuid():N}";
+
+    protected override void OnInitialized()
+    {
+        if (Name.HasContent())
+            _name = Name;
+        else
+            _name = $"radiogroup_{Guid.NewGuid():N}";
+    }
+
+    /// <summary>
+    /// Called by child Radio when selected. Sets Value and invokes ValueChanged.
+    /// </summary>
+    public async Task SetValueAsync(string? value)
+    {
+        if (Value == value) return;
+        Value = value;
+        await ValueChanged.InvokeAsync(Value);
+        await RefreshOffThread();
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "radio-group";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-radio-group");
+            AppendClass(ref cls, "grid gap-3");
+            if (OrientationValue == "horizontal")
+                AppendClass(ref cls, "grid-flow-col auto-cols-max");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Value);
+        hc.Add(Name);
+        hc.Add(Disabled);
+        hc.Add(Orientation);
+        hc.Add(AriaLabel);
+    }
+}

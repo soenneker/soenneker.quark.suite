@@ -10,14 +10,14 @@
             id="@Id"
             type="button"
             role="radio"
-            aria-checked="@Checked.ToString().ToLowerInvariant()"
-            aria-disabled="@Disabled.ToString().ToLowerInvariant()"
-            data-state="@(Checked ? "checked" : "unchecked")"
-            disabled="@Disabled"
-            tabindex="@(Disabled ? -1 : 0)"
+            aria-checked="@EffectiveChecked.ToString().ToLowerInvariant()"
+            aria-disabled="@EffectiveDisabled.ToString().ToLowerInvariant()"
+            data-state="@(EffectiveChecked ? "checked" : "unchecked")"
+            disabled="@EffectiveDisabled"
+            tabindex="@(EffectiveDisabled ? -1 : 0)"
             @onclick="HandleClick"
             @attributes="BuildIndicatorAttributes()">
-            @if (Checked)
+            @if (EffectiveChecked)
             {
                 <span class="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary"></span>
             }
@@ -38,6 +38,21 @@
 
     [CascadingParameter(Name = nameof(ParentValidation))]
     public Validation? ParentValidation { get; set; }
+
+    [CascadingParameter(Name = "ParentRadioGroup")]
+    public IRadioGroup? ParentRadioGroup { get; set; }
+
+    /// <summary>
+    /// When inside RadioGroup, reflects group value; otherwise uses Checked.
+    /// </summary>
+    private bool EffectiveChecked => ParentRadioGroup != null
+        ? string.Equals(ParentRadioGroup.Value, Value, StringComparison.Ordinal)
+        : Checked;
+
+    /// <summary>
+    /// When inside RadioGroup, true if group or this radio is disabled.
+    /// </summary>
+    private bool EffectiveDisabled => ParentRadioGroup?.Disabled == true || Disabled;
 
     /// <summary>
     /// Gets or sets the size of the radio.
@@ -110,6 +125,18 @@
 
     protected override async Task HandleClick(MouseEventArgs e)
     {
+        if (ParentRadioGroup != null)
+        {
+            await ParentRadioGroup.SetValueAsync(Value);
+            await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = true });
+            if (ParentValidation is not null)
+            {
+                ParentValidation.MarkTouched();
+                await ParentValidation.NotifyInputChanged(true);
+            }
+            return;
+        }
+
         if (!Checked)
         {
             Checked = true;
@@ -137,7 +164,7 @@
         {
             AppendClass(ref cls, "flex items-center gap-2 text-sm font-medium leading-none");
             AppendClass(ref cls, "focus-within:outline-none rounded-[4px] cursor-pointer");
-            if (Disabled)
+            if (EffectiveDisabled)
                 AppendClass(ref cls, "cursor-not-allowed opacity-50");
         });
         attributes["for"] = Id!;
@@ -154,7 +181,7 @@
             AppendClass(ref cls, "data-[state=checked]:border-primary");
             var sizeClass = GetSizeClass();
             AppendClass(ref cls, sizeClass ?? "size-4");
-            if (Disabled)
+            if (EffectiveDisabled)
                 AppendClass(ref cls, "opacity-50");
             var validationClass = GetValidationClass();
             if (validationClass != null)
@@ -181,6 +208,7 @@
         hc.Add(Disabled);
         hc.Add(Name);
         hc.Add(Value);
+        hc.Add(ParentRadioGroup?.Value);
         AddIf(ref hc, Size);
         hc.Add(Inline);
     }

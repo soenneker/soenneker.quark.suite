@@ -1,0 +1,44 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+@* shadcn Aspect Ratio - new-york-v4 ui/aspect-ratio.tsx (Radix UI AspectRatio)
+   Named AspectRatioBox to avoid conflict with Soenneker.Quark.AspectRatio fluent builder.
+   Wraps content with aspect-ratio CSS for consistent sizing (e.g. video embeds, images). *@
+<div @attributes="BuildAttributes()" style="@GetAspectRatioStyle()">
+    @ChildContent
+</div>
+
+@code {
+    /// <summary>
+    /// Aspect ratio as width/height (e.g. 16/9, 4/3, 1).
+    /// Matches Radix AspectRatio ratio prop.
+    /// </summary>
+    [Parameter]
+    public new double Ratio { get; set; } = 16.0 / 9.0;
+
+    private string GetAspectRatioStyle()
+    {
+        var existing = Style;
+        var ratio = Ratio > 0 ? Ratio : 16.0 / 9.0;
+        var aspectStyle = $"aspect-ratio: {ratio:F2};";
+        return string.IsNullOrWhiteSpace(existing) ? aspectStyle : $"{existing}; {aspectStyle}";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "aspect-ratio";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-aspect-ratio");
+            AppendClass(ref cls, "relative w-full overflow-hidden [&>img]:object-cover [&>video]:object-cover [&>iframe]:object-cover");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Ratio);
+    }
+}
