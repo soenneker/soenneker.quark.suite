@@ -90,11 +90,7 @@
     [Parameter]
     public string Key { get; set; } = "";
 
-    /// <summary>
-    /// Gets or sets whether the snackbar is visible.
-    /// </summary>
-    [Parameter]
-    public bool Visible { get; set; } = true;
+    // Visible is inherited from Element (default true set in OnInitialized)
 
     /// <summary>
     /// Gets or sets the delay in milliseconds before the snackbar automatically hides.
@@ -110,6 +106,11 @@
 
     [CascadingParameter(Name = nameof(ParentSnackbar))]
     protected SnackbarStack? ParentSnackbar { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Visible = true;
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attrs)
     {

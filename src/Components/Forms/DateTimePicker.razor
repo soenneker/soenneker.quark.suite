@@ -9,7 +9,7 @@
 @implements IDateTimePicker
 
 <div OnElementRefReady="HandleContainerRefReady" @attributes="GetContainerAttributes()">
-    <input @ref="_ref" type="text" value="@(Value.HasValue ? FormatDisplay(Value.Value) : "")" @attributes="BuildAttributes()" />
+    <input @ref="_ref" type="text" value="@(SelectedDateTime.HasValue ? FormatDisplay(SelectedDateTime.Value) : "")" @attributes="BuildAttributes()" />
 
     @if (_open)
     {
@@ -69,41 +69,21 @@
 
 @code {
     // shadcn - new-york-v4
+    // Placeholder, Disabled, ReadOnly are inherited from Element
+
     /// <summary>
-    /// Gets or sets the date-time value.
+    /// Gets or sets the selected date-time value.
     /// </summary>
     [Parameter]
-    public DateTime? Value { get; set; }
+    public DateTime? SelectedDateTime { get; set; }
 
     /// <summary>
     /// Gets or sets the expression that identifies the bound value.
     /// </summary>
     [Parameter]
-    public Expression<Func<DateTime?>>? ValueExpression { get; set; }
+    public Expression<Func<DateTime?>>? SelectedDateTimeExpression { get; set; }
 
-    /// <summary>
-    /// Gets or sets the placeholder text.
-    /// </summary>
-    [Parameter]
-    public string? Placeholder { get; set; }
-
-    /// <summary>
-    /// Gets or sets whether the date-time picker is disabled.
-    /// </summary>
-    [Parameter]
-    public bool Disabled { get; set; }
-
-    /// <summary>
-    /// Gets or sets whether the date-time picker is read-only.
-    /// </summary>
-    [Parameter]
-    public bool ReadOnly { get; set; }
-
-    /// <summary>
-    /// Gets or sets whether the date-time picker is required.
-    /// </summary>
-    [Parameter]
-    public bool Required { get; set; }
+    // Required is inherited from Element
 
     /// <summary>
     /// Gets or sets the minimum date-time value.
@@ -127,7 +107,7 @@
     /// Gets or sets the callback invoked When the value changes.
     /// </summary>
     [Parameter]
-    public EventCallback<DateTime?> ValueChanged { get; set; }
+    public EventCallback<DateTime?> SelectedDateTimeChanged { get; set; }
 
     /// <summary>
     /// Gets or sets the callback invoked When the input changes.
@@ -147,7 +127,7 @@
     /// <summary>
     /// Gets the value used for validation.
     /// </summary>
-    public object? ValidationValue => Value;
+    public object? ValidationValue => SelectedDateTime;
 
     private ElementReference _ref;
     private ElementReference _containerRef;
@@ -184,14 +164,14 @@
     private async Task HandleInput(ChangeEventArgs e)
     {
         var next = Parse(e);
-        var valueChanged = Value != next;
-        Value = next;
+        var valueChanged = SelectedDateTime != next;
+        SelectedDateTime = next;
         if (valueChanged)
-            await ValueChanged.InvokeIfHasDelegate(Value);
+            await SelectedDateTimeChanged.InvokeIfHasDelegate(SelectedDateTime);
         await OnInput.InvokeIfHasDelegate(e);
 
         if (ParentValidation is not null)
-            await ParentValidation.NotifyInputChanged(Value);
+            await ParentValidation.NotifyInputChanged(SelectedDateTime);
 
         if (valueChanged)
         {
@@ -203,14 +183,14 @@
     private async Task HandleChange(ChangeEventArgs e)
     {
         var next = Parse(e);
-        var valueChanged = Value != next;
-        Value = next;
+        var valueChanged = SelectedDateTime != next;
+        SelectedDateTime = next;
         if (valueChanged)
-            await ValueChanged.InvokeIfHasDelegate(Value);
+            await SelectedDateTimeChanged.InvokeIfHasDelegate(SelectedDateTime);
         await OnChange.InvokeIfHasDelegate(e);
 
         if (ParentValidation is not null)
-            await ParentValidation.NotifyInputChanged(Value);
+            await ParentValidation.NotifyInputChanged(SelectedDateTime);
 
         if (valueChanged)
         {
@@ -240,9 +220,9 @@
         {
             await ParentValidation.InitializeInput(this);
 
-            if (ValueExpression is not null)
+            if (SelectedDateTimeExpression is not null)
             {
-                await ParentValidation.InitializeInputExpression(ValueExpression);
+                await ParentValidation.InitializeInputExpression(SelectedDateTimeExpression);
             }
         }
 
@@ -251,11 +231,11 @@
             _outsideRef = DotNetObjectReference.Create(new DateTimePickerOutsideCloseProxy(this));
 
             InitializeDayNames();
-            if (Value.HasValue)
+            if (SelectedDateTime.HasValue)
             {
-                _displayMonth = DateOnly.FromDateTime(Value.Value);
-                _hour = Value.Value.Hour;
-                _minute = Value.Value.Minute;
+                _displayMonth = DateOnly.FromDateTime(SelectedDateTime.Value);
+                _hour = SelectedDateTime.Value.Hour;
+                _minute = SelectedDateTime.Value.Minute;
             }
             else
             {
@@ -368,7 +348,7 @@
         if (day.Date == DateOnly.FromDateTime(DateTime.Today))
             css += " bg-accent text-accent-foreground";
 
-        if (Value.HasValue && day.Date == DateOnly.FromDateTime(Value.Value))
+        if (SelectedDateTime.HasValue && day.Date == DateOnly.FromDateTime(SelectedDateTime.Value))
             css += " bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground";
         else
             css += " hover:bg-accent hover:text-accent-foreground";
@@ -412,19 +392,19 @@
 
     private async Task Commit()
     {
-        var date = _pendingDate ?? (Value.HasValue ? DateOnly.FromDateTime(Value.Value) : DateOnly.FromDateTime(DateTime.Today));
+        var date = _pendingDate ?? (SelectedDateTime.HasValue ? DateOnly.FromDateTime(SelectedDateTime.Value) : DateOnly.FromDateTime(DateTime.Today));
         var dt = new DateTime(date.Year, date.Month, date.Day, _hour, _minute, 0);
         
-        if (Value != dt)
+        if (SelectedDateTime != dt)
         {
-            Value = dt;
-            await ValueChanged.InvokeAsync(Value);
+            SelectedDateTime = dt;
+            await SelectedDateTimeChanged.InvokeAsync(SelectedDateTime);
         }
         
         if (ParentValidation is not null)
         {
             ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(Value);
+            await ParentValidation.NotifyInputChanged(SelectedDateTime);
         }
 
         InvalidateRender();
@@ -528,7 +508,7 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
-        hc.Add(Value);
+        hc.Add(SelectedDateTime);
         hc.Add(Placeholder);
         hc.Add(Disabled);
         hc.Add(ReadOnly);

@@ -9,7 +9,7 @@
 @implements IDatePicker
 
 <div OnElementRefReady="HandleContainerRefReady" @attributes="GetContainerAttributes()">
-    <input @ref="_ref" type="text" value="@(Value.HasValue ? Value.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : "")" @attributes="BuildAttributes()" />
+    <input @ref="_ref" type="text" value="@(SelectedDate.HasValue ? SelectedDate.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : "")" @attributes="BuildAttributes()" />
 
     @if (_open)
     {
@@ -36,42 +36,21 @@
 
 @code {
     // shadcn - new-york-v4
+    // Placeholder, Disabled, ReadOnly are inherited from Element
 
     /// <summary>
-    /// Gets or sets the date value.
+    /// Gets or sets the selected date value.
     /// </summary>
     [Parameter]
-    public DateOnly? Value { get; set; }
+    public DateOnly? SelectedDate { get; set; }
 
     /// <summary>
     /// Gets or sets the expression that identifies the bound value.
     /// </summary>
     [Parameter]
-    public Expression<Func<DateOnly?>>? ValueExpression { get; set; }
+    public Expression<Func<DateOnly?>>? SelectedDateExpression { get; set; }
 
-    /// <summary>
-    /// Gets or sets the placeholder text.
-    /// </summary>
-    [Parameter]
-    public string? Placeholder { get; set; }
-
-    /// <summary>
-    /// Gets or sets whether the date picker is disabled.
-    /// </summary>
-    [Parameter]
-    public bool Disabled { get; set; }
-
-    /// <summary>
-    /// Gets or sets whether the date picker is read-only.
-    /// </summary>
-    [Parameter]
-    public bool ReadOnly { get; set; }
-
-    /// <summary>
-    /// Gets or sets whether the date picker is required.
-    /// </summary>
-    [Parameter]
-    public bool Required { get; set; }
+    // Required is inherited from Element
 
     /// <summary>
     /// Gets or sets the minimum date value.
@@ -95,7 +74,7 @@
     /// Gets or sets the callback invoked When the value changes.
     /// </summary>
     [Parameter]
-    public EventCallback<DateOnly?> ValueChanged { get; set; }
+    public EventCallback<DateOnly?> SelectedDateChanged { get; set; }
 
     /// <summary>
     /// Gets or sets the callback invoked When the input changes.
@@ -115,7 +94,7 @@
     /// <summary>
     /// Gets the value used for validation.
     /// </summary>
-    public object? ValidationValue => Value;
+    public object? ValidationValue => SelectedDate;
 
     private ElementReference _ref;
     private ElementReference _containerRef;
@@ -139,14 +118,14 @@
     private async Task HandleInput(ChangeEventArgs e)
     {
         var next = Parse(e);
-        var valueChanged = Value != next;
-        Value = next;
+        var valueChanged = SelectedDate != next;
+        SelectedDate = next;
         if (valueChanged)
-            await ValueChanged.InvokeIfHasDelegate(Value);
+            await SelectedDateChanged.InvokeIfHasDelegate(SelectedDate);
         await OnInput.InvokeIfHasDelegate(e);
 
         if (ParentValidation is not null)
-            await ParentValidation.NotifyInputChanged(Value);
+            await ParentValidation.NotifyInputChanged(SelectedDate);
 
         if (valueChanged)
         {
@@ -158,14 +137,14 @@
     private async Task HandleChange(ChangeEventArgs e)
     {
         var next = Parse(e);
-        var valueChanged = Value != next;
-        Value = next;
+        var valueChanged = SelectedDate != next;
+        SelectedDate = next;
         if (valueChanged)
-            await ValueChanged.InvokeIfHasDelegate(Value);
+            await SelectedDateChanged.InvokeIfHasDelegate(SelectedDate);
         await OnChange.InvokeIfHasDelegate(e);
 
         if (ParentValidation is not null)
-            await ParentValidation.NotifyInputChanged(Value);
+            await ParentValidation.NotifyInputChanged(SelectedDate);
 
         if (valueChanged)
         {
@@ -195,9 +174,9 @@
         {
             await ParentValidation.InitializeInput(this);
 
-            if (ValueExpression is not null)
+            if (SelectedDateExpression is not null)
             {
-                await ParentValidation.InitializeInputExpression(ValueExpression);
+                await ParentValidation.InitializeInputExpression(SelectedDateExpression);
             }
         }
 
@@ -208,8 +187,8 @@
         {
             _outsideRef = DotNetObjectReference.Create(new DatePickerOutsideCloseProxy(this));
             InitializeDayNames();
-            if (Value.HasValue)
-                _displayMonth = new DateOnly(Value.Value.Year, Value.Value.Month, 1);
+            if (SelectedDate.HasValue)
+                _displayMonth = new DateOnly(SelectedDate.Value.Year, SelectedDate.Value.Month, 1);
             else
                 _displayMonth = new DateOnly(DateOnly.FromDateTime(DateTime.Today).Year, DateOnly.FromDateTime(DateTime.Today).Month, 1);
         }
@@ -308,7 +287,7 @@
         if (day.Date == DateOnly.FromDateTime(DateTime.Today))
             css += " bg-accent text-accent-foreground";
 
-        if (Value.HasValue && day.Date == Value.Value)
+        if (SelectedDate.HasValue && day.Date == SelectedDate.Value)
             css += " bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground";
         else
             css += " hover:bg-accent hover:text-accent-foreground";
@@ -355,16 +334,16 @@
         if ((Min.HasValue && date < Min.Value) || (Max.HasValue && date > Max.Value))
             return;
 
-        if (Value != date)
+        if (SelectedDate != date)
         {
-            Value = date;
-            await ValueChanged.InvokeAsync(Value);
+            SelectedDate = date;
+            await SelectedDateChanged.InvokeAsync(SelectedDate);
         }
         
         if (ParentValidation is not null)
         {
             ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(Value);
+            await ParentValidation.NotifyInputChanged(SelectedDate);
         }
         
         await ClosePanel();
@@ -409,7 +388,7 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
-        hc.Add(Value);
+        hc.Add(SelectedDate);
         hc.Add(Placeholder);
         hc.Add(Disabled);
         hc.Add(ReadOnly);

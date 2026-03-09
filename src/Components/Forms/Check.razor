@@ -194,19 +194,19 @@
 
     protected override async Task HandleClick(MouseEventArgs args)
     {
-        Checked = !Checked;
-        await CheckedChanged.InvokeAsync(Checked);
+        if (Disabled)
+            return;
 
-        InvalidateRender();
-        Refresh();
+        var next = !Checked;
+        await CheckedChanged.InvokeAsync(next);
 
         if (ParentValidation is not null)
         {
             ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(Checked);
+            await ParentValidation.NotifyInputChanged(next);
         }
 
-        await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = Checked });
+        await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = next });
     }
 
     public override void Dispose()

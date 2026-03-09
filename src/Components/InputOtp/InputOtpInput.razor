@@ -5,7 +5,7 @@
        inputmode="numeric"
        autocomplete="one-time-code"
        maxlength="@(ParentInputOtp?.Length ?? 6)"
-       value="@(ParentInputOtp?.Value ?? "")"
+       value="@(ParentInputOtp?.OtpValue ?? "")"
        @oninput="HandleInput"
        @onkeydown="HandleKeyDown"
        @attributes="BuildAttributes()" />
@@ -25,7 +25,7 @@
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
         if (ParentInputOtp == null) return;
-        var v = ParentInputOtp.Value ?? "";
+        var v = ParentInputOtp.OtpValue ?? "";
         if (e.Key == "Backspace" && v.Length > 0)
         {
             await ParentInputOtp.SetValue(v[..^1]);

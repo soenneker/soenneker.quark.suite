@@ -8,11 +8,19 @@
 </CascadingValue>
 
 @code {
+    // Disabled is inherited from Element. Value/ValueChanged conflict with Element.Value so we use OtpValue/OtpValueChanged.
+
     /// <summary>
     /// Gets or sets the OTP value.
     /// </summary>
     [Parameter]
-    public string Value { get; set; } = "";
+    public string OtpValue { get; set; } = "";
+
+    /// <summary>
+    /// Gets or sets the callback when the OTP value changes.
+    /// </summary>
+    [Parameter]
+    public EventCallback<string> OtpValueChanged { get; set; }
 
     /// <summary>
     /// Gets or sets the number of slots.
@@ -20,23 +28,11 @@
     [Parameter]
     public int Length { get; set; } = 6;
 
-    /// <summary>
-    /// Gets or sets callback when value changes.
-    /// </summary>
-    [Parameter]
-    public EventCallback<string> ValueChanged { get; set; }
-
-    /// <summary>
-    /// Gets or sets whether the input is disabled.
-    /// </summary>
-    [Parameter]
-    public bool Disabled { get; set; }
-
     internal async Task SetValue(string v)
     {
         if (v.Length > Length) v = v[..Length];
-        Value = v;
-        await ValueChanged.InvokeAsync(Value);
+        OtpValue = v;
+        await OtpValueChanged.InvokeAsync(OtpValue);
         InvalidateRender();
         Refresh();
     }
@@ -44,11 +40,11 @@
     internal char? GetSlot(int index)
     {
         if (index < 0 || index >= Length) return null;
-        var v = Value ?? "";
+        var v = OtpValue ?? "";
         return index < v.Length ? v[index] : (char?)null;
     }
 
-    internal int ActiveIndex => Math.Min((Value ?? "").Length, Length - 1);
+    internal int ActiveIndex => Math.Min((OtpValue ?? "").Length, Length - 1);
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -68,7 +64,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Value);
+        hc.Add(OtpValue);
         hc.Add(Length);
         hc.Add(Disabled);
     }
