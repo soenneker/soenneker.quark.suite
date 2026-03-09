@@ -1,0 +1,41 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IPaginationItem
+
+<li @attributes="BuildAttributes()">
+	@ChildContent
+</li>
+
+@code {
+    // shadcn - new-york-v4
+    /// <summary>
+    /// Gets or sets whether the pagination item is active.
+    /// </summary>
+    [Parameter]
+    public bool Active { get; set; }
+
+    // Disabled is inherited from Element
+
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "pagination-item";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-pagination-item");
+            AppendClass(ref cls, "list-none");
+            if (Active)
+                AppendClass(ref cls, "q-pagination-item-active");
+            if (Disabled)
+                AppendClass(ref cls, "opacity-50 pointer-events-none");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Active);
+        hc.Add(Disabled);
+    }
+}

@@ -1,0 +1,74 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@using Soenneker.Blazor.Extensions.EventCallback
+@implements IDropdownToggle
+
+<button @attributes="BuildAttributes()" type="button" aria-haspopup="true" @onclick="OnClickHandler">
+    @ChildContent
+</button>
+
+@code {
+    // shadcn - new-york-v4
+    // Disabled is inherited from Element
+
+    /// <summary>
+    /// Gets or sets whether this is a split button toggle.
+    /// </summary>
+    [Parameter]
+    public bool IsSplit { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback invoked When the toggle is clicked.
+    /// </summary>
+    [Parameter]
+    public EventCallback<MouseEventArgs> Clicked { get; set; }
+
+    [CascadingParameter(Name = nameof(ParentDropdown))]
+    public Dropdown? ParentDropdown { get; set; }
+
+    private async Task OnClickHandler(MouseEventArgs e)
+    {
+        if (Disabled || ParentDropdown?.Disabled == true)
+            return;
+
+        if (ParentDropdown is not null)
+            await ParentDropdown.Toggle();
+
+        await Clicked.InvokeIfHasDelegate(e);
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "dropdown-menu-trigger";
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-dropdown-toggle");
+            AppendClass(ref cls, "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed");
+            if (IsSplit)
+                AppendClass(ref cls, "border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2");
+            else
+                AppendClass(ref cls, "bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2");
+            if (Disabled)
+                AppendClass(ref cls, "pointer-events-none opacity-50");
+        });
+
+        attributes["aria-expanded"] = ParentDropdown?.Visible == true ? "true" : "false";
+
+        if (ParentDropdown is not null)
+            attributes["aria-controls"] = ParentDropdown.MenuId;
+
+        if (Disabled || ParentDropdown?.Disabled == true)
+        {
+            attributes["disabled"] = true;
+        }
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Disabled);
+        hc.Add(IsSplit);
+        hc.Add(ParentDropdown?.Visible == true);
+        hc.Add(ParentDropdown?.Disabled == true);
+    }
+}

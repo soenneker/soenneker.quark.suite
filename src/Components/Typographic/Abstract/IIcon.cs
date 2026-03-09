@@ -5,7 +5,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Interface for the Icon component
 /// </summary>
-public interface IIcon : ITypographicElement
+public interface IIcon : IElement
 {
     /// <summary>
     /// Gets or sets the name of the icon.

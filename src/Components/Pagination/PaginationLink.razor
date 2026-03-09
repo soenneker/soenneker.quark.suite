@@ -1,0 +1,65 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IPaginationLink
+
+<Anchor @attributes="BuildAttributes()">
+	@ChildContent
+</Anchor>
+
+@code {
+    // shadcn - new-york-v4
+    /// <summary>
+    /// Gets or sets whether the pagination link is active.
+    /// </summary>
+    [Parameter]
+    public bool Active { get; set; }
+
+    // Disabled is inherited from Element
+
+    /// <summary>
+    /// Gets or sets the link target (href). When set, the link navigates; otherwise behaves as button.
+    /// </summary>
+    [Parameter]
+    public string? To { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "pagination-link";
+        attributes["data-active"] = Active ? "true" : "false";
+        if (Active)
+            attributes["aria-current"] = "page";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-pagination-link");
+            AppendClass(ref cls, "inline-flex items-center justify-center rounded-md text-sm font-medium border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground size-9");
+            if (Active)
+                AppendClass(ref cls, "bg-primary text-primary-foreground border-primary");
+            if (Disabled)
+                AppendClass(ref cls, "opacity-50 pointer-events-none");
+        });
+
+        if (Disabled)
+        {
+            attributes["aria-disabled"] = "true";
+            // Set tabindex only if not already set via TabIndex property
+            if (!attributes.ContainsKey("tabindex"))
+                attributes["tabindex"] = -1;
+        }
+        else
+        {
+            attributes["href"] = To.HasContent() ? To! : "javascript:void(0)";
+            // Set role only if not already set via Role property
+            if (!attributes.ContainsKey("role"))
+                attributes["role"] = "button";
+        }
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Active);
+        hc.Add(Disabled);
+        hc.Add(To);
+    }
+}

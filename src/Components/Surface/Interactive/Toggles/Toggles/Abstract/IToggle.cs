@@ -5,7 +5,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Represents a shadcn-style toggle button with pressed state.
 /// </summary>
-public interface IToggle : IInteractiveSurfaceElement
+public interface IToggle : IElement
 {
     /// <summary>
     /// Gets or sets whether the toggle is pressed.

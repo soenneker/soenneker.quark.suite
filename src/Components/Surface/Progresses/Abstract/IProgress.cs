@@ -8,7 +8,7 @@ public interface IProgress : IElement
     /// <summary>
     /// Gets or sets the current progress value (0–100).
     /// </summary>
-    int Value { get; set; }
+    int ProgressValue { get; set; }
 
     /// <summary>
     /// Gets or sets the maximum value for ARIA semantics.

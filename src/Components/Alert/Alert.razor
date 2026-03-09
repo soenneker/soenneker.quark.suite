@@ -1,0 +1,233 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IAlert
+
+@if (Visible)
+{
+    <CascadingValue Name="ParentAlert" Value="@this" IsFixed>
+        <div @attributes="BuildAttributes()" role="alert">
+            @if (Dismissible)
+            {
+                <Button Type="@ButtonType.Button"
+                        Class="absolute right-4 top-4 size-6 rounded-sm p-0 opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-[3px] focus:ring-ring/50 disabled:pointer-events-none"
+                        OnClick="HandleDismiss"
+                        aria-label="Close">
+                    <span class="sr-only">Close</span>
+                    <span aria-hidden="true">×</span>
+                </Button>
+            }
+            @if (AlertIcon is not null)
+            {
+                @AlertIcon
+            }
+            else if (ShowDefaultIcon)
+            {
+                <Icon Name="@GetDefaultIconName()" IconStyle="IconStyle.Solid" Class="size-4 shrink-0 translate-y-0.5" />
+            }
+            @ChildContent
+        </div>
+    </CascadingValue>
+}
+
+@code {
+    // Internal state tracking for child components
+    private bool _hasMessage;
+    private bool _hasDescription;
+    
+    [Parameter]
+    public AlertVariant Variant { get; set; } = AlertVariant.Default;
+
+    /// <summary>
+    /// Gets or sets whether to show a thick left accent border in the variant's color.
+    /// </summary>
+    [Parameter]
+    public bool AccentBorder { get; set; }
+
+    /// <summary>
+    /// Gets or sets an optional icon to display in the alert (e.g. SVG or icon component).
+    /// </summary>
+    [Parameter]
+    public RenderFragment? AlertIcon { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether to show the default icon for the variant when AlertIcon is null.
+    /// </summary>
+    [Parameter]
+    public bool ShowDefaultIcon { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets whether the alert can be dismissed.
+    /// </summary>
+    [Parameter]
+    public bool Dismissible { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the alert is visible.
+    /// </summary>
+    [Parameter]
+    public bool Visible { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the callback invoked When the visibility state changes.
+    /// </summary>
+    [Parameter]
+    public EventCallback<bool> VisibleChanged { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback invoked When the alert is dismissed.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnDismiss { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "alert";
+        // Build alert classes (and any alert-specific style) during attribute construction.
+        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
+        {
+            AppendClass(ref cls, "q-alert");
+            // shadcn/ui alert - exact structure from new-york-v4 ui/alert.tsx
+            AppendClass(ref cls, "relative w-full rounded-lg border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] has-[>i]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 has-[>i]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current [&>i]:text-current");
+
+            if (Variant == AlertVariant.Danger)
+                AppendClass(ref cls, "text-destructive bg-card [&>svg]:text-current [&_.q-alert-description]:text-destructive/90");
+            else if (Variant != AlertVariant.Default)
+                AppendClass(ref cls, AlertVariantClasses.GetVariantClasses(Variant, AccentBorder));
+            else
+                AppendClass(ref cls, "bg-card text-card-foreground");
+
+            ApplyAlertBackgroundColor(ref sty, ref cls);
+            if (!string.IsNullOrWhiteSpace(Class))
+                AppendClass(ref cls, Class!);
+        });
+    }
+
+    
+
+    /// <summary>
+    /// Shows the alert.
+    /// </summary>
+    public Task Show()
+    {
+        if (Visible)
+            return Task.CompletedTask;
+
+        Visible = true;
+        return RefreshOffThread();
+    }
+
+    /// <summary>
+    /// Hides the alert.
+    /// </summary>
+    public Task Hide()
+    {
+        if (!Visible)
+            return Task.CompletedTask;
+
+        Visible = false;
+        return RefreshOffThread();
+    }
+
+    /// <summary>
+    /// Toggles the visibility of the alert.
+    /// </summary>
+    public Task Toggle()
+    {
+        Visible = !Visible;
+        return RefreshOffThread();
+    }
+
+    internal void NotifyHasMessage()
+    {
+        if (_hasMessage)
+            return;
+
+        _hasMessage = true;
+        _ = RefreshOffThread();
+    }
+
+    internal void NotifyHasDescription()
+    {
+        if (_hasDescription)
+            return;
+
+        _hasDescription = true;
+        _ = RefreshOffThread();
+    }
+
+    private async Task HandleDismiss()
+    {
+        if (!Visible)
+            return;
+
+        Visible = false;
+        InvalidateRender();
+
+        await OnDismiss.InvokeIfHasDelegate();
+        await VisibleChanged.InvokeAsync(Visible);
+
+        Refresh();
+    }
+
+    /// <summary>
+    /// Alert uses BackgroundColor only for shadcn variant (e.g. Danger -> destructive). Do not apply base bg-* classes.
+    /// </summary>
+    protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        // No-op: variant and colors are applied in ApplyAlertBackgroundColor during our BuildAttributesCore.
+    }
+
+    protected virtual void ApplyAlertBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+        if (BackgroundColor is null || BackgroundColor.Value.IsEmpty)
+            return;
+
+        var v = BackgroundColor.Value.ToString();
+        if (v.Length == 0)
+            return;
+
+        string? token = null;
+        if (BackgroundColor.Value.TryGetThemeToken(out token) && token is not null)
+        {
+            if (token.Equals("danger", StringComparison.OrdinalIgnoreCase))
+                AppendClass(ref cls, "text-destructive bg-card [&>svg]:text-current [&_.q-alert-description]:text-destructive/90");
+            return;
+        }
+
+        if (BackgroundColor.Value.IsCssClass && v.StartsWith("alert-", StringComparison.Ordinal))
+        {
+            var sub = v.Length > 6 ? v.Substring(6) : null;
+            if (sub is not null && sub.Equals("danger", StringComparison.OrdinalIgnoreCase))
+                AppendClass(ref cls, "text-destructive bg-card [&>svg]:text-current [&_.q-alert-description]:text-destructive/90");
+            return;
+        }
+
+        AppendStyleDecl(ref sty, "border-color: ");
+        sty.Append(v);
+        AppendStyleDecl(ref sty, "color: white");
+    }
+
+    private string GetDefaultIconName() => Variant switch
+    {
+        AlertVariant.Success => "circle-check",
+        AlertVariant.Info => "circle-info",
+        AlertVariant.Warning => "triangle-exclamation",
+        AlertVariant.Danger => "circle-xmark",
+        _ => "circle-info"
+    };
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Variant);
+        hc.Add(AccentBorder);
+        hc.Add(AlertIcon != null);
+        hc.Add(ShowDefaultIcon);
+        hc.Add(Dismissible);
+        hc.Add(Visible);
+        hc.Add(_hasMessage);
+        hc.Add(_hasDescription);
+    }
+}

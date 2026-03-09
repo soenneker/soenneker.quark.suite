@@ -1,0 +1,55 @@
+@namespace Soenneker.Quark
+
+@inherits Soenneker.Quark.Element
+@implements IProgress
+
+<div @attributes="BuildAttributes()"
+     role="progressbar"
+     aria-valuemin="0"
+     aria-valuemax="@Max"
+     aria-valuenow="@ProgressValue">
+    <div data-slot="progress-indicator"
+         class="q-progress-indicator bg-primary h-full w-full flex-1 transition-all"
+         style="@GetIndicatorStyle()"></div>
+</div>
+
+@code {
+    /// <summary>
+    /// Gets or sets the current progress value (0–100).
+    /// </summary>
+    [Parameter]
+    public int ProgressValue { get; set; }
+
+    /// <summary>
+    /// Gets or sets the maximum value for ARIA semantics.
+    /// </summary>
+    [Parameter]
+    public int Max { get; set; } = 100;
+
+    private string GetIndicatorStyle()
+    {
+        var val = ProgressValue;
+        if (val < 0) val = 0;
+        if (val > Max) val = Max;
+        var pct = Max > 0 ? (val * 100.0 / Max) : 0;
+        return $"transform: translateX(-{100 - pct:F0}%);";
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        // shadcn Progress root - new-york-v4 ui/progress.tsx
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-progress");
+            AppendClass(ref cls, "bg-primary/20 relative h-2 w-full overflow-hidden rounded-full");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(ProgressValue);
+        hc.Add(Max);
+    }
+}

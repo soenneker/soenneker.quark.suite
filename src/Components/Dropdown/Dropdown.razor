@@ -1,0 +1,111 @@
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@using Soenneker.Blazor.Extensions.EventCallback
+@implements IDropdown
+
+<CascadingValue Name="ParentDropdown" Value="this" IsFixed="true">
+    <div @attributes="BuildAttributes()">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    // shadcn - new-york-v4
+    // Visible and VisibleChanged are inherited from Element
+
+    /// <summary>
+    /// Gets or sets whether the dropdown menu should be right-aligned.
+    /// </summary>
+    [Parameter]
+    public bool RightAligned { get; set; }
+
+    // Disabled is inherited from Element
+
+    /// <summary>
+    /// Gets or sets the direction of the dropdown.
+    /// </summary>
+    [Parameter]
+    public Direction Direction { get; set; } = Direction.Default;
+
+    /// <summary>
+    /// Gets or sets whether this is a submenu dropdown.
+    /// </summary>
+    [Parameter]
+    public bool IsSubmenu { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether this is a button group dropdown.
+    /// </summary>
+    [Parameter]
+    public bool IsGroup { get; set; }
+
+    /// <summary>
+    /// Gets or sets the target ID for the dropdown menu.
+    /// </summary>
+    [Parameter]
+    public string? DropdownMenuTargetId { get; set; }
+
+    internal string MenuId => DropdownMenuTargetId.HasContent() ? DropdownMenuTargetId! : $"{Id}_menu";
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        if (Id.IsNullOrEmpty())
+            Id = $"dropdown_{Guid.NewGuid():N}";
+    }
+
+    internal async Task Toggle()
+    {
+        if (Disabled)
+            return;
+
+        Visible = !Visible;
+        InvalidateRender();
+        Refresh();
+        await VisibleChanged.InvokeIfHasDelegate(Visible);
+    }
+
+    internal async Task Hide()
+    {
+        if (!Visible)
+            return;
+
+        Visible = false;
+        InvalidateRender();
+        Refresh();
+        await VisibleChanged.InvokeIfHasDelegate(false);
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "dropdown-menu";
+        attributes["data-state"] = Visible ? "open" : "closed";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-dropdown");
+            AppendClass(ref cls, IsGroup ? "inline-flex" : "relative");
+            
+            if (Visible)
+                AppendClass(ref cls, "show");
+            if (RightAligned)
+                AppendClass(ref cls, "dropend");
+            if (Disabled)
+                AppendClass(ref cls, "disabled");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Visible);
+        hc.Add(RightAligned);
+        hc.Add(Disabled);
+        hc.Add(Direction);
+        hc.Add(IsSubmenu);
+        hc.Add(IsGroup);
+        hc.Add(DropdownMenuTargetId);
+    }
+}

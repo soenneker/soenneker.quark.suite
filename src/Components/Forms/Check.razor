@@ -1,0 +1,232 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements Soenneker.Quark.IValidationInput
+@using Soenneker.Blazor.Extensions.EventCallback
+@implements ICheck
+<div @attributes="BuildWrapperAttributes()">
+    <label @attributes="BuildLabelAttributes()">
+        <button
+            id="@Id"
+            type="button"
+            role="checkbox"
+            aria-checked="@Checked.ToString().ToLowerInvariant()"
+            aria-disabled="@Disabled.ToString().ToLowerInvariant()"
+            data-state="@(Checked ? "checked" : "unchecked")"
+            disabled="@Disabled"
+            tabindex="@(Disabled ? -1 : 0)"
+            @onclick="HandleClick"
+            @attributes="BuildButtonAttributes()">
+            @if (Checked)
+            {
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 text-primary-foreground shrink-0"><path d="M20 6 9 17 4 12"/></svg>
+            }
+            else if (Indeterminate)
+            {
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 text-primary-foreground shrink-0"><path d="M5 12h14"/></svg>
+            }
+        </button>
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+        else if (Label.HasContent())
+        {
+            @Label
+        }
+    </label>
+</div>
+
+@code {
+    public override string? Id { get; set; } = $"check-{Guid.NewGuid():N}";
+
+    /// <summary>
+    /// Gets or sets whether the check is in an indeterminate state.
+    /// </summary>
+    [Parameter]
+    public bool Indeterminate { get; set; }
+
+    /// <summary>
+    /// Gets or sets the size of the check.
+    /// </summary>
+    [Parameter]
+    public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
+
+    /// <summary>
+    /// Gets or sets whether the check should be displayed as a switch.
+    /// </summary>
+    [Parameter]
+    public bool Switch { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the check should be displayed inline.
+    /// </summary>
+    [Parameter]
+    public bool Inline { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the label should be displayed before the check.
+    /// </summary>
+    [Parameter]
+    public bool Reverse { get; set; }
+
+    /// <summary>
+    /// Gets or sets the label text for the check.
+    /// </summary>
+    [Parameter]
+    public string? Label { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback invoked When the check state changes.
+    /// </summary>
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnChange { get; set; }
+
+    [CascadingParameter(Name = nameof(ParentValidation))]
+    public Validation? ParentValidation { get; set; }
+
+    /// <summary>
+    /// Gets the value used for validation.
+    /// </summary>
+    public object? ValidationValue => Checked;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && ParentValidation is not null)
+        {
+            if (CheckedExpression is not null)
+                await ParentValidation.InitializeInputExpression(CheckedExpression);
+
+            await ParentValidation.InitializeInput(this);
+            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async void OnParentValidationStatusChanged(object? s, ValidationStatusChangedEventArgs e)
+    {
+        await RefreshOffThread();
+    }
+
+    public virtual Dictionary<string, object> BuildWrapperAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+        attributes["data-slot"] = "checkbox";
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-check");
+            AppendClass(ref cls, "flex items-center gap-2");
+            if (Inline)
+                AppendClass(ref cls, "inline-flex");
+        });
+
+        if (Id.HasContent())
+            attributes["id"] = $"{Id}-wrapper";
+        if (Style.HasContent())
+            attributes["style"] = Style;
+        return attributes;
+    }
+
+    public virtual Dictionary<string, object> BuildLabelAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "flex items-center gap-2 text-sm font-medium leading-none");
+            AppendClass(ref cls, "focus-within:outline-none focus-within:ring-[3px] focus-within:ring-ring/50 rounded-[4px]");
+            if (Disabled)
+                AppendClass(ref cls, "cursor-not-allowed opacity-50");
+            else
+                AppendClass(ref cls, "cursor-pointer");
+        });
+        attributes["for"] = Id!;
+        return attributes;
+    }
+
+    public virtual Dictionary<string, object> BuildButtonAttributes()
+    {
+        var attributes = new Dictionary<string, object>(base.BuildAttributes());
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-check-indicator");
+            AppendClass(ref cls, "border-input dark:bg-input/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:border-primary");
+            AppendClass(ref cls, "data-[state=unchecked]:bg-transparent data-[state=unchecked]:text-current");
+            AppendClass(ref cls, "peer shrink-0 rounded-[4px] border shadow-xs transition-[color,box-shadow] outline-none");
+            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]");
+            AppendClass(ref cls, "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive");
+            AppendClass(ref cls, "disabled:cursor-not-allowed disabled:opacity-50 grid place-content-center");
+            var sizeClass = GetSizeClass();
+            AppendClass(ref cls, sizeClass ?? "size-4");
+            var validationClass = GetValidationClass();
+            if (validationClass != null)
+                AppendClass(ref cls, validationClass);
+        });
+
+        if (ParentValidation?.Status == ValidationStatus.Error)
+            attributes["aria-invalid"] = "true";
+        return attributes;
+    }
+
+    private string? GetValidationClass()
+    {
+        if (ParentValidation?.Status == ValidationStatus.Error)
+            return "border-destructive ring-destructive/20 dark:ring-destructive/40";
+        return null;
+    }
+
+    private string? GetSizeClass()
+    {
+        if (Size == Quark.Size.Default)
+            return null;
+
+        var sizeValue = Size?.ToString()?.ToLowerInvariant();
+        return sizeValue switch
+        {
+            "xs" => "h-3 w-3",
+            "sm" => "h-3.5 w-3.5",
+            "md" => "h-4 w-4",
+            "lg" => "h-5 w-5",
+            "xl" => "h-7 w-7",
+            "xxl" => "h-8 w-8",
+            _ => sizeValue.HasContent() ? "h-4 w-4" : null
+        };
+    }
+
+    protected override async Task HandleClick(MouseEventArgs args)
+    {
+        Checked = !Checked;
+        await CheckedChanged.InvokeAsync(Checked);
+
+        InvalidateRender();
+        Refresh();
+
+        if (ParentValidation is not null)
+        {
+            ParentValidation.MarkTouched();
+            await ParentValidation.NotifyInputChanged(Checked);
+        }
+
+        await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = Checked });
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        if (ParentValidation is not null)
+            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Checked);
+        hc.Add(Disabled);
+        hc.Add(Name);
+        hc.Add(Value);
+        AddIf(ref hc, Size);
+        hc.Add(Indeterminate);
+        hc.Add(Switch);
+        hc.Add(Inline);
+        hc.Add(Reverse);
+        hc.Add(Label);
+    }
+}

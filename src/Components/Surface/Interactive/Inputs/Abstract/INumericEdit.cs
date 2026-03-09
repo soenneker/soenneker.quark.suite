@@ -10,7 +10,7 @@ public interface INumericEdit : IInput
     /// <summary>
     /// Gets or sets the numeric value.
     /// </summary>
-    decimal? Value { get; set; }
+    decimal? NumericValue { get; set; }
 
     /// <summary>
     /// Gets or sets the minimum value allowed.
@@ -30,5 +30,5 @@ public interface INumericEdit : IInput
     /// <summary>
     /// Gets or sets the callback invoked When the value changes.
     /// </summary>
-    EventCallback<decimal?> ValueChanged { get; set; }
+    EventCallback<decimal?> NumericValueChanged { get; set; }
 }

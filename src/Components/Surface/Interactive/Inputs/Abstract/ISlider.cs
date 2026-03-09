@@ -12,12 +12,12 @@ public interface ISlider : IInput
     /// <summary>
     /// Gets or sets the current value of the slider.
     /// </summary>
-    double Value { get; set; }
+    double SliderValue { get; set; }
 
     /// <summary>
     /// Gets or sets the expression that identifies the bound value for validation.
     /// </summary>
-    Expression<Func<double>>? ValueExpression { get; set; }
+    Expression<Func<double>>? SliderValueExpression { get; set; }
 
     /// <summary>
     /// Gets or sets the minimum value of the slider range.
@@ -37,5 +37,5 @@ public interface ISlider : IInput
     /// <summary>
     /// Gets or sets the callback invoked When the value changes.
     /// </summary>
-    EventCallback<double> ValueChanged { get; set; }
+    EventCallback<double> SliderValueChanged { get; set; }
 }

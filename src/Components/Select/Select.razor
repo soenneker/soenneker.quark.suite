@@ -1,0 +1,270 @@
+@using System.Linq.Expressions
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@typeparam TValue
+@inherits Soenneker.Quark.Element
+@implements Soenneker.Quark.IValidationInput
+@implements ISelect<TValue>
+
+<div @attributes="BuildWrapperAttributes()">
+    <select value="@SelectedValue?.ToString()" @onchange="HandleChange" @attributes="BuildAttributes()">
+        @if (DefaultItemText.HasContent())
+        {
+            <option value="@GetDefaultItemValueString()" selected="@IsDefaultItemSelected()">@DefaultItemText</option>
+        }
+        @ChildContent
+    </select>
+    <svg class="text-muted-foreground pointer-events-none absolute top-1/2 right-3.5 size-4 -translate-y-1/2 opacity-50 select-none"
+         aria-hidden="true"
+         xmlns="http://www.w3.org/2000/svg"
+         width="24"
+         height="24"
+         viewBox="0 0 24 24"
+         fill="none"
+         stroke="currentColor"
+         stroke-width="2"
+         stroke-linecap="round"
+         stroke-linejoin="round">
+        <path d="m6 9 6 6 6-6"></path>
+    </svg>
+</div>
+
+@code {
+    // shadcn - new-york-v4
+    /// <summary>
+    /// Gets or sets the selected value.
+    /// </summary>
+    [Parameter]
+    public TValue? SelectedValue { get; set; }
+
+    /// <summary>
+    /// Gets or sets the expression that identifies the bound selected value.
+    /// </summary>
+    [Parameter]
+    public Expression<Func<TValue>>? SelectedValueExpression { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback invoked When the selected value changes.
+    /// </summary>
+    [Parameter]
+    public EventCallback<TValue?> SelectedValueChanged { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback invoked When the selection changes.
+    /// </summary>
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnChange { get; set; }
+
+    // Disabled is inherited from Element
+
+    /// <summary>
+    /// Gets or sets whether the select is required.
+    /// </summary>
+    [Parameter]
+    public bool Required { get; set; }
+
+    /// <summary>
+    /// Gets or sets the size of the select.
+    /// </summary>
+    [Parameter]
+    public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
+
+    /// <summary>
+    /// Gets or sets whether multiple items can be selected.
+    /// </summary>
+    [Parameter]
+    public bool Multiple { get; set; }
+
+    /// <summary>
+    /// Gets or sets the placeholder text.
+    /// </summary>
+    [Parameter]
+    public string? Placeholder { get; set; }
+
+    /// <summary>
+    /// Gets or sets the default item text.
+    /// </summary>
+    [Parameter]
+    public string? DefaultItemText { get; set; }
+
+    /// <summary>
+    /// Gets or sets the default item value.
+    /// </summary>
+    [Parameter]
+    public TValue? DefaultItemValue { get; set; }
+
+    [CascadingParameter(Name = nameof(ParentValidation))]
+    public Validation? ParentValidation { get; set; }
+
+    /// <summary>
+    /// Gets the value used for validation.
+    /// </summary>
+    public object? ValidationValue => SelectedValue;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && ParentValidation is not null)
+        {
+            await ParentValidation.InitializeInput(this);
+
+            if (SelectedValueExpression is not null)
+                await ParentValidation.InitializeInputExpression(SelectedValueExpression);
+
+            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
+    {
+        await RefreshOffThread();
+    }
+
+    private async Task HandleChange(ChangeEventArgs e)
+    {
+        var newValue = ConvertValue(e.Value?.ToString());
+        var valueChanged = false;
+        if (!EqualityComparer<TValue>.Default.Equals(SelectedValue, newValue))
+        {
+            SelectedValue = newValue;
+            await SelectedValueChanged.InvokeAsync(SelectedValue);
+            valueChanged = true;
+        }
+
+        await OnChange.InvokeIfHasDelegate(e);
+
+        if (ParentValidation is not null)
+        {
+            ParentValidation.MarkTouched();
+            await ParentValidation.NotifyInputChanged(SelectedValue);
+        }
+
+        if (valueChanged)
+        {
+            InvalidateRender();
+            Refresh();
+        }
+    }
+
+    private static TValue? ConvertValue(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return default;
+
+        try
+        {
+            return (TValue)Convert.ChangeType(value, typeof(TValue));
+        }
+        catch
+        {
+            return default;
+        }
+    }
+
+    private string? GetDefaultItemValueString()
+    {
+        if (DefaultItemValue == null)
+            return string.Empty;
+
+        return DefaultItemValue.ToString();
+    }
+
+    private bool IsDefaultItemSelected()
+    {
+        if (DefaultItemValue == null && SelectedValue == null)
+            return true;
+
+        return EqualityComparer<TValue>.Default.Equals(DefaultItemValue, SelectedValue);
+    }
+
+    private string? GetSizeClass()
+    {
+        if (Size == Quark.Size.Default)
+            return null;
+
+        string? token = null;
+        var isTheme = Size?.TryGetThemeToken(out token) == true;
+        var sizeVal = token ?? Size?.ToString();
+        if (string.IsNullOrEmpty(sizeVal)) return null;
+        return sizeVal.ToLowerInvariant() switch { "sm" or "xs" => "h-8 py-1", "lg" => "h-11 py-2", _ => null };
+    }
+
+    private string? GetValidationClass()
+    {
+        if (ParentValidation?.Status == ValidationStatus.Error)
+            return "border-destructive ring-destructive/20 dark:ring-destructive/40";
+
+        return null;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "select-trigger";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-select");
+            // shadcn native-select - new-york-v4 ui/native-select.tsx
+            AppendClass(ref cls, "border-input placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 dark:hover:bg-input/50 h-9 w-full min-w-0 appearance-none rounded-md border bg-transparent px-3 py-2 pr-9 text-sm shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed");
+            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]");
+            AppendClass(ref cls, "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive");
+            
+            var sizeClass = GetSizeClass();
+            if (sizeClass != null)
+                AppendClass(ref cls, sizeClass);
+                
+            var validationClass = GetValidationClass();
+            if (validationClass != null)
+                AppendClass(ref cls, validationClass);
+        });
+
+        if (ParentValidation?.Status == ValidationStatus.Error)
+            attributes["aria-invalid"] = "true";
+
+        if (Disabled)
+            attributes["disabled"] = true;
+
+        if (Required)
+            attributes["required"] = true;
+
+        if (Multiple)
+            attributes["multiple"] = true;
+
+        if (Placeholder.HasContent())
+            attributes["placeholder"] = Placeholder;
+    }
+
+    private Dictionary<string, object> BuildWrapperAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+        attributes["data-slot"] = "select";
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-select-wrapper");
+            AppendClass(ref cls, "group/native-select relative w-full has-[select:disabled]:opacity-50");
+        });
+        return attributes;
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+
+        if (ParentValidation is not null)
+            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(SelectedValue);
+        hc.Add(Disabled);
+        hc.Add(Required);
+        AddIf(ref hc, Size);
+        hc.Add(Multiple);
+        hc.Add(Placeholder);
+        hc.Add(DefaultItemText);
+        hc.Add(DefaultItemValue);
+    }
+}

@@ -9,7 +9,7 @@ public interface ISelectItem<TValue> : IElement
     /// <summary>
     /// Gets or sets the value of the select item.
     /// </summary>
-    TValue? Value { get; set; }
+    TValue? ItemValue { get; set; }
 
     /// <summary>
     /// Gets or sets the text content of the select item.
