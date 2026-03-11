@@ -4,55 +4,6 @@
 
 <Div Class="space-y-8 max-w-4xl">
     <Div Class="space-y-6">
-<DemoSection Title="Binding test" Description="Type in the fields below or click 'Load Test Data' to verify binding works." Code="@(@"<NumericEdit Id=""testNumeric1"" Placeholder=""Enter a number..."" @bind-NumericValue=""_testNumeric1""/>
-<NumericEdit Id=""testNumeric2"" @bind-NumericValue=""_testNumeric2""/>")">
-    <Div Class="p-4 rounded-lg border border-border bg-muted/30 space-y-4">
-        <Field>
-            <FieldLabel For="testNumeric1">Test Numeric 1:</FieldLabel>
-            <FieldBody>
-                <NumericEdit Id="testNumeric1"
-                             Placeholder="Enter a number..."
-                             @bind-NumericValue="_testNumeric1"/>
-                <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" Class="rounded border border-border bg-background">
-                    <Strong>Bound Value:</Strong> <Code>@(_testNumeric1?.ToString() ?? "(empty)")</Code>
-                </Div>
-            </FieldBody>
-        </Field>
-
-        <Field>
-            <FieldLabel For="testNumeric2">Test Numeric 2 (Pre-populated with 42.5):</FieldLabel>
-            <FieldBody>
-                <NumericEdit Id="testNumeric2"
-                             Placeholder="Enter a number..."
-                             @bind-NumericValue="_testNumeric2"/>
-                <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" Class="rounded border border-border bg-background">
-                    <Strong>Bound Value:</Strong> <Code>@(_testNumeric2?.ToString() ?? "(empty)")</Code>
-                </Div>
-            </FieldBody>
-        </Field>
-
-        <Div Class="flex flex-wrap gap-2 mt-4">
-            <Button Class="bg-primary text-primary-foreground" OnClick="LoadNumericTestData">Load Test Data</Button>
-            <Button Class="bg-secondary text-secondary-foreground" OnClick="ClearNumericTestData">Clear Test Data</Button>
-            <Button Class="bg-muted text-muted-foreground" OnClick="UpdateNumericTestData">Update to Random Values</Button>
-        </Div>
-
-        <Div Class="mt-4 p-3 rounded-lg border border-border bg-muted/30">
-            <H4 Class="text-sm font-semibold">Test Results:</H4>
-            <UnorderedList Margin="Margin.Is0.FromBottom">
-                <UnorderedListItem>
-                    <Strong>Numeric 1:</Strong> @(_testNumeric1?.ToString() ?? "(not set)")
-                </UnorderedListItem>
-                <UnorderedListItem>
-                    <Strong>Numeric 2:</Strong> @(_testNumeric2?.ToString() ?? "(not set)")
-                </UnorderedListItem>
-            </UnorderedList>
-        </Div>
-    </Div>
-</DemoSection>
-
-    <Hr/>
-
     <DemoSection Title="Basic NumericEdit" Description="Numeric input with bind-Value." Code="@(@"<Field>
     <FieldLabel For=""basicNumeric"">Basic Numeric Input</FieldLabel>
     <FieldBody>
@@ -284,10 +235,6 @@
 
 @code {
 
-    // Binding Test Fields
-    private decimal? _testNumeric1;
-    private decimal? _testNumeric2 = 42.5m;
-
     private decimal? _basicValue = null;
     private decimal? _decimalValue = null;
     private decimal? _ageValue = null;
@@ -309,25 +256,6 @@
     private int _blurCount = 0;
 
     private ValidationModel _validationModel = new();
-
-    private void LoadNumericTestData()
-    {
-        _testNumeric1 = 123.45m;
-        _testNumeric2 = 999.99m;
-    }
-
-    private void ClearNumericTestData()
-    {
-        _testNumeric1 = null;
-        _testNumeric2 = null;
-    }
-
-    private void UpdateNumericTestData()
-    {
-        var random = new Random();
-        _testNumeric1 = (decimal)(random.NextDouble() * 1000);
-        _testNumeric2 = (decimal)(random.NextDouble() * 1000);
-    }
 
     private void HandleInput(ChangeEventArgs e)
     {

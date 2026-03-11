@@ -1,7 +1,8 @@
 // ReSharper disable InconsistentNaming
+
 using Soenneker.Gen.EnumValues;
 
-namespace Soenneker.Quark.Enums;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents size options for Font Awesome icons.

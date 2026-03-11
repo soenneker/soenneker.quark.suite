@@ -8,58 +8,6 @@
 
 <Div Class="space-y-8 max-w-4xl">
     <Div Class="space-y-6">
-        <Div Class="space-y-4">
-            <DemoSection Title="Binding test" Description="Type in the fields below or click 'Load Test Data' to verify binding works." Code="@(@"<MemoEdit Id=""testMemo1"" Placeholder=""Type something..."" @bind-Value=""_testMemo1""/>
-<MemoEdit Id=""testMemo2"" Rows=""5"" @bind-Value=""_testMemo2""/>")">
-                <Div Class="p-4 rounded-lg border border-border bg-muted/30 space-y-4">
-                    <Paragraph Class="text-lg font-semibold" Margin="Margin.Is0.FromBottom">Two-Way Binding</Paragraph>
-
-                    <Field>
-                        <FieldLabel For="testMemo1">Test Memo 1:</FieldLabel>
-                        <FieldBody>
-                            <MemoEdit Id="testMemo1"
-                                      Placeholder="Type something here..."
-                                      @bind-Value="_testMemo1"/>
-                            <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" Class="rounded border border-border bg-background">
-                                <Strong>Bound Value:</Strong> <Code>@(_testMemo1 ?? "(empty)")</Code>
-                            </Div>
-                        </FieldBody>
-                    </Field>
-
-                    <Field>
-                        <FieldLabel For="testMemo2">Test Memo 2 (Pre-populated):</FieldLabel>
-                        <FieldBody>
-                            <MemoEdit Id="testMemo2"
-                                      Placeholder="Type something here..."
-                                      @bind-Value="_testMemo2"
-                                      Rows="5"/>
-                            <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" Class="rounded border border-border bg-background">
-                                <Strong>Bound Value:</Strong> <Code>@(_testMemo2 ?? "(empty)")</Code>
-                            </Div>
-                        </FieldBody>
-                    </Field>
-
-                    <Div Class="flex flex-wrap gap-2 mt-4">
-                        <Button Class="bg-primary text-primary-foreground" OnClick="LoadMemoTestData">Load Test Data</Button>
-                        <Button Class="bg-secondary text-secondary-foreground" OnClick="ClearMemoTestData">Clear Test Data</Button>
-                        <Button Class="bg-muted text-muted-foreground" OnClick="UpdateMemoTestData">Update to Random Values</Button>
-                    </Div>
-
-                    <Div Class="mt-4 p-3 rounded-lg border border-border bg-muted/30">
-                        <Paragraph Class="text-sm font-semibold" Margin="Margin.Is0.FromBottom">Test Results:</Paragraph>
-                        <UnorderedList Margin="Margin.Is0.FromBottom">
-                            <UnorderedListItem>
-                                <Strong>Memo 1:</Strong> @(_testMemo1 ?? "(not set)")
-                            </UnorderedListItem>
-                            <UnorderedListItem>
-                                <Strong>Memo 2:</Strong> @(_testMemo2 ?? "(not set)")
-                            </UnorderedListItem>
-                        </UnorderedList>
-                    </Div>
-                </Div>
-            </DemoSection>
-        </Div>
-
         <DemoSection Title="Basic Usage" Description="Default MemoEdit with placeholder and binding." Code="@(@"<MemoEdit @bind-Value=""_basicValue"" Placeholder=""Enter your text here..."" Rows=""5""/>")">
             <Paragraph Class="font-semibold">Default MemoEdit</Paragraph>
             <MemoEdit @bind-Value="_basicValue" Placeholder="Enter your text here..."/>
@@ -171,10 +119,6 @@
 
 @code {
 
-    // Binding Test Fields
-    private string? _testMemo1;
-    private string? _testMemo2 = "Initial text for Memo 2\nThis has multiple lines\nTo test binding better";
-
     private string? _basicValue;
     private string? _smallValue;
     private string? _largeValue;
@@ -206,27 +150,6 @@
     protected override void OnInitialized()
     {
         Logger.LogInformation("MemoEdits demo page initialized");
-    }
-
-    private void LoadMemoTestData()
-    {
-        _testMemo1 = "Test Data 1 - Loaded\nThis is a multi-line\ntest value";
-        _testMemo2 = "Test Data 2 - Loaded\nWith even more lines\nTo verify binding\nWorks correctly";
-        Logger.LogInformation("Memo test data loaded");
-    }
-
-    private void ClearMemoTestData()
-    {
-        _testMemo1 = null;
-        _testMemo2 = null;
-        Logger.LogInformation("Memo test data cleared");
-    }
-
-    private void UpdateMemoTestData()
-    {
-        _testMemo1 = $"Random-{Guid.NewGuid().ToString()[..8]}\nUpdated at {DateTime.Now:HH:mm:ss}";
-        _testMemo2 = $"Random-{Guid.NewGuid().ToString()[..8]}\nMulti-line content\nUpdated at {DateTime.Now:HH:mm:ss}";
-        Logger.LogInformation("Memo test data updated with random values");
     }
 
     private void OnChangeHandler(ChangeEventArgs e)

@@ -7,48 +7,6 @@
 <Div Class="space-y-8 max-w-4xl">
     <Div Class="space-y-6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Binding test" Description="@($"Select options or use buttons to verify two-way binding. Value: {_testRadio1 ?? "(none)"}.")" Code="@(@"<Radio Name=""testGroup1"" Value=""test1"" Checked=""@(_testRadio1 == \""test1\"")"" CheckedChanged=""@((bool c) => { if (c) _testRadio1 = \""test1\""; })"">Test Option 1</Radio>
-<Radio Name=""testGroup1"" Value=""test2"" Checked=""@(_testRadio1 == \""test2\"")"" CheckedChanged=""@((bool c) => { if (c) _testRadio1 = \""test2\""; })"">Test Option 2</Radio>")">
-            <Alert Class="border-border bg-muted/50" Margin="Margin.Is0.FromBottom">
-                <Strong>Test:</Strong> Select radios or click "Load Test Data" to verify binding.
-            </Alert>
-
-            <Div Class="p-4 rounded-lg border border-border bg-muted/30">
-                <H3 Class="text-lg font-semibold" Margin="Margin.Is0.FromBottom">Two-Way Binding</H3>
-                
-                <Div Margin="Margin.Is3.FromBottom">
-                    <Label Form="true" FontWeight="FontWeight.Bold">Test Radio Group 1:</Label>
-                    <Radio Name="testGroup1" Value="test1" Checked="@(_testRadio1 == "test1")" CheckedChanged="@((bool c) => { if (c) _testRadio1 = "test1"; })">
-                        Test Option 1
-                    </Radio>
-                    <Radio Name="testGroup1" Value="test2" Checked="@(_testRadio1 == "test2")" CheckedChanged="@((bool c) => { if (c) _testRadio1 = "test2"; })">
-                        Test Option 2
-                    </Radio>
-                    <Radio Name="testGroup1" Value="test3" Checked="@(_testRadio1 == "test3")" CheckedChanged="@((bool c) => { if (c) _testRadio1 = "test3"; })">
-                        Test Option 3 (Pre-selected)
-                    </Radio>
-                    <Div Class="mt-2 p-2 rounded border border-border bg-background">
-                        <Strong>Bound Value:</Strong> <Code>@(_testRadio1 ?? "(none)")</Code>
-                    </Div>
-                </Div>
-
-                <Div Class="flex flex-wrap gap-2 mt-4">
-                    <Button Class="bg-primary text-primary-foreground" OnClick="LoadRadioTestData">Load Test Data</Button>
-                    <Button Class="bg-secondary text-secondary-foreground" OnClick="ClearRadioTestData">Clear</Button>
-                    <Button Class="bg-muted text-muted-foreground" OnClick="UpdateRadioTestData">Random</Button>
-                </Div>
-                
-                <Div Class="mt-4 p-3 rounded-lg border border-border bg-muted/30">
-                    <H4 Class="text-sm font-semibold">Results:</H4>
-                    <UnorderedList Margin="Margin.Is0">
-                        <UnorderedListItem><Strong>Radio Group 1:</Strong> @(_testRadio1 ?? "(not set)")</UnorderedListItem>
-                    </UnorderedList>
-                </Div>
-            </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
             <Row>
         <!-- Basic Usage -->
         <Column ColumnSize="@ColumnSize.Is6.OnLg" Margin="Margin.Is4.FromBottom">
@@ -259,9 +217,6 @@
 </Div>
 
 @code {
-    // Binding Test Fields
-    private string? _testRadio1 = "test3";
-
     // Basic usage
     private string _basicSelected = "Option1";
 
@@ -292,25 +247,6 @@
     protected override void OnInitialized()
     {
         Logger.LogInformation("Radios demo page initialized");
-    }
-
-    private void LoadRadioTestData()
-    {
-        _testRadio1 = "test2";
-        Logger.LogInformation("Radio test data loaded - test2 selected");
-    }
-    
-    private void ClearRadioTestData()
-    {
-        _testRadio1 = null;
-        Logger.LogInformation("Radio test data cleared");
-    }
-    
-    private void UpdateRadioTestData()
-    {
-        var options = new[] { "test1", "test2", "test3" };
-        _testRadio1 = options[new Random().Next(options.Length)];
-        Logger.LogInformation("Radio test data updated to {Value}", _testRadio1);
     }
 
     private void SelectBasic(string option)

@@ -5,57 +5,6 @@
 <Div Class="space-y-8 max-w-4xl">
     <Div Class="space-y-6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Binding test" Description="Move sliders or use buttons to verify two-way binding." Code="@(@"<Slider Id=""testSlider1"" @bind-SliderValue=""_testSlider1"" Min=""0"" Max=""100""/>
-<Slider Id=""testSlider2"" @bind-SliderValue=""_testSlider2"" Min=""0"" Max=""100""/>")">
-            <Alert Class="border-border bg-muted/50" Margin="Margin.Is0.FromBottom">
-                <Strong>Test:</Strong> Move sliders or click "Load Test Data" to verify binding.
-            </Alert>
-
-            <Div Class="p-4 rounded-lg border border-border bg-muted/30">
-                <H3 Class="text-lg font-semibold" Margin="Margin.Is0.FromBottom">Two-Way Binding</H3>
-
-                <Field>
-                    <FieldLabel For="testSlider1">Test Slider 1 (0-100):</FieldLabel>
-                    <FieldBody>
-                        <Slider Id="testSlider1" @bind-SliderValue="_testSlider1" Min="0" Max="100"/>
-                        <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
-                            <Strong>Bound Value:</Strong> <Code>@_testSlider1.ToString("F1")</Code>
-                        </Div>
-                    </FieldBody>
-                </Field>
-
-                <Field>
-                    <FieldLabel For="testSlider2">Test Slider 2 (Pre-set to 75):</FieldLabel>
-                    <FieldBody>
-                        <Slider Id="testSlider2" @bind-SliderValue="_testSlider2" Min="0" Max="100"/>
-                        <Div Margin="Margin.Is2.FromTop" Padding="Padding.Is2" BackgroundColor="BackgroundColor.White" BorderRadius="BorderRadius.Default">
-                            <Strong>Bound Value:</Strong> <Code>@_testSlider2.ToString("F1")</Code>
-                        </Div>
-                    </FieldBody>
-                </Field>
-
-                <Div Class="flex flex-wrap gap-2 mt-4">
-                    <Button Class="bg-primary text-primary-foreground" OnClick="LoadSliderTestData">Load Test Data</Button>
-                    <Button Class="bg-secondary text-secondary-foreground" OnClick="ClearSliderTestData">Clear (0)</Button>
-                    <Button Class="bg-muted text-muted-foreground" OnClick="UpdateSliderTestData">Random</Button>
-                </Div>
-
-                <Div Class="mt-4 p-3 rounded-lg border border-border bg-muted/30">
-                    <H4 Class="text-sm font-semibold">Results:</H4>
-                    <UnorderedList Margin="Margin.Is0.FromBottom">
-                        <UnorderedListItem>
-                            <Strong>Slider 1:</Strong> @_testSlider1.ToString("F1")
-                        </UnorderedListItem>
-                        <UnorderedListItem>
-                            <Strong>Slider 2:</Strong> @_testSlider2.ToString("F1")
-                        </UnorderedListItem>
-                    </UnorderedList>
-                </Div>
-            </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
             <DemoSection Title="Basic" Description="@($"Current value: {_basicValue}.")" Code="@(@"<Slider SliderValue=""@_basicValue"" SliderValueChanged=""HandleBasicValueChanged""/>")">
                 <Slider SliderValue="@_basicValue" SliderValueChanged="HandleBasicValueChanged"/>
             </DemoSection>
@@ -192,10 +141,6 @@
 
 @code {
 
-    // Binding Test Fields
-    private double _testSlider1 = 0;
-    private double _testSlider2 = 75;
-
     private double _basicValue = 50;
     private double _minMaxValue = 25;
     private double _stepValue = 30;
@@ -211,25 +156,6 @@
     private double _labeledValue = 50;
     private double _interactiveValue = 25;
     private double _customValue = 55;
-
-    private void LoadSliderTestData()
-    {
-        _testSlider1 = 50;
-        _testSlider2 = 90;
-    }
-
-    private void ClearSliderTestData()
-    {
-        _testSlider1 = 0;
-        _testSlider2 = 0;
-    }
-
-    private void UpdateSliderTestData()
-    {
-        var random = new Random();
-        _testSlider1 = random.NextDouble() * 100;
-        _testSlider2 = random.NextDouble() * 100;
-    }
 
     private async Task HandleBasicValueChanged(double value)
     {
