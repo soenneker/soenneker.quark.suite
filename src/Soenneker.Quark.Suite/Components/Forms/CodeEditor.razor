@@ -1,10 +1,13 @@
 @using System.Linq.Expressions
 @using System.Text.Json
+@using Microsoft.JSInterop
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
 @inject ICodeEditorInterop CodeEditorInterop
+@inject IThemeInterop ThemeInterop
+@inject IJSRuntime JSRuntime
 
 <div @ref="_container" @attributes="BuildContainerAttributes()"></div>
 
@@ -35,10 +38,10 @@
     public string Language { get; set; } = "csharp";
 
     /// <summary>
-    /// Gets or sets the editor theme (e.g., "vs", "vs-dark", "hc-black").
+    /// Gets or sets the editor theme (e.g., "vs", "vs-dark", "hc-black", or "auto" to follow app light/dark mode).
     /// </summary>
     [Parameter]
-    public string Theme { get; set; } = "vs-dark";
+    public string Theme { get; set; } = "auto";
 
     /// <summary>
     /// Gets or sets whether word wrapping is enabled.
@@ -76,6 +79,15 @@
     private string? _lastTheme;
     private bool _initialized;
     private bool _valueChanged;
+    private bool _themeIsAuto;
+    private DotNetObjectReference<CodeEditor>? _themeCallbackRef;
+
+    [JSInvokable]
+    public async Task OnThemeChanged(bool isDark)
+    {
+        if (_themeIsAuto && _initialized)
+            await CodeEditorInterop.SetTheme(isDark ? "vs-dark" : "vs");
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -83,11 +95,22 @@
         {
             await CodeEditorInterop.Initialize();
 
+            _themeIsAuto = string.Equals(Theme, "auto", StringComparison.OrdinalIgnoreCase);
+            var effectiveTheme = Theme;
+            if (_themeIsAuto)
+            {
+                await ThemeInterop.Initialize();
+                var isDark = await ThemeInterop.GetIsDarkAsync();
+                effectiveTheme = isDark ? "vs-dark" : "vs";
+                _themeCallbackRef = DotNetObjectReference.Create(this);
+                await JSRuntime.InvokeVoidAsync("ThemeInterop.registerThemeChangedCallback", _themeCallbackRef);
+            }
+
             var options = new
             {
                 value = Text ?? string.Empty,
                 language = Language,
-                theme = Theme,
+                theme = effectiveTheme,
                 readOnly = ReadOnly,
                 wordWrap = WordWrap ? "on" : "off",
                 minimap = new { enabled = Minimap },
@@ -140,7 +163,10 @@
 
             if (!string.Equals(Theme, _lastTheme, StringComparison.OrdinalIgnoreCase))
             {
-                await CodeEditorInterop.SetTheme(Theme);
+                var effectiveTheme = string.Equals(Theme, "auto", StringComparison.OrdinalIgnoreCase)
+                    ? (await ThemeInterop.GetIsDarkAsync() ? "vs-dark" : "vs")
+                    : Theme;
+                await CodeEditorInterop.SetTheme(effectiveTheme);
                 _lastTheme = Theme;
             }
         }
@@ -180,6 +206,20 @@
 
     public override async ValueTask DisposeAsync()
     {
+        if (_themeCallbackRef != null)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("ThemeInterop.unregisterThemeChangedCallback", _themeCallbackRef);
+            }
+            catch
+            {
+                // Ignore if JS or theme interop is no longer available
+            }
+            _themeCallbackRef.Dispose();
+            _themeCallbackRef = null;
+        }
+
         await base.DisposeAsync();
 
         if (_initialized)

@@ -22,4 +22,11 @@ public interface IThemeInterop : IAsyncDisposable
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns><c>true</c> if dark mode is active after toggle; otherwise, <c>false</c>.</returns>
     ValueTask<bool> Toggle(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets whether dark mode is currently active (from storage or system preference).
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns><c>true</c> if dark mode is active; otherwise, <c>false</c>.</returns>
+    ValueTask<bool> GetIsDarkAsync(CancellationToken cancellationToken = default);
 }

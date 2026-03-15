@@ -21,11 +21,6 @@ public sealed class QuarkOptions
     public bool FrameworkUseCdn { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets whether to automatically load Font Awesome
-    /// </summary>
-    public bool AutomaticFontAwesomeLoading { get; set; } = true;
-
-    /// <summary>
     /// Gets or sets whether to always render components and disable render optimizations
     /// </summary>
     public bool AlwaysRender { get; set; }

@@ -47,12 +47,5 @@ public static class QuarkSuiteRegistrar
     {
         var quarkOptions = serviceProvider.GetRequiredService<QuarkOptions>();
 
-        if (quarkOptions.AutomaticFontAwesomeLoading)
-        {
-            var fontAwesomeInterop = serviceProvider.GetService<IFontAwesomeInterop>();
-
-            if (fontAwesomeInterop != null)
-                await fontAwesomeInterop.Initialize();
-        }
     }
 }

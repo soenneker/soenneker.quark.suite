@@ -1,49 +1,125 @@
-<Div Class="w-full rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-    <Div Class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 p-4 border-b border-border">
-        <Div Class="space-y-1.5 min-w-0 flex-1">
-            @if (Title != null)
-            {
-                <H2 Class="text-lg font-semibold tracking-tight">@Title</H2>
-            }
-            @if (Description != null)
-            {
-                <Paragraph Class="text-sm text-muted-foreground" Margin="Margin.Is0">@Description</Paragraph>
-            }
-        </Div>
+<div class="w-full space-y-4">
+    <div class="space-y-2">
+        @if (Title != null)
+        {
+            <h2 class="text-3xl font-bold tracking-tight">@Title</h2>
+        }
+        @if (DescriptionContent != null)
+        {
+            <p class="text-sm text-muted-foreground">@DescriptionContent</p>
+        }
+        else if (Description != null)
+        {
+            <p class="text-sm text-muted-foreground">@Description</p>
+        }
+    </div>
+
+    <div data-slot="component-preview" class="group relative mt-4 mb-12 flex flex-col overflow-hidden rounded-xl border border-border">
+        <div data-slot="preview" dir="ltr">
+            <div data-align="center"
+                 data-chromeless="false"
+                 class="preview relative flex h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0">
+                @ChildContent
+            </div>
+        </div>
+
         @if (Code != null)
         {
-            <Div Class="flex items-center gap-1 shrink-0">
-                <div class="inline-flex rounded-md border border-border bg-muted/50 overflow-hidden" role="group">
-                    <button type="button"
-                            class="px-3 py-1.5 text-sm font-medium transition-colors @(_showCode ? "text-muted-foreground bg-transparent hover:bg-muted/80" : "bg-primary text-primary-foreground")"
-                            @onclick="@(() => ToggleCode(false))">
-                        Preview
-                    </button>
-                    <button type="button"
-                            class="px-3 py-1.5 text-sm font-medium transition-colors border-l border-border @(_showCode ? "bg-primary text-primary-foreground" : "text-muted-foreground bg-transparent hover:bg-muted/80")"
-                            @onclick="@(() => ToggleCode(true))">
-                        Code
-                    </button>
+            <div data-slot="code" data-mobile-code-visible="@_showCodeCss" class="relative overflow-hidden border-t border-border">
+                <div class="relative">
+                    @if (_showCode)
+                    {
+                        <button data-slot="copy-button"
+                                type="button"
+                                class="absolute top-3 right-3 z-10 inline-flex size-7 items-center justify-center rounded-md border border-border bg-background text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+                                title="@_copyButtonLabel"
+                                @onclick="CopyCodeAsync">
+                            <span class="sr-only">@_copyButtonLabel</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                                <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 1.818.785 2 1.5"/>
+                            </svg>
+                        </button>
+                    }
+
+                    <div class="bg-muted/25">
+                        <CodeEditor ReadOnly="true" Language="@(CodeLanguage ?? "html")" AutoHeight="true" Text="@Code" Class="w-full min-w-0 text-sm max-h-72"/>
+                    </div>
+
+                    @if (!_showCode)
+                    {
+                        <div class="absolute inset-0 flex items-center justify-center pb-4">
+                            <div class="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-transparent"></div>
+                            <button data-slot="button"
+                                    type="button"
+                                    class="relative z-10 inline-flex h-8 items-center justify-center rounded-lg border border-input bg-background px-3 text-sm font-medium text-foreground shadow-none transition-all hover:bg-muted"
+                                    @onclick="ShowCode"
+                                    @onkeydown="@(e =>
+                                                {
+                                                    if (e.Key == "Enter" || e.Key == " ")
+                                                        ShowCode();
+                                                })">
+                                View Code
+                            </button>
+                        </div>
+                    }
                 </div>
-                <button type="button"
-                        class="p-2 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                        title="@_copyButtonLabel"
-                        @onclick="CopyCodeAsync">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                </button>
-            </Div>
+            </div>
         }
-    </Div>
-    @if (_showCode && Code != null)
+</div>
+</div>
+
+@code{
+
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public string? Description { get; set; }
+
+    /// <summary>Optional rich description (e.g. inline Badge). When set, Description is ignored.</summary>
+    [Parameter]
+    public RenderFragment? DescriptionContent { get; set; }
+
+    [Parameter]
+    public string? Code { get; set; }
+
+    [Parameter]
+    public string? CodeLanguage { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; } = null!;
+
+    private bool _showCode;
+    private string _copyButtonLabel = "Copy";
+    private string _showCodeCss => _showCode ? "true" : "false";
+
+    private void ShowCode()
     {
-        <Div Class="w-full min-w-0 overflow-hidden bg-[#1e1e1e] min-h-[120px]">
-            <CodeEditor ReadOnly="true" Language="@(CodeLanguage ?? "html")" AutoHeight="true" Text="@Code" Class="w-full min-w-0" />
-        </Div>
+        _showCode = true;
     }
-    else
+
+    private async Task CopyCodeAsync()
     {
-        <Div Class="p-6 bg-muted/30">
-            @ChildContent
-        </Div>
+        if (string.IsNullOrEmpty(Code))
+            return;
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", Code);
+            _copyButtonLabel = "Copied!";
+            StateHasChanged();
+            await Task.Delay(1500);
+            _copyButtonLabel = "Copy";
+            StateHasChanged();
+        }
+        catch
+        {
+            _copyButtonLabel = "Copy";
+        }
     }
-</Div>
+
+
+}

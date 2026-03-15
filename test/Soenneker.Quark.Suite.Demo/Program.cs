@@ -40,7 +40,7 @@ public sealed class Program
             {
                 Anchors = new AnchorOptions
                 {
-                    TextDecoration = TextDecoration.None
+                    //TextDecoration = TextDecoration.None
                 }
             };
 
@@ -52,8 +52,7 @@ public sealed class Program
             var quarkOptions = new QuarkOptions
             {
                 Debug = true,
-                AutomaticFrameworkResourceLoading = false,
-                AutomaticFontAwesomeLoading = true
+                AutomaticFrameworkResourceLoading = false
             };
 
             builder.Services.AddQuarkOptionsAsScoped(quarkOptions);

@@ -53,6 +53,17 @@ public sealed class ThemeInterop : IThemeInterop
         }
     }
 
+    public async ValueTask<bool> GetIsDarkAsync(CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            await _initializer.Init(linked);
+            return await _jsRuntime.InvokeAsync<bool>("ThemeInterop.resolveIsDark", linked);
+        }
+    }
+
     public async ValueTask DisposeAsync()
     {
         await _resourceLoader.DisposeModule(_modulePath);
