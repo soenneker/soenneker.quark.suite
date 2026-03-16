@@ -19,8 +19,6 @@ public interface IDateTimePicker : IElement
     /// </summary>
     Expression<Func<DateTime?>>? SelectedDateTimeExpression { get; set; }
 
-    // Placeholder, Disabled, ReadOnly are inherited from IElement
-
     /// <summary>
     /// Gets or sets whether the input is required.
     /// </summary>
