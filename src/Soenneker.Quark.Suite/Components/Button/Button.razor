@@ -32,9 +32,11 @@ else
 }
 
 @code {
-    // shadcn - new-york-v4 ui/button.tsx
+    [CascadingParameter]
+    public IButtonGroup? ButtonGroup { get; set; }
+
     private const string _buttonBase =
-        "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none " +
+        "inline-flex shrink-0 items-center justify-center gap-2 text-sm font-medium whitespace-nowrap transition-all outline-none " +
         "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 " +
         "disabled:pointer-events-none disabled:opacity-50 " +
         "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 " +
@@ -120,11 +122,11 @@ else
         => size switch
         {
             ButtonSize.Default => "h-9 px-4 py-2 has-[>svg]:px-3",
-            ButtonSize.Xs => "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
-            ButtonSize.Sm => "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-            ButtonSize.Lg => "h-10 rounded-md px-6 has-[>svg]:px-4",
+            ButtonSize.Xs => "h-6 gap-1 px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
+            ButtonSize.Sm => "h-8 gap-1.5 px-3 has-[>svg]:px-2.5",
+            ButtonSize.Lg => "h-10 px-6 has-[>svg]:px-4",
             ButtonSize.Icon => "size-9",
-            ButtonSize.IconXs => "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
+            ButtonSize.IconXs => "size-6 [&_svg:not([class*='size-'])]:size-3",
             ButtonSize.IconSm => "size-8",
             ButtonSize.IconLg => "size-10",
             _ => "h-9 px-4 py-2 has-[>svg]:px-3",
@@ -152,13 +154,15 @@ else
     {
         base.BuildAttributesCore(attributes);
 
+        var inButtonGroup = ButtonGroup is not null;
         var isLink = Type == ButtonType.Link || To.HasContent();
         var isDisabled = Disabled || Loading || attributes.ContainsKey("disabled");
 
-        // shadcn-style data attrs (safe for both <button> and <a>)
         attributes["data-slot"] = "button";
         attributes["data-variant"] = Variant.ToString().ToLowerInvariant();
-        attributes["data-size"] = GetSizeDataAttr(Size);
+
+        var effectiveSize = ButtonGroup?.Size ?? Size;
+        attributes["data-size"] = GetSizeDataAttr(effectiveSize);
 
         if (isLink && isDisabled && !attributes.ContainsKey("tabindex"))
             attributes["tabindex"] = -1;
@@ -167,9 +171,14 @@ else
         {
             AppendClass(ref cls, "q-button");
             AppendClass(ref cls, _buttonBase);
-            AppendClass(ref cls, GetShadcnSizeClass(Size));
+            AppendClass(ref cls, GetShadcnSizeClass(effectiveSize));
+
+            if (!inButtonGroup)
+                AppendClass(ref cls, GetRadiusClass(effectiveSize));
+
             if (Block)
                 AppendClass(ref cls, "w-full");
+
             AppendClass(ref cls, GetShadcnVariantClass(Variant));
 
             if (isLink && isDisabled)
@@ -229,15 +238,16 @@ else
         await base.HandleClick(args);
     }
 
-    protected override void ApplyBorderColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
-    {
-        // shadcn Button: border rules are handled by variant classes only.
-    }
-
-    protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
-    {
-        // shadcn Button: background rules are handled by variant classes only.
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string GetRadiusClass(ButtonSize size)
+        => size switch
+        {
+            ButtonSize.Xs => "rounded-md",
+            ButtonSize.Sm => "rounded-md",
+            ButtonSize.Lg => "rounded-md",
+            ButtonSize.IconXs => "rounded-md",
+            _ => "rounded-md"
+        };
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

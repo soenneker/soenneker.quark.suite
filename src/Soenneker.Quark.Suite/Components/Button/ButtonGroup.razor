@@ -17,27 +17,45 @@
     [Parameter]
     public bool Vertical { get; set; }
 
-    // Role and AriaLabel are inherited from Element (Role defaults to "group" in BuildAttributesCore when unset)
-
-    // shadcn ButtonGroup - new-york-v4 ui/button-group.tsx
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
+        attributes["data-slot"] = "button-group";
         attributes["data-orientation"] = Vertical ? "vertical" : "horizontal";
+
         if (!attributes.ContainsKey("role"))
             attributes["role"] = Role ?? "group";
+
         if (AriaLabel.HasContent())
             attributes["aria-label"] = AriaLabel;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-button-group");
-            AppendClass(ref cls, "flex w-fit items-stretch [&>*]:focus-visible:z-10 [&>*]:focus-visible:relative [&>.q-select]:not([class*='w-']):w-fit [&>input]:flex-1 has-[select[aria-hidden=true]:last-child]:[&>.q-select:last-of-type]:rounded-r-md has-[>.q-button-group]:gap-2");
+            AppendClass(ref cls, "q-button-group inline-flex w-fit");
+
             if (Vertical)
-                AppendClass(ref cls, "flex-col [&>*:not(:first-child)]:rounded-t-none [&>*:not(:first-child)]:border-t-0 [&>*:not(:last-child)]:rounded-b-none");
+            {
+                AppendClass(ref cls,
+                    "flex-col " +
+                    "[&>*]:rounded-none " +
+                    "[&>*:first-child]:rounded-t-md " +
+                    "[&>*:last-child]:rounded-b-md " +
+                    "[&>*:not(:first-child)]:border-t-0 " +
+                    "[&>*:focus-visible]:relative " +
+                    "[&>*:focus-visible]:z-10");
+            }
             else
-                AppendClass(ref cls, "[&>*:not(:first-child)]:rounded-l-none [&>*:not(:first-child)]:border-l-0 [&>*:not(:last-child)]:rounded-r-none");
+            {
+                AppendClass(ref cls,
+                    "flex-row " +
+                    "[&>*]:rounded-none " +
+                    "[&>*:first-child]:rounded-l-md " +
+                    "[&>*:last-child]:rounded-r-md " +
+                    "[&>*:not(:first-child)]:border-l-0 " +
+                    "[&>*:focus-visible]:relative " +
+                    "[&>*:focus-visible]:z-10");
+            }
         });
     }
 

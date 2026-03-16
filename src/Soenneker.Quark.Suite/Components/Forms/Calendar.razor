@@ -22,7 +22,7 @@
             var css = "q-calendar-day relative flex aspect-square w-full items-center justify-center rounded-md text-sm";
             if (!day.InMonth) css += " text-muted-foreground";
             if (day.Date == DateOnly.FromDateTime(DateTime.Today)) css += " bg-accent text-accent-foreground";
-            if (Value.HasValue && day.Date == Value.Value) css += " bg-primary text-primary-foreground";
+            if (DateOnlyValue.HasValue && day.Date == DateOnlyValue.Value) css += " bg-primary text-primary-foreground";
             if (day.Disabled) css += " opacity-50 pointer-events-none";
 
             <button type="button" class="@css" disabled="@day.Disabled" @onclick="() => SelectDate(day.Date)">@day.Date.Day</button>
@@ -35,7 +35,7 @@
     /// Gets or sets the selected date.
     /// </summary>
     [Parameter]
-    public DateOnly? Value { get; set; }
+    public DateOnly? DateOnlyValue { get; set; }
 
     /// <summary>
     /// Gets or sets callback when date is selected.
@@ -61,8 +61,8 @@
     protected override void OnInitialized()
     {
         InitializeDayNames();
-        if (Value.HasValue)
-            _displayMonth = new DateOnly(Value.Value.Year, Value.Value.Month, 1);
+        if (DateOnlyValue.HasValue)
+            _displayMonth = new DateOnly(DateOnlyValue.Value.Year, DateOnlyValue.Value.Month, 1);
         else
             _displayMonth = new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1);
     }
@@ -97,8 +97,8 @@
     private async Task SelectDate(DateOnly date)
     {
         if ((Min.HasValue && date < Min.Value) || (Max.HasValue && date > Max.Value)) return;
-        Value = date;
-        await ValueChanged.InvokeAsync(Value);
+        DateOnlyValue = date;
+        await ValueChanged.InvokeAsync(DateOnlyValue);
         InvalidateRender();
         Refresh();
     }

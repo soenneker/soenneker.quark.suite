@@ -14,19 +14,10 @@
     [Parameter]
     public EventCallback<string?> ValueChanged { get; set; }
 
-    [Parameter]
-    public string Placeholder { get; set; } = "Type a command or search...";
-
     private async Task HandleInput(ChangeEventArgs e)
     {
         Value = e.Value?.ToString() ?? "";
         await ValueChanged.InvokeAsync(Value);
-    }
-
-    private void HandleKeyDown(KeyboardEventArgs _)
-    {
-        // Enter: default prevented via @onkeydown:preventDefault
-        // Escape: propagates to close command dialog
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
