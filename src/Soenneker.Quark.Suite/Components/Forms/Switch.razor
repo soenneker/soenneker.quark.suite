@@ -39,14 +39,9 @@
     [CascadingParameter(Name = nameof(ParentValidation))]
     public Validation? ParentValidation { get; set; }
 
-    [CascadingParameter]
-    private FieldContext? FieldContext { get; set; }
-
-    private FieldContext? _subscribedFieldContext;
-
     public object? ValidationValue => Checked;
 
-    private string ControlId => FieldContext?.ControlId ?? Id!;
+    private string ControlId => CurrentFieldContext?.ControlId ?? Id!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -65,25 +60,9 @@
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-
-        if (!ReferenceEquals(_subscribedFieldContext, FieldContext))
-        {
-            if (_subscribedFieldContext is not null)
-                _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
-
-            _subscribedFieldContext = FieldContext;
-
-            if (_subscribedFieldContext is not null)
-                _subscribedFieldContext.StateChanged += OnFieldContextStateChanged;
-        }
     }
 
     private async void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
-    {
-        await RefreshOffThread();
-    }
-
-    private async void OnFieldContextStateChanged()
     {
         await RefreshOffThread();
     }
@@ -142,20 +121,7 @@
     {
         var attributes = new Dictionary<string, object>();
         attributes["class"] = "sr-only peer";
-        if (Disabled)
-            attributes["disabled"] = true;
-        if (FieldContext is not null)
-        {
-            var describedBy = FieldContext.BuildDescribedBy(attributes.TryGetValue("aria-describedby", out var existingDescribedBy)
-                ? existingDescribedBy?.ToString()
-                : null);
-
-            if (!string.IsNullOrWhiteSpace(describedBy))
-                attributes["aria-describedby"] = describedBy;
-        }
-
-        if (ParentValidation?.Status == ValidationStatus.Error || FieldContext?.IsInvalid == true)
-            attributes["aria-invalid"] = "true";
+        ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
         return attributes;
     }
 
@@ -223,17 +189,10 @@
         hc.Add(Value);
         hc.Add(Label);
         AddIf(ref hc, Size);
-        hc.Add(FieldContext?.ControlId);
-        hc.Add(FieldContext?.DescriptionId);
-        hc.Add(FieldContext?.ErrorId);
-        hc.Add(FieldContext?.IsInvalid);
     }
 
     public override void Dispose()
     {
-        if (_subscribedFieldContext is not null)
-            _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
-
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
 

@@ -73,11 +73,6 @@
 	[CascadingParameter(Name = nameof(ParentValidation))]
 	public Validation? ParentValidation { get; set; }
 
-    [CascadingParameter]
-    private FieldContext? FieldContext { get; set; }
-
-    private FieldContext? _subscribedFieldContext;
-
     /// <summary>
     /// Gets the value used for validation.
     /// </summary>
@@ -98,31 +93,10 @@
         await base.OnAfterRenderAsync(firstRender);
 	}
 
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-
-        if (!ReferenceEquals(_subscribedFieldContext, FieldContext))
-        {
-            if (_subscribedFieldContext is not null)
-                _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
-
-            _subscribedFieldContext = FieldContext;
-
-            if (_subscribedFieldContext is not null)
-                _subscribedFieldContext.StateChanged += OnFieldContextStateChanged;
-        }
-    }
-
 	private async void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
 	{
 		await RefreshOffThread();
 	}
-
-    private async void OnFieldContextStateChanged()
-    {
-        await RefreshOffThread();
-    }
 
 	private bool ShouldShowInvalid()
 	{
@@ -172,9 +146,7 @@
 	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
 	{
 		base.BuildAttributesCore(attributes);
-
-        if (FieldContext is not null && !attributes.ContainsKey("id"))
-            attributes["id"] = FieldContext.ControlId;
+        ApplyFieldControlAttributes(attributes, ShouldShowInvalid());
 
 		BuildClassAttribute(attributes, (ref cls) =>
 		{
@@ -207,19 +179,6 @@
 
 		if (MaxLength > 0)
 			attributes["maxlength"] = MaxLength;
-
-        if (FieldContext is not null)
-        {
-            var describedBy = FieldContext.BuildDescribedBy(attributes.TryGetValue("aria-describedby", out var existingDescribedBy)
-                ? existingDescribedBy?.ToString()
-                : null);
-
-            if (!string.IsNullOrWhiteSpace(describedBy))
-                attributes["aria-describedby"] = describedBy;
-        }
-
-		if (ShouldShowInvalid() || FieldContext?.IsInvalid == true)
-			attributes["aria-invalid"] = "true";
 
 		if (MinLength > 0)
 			attributes["minlength"] = MinLength;
@@ -286,9 +245,6 @@
 
 	public override void Dispose()
 	{
-        if (_subscribedFieldContext is not null)
-            _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
-
 		base.Dispose();
 
 		if (ParentValidation is not null)
@@ -297,6 +253,7 @@
 
 	protected override void ComputeRenderKeyCore(ref HashCode hc)
 	{
+        base.ComputeRenderKeyCore(ref hc);
 		hc.Add(Value);
 		hc.Add(Rows);
 		hc.Add(MaxLength);
@@ -308,9 +265,5 @@
 		hc.Add(Disabled);
 		hc.Add(ReadOnly);
 		hc.Add(Required);
-        hc.Add(FieldContext?.ControlId);
-        hc.Add(FieldContext?.DescriptionId);
-        hc.Add(FieldContext?.ErrorId);
-        hc.Add(FieldContext?.IsInvalid);
 	}
 }

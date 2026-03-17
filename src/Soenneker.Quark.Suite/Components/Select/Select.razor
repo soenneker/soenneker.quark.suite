@@ -82,11 +82,6 @@
     [CascadingParameter(Name = nameof(ParentValidation))]
     public Validation? ParentValidation { get; set; }
 
-    [CascadingParameter]
-    private FieldContext? FieldContext { get; set; }
-
-    private FieldContext? _subscribedFieldContext;
-
     /// <summary>
     /// Gets the value used for validation.
     /// </summary>
@@ -109,25 +104,9 @@
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-
-        if (!ReferenceEquals(_subscribedFieldContext, FieldContext))
-        {
-            if (_subscribedFieldContext is not null)
-                _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
-
-            _subscribedFieldContext = FieldContext;
-
-            if (_subscribedFieldContext is not null)
-                _subscribedFieldContext.StateChanged += OnFieldContextStateChanged;
-        }
     }
 
     private async void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
-    {
-        await RefreshOffThread();
-    }
-
-    private async void OnFieldContextStateChanged()
     {
         await RefreshOffThread();
     }
@@ -213,9 +192,8 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "select-trigger";
-
-        if (FieldContext is not null && !attributes.ContainsKey("id"))
-            attributes["id"] = FieldContext.ControlId;
+        attributes.Remove("placeholder");
+        ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -233,30 +211,8 @@
                 AppendClass(ref cls, validationClass);
         });
 
-        if (FieldContext is not null)
-        {
-            var describedBy = FieldContext.BuildDescribedBy(attributes.TryGetValue("aria-describedby", out var existingDescribedBy)
-                ? existingDescribedBy?.ToString()
-                : null);
-
-            if (!string.IsNullOrWhiteSpace(describedBy))
-                attributes["aria-describedby"] = describedBy;
-        }
-
-        if (ParentValidation?.Status == ValidationStatus.Error || FieldContext?.IsInvalid == true)
-            attributes["aria-invalid"] = "true";
-
-        if (Disabled)
-            attributes["disabled"] = true;
-
-        if (Required)
-            attributes["required"] = true;
-
         if (Multiple)
             attributes["multiple"] = true;
-
-        if (Placeholder.HasContent())
-            attributes["placeholder"] = Placeholder;
     }
 
     private Dictionary<string, object> BuildWrapperAttributes()
@@ -273,9 +229,6 @@
 
     public override void Dispose()
     {
-        if (_subscribedFieldContext is not null)
-            _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
-
         base.Dispose();
 
         if (ParentValidation is not null)
@@ -284,6 +237,7 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(SelectedValue);
         hc.Add(Disabled);
         hc.Add(Required);
@@ -292,9 +246,5 @@
         hc.Add(Placeholder);
         hc.Add(DefaultItemText);
         hc.Add(DefaultItemValue);
-        hc.Add(FieldContext?.ControlId);
-        hc.Add(FieldContext?.DescriptionId);
-        hc.Add(FieldContext?.ErrorId);
-        hc.Add(FieldContext?.IsInvalid);
     }
 }

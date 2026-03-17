@@ -74,9 +74,6 @@
     [CascadingParameter(Name = nameof(ParentValidation))]
     public Validation? ParentValidation { get; set; }
 
-    [CascadingParameter]
-    private FieldContext? FieldContext { get; set; }
-
     /// <summary>
     /// Gets or sets the function that selects the value used for validation.
     /// </summary>
@@ -87,8 +84,6 @@
     /// Gets the value used for validation purposes.
     /// </summary>
     public virtual object? ValidationValue => ValidationValueSelector?.Invoke();
-
-    private FieldContext? _subscribedFieldContext;
 
     /// <summary>
     /// Called after the component has rendered.
@@ -108,25 +103,9 @@
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-
-        if (!ReferenceEquals(_subscribedFieldContext, FieldContext))
-        {
-            if (_subscribedFieldContext is not null)
-                _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
-
-            _subscribedFieldContext = FieldContext;
-
-            if (_subscribedFieldContext is not null)
-                _subscribedFieldContext.StateChanged += OnFieldContextStateChanged;
-        }
     }
 
     private async void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
-    {
-        await RefreshOffThread();
-    }
-
-    private async void OnFieldContextStateChanged()
     {
         await RefreshOffThread();
     }
@@ -253,9 +232,7 @@
 
         attributes["type"] = GetInputType();
         attributes["data-slot"] = "input";
-
-        if (FieldContext is not null && !attributes.ContainsKey("id"))
-            attributes["id"] = FieldContext.ControlId;
+        ApplyFieldControlAttributes(attributes, ShouldShowInvalid());
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -280,30 +257,10 @@
             if (validationClass is not null) AppendClass(ref cls, validationClass);
         });
 
-        if (FieldContext is not null)
-        {
-            var describedBy = FieldContext.BuildDescribedBy(attributes.TryGetValue("aria-describedby", out var existingDescribedBy)
-                ? existingDescribedBy?.ToString()
-                : null);
-
-            if (!string.IsNullOrWhiteSpace(describedBy))
-                attributes["aria-describedby"] = describedBy;
-        }
-
-        if (ShouldShowInvalid() || FieldContext?.IsInvalid == true)
-            attributes["aria-invalid"] = "true";
-
-        if (Placeholder.HasContent()) attributes["placeholder"] = Placeholder;
-        if (Disabled) attributes["disabled"] = true;
-        if (ReadOnly) attributes["readonly"] = true;
-        if (Required) attributes["required"] = true;
     }
 
     public override void Dispose()
     {
-        if (_subscribedFieldContext is not null)
-            _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
-
         base.Dispose();
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
@@ -311,6 +268,7 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(Value);
         hc.Add(Type);
         hc.Add(Placeholder);
@@ -321,9 +279,5 @@
         hc.Add(PlainText);
         hc.Add(FloatingLabel);
         hc.Add(Label);
-        hc.Add(FieldContext?.ControlId);
-        hc.Add(FieldContext?.DescriptionId);
-        hc.Add(FieldContext?.ErrorId);
-        hc.Add(FieldContext?.IsInvalid);
     }
 }

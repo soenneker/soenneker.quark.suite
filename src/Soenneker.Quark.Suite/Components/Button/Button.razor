@@ -35,6 +35,9 @@ else
     [CascadingParameter]
     public IButtonGroup? ButtonGroup { get; set; }
 
+    [CascadingParameter(Name = "TriggerContext")]
+    private TriggerContext? TriggerContext { get; set; }
+
     private const string _buttonBase =
         "inline-flex shrink-0 items-center justify-center gap-2 text-sm font-medium whitespace-nowrap transition-all outline-none " +
         "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 " +
@@ -201,6 +204,17 @@ else
         if (CollapseTarget.HasContent())
             attributes["aria-controls"] = CollapseTarget!;
 
+        if (TriggerContext is not null)
+        {
+            attributes["id"] = TriggerContext.TriggerId!;
+            attributes["aria-haspopup"] = TriggerContext.AriaHasPopup!;
+            attributes["aria-expanded"] = TriggerContext.IsOpen ? "true" : "false";
+            attributes["aria-controls"] = TriggerContext.AriaControls!;
+
+            if (TriggerContext.AriaDescribedBy is not null)
+                attributes["aria-describedby"] = TriggerContext.AriaDescribedBy;
+        }
+
         if (!isLink)
             attributes["type"] = Type.Value;
 
@@ -222,11 +236,31 @@ else
         if (Form.HasContent()) attributes["form"] = Form!;
     }
 
+    protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
+    {
+        base.BuildOwnedAttributes(attributes);
+
+        if (TriggerContext?.OnMouseEnter is not null)
+            attributes["onmouseenter"] = EventCallback.Factory.Create<MouseEventArgs>(this, HandleTriggerMouseEnter);
+
+        if (TriggerContext?.OnMouseLeave is not null)
+            attributes["onmouseleave"] = EventCallback.Factory.Create<MouseEventArgs>(this, HandleTriggerMouseLeave);
+
+        if (TriggerContext?.OnFocusIn is not null)
+            attributes["onfocusin"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleTriggerFocusIn);
+
+        if (TriggerContext?.OnFocusOut is not null)
+            attributes["onfocusout"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleTriggerFocusOut);
+    }
+
     protected override async Task HandleClick(MouseEventArgs args)
     {
         var isDisabled = Disabled || Loading || (Attributes is not null && Attributes.ContainsKey("disabled"));
         if (isDisabled)
             return;
+
+        if (TriggerContext?.Toggle is not null)
+            await TriggerContext.Toggle();
 
         if (To.HasContent() && !To!.StartsWith("#"))
             Navigation.NavigateTo(To!);
@@ -242,6 +276,26 @@ else
         await base.HandleClick(args);
     }
 
+    private Task HandleTriggerMouseEnter(MouseEventArgs args)
+    {
+        return TriggerContext?.OnMouseEnter?.Invoke() ?? Task.CompletedTask;
+    }
+
+    private Task HandleTriggerMouseLeave(MouseEventArgs args)
+    {
+        return TriggerContext?.OnMouseLeave?.Invoke() ?? Task.CompletedTask;
+    }
+
+    private Task HandleTriggerFocusIn(FocusEventArgs args)
+    {
+        return TriggerContext?.OnFocusIn?.Invoke() ?? Task.CompletedTask;
+    }
+
+    private Task HandleTriggerFocusOut(FocusEventArgs args)
+    {
+        return TriggerContext?.OnFocusOut?.Invoke() ?? Task.CompletedTask;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string GetRadiusClass(ButtonSize size)
         => size switch
@@ -255,6 +309,7 @@ else
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(Size);
         hc.Add(Disabled);
         hc.Add(Block);
@@ -268,5 +323,9 @@ else
         hc.Add(Name);
         hc.Add(Variant);
         hc.Add(CollapseTarget);
+        hc.Add(TriggerContext?.TriggerId);
+        hc.Add(TriggerContext?.AriaControls);
+        hc.Add(TriggerContext?.AriaDescribedBy);
+        hc.Add(TriggerContext?.IsOpen);
     }
 }

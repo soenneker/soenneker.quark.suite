@@ -1,11 +1,14 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()">
+<div @onmouseenter="HandleMouseEnter" @onmouseleave="HandleMouseLeave" @attributes="BuildAttributes()">
     @ChildContent
 </div>
 
 @code {
+    [CascadingParameter]
+    private HoverCardContext? Context { get; set; }
+
     [Parameter]
     public bool Open { get; set; }
 
@@ -30,14 +33,23 @@
     [Parameter]
     public bool DisableAutoOpen { get; set; }
 
+    private bool IsOpen => Context?.IsOpen ?? Open;
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "hover-card-content";
-        attributes["data-state"] = Open ? "open" : "closed";
+        attributes["data-state"] = IsOpen ? "open" : "closed";
         attributes["data-side"] = Side;
         attributes["data-align"] = Align;
+
+        if (Context is not null)
+        {
+            attributes["id"] = Context.ContentId;
+            attributes["aria-describedby"] = Context.TriggerId;
+            attributes["tabindex"] = -1;
+        }
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -47,7 +59,7 @@
             AppendClass(ref cls, "data-[state=closed]:hidden data-[state=open]:block");
             AppendClass(ref cls, "data-[align=start]:left-0 data-[align=center]:left-1/2 data-[align=center]:-translate-x-1/2 data-[align=end]:right-0");
 
-            if (!DisableAutoOpen)
+            if (Context is null && !DisableAutoOpen)
                 AppendClass(ref cls, "group-hover/hover-card:block group-focus-within/hover-card:block");
         });
 
@@ -59,13 +71,23 @@
             _ => $"margin-top: {SideOffset}px;"
         };
 
-        attributes["style"] = offsetStyle;
+        BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, offsetStyle));
+    }
+
+    private Task HandleMouseEnter(MouseEventArgs e)
+    {
+        return Context?.Open() ?? Task.CompletedTask;
+    }
+
+    private Task HandleMouseLeave(MouseEventArgs e)
+    {
+        return Context?.Close() ?? Task.CompletedTask;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Open);
+        hc.Add(IsOpen);
         hc.Add(Side);
         hc.Add(Align);
         hc.Add(SideOffset);

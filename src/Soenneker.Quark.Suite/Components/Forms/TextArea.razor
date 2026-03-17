@@ -55,32 +55,6 @@
     [Parameter]
     public EventCallback<ChangeEventArgs> OnChange { get; set; }
 
-    [CascadingParameter]
-    private FieldContext? FieldContext { get; set; }
-
-    private FieldContext? _subscribedFieldContext;
-
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-
-        if (!ReferenceEquals(_subscribedFieldContext, FieldContext))
-        {
-            if (_subscribedFieldContext is not null)
-                _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
-
-            _subscribedFieldContext = FieldContext;
-
-            if (_subscribedFieldContext is not null)
-                _subscribedFieldContext.StateChanged += OnFieldContextStateChanged;
-        }
-    }
-
-    private async void OnFieldContextStateChanged()
-    {
-        await RefreshOffThread();
-    }
-
     private async Task HandleInput(ChangeEventArgs e)
     {
         var next = e.Value?.ToString();
@@ -121,37 +95,14 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "textarea";
+        ApplyFieldControlAttributes(attributes);
 
-        if (FieldContext is not null && !attributes.ContainsKey("id"))
-            attributes["id"] = FieldContext.ControlId;
-
-        if (!string.IsNullOrWhiteSpace(Placeholder))
-            attributes["placeholder"] = Placeholder!;
-        if (Disabled)
-            attributes["disabled"] = true;
-        if (ReadOnly)
-            attributes["readonly"] = true;
-        if (Required)
-            attributes["required"] = true;
         if (MinLength.HasValue)
             attributes["minlength"] = MinLength.Value;
         if (MaxLength.HasValue)
             attributes["maxlength"] = MaxLength.Value;
         if (Rows.HasValue)
             attributes["rows"] = Rows.Value;
-
-        if (FieldContext is not null)
-        {
-            var describedBy = FieldContext.BuildDescribedBy(attributes.TryGetValue("aria-describedby", out var existingDescribedBy)
-                ? existingDescribedBy?.ToString()
-                : null);
-
-            if (!string.IsNullOrWhiteSpace(describedBy))
-                attributes["aria-describedby"] = describedBy;
-        }
-
-        if (FieldContext?.IsInvalid == true)
-            attributes["aria-invalid"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -162,6 +113,7 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(Value);
         hc.Add(Placeholder);
         hc.Add(Disabled);
@@ -170,17 +122,10 @@
         hc.Add(MinLength);
         hc.Add(MaxLength);
         hc.Add(Rows);
-        hc.Add(FieldContext?.ControlId);
-        hc.Add(FieldContext?.DescriptionId);
-        hc.Add(FieldContext?.ErrorId);
-        hc.Add(FieldContext?.IsInvalid);
     }
 
     public override void Dispose()
     {
-        if (_subscribedFieldContext is not null)
-            _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
-
         base.Dispose();
     }
 }

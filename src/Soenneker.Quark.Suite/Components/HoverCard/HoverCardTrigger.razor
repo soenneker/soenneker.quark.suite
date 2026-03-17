@@ -1,20 +1,91 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()">
-    @ChildContent
-</div>
+@if (AsChild)
+{
+    <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
+        @ChildContent
+    </CascadingValue>
+}
+else
+{
+    <div @onmouseenter="HandleMouseEnter"
+         @onmouseleave="HandleMouseLeave"
+         @onfocusin="HandleFocusIn"
+         @onfocusout="HandleFocusOut"
+         @attributes="BuildAttributes()">
+        @ChildContent
+    </div>
+}
 
 @code {
+    [CascadingParameter]
+    private HoverCardContext? Context { get; set; }
+
+    [Parameter]
+    public bool AsChild { get; set; }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "hover-card-trigger";
+        attributes.TryAdd("tabindex", 0);
+
+        if (Context is not null)
+        {
+            attributes["id"] = Context.TriggerId;
+            if (Context.IsOpen)
+                attributes["aria-describedby"] = Context.ContentId;
+        }
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-hover-card-trigger");
         });
+    }
+
+    private TriggerContext GetTriggerContext()
+    {
+        return new TriggerContext
+        {
+            TriggerId = Context?.TriggerId,
+            IsOpen = Context?.IsOpen == true,
+            AriaDescribedBy = Context?.IsOpen == true ? Context.ContentId : null,
+            Open = Context is null ? null : () => Context.Open(),
+            Close = Context is null ? null : () => Context.Close(),
+            OnMouseEnter = Context is null ? null : () => Context.Open(),
+            OnMouseLeave = Context is null ? null : () => Context.Close(),
+            OnFocusIn = Context is null ? null : () => Context.Open(),
+            OnFocusOut = Context is null ? null : () => Context.Close()
+        };
+    }
+
+    private Task HandleMouseEnter(MouseEventArgs e)
+    {
+        return Context?.Open() ?? Task.CompletedTask;
+    }
+
+    private Task HandleMouseLeave(MouseEventArgs e)
+    {
+        return Context?.Close() ?? Task.CompletedTask;
+    }
+
+    private Task HandleFocusIn(FocusEventArgs e)
+    {
+        return Context?.Open() ?? Task.CompletedTask;
+    }
+
+    private Task HandleFocusOut(FocusEventArgs e)
+    {
+        return Context?.Close() ?? Task.CompletedTask;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Context?.IsOpen);
+        hc.Add(Context?.ContentId);
+        hc.Add(AsChild);
     }
 }

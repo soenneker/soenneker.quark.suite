@@ -46,10 +46,6 @@
     [CascadingParameter(Name = "ParentRadioGroup")]
     public RadioGroup? ParentRadioGroup { get; set; }
 
-    [CascadingParameter]
-    private FieldContext? FieldContext { get; set; }
-
-    private FieldContext? _subscribedFieldContext;
     private ElementReference _elementRef;
     private bool _preventDefault;
 
@@ -65,7 +61,7 @@
     /// </summary>
     private bool EffectiveDisabled => ParentRadioGroup?.Disabled == true || Disabled;
 
-    private string ControlId => ParentRadioGroup is null && FieldContext is not null ? FieldContext.ControlId : Id!;
+    private string ControlId => ParentRadioGroup is null && CurrentFieldContext is not null ? CurrentFieldContext.ControlId : Id!;
 
     private int TabStopIndex => EffectiveDisabled ? -1 : ParentRadioGroup?.IsTabStop(this) == false ? -1 : 0;
 
@@ -97,17 +93,6 @@
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-
-        if (!ReferenceEquals(_subscribedFieldContext, FieldContext))
-        {
-            if (_subscribedFieldContext is not null)
-                _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
-
-            _subscribedFieldContext = FieldContext;
-
-            if (_subscribedFieldContext is not null)
-                _subscribedFieldContext.StateChanged += OnFieldContextStateChanged;
-        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -115,6 +100,7 @@
         if (firstRender && ParentValidation is not null)
         {
             await ParentValidation.InitializeInput(this);
+            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
 
             if (CheckedExpression is not null)
                 await ParentValidation.InitializeInputExpression(CheckedExpression);
@@ -123,7 +109,7 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private async void OnFieldContextStateChanged()
+    private async void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
     {
         await RefreshOffThread();
     }
@@ -236,18 +222,8 @@
                 AppendClass(ref cls, validationClass);
         });
 
-        if (ParentRadioGroup is null && FieldContext is not null)
-        {
-            var describedBy = FieldContext.BuildDescribedBy(attributes.TryGetValue("aria-describedby", out var existingDescribedBy)
-                ? existingDescribedBy?.ToString()
-                : null);
-
-            if (!string.IsNullOrWhiteSpace(describedBy))
-                attributes["aria-describedby"] = describedBy;
-        }
-
-        if (ParentValidation?.Status == ValidationStatus.Error || (ParentRadioGroup is null && FieldContext?.IsInvalid == true))
-            attributes["aria-invalid"] = "true";
+        if (ParentRadioGroup is null)
+            ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
 
         return attributes;
     }
@@ -266,6 +242,7 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(Checked);
         hc.Add(Disabled);
         hc.Add(Name);
@@ -273,10 +250,6 @@
         hc.Add(ParentRadioGroup?.Value);
         AddIf(ref hc, Size);
         hc.Add(Inline);
-        hc.Add(FieldContext?.ControlId);
-        hc.Add(FieldContext?.DescriptionId);
-        hc.Add(FieldContext?.ErrorId);
-        hc.Add(FieldContext?.IsInvalid);
         hc.Add(TabStopIndex);
     }
 
@@ -311,10 +284,9 @@
 
     public override void Dispose()
     {
-        if (_subscribedFieldContext is not null)
-            _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
-
         ParentRadioGroup?.UnregisterRadio(this);
+        if (ParentValidation is not null)
+            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
         base.Dispose();
     }
 }

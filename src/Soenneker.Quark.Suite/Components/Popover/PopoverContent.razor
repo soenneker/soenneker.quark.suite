@@ -1,13 +1,19 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()">
+<div @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
     @ChildContent
 </div>
 
 @code {
+    [CascadingParameter]
+    private PopoverContext? Context { get; set; }
+
     [Parameter]
     public bool Open { get; set; }
+
+    [Parameter]
+    public bool CloseOnEscape { get; set; } = true;
 
     [Parameter]
     public string Side { get; set; } = "bottom";
@@ -18,14 +24,24 @@
     [Parameter]
     public bool DisableAutoOpen { get; set; }
 
+    private bool IsOpen => Context?.IsOpen ?? Open;
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "popover-content";
-        attributes["data-state"] = Open ? "open" : "closed";
+        attributes["data-state"] = IsOpen ? "open" : "closed";
         attributes["data-side"] = Side;
         attributes["data-align"] = Align;
+
+        if (Context is not null)
+        {
+            attributes["id"] = Context.ContentId;
+            attributes["tabindex"] = -1;
+            attributes["role"] = "dialog";
+            attributes["aria-labelledby"] = Context.TriggerId;
+        }
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -35,16 +51,24 @@
             AppendClass(ref cls, "data-[state=closed]:hidden data-[state=open]:block");
             AppendClass(ref cls, "data-[align=start]:left-0 data-[align=center]:left-1/2 data-[align=center]:-translate-x-1/2 data-[align=end]:right-0");
 
-            if (!DisableAutoOpen)
+            if (Context is null && !DisableAutoOpen)
                 AppendClass(ref cls, "group-hover/popover:block group-focus-within/popover:block");
         });
     }
 
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (CloseOnEscape && e.Key == "Escape" && Context is not null)
+            await Context.Close();
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
-        hc.Add(Open);
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(IsOpen);
         hc.Add(Side);
         hc.Add(Align);
         hc.Add(DisableAutoOpen);
+        hc.Add(CloseOnEscape);
     }
 }

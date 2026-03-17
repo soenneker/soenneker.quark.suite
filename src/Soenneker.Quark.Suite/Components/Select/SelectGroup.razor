@@ -1,4 +1,4 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 @implements ISelectGroup
 
@@ -12,6 +12,18 @@
     /// </summary>
     [Parameter]
     public string? Label { get; set; }
+
+    protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
+    {
+        base.BuildOwnedAttributes(attributes);
+
+        attributes.Remove("name");
+        attributes.Remove("value");
+        attributes.Remove("readonly");
+        attributes.Remove("placeholder");
+        attributes.Remove("required");
+        attributes.Remove("autofocus");
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -32,6 +44,7 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(Label);
         hc.Add(Disabled);
     }
