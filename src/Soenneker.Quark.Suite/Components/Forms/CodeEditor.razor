@@ -1,4 +1,4 @@
-﻿@using System.Linq.Expressions
+@using System.Linq.Expressions
 @using System.Text.Json
 @using Microsoft.JSInterop
 
@@ -76,6 +76,9 @@
     private string? _lastText;
     private string? _lastLanguage;
     private string? _lastTheme;
+    private bool _lastAutoHeight;
+    private int? _lastMinLines;
+    private int? _lastMaxLines;
     private bool _initialized;
     private bool _valueChanged;
     private bool _themeIsAuto;
@@ -129,6 +132,9 @@
             _lastLanguage = Language;
             _lastTheme = Theme;
             _lastText = Text;
+            _lastAutoHeight = AutoHeight;
+            _lastMinLines = MinLines;
+            _lastMaxLines = MaxLines;
         }
 
         _valueChanged = false;
@@ -148,6 +154,8 @@
 
         if (_initialized)
         {
+            var heightSettingsChanged = AutoHeight != _lastAutoHeight || MinLines != _lastMinLines || MaxLines != _lastMaxLines;
+
             if (!string.Equals(Text, _lastText, StringComparison.Ordinal))
             {
                 await CodeEditorInterop.SetValue(_container, Text ?? string.Empty);
@@ -168,6 +176,15 @@
                 await CodeEditorInterop.SetTheme(effectiveTheme);
                 _lastTheme = Theme;
             }
+
+            if (AutoHeight && heightSettingsChanged)
+            {
+                await CodeEditorInterop.UpdateContentHeight(_container, MinLines, MaxLines);
+            }
+
+            _lastAutoHeight = AutoHeight;
+            _lastMinLines = MinLines;
+            _lastMaxLines = MaxLines;
         }
 
         await base.OnParametersSetAsync();
