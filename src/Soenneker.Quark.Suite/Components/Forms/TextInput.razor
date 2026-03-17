@@ -1,17 +1,16 @@
-@using System.Globalization
 @using System.Linq.Expressions
 @using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
-@inherits Soenneker.Quark.FormControlElement
-@implements INumericEdit
+@inherits Soenneker.Quark.FormControlElementBase
+@implements ITextInput
 
-<div class="q-numeric-edit">
-    <Input @ref="_inputComponent" 
+<div class="q-text-input">
+    <Input @ref="_inputComponent"
            Id="@Id"
            Name="@Name"
-           Type="number"
-           Value="@GetNumericValueString()"
+           Type="@Type"
+           Value="@Value"
            ValueChanged="@HandleValueChanged"
            Size="@Size"
            PlainText="@PlainText"
@@ -25,51 +24,51 @@
            Style="@Style"
            AriaLabel="@AriaLabel"
            AriaDescribedBy="@AriaDescribedBy"
-           @attributes="BuildInputAttributes()" 
+           @attributes="BuildInputAttributes()"
            OnInput="HandleInput"
            OnChange="HandleChange"
-           ValidationValueSelector="@(() => (object?)NumericValue)" />
+           ValidationValueSelector="@(() => (object?)Value)" />
 </div>
 
 @code {
     /// <summary>
-    /// Gets or sets the numeric value.
+    /// Gets or sets the value.
     /// </summary>
     [Parameter]
-    public decimal? NumericValue { get; set; }
+    public string? Value { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked When the numeric value changes.
+    /// Gets or sets the callback invoked when the value changes.
     /// </summary>
     [Parameter]
-    public EventCallback<decimal?> NumericValueChanged { get; set; }
+    public EventCallback<string?> ValueChanged { get; set; }
 
     /// <summary>
     /// Gets or sets the expression that identifies the bound value for validation.
     /// </summary>
     [Parameter]
-    public Expression<Func<decimal?>>? NumericValueExpression { get; set; }
+    public Expression<Func<string?>>? ValueExpression { get; set; }
 
     /// <summary>
-    /// Gets or sets the minimum allowed value.
+    /// Gets or sets the maximum length of the text input.
     /// </summary>
     [Parameter]
-    public decimal? Min { get; set; }
+    public int MaxLength { get; set; }
 
     /// <summary>
-    /// Gets or sets the maximum allowed value.
+    /// Gets or sets the input type (e.g., "text", "email", "password").
     /// </summary>
     [Parameter]
-    public decimal? Max { get; set; }
+    public string? Type { get; set; } = "text";
 
     /// <summary>
-    /// Gets or sets the step increment for the numeric input.
+    /// Gets or sets the input mode hint for mobile keyboards.
     /// </summary>
     [Parameter]
-    public decimal? Step { get; set; }
+    public TextInputMode? InputMode { get; set; }
 
     /// <summary>
-    /// Gets or sets the size of the numeric input.
+    /// Gets or sets the size of the text input.
     /// </summary>
     [Parameter]
     public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
@@ -112,16 +111,12 @@
 
     private Input? _inputComponent;
 
-    public object? ValidationValue => NumericValue;
+    public object? ValidationValue => Value;
 
     public string? GetValidationClass()
     {
-        if (ParentValidation?.Status == ValidationStatus.Error)
-            return "is-invalid";
-
-        if (ParentValidation?.Status == ValidationStatus.Success)
-            return "is-valid";
-
+        if (ParentValidation?.Status == ValidationStatus.Error) return "is-invalid";
+        if (ParentValidation?.Status == ValidationStatus.Success) return "is-valid";
         return null;
     }
 
@@ -139,82 +134,11 @@
         return sizeVal?.ToLowerInvariant() switch { "sm" or "xs" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
     }
 
-    private static decimal? ParseDecimal(ChangeEventArgs e)
-    {
-        if (e?.Value == null)
-            return null;
-
-        var text = e.Value.ToString();
-
-        if (decimal.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
-            return result;
-
-        return null;
-    }
-
-    private string? GetNumericValueString()
-    {
-        return NumericValue?.ToString(CultureInfo.InvariantCulture);
-    }
-
-    private Task HandleValueChanged(string? value)
-    {
-        NumericValue = string.IsNullOrWhiteSpace(value)
-            ? null
-            : decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal parsed)
-                ? parsed
-                : null;
-
-        return Task.CompletedTask;
-    }
-
-    private async Task HandleInput(ChangeEventArgs e)
-    {
-        var next = ParseDecimal(e);
-        var valueChanged = !Nullable.Equals(NumericValue, next);
-        NumericValue = next;
-        if (valueChanged)
-            await NumericValueChanged.InvokeIfHasDelegate(NumericValue);
-        await OnInput.InvokeIfHasDelegate(e);
-        if (ParentValidation is not null)
-        {
-            ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(NumericValue);
-        }
-
-        if (valueChanged)
-        {
-            InvalidateRender();
-            Refresh();
-        }
-    }
-
-    private async Task HandleChange(ChangeEventArgs e)
-    {
-        var next = ParseDecimal(e);
-        var valueChanged = !Nullable.Equals(NumericValue, next);
-        NumericValue = next;
-        if (valueChanged)
-            await NumericValueChanged.InvokeIfHasDelegate(NumericValue);
-        await OnChange.InvokeIfHasDelegate(e);
-        if (ParentValidation is not null)
-        {
-            ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(NumericValue);
-        }
-
-        if (valueChanged)
-        {
-            InvalidateRender();
-            Refresh();
-        }
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && ParentValidation is not null && NumericValueExpression is not null)
+        if (firstRender && ParentValidation is not null && ValueExpression is not null)
         {
-            await ParentValidation.InitializeInputExpression(NumericValueExpression);
+            await ParentValidation.InitializeInputExpression(ValueExpression);
             ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
 
@@ -226,38 +150,79 @@
         await RefreshOffThread();
     }
 
-    private Dictionary<string, object> BuildInputAttributes()
+    private Task HandleValueChanged(string? value)
     {
-        var attributes = new Dictionary<string, object>();
+        Value = value;
+        return Task.CompletedTask;
+    }
 
-        // Add NumericEdit-specific attributes
-        if (Min.HasValue)
-            attributes["min"] = Min.Value.ToString(CultureInfo.InvariantCulture);
+    private async Task HandleInput(ChangeEventArgs e)
+    {
+        var next = e.Value?.ToString();
+        var valueChanged = !string.Equals(Value, next, StringComparison.Ordinal);
+        Value = next;
+        if (valueChanged)
+            await ValueChanged.InvokeIfHasDelegate(Value);
+        await OnInput.InvokeIfHasDelegate(e);
+        if (ParentValidation is not null)
+        {
+            ParentValidation.MarkTouched();
+            await ParentValidation.NotifyInputChanged(Value);
+        }
 
-        if (Max.HasValue)
-            attributes["max"] = Max.Value.ToString(CultureInfo.InvariantCulture);
+        if (valueChanged)
+        {
+            InvalidateRender();
+            Refresh();
+        }
+    }
 
-        if (Step.HasValue)
-            attributes["step"] = Step.Value.ToString(CultureInfo.InvariantCulture);
+    private async Task HandleChange(ChangeEventArgs e)
+    {
+        var next = e.Value?.ToString();
+        var valueChanged = !string.Equals(Value, next, StringComparison.Ordinal);
+        Value = next;
+        if (valueChanged)
+            await ValueChanged.InvokeIfHasDelegate(Value);
+        await OnChange.InvokeIfHasDelegate(e);
+        if (ParentValidation is not null)
+        {
+            ParentValidation.MarkTouched();
+            await ParentValidation.NotifyInputChanged(Value);
+        }
 
-        return attributes;
+        if (valueChanged)
+        {
+            InvalidateRender();
+            Refresh();
+        }
     }
 
     public override void Dispose()
     {
         base.Dispose();
-
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+    }
+
+    private Dictionary<string, object> BuildInputAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+
+        // TextInput-specific attributes that should land on the native <input> (via Input.AdditionalAttributes)
+        if (MaxLength > 0) attributes["maxlength"] = MaxLength;
+        if (InputMode is not null) attributes["inputmode"] = InputMode.Value;
+
+        return attributes;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(NumericValue);
-        hc.Add(Min);
-        hc.Add(Max);
-        hc.Add(Step);
+        hc.Add(Value);
+        hc.Add(MaxLength);
+        hc.Add(Type);
+        hc.Add(InputMode);
         AddIf(ref hc, Size);
         hc.Add(PlainText);
         hc.Add(FloatingLabel);

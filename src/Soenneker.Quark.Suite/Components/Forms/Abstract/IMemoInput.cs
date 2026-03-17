@@ -5,7 +5,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Represents a multi-line text area input component.
 /// </summary>
-public interface IMemoEdit : IComponent
+public interface IMemoInput : IComponent
 {
     /// <summary>
     /// Gets or sets the text value of the textarea.

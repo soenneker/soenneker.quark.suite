@@ -5,12 +5,12 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Represents a numeric input component for entering decimal values.
 /// </summary>
-public interface INumericEdit : IInput
+public interface INumericInput : IInput
 {
     /// <summary>
-    /// Gets or sets the numeric value.
+    /// Gets or sets the value.
     /// </summary>
-    decimal? NumericValue { get; set; }
+    decimal? Value { get; set; }
 
     /// <summary>
     /// Gets or sets the minimum value allowed.
@@ -28,7 +28,7 @@ public interface INumericEdit : IInput
     decimal? Step { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked When the value changes.
+    /// Gets or sets the callback invoked when the value changes.
     /// </summary>
-    EventCallback<decimal?> NumericValueChanged { get; set; }
+    EventCallback<decimal?> ValueChanged { get; set; }
 }

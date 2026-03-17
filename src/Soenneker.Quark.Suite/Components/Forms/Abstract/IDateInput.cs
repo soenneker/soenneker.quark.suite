@@ -8,7 +8,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Represents a date input component for selecting dates, date-times, or months.
 /// </summary>
-public interface IDateEdit : IInput
+public interface IDateInput : IInput
 {
     /// <summary>
     /// Gets or sets the DateTime value.

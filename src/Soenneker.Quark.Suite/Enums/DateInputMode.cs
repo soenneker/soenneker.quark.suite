@@ -3,7 +3,7 @@ using Soenneker.Gen.EnumValues;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Hints at the type of data that might be entered by the user while editing the DateEdit component.
+/// Hints at the type of data that might be entered by the user while editing the DateInput component.
 /// </summary>
 [EnumValue<string>]
 public sealed partial class DateInputMode

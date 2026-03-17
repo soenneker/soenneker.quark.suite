@@ -1,39 +1,39 @@
-@page "/forms/textedits"
+@page "/forms/textinputs"
 @using Microsoft.Extensions.Logging
 @using Soenneker.Extensions.String
 
 @inject ILogger<Index> Logger
 
-<PageTitle>TextEdits - Quark Suite</PageTitle>
+<PageTitle>TextInputs - Quark Suite</PageTitle>
 
 <Div Class="space-y-8 max-w-4xl">
     <Div Class="space-y-6">
-        <DemoSection Title="Basic TextEdit" Description="Standard binding and expression tree binding." Code="@(@"<Field>
+        <DemoSection Title="Basic TextInput" Description="Standard binding and expression tree binding." Code="@(@"<Field>
     <FieldLabel For=""basicInput"">Basic Input</FieldLabel>
     <FieldBody>
-        <TextEdit Id=""basicInput"" Placeholder=""Enter some text..."" @bind-Text=""_basicValue""/>
+        <TextInput Id=""basicInput"" Placeholder=""Enter some text..."" @bind-Value=""_basicValue""/>
     </FieldBody>
 </Field>
-<TextEdit Id=""expressionInput"" Placeholder=""Uses expression tree..."" @bind-Text=""_expressionValue""/>")">
+<TextInput Id=""expressionInput"" Placeholder=""Uses expression tree..."" @bind-Value=""_expressionValue""/>")">
                 <Field>
                     <FieldLabel For="basicInput">Basic Input (Standard binding)</FieldLabel>
                     <FieldBody>
-                        <TextEdit Id="basicInput" Placeholder="Enter some text..." @bind-Text="_basicValue"/>
+                        <TextInput Id="basicInput" Placeholder="Enter some text..." @bind-Value="_basicValue"/>
                         <Small Class="form-text" TextColor="TextColor.Muted">Current value: @_basicValue</Small>
                     </FieldBody>
                 </Field>
                 <Field>
                     <FieldLabel For="expressionInput">Expression Tree Binding</FieldLabel>
                     <FieldBody>
-                        <TextEdit Id="expressionInput" Placeholder="Uses expression tree..." @bind-Text="_expressionValue"/>
+                        <TextInput Id="expressionInput" Placeholder="Uses expression tree..." @bind-Value="_expressionValue"/>
                         <Small Class="form-text" TextColor="TextColor.Muted">Current value: @_expressionValue</Small>
                     </FieldBody>
                 </Field>
         </DemoSection>
 
-                <DemoSection Title="TextEdit with Validation" Description="Validations, Validation, ValidationError with TextEdit." Code="@(@"<Validations Model=""_validationModel"">
+                <DemoSection Title="TextInput with Validation" Description="Validations, Validation, ValidationError with TextInput." Code="@(@"<Validations Model=""_validationModel"">
     <Validation Action=""@ValidateRequired"">
-        <TextEdit Id=""validatedInput"" Placeholder=""Required..."" @bind-Text=""_validationModel.RequiredField""/>
+        <TextInput Id=""validatedInput"" Placeholder=""Required..."" @bind-Value=""_validationModel.RequiredField""/>
         <ValidationError/>
     </Validation>
 </Validations>")">
@@ -43,9 +43,9 @@
                             <FieldLabel For="validatedInput" RequiredIndicator="true">Required Field</FieldLabel>
                             <FieldBody>
                                 <Validation Action="@ValidateRequired">
-                                    <TextEdit Id="validatedInput"
+                                    <TextInput Id="validatedInput"
                                               Placeholder="This field is required..."
-                                              @bind-Text="_validationModel.RequiredField"/>
+                                              @bind-Value="_validationModel.RequiredField"/>
                                     <ValidationError/>
                                 </Validation>
                             </FieldBody>
@@ -55,9 +55,9 @@
                             <FieldLabel For="emailInput">Email Field</FieldLabel>
                             <FieldBody>
                                 <Validation Action="@ValidateEmail">
-                                    <TextEdit Id="emailInput"
+                                    <TextInput Id="emailInput"
                                               Placeholder="Enter a valid email..."
-                                              @bind-Text="_validationModel.EmailField"/>
+                                              @bind-Value="_validationModel.EmailField"/>
                                     <ValidationError/>
                                 </Validation>
                             </FieldBody>
@@ -67,9 +67,9 @@
                             <FieldLabel For="patternInput">Phone Number (Pattern Validation)</FieldLabel>
                             <FieldBody>
                                 <Validation UsePattern="true" PatternString="^[\d\s\-\(\)\+]+$">
-                                    <TextEdit Id="patternInput"
+                                    <TextInput Id="patternInput"
                                               Placeholder="Enter phone number..."
-                                              @bind-Text="_validationModel.PhoneField"/>
+                                              @bind-Value="_validationModel.PhoneField"/>
                                     <ValidationError/>
                                 </Validation>
                             </FieldBody>
@@ -83,7 +83,7 @@
         <FieldLabel For=""firstName"" RequiredIndicator=""true"">First Name</FieldLabel>
         <FieldBody>
             <Validation Action=""@ValidateRequired"">
-                <TextEdit Id=""firstName"" @bind-Text=""_formModel.FirstName""/>
+                <TextInput Id=""firstName"" @bind-Value=""_formModel.FirstName""/>
                 <ValidationError/>
             </Validation>
         </FieldBody>
@@ -97,9 +97,9 @@
                                 <FieldLabel For="firstName" RequiredIndicator="true">First Name</FieldLabel>
                                 <FieldBody>
                                     <Validation Action="@ValidateRequired">
-                                        <TextEdit Id="firstName"
+                                        <TextInput Id="firstName"
                                                   Placeholder="First name..."
-                                                  @bind-Text="_formModel.FirstName"/>
+                                                  @bind-Value="_formModel.FirstName"/>
                                         <ValidationError/>
                                     </Validation>
                                 </FieldBody>
@@ -110,9 +110,9 @@
                                 <FieldLabel For="lastName" RequiredIndicator="true">Last Name</FieldLabel>
                                 <FieldBody>
                                     <Validation Action="@ValidateRequired">
-                                        <TextEdit Id="lastName"
+                                        <TextInput Id="lastName"
                                                   Placeholder="Last name..."
-                                                  @bind-Text="_formModel.LastName"/>
+                                                  @bind-Value="_formModel.LastName"/>
                                         <ValidationError/>
                                     </Validation>
                                 </FieldBody>
@@ -124,9 +124,9 @@
                         <FieldLabel For="company">Company</FieldLabel>
                         <FieldBody>
                             <Validation Action="@ValidateCompany">
-                                <TextEdit Id="company"
+                                <TextInput Id="company"
                                           Placeholder="Company name..."
-                                          @bind-Text="_formModel.Company"/>
+                                          @bind-Value="_formModel.Company"/>
                                 <ValidationError/>
                             </Validation>
                         </FieldBody>

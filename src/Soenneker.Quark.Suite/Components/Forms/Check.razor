@@ -9,21 +9,26 @@
             id="@ControlId"
             type="button"
             role="checkbox"
-            aria-checked="@Checked.ToString().ToLowerInvariant()"
+            aria-checked="@AriaCheckedValue"
             aria-disabled="@Disabled.ToString().ToLowerInvariant()"
-            data-state="@(Checked ? "checked" : "unchecked")"
+            data-state="@DataState"
             disabled="@Disabled"
             tabindex="@(Disabled ? -1 : 0)"
             @onclick="HandleClick"
             @attributes="BuildButtonAttributes()">
-            @if (Checked)
+            @if (Checked || Indeterminate)
             {
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 text-primary-foreground shrink-0"><path d="M20 6 9 17 4 12"/></svg>
-            }
-            else if (Indeterminate)
-            {
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 text-primary-foreground shrink-0"><path d="M5 12h14"/></svg>
-            }
+                <span data-slot="checkbox-indicator" class="grid place-content-center text-current transition-none">
+                    @if (Indeterminate)
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M5 12h14"/></svg>
+                    }
+                    else
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M20 6 9 17 4 12"/></svg>
+                    }
+                </span>
+            }            
         </button>
         @if (ChildContent is not null)
         {
@@ -89,6 +94,10 @@
     /// </summary>
     public object? ValidationValue => Checked;
 
+    private string AriaCheckedValue => Indeterminate ? "mixed" : Checked.ToString().ToLowerInvariant();
+
+    private string DataState => Indeterminate ? "indeterminate" : Checked ? "checked" : "unchecked";
+
     private string ControlId => CurrentFieldContext?.ControlId ?? Id!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -118,7 +127,6 @@
     public virtual Dictionary<string, object> BuildWrapperAttributes()
     {
         var attributes = new Dictionary<string, object>();
-        attributes["data-slot"] = "checkbox";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-check");
@@ -127,8 +135,6 @@
                 AppendClass(ref cls, "inline-flex");
         });
 
-        if (ControlId.HasContent())
-            attributes["id"] = $"{ControlId}-wrapper";
         if (Style.HasContent())
             attributes["style"] = Style;
         return attributes;
@@ -141,6 +147,8 @@
         {
             AppendClass(ref cls, "flex items-center gap-2 text-sm font-medium leading-none");
             AppendClass(ref cls, "focus-within:outline-none focus-within:ring-[3px] focus-within:ring-ring/50 rounded-[4px]");
+            if (Reverse)
+                AppendClass(ref cls, "flex-row-reverse justify-end");
             if (Disabled)
                 AppendClass(ref cls, "cursor-not-allowed opacity-50");
             else
@@ -154,11 +162,13 @@
     {
         var attributes = new Dictionary<string, object>(base.BuildAttributes());
         attributes["id"] = ControlId;
+        attributes["data-slot"] = "checkbox";
         ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-check-indicator");
             AppendClass(ref cls, "border-input dark:bg-input/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:border-primary");
+            AppendClass(ref cls, "data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground data-[state=indeterminate]:border-primary");
             AppendClass(ref cls, "data-[state=unchecked]:bg-transparent data-[state=unchecked]:text-current");
             AppendClass(ref cls, "peer shrink-0 rounded-[4px] border shadow-xs transition-[color,box-shadow] outline-none");
             AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]");
@@ -204,7 +214,11 @@
             return;
 
         var next = !Checked;
+        Checked = next;
+        Indeterminate = false;
         await CheckedChanged.InvokeAsync(next);
+        InvalidateRender();
+        Refresh();
 
         if (ParentValidation is not null)
         {

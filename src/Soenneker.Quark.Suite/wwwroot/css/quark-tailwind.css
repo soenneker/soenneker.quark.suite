@@ -1088,6 +1088,9 @@
   .h-96 {
     height: calc(var(--spacing) * 96);
   }
+  .h-\[1\.15rem\] {
+    height: 1.15rem;
+  }
   .h-\[calc\(100\%-1px\)\] {
     height: calc(100% - 1px);
   }
@@ -1238,6 +1241,9 @@
   .w-5\/12 {
     width: calc(5 / 12 * 100%);
   }
+  .w-6 {
+    width: calc(var(--spacing) * 6);
+  }
   .w-6\/12 {
     width: calc(6 / 12 * 100%);
   }
@@ -1261,9 +1267,6 @@
   }
   .w-10\/12 {
     width: calc(10 / 12 * 100%);
-  }
-  .w-11 {
-    width: calc(var(--spacing) * 11);
   }
   .w-11\/12 {
     width: calc(11 / 12 * 100%);
@@ -1457,18 +1460,6 @@
   }
   .-translate-x-px {
     --tw-translate-x: -1px;
-    translate: var(--tw-translate-x) var(--tw-translate-y);
-  }
-  .translate-x-0 {
-    --tw-translate-x: calc(var(--spacing) * 0);
-    translate: var(--tw-translate-x) var(--tw-translate-y);
-  }
-  .translate-x-4 {
-    --tw-translate-x: calc(var(--spacing) * 4);
-    translate: var(--tw-translate-x) var(--tw-translate-y);
-  }
-  .translate-x-5 {
-    --tw-translate-x: calc(var(--spacing) * 5);
     translate: var(--tw-translate-x) var(--tw-translate-y);
   }
   .translate-x-\[-50\%\] {
@@ -2977,6 +2968,9 @@
   .text-card-foreground {
     color: var(--card-foreground);
   }
+  .text-current {
+    color: currentcolor;
+  }
   .text-destructive {
     color: var(--destructive);
   }
@@ -3651,6 +3645,11 @@
       height: calc(var(--spacing) * 6);
     }
   }
+  .group-has-\[\[data-orientation\=horizontal\]\]\/field\:text-balance {
+    &:is(:where(.group\/field):has(*:is([data-orientation=horizontal])) *) {
+      text-wrap: balance;
+    }
+  }
   .group-has-\[\[data-slot\=item-description\]\]\/item\:translate-y-0\.5 {
     &:is(:where(.group\/item):has(*:is([data-slot=item-description])) *) {
       --tw-translate-y: calc(var(--spacing) * 0.5);
@@ -3812,6 +3811,12 @@
       height: calc(var(--spacing) * 2.5);
     }
   }
+  .group-data-\[size\=default\]\/switch\:size-4 {
+    &:is(:where(.group\/switch)[data-size="default"] *) {
+      width: calc(var(--spacing) * 4);
+      height: calc(var(--spacing) * 4);
+    }
+  }
   .group-data-\[size\=lg\]\/avatar\:size-3 {
     &:is(:where(.group\/avatar)[data-size="lg"] *) {
       width: calc(var(--spacing) * 3);
@@ -3838,6 +3843,12 @@
     &:is(:where(.group\/avatar)[data-size="sm"] *) {
       font-size: var(--text-xs);
       line-height: var(--tw-leading, var(--text-xs--line-height));
+    }
+  }
+  .group-data-\[size\=sm\]\/switch\:size-3 {
+    &:is(:where(.group\/switch)[data-size="sm"] *) {
+      width: calc(var(--spacing) * 3);
+      height: calc(var(--spacing) * 3);
     }
   }
   .group-data-\[state\=open\]\:rotate-180 {
@@ -3925,6 +3936,11 @@
       @media (hover: hover) {
         color: var(--sidebar-accent-foreground);
       }
+    }
+  }
+  .peer-focus-visible\:border-ring {
+    &:is(:where(.peer):focus-visible ~ *) {
+      border-color: var(--ring);
     }
   }
   .peer-focus-visible\:ring-\[3px\] {
@@ -4197,6 +4213,11 @@
     &:first-child {
       border-left-style: var(--tw-border-style);
       border-left-width: 1px;
+    }
+  }
+  .last\:mt-0 {
+    &:last-child {
+      margin-top: calc(var(--spacing) * 0);
     }
   }
   .last\:rounded-r-md {
@@ -4618,6 +4639,19 @@
       grid-template-columns: 1fr auto;
     }
   }
+  .has-data-\[state\=checked\]\:border-primary {
+    &:has(*[data-state="checked"]) {
+      border-color: var(--primary);
+    }
+  }
+  .has-data-\[state\=checked\]\:bg-primary\/5 {
+    &:has(*[data-state="checked"]) {
+      background-color: var(--primary);
+      @supports (color: color-mix(in lab, red, red)) {
+        background-color: color-mix(in oklab, var(--primary) 5%, transparent);
+      }
+    }
+  }
   .has-data-\[variant\=inset\]\:bg-sidebar {
     &:has(*[data-variant="inset"]) {
       background-color: var(--sidebar);
@@ -4688,6 +4722,27 @@
   .has-\[\>\[data-align\=block-start\]\]\:flex-col {
     &:has(>[data-align=block-start]) {
       flex-direction: column;
+    }
+  }
+  .has-\[\>\[data-slot\=field\]\]\:w-full {
+    &:has(>[data-slot=field]) {
+      width: 100%;
+    }
+  }
+  .has-\[\>\[data-slot\=field\]\]\:flex-col {
+    &:has(>[data-slot=field]) {
+      flex-direction: column;
+    }
+  }
+  .has-\[\>\[data-slot\=field\]\]\:rounded-md {
+    &:has(>[data-slot=field]) {
+      border-radius: calc(var(--radius) - 2px);
+    }
+  }
+  .has-\[\>\[data-slot\=field\]\]\:border {
+    &:has(>[data-slot=field]) {
+      border-style: var(--tw-border-style);
+      border-width: 1px;
     }
   }
   .has-\[\>\[role\=checkbox\]\]\:gap-3 {
@@ -5215,6 +5270,12 @@
       }
     }
   }
+  .data-\[state\=checked\]\:translate-x-\[calc\(100\%-2px\)\] {
+    &[data-state="checked"] {
+      --tw-translate-x: calc(100% - 2px);
+      translate: var(--tw-translate-x) var(--tw-translate-y);
+    }
+  }
   .data-\[state\=checked\]\:border-primary {
     &[data-state="checked"] {
       border-color: var(--primary);
@@ -5320,6 +5381,21 @@
   .data-\[state\=hidden\]\:fade-out {
     &[data-state="hidden"] {
       --tw-exit-opacity: 0;
+    }
+  }
+  .data-\[state\=indeterminate\]\:border-primary {
+    &[data-state="indeterminate"] {
+      border-color: var(--primary);
+    }
+  }
+  .data-\[state\=indeterminate\]\:bg-primary {
+    &[data-state="indeterminate"] {
+      background-color: var(--primary);
+    }
+  }
+  .data-\[state\=indeterminate\]\:text-primary-foreground {
+    &[data-state="indeterminate"] {
+      color: var(--primary-foreground);
     }
   }
   .data-\[state\=on\]\:bg-accent {
@@ -5506,6 +5582,17 @@
       background-color: var(--muted);
     }
   }
+  .data-\[state\=unchecked\]\:translate-x-0 {
+    &[data-state="unchecked"] {
+      --tw-translate-x: calc(var(--spacing) * 0);
+      translate: var(--tw-translate-x) var(--tw-translate-y);
+    }
+  }
+  .data-\[state\=unchecked\]\:bg-input {
+    &[data-state="unchecked"] {
+      background-color: var(--input);
+    }
+  }
   .data-\[state\=unchecked\]\:bg-transparent {
     &[data-state="unchecked"] {
       background-color: transparent;
@@ -5578,6 +5665,11 @@
           border-left-width: 1px;
         }
       }
+    }
+  }
+  .nth-last-2\:-mt-1 {
+    &:nth-last-child(2) {
+      margin-top: calc(var(--spacing) * -1);
     }
   }
   .sm\:start-auto {
@@ -8452,6 +8544,16 @@
       }
     }
   }
+  .dark\:has-data-\[state\=checked\]\:bg-primary\/10 {
+    &:is(.dark *) {
+      &:has(*[data-state="checked"]) {
+        background-color: var(--primary);
+        @supports (color: color-mix(in lab, red, red)) {
+          background-color: color-mix(in oklab, var(--primary) 10%, transparent);
+        }
+      }
+    }
+  }
   .dark\:has-\[\[data-slot\]\[aria-invalid\=true\]\]\:ring-destructive\/40 {
     &:is(.dark *) {
       &:has(*:is([data-slot][aria-invalid=true])) {
@@ -8520,6 +8622,30 @@
       &:is(:where(.group\/tabs-list)[data-variant="line"] *) {
         &[data-state="active"] {
           background-color: transparent;
+        }
+      }
+    }
+  }
+  .dark\:data-\[state\=checked\]\:bg-primary-foreground {
+    &:is(.dark *) {
+      &[data-state="checked"] {
+        background-color: var(--primary-foreground);
+      }
+    }
+  }
+  .dark\:data-\[state\=unchecked\]\:bg-foreground {
+    &:is(.dark *) {
+      &[data-state="unchecked"] {
+        background-color: var(--foreground);
+      }
+    }
+  }
+  .dark\:data-\[state\=unchecked\]\:bg-input\/80 {
+    &:is(.dark *) {
+      &[data-state="unchecked"] {
+        background-color: var(--input);
+        @supports (color: color-mix(in lab, red, red)) {
+          background-color: color-mix(in oklab, var(--input) 80%, transparent);
         }
       }
     }
@@ -8834,6 +8960,13 @@
       border-radius: 0;
     }
   }
+  .\[\&\>\*\]\:data-\[slot\=field\]\:p-4 {
+    &>* {
+      &[data-slot="field"] {
+        padding: calc(var(--spacing) * 4);
+      }
+    }
+  }
   .\[\&\>\*\:first-child\]\:rounded-t-md {
     &>*:first-child {
       border-top-left-radius: calc(var(--radius) - 2px);
@@ -9113,6 +9246,11 @@
   .\[\[data-side\=right\]\[data-state\=collapsed\]_\&\]\:cursor-w-resize {
     [data-side=right][data-state=collapsed] & {
       cursor: w-resize;
+    }
+  }
+  .\[\[data-variant\=legend\]\+\&\]\:-mt-1\.5 {
+    [data-variant=legend]+& {
+      margin-top: calc(var(--spacing) * -1.5);
     }
   }
   .\[a\&\]\:hover\:bg-accent {

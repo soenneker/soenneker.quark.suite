@@ -77,15 +77,11 @@
     protected Dictionary<string, object> BuildWrapperAttributes()
     {
         var attributes = new Dictionary<string, object>();
-        attributes["data-slot"] = "switch";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-switch");
             AppendClass(ref cls, "flex items-center gap-2");
         });
-
-        if (ControlId.HasContent())
-            attributes["id"] = ControlId;
 
         if (Style.HasContent())
             attributes["style"] = Style;
@@ -105,12 +101,15 @@
     {
         var attributes = new Dictionary<string, object>();
         var sm = IsSmSize();
+        attributes["data-slot"] = "switch";
         attributes["data-size"] = sm ? "sm" : "default";
+        attributes["data-state"] = Checked ? "checked" : "unchecked";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/switch peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors outline-none peer-focus-visible:ring-[3px] peer-focus-visible:ring-ring/50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50");
-            AppendClass(ref cls, Checked ? "bg-primary" : "bg-input");
-            AppendClass(ref cls, sm ? "h-5 w-9" : "h-6 w-11");
+            AppendClass(ref cls, "group/switch peer inline-flex shrink-0 cursor-pointer items-center rounded-full border border-transparent shadow-xs transition-all outline-none");
+            AppendClass(ref cls, "peer-focus-visible:border-ring peer-focus-visible:ring-[3px] peer-focus-visible:ring-ring/50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50");
+            AppendClass(ref cls, "data-[state=checked]:bg-primary data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80");
+            AppendClass(ref cls, sm ? "h-3.5 w-6" : "h-[1.15rem] w-8");
             var v = GetValidationClass();
             if (v != null) AppendClass(ref cls, v);
         });
@@ -121,6 +120,7 @@
     {
         var attributes = new Dictionary<string, object>();
         attributes["class"] = "sr-only peer";
+        attributes["role"] = "switch";
         ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
         return attributes;
     }
@@ -132,22 +132,17 @@
         return null;
     }
 
-    // Switch thumb: pointer-events-none block rounded-full bg-background shadow-lg ring-0 transition-transform + size + translate
-    private string GetThumbClass()
-    {
-        var sm = IsSmSize();
-        var size = sm ? "h-4 w-4" : "h-5 w-5";
-        var translate = Checked ? (sm ? "translate-x-4" : "translate-x-5") : "translate-x-0";
-        return $"pointer-events-none block rounded-full bg-background shadow-lg ring-0 transition-transform {size} {translate}";
-    }
-
     private Dictionary<string, object> BuildThumbAttributes()
     {
         var attributes = new Dictionary<string, object>();
         attributes["data-slot"] = "switch-thumb";
+        attributes["data-state"] = Checked ? "checked" : "unchecked";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, GetThumbClass());
+            AppendClass(ref cls, "pointer-events-none block rounded-full bg-background ring-0 transition-transform");
+            AppendClass(ref cls, "group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3");
+            AppendClass(ref cls, "data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0");
+            AppendClass(ref cls, "dark:data-[state=checked]:bg-primary-foreground dark:data-[state=unchecked]:bg-foreground");
         });
         return attributes;
     }

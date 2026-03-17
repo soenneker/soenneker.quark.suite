@@ -2,9 +2,12 @@
 @inherits Soenneker.Quark.TypographyElement
 @implements IDisposable
 
-<div @attributes="BuildAttributes()" role="alert">
-    @ChildContent
-</div>
+@if (HasContent)
+{
+    <div @attributes="BuildAttributes()" role="alert">
+        @ChildContent
+    </div>
+}
 
 @code {
     [CascadingParameter]
@@ -12,16 +15,19 @@
 
     private IDisposable? _registration;
     private FieldContext? _registeredContext;
+    private bool HasContent => ChildContent is not null;
 
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
 
-        if (!ReferenceEquals(_registeredContext, FieldContext))
+        var contextToRegister = HasContent ? FieldContext : null;
+
+        if (!ReferenceEquals(_registeredContext, contextToRegister))
         {
             _registration?.Dispose();
-            _registeredContext = FieldContext;
-            _registration = FieldContext?.RegisterError();
+            _registeredContext = contextToRegister;
+            _registration = contextToRegister?.RegisterError();
         }
     }
 
@@ -41,6 +47,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(HasContent);
         hc.Add(FieldContext?.ErrorId);
     }
 

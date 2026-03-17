@@ -1,0 +1,233 @@
+@page "/forms/memoinputs"
+@using Microsoft.Extensions.Logging
+@using Soenneker.Extensions.String
+
+@inject ILogger<Index> Logger
+
+<PageTitle>MemoInputs - Quark Suite</PageTitle>
+
+<Div Class="space-y-8 max-w-4xl">
+    <Div Class="space-y-6">
+        <DemoSection Title="Basic Usage" Description="Default MemoInput with placeholder and binding." Code="@(@"<MemoInput @bind-Value=""_basicValue"" Placeholder=""Enter your text here..."" Rows=""5""/>")">
+            <Paragraph Class="font-semibold">Default MemoInput</Paragraph>
+            <MemoInput @bind-Value="_basicValue" Placeholder="Enter your text here..."/>
+            <Paragraph Margin="Margin.Is0"><Strong>Value:</Strong> @_basicValue</Paragraph>
+        </DemoSection>
+
+        <DemoSection Title="Size Variations" Description="Size.Small and Size.Large." Code="@(@"<MemoInput @bind-Value=""_smallValue"" Size=""Size.Small"" Placeholder=""Small...""/>
+<MemoInput @bind-Value=""_largeValue"" Size=""Size.Large"" Placeholder=""Large...""/>")">
+            <Paragraph Class="font-semibold">Small Size</Paragraph>
+            <MemoInput @bind-Value="_smallValue" Size="Size.Small" Placeholder="Small memo edit..."/>
+            <Paragraph Class="font-semibold mt-4">Large Size</Paragraph>
+            <MemoInput @bind-Value="_largeValue" Size="Size.Large" Placeholder="Large memo edit..."/>
+        </DemoSection>
+
+        <DemoSection Title="Color Variations" Description="Color.Primary, Success, Warning, Danger." Code="@(@"<MemoInput @bind-Value=""_primaryValue"" Color=""Color.Primary"" Placeholder=""Primary...""/>
+<MemoInput @bind-Value=""_successValue"" Color=""Color.Success"" Placeholder=""Success...""/>
+<MemoInput @bind-Value=""_dangerValue"" Color=""Color.Danger"" Placeholder=""Danger...""/>")">
+            <Paragraph Class="font-semibold">Primary Color</Paragraph>
+            <MemoInput @bind-Value="_primaryValue" Color="Color.Primary" Placeholder="Primary color memo..."/>
+            <Paragraph Class="font-semibold mt-4">Success Color</Paragraph>
+            <MemoInput @bind-Value="_successValue" Color="Color.Success" Placeholder="Success color memo..."/>
+            <Paragraph Class="font-semibold mt-4">Warning Color</Paragraph>
+            <MemoInput @bind-Value="_warningValue" Color="Color.Warning" Placeholder="Warning color memo..."/>
+            <Paragraph Class="font-semibold mt-4">Danger Color</Paragraph>
+            <MemoInput @bind-Value="_dangerValue" Color="Color.Danger" Placeholder="Danger color memo..."/>
+        </DemoSection>
+
+        <DemoSection Title="Row Configuration" Description="Rows attribute for height." Code="@(@"<MemoInput @bind-Value=""_rows2Value"" Rows=""2"" Placeholder=""2 rows...""/>
+<MemoInput @bind-Value=""_rows5Value"" Rows=""5"" Placeholder=""5 rows...""/>
+<MemoInput @bind-Value=""_rows8Value"" Rows=""8"" Placeholder=""8 rows...""/>")">
+            <Paragraph Class="font-semibold">2 Rows</Paragraph>
+            <MemoInput @bind-Value="_rows2Value" Rows="2" Placeholder="2 rows memo..."/>
+            <Paragraph Class="font-semibold mt-4">5 Rows</Paragraph>
+            <MemoInput @bind-Value="_rows5Value" Rows="5" Placeholder="5 rows memo..."/>
+            <Paragraph Class="font-semibold mt-4">8 Rows</Paragraph>
+            <MemoInput @bind-Value="_rows8Value" Rows="8" Placeholder="8 rows memo..."/>
+        </DemoSection>
+
+        <DemoSection Title="Auto Resize" Description="AutoResize=true." Code="@(@"<MemoInput @bind-Value=""_autoResizeValue"" AutoResize=""true"" Placeholder=""Resizes as you type...""/>")">
+            <MemoInput @bind-Value="_autoResizeValue" AutoResize="true" Placeholder="This memo edit will resize as you type..."/>
+        </DemoSection>
+
+        <DemoSection Title="Validation Features" Description="Required, MaxLength, MinLength." Code="@(@"<MemoInput @bind-Value=""_requiredValue"" Required=""true"" Placeholder=""Required...""/>
+<MemoInput @bind-Value=""_maxLengthValue"" MaxLength=""100"" Placeholder=""Max 100 chars...""/>
+<MemoInput @bind-Value=""_minLengthValue"" MinLength=""10"" Placeholder=""Min 10 chars...""/>")">
+            <Paragraph Class="font-semibold">Required Field</Paragraph>
+            <MemoInput @bind-Value="_requiredValue" Required="true" Placeholder="This field is required..."/>
+            <Paragraph Class="font-semibold mt-4">Max Length (100 characters)</Paragraph>
+            <MemoInput @bind-Value="_maxLengthValue" MaxLength="100" Placeholder="Maximum 100 characters allowed..."/>
+            <Paragraph Margin="Margin.Is0"><Small>Characters: @(_maxLengthValue?.Length ?? 0)/100</Small></Paragraph>
+            <Paragraph Class="font-semibold mt-4">Min Length (10 characters)</Paragraph>
+            <MemoInput @bind-Value="_minLengthValue" MinLength="10" Placeholder="Minimum 10 characters required..."/>
+        </DemoSection>
+
+        <DemoSection Title="State Variations" Description="Disabled and ReadOnly." Code="@(@"<MemoInput @bind-Value=""_disabledValue"" Disabled=""true"" Placeholder=""Disabled...""/>
+<MemoInput @bind-Value=""_readOnlyValue"" ReadOnly=""true"" Placeholder=""Read only...""/>")">
+            <Paragraph Class="font-semibold">Disabled</Paragraph>
+            <MemoInput @bind-Value="_disabledValue" Disabled="true" Placeholder="This memo edit is disabled..."/>
+            <Paragraph Class="font-semibold mt-4">Read Only</Paragraph>
+            <MemoInput @bind-Value="_readOnlyValue" ReadOnly="true" Placeholder="This memo edit is read only..."/>
+        </DemoSection>
+
+        <DemoSection Title="Event Handling" Description="OnChange and OnInput." Code="@(@"<MemoInput @bind-Value=""_changeValue"" OnChange=""OnChangeHandler"" Placeholder=""Type to see change...""/>
+<MemoInput @bind-Value=""_inputValue"" OnInput=""OnInputHandler"" Placeholder=""Type to see input...""/>")">
+            <Paragraph Class="font-semibold">With Change Event</Paragraph>
+            <MemoInput @bind-Value="_changeValue" OnChange="OnChangeHandler" Placeholder="Type to see change events..."/>
+            <Paragraph Margin="Margin.Is0"><Strong>Last Change:</Strong> @_lastChangeTime</Paragraph>
+            <Paragraph Class="font-semibold mt-4">With Input Event</Paragraph>
+            <MemoInput @bind-Value="_inputValue" OnInput="OnInputHandler" Placeholder="Type to see input events..."/>
+            <Paragraph Margin="Margin.Is0"><Strong>Last Input:</Strong> @_lastInputTime</Paragraph>
+        </DemoSection>
+
+        <DemoSection Title="Form Integration Example" Description="Field, FieldLabel, MemoInput with validation." Code="@(@"<Field>
+    <FieldLabel For=""contactMessage"" RequiredIndicator=""true"">Message:</FieldLabel>
+    <FieldBody>
+        <MemoInput Id=""contactMessage"" @bind-Value=""_contactMessage"" Rows=""4"" Required=""true"" MaxLength=""500"" Placeholder=""Enter message...""/>
+    </FieldBody>
+</Field>")">
+            <Paragraph Class="font-semibold">Contact Form</Paragraph>
+            <Field>
+                <FieldLabel For="contactMessage" RequiredIndicator="true">Message:</FieldLabel>
+                <FieldBody>
+                    <MemoInput Id="contactMessage" @bind-Value="_contactMessage" Rows="4" Required="true" MaxLength="500" Color="Color.Primary" Placeholder="Enter your message here..."/>
+                </FieldBody>
+            </Field>
+            <Field>
+                <FieldLabel For="additionalNotes">Additional Notes:</FieldLabel>
+                <FieldBody>
+                    <MemoInput Id="additionalNotes" @bind-Value="_additionalNotes" Rows="3" AutoResize="true" Color="@Color.Secondary" Placeholder="Any additional notes..."/>
+                </FieldBody>
+            </Field>
+            <Button Class="btn btn-primary" OnClick="SubmitForm">Submit</Button>
+            <Paragraph Margin="Margin.Is0"><Strong>Form Status:</Strong> <span class="@GetStatusClass()">@_formStatus</span></Paragraph>
+        </DemoSection>
+
+        <DemoSection Title="Character Counter" Description="MaxLength with counter display." Code="@(@"<MemoInput @bind-Value=""_counterValue"" MaxLength=""200"" OnInput=""OnCounterInput"" Placeholder=""Type to see counter...""/>
+<div>@(_counterValue?.Length ?? 0)/200</div>")">
+            <MemoInput @bind-Value="_counterValue" MaxLength="200" OnInput="OnCounterInput" Placeholder="Type to see character counter..."/>
+            <Div Class="@($"char-counter {GetCounterClass()}")">@(_counterValue?.Length ?? 0)/200</Div>
+        </DemoSection>
+
+        <DemoSection Title="Pre-filled Content" Description="Initial value and Load Sample Content." Code="@(@"<MemoInput @bind-Value=""_prefilledValue"" Rows=""6"" Color=""Color.Info"" Placeholder=""Pre-filled...""/>
+<Button OnClick=""LoadSampleContent"">Load Sample Content</Button>")">
+            <MemoInput @bind-Value="_prefilledValue" Rows="6" Color="Color.Info" Placeholder="This has pre-filled content..."/>
+            <Button Class="btn btn-primary" OnClick="LoadSampleContent" Style="margin-top: 10px;">Load Sample Content</Button>
+        </DemoSection>
+    </Div>
+</Div>
+
+@code {
+
+    private string? _basicValue;
+    private string? _smallValue;
+    private string? _largeValue;
+    private string? _primaryValue;
+    private string? _successValue;
+    private string? _warningValue;
+    private string? _dangerValue;
+    private string? _rows2Value;
+    private string? _rows5Value;
+    private string? _rows8Value;
+    private string? _autoResizeValue;
+    private string? _requiredValue;
+    private string? _maxLengthValue;
+    private string? _minLengthValue;
+    private string? _patternValue;
+    private string? _disabledValue = "This is disabled content";
+    private string? _readOnlyValue = "This is read-only content";
+    private string? _changeValue;
+    private string? _inputValue;
+    private string? _contactMessage;
+    private string? _additionalNotes;
+    private string? _counterValue;
+    private string? _prefilledValue = "This is some pre-filled content that demonstrates how the MemoInput component can display existing text.";
+    private string? _formStatus = "Ready to submit";
+
+    private DateTime _lastChangeTime;
+    private DateTime _lastInputTime;
+
+    protected override void OnInitialized()
+    {
+        Logger.LogInformation("MemoInputs demo page initialized");
+    }
+
+    private void OnChangeHandler(ChangeEventArgs e)
+    {
+        _lastChangeTime = DateTime.Now;
+        Logger.LogInformation("MemoInput change event fired at {Time}", _lastChangeTime);
+    }
+
+    private void OnInputHandler(ChangeEventArgs e)
+    {
+        _lastInputTime = DateTime.Now;
+        Logger.LogInformation("MemoInput input event fired at {Time}", _lastInputTime);
+    }
+
+    private void OnCounterInput(ChangeEventArgs e)
+    {
+        // This could be used for real-time validation or UI updates
+        StateHasChanged();
+    }
+
+    private void SubmitForm()
+    {
+        if (_contactMessage.IsNullOrWhiteSpace())
+        {
+            _formStatus = "Message is required!";
+            return;
+        }
+
+        if (_contactMessage.Length < 10)
+        {
+            _formStatus = "Message must be at least 10 characters long!";
+            return;
+        }
+
+        _formStatus = $"Form submitted successfully at {DateTime.Now:HH:mm:ss}! Message: {_contactMessage.Substring(0, Math.Min(50, _contactMessage.Length))}...";
+
+        // Reset form
+        _contactMessage = string.Empty;
+        _additionalNotes = string.Empty;
+    }
+
+    private void LoadSampleContent()
+    {
+        _prefilledValue = @"This is a sample of longer content that demonstrates how the MemoInput component handles multi-line text.
+
+It includes:
+- Multiple paragraphs
+- Line breaks
+- Various text formatting
+
+The component automatically handles:
+• Resizing
+• Scrolling When needed
+• Proper text wrapping
+
+You can edit this content to see how the component behaves with different amounts of text.";
+    }
+
+    private string GetStatusClass()
+    {
+        return _formStatus switch
+        {
+            "Ready to submit" => "status-ready",
+            var status when status.Contains("error", StringComparison.OrdinalIgnoreCase) => "status-error",
+            var status when status.Contains("success", StringComparison.OrdinalIgnoreCase) => "status-success",
+            _ => "status-ready"
+        };
+    }
+
+    private string GetCounterClass()
+    {
+        var length = _counterValue?.Length ?? 0;
+        return length switch
+        {
+            var l when l > 180 => "danger",
+            var l when l > 160 => "warning",
+            _ => ""
+        };
+    }
+
+}

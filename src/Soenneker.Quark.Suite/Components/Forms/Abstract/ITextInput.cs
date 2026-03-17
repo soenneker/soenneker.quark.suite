@@ -6,12 +6,12 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Represents a single-line text input component.
 /// </summary>
-public interface ITextEdit : IInput
+public interface ITextInput : IInput
 {
     /// <summary>
-    /// Gets or sets the text value.
+    /// Gets or sets the value.
     /// </summary>
-    string? Text { get; set; }
+    string? Value { get; set; }
     
     /// <summary>
     /// Gets or sets the maximum number of characters allowed.
@@ -19,9 +19,9 @@ public interface ITextEdit : IInput
     int MaxLength { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked When the text value changes.
+    /// Gets or sets the callback invoked when the value changes.
     /// </summary>
-    EventCallback<string?> TextChanged { get; set; }
+    EventCallback<string?> ValueChanged { get; set; }
 
     /// <summary>
     /// Gets or sets the input mode hint for mobile keyboards.

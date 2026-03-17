@@ -73,9 +73,9 @@ public sealed class Theme
     public ContainerOptions? Containers { get; set; }
 
     /// <summary>
-    /// Gets or sets the date edit component styling options.
+    /// Gets or sets the date input component styling options.
     /// </summary>
-    public DateEditOptions? DateEdits { get; set; }
+    public DateInputOptions? DateInputs { get; set; }
 
     /// <summary>
     /// Gets or sets the datepicker component styling options.
@@ -113,9 +113,9 @@ public sealed class Theme
     public LabelOptions? Labels { get; set; }
 
     /// <summary>
-    /// Gets or sets the memo edit component styling options.
+    /// Gets or sets the memo input component styling options.
     /// </summary>
-    public MemoEditOptions? MemoEdits { get; set; }
+    public MemoInputOptions? MemoInputs { get; set; }
 
     /// <summary>
     /// Gets or sets the modal component styling options.
@@ -128,9 +128,9 @@ public sealed class Theme
     public NavOptions? Navs { get; set; }
 
     /// <summary>
-    /// Gets or sets the numeric edit component styling options.
+    /// Gets or sets the numeric input component styling options.
     /// </summary>
-    public NumericEditOptions? NumericEdits { get; set; }
+    public NumericInputOptions? NumericInputs { get; set; }
 
     /// <summary>
     /// Gets or sets the ordered list component styling options.
@@ -198,9 +198,9 @@ public sealed class Theme
     public SwitchOptions? Switches { get; set; }
 
     /// <summary>
-    /// Gets or sets the text edit component styling options.
+    /// Gets or sets the text input component styling options.
     /// </summary>
-    public TextEditOptions? TextEdits { get; set; }
+    public TextInputOptions? TextInputs { get; set; }
 
     /// <summary>
     /// Gets or sets the text component styling options.
@@ -783,8 +783,8 @@ public sealed class Theme
             yield return Columns;
         if (Containers != null)
             yield return Containers;
-        if (DateEdits != null)
-            yield return DateEdits;
+        if (DateInputs != null)
+            yield return DateInputs;
         if (Datepickers != null)
             yield return Datepickers;
         if (Divs != null)
@@ -799,14 +799,14 @@ public sealed class Theme
             yield return Images;
         if (Labels != null)
             yield return Labels;
-        if (MemoEdits != null)
-            yield return MemoEdits;
+        if (MemoInputs != null)
+            yield return MemoInputs;
         if (Modals != null)
             yield return Modals;
         if (Navs != null)
             yield return Navs;
-        if (NumericEdits != null)
-            yield return NumericEdits;
+        if (NumericInputs != null)
+            yield return NumericInputs;
         if (OrderedLists != null)
             yield return OrderedLists;
         if (OrderedListItems != null)
@@ -833,8 +833,8 @@ public sealed class Theme
             yield return Strongs;
         if (Switches != null)
             yield return Switches;
-        if (TextEdits != null)
-            yield return TextEdits;
+        if (TextInputs != null)
+            yield return TextInputs;
         if (Texts != null)
             yield return Texts;
         if (UnorderedLists != null)
