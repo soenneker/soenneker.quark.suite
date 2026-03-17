@@ -4,12 +4,17 @@
 @implements IStep
 
 <li @attributes="BuildAttributes()">
-    <Anchor To="@GetHref()" OnClick="@(IsClickable ? HandleStepClick : null)" @attributes="BuildAnchorAttributes()">
+    <Anchor To="@GetHref()" OnClick="HandleAnchorClick" @attributes="BuildAnchorAttributes()">
         @ChildContent
     </Anchor>
 </li>
 
 @code {
+    [Parameter]
+    public string? Name { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
 
     private StepsState? _parentStepsState;
 
@@ -83,9 +88,18 @@
 
         attributes["role"] = "tab";
         attributes["aria-selected"] = Active ? "true" : "false";
-        attributes["aria-current"] = Active ? "step" : null;
+        if (Active)
+            attributes["aria-current"] = "step";
         
         return attributes;
+    }
+
+    private Task HandleAnchorClick(MouseEventArgs args)
+    {
+        if (!IsClickable || Disabled)
+            return Task.CompletedTask;
+
+        return HandleStepClick(args);
     }
 
     private string? GetHref()

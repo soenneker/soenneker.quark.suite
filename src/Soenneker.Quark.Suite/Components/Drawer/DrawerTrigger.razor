@@ -1,7 +1,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @onclick="OpenDrawer" @attributes="BuildAttributes()">
+<div @onclick="HandleClick" @attributes="BuildAttributes()">
     @ChildContent
 </div>
 
@@ -9,9 +9,10 @@
     [CascadingParameter(Name = "ParentDrawer")]
     private Drawer? ParentDrawer { get; set; }
 
-    private async Task OpenDrawer(MouseEventArgs _)
+    protected override async Task HandleClick(MouseEventArgs e)
     {
         await (ParentDrawer?.Show() ?? Task.CompletedTask);
+        await base.HandleClick(e);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

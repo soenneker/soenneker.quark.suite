@@ -1,6 +1,13 @@
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Represents an element component that combines component functionality with core element features.
+/// Minimal DOM element contract for renderable HTML-like elements.
 /// </summary>
-public interface IElement : IComponent, ICoreElement;
+public interface IElement : IComponent, ICoreElement
+{
+    string Tag { get; set; }
+    int? TabIndex { get; set; }
+    string? Role { get; set; }
+    string? AriaLabel { get; set; }
+    string? AriaDescribedBy { get; set; }
+}

@@ -22,7 +22,7 @@
     /// <summary>
     /// Gets or sets the selection mode for the tree view.
     /// </summary>
-    [Parameter] public TreeViewSelectionMode SelectionMode { get; set; }
+    [Parameter] public TreeViewSelectionMode SelectionMode { get; set; } = TreeViewSelectionMode.Single;
     /// <summary>
     /// Gets or sets the action to apply styling to selected nodes.
     /// </summary>
@@ -83,7 +83,7 @@
     }
 
     private bool Selected => SelectionMode == TreeViewSelectionMode.Single && ParentTreeViewState.SelectedNode is not null && EqualityComparer<TNode>.Default.Equals(ParentTreeViewState.SelectedNode, NodeState.Node);
-    private new bool Checked => SelectionMode == TreeViewSelectionMode.Multiple && ParentTreeViewState.SelectedNodes is not null && ParentTreeViewState.SelectedNodes.Contains(NodeState.Node);
+    private bool Checked => SelectionMode == TreeViewSelectionMode.Multiple && ParentTreeViewState.SelectedNodes is not null && ParentTreeViewState.SelectedNodes.Contains(NodeState.Node);
 
     private async Task ToggleClicked()
     {

@@ -39,11 +39,7 @@
             var fragment = GetFragment();
             if (fragment.HasContent() && _stepItems.Contains(fragment) && fragment != _state.SelectedStep)
             {
-                _state = _state with { SelectedStep = fragment };
-                AriaDescribedBy = _state.SelectedStep;
-
-                await SelectedStepChanged.InvokeIfHasDelegate(_state.SelectedStep);
-                await RefreshOffThread();
+                await SetSelectedStepAsync(fragment, notifyChanged: true);
             }
 
             // Subscribe to fragment changes
@@ -61,47 +57,26 @@
     /// Gets or sets the currently selected step.
     /// </summary>
     [Parameter]
-    public string SelectedStep
-    {
-        get => _state.SelectedStep;
-        set
-        {
-            if (value == _state.SelectedStep)
-                return;
-
-            var allowNavigation = NavigationAllowed?.Invoke(new StepNavigationContext
-            {
-                CurrentStepName = _state.SelectedStep,
-                CurrentStepIndex = IndexOfStep(_state.SelectedStep),
-                NextStepName = value,
-                NextStepIndex = IndexOfStep(value),
-            }) ?? true;
-
-            if (allowNavigation == false)
-                return;
-
-            _state = _state with { SelectedStep = value };
-            // Nudge render key so this component re-renders and cascades the new state
-            AriaDescribedBy = _state.SelectedStep;
-            SelectedStepChanged.InvokeAsync(_state.SelectedStep);
-            InvalidateRender();
-            Refresh();
-        }
-    }
+    public string SelectedStep { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the render mode for the steps.
     /// </summary>
     [Parameter]
-    public StepsRenderMode RenderMode
+    public StepsRenderMode RenderMode { get; set; }
+
+    protected override Task OnParametersSetAsync()
     {
-        get => _state.RenderMode;
-        set
+        if (SelectedStep != _state.SelectedStep)
+            TryUpdateSelectedStepState(SelectedStep);
+
+        if (RenderMode != _state.RenderMode)
         {
-            _state = _state with { RenderMode = value };
+            _state = _state with { RenderMode = RenderMode };
             InvalidateRender();
-            Refresh();
         }
+
+        return base.OnParametersSetAsync();
     }
 
     /// <summary>
@@ -137,10 +112,8 @@
             {
                 var fragment = GetFragment();
                 var initial = fragment.HasContent() && _stepItems.Contains(fragment) ? fragment : name;
-                _state = _state with { SelectedStep = initial };
-                AriaDescribedBy = _state.SelectedStep;
-                InvalidateRender();
-                Refresh();
+                if (TryUpdateSelectedStepState(initial))
+                    Refresh();
             }
         }
     }
@@ -162,8 +135,7 @@
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task SelectStep(string stepName)
     {
-        SelectedStep = stepName;
-        return Task.CompletedTask;
+        return SetSelectedStepAsync(stepName, notifyChanged: true);
     }
 
     /// <summary>
@@ -180,8 +152,7 @@
         }
 
         var nextStep = _stepItems[selectedStepIndex + 1];
-        SelectedStep = nextStep;
-        return Task.CompletedTask;
+        return SetSelectedStepAsync(nextStep, notifyChanged: true);
     }
 
     /// <summary>
@@ -197,8 +168,7 @@
             return Task.CompletedTask;
         }
 
-        SelectedStep = _stepItems[selectedStepIndex - 1];
-        return Task.CompletedTask;
+        return SetSelectedStepAsync(_stepItems[selectedStepIndex - 1], notifyChanged: true);
     }
 
     /// <summary>
@@ -256,10 +226,7 @@
 
         if (_stepItems.Contains(fragment) && fragment != _state.SelectedStep)
         {
-            _state = _state with { SelectedStep = fragment };
-            AriaDescribedBy = _state.SelectedStep;
-            SelectedStepChanged.InvokeAsync(_state.SelectedStep);
-            await RefreshOffThread();
+            await SetSelectedStepAsync(fragment, notifyChanged: true);
         }
     }
 
@@ -295,5 +262,42 @@
         hc.Add(SelectedStep);
         hc.Add(RenderMode);
         hc.Add(Items is not null);
+    }
+
+    private bool TryUpdateSelectedStepState(string value)
+    {
+        if (value == _state.SelectedStep)
+            return false;
+
+        var allowNavigation = NavigationAllowed?.Invoke(new StepNavigationContext
+        {
+            CurrentStepName = _state.SelectedStep,
+            CurrentStepIndex = IndexOfStep(_state.SelectedStep),
+            NextStepName = value,
+            NextStepIndex = IndexOfStep(value),
+        }) ?? true;
+
+        if (!allowNavigation)
+        {
+            SelectedStep = _state.SelectedStep;
+            return false;
+        }
+
+        _state = _state with { SelectedStep = value, RenderMode = RenderMode };
+        SelectedStep = value;
+        AriaDescribedBy = _state.SelectedStep;
+        InvalidateRender();
+        return true;
+    }
+
+    private async Task SetSelectedStepAsync(string value, bool notifyChanged)
+    {
+        if (!TryUpdateSelectedStepState(value))
+            return;
+
+        if (notifyChanged)
+            await SelectedStepChanged.InvokeIfHasDelegate(_state.SelectedStep);
+
+        await RefreshOffThread();
     }
 }

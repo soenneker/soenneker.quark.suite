@@ -1,9 +1,7 @@
 @namespace Soenneker.Quark
-@inherits Soenneker.Quark.Element
+@inherits Soenneker.Quark.FormControlElement
 @implements IRadioGroup
 
-@* shadcn - new-york-v4 ui/radio-group.tsx (Radix UI RadioGroup)
-   Wraps Radio components; cascades Name, Value, ValueChanged, Disabled. *@
 <CascadingValue Name="ParentRadioGroup" Value="@this" IsFixed="true">
     <div @attributes="BuildAttributes()"
          role="radiogroup"
@@ -29,7 +27,7 @@
     [Parameter]
     public string Orientation { get; set; } = "vertical";
 
-    private string OrientationValue => Orientation?.ToLowerInvariant() == "horizontal" ? "horizontal" : "vertical";
+    private string OrientationValue => Orientation?.ToLowerInvariantFast() == "horizontal" ? "horizontal" : "vertical";
 
     /// <summary>
     /// Gets the effective name for the group (generated if not set).

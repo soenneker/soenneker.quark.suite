@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 
@@ -9,12 +11,55 @@ public abstract class CancellableElement : CancellableComponent, ICancellableEle
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
+    [Parameter]
+    public string Tag { get; set; } = "div";
+
+    [Parameter]
+    public int? TabIndex { get; set; }
+
+    [Parameter]
+    public string? Role { get; set; }
+
+    [Parameter]
+    public string? AriaLabel { get; set; }
+
+    [Parameter]
+    public string? AriaDescribedBy { get; set; }
+
     private RenderFragment? _lastChildContentRef;
     private bool _childContentChanged;
 
+    protected override void BuildOwnedAttributes(Dictionary<string, object> attrs)
+    {
+        base.BuildOwnedAttributes(attrs);
+
+        if (TabIndex.HasValue)
+            attrs["tabindex"] = TabIndex.Value;
+
+        if (Role is not null)
+            attrs["role"] = Role;
+
+        if (AriaLabel is not null)
+            attrs["aria-label"] = AriaLabel;
+
+        if (AriaDescribedBy is not null)
+            attrs["aria-describedby"] = AriaDescribedBy;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+
+        hc.Add(Tag);
+        hc.Add(TabIndex);
+        hc.Add(Role);
+        hc.Add(AriaLabel);
+        hc.Add(AriaDescribedBy);
+    }
+
     protected override void OnParametersSet()
     {
-        var cc = ChildContent;
+        RenderFragment? cc = ChildContent;
         _childContentChanged = !ReferenceEquals(cc, _lastChildContentRef);
         _lastChildContentRef = cc;
 
@@ -23,12 +68,8 @@ public abstract class CancellableElement : CancellableComponent, ICancellableEle
 
     protected override bool ShouldRender()
     {
-        if (QuarkOptions.AlwaysRender)
-            return true;
-
         if (_childContentChanged)
         {
-            // Consume the change so subsequent render-gate checks don’t keep firing
             _childContentChanged = false;
             return true;
         }

@@ -2,7 +2,7 @@
 @inherits Soenneker.Quark.Element
 @implements ISheetClose
 
-<button type="button" @onclick="HandleCloseClick" @attributes="BuildAttributes()">
+<button type="button" @onclick="HandleClick" @attributes="BuildAttributes()">
     @if (ChildContent is null)
     {
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="size-4"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -28,7 +28,6 @@
         attributes["data-slot"] = "sheet-close";
         attributes["data-state"] = ParentSheet?.Visible == true ? "open" : "closed";
 
-        // shadcn Sheet close button - new-york-v4 ui/sheet.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-sheet-close");
@@ -36,10 +35,12 @@
         });
     }
 
-    private async Task HandleCloseClick(MouseEventArgs _)
+    protected override async Task HandleClick(MouseEventArgs e)
     {
         if (AutoClose && ParentSheet is not null)
             await ParentSheet.Hide();
+
+        await base.HandleClick(e);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

@@ -1,7 +1,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<Button Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" @onclick="Close" @attributes="BuildAttributes()">
+<Button Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" OnClick="HandleClick" @attributes="BuildAttributes()">
     @ChildContent
 </Button>
 
@@ -9,9 +9,10 @@
     [CascadingParameter(Name = "ParentDrawer")]
     private Drawer? ParentDrawer { get; set; }
 
-    private async Task Close(MouseEventArgs _)
+    protected override async Task HandleClick(MouseEventArgs e)
     {
         await (ParentDrawer?.Hide() ?? Task.CompletedTask);
+        await base.HandleClick(e);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

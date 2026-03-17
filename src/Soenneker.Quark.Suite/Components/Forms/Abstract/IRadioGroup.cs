@@ -34,11 +34,6 @@ public interface IRadioGroup : IElement
     string Orientation { get; set; }
 
     /// <summary>
-    /// Aria label for the radiogroup.
-    /// </summary>
-    string? AriaLabel { get; set; }
-
-    /// <summary>
     /// Gets the effective name for the group (generated if not set).
     /// </summary>
     string EffectiveName { get; }

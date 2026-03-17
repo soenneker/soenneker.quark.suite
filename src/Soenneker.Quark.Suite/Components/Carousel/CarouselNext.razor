@@ -1,7 +1,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" @onclick="ScrollNext" Disabled="@(!_canScrollNext)" @attributes="BuildAttributes()">
+<Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" OnClick="HandleNextClick" Disabled="@(!_canScrollNext)" @attributes="BuildAttributes()">
     <span class="sr-only">Next slide</span>
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
 </Button>
@@ -12,11 +12,12 @@
 
     private bool _canScrollNext = true;
 
-    private void ScrollNext()
+    private async Task HandleNextClick(MouseEventArgs e)
     {
         _canScrollNext = false;
         InvalidateRender();
         Refresh();
+        await base.HandleClick(e);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
