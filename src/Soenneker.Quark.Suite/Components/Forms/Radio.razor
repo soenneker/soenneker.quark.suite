@@ -71,8 +71,9 @@
 
     /// <summary>
     /// Gets the value used for validation.
+    /// Inside a radio group, the selected option value is the real control state.
     /// </summary>
-    public object? ValidationValue => Checked;
+    public object? ValidationValue => ParentRadioGroup is not null ? ParentRadioGroup.Value : EffectiveChecked;
 
     protected override void OnInitialized()
     {
@@ -94,7 +95,7 @@
             await ParentValidation.InitializeInput(this);
             ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
 
-            if (CheckedExpression is not null)
+            if (ParentRadioGroup is null && CheckedExpression is not null)
                 await ParentValidation.InitializeInputExpression(CheckedExpression);
         }
 
@@ -155,7 +156,7 @@
             if (ParentValidation is not null)
             {
                 ParentValidation.MarkTouched();
-                await ParentValidation.NotifyInputChanged(true);
+                await ParentValidation.NotifyInputChanged(ParentRadioGroup.Value, overrideNewValue: true);
             }
             return;
         }
@@ -172,7 +173,7 @@
         if (ParentValidation is not null)
         {
             ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(Checked);
+            await ParentValidation.NotifyInputChanged(ValidationValue, overrideNewValue: true);
         }
     }
 
@@ -314,7 +315,7 @@
         if (ParentValidation is not null)
         {
             ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(true);
+            await ParentValidation.NotifyInputChanged(ParentRadioGroup.Value, overrideNewValue: true);
         }
 
         try

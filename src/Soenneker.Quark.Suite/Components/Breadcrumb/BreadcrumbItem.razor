@@ -5,15 +5,24 @@
 @if (To.HasContent())
 {
     <li @attributes="BuildListItemAttributes()">
-        <Anchor To="@To" @attributes="BuildAttributes()">
+        <Anchor To="@To" @attributes="BuildLinkAttributes()">
             @ChildContent
         </Anchor>
     </li>
 }
 else
 {
-    <li @attributes="BuildAttributes()">
-        @ChildContent
+    <li @attributes="BuildListItemAttributes()">
+        @if (Active)
+        {
+            <span @attributes="BuildPageAttributes()">
+                @ChildContent
+            </span>
+        }
+        else
+        {
+            @ChildContent
+        }
     </li>
 }
 
@@ -30,26 +39,55 @@ else
     [Parameter]
     public bool Active { get; set; }
 
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    private Dictionary<string, object> BuildListItemAttributes()
     {
+        var attributes = new Dictionary<string, object>();
+
+        attributes["data-slot"] = "breadcrumb-item";
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-breadcrumb-item");
             AppendClass(ref cls, "inline-flex items-center gap-1.5");
-            if (Active)
-                AppendClass(ref cls, "font-medium text-foreground");
+        });
+
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildLinkAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+
+        attributes["data-slot"] = "breadcrumb-link";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-breadcrumb-link");
+            AppendClass(ref cls, "transition-colors hover:text-foreground");
         });
 
         if (Active)
-        {
             attributes["aria-current"] = "page";
-        }
+
+        return attributes;
     }
 
-    private Dictionary<string, object> BuildListItemAttributes()
+    private Dictionary<string, object> BuildPageAttributes()
     {
-        var attributes = new Dictionary<string, object>();
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "inline-flex items-center gap-1.5"));
+        var attributes = new Dictionary<string, object>
+        {
+            ["data-slot"] = "breadcrumb-page",
+            ["role"] = "link",
+            ["aria-disabled"] = "true",
+            ["aria-current"] = "page"
+        };
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-breadcrumb-page");
+            AppendClass(ref cls, "font-normal text-foreground");
+        });
+
         return attributes;
     }
 

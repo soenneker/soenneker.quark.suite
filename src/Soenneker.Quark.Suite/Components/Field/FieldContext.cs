@@ -8,6 +8,8 @@ internal sealed class FieldContext
 {
     private int _descriptionRegistrations;
     private int _errorRegistrations;
+    private bool _explicitInvalid;
+    private bool _validationInvalid;
 
     public event Action? StateChanged;
 
@@ -27,7 +29,7 @@ internal sealed class FieldContext
 
     public bool Horizontal { get; private set; }
 
-    public bool IsInvalid { get; private set; }
+    public bool IsInvalid => _explicitInvalid || _validationInvalid;
 
     public bool HasDescription => _descriptionRegistrations > 0;
 
@@ -35,11 +37,20 @@ internal sealed class FieldContext
 
     public void Update(bool horizontal, bool isInvalid)
     {
-        if (Horizontal == horizontal && IsInvalid == isInvalid)
+        if (Horizontal == horizontal && _explicitInvalid == isInvalid)
             return;
 
         Horizontal = horizontal;
-        IsInvalid = isInvalid;
+        _explicitInvalid = isInvalid;
+        StateChanged?.Invoke();
+    }
+
+    public void SetValidationInvalid(bool isInvalid)
+    {
+        if (_validationInvalid == isInvalid)
+            return;
+
+        _validationInvalid = isInvalid;
         StateChanged?.Invoke();
     }
 
@@ -65,7 +76,7 @@ internal sealed class FieldContext
         });
     }
 
-    public string? BuildDescribedBy(string? existing)
+    public string? BuildDescribedBy(string? existing, bool isInvalid = false)
     {
         var ids = new List<string>();
 
@@ -77,7 +88,7 @@ internal sealed class FieldContext
         if (HasDescription)
             ids.Add(DescriptionId);
 
-        if (IsInvalid && HasError)
+        if ((IsInvalid || isInvalid) && HasError)
             ids.Add(ErrorId);
 
         return ids.Count == 0 ? null : string.Join(" ", ids.Distinct(StringComparer.Ordinal));

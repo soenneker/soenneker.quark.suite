@@ -67,6 +67,7 @@
     --radius-xl: calc(var(--radius) + 4px);
     --radius-2xl: 1rem;
     --radius-3xl: 1.5rem;
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
     --animate-spin: spin 1s linear infinite;
     --animate-ping: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
@@ -1696,6 +1697,9 @@
   }
   .grid-cols-\[auto_1fr\] {
     grid-template-columns: auto 1fr;
+  }
+  .grid-rows-\[0fr\] {
+    grid-template-rows: 0fr;
   }
   .grid-rows-\[auto_1fr\] {
     grid-template-rows: auto 1fr;
@@ -3394,6 +3398,11 @@
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
+  .transition-\[grid-template-rows\] {
+    transition-property: grid-template-rows;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
   .transition-\[left\,right\,width\] {
     transition-property: left,right,width;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
@@ -3461,6 +3470,10 @@
   .ease-linear {
     --tw-ease: linear;
     transition-timing-function: linear;
+  }
+  .ease-out {
+    --tw-ease: var(--ease-out);
+    transition-timing-function: var(--ease-out);
   }
   .contain-layout {
     --tw-contain-layout: layout;
@@ -3566,11 +3579,6 @@
       display: block;
     }
   }
-  .group-focus-within\/popover\:block {
-    &:is(:where(.group\/popover):focus-within *) {
-      display: block;
-    }
-  }
   .group-focus-within\/tooltip\:block {
     &:is(:where(.group\/tooltip):focus-within *) {
       display: block;
@@ -3613,13 +3621,6 @@
   }
   .group-hover\/navigation-menu-item\:block {
     &:is(:where(.group\/navigation-menu-item):hover *) {
-      @media (hover: hover) {
-        display: block;
-      }
-    }
-  }
-  .group-hover\/popover\:block {
-    &:is(:where(.group\/popover):hover *) {
       @media (hover: hover) {
         display: block;
       }
@@ -5455,6 +5456,11 @@
       animation: enter var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
     }
   }
+  .data-\[state\=open\]\:grid-rows-\[1fr\] {
+    &[data-state="open"] {
+      grid-template-rows: 1fr;
+    }
+  }
   .data-\[state\=open\]\:bg-accent {
     &[data-state="open"] {
       background-color: var(--accent);
@@ -5672,6 +5678,18 @@
       }
     }
   }
+  .data-\[variant\=label\]\:text-sm {
+    &[data-variant="label"] {
+      font-size: var(--text-sm);
+      line-height: var(--tw-leading, var(--text-sm--line-height));
+    }
+  }
+  .data-\[variant\=legend\]\:text-base {
+    &[data-variant="legend"] {
+      font-size: var(--text-base);
+      line-height: var(--tw-leading, var(--text-base--line-height));
+    }
+  }
   .data-\[variant\=outline\]\:shadow-xs {
     &[data-variant="outline"] {
       --tw-shadow: 0 1px 2px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.05));
@@ -5822,6 +5840,11 @@
   .sm\:justify-end {
     @media (width >= 40rem) {
       justify-content: flex-end;
+    }
+  }
+  .sm\:gap-2\.5 {
+    @media (width >= 40rem) {
+      gap: calc(var(--spacing) * 2.5);
     }
   }
   .sm\:stroke-0 {

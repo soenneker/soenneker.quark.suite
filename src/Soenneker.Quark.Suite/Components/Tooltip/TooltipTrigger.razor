@@ -13,6 +13,7 @@ else
          @onmouseleave="HandleMouseLeave"
          @onfocusin="HandleFocusIn"
          @onfocusout="HandleFocusOut"
+         @onclick="HandleClick"
          @onkeydown="HandleKeyDown"
          @attributes="BuildAttributes()">
         @ChildContent
@@ -22,6 +23,9 @@ else
 @code {
     [CascadingParameter]
     private TooltipContext? Context { get; set; }
+
+    [CascadingParameter(Name = "TriggerContext")]
+    private TriggerContext? ParentTriggerContext { get; set; }
 
     [Parameter]
     public bool AsChild { get; set; }
@@ -33,11 +37,22 @@ else
         attributes["data-slot"] = "tooltip-trigger";
         attributes.TryAdd("tabindex", 0);
 
-        if (Context is not null)
-        {
+        if (ParentTriggerContext?.TriggerId is not null)
+            attributes["id"] = ParentTriggerContext.TriggerId;
+        else if (Context?.TriggerId is not null)
             attributes["id"] = Context.TriggerId;
-            if (Context.IsOpen)
-                attributes["aria-describedby"] = Context.ContentId;
+
+        var describedBy = BuildAriaDescribedBy();
+        if (describedBy is not null)
+            attributes["aria-describedby"] = describedBy;
+
+        if (ParentTriggerContext?.AriaHasPopup is not null)
+            attributes["aria-haspopup"] = ParentTriggerContext.AriaHasPopup;
+
+        if (ParentTriggerContext?.AriaControls is not null)
+        {
+            attributes["aria-expanded"] = ParentTriggerContext.IsOpen ? "true" : "false";
+            attributes["aria-controls"] = ParentTriggerContext.AriaControls;
         }
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -50,9 +65,12 @@ else
     {
         return new TriggerContext
         {
-            TriggerId = Context?.TriggerId,
-            IsOpen = Context?.IsOpen == true,
-            AriaDescribedBy = Context?.IsOpen == true ? Context.ContentId : null,
+            TriggerId = ParentTriggerContext?.TriggerId ?? Context?.TriggerId,
+            IsOpen = ParentTriggerContext?.AriaControls is not null ? ParentTriggerContext.IsOpen : Context?.IsOpen == true,
+            AriaHasPopup = ParentTriggerContext?.AriaHasPopup,
+            AriaControls = ParentTriggerContext?.AriaControls,
+            AriaDescribedBy = BuildAriaDescribedBy(),
+            Toggle = ParentTriggerContext?.Toggle,
             Open = Context is null ? null : () => Context.Open(),
             Close = Context is null ? null : () => Context.Close(),
             OnMouseEnter = Context is null ? null : () => Context.Open(),
@@ -60,6 +78,25 @@ else
             OnFocusIn = Context is null ? null : () => Context.Open(),
             OnFocusOut = Context is null ? null : () => Context.Close()
         };
+    }
+
+    private string? BuildAriaDescribedBy()
+    {
+        string? tooltipId = Context?.IsOpen == true ? Context.ContentId : null;
+        string? parentDescribedBy = ParentTriggerContext?.AriaDescribedBy;
+
+        if (parentDescribedBy is null)
+            return tooltipId;
+
+        if (tooltipId is null)
+            return parentDescribedBy;
+
+        return $"{parentDescribedBy} {tooltipId}";
+    }
+
+    protected override Task HandleClick(MouseEventArgs e)
+    {
+        return ParentTriggerContext?.Toggle?.Invoke() ?? Task.CompletedTask;
     }
 
     private Task HandleMouseEnter(MouseEventArgs e)
@@ -96,5 +133,10 @@ else
         hc.Add(Context?.IsOpen);
         hc.Add(Context?.ContentId);
         hc.Add(AsChild);
+        hc.Add(ParentTriggerContext?.TriggerId);
+        hc.Add(ParentTriggerContext?.AriaHasPopup);
+        hc.Add(ParentTriggerContext?.AriaControls);
+        hc.Add(ParentTriggerContext?.AriaDescribedBy);
+        hc.Add(ParentTriggerContext?.IsOpen);
     }
 }

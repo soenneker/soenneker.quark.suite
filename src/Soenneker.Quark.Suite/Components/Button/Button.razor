@@ -227,10 +227,17 @@ else
 
         if (TriggerContext is not null)
         {
-            attributes["id"] = TriggerContext.TriggerId!;
-            attributes["aria-haspopup"] = TriggerContext.AriaHasPopup!;
-            attributes["aria-expanded"] = TriggerContext.IsOpen ? "true" : "false";
-            attributes["aria-controls"] = TriggerContext.AriaControls!;
+            if (TriggerContext.TriggerId is not null)
+                attributes["id"] = TriggerContext.TriggerId;
+
+            if (TriggerContext.AriaHasPopup is not null)
+                attributes["aria-haspopup"] = TriggerContext.AriaHasPopup;
+
+            if (TriggerContext.AriaControls is not null)
+            {
+                attributes["aria-expanded"] = TriggerContext.IsOpen ? "true" : "false";
+                attributes["aria-controls"] = TriggerContext.AriaControls;
+            }
 
             if (TriggerContext.AriaDescribedBy is not null)
                 attributes["aria-describedby"] = TriggerContext.AriaDescribedBy;

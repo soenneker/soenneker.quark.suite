@@ -3,7 +3,7 @@
 @implements IAccordionContent
 
 <div @attributes="BuildAttributes()">
-    @if (IsOpen)
+    @if (ForceMount || IsOpen)
     {
         <div @attributes="BuildInnerAttributes()">
             @ChildContent
@@ -12,6 +12,9 @@
 </div>
 
 @code {
+    [Parameter]
+    public bool ForceMount { get; set; } = true;
+
     [CascadingParameter(Name = nameof(ParentAccordionItem))]
     public AccordionItem? ParentAccordionItem { get; set; }
 
@@ -26,6 +29,9 @@
         attributes["role"] = "region";
         attributes["aria-hidden"] = IsOpen ? "false" : "true";
 
+        if (!IsOpen)
+            attributes["inert"] = true;
+
         if (ParentAccordionItem is not null)
         {
             attributes["id"] = ParentAccordionItem.ContentId;
@@ -34,7 +40,9 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-accordion-content overflow-hidden text-sm");
+            AppendClass(ref cls, "q-accordion-content");
+            AppendClass(ref cls, "grid grid-rows-[0fr] overflow-hidden transition-[grid-template-rows] duration-200 ease-out");
+            AppendClass(ref cls, "data-[state=open]:grid-rows-[1fr]");
         });
     }
 
@@ -44,7 +52,8 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "pt-0 pb-4");
+            AppendClass(ref cls, "min-h-0 overflow-hidden");
+            AppendClass(ref cls, "pt-0 pb-4 text-sm");
         });
 
         return attributes;
@@ -53,5 +62,6 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         hc.Add(IsOpen);
+        hc.Add(ForceMount);
     }
 }

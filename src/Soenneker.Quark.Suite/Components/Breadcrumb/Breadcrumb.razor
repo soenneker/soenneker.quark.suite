@@ -38,25 +38,26 @@
     {
         base.BuildAttributesCore(attributes);
 
+        attributes["data-slot"] = "breadcrumb";
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-breadcrumb");
         });
 
-        // Set default aria-label for the Nav component if none provided
-        if (!AriaLabel.HasContent())
-        {
-            attributes["AriaLabel"] = "breadcrumb";
-        }
+        if (!attributes.ContainsKey("aria-label"))
+            attributes["aria-label"] = AriaLabel.HasContent() ? AriaLabel! : "breadcrumb";
     }
 
     private Dictionary<string, object> BuildListAttributes()
     {
         var attributes = new Dictionary<string, object>();
 
+        attributes["data-slot"] = "breadcrumb-list";
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground");
+            AppendClass(ref cls, "flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground sm:gap-2.5");
             if (Large)
                 AppendClass(ref cls, "text-base");
             if (Small)

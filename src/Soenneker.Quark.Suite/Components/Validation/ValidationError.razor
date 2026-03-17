@@ -27,6 +27,9 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (
 	[CascadingParameter(Name = nameof(ParentValidations))]
 	public Validations? ParentValidations { get; set; }
 
+    [CascadingParameter]
+    private FieldContext? FieldContext { get; set; }
+
 	/// <summary>
 	/// Gets or sets whether to show validation error messages.
 	/// </summary>
@@ -36,6 +39,8 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (
 	private bool _visible;
 	private ValidationStatus _status = ValidationStatus.None;
 	private IReadOnlyCollection<string>? _messages;
+    private IDisposable? _registration;
+    private FieldContext? _registeredFieldContext;
 
 	protected override void OnInitialized()
 	{
@@ -45,6 +50,18 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (
 			ParentValidations.ClearingAll += OnClearingAll;
 		}
 	}
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (!ReferenceEquals(_registeredFieldContext, FieldContext))
+        {
+            _registration?.Dispose();
+            _registeredFieldContext = FieldContext;
+            _registration = FieldContext?.RegisterError();
+        }
+    }
 
     private async void OnStatusChanged(ValidationsStatusChangedEventArgs args)
 	{
@@ -64,18 +81,23 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
+        attributes["data-slot"] = "field-error";
+
+        if (FieldContext is not null && !attributes.ContainsKey("id"))
+            attributes["id"] = FieldContext.ErrorId;
+
+        attributes.TryAdd("role", "alert");
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-validation-error");
-            AppendClass(ref cls, "q-invalid-feedback");
-            AppendClass(ref cls, "text-destructive text-sm");
-            AppendClass(ref cls, "d-block");
-            AppendClass(ref cls, "mb-0");
+            AppendClass(ref cls, "text-sm font-normal text-destructive");
         });
     }
 
     public override void Dispose()
     {
+        _registration?.Dispose();
         base.Dispose();
 
         if (ParentValidations is not null)
@@ -98,5 +120,6 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (
 			if (ParentValidation.Messages is not null)
 				hc.Add(ParentValidation.Messages.Count());
 		}
+        hc.Add(FieldContext?.ErrorId);
 	}
 }

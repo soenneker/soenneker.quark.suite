@@ -51,7 +51,7 @@
     private ElementReference _buttonRef;
     private bool _preventDefaultKeys;
 
-    private bool IsActive => ParentTabs?.SelectedTab == Name;
+    private bool IsActive => string.Equals(ParentTabs?.ResolvedSelectedTab, Name, StringComparison.Ordinal);
 
     protected override void OnInitialized()
     {
@@ -163,7 +163,7 @@
         hc.Add(IconName);
         hc.Add(Target);
         hc.Add(Disabled);
-        if (ParentTabs?.SelectedTab is not null)
-            hc.Add(ParentTabs.SelectedTab);
+        if (ParentTabs?.ResolvedSelectedTab is not null)
+            hc.Add(ParentTabs.ResolvedSelectedTab);
     }
 }

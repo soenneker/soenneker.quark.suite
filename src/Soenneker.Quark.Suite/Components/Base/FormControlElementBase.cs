@@ -93,14 +93,16 @@ public abstract class FormControlElementBase : InteractiveElement
         if (CurrentFieldContext is not null && !attrs.ContainsKey("id"))
             attrs["id"] = CurrentFieldContext.ControlId;
 
+        bool effectiveInvalid = isInvalid || CurrentFieldContext?.IsInvalid == true;
+
         string? describedBy = CurrentFieldContext?.BuildDescribedBy(attrs.TryGetValue("aria-describedby", out object? existingDescribedBy)
             ? existingDescribedBy?.ToString()
-            : null);
+            : null, effectiveInvalid);
 
         if (!string.IsNullOrWhiteSpace(describedBy))
             attrs["aria-describedby"] = describedBy;
 
-        if (isInvalid || CurrentFieldContext?.IsInvalid == true)
+        if (effectiveInvalid)
             attrs["aria-invalid"] = "true";
     }
 

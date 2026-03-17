@@ -11,10 +11,10 @@
                 <div role="tablist" class="group/tabs-list shrink-0" @attributes="BuildTabsListAttributes()">
                     @ChildContent
                 </div>
-                <div id="@(SelectedTab.HasContent() ? $"tab-content-{SelectedTab}" : null)" class="min-w-0 flex-1 outline-none" role="tabpanel" aria-labelledby="@(SelectedTab.HasContent() ? $"tab-trigger-{SelectedTab}" : null)" data-slot="tabs-content">
+                <div id="@(ResolvedSelectedTab.HasContent() ? $"tab-content-{ResolvedSelectedTab}" : null)" class="min-w-0 flex-1 outline-none" role="tabpanel" aria-labelledby="@(ResolvedSelectedTab.HasContent() ? $"tab-trigger-{ResolvedSelectedTab}" : null)" data-slot="tabs-content">
                     @foreach (var tab in _tabs)
                     {
-                        @if (tab.Name == SelectedTab)
+                        @if (tab.Name == ResolvedSelectedTab)
                         {
                             @tab.ChildContent
                             break;
@@ -25,14 +25,13 @@
         }
         else
         {
-            @* Horizontal: TabsList top, content below - shadcn structure *@
             <div role="tablist" class="group/tabs-list w-fit" @attributes="BuildTabsListAttributes()">
                 @ChildContent
             </div>
-            <div id="@(SelectedTab.HasContent() ? $"tab-content-{SelectedTab}" : null)" aria-labelledby="@(SelectedTab.HasContent() ? $"tab-trigger-{SelectedTab}" : null)" class="flex-1 outline-none" role="tabpanel" data-slot="tabs-content">
+            <div id="@(ResolvedSelectedTab.HasContent() ? $"tab-content-{ResolvedSelectedTab}" : null)" aria-labelledby="@(ResolvedSelectedTab.HasContent() ? $"tab-trigger-{ResolvedSelectedTab}" : null)" class="flex-1 outline-none" role="tabpanel" data-slot="tabs-content">
                 @foreach (var tab in _tabs)
                 {
-                    @if (tab.Name == SelectedTab)
+                    @if (tab.Name == ResolvedSelectedTab)
                     {
                         @tab.ChildContent
                         break;
@@ -75,6 +74,7 @@
     public EventCallback<string> OnSelectedTabChanged { get; set; }
 
     private readonly List<Tab> _tabs = [];
+    internal string? ResolvedSelectedTab => GetResolvedSelectedTab();
 
     /// <summary>
     /// Registers a tab with the tabs component.
@@ -85,14 +85,6 @@
         if (!_tabs.Contains(tab))
         {
             _tabs.Add(tab);
-
-            if (string.IsNullOrEmpty(SelectedTab))
-            {
-                var firstTab = _tabs.FirstOrDefault(t => !t.Disabled && t.Name.HasContent());
-                if (firstTab is not null)
-                    SelectedTab = firstTab.Name;
-            }
-
             _ = RefreshOffThread();
         }
     }
@@ -105,6 +97,19 @@
     {
         _tabs.Remove(tab);
         _ = RefreshOffThread();
+    }
+
+    private string? GetResolvedSelectedTab()
+    {
+        if (SelectedTab.HasContent())
+        {
+            var matchingTab = _tabs.FirstOrDefault(t => !t.Disabled && string.Equals(t.Name, SelectedTab, StringComparison.Ordinal));
+
+            if (matchingTab is not null)
+                return matchingTab.Name;
+        }
+
+        return _tabs.FirstOrDefault(t => !t.Disabled && t.Name.HasContent())?.Name;
     }
 
     internal async Task HandleKeyNavigationAsync(Tab currentTab, string key)
@@ -219,5 +224,7 @@
         hc.Add(TabsListVariant);
         if (SelectedTab is not null)
             hc.Add(SelectedTab);
+        if (ResolvedSelectedTab is not null)
+            hc.Add(ResolvedSelectedTab);
     }
 }

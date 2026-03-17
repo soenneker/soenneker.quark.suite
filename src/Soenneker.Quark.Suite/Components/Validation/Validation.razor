@@ -36,6 +36,9 @@
     [CascadingParameter(Name = nameof(EditContext))]
     public EditContext? EditContext { get; set; }
 
+    [CascadingParameter]
+    private FieldContext? CurrentFieldContext { get; set; }
+
     /// <summary>
     /// Gets or sets the current validation status.
     /// </summary>
@@ -154,6 +157,8 @@
 
     public void Dispose()
     {
+        CurrentFieldContext?.SetValidationInvalid(false);
+
         if (ParentValidations is not null)
         {
             ParentValidations.ClearingAll -= OnClearingAll;
@@ -348,6 +353,7 @@
         {
             Status = status;
             Messages = messages;
+            SyncFieldInvalidState();
 
             ValidationStatusChanged?.Invoke(this, new ValidationStatusChangedEventArgs(status, messages));
             InvokeAsync(StateHasChanged);
@@ -361,6 +367,7 @@
 
             if (shouldShowInvalidBefore != shouldShowInvalidAfter)
             {
+                SyncFieldInvalidState();
                 ValidationStatusChanged?.Invoke(this, new ValidationStatusChangedEventArgs(status, messages));
                 InvokeAsync(StateHasChanged);
                 ParentValidations?.NotifyValidationStatusChanged(this);
@@ -378,10 +385,16 @@
         if (!_touched)
         {
             _touched = true;
+            SyncFieldInvalidState();
             // Broadcast to update UI with same status but new gating
             ValidationStatusChanged?.Invoke(this, new ValidationStatusChangedEventArgs(Status, Messages));
             InvokeAsync(StateHasChanged);
         }
+    }
+
+    private void SyncFieldInvalidState()
+    {
+        CurrentFieldContext?.SetValidationInvalid(ShouldShowInvalid);
     }
 
     public event Action? ValidationStarted;
