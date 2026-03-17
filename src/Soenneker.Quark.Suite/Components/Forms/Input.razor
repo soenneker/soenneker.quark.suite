@@ -83,7 +83,7 @@
     /// <summary>
     /// Gets the value used for validation purposes.
     /// </summary>
-    public virtual object? ValidationValue => ValidationValueSelector?.Invoke();
+    public virtual object? ValidationValue => ValidationValueSelector?.Invoke() ?? Value;
 
     /// <summary>
     /// Called after the component has rendered.
@@ -95,6 +95,9 @@
         {
             await ParentValidation.InitializeInput(this);
             ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
+
+            if (ValueExpression is not null)
+                await ParentValidation.InitializeInputExpression(ValueExpression);
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -160,6 +163,7 @@
 
         if (ParentValidation is not null)
         {
+            ParentValidation.MarkTouched();
             var valueObj = ValidationValue;
             await ParentValidation.NotifyInputChanged(valueObj);
         }

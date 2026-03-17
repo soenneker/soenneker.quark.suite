@@ -8,7 +8,7 @@
 <div @attributes="BuildWrapperAttributes()">
     <label class="inline-flex cursor-pointer items-center gap-2">
         <span class="group/switch relative inline-flex shrink-0">
-            <input id="@ControlId" type="checkbox" checked="@Checked" @onclick="HandleClick" @onchange="HandleChange" @attributes="BuildInputAttributes()" />
+            <input id="@ControlId" type="checkbox" checked="@Checked" @onclick="HandleInputClick" @onchange="HandleChange" @attributes="BuildInputAttributes()" />
             <span @attributes="BuildTrackAttributes()">
                 <span @attributes="BuildThumbAttributes()"></span>
             </span>
@@ -118,9 +118,41 @@
 
     private Dictionary<string, object> BuildInputAttributes()
     {
-        var attributes = new Dictionary<string, object>();
-        attributes["class"] = "sr-only peer";
-        attributes["role"] = "switch";
+        var attributes = new Dictionary<string, object>
+        {
+            ["class"] = "sr-only peer",
+            ["role"] = "switch"
+        };
+
+        if (Name.HasContent())
+            attributes["name"] = Name!;
+
+        if (Value.HasContent())
+            attributes["value"] = Value!;
+
+        if (Required)
+            attributes["required"] = true;
+
+        if (AutoFocus)
+            attributes["autofocus"] = true;
+
+        if (Disabled)
+            attributes["disabled"] = true;
+
+        if (Attributes is not null)
+        {
+            foreach (KeyValuePair<string, object> attribute in Attributes)
+            {
+                if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                attributes[attribute.Key] = attribute.Value;
+            }
+        }
+
         ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
         return attributes;
     }
@@ -147,31 +179,38 @@
         return attributes;
     }
 
-    protected override async Task HandleClick(MouseEventArgs args)
+    private Task HandleInputClick(MouseEventArgs args)
+    {
+        return base.HandleClick(args);
+    }
+
+    private async Task HandleChange(ChangeEventArgs e)
     {
         if (Disabled)
             return;
 
-        var next = !Checked;
-        if (next == Checked)
-            return;
+        var next = e.Value switch
+        {
+            bool value => value,
+            string value when bool.TryParse(value, out bool parsed) => parsed,
+            _ => !Checked
+        };
 
-        Checked = next;
-        await CheckedChanged.InvokeAsync(next);
-
-        InvalidateRender();
-        Refresh();
+        if (next != Checked)
+        {
+            Checked = next;
+            await CheckedChanged.InvokeAsync(next);
+            InvalidateRender();
+            Refresh();
+        }
 
         if (ParentValidation is not null)
         {
             ParentValidation.MarkTouched();
             await ParentValidation.NotifyInputChanged(next);
         }
-    }
 
-    private Task HandleChange(ChangeEventArgs e)
-    {
-        return OnChange.InvokeIfHasDelegate(e);
+        await OnChange.InvokeIfHasDelegate(e);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

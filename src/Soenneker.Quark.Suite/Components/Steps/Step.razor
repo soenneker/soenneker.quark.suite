@@ -56,7 +56,11 @@
         }
     }
 
-    private bool IsClickable => OnClick.HasDelegate;
+    private bool IsClickable => !Disabled && Name.HasContent() && ParentSteps is not null;
+
+    private string StepId => Name.HasContent() ? $"step-tab-{Name}" : $"step-tab-{CalculatedIndex}";
+
+    private string? PanelId => Name.HasContent() ? $"step-panel-{Name}" : null;
 
     private int CalculatedIndex => Index ?? ParentSteps?.IndexOfStep(Name ?? string.Empty) ?? 1;
 
@@ -87,7 +91,11 @@
         });
 
         attributes["role"] = "tab";
+        attributes["id"] = StepId;
         attributes["aria-selected"] = Active ? "true" : "false";
+        attributes["tabindex"] = Active ? 0 : -1;
+        if (PanelId is not null)
+            attributes["aria-controls"] = PanelId;
         if (Active)
             attributes["aria-current"] = "step";
         
@@ -96,7 +104,7 @@
 
     private Task HandleAnchorClick(MouseEventArgs args)
     {
-        if (!IsClickable || Disabled)
+        if (!IsClickable)
             return Task.CompletedTask;
 
         return HandleStepClick(args);

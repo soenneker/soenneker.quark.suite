@@ -144,7 +144,7 @@
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task NextStep()
     {
-        var selectedStepIndex = _stepItems.IndexOf(SelectedStep);
+        var selectedStepIndex = _stepItems.IndexOf(_state.SelectedStep);
 
         if (selectedStepIndex == -1 || selectedStepIndex == _stepItems.Count - 1)
         {
@@ -161,7 +161,7 @@
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task PreviousStep()
     {
-        var selectedStepIndex = _stepItems.IndexOf(SelectedStep);
+        var selectedStepIndex = _stepItems.IndexOf(_state.SelectedStep);
 
         if (selectedStepIndex <= 0)
         {
@@ -204,6 +204,7 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        attributes["role"] = "tablist";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-steps");

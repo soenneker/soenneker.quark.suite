@@ -85,6 +85,14 @@
         if (!_tabs.Contains(tab))
         {
             _tabs.Add(tab);
+
+            if (string.IsNullOrEmpty(SelectedTab))
+            {
+                var firstTab = _tabs.FirstOrDefault(t => !t.Disabled && t.Name.HasContent());
+                if (firstTab is not null)
+                    SelectedTab = firstTab.Name;
+            }
+
             _ = RefreshOffThread();
         }
     }
@@ -97,6 +105,41 @@
     {
         _tabs.Remove(tab);
         _ = RefreshOffThread();
+    }
+
+    internal async Task HandleKeyNavigationAsync(Tab currentTab, string key)
+    {
+        if (_tabs.Count == 0)
+            return;
+
+        var enabledTabs = _tabs.Where(t => !t.Disabled && t.Name.HasContent()).ToList();
+        if (enabledTabs.Count == 0)
+            return;
+
+        var currentIndex = enabledTabs.FindIndex(t => ReferenceEquals(t, currentTab));
+        if (currentIndex < 0)
+            return;
+
+        var nextIndex = key switch
+        {
+            "Home" => 0,
+            "End" => enabledTabs.Count - 1,
+            "ArrowRight" when !Vertical => (currentIndex + 1) % enabledTabs.Count,
+            "ArrowLeft" when !Vertical => (currentIndex - 1 + enabledTabs.Count) % enabledTabs.Count,
+            "ArrowDown" when Vertical => (currentIndex + 1) % enabledTabs.Count,
+            "ArrowUp" when Vertical => (currentIndex - 1 + enabledTabs.Count) % enabledTabs.Count,
+            _ => -1
+        };
+
+        if (nextIndex < 0)
+            return;
+
+        var targetTab = enabledTabs[nextIndex];
+        if (!targetTab.Name.HasContent())
+            return;
+
+        await SelectTab(targetTab.Name!);
+        await targetTab.FocusAsync();
     }
 
     /// <summary>
@@ -117,21 +160,6 @@
 
             InvalidateRender();
             Refresh();
-        }
-    }
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-        
-        // If no selected tab is specified, select the first tab
-        if (string.IsNullOrEmpty(SelectedTab) && _tabs.Count > 0)
-        {
-            var firstTab = _tabs.FirstOrDefault(t => !t.Disabled);
-            if (firstTab != null)
-            {
-                SelectedTab = firstTab.Name;
-            }
         }
     }
 

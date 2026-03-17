@@ -4,7 +4,7 @@
 @implements ITab
 
 <li @attributes="BuildAttributes()">
-    <button type="button" @onclick="HandleClick" @attributes="BuildButtonAttributes()">
+    <button type="button" @onclick="HandleClick" @onkeydown="HandleKeyDown" @onkeydown:preventDefault="_preventDefaultKeys" @ref="_buttonRef" @attributes="BuildButtonAttributes()">
         @if (IconName.HasContent())
         {
             <Icon Name="@IconName" />
@@ -47,6 +47,9 @@
 
     [CascadingParameter(Name = nameof(ParentTabs))]
     public Tabs? ParentTabs { get; set; }
+
+    private ElementReference _buttonRef;
+    private bool _preventDefaultKeys;
 
     private bool IsActive => ParentTabs?.SelectedTab == Name;
 
@@ -131,6 +134,27 @@
         {
             await ParentTabs.SelectTab(Name);
         }
+
+        await base.HandleClick(args);
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs args)
+    {
+        _preventDefaultKeys = args.Key switch
+        {
+            "Home" or "End" => true,
+            "ArrowLeft" or "ArrowRight" when ParentTabs?.Vertical != true => true,
+            "ArrowUp" or "ArrowDown" when ParentTabs?.Vertical == true => true,
+            _ => false
+        };
+
+        if (_preventDefaultKeys && ParentTabs is not null)
+            await ParentTabs.HandleKeyNavigationAsync(this, args.Key);
+    }
+
+    internal async Task FocusAsync()
+    {
+        await _buttonRef.FocusAsync();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

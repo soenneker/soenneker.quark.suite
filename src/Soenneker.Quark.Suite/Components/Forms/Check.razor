@@ -5,17 +5,11 @@
 @implements ICheck
 <div @attributes="BuildWrapperAttributes()">
     <label @attributes="BuildLabelAttributes()">
-        <button
-            id="@ControlId"
-            type="button"
-            role="checkbox"
-            aria-checked="@AriaCheckedValue"
-            aria-disabled="@Disabled.ToString().ToLowerInvariant()"
-            data-state="@DataState"
-            disabled="@Disabled"
-            tabindex="@(Disabled ? -1 : 0)"
-            @onclick="HandleClick"
-            @attributes="BuildButtonAttributes()">
+        <input
+            @attributes="BuildInputAttributes()"
+            @onclick="HandleInputClick"
+            @onchange="HandleChange" />
+        <span @attributes="BuildIndicatorAttributes()">
             @if (Checked || Indeterminate)
             {
                 <span data-slot="checkbox-indicator" class="grid place-content-center text-current transition-none">
@@ -28,8 +22,8 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M20 6 9 17 4 12"/></svg>
                     }
                 </span>
-            }            
-        </button>
+            }
+        </span>
         @if (ChildContent is not null)
         {
             @ChildContent
@@ -158,22 +152,75 @@
         return attributes;
     }
 
-    public virtual Dictionary<string, object> BuildButtonAttributes()
+    public virtual Dictionary<string, object> BuildInputAttributes()
     {
-        var attributes = new Dictionary<string, object>(base.BuildAttributes());
-        attributes["id"] = ControlId;
-        attributes["data-slot"] = "checkbox";
+        var attributes = new Dictionary<string, object>
+        {
+            ["id"] = ControlId,
+            ["type"] = "checkbox",
+            ["checked"] = Checked,
+            ["aria-checked"] = AriaCheckedValue,
+            ["data-state"] = DataState
+        };
+
+        if (Value.HasContent())
+            attributes["value"] = Value!;
+
+        if (Name.HasContent())
+            attributes["name"] = Name!;
+
+        if (Required)
+            attributes["required"] = true;
+
+        if (AutoFocus)
+            attributes["autofocus"] = true;
+
+        if (Disabled)
+            attributes["disabled"] = true;
+
+        if (Attributes is not null)
+        {
+            foreach (KeyValuePair<string, object> attribute in Attributes)
+            {
+                if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                attributes[attribute.Key] = attribute.Value;
+            }
+        }
+
         ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "peer sr-only");
+        });
+
+        return attributes;
+    }
+
+    public virtual Dictionary<string, object> BuildIndicatorAttributes()
+    {
+        var attributes = new Dictionary<string, object>
+        {
+            ["data-slot"] = "checkbox",
+            ["aria-hidden"] = "true",
+            ["data-state"] = DataState
+        };
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-check-indicator");
             AppendClass(ref cls, "border-input dark:bg-input/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:border-primary");
             AppendClass(ref cls, "data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground data-[state=indeterminate]:border-primary");
             AppendClass(ref cls, "data-[state=unchecked]:bg-transparent data-[state=unchecked]:text-current");
-            AppendClass(ref cls, "peer shrink-0 rounded-[4px] border shadow-xs transition-[color,box-shadow] outline-none");
-            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]");
-            AppendClass(ref cls, "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive");
-            AppendClass(ref cls, "disabled:cursor-not-allowed disabled:opacity-50 grid place-content-center");
+            AppendClass(ref cls, "shrink-0 rounded-[4px] border shadow-xs transition-[color,box-shadow] outline-none");
+            AppendClass(ref cls, "peer-focus-visible:border-ring peer-focus-visible:ring-ring/50 peer-focus-visible:ring-[3px]");
+            AppendClass(ref cls, "peer-aria-invalid:ring-destructive/20 dark:peer-aria-invalid:ring-destructive/40 peer-aria-invalid:border-destructive");
+            AppendClass(ref cls, "peer-disabled:cursor-not-allowed peer-disabled:opacity-50 grid place-content-center");
             var sizeClass = GetSizeClass();
             AppendClass(ref cls, sizeClass ?? "size-4");
             var validationClass = GetValidationClass();
@@ -208,12 +255,23 @@
         };
     }
 
-    protected override async Task HandleClick(MouseEventArgs args)
+    private Task HandleInputClick(MouseEventArgs args)
+    {
+        return base.HandleClick(args);
+    }
+
+    private async Task HandleChange(ChangeEventArgs args)
     {
         if (Disabled)
             return;
 
-        var next = !Checked;
+        var next = args.Value switch
+        {
+            bool value => value,
+            string value when bool.TryParse(value, out bool parsed) => parsed,
+            _ => !Checked
+        };
+
         Checked = next;
         Indeterminate = false;
         await CheckedChanged.InvokeAsync(next);

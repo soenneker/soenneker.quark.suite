@@ -17,6 +17,7 @@
     </select>
     <svg class="text-muted-foreground pointer-events-none absolute top-1/2 right-3.5 size-4 -translate-y-1/2 opacity-50 select-none"
          aria-hidden="true"
+         data-slot="native-select-icon"
          xmlns="http://www.w3.org/2000/svg"
          width="24"
          height="24"
@@ -144,7 +145,15 @@
 
         try
         {
-            return (TValue)Convert.ChangeType(value, typeof(TValue));
+            var targetType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
+
+            if (targetType.IsEnum)
+            {
+                object parsed = Enum.Parse(targetType, value, ignoreCase: true);
+                return (TValue)parsed;
+            }
+
+            return (TValue)Convert.ChangeType(value, targetType);
         }
         catch
         {
@@ -191,7 +200,7 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        attributes["data-slot"] = "select-trigger";
+        attributes["data-slot"] = "native-select";
         attributes.Remove("placeholder");
         ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
 
@@ -218,7 +227,7 @@
     private Dictionary<string, object> BuildWrapperAttributes()
     {
         var attributes = new Dictionary<string, object>();
-        attributes["data-slot"] = "select";
+        attributes["data-slot"] = "native-select-wrapper";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-select-wrapper");

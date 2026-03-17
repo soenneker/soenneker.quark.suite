@@ -67,6 +67,9 @@
         {
             await ParentValidation.InitializeInput(this);
             ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
+
+            if (ValueExpression is not null)
+                await ParentValidation.InitializeInputExpression(ValueExpression);
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -120,7 +123,10 @@
         await OnChange.InvokeIfHasDelegate(e);
 
         if (ParentValidation is not null)
+        {
+            ParentValidation.MarkTouched();
             await ParentValidation.NotifyInputChanged(Value);
+        }
 
         if (valueChanged)
         {

@@ -7,25 +7,19 @@
 @implements IDisposable
 <div @attributes="BuildWrapperAttributes()">
     <label @attributes="BuildLabelAttributes()">
-        <button
-            id="@ControlId"
-            type="button"
-            role="radio"
-            aria-checked="@EffectiveChecked.ToString().ToLowerInvariant()"
-            aria-disabled="@EffectiveDisabled.ToString().ToLowerInvariant()"
-            data-state="@(EffectiveChecked ? "checked" : "unchecked")"
-            disabled="@EffectiveDisabled"
-            tabindex="@TabStopIndex"
-            @onclick="HandleClick"
+        <input
+            @attributes="BuildInputAttributes()"
+            @onclick="HandleInputClick"
+            @onchange="HandleChange"
             @onkeydown="HandleKeyDown"
             @onkeydown:preventDefault="_preventDefault"
-            @ref="_elementRef"
-            @attributes="BuildIndicatorAttributes()">
+            @ref="_elementRef" />
+        <span @attributes="BuildIndicatorAttributes()">
             @if (EffectiveChecked)
             {
                 <span data-slot="radio-group-indicator" class="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary"></span>
             }
-        </button>
+        </span>
         @if (ChildContent != null)
         {
             @ChildContent
@@ -62,8 +56,6 @@
     private bool EffectiveDisabled => ParentRadioGroup?.Disabled == true || Disabled;
 
     private string ControlId => ParentRadioGroup is null && CurrentFieldContext is not null ? CurrentFieldContext.ControlId : Id!;
-
-    private int TabStopIndex => EffectiveDisabled ? -1 : ParentRadioGroup?.IsTabStop(this) == false ? -1 : 0;
 
     /// <summary>
     /// Gets or sets the size of the radio.
@@ -146,8 +138,16 @@
         };
     }
 
-    protected override async Task HandleClick(MouseEventArgs e)
+    private Task HandleInputClick(MouseEventArgs e)
     {
+        return base.HandleClick(e);
+    }
+
+    private async Task HandleChange(ChangeEventArgs e)
+    {
+        if (EffectiveDisabled)
+            return;
+
         if (ParentRadioGroup != null)
         {
             await ParentRadioGroup.SetValueAsync(Value);
@@ -178,7 +178,7 @@
 
     protected override Task HandleKeyDown(KeyboardEventArgs e)
     {
-        _preventDefault = e.Key is "ArrowDown" or "ArrowUp" or "ArrowLeft" or "ArrowRight" or "Home" or "End";
+        _preventDefault = e.Key is "Home" or "End";
 
         if (!EffectiveDisabled && ParentRadioGroup is not null && _preventDefault)
             ParentRadioGroup.HandleKeyNavigation(this, e.Key);
@@ -203,26 +203,72 @@
         return attributes;
     }
 
+    private Dictionary<string, object> BuildInputAttributes()
+    {
+        var attributes = new Dictionary<string, object>
+        {
+            ["id"] = ControlId,
+            ["type"] = "radio",
+            ["name"] = ParentRadioGroup?.EffectiveName ?? Name ?? ControlId,
+            ["value"] = Value ?? string.Empty,
+            ["checked"] = EffectiveChecked,
+            ["data-state"] = EffectiveChecked ? "checked" : "unchecked"
+        };
+
+        if (Required)
+            attributes["required"] = true;
+
+        if (AutoFocus)
+            attributes["autofocus"] = true;
+
+        if (EffectiveDisabled)
+            attributes["disabled"] = true;
+
+        if (Attributes is not null)
+        {
+            foreach (KeyValuePair<string, object> attribute in Attributes)
+            {
+                if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                attributes[attribute.Key] = attribute.Value;
+            }
+        }
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "peer sr-only");
+        });
+
+        if (ParentRadioGroup is null)
+            ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
+
+        return attributes;
+    }
+
     private Dictionary<string, object> BuildIndicatorAttributes()
     {
         var attributes = new Dictionary<string, object>();
         attributes["data-slot"] = "radio-group-item";
+        attributes["aria-hidden"] = "true";
+        attributes["data-state"] = EffectiveChecked ? "checked" : "unchecked";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-radio-input");
             AppendClass(ref cls, _shadcnRadioItemBase);
             AppendClass(ref cls, "data-[state=checked]:border-primary");
+            AppendClass(ref cls, "peer-focus-visible:border-ring peer-focus-visible:ring-[3px] peer-focus-visible:ring-ring/50");
+            AppendClass(ref cls, "peer-disabled:cursor-not-allowed peer-disabled:opacity-50");
+            AppendClass(ref cls, "peer-aria-invalid:border-destructive peer-aria-invalid:ring-destructive/20 dark:peer-aria-invalid:ring-destructive/40");
             var sizeClass = GetSizeClass();
             AppendClass(ref cls, sizeClass ?? "size-4");
-            if (EffectiveDisabled)
-                AppendClass(ref cls, "opacity-50");
             var validationClass = GetValidationClass();
             if (validationClass != null)
                 AppendClass(ref cls, validationClass);
         });
-
-        if (ParentRadioGroup is null)
-            ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
 
         return attributes;
     }
@@ -249,7 +295,6 @@
         hc.Add(ParentRadioGroup?.Value);
         AddIf(ref hc, Size);
         hc.Add(Inline);
-        hc.Add(TabStopIndex);
     }
 
     internal bool IsCheckedInGroup()

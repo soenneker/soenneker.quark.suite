@@ -20,6 +20,12 @@
     public bool Horizontal { get; set; }
 
     /// <summary>
+    /// Gets or sets whether the field should expose disabled state to composed label/title content.
+    /// </summary>
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    /// <summary>
     /// Gets or sets whether the field is invalid for data-[invalid=true] styling.
     /// </summary>
     [Parameter]
@@ -40,6 +46,12 @@
         attributes["data-slot"] = "field";
         attributes.TryAdd("role", "group");
         attributes["data-orientation"] = Horizontal ? "horizontal" : "vertical";
+        if (Disabled)
+        {
+            attributes["data-disabled"] = "true";
+            attributes["aria-disabled"] = "true";
+        }
+
         if (IsInvalid)
             attributes["data-invalid"] = "true";
 
@@ -51,8 +63,8 @@
             if (Horizontal)
             {
                 AppendClass(ref cls, "flex-row items-center");
-                AppendClass(ref cls, "[&>.q-field-label]:flex-auto");
-                AppendClass(ref cls, "has-[>.q-field-body]:items-start has-[>.q-field-body]:[&>[role=checkbox],[role=radio]]:mt-px");
+                AppendClass(ref cls, "[&>[data-slot=field-label]]:flex-auto");
+                AppendClass(ref cls, "has-[>[data-slot=field-content]]:items-start has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px");
             }
             else
             {
@@ -64,6 +76,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         hc.Add(Horizontal);
+        hc.Add(Disabled);
         hc.Add(IsInvalid);
     }
 }

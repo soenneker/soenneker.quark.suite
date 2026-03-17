@@ -9,5 +9,10 @@ public interface IField : IElement
     /// Gets or sets whether the form controls should be aligned horizontally.
     /// </summary>
     bool Horizontal { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the field should expose disabled state for composed label and title styling.
+    /// </summary>
+    bool Disabled { get; set; }
 }
 
