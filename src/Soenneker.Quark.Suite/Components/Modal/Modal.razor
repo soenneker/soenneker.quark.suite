@@ -3,19 +3,22 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.OverlayElement
 @implements IModal
+@implements IDisposable
 
 @if (Visible)
 {
     <CascadingValue Name="ParentModal" Value="@this">
-        <div @onkeydown="HandleKeyDown" @onclick="HandleBackdropClick" @attributes="BuildAttributes()">
-            @if (ShowBackdrop)
-            {
-                <div class="fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0" data-slot="dialog-overlay" data-state="@(Visible ? "open" : "closed")"></div>
-            }
-            <div @attributes="BuildDialogAttributes()" @onclick:stopPropagation="true">
-                @ChildContent
+        <CascadingValue Value="_context" IsFixed="false">
+            <div @onkeydown="HandleKeyDown" @onclick="HandleBackdropClick" @attributes="BuildAttributes()">
+                @if (ShowBackdrop)
+                {
+                    <div class="fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0" data-slot="dialog-overlay" data-state="@(Visible ? "open" : "closed")"></div>
+                }
+                <div @ref="_dialogRef" @attributes="BuildDialogAttributes()" @onclick:stopPropagation="true">
+                    @ChildContent
+                </div>
             </div>
-        </div>
+        </CascadingValue>
     </CascadingValue>
 }
 
@@ -50,6 +53,9 @@
     [Parameter]
     public EventCallback OnBackdropClick { get; set; }
 
+    private readonly OverlayLabelContext _context = new("dialog");
+    private ElementReference _dialogRef;
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -78,6 +84,7 @@
         var attributes = new Dictionary<string, object>();
 
         attributes["data-slot"] = "dialog-content";
+        attributes["id"] = _context.ContentId;
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-modal-dialog");
@@ -96,9 +103,35 @@
 
         attributes["role"] = "dialog";
         attributes["aria-modal"] = "true";
+        attributes["tabindex"] = -1;
         attributes["data-state"] = Visible ? "open" : "closed";
 
+        if (_context.HasTitle)
+            attributes["aria-labelledby"] = _context.TitleId;
+
+        if (_context.HasDescription)
+            attributes["aria-describedby"] = _context.DescriptionId;
+
         return attributes;
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _context.StateChanged += OnContextStateChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (Visible)
+            SetOverlayContentElement(_dialogRef);
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async void OnContextStateChanged()
+    {
+        await RefreshOffThread();
     }
 
     protected override async Task HandleKeyDown(KeyboardEventArgs e)
@@ -155,5 +188,16 @@
         hc.Add(ModalSize);
         hc.Add(Static);
         hc.Add(Visible);
+        hc.Add(_context.ContentId);
+        hc.Add(_context.HasTitle);
+        hc.Add(_context.HasDescription);
+        hc.Add(_context.TitleId);
+        hc.Add(_context.DescriptionId);
+    }
+
+    public override void Dispose()
+    {
+        _context.StateChanged -= OnContextStateChanged;
+        base.Dispose();
     }
 }

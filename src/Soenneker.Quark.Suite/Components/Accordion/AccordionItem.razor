@@ -2,7 +2,7 @@
 @inherits Soenneker.Quark.Element
 @implements IAccordionItem
 
-<CascadingValue Name="ParentAccordionItem" Value="this" IsFixed="true">
+<CascadingValue Name="ParentAccordionItem" Value="this">
     <div @attributes="BuildAttributes()">
         @ChildContent
     </div>
@@ -18,9 +18,9 @@
     [CascadingParameter(Name = nameof(ParentAccordion))]
     public Accordion? ParentAccordion { get; set; }
 
-    private string? _resolvedValue;
+    private string? _generatedValue;
 
-    internal string ResolvedValue => _resolvedValue ??= Value.HasContent() ? Value! : $"accordion-item-{Guid.NewGuid():N}";
+    internal string ResolvedValue => Value.HasContent() ? Value! : _generatedValue ??= $"accordion-item-{Guid.NewGuid():N}";
 
     internal string TriggerId => $"{ResolvedValue}-trigger";
 
@@ -36,21 +36,15 @@
         await ParentAccordion.ToggleItem(ResolvedValue);
     }
 
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-
-        if (Value.HasContent())
-            _resolvedValue = Value;
-    }
-
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "accordion-item";
         attributes["data-state"] = IsOpen ? "open" : "closed";
-        attributes["data-disabled"] = Disabled ? "true" : "false";
+
+        if (Disabled)
+            attributes["data-disabled"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

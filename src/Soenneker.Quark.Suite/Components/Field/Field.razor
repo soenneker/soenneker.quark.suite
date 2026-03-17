@@ -3,10 +3,12 @@
 @implements IField
 
 <CascadingValue Name="ParentField" Value="@this" IsFixed="true">
-    <CascadingValue Name="FieldHorizontal" Value="Horizontal" IsFixed="true">
-        <div @attributes="BuildAttributes()">
-            @ChildContent
-        </div>
+    <CascadingValue Value="_fieldContext" IsFixed="false">
+        <CascadingValue Name="FieldHorizontal" Value="Horizontal" IsFixed="true">
+            <div @attributes="BuildAttributes()">
+                @ChildContent
+            </div>
+        </CascadingValue>
     </CascadingValue>
 </CascadingValue>
 
@@ -22,6 +24,14 @@
     /// </summary>
     [Parameter]
     public bool IsInvalid { get; set; }
+
+    private readonly FieldContext _fieldContext = new();
+
+    protected override void OnParametersSet()
+    {
+        _fieldContext.Update(Horizontal, IsInvalid);
+        base.OnParametersSet();
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {

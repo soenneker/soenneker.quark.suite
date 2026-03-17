@@ -1,8 +1,8 @@
-﻿@namespace Soenneker.Quark
-@inherits Soenneker.Quark.FormControlElement
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.TriggerElement
 @implements IAlertDialogTrigger
 
-<button type="button" @onclick="HandleActivate" @attributes="BuildAttributes()">
+<button type="button" @onclick="HandleActivate" @ref="_elementRef" @attributes="BuildAttributes()">
     @ChildContent
 </button>
 
@@ -10,14 +10,24 @@
     [CascadingParameter(Name = nameof(ParentAlertDialog))]
     public AlertDialog? ParentAlertDialog { get; set; }
 
+    [CascadingParameter]
+    private OverlayLabelContext? Context { get; set; }
+
+    private ElementReference _elementRef;
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "alert-dialog-trigger";
+        attributes["aria-haspopup"] = "alertdialog";
+        attributes["aria-expanded"] = (ParentAlertDialog?.Visible == true).ToString().ToLowerInvariant();
 
         if (Disabled)
             attributes["disabled"] = true;
+
+        if (Context is not null)
+            attributes["aria-controls"] = Context.ContentId;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -30,11 +40,16 @@
     private async Task HandleActivate()
     {
         if (!Disabled && ParentAlertDialog != null)
+        {
+            ParentAlertDialog.SetRestoreFocusTarget(_elementRef);
             await ParentAlertDialog.Show();
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         hc.Add(Disabled);
+        hc.Add(ParentAlertDialog?.Visible ?? false);
+        hc.Add(Context?.ContentId);
     }
 }

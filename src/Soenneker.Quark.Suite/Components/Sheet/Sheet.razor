@@ -1,11 +1,13 @@
-﻿@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.OverlayElement
 @implements ISheet
 
 <CascadingValue Name="ParentSheet" Value="@this">
-    @ChildContent
+    <CascadingValue Value="_context" IsFixed="false">
+        @ChildContent
+    </CascadingValue>
 </CascadingValue>
 
 @code {
@@ -14,6 +16,8 @@
     /// </summary>
     [Parameter]
     public EventCallback OnBackdropClick { get; set; }
+
+    private readonly OverlayLabelContext _context = new("sheet");
 
     /// <summary>
     /// Shows the sheet.

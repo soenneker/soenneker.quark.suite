@@ -1,8 +1,8 @@
-﻿@using System.Runtime.CompilerServices
+@using System.Runtime.CompilerServices
 @using Soenneker.Quark.Components.Surface.Interactive.Buttons.Abstract
 
 @namespace Soenneker.Quark
-@inherits Soenneker.Quark.FormControlElement
+@inherits Soenneker.Quark.TriggerElement
 @implements IButton
 @inject NavigationManager Navigation
 @inject ICollapseCoordinator CollapseCoordinator
@@ -71,6 +71,18 @@ else
     /// </summary>
     [Parameter]
     public RenderFragment? LoadingTemplate { get; set; }
+
+    /// <summary>
+    /// Gets or sets the button value submitted with a form.
+    /// </summary>
+    [Parameter]
+    public string? Value { get; set; }
+
+    /// <summary>
+    /// Gets or sets the button name submitted with a form.
+    /// </summary>
+    [Parameter]
+    public string? Name { get; set; }
 
     /// <summary>
     /// Gets or sets the form ID that this button is associated with.
@@ -156,6 +168,12 @@ else
         var effectiveSize = ButtonGroup?.Size ?? Size;
         attributes["data-size"] = GetSizeDataAttr(effectiveSize);
 
+        if (isLink)
+        {
+            attributes.Remove("autofocus");
+            attributes.Remove("disabled");
+        }
+
         if (isLink && isDisabled && !attributes.ContainsKey("tabindex"))
             attributes["tabindex"] = -1;
 
@@ -191,11 +209,6 @@ else
             if (isDisabled)
             {
                 attributes["aria-disabled"] = "true";
-                attributes["role"] = "button";
-            }
-            else
-            {
-                attributes.TryAdd("role", "button");
             }
         }
         else
@@ -207,7 +220,6 @@ else
         if (Value.HasContent()) attributes["value"] = Value!;
         if (Name.HasContent()) attributes["name"] = Name!;
         if (Form.HasContent()) attributes["form"] = Form!;
-        if (AutoFocus) attributes["autofocus"] = true;
     }
 
     protected override async Task HandleClick(MouseEventArgs args)

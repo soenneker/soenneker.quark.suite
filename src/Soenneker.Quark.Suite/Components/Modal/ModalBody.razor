@@ -1,12 +1,31 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IModalBody
+@implements IDisposable
 
 <div @attributes="BuildAttributes()">
     @ChildContent
 </div>
 
 @code {
+    [CascadingParameter]
+    private OverlayLabelContext? Context { get; set; }
+
+    private OverlayLabelContext? _registeredContext;
+    private IDisposable? _descriptionRegistration;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (ReferenceEquals(_registeredContext, Context))
+            return;
+
+        _descriptionRegistration?.Dispose();
+        _registeredContext = Context;
+        _descriptionRegistration = Context?.RegisterDescription();
+    }
+
     // shadcn DialogDescription - new-york-v4 ui/dialog.tsx
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -17,6 +36,20 @@
             AppendClass(ref cls, "q-modal-body");
             AppendClass(ref cls, "text-sm text-muted-foreground");
         });
+
+        if (!attributes.ContainsKey("id") && Context is not null)
+            attributes["id"] = Context.DescriptionId;
     }
 
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Context?.DescriptionId);
+    }
+
+    public override void Dispose()
+    {
+        _descriptionRegistration?.Dispose();
+        base.Dispose();
+    }
 }

@@ -1,11 +1,13 @@
-﻿@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.OverlayElement
 @implements IAlertDialog
 
 <CascadingValue Name="ParentAlertDialog" Value="@this">
-    @ChildContent
+    <CascadingValue Value="_context" IsFixed="false">
+        @ChildContent
+    </CascadingValue>
 </CascadingValue>
 
 @code {
@@ -14,6 +16,8 @@
     /// </summary>
     [Parameter]
     public EventCallback OnBackdropClick { get; set; }
+
+    private readonly OverlayLabelContext _context = new("alert-dialog");
 
     /// <summary>
     /// Shows the alert dialog.

@@ -1,8 +1,8 @@
-﻿@namespace Soenneker.Quark
-@inherits Soenneker.Quark.FormControlElement
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.TriggerElement
 @implements ISheetTrigger
 
-<button type="button" @onclick="HandleActivate" @attributes="BuildAttributes()">
+<button type="button" @onclick="HandleActivate" @ref="_elementRef" @attributes="BuildAttributes()">
     @ChildContent
 </button>
 
@@ -10,14 +10,24 @@
     [CascadingParameter(Name = nameof(ParentSheet))]
     public Sheet? ParentSheet { get; set; }
 
+    [CascadingParameter]
+    private OverlayLabelContext? Context { get; set; }
+
+    private ElementReference _elementRef;
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "sheet-trigger";
+        attributes["aria-haspopup"] = "dialog";
+        attributes["aria-expanded"] = (ParentSheet?.Visible == true).ToString().ToLowerInvariant();
 
         if (Disabled)
             attributes["disabled"] = true;
+
+        if (Context is not null)
+            attributes["aria-controls"] = Context.ContentId;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -30,11 +40,16 @@
     private async Task HandleActivate()
     {
         if (!Disabled && ParentSheet is not null)
+        {
+            ParentSheet.SetRestoreFocusTarget(_elementRef);
             await ParentSheet.Show();
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         hc.Add(Disabled);
+        hc.Add(ParentSheet?.Visible ?? false);
+        hc.Add(Context?.ContentId);
     }
 }

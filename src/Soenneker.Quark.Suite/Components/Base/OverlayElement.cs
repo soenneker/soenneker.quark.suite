@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 
 namespace Soenneker.Quark;
 
@@ -9,6 +11,9 @@ namespace Soenneker.Quark;
 /// </summary>
 public abstract class OverlayElement : InteractiveElement
 {
+    [Inject]
+    protected IOverlayInterop OverlayInterop { get; set; } = null!;
+
     [Parameter]
     public bool Visible { get; set; }
 
@@ -30,23 +35,122 @@ public abstract class OverlayElement : InteractiveElement
     [Parameter]
     public EventCallback OnHide { get; set; }
 
-    private bool _lastVisible;
+    [Parameter]
+    public bool TrapFocus { get; set; } = true;
+
+    [Parameter]
+    public bool LockScroll { get; set; } = true;
+
+    [Parameter]
+    public string? InitialFocusSelector { get; set; }
+
+    private readonly string _overlayId = $"overlay-{Guid.NewGuid():N}";
+    private bool _renderedVisible;
+    private ElementReference _restoreFocusTarget;
+    private bool _hasRestoreFocusTarget;
+    private ElementReference _overlayContentElement;
+    private bool _hasOverlayContentElement;
+    private bool _overlayBehaviorActive;
 
     protected override bool ShouldRender()
     {
-        if (Visible != _lastVisible)
-        {
-            _lastVisible = Visible;
+        if (Visible != _renderedVisible)
             return true;
-        }
 
         return base.ShouldRender();
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        _lastVisible = Visible;
-        return base.OnAfterRenderAsync(firstRender);
+        var wasVisible = _renderedVisible;
+        _renderedVisible = Visible;
+
+        return HandleAfterRenderAsync(firstRender, wasVisible);
+    }
+
+    private async Task HandleAfterRenderAsync(bool firstRender, bool wasVisible)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (Visible && !wasVisible)
+        {
+            await OnOverlayShownAsync();
+            return;
+        }
+
+        if (!Visible && wasVisible)
+            await OnOverlayHiddenAsync();
+    }
+
+    internal void SetRestoreFocusTarget(ElementReference elementReference)
+    {
+        _restoreFocusTarget = elementReference;
+        _hasRestoreFocusTarget = true;
+    }
+
+    internal void SetOverlayContentElement(ElementReference elementReference)
+    {
+        _overlayContentElement = elementReference;
+        _hasOverlayContentElement = true;
+    }
+
+    protected virtual async Task OnOverlayShownAsync()
+    {
+        if (!_hasOverlayContentElement)
+            return;
+
+        try
+        {
+            await OverlayInterop.Activate(_overlayId, _overlayContentElement, TrapFocus, LockScroll, InitialFocusSelector);
+            _overlayBehaviorActive = true;
+        }
+        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
+        {
+        }
+    }
+
+    protected virtual async Task OnOverlayHiddenAsync()
+    {
+        await DeactivateOverlayBehaviorAsync();
+        await RestoreFocusAsync();
+    }
+
+    protected async Task RestoreFocusAsync()
+    {
+        if (!_hasRestoreFocusTarget)
+            return;
+
+        try
+        {
+            await _restoreFocusTarget.FocusAsync();
+        }
+        catch
+        {
+        }
+    }
+
+    private async Task DeactivateOverlayBehaviorAsync()
+    {
+        if (!_overlayBehaviorActive)
+            return;
+
+        try
+        {
+            await OverlayInterop.Deactivate(_overlayId, LockScroll);
+        }
+        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
+        {
+        }
+        finally
+        {
+            _overlayBehaviorActive = false;
+        }
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        await DeactivateOverlayBehaviorAsync();
+        await base.DisposeAsync();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -60,5 +164,8 @@ public abstract class OverlayElement : InteractiveElement
         hc.Add(VisibleChanged.HasDelegate);
         hc.Add(OnShow.HasDelegate);
         hc.Add(OnHide.HasDelegate);
+        hc.Add(TrapFocus);
+        hc.Add(LockScroll);
+        hc.Add(InitialFocusSelector);
     }
 }

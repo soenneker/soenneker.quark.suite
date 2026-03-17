@@ -1,13 +1,18 @@
 @namespace Soenneker.Quark
-@inherits Soenneker.Quark.Element
+@inherits Soenneker.Quark.TriggerElement
 @implements IAccordionTrigger
+@implements IDisposable
 
 <h3 class="flex">
-    <button @onclick="HandleTriggerClick" @attributes="BuildAttributes()">
+    <button @onclick="HandleTriggerClick"
+            @onkeydown="HandleKeyDown"
+            @onkeydown:preventDefault="_preventDefault"
+            @ref="_elementRef"
+            @attributes="BuildAttributes()">
         @ChildContent
         @if (ShowChevron)
         {
-            <Icon Name="chevron-down" Class="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200" />
+            <Icon Name="chevron-down" Class="@ChevronClass" />
         }
     </button>
 </h3>
@@ -19,45 +24,92 @@
     [CascadingParameter(Name = nameof(ParentAccordionItem))]
     public AccordionItem? ParentAccordionItem { get; set; }
 
-    private async Task HandleTriggerClick(MouseEventArgs args)
+    [CascadingParameter(Name = nameof(ParentAccordion))]
+    public Accordion? ParentAccordion { get; set; }
+
+    private ElementReference _elementRef;
+    private bool _preventDefault;
+
+    internal string Value => ParentAccordionItem?.ResolvedValue ?? string.Empty;
+
+    private bool IsOpen => ParentAccordionItem?.IsOpen == true;
+
+    internal bool IsDisabled => Disabled || ParentAccordionItem?.Disabled == true;
+
+    private string ChevronClass => IsOpen
+        ? "text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 rotate-180 transition-transform duration-200"
+        : "text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 rotate-0 transition-transform duration-200";
+
+    protected override void OnInitialized()
     {
-        if (ParentAccordionItem is null || ParentAccordionItem.Disabled)
+        base.OnInitialized();
+        ParentAccordion?.RegisterTrigger(this);
+    }
+
+    private async Task HandleTriggerClick()
+    {
+        if (ParentAccordionItem is null || IsDisabled)
             return;
 
         await ParentAccordionItem.Toggle();
+    }
+
+    protected override Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        _preventDefault = e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End";
+
+        if (!IsDisabled && ParentAccordion is not null && _preventDefault)
+            ParentAccordion.HandleKeyNavigation(Value, e.Key);
+
+        return base.HandleKeyDown(e);
+    }
+
+    internal async Task FocusAsync()
+    {
+        try
+        {
+            await _elementRef.FocusAsync();
+        }
+        catch
+        {
+        }
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        var isOpen = ParentAccordionItem?.IsOpen == true;
-        var disabled = ParentAccordionItem?.Disabled == true;
-
         attributes["type"] = "button";
         attributes["data-slot"] = "accordion-trigger";
-        attributes["data-state"] = isOpen ? "open" : "closed";
-        attributes["aria-expanded"] = isOpen ? "true" : "false";
+        attributes["data-state"] = IsOpen ? "open" : "closed";
+        attributes["aria-expanded"] = IsOpen ? "true" : "false";
 
         if (ParentAccordionItem is not null)
+        {
+            attributes["id"] = ParentAccordionItem.TriggerId;
             attributes["aria-controls"] = ParentAccordionItem.ContentId;
+        }
 
-        if (disabled)
+        if (IsDisabled)
             attributes["disabled"] = true;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-accordion-trigger");
-            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180");
+            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50");
         });
-
-        if (ParentAccordionItem is not null)
-            attributes["id"] = ParentAccordionItem.TriggerId;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         hc.Add(ShowChevron);
-        hc.Add(ParentAccordionItem?.IsOpen == true);
+        hc.Add(IsOpen);
+        hc.Add(IsDisabled);
+    }
+
+    public override void Dispose()
+    {
+        ParentAccordion?.UnregisterTrigger(this);
+        base.Dispose();
     }
 }

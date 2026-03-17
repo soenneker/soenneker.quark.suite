@@ -4,85 +4,105 @@
 
 <div class="space-y-8 max-w-4xl">
     <div class="space-y-4">
-        <DemoSection Title="Single (default)" Description="Only one item open at a time." Code="@(@"<Accordion>
+        <DemoSection Title="Single (default)" Description="@($"Current open item: {_singleSelectedItem ?? "none"}")" Code="@(@"<Accordion Value=""_singleSelectedItem"" ValueChanged=""HandleSingleAccordionValueChanged"">
     <AccordionItem Value=""item-1"">
         <AccordionTrigger>Is it accessible?</AccordionTrigger>
         <AccordionContent>Yes. Uses semantic button semantics with aria attributes.</AccordionContent>
     </AccordionItem>
 </Accordion>")">
-            <Accordion Class="w-full">
-                <AccordionItem Value="item-1">
-                    <AccordionTrigger>Is it accessible?</AccordionTrigger>
-                    <AccordionContent>
-                        <Paragraph Margin="Margin.Is0">
-                            Yes. Quark's Accordion uses semantic triggers with aria attributes and keyboard-focus styles.
-                        </Paragraph>
-                    </AccordionContent>
-                </AccordionItem>
-                <AccordionItem Value="item-2">
-                    <AccordionTrigger>Does it support custom styling?</AccordionTrigger>
-                    <AccordionContent>
-                        <Paragraph Margin="Margin.Is0">
-                            Yes. Add Tailwind utilities through <code>Class</code> on any accordion primitive.
-                        </Paragraph>
-                    </AccordionContent>
-                </AccordionItem>
-                <AccordionItem Value="item-3">
-                    <AccordionTrigger>Can I render complex content?</AccordionTrigger>
-                    <AccordionContent>
-                        <Div Class="space-y-2">
-                            <Paragraph Margin="Margin.Is0">You can place any Quark components inside accordion content.</Paragraph>
-                            <Button Size="ButtonSize.Sm">Example Action</Button>
-                        </Div>
-                    </AccordionContent>
-                </AccordionItem>
-            </Accordion>
+            <Div Class="space-y-3 w-full">
+                <Paragraph Class="text-sm text-muted-foreground" Margin="Margin.Is0">
+                    In single mode, clicking the open trigger does not close it unless <code>Collapsible</code> is enabled.
+                </Paragraph>
+                <Accordion Value="@_singleSelectedItem"
+                           ValueChanged="HandleSingleAccordionValueChanged"
+                           Collapsible="true"
+                           Class="w-full">
+                    <AccordionItem Value="item-1">
+                        <AccordionTrigger>Is it accessible?</AccordionTrigger>
+                        <AccordionContent>
+                            <Paragraph Margin="Margin.Is0">
+                                Yes. Quark's Accordion uses semantic triggers with aria attributes and keyboard-focus styles.
+                            </Paragraph>
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem Value="item-2">
+                        <AccordionTrigger>Does it support custom styling?</AccordionTrigger>
+                        <AccordionContent>
+                            <Paragraph Margin="Margin.Is0">
+                                Yes. Add Tailwind utilities through <code>Class</code> on any accordion primitive.
+                            </Paragraph>
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem Value="item-3">
+                        <AccordionTrigger>Can I render complex content?</AccordionTrigger>
+                        <AccordionContent>
+                            <Div Class="space-y-2">
+                                <Paragraph Margin="Margin.Is0">You can place any Quark components inside accordion content.</Paragraph>
+                                <Button Size="ButtonSize.Sm">Example Action</Button>
+                            </Div>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+            </Div>
         </DemoSection>
 
-        <DemoSection Title="Multiple mode" Description="Allow many items open at once via Multiple=true." Code="@(@"<Accordion Multiple=""true"">
+        <DemoSection Title="Collapsible single" Description="@($"Current open item: {_collapsibleSelectedItem ?? "none"}")" Code="@(@"<Accordion Value=""_collapsibleSelectedItem"" ValueChanged=""HandleCollapsibleAccordionValueChanged"" Collapsible=""true"">
+    <AccordionItem Value=""item-1"">...</AccordionItem>
+</Accordion>")">
+            <Div Class="space-y-3 w-full">
+                <Div Class="flex flex-wrap gap-2">
+                    <Button Size="ButtonSize.Sm" OnClick="OpenCollapsibleFirst">Open first</Button>
+                    <Button Size="ButtonSize.Sm" Variant="ButtonVariant.Secondary" OnClick="OpenCollapsibleSecond">Open second</Button>
+                    <Button Size="ButtonSize.Sm" Variant="ButtonVariant.Outline" OnClick="ClearCollapsible">Close all</Button>
+                </Div>
+                <Accordion Value="@_collapsibleSelectedItem" ValueChanged="HandleCollapsibleAccordionValueChanged" Collapsible="true" Class="w-full">
+                    <AccordionItem Value="collapsible-1">
+                        <AccordionTrigger>Can the open item close itself?</AccordionTrigger>
+                        <AccordionContent>
+                            <Paragraph Margin="Margin.Is0">
+                                Yes. In single mode with <code>Collapsible=true</code>, clicking the open trigger collapses the section.
+                            </Paragraph>
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem Value="collapsible-2">
+                        <AccordionTrigger>Can the parent control it too?</AccordionTrigger>
+                        <AccordionContent>
+                            <Paragraph Margin="Margin.Is0">
+                                Yes. The buttons above update the same value used by the accordion.
+                            </Paragraph>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+            </Div>
+        </DemoSection>
+
+        <DemoSection Title="Multiple mode" Description="@($"Open items: {FormatOpenItems(_multipleSelectedItems)}")" Code="@(@"<Accordion Multiple=""true"" Values=""_multipleSelectedItems"" ValuesChanged=""HandleMultipleAccordionValuesChanged"">
     <AccordionItem Value=""a"">...</AccordionItem>
     <AccordionItem Value=""b"">...</AccordionItem>
 </Accordion>")">
-            <Accordion Multiple="true" Class="w-full">
-                <AccordionItem Value="multi-a">
-                    <AccordionTrigger>First section</AccordionTrigger>
-                    <AccordionContent>
-                        <Paragraph Margin="Margin.Is0">This accordion allows multiple expanded items.</Paragraph>
-                    </AccordionContent>
-                </AccordionItem>
-                <AccordionItem Value="multi-b">
-                    <AccordionTrigger>Second section</AccordionTrigger>
-                    <AccordionContent>
-                        <Paragraph Margin="Margin.Is0">Open this without closing the first one.</Paragraph>
-                    </AccordionContent>
-                </AccordionItem>
-                <AccordionItem Value="multi-c" Disabled="true">
-                    <AccordionTrigger>Disabled item</AccordionTrigger>
-                    <AccordionContent>
-                        <Paragraph Margin="Margin.Is0">Disabled items are non-interactive.</Paragraph>
-                    </AccordionContent>
-                </AccordionItem>
-            </Accordion>
-        </DemoSection>
-
-        <DemoSection Title="Controlled value" Description="@($"Current open item: {_selectedItem ?? "none"}")" Code="@(@"<Accordion Value=""_selectedItem"" ValueChanged=""HandleAccordionValueChanged"">...</Accordion>")">
-            <Div Class="space-y-3">
+            <Div Class="space-y-3 w-full">
                 <Div Class="flex flex-wrap gap-2">
-                    <Button Size="ButtonSize.Sm" OnClick="OpenFirst">Open first</Button>
-                    <Button Size="ButtonSize.Sm" Variant="ButtonVariant.Secondary" OnClick="OpenSecond">Open second</Button>
-                    <Button Size="ButtonSize.Sm" Variant="ButtonVariant.Outline" OnClick="CloseAll">Close all</Button>
+                    <Button Size="ButtonSize.Sm" OnClick="OpenAllMultiple">Open first two</Button>
+                    <Button Size="ButtonSize.Sm" Variant="ButtonVariant.Outline" OnClick="ClearMultiple">Close all</Button>
                 </Div>
-                <Accordion Value="@_selectedItem" ValueChanged="HandleAccordionValueChanged" Class="w-full">
-                    <AccordionItem Value="control-1">
-                        <AccordionTrigger>Controlled item one</AccordionTrigger>
+                <Accordion Multiple="true" Values="@_multipleSelectedItems" ValuesChanged="HandleMultipleAccordionValuesChanged" Class="w-full">
+                    <AccordionItem Value="multi-a">
+                        <AccordionTrigger>First section</AccordionTrigger>
                         <AccordionContent>
-                            <Paragraph Margin="Margin.Is0">This section is controlled by external state.</Paragraph>
+                            <Paragraph Margin="Margin.Is0">This accordion allows multiple expanded items.</Paragraph>
                         </AccordionContent>
                     </AccordionItem>
-                    <AccordionItem Value="control-2">
-                        <AccordionTrigger>Controlled item two</AccordionTrigger>
+                    <AccordionItem Value="multi-b">
+                        <AccordionTrigger>Second section</AccordionTrigger>
                         <AccordionContent>
-                            <Paragraph Margin="Margin.Is0">Use buttons above or click this trigger directly.</Paragraph>
+                            <Paragraph Margin="Margin.Is0">Open this without closing the first one.</Paragraph>
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem Value="multi-c" Disabled="true">
+                        <AccordionTrigger>Disabled item</AccordionTrigger>
+                        <AccordionContent>
+                            <Paragraph Margin="Margin.Is0">Disabled items are non-interactive.</Paragraph>
                         </AccordionContent>
                     </AccordionItem>
                 </Accordion>
@@ -92,25 +112,58 @@
 </div>
 
 @code {
-    private string? _selectedItem = "control-1";
+    private string? _singleSelectedItem = "item-1";
+    private string? _collapsibleSelectedItem = "collapsible-1";
+    private IReadOnlyCollection<string> _multipleSelectedItems = ["multi-a"];
 
-    private Task HandleAccordionValueChanged(string? value)
+
+    private Task HandleSingleAccordionValueChanged(string? value)
     {
-        _selectedItem = value;
+        _singleSelectedItem = value;
         StateHasChanged();
         return Task.CompletedTask;
     }
 
-    private Task SetSelected(string? value)
+    private Task HandleCollapsibleAccordionValueChanged(string? value)
     {
-        _selectedItem = value;
+        _collapsibleSelectedItem = value;
         StateHasChanged();
         return Task.CompletedTask;
     }
 
-    private Task OpenFirst(MouseEventArgs args) => SetSelected("control-1");
+    private Task HandleMultipleAccordionValuesChanged(IReadOnlyCollection<string> values)
+    {
+        _multipleSelectedItems = values;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
 
-    private Task OpenSecond(MouseEventArgs args) => SetSelected("control-2");
+    private Task SetCollapsibleSelected(string? value)
+    {
+        _collapsibleSelectedItem = value;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
 
-    private Task CloseAll(MouseEventArgs args) => SetSelected(null);
+    private Task SetMultipleSelected(IReadOnlyCollection<string> values)
+    {
+        _multipleSelectedItems = values;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private static string FormatOpenItems(IReadOnlyCollection<string> values)
+    {
+        return values.Count == 0 ? "none" : string.Join(", ", values);
+    }
+
+    private Task OpenCollapsibleFirst(MouseEventArgs args) => SetCollapsibleSelected("collapsible-1");
+
+    private Task OpenCollapsibleSecond(MouseEventArgs args) => SetCollapsibleSelected("collapsible-2");
+
+    private Task ClearCollapsible(MouseEventArgs args) => SetCollapsibleSelected(null);
+
+    private Task OpenAllMultiple(MouseEventArgs args) => SetMultipleSelected(["multi-a", "multi-b"]);
+
+    private Task ClearMultiple(MouseEventArgs args) => SetMultipleSelected([]);
 }

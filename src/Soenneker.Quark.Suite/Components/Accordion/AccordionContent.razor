@@ -3,9 +3,12 @@
 @implements IAccordionContent
 
 <div @attributes="BuildAttributes()">
-    <div @attributes="BuildInnerAttributes()">
-        @ChildContent
-    </div>
+    @if (IsOpen)
+    {
+        <div @attributes="BuildInnerAttributes()">
+            @ChildContent
+        </div>
+    }
 </div>
 
 @code {
@@ -20,6 +23,7 @@
 
         attributes["data-slot"] = "accordion-content";
         attributes["data-state"] = IsOpen ? "open" : "closed";
+        attributes["role"] = "region";
         attributes["aria-hidden"] = IsOpen ? "false" : "true";
 
         if (ParentAccordionItem is not null)
@@ -30,9 +34,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-accordion-content");
-            AppendClass(ref cls, "data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm grid transition-all duration-200 ease-in-out");
-            AppendClass(ref cls, IsOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0");
+            AppendClass(ref cls, "q-accordion-content overflow-hidden text-sm");
         });
     }
 
@@ -42,7 +44,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "pt-0 pb-4 min-h-0");
+            AppendClass(ref cls, "pt-0 pb-4");
         });
 
         return attributes;

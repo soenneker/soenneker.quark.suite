@@ -1,13 +1,14 @@
-﻿@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.ToggleElement
 @implements Soenneker.Quark.IValidationInput
 @implements ISwitch
+@implements IDisposable
 <div @attributes="BuildWrapperAttributes()">
     <label class="inline-flex cursor-pointer items-center gap-2">
         <span class="group/switch relative inline-flex shrink-0">
-            <input id="@Id" type="checkbox" checked="@Checked" @onclick="HandleClick" @onchange="HandleChange" @attributes="BuildInputAttributes()" />
+            <input id="@ControlId" type="checkbox" checked="@Checked" @onclick="HandleClick" @onchange="HandleChange" @attributes="BuildInputAttributes()" />
             <span @attributes="BuildTrackAttributes()">
                 <span @attributes="BuildThumbAttributes()"></span>
             </span>
@@ -38,7 +39,14 @@
     [CascadingParameter(Name = nameof(ParentValidation))]
     public Validation? ParentValidation { get; set; }
 
+    [CascadingParameter]
+    private FieldContext? FieldContext { get; set; }
+
+    private FieldContext? _subscribedFieldContext;
+
     public object? ValidationValue => Checked;
+
+    private string ControlId => FieldContext?.ControlId ?? Id!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -48,9 +56,36 @@
                 await ParentValidation.InitializeInputExpression(CheckedExpression);
 
             await ParentValidation.InitializeInput(this);
+            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
 
         await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (!ReferenceEquals(_subscribedFieldContext, FieldContext))
+        {
+            if (_subscribedFieldContext is not null)
+                _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
+
+            _subscribedFieldContext = FieldContext;
+
+            if (_subscribedFieldContext is not null)
+                _subscribedFieldContext.StateChanged += OnFieldContextStateChanged;
+        }
+    }
+
+    private async void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
+    {
+        await RefreshOffThread();
+    }
+
+    private async void OnFieldContextStateChanged()
+    {
+        await RefreshOffThread();
     }
 
     private bool IsSmSize()
@@ -70,8 +105,8 @@
             AppendClass(ref cls, "flex items-center gap-2");
         });
 
-        if (Id.HasContent())
-            attributes["id"] = Id;
+        if (ControlId.HasContent())
+            attributes["id"] = ControlId;
 
         if (Style.HasContent())
             attributes["style"] = Style;
@@ -109,7 +144,17 @@
         attributes["class"] = "sr-only peer";
         if (Disabled)
             attributes["disabled"] = true;
-        if (ParentValidation?.Status == ValidationStatus.Error)
+        if (FieldContext is not null)
+        {
+            var describedBy = FieldContext.BuildDescribedBy(attributes.TryGetValue("aria-describedby", out var existingDescribedBy)
+                ? existingDescribedBy?.ToString()
+                : null);
+
+            if (!string.IsNullOrWhiteSpace(describedBy))
+                attributes["aria-describedby"] = describedBy;
+        }
+
+        if (ParentValidation?.Status == ValidationStatus.Error || FieldContext?.IsInvalid == true)
             attributes["aria-invalid"] = "true";
         return attributes;
     }
@@ -178,5 +223,20 @@
         hc.Add(Value);
         hc.Add(Label);
         AddIf(ref hc, Size);
+        hc.Add(FieldContext?.ControlId);
+        hc.Add(FieldContext?.DescriptionId);
+        hc.Add(FieldContext?.ErrorId);
+        hc.Add(FieldContext?.IsInvalid);
+    }
+
+    public override void Dispose()
+    {
+        if (_subscribedFieldContext is not null)
+            _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
+
+        if (ParentValidation is not null)
+            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+
+        base.Dispose();
     }
 }

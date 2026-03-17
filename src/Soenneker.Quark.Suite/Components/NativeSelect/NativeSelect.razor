@@ -3,6 +3,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 @implements INativeSelect
+@implements IDisposable
 
 <div class="group/native-select relative w-full has-[select:disabled]:opacity-50" data-slot="native-select-wrapper">
     <select value="@Value" @onchange="HandleChange" @attributes="BuildAttributes()">
@@ -38,6 +39,32 @@
     [Parameter]
     public NativeSelectSize Size { get; set; } = NativeSelectSize.Default;
 
+    [CascadingParameter]
+    private FieldContext? FieldContext { get; set; }
+
+    private FieldContext? _subscribedFieldContext;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (!ReferenceEquals(_subscribedFieldContext, FieldContext))
+        {
+            if (_subscribedFieldContext is not null)
+                _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
+
+            _subscribedFieldContext = FieldContext;
+
+            if (_subscribedFieldContext is not null)
+                _subscribedFieldContext.StateChanged += OnFieldContextStateChanged;
+        }
+    }
+
+    private async void OnFieldContextStateChanged()
+    {
+        await RefreshOffThread();
+    }
+
     private async Task HandleChange(ChangeEventArgs e)
     {
         var next = e.Value?.ToString();
@@ -57,11 +84,27 @@
         attributes["data-slot"] = "native-select";
         attributes["data-size"] = Size == NativeSelectSize.Small ? "sm" : "default";
 
+        if (FieldContext is not null && !attributes.ContainsKey("id"))
+            attributes["id"] = FieldContext.ControlId;
+
         if (Disabled)
             attributes["disabled"] = true;
 
         if (Required)
             attributes["required"] = true;
+
+        if (FieldContext is not null)
+        {
+            var describedBy = FieldContext.BuildDescribedBy(attributes.TryGetValue("aria-describedby", out var existingDescribedBy)
+                ? existingDescribedBy?.ToString()
+                : null);
+
+            if (!string.IsNullOrWhiteSpace(describedBy))
+                attributes["aria-describedby"] = describedBy;
+        }
+
+        if (FieldContext?.IsInvalid == true)
+            attributes["aria-invalid"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -78,5 +121,17 @@
         hc.Add(Size);
         hc.Add(Disabled);
         hc.Add(Required);
+        hc.Add(FieldContext?.ControlId);
+        hc.Add(FieldContext?.DescriptionId);
+        hc.Add(FieldContext?.ErrorId);
+        hc.Add(FieldContext?.IsInvalid);
+    }
+
+    public override void Dispose()
+    {
+        if (_subscribedFieldContext is not null)
+            _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
+
+        base.Dispose();
     }
 }

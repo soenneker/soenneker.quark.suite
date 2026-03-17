@@ -1,6 +1,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 @implements IRadioGroup
+@implements IDisposable
 
 <CascadingValue Name="ParentRadioGroup" Value="@this" IsFixed="true">
     <div @attributes="BuildAttributes()"
@@ -14,6 +15,12 @@
 
 @code {
     private string? _name;
+    private readonly List<Radio> _radios = [];
+
+    [CascadingParameter]
+    private FieldContext? FieldContext { get; set; }
+
+    private FieldContext? _subscribedFieldContext;
 
     /// <summary>
     /// Callback when the selected value changes.
@@ -34,12 +41,33 @@
     /// </summary>
     public string EffectiveName => _name ??= Name ?? $"radiogroup_{Guid.NewGuid():N}";
 
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (!ReferenceEquals(_subscribedFieldContext, FieldContext))
+        {
+            if (_subscribedFieldContext is not null)
+                _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
+
+            _subscribedFieldContext = FieldContext;
+
+            if (_subscribedFieldContext is not null)
+                _subscribedFieldContext.StateChanged += OnFieldContextStateChanged;
+        }
+    }
+
     protected override void OnInitialized()
     {
         if (Name.HasContent())
             _name = Name;
         else
             _name = $"radiogroup_{Guid.NewGuid():N}";
+    }
+
+    private async void OnFieldContextStateChanged()
+    {
+        await RefreshOffThread();
     }
 
     /// <summary>
@@ -53,11 +81,80 @@
         await RefreshOffThread();
     }
 
+    internal void RegisterRadio(Radio radio)
+    {
+        if (!_radios.Contains(radio))
+            _radios.Add(radio);
+    }
+
+    internal void UnregisterRadio(Radio radio)
+    {
+        _radios.Remove(radio);
+    }
+
+    internal bool IsTabStop(Radio radio)
+    {
+        if (radio.Disabled)
+            return false;
+
+        var checkedRadio = _radios.FirstOrDefault(r => !r.Disabled && r.IsCheckedInGroup());
+        if (checkedRadio is not null)
+            return ReferenceEquals(checkedRadio, radio);
+
+        var firstEnabled = _radios.FirstOrDefault(r => !r.Disabled);
+        return ReferenceEquals(firstEnabled, radio);
+    }
+
+    internal void HandleKeyNavigation(Radio currentRadio, string key)
+    {
+        if (_radios.Count == 0)
+            return;
+
+        var enabledRadios = _radios.Where(r => !r.Disabled).ToList();
+        if (enabledRadios.Count == 0)
+            return;
+
+        var currentIndex = enabledRadios.FindIndex(r => ReferenceEquals(r, currentRadio));
+        if (currentIndex < 0)
+            return;
+
+        var nextIndex = key switch
+        {
+            "ArrowRight" or "ArrowDown" => (currentIndex + 1) % enabledRadios.Count,
+            "ArrowLeft" or "ArrowUp" => (currentIndex - 1 + enabledRadios.Count) % enabledRadios.Count,
+            "Home" => 0,
+            "End" => enabledRadios.Count - 1,
+            _ => -1
+        };
+
+        if (nextIndex < 0)
+            return;
+
+        var target = enabledRadios[nextIndex];
+        _ = target.SelectFromGroupNavigationAsync();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "radio-group";
+
+        if (FieldContext is not null && !attributes.ContainsKey("id"))
+            attributes["id"] = FieldContext.ControlId;
+
+        if (FieldContext is not null)
+        {
+            var describedBy = FieldContext.BuildDescribedBy(attributes.TryGetValue("aria-describedby", out var existingDescribedBy)
+                ? existingDescribedBy?.ToString()
+                : null);
+
+            if (!string.IsNullOrWhiteSpace(describedBy))
+                attributes["aria-describedby"] = describedBy;
+        }
+
+        if (FieldContext?.IsInvalid == true)
+            attributes["aria-invalid"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -75,5 +172,17 @@
         hc.Add(Disabled);
         hc.Add(Orientation);
         hc.Add(AriaLabel);
+        hc.Add(FieldContext?.ControlId);
+        hc.Add(FieldContext?.DescriptionId);
+        hc.Add(FieldContext?.ErrorId);
+        hc.Add(FieldContext?.IsInvalid);
+    }
+
+    public override void Dispose()
+    {
+        if (_subscribedFieldContext is not null)
+            _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
+
+        base.Dispose();
     }
 }

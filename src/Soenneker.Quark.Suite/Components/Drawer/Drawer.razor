@@ -1,10 +1,12 @@
-﻿@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.OverlayElement
 
 <CascadingValue Name="ParentDrawer" Value="@this">
-    @ChildContent
+    <CascadingValue Value="_context" IsFixed="false">
+        @ChildContent
+    </CascadingValue>
 </CascadingValue>
 
 @code {
@@ -13,6 +15,8 @@
     /// </summary>
     [Parameter]
     public EventCallback OnBackdropClick { get; set; }
+
+    private readonly OverlayLabelContext _context = new("drawer");
 
     /// <summary>
     /// Shows the drawer.

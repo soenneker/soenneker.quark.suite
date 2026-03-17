@@ -1,7 +1,11 @@
 @namespace Soenneker.Quark
-@inherits Soenneker.Quark.Element
+@inherits Soenneker.Quark.InteractiveElement
 
-<div @onclick="HandleClick" @attributes="BuildAttributes()">
+<div @onclick="HandleClick"
+     @onkeydown="HandleKeyDown"
+     @onkeydown:preventDefault="_preventDefault"
+     @ref="_elementRef"
+     @attributes="BuildAttributes()">
     @ChildContent
 </div>
 
@@ -9,10 +13,34 @@
     [CascadingParameter(Name = "ParentDrawer")]
     private Drawer? ParentDrawer { get; set; }
 
+    [CascadingParameter]
+    private OverlayLabelContext? Context { get; set; }
+
+    private ElementReference _elementRef;
+    private bool _preventDefault;
+
     protected override async Task HandleClick(MouseEventArgs e)
     {
-        await (ParentDrawer?.Show() ?? Task.CompletedTask);
+        if (ParentDrawer is not null)
+        {
+            ParentDrawer.SetRestoreFocusTarget(_elementRef);
+            await ParentDrawer.Show();
+        }
+
         await base.HandleClick(e);
+    }
+
+    protected override async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        _preventDefault = e.Key is "Enter" or " ";
+
+        if (_preventDefault && ParentDrawer is not null)
+        {
+            ParentDrawer.SetRestoreFocusTarget(_elementRef);
+            await ParentDrawer.Show();
+        }
+
+        await base.HandleKeyDown(e);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -20,11 +48,25 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "drawer-trigger";
+        attributes["role"] = "button";
+        attributes["tabindex"] = 0;
+        attributes["aria-haspopup"] = "dialog";
+        attributes["aria-expanded"] = (ParentDrawer?.Visible == true).ToString().ToLowerInvariant();
+
+        if (Context is not null)
+            attributes["aria-controls"] = Context.ContentId;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-drawer-trigger");
             AppendClass(ref cls, "inline-flex cursor-pointer");
         });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ParentDrawer?.Visible ?? false);
+        hc.Add(Context?.ContentId);
     }
 }

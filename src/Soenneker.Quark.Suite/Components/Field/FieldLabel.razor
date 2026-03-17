@@ -27,11 +27,16 @@
     [CascadingParameter(Name = "FieldHorizontal")]
     protected bool FieldHorizontal { get; set; }
 
+    [CascadingParameter]
+    private FieldContext? FieldContext { get; set; }
+
     protected virtual bool IsHorizontal => FieldHorizontal;
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "field-label";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -42,6 +47,8 @@
 
         if (For.HasContent())
             attributes["for"] = For!;
+        else if (FieldContext is not null)
+            attributes["for"] = FieldContext.ControlId;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -49,5 +56,6 @@
         hc.Add(For);
         hc.Add(RequiredIndicator);
         hc.Add(IsHorizontal);
+        hc.Add(FieldContext?.ControlId);
     }
 }

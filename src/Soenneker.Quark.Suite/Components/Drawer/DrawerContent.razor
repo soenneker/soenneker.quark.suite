@@ -1,13 +1,14 @@
-﻿@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.InteractiveElement
+@implements IDisposable
 
 @if (ParentDrawer?.Visible == true)
 {
     <div @onkeydown="HandleKeyDown" @onclick="HandleBackdropClick" @attributes="BuildContainerAttributes()">
         <div @attributes="BuildOverlayAttributes()"></div>
-        <div @onclick:stopPropagation="true" @attributes="BuildAttributes()">
+        <div @onclick:stopPropagation="true" @ref="_contentRef" @attributes="BuildAttributes()">
             <div class="bg-muted mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full group-data-[direction=bottom]/drawer-content:block"></div>
             @ChildContent
         </div>
@@ -18,8 +19,30 @@
     [CascadingParameter(Name = "ParentDrawer")]
     private Drawer? ParentDrawer { get; set; }
 
+    [CascadingParameter]
+    private OverlayLabelContext? Context { get; set; }
+
+    private OverlayLabelContext? _subscribedContext;
+    private ElementReference _contentRef;
+
     [Parameter]
     public string Direction { get; set; } = "bottom";
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (!ReferenceEquals(_subscribedContext, Context))
+        {
+            if (_subscribedContext is not null)
+                _subscribedContext.StateChanged -= OnContextStateChanged;
+
+            _subscribedContext = Context;
+
+            if (_subscribedContext is not null)
+                _subscribedContext.StateChanged += OnContextStateChanged;
+        }
+    }
 
     private string Side => Direction.ToLowerInvariant() switch
     {
@@ -28,6 +51,11 @@
         "right" => "right",
         _ => "bottom"
     };
+
+    private async void OnContextStateChanged()
+    {
+        await RefreshOffThread();
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -38,6 +66,16 @@
         attributes["data-direction"] = Side;
         attributes["role"] = "dialog";
         attributes["aria-modal"] = "true";
+        attributes["tabindex"] = -1;
+
+        if (Context is not null)
+            attributes["id"] = Context.ContentId;
+
+        if (Context?.HasTitle == true)
+            attributes["aria-labelledby"] = Context.TitleId;
+
+        if (Context?.HasDescription == true)
+            attributes["aria-describedby"] = Context.DescriptionId;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -52,6 +90,14 @@
             else
                 AppendClass(ref cls, "inset-y-0 left-0 w-3/4 border-r sm:max-w-sm data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left");
         });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (ParentDrawer?.Visible == true)
+            ParentDrawer.SetOverlayContentElement(_contentRef);
+
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     private Dictionary<string, object> BuildContainerAttributes()
@@ -99,5 +145,18 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Direction);
         hc.Add(ParentDrawer?.Visible ?? false);
+        hc.Add(Context?.HasTitle);
+        hc.Add(Context?.HasDescription);
+        hc.Add(Context?.ContentId);
+        hc.Add(Context?.TitleId);
+        hc.Add(Context?.DescriptionId);
+    }
+
+    public override void Dispose()
+    {
+        if (_subscribedContext is not null)
+            _subscribedContext.StateChanged -= OnContextStateChanged;
+
+        base.Dispose();
     }
 }

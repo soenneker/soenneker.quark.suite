@@ -1,17 +1,36 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TypographyElement
 @implements IModalTitle
+@implements IDisposable
 
 <div @attributes="BuildAttributes()">
     @ChildContent
 </div>
 
 @code {
+    [CascadingParameter]
+    private OverlayLabelContext? Context { get; set; }
+
+    private OverlayLabelContext? _registeredContext;
+    private IDisposable? _titleRegistration;
+
     /// <summary>
     /// Backward-compatibility parameter; shadcn title styles are fixed.
     /// </summary>
     [Parameter]
     public CssValue<ScaleBuilder>? Scale { get; set; } = Quark.Scale.Is5;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (ReferenceEquals(_registeredContext, Context))
+            return;
+
+        _titleRegistration?.Dispose();
+        _registeredContext = Context;
+        _titleRegistration = Context?.RegisterTitle();
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -22,10 +41,21 @@
             AppendClass(ref cls, "q-modal-title");
             AppendClass(ref cls, "text-lg leading-none font-semibold");
         });
+
+        if (!attributes.ContainsKey("id") && Context is not null)
+            attributes["id"] = Context.TitleId;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         AddIf(ref hc, Scale);
+        hc.Add(Context?.TitleId);
+    }
+
+    public override void Dispose()
+    {
+        _titleRegistration?.Dispose();
+        base.Dispose();
     }
 }

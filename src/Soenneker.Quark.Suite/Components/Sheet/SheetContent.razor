@@ -3,6 +3,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.InteractiveElement
 @implements ISheetContent
+@implements IDisposable
 
 @if (ParentSheet?.Visible == true)
 {
@@ -11,7 +12,7 @@
         {
             <div @attributes="BuildOverlayAttributes()"></div>
         }
-        <div @onclick:stopPropagation="true" @attributes="BuildAttributes()">
+        <div @onclick:stopPropagation="true" @ref="_contentRef" @attributes="BuildAttributes()">
             @ChildContent
             @if (ShowCloseButton)
             {
@@ -25,6 +26,12 @@
     [CascadingParameter(Name = nameof(ParentSheet))]
     public Sheet? ParentSheet { get; set; }
 
+    [CascadingParameter]
+    private OverlayLabelContext? Context { get; set; }
+
+    private OverlayLabelContext? _subscribedContext;
+    private ElementReference _contentRef;
+
     /// <summary>
     /// Gets or sets which side the sheet slides from ("top", "right", "bottom", "left").
     /// </summary>
@@ -36,6 +43,27 @@
     /// </summary>
     [Parameter]
     public bool ShowCloseButton { get; set; } = true;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (!ReferenceEquals(_subscribedContext, Context))
+        {
+            if (_subscribedContext is not null)
+                _subscribedContext.StateChanged -= OnContextStateChanged;
+
+            _subscribedContext = Context;
+
+            if (_subscribedContext is not null)
+                _subscribedContext.StateChanged += OnContextStateChanged;
+        }
+    }
+
+    private async void OnContextStateChanged()
+    {
+        await RefreshOffThread();
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -68,6 +96,16 @@
         attributes["data-side"] = side;
         attributes["role"] = "dialog";
         attributes["aria-modal"] = "true";
+        attributes["tabindex"] = -1;
+
+        if (Context is not null)
+            attributes["id"] = Context.ContentId;
+
+        if (Context?.HasTitle == true)
+            attributes["aria-labelledby"] = Context.TitleId;
+
+        if (Context?.HasDescription == true)
+            attributes["aria-describedby"] = Context.DescriptionId;
     }
 
     private Dictionary<string, object> BuildContainerAttributes()
@@ -85,6 +123,14 @@
         attributes["data-slot"] = "sheet";
 
         return attributes;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (ParentSheet?.Visible == true)
+            ParentSheet.SetOverlayContentElement(_contentRef);
+
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     private Dictionary<string, object> BuildOverlayAttributes()
@@ -123,5 +169,18 @@
         hc.Add(Side);
         hc.Add(ShowCloseButton);
         hc.Add(ParentSheet?.Visible ?? false);
+        hc.Add(Context?.HasTitle);
+        hc.Add(Context?.HasDescription);
+        hc.Add(Context?.ContentId);
+        hc.Add(Context?.TitleId);
+        hc.Add(Context?.DescriptionId);
+    }
+
+    public override void Dispose()
+    {
+        if (_subscribedContext is not null)
+            _subscribedContext.StateChanged -= OnContextStateChanged;
+
+        base.Dispose();
     }
 }

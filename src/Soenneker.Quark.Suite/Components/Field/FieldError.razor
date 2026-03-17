@@ -1,19 +1,52 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TypographyElement
+@implements IDisposable
 
 <div @attributes="BuildAttributes()" role="alert">
     @ChildContent
 </div>
 
 @code {
+    [CascadingParameter]
+    private FieldContext? FieldContext { get; set; }
+
+    private IDisposable? _registration;
+    private FieldContext? _registeredContext;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (!ReferenceEquals(_registeredContext, FieldContext))
+        {
+            _registration?.Dispose();
+            _registeredContext = FieldContext;
+            _registration = FieldContext?.RegisterError();
+        }
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "field-error";
+        if (FieldContext is not null && !attributes.ContainsKey("id"))
+            attributes["id"] = FieldContext.ErrorId;
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-field-error");
             AppendClass(ref cls, "text-sm font-normal text-destructive");
         });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(FieldContext?.ErrorId);
+    }
+
+    public override void Dispose()
+    {
+        _registration?.Dispose();
+        base.Dispose();
     }
 }

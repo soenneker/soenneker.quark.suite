@@ -4,18 +4,22 @@
 @inherits Soenneker.Quark.ToggleElement
 @implements Soenneker.Quark.IValidationInput
 @implements IRadio
+@implements IDisposable
 <div @attributes="BuildWrapperAttributes()">
     <label @attributes="BuildLabelAttributes()">
         <button
-            id="@Id"
+            id="@ControlId"
             type="button"
             role="radio"
             aria-checked="@EffectiveChecked.ToString().ToLowerInvariant()"
             aria-disabled="@EffectiveDisabled.ToString().ToLowerInvariant()"
             data-state="@(EffectiveChecked ? "checked" : "unchecked")"
             disabled="@EffectiveDisabled"
-            tabindex="@(EffectiveDisabled ? -1 : 0)"
+            tabindex="@TabStopIndex"
             @onclick="HandleClick"
+            @onkeydown="HandleKeyDown"
+            @onkeydown:preventDefault="_preventDefault"
+            @ref="_elementRef"
             @attributes="BuildIndicatorAttributes()">
             @if (EffectiveChecked)
             {
@@ -40,7 +44,14 @@
     public Validation? ParentValidation { get; set; }
 
     [CascadingParameter(Name = "ParentRadioGroup")]
-    public IRadioGroup? ParentRadioGroup { get; set; }
+    public RadioGroup? ParentRadioGroup { get; set; }
+
+    [CascadingParameter]
+    private FieldContext? FieldContext { get; set; }
+
+    private FieldContext? _subscribedFieldContext;
+    private ElementReference _elementRef;
+    private bool _preventDefault;
 
     /// <summary>
     /// When inside RadioGroup, reflects group value; otherwise uses Checked.
@@ -53,6 +64,10 @@
     /// When inside RadioGroup, true if group or this radio is disabled.
     /// </summary>
     private bool EffectiveDisabled => ParentRadioGroup?.Disabled == true || Disabled;
+
+    private string ControlId => ParentRadioGroup is null && FieldContext is not null ? FieldContext.ControlId : Id!;
+
+    private int TabStopIndex => EffectiveDisabled ? -1 : ParentRadioGroup?.IsTabStop(this) == false ? -1 : 0;
 
     /// <summary>
     /// Gets or sets the size of the radio.
@@ -75,6 +90,24 @@
     {
         if (Id.IsNullOrEmpty())
             Id = $"radio_{Guid.NewGuid():N}";
+
+        ParentRadioGroup?.RegisterRadio(this);
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (!ReferenceEquals(_subscribedFieldContext, FieldContext))
+        {
+            if (_subscribedFieldContext is not null)
+                _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
+
+            _subscribedFieldContext = FieldContext;
+
+            if (_subscribedFieldContext is not null)
+                _subscribedFieldContext.StateChanged += OnFieldContextStateChanged;
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -88,6 +121,11 @@
         }
 
         await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async void OnFieldContextStateChanged()
+    {
+        await RefreshOffThread();
     }
 
     private Dictionary<string, object> BuildWrapperAttributes()
@@ -153,6 +191,16 @@
         }
     }
 
+    protected override Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        _preventDefault = e.Key is "ArrowDown" or "ArrowUp" or "ArrowLeft" or "ArrowRight" or "Home" or "End";
+
+        if (!EffectiveDisabled && ParentRadioGroup is not null && _preventDefault)
+            ParentRadioGroup.HandleKeyNavigation(this, e.Key);
+
+        return base.HandleKeyDown(e);
+    }
+
     private const string _shadcnRadioItemBase =
         "border-input text-primary focus-visible:border-ring focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 aspect-square shrink-0 rounded-full border shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] relative flex items-center justify-center";
 
@@ -166,7 +214,7 @@
             if (EffectiveDisabled)
                 AppendClass(ref cls, "cursor-not-allowed opacity-50");
         });
-        attributes["for"] = Id!;
+        attributes["for"] = ControlId;
         return attributes;
     }
 
@@ -187,6 +235,20 @@
             if (validationClass != null)
                 AppendClass(ref cls, validationClass);
         });
+
+        if (ParentRadioGroup is null && FieldContext is not null)
+        {
+            var describedBy = FieldContext.BuildDescribedBy(attributes.TryGetValue("aria-describedby", out var existingDescribedBy)
+                ? existingDescribedBy?.ToString()
+                : null);
+
+            if (!string.IsNullOrWhiteSpace(describedBy))
+                attributes["aria-describedby"] = describedBy;
+        }
+
+        if (ParentValidation?.Status == ValidationStatus.Error || (ParentRadioGroup is null && FieldContext?.IsInvalid == true))
+            attributes["aria-invalid"] = "true";
+
         return attributes;
     }
 
@@ -211,5 +273,48 @@
         hc.Add(ParentRadioGroup?.Value);
         AddIf(ref hc, Size);
         hc.Add(Inline);
+        hc.Add(FieldContext?.ControlId);
+        hc.Add(FieldContext?.DescriptionId);
+        hc.Add(FieldContext?.ErrorId);
+        hc.Add(FieldContext?.IsInvalid);
+        hc.Add(TabStopIndex);
+    }
+
+    internal bool IsCheckedInGroup()
+    {
+        return EffectiveChecked;
+    }
+
+    internal async Task SelectFromGroupNavigationAsync()
+    {
+        if (EffectiveDisabled)
+            return;
+
+        await ParentRadioGroup!.SetValueAsync(Value);
+
+        await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = true });
+
+        if (ParentValidation is not null)
+        {
+            ParentValidation.MarkTouched();
+            await ParentValidation.NotifyInputChanged(true);
+        }
+
+        try
+        {
+            await _elementRef.FocusAsync();
+        }
+        catch
+        {
+        }
+    }
+
+    public override void Dispose()
+    {
+        if (_subscribedFieldContext is not null)
+            _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
+
+        ParentRadioGroup?.UnregisterRadio(this);
+        base.Dispose();
     }
 }

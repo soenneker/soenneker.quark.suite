@@ -3,6 +3,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.InteractiveElement
 @implements IAlertDialogContent
+@implements IDisposable
 
 @if (ParentAlertDialog?.Visible == true)
 {
@@ -11,7 +12,7 @@
         {
             <div @attributes="BuildOverlayAttributes()"></div>
         }
-        <div @onclick:stopPropagation="true" @attributes="BuildAttributes()">
+        <div @onclick:stopPropagation="true" @ref="_contentRef" @attributes="BuildAttributes()">
             @ChildContent
         </div>
     </div>
@@ -21,11 +22,38 @@
     [CascadingParameter(Name = nameof(ParentAlertDialog))]
     public AlertDialog? ParentAlertDialog { get; set; }
 
+    [CascadingParameter]
+    private OverlayLabelContext? Context { get; set; }
+
+    private OverlayLabelContext? _subscribedContext;
+    private ElementReference _contentRef;
+
     /// <summary>
     /// Gets or sets the size variant of the alert dialog content ("default" or "sm").
     /// </summary>
     [Parameter]
     public string Size { get; set; } = "default";
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (!ReferenceEquals(_subscribedContext, Context))
+        {
+            if (_subscribedContext is not null)
+                _subscribedContext.StateChanged -= OnContextStateChanged;
+
+            _subscribedContext = Context;
+
+            if (_subscribedContext is not null)
+                _subscribedContext.StateChanged += OnContextStateChanged;
+        }
+    }
+
+    private async void OnContextStateChanged()
+    {
+        await RefreshOffThread();
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -45,9 +73,19 @@
 
         attributes["role"] = "alertdialog";
         attributes["aria-modal"] = "true";
+        attributes["tabindex"] = -1;
         attributes["data-slot"] = "alert-dialog-content";
         attributes["data-size"] = normalizedSize;
         attributes["data-state"] = ParentAlertDialog?.Visible == true ? "open" : "closed";
+
+        if (Context is not null)
+            attributes["id"] = Context.ContentId;
+
+        if (Context?.HasTitle == true)
+            attributes["aria-labelledby"] = Context.TitleId;
+
+        if (Context?.HasDescription == true)
+            attributes["aria-describedby"] = Context.DescriptionId;
     }
 
     private Dictionary<string, object> BuildContainerAttributes()
@@ -65,6 +103,14 @@
         attributes["data-state"] = ParentAlertDialog?.Visible == true ? "open" : "closed";
 
         return attributes;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (ParentAlertDialog?.Visible == true)
+            ParentAlertDialog.SetOverlayContentElement(_contentRef);
+
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     private Dictionary<string, object> BuildOverlayAttributes()
@@ -102,5 +148,18 @@
     {
         hc.Add(Size);
         hc.Add(ParentAlertDialog?.Visible ?? false);
+        hc.Add(Context?.HasTitle);
+        hc.Add(Context?.HasDescription);
+        hc.Add(Context?.ContentId);
+        hc.Add(Context?.TitleId);
+        hc.Add(Context?.DescriptionId);
+    }
+
+    public override void Dispose()
+    {
+        if (_subscribedContext is not null)
+            _subscribedContext.StateChanged -= OnContextStateChanged;
+
+        base.Dispose();
     }
 }

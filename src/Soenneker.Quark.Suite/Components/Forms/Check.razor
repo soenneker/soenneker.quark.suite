@@ -1,4 +1,4 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.ToggleElement
 @implements Soenneker.Quark.IValidationInput
 @using Soenneker.Blazor.Extensions.EventCallback
@@ -6,7 +6,7 @@
 <div @attributes="BuildWrapperAttributes()">
     <label @attributes="BuildLabelAttributes()">
         <button
-            id="@Id"
+            id="@ControlId"
             type="button"
             role="checkbox"
             aria-checked="@Checked.ToString().ToLowerInvariant()"
@@ -38,6 +38,11 @@
 
 @code {
     public override string? Id { get; set; } = $"check-{Guid.NewGuid():N}";
+
+    [CascadingParameter]
+    private FieldContext? FieldContext { get; set; }
+
+    private FieldContext? _subscribedFieldContext;
 
     /// <summary>
     /// Gets or sets whether the check is in an indeterminate state.
@@ -89,6 +94,8 @@
     /// </summary>
     public object? ValidationValue => Checked;
 
+    private string ControlId => FieldContext?.ControlId ?? Id!;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && ParentValidation is not null)
@@ -103,7 +110,28 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (!ReferenceEquals(_subscribedFieldContext, FieldContext))
+        {
+            if (_subscribedFieldContext is not null)
+                _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
+
+            _subscribedFieldContext = FieldContext;
+
+            if (_subscribedFieldContext is not null)
+                _subscribedFieldContext.StateChanged += OnFieldContextStateChanged;
+        }
+    }
+
     private async void OnParentValidationStatusChanged(object? s, ValidationStatusChangedEventArgs e)
+    {
+        await RefreshOffThread();
+    }
+
+    private async void OnFieldContextStateChanged()
     {
         await RefreshOffThread();
     }
@@ -120,8 +148,8 @@
                 AppendClass(ref cls, "inline-flex");
         });
 
-        if (Id.HasContent())
-            attributes["id"] = $"{Id}-wrapper";
+        if (ControlId.HasContent())
+            attributes["id"] = $"{ControlId}-wrapper";
         if (Style.HasContent())
             attributes["style"] = Style;
         return attributes;
@@ -139,13 +167,14 @@
             else
                 AppendClass(ref cls, "cursor-pointer");
         });
-        attributes["for"] = Id!;
+        attributes["for"] = ControlId;
         return attributes;
     }
 
     public virtual Dictionary<string, object> BuildButtonAttributes()
     {
         var attributes = new Dictionary<string, object>(base.BuildAttributes());
+        attributes["id"] = ControlId;
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-check-indicator");
@@ -162,7 +191,17 @@
                 AppendClass(ref cls, validationClass);
         });
 
-        if (ParentValidation?.Status == ValidationStatus.Error)
+        if (FieldContext is not null)
+        {
+            var describedBy = FieldContext.BuildDescribedBy(attributes.TryGetValue("aria-describedby", out var existingDescribedBy)
+                ? existingDescribedBy?.ToString()
+                : null);
+
+            if (!string.IsNullOrWhiteSpace(describedBy))
+                attributes["aria-describedby"] = describedBy;
+        }
+
+        if (ParentValidation?.Status == ValidationStatus.Error || FieldContext?.IsInvalid == true)
             attributes["aria-invalid"] = "true";
         return attributes;
     }
@@ -211,6 +250,9 @@
 
     public override void Dispose()
     {
+        if (_subscribedFieldContext is not null)
+            _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
+
         base.Dispose();
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
@@ -228,5 +270,9 @@
         hc.Add(Inline);
         hc.Add(Reverse);
         hc.Add(Label);
+        hc.Add(FieldContext?.ControlId);
+        hc.Add(FieldContext?.DescriptionId);
+        hc.Add(FieldContext?.ErrorId);
+        hc.Add(FieldContext?.IsInvalid);
     }
 }
