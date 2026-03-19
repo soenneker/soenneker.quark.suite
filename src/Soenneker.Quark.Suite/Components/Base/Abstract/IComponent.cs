@@ -23,8 +23,8 @@ public interface IComponent : ICoreComponent
     CssValue<PositionBuilder>? Position { get; set; }
     CssValue<PositionOffsetBuilder>? PositionOffset { get; set; }
     CssValue<WidthBuilder>? Width { get; set; }
-    CssValue<WidthBuilder>? MinWidth { get; set; }
-    CssValue<WidthBuilder>? MaxWidth { get; set; }
+    CssValue<MinWidthBuilder>? MinWidth { get; set; }
+    CssValue<MaxWidthBuilder>? MaxWidth { get; set; }
     CssValue<HeightBuilder>? Height { get; set; }
     CssValue<HeightBuilder>? MinHeight { get; set; }
     CssValue<HeightBuilder>? MaxHeight { get; set; }

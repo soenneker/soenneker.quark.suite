@@ -11,7 +11,6 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <TailwindGeneratorBuildEnabled>true</TailwindGeneratorBuildEnabled>
         <Description>The entire suite of Quark elements, all in one library.</Description>
         <Version Condition="'$(BUILD_VERSION)' == ''">4.0.0</Version>
         <Version Condition="'$(BUILD_VERSION)' != ''">$(BUILD_VERSION)</Version>
@@ -37,6 +36,7 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>icon.png</PackageIcon>
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+        <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackGeneratedTailwindManifest</TargetsForTfmSpecificContentInPackage>
         <PackageReleaseNotes Condition="'$(PACKAGE_RELEASE_NOTES)' != ''">
             $(PACKAGE_RELEASE_NOTES)
         </PackageReleaseNotes>
@@ -48,6 +48,18 @@
         <None Include="..\..\icon.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 
+    <Target Name="PackGeneratedTailwindManifest">
+        <Error Condition="!Exists('$(MSBuildProjectDirectory)\tailwind\tw-inline.generated.txt')"
+               Text="Generated Tailwind manifest not found at '$(MSBuildProjectDirectory)\tailwind\tw-inline.generated.txt'. Build the Suite project before packing." />
+
+        <ItemGroup>
+            <TfmSpecificPackageFile Include="$(MSBuildProjectDirectory)\tailwind\tw-inline.generated.txt">
+                <PackagePath>tailwind\</PackagePath>
+                <BuildAction>None</BuildAction>
+            </TfmSpecificPackageFile>
+        </ItemGroup>
+    </Target>
+
     <ItemGroup>
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="4.0.444" />
         <PackageReference Include="Soenneker.Extensions.CancellationTokens" Version="4.0.16" />
@@ -55,9 +67,10 @@
         <PackageReference Include="Soenneker.Lucide.Icons" Version="4.0.54" />
         <PackageReference Include="Soenneker.Quark.Components.Core.Cancellable" Version="4.0.60" />
         <PackageReference Include="Soenneker.Quark.Gen.Lucide.Abstractions" Version="4.0.11" />
-        <PackageReference Include="Soenneker.Quark.Gen.Tailwind" Version="4.0.73">
+        <!-- Manifest runs when building the Suite, and the generated file is packed for NuGet consumers. -->
+        <PackageReference Include="Soenneker.Quark.Gen.Tailwind.Manifest" Version="4.0.6">
             <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Soenneker.Utils.CancellationScopes" Version="4.0.36" />
         <PackageReference Include="Soenneker.Quark.Enums.BoxShadows" Version="4.0.42" />

@@ -60,10 +60,10 @@ public abstract class Component : RenderComponentBase, IComponent
     public CssValue<WidthBuilder>? Width { get; set; }
 
     [Parameter]
-    public CssValue<WidthBuilder>? MinWidth { get; set; }
+    public CssValue<MinWidthBuilder>? MinWidth { get; set; }
 
     [Parameter]
-    public CssValue<WidthBuilder>? MaxWidth { get; set; }
+    public CssValue<MaxWidthBuilder>? MaxWidth { get; set; }
 
     [Parameter]
     public CssValue<HeightBuilder>? Height { get; set; }

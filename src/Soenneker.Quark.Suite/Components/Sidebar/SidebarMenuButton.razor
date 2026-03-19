@@ -1,15 +1,30 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using Microsoft.AspNetCore.Components.Routing
 
-@if (To.HasContent())
+@if (ShouldRenderNavLink)
 {
-    <Anchor To="@To" Target="@Target" @attributes="BuildAttributes()">
+    <NavLink href="@To"
+             Match="@Match"
+             ActiveClass="@ActiveClass"
+             @onclick="HandleActivate"
+             @attributes="BuildAttributes()">
+        @ChildContent
+    </NavLink>
+}
+else if (To.HasContent())
+{
+    <Anchor To="@To"
+            Target="@Target"
+            @onclick="HandleActivate"
+            @attributes="BuildAttributes()">
         @ChildContent
     </Anchor>
 }
 else
 {
-    <button @onclick="HandleClick" @attributes="BuildAttributes()">
+    <button @onclick="HandleActivate"
+            @attributes="BuildAttributes()">
         @ChildContent
     </button>
 }
@@ -25,6 +40,9 @@ else
     public bool Active { get; set; }
 
     [Parameter]
+    public bool Open { get; set; }
+
+    [Parameter]
     public string? To { get; set; }
 
     [Parameter]
@@ -32,6 +50,23 @@ else
 
     [Parameter]
     public string? Tooltip { get; set; }
+
+    [Parameter]
+    public NavLinkMatch Match { get; set; }
+
+    [CascadingParameter(Name = "SidebarProvider")]
+    public SidebarProvider? SidebarProvider { get; set; }
+
+    [CascadingParameter(Name = "SidebarContextState")]
+    public SidebarContextState? State { get; set; }
+
+    private const string ActiveClass = "bg-sidebar-accent text-sidebar-accent-foreground font-medium";
+
+    private bool ShouldRenderNavLink =>
+        To.HasContent() &&
+        Target is null &&
+        !To!.StartsWith('#') &&
+        !Uri.TryCreate(To, UriKind.Absolute, out _);
 
     private static string GetVariantClass(SidebarMenuButtonVariant variant)
     {
@@ -73,6 +108,8 @@ else
         attributes["data-sidebar"] = "menu-button";
         attributes["data-size"] = GetDataSize(Size);
         attributes["data-active"] = Active ? "true" : "false";
+        attributes["data-state"] = Open ? "open" : "closed";
+
         if (Tooltip.HasContent())
             attributes["title"] = Tooltip!;
 
@@ -88,13 +125,24 @@ else
         });
     }
 
+    private async Task HandleActivate(MouseEventArgs args)
+    {
+        if (To.HasContent() && State?.IsMobile == true && SidebarProvider is not null)
+            await SidebarProvider.SetOpenMobile(false);
+
+        await base.HandleClick(args);
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         hc.Add(Variant);
         hc.Add(Size);
         hc.Add(Active);
+        hc.Add(Open);
         hc.Add(To);
         hc.Add(Target);
         hc.Add(Tooltip);
+        hc.Add(Match);
+        hc.Add(State?.IsMobile);
     }
 }

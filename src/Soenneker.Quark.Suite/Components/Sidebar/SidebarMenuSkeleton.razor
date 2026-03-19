@@ -1,0 +1,59 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    @if (ShowIcon)
+    {
+        <Skeleton Class="size-4 rounded-md" data-sidebar="menu-skeleton-icon" />
+    }
+    <Skeleton @attributes="BuildTextSkeletonAttributes()" />
+</div>
+
+@code {
+    [Parameter]
+    public bool ShowIcon { get; set; }
+
+    private int _width;
+
+    protected override void OnInitialized()
+    {
+        _width = Random.Shared.Next(50, 91);
+        base.OnInitialized();
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "sidebar-menu-skeleton";
+        attributes["data-sidebar"] = "menu-skeleton";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-sidebar-menu-skeleton");
+            AppendClass(ref cls, "flex h-8 items-center gap-2 rounded-md px-2");
+        });
+    }
+
+    private Dictionary<string, object> BuildTextSkeletonAttributes()
+    {
+        var attributes = new Dictionary<string, object>(4)
+        {
+            ["data-sidebar"] = "menu-skeleton-text"
+        };
+
+        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
+        {
+            AppendClass(ref cls, "h-4 max-w-(--skeleton-width) flex-1");
+            AppendStyleDecl(ref sty, $"--skeleton-width: {_width}%");
+        });
+
+        return attributes;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(ShowIcon);
+        hc.Add(_width);
+    }
+}

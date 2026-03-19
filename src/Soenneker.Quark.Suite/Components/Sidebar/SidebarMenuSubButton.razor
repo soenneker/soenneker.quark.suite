@@ -1,11 +1,27 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using Microsoft.AspNetCore.Components.Routing
 
-<Anchor To="@To" Target="@Target" @attributes="BuildAttributes()">
-    @ChildContent
-</Anchor>
+@if (ShouldRenderNavLink)
+{
+    <NavLink href="@To"
+             Match="@Match"
+             ActiveClass="@ActiveClass"
+             @onclick="HandleActivate"
+             @attributes="BuildAttributes()">
+        @ChildContent
+    </NavLink>
+}
+else
+{
+    <Anchor To="@To" Target="@Target" @onclick="HandleActivate" @attributes="BuildAttributes()">
+        @ChildContent
+    </Anchor>
+}
 
 @code {
+    private const string ActiveClass = "bg-sidebar-accent text-sidebar-accent-foreground";
+
     [Parameter]
     public string? To { get; set; }
 
@@ -17,6 +33,21 @@
 
     [Parameter]
     public bool Active { get; set; }
+
+    [Parameter]
+    public NavLinkMatch Match { get; set; }
+
+    [CascadingParameter(Name = "SidebarProvider")]
+    public SidebarProvider? SidebarProvider { get; set; }
+
+    [CascadingParameter(Name = "SidebarContextState")]
+    public SidebarContextState? State { get; set; }
+
+    private bool ShouldRenderNavLink =>
+        To.HasContent() &&
+        Target is null &&
+        !To!.StartsWith('#') &&
+        !Uri.TryCreate(To, UriKind.Absolute, out _);
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -37,11 +68,21 @@
         });
     }
 
+    private async Task HandleActivate(MouseEventArgs args)
+    {
+        if (To.HasContent() && State?.IsMobile == true && SidebarProvider is not null)
+            await SidebarProvider.SetOpenMobile(false);
+
+        await base.HandleClick(args);
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         hc.Add(To);
         hc.Add(Target);
         hc.Add(Size);
         hc.Add(Active);
+        hc.Add(Match);
+        hc.Add(State?.IsMobile);
     }
 }

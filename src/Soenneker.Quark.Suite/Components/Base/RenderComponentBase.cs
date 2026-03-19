@@ -306,6 +306,52 @@ public abstract class RenderComponentBase : CoreComponent
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected static void AddCss(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<MaxWidthBuilder>? v, ReadOnlySpan<char> propertyName)
+    {
+        if (v is not { IsEmpty: false } vv)
+            return;
+
+        string s = vv.ToString();
+
+        if (s.Length == 0)
+            return;
+
+        if (!vv.IsCssStyle)
+        {
+            AppendClass(ref clsB, s);
+            return;
+        }
+
+        if (s.AsSpan().IndexOf(':') >= 0)
+            AppendStyleDecl(ref styB, s);
+        else
+            AppendStyleDecl(ref styB, propertyName, s);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected static void AddCss(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<MinWidthBuilder>? v, ReadOnlySpan<char> propertyName)
+    {
+        if (v is not { IsEmpty: false } vv)
+            return;
+
+        string s = vv.ToString();
+
+        if (s.Length == 0)
+            return;
+
+        if (!vv.IsCssStyle)
+        {
+            AppendClass(ref clsB, s);
+            return;
+        }
+
+        if (s.AsSpan().IndexOf(':') >= 0)
+            AppendStyleDecl(ref styB, s);
+        else
+            AppendStyleDecl(ref styB, propertyName, s);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static string EnsureClass(string? existing, string? toAdd)
     {
         if (toAdd.IsNullOrEmpty())

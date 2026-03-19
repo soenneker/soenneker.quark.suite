@@ -2,92 +2,538 @@
 
 <PageTitle>Sidebar - Quark Suite</PageTitle>
 
-<Div Class="space-y-8 max-w-6xl">
-    <Div Class="space-y-6">
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="shadcn-style sidebar" Description="Composed with SidebarProvider, Sidebar, groups, and menu primitives." Code="@SidebarCode">
-                <Div Class="h-[480px] overflow-hidden rounded-xl border border-border">
-                    <SidebarProvider Open="_open" OpenChanged="OnOpenChanged">
-                        <Sidebar Collapsible="SidebarCollapsible.Icon">
-                            <SidebarHeader>
-                                <Anchor To="#" Class="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-sidebar-accent">
-                                    <Span Class="size-2 rounded-full bg-primary"></Span>
-                                    <Span Class="truncate group-data-[collapsible=icon]:hidden">Acme App</Span>
-                                </Anchor>
-                            </SidebarHeader>
-                            <SidebarContent>
-                                <SidebarGroup>
-                                    <SidebarGroupLabel>Platform</SidebarGroupLabel>
-                                    <SidebarGroupContent>
-                                        <SidebarMenu>
-                                            <SidebarMenuItem><SidebarMenuButton To="#" Active="true"><span>Dashboard</span></SidebarMenuButton></SidebarMenuItem>
-                                            <SidebarMenuItem><SidebarMenuButton To="#"><span>Projects</span></SidebarMenuButton></SidebarMenuItem>
-                                            <SidebarMenuItem><SidebarMenuButton To="#"><span>Team</span></SidebarMenuButton></SidebarMenuItem>
-                                            <SidebarMenuItem><SidebarMenuButton To="#"><span>Settings</span></SidebarMenuButton></SidebarMenuItem>
-                                        </SidebarMenu>
-                                    </SidebarGroupContent>
-                                </SidebarGroup>
-                                <SidebarGroup>
-                                    <SidebarGroupLabel>Analytics</SidebarGroupLabel>
-                                    <SidebarGroupContent>
-                                        <SidebarMenu>
-                                            <SidebarMenuItem><SidebarMenuButton To="#"><span>Reports</span></SidebarMenuButton></SidebarMenuItem>
-                                            <SidebarMenuItem><SidebarMenuButton To="#"><span>Revenue</span></SidebarMenuButton></SidebarMenuItem>
-                                        </SidebarMenu>
-                                    </SidebarGroupContent>
-                                </SidebarGroup>
-                            </SidebarContent>
-                            <SidebarRail />
-                        </Sidebar>
-                        <SidebarInset>
-                            <Div Class="flex h-full flex-col">
-                                <Div Class="flex h-14 items-center border-b px-3">
-                                    <SidebarTrigger />
-                                    <Paragraph Class="ml-3 font-medium" Margin="Margin.Is0">Sidebar Demo</Paragraph>
-                                </Div>
-                                <Div Class="p-4">
-                                    <Paragraph Class="text-muted-foreground" Margin="Margin.Is0">
-                                        Use the trigger to collapse/expand. Group labels auto-hide in icon mode.
-                                    </Paragraph>
-                                </Div>
-                            </Div>
-                        </SidebarInset>
-                    </SidebarProvider>
-                </Div>
-            </DemoSection>
-        </Section>
-    </Div>
-</Div>
+<div class="mx-auto flex w-full max-w-7xl flex-col gap-10">
+    <section class="space-y-3">
+        <div class="space-y-2">
+            <h1 class="text-3xl font-semibold tracking-tight">Sidebar</h1>
+            <p class="max-w-3xl text-sm text-muted-foreground">
+                Rebuilt against the latest shadcn sidebar architecture with Blazor-first composition. The demos below cover controlled and uncontrolled state,
+                desktop collapse, separate mobile state, left and right placement, `sidebar` / `floating` / `inset` variants, `offcanvas` / `icon` / `none`
+                collapsible modes, nested menus, actions, badges, loading skeletons, and scrollable shells.
+            </p>
+        </div>
+        <div class="flex flex-wrap gap-2 text-xs">
+            <span class="rounded-full border border-border bg-background px-3 py-1 text-foreground">Controlled desktop state</span>
+            <span class="rounded-full border border-border bg-background px-3 py-1 text-foreground">Separate mobile open state</span>
+            <span class="rounded-full border border-border bg-background px-3 py-1 text-foreground">Icon-only collapse</span>
+            <span class="rounded-full border border-border bg-background px-3 py-1 text-foreground">Floating and inset variants</span>
+        </div>
+    </section>
+
+    <section class="space-y-4">
+        <div class="space-y-1">
+            <h2 class="text-xl font-semibold">Realistic App Sidebar</h2>
+            <p class="text-sm text-muted-foreground">
+                Full application shell with sticky header and footer, search, actions, badges, nested menus, and icon-collapse behavior.
+            </p>
+        </div>
+
+        <div class="overflow-hidden rounded-2xl border border-border bg-background shadow-sm">
+            <SidebarProvider Open="_appSidebarOpen" OpenChanged="OnAppSidebarOpenChanged" CookieKey="quark-sidebar-demo" Class="h-[760px]">
+                <Sidebar Collapsible="SidebarCollapsible.Icon">
+                    <SidebarHeader>
+                        <a href="/" class="flex items-center gap-2 rounded-lg border border-transparent px-2 py-1.5 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+                            <span class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                                <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 11.5 12 4l9 7.5" />
+                                    <path d="M5 10.5V20h14v-9.5" />
+                                </svg>
+                            </span>
+                            <div class="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                                <span class="truncate font-semibold">Acme Control</span>
+                                <span class="truncate text-xs text-sidebar-foreground/70">Enterprise workspace</span>
+                            </div>
+                        </a>
+                        <SidebarInput Placeholder="Search commands..." Type="search" />
+                    </SidebarHeader>
+
+                    <SidebarContent>
+                        <SidebarGroup>
+                            <SidebarGroupLabel>Platform</SidebarGroupLabel>
+                            <SidebarGroupAction title="Create workspace">
+                                <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 5v14" />
+                                    <path d="M5 12h14" />
+                                </svg>
+                            </SidebarGroupAction>
+                            <SidebarGroupContent>
+                                <SidebarMenu>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton To="/" Match="NavLinkMatch.All" Tooltip="Overview">
+                                            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M3 11.5 12 4l9 7.5" />
+                                                <path d="M5 10.5V20h14v-9.5" />
+                                            </svg>
+                                            <span>Overview</span>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton To="/components" Tooltip="Components">
+                                            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                                                <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                                                <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                                                <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                                            </svg>
+                                            <span>Components</span>
+                                        </SidebarMenuButton>
+                                        <SidebarMenuBadge>84</SidebarMenuBadge>
+                                    </SidebarMenuItem>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton Open="_workspaceOpen" OnClick="ToggleWorkspaceMenu" Tooltip="Workspace">
+                                            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M4 6h16" />
+                                                <path d="M4 12h10" />
+                                                <path d="M4 18h7" />
+                                            </svg>
+                                            <span>Workspace</span>
+                                            <svg class="ml-auto size-4 transition-transform duration-200 @( _workspaceOpen ? "rotate-90" : string.Empty )" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="m9 18 6-6-6-6" />
+                                            </svg>
+                                        </SidebarMenuButton>
+                                        <SidebarMenuAction ShowOnHover="true" title="New workflow">
+                                            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M12 5v14" />
+                                                <path d="M5 12h14" />
+                                            </svg>
+                                        </SidebarMenuAction>
+                                        @if (_workspaceOpen)
+                                        {
+                                            <SidebarMenuSub>
+                                                <SidebarMenuSubItem>
+                                                    <SidebarMenuSubButton To="/forms/fields">Automation Studio</SidebarMenuSubButton>
+                                                </SidebarMenuSubItem>
+                                                <SidebarMenuSubItem>
+                                                    <SidebarMenuSubButton To="/forms/input-demo">Agent Inbox</SidebarMenuSubButton>
+                                                </SidebarMenuSubItem>
+                                                <SidebarMenuSubItem>
+                                                    <SidebarMenuSubButton To="/navigation/sidebar" Active="true">Sidebar Revamp</SidebarMenuSubButton>
+                                                </SidebarMenuSubItem>
+                                            </SidebarMenuSub>
+                                        }
+                                    </SidebarMenuItem>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton To="/data/tables/basic" Tooltip="Analytics">
+                                            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M4 19h16" />
+                                                <path d="M7 16V8" />
+                                                <path d="M12 16V5" />
+                                                <path d="M17 16v-3" />
+                                            </svg>
+                                            <span>Analytics</span>
+                                        </SidebarMenuButton>
+                                        <SidebarMenuBadge>12</SidebarMenuBadge>
+                                    </SidebarMenuItem>
+                                </SidebarMenu>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+
+                        <SidebarSeparator />
+
+                        <SidebarGroup>
+                            <SidebarGroupLabel>Projects</SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <SidebarMenu>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton To="/surfaces/cards" Tooltip="Design system">
+                                            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M12 3 4 7v10l8 4 8-4V7l-8-4Z" />
+                                                <path d="m4 7 8 4 8-4" />
+                                                <path d="M12 11v10" />
+                                            </svg>
+                                            <span>Design System</span>
+                                        </SidebarMenuButton>
+                                        <SidebarMenuAction ShowOnHover="true" title="Share project">
+                                            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <circle cx="18" cy="5" r="3" />
+                                                <circle cx="6" cy="12" r="3" />
+                                                <circle cx="18" cy="19" r="3" />
+                                                <path d="m8.7 10.7 6.6-3.4" />
+                                                <path d="m8.7 13.3 6.6 3.4" />
+                                            </svg>
+                                        </SidebarMenuAction>
+                                    </SidebarMenuItem>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton To="/overlays/sheets" Tooltip="Release desk">
+                                            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="5" width="18" height="14" rx="2" />
+                                                <path d="M8 3v4" />
+                                                <path d="M16 3v4" />
+                                                <path d="M3 10h18" />
+                                            </svg>
+                                            <span>Release Desk</span>
+                                        </SidebarMenuButton>
+                                        <SidebarMenuBadge>3</SidebarMenuBadge>
+                                    </SidebarMenuItem>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton To="/data/treeview" Tooltip="Roadmap">
+                                            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M8 6h8" />
+                                                <path d="M8 12h10" />
+                                                <path d="M8 18h6" />
+                                                <path d="M4 6h.01" />
+                                                <path d="M4 12h.01" />
+                                                <path d="M4 18h.01" />
+                                            </svg>
+                                            <span>Roadmap</span>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                </SidebarMenu>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                    </SidebarContent>
+
+                    <SidebarFooter>
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton Variant="SidebarMenuButtonVariant.Outline" Tooltip="Jake Stevenson">
+                                    <span class="flex size-7 items-center justify-center rounded-lg bg-sidebar-accent text-xs font-semibold text-sidebar-accent-foreground">JS</span>
+                                    <div class="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                                        <span class="truncate font-medium">Jake Stevenson</span>
+                                        <span class="truncate text-xs text-sidebar-foreground/70">Product Engineering</span>
+                                    </div>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarFooter>
+
+                    <SidebarRail />
+                </Sidebar>
+
+                <SidebarInset>
+                    <header class="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+                        <SidebarTrigger />
+                        <div class="min-w-0">
+                            <p class="truncate text-sm font-medium">Sidebar rebuild</p>
+                            <p class="truncate text-xs text-muted-foreground">Tracked against latest shadcn composition and Blueprint translation patterns</p>
+                        </div>
+                        <div class="ml-auto hidden items-center gap-2 md:flex">
+                            <span class="rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground">Cmd/Ctrl + B</span>
+                            <button type="button" class="rounded-md border border-border px-3 py-2 text-sm transition-colors hover:bg-accent">Share</button>
+                            <button type="button" class="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground transition-colors hover:opacity-90">Deploy</button>
+                        </div>
+                    </header>
+
+                    <div class="flex-1 overflow-auto p-6">
+                        <div class="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
+                            <div class="space-y-4">
+                                <div class="rounded-xl border border-border bg-card p-6">
+                                    <div class="space-y-2">
+                                        <p class="text-sm font-medium">Release readiness</p>
+                                        <h3 class="text-2xl font-semibold tracking-tight">Sidebar parity is 92% complete</h3>
+                                        <p class="max-w-2xl text-sm text-muted-foreground">
+                                            Desktop icon collapse, separate mobile sheet state, data-attribute driven layout, route-aware menu buttons, and inset/floating
+                                            variants are all wired into Quark now.
+                                        </p>
+                                    </div>
+                                    <div class="mt-6 grid gap-3 sm:grid-cols-3">
+                                        <div class="rounded-lg border border-border bg-background p-4">
+                                            <p class="text-xs uppercase tracking-wide text-muted-foreground">Active workspaces</p>
+                                            <p class="mt-2 text-2xl font-semibold">18</p>
+                                        </div>
+                                        <div class="rounded-lg border border-border bg-background p-4">
+                                            <p class="text-xs uppercase tracking-wide text-muted-foreground">Queued reviews</p>
+                                            <p class="mt-2 text-2xl font-semibold">12</p>
+                                        </div>
+                                        <div class="rounded-lg border border-border bg-background p-4">
+                                            <p class="text-xs uppercase tracking-wide text-muted-foreground">Mobile sessions</p>
+                                            <p class="mt-2 text-2xl font-semibold">37%</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="rounded-xl border border-border bg-card p-6">
+                                    <h3 class="text-base font-semibold">Why this rebuild matters</h3>
+                                    <ul class="mt-4 space-y-3 text-sm text-muted-foreground">
+                                        <li class="flex gap-3">
+                                            <span class="mt-1 size-2 rounded-full bg-primary"></span>
+                                            The sidebar now behaves like shadcn’s canonical layout primitive instead of a static desktop column.
+                                        </li>
+                                        <li class="flex gap-3">
+                                            <span class="mt-1 size-2 rounded-full bg-primary"></span>
+                                            Consumers can drive desktop open state externally while mobile keeps its own independent open state.
+                                        </li>
+                                        <li class="flex gap-3">
+                                            <span class="mt-1 size-2 rounded-full bg-primary"></span>
+                                            Menu buttons and sub-buttons can render as real `NavLink`s, so active route styling works without bypassing the sidebar API.
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="rounded-xl border border-border bg-card p-6">
+                                    <h3 class="text-base font-semibold">Recent activity</h3>
+                                    <div class="mt-4 space-y-3">
+                                        <div class="rounded-lg border border-border bg-background p-4">
+                                            <p class="text-sm font-medium">Floating variant polished</p>
+                                            <p class="mt-1 text-sm text-muted-foreground">Rounded chrome, shadow, and icon-width math now match the reference layout.</p>
+                                        </div>
+                                        <div class="rounded-lg border border-border bg-background p-4">
+                                            <p class="text-sm font-medium">Mobile behavior separated</p>
+                                            <p class="mt-1 text-sm text-muted-foreground">Desktop collapse state no longer leaks into the mobile sheet.</p>
+                                        </div>
+                                        <div class="rounded-lg border border-border bg-background p-4">
+                                            <p class="text-sm font-medium">Demo shell rebuilt</p>
+                                            <p class="mt-1 text-sm text-muted-foreground">The showcase now exercises every sidebar primitive instead of only the happy path.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </SidebarInset>
+            </SidebarProvider>
+        </div>
+    </section>
+
+    <section class="grid gap-6 xl:grid-cols-2">
+        <div class="space-y-4">
+            <div class="space-y-1">
+                <h2 class="text-xl font-semibold">Floating Offcanvas Variant</h2>
+                <p class="text-sm text-muted-foreground">Shows the floating card treatment, offcanvas collapse mode, and loading skeleton rows.</p>
+            </div>
+
+            <div class="overflow-hidden rounded-2xl border border-border bg-background shadow-sm">
+                <SidebarProvider Open="_floatingSidebarOpen" OpenChanged="OnFloatingSidebarOpenChanged" CookieKey="quark-floating-sidebar" Class="h-[460px]">
+                    <Sidebar Variant="SidebarVariant.Floating" Collapsible="SidebarCollapsible.Offcanvas">
+                        <SidebarHeader>
+                            <a href="#" class="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-sidebar-accent">
+                                <span class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">Q</span>
+                                <div class="grid text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                                    <span class="font-semibold">Deployments</span>
+                                    <span class="text-xs text-sidebar-foreground/70">Live status feed</span>
+                                </div>
+                            </a>
+                        </SidebarHeader>
+                        <SidebarContent>
+                            <SidebarGroup>
+                                <SidebarGroupLabel>Loading</SidebarGroupLabel>
+                                <SidebarGroupContent>
+                                    <SidebarMenu>
+                                        <SidebarMenuItem><SidebarMenuSkeleton ShowIcon="true" /></SidebarMenuItem>
+                                        <SidebarMenuItem><SidebarMenuSkeleton ShowIcon="true" /></SidebarMenuItem>
+                                        <SidebarMenuItem><SidebarMenuSkeleton ShowIcon="true" /></SidebarMenuItem>
+                                    </SidebarMenu>
+                                </SidebarGroupContent>
+                            </SidebarGroup>
+                        </SidebarContent>
+                        <SidebarFooter>
+                            <SidebarMenu>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton Variant="SidebarMenuButtonVariant.Outline" To="/feedback/snackbars">
+                                        <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 9v4" />
+                                            <path d="M12 17h.01" />
+                                            <path d="m10.29 3.86-8.2 14.2A2 2 0 0 0 3.82 21h16.36a2 2 0 0 0 1.73-2.94l-8.2-14.2a2 2 0 0 0-3.42 0Z" />
+                                        </svg>
+                                        <span>Alert center</span>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            </SidebarMenu>
+                        </SidebarFooter>
+                        <SidebarRail />
+                    </Sidebar>
+
+                    <SidebarInset Class="bg-muted/40">
+                        <header class="flex h-14 items-center gap-3 border-b bg-background px-4">
+                            <SidebarTrigger />
+                            <p class="text-sm font-medium">Floating variant preview</p>
+                        </header>
+                        <div class="flex-1 p-6">
+                            <div class="rounded-xl border border-dashed border-border bg-background p-6 text-sm text-muted-foreground">
+                                The offcanvas variant collapses the whole floating shell instead of shrinking it to icon width.
+                            </div>
+                        </div>
+                    </SidebarInset>
+                </SidebarProvider>
+            </div>
+        </div>
+
+        <div class="space-y-4">
+            <div class="space-y-1">
+                <h2 class="text-xl font-semibold">Inset Right Utility Sidebar</h2>
+                <p class="text-sm text-muted-foreground">Right-side utility panel using the `none` collapsible mode so the panel remains always visible.</p>
+            </div>
+
+            <div class="overflow-hidden rounded-2xl border border-border bg-background shadow-sm">
+                <SidebarProvider Class="h-[460px]">
+                    <SidebarInset Class="bg-muted/30">
+                        <header class="flex h-14 items-center gap-3 border-b bg-background px-4">
+                            <SidebarTrigger />
+                            <p class="text-sm font-medium">Inset workspace</p>
+                        </header>
+                        <div class="flex-1 p-6">
+                            <div class="rounded-xl border border-border bg-card p-6">
+                                <p class="text-sm font-medium">Shared canvas</p>
+                                <p class="mt-2 text-sm text-muted-foreground">
+                                    Inset layouts keep the main surface framed while a utility sidebar can live on the right for inspection, filters, or support tools.
+                                </p>
+                            </div>
+                        </div>
+                    </SidebarInset>
+
+                    <Sidebar Side="SidebarSide.Right" Variant="SidebarVariant.Inset" Collapsible="SidebarCollapsible.None" Class="border-l border-sidebar-border">
+                        <SidebarHeader>
+                            <div class="space-y-1 px-2">
+                                <p class="text-sm font-semibold">Inspector</p>
+                                <p class="text-xs text-sidebar-foreground/70">Always-on utility rail</p>
+                            </div>
+                        </SidebarHeader>
+                        <SidebarContent>
+                            <SidebarGroup>
+                                <SidebarGroupLabel>Upcoming</SidebarGroupLabel>
+                                <SidebarGroupContent>
+                                    <SidebarMenu>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton>
+                                                <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                                                    <path d="M16 2v4" />
+                                                    <path d="M8 2v4" />
+                                                    <path d="M3 10h18" />
+                                                </svg>
+                                                <span>Team review</span>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton>
+                                                <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M12 20V10" />
+                                                    <path d="m18 20-6-6-6 6" />
+                                                    <path d="M12 4v2" />
+                                                </svg>
+                                                <span>Promote release</span>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    </SidebarMenu>
+                                </SidebarGroupContent>
+                            </SidebarGroup>
+                        </SidebarContent>
+                        <SidebarFooter>
+                            <SidebarMenu>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton Variant="SidebarMenuButtonVariant.Outline">
+                                        <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M5 12h14" />
+                                            <path d="M12 5v14" />
+                                        </svg>
+                                        <span>New note</span>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            </SidebarMenu>
+                        </SidebarFooter>
+                    </Sidebar>
+                </SidebarProvider>
+            </div>
+        </div>
+    </section>
+
+    <section class="space-y-4">
+        <div class="space-y-1">
+            <h2 class="text-xl font-semibold">Forced Mobile Preview</h2>
+            <p class="text-sm text-muted-foreground">
+                This provider is forced into mobile mode so the separate `OpenMobile` state and sheet-based rendering can be exercised without resizing the browser.
+            </p>
+        </div>
+
+        <div class="mx-auto w-full max-w-md overflow-hidden rounded-2xl border border-border bg-background shadow-sm">
+            <SidebarProvider IsMobile="true" OpenMobile="_mobileSidebarOpen" OpenMobileChanged="OnMobileSidebarOpenChanged" Class="h-[520px]">
+                <Sidebar Collapsible="SidebarCollapsible.Icon">
+                    <SidebarHeader>
+                        <a href="#" class="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-sidebar-accent">
+                            <span class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">M</span>
+                            <div class="grid text-sm leading-tight">
+                                <span class="font-semibold">Mobile navigation</span>
+                                <span class="text-xs text-sidebar-foreground/70">Independent sheet state</span>
+                            </div>
+                        </a>
+                    </SidebarHeader>
+                    <SidebarContent>
+                        <SidebarGroup>
+                            <SidebarGroupLabel>Navigate</SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <SidebarMenu>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton To="/" Match="NavLinkMatch.All">
+                                            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M3 11.5 12 4l9 7.5" />
+                                                <path d="M5 10.5V20h14v-9.5" />
+                                            </svg>
+                                            <span>Home</span>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton To="/navigation/sidebar" Active="true">
+                                            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="3" width="18" height="18" rx="2" />
+                                                <path d="M9 3v18" />
+                                            </svg>
+                                            <span>Sidebar demo</span>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton To="/overlays/sheets">
+                                            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M3 7h18" />
+                                                <path d="M6 12h12" />
+                                                <path d="M10 17h4" />
+                                            </svg>
+                                            <span>Sheets</span>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                </SidebarMenu>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                    </SidebarContent>
+                </Sidebar>
+
+                <SidebarInset>
+                    <header class="flex h-14 items-center gap-3 border-b bg-background px-4">
+                        <SidebarTrigger />
+                        <div class="min-w-0">
+                            <p class="truncate text-sm font-medium">Mobile sheet behavior</p>
+                            <p class="truncate text-xs text-muted-foreground">Trigger toggles `OpenMobile` while desktop open state remains untouched.</p>
+                        </div>
+                    </header>
+                    <div class="flex-1 p-6">
+                        <div class="rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground">
+                            Open this preview from the trigger, navigate with a menu item, and the sheet closes independently from the desktop collapsed state.
+                        </div>
+                    </div>
+                </SidebarInset>
+            </SidebarProvider>
+        </div>
+    </section>
+</div>
 
 @code {
-    private bool _open = true;
+    private bool _appSidebarOpen = true;
+    private bool _workspaceOpen = true;
+    private bool _floatingSidebarOpen = true;
+    private bool _mobileSidebarOpen;
 
-    private Task OnOpenChanged(bool open)
+    private Task OnAppSidebarOpenChanged(bool value)
     {
-        _open = open;
+        _appSidebarOpen = value;
         return Task.CompletedTask;
     }
 
-    private const string SidebarCode =
-@"<SidebarProvider Open=""_open"" OpenChanged=""OnOpenChanged"">
-    <Sidebar Collapsible=""SidebarCollapsible.Icon"">
-        <SidebarHeader>...</SidebarHeader>
-        <SidebarContent>
-            <SidebarGroup>
-                <SidebarGroupLabel>Platform</SidebarGroupLabel>
-                <SidebarGroupContent>
-                    <SidebarMenu>
-                        <SidebarMenuItem><SidebarMenuButton To=""#"" Active=""true"">Dashboard</SidebarMenuButton></SidebarMenuItem>
-                        <SidebarMenuItem><SidebarMenuButton To=""#"">Projects</SidebarMenuButton></SidebarMenuItem>
-                    </SidebarMenu>
-                </SidebarGroupContent>
-            </SidebarGroup>
-        </SidebarContent>
-        <SidebarRail />
-    </Sidebar>
-    <SidebarInset>
-        <SidebarTrigger />
-        <!-- page content -->
-    </SidebarInset>
-</SidebarProvider>";
+    private Task OnFloatingSidebarOpenChanged(bool value)
+    {
+        _floatingSidebarOpen = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnMobileSidebarOpenChanged(bool value)
+    {
+        _mobileSidebarOpen = value;
+        return Task.CompletedTask;
+    }
+
+    private Task ToggleWorkspaceMenu(MouseEventArgs _)
+    {
+        _workspaceOpen = !_workspaceOpen;
+        return Task.CompletedTask;
+    }
 }

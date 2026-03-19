@@ -1,177 +1,222 @@
 @inherits LayoutComponentBase
+@inject NavigationManager Navigation
 @inject Soenneker.Quark.Suite.Demo.Services.ThemeService ThemeService
 @implements IDisposable
 
 <PageTitle>Quark Suite Demo</PageTitle>
 
 <CascadingValue Value="ThemeService">
-<SidebarProvider Open="_sidebarOpen" OpenChanged="OnSidebarOpenChanged">
-    <Sidebar Collapsible="SidebarCollapsible.Icon">
-        <SidebarHeader>
-            <a href="/" class="flex min-w-0 items-center gap-2 rounded-md px-2 py-1.5 hover:bg-sidebar-accent">
-                <img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" alt="Quark Suite" class="size-8 shrink-0 rounded-lg" />
-                <span class="truncate group-data-[collapsible=icon]:hidden">Quark Suite</span>
-            </a>
-        </SidebarHeader>
+    <div class="min-h-svh bg-background text-foreground">
+        <header class="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+            <div class="mx-auto flex h-14 w-full max-w-[1400px] items-center gap-3 px-4 md:px-6">
+                <a href="/" class="flex size-8 items-center justify-center rounded-md hover:bg-accent" aria-label="Quark Suite">
+                    <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 7h10" />
+                        <path d="M4 12h16" />
+                        <path d="M4 17h12" />
+                    </svg>
+                </a>
 
-        <SidebarContent>
-            @if (_sidebarOpen)
-            {
-            <SidebarGroup>
-                <SidebarGroupContent>
-                    <SidebarMenu>
-                        <SidebarMenuItem><NavLink href="/surfaces/accordions" class="@NavLinkClass" ActiveClass="@ActiveClass">Accordions</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/overlays/alert-dialogs" class="@NavLinkClass" ActiveClass="@ActiveClass">Alert Dialogs</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/surfaces/alerts" class="@NavLinkClass" ActiveClass="@ActiveClass">Alerts</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/typography/anchors" class="@NavLinkClass" ActiveClass="@ActiveClass">Anchors (Links)</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/media/avatars" class="@NavLinkClass" ActiveClass="@ActiveClass">Avatars</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/typography/badges" class="@NavLinkClass" ActiveClass="@ActiveClass">Badges & Pills</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/typography/blockquotes" class="@NavLinkClass" ActiveClass="@ActiveClass">Blockquotes</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/navigation/breadcrumbs" class="@NavLinkClass" ActiveClass="@ActiveClass">Breadcrumbs</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/utils/br-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Br (Line Break)</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/surfaces/button-groups" class="@NavLinkClass" ActiveClass="@ActiveClass">Button Groups</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/surfaces/buttons" class="@NavLinkClass" ActiveClass="@ActiveClass">Buttons</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/surfaces/cards" class="@NavLinkClass" ActiveClass="@ActiveClass">Cards</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/forms/checks" class="@NavLinkClass" ActiveClass="@ActiveClass">Checkboxes</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/typography/codes" class="@NavLinkClass" ActiveClass="@ActiveClass">Code & Kbd</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/forms/code-editor" class="@NavLinkClass" ActiveClass="@ActiveClass">Code Editor</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/overlays/collapses" class="@NavLinkClass" ActiveClass="@ActiveClass">Collapses</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/layout/containers" class="@NavLinkClass" ActiveClass="@ActiveClass">Containers</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/overlays/context-menus" class="@NavLinkClass" ActiveClass="@ActiveClass">Context Menus</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/forms/dateinputs" class="@NavLinkClass" ActiveClass="@ActiveClass">Date Inputs</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/forms/datepickers" class="@NavLinkClass" ActiveClass="@ActiveClass">Date Pickers</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/utils/details-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Details & Summary</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/layout/divs" class="@NavLinkClass" ActiveClass="@ActiveClass">Divs</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/overlays/dropdowns" class="@NavLinkClass" ActiveClass="@ActiveClass">Dropdowns</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/surfaces/empties" class="@NavLinkClass" ActiveClass="@ActiveClass">Empties</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/forms/fields" class="@NavLinkClass" ActiveClass="@ActiveClass">Fields</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/forms/fieldsets-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Fieldsets</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/media/figures" class="@NavLinkClass" ActiveClass="@ActiveClass">Figures</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/typography/headings" class="@NavLinkClass" ActiveClass="@ActiveClass">Headings (H1-H6)</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/utils/hr-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Hr (Horizontal Rule)</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/media/iframes" class="@NavLinkClass" ActiveClass="@ActiveClass">IFrames</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/typography/icons" class="@NavLinkClass" ActiveClass="@ActiveClass">Icons</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/media/images" class="@NavLinkClass" ActiveClass="@ActiveClass">Images</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/forms/input-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Input</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/forms/input-groups" class="@NavLinkClass" ActiveClass="@ActiveClass">Input Groups</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/surfaces/items" class="@NavLinkClass" ActiveClass="@ActiveClass">Items</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/typography/labels" class="@NavLinkClass" ActiveClass="@ActiveClass">Labels</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/data/tables/loading-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Tables - Loading</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/media/lucide" class="@NavLinkClass" ActiveClass="@ActiveClass">Lucide Icons</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/divs/margin-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Margin Demo</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/forms/memoinputs" class="@NavLinkClass" ActiveClass="@ActiveClass">Memo Inputs</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/navigation/menubar" class="@NavLinkClass" ActiveClass="@ActiveClass">Menubar</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/data/tables/modern-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Tables - Modern</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/overlays/modals" class="@NavLinkClass" ActiveClass="@ActiveClass">Modals</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/forms/native-selects" class="@NavLinkClass" ActiveClass="@ActiveClass">Native Select</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/navigation/navigation-menu" class="@NavLinkClass" ActiveClass="@ActiveClass">Navigation Menu</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/forms/numericinput-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Numeric Input</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/data/orderedlists" class="@NavLinkClass" ActiveClass="@ActiveClass">Ordered Lists</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/divs/padding-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Padding Demo</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/data/tables/paged-result-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Tables - Paged</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/navigation/paginations" class="@NavLinkClass" ActiveClass="@ActiveClass">Paginations</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/typography/paragraph-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Paragraph Demo</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/layout/position-offset" class="@NavLinkClass" ActiveClass="@ActiveClass">Position Offset</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/feedback/progresses" class="@NavLinkClass" ActiveClass="@ActiveClass">Progress Bars</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/overlays/popovers" class="@NavLinkClass" ActiveClass="@ActiveClass">Popovers</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/forms/radios" class="@NavLinkClass" ActiveClass="@ActiveClass">Radios</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/data/tables/request-data-options-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Tables - Request Options</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/layout/columns" class="@NavLinkClass" ActiveClass="@ActiveClass">Rows & Columns</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/utils/section-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Section</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/forms/selects" class="@NavLinkClass" ActiveClass="@ActiveClass">Selects</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/utils/semantic-html" class="@NavLinkClass" ActiveClass="@ActiveClass">Semantic HTML</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/surfaces/separators" class="@NavLinkClass" ActiveClass="@ActiveClass">Separators</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/overlays/sheets" class="@NavLinkClass" ActiveClass="@ActiveClass">Sheets</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/navigation/sidebar" class="@NavLinkClass" ActiveClass="@ActiveClass">Sidebar</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/surfaces/skeletons" class="@NavLinkClass" ActiveClass="@ActiveClass">Skeletons</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/forms/sliders" class="@NavLinkClass" ActiveClass="@ActiveClass">Sliders</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/typography/small-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Small</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/feedback/scores" class="@NavLinkClass" ActiveClass="@ActiveClass">Scores</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/feedback/snackbars" class="@NavLinkClass" ActiveClass="@ActiveClass">Snackbars</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/typography/span-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Span</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/feedback/spinners" class="@NavLinkClass" ActiveClass="@ActiveClass">Spinners</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/typography/strong-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Strong</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/navigation/stepsdemo" class="@NavLinkClass" ActiveClass="@ActiveClass">Steps</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/forms/switches" class="@NavLinkClass" ActiveClass="@ActiveClass">Switches</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/navigation/tabs" class="@NavLinkClass" ActiveClass="@ActiveClass">Tabs</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/data/tables/bar-layout-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Tables - Bar Layout</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/data/tables/basic" class="@NavLinkClass" ActiveClass="@ActiveClass">Tables - Basic</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/data/tables/topbar" class="@NavLinkClass" ActiveClass="@ActiveClass">Tables - TopBar</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/forms/textareas" class="@NavLinkClass" ActiveClass="@ActiveClass">TextArea</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/typography/texts" class="@NavLinkClass" ActiveClass="@ActiveClass">Text & Paragraph</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/forms/textinputs" class="@NavLinkClass" ActiveClass="@ActiveClass">Text Inputs</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/typography/textstyle-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Text Styles</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/forms/toggles" class="@NavLinkClass" ActiveClass="@ActiveClass">Toggles</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/data/treeview" class="@NavLinkClass" ActiveClass="@ActiveClass">TreeView</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/typography/typography" class="@NavLinkClass" ActiveClass="@ActiveClass">Typography Utilities</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/data/unorderedlists" class="@NavLinkClass" ActiveClass="@ActiveClass">Unordered Lists</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/forms/validation-demo" class="@NavLinkClass" ActiveClass="@ActiveClass">Validation</NavLink></SidebarMenuItem>
-                        <SidebarMenuItem><NavLink href="/media/videos" class="@NavLinkClass" ActiveClass="@ActiveClass">Videos & Audio</NavLink></SidebarMenuItem>
-                    </SidebarMenu>
-                </SidebarGroupContent>
-            </SidebarGroup>
-            }
-        </SidebarContent>
-        <SidebarRail />
-    </Sidebar>
+                <nav class="hidden items-center gap-1 md:flex">
+                    @foreach (DocsNavLink item in DocsNavigation.TopLinks)
+                    {
+                        @if (item.Href is not null)
+                        {
+                            <a href="@item.Href" class="@GetTopNavClass(item)">
+                                @item.Title
+                                @if (item.IsNew)
+                                {
+                                    <span class="size-2 rounded-full bg-blue-500"></span>
+                                }
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="@($"{GetTopNavClass(item)} opacity-75")">
+                                @item.Title
+                            </span>
+                        }
+                    }
+                </nav>
 
-    <SidebarInset>
-        <header class="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-4 border-b bg-background px-4 focus:outline-none">
-            <SidebarTrigger />
-            <a href="/" class="flex min-w-0 items-center gap-2 rounded-md px-2 py-1.5 hover:bg-accent">
-                <img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" alt="Quark Suite" class="size-6 shrink-0 rounded-sm" />
-                <span class="text-sm font-medium">Docs</span>
-            </a>
-            <nav class="hidden md:flex items-center gap-1">
-                <NavLink href="" Match="NavLinkMatch.All" class="@TopNavLinkClass" ActiveClass="@TopActiveClass">Introduction</NavLink>
-                <NavLink href="components" class="@TopNavLinkClass" ActiveClass="@TopActiveClass">Components</NavLink>
-                <NavLink href="surfaces/cards" class="@TopNavLinkClass" ActiveClass="@TopActiveClass">Blocks</NavLink>
-                <NavLink href="data/tables/basic" class="@TopNavLinkClass" ActiveClass="@TopActiveClass">Charts</NavLink>
-            </nav>
-            <div class="ml-auto flex items-center gap-2">
-                <Input Type="search" Placeholder="Search documentation..." Class="hidden md:flex w-64" />
-                <button type="button" @onclick="ToggleTheme" class="rounded-md p-2 hover:bg-accent" aria-label="Toggle dark mode">
-                    @if (ThemeService.IsDark)
-                    {
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 1 0 9 9 9 9 0 1 1-9-9z"/></svg>
-                    }
-                    else
-                    {
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
-                    }
-                </button>
+                <div class="ml-auto flex items-center gap-2">
+                    <div class="relative hidden items-center md:flex">
+                        <svg class="pointer-events-none absolute left-2.5 size-4 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="m21 21-4.35-4.35" />
+                        </svg>
+                        <Input Type="search" Placeholder="Search documentation..." Class="h-8 w-64 pl-8 text-sm" />
+                    </div>
+                    <button type="button" @onclick="ToggleTheme" class="rounded-md p-2 transition-colors hover:bg-accent" aria-label="Toggle dark mode">
+                        @if (ThemeService.IsDark)
+                        {
+                            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 3a6 6 0 1 0 9 9 9 9 0 1 1-9-9z" />
+                            </svg>
+                        }
+                        else
+                        {
+                            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="4" />
+                                <path d="M12 2v2" />
+                                <path d="M12 20v2" />
+                                <path d="m4.93 4.93 1.41 1.41" />
+                                <path d="m17.66 17.66 1.41 1.41" />
+                                <path d="M2 12h2" />
+                                <path d="M20 12h2" />
+                                <path d="m6.34 17.66-1.41 1.41" />
+                                <path d="m19.07 4.93-1.41 1.41" />
+                            </svg>
+                        }
+                    </button>
+                </div>
             </div>
         </header>
-        <div class="flex-1 overflow-auto p-6 md:p-8">
-            <div class="w-full max-w-7xl mx-auto">
+
+        <div class="mx-auto flex w-full max-w-[1400px] items-start">
+            @if (ShowDocsSidebar)
+            {
+                <Sidebar Collapsible="SidebarCollapsible.None" Class="sticky top-14 hidden h-[calc(100svh-3.5rem)] border-r bg-background lg:flex lg:flex-col" Style="--sidebar-width: 14.5rem;">
+                    <SidebarContent Class="gap-5 px-3 py-6">
+                        <SidebarGroup Class="gap-1.5">
+                            <SidebarGroupLabel Class="h-auto px-1 text-[0.65rem] font-medium tracking-wide text-muted-foreground">
+                                Sections
+                            </SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <SidebarMenu Class="gap-0.5">
+                                    @foreach (DocsNavLink item in DocsNavigation.SectionLinks)
+                                    {
+                                        <SidebarMenuItem>
+                                            @if (item.Href is not null)
+                                            {
+                                                <a href="@item.Href" class="@GetSidebarItemClass(IsSectionActive(item))">
+                                                    <span>@item.Title</span>
+                                                    @if (item.IsNew)
+                                                    {
+                                                        <span class="size-2 rounded-full bg-blue-500"></span>
+                                                    }
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span class="@($"{GetSidebarItemClass(false)} opacity-80")">
+                                                    <span>@item.Title</span>
+                                                    @if (item.IsNew)
+                                                    {
+                                                        <span class="size-2 rounded-full bg-blue-500"></span>
+                                                    }
+                                                </span>
+                                            }
+                                        </SidebarMenuItem>
+                                    }
+                                </SidebarMenu>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+
+                        <SidebarGroup Class="gap-1.5 border-t pt-4">
+                            <SidebarGroupLabel Class="h-auto px-1 text-[0.65rem] font-medium tracking-wide text-muted-foreground">
+                                Components
+                            </SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <SidebarMenu Class="gap-0.5">
+                                    @foreach (DocsNavLink item in DocsNavigation.ComponentLinks)
+                                    {
+                                        <SidebarMenuItem>
+                                            @if (item.Href is not null)
+                                            {
+                                                <a href="@item.Href" class="@GetSidebarItemClass(IsCurrentPath(item.Href, false))">
+                                                    @item.Title
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span class="@($"{GetSidebarItemClass(false)} opacity-70")">@item.Title</span>
+                                            }
+                                        </SidebarMenuItem>
+                                    }
+                                </SidebarMenu>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                    </SidebarContent>
+                </Sidebar>
+            }
+
+            <main class="@MainClass">
                 @Body
-            </div>
+            </main>
         </div>
-    </SidebarInset>
-</SidebarProvider>
+    </div>
 </CascadingValue>
 
 @code {
-    private bool _sidebarOpen = true;
+    private string CurrentPath
+    {
+        get
+        {
+            string path = Navigation.ToBaseRelativePath(Navigation.Uri);
+            int separatorIndex = path.IndexOfAny(['?', '#']);
 
-    private const string TopNavLinkClass = "rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground";
+            if (separatorIndex >= 0)
+                path = path[..separatorIndex];
 
-    private const string TopActiveClass = "bg-accent text-foreground font-medium";
-
-    private const string NavLinkClass =
-        "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 h-8";
-
-    private const string ActiveClass = "bg-sidebar-accent text-sidebar-accent-foreground font-medium";
+            return string.IsNullOrWhiteSpace(path) ? "/" : $"/{path.Trim('/')}";
+        }
+    }
 
     protected override void OnInitialized()
     {
         ThemeService.ThemeChanged += OnThemeChanged;
     }
 
-    private Task OnSidebarOpenChanged(bool open)
+    private bool ShowDocsSidebar => CurrentPath != "/";
+
+    private string MainClass => ShowDocsSidebar
+        ? "min-w-0 flex-1 px-4 py-8 md:px-8 lg:px-12"
+        : "min-w-0 flex-1";
+
+    private string GetTopNavClass(DocsNavLink item)
     {
-        _sidebarOpen = open;
-        return Task.CompletedTask;
+        const string baseClass = "inline-flex h-8 items-center gap-2 rounded-md px-2.5 text-sm transition-colors";
+
+        return IsTopNavActive(item)
+            ? $"{baseClass} font-semibold text-foreground"
+            : $"{baseClass} text-foreground/70 hover:text-foreground";
+    }
+
+    private string GetSidebarItemClass(bool active)
+    {
+        const string baseClass = "inline-flex h-[28px] w-full items-center gap-2 rounded-md border border-transparent px-2 text-[0.78rem] font-medium transition-colors";
+
+        return active
+            ? $"{baseClass} bg-accent/70 text-foreground"
+            : $"{baseClass} text-foreground/75 hover:bg-accent/40 hover:text-foreground";
+    }
+
+    private bool IsTopNavActive(DocsNavLink item)
+    {
+        return item.Href switch
+        {
+            "/" => CurrentPath == "/",
+            "/components" => CurrentPath != "/",
+            _ => false
+        };
+    }
+
+    private bool IsSectionActive(DocsNavLink item)
+    {
+        return item.Href switch
+        {
+            "/" => CurrentPath == "/",
+            "/components" => CurrentPath != "/",
+            _ => false
+        };
+    }
+
+    private bool IsCurrentPath(string href, bool exactMatch)
+    {
+        string normalized = href == "/" ? "/" : $"/{href.Trim('/')}";
+
+        return exactMatch ? CurrentPath == normalized : CurrentPath == normalized;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

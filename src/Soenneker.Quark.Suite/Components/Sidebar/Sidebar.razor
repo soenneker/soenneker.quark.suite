@@ -1,21 +1,35 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-@if (Collapsible == SidebarCollapsible.None)
+@if (State?.IsMobile == true && Collapsible != SidebarCollapsible.None)
 {
-    <div @attributes="BuildAttributes()">
+    <Sheet Visible="State.OpenMobile" VisibleChanged="OnMobileVisibleChanged" CloseOnBackdropClick="true" CloseOnEscape="true">
+        <SheetContent Side="@ToDataSide(Side)" ShowCloseButton="false" @attributes="BuildMobileAttributes()">
+            <SheetHeader Class="sr-only">
+                <SheetTitle>Sidebar</SheetTitle>
+                <SheetDescription>Displays the mobile sidebar.</SheetDescription>
+            </SheetHeader>
+            <div class="flex h-full w-full flex-col">
+                @ChildContent
+            </div>
+        </SheetContent>
+    </Sheet>
+}
+else if (Collapsible == SidebarCollapsible.None)
+{
+    <aside @attributes="BuildStaticAttributes()">
         @ChildContent
-    </div>
+    </aside>
 }
 else
 {
     <div @attributes="BuildAttributes()">
         <div @attributes="BuildGapAttributes()"></div>
-        <div @attributes="BuildContainerAttributes()">
+        <aside @attributes="BuildContainerAttributes()">
             <div @attributes="BuildInnerAttributes()">
                 @ChildContent
             </div>
-        </div>
+        </aside>
     </div>
 }
 
@@ -29,6 +43,9 @@ else
     [Parameter]
     public SidebarCollapsible Collapsible { get; set; } = SidebarCollapsible.Offcanvas;
 
+    [CascadingParameter(Name = "SidebarProvider")]
+    public SidebarProvider? SidebarProvider { get; set; }
+
     [CascadingParameter(Name = "SidebarContextState")]
     public SidebarContextState? State { get; set; }
 
@@ -37,6 +54,11 @@ else
     private static string ToDataCollapsible(SidebarCollapsible collapsible) => collapsible.ToString().ToLowerInvariant();
 
     private bool IsCollapsed => State is not null && !State.Open;
+
+    private Task OnMobileVisibleChanged(bool visible)
+    {
+        return SidebarProvider?.SetOpenMobile(visible) ?? Task.CompletedTask;
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -51,15 +73,51 @@ else
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-sidebar");
-
-            if (Collapsible == SidebarCollapsible.None)
-            {
-                AppendClass(ref cls, "bg-sidebar text-sidebar-foreground flex h-full w-(--sidebar-width) flex-col");
-                return;
-            }
-
-            AppendClass(ref cls, "group peer text-sidebar-foreground hidden md:block");
+            AppendClass(ref cls, "group peer hidden text-sidebar-foreground md:block");
         });
+    }
+
+    private Dictionary<string, object> BuildStaticAttributes()
+    {
+        var attributes = new Dictionary<string, object>(8);
+
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "sidebar";
+        attributes["data-sidebar"] = "sidebar";
+        attributes["data-side"] = ToDataSide(Side);
+        attributes["data-variant"] = ToDataVariant(Variant);
+        attributes["data-state"] = State?.State ?? "expanded";
+        attributes["data-collapsible"] = "none";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-sidebar");
+            AppendClass(ref cls, "flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground");
+        });
+
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildMobileAttributes()
+    {
+        var attributes = new Dictionary<string, object>(10);
+
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "sidebar";
+        attributes["data-sidebar"] = "sidebar";
+        attributes["data-mobile"] = "true";
+        attributes["data-side"] = ToDataSide(Side);
+        attributes["data-variant"] = ToDataVariant(Variant);
+        attributes["data-state"] = State?.OpenMobile == true ? "expanded" : "collapsed";
+
+        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
+        {
+            AppendClass(ref cls, "q-sidebar");
+            AppendClass(ref cls, "w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden");
+            AppendStyleDecl(ref sty, "--sidebar-width: var(--sidebar-width-mobile)");
+        });
+
+        return attributes;
     }
 
     private Dictionary<string, object> BuildGapAttributes()
@@ -86,7 +144,10 @@ else
 
     private Dictionary<string, object> BuildContainerAttributes()
     {
-        var attributes = new Dictionary<string, object>(10);
+        var attributes = new Dictionary<string, object>(10)
+        {
+            ["data-slot"] = "sidebar-container"
+        };
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -103,8 +164,6 @@ else
                 AppendClass(ref cls, "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l");
         });
 
-        attributes["data-slot"] = "sidebar-container";
-
         return attributes;
     }
 
@@ -118,7 +177,7 @@ else
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "bg-sidebar group-data-[variant=floating]:border-sidebar-border flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm");
+            AppendClass(ref cls, "flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-sm");
         });
 
         return attributes;
@@ -130,5 +189,7 @@ else
         hc.Add(Variant);
         hc.Add(Collapsible);
         hc.Add(State?.Open);
+        hc.Add(State?.OpenMobile);
+        hc.Add(State?.IsMobile);
     }
 }

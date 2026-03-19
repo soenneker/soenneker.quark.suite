@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Collections.Generic;
 using Soenneker.Extensions.String;
 
@@ -9,6 +10,8 @@ namespace Soenneker.Quark;
 /// </summary>
 public class ComponentOptions
 {
+    private static readonly SearchValues<char> CssSelectorPrefixChars = SearchValues.Create(":.#[");
+
     /// <summary>Gets or sets the CSS selector for this component (e.g., "a", "i", ":root").</summary>
     public string Selector { get; set; } = ":root";
 
@@ -529,7 +532,7 @@ public class ComponentOptions
 
         var first = trimmed[0];
 
-        if (first == ':' || first == '.' || first == '#' || first == '[')
+        if (CssSelectorPrefixChars.Contains(first))
             return baseSelector + trimmed;
 
         return $"{baseSelector} {trimmed}";
