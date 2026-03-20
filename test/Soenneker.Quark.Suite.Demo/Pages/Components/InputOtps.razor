@@ -1,0 +1,108 @@
+@page "/forms/input-otp"
+
+<PageTitle>Input OTP - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Six-digit code"
+                         Description="Adapted from the shadcn input-otp demo with grouped slots and a separator."
+                         Code="@OtpCode">
+                <Div Class="space-y-3">
+                    <InputOtp OtpValue="_otpValue" OtpValueChanged="OnOtpChanged" Length="6">
+                        <InputOtpInput />
+                        <InputOtpGroup>
+                            <InputOtpSlot Index="0" />
+                            <InputOtpSlot Index="1" />
+                            <InputOtpSlot Index="2" />
+                        </InputOtpGroup>
+                        <InputOtpSeparator />
+                        <InputOtpGroup>
+                            <InputOtpSlot Index="3" />
+                            <InputOtpSlot Index="4" />
+                            <InputOtpSlot Index="5" />
+                        </InputOtpGroup>
+                    </InputOtp>
+
+                    <p class="text-sm text-muted-foreground">
+                        Current value:
+                        <span class="font-medium text-foreground">@_otpValue</span>
+                    </p>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Four-digit PIN and disabled state"
+                         Description="Use a shorter length for PIN entry or disable the control while waiting for a resend.">
+                <Div Class="grid gap-6 md:grid-cols-2">
+                    <Div Class="space-y-3">
+                        <InputOtp OtpValue="_pinValue" OtpValueChanged="OnPinChanged" Length="4">
+                            <InputOtpInput />
+                            <InputOtpGroup>
+                                <InputOtpSlot Index="0" />
+                                <InputOtpSlot Index="1" />
+                                <InputOtpSlot Index="2" />
+                                <InputOtpSlot Index="3" />
+                            </InputOtpGroup>
+                        </InputOtp>
+
+                        <p class="text-sm text-muted-foreground">PIN: <span class="font-medium text-foreground">@_pinValue</span></p>
+                    </Div>
+
+                    <Div Class="space-y-3">
+                        <InputOtp OtpValue="842917" Length="6" Disabled="true">
+                            <InputOtpInput />
+                            <InputOtpGroup>
+                                <InputOtpSlot Index="0" />
+                                <InputOtpSlot Index="1" />
+                                <InputOtpSlot Index="2" />
+                            </InputOtpGroup>
+                            <InputOtpSeparator />
+                            <InputOtpGroup>
+                                <InputOtpSlot Index="3" />
+                                <InputOtpSlot Index="4" />
+                                <InputOtpSlot Index="5" />
+                            </InputOtpGroup>
+                        </InputOtp>
+
+                        <p class="text-sm text-muted-foreground">Disabled inputs keep their slot styling while blocking edits.</p>
+                    </Div>
+                </Div>
+            </DemoSection>
+        </Section>
+    </Div>
+</Div>
+
+@code {
+    private string _otpValue = "12";
+    private string _pinValue = "7";
+
+    private Task OnOtpChanged(string value)
+    {
+        _otpValue = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnPinChanged(string value)
+    {
+        _pinValue = value;
+        return Task.CompletedTask;
+    }
+
+    private const string OtpCode =
+@"<InputOtp OtpValue=""otpValue"" OtpValueChanged=""OnOtpChanged"" Length=""6"">
+    <InputOtpInput />
+    <InputOtpGroup>
+        <InputOtpSlot Index=""0"" />
+        <InputOtpSlot Index=""1"" />
+        <InputOtpSlot Index=""2"" />
+    </InputOtpGroup>
+    <InputOtpSeparator />
+    <InputOtpGroup>
+        <InputOtpSlot Index=""3"" />
+        <InputOtpSlot Index=""4"" />
+        <InputOtpSlot Index=""5"" />
+    </InputOtpGroup>
+</InputOtp>";
+}

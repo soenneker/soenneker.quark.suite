@@ -1,0 +1,152 @@
+@page "/overlays/commands"
+@using System.Linq
+
+<PageTitle>Command - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Quick actions"
+                         Description="Adapted from the shadcn command demo with searchable quick actions and shortcuts."
+                         Code="@CommandCode">
+                <Div Class="max-w-md rounded-xl border bg-card shadow-sm">
+                    <Command>
+                        <CommandInput Value="_commandSearch"
+                                      ValueChanged="OnCommandSearchChanged"
+                                      Placeholder="Type a command or search..." />
+                        <CommandList>
+                            @foreach (CommandAction action in FilteredActions)
+                            {
+                                <CommandItem OnSelect="@(() => SelectAction(action.Title))">
+                                    <span>@action.Title</span>
+                                    <span class="ml-auto text-xs text-muted-foreground">@action.Shortcut</span>
+                                </CommandItem>
+                            }
+
+                            @if (!FilteredActions.Any())
+                            {
+                                <Div Class="px-3 py-3 text-sm text-muted-foreground">No actions match your search.</Div>
+                            }
+                        </CommandList>
+                    </Command>
+                </Div>
+
+                <p class="text-sm text-muted-foreground">
+                    Last action:
+                    <span class="font-medium text-foreground">@_lastAction</span>
+                </p>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Command dialog"
+                         Description="Use the dialog wrapper for a shadcn-style command palette overlay.">
+                <Div Class="space-y-3">
+                    <Button Variant="ButtonVariant.Outline" OnClick="OpenDialog">Open command palette</Button>
+
+                    <CommandDialog Title="Workspace actions"
+                                   Visible="_dialogOpen"
+                                   VisibleChanged="OnDialogVisibilityChanged">
+                        <CommandInput Value="_dialogSearch"
+                                      ValueChanged="OnDialogSearchChanged"
+                                      Placeholder="Search workspace actions..." />
+                        <CommandList>
+                            @foreach (CommandAction action in FilteredDialogActions)
+                            {
+                                <CommandItem OnSelect="@(() => SelectDialogAction(action.Title))">
+                                    <span>@action.Title</span>
+                                    <span class="ml-auto text-xs text-muted-foreground">@action.Shortcut</span>
+                                </CommandItem>
+                            }
+                        </CommandList>
+                    </CommandDialog>
+
+                    <p class="text-sm text-muted-foreground">
+                        Dialog selection:
+                        <span class="font-medium text-foreground">@_dialogSelection</span>
+                    </p>
+                </Div>
+            </DemoSection>
+        </Section>
+    </Div>
+</Div>
+
+@code {
+    private static readonly CommandAction[] Actions =
+    [
+        new("Calendar", "Ctrl+K"),
+        new("Search emoji", "Ctrl+E"),
+        new("Billing", "Ctrl+B"),
+        new("Settings", "Ctrl+,"),
+        new("Invite teammates", "Ctrl+I")
+    ];
+
+    private string? _commandSearch;
+    private string _lastAction = "None";
+
+    private bool _dialogOpen;
+    private string? _dialogSearch;
+    private string _dialogSelection = "None";
+
+    private IEnumerable<CommandAction> FilteredActions =>
+        FilterActions(_commandSearch);
+
+    private IEnumerable<CommandAction> FilteredDialogActions =>
+        FilterActions(_dialogSearch);
+
+    private static IEnumerable<CommandAction> FilterActions(string? search)
+    {
+        return Actions.Where(action =>
+            string.IsNullOrWhiteSpace(search) ||
+            action.Title.Contains(search, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private Task OnCommandSearchChanged(string? value)
+    {
+        _commandSearch = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnDialogSearchChanged(string? value)
+    {
+        _dialogSearch = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OpenDialog(MouseEventArgs _)
+    {
+        _dialogOpen = true;
+        return Task.CompletedTask;
+    }
+
+    private Task OnDialogVisibilityChanged(bool value)
+    {
+        _dialogOpen = value;
+        return Task.CompletedTask;
+    }
+
+    private Task SelectAction(string title)
+    {
+        _lastAction = title;
+        return Task.CompletedTask;
+    }
+
+    private Task SelectDialogAction(string title)
+    {
+        _dialogSelection = title;
+        _dialogOpen = false;
+        return Task.CompletedTask;
+    }
+
+    private sealed record CommandAction(string Title, string Shortcut);
+
+    private const string CommandCode =
+@"<Command>
+    <CommandInput Placeholder=""Type a command or search..."" />
+    <CommandList>
+        <CommandItem>Calendar</CommandItem>
+        <CommandItem>Billing</CommandItem>
+        <CommandItem>Settings</CommandItem>
+    </CommandList>
+</Command>";
+}

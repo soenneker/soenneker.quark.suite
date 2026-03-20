@@ -1,0 +1,165 @@
+@page "/forms/comboboxes"
+@using System.Linq
+
+<PageTitle>Combobox - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Framework selector"
+                         Description="Adapted from the shadcn combobox example with a searchable framework list."
+                         Code="@FrameworkCode">
+                <Div Class="max-w-sm space-y-3">
+                    <Combobox Value="_selectedFramework"
+                              ValueChanged="OnFrameworkChanged"
+                              Search="_frameworkSearch"
+                              SearchChanged="OnFrameworkSearchChanged"
+                              Open="_frameworkOpen"
+                              OpenChanged="OnFrameworkOpenChanged">
+                        <ComboboxInput Placeholder="Select framework..." />
+                        <ComboboxContent>
+                            @foreach (string framework in FilteredFrameworks)
+                            {
+                                <ComboboxItem Value="@framework">@framework</ComboboxItem>
+                            }
+
+                            @if (!FilteredFrameworks.Any())
+                            {
+                                <Div Class="px-2 py-2 text-sm text-muted-foreground">No framework found.</Div>
+                            }
+                        </ComboboxContent>
+                    </Combobox>
+
+                    <p class="text-sm text-muted-foreground">
+                        Selected value:
+                        <span class="font-medium text-foreground">@(string.IsNullOrWhiteSpace(_selectedFramework) ? "None" : _selectedFramework)</span>
+                    </p>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Preset and disabled"
+                         Description="A second combobox with a starting value plus a disabled state for read-only flows.">
+                <Div Class="grid gap-6 md:grid-cols-2">
+                    <Div Class="space-y-3">
+                        <Combobox Value="_language"
+                                  ValueChanged="OnLanguageChanged"
+                                  Search="_languageSearch"
+                                  SearchChanged="OnLanguageSearchChanged"
+                                  Open="_languageOpen"
+                                  OpenChanged="OnLanguageOpenChanged">
+                            <ComboboxInput Placeholder="Choose language..." />
+                            <ComboboxContent>
+                                @foreach (string language in FilteredLanguages)
+                                {
+                                    <ComboboxItem Value="@language">@language</ComboboxItem>
+                                }
+                            </ComboboxContent>
+                        </Combobox>
+
+                        <p class="text-sm text-muted-foreground">
+                            Language:
+                            <span class="font-medium text-foreground">@_language</span>
+                        </p>
+                    </Div>
+
+                    <Div Class="space-y-3">
+                        <Combobox Value="Nuxt.js" Disabled="true">
+                            <ComboboxInput Placeholder="Unavailable" />
+                            <ComboboxContent>
+                                <ComboboxItem Value="Nuxt.js">Nuxt.js</ComboboxItem>
+                            </ComboboxContent>
+                        </Combobox>
+
+                        <p class="text-sm text-muted-foreground">Disabled comboboxes keep the same visual treatment without opening the menu.</p>
+                    </Div>
+                </Div>
+            </DemoSection>
+        </Section>
+    </Div>
+</Div>
+
+@code {
+    private static readonly string[] Frameworks =
+    [
+        "Next.js",
+        "SvelteKit",
+        "Nuxt.js",
+        "Remix",
+        "Astro"
+    ];
+
+    private static readonly string[] Languages =
+    [
+        "English",
+        "Spanish",
+        "German",
+        "Japanese",
+        "Arabic"
+    ];
+
+    private string? _selectedFramework;
+    private string? _frameworkSearch;
+    private bool _frameworkOpen;
+
+    private string _language = "English";
+    private string? _languageSearch;
+    private bool _languageOpen;
+
+    private IEnumerable<string> FilteredFrameworks =>
+        Frameworks.Where(framework =>
+            string.IsNullOrWhiteSpace(_frameworkSearch) ||
+            framework.Contains(_frameworkSearch, StringComparison.OrdinalIgnoreCase));
+
+    private IEnumerable<string> FilteredLanguages =>
+        Languages.Where(language =>
+            string.IsNullOrWhiteSpace(_languageSearch) ||
+            language.Contains(_languageSearch, StringComparison.OrdinalIgnoreCase));
+
+    private Task OnFrameworkChanged(string? value)
+    {
+        _selectedFramework = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnFrameworkSearchChanged(string? value)
+    {
+        _frameworkSearch = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnFrameworkOpenChanged(bool value)
+    {
+        _frameworkOpen = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnLanguageChanged(string? value)
+    {
+        _language = value ?? _language;
+        return Task.CompletedTask;
+    }
+
+    private Task OnLanguageSearchChanged(string? value)
+    {
+        _languageSearch = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnLanguageOpenChanged(bool value)
+    {
+        _languageOpen = value;
+        return Task.CompletedTask;
+    }
+
+    private const string FrameworkCode =
+@"<Combobox Value=""selectedFramework"" ValueChanged=""OnFrameworkChanged"" Search=""search"" SearchChanged=""OnSearchChanged"">
+    <ComboboxInput Placeholder=""Select framework..."" />
+    <ComboboxContent>
+        <ComboboxItem Value=""Next.js"">Next.js</ComboboxItem>
+        <ComboboxItem Value=""SvelteKit"">SvelteKit</ComboboxItem>
+        <ComboboxItem Value=""Nuxt.js"">Nuxt.js</ComboboxItem>
+    </ComboboxContent>
+</Combobox>";
+}

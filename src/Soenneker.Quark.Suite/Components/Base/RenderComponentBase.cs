@@ -248,14 +248,19 @@ public abstract class RenderComponentBase : CoreComponent
         if (v is not { IsEmpty: false })
             return;
 
+        if (v.Value.IsCssStyle)
+        {
+            string style = v.Value.StyleValue;
+
+            if (style.Length != 0)
+                AppendStyleDecl(ref styB, style);
+
+            return;
+        }
+
         string s = v.Value.ToString();
 
-        if (s.Length == 0)
-            return;
-
-        if (v.Value.IsCssStyle)
-            AppendStyleDecl(ref styB, s);
-        else
+        if (s.Length != 0)
             AppendClass(ref clsB, s);
     }
 
@@ -265,21 +270,26 @@ public abstract class RenderComponentBase : CoreComponent
         if (v is not { IsEmpty: false })
             return;
 
-        string s = v.Value.ToString();
-
-        if (s.Length == 0)
-            return;
-
         if (!v.Value.IsCssStyle)
         {
-            AppendClass(ref clsB, s);
+            string classText = v.Value.ToString();
+
+            if (classText.Length == 0)
+                return;
+
+            AppendClass(ref clsB, classText);
             return;
         }
 
-        if (s.AsSpan().IndexOf(':') >= 0)
-            AppendStyleDecl(ref styB, s);
+        string styleValue = v.Value.StyleValue;
+
+        if (styleValue.Length == 0)
+            return;
+
+        if (styleValue.AsSpan().IndexOf(':') >= 0)
+            AppendStyleDecl(ref styB, styleValue);
         else
-            AppendStyleDecl(ref styB, propertyName, s);
+            AppendStyleDecl(ref styB, propertyName, styleValue);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -288,21 +298,26 @@ public abstract class RenderComponentBase : CoreComponent
         if (v is not { IsEmpty: false })
             return;
 
-        string s = v.Value.ToString();
-
-        if (s.Length == 0)
-            return;
-
         if (!v.Value.IsCssStyle)
         {
-            AppendClass(ref clsB, s);
+            string classText = v.Value.ToString();
+
+            if (classText.Length == 0)
+                return;
+
+            AppendClass(ref clsB, classText);
             return;
         }
 
-        if (s.AsSpan().IndexOf(':') >= 0)
-            AppendStyleDecl(ref styB, s);
+        string styleValue = v.Value.StyleValue;
+
+        if (styleValue.Length == 0)
+            return;
+
+        if (styleValue.AsSpan().IndexOf(':') >= 0)
+            AppendStyleDecl(ref styB, styleValue);
         else
-            AppendStyleDecl(ref styB, propertyName, s);
+            AppendStyleDecl(ref styB, propertyName, styleValue);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -311,21 +326,26 @@ public abstract class RenderComponentBase : CoreComponent
         if (v is not { IsEmpty: false } vv)
             return;
 
-        string s = vv.ToString();
-
-        if (s.Length == 0)
-            return;
-
         if (!vv.IsCssStyle)
         {
-            AppendClass(ref clsB, s);
+            string classText = vv.ToString();
+
+            if (classText.Length == 0)
+                return;
+
+            AppendClass(ref clsB, classText);
             return;
         }
 
-        if (s.AsSpan().IndexOf(':') >= 0)
-            AppendStyleDecl(ref styB, s);
+        string styleValue = vv.StyleValue;
+
+        if (styleValue.Length == 0)
+            return;
+
+        if (styleValue.AsSpan().IndexOf(':') >= 0)
+            AppendStyleDecl(ref styB, styleValue);
         else
-            AppendStyleDecl(ref styB, propertyName, s);
+            AppendStyleDecl(ref styB, propertyName, styleValue);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -334,21 +354,26 @@ public abstract class RenderComponentBase : CoreComponent
         if (v is not { IsEmpty: false } vv)
             return;
 
-        string s = vv.ToString();
-
-        if (s.Length == 0)
-            return;
-
         if (!vv.IsCssStyle)
         {
-            AppendClass(ref clsB, s);
+            string classText = vv.ToString();
+
+            if (classText.Length == 0)
+                return;
+
+            AppendClass(ref clsB, classText);
             return;
         }
 
-        if (s.AsSpan().IndexOf(':') >= 0)
-            AppendStyleDecl(ref styB, s);
+        string styleValue = vv.StyleValue;
+
+        if (styleValue.Length == 0)
+            return;
+
+        if (styleValue.AsSpan().IndexOf(':') >= 0)
+            AppendStyleDecl(ref styB, styleValue);
         else
-            AppendStyleDecl(ref styB, propertyName, s);
+            AppendStyleDecl(ref styB, propertyName, styleValue);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

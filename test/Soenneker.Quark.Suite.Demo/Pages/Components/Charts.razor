@@ -1,0 +1,98 @@
+@page "/data/charts"
+
+<PageTitle>Chart - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Chart container shell"
+                         Description="Adapted from the shadcn chart docs. Quark's ChartContainer is the styled shell around your chart markup."
+                         Code="@ChartCode">
+                <ChartContainer Id="traffic-overview"
+                                Class="min-h-[220px] w-full rounded-xl border bg-card p-4"
+                                Style="--color-desktop: var(--chart-1); --color-mobile: var(--chart-2);">
+                    <Div Class="flex w-full flex-col gap-4">
+                        <Div Class="flex items-center justify-between">
+                            <Div>
+                                <p class="text-sm font-medium">Traffic overview</p>
+                                <p class="text-xs text-muted-foreground">Desktop vs mobile sessions</p>
+                            </Div>
+
+                            <Div Class="flex items-center gap-4 text-xs text-muted-foreground">
+                                <Div Class="flex items-center gap-2">
+                                    <Span Class="size-2.5 rounded-full" Style="background-color: var(--color-desktop);"></Span>
+                                    <Span>Desktop</Span>
+                                </Div>
+                                <Div Class="flex items-center gap-2">
+                                    <Span Class="size-2.5 rounded-full" Style="background-color: var(--color-mobile);"></Span>
+                                    <Span>Mobile</Span>
+                                </Div>
+                            </Div>
+                        </Div>
+
+                        <svg viewBox="0 0 360 180" class="h-full w-full">
+                            <line x1="36" y1="30" x2="336" y2="30" stroke="currentColor" stroke-opacity="0.08" />
+                            <line x1="36" y1="72" x2="336" y2="72" stroke="currentColor" stroke-opacity="0.08" />
+                            <line x1="36" y1="114" x2="336" y2="114" stroke="currentColor" stroke-opacity="0.08" />
+                            <line x1="36" y1="156" x2="336" y2="156" stroke="currentColor" stroke-opacity="0.08" />
+
+                            <rect x="56" y="58" width="18" height="98" rx="4" fill="var(--color-desktop)" />
+                            <rect x="78" y="112" width="18" height="44" rx="4" fill="var(--color-mobile)" />
+
+                            <rect x="118" y="38" width="18" height="118" rx="4" fill="var(--color-desktop)" />
+                            <rect x="140" y="84" width="18" height="72" rx="4" fill="var(--color-mobile)" />
+
+                            <rect x="180" y="72" width="18" height="84" rx="4" fill="var(--color-desktop)" />
+                            <rect x="202" y="102" width="18" height="54" rx="4" fill="var(--color-mobile)" />
+
+                            <rect x="242" y="92" width="18" height="64" rx="4" fill="var(--color-desktop)" />
+                            <rect x="264" y="66" width="18" height="90" rx="4" fill="var(--color-mobile)" />
+
+                            <text x="66" y="172" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.65">Jan</text>
+                            <text x="128" y="172" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.65">Feb</text>
+                            <text x="190" y="172" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.65">Mar</text>
+                            <text x="252" y="172" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.65">Apr</text>
+                        </svg>
+                    </Div>
+                </ChartContainer>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Sparkline style metric"
+                         Description="The same container can wrap lightweight SVG or third-party chart libraries.">
+                <ChartContainer Id="retention"
+                                Class="min-h-[180px] w-full rounded-xl border bg-card p-4"
+                                Style="--color-retention: var(--chart-3);">
+                    <Div Class="flex w-full flex-col gap-3">
+                        <Div>
+                            <p class="text-sm font-medium">7-day retention</p>
+                            <p class="text-xs text-muted-foreground">Static SVG preview inside the chart shell</p>
+                        </Div>
+
+                        <svg viewBox="0 0 360 120" class="h-full w-full">
+                            <polyline fill="none"
+                                      stroke="var(--color-retention)"
+                                      stroke-width="3"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      points="10,88 60,70 110,76 160,42 210,56 260,26 310,34 350,18" />
+                            <circle cx="10" cy="88" r="4" fill="var(--color-retention)" />
+                            <circle cx="160" cy="42" r="4" fill="var(--color-retention)" />
+                            <circle cx="350" cy="18" r="4" fill="var(--color-retention)" />
+                        </svg>
+
+                        <p class="text-xs text-muted-foreground">Pair `ChartContainer` with Recharts, Chart.js, ApexCharts, or custom SVG markup depending on the app.</p>
+                    </Div>
+                </ChartContainer>
+            </DemoSection>
+        </Section>
+    </Div>
+</Div>
+
+@code {
+    private const string ChartCode =
+@"<ChartContainer Id=""traffic-overview"" Class=""min-h-[220px] w-full rounded-xl border bg-card p-4"">
+    <!-- Your Recharts, Chart.js, ApexCharts, or SVG markup goes here -->
+</ChartContainer>";
+}

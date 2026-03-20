@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
@@ -18,8 +17,6 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
     // Cache generic-type checks per closed generic
     private static readonly bool _isHeight = typeof(TBuilder) == typeof(HeightBuilder);
     private static readonly bool _isWidth = typeof(TBuilder) == typeof(WidthBuilder);
-    private static readonly bool _isColor = typeof(TBuilder) == typeof(ColorBuilder);
-    private static readonly bool _isSize = typeof(TBuilder) == typeof(SizeBuilder);
 
     private CssValue(string value, string? styleValue = null, string? cssSelector = null, bool selectorIsAbsolute = false)
     {
@@ -51,8 +48,7 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
     /// Implicitly converts an integer to a CssValue. For HeightBuilder and WidthBuilder, converts to pixel values.
     /// </summary>
     public static implicit operator CssValue<TBuilder>(int value) =>
-        _isHeight ? new CssValue<TBuilder>($"height: {value}px") :
-        _isWidth ? new CssValue<TBuilder>($"width: {value}px") : new CssValue<TBuilder>(value.ToString());
+        _isHeight || _isWidth ? new CssValue<TBuilder>($"{value}px", $"{value}px") : new CssValue<TBuilder>(value.ToString());
 
     /// <summary>
     /// Implicitly converts a CssValue to a string.
@@ -70,13 +66,9 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
     public bool IsEmpty => _value.IsNullOrEmpty();
 
     /// <summary>
-    /// Gets whether this CSS value represents an inline style (e.g., "color: red") rather than a CSS class.
+    /// Gets whether this CSS value represents an inline style.
     /// </summary>
-    public bool IsCssStyle =>
-        // style if it looks like "prop: val" OR (ColorBuilder with non-theme token)
-        // OR (CSS unit value) OR standalone CSS values (var(), #fff, inherit, etc.)
-        _value.Contains(':') || (_isColor && !IsKnownThemeOrSizeToken(_value)) ||
-        LooksLikeCssUnit(_value) || LooksLikeStandaloneCssValue(_value);
+    public bool IsCssStyle => !string.IsNullOrEmpty(_styleValue);
 
     /// <summary>
     /// Gets whether this CSS value represents a CSS class (e.g., "btn-primary") rather than an inline style.
@@ -87,21 +79,12 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
 
     internal bool SelectorIsAbsolute => _selectorIsAbsolute;
 
-    /// <summary>Gets the style representation (e.g., "text-decoration: underline") if available</summary>
+    /// <summary>Gets the explicit style representation if available.</summary>
     public string StyleValue
     {
         get
         {
-            // Check if _styleValue looks like a style (contains colon)
-            if (!string.IsNullOrEmpty(_styleValue) && _styleValue.Contains(':'))
-                return _styleValue;
-
-            // Check if _value looks like a style (contains colon)
-            if (!string.IsNullOrEmpty(_value) && _value.Contains(':'))
-                return _value;
-
-            // Neither looks like a style, return empty
-            return string.Empty;
+            return _styleValue ?? string.Empty;
         }
     }
 
@@ -165,53 +148,6 @@ public readonly struct CssValue<TBuilder> : IEquatable<CssValue<TBuilder>> where
                value.Equals("muted-foreground", StringComparison.OrdinalIgnoreCase) ||
                value.Equals("white", StringComparison.OrdinalIgnoreCase) ||
                value.Equals("black", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool LooksLikeCssUnit(string value)
-    {
-        if (value.IsNullOrEmpty())
-            return false;
-
-        // Check if the value ends with common CSS units
-        var trimmedSpan = value.AsSpan().Trim();
-        if (trimmedSpan.Length == 0)
-            return false;
-
-        var trimmed = trimmedSpan.Length == value.Length ? value : trimmedSpan.ToString();
-
-        return trimmed.EndsWithIgnoreCase("px") || trimmed.EndsWithIgnoreCase("em") ||
-               trimmed.EndsWithIgnoreCase("rem") || trimmed.EndsWithIgnoreCase("%") ||
-               trimmed.EndsWithIgnoreCase("vh") || trimmed.EndsWithIgnoreCase("vw") ||
-               trimmed.EndsWithIgnoreCase("vmin") || trimmed.EndsWithIgnoreCase("vmax") ||
-               trimmed.Equals("auto", StringComparison.OrdinalIgnoreCase) || trimmed.Equals("inherit", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.Equals("initial", StringComparison.OrdinalIgnoreCase) || trimmed.Equals("unset", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool LooksLikeStandaloneCssValue(string value)
-    {
-        if (value.IsNullOrEmpty())
-            return false;
-
-        var trimmedSpan = value.AsSpan().Trim();
-        if (trimmedSpan.Length == 0)
-            return false;
-
-        var trimmed = trimmedSpan.Length == value.Length ? value : trimmedSpan.ToString();
-
-        if (trimmed.StartsWith("#", StringComparison.Ordinal) || trimmed.StartsWith("rgb", StringComparison.OrdinalIgnoreCase) ||
-            trimmed.StartsWith("hsl", StringComparison.OrdinalIgnoreCase) || trimmed.StartsWith("var(", StringComparison.OrdinalIgnoreCase) ||
-            trimmed.StartsWith("calc(", StringComparison.OrdinalIgnoreCase) || trimmed.StartsWith("clamp(", StringComparison.OrdinalIgnoreCase) ||
-            trimmed.StartsWith("min(", StringComparison.OrdinalIgnoreCase) || trimmed.StartsWith("max(", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out _))
-            return true;
-
-        return trimmed.Equals("inherit", StringComparison.OrdinalIgnoreCase) || trimmed.Equals("initial", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.Equals("unset", StringComparison.OrdinalIgnoreCase) || trimmed.Equals("revert", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.Equals("revert-layer", StringComparison.OrdinalIgnoreCase) || trimmed.Equals("auto", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.Equals("none", StringComparison.OrdinalIgnoreCase) || trimmed.Equals("currentColor", StringComparison.OrdinalIgnoreCase) ||
-               trimmed.Equals("transparent", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
