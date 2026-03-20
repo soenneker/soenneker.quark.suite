@@ -1,5 +1,3 @@
-using Soenneker.Quark.Enums;
-
 namespace Soenneker.Quark;
 
 public static class AlertVariantClasses

@@ -1,5 +1,4 @@
 using Soenneker.Quark.Attributes;
-using Soenneker.Quark.Enums;
 
 namespace Soenneker.Quark;
 

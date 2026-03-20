@@ -9,26 +9,14 @@ public static class DocsNavigation
     public static IReadOnlyList<DocsNavLink> TopLinks { get; } =
     [
         new("Docs", "/", ExactMatch: true),
-        new("Components", "/components"),
-        new("Blocks"),
-        new("Charts"),
-        new("Directory"),
-        new("Create")
+        new("Components", "/components")
     ];
 
     public static IReadOnlyList<DocsNavLink> SectionLinks { get; } =
     [
         new("Introduction", "/", ExactMatch: true),
         new("Components", "/components"),
-        new("Installation"),
         new("Theming"),
-        new("CLI", IsNew: true),
-        new("RTL"),
-        new("Skills", IsNew: true),
-        new("MCP Server"),
-        new("Registry"),
-        new("Forms"),
-        new("Changelog", IsNew: true)
     ];
 
     public static IReadOnlyList<DocsNavLink> ComponentLinks { get; } =
@@ -80,10 +68,14 @@ public static class DocsNavigation
         new("Sheet", "/overlays/sheets"),
         new("Sidebar", "/navigation/sidebar"),
         new("Skeleton", "/surfaces/skeletons"),
+        new("Slider", "/forms/sliders"),
+        new("Sonner", "/feedback/sonner"),
+        new("Spinner", "/feedback/spinners"),
         new("Switch", "/forms/switches"),
         new("Tabs", "/navigation/tabs"),
         new("Textarea", "/forms/textareas"),
         new("Toggle", "/forms/toggles"),
-        new("Tooltip", "/overlays/tooltips")
+        new("Tooltip", "/overlays/tooltips"),
+        new("Typography", "/typography/typography")
     ];
 }

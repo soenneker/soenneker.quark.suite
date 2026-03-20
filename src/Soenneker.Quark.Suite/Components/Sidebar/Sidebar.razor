@@ -1,5 +1,6 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using Soenneker.Quark.Utils
 
 @if (State?.IsMobile == true && Collapsible != SidebarCollapsible.None)
 {
@@ -79,9 +80,7 @@ else
 
     private Dictionary<string, object> BuildStaticAttributes()
     {
-        var attributes = new Dictionary<string, object>(8);
-
-        base.BuildAttributesCore(attributes);
+        var attributes = BuildRootAttributes(12);
         attributes["data-slot"] = "sidebar";
         attributes["data-sidebar"] = "sidebar";
         attributes["data-side"] = ToDataSide(Side);
@@ -100,9 +99,7 @@ else
 
     private Dictionary<string, object> BuildMobileAttributes()
     {
-        var attributes = new Dictionary<string, object>(10);
-
-        base.BuildAttributesCore(attributes);
+        var attributes = BuildRootAttributes(14);
         attributes["data-slot"] = "sidebar";
         attributes["data-sidebar"] = "sidebar";
         attributes["data-mobile"] = "true";
@@ -181,6 +178,57 @@ else
         });
 
         return attributes;
+    }
+
+    private Dictionary<string, object> BuildRootAttributes(int capacity)
+    {
+        var attributes = new Dictionary<string, object>(capacity + (Attributes?.Count ?? 0));
+        base.BuildOwnedAttributes(attributes);
+
+        var cls = new PooledStringBuilder(64);
+        var sty = new PooledStringBuilder(128);
+
+        try
+        {
+            base.BuildOwnedClassAndStyle(ref sty, ref cls);
+
+            if (Attributes is not null)
+            {
+                foreach (KeyValuePair<string, object> kv in Attributes)
+                {
+                    if (kv.Key.Equals("class", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (kv.Value is not null)
+                            AppendClass(ref cls, kv.Value.ToString()!);
+
+                        continue;
+                    }
+
+                    if (kv.Key.Equals("style", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (kv.Value is not null)
+                            AppendStyleDecl(ref sty, kv.Value.ToString()!);
+
+                        continue;
+                    }
+
+                    attributes[kv.Key] = kv.Value;
+                }
+            }
+
+            if (cls.Length > 0)
+                attributes["class"] = ClassNames.Combine(cls.ToString());
+
+            if (sty.Length > 0)
+                attributes["style"] = sty.ToString();
+
+            return attributes;
+        }
+        finally
+        {
+            cls.Dispose();
+            sty.Dispose();
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

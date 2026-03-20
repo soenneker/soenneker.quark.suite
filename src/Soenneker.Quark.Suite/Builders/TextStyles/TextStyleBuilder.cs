@@ -1,6 +1,7 @@
 using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
+using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
@@ -136,7 +137,7 @@ public sealed class TextStyleBuilder : ICssBuilder
         if (_rules.Count == 0)
             return string.Empty;
 
-        using var sb = new Utils.PooledStringBuilders.PooledStringBuilder();
+        using var sb = new PooledStringBuilder();
         var first = true;
 
         for (var i = 0; i < _rules.Count; i++)

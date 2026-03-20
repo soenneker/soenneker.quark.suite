@@ -1,0 +1,479 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+@inject ISonnerService SonnerService
+@inject ISonnerInterop SonnerInterop
+@using System.Linq
+
+@{
+    var groups = GetToastGroups();
+}
+
+@if (groups.Count > 0)
+{
+    <section @ref="_sectionRef"
+             aria-label="@GetAriaLabel()"
+             tabindex="-1"
+             aria-live="polite"
+             aria-relevant="additions text"
+             aria-atomic="false">
+        @foreach (var group in groups)
+        {
+            <ol dir="ltr"
+                tabindex="-1"
+                class="@GetToasterClass()"
+                data-sonner-toaster="true"
+                data-sonner-theme="@GetThemeAttribute()"
+                data-y-position="@GetYPosition(group.Position)"
+                data-x-position="@GetXPosition(group.Position)"
+                style="@GetToasterStyle(group.Toasts)"
+                @onmouseenter="(() => SetExpanded(group.Position, true))"
+                @onmousemove="(() => SetExpanded(group.Position, true))"
+                @onmouseleave="(() => SetExpanded(group.Position, false))"
+                @onfocusin="(() => SetFocused(group.Position, true))"
+                @onfocusout="(() => SetFocused(group.Position, false))"
+                @onpointerdown="(() => SetInteracting(group.Position, true))"
+                @onpointerup="(() => SetInteracting(group.Position, false))">
+                @for (var i = 0; i < group.Toasts.Count; i++)
+                {
+                    var toast = group.Toasts[i];
+                    var isVisible = i < VisibleToasts && !toast.Removed;
+                    var expanded = IsExpanded(group.Position);
+
+                    <li @key="toast.Id"
+                        tabindex="0"
+                        class="@GetToastClass()"
+                        data-toast-id="@toast.Id"
+                        data-sonner-toast=""
+                        data-rich-colors="@GetBoolString(RichColors)"
+                        data-styled="true"
+                        data-mounted="@GetBoolString(toast.Mounted)"
+                        data-promise="@GetBoolString(toast.Promise)"
+                        data-swiped="false"
+                        data-removed="@GetBoolString(toast.Removed)"
+                        data-visible="@GetBoolString(isVisible)"
+                        data-y-position="@GetYPosition(group.Position)"
+                        data-x-position="@GetXPosition(group.Position)"
+                        data-index="@i"
+                        data-front="@GetBoolString(i == 0)"
+                        data-swiping="false"
+                        data-dismissible="@GetBoolString(toast.Dismissible)"
+                        data-type="@GetDataType(toast)"
+                        data-swipe-out="false"
+                        data-expanded="@GetBoolString(expanded)"
+                        style="@GetToastStyle(group.Toasts, i)">
+                        @if (HasIcon(toast))
+                        {
+                            <div data-icon>
+                                @GetIcon(toast)
+                            </div>
+                        }
+
+                        <div data-content>
+                            @if (toast.Content is not null)
+                            {
+                                @toast.Content
+                            }
+                            else
+                            {
+                                @if (toast.Title.HasContent())
+                                {
+                                    <div data-title>@toast.Title</div>
+                                }
+
+                                @if (toast.Description.HasContent())
+                                {
+                                    <div data-description>@toast.Description</div>
+                                }
+                            }
+                        </div>
+
+                        @if (toast.Action is not null && toast.ActionLabel.HasContent())
+                        {
+                            <button type="button"
+                                    class="@GetActionButtonClass()"
+                                    data-button="true"
+                                    data-action="true"
+                                    @onclick="() => HandleActionAsync(toast)">
+                                @toast.ActionLabel
+                            </button>
+                        }
+
+                        @if (toast.Dismissible && toast.CloseButton && toast.Type != SonnerToastType.Loading)
+                        {
+                            <button type="button"
+                                    class="@GetCloseButtonClass()"
+                                    data-close-button
+                                    aria-label="Close toast"
+                                    @onclick="() => HandleDismissAsync(toast.Id)">
+                                <Icon Name="xmark" IconSize="IconSize.ExtraSmall" aria-hidden="true" />
+                            </button>
+                        }
+                    </li>
+                }
+            </ol>
+        }
+    </section>
+}
+
+@code {
+    private const double DefaultToastHeight = 73.3;
+    private const int DefaultToastWidth = 356;
+    private const int DefaultGap = 14;
+    private const int DesktopOffset = 24;
+    private const int MobileOffset = 16;
+    private const string DefaultToasterId = "";
+    [Parameter]
+    public string? ToasterId { get; set; }
+
+    [Parameter]
+    public SonnerPosition? ToastPosition { get; set; }
+
+    [Parameter]
+    public int? Duration { get; set; }
+
+    [Parameter]
+    public bool? CloseButton { get; set; }
+
+    [Parameter]
+    public int VisibleToasts { get; set; } = 3;
+
+    [Parameter]
+    public bool RichColors { get; set; }
+
+    [Parameter]
+    public string Theme { get; set; } = "system";
+
+    [Parameter]
+    public string ContainerAriaLabel { get; set; } = "Notifications";
+
+    [Parameter]
+    public string HotkeyLabel { get; set; } = "alt+T";
+
+    private ElementReference _sectionRef;
+    private Dictionary<string, double> _heights = new(StringComparer.Ordinal);
+    private readonly HashSet<SonnerPosition> _expandedPositions = [];
+    private readonly HashSet<SonnerPosition> _interactingPositions = [];
+    private readonly HashSet<SonnerPosition> _focusedPositions = [];
+    private bool _shouldMeasureHeights = true;
+    private string _registeredToasterId = DefaultToasterId;
+    private bool _toasterRegistered;
+
+    protected override void OnInitialized()
+    {
+        SonnerService.StateChanged += OnStateChanged;
+    }
+
+    protected override void OnParametersSet()
+    {
+        RegisterToaster();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            try
+            {
+                await SonnerInterop.Initialize();
+            }
+            catch
+            {
+                return;
+            }
+        }
+
+        if (!_shouldMeasureHeights)
+            return;
+
+        try
+        {
+            _shouldMeasureHeights = false;
+            var heights = await SonnerInterop.MeasureToastHeights(_sectionRef);
+
+            if (HaveHeightsChanged(heights))
+            {
+                _heights = heights;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch
+        {
+        }
+    }
+
+    private IReadOnlyList<ToastGroup> GetToastGroups()
+    {
+        var query = SonnerService.GetToasts()
+                                 .Where(toast => NormalizeToasterId(toast.ToasterId) == NormalizeToasterId(ToasterId))
+                                 .OrderByDescending(toast => toast.CreatedAt);
+
+        if (ToastPosition.HasValue)
+            query = query.Where(toast => toast.Position == ToastPosition.Value)
+                         .OrderByDescending(toast => toast.CreatedAt);
+
+        return query.GroupBy(toast => toast.Position)
+                    .OrderBy(group => GetPositionOrder(group.Key))
+                    .Select(group => new ToastGroup(group.Key, group.ToList()))
+                    .ToList();
+    }
+
+    private static int GetPositionOrder(SonnerPosition position) => position switch
+    {
+        SonnerPosition.TopLeft => 0,
+        SonnerPosition.TopCenter => 1,
+        SonnerPosition.TopRight => 2,
+        SonnerPosition.BottomLeft => 3,
+        SonnerPosition.BottomCenter => 4,
+        _ => 5
+    };
+
+    private static string GetToasterClass() => "toaster group";
+
+    private string GetAriaLabel() => $"{ContainerAriaLabel} {HotkeyLabel}";
+
+    private static string GetBoolString(bool value) => value ? "true" : "false";
+
+    private string? GetThemeAttribute()
+    {
+        return Theme.Trim().ToLowerInvariant() switch
+        {
+            "dark" => "dark",
+            "light" => "light",
+            _ => null
+        };
+    }
+
+    private static string GetToastClass() => "cn-toast";
+
+    private static string GetActionButtonClass() => string.Empty;
+
+    private static string GetCloseButtonClass() => string.Empty;
+
+    private string GetToasterStyle(IReadOnlyList<SonnerToast> toasts)
+    {
+        var frontHeight = toasts.Count > 0 ? GetToastHeight(toasts[0]) : 0;
+        var baseStyle =
+            $"--front-toast-height: {frontHeight}px; --width: {DefaultToastWidth}px; --gap: {DefaultGap}px; --normal-bg: var(--popover); --normal-text: var(--popover-foreground); --normal-border: var(--border); --border-radius: var(--radius); --offset-top: {DesktopOffset}px; --offset-right: {DesktopOffset}px; --offset-bottom: {DesktopOffset}px; --offset-left: {DesktopOffset}px; --mobile-offset-top: {MobileOffset}px; --mobile-offset-right: {MobileOffset}px; --mobile-offset-bottom: {MobileOffset}px; --mobile-offset-left: {MobileOffset}px;";
+
+        return Style.HasContent() ? $"{baseStyle} {Style}" : baseStyle;
+    }
+
+    private string GetToastStyle(IReadOnlyList<SonnerToast> toasts, int index)
+    {
+        double offset = 0;
+
+        for (var i = 0; i < index; i++)
+        {
+            offset += GetToastHeight(toasts[i]) + DefaultGap;
+        }
+
+        var initialHeight = GetToastHeight(toasts[index]);
+        var zIndex = toasts.Count - index;
+        return $"--index: {index}; --toasts-before: {index}; --z-index: {zIndex}; --offset: {offset}px; --initial-height: {initialHeight}px;";
+    }
+
+    private static string GetDataType(SonnerToast toast) => toast.Type switch
+    {
+        SonnerToastType.Success => "success",
+        SonnerToastType.Info => "info",
+        SonnerToastType.Warning => "warning",
+        SonnerToastType.Error => "error",
+        SonnerToastType.Loading => "loading",
+        _ => "default"
+    };
+
+    private static string GetXPosition(SonnerPosition position) => position switch
+    {
+        SonnerPosition.TopLeft or SonnerPosition.BottomLeft => "left",
+        SonnerPosition.TopCenter or SonnerPosition.BottomCenter => "center",
+        _ => "right"
+    };
+
+    private static string GetYPosition(SonnerPosition position) => position switch
+    {
+        SonnerPosition.TopLeft or SonnerPosition.TopCenter or SonnerPosition.TopRight => "top",
+        _ => "bottom"
+    };
+
+    private static bool HasIcon(SonnerToast toast) => toast.Type != SonnerToastType.Default;
+
+    private static RenderFragment GetIcon(SonnerToast toast) => builder =>
+    {
+        switch (toast.Type)
+        {
+            case SonnerToastType.Success:
+                builder.OpenComponent<Icon>(0);
+                builder.AddAttribute(1, "Name", "circle-check");
+                builder.AddAttribute(2, "IconStyle", IconStyle.Solid);
+                                builder.AddAttribute(3, "IconSize", IconSize.Small);
+                builder.CloseComponent();
+                break;
+            case SonnerToastType.Info:
+                builder.OpenComponent<Icon>(0);
+                builder.AddAttribute(1, "Name", "circle-info");
+                builder.AddAttribute(2, "IconStyle", IconStyle.Solid);
+                                builder.AddAttribute(3, "IconSize", IconSize.Small);
+                builder.CloseComponent();
+                break;
+            case SonnerToastType.Warning:
+                builder.OpenComponent<Icon>(0);
+                builder.AddAttribute(1, "Name", "triangle-exclamation");
+                builder.AddAttribute(2, "IconStyle", IconStyle.Solid);
+                                builder.AddAttribute(3, "IconSize", IconSize.Small);
+                builder.CloseComponent();
+                break;
+            case SonnerToastType.Error:
+                builder.OpenComponent<Icon>(0);
+                builder.AddAttribute(1, "Name", "circle-xmark");
+                builder.AddAttribute(2, "IconStyle", IconStyle.Solid);
+                                builder.AddAttribute(3, "IconSize", IconSize.Small);
+                builder.CloseComponent();
+                break;
+            case SonnerToastType.Loading:
+                builder.OpenComponent<Icon>(0);
+                builder.AddAttribute(1, "Name", "spinner");
+                builder.AddAttribute(2, "IconAnimation", IconAnimation.Spin);
+                                builder.AddAttribute(3, "IconSize", IconSize.Small);
+                builder.CloseComponent();
+                break;
+        }
+    };
+
+    private async Task HandleDismissAsync(string id)
+    {
+        SonnerService.Dismiss(id);
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleActionAsync(SonnerToast toast)
+    {
+        if (toast.Action is not null)
+            await toast.Action();
+
+        SonnerService.Dismiss(toast.Id);
+    }
+
+    private void OnStateChanged()
+    {
+        _shouldMeasureHeights = true;
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private void SetExpanded(SonnerPosition position, bool value)
+    {
+        SetPositionState(_expandedPositions, position, value);
+    }
+
+    private void SetInteracting(SonnerPosition position, bool value)
+    {
+        SetPositionState(_interactingPositions, position, value);
+    }
+
+    private void SetFocused(SonnerPosition position, bool value)
+    {
+        SetPositionState(_focusedPositions, position, value);
+    }
+
+    private void SetPositionState(HashSet<SonnerPosition> state, SonnerPosition position, bool value)
+    {
+        var wasActive = IsActive(position);
+        var changed = value ? state.Add(position) : state.Remove(position);
+
+        if (!changed)
+            return;
+
+        var isActive = IsActive(position);
+
+        if (wasActive != isActive)
+        {
+            if (isActive)
+                SonnerService.Pause(ToasterId, position);
+            else
+                SonnerService.Resume(ToasterId, position);
+        }
+
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private bool IsExpanded(SonnerPosition position)
+    {
+        return IsActive(position);
+    }
+
+    private bool IsActive(SonnerPosition position)
+    {
+        return _expandedPositions.Contains(position) || _interactingPositions.Contains(position) || _focusedPositions.Contains(position);
+    }
+
+    private double GetToastHeight(SonnerToast toast)
+    {
+        return _heights.TryGetValue(toast.Id, out var height) && height > 0 ? height : DefaultToastHeight;
+    }
+
+    private bool HaveHeightsChanged(Dictionary<string, double> heights)
+    {
+        if (heights.Count != _heights.Count)
+            return true;
+
+        foreach ((string key, double value) in heights)
+        {
+            if (!_heights.TryGetValue(key, out var current))
+                return true;
+
+            if (Math.Abs(current - value) > 0.5d)
+                return true;
+        }
+
+        return false;
+    }
+
+    public override void Dispose()
+    {
+        foreach (var position in GetActivePositions())
+        {
+            SonnerService.Resume(ToasterId, position);
+        }
+
+        if (_toasterRegistered)
+            SonnerService.UnregisterToaster(_registeredToasterId);
+
+        SonnerService.StateChanged -= OnStateChanged;
+        base.Dispose();
+    }
+
+    private void RegisterToaster()
+    {
+        var normalizedToasterId = NormalizeToasterId(ToasterId);
+
+        if (_toasterRegistered && !string.Equals(_registeredToasterId, normalizedToasterId, StringComparison.Ordinal))
+        {
+            foreach (var position in GetActivePositions())
+            {
+                SonnerService.Resume(_registeredToasterId, position);
+            }
+
+            SonnerService.UnregisterToaster(_registeredToasterId);
+        }
+
+        SonnerService.RegisterToaster(ToasterId, ToastPosition, Duration, CloseButton);
+        _registeredToasterId = normalizedToasterId;
+        _toasterRegistered = true;
+    }
+
+    private static string NormalizeToasterId(string? toasterId)
+    {
+        return string.IsNullOrWhiteSpace(toasterId) ? DefaultToasterId : toasterId;
+    }
+
+    private IEnumerable<SonnerPosition> GetActivePositions()
+    {
+        return _expandedPositions.Concat(_interactingPositions)
+                                 .Concat(_focusedPositions)
+                                 .Distinct();
+    }
+
+    private sealed record ToastGroup(SonnerPosition Position, IReadOnlyList<SonnerToast> Toasts);
+}

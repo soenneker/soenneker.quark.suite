@@ -2,11 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Soenneker.Quark.Utilities;
+namespace Soenneker.Quark.Utils;
 
 /// <summary>
 /// Combines CSS class names with Tailwind conflict resolution.
-/// Equivalent to shadcn's Combine() (clsx + tailwind-merge). Use for component base + Class so user overrides win.
 /// </summary>
 public static class ClassNames
 {
@@ -25,7 +24,9 @@ public static class ClassNames
         foreach (var input in inputs)
             ProcessInput(input, classes);
 
-        if (classes.Count == 0) return string.Empty;
+        if (classes.Count == 0) 
+            return string.Empty;
+        
         return TailwindMerge.Merge(classes.ToArray());
     }
 

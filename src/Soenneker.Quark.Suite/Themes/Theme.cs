@@ -178,9 +178,9 @@ public sealed class Theme
     public SliderOptions? Sliders { get; set; }
 
     /// <summary>
-    /// Gets or sets the snackbar component styling options.
+    /// Gets or sets the Sonner toast styling options.
     /// </summary>
-    public SnackbarThemeOptions? Snackbars { get; set; }
+    public SonnerOptions? Sonners { get; set; }
 
     /// <summary>
     /// Gets or sets the span component styling options.
@@ -320,31 +320,11 @@ public sealed class Theme
     /// </summary>
     public TableElementOptions? TableElements { get; set; }
 
-    // Snackbar components
+    // Sonner components
     /// <summary>
-    /// Gets or sets the snackbar header component styling options.
+    /// Gets or sets the Sonner toaster styling options.
     /// </summary>
-    public SnackbarHeaderOptions? SnackbarHeaders { get; set; }
-
-    /// <summary>
-    /// Gets or sets the snackbar footer component styling options.
-    /// </summary>
-    public SnackbarFooterOptions? SnackbarFooters { get; set; }
-
-    /// <summary>
-    /// Gets or sets the snackbar body component styling options.
-    /// </summary>
-    public SnackbarBodyOptions? SnackbarBodys { get; set; }
-
-    /// <summary>
-    /// Gets or sets the snackbar action component styling options.
-    /// </summary>
-    public SnackbarActionOptions? SnackbarActions { get; set; }
-
-    /// <summary>
-    /// Gets or sets the snackbar stack component styling options.
-    /// </summary>
-    public SnackbarStackOptions? SnackbarStacks { get; set; }
+    public SonnerToasterOptions? SonnerToaster { get; set; }
 
     // Navigation components
     /// <summary>
@@ -749,9 +729,9 @@ public sealed class Theme
 
     // Modal/Overlay main components
     /// <summary>
-    /// Gets or sets the snackbar component styling options.
+    /// Gets or sets the Sonner toast styling options.
     /// </summary>
-    public SnackbarOptions? Snackbar { get; set; }
+    public SonnerOptions? Sonner { get; set; }
 
     /// <summary>
     /// Gets all ComponentOptions instances in this theme without using reflection.
@@ -825,8 +805,8 @@ public sealed class Theme
             yield return Sections;
         if (Sliders != null)
             yield return Sliders;
-        if (Snackbars != null)
-            yield return Snackbars;
+        if (Sonners != null)
+            yield return Sonners;
         if (Spans != null)
             yield return Spans;
         if (Strongs != null)
@@ -881,16 +861,8 @@ public sealed class Theme
             yield return TableInfos;
         if (TableElements != null)
             yield return TableElements;
-        if (SnackbarHeaders != null)
-            yield return SnackbarHeaders;
-        if (SnackbarFooters != null)
-            yield return SnackbarFooters;
-        if (SnackbarBodys != null)
-            yield return SnackbarBodys;
-        if (SnackbarActions != null)
-            yield return SnackbarActions;
-        if (SnackbarStacks != null)
-            yield return SnackbarStacks;
+        if (SonnerToaster != null)
+            yield return SonnerToaster;
         if (Tabs != null)
             yield return Tabs;
         if (Steps != null)
@@ -1015,6 +987,8 @@ public sealed class Theme
             yield return DateTimePickers;
         if (OverlayContainers != null)
             yield return OverlayContainers;
+        if (Sonner != null)
+            yield return Sonner;
         if (Tab != null)
             yield return Tab;
         if (Step != null)

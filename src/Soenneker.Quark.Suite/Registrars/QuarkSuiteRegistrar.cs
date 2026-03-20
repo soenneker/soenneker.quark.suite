@@ -23,19 +23,17 @@ public static class QuarkSuiteRegistrar
         if (services.All(descriptor => descriptor.ServiceType != typeof(QuarkOptions)))
             services.AddDefaultQuarkOptionsAsScoped();
 
-        services
-            .AddScoped<ICollapseCoordinator, CollapseCoordinator>()
-            .AddQuarkOverlayAsScoped()
-            .AddQuarkValidationAsScoped()
-            .AddQuarkTableAsScoped()
-            .AddQuarkSnackbarAsScoped()
-            .AddQuarkThemeAsScoped()
-            .AddQuarkDatePickerAsScoped()
-            .AddQuarkTreeViewAsScoped()
-            .AddQuarkStepsAsScoped()
-            .AddQuarkCodeEditorAsScoped()
-            .AddQuarkScoreAsScoped()
-            .AddFontAwesomeAsScoped();
+        services.AddScoped<ICollapseCoordinator, CollapseCoordinator>()
+                .AddQuarkOverlayAsScoped()
+                .AddQuarkValidationAsScoped()
+                .AddQuarkTableAsScoped()
+                .AddQuarkSonnerAsScoped()
+                .AddQuarkThemeAsScoped()
+                .AddQuarkDatePickerAsScoped()
+                .AddQuarkTreeViewAsScoped()
+                .AddQuarkStepsAsScoped()
+                .AddQuarkCodeEditorAsScoped()
+                .AddQuarkScoreAsScoped();
 
         return services;
     }
