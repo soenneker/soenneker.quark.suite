@@ -1,3 +1,4 @@
+using System;
 using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
@@ -55,6 +56,11 @@ public sealed class AnimationBuilder : ICssBuilder
     /// Sets the animation to bounce.
     /// </summary>
     public AnimationBuilder Bounce => ChainWithAnimation("bounce");
+
+    /// <summary>
+    /// Applies an exact Tailwind animation utility token, e.g. "animate-in".
+    /// </summary>
+    public AnimationBuilder Token(string token) => ChainWithAnimation(token);
 
     /// <summary>
     /// Applies the animation on phone breakpoint.
@@ -184,6 +190,7 @@ public sealed class AnimationBuilder : ICssBuilder
             "ping" => _classAnimationPing,
             "pulse" => _classAnimationPulse,
             "bounce" => _classAnimationBounce,
+            _ when animation.StartsWith("animate-", StringComparison.Ordinal) => animation,
             _ => string.Empty
         };
     }

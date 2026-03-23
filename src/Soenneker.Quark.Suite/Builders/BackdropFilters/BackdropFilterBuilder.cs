@@ -1,3 +1,4 @@
+using System;
 using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
@@ -77,6 +78,11 @@ public sealed class BackdropFilterBuilder : ICssBuilder
     /// Sets the backdrop filter to sepia.
     /// </summary>
     public BackdropFilterBuilder Sepia => ChainWithFilter("sepia");
+
+    /// <summary>
+    /// Applies an exact Tailwind backdrop-filter utility token, e.g. "backdrop-blur".
+    /// </summary>
+    public BackdropFilterBuilder Token(string token) => ChainWithFilter(token);
 
     /// <summary>
     /// Applies the backdrop filter on phone breakpoint.
@@ -202,6 +208,7 @@ public sealed class BackdropFilterBuilder : ICssBuilder
             "opacity" => _classBackdropFilterOpacity,
             "saturate" => _classBackdropFilterSaturate,
             "sepia" => _classBackdropFilterSepia,
+            _ when filter.StartsWith("backdrop-", StringComparison.Ordinal) => filter,
             _ => string.Empty
         };
     }

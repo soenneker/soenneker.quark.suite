@@ -1,3 +1,4 @@
+using System;
 using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
@@ -57,6 +58,11 @@ public sealed class TransitionBuilder : ICssBuilder
     /// Sets the transition to transform.
     /// </summary>
     public TransitionBuilder Transform => ChainWithTransition("transform");
+
+    /// <summary>
+    /// Applies an exact Tailwind transition utility token, e.g. "transition-[left,right,width]".
+    /// </summary>
+    public TransitionBuilder Token(string token) => ChainWithTransition(token);
 
     /// <summary>
     /// Applies the transition on phone breakpoint.
@@ -178,6 +184,7 @@ public sealed class TransitionBuilder : ICssBuilder
             "opacity" => _classTransitionOpacity,
             "shadow" => _classTransitionShadow,
             "transform" => _classTransitionTransform,
+            _ when transition.StartsWith("transition", StringComparison.Ordinal) => transition,
             _ => string.Empty
         };
     }

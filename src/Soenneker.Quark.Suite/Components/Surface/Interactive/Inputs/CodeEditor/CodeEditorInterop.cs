@@ -75,7 +75,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
             await _resourceLoader.LoadScript(loaderUrl, cancellationToken: token);
         }
 
-        await _resourceLoader.ImportModuleAndWaitUntilAvailable(_modulePath, _moduleName, 100, token);
+        await _resourceLoader.ImportModule(_modulePath, token);
 
         await _jsRuntime.InvokeVoidAsync("MonacoInterop.ensureConfigured", token, monacoBaseUrl);
     }

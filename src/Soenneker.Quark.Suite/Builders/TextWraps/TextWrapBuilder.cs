@@ -17,6 +17,8 @@ public sealed class TextWrapBuilder : ICssBuilder
 
     // Tailwind text-wrap / whitespace utilities (for Quark Suite / shadcn)
     private const string _classWrap = "text-wrap";
+    private const string _classBalance = "text-balance";
+    private const string _classPretty = "text-pretty";
     private const string _classNoWrap = "whitespace-nowrap";
     private const string _stylePrefix = "text-wrap: ";
 
@@ -39,6 +41,14 @@ public sealed class TextWrapBuilder : ICssBuilder
     /// Sets the text wrap to no-wrap.
     /// </summary>
     public TextWrapBuilder NoWrap => Chain(TextWrapKeyword.NoWrapValue);
+    /// <summary>
+    /// Sets the text wrap to balance.
+    /// </summary>
+    public TextWrapBuilder Balance => Chain("balance");
+    /// <summary>
+    /// Sets the text wrap to pretty.
+    /// </summary>
+    public TextWrapBuilder Pretty => Chain("pretty");
     /// <summary>
     /// Sets the text wrap to inherit.
     /// </summary>
@@ -125,6 +135,8 @@ public sealed class TextWrapBuilder : ICssBuilder
             {
                 TextWrapKeyword.WrapValue => _classWrap,
                 TextWrapKeyword.NoWrapValue => _classNoWrap,
+                "balance" => _classBalance,
+                "pretty" => _classPretty,
                 _ => string.Empty
             };
 
@@ -162,6 +174,8 @@ public sealed class TextWrapBuilder : ICssBuilder
             {
                 TextWrapKeyword.WrapValue => "wrap",
                 TextWrapKeyword.NoWrapValue => "nowrap",
+                "balance" => "balance",
+                "pretty" => "pretty",
                 GlobalKeyword.InheritValue => "inherit",
                 GlobalKeyword.InitialValue => "initial",
                 GlobalKeyword.UnsetValue => "unset",

@@ -134,6 +134,11 @@ public class ComponentOptions
     public CssValue<OverflowBuilder>? OverflowY { get; set; }
 
     /// <summary>
+    /// Gets or sets the CSS overscroll-behavior configuration.
+    /// </summary>
+    public CssValue<OverscrollBuilder>? Overscroll { get; set; }
+
+    /// <summary>
     /// Gets or sets the CSS object-fit configuration.
     /// </summary>
     public CssValue<ObjectFitBuilder>? ObjectFit { get; set; }
@@ -406,6 +411,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Overflow, "overflow");
         AddRules(buffer, baseSelector, OverflowX, "overflow-x");
         AddRules(buffer, baseSelector, OverflowY, "overflow-y");
+        AddRules(buffer, baseSelector, Overscroll, null);
         AddRules(buffer, baseSelector, ObjectFit, "object-fit");
         AddRules(buffer, baseSelector, TextAlignment, "text-align");
         AddRules(buffer, baseSelector, TextColor, "color");

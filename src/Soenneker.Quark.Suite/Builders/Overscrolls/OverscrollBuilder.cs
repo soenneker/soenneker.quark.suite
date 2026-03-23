@@ -1,0 +1,171 @@
+using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Soenneker.Quark.Attributes;
+using Soenneker.Quark.Enums;
+using Soenneker.Utils.PooledStringBuilders;
+
+namespace Soenneker.Quark;
+
+/// <summary>
+/// Tailwind overscroll-behavior builder supporting both axis-specific and global utilities.
+/// </summary>
+[TailwindPrefix("overscroll-", Responsive = true)]
+public sealed class OverscrollBuilder : ICssBuilder
+{
+    private readonly List<OverscrollRule> _rules = new(4);
+
+    internal OverscrollBuilder(string value, BreakpointType? breakpoint = null)
+    {
+        _rules.Add(new OverscrollRule(value, breakpoint));
+    }
+
+    internal OverscrollBuilder(List<OverscrollRule> rules)
+    {
+        if (rules is { Count: > 0 })
+            _rules.AddRange(rules);
+    }
+
+    public OverscrollBuilder Auto => Chain("auto");
+    public OverscrollBuilder Contain => Chain("contain");
+    public OverscrollBuilder None => Chain("none");
+
+    public OverscrollBuilder XAuto => Chain("x-auto");
+    public OverscrollBuilder XContain => Chain("x-contain");
+    public OverscrollBuilder XNone => Chain("x-none");
+
+    public OverscrollBuilder YAuto => Chain("y-auto");
+    public OverscrollBuilder YContain => Chain("y-contain");
+    public OverscrollBuilder YNone => Chain("y-none");
+
+    /// <summary>
+    /// Applies an exact Tailwind overscroll class token, e.g. "overscroll-none".
+    /// </summary>
+    public OverscrollBuilder Token(string token) => Chain(token);
+
+    public OverscrollBuilder OnBase => ChainBreakpoint(BreakpointType.Base);
+    public OverscrollBuilder OnSm => ChainBreakpoint(BreakpointType.Sm);
+    public OverscrollBuilder OnMd => ChainBreakpoint(BreakpointType.Md);
+    public OverscrollBuilder OnLg => ChainBreakpoint(BreakpointType.Lg);
+    public OverscrollBuilder OnXl => ChainBreakpoint(BreakpointType.Xl);
+    public OverscrollBuilder OnXxl => ChainBreakpoint(BreakpointType.Xxl);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private OverscrollBuilder Chain(string value)
+    {
+        _rules.Add(new OverscrollRule(value, null));
+        return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private OverscrollBuilder ChainBreakpoint(BreakpointType breakpoint)
+    {
+        if (_rules.Count == 0)
+        {
+            _rules.Add(new OverscrollRule("auto", breakpoint));
+            return this;
+        }
+
+        var lastIdx = _rules.Count - 1;
+        var last = _rules[lastIdx];
+        _rules[lastIdx] = new OverscrollRule(last.Value, breakpoint);
+        return this;
+    }
+
+    public string ToClass()
+    {
+        if (_rules.Count == 0)
+            return string.Empty;
+
+        using var sb = new PooledStringBuilder();
+        var first = true;
+
+        for (var i = 0; i < _rules.Count; i++)
+        {
+            var rule = _rules[i];
+            var cls = GetOverscrollClass(rule.Value);
+            if (cls.Length == 0)
+                continue;
+
+            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            if (bp.Length != 0)
+                cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
+
+            if (!first)
+                sb.Append(' ');
+            else
+                first = false;
+
+            sb.Append(cls);
+        }
+
+        return sb.ToString();
+    }
+
+    public string ToStyle()
+    {
+        if (_rules.Count == 0)
+            return string.Empty;
+
+        using var sb = new PooledStringBuilder();
+        var first = true;
+
+        for (var i = 0; i < _rules.Count; i++)
+        {
+            var style = GetOverscrollStyle(_rules[i].Value);
+            if (style is null)
+                continue;
+
+            if (!first)
+                sb.Append("; ");
+            else
+                first = false;
+
+            sb.Append(style);
+        }
+
+        return sb.ToString();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string GetOverscrollClass(string value)
+    {
+        return value switch
+        {
+            "auto" => "overscroll-auto",
+            "contain" => "overscroll-contain",
+            "none" => "overscroll-none",
+            "x-auto" => "overscroll-x-auto",
+            "x-contain" => "overscroll-x-contain",
+            "x-none" => "overscroll-x-none",
+            "y-auto" => "overscroll-y-auto",
+            "y-contain" => "overscroll-y-contain",
+            "y-none" => "overscroll-y-none",
+            _ when value.StartsWith("overscroll-", StringComparison.Ordinal) => value,
+            _ => string.Empty
+        };
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string? GetOverscrollStyle(string value)
+    {
+        return value switch
+        {
+            "auto" => "overscroll-behavior: auto",
+            "contain" => "overscroll-behavior: contain",
+            "none" => "overscroll-behavior: none",
+            "x-auto" => "overscroll-behavior-x: auto",
+            "x-contain" => "overscroll-behavior-x: contain",
+            "x-none" => "overscroll-behavior-x: none",
+            "y-auto" => "overscroll-behavior-y: auto",
+            "y-contain" => "overscroll-behavior-y: contain",
+            "y-none" => "overscroll-behavior-y: none",
+            _ => null
+        };
+    }
+
+    public override string ToString()
+    {
+        return ToClass();
+    }
+}

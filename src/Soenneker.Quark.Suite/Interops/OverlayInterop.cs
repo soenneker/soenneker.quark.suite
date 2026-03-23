@@ -27,9 +27,9 @@ public sealed class OverlayInterop : IOverlayInterop
         _initializer = new AsyncInitializer(InitializeResources);
     }
 
-    private ValueTask InitializeResources(CancellationToken token)
+    private async ValueTask InitializeResources(CancellationToken token)
     {
-        return _resourceLoader.ImportModuleAndWaitUntilAvailable(_modulePath, _moduleName, 100, token);
+        _ = await _resourceLoader.ImportModule(_modulePath, token);
     }
 
     public async ValueTask Initialize(CancellationToken cancellationToken = default)

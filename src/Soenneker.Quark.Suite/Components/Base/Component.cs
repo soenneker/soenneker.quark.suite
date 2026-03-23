@@ -83,6 +83,9 @@ public abstract class Component : RenderComponentBase, IComponent
     public CssValue<OverflowBuilder>? OverflowY { get; set; }
 
     [Parameter]
+    public CssValue<OverscrollBuilder>? Overscroll { get; set; }
+
+    [Parameter]
     public CssValue<FlexBuilder>? Flex { get; set; }
 
     [Parameter]
@@ -116,6 +119,9 @@ public abstract class Component : RenderComponentBase, IComponent
     public CssValue<CursorBuilder>? Cursor { get; set; }
 
     [Parameter]
+    public CssValue<ScreenReaderBuilder>? ScreenReader { get; set; }
+
+    [Parameter]
     public CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
 
     [Parameter]
@@ -135,6 +141,18 @@ public abstract class Component : RenderComponentBase, IComponent
 
     [Parameter]
     public CssValue<BorderOpacityBuilder>? BorderOpacity { get; set; }
+
+    [Parameter]
+    public CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
+
+    [Parameter]
+    public CssValue<FilterBuilder>? Filter { get; set; }
+
+    [Parameter]
+    public CssValue<ResizeBuilder>? Resize { get; set; }
+
+    [Parameter]
+    public CssValue<TransformBuilder>? Transform { get; set; }
 
     [Parameter]
     public CssValue<AnimationBuilder>? Animation { get; set; }
@@ -187,6 +205,7 @@ public abstract class Component : RenderComponentBase, IComponent
         AddCss(ref sty, ref cls, Overflow);
         AddCss(ref sty, ref cls, OverflowX);
         AddCss(ref sty, ref cls, OverflowY);
+        AddCss(ref sty, ref cls, Overscroll);
         AddCss(ref sty, ref cls, Flex);
         AddCss(ref sty, ref cls, Gap);
         AddCss(ref sty, ref cls, Grid);
@@ -198,6 +217,7 @@ public abstract class Component : RenderComponentBase, IComponent
         AddCss(ref sty, ref cls, PointerEvents);
         AddCss(ref sty, ref cls, UserSelect);
         AddCss(ref sty, ref cls, Cursor);
+        AddCss(ref sty, ref cls, ScreenReader);
         AddCss(ref sty, ref cls, Border);
         ApplyBorderColor(ref sty, ref cls);
         ApplyBackgroundColor(ref sty, ref cls);
@@ -205,6 +225,10 @@ public abstract class Component : RenderComponentBase, IComponent
         AddCss(ref sty, ref cls, BoxShadow);
         AddCss(ref sty, ref cls, BackgroundOpacity);
         AddCss(ref sty, ref cls, BorderOpacity);
+        AddCss(ref sty, ref cls, BackdropFilter);
+        AddCss(ref sty, ref cls, Filter);
+        AddCss(ref sty, ref cls, Resize);
+        AddCss(ref sty, ref cls, Transform);
         AddCss(ref sty, ref cls, Animation);
         AddCss(ref sty, ref cls, Transition);
 
@@ -266,6 +290,7 @@ public abstract class Component : RenderComponentBase, IComponent
         AddIf(ref hc, Overflow);
         AddIf(ref hc, OverflowX);
         AddIf(ref hc, OverflowY);
+        AddIf(ref hc, Overscroll);
         AddIf(ref hc, Flex);
         AddIf(ref hc, Gap);
         AddIf(ref hc, Grid);
@@ -277,6 +302,7 @@ public abstract class Component : RenderComponentBase, IComponent
         AddIf(ref hc, PointerEvents);
         AddIf(ref hc, UserSelect);
         AddIf(ref hc, Cursor);
+        AddIf(ref hc, ScreenReader);
         AddIf(ref hc, BackgroundColor);
         AddIf(ref hc, Border);
         AddIf(ref hc, BorderColor);
@@ -284,6 +310,10 @@ public abstract class Component : RenderComponentBase, IComponent
         AddIf(ref hc, BoxShadow);
         AddIf(ref hc, BackgroundOpacity);
         AddIf(ref hc, BorderOpacity);
+        AddIf(ref hc, BackdropFilter);
+        AddIf(ref hc, Filter);
+        AddIf(ref hc, Resize);
+        AddIf(ref hc, Transform);
         AddIf(ref hc, Animation);
         AddIf(ref hc, Transition);
     }

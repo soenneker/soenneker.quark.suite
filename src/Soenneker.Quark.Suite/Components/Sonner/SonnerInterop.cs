@@ -37,7 +37,7 @@ public sealed class SonnerInterop : ISonnerInterop
     private async ValueTask InitializeResourcesInternal(CancellationToken token)
     {
         await _resourceLoader.LoadStyle(_stylePath, cancellationToken: token);
-        await _resourceLoader.ImportModuleAndWaitUntilAvailable(_modulePath, _moduleName, 100, token);
+        await _resourceLoader.ImportModule(_modulePath, token);
     }
 
     public async ValueTask Initialize(CancellationToken cancellationToken = default)

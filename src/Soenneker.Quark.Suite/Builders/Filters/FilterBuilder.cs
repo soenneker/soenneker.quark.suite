@@ -1,3 +1,4 @@
+using System;
 using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
@@ -82,6 +83,11 @@ public sealed class FilterBuilder : ICssBuilder
     /// Sets the filter to sepia.
     /// </summary>
     public FilterBuilder Sepia => ChainWithFilter("sepia");
+
+    /// <summary>
+    /// Applies an exact Tailwind filter utility token, e.g. "blur-xs".
+    /// </summary>
+    public FilterBuilder Token(string token) => ChainWithFilter(token);
 
     /// <summary>
     /// Applies the filter on phone breakpoint.
@@ -208,6 +214,7 @@ public sealed class FilterBuilder : ICssBuilder
             "opacity" => _classFilterOpacity,
             "saturate" => _classFilterSaturate,
             "sepia" => _classFilterSepia,
+            _ when IsRawFilterUtility(filter) => filter,
             _ => string.Empty
         };
     }
@@ -230,6 +237,29 @@ public sealed class FilterBuilder : ICssBuilder
             "sepia" => "sepia(1)",
             _ => null
         };
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsRawFilterUtility(string filter)
+    {
+        return filter.Equals("filter", StringComparison.Ordinal) ||
+               filter.StartsWith("filter-", StringComparison.Ordinal) ||
+               filter.Equals("blur", StringComparison.Ordinal) ||
+               filter.StartsWith("blur-", StringComparison.Ordinal) ||
+               filter.Equals("brightness", StringComparison.Ordinal) ||
+               filter.StartsWith("brightness-", StringComparison.Ordinal) ||
+               filter.Equals("contrast", StringComparison.Ordinal) ||
+               filter.StartsWith("contrast-", StringComparison.Ordinal) ||
+               filter.Equals("drop-shadow", StringComparison.Ordinal) ||
+               filter.StartsWith("drop-shadow-", StringComparison.Ordinal) ||
+               filter.Equals("grayscale", StringComparison.Ordinal) ||
+               filter.StartsWith("hue-rotate", StringComparison.Ordinal) ||
+               filter.Equals("invert", StringComparison.Ordinal) ||
+               filter.StartsWith("opacity-", StringComparison.Ordinal) ||
+               filter.Equals("opacity", StringComparison.Ordinal) ||
+               filter.Equals("saturate", StringComparison.Ordinal) ||
+               filter.StartsWith("saturate-", StringComparison.Ordinal) ||
+               filter.Equals("sepia", StringComparison.Ordinal);
     }
 
     /// <summary>

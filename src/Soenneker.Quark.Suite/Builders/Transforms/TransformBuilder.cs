@@ -1,3 +1,4 @@
+using System;
 using Soenneker.Quark.Attributes;
 using Soenneker.Quark.Enums;
 using System.Collections.Generic;
@@ -52,6 +53,11 @@ public sealed class TransformBuilder : ICssBuilder
     /// Sets the transform to skew.
     /// </summary>
     public TransformBuilder Skew => ChainWithTransform("skew");
+
+    /// <summary>
+    /// Applies an exact Tailwind transform utility token, e.g. "rotate-90".
+    /// </summary>
+    public TransformBuilder Token(string token) => ChainWithTransform(token);
 
     /// <summary>
     /// Applies the transform on phone breakpoint.
@@ -172,6 +178,7 @@ public sealed class TransformBuilder : ICssBuilder
             "rotate" => _classTransformRotate,
             "translate" => _classTransformTranslate,
             "skew" => _classTransformSkew,
+            _ when IsRawTransformUtility(transform) => transform,
             _ => string.Empty
         };
     }
@@ -188,6 +195,16 @@ public sealed class TransformBuilder : ICssBuilder
             "skew" => "skew(0deg, 0deg)",
             _ => null
         };
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsRawTransformUtility(string transform)
+    {
+        return transform.StartsWith("transform", StringComparison.Ordinal) ||
+               transform.StartsWith("rotate-", StringComparison.Ordinal) ||
+               transform.StartsWith("translate-", StringComparison.Ordinal) ||
+               transform.StartsWith("scale-", StringComparison.Ordinal) ||
+               transform.StartsWith("skew-", StringComparison.Ordinal);
     }
 
     /// <summary>
