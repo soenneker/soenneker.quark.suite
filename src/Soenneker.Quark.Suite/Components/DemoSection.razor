@@ -20,7 +20,7 @@
         <div data-slot="preview" dir="ltr">
             <div data-align="center"
                  data-chromeless="false"
-                 class="preview relative flex min-h-[18rem] w-full items-center justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0">
+                 class="preview relative flex min-h-[14rem] w-full items-center justify-center p-6 sm:min-h-[18rem] sm:p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0">
                 <div class="mx-auto my-auto flex max-w-full flex-col items-center justify-center [&>*]:max-w-full [&_img]:mx-auto [&_img]:block [&_img]:max-h-72 [&_img]:max-w-full [&_img]:object-contain">
                     @ChildContent
                 </div>
@@ -29,7 +29,26 @@
 
         @if (Code != null)
         {
-            <div data-slot="code" data-mobile-code-visible="@_showCodeCss" class="relative overflow-hidden border-t border-border">
+            @if (ShouldShowCollapsedCodeOverlay)
+            {
+                <div class="flex justify-center border-t border-border bg-muted/10 px-4 py-4 md:hidden">
+                    <button data-slot="button"
+                            type="button"
+                            class="inline-flex h-8 items-center justify-center rounded-lg border border-input bg-background px-3 text-sm font-medium text-foreground shadow-none transition-all hover:bg-muted"
+                            @onclick="ShowCode"
+                            @onkeydown="@(e =>
+                                        {
+                                            if (e.Key == "Enter" || e.Key == " ")
+                                                ShowCode();
+                                        })">
+                        View Code
+                    </button>
+                </div>
+            }
+
+            <div data-slot="code"
+                 data-mobile-code-visible="@_showCodeCss"
+                 class="@GetCodeSectionClass()">
                 <div class="relative">
                     @if (!ShouldShowCollapsedCodeOverlay)
                     {
@@ -58,7 +77,7 @@
 
                     @if (ShouldShowCollapsedCodeOverlay)
                     {
-                        <div class="absolute inset-0 flex items-center justify-center pb-4">
+                        <div class="absolute inset-0 hidden items-center justify-center pb-4 md:flex">
                             <div class="absolute inset-0 bg-gradient-to-t from-background via-background/90 via-35% to-background/10 backdrop-blur-[1px]"></div>
                             <button data-slot="button"
                                     type="button"
@@ -110,6 +129,16 @@
     private bool ShouldShowCollapsedCodeOverlay => ShouldShowViewCodeButton && !_showCode;
     private int CodeEditorMinLines => ShouldShowCollapsedCodeOverlay ? 3 : 1;
     private int? CodeEditorMaxLines => ShouldShowCollapsedCodeOverlay ? 3 : null;
+
+    private string GetCodeSectionClass()
+    {
+        const string baseClass = "relative overflow-hidden border-t border-border";
+
+        if (ShouldShowCollapsedCodeOverlay)
+            return $"{baseClass} hidden md:block";
+
+        return baseClass;
+    }
 
     private void ShowCode()
     {

@@ -4,59 +4,59 @@
 
 <PageTitle>Checkbox Component - Quark Suite</PageTitle>
 
-<div class="space-y-8 max-w-4xl">
-    <div class="space-y-4">
+<Div class="space-y-8 max-w-4xl">
+    <Div class="space-y-4">
         <DemoSection Title="Basic Usage" Description="Simple checkbox with label using two-way binding." Code="@(@"<Check @bind-Checked=""_basicChecked"" Id=""basic-checkbox"">Accept terms and conditions</Check>
-<p class=""text-sm text-muted-foreground"">Current state: @(_basicChecked ? ""Checked ✓"" : ""Unchecked"")</p>")">
-            <div class="space-y-3">
+<Paragraph class=""text-sm text-muted-foreground"">Current state: @(_basicChecked ? ""Checked ✓"" : ""Unchecked"")</Paragraph>")">
+            <Div class="space-y-3">
                 <Check @bind-Checked="_basicChecked" Id="basic-checkbox">Accept terms and conditions</Check>
-                <p class="text-sm text-muted-foreground">Current state: @(_basicChecked ? "Checked ✓" : "Unchecked")</p>
-            </div>
+                <Paragraph class="text-sm text-muted-foreground">Current state: @(_basicChecked ? "Checked ✓" : "Unchecked")</Paragraph>
+            </Div>
         </DemoSection>
-    </div>
+    </Div>
 
-    <div class="space-y-4">
+    <Div class="space-y-4">
         <DemoSection Title="Multiple Options" Description="Group of checkboxes for multiple selections." Code="@(@"<Check @bind-Checked=""_option1"" Id=""option1"">Email notifications</Check>
 <Check @bind-Checked=""_option2"" Id=""option2"">SMS notifications</Check>
 <Check @bind-Checked=""_option3"" Id=""option3"">Push notifications</Check>")">
-            <div class="space-y-3">
+            <Div class="space-y-3">
                 <Check @bind-Checked="_option1" Id="option1">Email notifications</Check>
                 <Check @bind-Checked="_option2" Id="option2">SMS notifications</Check>
                 <Check @bind-Checked="_option3" Id="option3">Push notifications</Check>
-                <p class="text-sm text-muted-foreground">Selected: @string.Join(", ", GetSelectedOptions())</p>
-            </div>
+                <Paragraph class="text-sm text-muted-foreground">Selected: @string.Join(", ", GetSelectedOptions())</Paragraph>
+            </Div>
         </DemoSection>
-    </div>
+    </Div>
 
-    <div class="space-y-4">
+    <Div class="space-y-4">
         <DemoSection Title="Indeterminate" Description="A parent checkbox that reflects child checkbox state." Code="@(@"<Check Checked=""_selectAllChecked"" CheckedChanged=""HandleSelectAllChanged"" Indeterminate=""_selectAllIndeterminate"" Id=""select-all"">Select all</Check>
-<div class=""ml-6 space-y-3"">
+<Div class=""ml-6 space-y-3"">
     <Check Checked=""_itemRead"" CheckedChanged=""(v => { _itemRead = v; UpdateSelectAll(); })"" Id=""item-read"">Read</Check>
     <Check Checked=""_itemWrite"" CheckedChanged=""(v => { _itemWrite = v; UpdateSelectAll(); })"" Id=""item-write"">Write</Check>
     <Check Checked=""_itemExecute"" CheckedChanged=""(v => { _itemExecute = v; UpdateSelectAll(); })"" Id=""item-execute"">Execute</Check>
-</div>")">
-            <div class="space-y-3">
+</Div>")">
+            <Div class="space-y-3">
                 <Check Checked="@_selectAllChecked" CheckedChanged="HandleSelectAllChanged" Indeterminate="@_selectAllIndeterminate" Id="select-all">Select all</Check>
-                <div class="ml-6 space-y-3">
+                <Div class="ml-6 space-y-3">
                     <Check Checked="@_itemRead" CheckedChanged="@(v => { _itemRead = v; UpdateSelectAll(); })" Id="item-read">Read</Check>
                     <Check Checked="@_itemWrite" CheckedChanged="@(v => { _itemWrite = v; UpdateSelectAll(); })" Id="item-write">Write</Check>
                     <Check Checked="@_itemExecute" CheckedChanged="@(v => { _itemExecute = v; UpdateSelectAll(); })" Id="item-execute">Execute</Check>
-                </div>
-            </div>
+                </Div>
+            </Div>
         </DemoSection>
-    </div>
+    </Div>
 
-    <div class="space-y-4">
+    <Div class="space-y-4">
         <DemoSection Title="Disabled State" Description="Checkboxes that cannot be interacted with." Code="@(@"<Check Disabled=""true"" Checked=""false"" Id=""disabled-unchecked"">Disabled (unchecked)</Check>
 <Check Disabled=""true"" Checked=""true"" Id=""disabled-checked"">Disabled (checked)</Check>")">
-            <div class="space-y-3">
+            <Div class="space-y-3">
                 <Check Disabled="true" Checked="false" Id="disabled-unchecked">Disabled (unchecked)</Check>
                 <Check Disabled="true" Checked="true" Id="disabled-checked">Disabled (checked)</Check>
-            </div>
+            </Div>
         </DemoSection>
-    </div>
+    </Div>
 
-    <div class="space-y-4">
+    <Div class="space-y-4">
         <DemoSection Title="Form Validation" Description="Checkbox integrated with Blazor EditForm validation." Code="@(@"<EditForm Model=""_formModel"" OnValidSubmit=""HandleValidSubmit"" class=""space-y-4"">
     <DataAnnotationsValidator />
     <Check @bind-Checked=""_formModel.AcceptTerms"" Id=""terms"">I accept the terms and conditions</Check>
@@ -66,60 +66,60 @@
 </EditForm>")">
             <EditForm Model="_formModel" OnValidSubmit="HandleValidSubmit" class="space-y-4">
                 <DataAnnotationsValidator />
-                <div class="space-y-3">
+                <Div class="space-y-3">
                     <Check @bind-Checked="_formModel.AcceptTerms" Id="terms">I accept the terms and conditions</Check>
                     <ValidationMessage For="@(() => _formModel.AcceptTerms)" class="text-sm text-destructive" />
-                </div>
-                <div class="space-y-3">
+                </Div>
+                <Div class="space-y-3">
                     <Check @bind-Checked="_formModel.Subscribe" Id="subscribe">Subscribe to newsletter (optional)</Check>
-                </div>
-                <div class="flex gap-4">
+                </Div>
+                <Div class="flex gap-4">
                     <Button Type="@ButtonType.Submit" Variant="ButtonVariant.Default">Submit</Button>
                     <Button Type="@ButtonType.Button" Variant="ButtonVariant.Outline" OnClick="@(_ => ResetForm())">Reset</Button>
-                </div>
+                </Div>
                 @if (!string.IsNullOrEmpty(_formMessage))
                 {
-                    <div class="p-4 bg-card rounded-lg border">
-                        <p class="text-sm">@_formMessage</p>
-                    </div>
+                    <Div class="p-4 bg-card rounded-lg border">
+                        <Paragraph class="text-sm">@_formMessage</Paragraph>
+                    </Div>
                 }
             </EditForm>
         </DemoSection>
-    </div>
+    </Div>
 
-    <div class="space-y-4">
+    <Div class="space-y-4">
         <DemoSection Title="Interactive" Description="Checkbox with custom state messaging." Code="@(@"<Check @bind-Checked=""_interactiveCheckedState"" Id=""interactive"">Toggle feature flag</Check>
 @if (_interactiveCheckedState) { ... enabled message ... } else { ... disabled message ... }")">
-            <div class="space-y-3">
+            <Div class="space-y-3">
                 <Check @bind-Checked="_interactiveCheckedState" Id="interactive">Toggle feature flag</Check>
                 @if (_interactiveCheckedState)
                 {
-                    <div class="p-4 bg-primary/10 rounded-lg border border-primary">
-                        <p class="text-sm">Feature is enabled! Last toggled at @_lastToggleTime</p>
-                    </div>
+                    <Div class="p-4 bg-primary/10 rounded-lg border border-primary">
+                        <Paragraph class="text-sm">Feature is enabled! Last toggled at @_lastToggleTime</Paragraph>
+                    </Div>
                 }
                 else
                 {
-                    <div class="p-4 bg-muted rounded-lg">
-                        <p class="text-sm text-muted-foreground">Feature is disabled.</p>
-                    </div>
+                    <Div class="p-4 bg-muted rounded-lg">
+                        <Paragraph class="text-sm text-muted-foreground">Feature is disabled.</Paragraph>
+                    </Div>
                 }
-            </div>
+            </Div>
         </DemoSection>
-    </div>
+    </Div>
 
-    <div class="space-y-4">
-        <DemoSection Title="Accessibility" Description="Keyboard navigation and screen reader support." Code="@(@"<p>Tab focuses checkboxes in sequence.</p>
-<p>Space and Enter toggle focused checkboxes.</p>
-<p>ARIA state is exposed via role, aria-checked, and aria-disabled.</p>")">
-            <div class="space-y-2 text-sm">
-                <p>Tab focuses checkboxes in sequence.</p>
-                <p>Space and Enter toggle focused checkboxes.</p>
-                <p>ARIA state is exposed via role, aria-checked, and aria-disabled.</p>
-            </div>
+    <Div class="space-y-4">
+        <DemoSection Title="Accessibility" Description="Keyboard navigation and screen reader support." Code="@(@"<Paragraph>Tab focuses checkboxes in sequence.</Paragraph>
+<Paragraph>Space and Enter toggle focused checkboxes.</Paragraph>
+<Paragraph>ARIA state is exposed via role, aria-checked, and aria-disabled.</Paragraph>")">
+            <Div class="space-y-2 text-sm">
+                <Paragraph>Tab focuses checkboxes in sequence.</Paragraph>
+                <Paragraph>Space and Enter toggle focused checkboxes.</Paragraph>
+                <Paragraph>ARIA state is exposed via role, aria-checked, and aria-disabled.</Paragraph>
+            </Div>
         </DemoSection>
-    </div>
-</div>
+    </Div>
+</Div>
 
 @code {
     private bool _basicChecked;

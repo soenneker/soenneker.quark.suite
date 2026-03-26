@@ -2,7 +2,9 @@
 @inherits Soenneker.Quark.TypographyElement
 @implements IAnchor
 
-<a @attributes="BuildAttributes()">
+<a @onclick="HandleClick"
+   @onclick:preventDefault="PreventDefault"
+   @attributes="BuildAttributes()">
     @ChildContent
 </a>
 
@@ -19,6 +21,13 @@
     /// </summary>
     [Parameter]
     public Target? Target { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the default browser navigation behavior should be prevented.
+    /// Useful when navigation is coordinated manually from an OnClick handler.
+    /// </summary>
+    [Parameter]
+    public bool PreventDefault { get; set; }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -38,7 +47,9 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(To);
         hc.Add(Target);
+        hc.Add(PreventDefault);
     }
 }
