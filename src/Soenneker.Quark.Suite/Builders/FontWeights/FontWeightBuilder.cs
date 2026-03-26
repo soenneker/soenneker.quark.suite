@@ -47,8 +47,10 @@ public sealed class FontWeightBuilder : ICssBuilder
     /// Sets the font weight to normal.
     /// </summary>
     public FontWeightBuilder Normal => Chain(FontWeightKeyword.NormalValue);
-    // Note: Medium is not available in the current FontWeightKeyword package version
-    // public FontWeightBuilder Medium => Chain(FontWeightKeyword.MediumValue);
+    /// <summary>
+    /// Sets the font weight to medium.
+    /// </summary>
+    public FontWeightBuilder Medium => Chain("medium");
     /// <summary>
     /// Sets the font weight to semibold.
     /// </summary>
@@ -152,6 +154,7 @@ public sealed class FontWeightBuilder : ICssBuilder
                 FontWeightKeyword.LighterValue => _classLighter,
                 FontWeightKeyword.LightValue => _classLight,
                 FontWeightKeyword.NormalValue => _classNormal,
+                "medium" => _classMedium,
                 FontWeightKeyword.SemiboldValue => _classSemibold,
                 FontWeightKeyword.BoldValue => _classBold,
                 FontWeightKeyword.BolderValue => _classBolder,
@@ -190,7 +193,7 @@ public sealed class FontWeightBuilder : ICssBuilder
                 FontWeightKeyword.LighterValue => "lighter",
                 FontWeightKeyword.LightValue => "300",
                 FontWeightKeyword.NormalValue => "400",
-                // FontWeightKeyword.MediumValue => "500",
+                "medium" => "500",
                 FontWeightKeyword.SemiboldValue => "600",
                 FontWeightKeyword.BoldValue => "700",
                 FontWeightKeyword.BolderValue => "bolder",

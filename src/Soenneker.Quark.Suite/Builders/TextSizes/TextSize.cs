@@ -34,4 +34,14 @@ public static class TextSize
     /// Font size 6 (smallest). Generates 'fs-6' class.
     /// </summary>
     public static TextSizeBuilder Is6 => new("6");
+
+    /// <summary>
+    /// Font size 7. Generates 'text-xs' class.
+    /// </summary>
+    public static TextSizeBuilder Is7 => new("7");
+
+    /// <summary>
+    /// Font size lg. Generates 'text-lg' class.
+    /// </summary>
+    public static TextSizeBuilder Lg => new("lg");
 }

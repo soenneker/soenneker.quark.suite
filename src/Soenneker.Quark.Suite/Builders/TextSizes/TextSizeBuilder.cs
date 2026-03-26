@@ -22,6 +22,8 @@ public sealed class TextSizeBuilder : ICssBuilder
     private const string _fs4 = "text-xl";
     private const string _fs5 = "text-base";
     private const string _fs6 = "text-sm";
+    private const string _fs7 = "text-xs";
+    private const string _fsLg = "text-lg";
 
     // ----- CSS prefix (compile-time) -----
     private const string _fontSizePrefix = "font-size: ";
@@ -62,6 +64,14 @@ public sealed class TextSizeBuilder : ICssBuilder
     /// Sets the text size to 6.
     /// </summary>
     public TextSizeBuilder Is6 => ChainSize("6");
+    /// <summary>
+    /// Sets the text size to 7.
+    /// </summary>
+    public TextSizeBuilder Is7 => ChainSize("7");
+    /// <summary>
+    /// Sets the text size to lg.
+    /// </summary>
+    public TextSizeBuilder Lg => ChainSize("lg");
 
     // ----- BreakpointType chaining -----
     /// <summary>
@@ -183,6 +193,8 @@ public sealed class TextSizeBuilder : ICssBuilder
             "4" => _fs4,
             "5" => _fs5,
             "6" => _fs6,
+            "7" => _fs7,
+            "lg" => _fsLg,
             _ => string.Empty
         };
     }
@@ -199,6 +211,8 @@ public sealed class TextSizeBuilder : ICssBuilder
             "4" => "calc(1.275rem + 0.3vw)",
             "5" => "1.25rem",
             "6" => "1rem",
+            "7" => "0.75rem",
+            "lg" => "1.125rem",
             _ => size
         };
     }

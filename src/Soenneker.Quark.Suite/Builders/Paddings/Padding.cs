@@ -37,4 +37,14 @@ public static class Padding
     /// Size 5 padding (3rem).
     /// </summary>
     public static PaddingBuilder Is5 => new(ScaleType.Is5Value);
+
+    /// <summary>
+    /// Size 6 padding (1.5rem).
+    /// </summary>
+    public static PaddingBuilder Is6 => new("6");
+
+    /// <summary>
+    /// Size 8 padding (2rem).
+    /// </summary>
+    public static PaddingBuilder Is8 => new("8");
 }

@@ -21,6 +21,10 @@ public static class FontWeight
     /// </summary>
     public static FontWeightBuilder Normal => new(FontWeightKeyword.NormalValue);
     /// <summary>
+    /// Gets a font weight builder with medium value (500).
+    /// </summary>
+    public static FontWeightBuilder Medium => new("medium");
+    /// <summary>
     /// Gets a font weight builder with semibold value (600).
     /// </summary>
     public static FontWeightBuilder Semibold => new(FontWeightKeyword.SemiboldValue);

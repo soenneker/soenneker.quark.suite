@@ -89,6 +89,11 @@ public static class Flex
     /// <summary>
     /// Flex grow utilities.
     /// </summary>
+    public static FlexBuilder Fill => new("fill", "");
+
+    /// <summary>
+    /// Flex grow utilities.
+    /// </summary>
     public static class Grow
     {
         /// <summary>

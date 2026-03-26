@@ -91,6 +91,11 @@ public class ComponentOptions
     /// <summary>
     /// Gets or sets the CSS width configuration.
     /// </summary>
+    public CssValue<SizeBuilder>? BoxSize { get; set; }
+
+    /// <summary>
+    /// Gets or sets the CSS width configuration.
+    /// </summary>
     public CssValue<WidthBuilder>? Width { get; set; }
 
     /// <summary>
@@ -400,6 +405,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Padding, "padding");
         AddRules(buffer, baseSelector, Position, "position");
         AddRules(buffer, baseSelector, PositionOffset, null);
+        AddRules(buffer, baseSelector, BoxSize, null);
         AddRules(buffer, baseSelector, TextSize, "font-size");
         AddRules(buffer, baseSelector, TextStyle, null);
         AddRules(buffer, baseSelector, Width, "width");

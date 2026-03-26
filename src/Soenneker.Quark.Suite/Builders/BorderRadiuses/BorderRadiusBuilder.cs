@@ -104,6 +104,10 @@ public sealed class BorderRadiusBuilder : ICssBuilder
 	/// Sets the border radius size to 5.
 	/// </summary>
     public BorderRadiusBuilder Is5 => ChainWithSize("5");
+	/// <summary>
+	/// Sets the border radius size to Tailwind medium.
+	/// </summary>
+    public BorderRadiusBuilder Md => ChainWithSize("md");
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

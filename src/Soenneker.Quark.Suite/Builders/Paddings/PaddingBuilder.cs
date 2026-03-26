@@ -20,6 +20,8 @@ public sealed class PaddingBuilder : ICssBuilder
 
     // ----- Size tokens -----
     private const string _token0 = "0";
+    private const string _token6 = "6";
+    private const string _token8 = "8";
     private const string _tokenAuto = "auto";
 
     // ----- Side tokens (Tailwind: t=top, e=end, b=bottom, s=start, x=horizontal, y=vertical) -----
@@ -102,6 +104,14 @@ public sealed class PaddingBuilder : ICssBuilder
 	/// Sets the padding size to 5.
 	/// </summary>
     public PaddingBuilder Is5 => ChainWithSize(ScaleType.Is5);
+	/// <summary>
+	/// Sets the padding size to 6.
+	/// </summary>
+    public PaddingBuilder Is6 => ChainWithSize("6");
+	/// <summary>
+	/// Sets the padding size to 8.
+	/// </summary>
+    public PaddingBuilder Is8 => ChainWithSize("8");
 
 	/// <summary>
 	/// Applies the padding on phone breakpoint.
@@ -306,6 +316,8 @@ public sealed class PaddingBuilder : ICssBuilder
             ScaleType.Is3Value => ScaleType.Is3Value,
             ScaleType.Is4Value => ScaleType.Is4Value,
             ScaleType.Is5Value => ScaleType.Is5Value,
+            "6" => _token6,
+            "8" => _token8,
             "-1" => _tokenAuto, // "auto"
             _ => string.Empty
         };
@@ -353,6 +365,8 @@ public sealed class PaddingBuilder : ICssBuilder
             ScaleType.Is3Value => "1rem",
             ScaleType.Is4Value => "1.5rem",
             ScaleType.Is5Value => "3rem",
+            "6" => "1.5rem",
+            "8" => "2rem",
             "-1" => "auto",
             _ => size
         };

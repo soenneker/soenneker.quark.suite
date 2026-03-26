@@ -39,6 +39,11 @@ public static class Margin
     public static MarginBuilder Is5 => new(ScaleType.Is5Value);
 
     /// <summary>
+    /// Size 8 margin (2rem).
+    /// </summary>
+    public static MarginBuilder Is8 => new("8");
+
+    /// <summary>
     /// Auto margin (auto).
     /// </summary>
     public static MarginBuilder Auto => new("auto");

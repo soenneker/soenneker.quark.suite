@@ -25,6 +25,7 @@ public sealed class MarginBuilder : ICssBuilder
     private const string _token3 = "3";
     private const string _token4 = "4";
     private const string _token5 = "5";
+    private const string _token8 = "8";
     private const string _tokenAuto = "auto";
 
     // ----- Side tokens (Tailwind: t=top, e=end, b=bottom, s=start, x=horizontal, y=vertical) -----
@@ -107,6 +108,10 @@ public sealed class MarginBuilder : ICssBuilder
 	/// Sets the margin size to 5.
 	/// </summary>
     public MarginBuilder Is5 => ChainWithSize(ScaleType.Is5);
+	/// <summary>
+	/// Sets the margin size to 8.
+	/// </summary>
+    public MarginBuilder Is8 => ChainWithSize("8");
 	/// <summary>
 	/// Sets the margin to auto.
 	/// </summary>
@@ -313,6 +318,7 @@ public sealed class MarginBuilder : ICssBuilder
                 ScaleType.Is3Value => _token3,
                 ScaleType.Is4Value => _token4,
                 ScaleType.Is5Value => _token5,
+                "8" => _token8,
                 "auto" => _tokenAuto,
                 _ => string.Empty
             };
@@ -359,6 +365,7 @@ public sealed class MarginBuilder : ICssBuilder
                 ScaleType.Is3Value => "1rem",
                 ScaleType.Is4Value => "1.5rem",
                 ScaleType.Is5Value => "3rem",
+                "8" => "2rem",
                 "auto" => "auto",
                 _ => size
             };

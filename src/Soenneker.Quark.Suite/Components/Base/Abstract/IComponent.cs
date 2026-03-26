@@ -22,6 +22,7 @@ public interface IComponent : ICoreComponent
     CssValue<PaddingBuilder>? Padding { get; set; }
     CssValue<PositionBuilder>? Position { get; set; }
     CssValue<PositionOffsetBuilder>? PositionOffset { get; set; }
+    CssValue<SizeBuilder>? BoxSize { get; set; }
     CssValue<WidthBuilder>? Width { get; set; }
     CssValue<MinWidthBuilder>? MinWidth { get; set; }
     CssValue<MaxWidthBuilder>? MaxWidth { get; set; }

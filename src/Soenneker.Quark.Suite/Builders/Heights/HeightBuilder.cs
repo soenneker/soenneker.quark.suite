@@ -32,6 +32,7 @@ public sealed class HeightBuilder : ICssBuilder
     public HeightBuilder Is100 => ChainWithSize("100");
 
     public HeightBuilder Is0 => ChainWithSize("0");
+    public HeightBuilder Is8 => ChainWithSize("8");
     public HeightBuilder IsPx => ChainWithSize("px");
     public HeightBuilder IsFull => ChainWithSize("full");
     public HeightBuilder IsScreen => ChainWithSize("screen");
@@ -122,6 +123,7 @@ public sealed class HeightBuilder : ICssBuilder
             "75" => "h-3/4",
             "100" => "h-full",
             "0" => "h-0",
+            "8" => "h-8",
             "px" => "h-px",
             "full" => "h-full",
             "screen" => "h-screen",

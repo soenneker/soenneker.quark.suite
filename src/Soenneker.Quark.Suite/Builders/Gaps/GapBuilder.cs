@@ -80,6 +80,11 @@ public sealed class GapBuilder : ICssBuilder
     public GapBuilder Is5 => ChainWithSize(ScaleType.Is5Value);
 
     /// <summary>
+    /// Chain with an arbitrary Tailwind gap token for the next rule.
+    /// </summary>
+    public GapBuilder Token(string value) => ChainWithSize(value);
+
+    /// <summary>
     /// Apply to column gap only.
     /// </summary>
     public GapBuilder Column => ChainWithDirection("column");
@@ -245,6 +250,11 @@ public sealed class GapBuilder : ICssBuilder
                 ScaleType.Is3Value => _classGapX3,
                 ScaleType.Is4Value => _classGapX4,
                 ScaleType.Is5Value => _classGapX5,
+                "1.5" => "gap-x-1.5",
+                "6" => "gap-x-6",
+                "8" => "gap-x-8",
+                "16" => "gap-x-16",
+                "20" => "gap-x-20",
                 _ => string.Empty
             };
         }
@@ -258,6 +268,11 @@ public sealed class GapBuilder : ICssBuilder
                 ScaleType.Is3Value => _classGapY3,
                 ScaleType.Is4Value => _classGapY4,
                 ScaleType.Is5Value => _classGapY5,
+                "1.5" => "gap-y-1.5",
+                "6" => "gap-y-6",
+                "8" => "gap-y-8",
+                "16" => "gap-y-16",
+                "20" => "gap-y-20",
                 _ => string.Empty
             };
         }
@@ -271,6 +286,11 @@ public sealed class GapBuilder : ICssBuilder
                 ScaleType.Is3Value => _classGap3,
                 ScaleType.Is4Value => _classGap4,
                 ScaleType.Is5Value => _classGap5,
+                "1.5" => "gap-1.5",
+                "6" => "gap-6",
+                "8" => "gap-8",
+                "16" => "gap-16",
+                "20" => "gap-20",
                 _ => string.Empty
             };
         }
@@ -287,6 +307,11 @@ public sealed class GapBuilder : ICssBuilder
             ScaleType.Is3Value => "1rem",
             ScaleType.Is4Value => "1.5rem",
             ScaleType.Is5Value => "3rem",
+            "1.5" => "0.375rem",
+            "6" => "1.5rem",
+            "8" => "2rem",
+            "16" => "4rem",
+            "20" => "5rem",
             _ => size
         };
     }
