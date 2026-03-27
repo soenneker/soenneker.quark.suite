@@ -2,32 +2,52 @@
 
 <PageTitle>Components - Quark Suite</PageTitle>
 
-<Div data-slot="docs" class="-mx-4 -my-6 flex scroll-mt-24 items-stretch pb-8 text-[1.05rem] sm:text-[15px] md:-mx-6 lg:-mx-8 lg:-my-8 xl:w-full">
+<Div data-slot="docs"
+     Display="Display.Flex"
+     AlignUtility="Align.ItemsStretch"
+     ScrollMargin="ScrollMargin.Is24.FromTop"
+     Width="Width.Is0.OnXl.IsFull"
+     Padding="Padding.Is8.FromBottom"
+     class="-mx-4 -my-6 text-[1.05rem] sm:text-[15px] md:-mx-6 lg:-mx-8 lg:-my-8">
     <Div Flex="Flex.Display.Fill.Column" MinWidth="MinWidth.Is0">
-        <Div class="h-(--top-spacing) shrink-0"></Div>
+        <Div Height='@Height.Token("h-(--top-spacing)")' class="shrink-0"></Div>
 
-        <Div Margin="Margin.Auto.OnX"
+            <Div Margin="Margin.Auto.OnX"
              Width="Width.IsFull"
              MinWidth="MinWidth.Is0"
+             MaxWidth='@MaxWidth.Token("[40rem]")'
              Flex="Flex.Display.Fill.Column"
              Gap='@Gap.Token("6")'
-             Padding="Padding.Is4.OnX.Is6.OnY.Is0.OnX.OnMd.Is8.OnY.OnLg"
-             class="max-w-[40rem] text-neutral-800 dark:text-neutral-300">
+                 Padding="Padding.Is4.OnX.Is6.OnY.OnMd.Is0.OnX.OnLg.Is8.OnY"
+             class="text-neutral-800 dark:text-neutral-300">
             <Div Flex="Flex.Display.Column" Gap="Gap.Is2">
                 <Div Flex="Flex.Display.Column" Gap="Gap.Is2">
-                    <Div Display="Display.Flex" AlignUtility="Align.ItemsCenter.JustifyBetween.ItemsStart.OnMd">
-                        <H1 TextSize="TextSize.Is2" FontWeight="FontWeight.Semibold" LetterSpacing="LetterSpacing.Tight" class="scroll-m-24 sm:text-3xl">Components</H1>
+                    <Div Display="Display.Flex" AlignUtility="Align.ItemsCenter.JustifyBetween.OnMd.ItemsStart">
+                        <H1 TextSize="TextSize.Is2"
+                            FontWeight="FontWeight.Semibold"
+                            LetterSpacing="LetterSpacing.Tight"
+                            ScrollMargin="ScrollMargin.Is24"
+                            class="sm:text-3xl">
+                            Components
+                        </H1>
                     </Div>
 
-                    <Paragraph TextColor="TextColor.MutedForeground" TextSize="TextSize.Is5.OnSm" class="text-[1.05rem] sm:text-balance md:max-w-[80%]">
+                    <Paragraph TextColor="TextColor.MutedForeground" TextSize="TextSize.Is4.OnSm.Is5" class="text-[1.05rem] sm:text-balance md:max-w-[80%]">
                         Here you can find all the components available in the library. We are working on adding more components.
                     </Paragraph>
                 </Div>
             </Div>
 
-            <Div Width="Width.IsFull" Flex="Flex.Fill" class="pb-16 *:data-[slot=alert]:first:mt-0 sm:pb-0">
-                <Div Grid="Grid.Display.Cols(2).Cols(3).OnMd"
-                     Gap='@Gap.Is4.Token("8").Column.OnMd.Token("16").Column.OnLg.Token("6").Row.OnLg.Token("20").Column.OnXl'>
+            <Div Width="Width.IsFull"
+                 Flex="Flex.Fill"
+                 Padding="Padding.Is16.FromBottom.OnSm.Is0.FromBottom"
+                 class="*:data-[slot=alert]:first:mt-0">
+                <Div Grid="Grid.Display.Cols(2).OnMd.Cols(3)"
+                     Gap='Gap.Is4
+                              .OnMd.Token("8").Column
+                              .OnLg.Token("16").Column
+                              .OnLg.Token("6").Row
+                              .OnXl.Token("20").Column'>
                     @foreach (DocsNavLink item in DocsNavigation.ComponentLinks)
                     {
                         @if (item.Href is not null)
@@ -36,13 +56,14 @@
                                     Display="Display.InlineFlex"
                                     Flex="Flex.AlignCenter"
                                     Gap="Gap.Is2"
-                                    TextSize="TextSize.Lg.Is5.OnMd"
+                                    TextSize="TextSize.Lg.OnMd.Is5"
                                     FontWeight="FontWeight.Medium"
-                                    class="underline-offset-4 hover:underline">
+                                    LinkOffset="LinkOffset.Is4"
+                                    class="hover:underline">
                                 @item.Title
                                 @if (item.IsNew)
                                 {
-                                    <Span BoxSize="Size.Is2" class="rounded-full bg-blue-500"></Span>
+                                    <Span BoxSize="Size.Is2" BorderRadius="BorderRadius.Full" BackgroundColor='@BackgroundColor.FromCss("bg-blue-500")'></Span>
                                 }
                             </Anchor>
                         }
@@ -51,32 +72,32 @@
                             <Span Display="Display.InlineFlex"
                                   Flex="Flex.AlignCenter"
                                   Gap="Gap.Is2"
-                                  TextSize="TextSize.Lg.Is5.OnMd"
+                                  TextSize="TextSize.Lg.OnMd.Is5"
                                   FontWeight="FontWeight.Medium"
                                   TextColor="TextColor.MutedForeground">
                                 @item.Title
                                 @if (item.IsNew)
                                 {
-                                    <Span BoxSize="Size.Is2" class="rounded-full bg-blue-500"></Span>
+                                    <Span BoxSize="Size.Is2" BorderRadius="BorderRadius.Full" BackgroundColor='@BackgroundColor.FromCss("bg-blue-500")'></Span>
                                 }
                             </Span>
                         }
                     }
                 </Div>
 
-                <Hr Margin="Margin.Is4.OnY.Is8.OnY.OnMd" />
+                <Hr Margin="Margin.Is4.OnY.OnMd.Is8.OnY"/>
 
                 <Paragraph LineHeight="LineHeight.Large" class="[&:not(:first-child)]:mt-6">
-                    Can't find what you need? Try the <Anchor To="" FontWeight="FontWeight.Medium" class="underline underline-offset-4">documentation home</Anchor> for the full demo catalog.
+                    Can't find what you need? Try the <Anchor To="" FontWeight="FontWeight.Medium" TextDecoration="TextDecoration.Underline" LinkOffset="LinkOffset.Is4">documentation home</Anchor> for the full demo catalog.
                 </Paragraph>
             </Div>
 
-            <Div Display="Display.None.Flex.OnSm"
-                 Height='@Height.Token("16")'
+            <Div Display="Display.None.OnSm.Flex"
+                 Height="Height.Is16"
                  Width="Width.IsFull"
                  Flex="Flex.AlignCenter"
                  Gap="Gap.Is2"
-                 Padding="Padding.Is4.OnX.Is0.OnX.OnSm">
+                 Padding="Padding.Is4.OnX.OnSm.Is0.OnX">
                 <Anchor To="surfaces/accordions"
                         Display="Display.InlineFlex"
                         Height="Height.Is8"
@@ -93,8 +114,8 @@
                         class="ml-auto hover:bg-secondary/80">
                     Accordion
                     <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M5 12h14" />
-                        <path d="m13 18 6-6-6-6" />
+                        <path d="M5 12h14"/>
+                        <path d="m13 18 6-6-6-6"/>
                     </svg>
                 </Anchor>
             </Div>

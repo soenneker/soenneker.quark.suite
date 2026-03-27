@@ -14,6 +14,7 @@ namespace Soenneker.Quark;
 public sealed class FocusRingBuilder : ICssBuilder
 {
     private readonly List<FocusRingRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
 
     internal FocusRingBuilder(string color, BreakpointType? breakpoint = null)
@@ -67,47 +68,41 @@ public sealed class FocusRingBuilder : ICssBuilder
     /// <summary>
     /// Applies the focus ring on phone breakpoint.
     /// </summary>
-    public FocusRingBuilder OnBase => ChainBp(BreakpointType.Base);
+    public FocusRingBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the focus ring on small breakpoint (≥640px).
     /// </summary>
-    public FocusRingBuilder OnSm => ChainBp(BreakpointType.Sm);
+    public FocusRingBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the focus ring on tablet breakpoint.
     /// </summary>
-    public FocusRingBuilder OnMd => ChainBp(BreakpointType.Md);
+    public FocusRingBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the focus ring on laptop breakpoint.
     /// </summary>
-    public FocusRingBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public FocusRingBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the focus ring on desktop breakpoint.
     /// </summary>
-    public FocusRingBuilder OnXl => ChainBp(BreakpointType.Xl);
+    public FocusRingBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the focus ring on widescreen breakpoint.
     /// </summary>
-    public FocusRingBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public FocusRingBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FocusRingBuilder Chain(string color)
     {
-        _rules.Add(new FocusRingRule(color, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new FocusRingRule(color, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private FocusRingBuilder ChainBp(BreakpointType bp)
+    private FocusRingBuilder SetPendingBreakpoint(BreakpointType bp)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new FocusRingRule("primary", bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new FocusRingRule(last.Color, bp);
+        _pendingBreakpoint = bp;
         return this;
     }
 

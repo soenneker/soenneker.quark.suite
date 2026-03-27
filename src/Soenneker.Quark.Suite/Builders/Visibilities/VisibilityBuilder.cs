@@ -14,6 +14,7 @@ namespace Soenneker.Quark;
 public sealed class VisibilityBuilder : ICssBuilder
 {
     private readonly List<VisibilityRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     private const string _classInvisible = "invisible";
     private const string _classVisible = "visible";
@@ -61,48 +62,48 @@ public sealed class VisibilityBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the visibility on phone breakpoint.
 	/// </summary>
-    public VisibilityBuilder OnBase => ChainBp(BreakpointType.Base);
+    public VisibilityBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the visibility on small breakpoint (≥640px).
 	/// </summary>
-    public VisibilityBuilder OnSm => ChainBp(BreakpointType.Sm);
+    public VisibilityBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 	/// <summary>
 	/// Applies the visibility on tablet breakpoint.
 	/// </summary>
-    public VisibilityBuilder OnMd => ChainBp(BreakpointType.Md);
+    public VisibilityBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the visibility on laptop breakpoint.
 	/// </summary>
-    public VisibilityBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public VisibilityBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the visibility on desktop breakpoint.
 	/// </summary>
-    public VisibilityBuilder OnXl => ChainBp(BreakpointType.Xl);
+    public VisibilityBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the visibility on widescreen breakpoint.
 	/// </summary>
-    public VisibilityBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public VisibilityBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private VisibilityBuilder Chain(string value)
     {
-        _rules.Add(new VisibilityRule(value, null));
+        _rules.Add(new VisibilityRule(value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private VisibilityBuilder ChainBp(BreakpointType bp)
+    private VisibilityBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new VisibilityRule(VisibilityKeyword.VisibleValue, bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new VisibilityRule(last.Value, bp);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
 	/// <summary>

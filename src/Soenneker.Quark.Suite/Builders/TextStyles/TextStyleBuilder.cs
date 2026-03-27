@@ -12,16 +12,18 @@ namespace Soenneker.Quark;
 public sealed class TextStyleBuilder : ICssBuilder
 {
     private readonly List<TextStyleRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal TextStyleBuilder(string value, BreakpointType? breakpoint = null)
     {
         _rules.Add(new TextStyleRule(value, breakpoint));
     }
 
-    internal TextStyleBuilder(List<TextStyleRule> rules)
+    internal TextStyleBuilder(List<TextStyleRule> rules, BreakpointType? pendingBreakpoint = null)
     {
         if (rules is { Count: > 0 })
             _rules.AddRange(rules);
+        _pendingBreakpoint = pendingBreakpoint;
     }
 
     /// <summary>
@@ -83,49 +85,40 @@ public sealed class TextStyleBuilder : ICssBuilder
     /// <summary>
     /// Applies the text style on phone breakpoint.
     /// </summary>
-    public TextStyleBuilder OnBase => ChainBp(BreakpointType.Base);
+    public TextStyleBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the text style on small breakpoint (≥640px).
     /// </summary>
-    public TextStyleBuilder OnSm => ChainBp(BreakpointType.Sm);
+    public TextStyleBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the text style on tablet breakpoint.
     /// </summary>
-    public TextStyleBuilder OnMd => ChainBp(BreakpointType.Md);
+    public TextStyleBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the text style on laptop breakpoint.
     /// </summary>
-    public TextStyleBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public TextStyleBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the text style on desktop breakpoint.
     /// </summary>
-    public TextStyleBuilder OnXl => ChainBp(BreakpointType.Xl);
+    public TextStyleBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the text style on widescreen breakpoint.
     /// </summary>
-    public TextStyleBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public TextStyleBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
     private TextStyleBuilder ChainValue(string value)
     {
-        var newRules = new List<TextStyleRule>(_rules) { new(value, null) };
+        var bp = _pendingBreakpoint;
+        var newRules = new List<TextStyleRule>(_rules) { new TextStyleRule(value, bp) };
         return new TextStyleBuilder(newRules);
     }
 
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-    private TextStyleBuilder ChainBp(BreakpointType bp)
+    private TextStyleBuilder SetPendingBreakpoint(BreakpointType bp)
     {
-        var newRules = new List<TextStyleRule>(_rules);
-        if (newRules.Count == 0)
-        {
-            newRules.Add(new TextStyleRule("inherit", bp));
-            return new TextStyleBuilder(newRules);
-        }
-
-        var lastIdx = newRules.Count - 1;
-        var last = newRules[lastIdx];
-        newRules[lastIdx] = new TextStyleRule(last.Value, bp);
-        return new TextStyleBuilder(newRules);
+        return new TextStyleBuilder(new List<TextStyleRule>(_rules), bp);
     }
 
     /// <summary>

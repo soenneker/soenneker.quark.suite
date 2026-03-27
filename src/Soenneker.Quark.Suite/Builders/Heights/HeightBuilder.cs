@@ -14,6 +14,7 @@ namespace Soenneker.Quark;
 public sealed class HeightBuilder : ICssBuilder
 {
     private readonly List<HeightRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal HeightBuilder(string size, BreakpointType? breakpoint = null)
     {
@@ -33,6 +34,7 @@ public sealed class HeightBuilder : ICssBuilder
 
     public HeightBuilder Is0 => ChainWithSize("0");
     public HeightBuilder Is8 => ChainWithSize("8");
+    public HeightBuilder Is16 => ChainWithSize("16");
     public HeightBuilder IsPx => ChainWithSize("px");
     public HeightBuilder IsFull => ChainWithSize("full");
     public HeightBuilder IsScreen => ChainWithSize("screen");
@@ -49,12 +51,12 @@ public sealed class HeightBuilder : ICssBuilder
 
     public HeightBuilder Auto => ChainWithSize("auto");
 
-    public HeightBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
-    public HeightBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
-    public HeightBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
-    public HeightBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
-    public HeightBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
-    public HeightBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public HeightBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
+    public HeightBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    public HeightBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    public HeightBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    public HeightBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    public HeightBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     /// <summary>
     /// Applies an arbitrary Tailwind height token (e.g. "72", "[18rem]", "full").
@@ -64,22 +66,16 @@ public sealed class HeightBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private HeightBuilder ChainWithSize(string size)
     {
-        _rules.Add(new HeightRule(size, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new HeightRule(size, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private HeightBuilder ChainWithBreakpoint(BreakpointType breakpoint)
+    private HeightBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new HeightRule("full", breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new HeightRule(last.Size, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
     }
 

@@ -14,6 +14,7 @@ namespace Soenneker.Quark;
 public sealed class BoxShadowBuilder : ICssBuilder
 {
     private readonly List<BoxShadowRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     // ----- Class name constants -----
     private const string _classNone = "shadow-none";
@@ -52,48 +53,41 @@ public sealed class BoxShadowBuilder : ICssBuilder
     /// <summary>
     /// Applies the box shadow on phone breakpoint.
     /// </summary>
-    public BoxShadowBuilder OnBase => ChainBp(BreakpointType.Base);
+    public BoxShadowBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the box shadow on small breakpoint (≥640px).
     /// </summary>
-    public BoxShadowBuilder OnSm => ChainBp(BreakpointType.Sm);
+    public BoxShadowBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the box shadow on tablet breakpoint.
     /// </summary>
-    public BoxShadowBuilder OnMd => ChainBp(BreakpointType.Md);
+    public BoxShadowBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the box shadow on laptop breakpoint.
     /// </summary>
-    public BoxShadowBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public BoxShadowBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the box shadow on desktop breakpoint.
     /// </summary>
-    public BoxShadowBuilder OnXl => ChainBp(BreakpointType.Xl);
+    public BoxShadowBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the box shadow on widescreen breakpoint.
     /// </summary>
-    public BoxShadowBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public BoxShadowBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BoxShadowBuilder Chain(string value)
     {
-        _rules.Add(new BoxShadowRule(value, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new BoxShadowRule(value, bp));
         return this;
     }
 
-    /// <summary>Apply a BreakpointType to the most recent rule (or seed with "base" if empty).</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private BoxShadowBuilder ChainBp(BreakpointType bp)
+    private BoxShadowBuilder SetPendingBreakpoint(BreakpointType bp)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new BoxShadowRule("base", bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new BoxShadowRule(last.Value, bp);
+        _pendingBreakpoint = bp;
         return this;
     }
 

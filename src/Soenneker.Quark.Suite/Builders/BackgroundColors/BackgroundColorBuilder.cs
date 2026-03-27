@@ -15,6 +15,7 @@ namespace Soenneker.Quark;
 public sealed class BackgroundColorBuilder : ICssBuilder
 {
     private readonly List<BackgroundColorRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal BackgroundColorBuilder(string value, BreakpointType? breakpoint = null)
     {
@@ -171,47 +172,41 @@ public sealed class BackgroundColorBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the background color on phone breakpoint.
 	/// </summary>
-    public BackgroundColorBuilder OnBase => ChainBp(BreakpointType.Base);
+    public BackgroundColorBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the background color on small breakpoint (≥640px).
 	/// </summary>
-    public BackgroundColorBuilder OnSm => ChainBp(BreakpointType.Sm);
+    public BackgroundColorBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 	/// <summary>
 	/// Applies the background color on tablet breakpoint.
 	/// </summary>
-    public BackgroundColorBuilder OnMd => ChainBp(BreakpointType.Md);
+    public BackgroundColorBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the background color on laptop breakpoint.
 	/// </summary>
-    public BackgroundColorBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public BackgroundColorBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the background color on desktop breakpoint.
 	/// </summary>
-    public BackgroundColorBuilder OnXl => ChainBp(BreakpointType.Xl);
+    public BackgroundColorBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the background color on widescreen breakpoint.
 	/// </summary>
-    public BackgroundColorBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public BackgroundColorBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BackgroundColorBuilder ChainValue(string value)
     {
-        _rules.Add(new BackgroundColorRule(value, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new BackgroundColorRule(value, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private BackgroundColorBuilder ChainBp(BreakpointType bp)
+    private BackgroundColorBuilder SetPendingBreakpoint(BreakpointType bp)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new BackgroundColorRule("inherit", bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new BackgroundColorRule(last.Value, bp);
+        _pendingBreakpoint = bp;
         return this;
     }
 

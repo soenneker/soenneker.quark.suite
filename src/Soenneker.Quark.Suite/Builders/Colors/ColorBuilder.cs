@@ -15,6 +15,7 @@ namespace Soenneker.Quark;
 public sealed class ColorBuilder : ICssBuilder
 {
     private readonly List<ColorRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal ColorBuilder(string value, BreakpointType? breakpoint = null)
     {
@@ -166,48 +167,48 @@ public sealed class ColorBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the color on phone breakpoint.
 	/// </summary>
-    public ColorBuilder OnBase => ChainBp(BreakpointType.Base);
+    public ColorBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the color on small breakpoint (≥640px).
 	/// </summary>
-    public ColorBuilder OnSm => ChainBp(BreakpointType.Sm);
+    public ColorBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 	/// <summary>
 	/// Applies the color on tablet breakpoint.
 	/// </summary>
-    public ColorBuilder OnMd => ChainBp(BreakpointType.Md);
+    public ColorBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the color on laptop breakpoint.
 	/// </summary>
-    public ColorBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public ColorBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the color on desktop breakpoint.
 	/// </summary>
-    public ColorBuilder OnXl => ChainBp(BreakpointType.Xl);
+    public ColorBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the color on widescreen breakpoint.
 	/// </summary>
-    public ColorBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public ColorBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ColorBuilder ChainValue(string value)
     {
-        _rules.Add(new ColorRule(value, null));
+        _rules.Add(new ColorRule(value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ColorBuilder ChainBp(BreakpointType bp)
+    private ColorBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new ColorRule("inherit", bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new ColorRule(last.Value, bp);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
 	/// <summary>

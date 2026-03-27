@@ -14,6 +14,7 @@ namespace Soenneker.Quark;
 public sealed class UserSelectBuilder : ICssBuilder
 {
     private readonly List<UserSelectRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     private const string _classNone = "user-select-none";
     private const string _classAuto = "user-select-auto";
@@ -74,52 +75,46 @@ public sealed class UserSelectBuilder : ICssBuilder
     /// <summary>
     /// Applies the user select on phone breakpoint.
     /// </summary>
-    public UserSelectBuilder OnBase => ChainBp(BreakpointType.Base);
+    public UserSelectBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 
     /// <summary>
     /// Applies the user select on small breakpoint (≥640px).
     /// </summary>
-    public UserSelectBuilder OnSm => ChainBp(BreakpointType.Sm);
+    public UserSelectBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 
     /// <summary>
     /// Applies the user select on tablet breakpoint.
     /// </summary>
-    public UserSelectBuilder OnMd => ChainBp(BreakpointType.Md);
+    public UserSelectBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 
     /// <summary>
     /// Applies the user select on laptop breakpoint.
     /// </summary>
-    public UserSelectBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public UserSelectBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the user select on desktop breakpoint.
     /// </summary>
-    public UserSelectBuilder OnXl => ChainBp(BreakpointType.Xl);
+    public UserSelectBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the user select on widescreen breakpoint.
     /// </summary>
-    public UserSelectBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public UserSelectBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private UserSelectBuilder Chain(string value)
     {
-        _rules.Add(new UserSelectRule(value, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new UserSelectRule(value, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private UserSelectBuilder ChainBp(BreakpointType bp)
+    private UserSelectBuilder SetPendingBreakpoint(BreakpointType bp)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new UserSelectRule(UserSelectKeyword.AutoValue, bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new UserSelectRule(last.Value, bp);
+        _pendingBreakpoint = bp;
         return this;
     }
 

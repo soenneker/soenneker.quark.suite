@@ -13,6 +13,7 @@ namespace Soenneker.Quark;
 public sealed class BackgroundBlendModeBuilder : ICssBuilder
 {
     private readonly List<BackgroundBlendModeRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal BackgroundBlendModeBuilder(string value, BreakpointType? breakpoint = null)
     {
@@ -42,25 +43,32 @@ public sealed class BackgroundBlendModeBuilder : ICssBuilder
     public BackgroundBlendModeBuilder Color => Chain("color");
     public BackgroundBlendModeBuilder Luminosity => Chain("luminosity");
 
-    public BackgroundBlendModeBuilder OnSm => ChainBp(BreakpointType.Sm);
-    public BackgroundBlendModeBuilder OnMd => ChainBp(BreakpointType.Md);
-    public BackgroundBlendModeBuilder OnLg => ChainBp(BreakpointType.Lg);
-    public BackgroundBlendModeBuilder OnXl => ChainBp(BreakpointType.Xl);
-    public BackgroundBlendModeBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public BackgroundBlendModeBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    public BackgroundBlendModeBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    public BackgroundBlendModeBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    public BackgroundBlendModeBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    public BackgroundBlendModeBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BackgroundBlendModeBuilder Chain(string value)
     {
-        _rules.Add(new BackgroundBlendModeRule(value, null));
+        _rules.Add(new BackgroundBlendModeRule(value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private BackgroundBlendModeBuilder ChainBp(BreakpointType bp)
+    private BackgroundBlendModeBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0) _rules.Add(new BackgroundBlendModeRule("normal", bp));
-        else _rules[^1] = new BackgroundBlendModeRule(_rules[^1].Value, bp);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     public string ToClass()

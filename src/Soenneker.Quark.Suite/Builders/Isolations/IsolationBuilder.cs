@@ -13,6 +13,7 @@ namespace Soenneker.Quark;
 public sealed class IsolationBuilder : ICssBuilder
 {
     private readonly List<IsolationRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal IsolationBuilder(string value, BreakpointType? breakpoint = null)
     {
@@ -28,25 +29,32 @@ public sealed class IsolationBuilder : ICssBuilder
     public IsolationBuilder Auto => Chain("auto");
     public IsolationBuilder Isolate => Chain("isolate");
 
-    public IsolationBuilder OnSm => ChainBp(BreakpointType.Sm);
-    public IsolationBuilder OnMd => ChainBp(BreakpointType.Md);
-    public IsolationBuilder OnLg => ChainBp(BreakpointType.Lg);
-    public IsolationBuilder OnXl => ChainBp(BreakpointType.Xl);
-    public IsolationBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public IsolationBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    public IsolationBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    public IsolationBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    public IsolationBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    public IsolationBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private IsolationBuilder Chain(string value)
     {
-        _rules.Add(new IsolationRule(value, null));
+        _rules.Add(new IsolationRule(value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private IsolationBuilder ChainBp(BreakpointType bp)
+    private IsolationBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0) _rules.Add(new IsolationRule("auto", bp));
-        else _rules[^1] = new IsolationRule(_rules[^1].Value, bp);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     public string ToClass()

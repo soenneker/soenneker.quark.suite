@@ -13,6 +13,7 @@ namespace Soenneker.Quark;
 public sealed class OpacityBuilder : ICssBuilder
 {
     private readonly List<OpacityRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal OpacityBuilder(int value, BreakpointType? breakpoint = null)
     {
@@ -53,53 +54,53 @@ public sealed class OpacityBuilder : ICssBuilder
     /// <summary>
     /// Applies the opacity on phone breakpoint.
     /// </summary>
-    public OpacityBuilder OnBase => ChainBp(BreakpointType.Base);
+    public OpacityBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 
     /// <summary>
     /// Applies the opacity on small breakpoint (≥640px).
     /// </summary>
-    public OpacityBuilder OnSm => ChainBp(BreakpointType.Sm);
+    public OpacityBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 
     /// <summary>
     /// Applies the opacity on tablet breakpoint.
     /// </summary>
-    public OpacityBuilder OnMd => ChainBp(BreakpointType.Md);
+    public OpacityBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 
     /// <summary>
     /// Applies the opacity on laptop breakpoint.
     /// </summary>
-    public OpacityBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public OpacityBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the opacity on desktop breakpoint.
     /// </summary>
-    public OpacityBuilder OnXl => ChainBp(BreakpointType.Xl);
+    public OpacityBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the opacity on widescreen breakpoint.
     /// </summary>
-    public OpacityBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public OpacityBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private OpacityBuilder Chain(int value)
     {
-        _rules.Add(new OpacityRule(value, null));
+        _rules.Add(new OpacityRule(value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private OpacityBuilder ChainBp(BreakpointType bp)
+    private OpacityBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new OpacityRule(100, bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new OpacityRule(last.Value, bp);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     /// <summary>

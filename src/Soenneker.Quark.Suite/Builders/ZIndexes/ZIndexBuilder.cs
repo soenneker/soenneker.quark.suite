@@ -14,6 +14,7 @@ namespace Soenneker.Quark;
 public sealed class ZIndexBuilder : ICssBuilder
 {
     private readonly List<ZIndexRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     private const string _classNeg1 = "z-n1";
     private const string _class0 = "z-0";
@@ -60,52 +61,46 @@ public sealed class ZIndexBuilder : ICssBuilder
     /// <summary>
     /// Applies the z-index on phone breakpoint.
     /// </summary>
-    public ZIndexBuilder OnBase => ChainBp(BreakpointType.Base);
+    public ZIndexBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 
     /// <summary>
     /// Applies the z-index on small breakpoint (≥640px).
     /// </summary>
-    public ZIndexBuilder OnSm => ChainBp(BreakpointType.Sm);
+    public ZIndexBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 
     /// <summary>
     /// Applies the z-index on tablet breakpoint.
     /// </summary>
-    public ZIndexBuilder OnMd => ChainBp(BreakpointType.Md);
+    public ZIndexBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 
     /// <summary>
     /// Applies the z-index on laptop breakpoint.
     /// </summary>
-    public ZIndexBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public ZIndexBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the z-index on desktop breakpoint.
     /// </summary>
-    public ZIndexBuilder OnXl => ChainBp(BreakpointType.Xl);
+    public ZIndexBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the z-index on widescreen breakpoint.
     /// </summary>
-    public ZIndexBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public ZIndexBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ZIndexBuilder Chain(int value)
     {
-        _rules.Add(new ZIndexRule(value, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new ZIndexRule(value, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ZIndexBuilder ChainBp(BreakpointType bp)
+    private ZIndexBuilder SetPendingBreakpoint(BreakpointType bp)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new ZIndexRule(0, bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new ZIndexRule(last.Value, bp);
+        _pendingBreakpoint = bp;
         return this;
     }
 

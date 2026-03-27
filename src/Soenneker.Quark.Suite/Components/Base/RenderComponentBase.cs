@@ -247,6 +247,14 @@ public abstract class RenderComponentBase : CoreComponent
         if (v is not { IsEmpty: false })
             return;
 
+        string classText = v.Value.ToString();
+
+        if (classText.Length != 0)
+        {
+            AppendClass(ref clsB, classText);
+            return;
+        }
+
         if (v.Value.IsCssStyle)
         {
             string style = v.Value.StyleValue;
@@ -269,13 +277,10 @@ public abstract class RenderComponentBase : CoreComponent
         if (v is not { IsEmpty: false })
             return;
 
-        if (!v.Value.IsCssStyle)
+        string classText = v.Value.ToString();
+
+        if (classText.Length != 0)
         {
-            string classText = v.Value.ToString();
-
-            if (classText.Length == 0)
-                return;
-
             AppendClass(ref clsB, classText);
             return;
         }
@@ -297,13 +302,10 @@ public abstract class RenderComponentBase : CoreComponent
         if (v is not { IsEmpty: false })
             return;
 
-        if (!v.Value.IsCssStyle)
+        string classText = v.Value.ToString();
+
+        if (classText.Length != 0)
         {
-            string classText = v.Value.ToString();
-
-            if (classText.Length == 0)
-                return;
-
             AppendClass(ref clsB, classText);
             return;
         }
@@ -325,13 +327,10 @@ public abstract class RenderComponentBase : CoreComponent
         if (v is not { IsEmpty: false } vv)
             return;
 
-        if (!vv.IsCssStyle)
+        string classText = vv.ToString();
+
+        if (classText.Length != 0)
         {
-            string classText = vv.ToString();
-
-            if (classText.Length == 0)
-                return;
-
             AppendClass(ref clsB, classText);
             return;
         }
@@ -353,13 +352,10 @@ public abstract class RenderComponentBase : CoreComponent
         if (v is not { IsEmpty: false } vv)
             return;
 
-        if (!vv.IsCssStyle)
+        string classText = vv.ToString();
+
+        if (classText.Length != 0)
         {
-            string classText = vv.ToString();
-
-            if (classText.Length == 0)
-                return;
-
             AppendClass(ref clsB, classText);
             return;
         }
@@ -456,15 +452,15 @@ public abstract class RenderComponentBase : CoreComponent
 
         try
         {
+            builder(ref cls);
+
             if (attrs.TryGetValue("class", out object? existing))
             {
                 string? existingStr = existing.ToString();
 
                 if (existingStr.HasContent())
-                    cls.Append(existingStr);
+                    AppendClass(ref cls, existingStr);
             }
-
-            builder(ref cls);
 
             if (cls.Length > 0)
                 attrs["class"] = cls.ToString();
@@ -482,15 +478,15 @@ public abstract class RenderComponentBase : CoreComponent
 
         try
         {
+            builder(ref sty);
+
             if (attrs.TryGetValue("style", out object? existing))
             {
                 string? existingStr = existing.ToString();
 
                 if (existingStr.HasContent())
-                    sty.Append(existingStr);
+                    AppendStyleDecl(ref sty, existingStr);
             }
-
-            builder(ref sty);
 
             if (sty.Length > 0)
                 attrs["style"] = sty.ToString();
@@ -518,13 +514,13 @@ public abstract class RenderComponentBase : CoreComponent
 
         try
         {
+            builder(ref cls, ref sty);
+
             if (existingClassLen != 0)
-                cls.Append(existingClassStr!);
+                AppendClass(ref cls, existingClassStr!);
 
             if (existingStyleLen != 0)
-                sty.Append(existingStyleStr!);
-
-            builder(ref cls, ref sty);
+                AppendStyleDecl(ref sty, existingStyleStr!);
 
             if (cls.Length > 0)
                 attrs["class"] = existingClassObj is string && cls.Length == existingClassLen ? existingClassObj : cls.ToString();

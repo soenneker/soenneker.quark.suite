@@ -13,5 +13,6 @@ public static class ScrollMargin
     public static ScrollMarginBuilder Is3 => new(ScaleType.Is3Value);
     public static ScrollMarginBuilder Is4 => new(ScaleType.Is4Value);
     public static ScrollMarginBuilder Is5 => new(ScaleType.Is5Value);
+    public static ScrollMarginBuilder Is24 => new("24");
     public static ScrollMarginBuilder Px => new("px");
 }

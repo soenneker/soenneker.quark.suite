@@ -17,6 +17,10 @@ public static class LinkOffset
     /// Gets a link offset builder with value 3.
     /// </summary>
     public static LinkOffsetBuilder Is3 => new(3);
+    /// <summary>
+    /// Gets a link offset builder with value 4.
+    /// </summary>
+    public static LinkOffsetBuilder Is4 => new(4);
 }
 
 

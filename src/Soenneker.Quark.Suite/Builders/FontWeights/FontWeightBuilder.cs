@@ -13,6 +13,7 @@ namespace Soenneker.Quark;
 public sealed class FontWeightBuilder : ICssBuilder
 {
     private readonly List<FontWeightRule> _rules = new(6);
+    private BreakpointType? _pendingBreakpoint;
 
     // Tailwind font-weight utilities (for Quark Suite / shadcn)
     private const string _classLighter = "font-extralight";
@@ -87,52 +88,46 @@ public sealed class FontWeightBuilder : ICssBuilder
     /// <summary>
     /// Applies the font weight on phone breakpoint.
     /// </summary>
-    public FontWeightBuilder OnBase => ChainBp(BreakpointType.Base);
+    public FontWeightBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 
     /// <summary>
     /// Applies the font weight on small breakpoint (≥640px).
     /// </summary>
-    public FontWeightBuilder OnSm => ChainBp(BreakpointType.Sm);
+    public FontWeightBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 
     /// <summary>
     /// Applies the font weight on tablet breakpoint.
     /// </summary>
-    public FontWeightBuilder OnMd => ChainBp(BreakpointType.Md);
+    public FontWeightBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 
     /// <summary>
     /// Applies the font weight on laptop breakpoint.
     /// </summary>
-    public FontWeightBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public FontWeightBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the font weight on desktop breakpoint.
     /// </summary>
-    public FontWeightBuilder OnXl => ChainBp(BreakpointType.Xl);
+    public FontWeightBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the font weight on widescreen breakpoint.
     /// </summary>
-    public FontWeightBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public FontWeightBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FontWeightBuilder Chain(string value)
     {
-        _rules.Add(new FontWeightRule(value, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new FontWeightRule(value, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private FontWeightBuilder ChainBp(BreakpointType bp)
+    private FontWeightBuilder SetPendingBreakpoint(BreakpointType bp)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new FontWeightRule(FontWeightKeyword.NormalValue, bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new FontWeightRule(last.Value, bp);
+        _pendingBreakpoint = bp;
         return this;
     }
 

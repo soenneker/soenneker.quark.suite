@@ -14,6 +14,7 @@ namespace Soenneker.Quark;
 public sealed class FloatBuilder : ICssBuilder
 {
     private readonly List<FloatRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     // Tailwind float utilities (for Quark Suite / shadcn). Start/End for RTL; Left/Right map to same.
     private const string _classStart = "float-start";
@@ -77,48 +78,48 @@ public sealed class FloatBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the float on phone breakpoint.
 	/// </summary>
-    public FloatBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    public FloatBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the float on small breakpoint (≥640px).
 	/// </summary>
-    public FloatBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
+    public FloatBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 	/// <summary>
 	/// Applies the float on tablet breakpoint.
 	/// </summary>
-    public FloatBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
+    public FloatBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the float on laptop breakpoint.
 	/// </summary>
-    public FloatBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
+    public FloatBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the float on desktop breakpoint.
 	/// </summary>
-    public FloatBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
+    public FloatBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the float on widescreen breakpoint.
 	/// </summary>
-    public FloatBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public FloatBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FloatBuilder ChainWithValue(string value)
     {
-        _rules.Add(new FloatRule(value, null));
+        _rules.Add(new FloatRule(value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private FloatBuilder ChainWithBreakpoint(BreakpointType breakpoint)
+    private FloatBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new FloatRule(FloatKeyword.NoneValue, breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new FloatRule(last.Value, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     /// <summary>

@@ -14,6 +14,7 @@ namespace Soenneker.Quark;
 public sealed class TextWrapBuilder : ICssBuilder
 {
     private readonly List<TextWrapRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     // Tailwind text-wrap / whitespace utilities (for Quark Suite / shadcn)
     private const string _classWrap = "text-wrap";
@@ -73,47 +74,41 @@ public sealed class TextWrapBuilder : ICssBuilder
     /// <summary>
     /// Applies the text wrap on phone breakpoint.
     /// </summary>
-    public TextWrapBuilder OnBase => ChainBp(BreakpointType.Base);
+    public TextWrapBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the text wrap on small breakpoint (≥640px).
     /// </summary>
-    public TextWrapBuilder OnSm => ChainBp(BreakpointType.Sm);
+    public TextWrapBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the text wrap on tablet breakpoint.
     /// </summary>
-    public TextWrapBuilder OnMd => ChainBp(BreakpointType.Md);
+    public TextWrapBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the text wrap on laptop breakpoint.
     /// </summary>
-    public TextWrapBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public TextWrapBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the text wrap on desktop breakpoint.
     /// </summary>
-    public TextWrapBuilder OnXl => ChainBp(BreakpointType.Xl);
+    public TextWrapBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the text wrap on widescreen breakpoint.
     /// </summary>
-    public TextWrapBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public TextWrapBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextWrapBuilder Chain(string value)
     {
-        _rules.Add(new TextWrapRule(value, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new TextWrapRule(value, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private TextWrapBuilder ChainBp(BreakpointType bp)
+    private TextWrapBuilder SetPendingBreakpoint(BreakpointType bp)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new TextWrapRule(TextWrapKeyword.WrapValue, bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new TextWrapRule(last.Value, bp);
+        _pendingBreakpoint = bp;
         return this;
     }
 

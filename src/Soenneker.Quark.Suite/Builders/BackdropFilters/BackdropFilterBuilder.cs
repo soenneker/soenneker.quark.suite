@@ -15,6 +15,7 @@ namespace Soenneker.Quark;
 public sealed class BackdropFilterBuilder : ICssBuilder
 {
     private readonly List<BackdropFilterRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     private const string _classBackdropFilterNone = "backdrop-filter-none";
     private const string _classBackdropFilterBlur = "backdrop-blur";
@@ -87,47 +88,41 @@ public sealed class BackdropFilterBuilder : ICssBuilder
     /// <summary>
     /// Applies the backdrop filter on phone breakpoint.
     /// </summary>
-    public BackdropFilterBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    public BackdropFilterBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the backdrop filter on small breakpoint (≥640px).
     /// </summary>
-    public BackdropFilterBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
+    public BackdropFilterBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the backdrop filter on tablet breakpoint.
     /// </summary>
-    public BackdropFilterBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
+    public BackdropFilterBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the backdrop filter on laptop breakpoint.
     /// </summary>
-    public BackdropFilterBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
+    public BackdropFilterBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the backdrop filter on desktop breakpoint.
     /// </summary>
-    public BackdropFilterBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
+    public BackdropFilterBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the backdrop filter on widescreen breakpoint.
     /// </summary>
-    public BackdropFilterBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public BackdropFilterBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BackdropFilterBuilder ChainWithFilter(string filter)
     {
-        _rules.Add(new BackdropFilterRule(filter, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new BackdropFilterRule(filter, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private BackdropFilterBuilder ChainWithBreakpoint(BreakpointType breakpoint)
+    private BackdropFilterBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new BackdropFilterRule("none", breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new BackdropFilterRule(last.Filter, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
     }
 

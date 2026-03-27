@@ -350,14 +350,14 @@ public static class TailwindMerge
         if (TryGetSimplePrefixGroup(utility, "max-h-", "max-height"))
             return "max-height";
 
-        if (TryGetSimplePrefixGroup(utility, "gap-", "gap"))
-            return "gap";
-
         if (TryGetSimplePrefixGroup(utility, "gap-x-", "gap-x"))
             return "gap-x";
 
         if (TryGetSimplePrefixGroup(utility, "gap-y-", "gap-y"))
             return "gap-y";
+
+        if (TryGetSimplePrefixGroup(utility, "gap-", "gap"))
+            return "gap";
 
         if (TryGetSimplePrefixGroup(utility, "opacity-", "opacity"))
             return "opacity";

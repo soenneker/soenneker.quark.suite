@@ -15,6 +15,7 @@ namespace Soenneker.Quark;
 public sealed class DisplayBuilder : ICssBuilder
 {
     private readonly List<DisplayRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal DisplayBuilder(string display, BreakpointType? breakpoint = null)
     {
@@ -95,47 +96,41 @@ public sealed class DisplayBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the display on phone breakpoint.
 	/// </summary>
-    public DisplayBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    public DisplayBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the display on small breakpoint (≥640px).
 	/// </summary>
-    public DisplayBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
+    public DisplayBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 	/// <summary>
 	/// Applies the display on tablet breakpoint.
 	/// </summary>
-    public DisplayBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
+    public DisplayBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the display on laptop breakpoint.
 	/// </summary>
-    public DisplayBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
+    public DisplayBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the display on desktop breakpoint.
 	/// </summary>
-    public DisplayBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
+    public DisplayBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the display on widescreen breakpoint.
 	/// </summary>
-    public DisplayBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public DisplayBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private DisplayBuilder ChainWithDisplay(string display)
     {
-        _rules.Add(new DisplayRule(display, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new DisplayRule(display, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private DisplayBuilder ChainWithBreakpoint(BreakpointType breakpoint)
+    private DisplayBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new DisplayRule(DisplayKeyword.BlockValue, breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new DisplayRule(last.Display, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
     }
 

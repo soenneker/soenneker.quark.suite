@@ -7,8 +7,8 @@
 <PageTitle>Quark Suite Demo</PageTitle>
 
 <CascadingValue Value="ThemeService">
-    <Div class="min-h-svh bg-background text-foreground" style="--header-height: 3.5rem;">
-        <Div class="sticky top-0 z-50 w-full border-b bg-background">
+    <Div class="flex h-svh flex-col overflow-hidden bg-background text-foreground" style="--header-height: 3.5rem;">
+        <Div class="sticky top-0 z-50 w-full shrink-0 border-b bg-background">
             <Div class="container-wrapper px-6">
                 <Div class="flex h-(--header-height) items-center gap-4">
                     <Button Type="@ButtonType.Button"
@@ -43,7 +43,7 @@
                                   LineHeight="LineHeight.Is1">
                                 Soenneker Quark Suite
                             </Span>
-                            <Span Display="Display.None.Block.OnSm"
+                            <Span Display="Display.None.OnSm.Block"
                                   Truncate="Truncate.Default"
                                   TextSize="TextSize.Is7"
                                   TextColor="TextColor.MutedForeground">
@@ -52,7 +52,7 @@
                         </Div>
                     </Anchor>
 
-                    <Div Display="Display.None.Flex.OnLg" Flex="Flex.AlignCenter" Gap="Gap.Is1">
+                    <Div Display="Display.None.OnLg.Flex" Flex="Flex.AlignCenter" Gap="Gap.Is1">
                     @foreach (var item in DocsNavigation.TopLinks)
                     {
                         @if (item.Href is not null)
@@ -75,7 +75,7 @@
 
                     </Div>
 
-                    <Div class="ml-auto" Flex="Flex.Display.AlignCenter.Fill.OnMd.JustifyEnd.OnMd" Gap="Gap.Is2">
+                    <Div class="ml-auto" Flex="Flex.Display.AlignCenter.OnMd.Fill.OnMd.JustifyEnd" Gap="Gap.Is2">
                         <Anchor To="https://github.com/soenneker/soenneker.quark.suite"
                            Target="Target.Blank"
                            rel="noreferrer"
@@ -84,7 +84,7 @@
                             <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                 <path d="M12 .5C5.65.5.5 5.65.5 12A11.5 11.5 0 0 0 8.36 22.9c.57.1.78-.25.78-.56 0-.28-.01-1.2-.02-2.18-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.72.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.76 2.68 1.25 3.34.96.1-.74.4-1.25.73-1.53-2.55-.29-5.23-1.27-5.23-5.68 0-1.26.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.17 1.18a10.97 10.97 0 0 1 5.77 0c2.2-1.5 3.17-1.18 3.17-1.18.62 1.58.23 2.75.11 3.04.73.8 1.18 1.82 1.18 3.08 0 4.42-2.69 5.39-5.25 5.67.41.35.78 1.04.78 2.1 0 1.52-.01 2.75-.01 3.12 0 .31.21.67.79.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
                             </svg>
-                            <Span Display="Display.None.Inline.OnSm">GitHub</Span>
+                            <Span Display="Display.None.OnSm.Inline">GitHub</Span>
                         </Anchor>
                         <Button Type="@ButtonType.Button"
                                 Variant="ButtonVariant.Ghost"
@@ -120,11 +120,11 @@
 
         @if (ShowDocsSidebar)
         {
-            <Div class="container-wrapper" Flex="Flex.Display.Fill.Column" Padding="Padding.Is2.OnX">
-                <SidebarProvider Class="min-h-min flex-1 items-start px-0 [--top-spacing:0] lg:grid lg:grid-cols-[var(--sidebar-width)_minmax(0,1fr)] lg:[--top-spacing:calc(var(--spacing)*4)] 3xl:fixed:container 3xl:fixed:px-3"
+            <Div class="container-wrapper min-h-0 flex-1 overflow-hidden" Padding="Padding.Is2.OnX">
+                <SidebarProvider Class="h-full min-h-0 flex-1 items-start overflow-hidden px-0 [--top-spacing:0] lg:grid lg:grid-cols-[var(--sidebar-width)_minmax(0,1fr)] lg:[--top-spacing:calc(var(--spacing)*4)] 3xl:fixed:container 3xl:fixed:px-3"
                                  SidebarWidth="calc(var(--spacing) * 72)">
                     <Sidebar Collapsible="SidebarCollapsible.None"
-                             Class="hidden lg:flex sticky top-[calc(var(--header-height)+0.6rem)] z-30 h-[calc(100svh-10rem)] overscroll-none bg-transparent [--sidebar-menu-width:--spacing(56)]">
+                             Class="hidden h-full overflow-hidden bg-transparent [--sidebar-menu-width:--spacing(56)] lg:flex">
                         <Div class="h-9"></Div>
                         <Div class="absolute top-8 z-10 h-8 w-(--sidebar-menu-width) shrink-0 bg-linear-to-b from-background via-background/80 to-background/50 blur-xs"></Div>
                         <Div class="absolute top-12 right-2 bottom-0 hidden h-full w-px bg-linear-to-b from-transparent via-border to-transparent lg:flex"></Div>
@@ -206,7 +206,7 @@
                         </SidebarContent>
                     </Sidebar>
 
-                    <Div class="h-full w-full">
+                    <Div class="h-full w-full overflow-y-auto overflow-x-hidden">
                         <Main class="@MainClass">
                             @Body
                         </Main>
@@ -216,9 +216,11 @@
         }
         else
         {
-            <Main class="@MainClass">
-                @Body
-            </Main>
+            <Div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+                <Main class="@MainClass">
+                    @Body
+                </Main>
+            </Div>
         }
 
         @if (IsMobileMenuVisible)

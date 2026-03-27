@@ -14,6 +14,7 @@ namespace Soenneker.Quark;
 public sealed class TextSizeBuilder : ICssBuilder
 {
     private readonly List<TextSizeRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     // Tailwind text size utilities (for Quark Suite / shadcn). 1=largest, 6=smallest.
     private const string _fs1 = "text-4xl";
@@ -77,47 +78,40 @@ public sealed class TextSizeBuilder : ICssBuilder
     /// <summary>
     /// Applies the text size on phone breakpoint.
     /// </summary>
-    public TextSizeBuilder OnBase => ChainBp(BreakpointType.Base);
+    public TextSizeBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the text size on small breakpoint (≥640px).
     /// </summary>
-    public TextSizeBuilder OnSm => ChainBp(BreakpointType.Sm);
+    public TextSizeBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the text size on tablet breakpoint.
     /// </summary>
-    public TextSizeBuilder OnMd => ChainBp(BreakpointType.Md);
+    public TextSizeBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the text size on laptop breakpoint.
     /// </summary>
-    public TextSizeBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public TextSizeBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the text size on desktop breakpoint.
     /// </summary>
-    public TextSizeBuilder OnXl => ChainBp(BreakpointType.Xl);
+    public TextSizeBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the text size on widescreen breakpoint.
     /// </summary>
-    public TextSizeBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public TextSizeBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextSizeBuilder ChainSize(string size)
     {
-        _rules.Add(new TextSizeRule(size, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new TextSizeRule(size, bp));
         return this;
     }
 
-    /// <summary>Apply a BreakpointType to the most recent rule (or seed with "4" if empty).</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private TextSizeBuilder ChainBp(BreakpointType bp)
+    private TextSizeBuilder SetPendingBreakpoint(BreakpointType bp)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new TextSizeRule("4", bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new TextSizeRule(last.Size, bp);
+        _pendingBreakpoint = bp;
         return this;
     }
 

@@ -13,6 +13,7 @@ namespace Soenneker.Quark;
 public sealed class ScrollSnapBuilder : ICssBuilder
 {
     private readonly List<ScrollSnapRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal ScrollSnapBuilder(string value, BreakpointType? breakpoint = null)
     {
@@ -32,25 +33,32 @@ public sealed class ScrollSnapBuilder : ICssBuilder
     public ScrollSnapBuilder Mandatory => Chain("mandatory");
     public ScrollSnapBuilder Proximity => Chain("proximity");
 
-    public ScrollSnapBuilder OnSm => ChainBp(BreakpointType.Sm);
-    public ScrollSnapBuilder OnMd => ChainBp(BreakpointType.Md);
-    public ScrollSnapBuilder OnLg => ChainBp(BreakpointType.Lg);
-    public ScrollSnapBuilder OnXl => ChainBp(BreakpointType.Xl);
-    public ScrollSnapBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public ScrollSnapBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    public ScrollSnapBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    public ScrollSnapBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    public ScrollSnapBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    public ScrollSnapBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScrollSnapBuilder Chain(string value)
     {
-        _rules.Add(new ScrollSnapRule(value, null));
+        _rules.Add(new ScrollSnapRule(value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ScrollSnapBuilder ChainBp(BreakpointType bp)
+    private ScrollSnapBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0) _rules.Add(new ScrollSnapRule("none", bp));
-        else _rules[^1] = new ScrollSnapRule(_rules[^1].Value, bp);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     public string ToClass()

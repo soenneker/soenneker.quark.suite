@@ -79,6 +79,11 @@ public class ComponentOptions
     public CssValue<PositionOffsetBuilder>? PositionOffset { get; set; }
 
     /// <summary>
+    /// Gets or sets the CSS scroll-margin configuration.
+    /// </summary>
+    public CssValue<ScrollMarginBuilder>? ScrollMargin { get; set; }
+
+    /// <summary>
     /// Gets or sets the CSS text size (font-size) configuration.
     /// </summary>
     public CssValue<TextSizeBuilder>? TextSize { get; set; }
@@ -405,6 +410,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Padding, "padding");
         AddRules(buffer, baseSelector, Position, "position");
         AddRules(buffer, baseSelector, PositionOffset, null);
+        AddRules(buffer, baseSelector, ScrollMargin, null);
         AddRules(buffer, baseSelector, BoxSize, null);
         AddRules(buffer, baseSelector, TextSize, "font-size");
         AddRules(buffer, baseSelector, TextStyle, null);

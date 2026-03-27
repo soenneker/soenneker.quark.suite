@@ -13,6 +13,7 @@ namespace Soenneker.Quark;
 public sealed class MixBlendModeBuilder : ICssBuilder
 {
     private readonly List<MixBlendModeRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal MixBlendModeBuilder(string value, BreakpointType? breakpoint = null)
     {
@@ -44,25 +45,32 @@ public sealed class MixBlendModeBuilder : ICssBuilder
     public MixBlendModeBuilder PlusDarker => Chain("plus-darker");
     public MixBlendModeBuilder PlusLighter => Chain("plus-lighter");
 
-    public MixBlendModeBuilder OnSm => ChainBp(BreakpointType.Sm);
-    public MixBlendModeBuilder OnMd => ChainBp(BreakpointType.Md);
-    public MixBlendModeBuilder OnLg => ChainBp(BreakpointType.Lg);
-    public MixBlendModeBuilder OnXl => ChainBp(BreakpointType.Xl);
-    public MixBlendModeBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public MixBlendModeBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    public MixBlendModeBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    public MixBlendModeBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    public MixBlendModeBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    public MixBlendModeBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private MixBlendModeBuilder Chain(string value)
     {
-        _rules.Add(new MixBlendModeRule(value, null));
+        _rules.Add(new MixBlendModeRule(value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private MixBlendModeBuilder ChainBp(BreakpointType bp)
+    private MixBlendModeBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0) _rules.Add(new MixBlendModeRule("normal", bp));
-        else _rules[^1] = new MixBlendModeRule(_rules[^1].Value, bp);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     public string ToClass()

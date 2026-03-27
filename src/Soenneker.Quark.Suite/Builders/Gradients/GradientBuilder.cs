@@ -10,6 +10,7 @@ namespace Soenneker.Quark;
 public sealed class GradientBuilder : ICssBuilder
 {
     private readonly List<GradientRule> _rules = new(6);
+    private BreakpointType? _pendingBreakpoint;
 
     internal GradientBuilder(string utility, string value, BreakpointType? breakpoint = null)
     {
@@ -21,33 +22,33 @@ public sealed class GradientBuilder : ICssBuilder
     public GradientBuilder Via(string value) => Chain("via", value);
     public GradientBuilder End(string value) => Chain("to", value);
 
-    public GradientBuilder OnBase => ChainBreakpoint(BreakpointType.Base);
-    public GradientBuilder OnSm => ChainBreakpoint(BreakpointType.Sm);
-    public GradientBuilder OnMd => ChainBreakpoint(BreakpointType.Md);
-    public GradientBuilder OnLg => ChainBreakpoint(BreakpointType.Lg);
-    public GradientBuilder OnXl => ChainBreakpoint(BreakpointType.Xl);
-    public GradientBuilder On2xl => ChainBreakpoint(BreakpointType.Xxl);
+    public GradientBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
+    public GradientBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    public GradientBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    public GradientBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    public GradientBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    public GradientBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private GradientBuilder Chain(string utility, string value)
     {
-        _rules.Add(new GradientRule(utility, value, null));
+        _rules.Add(new GradientRule(utility, value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private GradientBuilder ChainBreakpoint(BreakpointType breakpoint)
+    private GradientBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new GradientRule("bg-gradient-to", "r", breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new GradientRule(last.Utility, last.Value, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     public string ToClass()

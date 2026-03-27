@@ -12,6 +12,7 @@ public static class Height
 
     public static HeightBuilder Is0 => new("0");
     public static HeightBuilder Is8 => new("8");
+    public static HeightBuilder Is16 => new("16");
     public static HeightBuilder IsPx => new("px");
     public static HeightBuilder IsFull => new("full");
     public static HeightBuilder IsScreen => new("screen");

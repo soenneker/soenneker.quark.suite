@@ -13,6 +13,7 @@ namespace Soenneker.Quark;
 public sealed class InsetBuilder : ICssBuilder
 {
     private readonly List<InsetRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     private const string _baseToken = "inset";
     private const string _token0 = "0";
@@ -54,17 +55,18 @@ public sealed class InsetBuilder : ICssBuilder
     public InsetBuilder Px => ChainWithSize(_tokenPx);
     public InsetBuilder Auto => ChainWithSize("auto");
 
-    public InsetBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
-    public InsetBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
-    public InsetBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
-    public InsetBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
-    public InsetBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public InsetBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    public InsetBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    public InsetBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    public InsetBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    public InsetBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private InsetBuilder AddRule(ElementSideType side)
     {
+        var pending = ConsumePendingBreakpoint();
         var size = _rules.Count > 0 ? _rules[^1].Size : ScaleType.Is0Value;
-        var bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
+        var bp = pending ?? (_rules.Count > 0 ? _rules[^1].Breakpoint : null);
         if (_rules.Count > 0 && _rules[^1].Side == ElementSideType.All)
             _rules[^1] = new InsetRule(size, side, bp);
         else
@@ -75,28 +77,30 @@ public sealed class InsetBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private InsetBuilder ChainWithSize(string size)
     {
-        _rules.Add(new InsetRule(size, ElementSideType.All, null));
+        _rules.Add(new InsetRule(size, ElementSideType.All, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private InsetBuilder ChainWithSize(ScaleType scale)
     {
-        _rules.Add(new InsetRule(scale.Value, ElementSideType.All, null));
+        _rules.Add(new InsetRule(scale.Value, ElementSideType.All, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private InsetBuilder ChainWithBreakpoint(BreakpointType breakpoint)
+    private InsetBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-            _rules.Add(new InsetRule(ScaleType.Is0Value, ElementSideType.All, breakpoint));
-        else
-        {
-            var last = _rules[^1];
-            _rules[^1] = new InsetRule(last.Size, last.Side, breakpoint);
-        }
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     public string ToClass()

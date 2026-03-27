@@ -59,6 +59,11 @@ public static class BorderRadius
     /// </summary>
     public static BorderRadiusBuilder Md => new("md");
 
+    /// <summary>
+    /// Tailwind full border radius. Generates 'rounded-full' class.
+    /// </summary>
+    public static BorderRadiusBuilder Full => new("full");
+
     // ----- Corner-specific builders -----
     /// <summary>
     /// Top-left corner border radius builder.

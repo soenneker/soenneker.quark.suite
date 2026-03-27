@@ -13,6 +13,7 @@ namespace Soenneker.Quark;
 public sealed class CaretColorBuilder : ICssBuilder
 {
     private readonly List<CaretColorRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal CaretColorBuilder(string value, BreakpointType? breakpoint = null)
     {
@@ -32,25 +33,32 @@ public sealed class CaretColorBuilder : ICssBuilder
     public CaretColorBuilder Initial => Chain(GlobalKeyword.InitialValue);
     public CaretColorBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
-    public CaretColorBuilder OnSm => ChainBp(BreakpointType.Sm);
-    public CaretColorBuilder OnMd => ChainBp(BreakpointType.Md);
-    public CaretColorBuilder OnLg => ChainBp(BreakpointType.Lg);
-    public CaretColorBuilder OnXl => ChainBp(BreakpointType.Xl);
-    public CaretColorBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public CaretColorBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    public CaretColorBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    public CaretColorBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    public CaretColorBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    public CaretColorBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private CaretColorBuilder Chain(string value)
     {
-        _rules.Add(new CaretColorRule(value, null));
+        _rules.Add(new CaretColorRule(value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private CaretColorBuilder ChainBp(BreakpointType bp)
+    private CaretColorBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0) _rules.Add(new CaretColorRule("primary", bp));
-        else _rules[^1] = new CaretColorRule(_rules[^1].Value, bp);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     public string ToClass()

@@ -14,6 +14,7 @@ namespace Soenneker.Quark;
 public sealed class MarginBuilder : ICssBuilder
 {
     private readonly List<MarginRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     // ----- Class tokens -----
     private const string _baseToken = "m";
@@ -120,32 +121,34 @@ public sealed class MarginBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the margin on phone breakpoint.
 	/// </summary>
-    public MarginBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    public MarginBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the margin on small breakpoint (≥640px).
 	/// </summary>
-    public MarginBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
+    public MarginBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 	/// <summary>
 	/// Applies the margin on tablet breakpoint.
 	/// </summary>
-    public MarginBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
+    public MarginBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the margin on laptop breakpoint.
 	/// </summary>
-    public MarginBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
+    public MarginBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the margin on desktop breakpoint.
 	/// </summary>
-    public MarginBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
+    public MarginBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the margin on widescreen breakpoint.
 	/// </summary>
-    public MarginBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public MarginBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private MarginBuilder AddRule(ElementSideType side)
     {
         var size = _rules.Count > 0 ? _rules[^1].Size : ScaleType.Is0Value;
-        var bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
+        var existingBp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
+        var bp = _pendingBreakpoint ?? existingBp;
+        _pendingBreakpoint = null;
 
         if (_rules.Count > 0 && _rules[^1].Side == ElementSideType.All)
         {
@@ -162,29 +165,25 @@ public sealed class MarginBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private MarginBuilder ChainWithSize(string size)
     {
-        _rules.Add(new MarginRule(size, ElementSideType.All, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new MarginRule(size, ElementSideType.All, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private MarginBuilder ChainWithSize(ScaleType scale)
     {
-        _rules.Add(new MarginRule(scale.Value, ElementSideType.All, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new MarginRule(scale.Value, ElementSideType.All, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private MarginBuilder ChainWithBreakpoint(BreakpointType breakpoint)
+    private MarginBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new MarginRule(ScaleType.Is0Value, ElementSideType.All, breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new MarginRule(last.Size, last.Side, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
     }
 

@@ -13,6 +13,7 @@ namespace Soenneker.Quark;
 public sealed class ScrollSnapAlignBuilder : ICssBuilder
 {
     private readonly List<ScrollSnapAlignRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal ScrollSnapAlignBuilder(string value, BreakpointType? breakpoint = null)
     {
@@ -30,25 +31,32 @@ public sealed class ScrollSnapAlignBuilder : ICssBuilder
     public ScrollSnapAlignBuilder End => Chain("end");
     public ScrollSnapAlignBuilder None => Chain("none");
 
-    public ScrollSnapAlignBuilder OnSm => ChainBp(BreakpointType.Sm);
-    public ScrollSnapAlignBuilder OnMd => ChainBp(BreakpointType.Md);
-    public ScrollSnapAlignBuilder OnLg => ChainBp(BreakpointType.Lg);
-    public ScrollSnapAlignBuilder OnXl => ChainBp(BreakpointType.Xl);
-    public ScrollSnapAlignBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public ScrollSnapAlignBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    public ScrollSnapAlignBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    public ScrollSnapAlignBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    public ScrollSnapAlignBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    public ScrollSnapAlignBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScrollSnapAlignBuilder Chain(string value)
     {
-        _rules.Add(new ScrollSnapAlignRule(value, null));
+        _rules.Add(new ScrollSnapAlignRule(value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ScrollSnapAlignBuilder ChainBp(BreakpointType bp)
+    private ScrollSnapAlignBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0) _rules.Add(new ScrollSnapAlignRule("start", bp));
-        else _rules[^1] = new ScrollSnapAlignRule(_rules[^1].Value, bp);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     public string ToClass()

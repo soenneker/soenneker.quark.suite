@@ -15,6 +15,7 @@ namespace Soenneker.Quark;
 public sealed class TransitionBuilder : ICssBuilder
 {
     private readonly List<TransitionRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     private const string _classTransitionNone = "transition-none";
     private const string _classTransitionAll = "transition-all";
@@ -67,47 +68,41 @@ public sealed class TransitionBuilder : ICssBuilder
     /// <summary>
     /// Applies the transition on phone breakpoint.
     /// </summary>
-    public TransitionBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    public TransitionBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the transition on small breakpoint (≥640px).
     /// </summary>
-    public TransitionBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
+    public TransitionBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the transition on tablet breakpoint.
     /// </summary>
-    public TransitionBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
+    public TransitionBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the transition on laptop breakpoint.
     /// </summary>
-    public TransitionBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
+    public TransitionBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the transition on desktop breakpoint.
     /// </summary>
-    public TransitionBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
+    public TransitionBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the transition on widescreen breakpoint.
     /// </summary>
-    public TransitionBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public TransitionBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TransitionBuilder ChainWithTransition(string transition)
     {
-        _rules.Add(new TransitionRule(transition, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new TransitionRule(transition, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private TransitionBuilder ChainWithBreakpoint(BreakpointType breakpoint)
+    private TransitionBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new TransitionRule("none", breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new TransitionRule(last.Transition, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
     }
 

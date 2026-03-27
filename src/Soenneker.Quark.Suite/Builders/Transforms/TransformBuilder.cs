@@ -15,6 +15,7 @@ namespace Soenneker.Quark;
 public sealed class TransformBuilder : ICssBuilder
 {
     private readonly List<TransformRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     private const string _classTransformNone = "transform-none";
     private const string _classTransformScale = "scale";
@@ -62,47 +63,41 @@ public sealed class TransformBuilder : ICssBuilder
     /// <summary>
     /// Applies the transform on phone breakpoint.
     /// </summary>
-    public TransformBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    public TransformBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the transform on small breakpoint (≥640px).
     /// </summary>
-    public TransformBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
+    public TransformBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the transform on tablet breakpoint.
     /// </summary>
-    public TransformBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
+    public TransformBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the transform on laptop breakpoint.
     /// </summary>
-    public TransformBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
+    public TransformBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the transform on desktop breakpoint.
     /// </summary>
-    public TransformBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
+    public TransformBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the transform on widescreen breakpoint.
     /// </summary>
-    public TransformBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public TransformBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TransformBuilder ChainWithTransform(string transform)
     {
-        _rules.Add(new TransformRule(transform, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new TransformRule(transform, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private TransformBuilder ChainWithBreakpoint(BreakpointType breakpoint)
+    private TransformBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new TransformRule("none", breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new TransformRule(last.Transform, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
     }
 

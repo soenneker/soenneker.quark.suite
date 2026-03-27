@@ -14,6 +14,7 @@ namespace Soenneker.Quark;
 public sealed class TextDecorationBuilder : ICssBuilder
 {
     private readonly List<TextDecorationRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
     private string? _style;
     private string? _color;
     private string? _thickness;
@@ -171,32 +172,34 @@ public sealed class TextDecorationBuilder : ICssBuilder
     /// <summary>
     /// Applies the text decoration on phone breakpoint.
     /// </summary>
-    public TextDecorationBuilder OnBase => ChainBp(BreakpointType.Base);
+    public TextDecorationBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the text decoration on small breakpoint (≥640px).
     /// </summary>
-    public TextDecorationBuilder OnSm => ChainBp(BreakpointType.Sm);
+    public TextDecorationBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the text decoration on tablet breakpoint.
     /// </summary>
-    public TextDecorationBuilder OnMd => ChainBp(BreakpointType.Md);
+    public TextDecorationBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the text decoration on laptop breakpoint.
     /// </summary>
-    public TextDecorationBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public TextDecorationBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the text decoration on desktop breakpoint.
     /// </summary>
-    public TextDecorationBuilder OnXl => ChainBp(BreakpointType.Xl);
+    public TextDecorationBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the text decoration on widescreen breakpoint.
     /// </summary>
-    public TextDecorationBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public TextDecorationBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextDecorationBuilder Chain(string value)
     {
-        _rules.Add(new TextDecorationRule(value, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new TextDecorationRule(value, bp));
         return this;
     }
 
@@ -207,19 +210,10 @@ public sealed class TextDecorationBuilder : ICssBuilder
         return this;
     }
 
-    /// <summary>Apply a BreakpointType to the most recent rule (or seed with a default if empty).</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private TextDecorationBuilder ChainBp(BreakpointType bp)
+    private TextDecorationBuilder SetPendingBreakpoint(BreakpointType bp)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new TextDecorationRule(TextDecorationLineKeyword.NoneValue, bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new TextDecorationRule(last.Value, bp);
+        _pendingBreakpoint = bp;
         return this;
     }
 

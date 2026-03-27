@@ -10,6 +10,7 @@ namespace Soenneker.Quark;
 public sealed class RingOffsetBuilder : ICssBuilder
 {
     private readonly List<RingOffsetRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal RingOffsetBuilder(string utility, string value = "", BreakpointType? breakpoint = null)
     {
@@ -19,33 +20,33 @@ public sealed class RingOffsetBuilder : ICssBuilder
     public RingOffsetBuilder Width(int value) => Chain("ring-offset", value.ToString());
     public RingOffsetBuilder Color(string value) => Chain("ring-offset", value);
 
-    public RingOffsetBuilder OnBase => ChainBreakpoint(BreakpointType.Base);
-    public RingOffsetBuilder OnSm => ChainBreakpoint(BreakpointType.Sm);
-    public RingOffsetBuilder OnMd => ChainBreakpoint(BreakpointType.Md);
-    public RingOffsetBuilder OnLg => ChainBreakpoint(BreakpointType.Lg);
-    public RingOffsetBuilder OnXl => ChainBreakpoint(BreakpointType.Xl);
-    public RingOffsetBuilder On2xl => ChainBreakpoint(BreakpointType.Xxl);
+    public RingOffsetBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
+    public RingOffsetBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    public RingOffsetBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    public RingOffsetBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    public RingOffsetBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    public RingOffsetBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private RingOffsetBuilder Chain(string utility, string value)
     {
-        _rules.Add(new RingOffsetRule(utility, value, null));
+        _rules.Add(new RingOffsetRule(utility, value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private RingOffsetBuilder ChainBreakpoint(BreakpointType breakpoint)
+    private RingOffsetBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new RingOffsetRule("ring-offset", "0", breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new RingOffsetRule(last.Utility, last.Value, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     public string ToClass()

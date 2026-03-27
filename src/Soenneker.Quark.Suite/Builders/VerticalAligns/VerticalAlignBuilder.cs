@@ -14,6 +14,7 @@ namespace Soenneker.Quark;
 public sealed class VerticalAlignBuilder : ICssBuilder
 {
     private readonly List<VerticalAlignRule> _rules = new(6);
+    private BreakpointType? _pendingBreakpoint;
 
     internal VerticalAlignBuilder(string value, BreakpointType? breakpoint = null)
     {
@@ -84,53 +85,53 @@ public sealed class VerticalAlignBuilder : ICssBuilder
     /// <summary>
     /// Applies the vertical alignment on phone breakpoint.
     /// </summary>
-    public VerticalAlignBuilder OnBase => ChainBp(BreakpointType.Base);
+    public VerticalAlignBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 
     /// <summary>
     /// Applies the vertical alignment on small breakpoint (≥640px).
     /// </summary>
-    public VerticalAlignBuilder OnSm => ChainBp(BreakpointType.Sm);
+    public VerticalAlignBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 
     /// <summary>
     /// Applies the vertical alignment on tablet breakpoint.
     /// </summary>
-    public VerticalAlignBuilder OnMd => ChainBp(BreakpointType.Md);
+    public VerticalAlignBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 
     /// <summary>
     /// Applies the vertical alignment on laptop breakpoint.
     /// </summary>
-    public VerticalAlignBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public VerticalAlignBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the vertical alignment on desktop breakpoint.
     /// </summary>
-    public VerticalAlignBuilder OnXl => ChainBp(BreakpointType.Xl);
+    public VerticalAlignBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the vertical alignment on widescreen breakpoint.
     /// </summary>
-    public VerticalAlignBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public VerticalAlignBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private VerticalAlignBuilder Chain(string value)
     {
-        _rules.Add(new VerticalAlignRule(value, null));
+        _rules.Add(new VerticalAlignRule(value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private VerticalAlignBuilder ChainBp(BreakpointType bp)
+    private VerticalAlignBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new VerticalAlignRule(VerticalAlignKeyword.BaselineValue, bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new VerticalAlignRule(last.Value, bp);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     /// <summary>

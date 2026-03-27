@@ -47,4 +47,9 @@ public static class Padding
     /// Size 8 padding (2rem).
     /// </summary>
     public static PaddingBuilder Is8 => new("8");
+
+    /// <summary>
+    /// Size 16 padding (4rem).
+    /// </summary>
+    public static PaddingBuilder Is16 => new("16");
 }

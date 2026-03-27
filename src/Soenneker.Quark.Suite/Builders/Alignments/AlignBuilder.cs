@@ -10,6 +10,7 @@ namespace Soenneker.Quark;
 public sealed class AlignBuilder : ICssBuilder
 {
     private readonly List<AlignRule> _rules = new(8);
+    private BreakpointType? _pendingBreakpoint;
 
     internal AlignBuilder(string utility, string value, BreakpointType? breakpoint = null)
     {
@@ -55,33 +56,33 @@ public sealed class AlignBuilder : ICssBuilder
     public AlignBuilder JustifySelfCenter => Chain("justify-self-center", "");
     public AlignBuilder JustifySelfStretch => Chain("justify-self-stretch", "");
 
-    public AlignBuilder OnBase => ChainBreakpoint(BreakpointType.Base);
-    public AlignBuilder OnSm => ChainBreakpoint(BreakpointType.Sm);
-    public AlignBuilder OnMd => ChainBreakpoint(BreakpointType.Md);
-    public AlignBuilder OnLg => ChainBreakpoint(BreakpointType.Lg);
-    public AlignBuilder OnXl => ChainBreakpoint(BreakpointType.Xl);
-    public AlignBuilder On2xl => ChainBreakpoint(BreakpointType.Xxl);
+    public AlignBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
+    public AlignBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    public AlignBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    public AlignBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    public AlignBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    public AlignBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private AlignBuilder Chain(string utility, string value)
     {
-        _rules.Add(new AlignRule(utility, value, null));
+        _rules.Add(new AlignRule(utility, value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private AlignBuilder ChainBreakpoint(BreakpointType breakpoint)
+    private AlignBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new AlignRule("items-start", "", breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new AlignRule(last.Utility, last.Value, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     public string ToClass()

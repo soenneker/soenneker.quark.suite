@@ -16,6 +16,7 @@ namespace Soenneker.Quark;
 public sealed class BorderBuilder : ICssBuilder
 {
     private readonly List<BorderRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     // ----- Class tokens -----
     private const string _baseToken = "b";
@@ -105,33 +106,34 @@ public sealed class BorderBuilder : ICssBuilder
 	/// <summary>
 	/// Applies the border on phone breakpoint.
 	/// </summary>
-    public BorderBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    public BorderBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the border on small breakpoint (≥640px).
 	/// </summary>
-    public BorderBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
+    public BorderBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 	/// <summary>
 	/// Applies the border on tablet breakpoint.
 	/// </summary>
-    public BorderBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
+    public BorderBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the border on laptop breakpoint.
 	/// </summary>
-    public BorderBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
+    public BorderBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the border on desktop breakpoint.
 	/// </summary>
-    public BorderBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
+    public BorderBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the border on widescreen breakpoint.
 	/// </summary>
-    public BorderBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public BorderBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BorderBuilder AddRule(ElementSideType side)
     {
+        var pending = ConsumePendingBreakpoint();
         var size = _rules.Count > 0 ? _rules[^1].Size : "0";
-        var bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
+        var bp = pending ?? (_rules.Count > 0 ? _rules[^1].Breakpoint : null);
 
         if (_rules.Count > 0 && _rules[^1].Side == ElementSideType.All)
         {
@@ -148,23 +150,23 @@ public sealed class BorderBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BorderBuilder ChainWithSize(ScaleType scale)
     {
-        _rules.Add(new BorderRule(scale.Value, ElementSideType.All, null));
+        _rules.Add(new BorderRule(scale.Value, ElementSideType.All, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private BorderBuilder ChainWithBreakpoint(BreakpointType breakpoint)
+    private BorderBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new BorderRule("0", ElementSideType.All, breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new BorderRule(last.Size, last.Side, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     /// <summary>Gets the CSS class string for the current configuration.</summary>

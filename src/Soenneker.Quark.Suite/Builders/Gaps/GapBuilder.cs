@@ -15,6 +15,7 @@ namespace Soenneker.Quark;
 public sealed class GapBuilder : ICssBuilder
 {
     private readonly List<GapRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     // Tailwind: gap-*, gap-x-* (column), gap-y-* (row) — shadcn/Tailwind compatible
     private const string _classGap0 = "gap-0";
@@ -97,32 +98,32 @@ public sealed class GapBuilder : ICssBuilder
     /// <summary>
     /// Apply on phone devices (portrait phones, less than 576px).
     /// </summary>
-    public GapBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    public GapBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 
     /// <summary>
     /// Apply on small screens (≥640px).
     /// </summary>
-    public GapBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
+    public GapBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 
     /// <summary>
     /// Apply on mobile devices (landscape phones, 576px and up).
     /// </summary>
-    public GapBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
+    public GapBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 
     /// <summary>
     /// Apply on laptop devices (laptops, 992px and up).
     /// </summary>
-    public GapBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
+    public GapBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 
     /// <summary>
     /// Apply on desktop devices (desktops, 1200px and up).
     /// </summary>
-    public GapBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
+    public GapBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 
     /// <summary>
     /// Apply on wide screen devices (larger desktops, 1400px and up).
     /// </summary>
-    public GapBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public GapBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     /// <summary>
     /// Apply on ultrawide devices (ultrawide screens, 1920px and up).
@@ -131,7 +132,9 @@ public sealed class GapBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private GapBuilder ChainWithSize(string size)
     {
-        _rules.Add(new GapRule(size, null, ""));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new GapRule(size, bp, ""));
         return this;
     }
 
@@ -140,28 +143,24 @@ public sealed class GapBuilder : ICssBuilder
     {
         if (_rules.Count == 0)
         {
-            _rules.Add(new GapRule(ScaleType.Is0Value, null, direction));
+            var bpEmpty = _pendingBreakpoint;
+            _pendingBreakpoint = null;
+            _rules.Add(new GapRule(ScaleType.Is0Value, bpEmpty, direction));
             return this;
         }
 
         var lastIdx = _rules.Count - 1;
         var last = _rules[lastIdx];
-        _rules[lastIdx] = new GapRule(last.Size, last.Breakpoint, direction);
+        var bpRewrite = _pendingBreakpoint ?? last.Breakpoint;
+        _pendingBreakpoint = null;
+        _rules[lastIdx] = new GapRule(last.Size, bpRewrite, direction);
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private GapBuilder ChainWithBreakpoint(BreakpointType breakpoint)
+    private GapBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new GapRule(ScaleType.Is0Value, breakpoint, ""));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new GapRule(last.Size, breakpoint, last.Direction);
+        _pendingBreakpoint = breakpoint;
         return this;
     }
 

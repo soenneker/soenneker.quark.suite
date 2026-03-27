@@ -14,6 +14,7 @@ namespace Soenneker.Quark;
 public sealed class OverscrollBuilder : ICssBuilder
 {
     private readonly List<OverscrollRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal OverscrollBuilder(string value, BreakpointType? breakpoint = null)
     {
@@ -43,32 +44,26 @@ public sealed class OverscrollBuilder : ICssBuilder
     /// </summary>
     public OverscrollBuilder Token(string token) => Chain(token);
 
-    public OverscrollBuilder OnBase => ChainBreakpoint(BreakpointType.Base);
-    public OverscrollBuilder OnSm => ChainBreakpoint(BreakpointType.Sm);
-    public OverscrollBuilder OnMd => ChainBreakpoint(BreakpointType.Md);
-    public OverscrollBuilder OnLg => ChainBreakpoint(BreakpointType.Lg);
-    public OverscrollBuilder OnXl => ChainBreakpoint(BreakpointType.Xl);
-    public OverscrollBuilder OnXxl => ChainBreakpoint(BreakpointType.Xxl);
+    public OverscrollBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
+    public OverscrollBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    public OverscrollBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    public OverscrollBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    public OverscrollBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    public OverscrollBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private OverscrollBuilder Chain(string value)
     {
-        _rules.Add(new OverscrollRule(value, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new OverscrollRule(value, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private OverscrollBuilder ChainBreakpoint(BreakpointType breakpoint)
+    private OverscrollBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new OverscrollRule("auto", breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new OverscrollRule(last.Value, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
     }
 

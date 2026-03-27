@@ -13,6 +13,7 @@ namespace Soenneker.Quark;
 public sealed class LineHeightBuilder : ICssBuilder
 {
     private readonly List<LineHeightRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     // Tailwind leading (line-height) utilities (for Quark Suite / shadcn)
     private const string _classLh1 = "leading-none";
@@ -51,48 +52,48 @@ public sealed class LineHeightBuilder : ICssBuilder
     /// <summary>
     /// Applies the line height on phone breakpoint.
     /// </summary>
-    public LineHeightBuilder OnBase => ChainBp(BreakpointType.Base);
+    public LineHeightBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the line height on small breakpoint (≥640px).
     /// </summary>
-    public LineHeightBuilder OnSm => ChainBp(BreakpointType.Sm);
+    public LineHeightBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the line height on tablet breakpoint.
     /// </summary>
-    public LineHeightBuilder OnMd => ChainBp(BreakpointType.Md);
+    public LineHeightBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the line height on laptop breakpoint.
     /// </summary>
-    public LineHeightBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public LineHeightBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the line height on desktop breakpoint.
     /// </summary>
-    public LineHeightBuilder OnXl => ChainBp(BreakpointType.Xl);
+    public LineHeightBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the line height on widescreen breakpoint.
     /// </summary>
-    public LineHeightBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public LineHeightBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private LineHeightBuilder Chain(string value)
     {
-        _rules.Add(new LineHeightRule(value, null));
+        _rules.Add(new LineHeightRule(value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private LineHeightBuilder ChainBp(BreakpointType bp)
+    private LineHeightBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new LineHeightRule("base", bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new LineHeightRule(last.Value, bp);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     /// <summary>

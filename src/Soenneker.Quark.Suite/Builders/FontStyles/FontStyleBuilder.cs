@@ -14,6 +14,7 @@ namespace Soenneker.Quark;
 public sealed class FontStyleBuilder : ICssBuilder
 {
     private readonly List<FontStyleRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     // Tailwind font-style utilities (for Quark Suite / shadcn)
     private const string _classItalic = "italic";
@@ -63,48 +64,48 @@ public sealed class FontStyleBuilder : ICssBuilder
     /// <summary>
     /// Applies the font style on phone breakpoint.
     /// </summary>
-    public FontStyleBuilder OnBase => ChainBp(BreakpointType.Base);
+    public FontStyleBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the font style on small breakpoint (≥640px).
     /// </summary>
-    public FontStyleBuilder OnSm => ChainBp(BreakpointType.Sm);
+    public FontStyleBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the font style on tablet breakpoint.
     /// </summary>
-    public FontStyleBuilder OnMd => ChainBp(BreakpointType.Md);
+    public FontStyleBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the font style on laptop breakpoint.
     /// </summary>
-    public FontStyleBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public FontStyleBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the font style on desktop breakpoint.
     /// </summary>
-    public FontStyleBuilder OnXl => ChainBp(BreakpointType.Xl);
+    public FontStyleBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the font style on widescreen breakpoint.
     /// </summary>
-    public FontStyleBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public FontStyleBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FontStyleBuilder Chain(string value)
     {
-        _rules.Add(new FontStyleRule(value, null));
+        _rules.Add(new FontStyleRule(value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private FontStyleBuilder ChainBp(BreakpointType bp)
+    private FontStyleBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new FontStyleRule(FontStyleKeyword.NormalValue, bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new FontStyleRule(last.Value, bp);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     /// <summary>

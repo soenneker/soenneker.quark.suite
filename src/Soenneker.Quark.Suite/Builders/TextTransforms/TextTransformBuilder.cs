@@ -14,6 +14,7 @@ namespace Soenneker.Quark;
 public sealed class TextTransformBuilder : ICssBuilder
 {
     private readonly List<TextTransformRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     // Tailwind text-transform utilities (for Quark Suite / shadcn)
     private const string _classLower = "lowercase";
@@ -68,48 +69,48 @@ public sealed class TextTransformBuilder : ICssBuilder
     /// <summary>
     /// Applies the text transform on phone breakpoint.
     /// </summary>
-    public TextTransformBuilder OnBase => ChainBp(BreakpointType.Base);
+    public TextTransformBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the text transform on small breakpoint (≥640px).
     /// </summary>
-    public TextTransformBuilder OnSm => ChainBp(BreakpointType.Sm);
+    public TextTransformBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the text transform on tablet breakpoint.
     /// </summary>
-    public TextTransformBuilder OnMd => ChainBp(BreakpointType.Md);
+    public TextTransformBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the text transform on laptop breakpoint.
     /// </summary>
-    public TextTransformBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public TextTransformBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the text transform on desktop breakpoint.
     /// </summary>
-    public TextTransformBuilder OnXl => ChainBp(BreakpointType.Xl);
+    public TextTransformBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the text transform on widescreen breakpoint.
     /// </summary>
-    public TextTransformBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public TextTransformBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextTransformBuilder Chain(string value)
     {
-        _rules.Add(new TextTransformRule(value, null));
+        _rules.Add(new TextTransformRule(value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private TextTransformBuilder ChainBp(BreakpointType bp)
+    private TextTransformBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new TextTransformRule(TextTransformKeyword.LowercaseValue, bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new TextTransformRule(last.Value, bp);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     /// <summary>

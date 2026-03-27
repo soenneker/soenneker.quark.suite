@@ -13,6 +13,7 @@ namespace Soenneker.Quark;
 public sealed class ScrollPaddingBuilder : ICssBuilder
 {
     private readonly List<ScrollPaddingRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     private const string _baseToken = "scroll-p";
     private const string _sideT = "t";
@@ -51,17 +52,18 @@ public sealed class ScrollPaddingBuilder : ICssBuilder
     public ScrollPaddingBuilder Is5 => ChainWithSize(ScaleType.Is5);
     public ScrollPaddingBuilder Px => ChainWithSize("px");
 
-    public ScrollPaddingBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
-    public ScrollPaddingBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
-    public ScrollPaddingBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
-    public ScrollPaddingBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
-    public ScrollPaddingBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ScrollPaddingBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    public ScrollPaddingBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    public ScrollPaddingBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    public ScrollPaddingBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    public ScrollPaddingBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScrollPaddingBuilder AddRule(ElementSideType side)
     {
+        var pending = ConsumePendingBreakpoint();
         var size = _rules.Count > 0 ? _rules[^1].Size : ScaleType.Is0Value;
-        var bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
+        var bp = pending ?? (_rules.Count > 0 ? _rules[^1].Breakpoint : null);
         if (_rules.Count > 0 && _rules[^1].Side == ElementSideType.All)
             _rules[^1] = new ScrollPaddingRule(size, side, bp);
         else
@@ -72,28 +74,30 @@ public sealed class ScrollPaddingBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScrollPaddingBuilder ChainWithSize(string size)
     {
-        _rules.Add(new ScrollPaddingRule(size, ElementSideType.All, null));
+        _rules.Add(new ScrollPaddingRule(size, ElementSideType.All, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScrollPaddingBuilder ChainWithSize(ScaleType scale)
     {
-        _rules.Add(new ScrollPaddingRule(scale.Value, ElementSideType.All, null));
+        _rules.Add(new ScrollPaddingRule(scale.Value, ElementSideType.All, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ScrollPaddingBuilder ChainWithBreakpoint(BreakpointType breakpoint)
+    private ScrollPaddingBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-            _rules.Add(new ScrollPaddingRule(ScaleType.Is0Value, ElementSideType.All, breakpoint));
-        else
-        {
-            var last = _rules[^1];
-            _rules[^1] = new ScrollPaddingRule(last.Size, last.Side, breakpoint);
-        }
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     public string ToClass()

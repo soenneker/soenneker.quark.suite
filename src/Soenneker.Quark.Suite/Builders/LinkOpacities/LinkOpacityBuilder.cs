@@ -13,6 +13,7 @@ namespace Soenneker.Quark;
 public sealed class LinkOpacityBuilder : ICssBuilder
 {
     private readonly List<LinkOpacityRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal LinkOpacityBuilder(int value, BreakpointType? breakpoint = null)
     {
@@ -49,47 +50,41 @@ public sealed class LinkOpacityBuilder : ICssBuilder
     /// <summary>
     /// Applies the link opacity on phone breakpoint.
     /// </summary>
-    public LinkOpacityBuilder OnBase => ChainBp(BreakpointType.Base);
+    public LinkOpacityBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the link opacity on small breakpoint (≥640px).
     /// </summary>
-    public LinkOpacityBuilder OnSm => ChainBp(BreakpointType.Sm);
+    public LinkOpacityBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the link opacity on tablet breakpoint.
     /// </summary>
-    public LinkOpacityBuilder OnMd => ChainBp(BreakpointType.Md);
+    public LinkOpacityBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the link opacity on laptop breakpoint.
     /// </summary>
-    public LinkOpacityBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public LinkOpacityBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the link opacity on desktop breakpoint.
     /// </summary>
-    public LinkOpacityBuilder OnXl => ChainBp(BreakpointType.Xl);
+    public LinkOpacityBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the link opacity on widescreen breakpoint.
     /// </summary>
-    public LinkOpacityBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public LinkOpacityBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private LinkOpacityBuilder Chain(int value)
     {
-        _rules.Add(new LinkOpacityRule(value, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new LinkOpacityRule(value, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private LinkOpacityBuilder ChainBp(BreakpointType bp)
+    private LinkOpacityBuilder SetPendingBreakpoint(BreakpointType bp)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new LinkOpacityRule(100, bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new LinkOpacityRule(last.Value, bp);
+        _pendingBreakpoint = bp;
         return this;
     }
 

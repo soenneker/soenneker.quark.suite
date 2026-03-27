@@ -56,6 +56,9 @@ public abstract class Component : RenderComponentBase, IComponent
     public CssValue<PositionOffsetBuilder>? PositionOffset { get; set; }
 
     [Parameter]
+    public CssValue<ScrollMarginBuilder>? ScrollMargin { get; set; }
+
+    [Parameter]
     public CssValue<SizeBuilder>? BoxSize { get; set; }
 
     [Parameter]
@@ -199,6 +202,7 @@ public abstract class Component : RenderComponentBase, IComponent
         AddCss(ref sty, ref cls, Padding);
         AddCss(ref sty, ref cls, Position);
         AddCss(ref sty, ref cls, PositionOffset);
+        AddCss(ref sty, ref cls, ScrollMargin);
         AddCss(ref sty, ref cls, BoxSize);
         AddCss(ref sty, ref cls, Width, "width");
         AddCss(ref sty, ref cls, MinWidth, "min-width");
@@ -285,6 +289,7 @@ public abstract class Component : RenderComponentBase, IComponent
         AddIf(ref hc, Padding);
         AddIf(ref hc, Position);
         AddIf(ref hc, PositionOffset);
+        AddIf(ref hc, ScrollMargin);
         AddIf(ref hc, BoxSize);
         AddIf(ref hc, Width);
         AddIf(ref hc, MinWidth);

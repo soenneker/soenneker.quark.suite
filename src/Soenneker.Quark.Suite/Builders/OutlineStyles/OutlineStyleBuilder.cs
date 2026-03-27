@@ -13,6 +13,7 @@ namespace Soenneker.Quark;
 public sealed class OutlineStyleBuilder : ICssBuilder
 {
     private readonly List<OutlineStyleRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal OutlineStyleBuilder(string value, BreakpointType? breakpoint = null)
     {
@@ -31,25 +32,32 @@ public sealed class OutlineStyleBuilder : ICssBuilder
     public OutlineStyleBuilder Dotted => Chain("dotted");
     public OutlineStyleBuilder Double => Chain("double");
 
-    public OutlineStyleBuilder OnSm => ChainBp(BreakpointType.Sm);
-    public OutlineStyleBuilder OnMd => ChainBp(BreakpointType.Md);
-    public OutlineStyleBuilder OnLg => ChainBp(BreakpointType.Lg);
-    public OutlineStyleBuilder OnXl => ChainBp(BreakpointType.Xl);
-    public OutlineStyleBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public OutlineStyleBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    public OutlineStyleBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    public OutlineStyleBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    public OutlineStyleBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    public OutlineStyleBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private OutlineStyleBuilder Chain(string value)
     {
-        _rules.Add(new OutlineStyleRule(value, null));
+        _rules.Add(new OutlineStyleRule(value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private OutlineStyleBuilder ChainBp(BreakpointType bp)
+    private OutlineStyleBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0) _rules.Add(new OutlineStyleRule("none", bp));
-        else _rules[^1] = new OutlineStyleRule(_rules[^1].Value, bp);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     public string ToClass()

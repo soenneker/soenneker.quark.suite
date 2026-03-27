@@ -14,6 +14,7 @@ namespace Soenneker.Quark;
 public sealed class PaddingBuilder : ICssBuilder
 {
     private readonly List<PaddingRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     // ----- Class tokens -----
     private const string _baseToken = "p";
@@ -22,6 +23,7 @@ public sealed class PaddingBuilder : ICssBuilder
     private const string _token0 = "0";
     private const string _token6 = "6";
     private const string _token8 = "8";
+    private const string _token16 = "16";
     private const string _tokenAuto = "auto";
 
     // ----- Side tokens (Tailwind: t=top, e=end, b=bottom, s=start, x=horizontal, y=vertical) -----
@@ -112,38 +114,44 @@ public sealed class PaddingBuilder : ICssBuilder
 	/// Sets the padding size to 8.
 	/// </summary>
     public PaddingBuilder Is8 => ChainWithSize("8");
+	/// <summary>
+	/// Sets the padding size to 16.
+	/// </summary>
+    public PaddingBuilder Is16 => ChainWithSize("16");
 
 	/// <summary>
 	/// Applies the padding on phone breakpoint.
 	/// </summary>
-    public PaddingBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    public PaddingBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 	/// <summary>
 	/// Applies the padding on small breakpoint (≥640px).
 	/// </summary>
-    public PaddingBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
+    public PaddingBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 	/// <summary>
 	/// Applies the padding on tablet breakpoint.
 	/// </summary>
-    public PaddingBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
+    public PaddingBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 	/// <summary>
 	/// Applies the padding on laptop breakpoint.
 	/// </summary>
-    public PaddingBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
+    public PaddingBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 	/// <summary>
 	/// Applies the padding on desktop breakpoint.
 	/// </summary>
-    public PaddingBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
+    public PaddingBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 	/// <summary>
 	/// Applies the padding on widescreen breakpoint.
 	/// </summary>
-    public PaddingBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public PaddingBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PaddingBuilder AddRule(ElementSideType side)
     {
         // Use last size & BreakpointType if present; default to ScaleType.Is0Value When absent
         var size = _rules.Count > 0 ? _rules[^1].Size : ScaleType.Is0Value;
-        var bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
+        var existingBp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
+        var bp = _pendingBreakpoint ?? existingBp;
+        _pendingBreakpoint = null;
 
         if (_rules.Count > 0 && _rules[^1].Side == ElementSideType.All)
         {
@@ -161,29 +169,25 @@ public sealed class PaddingBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PaddingBuilder ChainWithSize(string size)
     {
-        _rules.Add(new PaddingRule(size, ElementSideType.All, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new PaddingRule(size, ElementSideType.All, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PaddingBuilder ChainWithSize(ScaleType scale)
     {
-        _rules.Add(new PaddingRule(scale.Value, ElementSideType.All, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new PaddingRule(scale.Value, ElementSideType.All, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private PaddingBuilder ChainWithBreakpoint(BreakpointType breakpoint)
+    private PaddingBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new PaddingRule(ScaleType.Is0Value, ElementSideType.All, breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new PaddingRule(last.Size, last.Side, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
     }
 
@@ -318,6 +322,7 @@ public sealed class PaddingBuilder : ICssBuilder
             ScaleType.Is5Value => ScaleType.Is5Value,
             "6" => _token6,
             "8" => _token8,
+            "16" => _token16,
             "-1" => _tokenAuto, // "auto"
             _ => string.Empty
         };
@@ -367,6 +372,7 @@ public sealed class PaddingBuilder : ICssBuilder
             ScaleType.Is5Value => "3rem",
             "6" => "1.5rem",
             "8" => "2rem",
+            "16" => "4rem",
             "-1" => "auto",
             _ => size
         };

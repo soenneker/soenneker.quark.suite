@@ -13,6 +13,7 @@ namespace Soenneker.Quark;
 public sealed class ObjectFitBuilder : ICssBuilder
 {
     private readonly List<ObjectFitRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     // Tailwind object-fit utilities (for Quark Suite / shadcn)
     private const string _classContain = "object-contain";
@@ -82,52 +83,46 @@ public sealed class ObjectFitBuilder : ICssBuilder
     /// <summary>
     /// Apply on phone devices (portrait phones, less than 576px).
     /// </summary>
-    public ObjectFitBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    public ObjectFitBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 
     /// <summary>
     /// Apply on small screens (≥640px).
     /// </summary>
-    public ObjectFitBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
+    public ObjectFitBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 
     /// <summary>
     /// Apply on mobile devices (landscape phones, 576px and up).
     /// </summary>
-    public ObjectFitBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
+    public ObjectFitBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 
     /// <summary>
     /// Apply on laptop devices (laptops, 992px and up).
     /// </summary>
-    public ObjectFitBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
+    public ObjectFitBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 
     /// <summary>
     /// Apply on desktop devices (desktops, 1200px and up).
     /// </summary>
-    public ObjectFitBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
+    public ObjectFitBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 
     /// <summary>
     /// Apply on wide screen devices (larger desktops, 1400px and up).
     /// </summary>
-    public ObjectFitBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ObjectFitBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObjectFitBuilder ChainWithFit(string fit)
     {
-        _rules.Add(new ObjectFitRule(fit, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new ObjectFitRule(fit, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ObjectFitBuilder ChainWithBreakpoint(BreakpointType breakpoint)
+    private ObjectFitBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new ObjectFitRule(ObjectFitKeyword.ContainValue, breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new ObjectFitRule(last.Fit, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
     }
 

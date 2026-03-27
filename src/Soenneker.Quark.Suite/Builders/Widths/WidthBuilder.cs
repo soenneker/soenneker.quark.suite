@@ -14,6 +14,7 @@ namespace Soenneker.Quark;
 public sealed class WidthBuilder : ICssBuilder
 {
     private readonly List<WidthRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal WidthBuilder(string size, BreakpointType? breakpoint = null)
     {
@@ -67,12 +68,12 @@ public sealed class WidthBuilder : ICssBuilder
 
     public WidthBuilder Auto => ChainWithSize("auto");
 
-    public WidthBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
-    public WidthBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
-    public WidthBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
-    public WidthBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
-    public WidthBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
-    public WidthBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public WidthBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
+    public WidthBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    public WidthBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    public WidthBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    public WidthBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    public WidthBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     /// <summary>
     /// Applies an arbitrary Tailwind width token (e.g. "72", "[18rem]", "full").
@@ -82,22 +83,16 @@ public sealed class WidthBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private WidthBuilder ChainWithSize(string size)
     {
-        _rules.Add(new WidthRule(size, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new WidthRule(size, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private WidthBuilder ChainWithBreakpoint(BreakpointType breakpoint)
+    private WidthBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new WidthRule("full", breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new WidthRule(last.Size, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
     }
 

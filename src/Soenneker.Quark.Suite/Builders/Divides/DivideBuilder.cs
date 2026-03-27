@@ -10,6 +10,7 @@ namespace Soenneker.Quark;
 public sealed class DivideBuilder : ICssBuilder
 {
     private readonly List<DivideRule> _rules = new(8);
+    private BreakpointType? _pendingBreakpoint;
 
     internal DivideBuilder(string utility, string value = "", BreakpointType? breakpoint = null)
     {
@@ -28,33 +29,33 @@ public sealed class DivideBuilder : ICssBuilder
     public DivideBuilder Double => Chain("divide-double", "");
     public DivideBuilder None => Chain("divide-none", "");
 
-    public DivideBuilder OnBase => ChainBreakpoint(BreakpointType.Base);
-    public DivideBuilder OnSm => ChainBreakpoint(BreakpointType.Sm);
-    public DivideBuilder OnMd => ChainBreakpoint(BreakpointType.Md);
-    public DivideBuilder OnLg => ChainBreakpoint(BreakpointType.Lg);
-    public DivideBuilder OnXl => ChainBreakpoint(BreakpointType.Xl);
-    public DivideBuilder On2xl => ChainBreakpoint(BreakpointType.Xxl);
+    public DivideBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
+    public DivideBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    public DivideBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    public DivideBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    public DivideBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    public DivideBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private DivideBuilder Chain(string utility, string value)
     {
-        _rules.Add(new DivideRule(utility, value, null));
+        _rules.Add(new DivideRule(utility, value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private DivideBuilder ChainBreakpoint(BreakpointType breakpoint)
+    private DivideBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new DivideRule("divide-x", "", breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new DivideRule(last.Utility, last.Value, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     public string ToClass()

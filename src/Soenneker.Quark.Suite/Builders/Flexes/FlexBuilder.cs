@@ -14,6 +14,7 @@ namespace Soenneker.Quark;
 public sealed class FlexBuilder : ICssBuilder
 {
     private readonly List<FlexRule> _rules = new(8);
+    private BreakpointType? _pendingBreakpoint;
 
     internal FlexBuilder(string property, string? value = null, BreakpointType? breakpoint = null)
     {
@@ -212,32 +213,32 @@ public sealed class FlexBuilder : ICssBuilder
     /// <summary>
     /// Apply on phone devices (portrait phones, less than 576px).
     /// </summary>
-    public FlexBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    public FlexBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 
     /// <summary>
     /// Apply on small screens (≥640px).
     /// </summary>
-    public FlexBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
+    public FlexBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 
     /// <summary>
     /// Apply on tablet devices (tablets, 768px and up).
     /// </summary>
-    public FlexBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
+    public FlexBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 
     /// <summary>
     /// Apply on laptop devices (laptops, 992px and up).
     /// </summary>
-    public FlexBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
+    public FlexBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 
     /// <summary>
     /// Apply on desktop devices (desktops, 1200px and up).
     /// </summary>
-    public FlexBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
+    public FlexBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 
     /// <summary>
     /// Apply on wide screen devices (larger desktops, 1400px and up).
     /// </summary>
-    public FlexBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public FlexBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     /// <summary>
     /// Apply on ultrawide devices (ultrawide screens, 1920px and up).
@@ -246,22 +247,16 @@ public sealed class FlexBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FlexBuilder ChainWithRule(string property, string value)
     {
-        _rules.Add(new FlexRule(property, value, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new FlexRule(property, value, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private FlexBuilder ChainWithBreakpoint(BreakpointType breakpoint)
+    private FlexBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new FlexRule("display", string.Empty, breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new FlexRule(last.Property, last.Value, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
     }
 

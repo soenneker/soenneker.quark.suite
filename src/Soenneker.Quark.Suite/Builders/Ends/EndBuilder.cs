@@ -13,6 +13,7 @@ namespace Soenneker.Quark;
 public sealed class EndBuilder : ICssBuilder
 {
     private readonly List<EndRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal EndBuilder(string value, BreakpointType? breakpoint = null)
     {
@@ -34,25 +35,32 @@ public sealed class EndBuilder : ICssBuilder
     public EndBuilder Auto => Chain("auto");
     public EndBuilder Px => Chain("px");
 
-    public EndBuilder OnSm => ChainBp(BreakpointType.Sm);
-    public EndBuilder OnMd => ChainBp(BreakpointType.Md);
-    public EndBuilder OnLg => ChainBp(BreakpointType.Lg);
-    public EndBuilder OnXl => ChainBp(BreakpointType.Xl);
-    public EndBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public EndBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    public EndBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    public EndBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    public EndBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    public EndBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private EndBuilder Chain(string value)
     {
-        _rules.Add(new EndRule(value, null));
+        _rules.Add(new EndRule(value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private EndBuilder ChainBp(BreakpointType bp)
+    private EndBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0) _rules.Add(new EndRule(ScaleType.Is0Value, bp));
-        else _rules[^1] = new EndRule(_rules[^1].Value, bp);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     public string ToClass()

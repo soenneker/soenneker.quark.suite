@@ -13,6 +13,7 @@ namespace Soenneker.Quark;
 public sealed class ScrollMarginBuilder : ICssBuilder
 {
     private readonly List<ScrollMarginRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     private const string _baseToken = "scroll-m";
     private const string _sideT = "t";
@@ -49,19 +50,22 @@ public sealed class ScrollMarginBuilder : ICssBuilder
     public ScrollMarginBuilder Is3 => ChainWithSize(ScaleType.Is3);
     public ScrollMarginBuilder Is4 => ChainWithSize(ScaleType.Is4);
     public ScrollMarginBuilder Is5 => ChainWithSize(ScaleType.Is5);
+    public ScrollMarginBuilder Is24 => ChainWithSize("24");
     public ScrollMarginBuilder Px => ChainWithSize("px");
 
-    public ScrollMarginBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
-    public ScrollMarginBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
-    public ScrollMarginBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
-    public ScrollMarginBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
-    public ScrollMarginBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ScrollMarginBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    public ScrollMarginBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    public ScrollMarginBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    public ScrollMarginBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    public ScrollMarginBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScrollMarginBuilder AddRule(ElementSideType side)
     {
         var size = _rules.Count > 0 ? _rules[^1].Size : ScaleType.Is0Value;
-        var bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
+        var existingBp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
+        var bp = _pendingBreakpoint ?? existingBp;
+        _pendingBreakpoint = null;
         if (_rules.Count > 0 && _rules[^1].Side == ElementSideType.All)
             _rules[^1] = new ScrollMarginRule(size, side, bp);
         else
@@ -72,27 +76,25 @@ public sealed class ScrollMarginBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScrollMarginBuilder ChainWithSize(string size)
     {
-        _rules.Add(new ScrollMarginRule(size, ElementSideType.All, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new ScrollMarginRule(size, ElementSideType.All, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScrollMarginBuilder ChainWithSize(ScaleType scale)
     {
-        _rules.Add(new ScrollMarginRule(scale.Value, ElementSideType.All, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new ScrollMarginRule(scale.Value, ElementSideType.All, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ScrollMarginBuilder ChainWithBreakpoint(BreakpointType breakpoint)
+    private ScrollMarginBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-            _rules.Add(new ScrollMarginRule(ScaleType.Is0Value, ElementSideType.All, breakpoint));
-        else
-        {
-            var last = _rules[^1];
-            _rules[^1] = new ScrollMarginRule(last.Size, last.Side, breakpoint);
-        }
+        _pendingBreakpoint = breakpoint;
         return this;
     }
 
@@ -162,6 +164,7 @@ public sealed class ScrollMarginBuilder : ICssBuilder
         ScaleType.Is3Value => "3",
         ScaleType.Is4Value => "4",
         ScaleType.Is5Value => "5",
+        "24" => "24",
         "px" => "px",
         _ => string.Empty
     };
@@ -193,6 +196,7 @@ public sealed class ScrollMarginBuilder : ICssBuilder
         ScaleType.Is3Value => "1rem",
         ScaleType.Is4Value => "1.5rem",
         ScaleType.Is5Value => "3rem",
+        "24" => "6rem",
         "px" => "1px",
         _ => null
     };

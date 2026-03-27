@@ -15,6 +15,7 @@ namespace Soenneker.Quark;
 public sealed class FilterBuilder : ICssBuilder
 {
     private readonly List<FilterRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     private const string _classFilterNone = "filter-none";
     private const string _classFilterBlur = "blur";
@@ -92,47 +93,41 @@ public sealed class FilterBuilder : ICssBuilder
     /// <summary>
     /// Applies the filter on phone breakpoint.
     /// </summary>
-    public FilterBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    public FilterBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the filter on small breakpoint (≥640px).
     /// </summary>
-    public FilterBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
+    public FilterBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the filter on tablet breakpoint.
     /// </summary>
-    public FilterBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
+    public FilterBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the filter on laptop breakpoint.
     /// </summary>
-    public FilterBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
+    public FilterBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the filter on desktop breakpoint.
     /// </summary>
-    public FilterBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
+    public FilterBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the filter on widescreen breakpoint.
     /// </summary>
-    public FilterBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public FilterBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FilterBuilder ChainWithFilter(string filter)
     {
-        _rules.Add(new FilterRule(filter, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new FilterRule(filter, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private FilterBuilder ChainWithBreakpoint(BreakpointType breakpoint)
+    private FilterBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new FilterRule("none", breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new FilterRule(last.Filter, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
     }
 

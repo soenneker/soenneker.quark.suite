@@ -14,6 +14,7 @@ namespace Soenneker.Quark;
 public sealed class AnimationBuilder : ICssBuilder
 {
     private readonly List<AnimationRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     private const string _classAnimationNone = "animate-none";
     private const string _classAnimationSpin = "animate-spin";
@@ -65,52 +66,46 @@ public sealed class AnimationBuilder : ICssBuilder
     /// <summary>
     /// Applies the animation on phone breakpoint.
     /// </summary>
-    public AnimationBuilder OnBase => ChainWithBreakpoint(BreakpointType.Base);
+    public AnimationBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 
     /// <summary>
     /// Applies the animation on small breakpoint (≥640px).
     /// </summary>
-    public AnimationBuilder OnSm => ChainWithBreakpoint(BreakpointType.Sm);
+    public AnimationBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 
     /// <summary>
     /// Applies the animation on tablet breakpoint.
     /// </summary>
-    public AnimationBuilder OnMd => ChainWithBreakpoint(BreakpointType.Md);
+    public AnimationBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 
     /// <summary>
     /// Applies the animation on laptop breakpoint.
     /// </summary>
-    public AnimationBuilder OnLg => ChainWithBreakpoint(BreakpointType.Lg);
+    public AnimationBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 
     /// <summary>
     /// Applies the animation on desktop breakpoint.
     /// </summary>
-    public AnimationBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
+    public AnimationBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 
     /// <summary>
     /// Applies the animation on widescreen breakpoint.
     /// </summary>
-    public AnimationBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public AnimationBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private AnimationBuilder ChainWithAnimation(string animation)
     {
-        _rules.Add(new AnimationRule(animation, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new AnimationRule(animation, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private AnimationBuilder ChainWithBreakpoint(BreakpointType breakpoint)
+    private AnimationBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new AnimationRule("none", breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new AnimationRule(last.Animation, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
     }
 

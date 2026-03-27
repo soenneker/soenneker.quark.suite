@@ -10,6 +10,7 @@ namespace Soenneker.Quark;
 public sealed class GridBuilder : ICssBuilder
 {
     private readonly List<GridRule> _rules = new(8);
+    private BreakpointType? _pendingBreakpoint;
 
     internal GridBuilder(string utility, string value = "", BreakpointType? breakpoint = null)
     {
@@ -22,8 +23,8 @@ public sealed class GridBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
-    public GridBuilder Grid => Chain("display", "grid");
-    public GridBuilder InlineGrid => Chain("display", "inline-grid");
+    public GridBuilder Grid => Chain("grid", "");
+    public GridBuilder InlineGrid => Chain("inline-grid", "");
 
     public GridBuilder Cols(int value) => Chain("grid-cols", value.ToString());
     public GridBuilder Rows(int value) => Chain("grid-rows", value.ToString());
@@ -49,33 +50,33 @@ public sealed class GridBuilder : ICssBuilder
     public GridBuilder PlaceContent(string value) => Chain("place-content", value);
     public GridBuilder PlaceSelf(string value) => Chain("place-self", value);
 
-    public GridBuilder OnBase => ChainBreakpoint(BreakpointType.Base);
-    public GridBuilder OnSm => ChainBreakpoint(BreakpointType.Sm);
-    public GridBuilder OnMd => ChainBreakpoint(BreakpointType.Md);
-    public GridBuilder OnLg => ChainBreakpoint(BreakpointType.Lg);
-    public GridBuilder OnXl => ChainBreakpoint(BreakpointType.Xl);
-    public GridBuilder On2xl => ChainBreakpoint(BreakpointType.Xxl);
+    public GridBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
+    public GridBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    public GridBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    public GridBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    public GridBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    public GridBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private GridBuilder Chain(string utility, string value)
     {
-        _rules.Add(new GridRule(utility, value, null));
+        _rules.Add(new GridRule(utility, value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private GridBuilder ChainBreakpoint(BreakpointType breakpoint)
+    private GridBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new GridRule("display", "grid", breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new GridRule(last.Utility, last.Value, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     public string ToClass()

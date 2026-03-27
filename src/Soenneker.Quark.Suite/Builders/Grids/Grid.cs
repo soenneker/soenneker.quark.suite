@@ -2,8 +2,8 @@ namespace Soenneker.Quark;
 
 public static class Grid
 {
-    public static GridBuilder Display => new("display", "grid");
-    public static GridBuilder Inline => new("display", "inline-grid");
+    public static GridBuilder Display => new("grid");
+    public static GridBuilder Inline => new("inline-grid");
 
     public static GridBuilder Cols(int value) => new("grid-cols", value.ToString());
     public static GridBuilder Rows(int value) => new("grid-rows", value.ToString());

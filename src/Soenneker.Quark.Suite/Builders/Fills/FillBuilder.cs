@@ -10,6 +10,7 @@ namespace Soenneker.Quark;
 public sealed class FillBuilder : ICssBuilder
 {
     private readonly List<FillRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal FillBuilder(string utility, string value, BreakpointType? breakpoint = null)
     {
@@ -20,33 +21,33 @@ public sealed class FillBuilder : ICssBuilder
     public FillBuilder None => Chain("fill", "none");
     public FillBuilder Current => Chain("fill", "current");
 
-    public FillBuilder OnBase => ChainBreakpoint(BreakpointType.Base);
-    public FillBuilder OnSm => ChainBreakpoint(BreakpointType.Sm);
-    public FillBuilder OnMd => ChainBreakpoint(BreakpointType.Md);
-    public FillBuilder OnLg => ChainBreakpoint(BreakpointType.Lg);
-    public FillBuilder OnXl => ChainBreakpoint(BreakpointType.Xl);
-    public FillBuilder On2xl => ChainBreakpoint(BreakpointType.Xxl);
+    public FillBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
+    public FillBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    public FillBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    public FillBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    public FillBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    public FillBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FillBuilder Chain(string utility, string value)
     {
-        _rules.Add(new FillRule(utility, value, null));
+        _rules.Add(new FillRule(utility, value, ConsumePendingBreakpoint()));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private FillBuilder ChainBreakpoint(BreakpointType breakpoint)
+    private FillBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new FillRule("fill", "current", breakpoint));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new FillRule(last.Utility, last.Value, breakpoint);
+        _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     public string ToClass()

@@ -14,6 +14,7 @@ public sealed class BorderRadiusBuilder : ICssBuilder
 {
     private readonly List<BorderRadiusRule> _rules = new(4);
     private string _cornerToken = "";
+    private BreakpointType? _pendingBreakpoint;
 
     // ----- Class tokens -----
     private const string _baseToken = "rounded";
@@ -25,28 +26,29 @@ public sealed class BorderRadiusBuilder : ICssBuilder
             _rules.Add(new BorderRadiusRule(size, ElementSideType.All, breakpoint, cornerToken));
     }
 
-    internal BorderRadiusBuilder(List<BorderRadiusRule> rules)
+    internal BorderRadiusBuilder(List<BorderRadiusRule> rules, BreakpointType? pendingBreakpoint = null)
     {
         if (rules is { Count: > 0 })
             _rules.AddRange(rules);
+        _pendingBreakpoint = pendingBreakpoint;
     }
 
 	/// <summary>
 	/// Applies border radius to the top-left corner.
 	/// </summary>
-    public BorderRadiusBuilder TopLeft => new(_rules) { _cornerToken = "tl" };
+    public BorderRadiusBuilder TopLeft => new BorderRadiusBuilder(_rules, _pendingBreakpoint) { _cornerToken = "tl" };
 	/// <summary>
 	/// Applies border radius to the top-right corner.
 	/// </summary>
-    public BorderRadiusBuilder TopRight => new(_rules) { _cornerToken = "tr" };
+    public BorderRadiusBuilder TopRight => new BorderRadiusBuilder(_rules, _pendingBreakpoint) { _cornerToken = "tr" };
 	/// <summary>
 	/// Applies border radius to the bottom-left corner.
 	/// </summary>
-    public BorderRadiusBuilder BottomLeft => new(_rules) { _cornerToken = "bl" };
+    public BorderRadiusBuilder BottomLeft => new BorderRadiusBuilder(_rules, _pendingBreakpoint) { _cornerToken = "bl" };
 	/// <summary>
 	/// Applies border radius to the bottom-right corner.
 	/// </summary>
-    public BorderRadiusBuilder BottomRight => new(_rules) { _cornerToken = "br" };
+    public BorderRadiusBuilder BottomRight => new BorderRadiusBuilder(_rules, _pendingBreakpoint) { _cornerToken = "br" };
 	/// <summary>
 	/// Applies border radius to the top side.
 	/// </summary>
@@ -108,13 +110,43 @@ public sealed class BorderRadiusBuilder : ICssBuilder
 	/// Sets the border radius size to Tailwind medium.
 	/// </summary>
     public BorderRadiusBuilder Md => ChainWithSize("md");
+	/// <summary>
+	/// Sets the border radius size to Tailwind full.
+	/// </summary>
+    public BorderRadiusBuilder Full => ChainWithSize("full");
 
+	/// <summary>
+	/// Applies the border radius on phone breakpoint.
+	/// </summary>
+    public BorderRadiusBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
+	/// <summary>
+	/// Applies the border radius on small breakpoint (≥640px).
+	/// </summary>
+    public BorderRadiusBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+	/// <summary>
+	/// Applies the border radius on tablet breakpoint.
+	/// </summary>
+    public BorderRadiusBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+	/// <summary>
+	/// Applies the border radius on laptop breakpoint.
+	/// </summary>
+    public BorderRadiusBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+	/// <summary>
+	/// Applies the border radius on desktop breakpoint.
+	/// </summary>
+    public BorderRadiusBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+	/// <summary>
+	/// Applies the border radius on widescreen breakpoint.
+	/// </summary>
+    public BorderRadiusBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BorderRadiusBuilder AddRule(ElementSideType side, string cornerToken = "")
     {
         var size = _rules.Count > 0 ? _rules[^1].Size : "0";
-        var bp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
+        var existingBp = _rules.Count > 0 ? _rules[^1].Breakpoint : null;
+        var bp = _pendingBreakpoint ?? existingBp;
+        _pendingBreakpoint = null;
 
         if (_rules.Count > 0 && _rules[^1].Side == ElementSideType.All)
         {
@@ -134,11 +166,15 @@ public sealed class BorderRadiusBuilder : ICssBuilder
         // If the last rule has a corner token but no size, update it instead of adding new
         if (_rules.Count > 0 && _rules[^1].CornerToken.HasContent() && !_rules[^1].Size.HasContent())
         {
-            _rules[^1] = new BorderRadiusRule(size, _rules[^1].Side, _rules[^1].Breakpoint, _rules[^1].CornerToken);
+            var bp = _pendingBreakpoint ?? _rules[^1].Breakpoint;
+            _pendingBreakpoint = null;
+            _rules[^1] = new BorderRadiusRule(size, _rules[^1].Side, bp, _rules[^1].CornerToken);
         }
         else
         {
-            _rules.Add(new BorderRadiusRule(size, ElementSideType.All, null, _cornerToken));
+            var bp = _pendingBreakpoint;
+            _pendingBreakpoint = null;
+            _rules.Add(new BorderRadiusRule(size, ElementSideType.All, bp, _cornerToken));
         }
         return this;
     }
@@ -149,27 +185,23 @@ public sealed class BorderRadiusBuilder : ICssBuilder
         // If the last rule has a corner token but no size, update it instead of adding new
         if (_rules.Count > 0 && _rules[^1].CornerToken.HasContent() && !_rules[^1].Size.HasContent())
         {
-            _rules[^1] = new BorderRadiusRule(scale.Value, _rules[^1].Side, _rules[^1].Breakpoint, _rules[^1].CornerToken);
+            var bp = _pendingBreakpoint ?? _rules[^1].Breakpoint;
+            _pendingBreakpoint = null;
+            _rules[^1] = new BorderRadiusRule(scale.Value, _rules[^1].Side, bp, _rules[^1].CornerToken);
         }
         else
         {
-            _rules.Add(new BorderRadiusRule(scale.Value, ElementSideType.All, null, _cornerToken));
+            var bp = _pendingBreakpoint;
+            _pendingBreakpoint = null;
+            _rules.Add(new BorderRadiusRule(scale.Value, ElementSideType.All, bp, _cornerToken));
         }
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private BorderRadiusBuilder ChainWithBreakpoint(BreakpointType breakpoint)
+    private BorderRadiusBuilder SetPendingBreakpoint(BreakpointType breakpoint)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new BorderRadiusRule("0", ElementSideType.All, breakpoint, ""));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new BorderRadiusRule(last.Size, last.Side, breakpoint, last.CornerToken);
+        _pendingBreakpoint = breakpoint;
         return this;
     }
 

@@ -13,6 +13,7 @@ namespace Soenneker.Quark;
 public sealed class LinkOffsetBuilder : ICssBuilder
 {
     private readonly List<LinkOffsetRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal LinkOffsetBuilder(int value, BreakpointType? breakpoint = null)
     {
@@ -37,51 +38,49 @@ public sealed class LinkOffsetBuilder : ICssBuilder
     /// Sets the link offset to 3.
     /// </summary>
     public LinkOffsetBuilder Is3 => Chain(3);
+    /// <summary>
+    /// Sets the link offset to 4.
+    /// </summary>
+    public LinkOffsetBuilder Is4 => Chain(4);
 
     /// <summary>
     /// Applies the link offset on phone breakpoint.
     /// </summary>
-    public LinkOffsetBuilder OnBase => ChainBp(BreakpointType.Base);
+    public LinkOffsetBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
     /// <summary>
     /// Applies the link offset on small breakpoint (≥640px).
     /// </summary>
-    public LinkOffsetBuilder OnSm => ChainBp(BreakpointType.Sm);
+    public LinkOffsetBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
     /// <summary>
     /// Applies the link offset on tablet breakpoint.
     /// </summary>
-    public LinkOffsetBuilder OnMd => ChainBp(BreakpointType.Md);
+    public LinkOffsetBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     /// <summary>
     /// Applies the link offset on laptop breakpoint.
     /// </summary>
-    public LinkOffsetBuilder OnLg => ChainBp(BreakpointType.Lg);
+    public LinkOffsetBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     /// <summary>
     /// Applies the link offset on desktop breakpoint.
     /// </summary>
-    public LinkOffsetBuilder OnXl => ChainBp(BreakpointType.Xl);
+    public LinkOffsetBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
     /// Applies the link offset on widescreen breakpoint.
     /// </summary>
-    public LinkOffsetBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public LinkOffsetBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private LinkOffsetBuilder Chain(int value)
     {
-        _rules.Add(new LinkOffsetRule(value, null));
+        var bp = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new LinkOffsetRule(value, bp));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private LinkOffsetBuilder ChainBp(BreakpointType bp)
+    private LinkOffsetBuilder SetPendingBreakpoint(BreakpointType bp)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new LinkOffsetRule(1, bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new LinkOffsetRule(last.Value, bp);
+        _pendingBreakpoint = bp;
         return this;
     }
 
@@ -144,9 +143,10 @@ public sealed class LinkOffsetBuilder : ICssBuilder
     {
         return value switch
         {
-            1 => "link-offset-1",
-            2 => "link-offset-2",
-            3 => "link-offset-3",
+            1 => "underline-offset-1",
+            2 => "underline-offset-2",
+            3 => "underline-offset-3",
+            4 => "underline-offset-4",
             _ => string.Empty
         };
     }
