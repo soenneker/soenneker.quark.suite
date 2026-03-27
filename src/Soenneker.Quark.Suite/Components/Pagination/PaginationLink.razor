@@ -1,10 +1,19 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 @implements IPaginationLink
 
-<Anchor @attributes="BuildAttributes()">
-	@ChildContent
-</Anchor>
+@if (To.HasContent())
+{
+    <Anchor To="@To" @attributes="BuildAttributes()">
+        @ChildContent
+    </Anchor>
+}
+else
+{
+    <button type="button" @onclick="HandleClick" @attributes="BuildAttributes()">
+        @ChildContent
+    </button>
+}
 
 @code {
     /// <summary>
@@ -30,9 +39,9 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-pagination-link");
-            AppendClass(ref cls, "inline-flex items-center justify-center rounded-md text-sm font-medium border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground size-9");
+            AppendClass(ref cls, "group/button inline-flex size-9 items-center justify-center rounded-lg border border-transparent bg-background text-sm font-medium whitespace-nowrap transition-colors outline-none hover:bg-accent hover:text-accent-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50");
             if (Active)
-                AppendClass(ref cls, "bg-primary text-primary-foreground border-primary");
+                AppendClass(ref cls, "bg-primary text-primary-foreground");
             if (Disabled)
                 AppendClass(ref cls, "opacity-50 pointer-events-none");
         });
@@ -44,10 +53,8 @@
             if (!attributes.ContainsKey("tabindex"))
                 attributes["tabindex"] = -1;
         }
-        else
+        else if (To.HasContent())
         {
-            attributes["href"] = To.HasContent() ? To! : "javascript:void(0)";
-            // Set role only if not already set via Role property
             if (!attributes.ContainsKey("role"))
                 attributes["role"] = "button";
         }

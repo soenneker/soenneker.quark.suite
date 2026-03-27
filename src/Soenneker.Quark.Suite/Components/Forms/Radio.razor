@@ -113,7 +113,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-radio");
-            AppendClass(ref cls, "flex items-center gap-3");
+            AppendClass(ref cls, "flex items-center gap-2");
             if (Inline)
                 AppendClass(ref cls, "inline-flex");
         });
@@ -195,7 +195,7 @@
         var attributes = new Dictionary<string, object>();
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "flex items-center gap-3 text-sm font-medium leading-none");
+            AppendClass(ref cls, "flex items-center gap-2 text-sm font-medium leading-none");
             AppendClass(ref cls, "focus-within:outline-none rounded-[4px] cursor-pointer");
             if (EffectiveDisabled)
                 AppendClass(ref cls, "cursor-not-allowed opacity-50");
@@ -254,8 +254,16 @@
     {
         var attributes = new Dictionary<string, object>();
         attributes["data-slot"] = "radio-group-item";
-        attributes["aria-hidden"] = "true";
         attributes["data-state"] = EffectiveChecked ? "checked" : "unchecked";
+
+        if (EffectiveChecked)
+            attributes["data-checked"] = "true";
+        else
+            attributes["data-unchecked"] = "true";
+
+        if (EffectiveDisabled)
+            attributes["data-disabled"] = "true";
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-radio-input");

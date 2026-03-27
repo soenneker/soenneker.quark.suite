@@ -1,5 +1,6 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@implements IDisposable
 
 <div @attributes="BuildAttributes()">
     <div @attributes="BuildInnerAttributes()">
@@ -10,6 +11,24 @@
 @code {
     [CascadingParameter(Name = "ParentCarousel")]
     private Carousel? ParentCarousel { get; set; }
+
+    private Carousel? _subscribedCarousel;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (ReferenceEquals(_subscribedCarousel, ParentCarousel))
+            return;
+
+        if (_subscribedCarousel is not null)
+            _subscribedCarousel.StateChanged -= OnCarouselStateChanged;
+
+        _subscribedCarousel = ParentCarousel;
+
+        if (_subscribedCarousel is not null)
+            _subscribedCarousel.StateChanged += OnCarouselStateChanged;
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -36,6 +55,25 @@
             else
                 AppendClass(ref cls, "-mt-4 flex-col");
         });
+        BuildStyleAttribute(attrs, (ref sty) =>
+        {
+            var index = ParentCarousel?.CurrentIndex ?? 0;
+            var axis = horizontal ? "X" : "Y";
+            AppendStyleDecl(ref sty, $"transform: translate{axis}(-{index * 100}%); transition: transform 300ms ease-in-out");
+        });
         return attrs;
+    }
+
+    private async void OnCarouselStateChanged()
+    {
+        await RefreshOffThread();
+    }
+
+    public override void Dispose()
+    {
+        if (_subscribedCarousel is not null)
+            _subscribedCarousel.StateChanged -= OnCarouselStateChanged;
+
+        base.Dispose();
     }
 }

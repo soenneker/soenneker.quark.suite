@@ -1,4 +1,4 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
 <div @onclick="HandleItemClick" @attributes="BuildAttributes()" role="option">
@@ -24,8 +24,12 @@
         attributes["data-slot"] = "combobox-item";
         attributes["data-value"] = Value ?? "";
         attributes["data-selected"] = IsSelected ? "true" : "false";
+        attributes["aria-selected"] = IsSelected ? "true" : "false";
         if (Disabled)
+        {
             attributes["aria-disabled"] = "true";
+            attributes["data-disabled"] = "true";
+        }
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

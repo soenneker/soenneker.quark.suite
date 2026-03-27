@@ -14,6 +14,68 @@
     [Parameter]
     public string Orientation { get; set; } = "horizontal";
 
+    internal event Action? StateChanged;
+
+    internal int CurrentIndex { get; private set; }
+    internal int ItemCount { get; private set; }
+    internal bool CanScrollPrevious => CurrentIndex > 0;
+    internal bool CanScrollNext => CurrentIndex < ItemCount - 1;
+
+    internal void RegisterItem()
+    {
+        ItemCount++;
+        NotifyStateChanged();
+    }
+
+    internal void UnregisterItem()
+    {
+        if (ItemCount == 0)
+            return;
+
+        ItemCount--;
+
+        if (ItemCount == 0)
+            CurrentIndex = 0;
+        else if (CurrentIndex >= ItemCount)
+            CurrentIndex = ItemCount - 1;
+
+        NotifyStateChanged();
+    }
+
+    internal void Previous()
+    {
+        GoTo(CurrentIndex - 1);
+    }
+
+    internal void Next()
+    {
+        GoTo(CurrentIndex + 1);
+    }
+
+    private void GoTo(int index)
+    {
+        if (ItemCount == 0)
+            return;
+
+        var nextIndex = index;
+
+        if (nextIndex < 0)
+            nextIndex = 0;
+        else if (nextIndex >= ItemCount)
+            nextIndex = ItemCount - 1;
+
+        if (nextIndex == CurrentIndex)
+            return;
+
+        CurrentIndex = nextIndex;
+        NotifyStateChanged();
+    }
+
+    private void NotifyStateChanged()
+    {
+        StateChanged?.Invoke();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -32,5 +94,7 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Orientation);
+        hc.Add(CurrentIndex);
+        hc.Add(ItemCount);
     }
 }

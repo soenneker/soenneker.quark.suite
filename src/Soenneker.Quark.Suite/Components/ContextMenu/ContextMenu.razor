@@ -7,7 +7,7 @@
 
 @if (Open)
 {
-    <div class="fixed inset-0 z-40" @onclick="Close"></div>
+    <div class="fixed inset-0 z-40" aria-hidden="true" @onclick="Close"></div>
     <div @attributes="BuildContentAttributes()" @onclick:stopPropagation="true">
         @_content
     </div>
@@ -35,7 +35,6 @@
         if (Open)
         {
             Open = false;
-            _content = null;
             InvalidateRender();
             Refresh();
         }
@@ -47,6 +46,8 @@
         attrs["data-state"] = Open ? "open" : "closed";
         attrs["data-side"] = "bottom";
         attrs["data-slot"] = "context-menu-content";
+        attrs["role"] = "menu";
+        attrs["tabindex"] = -1;
         attrs["style"] = $"position: fixed; left: {X}px; top: {Y}px; z-index: 50;";
         BuildClassAttribute(attrs, (ref cls) =>
         {

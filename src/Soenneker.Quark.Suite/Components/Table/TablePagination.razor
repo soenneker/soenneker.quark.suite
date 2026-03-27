@@ -3,33 +3,44 @@
 
 @if (ShowPagination)
 {
-	<div @attributes="BuildAttributes()">
-		<div @attributes="BuildControlsAttributes()" >
-			<Button Class="@PaginationButtonClass" OnClick="HandleFirstPage" disabled="@(ComputedCurrentPage == 1)" title="First" >«</Button>
-			<Button Class="@PaginationButtonClass" OnClick="HandlePreviousPage" disabled="@(ComputedCurrentPage == 1)" title="Previous" >‹</Button>
+    <nav @attributes="BuildAttributes()">
+        <ul @attributes="BuildControlsAttributes()">
+            <li data-slot="pagination-item" class="list-none">
+                <PaginationLink OnClick="@(_ => HandleFirstPage())" Disabled="@(ComputedCurrentPage == 1)" aria-label="Go to first page" Class="@PaginationButtonClass">«</PaginationLink>
+            </li>
+            <li data-slot="pagination-item" class="list-none">
+                <PaginationLink OnClick="@(_ => HandlePreviousPage())" Disabled="@(ComputedCurrentPage == 1)" aria-label="Go to previous page" Class="@PaginationButtonClass">‹</PaginationLink>
+            </li>
 
-			@if (ComputedTotalPages <= 1)
-			{
-				<Button Class="@ActivePaginationButtonClass" >
-					1
-				</Button>
-			}
-			else
-			{
-				@for (var p = StartPage; p <= EndPage; p++)
-				{
-					var pageNumber = p;
-					<Button Class="@(pageNumber == ComputedCurrentPage ? ActivePaginationButtonClass : PaginationButtonClass)"
-					        OnClick="@(() => HandleGoToPage(pageNumber))" >
-						@pageNumber
-					</Button>
-				}
-			}
+            @if (ComputedTotalPages <= 1)
+            {
+                <li data-slot="pagination-item" class="list-none">
+                    <PaginationLink Active="true" Disabled="true" Class="@ActivePaginationButtonClass">1</PaginationLink>
+                </li>
+            }
+            else
+            {
+                @for (var p = StartPage; p <= EndPage; p++)
+                {
+                    var pageNumber = p;
+                    <li data-slot="pagination-item" class="list-none">
+                        <PaginationLink Active="@(pageNumber == ComputedCurrentPage)"
+                                        OnClick="@(_ => HandleGoToPage(pageNumber))"
+                                        Class="@(pageNumber == ComputedCurrentPage ? ActivePaginationButtonClass : PaginationButtonClass)">
+                            @pageNumber
+                        </PaginationLink>
+                    </li>
+                }
+            }
 
-			<Button Class="@PaginationButtonClass" OnClick="HandleNextPage" disabled="@(ComputedCurrentPage == ComputedTotalPages)" title="Next" >›</Button>
-			<Button Class="@PaginationButtonClass" OnClick="HandleLastPage" disabled="@(ComputedCurrentPage == ComputedTotalPages)" title="Last" >»</Button>
-		</div>
-	</div>
+            <li data-slot="pagination-item" class="list-none">
+                <PaginationLink OnClick="@(_ => HandleNextPage())" Disabled="@(ComputedCurrentPage == ComputedTotalPages)" aria-label="Go to next page" Class="@PaginationButtonClass">›</PaginationLink>
+            </li>
+            <li data-slot="pagination-item" class="list-none">
+                <PaginationLink OnClick="@(_ => HandleLastPage())" Disabled="@(ComputedCurrentPage == ComputedTotalPages)" aria-label="Go to last page" Class="@PaginationButtonClass">»</PaginationLink>
+            </li>
+        </ul>
+    </nav>
 }
 
 @code {
@@ -177,11 +188,15 @@
 	}
 
 	// shadcn Pagination - new-york-v4 ui/pagination.tsx
-	private const string PaginationButtonClass = "q-table-pagination-btn h-9 min-w-9 rounded-md border border-input bg-background px-3 py-1 text-sm font-medium shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground disabled:pointer-events-none disabled:opacity-50";
-	private const string ActivePaginationButtonClass = "q-table-pagination-btn active h-9 min-w-9 rounded-md border border-input bg-muted px-3 py-1 text-sm font-medium shadow-xs";
+	private const string PaginationButtonClass = "q-table-pagination-btn";
+	private const string ActivePaginationButtonClass = "q-table-pagination-btn active";
 
 	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
 	{
+        attributes["data-slot"] = "pagination";
+        attributes["role"] = "navigation";
+        attributes["aria-label"] = "pagination";
+
 		BuildClassAttribute(attributes, (ref cls) =>
 		{
 			AppendClass(ref cls, "q-table-pagination");
@@ -192,7 +207,8 @@
 	private Dictionary<string, object> BuildControlsAttributes()
 	{
 		var attributes = new Dictionary<string, object>();
-		BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "q-table-pagination-controls flex flex-wrap items-center justify-center gap-2"));
+        attributes["data-slot"] = "pagination-content";
+		BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "q-table-pagination-controls flex flex-wrap items-center justify-center gap-0.5"));
 		return attributes;
 	}
 

@@ -6,13 +6,19 @@
 </div>
 
 @code {
+    private readonly string _menubarId = $"menubar-{Guid.NewGuid():N}";
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
+        attributes["id"] = _menubarId;
         attributes["data-slot"] = "menubar";
+        attributes["data-orientation"] = "horizontal";
+        attributes["data-modal"] = "false";
         attributes["role"] = "menubar";
         attributes["aria-orientation"] = "horizontal";
+        attributes["dir"] = "ltr";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

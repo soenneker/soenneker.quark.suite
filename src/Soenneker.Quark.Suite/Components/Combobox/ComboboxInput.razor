@@ -1,14 +1,15 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
-<InputGroup>
-    <InputGroupInput Value="@GetDisplayValue()" ValueChanged="HandleValueChanged" Disabled="@(ParentCombobox?.Disabled ?? false)" Placeholder="@Placeholder" />
-    <InputGroupAddon Align="InputGroupAddonAlign.InlineEnd">
-        <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.IconXs" Type="ButtonType.Button" @onclick="ToggleOpen" Disabled="@(ParentCombobox?.Disabled ?? false)">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
-        </Button>
-    </InputGroupAddon>
-</InputGroup>
+<div @attributes="BuildWrapperAttributes()">
+    <input value="@GetDisplayValue()"
+           @oninput="HandleInput"
+           @onfocus="HandleFocus"
+           @attributes="BuildAttributes()" />
+    <button type="button" @onclick="ToggleOpen" @attributes="BuildButtonAttributes()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+</div>
 
 @code {
     [CascadingParameter(Name = "ParentCombobox")]
@@ -20,13 +21,20 @@
         return ParentCombobox.Open ? (ParentCombobox.Search ?? "") : (ParentCombobox.Value ?? "");
     }
 
-    private async Task HandleValueChanged(string? value)
+    private async Task HandleInput(ChangeEventArgs args)
     {
         if (ParentCombobox != null)
         {
+            var value = args.Value?.ToString();
             await ParentCombobox.SetSearch(value ?? "");
             await ParentCombobox.SetOpen(true);
         }
+    }
+
+    private async Task HandleFocus(FocusEventArgs _)
+    {
+        if (ParentCombobox != null && !ParentCombobox.Disabled)
+            await ParentCombobox.SetOpen(true);
     }
 
     private async Task ToggleOpen(MouseEventArgs _)
@@ -38,5 +46,71 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        attributes["type"] = "text";
+        attributes["data-slot"] = "input-group-control";
+        attributes["data-combobox-slot"] = "combobox-input";
+        attributes["role"] = "combobox";
+        attributes["autocomplete"] = "off";
+        attributes["aria-autocomplete"] = "list";
+        attributes["aria-expanded"] = ParentCombobox?.Open == true ? "true" : "false";
+
+        if (ParentCombobox is not null)
+        {
+            attributes["id"] = ParentCombobox.InputId;
+            attributes["aria-controls"] = ParentCombobox.ContentId;
+        }
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-combobox-input");
+            AppendClass(ref cls, "h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 pr-10 text-base shadow-xs transition-[color,box-shadow] outline-none");
+            AppendClass(ref cls, "placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30");
+            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50");
+            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40");
+        });
+    }
+
+    private Dictionary<string, object> BuildWrapperAttributes()
+    {
+        var attributes = new Dictionary<string, object>
+        {
+            ["data-slot"] = "input-group",
+            ["data-combobox-slot"] = "combobox-control",
+            ["role"] = "group"
+        };
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-combobox-control q-input-group group/input-group border-input relative flex h-9 w-full min-w-0 items-center rounded-md border shadow-xs transition-[color,box-shadow] outline-none dark:bg-input/30");
+            AppendClass(ref cls, "has-[[data-slot=input-group-control]:focus-visible]:border-ring has-[[data-slot=input-group-control]:focus-visible]:ring-ring/50 has-[[data-slot=input-group-control]:focus-visible]:ring-[3px]");
+            AppendClass(ref cls, "has-[[data-slot][aria-invalid=true]]:ring-destructive/20 has-[[data-slot][aria-invalid=true]]:border-destructive dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40");
+        });
+
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildButtonAttributes()
+    {
+        var attributes = new Dictionary<string, object>
+        {
+            ["data-slot"] = "combobox-trigger",
+            ["data-align"] = "inline-end",
+            ["type"] = "button",
+            ["aria-label"] = ParentCombobox?.Open == true ? "Close combobox" : "Open combobox",
+            ["aria-controls"] = ParentCombobox?.ContentId ?? string.Empty,
+            ["aria-expanded"] = ParentCombobox?.Open == true ? "true" : "false",
+            ["tabindex"] = -1
+        };
+
+        if (ParentCombobox?.Disabled == true)
+            attributes["disabled"] = true;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-combobox-trigger");
+            AppendClass(ref cls, "text-muted-foreground absolute inset-y-0 right-0 inline-flex items-center justify-center px-3");
+        });
+
+        return attributes;
     }
 }

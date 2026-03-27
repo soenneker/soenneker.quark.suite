@@ -3,9 +3,11 @@
 @inherits Soenneker.Quark.Element
 @implements IPagination
 
-<ul @attributes="BuildAttributes()">
-	@ChildContent
-</ul>
+<nav @attributes="BuildAttributes()">
+    <ul @attributes="BuildListAttributes()">
+	    @ChildContent
+    </ul>
+</nav>
 
 @code {
     /// <summary>
@@ -41,17 +43,34 @@
     {
         base.BuildAttributesCore(attributes);
 
-        attributes["data-slot"] = "pagination-list";
+        attributes["data-slot"] = "pagination";
+        attributes["role"] = "navigation";
+        attributes["aria-label"] = "pagination";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-pagination");
-            AppendClass(ref cls, "flex flex-row items-center gap-1");
+            AppendClass(ref cls, "mx-auto flex w-full justify-center");
+        });
+    }
+
+    private Dictionary<string, object> BuildListAttributes()
+    {
+        var attributes = new Dictionary<string, object>
+        {
+            ["data-slot"] = "pagination-content"
+        };
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-pagination-content flex items-center gap-0.5");
             var sizeClass = GetSizeClass();
             if (sizeClass != null)
                 AppendClass(ref cls, sizeClass);
             if (Vertical)
                 AppendClass(ref cls, "flex-col");
         });
+
+        return attributes;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

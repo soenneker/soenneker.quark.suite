@@ -6,19 +6,16 @@
     <div @attributes="BuildAttributes()">
         @if (Vertical)
         {
-            @* Vertical: TabsList left, content right - using grid for layout *@
             <div class="grid grid-cols-[auto_1fr] gap-4">
                 <div role="tablist" class="group/tabs-list shrink-0" @attributes="BuildTabsListAttributes()">
                     @ChildContent
                 </div>
-                <div id="@(ResolvedSelectedTab.HasContent() ? $"tab-content-{ResolvedSelectedTab}" : null)" class="min-w-0 flex-1 outline-none" role="tabpanel" aria-labelledby="@(ResolvedSelectedTab.HasContent() ? $"tab-trigger-{ResolvedSelectedTab}" : null)" data-slot="tabs-content">
+                <div class="min-w-0 flex-1">
                     @foreach (var tab in _tabs)
                     {
-                        @if (tab.Name == ResolvedSelectedTab)
-                        {
+                        <div @attributes="BuildTabContentAttributes(tab)">
                             @tab.ChildContent
-                            break;
-                        }
+                        </div>
                     }
                 </div>
             </div>
@@ -28,16 +25,12 @@
             <div role="tablist" class="group/tabs-list w-fit" @attributes="BuildTabsListAttributes()">
                 @ChildContent
             </div>
-            <div id="@(ResolvedSelectedTab.HasContent() ? $"tab-content-{ResolvedSelectedTab}" : null)" aria-labelledby="@(ResolvedSelectedTab.HasContent() ? $"tab-trigger-{ResolvedSelectedTab}" : null)" class="flex-1 outline-none" role="tabpanel" data-slot="tabs-content">
-                @foreach (var tab in _tabs)
-                {
-                    @if (tab.Name == ResolvedSelectedTab)
-                    {
-                        @tab.ChildContent
-                        break;
-                    }
-                }
-            </div>
+            @foreach (var tab in _tabs)
+            {
+                <div @attributes="BuildTabContentAttributes(tab)">
+                    @tab.ChildContent
+                </div>
+            }
         }
     </div>
 </CascadingValue>
@@ -186,6 +179,7 @@
         attrs["data-slot"] = "tabs-list";
         attrs["data-variant"] = TabsListVariant.ToString().ToLowerInvariant();
         attrs["aria-orientation"] = Vertical ? "vertical" : "horizontal";
+        attrs["tabindex"] = -1;
         BuildClassAttribute(attrs, (ref cls) =>
         {
             AppendClass(ref cls, "q-tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground");
@@ -199,9 +193,38 @@
                 AppendClass(ref cls, "gap-1 bg-transparent rounded-none");
             }
             if (Justified)
-                AppendClass(ref cls, "w-full [&>.q-tab]:flex-1");
+                AppendClass(ref cls, "w-full [&>[data-slot=tabs-trigger]]:flex-1");
         });
         return attrs;
+    }
+
+    private Dictionary<string, object> BuildTabContentAttributes(Tab tab)
+    {
+        var attributes = new Dictionary<string, object>();
+        var isActive = string.Equals(tab.Name, ResolvedSelectedTab, StringComparison.Ordinal);
+
+        attributes["data-slot"] = "tabs-content";
+        attributes["data-state"] = isActive ? "active" : "inactive";
+        attributes["role"] = "tabpanel";
+        attributes["tabindex"] = 0;
+
+        if (!isActive)
+            attributes["hidden"] = true;
+
+        if (tab.Name.HasContent())
+        {
+            attributes["id"] = $"tab-content-{tab.Name}";
+            attributes["aria-labelledby"] = $"tab-trigger-{tab.Name}";
+        }
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-tabs-content outline-none");
+            if (Vertical)
+                AppendClass(ref cls, "min-w-0");
+        });
+
+        return attributes;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -209,6 +232,7 @@
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "tabs";
         attributes["data-orientation"] = Vertical ? "vertical" : "horizontal";
+        attributes["dir"] = "ltr";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-tabs group/tabs flex gap-2 data-[orientation=horizontal]:flex-col");

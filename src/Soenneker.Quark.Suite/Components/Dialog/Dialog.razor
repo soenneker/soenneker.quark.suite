@@ -2,17 +2,17 @@
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.OverlayElement
-@implements IModal
+@implements IDialog
 @implements IDisposable
 
 @if (Visible)
 {
-    <CascadingValue Name="ParentModal" Value="@this">
+    <CascadingValue Name="ParentDialog" Value="@this">
         <CascadingValue Value="_context" IsFixed="false">
             <div @onkeydown="HandleKeyDown" @onclick="HandleBackdropClick" @attributes="BuildAttributes()">
                 @if (ShowBackdrop)
                 {
-                    <div class="fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0" data-slot="dialog-overlay" data-state="@(Visible ? "open" : "closed")"></div>
+                    <div class="fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0" data-slot="dialog-overlay" data-state="@(Visible ? "open" : "closed")" aria-hidden="true"></div>
                 }
                 <div @ref="_dialogRef" @attributes="BuildDialogAttributes()" @onclick:stopPropagation="true">
                     @ChildContent
@@ -24,25 +24,25 @@
 
 @code {
     /// <summary>
-    /// Gets or sets whether the modal should be centered vertically.
+    /// Gets or sets whether the dialog should be centered vertically.
     /// </summary>
     [Parameter]
     public bool Centered { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the modal content should be scrollable.
+    /// Gets or sets whether the dialog content should be scrollable.
     /// </summary>
     [Parameter]
     public bool Scrollable { get; set; }
 
     /// <summary>
-    /// Gets or sets the size of the modal.
+    /// Gets or sets the size of the dialog.
     /// </summary>
     [Parameter]
-    public ModalSize? ModalSize { get; set; }
+    public DialogSize? DialogSize { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the modal backdrop is static (doesn't close on click).
+    /// Gets or sets whether the dialog backdrop is static (doesn't close on click).
     /// </summary>
     [Parameter]
     public bool Static { get; set; }
@@ -63,7 +63,7 @@
         attributes["data-slot"] = "dialog";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-modal");
+            AppendClass(ref cls, "q-dialog");
             AppendClass(ref cls, "fixed inset-0 z-50");
             if (!Visible)
                 AppendClass(ref cls, "pointer-events-none invisible");
@@ -87,14 +87,14 @@
         attributes["id"] = _context.ContentId;
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-modal-dialog");
+            AppendClass(ref cls, "q-dialog-panel");
             AppendClass(ref cls, "fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 outline-none sm:max-w-lg");
             AppendClass(ref cls, "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95");
             if (Scrollable)
                 AppendClass(ref cls, "max-h-[90vh] overflow-y-auto");
-            if (ModalSize != null && !string.IsNullOrEmpty(ModalSize.Value))
+            if (DialogSize != null && !string.IsNullOrEmpty(DialogSize.Value))
             {
-                var size = ModalSize.Value.ToLowerInvariant();
+                var size = DialogSize.Value.ToLowerInvariant();
                 if (size == "sm") AppendClass(ref cls, "sm:max-w-sm");
                 else if (size == "lg") AppendClass(ref cls, "sm:max-w-2xl");
                 else if (size == "xl") AppendClass(ref cls, "sm:max-w-4xl");
@@ -152,7 +152,7 @@
     }
 
     /// <summary>
-    /// Shows the modal.
+    /// Shows the dialog.
     /// </summary>
     public async Task Show()
     {
@@ -167,7 +167,7 @@
     }
 
     /// <summary>
-    /// Hides the modal.
+    /// Hides the dialog.
     /// </summary>
     public async Task Hide()
     {
@@ -185,7 +185,7 @@
     {
         hc.Add(Centered);
         hc.Add(Scrollable);
-        hc.Add(ModalSize);
+        hc.Add(DialogSize);
         hc.Add(Static);
         hc.Add(Visible);
         hc.Add(_context.ContentId);

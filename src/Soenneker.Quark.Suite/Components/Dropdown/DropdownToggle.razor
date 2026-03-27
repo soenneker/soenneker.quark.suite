@@ -1,9 +1,9 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 @using Soenneker.Blazor.Extensions.EventCallback
 @implements IDropdownToggle
 
-<button @attributes="BuildAttributes()" type="button" aria-haspopup="true" @onclick="OnClickHandler">
+<button @attributes="BuildAttributes()" type="button" @onclick="OnClickHandler">
     @ChildContent
 </button>
 
@@ -39,6 +39,8 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "dropdown-menu-trigger";
+        attributes["data-state"] = ParentDropdown?.Visible == true ? "open" : "closed";
+        attributes["aria-haspopup"] = "menu";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-dropdown-toggle");

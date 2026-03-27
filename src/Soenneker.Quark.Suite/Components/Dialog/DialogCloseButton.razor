@@ -1,6 +1,6 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
-@implements IModalCloseButton
+@implements IDialogCloseButton
 
 <button type="button" @onclick="HandleClick" @attributes="BuildAttributes()">
     @if (ChildContent == null)
@@ -16,13 +16,13 @@
 
 @code {
     /// <summary>
-    /// Gets or sets whether the modal should automatically close When the button is clicked.
+    /// Gets or sets whether the dialog should automatically close When the button is clicked.
     /// </summary>
     [Parameter]
     public bool AutoClose { get; set; } = true;
 
-    [CascadingParameter(Name = nameof(ParentModal))]
-    public Modal? ParentModal { get; set; }
+    [CascadingParameter(Name = nameof(ParentDialog))]
+    public Dialog? ParentDialog { get; set; }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -30,11 +30,11 @@
         // shadcn Dialog close button - new-york-v4 ui/dialog.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-modal-close-button");
+            AppendClass(ref cls, "q-dialog-close-button");
             AppendClass(ref cls, "absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
         });
         attributes["data-slot"] = "dialog-close";
-        attributes["data-state"] = ParentModal?.Visible == true ? "open" : "closed";
+        attributes["data-state"] = ParentDialog?.Visible == true ? "open" : "closed";
 
         if (!attributes.ContainsKey("aria-label"))
             attributes["aria-label"] = "Close";
@@ -46,9 +46,9 @@
     {
         await base.HandleClick(e);
 
-        if (AutoClose && ParentModal != null)
+        if (AutoClose && ParentDialog != null)
         {
-            await ParentModal.Hide();
+            await ParentDialog.Hide();
         }
     }
 

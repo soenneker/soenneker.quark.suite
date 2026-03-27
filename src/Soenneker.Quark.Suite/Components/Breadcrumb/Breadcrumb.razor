@@ -2,11 +2,13 @@
 @inherits Soenneker.Quark.Element
 @implements IBreadcrumb
 
-<nav @attributes="BuildAttributes()">
-    <ol @attributes="BuildListAttributes()">
-        @ChildContent
-    </ol>
-</nav>
+<CascadingValue Name="ParentBreadcrumb" Value="@this" IsFixed="true">
+    <nav @attributes="BuildAttributes()">
+        <ol @attributes="BuildListAttributes()">
+            @ChildContent
+        </ol>
+    </nav>
+</CascadingValue>
 
 @code {
     // shadcn Breadcrumb - new-york-v4 ui/breadcrumb.tsx
@@ -33,6 +35,31 @@
     /// </summary>
     [Parameter]
     public string? DividerText { get; set; }
+
+    private readonly List<BreadcrumbItem> _items = [];
+
+    internal bool UseTextDivider => Divider || DividerText.HasContent();
+
+    internal string ResolvedDividerText => DividerText.HasContent() ? DividerText! : "/";
+
+    internal int RegisterItem(BreadcrumbItem item)
+    {
+        if (!_items.Contains(item))
+            _items.Add(item);
+
+        return _items.IndexOf(item);
+    }
+
+    internal void UnregisterItem(BreadcrumbItem item)
+    {
+        if (!_items.Remove(item))
+            return;
+
+        for (var i = 0; i < _items.Count; i++)
+        {
+            _items[i].SetIndex(i);
+        }
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {

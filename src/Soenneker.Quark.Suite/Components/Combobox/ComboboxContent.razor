@@ -26,6 +26,15 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "combobox-content";
+        attributes["data-state"] = ParentCombobox?.Open == true ? "open" : "closed";
+        attributes["data-side"] = Side;
+        attributes["data-align"] = Align;
+        attributes["role"] = "listbox";
+        attributes["tabindex"] = -1;
+        attributes["aria-hidden"] = ParentCombobox?.Open == true ? "false" : "true";
+
+        if (ParentCombobox is not null)
+            attributes["id"] = ParentCombobox.ContentId;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

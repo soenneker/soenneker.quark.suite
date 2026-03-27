@@ -1,13 +1,11 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.InteractiveElement
 
-<div @onclick="HandleClick"
-     @onkeydown="HandleKeyDown"
-     @onkeydown:preventDefault="_preventDefault"
-     @ref="_elementRef"
-     @attributes="BuildAttributes()">
+<button @onclick="HandleClick"
+        @ref="_elementRef"
+        @attributes="BuildAttributes()">
     @ChildContent
-</div>
+</button>
 
 @code {
     [CascadingParameter(Name = "ParentDrawer")]
@@ -17,8 +15,6 @@
     private OverlayLabelContext? Context { get; set; }
 
     private ElementReference _elementRef;
-    private bool _preventDefault;
-
     protected override async Task HandleClick(MouseEventArgs e)
     {
         if (ParentDrawer is not null)
@@ -30,26 +26,12 @@
         await base.HandleClick(e);
     }
 
-    protected override async Task HandleKeyDown(KeyboardEventArgs e)
-    {
-        _preventDefault = e.Key is "Enter" or " ";
-
-        if (_preventDefault && ParentDrawer is not null)
-        {
-            ParentDrawer.SetRestoreFocusTarget(_elementRef);
-            await ParentDrawer.Show();
-        }
-
-        await base.HandleKeyDown(e);
-    }
-
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
+        attributes["type"] = "button";
         attributes["data-slot"] = "drawer-trigger";
-        attributes["role"] = "button";
-        attributes["tabindex"] = 0;
         attributes["aria-haspopup"] = "dialog";
         attributes["aria-expanded"] = (ParentDrawer?.Visible == true).ToString().ToLowerInvariant();
 

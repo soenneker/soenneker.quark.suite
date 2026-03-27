@@ -5,6 +5,21 @@
 @if (To.HasContent())
 {
     <li @attributes="BuildListItemAttributes()">
+        @if (ShowSeparator)
+        {
+            <span @attributes="BuildSeparatorAttributes()">
+                @if (ParentBreadcrumb?.UseTextDivider == true)
+                {
+                    @ParentBreadcrumb.ResolvedDividerText
+                }
+                else
+                {
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m9 18 6-6-6-6" />
+                    </svg>
+                }
+            </span>
+        }
         <Anchor To="@To" @attributes="BuildLinkAttributes()">
             @ChildContent
         </Anchor>
@@ -13,6 +28,21 @@
 else
 {
     <li @attributes="BuildListItemAttributes()">
+        @if (ShowSeparator)
+        {
+            <span @attributes="BuildSeparatorAttributes()">
+                @if (ParentBreadcrumb?.UseTextDivider == true)
+                {
+                    @ParentBreadcrumb.ResolvedDividerText
+                }
+                else
+                {
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m9 18 6-6-6-6" />
+                    </svg>
+                }
+            </span>
+        }
         @if (Active)
         {
             <span @attributes="BuildPageAttributes()">
@@ -27,6 +57,14 @@ else
 }
 
 @code {
+    [CascadingParameter(Name = "ParentBreadcrumb")]
+    private Breadcrumb? ParentBreadcrumb { get; set; }
+
+    private Breadcrumb? _registeredParentBreadcrumb;
+    private int _index;
+
+    private bool ShowSeparator => _index > 0;
+
     /// <summary>
     /// Gets or sets the URL to navigate to.
     /// </summary>
@@ -39,6 +77,42 @@ else
     [Parameter]
     public bool Active { get; set; }
 
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        RegisterWithParent();
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (!ReferenceEquals(_registeredParentBreadcrumb, ParentBreadcrumb))
+        {
+            _registeredParentBreadcrumb?.UnregisterItem(this);
+            RegisterWithParent();
+        }
+    }
+
+    private void RegisterWithParent()
+    {
+        if (ParentBreadcrumb is null)
+            return;
+
+        _registeredParentBreadcrumb = ParentBreadcrumb;
+        _index = ParentBreadcrumb.RegisterItem(this);
+    }
+
+    internal void SetIndex(int index)
+    {
+        if (_index == index)
+            return;
+
+        _index = index;
+        _ = InvokeAsync(StateHasChanged);
+    }
+
     private Dictionary<string, object> BuildListItemAttributes()
     {
         var attributes = new Dictionary<string, object>();
@@ -49,6 +123,24 @@ else
         {
             AppendClass(ref cls, "q-breadcrumb-item");
             AppendClass(ref cls, "inline-flex items-center gap-1.5");
+        });
+
+        return attributes;
+    }
+
+    private Dictionary<string, object> BuildSeparatorAttributes()
+    {
+        var attributes = new Dictionary<string, object>
+        {
+            ["data-slot"] = "breadcrumb-separator",
+            ["role"] = "presentation",
+            ["aria-hidden"] = "true"
+        };
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-breadcrumb-separator");
+            AppendClass(ref cls, "[&>svg]:size-3.5");
         });
 
         return attributes;
@@ -93,7 +185,17 @@ else
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(To);
         hc.Add(Active);
+        hc.Add(_index);
+        hc.Add(ParentBreadcrumb?.UseTextDivider);
+        hc.Add(ParentBreadcrumb?.ResolvedDividerText);
+    }
+
+    public override void Dispose()
+    {
+        _registeredParentBreadcrumb?.UnregisterItem(this);
+        base.Dispose();
     }
 }

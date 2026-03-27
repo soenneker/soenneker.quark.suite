@@ -1,0 +1,147 @@
+@page "/overlays/dialogs"
+@using DialogSize = Soenneker.Quark.DialogSize
+
+<PageTitle>Dialogs - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Examples" Description="Click a button to open each dialog variant. Close via X, backdrop click, or ESC." Code="@(@"<Button OnClick=""@(() => _showBasicDialog = true)"">Basic</Button>
+<Button OnClick=""@(() => _showLargeDialog = true)"">Large</Button>
+<Button OnClick=""@(() => _showCenteredDialog = true)"">Centered</Button>
+<Dialog @bind-Visible=""_showBasicDialog"">
+    <DialogHeader><DialogTitle>Basic Dialog</DialogTitle><DialogCloseButton/></DialogHeader>
+    <DialogBody><Paragraph>Close via X, backdrop, or ESC.</Paragraph></DialogBody>
+    <DialogFooter>
+        <Button OnClick=""@(() => _showBasicDialog = false)"">Close</Button>
+        <Button BackgroundColor=""BackgroundColor.Primary"">Save</Button>
+    </DialogFooter>
+</Dialog>")">
+            <Div Class="flex flex-wrap gap-2">
+            <Button BackgroundColor="BackgroundColor.Primary" OnClick="@(() => _showBasicDialog = true)">Basic</Button>
+            <Button BackgroundColor="BackgroundColor.Success" OnClick="@(() => _showLargeDialog = true)">Large</Button>
+            <Button BackgroundColor="BackgroundColor.Info" OnClick="@(() => _showCenteredDialog = true)">Centered</Button>
+            <Button BackgroundColor="BackgroundColor.Warning" OnClick="@(() => _showStaticDialog = true)">Static Backdrop</Button>
+            <Button BackgroundColor="BackgroundColor.Secondary" OnClick="@(() => _showScrollableDialog = true)">Scrollable</Button>
+            <Button BackgroundColor="BackgroundColor.Dark" OnClick="@(() => _showNewComponentsDialog = true)">New Components</Button>
+            </Div>
+        </DemoSection>
+
+        <DemoSection Title="Usage" Description="Bind Visible and use DialogHeader, DialogBody, DialogFooter." Code="@(@"<Button OnClick=""@(() => show = true)"">Show Dialog</Button>
+<Dialog @bind-Visible=""show"">
+    <DialogHeader><DialogTitle>Title</DialogTitle><DialogCloseButton/></DialogHeader>
+    <DialogBody><Paragraph>Content...</Paragraph></DialogBody>
+    <DialogFooter>
+        <Button OnClick=""@(() => show = false)"">Close</Button>
+        <Button BackgroundColor=""BackgroundColor.Primary"">Save</Button>
+    </DialogFooter>
+</Dialog>")">
+            <Div Class="rounded-lg border bg-muted/30 p-4">
+                <Paragraph Margin="Margin.Is0">Use <Code Inline="true">bind-Visible</Code> for two-way binding. DialogHeader, DialogBody, DialogFooter structure the dialog. Close via DialogCloseButton, backdrop click, or ESC.</Paragraph>
+            </Div>
+        </DemoSection>
+    </Section>
+</Div>
+
+<Dialog @bind-Visible="_showBasicDialog">
+    <DialogHeader>
+        <DialogTitle Scale="@Scale.Is5">Basic Dialog</DialogTitle>
+        <DialogCloseButton/>
+    </DialogHeader>
+    <DialogBody>
+        <Paragraph>Close via X, backdrop, or ESC.</Paragraph>
+    </DialogBody>
+    <DialogFooter>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Secondary" OnClick="@(() => _showBasicDialog = false)">Close</Button>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Primary" OnClick="@(() => _showBasicDialog = false)">Save</Button>
+    </DialogFooter>
+</Dialog>
+
+<Dialog @bind-Visible="_showLargeDialog" DialogSize="@DialogSize.Large">
+    <DialogHeader>
+        <DialogTitle Scale="@Scale.Is4">Large Dialog</DialogTitle>
+        <DialogCloseButton/>
+    </DialogHeader>
+    <DialogBody>
+        <Paragraph>More width for content.</Paragraph>
+        <Div Class="grid gap-4 md:grid-cols-2 mt-4">
+            <Div><H5>Column 1</H5><Paragraph Margin="Margin.Is0">Content 1</Paragraph></Div>
+            <Div><H5>Column 2</H5><Paragraph Margin="Margin.Is0">Content 2</Paragraph></Div>
+        </Div>
+    </DialogBody>
+    <DialogFooter>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Secondary" OnClick="@(() => _showLargeDialog = false)">Close</Button>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Primary" OnClick="@(() => _showLargeDialog = false)">Save</Button>
+    </DialogFooter>
+</Dialog>
+
+<Dialog @bind-Visible="_showCenteredDialog" Centered="true">
+    <DialogHeader>
+        <DialogTitle Scale="@Scale.Is5">Centered Dialog</DialogTitle>
+        <DialogCloseButton/>
+    </DialogHeader>
+    <DialogBody>
+        <Paragraph>Vertically centered on the page.</Paragraph>
+    </DialogBody>
+    <DialogFooter>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Secondary" OnClick="@(() => _showCenteredDialog = false)">Close</Button>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Primary" OnClick="@(() => _showCenteredDialog = false)">Save</Button>
+    </DialogFooter>
+</Dialog>
+
+<Dialog @bind-Visible="_showStaticDialog" Static="true">
+    <DialogHeader>
+        <DialogTitle Scale="@Scale.Is5">Static Backdrop</DialogTitle>
+        <DialogCloseButton/>
+    </DialogHeader>
+    <DialogBody>
+        <Paragraph>Cannot close by clicking outside — use close button.</Paragraph>
+    </DialogBody>
+    <DialogFooter>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Secondary" OnClick="@(() => _showStaticDialog = false)">Close</Button>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Primary" OnClick="@(() => _showStaticDialog = false)">Save</Button>
+    </DialogFooter>
+</Dialog>
+
+<Dialog @bind-Visible="_showScrollableDialog" Scrollable="true">
+    <DialogHeader>
+        <DialogTitle Scale="@Scale.Is5">Scrollable Dialog</DialogTitle>
+        <DialogCloseButton/>
+    </DialogHeader>
+    <DialogBody>
+        @for (var i = 1; i <= 50; i++)
+        {
+            <Paragraph>Line @i</Paragraph>
+        }
+    </DialogBody>
+    <DialogFooter>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Secondary" OnClick="@(() => _showScrollableDialog = false)">Close</Button>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Primary" OnClick="@(() => _showScrollableDialog = false)">Save</Button>
+    </DialogFooter>
+</Dialog>
+
+<Dialog @bind-Visible="_showNewComponentsDialog" DialogSize="@DialogSize.Large">
+    <DialogHeader>
+        <DialogTitle Scale="@Scale.Is3">New Components</DialogTitle>
+        <DialogCloseButton/>
+    </DialogHeader>
+    <DialogBody>
+        <Paragraph Margin="Margin.Is0">Separate <Code Inline="true">DialogTitle</Code> and <Code Inline="true">DialogCloseButton</Code> components.</Paragraph>
+        <UnorderedList>
+            <UnorderedListItem><Strong>DialogTitle:</Strong> Configurable heading size</UnorderedListItem>
+            <UnorderedListItem><Strong>DialogCloseButton:</Strong> Auto-detects parent dialog</UnorderedListItem>
+        </UnorderedList>
+    </DialogBody>
+    <DialogFooter>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Secondary" OnClick="@(() => _showNewComponentsDialog = false)">Close</Button>
+        <Button Type="@ButtonType.Button" BackgroundColor="BackgroundColor.Primary" OnClick="@(() => _showNewComponentsDialog = false)">Got it!</Button>
+    </DialogFooter>
+</Dialog>
+
+@code {
+    private bool _showBasicDialog;
+    private bool _showLargeDialog;
+    private bool _showCenteredDialog;
+    private bool _showStaticDialog;
+    private bool _showScrollableDialog;
+    private bool _showNewComponentsDialog;
+}

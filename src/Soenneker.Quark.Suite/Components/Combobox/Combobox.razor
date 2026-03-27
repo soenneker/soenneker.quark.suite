@@ -1,4 +1,4 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
 <CascadingValue Name="ParentCombobox" Value="@this" IsFixed="true">
@@ -8,6 +8,7 @@
 </CascadingValue>
 
 @code {
+    private readonly string _comboboxId = $"combobox-{Guid.NewGuid():N}";
 
     [Parameter]
     public EventCallback<string?> ValueChanged { get; set; }
@@ -23,6 +24,10 @@
 
     [Parameter]
     public EventCallback<bool> OpenChanged { get; set; }
+
+    internal string InputId => $"{_comboboxId}-input";
+
+    internal string ContentId => $"{_comboboxId}-listbox";
 
     internal async Task Select(string? v)
     {

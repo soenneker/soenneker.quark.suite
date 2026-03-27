@@ -1,7 +1,8 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@implements IDisposable
 
-<Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" OnClick="HandleNextClick" Disabled="@(!_canScrollNext)" @attributes="BuildAttributes()">
+<Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" OnClick="HandleNextClick" Disabled="@(!(ParentCarousel?.CanScrollNext ?? false))" @attributes="BuildAttributes()">
     <span class="sr-only">Next slide</span>
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
 </Button>
@@ -10,14 +11,28 @@
     [CascadingParameter(Name = "ParentCarousel")]
     private Carousel? ParentCarousel { get; set; }
 
-    private bool _canScrollNext = true;
+    private Carousel? _subscribedCarousel;
 
     private async Task HandleNextClick(MouseEventArgs e)
     {
-        _canScrollNext = false;
-        InvalidateRender();
-        Refresh();
+        ParentCarousel?.Next();
         await base.HandleClick(e);
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (ReferenceEquals(_subscribedCarousel, ParentCarousel))
+            return;
+
+        if (_subscribedCarousel is not null)
+            _subscribedCarousel.StateChanged -= OnCarouselStateChanged;
+
+        _subscribedCarousel = ParentCarousel;
+
+        if (_subscribedCarousel is not null)
+            _subscribedCarousel.StateChanged += OnCarouselStateChanged;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -37,5 +52,18 @@
             else
                 AppendClass(ref cls, "-bottom-12 left-1/2 -translate-x-1/2 rotate-90");
         });
+    }
+
+    private async void OnCarouselStateChanged()
+    {
+        await RefreshOffThread();
+    }
+
+    public override void Dispose()
+    {
+        if (_subscribedCarousel is not null)
+            _subscribedCarousel.StateChanged -= OnCarouselStateChanged;
+
+        base.Dispose();
     }
 }

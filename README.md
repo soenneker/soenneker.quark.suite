@@ -12,7 +12,7 @@
 
 - 🎯 **Type-safe CSS**: Strong enums for colors, spacing, layout, typography  
 - 🎨 **Theming**: Bootstrap CSS variable overrides + runtime theme switching  
-- 🧩 **60+ components**: Buttons, forms, tables, modals, navs, data grid, more  
+- 🧩 **60+ components**: Buttons, forms, tables, dialogs, navs, data grid, more  
 - 📦 **Single package**: All components in one NuGet, no extras  
 - 🚀 **Optimized**: Built for performance and low overhead  
 

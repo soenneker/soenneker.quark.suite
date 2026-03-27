@@ -1,20 +1,37 @@
 @namespace Soenneker.Quark
 @inherits Element
 
-<div class="relative w-full overflow-x-auto">
+<div @attributes="BuildContainerAttributes()">
     <table @attributes="BuildAttributes()">
         @ChildContent
     </table>
 </div>
 
 @code {
-	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-	{
-		BuildClassAttribute(attributes, (ref cls) =>
-		{
-			AppendClass(ref cls, "q-table");
-			// shadcn Table - new-york-v4 ui/table.tsx
-			AppendClass(ref cls, "w-full caption-bottom text-sm");
-		});
-	}
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        attributes["data-slot"] = "table";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-table");
+            // shadcn Table - new-york-v4 ui/table.tsx
+            AppendClass(ref cls, "w-full caption-bottom text-sm");
+        });
+    }
+
+    private Dictionary<string, object> BuildContainerAttributes()
+    {
+        var attributes = new Dictionary<string, object>
+        {
+            ["data-slot"] = "table-container"
+        };
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-table-container relative w-full overflow-x-auto");
+        });
+
+        return attributes;
+    }
 } 

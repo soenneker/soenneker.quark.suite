@@ -118,9 +118,9 @@ public sealed class Theme
     public MemoInputOptions? MemoInputs { get; set; }
 
     /// <summary>
-    /// Gets or sets the modal component styling options.
+    /// Gets or sets the dialog component styling options.
     /// </summary>
-    public ModalOptions? Modals { get; set; }
+    public DialogOptions? Dialogs { get; set; }
 
     /// <summary>
     /// Gets or sets the nav component styling options.
@@ -362,36 +362,36 @@ public sealed class Theme
     /// </summary>
     public BreadcrumbItemOptions? BreadcrumbItems { get; set; }
 
-    // Modal components
+    // Dialog components
     /// <summary>
-    /// Gets or sets the modal title component styling options.
+    /// Gets or sets the dialog title component styling options.
     /// </summary>
-    public ModalTitleOptions? ModalTitles { get; set; }
+    public DialogTitleOptions? DialogTitles { get; set; }
 
     /// <summary>
-    /// Gets or sets the modal header component styling options.
+    /// Gets or sets the dialog header component styling options.
     /// </summary>
-    public ModalHeaderOptions? ModalHeaders { get; set; }
+    public DialogHeaderOptions? DialogHeaders { get; set; }
 
     /// <summary>
-    /// Gets or sets the modal footer component styling options.
+    /// Gets or sets the dialog footer component styling options.
     /// </summary>
-    public ModalFooterOptions? ModalFooters { get; set; }
+    public DialogFooterOptions? DialogFooters { get; set; }
 
     /// <summary>
-    /// Gets or sets the modal content component styling options.
+    /// Gets or sets the dialog content component styling options.
     /// </summary>
-    public ModalContentOptions? ModalContents { get; set; }
+    public DialogContentOptions? DialogContents { get; set; }
 
     /// <summary>
-    /// Gets or sets the modal close button component styling options.
+    /// Gets or sets the dialog close button component styling options.
     /// </summary>
-    public ModalCloseButtonOptions? ModalCloseButtons { get; set; }
+    public DialogCloseButtonOptions? DialogCloseButtons { get; set; }
 
     /// <summary>
-    /// Gets or sets the modal body component styling options.
+    /// Gets or sets the dialog body component styling options.
     /// </summary>
-    public ModalBodyOptions? ModalBodys { get; set; }
+    public DialogBodyOptions? DialogBodys { get; set; }
 
     // Form components
     /// <summary>
@@ -727,7 +727,7 @@ public sealed class Theme
     /// </summary>
     public ValidationsContainerOptions? ValidationsContainers { get; set; }
 
-    // Modal/Overlay main components
+    // Dialog/Overlay main components
     /// <summary>
     /// Gets or sets the Sonner toast styling options.
     /// </summary>
@@ -781,8 +781,8 @@ public sealed class Theme
             yield return Labels;
         if (MemoInputs != null)
             yield return MemoInputs;
-        if (Modals != null)
-            yield return Modals;
+        if (Dialogs != null)
+            yield return Dialogs;
         if (Navs != null)
             yield return Navs;
         if (NumericInputs != null)
@@ -877,18 +877,18 @@ public sealed class Theme
             yield return PaginationItems;
         if (BreadcrumbItems != null)
             yield return BreadcrumbItems;
-        if (ModalTitles != null)
-            yield return ModalTitles;
-        if (ModalHeaders != null)
-            yield return ModalHeaders;
-        if (ModalFooters != null)
-            yield return ModalFooters;
-        if (ModalContents != null)
-            yield return ModalContents;
-        if (ModalCloseButtons != null)
-            yield return ModalCloseButtons;
-        if (ModalBodys != null)
-            yield return ModalBodys;
+        if (DialogTitles != null)
+            yield return DialogTitles;
+        if (DialogHeaders != null)
+            yield return DialogHeaders;
+        if (DialogFooters != null)
+            yield return DialogFooters;
+        if (DialogContents != null)
+            yield return DialogContents;
+        if (DialogCloseButtons != null)
+            yield return DialogCloseButtons;
+        if (DialogBodys != null)
+            yield return DialogBodys;
         if (FieldLabels != null)
             yield return FieldLabels;
         if (FieldHelps != null)

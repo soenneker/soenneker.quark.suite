@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Components;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Represents a modal dialog component for displaying content in an overlay.
+/// Represents a dialog component for displaying content in an overlay.
 /// </summary>
-public interface IModal : IElement
+public interface IDialog : IElement
 {
     /// <summary>
-    /// Gets or sets whether the modal is visible.
+    /// Gets or sets whether the dialog is visible.
     /// </summary>
     bool Visible { get; set; }
 
@@ -19,37 +19,37 @@ public interface IModal : IElement
     EventCallback<bool> VisibleChanged { get; set; }
 
     /// <summary>
-    /// Gets or sets whether a backdrop should be shown behind the modal.
+    /// Gets or sets whether a backdrop should be shown behind the dialog.
     /// </summary>
     bool ShowBackdrop { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the modal should be vertically centered.
+    /// Gets or sets whether the dialog should be vertically centered.
     /// </summary>
     bool Centered { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the modal content should be scrollable.
+    /// Gets or sets whether the dialog content should be scrollable.
     /// </summary>
     bool Scrollable { get; set; }
 
     /// <summary>
-    /// Gets or sets the size of the modal (small, default, large, extra-large, fullscreen).
+    /// Gets or sets the size of the dialog (small, default, large, extra-large, fullscreen).
     /// </summary>
-    ModalSize? ModalSize { get; set; }
+    DialogSize? DialogSize { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the modal is static (cannot be closed by clicking backdrop or pressing Escape).
+    /// Gets or sets whether the dialog is static (cannot be closed by clicking backdrop or pressing Escape).
     /// </summary>
     bool Static { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked When the modal is shown.
+    /// Gets or sets the callback invoked When the dialog is shown.
     /// </summary>
     EventCallback OnShow { get; set; }
 
     /// <summary>
-    /// Gets or sets the callback invoked When the modal is hidden.
+    /// Gets or sets the callback invoked When the dialog is hidden.
     /// </summary>
     EventCallback OnHide { get; set; }
 
@@ -59,13 +59,13 @@ public interface IModal : IElement
     EventCallback OnBackdropClick { get; set; }
 
     /// <summary>
-    /// Shows the modal.
+    /// Shows the dialog.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
     Task Show();
 
     /// <summary>
-    /// Hides the modal.
+    /// Hides the dialog.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
     Task Hide();

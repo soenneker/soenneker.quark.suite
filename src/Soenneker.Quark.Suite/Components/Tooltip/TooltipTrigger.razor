@@ -9,15 +9,15 @@
 }
 else
 {
-    <div @onmouseenter="HandleMouseEnter"
-         @onmouseleave="HandleMouseLeave"
-         @onfocusin="HandleFocusIn"
-         @onfocusout="HandleFocusOut"
-         @onclick="HandleClick"
-         @onkeydown="HandleKeyDown"
-         @attributes="BuildAttributes()">
+    <button @onmouseenter="HandleMouseEnter"
+            @onmouseleave="HandleMouseLeave"
+            @onfocusin="HandleFocusIn"
+            @onfocusout="HandleFocusOut"
+            @onclick="HandleClick"
+            @onkeydown="HandleKeyDown"
+            @attributes="BuildAttributes()">
         @ChildContent
-    </div>
+    </button>
 }
 
 @code {
@@ -34,8 +34,8 @@ else
     {
         base.BuildAttributesCore(attributes);
 
+        attributes["type"] = "button";
         attributes["data-slot"] = "tooltip-trigger";
-        attributes.TryAdd("tabindex", 0);
 
         if (ParentTriggerContext?.TriggerId is not null)
             attributes["id"] = ParentTriggerContext.TriggerId;
