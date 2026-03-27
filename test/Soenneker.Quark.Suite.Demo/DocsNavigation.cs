@@ -16,7 +16,7 @@ public static class DocsNavigation
     [
         new("Introduction", "", ExactMatch: true),
         new("Components", "components"),
-        new("Theming"),
+        new("Validation", "forms/validation-demo")
     ];
 
     public static IReadOnlyList<DocsNavLink> ComponentLinks { get; } =
@@ -60,7 +60,7 @@ public static class DocsNavigation
         new("Pagination", "navigation/paginations"),
         new("Popover", "overlays/popovers"),
         new("Progress", "feedback/progresses"),
-        new("Radio Group", "forms/radios"),
+        new("Radio Group", "forms/radiogroups"),
         new("Resizable", "layout/resizable"),
         new("Scroll Area"),
         new("Select", "forms/selects"),
@@ -77,5 +77,25 @@ public static class DocsNavigation
         new("Toggle", "forms/toggles"),
         new("Tooltip", "overlays/tooltips"),
         new("Typography", "typography/typography")
+    ];
+
+    public static IReadOnlyList<DocsNavLink> PrimitiveLinks { get; } =
+    [
+        new("Div", "layout/divs"),
+        new("Margin", "divs/margin-demo"),
+        new("Padding", "divs/padding-demo"),
+        new("Anchor", "typography/anchors"),
+        new("Blockquote", "typography/blockquotes"),
+        new("Br", "utils/br-demo"),
+        new("Code", "typography/codes"),
+        new("Fieldset", "forms/fieldsets-demo"),
+        new("Figure", "media/figures"),
+        new("Paragraph", "typography/paragraph-demo"),
+        new("Section", "utils/section-demo"),
+        new("Small", "typography/small-demo"),
+        new("Span", "typography/span-demo"),
+        new("Strong", "typography/strong-demo"),
+        new("Text", "typography/texts"),
+        new("Semantic HTML", "utils/semantic-html")
     ];
 }

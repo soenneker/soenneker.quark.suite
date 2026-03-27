@@ -42,6 +42,10 @@
                  Flex="Flex.Fill"
                  Padding="Padding.Is16.FromBottom.OnSm.Is0.FromBottom"
                  class="*:data-[slot=alert]:first:mt-0">
+                <H2 TextSize="TextSize.Is4" FontWeight="FontWeight.Semibold" class="mb-4">
+                    Components
+                </H2>
+
                 <Div Grid="Grid.Display.Cols(2).OnMd.Cols(3)"
                      Gap='Gap.Is4
                               .OnMd.Token("8").Column
@@ -49,6 +53,54 @@
                               .OnLg.Token("6").Row
                               .OnXl.Token("20").Column'>
                     @foreach (DocsNavLink item in DocsNavigation.ComponentLinks)
+                    {
+                        @if (item.Href is not null)
+                        {
+                            <Anchor To="@item.Href"
+                                    Display="Display.InlineFlex"
+                                    Flex="Flex.AlignCenter"
+                                    Gap="Gap.Is2"
+                                    TextSize="TextSize.Lg.OnMd.Is5"
+                                    FontWeight="FontWeight.Medium"
+                                    LinkOffset="LinkOffset.Is4"
+                                    class="hover:underline">
+                                @item.Title
+                                @if (item.IsNew)
+                                {
+                                    <Span BoxSize="Size.Is2" BorderRadius="BorderRadius.Full" BackgroundColor='@BackgroundColor.FromCss("bg-blue-500")'></Span>
+                                }
+                            </Anchor>
+                        }
+                        else
+                        {
+                            <Span Display="Display.InlineFlex"
+                                  Flex="Flex.AlignCenter"
+                                  Gap="Gap.Is2"
+                                  TextSize="TextSize.Lg.OnMd.Is5"
+                                  FontWeight="FontWeight.Medium"
+                                  TextColor="TextColor.MutedForeground">
+                                @item.Title
+                                @if (item.IsNew)
+                                {
+                                    <Span BoxSize="Size.Is2" BorderRadius="BorderRadius.Full" BackgroundColor='@BackgroundColor.FromCss("bg-blue-500")'></Span>
+                                }
+                            </Span>
+                        }
+                    }
+                </Div>
+
+                <Hr Margin="Margin.Is4.OnY.OnMd.Is8.OnY"/>
+
+                <H2 TextSize="TextSize.Is4" FontWeight="FontWeight.Semibold" class="mb-4">
+                    Primitives
+                </H2>
+
+                <Div Grid="Grid.Display.Cols(2).OnMd.Cols(3)"
+                     Gap='Gap.Is4
+                              .OnMd.Token("8").Column
+                              .OnLg.Token("16").Column
+                              .OnLg.Token("6").Row'>
+                    @foreach (DocsNavLink item in DocsNavigation.PrimitiveLinks)
                     {
                         @if (item.Href is not null)
                         {

@@ -151,6 +151,7 @@ public sealed class HeightBuilder : ICssBuilder
             "96" => "h-96",
             "auto" => "h-auto",
             _ when size.StartsWith("h-") => size,
+            _ when size.Length > 0 => "h-" + size,
             _ => string.Empty
         };
     }

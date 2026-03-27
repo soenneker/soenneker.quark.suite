@@ -14,4 +14,5 @@ internal static class TailwindContentStub
 
     // BorderRadius: rounded + corners(tl,tr,bl,br,t,b,l,r) + sizes(0,1,2,3,4,5,pill,circle,sm,md,lg)
     private const string BorderRadius = "rounded rounded-0 rounded-1 rounded-2 rounded-3 rounded-4 rounded-5 rounded-sm rounded-md rounded-lg rounded-pill rounded-circle rounded-t rounded-b rounded-l rounded-r rounded-tl rounded-tr rounded-bl rounded-br rounded-s-none rounded-b-none";
+
 }

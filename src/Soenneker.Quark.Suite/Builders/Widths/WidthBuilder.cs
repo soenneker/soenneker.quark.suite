@@ -184,6 +184,7 @@ public sealed class WidthBuilder : ICssBuilder
             "96" => "w-96",
             "auto" => "w-auto",
             _ when size.StartsWith("w-") => size,
+            _ when size.Length > 0 => "w-" + size,
             _ => string.Empty
         };
     }

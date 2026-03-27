@@ -62,6 +62,11 @@ else
 
     private const string ActiveClass = "bg-sidebar-accent text-sidebar-accent-foreground font-medium";
 
+    private bool ShowCollapsedTooltip =>
+        Tooltip.HasContent() &&
+        State?.IsMobile != true &&
+        State?.Open == false;
+
     private bool ShouldRenderNavLink =>
         To.HasContent() &&
         Target is null &&
@@ -110,7 +115,7 @@ else
         attributes["data-active"] = Active ? "true" : "false";
         attributes["data-state"] = Open ? "open" : "closed";
 
-        if (Tooltip.HasContent())
+        if (ShowCollapsedTooltip)
             attributes["title"] = Tooltip!;
 
         if (!To.HasContent())
@@ -119,7 +124,7 @@ else
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-sidebar-menu-button");
-            AppendClass(ref cls, "peer/menu-button flex items-center gap-2 rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0");
+            AppendClass(ref cls, "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0");
             AppendClass(ref cls, GetVariantClass(Variant));
             AppendClass(ref cls, GetSizeClass(Size));
         });

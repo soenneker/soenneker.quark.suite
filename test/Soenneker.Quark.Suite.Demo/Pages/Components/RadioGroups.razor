@@ -1,8 +1,8 @@
-@page "/forms/radios"
+@page "/forms/radiogroups"
 @using Microsoft.Extensions.Logging
 @inject ILogger<Index> Logger
 
-<PageTitle>Radios - Quark Suite</PageTitle>
+<PageTitle>Radio Group - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
@@ -10,18 +10,22 @@
             <Row>
         <!-- Basic Usage -->
         <Column ColumnSize="@ColumnSize.Is6.OnLg" Margin="Margin.Is4.FromBottom">
-            <DemoSection Title="Basic Usage" Description="Simple radio button group with ChildContent support." Code="@(@"<Radio Name=""basicGroup"" Value=""Option1"" Checked=""@(_basicSelected == \""Option1\"")"" OnClick=""@(() => SelectBasic(\""Option1\""))"">Option 1</Radio>
-<Radio Name=""basicGroup"" Value=""Option2"" Checked=""@(_basicSelected == \""Option2\"")"" OnClick=""@(() => SelectBasic(\""Option2\""))"">Option 2</Radio>
-<Radio Name=""basicGroup"" Value=""Option3"" Checked=""@(_basicSelected == \""Option3\"")"" OnClick=""@(() => SelectBasic(\""Option3\""))"">Option 3</Radio>")">
-                <Radio Name="basicGroup" Value="Option1" Checked="@(_basicSelected == "Option1")" OnClick="@(() => SelectBasic("Option1"))">
-                    Option 1
-                </Radio>
-                <Radio Name="basicGroup" Value="Option2" Checked="@(_basicSelected == "Option2")" OnClick="@(() => SelectBasic("Option2"))">
-                    Option 2
-                </Radio>
-                <Radio Name="basicGroup" Value="Option3" Checked="@(_basicSelected == "Option3")" OnClick="@(() => SelectBasic("Option3"))">
-                    Option 3
-                </Radio>
+            <DemoSection Title="Basic Usage" Description="Simple radio group with shared state and keyboard navigation." Code="@(@"<RadioGroup Name=""basicGroup"" Value=""@_basicSelected"" ValueChanged=""OnBasicSelectionChanged"" Class=""w-fit"" AriaLabel=""Basic options"">
+    <Radio Value=""Option1"">Option 1</Radio>
+    <Radio Value=""Option2"">Option 2</Radio>
+    <Radio Value=""Option3"">Option 3</Radio>
+</RadioGroup>")">
+                <RadioGroup Name="basicGroup" Value="@_basicSelected" ValueChanged="OnBasicSelectionChanged" Class="w-fit" AriaLabel="Basic options">
+                    <Radio Value="Option1">
+                        Option 1
+                    </Radio>
+                    <Radio Value="Option2">
+                        Option 2
+                    </Radio>
+                    <Radio Value="Option3">
+                        Option 3
+                    </Radio>
+                </RadioGroup>
                 <Div Margin="Margin.Is3.FromTop">
                     <Small TextColor="TextColor.Muted">Selected: <Strong>@_basicSelected</Strong></Small>
                 </Div>
@@ -249,10 +253,10 @@
         Logger.LogInformation("Radios demo page initialized");
     }
 
-    private void SelectBasic(string option)
+    private Task OnBasicSelectionChanged(string? option)
     {
-        _basicSelected = option;
-        StateHasChanged();
+        _basicSelected = option ?? string.Empty;
+        return Task.CompletedTask;
     }
 
     private void HandleRadioClick(string value)
