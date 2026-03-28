@@ -11,6 +11,7 @@ namespace Soenneker.Quark;
 ///<inheritdoc cref="ISonnerService"/>
 public sealed class SonnerService : ISonnerService
 {
+    private const int MountDelayMs = 16;
     private const int RemoveDelayMs = 400;
     private const string DefaultToasterId = "";
     private readonly AsyncLock _sync = new();
@@ -276,6 +277,7 @@ public sealed class SonnerService : ISonnerService
         var closeButton = options.CloseButton ?? registration?.CloseButton ?? DefaultCloseButton;
         var position = options.Position ?? registration?.DefaultPosition ?? DefaultPosition;
 
+        var isExistingToast = previous is not null && !previous.Removed;
         var toast = new SonnerToast
         {
             ToasterId = toasterId,
@@ -293,7 +295,7 @@ public sealed class SonnerService : ISonnerService
             OnDismiss = options.OnDismiss,
             OnAutoClose = options.OnAutoClose,
             Promise = previous?.Promise == true || type == SonnerToastType.Loading,
-            Mounted = true,
+            Mounted = isExistingToast && previous is not null && previous.Mounted,
             Removed = false,
             CreatedAt = previous?.CreatedAt ?? DateTimeOffset.UtcNow
         };
@@ -311,7 +313,43 @@ public sealed class SonnerService : ISonnerService
         await RestartTimer(toast);
         NotifyStateChanged();
 
+        if (!isExistingToast)
+            _ = MountAsync(id);
+
         return id;
+    }
+
+    private async Task MountAsync(string id)
+    {
+        try
+        {
+            await Task.Delay(MountDelayMs);
+
+            if (_disposed)
+                return;
+
+            var shouldNotify = false;
+
+            using (await _sync.Lock())
+            {
+                if (_disposed)
+                    return;
+
+                var toast = _toasts.FirstOrDefault(item => item.Id == id);
+
+                if (toast is null || toast.Removed || toast.Mounted)
+                    return;
+
+                toast.Mounted = true;
+                shouldNotify = true;
+            }
+
+            if (shouldNotify)
+                NotifyStateChanged();
+        }
+        catch (TaskCanceledException)
+        {
+        }
     }
 
     private async ValueTask RestartTimer(SonnerToast toast)
