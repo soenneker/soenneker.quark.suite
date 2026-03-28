@@ -6,81 +6,52 @@
 
 # ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Quark.Suite
 
-**Blazor component library for .NET — Shadcn/Tailwind, full theming, and type-safe CSS utilities.**
+Shadcn-inspired Blazor components for modern .NET apps.
 
-## Highlights
+`Soenneker.Quark.Suite` is the main Quark package: a Razor class library with a large set of UI components, lower-level primitives, and Tailwind-oriented styling utilities.
 
-- 🎯 **Type-safe CSS**: Strong enums for colors, spacing, layout, typography  
-- 🎨 **Theming**: Bootstrap CSS variable overrides + runtime theme switching  
-- 🧩 **60+ components**: Buttons, forms, tables, dialogs, navs, data grid, more  
-- 📦 **Single package**: All components in one NuGet, no extras  
-- 🚀 **Optimized**: Built for performance and low overhead  
-
-## Install
+## Installation
 
 ```bash
 dotnet add package Soenneker.Quark.Suite
-````
+```
 
-## Setup
+## Basic Setup
+
+Register the suite through the main DI entry point:
 
 ```csharp
+using Soenneker.Quark;
+
 builder.Services.AddQuarkSuiteAsScoped();
-
-var host = builder.Build();
-
-await host.Services.LoadQuarkResources(); // Optional if you want to load resources via html
-
 ```
+
+Then start using components in Razor:
+
+```razor
+<Button>Save changes</Button>
+
+<Input Placeholder="Search..." />
+
+<Dialog @bind-Visible="_showDialog">
+    <DialogHeader>
+        <DialogTitle>Edit profile</DialogTitle>
+        <DialogCloseButton />
+    </DialogHeader>
+    <DialogBody>
+        <Input Placeholder="Display name" />
+    </DialogBody>
+</Dialog>
+```
+
+## What You Get
+
+- dialogs, sheets, popovers, tooltips, alert dialogs
+- buttons, cards, badges, menus, breadcrumbs, navigation, sidebar
+- fields, inputs, selects, comboboxes, date pickers, validation
+- tables, pagination, resizable layouts, charts, code editor
+- sonner, skeletons, progress, steps, and other UI primitives
 
 ## Theming
 
-Quark Suite supports two approaches:
-
-1) **Runtime theming with `ThemeHost`**  
-If you use `ThemeHost`, you must register an `IThemeProvider` in DI (it is not auto-registered).
-
-```csharp
-var themeProvider = new ThemeProvider();
-// Add themes to the provider here (themeProvider.AddTheme(...))
-
-builder.Services.AddThemeProviderAsScoped(themeProvider);
-```
-
-Use `ThemeHost` in your layout to emit the generated CSS:
-
-```razor
-<ThemeHost>
-    @Body
-</ThemeHost>
-```
-
-2) **Prebuilt CSS**  
-If you prefer static CSS, you can use the generated theme package `soenneker.quark.gen.themes` and include a prebuilt CSS file directly in your app (no `ThemeHost` or `IThemeProvider` required).
-
-## Examples
-
-**Type-safe styling**
-
-```razor
-<Button Color="@Color.Primary" Size="@Size.Large">Click</Button>
-
-<Div Margin="Margin.Is3.FromTop" Padding="Padding.Is4.OnX">
-    <Text Color="@TextColor.Success" Weight="@FontWeight.Bold">
-        Success message
-    </Text>
-</Div>
-```
-
-**Data table with server-side paging**
-
-```razor
-<Table TItem="Employee" Data="employees" PageSize="10"
-            ServerSide="true" OnRequestData="LoadEmployees">
-    <TableColumns>
-        <Th Field="@nameof(Employee.Name)" Sortable />
-        <Th Field="@nameof(Employee.Email)" />
-        <Th Field="@nameof(Employee.Department)" Sortable />
-    </TableColumns>
-</Table>
-```
+The suite includes runtime theme interop and theme-related infrastructure. For most apps, `AddQuarkSuiteAsScoped()` is the only required registration. If you need custom theme generation, the source also includes `Theme` and `ThemeProvider`.

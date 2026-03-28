@@ -1,7 +1,10 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@implements IAsyncDisposable
 
-<div @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
+@inject IPopoverInterop PopoverInterop
+
+<div @ref="_contentRef" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
     @ChildContent
 </div>
 
@@ -24,7 +27,27 @@
     [Parameter]
     public bool DisableAutoOpen { get; set; }
 
+    [Parameter]
+    public int SideOffset { get; set; } = 4;
+
+    private ElementReference _contentRef;
+    private bool _positionObserverActive;
     private bool IsOpen => Context?.IsOpen ?? Open;
+    private bool UseFloatingPositioning => Context?.HasTriggerElement == true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!IsOpen || Context is null || !UseFloatingPositioning)
+        {
+            await StopPositionObserver();
+            return;
+        }
+
+        await PopoverInterop.ObservePosition(Context.ContentId, Context.TriggerElement, _contentRef, Side, Align, SideOffset);
+        _positionObserverActive = true;
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -48,10 +71,29 @@
         {
             AppendClass(ref cls, "q-popover-content");
             AppendClass(ref cls, "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-72 origin-(--radix-popover-content-transform-origin) rounded-md border p-4 shadow-md outline-hidden");
-            AppendClass(ref cls, "absolute top-full mt-1");
             AppendClass(ref cls, "data-[state=closed]:hidden data-[state=open]:block");
-            AppendClass(ref cls, "data-[align=start]:left-0 data-[align=center]:left-1/2 data-[align=center]:-translate-x-1/2 data-[align=end]:right-0");
+
+            if (UseFloatingPositioning)
+            {
+                AppendClass(ref cls, "fixed");
+            }
+            else
+            {
+                AppendClass(ref cls, "absolute top-full mt-1");
+                AppendClass(ref cls, "data-[align=start]:left-0 data-[align=center]:left-1/2 data-[align=center]:-translate-x-1/2 data-[align=end]:right-0");
+            }
         });
+
+        if (UseFloatingPositioning)
+        {
+            BuildStyleAttribute(attributes, (ref sty) =>
+            {
+                AppendStyleDecl(ref sty, "top: 0");
+                AppendStyleDecl(ref sty, "left: 0");
+                AppendStyleDecl(ref sty, "margin-top: 0");
+                AppendStyleDecl(ref sty, "visibility: hidden");
+            });
+        }
     }
 
     private async Task HandleKeyDown(KeyboardEventArgs e)
@@ -66,7 +108,23 @@
         hc.Add(IsOpen);
         hc.Add(Side);
         hc.Add(Align);
+        hc.Add(SideOffset);
         hc.Add(DisableAutoOpen);
         hc.Add(CloseOnEscape);
+    }
+
+    private async ValueTask StopPositionObserver()
+    {
+        if (!_positionObserverActive || Context is null)
+            return;
+
+        await PopoverInterop.StopObserving(Context.ContentId);
+        _positionObserverActive = false;
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        await StopPositionObserver();
+        await base.DisposeAsync();
     }
 }

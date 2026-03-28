@@ -1,4 +1,4 @@
-@page "/overlays/tooltips"
+@page "/tooltips"
 
 <PageTitle>Tooltip - Quark Suite</PageTitle>
 
@@ -6,9 +6,9 @@
     <TooltipProvider DelayDuration="150">
         <Div Space="Space.Y.Is6">
             <Section Space="Space.Y.Is4">
-                <DemoSection Title="Basic tooltip"
-                             Description="Adapted from the shadcn tooltip demo with an outline trigger and simple helper text."
-                             Code="@TooltipCode">
+                <DemoSection Title="Basic"
+                             Description="Tooltips work well for terse helper text on icon buttons and compact controls."
+                             Code="@BasicCode">
                     <Div Class="flex min-h-32 items-center justify-center">
                         <Tooltip>
                             <TooltipTrigger AsChild="true">
@@ -23,8 +23,9 @@
             </Section>
 
             <Section Space="Space.Y.Is4">
-                <DemoSection Title="Sides and keyboard hint"
-                             Description="Switch placement and pair tooltips with keyboard shortcuts for richer affordances.">
+                <DemoSection Title="Side variants"
+                             Description="Choose the side that best fits the surrounding layout."
+                             Code="@SidesCode">
                     <Div Class="flex min-h-40 flex-wrap items-center justify-center gap-6">
                         <Tooltip>
                             <TooltipTrigger AsChild="true">
@@ -43,7 +44,23 @@
                                 <Paragraph>Helpful context on the right</Paragraph>
                             </TooltipContent>
                         </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger AsChild="true">
+                                <Button Variant="ButtonVariant.Outline">Left</Button>
+                            </TooltipTrigger>
+                            <TooltipContent Side="left">
+                                <Paragraph>Helpful context on the left</Paragraph>
+                            </TooltipContent>
+                        </Tooltip>
+                    </Div>
+                </DemoSection>
+            </Section>
 
+            <Section Space="Space.Y.Is4">
+                <DemoSection Title="Keyboard shortcut"
+                             Description="Pair tooltips with shortcuts so users discover faster paths without leaving the current screen."
+                             Code="@ShortcutCode">
+                    <Div Class="flex min-h-32 items-center justify-center">
                         <Tooltip>
                             <TooltipTrigger AsChild="true">
                                 <Button Variant="ButtonVariant.Outline">
@@ -61,18 +78,70 @@
                     </Div>
                 </DemoSection>
             </Section>
+
+            <Section Space="Space.Y.Is4">
+                <DemoSection Title="Disabled action"
+                             Description="Wrap disabled controls in a neutral element so the tooltip can still explain why the action is unavailable."
+                             Code="@DisabledCode">
+                    <Div Class="flex min-h-32 items-center justify-center">
+                        <Tooltip>
+                            <TooltipTrigger AsChild="true">
+                                <span class="inline-flex">
+                                    <Button Variant="ButtonVariant.Outline" Disabled="true">Invite user</Button>
+                                </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <Paragraph>Upgrade to the team plan to invite additional users.</Paragraph>
+                            </TooltipContent>
+                        </Tooltip>
+                    </Div>
+                </DemoSection>
+            </Section>
         </Div>
     </TooltipProvider>
 </Div>
 
 @code {
-    private const string TooltipCode =
+    private const string BasicCode =
 @"<Tooltip>
     <TooltipTrigger AsChild=""true"">
         <Button Variant=""ButtonVariant.Outline"">Hover</Button>
     </TooltipTrigger>
     <TooltipContent>
         <Paragraph>Add to library</Paragraph>
+    </TooltipContent>
+</Tooltip>";
+
+    private const string SidesCode =
+@"<Tooltip><TooltipTrigger AsChild=""true""><Button Variant=""ButtonVariant.Outline"">Top</Button></TooltipTrigger><TooltipContent Side=""top"">...</TooltipContent></Tooltip>
+<Tooltip><TooltipTrigger AsChild=""true""><Button Variant=""ButtonVariant.Outline"">Right</Button></TooltipTrigger><TooltipContent Side=""right"">...</TooltipContent></Tooltip>
+<Tooltip><TooltipTrigger AsChild=""true""><Button Variant=""ButtonVariant.Outline"">Left</Button></TooltipTrigger><TooltipContent Side=""left"">...</TooltipContent></Tooltip>";
+
+    private const string ShortcutCode =
+@"<Tooltip>
+    <TooltipTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">
+            Command palette
+            <Span Class=""ml-2 flex items-center gap-1"">
+                <KbdChip>Ctrl</KbdChip>
+                <KbdChip>K</KbdChip>
+            </Span>
+        </Button>
+    </TooltipTrigger>
+    <TooltipContent Side=""bottom"">
+        <Paragraph>Open the quick action palette</Paragraph>
+    </TooltipContent>
+</Tooltip>";
+
+    private const string DisabledCode =
+@"<Tooltip>
+    <TooltipTrigger AsChild=""true"">
+        <span class=""inline-flex"">
+            <Button Variant=""ButtonVariant.Outline"" Disabled=""true"">Invite user</Button>
+        </span>
+    </TooltipTrigger>
+    <TooltipContent>
+        <Paragraph>Upgrade to the team plan to invite additional users.</Paragraph>
     </TooltipContent>
 </Tooltip>";
 }

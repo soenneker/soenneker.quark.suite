@@ -1,4 +1,4 @@
-﻿@using System.Globalization
+@using System.Globalization
 @using System.Linq.Expressions
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Extensions.EventCallback
@@ -8,13 +8,15 @@
 @implements Soenneker.Quark.IValidationInput
 @implements IDateTimePicker
 
+@inject IDatePickerInterop DatePickerInterop
+
 <div OnElementRefReady="HandleContainerRefReady" @attributes="GetContainerAttributes()">
     <input @ref="_ref" type="text" value="@(SelectedDateTime.HasValue ? FormatDisplay(SelectedDateTime.Value) : "")" @attributes="BuildAttributes()" />
 
     @if (_open)
     {
-        <div class="fixed inset-0 z-40" @onclick="ClosePanel"></div>
-        <div @attributes="BuildPanelAttributes()" @onclick:stopPropagation="true">
+        <div class="fixed inset-0 z-[19990]" @onclick="ClosePanel"></div>
+        <div @ref="_panelRef" @attributes="BuildPanelAttributes()" @onclick:stopPropagation="true">
             <div class="mb-2 flex items-center justify-between">
                 <button type="button" class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-input bg-background text-sm shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50" @onclick="PrevMonth">‹</button>
                 <div class="text-sm font-medium">@_displayMonth.ToString("MMMM yyyy", CultureInfo.CurrentUICulture)</div>
@@ -126,9 +128,11 @@
     public object? ValidationValue => SelectedDateTime;
 
     private ElementReference _ref;
+    private ElementReference _panelRef;
     private ElementReference _containerRef;
     private DotNetObjectReference<DateTimePickerOutsideCloseProxy>? _outsideRef;
     private bool _open;
+    private bool _positionObserverActive;
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
     private string[] _dayNames = [];
     private DateOnly? _pendingDate;
@@ -136,6 +140,7 @@
     private int _minute; // 0-59
     private bool _isAm;
     private const int _minuteStep = 1;
+    private readonly string _panelId = $"datetimepicker-panel-{Guid.NewGuid():N}";
 
     private static DateTime? Parse(ChangeEventArgs e)
     {
@@ -245,6 +250,16 @@
         }
 
         await base.OnAfterRenderAsync(firstRender);
+
+        if (_open)
+        {
+            await DatePickerInterop.ObservePosition(_panelId, _ref, _panelRef, "bottom", "start");
+            _positionObserverActive = true;
+        }
+        else
+        {
+            await StopPositionObserver();
+        }
     }
 
     private static string FormatDisplay(DateTime dt) => dt.ToString("yyyy-MM-dd hh:mm tt", CultureInfo.InvariantCulture);
@@ -317,8 +332,14 @@
         BuildClassAttribute(attrs, (ref cls) =>
         {
             AppendClass(ref cls, "quark-calendar-panel q-calendar-panel");
-            AppendClass(ref cls, "absolute left-0 top-[calc(100%+0.25rem)] z-50 min-w-[18rem] rounded-md border bg-popover p-3 text-popover-foreground shadow-md");
+            AppendClass(ref cls, "fixed left-0 top-0 z-[20000] min-w-[18rem] rounded-md border bg-popover p-3 text-popover-foreground shadow-md");
         });
+
+        BuildStyleAttribute(attrs, (ref sty) =>
+        {
+            AppendStyleDecl(ref sty, "visibility: hidden");
+        });
+
         return attrs;
     }
 
@@ -481,10 +502,19 @@
         return Task.CompletedTask;
     }
 
-    protected override Task OnDisposeAsync()
+    private async Task StopPositionObserver()
+    {
+        if (!_positionObserverActive)
+            return;
+
+        await DatePickerInterop.StopObserving(_panelId);
+        _positionObserverActive = false;
+    }
+
+    protected override async Task OnDisposeAsync()
     {
         _outsideRef?.Dispose();
-        return Task.CompletedTask;
+        await StopPositionObserver();
     }
 
     protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)

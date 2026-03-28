@@ -1,64 +1,79 @@
-@page "/forms/datepickers"
+@page "/datepickers"
 
 <PageTitle>Date Pickers - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
-        <DemoSection Title="DateOnly" Description="Simple date selection with DatePicker." Code="@(@"<Label Form=""true"">Pick a date</Label>
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Date picker"
+                         Description="Use the date picker when you only need a calendar date."
+                         Code="@(@"<Label Form=""true"">Pick a date</Label>
 <DatePicker @bind-SelectedDate=""_dateOnly""/>")">
-            <Div Class="flex min-h-[16rem] w-full max-w-sm flex-col items-center justify-center gap-4 text-center">
-                <Label Form="true">Pick a date</Label>
-                <DatePicker @bind-SelectedDate="_dateOnly"/>
-                <Div Class="value-chip" Margin="Margin.Is0">
-                    <Span Class="dot"></Span><Span>Value: @_dateOnly?.ToString("yyyy-MM-dd")</Span>
+                <Div Class="flex min-h-[16rem] w-full max-w-sm flex-col items-center justify-center gap-4 text-center">
+                    <Label Form="true">Pick a date</Label>
+                    <DatePicker @bind-SelectedDate="_dateOnly"/>
+                    <Div Class="value-chip" Margin="Margin.Is0">
+                        <Span Class="dot"></Span><Span>Value: @_dateOnly?.ToString("yyyy-MM-dd")</Span>
+                    </Div>
                 </Div>
-            </Div>
-        </DemoSection>
-        <DemoSection Title="DateTime" Description="Date and time with DateTimePicker." Code="@(@"<Label Form=""true"">Pick a date and time</Label>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Min and max dates"
+                         Description="Constrain the calendar when users should only choose from a known date window."
+                         Code="@(@"<DatePicker @bind-SelectedDate=""_deliveryDate"" Min=""_minDate"" Max=""_maxDate"" />")">
+                <Div Class="flex min-h-[16rem] w-full max-w-sm flex-col items-center justify-center gap-4 text-center">
+                    <Label Form="true">Schedule delivery</Label>
+                    <DatePicker @bind-SelectedDate="_deliveryDate" Min="_minDate" Max="_maxDate"/>
+                    <Paragraph Class="text-sm text-muted-foreground" Margin="Margin.Is0">
+                        Available between @_minDate.ToString("yyyy-MM-dd") and @_maxDate.ToString("yyyy-MM-dd")
+                    </Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Date and time"
+                         Description="DateTimePicker adds time selection when the exact moment matters."
+                         Code="@(@"<Label Form=""true"">Pick a date and time</Label>
 <DateTimePicker @bind-SelectedDateTime=""_dateTime""/>")">
-            <Div Class="flex min-h-[16rem] w-full max-w-sm flex-col items-center justify-center gap-4 text-center">
-                <Label Form="true">Pick a date and time</Label>
-                <DateTimePicker @bind-SelectedDateTime="_dateTime"/>
-                <Div Class="value-chip" Margin="Margin.Is0">
-                    <Span Class="dot"></Span><Span>Value: @_dateTime?.ToString("yyyy-MM-dd HH:mm:ss")</Span>
+                <Div Class="flex min-h-[16rem] w-full max-w-sm flex-col items-center justify-center gap-4 text-center">
+                    <Label Form="true">Pick a date and time</Label>
+                    <DateTimePicker @bind-SelectedDateTime="_dateTime"/>
+                    <Div Class="value-chip" Margin="Margin.Is0">
+                        <Span Class="dot"></Span><Span>Value: @_dateTime?.ToString("yyyy-MM-dd HH:mm:ss")</Span>
+                    </Div>
                 </Div>
-            </Div>
-        </DemoSection>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Scheduled window"
+                         Description="Combine date and time with min/max bounds for scheduling flows."
+                         Code="@(@"<DateTimePicker @bind-SelectedDateTime=""_deploymentWindow"" Min=""_minDateTime"" Max=""_maxDateTime"" />")">
+                <Div Class="flex min-h-[16rem] w-full max-w-sm flex-col items-center justify-center gap-4 text-center">
+                    <Label Form="true">Deployment window</Label>
+                    <DateTimePicker @bind-SelectedDateTime="_deploymentWindow" Min="_minDateTime" Max="_maxDateTime"/>
+                    <Paragraph Class="text-sm text-muted-foreground" Margin="Margin.Is0">
+                        Available between @_minDateTime.ToString("MMM dd, yyyy HH:mm") and @_maxDateTime.ToString("MMM dd, yyyy HH:mm")
+                    </Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
     </Div>
 </Div>
 
 @code{
 
     private DateOnly? _dateOnly = DateOnly.FromDateTime(DateTime.Today);
+    private readonly DateOnly _minDate = DateOnly.FromDateTime(DateTime.Today);
+    private readonly DateOnly _maxDate = DateOnly.FromDateTime(DateTime.Today.AddDays(14));
+    private DateOnly? _deliveryDate = DateOnly.FromDateTime(DateTime.Today.AddDays(2));
+
     private DateTime? _dateTime = DateTime.Now;
-
-    private DateOnly? _validatedDate;
-    private DateTime? _validatedDateTime;
-
-    private void ValidateDate(ValidatorEventArgs e)
-    {
-        if (_validatedDate is null)
-        {
-            e.Status = ValidationStatus.Error;
-            e.ErrorText = "Date is required.";
-        }
-        else
-        {
-            e.Status = ValidationStatus.Success;
-        }
-    }
-
-    private void ValidateDateTime(ValidatorEventArgs e)
-    {
-        if (_validatedDateTime is null)
-        {
-            e.Status = ValidationStatus.Error;
-            e.ErrorText = "Date/time is required.";
-        }
-        else
-        {
-            e.Status = ValidationStatus.Success;
-        }
-    }
+    private readonly DateTime _minDateTime = DateTime.Today.AddHours(9);
+    private readonly DateTime _maxDateTime = DateTime.Today.AddDays(7).AddHours(18);
+    private DateTime? _deploymentWindow = DateTime.Today.AddDays(1).AddHours(14);
 
 }

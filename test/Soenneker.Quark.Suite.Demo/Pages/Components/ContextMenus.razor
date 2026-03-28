@@ -1,95 +1,210 @@
-@page "/overlays/context-menus"
+@page "/context-menus"
 
 <PageTitle>Context Menus - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
-    <Section Space="Space.Y.Is4">
-        <DemoSection Title="Context menu demo"
-                     Description="shadcn v4 context menu structure ported to Blazor with checkbox, radio group, and submenu behavior."
-                     Code="@ContextMenuCode">
-            <ContextMenu>
-                <ContextMenuTrigger Class="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">
-                    Right click here
-                </ContextMenuTrigger>
-                <ContextMenuContent>
-                    <Div Class="w-52">
-                        <ContextMenuItem>
-                            Back
-                            <ContextMenuShortcut>Ctrl+[</ContextMenuShortcut>
-                        </ContextMenuItem>
-                        <ContextMenuItem  Disabled="true">
-                            Forward
-                            <ContextMenuShortcut>Ctrl+]</ContextMenuShortcut>
-                        </ContextMenuItem>
-                        <ContextMenuItem>
-                            Reload
-                            <ContextMenuShortcut>Ctrl+R</ContextMenuShortcut>
-                        </ContextMenuItem>
-                        <ContextMenuSub>
-                            <ContextMenuSubTrigger >More Tools</ContextMenuSubTrigger>
-                            <ContextMenuSubContent Class="w-44">
-                                <ContextMenuItem>Save Page...</ContextMenuItem>
-                                <ContextMenuItem>Create Shortcut...</ContextMenuItem>
-                                <ContextMenuItem>Name Window...</ContextMenuItem>
-                                <ContextMenuSeparator />
-                                <ContextMenuItem>Developer Tools</ContextMenuItem>
-                                <ContextMenuSeparator />
-                                <ContextMenuItem Variant="destructive">Delete</ContextMenuItem>
-                            </ContextMenuSubContent>
-                        </ContextMenuSub>
-                        <ContextMenuSeparator />
-                        <ContextMenuCheckboxItem @bind-Checked="_showBookmarks">
-                            Show Bookmarks
-                        </ContextMenuCheckboxItem>
-                        <ContextMenuCheckboxItem @bind-Checked="_showFullUrls">
-                            Show Full URLs
-                        </ContextMenuCheckboxItem>
-                        <ContextMenuSeparator />
-                        <ContextMenuRadioGroup>
-                            <ContextMenuLabel >People</ContextMenuLabel>
-                            <ContextMenuRadioItem Selected="@IsPedroSelected" SelectedChanged="@(selected => OnPersonSelected("pedro", selected))">
-                                Pedro Duarte
-                            </ContextMenuRadioItem>
-                            <ContextMenuRadioItem Selected="@IsColmSelected" SelectedChanged="@(selected => OnPersonSelected("colm", selected))">
-                                Colm Tuite
-                            </ContextMenuRadioItem>
-                        </ContextMenuRadioGroup>
-                    </Div>
-                </ContextMenuContent>
-            </ContextMenu>
-        </DemoSection>
-    </Section>
+    <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Basic"
+                         Description="Start with a simple menu for common browser-style actions."
+                         Code="@BasicCode">
+                <ContextMenu>
+                    <ContextMenuTrigger Class="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">
+                        Right click for basic actions
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                        <Div Class="w-52">
+                            <ContextMenuItem>
+                                Back
+                                <ContextMenuShortcut>Ctrl+[</ContextMenuShortcut>
+                            </ContextMenuItem>
+                            <ContextMenuItem Disabled="true">
+                                Forward
+                                <ContextMenuShortcut>Ctrl+]</ContextMenuShortcut>
+                            </ContextMenuItem>
+                            <ContextMenuItem>
+                                Reload
+                                <ContextMenuShortcut>Ctrl+R</ContextMenuShortcut>
+                            </ContextMenuItem>
+                        </Div>
+                    </ContextMenuContent>
+                </ContextMenu>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Submenu and shortcuts"
+                         Description="Use nested actions and shortcuts for denser command palettes."
+                         Code="@SubmenuCode">
+                <ContextMenu>
+                    <ContextMenuTrigger Class="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">
+                        Right click for more tools
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                        <Div Class="w-56">
+                            <ContextMenuItem>
+                                Save page
+                                <ContextMenuShortcut>Ctrl+S</ContextMenuShortcut>
+                            </ContextMenuItem>
+                            <ContextMenuItem>
+                                Duplicate tab
+                                <ContextMenuShortcut>Ctrl+D</ContextMenuShortcut>
+                            </ContextMenuItem>
+                            <ContextMenuSub>
+                                <ContextMenuSubTrigger>More tools</ContextMenuSubTrigger>
+                                <ContextMenuSubContent Class="w-44">
+                                    <ContextMenuItem>Downloads</ContextMenuItem>
+                                    <ContextMenuItem>Task manager</ContextMenuItem>
+                                    <ContextMenuSeparator />
+                                    <ContextMenuItem>Developer tools</ContextMenuItem>
+                                    <ContextMenuSeparator />
+                                    <ContextMenuItem Variant="destructive">Delete tab</ContextMenuItem>
+                                </ContextMenuSubContent>
+                            </ContextMenuSub>
+                        </Div>
+                    </ContextMenuContent>
+                </ContextMenu>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Checkboxes"
+                         Description="Checkbox items work well for toggles that can be enabled independently."
+                         Code="@CheckboxCode">
+                <ContextMenu>
+                    <ContextMenuTrigger Class="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">
+                        Right click for view options
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                        <Div Class="w-56">
+                            <ContextMenuLabel>View</ContextMenuLabel>
+                            <ContextMenuSeparator />
+                            <ContextMenuCheckboxItem @bind-Checked="_showBookmarks">
+                                Show bookmarks bar
+                            </ContextMenuCheckboxItem>
+                            <ContextMenuCheckboxItem @bind-Checked="_showFullUrls">
+                                Show full URLs
+                            </ContextMenuCheckboxItem>
+                            <ContextMenuCheckboxItem @bind-Checked="_showLineNumbers">
+                                Show line numbers
+                            </ContextMenuCheckboxItem>
+                        </Div>
+                    </ContextMenuContent>
+                </ContextMenu>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Radio items"
+                         Description="Radio groups keep one active option selected while leaving room for destructive actions below."
+                         Code="@RadioCode">
+                <ContextMenu>
+                    <ContextMenuTrigger Class="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">
+                        Right click for layout choices
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                        <Div Class="w-56">
+                            <ContextMenuLabel>Density</ContextMenuLabel>
+                            <ContextMenuSeparator />
+                            <ContextMenuRadioGroup>
+                                <ContextMenuRadioItem Selected="@IsComfortableSelected" SelectedChanged="@(selected => OnDensitySelected("comfortable", selected))">
+                                    Comfortable
+                                </ContextMenuRadioItem>
+                                <ContextMenuRadioItem Selected="@IsCompactSelected" SelectedChanged="@(selected => OnDensitySelected("compact", selected))">
+                                    Compact
+                                </ContextMenuRadioItem>
+                            </ContextMenuRadioGroup>
+                            <ContextMenuSeparator />
+                            <ContextMenuItem Variant="destructive">Delete project</ContextMenuItem>
+                        </Div>
+                    </ContextMenuContent>
+                </ContextMenu>
+            </DemoSection>
+        </Section>
+    </Div>
 </Div>
 
 @code {
     private bool _showBookmarks = true;
     private bool _showFullUrls;
-    private string _selectedPerson = "pedro";
-    private bool IsPedroSelected => _selectedPerson == "pedro";
-    private bool IsColmSelected => _selectedPerson == "colm";
+    private bool _showLineNumbers = true;
+    private string _selectedDensity = "comfortable";
+    private bool IsComfortableSelected => _selectedDensity == "comfortable";
+    private bool IsCompactSelected => _selectedDensity == "compact";
 
-    private void OnPersonSelected(string person, bool selected)
+    private void OnDensitySelected(string density, bool selected)
     {
         if (selected)
-            _selectedPerson = person;
+            _selectedDensity = density;
     }
 
-    private const string ContextMenuCode =
+    private const string BasicCode =
 @"<ContextMenu>
     <ContextMenuTrigger Class=""flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm"">
-        Right click here
+        Right click for basic actions
     </ContextMenuTrigger>
     <ContextMenuContent>
         <Div Class=""w-52"">
-            <ContextMenuItem Inset=""true"">Back<ContextMenuShortcut>Ctrl+[</ContextMenuShortcut></ContextMenuItem>
+            <ContextMenuItem>Back<ContextMenuShortcut>Ctrl+[</ContextMenuShortcut></ContextMenuItem>
+            <ContextMenuItem Disabled=""true"">Forward<ContextMenuShortcut>Ctrl+]</ContextMenuShortcut></ContextMenuItem>
+            <ContextMenuItem>Reload<ContextMenuShortcut>Ctrl+R</ContextMenuShortcut></ContextMenuItem>
+        </Div>
+    </ContextMenuContent>
+</ContextMenu>";
+
+    private const string SubmenuCode =
+@"<ContextMenu>
+    <ContextMenuTrigger Class=""flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm"">
+        Right click for more tools
+    </ContextMenuTrigger>
+    <ContextMenuContent>
+        <Div Class=""w-56"">
+            <ContextMenuItem>Save page<ContextMenuShortcut>Ctrl+S</ContextMenuShortcut></ContextMenuItem>
+            <ContextMenuItem>Duplicate tab<ContextMenuShortcut>Ctrl+D</ContextMenuShortcut></ContextMenuItem>
             <ContextMenuSub>
-                <ContextMenuSubTrigger Inset=""true"">More Tools</ContextMenuSubTrigger>
+                <ContextMenuSubTrigger>More tools</ContextMenuSubTrigger>
                 <ContextMenuSubContent Class=""w-44"">
-                    <ContextMenuItem Variant=""destructive"">Delete</ContextMenuItem>
+                    <ContextMenuItem>Downloads</ContextMenuItem>
+                    <ContextMenuItem>Task manager</ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem>Developer tools</ContextMenuItem>
                 </ContextMenuSubContent>
             </ContextMenuSub>
-            <ContextMenuCheckboxItem @bind-Checked=""showBookmarks"">Show Bookmarks</ContextMenuCheckboxItem>
-            <ContextMenuRadioGroup>...</ContextMenuRadioGroup>
+        </Div>
+    </ContextMenuContent>
+</ContextMenu>";
+
+    private const string CheckboxCode =
+@"<ContextMenu>
+    <ContextMenuTrigger Class=""flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm"">
+        Right click for view options
+    </ContextMenuTrigger>
+    <ContextMenuContent>
+        <Div Class=""w-56"">
+            <ContextMenuLabel>View</ContextMenuLabel>
+            <ContextMenuSeparator />
+            <ContextMenuCheckboxItem @bind-Checked=""showBookmarks"">Show bookmarks bar</ContextMenuCheckboxItem>
+            <ContextMenuCheckboxItem @bind-Checked=""showFullUrls"">Show full URLs</ContextMenuCheckboxItem>
+            <ContextMenuCheckboxItem @bind-Checked=""showLineNumbers"">Show line numbers</ContextMenuCheckboxItem>
+        </Div>
+    </ContextMenuContent>
+</ContextMenu>";
+
+    private const string RadioCode =
+@"<ContextMenu>
+    <ContextMenuTrigger Class=""flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm"">
+        Right click for layout choices
+    </ContextMenuTrigger>
+    <ContextMenuContent>
+        <Div Class=""w-56"">
+            <ContextMenuLabel>Density</ContextMenuLabel>
+            <ContextMenuSeparator />
+            <ContextMenuRadioGroup>
+                <ContextMenuRadioItem Selected=""true"">Comfortable</ContextMenuRadioItem>
+                <ContextMenuRadioItem>Compact</ContextMenuRadioItem>
+            </ContextMenuRadioGroup>
+            <ContextMenuSeparator />
+            <ContextMenuItem Variant=""destructive"">Delete project</ContextMenuItem>
         </Div>
     </ContextMenuContent>
 </ContextMenu>";

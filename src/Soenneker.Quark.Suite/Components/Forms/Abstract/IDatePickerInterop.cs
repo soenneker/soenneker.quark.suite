@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,4 +13,15 @@ public interface IDatePickerInterop
     /// Ensures any required resources are loaded and ready.
     /// </summary>
     ValueTask Initialize(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Starts tracking a picker panel against its trigger and keeps the panel positioned in the viewport.
+    /// </summary>
+    ValueTask ObservePosition(string pickerId, ElementReference trigger, ElementReference content, string side, string align, int sideOffset = 4,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Stops tracking the picker panel position.
+    /// </summary>
+    ValueTask StopObserving(string pickerId, CancellationToken cancellationToken = default);
 }

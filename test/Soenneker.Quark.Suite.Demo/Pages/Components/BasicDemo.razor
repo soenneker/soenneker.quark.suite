@@ -1,4 +1,4 @@
-@page "/data/tables/basic"
+@page "/tables-basic"
 @using Microsoft.Extensions.Logging
 @using Soenneker.DataTables.Dtos.ServerSideRequest
 @using Soenneker.Quark.Suite.Demo.Services
@@ -7,146 +7,116 @@
 @inject ILogger<BasicDemo> Logger
 @inject EmployeeService EmployeeService
 
-<PageTitle>Basic Demo - Quark Suite</PageTitle>
+<PageTitle>Data Table - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
-    <DemoSection Title="Basic Table" Description="Table with TableSearch, Th, Tbody, TableBottomBar, TableInfo, TablePagination." Code="@(@"<Table @ref=""_table"" OnInteraction=""OnInteraction"" Options=""_tableOptions"" TotalRecords=""@_totalRecords"">
-    <TableSearch Placeholder=""Search...""></TableSearch>
-    <TableElement>
-        <Thead>
-            <Tr>
-                <Th Data=""Name"" Sortable=""true"" Searchable=""true"">Name</Th>
-                <Th Data=""Email"" Sortable=""true"">Email</Th>
-                <Th Data=""Status"" Sortable=""true"">Status</Th>
-            </Tr>
-        </Thead>
-        <Tbody>
-            @foreach (var item in _items) {
-                <Tr><Td>@item.Name</Td><Td>@item.Email</Td><Td>@item.Status</Td></Tr>
-            }
-        </Tbody>
-    </TableElement>
-    <TableBottomBar><TableInfo /><TablePagination /></TableBottomBar>
-</Table>")">
-    <Card Class="demo-card">
-        <CardHeader>
-            <Div Class="card-header-content">
-                <H3><Icon Name="users" Margin="Margin.Is2.FromEnd"/>Employee Directory</H3>
-                <Paragraph TextColor="TextColor.Muted" Margin="Margin.Is0.FromBottom">Search, sort, and paginate through employee data with ease</Paragraph>
-            </Div>
-        </CardHeader>
-        <CardBody>
-            <Table @ref="_basicTable"
-                        OnInteraction="OnInteraction"
-                        OnOrder="HandleOrder"
-                        OnInitialize="HandleInitialize"
-                        Options="_basicTableOptions"
-                        TotalRecords="@_totalRecords">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Server-side table"
+                         Description="This example combines searching, sorting, pagination, and an empty state in one server-backed data table."
+                         Code="@DataTableCode">
+                <Card Class="overflow-hidden border shadow-sm">
+                    <CardHeader Class="border-b bg-muted/20">
+                        <Div Class="space-y-1">
+                            <H3><Icon Name="users" Margin="Margin.Is2.FromEnd"/>Employee directory</H3>
+                            <Paragraph TextColor="TextColor.Muted" Margin="Margin.Is0.FromBottom">
+                                Search, sort, and paginate through employee data without leaving the page.
+                            </Paragraph>
+                        </Div>
+                    </CardHeader>
+                    <CardBody Class="p-0">
+                        <Div Class="p-6">
+                            <Table @ref="_basicTable"
+                                   OnInteraction="OnInteraction"
+                                   OnOrder="HandleOrder"
+                                   OnInitialize="HandleInitialize"
+                                   Options="_basicTableOptions"
+                                   TotalRecords="@_totalRecords">
+                                <TableSearch Placeholder="Search employees..."></TableSearch>
 
-                <TableSearch Placeholder="Search employees..."></TableSearch>
+                                <TableElement>
+                                    <Thead>
+                                        <Tr>
+                                            <Th Data="Name" Sortable="true" Searchable="true">Name</Th>
+                                            <Th Data="Department" Sortable="true" Searchable="true">Department</Th>
+                                            <Th Data="Email" Sortable="true" Searchable="true">Email</Th>
+                                            <Th Data="Salary" Sortable="true" Searchable="true">Salary</Th>
+                                            <Th Data="HireDate" Sortable="true" Searchable="true">Hire Date</Th>
+                                            <Th Data="Status" Sortable="true" Searchable="true">Status</Th>
+                                        </Tr>
+                                    </Thead>
 
-                <TableElement>
-                    <Thead>
-                        <Tr>
-                            <Th Data="Name" Sortable="true" Searchable="true">Name</Th>
-                            <Th Data="test.dept" Sortable="true" Searchable="true">Department</Th>
-                            <Th Data="Email" Sortable="true" Searchable="true">Email</Th>
-                            <Th Data="Salary" Sortable="true" Searchable="true">Salary</Th>
-                            <Th Data="HireDate" Sortable="true" Searchable="true">Hire Date</Th>
-                            <Th Data="Status" Sortable="true" Searchable="true">Status</Th>
-                        </Tr>
-                    </Thead>
+                                    <Tbody>
+                                        @if (_currentEmployees is {Count: > 0})
+                                        {
+                                            @foreach (var employee in _currentEmployees)
+                                            {
+                                                <Tr Key="@employee.Id">
+                                                    <Td>@employee.Name</Td>
+                                                    <Td>@employee.Department</Td>
+                                                    <Td>@employee.Email</Td>
+                                                    <Td>@employee.Salary.ToString("C")</Td>
+                                                    <Td>@employee.HireDate.ToString("MMM dd, yyyy")</Td>
+                                                    <Td>@employee.Status</Td>
+                                                </Tr>
+                                            }
+                                        }
+                                        else if (_basicTable.HasLoadedOnce)
+                                        {
+                                            <TableNoData>
+                                                <Div Class="grid gap-2 py-10 text-center">
+                                                    <H4>No employees found</H4>
+                                                    <Paragraph>Try adjusting your search criteria or clearing the current filters.</Paragraph>
+                                                </Div>
+                                            </TableNoData>
+                                        }
+                                    </Tbody>
+                                </TableElement>
 
-                    <Tbody>
-                        @if (_currentEmployees is {Count: > 0})
-                        {
-                            @foreach (var employee in _currentEmployees)
-                            {
-                                <Tr Key="@employee.Id">
-                                    <Td>@employee.Name</Td>
-                                    <Td>@employee.Department</Td>
-                                    <Td>@employee.Email</Td>
-                                    <Td>@employee.Salary.ToString("C")</Td>
-                                    <Td>@employee.HireDate.ToString("MMM dd, yyyy")</Td>
-                                    <Td>@employee.Status</Td>
-                                </Tr>
-                            }
-                        }
-                        else if (_basicTable.HasLoadedOnce)
-                        {
-                            <TableNoData>
-                                <Div Class="no-data-content">
-                                    <Div Class="no-data-icon">🔍</Div>
-                                    <H4>No employees found</H4>
-                                    <Paragraph>Try adjusting your search criteria or filters.</Paragraph>
-                                </Div>
-                            </TableNoData>
-                        }
-                    </Tbody>
-                </TableElement>
-                
-                <TableBottomBar>
-                    <TableInfo />
-                    <TablePagination />
-                </TableBottomBar>
-            </Table>
-        </CardBody>
-    </Card>
-    </DemoSection>
+                                <TableBottomBar>
+                                    <TableInfo />
+                                    <TablePagination />
+                                </TableBottomBar>
+                            </Table>
+                        </Div>
+                    </CardBody>
+                </Card>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="What this example covers"
+                         Description="The page mirrors the same concerns shadcn highlights in its data-table guide, adapted to Quark's table primitives.">
+                <Div Class="grid gap-4 md:grid-cols-2">
+                    <Div Class="rounded-lg border bg-card p-4">
+                        <Paragraph Class="text-sm font-medium" Margin="Margin.Is0">Searching and sorting</Paragraph>
+                        <Paragraph Class="text-sm text-muted-foreground" Margin="Margin.Is0">
+                            <Code Inline="true">TableSearch</Code> and sortable <Code Inline="true">Th</Code> columns keep the table interactive without extra scaffolding.
+                        </Paragraph>
+                    </Div>
+                    <Div Class="rounded-lg border bg-card p-4">
+                        <Paragraph Class="text-sm font-medium" Margin="Margin.Is0">Pagination</Paragraph>
+                        <Paragraph Class="text-sm text-muted-foreground" Margin="Margin.Is0">
+                            <Code Inline="true">TableBottomBar</Code>, <Code Inline="true">TableInfo</Code>, and <Code Inline="true">TablePagination</Code> keep paging controls aligned.
+                        </Paragraph>
+                    </Div>
+                    <Div Class="rounded-lg border bg-card p-4">
+                        <Paragraph Class="text-sm font-medium" Margin="Margin.Is0">Empty state</Paragraph>
+                        <Paragraph Class="text-sm text-muted-foreground" Margin="Margin.Is0">
+                            <Code Inline="true">TableNoData</Code> gives the table a dedicated no-results state instead of collapsing the layout.
+                        </Paragraph>
+                    </Div>
+                    <Div Class="rounded-lg border bg-card p-4">
+                        <Paragraph Class="text-sm font-medium" Margin="Margin.Is0">Server-side interactions</Paragraph>
+                        <Paragraph Class="text-sm text-muted-foreground" Margin="Margin.Is0">
+                            The demo fetches rows through <Code Inline="true">OnInteraction</Code> so filtering and paging can scale beyond in-memory samples.
+                        </Paragraph>
+                    </Div>
+                </Div>
+            </DemoSection>
+        </Section>
     </Div>
 </Div>
-
-<style>
-    .demo-card {
-        background: white;
-        border-radius: 20px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-        border: none;
-        margin-bottom: 3rem;
-    }
-
-    .card-header {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border-bottom: 1px solid #dee2e6;
-        padding: 2rem;
-    }
-
-    .card-header-content h3 {
-        color: #495057;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-    }
-
-    .card-body {
-        padding: 2rem;
-    }
-
-    .no-data-content {
-        text-align: center;
-        padding: 3rem 2rem;
-        color: #6c757d;
-    }
-
-    .no-data-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-        opacity: 0.5;
-    }
-
-    .no-data-content h4 {
-        color: #495057;
-        margin-bottom: 0.5rem;
-    }
-
-    @@media (max-width: 768px) {
-        .card-header,
-        .card-body {
-            padding: 1.5rem;
-        }
-    }
-</style>
 
 @code {
     private Table? _basicTable;
@@ -222,4 +192,45 @@
     {
         Logger.LogInformation("Basic table initialized");
     }
+
+    private const string DataTableCode =
+@"<Table @ref=""_basicTable""
+       OnInteraction=""OnInteraction""
+       OnOrder=""HandleOrder""
+       OnInitialize=""HandleInitialize""
+       Options=""_basicTableOptions""
+       TotalRecords=""@_totalRecords"">
+    <TableSearch Placeholder=""Search employees..."" />
+
+    <TableElement>
+        <Thead>
+            <Tr>
+                <Th Data=""Name"" Sortable=""true"" Searchable=""true"">Name</Th>
+                <Th Data=""Department"" Sortable=""true"" Searchable=""true"">Department</Th>
+                <Th Data=""Email"" Sortable=""true"" Searchable=""true"">Email</Th>
+                <Th Data=""Salary"" Sortable=""true"" Searchable=""true"">Salary</Th>
+                <Th Data=""HireDate"" Sortable=""true"" Searchable=""true"">Hire Date</Th>
+                <Th Data=""Status"" Sortable=""true"" Searchable=""true"">Status</Th>
+            </Tr>
+        </Thead>
+        <Tbody>
+            @foreach (var employee in _currentEmployees)
+            {
+                <Tr Key=""@employee.Id"">
+                    <Td>@employee.Name</Td>
+                    <Td>@employee.Department</Td>
+                    <Td>@employee.Email</Td>
+                    <Td>@employee.Salary.ToString(""C"")</Td>
+                    <Td>@employee.HireDate.ToString(""MMM dd, yyyy"")</Td>
+                    <Td>@employee.Status</Td>
+                </Tr>
+            }
+        </Tbody>
+    </TableElement>
+
+    <TableBottomBar>
+        <TableInfo />
+        <TablePagination />
+    </TableBottomBar>
+</Table>";
 }

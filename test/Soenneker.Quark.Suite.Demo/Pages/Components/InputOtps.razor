@@ -1,4 +1,4 @@
-@page "/forms/input-otp"
+@page "/input-otp"
 
 <PageTitle>Input OTP - Quark Suite</PageTitle>
 
@@ -6,7 +6,7 @@
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Six-digit code"
-                         Description="Adapted from the shadcn input-otp demo with grouped slots and a separator."
+                         Description="Group OTP slots and separators to mirror the most common verification code layout."
                          Code="@OtpCode">
                 <Div Class="space-y-3">
                     <InputOtp OtpValue="_otpValue" OtpValueChanged="OnOtpChanged" Length="6">
@@ -33,25 +33,82 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Four-digit PIN and disabled state"
-                         Description="Use a shorter length for PIN entry or disable the control while waiting for a resend.">
+            <DemoSection Title="Four-digit PIN"
+                         Description="Shorter OTP layouts work well for PIN-style confirmation flows."
+                         Code="@PinCode">
+                <Div Class="space-y-3">
+                    <InputOtp OtpValue="_pinValue" OtpValueChanged="OnPinChanged" Length="4">
+                        <InputOtpInput />
+                        <InputOtpGroup>
+                            <InputOtpSlot Index="0" />
+                            <InputOtpSlot Index="1" />
+                            <InputOtpSlot Index="2" />
+                            <InputOtpSlot Index="3" />
+                        </InputOtpGroup>
+                    </InputOtp>
+
+                    <Paragraph class="text-sm text-muted-foreground">PIN: <Span class="font-medium text-foreground">@_pinValue</Span></Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Disabled"
+                         Description="Disabled OTP inputs preserve slot layout while preventing edits during async work."
+                         Code="@DisabledCode">
+                <Div Class="space-y-3">
+                    <InputOtp OtpValue="842917" Length="6" Disabled="true">
+                        <InputOtpInput />
+                        <InputOtpGroup>
+                            <InputOtpSlot Index="0" />
+                            <InputOtpSlot Index="1" />
+                            <InputOtpSlot Index="2" />
+                        </InputOtpGroup>
+                        <InputOtpSeparator />
+                        <InputOtpGroup>
+                            <InputOtpSlot Index="3" />
+                            <InputOtpSlot Index="4" />
+                            <InputOtpSlot Index="5" />
+                        </InputOtpGroup>
+                    </InputOtp>
+
+                    <Paragraph class="text-sm text-muted-foreground">Disabled inputs keep their slot styling while blocking edits.</Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Alphanumeric"
+                         Description="OTP values can also carry invitation or access codes that include letters."
+                         Code="@AlphaNumericCode">
+                <Div Class="space-y-3">
+                    <InputOtp OtpValue="_alphaNumericValue" OtpValueChanged="OnAlphaNumericChanged" Length="6">
+                        <InputOtpInput />
+                        <InputOtpGroup>
+                            <InputOtpSlot Index="0" />
+                            <InputOtpSlot Index="1" />
+                            <InputOtpSlot Index="2" />
+                        </InputOtpGroup>
+                        <InputOtpSeparator />
+                        <InputOtpGroup>
+                            <InputOtpSlot Index="3" />
+                            <InputOtpSlot Index="4" />
+                            <InputOtpSlot Index="5" />
+                        </InputOtpGroup>
+                    </InputOtp>
+
+                    <Paragraph class="text-sm text-muted-foreground">Code: <Span class="font-medium text-foreground">@_alphaNumericValue</Span></Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Form submission"
+                         Description="Treat the OTP like any other controlled form value before allowing submission."
+                         Code="@FormCode">
                 <Div Class="grid gap-6 md:grid-cols-2">
                     <Div Class="space-y-3">
-                        <InputOtp OtpValue="_pinValue" OtpValueChanged="OnPinChanged" Length="4">
-                            <InputOtpInput />
-                            <InputOtpGroup>
-                                <InputOtpSlot Index="0" />
-                                <InputOtpSlot Index="1" />
-                                <InputOtpSlot Index="2" />
-                                <InputOtpSlot Index="3" />
-                            </InputOtpGroup>
-                        </InputOtp>
-
-                        <Paragraph class="text-sm text-muted-foreground">PIN: <Span class="font-medium text-foreground">@_pinValue</Span></Paragraph>
-                    </Div>
-
-                    <Div Class="space-y-3">
-                        <InputOtp OtpValue="842917" Length="6" Disabled="true">
+                        <InputOtp OtpValue="_formOtpValue" OtpValueChanged="OnFormOtpChanged" Length="6">
                             <InputOtpInput />
                             <InputOtpGroup>
                                 <InputOtpSlot Index="0" />
@@ -66,7 +123,8 @@
                             </InputOtpGroup>
                         </InputOtp>
 
-                        <Paragraph class="text-sm text-muted-foreground">Disabled inputs keep their slot styling while blocking edits.</Paragraph>
+                        <Button Disabled="@(_formOtpValue.Length < 6)" OnClick="SubmitFormOtp">Verify code</Button>
+                        <Paragraph class="text-sm text-muted-foreground">@_formOtpMessage</Paragraph>
                     </Div>
                 </Div>
             </DemoSection>
@@ -77,6 +135,9 @@
 @code {
     private string _otpValue = "12";
     private string _pinValue = "7";
+    private string _alphaNumericValue = "A9";
+    private string _formOtpValue = "";
+    private string _formOtpMessage = "Enter the six-digit code before verifying.";
 
     private Task OnOtpChanged(string value)
     {
@@ -88,6 +149,27 @@
     {
         _pinValue = value;
         return Task.CompletedTask;
+    }
+
+    private Task OnAlphaNumericChanged(string value)
+    {
+        _alphaNumericValue = value.ToUpperInvariant();
+        return Task.CompletedTask;
+    }
+
+    private Task OnFormOtpChanged(string value)
+    {
+        _formOtpValue = value;
+        _formOtpMessage = value.Length < 6
+            ? "Enter the six-digit code before verifying."
+            : "Code is complete. You can submit it now.";
+
+        return Task.CompletedTask;
+    }
+
+    private void SubmitFormOtp()
+    {
+        _formOtpMessage = $"Verified code {_formOtpValue}.";
     }
 
     private const string OtpCode =
@@ -105,4 +187,64 @@
         <InputOtpSlot Index=""5"" />
     </InputOtpGroup>
 </InputOtp>";
+
+    private const string PinCode =
+@"<InputOtp OtpValue=""pinValue"" OtpValueChanged=""OnPinChanged"" Length=""4"">
+    <InputOtpInput />
+    <InputOtpGroup>
+        <InputOtpSlot Index=""0"" />
+        <InputOtpSlot Index=""1"" />
+        <InputOtpSlot Index=""2"" />
+        <InputOtpSlot Index=""3"" />
+    </InputOtpGroup>
+</InputOtp>";
+
+    private const string DisabledCode =
+@"<InputOtp OtpValue=""842917"" Length=""6"" Disabled=""true"">
+    <InputOtpInput />
+    <InputOtpGroup>
+        <InputOtpSlot Index=""0"" />
+        <InputOtpSlot Index=""1"" />
+        <InputOtpSlot Index=""2"" />
+    </InputOtpGroup>
+    <InputOtpSeparator />
+    <InputOtpGroup>
+        <InputOtpSlot Index=""3"" />
+        <InputOtpSlot Index=""4"" />
+        <InputOtpSlot Index=""5"" />
+    </InputOtpGroup>
+</InputOtp>";
+
+    private const string AlphaNumericCode =
+@"<InputOtp OtpValue=""alphaNumericValue"" OtpValueChanged=""OnAlphaNumericChanged"" Length=""6"">
+    <InputOtpInput />
+    <InputOtpGroup>
+        <InputOtpSlot Index=""0"" />
+        <InputOtpSlot Index=""1"" />
+        <InputOtpSlot Index=""2"" />
+    </InputOtpGroup>
+    <InputOtpSeparator />
+    <InputOtpGroup>
+        <InputOtpSlot Index=""3"" />
+        <InputOtpSlot Index=""4"" />
+        <InputOtpSlot Index=""5"" />
+    </InputOtpGroup>
+</InputOtp>";
+
+    private const string FormCode =
+@"<InputOtp OtpValue=""formOtpValue"" OtpValueChanged=""OnFormOtpChanged"" Length=""6"">
+    <InputOtpInput />
+    <InputOtpGroup>
+        <InputOtpSlot Index=""0"" />
+        <InputOtpSlot Index=""1"" />
+        <InputOtpSlot Index=""2"" />
+    </InputOtpGroup>
+    <InputOtpSeparator />
+    <InputOtpGroup>
+        <InputOtpSlot Index=""3"" />
+        <InputOtpSlot Index=""4"" />
+        <InputOtpSlot Index=""5"" />
+    </InputOtpGroup>
+</InputOtp>
+<Button Disabled=""@(formOtpValue.Length < 6)"">Verify code</Button>";
 }

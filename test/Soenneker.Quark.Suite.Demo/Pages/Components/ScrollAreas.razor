@@ -1,0 +1,89 @@
+@page "/scroll-area"
+
+<PageTitle>Scroll Area - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Vertical"
+                         Description="Use a scroll area when a panel should keep a fixed footprint while still exposing longer content."
+                         Code="@VerticalCode">
+                <ScrollArea Class="h-72 w-full max-w-sm rounded-md border">
+                    <Div Class="p-4">
+                        @for (var i = 0; i < _notes.Length; i++)
+                        {
+                            <Div Class="space-y-1">
+                                <Paragraph Class="text-sm font-medium" Margin="Margin.Is0">@_notes[i].Title</Paragraph>
+                                <Paragraph Class="text-sm text-muted-foreground" Margin="Margin.Is0">@_notes[i].Description</Paragraph>
+                            </Div>
+
+                            @if (i < _notes.Length - 1)
+                            {
+                                <Separator Class="my-4" />
+                            }
+                        }
+                    </Div>
+                </ScrollArea>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Horizontal"
+                         Description="Horizontal scroll areas help showcase collections without forcing every item into a narrow grid."
+                         Code="@HorizontalCode">
+                <ScrollArea Class="w-full max-w-2xl rounded-md border whitespace-nowrap">
+                    <Div Class="flex w-max space-x-4 p-4">
+                        @foreach (var release in _releases)
+                        {
+                            <Div Class="w-40 shrink-0 rounded-lg border bg-card p-4">
+                                <Paragraph Class="text-sm font-medium" Margin="Margin.Is0">@release.Title</Paragraph>
+                                <Paragraph Class="text-sm text-muted-foreground" Margin="Margin.Is0">@release.Description</Paragraph>
+                            </Div>
+                        }
+                    </Div>
+                </ScrollArea>
+            </DemoSection>
+        </Section>
+    </Div>
+</Div>
+
+@code {
+    private static readonly (string Title, string Description)[] _notes =
+    [
+        ("Authentication", "Added session replay protection and rotated the default cookie secret."),
+        ("Billing", "Improved invoice reminders and retry handling for expired cards."),
+        ("Deployments", "Streamlined release approvals and added a quieter production summary."),
+        ("Observability", "Expanded log filtering so noisy background jobs are easier to suppress."),
+        ("Editor", "Reduced initial render cost on larger tables and command palettes.")
+    ];
+
+    private static readonly (string Title, string Description)[] _releases =
+    [
+        ("v3.2.0", "Sidebar improvements"),
+        ("v3.1.4", "Dialog polish"),
+        ("v3.1.0", "Command menu refresh"),
+        ("v3.0.7", "Input group updates"),
+        ("v3.0.0", "Navigation redesign")
+    ];
+
+    private const string VerticalCode =
+@"<ScrollArea Class=""h-72 w-full max-w-sm rounded-md border"">
+    <Div Class=""p-4"">
+        @foreach (var note in notes)
+        {
+            <Div Class=""space-y-1"">...</Div>
+            <Separator Class=""my-4"" />
+        }
+    </Div>
+</ScrollArea>";
+
+    private const string HorizontalCode =
+@"<ScrollArea Class=""w-full max-w-2xl rounded-md border whitespace-nowrap"">
+    <Div Class=""flex w-max space-x-4 p-4"">
+        @foreach (var release in releases)
+        {
+            <Div Class=""w-40 shrink-0 rounded-lg border bg-card p-4"">...</Div>
+        }
+    </Div>
+</ScrollArea>";
+}

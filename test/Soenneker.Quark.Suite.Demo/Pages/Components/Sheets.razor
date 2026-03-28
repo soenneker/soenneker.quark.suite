@@ -1,91 +1,162 @@
-@page "/overlays/sheets"
+@page "/sheets"
 
-<PageTitle>Sheets - Quark Suite</PageTitle>
+<PageTitle>Sheet - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
-    <Section Space="Space.Y.Is4">
-        <DemoSection Title="Default sheet"
-                     Description="Latest shadcn v4 sheet layout with header, body, and footer actions."
-                     Code="@DefaultCode">
-            <Sheet @bind-Visible="_showDefaultSheet">
-                <SheetTrigger>
-                    <Button Variant="ButtonVariant.Outline">Open</Button>
-                </SheetTrigger>
-                <SheetContent>
-                    <SheetHeader>
-                        <SheetTitle>Edit profile</SheetTitle>
-                        <SheetDescription>
-                            Make changes to your profile here. Click save when you're done.
-                        </SheetDescription>
-                    </SheetHeader>
-                    <Div Class="grid flex-1 auto-rows-min gap-6 px-4">
-                        <Div Class="grid gap-3">
-                            <Label Form="true">Name</Label>
-                            <TextInput Placeholder="Pedro Duarte" />
+    <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Default"
+                         Description="Use a sheet for supporting tasks that should stay close to the current page context."
+                         Code="@DefaultCode">
+                <Sheet @bind-Visible="_showDefaultSheet">
+                    <SheetTrigger>
+                        <Button Variant="ButtonVariant.Outline">Edit profile</Button>
+                    </SheetTrigger>
+                    <SheetContent>
+                        <SheetHeader>
+                            <SheetTitle>Edit profile</SheetTitle>
+                            <SheetDescription>
+                                Make changes to your profile here. Click save when you are done.
+                            </SheetDescription>
+                        </SheetHeader>
+                        <Div Class="grid flex-1 auto-rows-min gap-6 px-4">
+                            <Div Class="grid gap-3">
+                                <Label Form="true">Name</Label>
+                                <TextInput Placeholder="Pedro Duarte" />
+                            </Div>
+                            <Div Class="grid gap-3">
+                                <Label Form="true">Username</Label>
+                                <TextInput Placeholder="@("@peduarte")" />
+                            </Div>
                         </Div>
-                        <Div Class="grid gap-3">
-                            <Label Form="true">Username</Label>
-                            <TextInput Placeholder="@("@peduarte")" />
-                        </Div>
-                    </Div>
-                    <SheetFooter>
-                        <Button OnClick="@(() => _showDefaultSheet = false)">Save changes</Button>
-                        <SheetClose>
-                            <Button Variant="ButtonVariant.Outline">Close</Button>
-                        </SheetClose>
-                    </SheetFooter>
-                </SheetContent>
-            </Sheet>
-        </DemoSection>
+                        <SheetFooter>
+                            <Button OnClick="@(() => _showDefaultSheet = false)">Save changes</Button>
+                            <SheetClose>
+                                <Button Variant="ButtonVariant.Outline">Close</Button>
+                            </SheetClose>
+                        </SheetFooter>
+                    </SheetContent>
+                </Sheet>
+            </DemoSection>
+        </Section>
 
-        <DemoSection Title="Side variants"
-                     Description="Sheet can slide from left, right, top, or bottom."
-                     Code="@SidesCode">
-            <Div Class="flex flex-wrap gap-2">
-                <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showLeft = true)">Left</Button>
-                <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showRight = true)">Right</Button>
-                <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showTop = true)">Top</Button>
-                <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showBottom = true)">Bottom</Button>
-            </Div>
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Side variants"
+                         Description="Sheets can slide in from each edge depending on the kind of task you want to show."
+                         Code="@SidesCode">
+                <Div Class="flex flex-wrap gap-2">
+                    <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showLeft = true)">Left</Button>
+                    <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showRight = true)">Right</Button>
+                    <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showTop = true)">Top</Button>
+                    <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showBottom = true)">Bottom</Button>
+                </Div>
 
-            <Sheet @bind-Visible="_showLeft">
-                <SheetContent Side="left">
-                    <SheetHeader>
-                        <SheetTitle>Left sheet</SheetTitle>
-                        <SheetDescription>Slides in from the left.</SheetDescription>
-                    </SheetHeader>
-                </SheetContent>
-            </Sheet>
+                <Sheet @bind-Visible="_showLeft">
+                    <SheetContent Side="left">
+                        <SheetHeader>
+                            <SheetTitle>Left sheet</SheetTitle>
+                            <SheetDescription>Great for navigation, filters, or app-level tools.</SheetDescription>
+                        </SheetHeader>
+                    </SheetContent>
+                </Sheet>
 
-            <Sheet @bind-Visible="_showRight">
-                <SheetContent Side="right">
-                    <SheetHeader>
-                        <SheetTitle>Right sheet</SheetTitle>
-                        <SheetDescription>Slides in from the right.</SheetDescription>
-                    </SheetHeader>
-                </SheetContent>
-            </Sheet>
+                <Sheet @bind-Visible="_showRight">
+                    <SheetContent Side="right">
+                        <SheetHeader>
+                            <SheetTitle>Right sheet</SheetTitle>
+                            <SheetDescription>Common for detail panels and inspector workflows.</SheetDescription>
+                        </SheetHeader>
+                    </SheetContent>
+                </Sheet>
 
-            <Sheet @bind-Visible="_showTop">
-                <SheetContent Side="top">
-                    <SheetHeader>
-                        <SheetTitle>Top sheet</SheetTitle>
-                        <SheetDescription>Slides in from the top.</SheetDescription>
-                    </SheetHeader>
-                </SheetContent>
-            </Sheet>
+                <Sheet @bind-Visible="_showTop">
+                    <SheetContent Side="top">
+                        <SheetHeader>
+                            <SheetTitle>Top sheet</SheetTitle>
+                            <SheetDescription>Useful for short, high-priority notices.</SheetDescription>
+                        </SheetHeader>
+                    </SheetContent>
+                </Sheet>
 
-            <Sheet @bind-Visible="_showBottom">
-                <SheetContent Side="bottom">
-                    <SheetHeader>
-                        <SheetTitle>Bottom sheet</SheetTitle>
-                        <SheetDescription>Slides in from the bottom.</SheetDescription>
-                    </SheetHeader>
-                </SheetContent>
-            </Sheet>
-        </DemoSection>
-    </Section>
+                <Sheet @bind-Visible="_showBottom">
+                    <SheetContent Side="bottom">
+                        <SheetHeader>
+                            <SheetTitle>Bottom sheet</SheetTitle>
+                            <SheetDescription>Works well for mobile-friendly drawers and action trays.</SheetDescription>
+                        </SheetHeader>
+                    </SheetContent>
+                </Sheet>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Without a close button"
+                         Description="Hide the default close affordance when the footer actions should drive the flow."
+                         Code="@NoCloseCode">
+                <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showNoClose = true)">Open billing sheet</Button>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Scrollable content"
+                         Description="Long body content stays scrollable while preserving the sheet layout and footer actions."
+                         Code="@ScrollableCode">
+                <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showScrollable = true)">Open activity drawer</Button>
+            </DemoSection>
+        </Section>
+    </Div>
 </Div>
+
+<Sheet @bind-Visible="_showNoClose">
+    <SheetContent ShowCloseButton="false">
+        <SheetHeader>
+            <SheetTitle>Billing settings</SheetTitle>
+            <SheetDescription>
+                Review seat count, payment method, and invoice recipients before confirming changes.
+            </SheetDescription>
+        </SheetHeader>
+        <Div Class="grid flex-1 auto-rows-min gap-6 px-4">
+            <Div Class="grid gap-3">
+                <Label Form="true">Workspace plan</Label>
+                <TextInput Placeholder="Business" />
+            </Div>
+            <Div Class="grid gap-3">
+                <Label Form="true">Billing email</Label>
+                <TextInput Placeholder="finance@acme.io" />
+            </Div>
+        </Div>
+        <SheetFooter>
+            <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showNoClose = false)">Cancel</Button>
+            <Button OnClick="@(() => _showNoClose = false)">Confirm</Button>
+        </SheetFooter>
+    </SheetContent>
+</Sheet>
+
+<Sheet @bind-Visible="_showScrollable">
+    <SheetContent Side="right">
+        <SheetHeader>
+            <SheetTitle>Recent activity</SheetTitle>
+            <SheetDescription>
+                Review a longer stream of events without leaving the current page.
+            </SheetDescription>
+        </SheetHeader>
+        <Div Class="grid flex-1 gap-4 px-4">
+            @for (var i = 1; i <= 12; i++)
+            {
+                <Div Class="rounded-lg border p-4">
+                    <Paragraph Class="text-sm font-medium" Margin="Margin.Is0">Deployment @i</Paragraph>
+                    <Paragraph Class="text-sm text-muted-foreground" Margin="Margin.Is0">
+                        Completed successfully and promoted to production.
+                    </Paragraph>
+                </Div>
+            }
+        </Div>
+        <SheetFooter>
+            <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showScrollable = false)">Dismiss</Button>
+            <Button OnClick="@(() => _showScrollable = false)">Review details</Button>
+        </SheetFooter>
+    </SheetContent>
+</Sheet>
 
 @code {
     private bool _showDefaultSheet;
@@ -93,16 +164,18 @@
     private bool _showRight;
     private bool _showTop;
     private bool _showBottom;
+    private bool _showNoClose;
+    private bool _showScrollable;
 
     private const string DefaultCode =
 @"<Sheet @bind-Visible=""show"">
     <SheetTrigger>
-        <Button Variant=""ButtonVariant.Outline"">Open</Button>
+        <Button Variant=""ButtonVariant.Outline"">Edit profile</Button>
     </SheetTrigger>
     <SheetContent>
         <SheetHeader>
             <SheetTitle>Edit profile</SheetTitle>
-            <SheetDescription>Make changes to your profile here. Click save when you're done.</SheetDescription>
+            <SheetDescription>Make changes to your profile here. Click save when you are done.</SheetDescription>
         </SheetHeader>
         <Div Class=""grid flex-1 auto-rows-min gap-6 px-4"">
             <Div Class=""grid gap-3"">
@@ -128,4 +201,38 @@
 <Sheet @bind-Visible=""rightOpen""><SheetContent Side=""right"">...</SheetContent></Sheet>
 <Sheet @bind-Visible=""topOpen""><SheetContent Side=""top"">...</SheetContent></Sheet>
 <Sheet @bind-Visible=""bottomOpen""><SheetContent Side=""bottom"">...</SheetContent></Sheet>";
+
+    private const string NoCloseCode =
+@"<Sheet @bind-Visible=""showBilling"">
+    <SheetContent ShowCloseButton=""false"">
+        <SheetHeader>
+            <SheetTitle>Billing settings</SheetTitle>
+            <SheetDescription>Review the current workspace plan and invoice contact.</SheetDescription>
+        </SheetHeader>
+        <SheetFooter>
+            <Button Variant=""ButtonVariant.Outline"">Cancel</Button>
+            <Button>Confirm</Button>
+        </SheetFooter>
+    </SheetContent>
+</Sheet>";
+
+    private const string ScrollableCode =
+@"<Sheet @bind-Visible=""showActivity"">
+    <SheetContent Side=""right"">
+        <SheetHeader>
+            <SheetTitle>Recent activity</SheetTitle>
+            <SheetDescription>Review a longer stream of events.</SheetDescription>
+        </SheetHeader>
+        <Div Class=""grid flex-1 gap-4 px-4"">
+            @for (var i = 1; i <= 12; i++)
+            {
+                <Div Class=""rounded-lg border p-4"">...</Div>
+            }
+        </Div>
+        <SheetFooter>
+            <Button Variant=""ButtonVariant.Outline"">Dismiss</Button>
+            <Button>Review details</Button>
+        </SheetFooter>
+    </SheetContent>
+</Sheet>";
 }

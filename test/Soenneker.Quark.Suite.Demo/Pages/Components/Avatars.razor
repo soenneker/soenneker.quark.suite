@@ -1,45 +1,78 @@
-@page "/media/avatars"
+@page "/avatars"
 
 <PageTitle>Avatars - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Latest shadcn v4 avatar demo"
-                         Description="Avatar examples aligned to the latest shadcn demo layout."
+            <DemoSection Title="Basic"
+                         Description="Avatars can render an image or fall back to initials when an image is unavailable."
                          Code="@BasicCode">
-                <Div Class="flex flex-row flex-wrap items-center gap-12">
+                <Div Class="flex flex-row flex-wrap items-center gap-8">
                     <Avatar>
                         <AvatarImage Src="https://github.com/shadcn.png" Alt="shadcn" />
                         <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
 
-                    <Avatar Class="rounded-lg">
+                    <Avatar>
                         <AvatarImage Src="https://github.com/evilrabbit.png" Alt="evilrabbit" />
                         <AvatarFallback>ER</AvatarFallback>
                     </Avatar>
+                </Div>
+            </DemoSection>
+        </Section>
 
-                    <AvatarGroup Class="*:data-[slot=avatar]:grayscale">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Fallbacks and shapes"
+                         Description="Use initials-only fallbacks or alternate shapes for compact user references."
+                         Code="@FallbackCode">
+                <Div Class="flex flex-wrap items-center gap-6">
+                    <Avatar>
+                        <AvatarFallback>JD</AvatarFallback>
+                    </Avatar>
+                    <Avatar Class="rounded-lg">
+                        <AvatarFallback>MP</AvatarFallback>
+                    </Avatar>
+                    <Avatar Size="lg">
+                        <AvatarFallback>RL</AvatarFallback>
+                    </Avatar>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Avatar groups"
+                         Description="Stack multiple avatars to represent teams, reviewers, or recent participants."
+                         Code="@GroupCode">
+                <Div Class="flex flex-wrap items-center gap-8">
+                    <AvatarGroup>
                         <Avatar>
                             <AvatarImage Src="https://github.com/shadcn.png" Alt="shadcn" />
                             <AvatarFallback>CN</AvatarFallback>
                         </Avatar>
                         <Avatar>
                             <AvatarImage Src="https://github.com/maxleiter.png" Alt="maxleiter" />
-                            <AvatarFallback>LR</AvatarFallback>
+                            <AvatarFallback>ML</AvatarFallback>
                         </Avatar>
                         <Avatar>
                             <AvatarImage Src="https://github.com/evilrabbit.png" Alt="evilrabbit" />
                             <AvatarFallback>ER</AvatarFallback>
                         </Avatar>
                     </AvatarGroup>
+
+                    <AvatarGroup>
+                        <Avatar><AvatarFallback>AB</AvatarFallback></Avatar>
+                        <Avatar><AvatarFallback>CD</AvatarFallback></Avatar>
+                        <Avatar><AvatarFallback>EF</AvatarFallback></Avatar>
+                        <AvatarGroupCount>+3</AvatarGroupCount>
+                    </AvatarGroup>
                 </Div>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Sizes, badges, and group count"
-                         Description="Quark-specific avatar additions using the same shadcn v4 class patterns."
+            <DemoSection Title="Badges and counts"
+                         Description="Quark extends the base avatar pattern with badges and group counts for richer status indicators."
                          Code="@ExtrasCode">
                 <Div Class="flex flex-wrap items-center gap-6">
                     <Avatar Size="sm">
@@ -70,19 +103,43 @@
 
 @code {
     private const string BasicCode =
-@"<Div Class=""flex flex-row flex-wrap items-center gap-12"">
+@"<Div Class=""flex flex-row flex-wrap items-center gap-8"">
     <Avatar>
         <AvatarImage Src=""https://github.com/shadcn.png"" Alt=""@shadcn"" />
         <AvatarFallback>CN</AvatarFallback>
     </Avatar>
-    <Avatar Class=""rounded-lg"">
+    <Avatar>
         <AvatarImage Src=""https://github.com/evilrabbit.png"" Alt=""@evilrabbit"" />
         <AvatarFallback>ER</AvatarFallback>
     </Avatar>
-    <AvatarGroup Class=""*:data-[slot=avatar]:grayscale"">
+</Div>";
+
+    private const string FallbackCode =
+@"<Div Class=""flex flex-wrap items-center gap-6"">
+    <Avatar>
+        <AvatarFallback>JD</AvatarFallback>
+    </Avatar>
+    <Avatar Class=""rounded-lg"">
+        <AvatarFallback>MP</AvatarFallback>
+    </Avatar>
+    <Avatar Size=""lg"">
+        <AvatarFallback>RL</AvatarFallback>
+    </Avatar>
+</Div>";
+
+    private const string GroupCode =
+@"<Div Class=""flex flex-wrap items-center gap-8"">
+    <AvatarGroup>
         <Avatar>...</Avatar>
         <Avatar>...</Avatar>
         <Avatar>...</Avatar>
+    </AvatarGroup>
+
+    <AvatarGroup>
+        <Avatar><AvatarFallback>AB</AvatarFallback></Avatar>
+        <Avatar><AvatarFallback>CD</AvatarFallback></Avatar>
+        <Avatar><AvatarFallback>EF</AvatarFallback></Avatar>
+        <AvatarGroupCount>+3</AvatarGroupCount>
     </AvatarGroup>
 </Div>";
 
