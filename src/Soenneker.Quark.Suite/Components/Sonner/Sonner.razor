@@ -6,7 +6,7 @@
 @using System.Linq
 
 @{
-    var groups = GetToastGroups();
+    var groups = _groups;
 }
 
 @if (groups.Count > 0)
@@ -155,18 +155,22 @@
     private readonly HashSet<SonnerPosition> _expandedPositions = [];
     private readonly HashSet<SonnerPosition> _interactingPositions = [];
     private readonly HashSet<SonnerPosition> _focusedPositions = [];
+    private IReadOnlyList<ToastGroup> _groups = [];
     private bool _shouldMeasureHeights = true;
     private string _registeredToasterId = DefaultToasterId;
     private bool _toasterRegistered;
+    private bool _disposed;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         SonnerService.StateChanged += OnStateChanged;
+        await RefreshToastGroups();
     }
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        RegisterToaster();
+        await RegisterToaster();
+        await RefreshToastGroups();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -204,20 +208,23 @@
         }
     }
 
-    private IReadOnlyList<ToastGroup> GetToastGroups()
+    private async Task RefreshToastGroups()
     {
-        var query = SonnerService.GetToasts()
-                                 .Where(toast => NormalizeToasterId(toast.ToasterId) == NormalizeToasterId(ToasterId))
-                                 .OrderByDescending(toast => toast.CreatedAt);
+        if (_disposed)
+            return;
+
+        var query = (await SonnerService.GetToasts())
+            .Where(toast => NormalizeToasterId(toast.ToasterId) == NormalizeToasterId(ToasterId))
+            .OrderByDescending(toast => toast.CreatedAt);
 
         if (ToastPosition.HasValue)
             query = query.Where(toast => toast.Position == ToastPosition.Value)
                          .OrderByDescending(toast => toast.CreatedAt);
 
-        return query.GroupBy(toast => toast.Position)
-                    .OrderBy(group => GetPositionOrder(group.Key))
-                    .Select(group => new ToastGroup(group.Key, group.ToList()))
-                    .ToList();
+        _groups = query.GroupBy(toast => toast.Position)
+                       .OrderBy(group => GetPositionOrder(group.Key))
+                       .Select(group => new ToastGroup(group.Key, group.ToList()))
+                       .ToList();
     }
 
     private static int GetPositionOrder(SonnerPosition position) => position switch
@@ -344,8 +351,7 @@
 
     private async Task HandleDismissAsync(string id)
     {
-        SonnerService.Dismiss(id);
-        await Task.CompletedTask;
+        await SonnerService.Dismiss(id);
     }
 
     private async Task HandleActionAsync(SonnerToast toast)
@@ -353,31 +359,40 @@
         if (toast.Action is not null)
             await toast.Action();
 
-        SonnerService.Dismiss(toast.Id);
+        await SonnerService.Dismiss(toast.Id);
     }
 
     private void OnStateChanged()
     {
+        _ = HandleStateChanged();
+    }
+
+    private async Task HandleStateChanged()
+    {
+        if (_disposed)
+            return;
+
         _shouldMeasureHeights = true;
-        _ = InvokeAsync(StateHasChanged);
+        await RefreshToastGroups();
+        await InvokeAsync(StateHasChanged);
     }
 
-    private void SetExpanded(SonnerPosition position, bool value)
+    private Task SetExpanded(SonnerPosition position, bool value)
     {
-        SetPositionState(_expandedPositions, position, value);
+        return SetPositionState(_expandedPositions, position, value);
     }
 
-    private void SetInteracting(SonnerPosition position, bool value)
+    private Task SetInteracting(SonnerPosition position, bool value)
     {
-        SetPositionState(_interactingPositions, position, value);
+        return SetPositionState(_interactingPositions, position, value);
     }
 
-    private void SetFocused(SonnerPosition position, bool value)
+    private Task SetFocused(SonnerPosition position, bool value)
     {
-        SetPositionState(_focusedPositions, position, value);
+        return SetPositionState(_focusedPositions, position, value);
     }
 
-    private void SetPositionState(HashSet<SonnerPosition> state, SonnerPosition position, bool value)
+    private async Task SetPositionState(HashSet<SonnerPosition> state, SonnerPosition position, bool value)
     {
         var wasActive = IsActive(position);
         var changed = value ? state.Add(position) : state.Remove(position);
@@ -390,12 +405,12 @@
         if (wasActive != isActive)
         {
             if (isActive)
-                SonnerService.Pause(ToasterId, position);
+                await SonnerService.Pause(ToasterId, position);
             else
-                SonnerService.Resume(ToasterId, position);
+                await SonnerService.Resume(ToasterId, position);
         }
 
-        _ = InvokeAsync(StateHasChanged);
+        await InvokeAsync(StateHasChanged);
     }
 
     private bool IsExpanded(SonnerPosition position)
@@ -430,21 +445,22 @@
         return false;
     }
 
-    public override void Dispose()
+    protected override async Task OnDisposeAsync()
     {
+        _disposed = true;
+
         foreach (var position in GetActivePositions())
         {
-            SonnerService.Resume(ToasterId, position);
+            await SonnerService.Resume(ToasterId, position);
         }
 
         if (_toasterRegistered)
-            SonnerService.UnregisterToaster(_registeredToasterId);
+            await SonnerService.UnregisterToaster(_registeredToasterId);
 
         SonnerService.StateChanged -= OnStateChanged;
-        base.Dispose();
     }
 
-    private void RegisterToaster()
+    private async Task RegisterToaster()
     {
         var normalizedToasterId = NormalizeToasterId(ToasterId);
 
@@ -452,13 +468,13 @@
         {
             foreach (var position in GetActivePositions())
             {
-                SonnerService.Resume(_registeredToasterId, position);
+                await SonnerService.Resume(_registeredToasterId, position);
             }
 
-            SonnerService.UnregisterToaster(_registeredToasterId);
+            await SonnerService.UnregisterToaster(_registeredToasterId);
         }
 
-        SonnerService.RegisterToaster(ToasterId, ToastPosition, Duration, CloseButton);
+        await SonnerService.RegisterToaster(ToasterId, ToastPosition, Duration, CloseButton);
         _registeredToasterId = normalizedToasterId;
         _toasterRegistered = true;
     }

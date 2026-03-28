@@ -9,25 +9,25 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface ISonnerUtil
 {
-    string Toast(string title, Action<SonnerToastOptions>? configure = null);
+    ValueTask<string> Toast(string title, Action<SonnerToastOptions>? configure = null);
 
-    string Toast(RenderFragment content, Action<SonnerToastOptions>? configure = null);
+    ValueTask<string> Toast(RenderFragment content, Action<SonnerToastOptions>? configure = null);
 
-    string Success(string title, Action<SonnerToastOptions>? configure = null);
+    ValueTask<string> Success(string title, Action<SonnerToastOptions>? configure = null);
 
-    string Info(string title, Action<SonnerToastOptions>? configure = null);
+    ValueTask<string> Info(string title, Action<SonnerToastOptions>? configure = null);
 
-    string Warning(string title, Action<SonnerToastOptions>? configure = null);
+    ValueTask<string> Warning(string title, Action<SonnerToastOptions>? configure = null);
 
-    string Error(string title, Action<SonnerToastOptions>? configure = null);
+    ValueTask<string> Error(string title, Action<SonnerToastOptions>? configure = null);
 
-    string Loading(string title, Action<SonnerToastOptions>? configure = null);
+    ValueTask<string> Loading(string title, Action<SonnerToastOptions>? configure = null);
 
-    string Custom(RenderFragment content, Action<SonnerToastOptions>? configure = null);
+    ValueTask<string> Custom(RenderFragment content, Action<SonnerToastOptions>? configure = null);
 
-    string Promise(Task task, SonnerPromiseOptions options);
+    ValueTask<string> Promise(ValueTask task, SonnerPromiseOptions options);
 
-    string Promise(Func<Task> taskFactory, SonnerPromiseOptions options);
+    ValueTask<string> Promise(Func<ValueTask> taskFactory, SonnerPromiseOptions options);
 
-    void Dismiss(string? id = null);
+    ValueTask Dismiss(string? id = null);
 }

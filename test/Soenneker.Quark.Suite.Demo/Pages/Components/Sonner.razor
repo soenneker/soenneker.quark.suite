@@ -9,10 +9,10 @@
             <DemoSection Title="Basic toasts" Description="Default and typed Sonner notifications." Code="@(@"@inject ISonnerUtil Toasts
 <Sonner />
 
-Toasts.Toast(""Event has been created"");
-Toasts.Success(""Saved successfully"");
-Toasts.Warning(""Review this change"");
-Toasts.Error(""Unable to continue"");")">
+await Toasts.Toast(""Event has been created"");
+await Toasts.Success(""Saved successfully"");
+await Toasts.Warning(""Review this change"");
+await Toasts.Error(""Unable to continue"");")">
                 <Div Class="flex flex-wrap gap-2">
                     <Button Class="bg-primary text-primary-foreground" @onclick="ShowBasic">Default</Button>
                     <Button Class="bg-primary text-primary-foreground" @onclick="ShowSuccess">Success</Button>
@@ -23,7 +23,7 @@ Toasts.Error(""Unable to continue"");")">
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Descriptions and actions" Description="Mirror the common shadcn Sonner pattern." Code="@(@"Toasts.Toast(""Your message has been sent"", options =>
+            <DemoSection Title="Descriptions and actions" Description="Mirror the common shadcn Sonner pattern." Code="@(@"await Toasts.Toast(""Your message has been sent"", options =>
 {
     options.Description = ""Friday, March 20 at 2:30 PM"";
     options.ActionLabel = ""Undo"";
@@ -37,7 +37,7 @@ Toasts.Error(""Unable to continue"");")">
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Promise toast" Description="Loading state that resolves to success or error." Code="@(@"Toasts.Promise(SimulateRequestAsync(), new SonnerPromiseOptions
+            <DemoSection Title="Promise toast" Description="Loading state that resolves to success or error." Code="@(@"await Toasts.Promise(SimulateRequestAsync(), new SonnerPromiseOptions
 {
     Loading = ""Saving changes..."",
     Success = ""Changes saved"",
@@ -51,7 +51,7 @@ Toasts.Error(""Unable to continue"");")">
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Positions" Description="Top, center, bottom, left, and right placements." Code="@(@"Toasts.Info(""Deployment started"", options =>
+            <DemoSection Title="Positions" Description="Top, center, bottom, left, and right placements." Code="@(@"await Toasts.Info(""Deployment started"", options =>
 {
     options.Position = SonnerPosition.TopRight;
 });")">
@@ -67,7 +67,7 @@ Toasts.Error(""Unable to continue"");")">
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Rich content" Description="Custom render fragments are supported." Code="@(@"Toasts.Custom(builder =>
+            <DemoSection Title="Rich content" Description="Custom render fragments are supported." Code="@(@"await Toasts.Custom(builder =>
 {
     // custom content
 }, options => options.Duration = 0);")">
@@ -81,51 +81,50 @@ Toasts.Error(""Unable to continue"");")">
 </Div>
 
 @code {
-    private void ShowBasic()
+    private async Task ShowBasic()
     {
-        Toasts.Toast("Event has been created");
+        _ = await Toasts.Toast("Event has been created");
     }
 
-    private void ShowSuccess()
+    private async Task ShowSuccess()
     {
-        Toasts.Success("Saved successfully");
+        _ = await Toasts.Success("Saved successfully");
     }
 
-    private void ShowWarning()
+    private async Task ShowWarning()
     {
-        Toasts.Warning("Review this change");
+        _ = await Toasts.Warning("Review this change");
     }
 
-    private void ShowError()
+    private async Task ShowError()
     {
-        Toasts.Error("Unable to continue");
+        _ = await Toasts.Error("Unable to continue");
     }
 
-    private void ShowWithDescription()
+    private async Task ShowWithDescription()
     {
-        Toasts.Toast("Your message has been sent", options =>
+        _ = await Toasts.Toast("Your message has been sent", options =>
         {
             options.Description = "Friday, March 20 at 2:30 PM";
         });
     }
 
-    private void ShowWithAction()
+    private async Task ShowWithAction()
     {
-        Toasts.Toast("Message archived", options =>
+        _ = await Toasts.Toast("Message archived", options =>
         {
             options.Description = "You can undo this action from the toast.";
             options.ActionLabel = "Undo";
-            options.Action = () =>
+            options.Action = async () =>
             {
-                Toasts.Info("Archive undone");
-                return ValueTask.CompletedTask;
+                _ = await Toasts.Info("Archive undone");
             };
         });
     }
 
-    private void ShowPromiseSuccess()
+    private async Task ShowPromiseSuccess()
     {
-        Toasts.Promise(SimulateRequestAsync(false), new SonnerPromiseOptions
+        _ = await Toasts.Promise(SimulateRequestAsync(false), new SonnerPromiseOptions
         {
             Loading = "Saving changes...",
             Success = "Changes saved",
@@ -134,9 +133,9 @@ Toasts.Error(""Unable to continue"");")">
         });
     }
 
-    private void ShowPromiseFailure()
+    private async Task ShowPromiseFailure()
     {
-        Toasts.Promise(SimulateRequestAsync(true), new SonnerPromiseOptions
+        _ = await Toasts.Promise(SimulateRequestAsync(true), new SonnerPromiseOptions
         {
             Loading = "Publishing post...",
             Success = "Post published",
@@ -145,18 +144,18 @@ Toasts.Error(""Unable to continue"");")">
         });
     }
 
-    private void ShowPosition(SonnerPosition position)
+    private async Task ShowPosition(SonnerPosition position)
     {
-        Toasts.Info($"Toast at {position}", options =>
+        _ = await Toasts.Info($"Toast at {position}", options =>
         {
             options.Position = position;
             options.Description = "Position can be overridden per toast.";
         });
     }
 
-    private void ShowCustomContent()
+    private async Task ShowCustomContent()
     {
-        Toasts.Custom(builder =>
+        _ = await Toasts.Custom(builder =>
         {
             builder.OpenElement(0, "div");
             builder.AddAttribute(1, "class", "grid gap-1");
@@ -174,20 +173,19 @@ Toasts.Error(""Unable to continue"");")">
             options.Position = SonnerPosition.TopRight;
             options.Duration = 0;
             options.ActionLabel = "Dismiss";
-            options.Action = () =>
+            options.Action = async () =>
             {
-                Toasts.Dismiss();
-                return ValueTask.CompletedTask;
+                await Toasts.Dismiss();
             };
         });
     }
 
-    private void DismissAll()
+    private async Task DismissAll()
     {
-        Toasts.Dismiss();
+        await Toasts.Dismiss();
     }
 
-    private static async Task SimulateRequestAsync(bool shouldFail)
+    private static async ValueTask SimulateRequestAsync(bool shouldFail)
     {
         await Task.Delay(1500);
 

@@ -28,14 +28,14 @@
     [Parameter]
     public bool Horizontal { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
+        await base.OnInitializedAsync();
 
         if (Id.IsNullOrEmpty())
             Id = $"collapse_{Guid.NewGuid():N}";
 
-        CollapseCoordinator.Register(this);
+        await CollapseCoordinator.Register(this);
     }
 
     public async Task Toggle()
@@ -127,9 +127,8 @@
         return false;
     }
 
-    public override void Dispose()
+    protected override async Task OnDisposeAsync()
     {
-        CollapseCoordinator.Unregister(this);
-        base.Dispose();
+        await CollapseCoordinator.Unregister(this);
     }
 }
