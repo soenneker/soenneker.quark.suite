@@ -1,0 +1,56 @@
+@namespace Soenneker.Quark
+
+<Anchor To="@To"
+        Display="Display.InlineFlex"
+        Flex="Flex.AlignCenter"
+        Gap="Gap.Is3"
+        Padding="Padding.Is2.OnX"
+        class="rounded-md py-1.5 transition-colors hover:bg-accent"
+        aria-label="@AriaLabel">
+    @if (!string.IsNullOrWhiteSpace(ImageSource))
+    {
+        <Image Source="@ImageSource"
+               Alt="@ImageAlt"
+               BoxSize="Size.Is7"
+               class="hidden rounded-sm object-contain md:block" />
+    }
+
+    <Div Flex="Flex.Display.Column" MinWidth="MinWidth.Is0">
+        <Span Truncate="Truncate.Default"
+              TextSize="TextSize.Is6"
+              FontWeight="FontWeight.Semibold"
+              LineHeight="LineHeight.Is1">
+            @Title
+        </Span>
+
+        @if (!string.IsNullOrWhiteSpace(Subtitle))
+        {
+            <Span Display="Display.None.OnSm.Block"
+                  Truncate="Truncate.Default"
+                  TextSize="TextSize.Is7"
+                  TextColor="TextColor.MutedForeground">
+                @Subtitle
+            </Span>
+        }
+    </Div>
+</Anchor>
+
+@code {
+    [Parameter]
+    public string To { get; set; } = "";
+
+    [Parameter]
+    public string AriaLabel { get; set; } = "Home";
+
+    [Parameter]
+    public string? ImageSource { get; set; }
+
+    [Parameter]
+    public string? ImageAlt { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Subtitle { get; set; }
+}

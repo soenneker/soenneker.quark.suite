@@ -2,16 +2,36 @@
 @inherits Soenneker.Quark.Element
 @using Soenneker.Quark.Utils
 
-@if (State?.IsMobile == true && Collapsible != SidebarCollapsible.None)
+@if (ShouldRenderMobileSidebar)
 {
-    <Sheet Visible="State.OpenMobile" VisibleChanged="OnMobileVisibleChanged" CloseOnBackdropClick="true" CloseOnEscape="true">
-        <SheetContent Side="@ToDataSide(Side)" ShowCloseButton="false" @attributes="BuildMobileAttributes()">
+    <Sheet Visible="State?.OpenMobile == true"
+           VisibleChanged="OnMobileVisibleChanged"
+           ShowBackdrop="MobileShowBackdrop"
+           CloseOnBackdropClick="MobileCloseOnBackdropClick"
+           CloseOnEscape="MobileCloseOnEscape"
+           LockScroll="MobileLockScroll">
+        <SheetContent Side="@ToDataSide(Side)"
+                      ShowCloseButton="MobileShowCloseButton"
+                      ContainerClass="@GetMobileContainerClass()"
+                      ContainerStyle="@GetMobileContainerStyle()"
+                      OverlayClass="@MobileOverlayClass"
+                      OverlayStyle="@GetMobileOverlayStyle()"
+                      @attributes="BuildMobileAttributes()">
             <SheetHeader Class="sr-only">
                 <SheetTitle>Sidebar</SheetTitle>
                 <SheetDescription>Displays the mobile sidebar.</SheetDescription>
             </SheetHeader>
             <div class="flex h-full w-full flex-col">
-                @ChildContent
+                @if (Shell == SidebarShell.Navigation)
+                {
+                    <div class="no-scrollbar flex min-h-0 flex-1 flex-col gap-12 overflow-y-auto bg-background px-6 py-6">
+                        @RenderMobileBody()
+                    </div>
+                }
+                else
+                {
+                    @RenderMobileBody()
+                }
             </div>
         </SheetContent>
     </Sheet>
@@ -19,7 +39,19 @@
 else if (Collapsible == SidebarCollapsible.None)
 {
     <aside @attributes="BuildStaticAttributes()">
+        @if (Shell == SidebarShell.Navigation)
+        {
+            <div class="hidden h-9 lg:block"></div>
+            <div class="absolute top-8 z-10 hidden h-8 w-(--sidebar-menu-width) shrink-0 bg-linear-to-b from-background via-background/80 to-background/50 blur-xs lg:block"></div>
+            <div class="absolute top-12 right-2 bottom-0 hidden h-full w-px bg-linear-to-b from-transparent via-border to-transparent lg:flex"></div>
+        }
+
         @ChildContent
+
+        @if (Shell == SidebarShell.Navigation)
+        {
+            <div class="sticky -bottom-1 z-10 hidden h-16 shrink-0 bg-linear-to-t from-background via-background/80 to-background/50 blur-xs lg:block"></div>
+        }
     </aside>
 }
 else
@@ -42,7 +74,55 @@ else
     public SidebarVariant Variant { get; set; } = SidebarVariant.Sidebar;
 
     [Parameter]
+    public SidebarShell Shell { get; set; }
+
+    [Parameter]
     public SidebarCollapsible Collapsible { get; set; } = SidebarCollapsible.Offcanvas;
+
+    [Parameter]
+    public SidebarMobileMode MobileMode { get; set; } = SidebarMobileMode.Auto;
+
+    [Parameter]
+    public bool MobileCloseOnBackdropClick { get; set; } = true;
+
+    [Parameter]
+    public bool MobileShowBackdrop { get; set; } = true;
+
+    [Parameter]
+    public bool MobileCloseOnEscape { get; set; } = true;
+
+    [Parameter]
+    public bool MobileLockScroll { get; set; } = true;
+
+    [Parameter]
+    public bool MobileShowCloseButton { get; set; }
+
+    [Parameter]
+    public string? MobileClass { get; set; }
+
+    [Parameter]
+    public string? MobileStyle { get; set; }
+
+    [Parameter]
+    public string? MobileOffsetTop { get; set; }
+
+    [Parameter]
+    public string? MobileContainerClass { get; set; }
+
+    [Parameter]
+    public string? MobileContainerStyle { get; set; }
+
+    [Parameter]
+    public string? MobileOverlayClass { get; set; }
+
+    [Parameter]
+    public string? MobileOverlayStyle { get; set; }
+
+    [Parameter]
+    public RenderFragment? MobileTopContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? MobileContent { get; set; }
 
     [CascadingParameter(Name = "SidebarProvider")]
     public SidebarProvider? SidebarProvider { get; set; }
@@ -53,8 +133,14 @@ else
     private static string ToDataSide(SidebarSide side) => side == SidebarSide.Right ? "right" : "left";
     private static string ToDataVariant(SidebarVariant variant) => variant.ToString().ToLowerInvariant();
     private static string ToDataCollapsible(SidebarCollapsible collapsible) => collapsible.ToString().ToLowerInvariant();
+    private static string ToDataMobileMode(SidebarMobileMode mode) => mode.ToString().ToLowerInvariant();
+    private static string ToDataShell(SidebarShell shell) => shell.ToString().ToLowerInvariant();
 
     private bool IsCollapsed => State is not null && !State.Open;
+    private SidebarMobileMode ResolvedMobileMode => MobileMode == SidebarMobileMode.Auto
+        ? Collapsible == SidebarCollapsible.None ? SidebarMobileMode.Hidden : SidebarMobileMode.Sheet
+        : MobileMode;
+    private bool ShouldRenderMobileSidebar => State?.IsMobile == true && ResolvedMobileMode != SidebarMobileMode.Hidden;
 
     private Task OnMobileVisibleChanged(bool visible)
     {
@@ -68,6 +154,7 @@ else
         attributes["data-slot"] = "sidebar";
         attributes["data-side"] = ToDataSide(Side);
         attributes["data-variant"] = ToDataVariant(Variant);
+        attributes["data-shell"] = ToDataShell(Shell);
         attributes["data-state"] = IsCollapsed ? "collapsed" : "expanded";
         attributes["data-collapsible"] = IsCollapsed ? ToDataCollapsible(Collapsible) : "";
 
@@ -85,13 +172,17 @@ else
         attributes["data-sidebar"] = "sidebar";
         attributes["data-side"] = ToDataSide(Side);
         attributes["data-variant"] = ToDataVariant(Variant);
+        attributes["data-shell"] = ToDataShell(Shell);
         attributes["data-state"] = State?.State ?? "expanded";
         attributes["data-collapsible"] = "none";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-sidebar");
-            AppendClass(ref cls, "flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground");
+            AppendClass(ref cls, "group peer flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground");
+
+            if (Shell == SidebarShell.Navigation)
+                AppendClass(ref cls, "relative shrink-0 overflow-hidden [--sidebar-menu-width:--spacing(56)] lg:bg-transparent");
         });
 
         return attributes;
@@ -99,23 +190,100 @@ else
 
     private Dictionary<string, object> BuildMobileAttributes()
     {
-        var attributes = BuildRootAttributes(14);
+        var attributes = BuildRootAttributes(15);
         attributes["data-slot"] = "sidebar";
         attributes["data-sidebar"] = "sidebar";
         attributes["data-mobile"] = "true";
+        attributes["data-mobile-mode"] = ToDataMobileMode(ResolvedMobileMode);
         attributes["data-side"] = ToDataSide(Side);
         attributes["data-variant"] = ToDataVariant(Variant);
+        attributes["data-shell"] = ToDataShell(Shell);
         attributes["data-state"] = State?.OpenMobile == true ? "expanded" : "collapsed";
 
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
             AppendClass(ref cls, "q-sidebar");
-            AppendClass(ref cls, "w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden");
+            AppendClass(ref cls, "group w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground");
             AppendStyleDecl(ref sty, "--sidebar-width: var(--sidebar-width-mobile)");
+
+            if (MobileOffsetTop.HasContent())
+            {
+                AppendStyleDecl(ref sty, $"top: {MobileOffsetTop}");
+                AppendStyleDecl(ref sty, $"height: calc(100svh - {MobileOffsetTop})");
+            }
+
+            if (!MobileShowCloseButton)
+                AppendClass(ref cls, "[&>button]:hidden");
+
+            if (ResolvedMobileMode == SidebarMobileMode.FullScreen)
+                AppendClass(ref cls, "inset-0 h-svh w-screen max-w-none rounded-none border-0 sm:max-w-none");
+
+            if (Shell == SidebarShell.Navigation)
+                AppendClass(ref cls, "gap-0 border-none bg-background/90 shadow-none backdrop-blur");
+
+            if (MobileClass.HasContent())
+                AppendClass(ref cls, MobileClass!);
+
+            if (MobileStyle.HasContent())
+                AppendStyleDecl(ref sty, MobileStyle!);
         });
 
         return attributes;
     }
+
+    private string? GetMobileContainerClass()
+    {
+        return Shell == SidebarShell.Navigation
+            ? ClassNames.Combine("z-40", MobileContainerClass)
+            : MobileContainerClass;
+    }
+
+    private string? GetMobileContainerStyle()
+    {
+        if (!MobileOffsetTop.HasContent())
+            return MobileContainerStyle;
+
+        return CombineStyleDecls($"top: {MobileOffsetTop};", MobileContainerStyle);
+    }
+
+    private string? GetMobileOverlayStyle()
+    {
+        if (!MobileOffsetTop.HasContent())
+            return MobileOverlayStyle;
+
+        return CombineStyleDecls($"top: {MobileOffsetTop};", MobileOverlayStyle);
+    }
+
+    private static string? CombineStyleDecls(string? first, string? second)
+    {
+        var hasFirst = first.HasContent();
+        var hasSecond = second.HasContent();
+
+        if (!hasFirst && !hasSecond)
+            return null;
+
+        if (!hasFirst)
+            return second;
+
+        if (!hasSecond)
+            return first;
+
+        return $"{first} {second}";
+    }
+
+    private RenderFragment RenderMobileBody() => builder =>
+    {
+        if (MobileContent is not null)
+        {
+            builder.AddContent(0, MobileContent);
+            return;
+        }
+
+        if (MobileTopContent is not null)
+            builder.AddContent(1, MobileTopContent);
+
+        builder.AddContent(2, ChildContent);
+    };
 
     private Dictionary<string, object> BuildGapAttributes()
     {
@@ -212,7 +380,7 @@ else
                         continue;
                     }
 
-                    attributes[kv.Key] = kv.Value;
+                    attributes[kv.Key] = kv.Value!;
                 }
             }
 
@@ -235,7 +403,23 @@ else
     {
         hc.Add(Side);
         hc.Add(Variant);
+        hc.Add(Shell);
         hc.Add(Collapsible);
+        hc.Add(MobileMode);
+        hc.Add(MobileCloseOnBackdropClick);
+        hc.Add(MobileShowBackdrop);
+        hc.Add(MobileCloseOnEscape);
+        hc.Add(MobileLockScroll);
+        hc.Add(MobileShowCloseButton);
+        hc.Add(MobileClass);
+        hc.Add(MobileStyle);
+        hc.Add(MobileOffsetTop);
+        hc.Add(MobileContainerClass);
+        hc.Add(MobileContainerStyle);
+        hc.Add(MobileOverlayClass);
+        hc.Add(MobileOverlayStyle);
+        hc.Add(MobileTopContent is not null);
+        hc.Add(MobileContent is not null);
         hc.Add(State?.Open);
         hc.Add(State?.OpenMobile);
         hc.Add(State?.IsMobile);

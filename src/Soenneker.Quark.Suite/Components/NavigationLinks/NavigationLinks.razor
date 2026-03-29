@@ -1,0 +1,139 @@
+@namespace Soenneker.Quark
+
+@if (Mode == NavigationLinksMode.Header)
+{
+    @foreach (NavigationItem item in Items)
+    {
+        @if (item.Href is not null)
+        {
+            <Anchor To="@item.Href" class="@GetHeaderItemClass(item)">
+                @item.Title
+                @if (item.IsNew)
+                {
+                    <Span BoxSize="Size.Is2" class="rounded-full bg-blue-500"></Span>
+                }
+            </Anchor>
+        }
+        else
+        {
+            <Span class="@($"{GetHeaderItemClass(item)} opacity-75")">
+                @item.Title
+            </Span>
+        }
+    }
+}
+else if (Mode == NavigationLinksMode.Stack)
+{
+    <Div class="flex flex-col gap-4">
+        @if (!string.IsNullOrWhiteSpace(Title))
+        {
+            <Div class="text-sm font-medium text-muted-foreground">@Title</Div>
+        }
+
+        <Div class="flex flex-col gap-3">
+            @foreach (NavigationItem item in Items)
+            {
+                @if (item.Href is not null)
+                {
+                    <Anchor To="@item.Href" class="@GetStackItemClass(item)">
+                        @item.Title
+                        @if (item.IsNew)
+                        {
+                            <Span BoxSize="Size.Is2" class="flex rounded-full bg-blue-500" title="New"></Span>
+                        }
+                    </Anchor>
+                }
+                else
+                {
+                    <Span class="@($"{GetStackItemClass(item)} opacity-70")">
+                        @item.Title
+                    </Span>
+                }
+            }
+        </Div>
+    </Div>
+}
+else
+{
+    <SidebarGroup Class="@GroupClass">
+        @if (!string.IsNullOrWhiteSpace(Title))
+        {
+            <SidebarGroupLabel>@Title</SidebarGroupLabel>
+        }
+
+        <SidebarGroupContent>
+            <SidebarMenu>
+                @foreach (NavigationItem item in Items)
+                {
+                    <SidebarMenuItem>
+                        @if (item.Href is not null)
+                        {
+                            <SidebarMenuButton To="@item.Href"
+                                               Active="@IsItemActive(item)"
+                                               Variant="SidebarMenuButtonVariant.Navigation">
+                                <Span>@item.Title</Span>
+                                @if (item.IsNew)
+                                {
+                                    <Span BoxSize="Size.Is2" class="flex rounded-full bg-blue-500" title="New"></Span>
+                                }
+                            </SidebarMenuButton>
+                        }
+                        else
+                        {
+                            <SidebarMenuButton Variant="SidebarMenuButtonVariant.Navigation"
+                                               Class="opacity-70"
+                                               aria-disabled="true"
+                                               tabindex="-1">
+                                <Span>@item.Title</Span>
+                                @if (item.IsNew)
+                                {
+                                    <Span BoxSize="Size.Is2" class="flex rounded-full bg-blue-500" title="New"></Span>
+                                }
+                            </SidebarMenuButton>
+                        }
+                    </SidebarMenuItem>
+                }
+            </SidebarMenu>
+        </SidebarGroupContent>
+    </SidebarGroup>
+}
+
+@code {
+    [Parameter]
+    public IEnumerable<NavigationItem> Items { get; set; } = [];
+
+    [Parameter]
+    public NavigationLinksMode Mode { get; set; }
+
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public string? GroupClass { get; set; }
+
+    [Parameter]
+    public Func<NavigationItem, bool>? IsActive { get; set; }
+
+    private bool IsItemActive(NavigationItem item)
+    {
+        return IsActive?.Invoke(item) ?? false;
+    }
+
+    private string GetHeaderItemClass(NavigationItem item)
+    {
+        const string baseClass = "inline-flex h-8 items-center gap-2 rounded-md px-2.5 text-sm transition-colors";
+
+        return IsItemActive(item)
+            ? $"{baseClass} font-medium text-foreground"
+            : $"{baseClass} text-foreground/70 hover:text-foreground";
+    }
+
+    private string GetStackItemClass(NavigationItem item)
+    {
+        const string baseClass = "inline-flex items-center gap-2 text-2xl leading-none font-medium transition-colors";
+
+        return IsItemActive(item)
+            ? $"{baseClass} text-foreground"
+            : $"{baseClass} text-foreground hover:text-foreground/80";
+    }
+}

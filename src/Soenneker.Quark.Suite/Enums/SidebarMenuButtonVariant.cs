@@ -6,5 +6,6 @@ namespace Soenneker.Quark;
 public enum SidebarMenuButtonVariant
 {
     Default,
-    Outline
+    Outline,
+    Navigation
 }

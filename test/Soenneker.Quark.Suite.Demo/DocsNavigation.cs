@@ -2,24 +2,22 @@ using System.Collections.Generic;
 
 namespace Soenneker.Quark.Suite.Demo;
 
-public sealed record DocsNavLink(string Title, string? Href = null, bool IsNew = false, bool ExactMatch = false);
-
 public static class DocsNavigation
 {
-    public static IReadOnlyList<DocsNavLink> TopLinks { get; } =
+    public static IReadOnlyList<NavigationItem> TopLinks { get; } =
     [
         new("Docs", "", ExactMatch: true),
         new("Components", "components")
     ];
 
-    public static IReadOnlyList<DocsNavLink> SectionLinks { get; } =
+    public static IReadOnlyList<NavigationItem> SectionLinks { get; } =
     [
         new("Introduction", "", ExactMatch: true),
         new("Components", "components"),
         new("Validation", "validation-demo")
     ];
 
-    public static IReadOnlyList<DocsNavLink> ComponentLinks { get; } =
+    public static IReadOnlyList<NavigationItem> ComponentLinks { get; } =
     [
         new("Accordion", "accordions"),
         new("Alert", "alerts"),
@@ -46,6 +44,7 @@ public static class DocsNavigation
         new("Dropdown Menu", "dropdowns"),
         new("Empty", "empties"),
         new("Field", "fields"),
+        new("Header", "header"),
         new("Hover Card", "hover-cards"),
         new("Input", "input-demo"),
         new("Input Group", "input-groups"),
@@ -78,7 +77,7 @@ public static class DocsNavigation
         new("Typography", "typography")
     ];
 
-    public static IReadOnlyList<DocsNavLink> PrimitiveLinks { get; } =
+    public static IReadOnlyList<NavigationItem> PrimitiveLinks { get; } =
     [
         new("Div", "divs"),
         new("Margin", "margin-demo"),

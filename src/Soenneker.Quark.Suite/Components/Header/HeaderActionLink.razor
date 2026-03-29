@@ -1,0 +1,37 @@
+@namespace Soenneker.Quark
+
+<Anchor To="@To"
+        Target="@Target"
+        rel="@Rel"
+        class="inline-flex h-8 items-center gap-2 rounded-md px-2.5 text-sm text-foreground/70 transition-colors hover:bg-accent hover:text-foreground"
+        aria-label="@AriaLabel">
+    @if (IconContent is not null)
+    {
+        @IconContent
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <Span Display="Display.None.OnSm.Inline">@Label</Span>
+    }
+</Anchor>
+
+@code {
+    [Parameter]
+    public string To { get; set; } = string.Empty;
+
+    [Parameter]
+    public Target? Target { get; set; }
+
+    [Parameter]
+    public string? Rel { get; set; }
+
+    [Parameter]
+    public string AriaLabel { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Label { get; set; }
+
+    [Parameter]
+    public RenderFragment? IconContent { get; set; }
+}

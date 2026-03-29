@@ -7,245 +7,96 @@
 <PageTitle>Quark Suite Demo</PageTitle>
 
 <CascadingValue Value="ThemeService">
-    <Div class="flex h-svh flex-col overflow-hidden bg-background text-foreground" style="--header-height: 3.5rem;">
-        <Div class="sticky top-0 z-50 w-full shrink-0 border-b bg-background">
-            <Div class="container-wrapper px-6">
-                <Div class="flex h-(--header-height) items-center gap-4">
-                    <Button Type="@ButtonType.Button"
-                            Variant="ButtonVariant.Ghost"
-                            BoxSize="Size.Is8"
-                            @onclick="ToggleDocsSidebar"
-                            class="inline-flex items-center justify-center rounded-md transition-colors hover:bg-accent hover:text-accent-foreground md:hidden"
-                            aria-label="@(_docsSidebarOpenMobile ? "Close navigation menu" : "Open navigation menu")"
-                            aria-expanded="@_docsSidebarOpenMobile"
-                            aria-controls="mobile-docs-navigation">
-                        <Span BoxSize="Size.Is4" class="relative block" aria-hidden="true">
-                            <Span class="@GetMobileMenuLineOneClass()"></Span>
-                            <Span class="@GetMobileMenuLineTwoClass()"></Span>
-                        </Span>
-                    </Button>
+    <SidebarProvider Class="flex h-svh min-h-svh flex-col overflow-hidden bg-background text-foreground"
+                     SidebarWidth="calc(var(--spacing) * 72)"
+                     SidebarWidthMobile="100vw"
+                     style="--header-height: 3.5rem;">
+        <Header ShowSidebarTrigger="@ShowNavigationSidebar">
+            <BrandContent>
+                <HeaderBrand To=""
+                             AriaLabel="Quark Suite home"
+                             ImageSource="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png"
+                             ImageAlt="Soenneker Quark Suite"
+                             Title="Soenneker Quark Suite"
+                             Subtitle="Blazor components for .NET" />
+            </BrandContent>
+            <NavigationContent>
+                <NavigationLinks Items="DocsNavigation.TopLinks"
+                                 Mode="NavigationLinksMode.Header"
+                                 IsActive="IsTopNavActive" />
+            </NavigationContent>
+            <ActionsContent>
+                <HeaderActionLink To="https://github.com/soenneker/soenneker.quark.suite"
+                                  Target="Target.Blank"
+                                  Rel="noreferrer"
+                                  Label="GitHub"
+                                  AriaLabel="View Soenneker Quark Suite on GitHub">
+                    <IconContent>
+                        <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M12 .5C5.65.5.5 5.65.5 12A11.5 11.5 0 0 0 8.36 22.9c.57.1.78-.25.78-.56 0-.28-.01-1.2-.02-2.18-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.72.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.76 2.68 1.25 3.34.96.1-.74.4-1.25.73-1.53-2.55-.29-5.23-1.27-5.23-5.68 0-1.26.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.17 1.18a10.97 10.97 0 0 1 5.77 0c2.2-1.5 3.17-1.18 3.17-1.18.62 1.58.23 2.75.11 3.04.73.8 1.18 1.82 1.18 3.08 0 4.42-2.69 5.39-5.25 5.67.41.35.78 1.04.78 2.1 0 1.52-.01 2.75-.01 3.12 0 .31.21.67.79.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+                        </svg>
+                    </IconContent>
+                </HeaderActionLink>
+                <ThemeToggleButton IsDark="@ThemeService.IsDark"
+                                   AriaLabel="Toggle dark mode"
+                                   OnClick="ToggleTheme" />
+            </ActionsContent>
+        </Header>
 
-                    <Anchor To=""
-                            Display="Display.InlineFlex"
-                            Flex="Flex.AlignCenter"
-                            Gap="Gap.Is3"
-                            Padding="Padding.Is2.OnX"
-                            class="rounded-md py-1.5 transition-colors hover:bg-accent"
-                            aria-label="Quark Suite home">
-                        <Image Source="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png"
-                               Alt="Soenneker Quark Suite"
-                               BoxSize="Size.Is7"
-                               class="hidden rounded-sm object-contain md:block" />
-                        <Div Flex="Flex.Display.Column" MinWidth="MinWidth.Is0">
-                            <Span Truncate="Truncate.Default"
-                                  TextSize="TextSize.Is6"
-                                  FontWeight="FontWeight.Semibold"
-                                  LineHeight="LineHeight.Is1">
-                                Soenneker Quark Suite
-                            </Span>
-                            <Span Display="Display.None.OnSm.Block"
-                                  Truncate="Truncate.Default"
-                                  TextSize="TextSize.Is7"
-                                  TextColor="TextColor.MutedForeground">
-                                Blazor components for .NET
-                            </Span>
-                        </Div>
-                    </Anchor>
-
-                    <Div Display="Display.None.OnLg.Flex" Flex="Flex.AlignCenter" Gap="Gap.Is1">
-                    @foreach (var item in DocsNavigation.TopLinks)
-                    {
-                        @if (item.Href is not null)
-                        {
-                            <Anchor To="@item.Href" class="@GetTopNavClass(item)">
-                                @item.Title
-                                @if (item.IsNew)
-                                {
-                                    <Span BoxSize="Size.Is2" class="rounded-full bg-blue-500"></Span>
-                                }
-                            </Anchor>
-                        }
-                        else
-                        {
-                            <Span class="@($"{GetTopNavClass(item)} opacity-75")">
-                                @item.Title
-                            </Span>
-                        }
-                    }
-
-                    </Div>
-
-                    <Div class="ml-auto" Flex="Flex.Display.AlignCenter.OnMd.Fill.OnMd.JustifyEnd" Gap="Gap.Is2">
-                        <Anchor To="https://github.com/soenneker/soenneker.quark.suite"
-                           Target="Target.Blank"
-                           rel="noreferrer"
-                           class="inline-flex h-8 items-center gap-2 rounded-md px-2.5 text-sm text-foreground/70 transition-colors hover:bg-accent hover:text-foreground"
-                           aria-label="View Soenneker Quark Suite on GitHub">
-                            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                <path d="M12 .5C5.65.5.5 5.65.5 12A11.5 11.5 0 0 0 8.36 22.9c.57.1.78-.25.78-.56 0-.28-.01-1.2-.02-2.18-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.72.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.76 2.68 1.25 3.34.96.1-.74.4-1.25.73-1.53-2.55-.29-5.23-1.27-5.23-5.68 0-1.26.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.17 1.18a10.97 10.97 0 0 1 5.77 0c2.2-1.5 3.17-1.18 3.17-1.18.62 1.58.23 2.75.11 3.04.73.8 1.18 1.82 1.18 3.08 0 4.42-2.69 5.39-5.25 5.67.41.35.78 1.04.78 2.1 0 1.52-.01 2.75-.01 3.12 0 .31.21.67.79.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
-                            </svg>
-                            <Span Display="Display.None.OnSm.Inline">GitHub</Span>
-                        </Anchor>
-                        <Button Type="@ButtonType.Button"
-                                Variant="ButtonVariant.Ghost"
-                                BoxSize="Size.Is8"
-                                @onclick="ToggleTheme"
-                                class="inline-flex items-center justify-center rounded-md transition-colors hover:bg-accent hover:text-accent-foreground"
-                                aria-label="Toggle dark mode">
-                            @if (ThemeService.IsDark)
-                            {
-                                <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 3a6 6 0 1 0 9 9 9 9 0 1 1-9-9z" />
-                                </svg>
-                            }
-                            else
-                            {
-                                <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="4" />
-                                    <path d="M12 2v2" />
-                                    <path d="M12 20v2" />
-                                    <path d="m4.93 4.93 1.41 1.41" />
-                                    <path d="m17.66 17.66 1.41 1.41" />
-                                    <path d="M2 12h2" />
-                                    <path d="M20 12h2" />
-                                    <path d="m6.34 17.66-1.41 1.41" />
-                                    <path d="m19.07 4.93-1.41 1.41" />
-                                </svg>
-                            }
-                        </Button>
-                    </Div>
-                </Div>
-            </Div>
-        </Div>
-
-        @if (ShowDocsSidebar)
+        @if (ShowNavigationSidebar)
         {
             <Div class="container-wrapper min-h-0 flex-1 overflow-hidden" Padding="Padding.Is2.OnX">
-                <SidebarProvider Class="h-full min-h-0 flex-1 items-start overflow-hidden px-0 [--top-spacing:0] lg:grid lg:grid-cols-[var(--sidebar-width)_minmax(0,1fr)] lg:[--top-spacing:calc(var(--spacing)*4)] 3xl:fixed:container 3xl:fixed:px-3"
-                                 SidebarWidth="calc(var(--spacing) * 72)">
+                <Div class="flex h-full min-h-0">
                     <Sidebar Collapsible="SidebarCollapsible.None"
-                             Class="hidden h-full overflow-hidden bg-transparent [--sidebar-menu-width:--spacing(56)] lg:flex">
-                        <Div class="h-9"></Div>
-                        <Div class="absolute top-8 z-10 h-8 w-(--sidebar-menu-width) shrink-0 bg-linear-to-b from-background via-background/80 to-background/50 blur-xs"></Div>
-                        <Div class="absolute top-12 right-2 bottom-0 hidden h-full w-px bg-linear-to-b from-transparent via-border to-transparent lg:flex"></Div>
-
-                        <SidebarContent Class="mx-auto no-scrollbar w-(--sidebar-menu-width) overflow-x-hidden px-2">
-                            <SidebarGroup Class="pt-6">
-                                <SidebarGroupLabel Class="font-medium text-muted-foreground">
-                                    Sections
-                                </SidebarGroupLabel>
-                                <SidebarGroupContent>
-                                    <SidebarMenu>
-                                        @foreach (var item in DocsNavigation.SectionLinks)
-                                        {
-                                            <SidebarMenuItem>
-                                                @if (item.Href is not null)
-                                                {
-                                                    <SidebarMenuButton To="@item.Href"
-                                                                       Active="@(IsSectionActive(item))"
-                                                                       Class="@SidebarDocsMenuButtonClass">
-                                                        <Span class="absolute inset-0 flex w-(--sidebar-menu-width) bg-transparent"></Span>
-                                                        @item.Title
-                                                        @if (item.IsNew)
-                                                        {
-                                                            <Span BoxSize="Size.Is2" class="flex rounded-full bg-blue-500" title="New"></Span>
-                                                        }
-                                                    </SidebarMenuButton>
-                                                }
-                                                else
-                                                {
-                                                    <Span class="@($"{SidebarDocsMenuButtonClass} inline-flex opacity-80")">
-                                                        @item.Title
-                                                        @if (item.IsNew)
-                                                        {
-                                                            <Span BoxSize="Size.Is2" class="flex rounded-full bg-blue-500" title="New"></Span>
-                                                        }
-                                                    </Span>
-                                                }
-                                            </SidebarMenuItem>
-                                        }
-                                    </SidebarMenu>
-                                </SidebarGroupContent>
-                            </SidebarGroup>
-
-                            <SidebarGroup>
-                                <SidebarGroupLabel Class="font-medium text-muted-foreground">
-                                    Components
-                                </SidebarGroupLabel>
-                                <SidebarGroupContent>
-                                    <SidebarMenu Class="gap-0.5">
-                                        @foreach (var item in DocsNavigation.ComponentLinks)
-                                        {
-                                            <SidebarMenuItem>
-                                                @if (item.Href is not null)
-                                                {
-                                                    <SidebarMenuButton To="@item.Href"
-                                                                       Active="@(IsCurrentPath(item.Href, false))"
-                                                                       Class="@SidebarDocsMenuButtonClass">
-                                                        <Span class="absolute inset-0 flex w-(--sidebar-menu-width) bg-transparent"></Span>
-                                                        @item.Title
-                                                        @if (item.IsNew)
-                                                        {
-                                                            <Span BoxSize="Size.Is2" class="flex rounded-full bg-blue-500" title="New"></Span>
-                                                        }
-                                                    </SidebarMenuButton>
-                                                }
-                                                else
-                                                {
-                                                    <Span class="@($"{SidebarDocsMenuButtonClass} inline-flex opacity-70")">
-                                                        @item.Title
-                                                    </Span>
-                                                }
-                                            </SidebarMenuItem>
-                                        }
-                                    </SidebarMenu>
-                                </SidebarGroupContent>
-                            </SidebarGroup>
-
-                            <SidebarGroup>
-                                <SidebarGroupLabel Class="font-medium text-muted-foreground">
-                                    Primitives
-                                </SidebarGroupLabel>
-                                <SidebarGroupContent>
-                                    <SidebarMenu Class="gap-0.5">
-                                        @foreach (var item in DocsNavigation.PrimitiveLinks)
-                                        {
-                                            <SidebarMenuItem>
-                                                @if (item.Href is not null)
-                                                {
-                                                    <SidebarMenuButton To="@item.Href"
-                                                                       Active="@(IsCurrentPath(item.Href, false))"
-                                                                       Class="@SidebarDocsMenuButtonClass">
-                                                        <Span class="absolute inset-0 flex w-(--sidebar-menu-width) bg-transparent"></Span>
-                                                        @item.Title
-                                                        @if (item.IsNew)
-                                                        {
-                                                            <Span BoxSize="Size.Is2" class="flex rounded-full bg-blue-500" title="New"></Span>
-                                                        }
-                                                    </SidebarMenuButton>
-                                                }
-                                                else
-                                                {
-                                                    <Span class="@($"{SidebarDocsMenuButtonClass} inline-flex opacity-70")">
-                                                        @item.Title
-                                                    </Span>
-                                                }
-                                            </SidebarMenuItem>
-                                        }
-                                    </SidebarMenu>
-                                </SidebarGroupContent>
-                            </SidebarGroup>
-
-                            <Div class="sticky -bottom-1 z-10 h-16 shrink-0 bg-linear-to-t from-background via-background/80 to-background/50 blur-xs"></Div>
-                        </SidebarContent>
+                             Shell="SidebarShell.Navigation"
+                             MobileMode="SidebarMobileMode.FullScreen"
+                             MobileShowBackdrop="false"
+                             MobileLockScroll="false"
+                             MobileShowCloseButton="false"
+                             MobileOffsetTop="var(--header-height)">
+                        <MobileContent>
+                            <NavigationLinks Items="DocsNavigation.TopLinks"
+                                             Mode="NavigationLinksMode.Stack"
+                                             Title="Menu"
+                                             IsActive="IsTopNavActive" />
+                            <NavigationLinks Items="DocsNavigation.SectionLinks"
+                                             Mode="NavigationLinksMode.Stack"
+                                             Title="Sections"
+                                             IsActive="IsSectionActive" />
+                            <NavigationLinks Items="DocsNavigation.ComponentLinks"
+                                             Mode="NavigationLinksMode.Stack"
+                                             Title="Components"
+                                             IsActive="IsCurrentPath" />
+                            <NavigationLinks Items="DocsNavigation.PrimitiveLinks"
+                                             Mode="NavigationLinksMode.Stack"
+                                             Title="Primitives"
+                                             IsActive="IsCurrentPath" />
+                        </MobileContent>
+                        <ChildContent>
+                            <SidebarContent>
+                                <NavigationLinks Items="DocsNavigation.SectionLinks"
+                                                 Mode="NavigationLinksMode.Sidebar"
+                                                 Title="Sections"
+                                                 GroupClass="pt-4 lg:pt-6"
+                                                 IsActive="IsSectionActive" />
+                                <NavigationLinks Items="DocsNavigation.ComponentLinks"
+                                                 Mode="NavigationLinksMode.Sidebar"
+                                                 Title="Components"
+                                                 IsActive="IsCurrentPath" />
+                                <NavigationLinks Items="DocsNavigation.PrimitiveLinks"
+                                                 Mode="NavigationLinksMode.Sidebar"
+                                                 Title="Primitives"
+                                                 IsActive="IsCurrentPath" />
+                            </SidebarContent>
+                        </ChildContent>
                     </Sidebar>
 
-                    <Div class="h-full w-full overflow-y-auto overflow-x-hidden">
+                    <Div class="h-full min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
                         <Main class="@MainClass">
                             @Body
                         </Main>
                     </Div>
-                </SidebarProvider>
+                </Div>
             </Div>
         }
         else
@@ -256,116 +107,12 @@
                 </Main>
             </Div>
         }
-
-        @if (IsMobileMenuVisible)
-        {
-            <Div id="mobile-docs-navigation"
-                 class="@GetMobileOverlayClass()"
-                 style="top: var(--header-height);">
-                <Div class="@GetMobileOverlayPanelClass()">
-                    <Div class="space-y-8">
-                        <Section>
-                            <Paragraph class="text-sm font-medium text-muted-foreground">Sections</Paragraph>
-                            <Div class="mt-3 flex flex-col gap-1">
-                                @foreach (var item in DocsNavigation.SectionLinks)
-                                {
-                                    @if (item.Href is not null)
-                                    {
-                                        <Anchor To="@item.Href"
-                                                OnClick="@(() => NavigateFromMobileMenu(item.Href))"
-                                                PreventDefault="true"
-                                                class="@GetMobileOverlayLinkClass(IsSectionActive(item))">
-                                            @item.Title
-                                            @if (item.IsNew)
-                                            {
-                                                <Span BoxSize="Size.Is2" class="flex rounded-full bg-blue-500" title="New"></Span>
-                                            }
-                                        </Anchor>
-                                    }
-                                    else
-                                    {
-                                        <Span class="@($"{GetMobileOverlayLinkClass(false)} opacity-70")">
-                                            @item.Title
-                                            @if (item.IsNew)
-                                            {
-                                                <Span BoxSize="Size.Is2" class="flex rounded-full bg-blue-500" title="New"></Span>
-                                            }
-                                        </Span>
-                                    }
-                                }
-                            </Div>
-                        </Section>
-
-                        <Section>
-                            <Paragraph class="text-sm font-medium text-muted-foreground">Components</Paragraph>
-                            <Div class="mt-3 flex flex-col gap-1">
-                                @foreach (var item in DocsNavigation.ComponentLinks)
-                                {
-                                    @if (item.Href is not null)
-                                    {
-                                        <Anchor To="@item.Href"
-                                                OnClick="@(() => NavigateFromMobileMenu(item.Href))"
-                                                PreventDefault="true"
-                                                class="@GetMobileOverlayLinkClass(IsCurrentPath(item.Href, false))">
-                                            @item.Title
-                                            @if (item.IsNew)
-                                            {
-                                                <Span BoxSize="Size.Is2" class="flex rounded-full bg-blue-500" title="New"></Span>
-                                            }
-                                        </Anchor>
-                                    }
-                                    else
-                                    {
-                                        <Span class="@($"{GetMobileOverlayLinkClass(false)} opacity-70")">
-                                            @item.Title
-                                        </Span>
-                                    }
-                                }
-                            </Div>
-                        </Section>
-
-                        <Section>
-                            <Paragraph class="text-sm font-medium text-muted-foreground">Primitives</Paragraph>
-                            <Div class="mt-3 flex flex-col gap-1">
-                                @foreach (var item in DocsNavigation.PrimitiveLinks)
-                                {
-                                    @if (item.Href is not null)
-                                    {
-                                        <Anchor To="@item.Href"
-                                                OnClick="@(() => NavigateFromMobileMenu(item.Href))"
-                                                PreventDefault="true"
-                                                class="@GetMobileOverlayLinkClass(IsCurrentPath(item.Href, false))">
-                                            @item.Title
-                                            @if (item.IsNew)
-                                            {
-                                                <Span BoxSize="Size.Is2" class="flex rounded-full bg-blue-500" title="New"></Span>
-                                            }
-                                        </Anchor>
-                                    }
-                                    else
-                                    {
-                                        <Span class="@($"{GetMobileOverlayLinkClass(false)} opacity-70")">
-                                            @item.Title
-                                        </Span>
-                                    }
-                                }
-                            </Div>
-                        </Section>
-                    </Div>
-                </Div>
-            </Div>
-        }
-    </Div>
+    </SidebarProvider>
 
     <Sonner Theme="@(ThemeService.IsDark ? "dark" : "light")" />
 </CascadingValue>
 
 @code {
-    private const string SidebarDocsMenuButtonClass = "relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48";
-    private const int MobileMenuExitDurationMs = 180;
-    private bool _docsSidebarOpenMobile;
-    private bool _docsSidebarClosingMobile;
-
     private string CurrentPath
     {
         get
@@ -383,27 +130,15 @@
     protected override void OnInitialized()
     {
         ThemeService.ThemeChanged += OnThemeChanged;
-        Navigation.LocationChanged += OnLocationChanged;
     }
 
-    private bool ShowDocsSidebar => CurrentPath != "/";
+    private bool ShowNavigationSidebar => CurrentPath != "/";
 
-    private string MainClass => ShowDocsSidebar
+    private string MainClass => ShowNavigationSidebar
         ? "min-w-0 flex-1 px-4 py-6 md:px-6 lg:px-8 lg:py-8"
         : "min-w-0 flex-1";
 
-    private bool IsMobileMenuVisible => _docsSidebarOpenMobile || _docsSidebarClosingMobile;
-
-    private string GetTopNavClass(DocsNavLink item)
-    {
-        const string baseClass = "inline-flex h-8 items-center gap-2 rounded-md px-2.5 text-sm transition-colors";
-
-        return IsTopNavActive(item)
-            ? $"{baseClass} font-medium text-foreground"
-            : $"{baseClass} text-foreground/70 hover:text-foreground";
-    }
-
-    private bool IsTopNavActive(DocsNavLink item)
+    private bool IsTopNavActive(NavigationItem item)
     {
         return NormalizeRoute(item.Href) switch
         {
@@ -413,7 +148,7 @@
         };
     }
 
-    private bool IsSectionActive(DocsNavLink item)
+    private bool IsSectionActive(NavigationItem item)
     {
         return NormalizeRoute(item.Href) switch
         {
@@ -423,7 +158,12 @@
         };
     }
 
-    private bool IsCurrentPath(string href, bool exactMatch)
+    private bool IsCurrentPath(NavigationItem item)
+    {
+        return IsCurrentPath(item.Href, item.ExactMatch);
+    }
+
+    private bool IsCurrentPath(string? href, bool exactMatch)
     {
         var normalized = NormalizeRoute(href);
 
@@ -435,72 +175,6 @@
         return string.IsNullOrWhiteSpace(href) ? "/" : $"/{href.Trim('/')}";
     }
 
-    private static string GetMobileOverlayLinkClass(bool active)
-    {
-        const string baseClass = "inline-flex items-center gap-2 rounded-md px-3 py-2 text-2xl font-medium transition-colors";
-        return active ? $"{baseClass} bg-accent text-foreground" : $"{baseClass} text-foreground hover:bg-accent/60";
-    }
-
-    private string GetMobileOverlayClass()
-    {
-        const string baseClass = "fixed inset-x-0 bottom-0 z-40 overflow-y-auto border-t bg-background transition-opacity md:hidden";
-        return _docsSidebarClosingMobile ? $"{baseClass} opacity-0" : $"{baseClass} opacity-100";
-    }
-
-    private string GetMobileOverlayPanelClass()
-    {
-        const string baseClass = "px-6 py-5 transition-all duration-200 ease-out";
-        return _docsSidebarClosingMobile ? $"{baseClass} translate-y-2 opacity-0" : $"{baseClass} translate-y-0 opacity-100";
-    }
-
-    private string GetMobileMenuLineOneClass()
-    {
-        return _docsSidebarOpenMobile
-            ? "absolute top-1/2 left-1/2 h-0.5 w-4 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-full bg-current transition-all duration-200 ease-out"
-            : "absolute top-[calc(50%-0.22rem)] left-1/2 h-0.5 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-current transition-all duration-200 ease-out";
-    }
-
-    private string GetMobileMenuLineTwoClass()
-    {
-        return _docsSidebarOpenMobile
-            ? "absolute top-1/2 left-1/2 h-0.5 w-4 -translate-x-1/2 -translate-y-1/2 -rotate-45 rounded-full bg-current transition-all duration-200 ease-out"
-            : "absolute top-[calc(50%+0.22rem)] left-1/2 h-0.5 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-current transition-all duration-200 ease-out";
-    }
-
-    private void ToggleDocsSidebar()
-    {
-        if (_docsSidebarOpenMobile)
-        {
-            _docsSidebarOpenMobile = false;
-            _docsSidebarClosingMobile = false;
-            return;
-        }
-
-        _docsSidebarClosingMobile = false;
-        _docsSidebarOpenMobile = true;
-    }
-
-    private async Task NavigateFromMobileMenu(string href)
-    {
-        _docsSidebarOpenMobile = false;
-        _docsSidebarClosingMobile = true;
-        await InvokeAsync(StateHasChanged);
-        Navigation.NavigateTo(href);
-        _ = FinishClosingMobileMenuAsync();
-    }
-
-    private async Task FinishClosingMobileMenuAsync()
-    {
-        await Task.Delay(MobileMenuExitDurationMs);
-        _docsSidebarClosingMobile = false;
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs args)
-    {
-        _docsSidebarOpenMobile = false;
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender)
@@ -510,19 +184,18 @@
         StateHasChanged();
     }
 
-    private async Task ToggleTheme()
-    {
-        await ThemeService.ToggleAsync();
-    }
-
     private void OnThemeChanged()
     {
         _ = InvokeAsync(StateHasChanged);
     }
 
+    private async Task ToggleTheme()
+    {
+        await ThemeService.ToggleAsync();
+    }
+
     public void Dispose()
     {
         ThemeService.ThemeChanged -= OnThemeChanged;
-        Navigation.LocationChanged -= OnLocationChanged;
     }
 }

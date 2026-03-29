@@ -1,0 +1,137 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@using Soenneker.Quark.Utils
+
+<header @attributes="BuildAttributes()">
+    <div class="@ContainerClassValue">
+        <div class="@InnerClassValue">
+            @if (ShowSidebarTrigger)
+            {
+                <SidebarTrigger Class="@SidebarTriggerClass"
+                                aria-label="@SidebarTriggerLabel">
+                    <OpenContent>
+                        @if (SidebarTriggerOpenContent is not null)
+                        {
+                            @SidebarTriggerOpenContent
+                        }
+                        else
+                        {
+                            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path d="M18 6 6 18" />
+                                <path d="m6 6 12 12" />
+                            </svg>
+                        }
+                    </OpenContent>
+                    <ClosedContent>
+                        @if (SidebarTriggerClosedContent is not null)
+                        {
+                            @SidebarTriggerClosedContent
+                        }
+                        else
+                        {
+                            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path d="M4 7h16" />
+                                <path d="M4 12h16" />
+                                <path d="M4 17h16" />
+                            </svg>
+                        }
+                    </ClosedContent>
+                    <ChildContent>
+                        <Span class="sr-only">@SidebarTriggerLabel</Span>
+                    </ChildContent>
+                </SidebarTrigger>
+            }
+
+            @if (BrandContent is not null)
+            {
+                @BrandContent
+            }
+
+            @if (NavigationContent is not null)
+            {
+                <div class="@NavigationClassValue">
+                    @NavigationContent
+                </div>
+            }
+
+            @if (ActionsContent is not null)
+            {
+                <div class="@ActionsClassValue">
+                    @ActionsContent
+                </div>
+            }
+        </div>
+    </div>
+</header>
+
+@code {
+    [Parameter]
+    public bool ShowSidebarTrigger { get; set; }
+
+    [Parameter]
+    public string SidebarTriggerLabel { get; set; } = "Toggle navigation";
+
+    [Parameter]
+    public string ContainerClass { get; set; } = "container-wrapper px-6";
+
+    [Parameter]
+    public string InnerClass { get; set; } = "flex h-(--header-height) items-center gap-4";
+
+    [Parameter]
+    public string SidebarTriggerClass { get; set; } = "inline-flex items-center justify-center rounded-md transition-colors hover:bg-accent hover:text-accent-foreground lg:hidden";
+
+    [Parameter]
+    public string NavigationClass { get; set; } = "hidden items-center gap-1 lg:flex";
+
+    [Parameter]
+    public string ActionsClass { get; set; } = "ml-auto flex items-center gap-2 md:flex-1 md:justify-end";
+
+    [Parameter]
+    public RenderFragment? BrandContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? NavigationContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? ActionsContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? SidebarTriggerOpenContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? SidebarTriggerClosedContent { get; set; }
+
+    private string ContainerClassValue => ClassNames.Combine(ContainerClass);
+    private string InnerClassValue => ClassNames.Combine(InnerClass);
+    private string NavigationClassValue => ClassNames.Combine(NavigationClass);
+    private string ActionsClassValue => ClassNames.Combine(ActionsClass);
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "header";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-header");
+            AppendClass(ref cls, "sticky top-0 z-50 w-full shrink-0 border-b bg-background");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(ShowSidebarTrigger);
+        hc.Add(SidebarTriggerLabel);
+        hc.Add(ContainerClass);
+        hc.Add(InnerClass);
+        hc.Add(SidebarTriggerClass);
+        hc.Add(NavigationClass);
+        hc.Add(ActionsClass);
+        hc.Add(BrandContent is not null);
+        hc.Add(NavigationContent is not null);
+        hc.Add(ActionsContent is not null);
+        hc.Add(SidebarTriggerOpenContent is not null);
+        hc.Add(SidebarTriggerClosedContent is not null);
+    }
+}

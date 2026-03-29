@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;
 
 namespace Soenneker.Quark;
@@ -21,6 +22,9 @@ public partial class SidebarProvider
 
     [Inject]
     private IJSRuntime JSRuntime { get; set; } = null!;
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = null!;
 
     [Parameter]
     public bool DefaultOpen { get; set; } = true;
@@ -50,6 +54,9 @@ public partial class SidebarProvider
     public string KeyboardShortcutKey { get; set; } = DefaultShortcutKey;
 
     [Parameter]
+    public bool CloseMobileOnNavigation { get; set; } = true;
+
+    [Parameter]
     public string SidebarWidth { get; set; } = "16rem";
 
     [Parameter]
@@ -61,6 +68,7 @@ public partial class SidebarProvider
     protected override void OnInitialized()
     {
         _openInternal = DefaultOpen;
+        NavigationManager.LocationChanged += OnLocationChanged;
         base.OnInitialized();
     }
 
@@ -165,6 +173,14 @@ public partial class SidebarProvider
         return ToggleSidebar();
     }
 
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        if (!CloseMobileOnNavigation || !GetOpenMobile())
+            return;
+
+        _ = InvokeAsync(() => SetOpenMobile(false));
+    }
+
     private async Task PersistOpenAsync(bool value)
     {
         if (!PersistState || _module is null || string.IsNullOrWhiteSpace(CookieKey))
@@ -204,6 +220,7 @@ public partial class SidebarProvider
         hc.Add(CookieKey);
         hc.Add(PersistState);
         hc.Add(KeyboardShortcutKey);
+        hc.Add(CloseMobileOnNavigation);
         hc.Add(SidebarWidth);
         hc.Add(SidebarWidthIcon);
         hc.Add(SidebarWidthMobile);
@@ -226,6 +243,7 @@ public partial class SidebarProvider
             }
         }
 
+        NavigationManager.LocationChanged -= OnLocationChanged;
         _dotNetRef?.Dispose();
         await base.DisposeAsync();
         GC.SuppressFinalize(this);

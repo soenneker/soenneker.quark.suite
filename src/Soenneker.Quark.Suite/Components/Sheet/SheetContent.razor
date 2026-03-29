@@ -44,6 +44,18 @@
     [Parameter]
     public bool ShowCloseButton { get; set; } = true;
 
+    [Parameter]
+    public string? ContainerClass { get; set; }
+
+    [Parameter]
+    public string? ContainerStyle { get; set; }
+
+    [Parameter]
+    public string? OverlayClass { get; set; }
+
+    [Parameter]
+    public string? OverlayStyle { get; set; }
+
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
@@ -112,10 +124,16 @@
     {
         var attributes = new Dictionary<string, object>();
 
-        BuildClassAttribute(attributes, (ref cls) =>
+        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
             AppendClass(ref cls, "q-sheet");
             AppendClass(ref cls, "fixed inset-0 z-50");
+
+            if (!string.IsNullOrWhiteSpace(ContainerClass))
+                AppendClass(ref cls, ContainerClass!);
+
+            if (!string.IsNullOrWhiteSpace(ContainerStyle))
+                AppendStyleDecl(ref sty, ContainerStyle!);
         });
 
         attributes["tabindex"] = -1;
@@ -137,10 +155,16 @@
     {
         var attributes = new Dictionary<string, object>();
 
-        BuildClassAttribute(attributes, (ref cls) =>
+        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
             AppendClass(ref cls, "q-sheet-overlay");
             AppendClass(ref cls, "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50");
+
+            if (!string.IsNullOrWhiteSpace(OverlayClass))
+                AppendClass(ref cls, OverlayClass!);
+
+            if (!string.IsNullOrWhiteSpace(OverlayStyle))
+                AppendStyleDecl(ref sty, OverlayStyle!);
         });
 
         attributes["data-state"] = ParentSheet?.Visible == true ? "open" : "closed";
@@ -169,6 +193,10 @@
     {
         hc.Add(Side);
         hc.Add(ShowCloseButton);
+        hc.Add(ContainerClass);
+        hc.Add(ContainerStyle);
+        hc.Add(OverlayClass);
+        hc.Add(OverlayStyle);
         hc.Add(ParentSheet?.Visible ?? false);
         hc.Add(Context?.HasTitle);
         hc.Add(Context?.HasDescription);
