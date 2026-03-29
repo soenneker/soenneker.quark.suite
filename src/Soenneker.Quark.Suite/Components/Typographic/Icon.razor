@@ -12,24 +12,24 @@
 
 @code {
     [Parameter]
-    public LucideIcon Icon { get; set; }
+    public LucideIcon Name { get; set; }
 
     [Inject]
     private ILucideIconSvgProvider? SvgProvider { get; set; }
 
     private string? _svgWithAttributes;
 
-    private LucideIcon _lastIcon;
+    private LucideIcon _lastName;
     private string? _iconNameCache;
 
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
 
-        if (!EqualityComparer<LucideIcon>.Default.Equals(_lastIcon, Icon) || _iconNameCache is null)
+        if (!EqualityComparer<LucideIcon>.Default.Equals(_lastName, Name) || _iconNameCache is null)
         {
-            _lastIcon = Icon;
-            _iconNameCache = Icon.ToString();
+            _lastName = Name;
+            _iconNameCache = Name.ToString();
         }
 
         _svgWithAttributes = GetSvgWithAttributes();
@@ -44,7 +44,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Icon);
+        hc.Add(Name);
     }
 
     private string? GetSvgWithAttributes()

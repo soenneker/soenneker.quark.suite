@@ -91,7 +91,7 @@ public static class DocsNavigation
         new("Code", "codes"),
         new("Fieldset", "fieldsets-demo"),
         new("Figure", "figures"),
-        new("Lucide", "lucide"),
+        new("Icons", "icons"),
         new("Paragraph", "paragraph-demo"),
         new("Section", "section-demo"),
         new("Small", "small-demo"),
