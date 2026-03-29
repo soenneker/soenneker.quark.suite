@@ -1,0 +1,44 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IGrid
+
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public CssValue<ColumnBuilder>? Columns { get; set; }
+
+    [Parameter]
+    public CssValue<RowBuilder>? Rows { get; set; }
+
+    [Parameter]
+    public bool Inline { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-grid");
+            AppendClass(ref cls, Inline ? "inline-grid" : "grid");
+
+            if (Columns is { IsEmpty: false })
+                AppendClass(ref cls, Columns.Value.ToString());
+
+            if (Rows is { IsEmpty: false })
+                AppendClass(ref cls, Rows.Value.ToString());
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+
+        hc.Add(Columns);
+        hc.Add(Rows);
+        hc.Add(Inline);
+    }
+}

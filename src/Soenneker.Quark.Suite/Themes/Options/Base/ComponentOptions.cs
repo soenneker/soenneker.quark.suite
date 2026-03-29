@@ -179,11 +179,6 @@ public class ComponentOptions
     public CssValue<GapBuilder>? Gap { get; set; }
 
     /// <summary>
-    /// Gets or sets grid utility classes (grid-cols, col-span, place-items, and related).
-    /// </summary>
-    public CssValue<GridBuilder>? Grid { get; set; }
-
-    /// <summary>
     /// Gets or sets spacing-between-children utility classes (space-x/space-y and reverse variants).
     /// </summary>
     public CssValue<SpaceBuilder>? Space { get; set; }
@@ -430,7 +425,6 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, TextDecoration, "text-decoration");
         AddRules(buffer, baseSelector, Flex, "flex");
         AddRules(buffer, baseSelector, Gap, "gap");
-        AddRules(buffer, baseSelector, Grid, null);
         AddRules(buffer, baseSelector, Space, null);
         AddRules(buffer, baseSelector, Divide, null);
         AddRules(buffer, baseSelector, RingOffset, null);

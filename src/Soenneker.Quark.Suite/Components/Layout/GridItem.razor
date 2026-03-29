@@ -1,0 +1,39 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IGridItem
+
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public CssValue<ColumnSpanBuilder>? ColumnSpan { get; set; }
+
+    [Parameter]
+    public CssValue<RowSpanBuilder>? RowSpan { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "grid-item";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-grid-item");
+
+            if (ColumnSpan is { IsEmpty: false })
+                AppendClass(ref cls, ColumnSpan.Value.ToString());
+
+            if (RowSpan is { IsEmpty: false })
+                AppendClass(ref cls, RowSpan.Value.ToString());
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        AddIf(ref hc, ColumnSpan);
+        AddIf(ref hc, RowSpan);
+    }
+}

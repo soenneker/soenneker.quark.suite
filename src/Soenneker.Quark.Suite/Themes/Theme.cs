@@ -163,11 +163,6 @@ public sealed class Theme
     public RadioOptions? Radios { get; set; }
 
     /// <summary>
-    /// Gets or sets the row component styling options.
-    /// </summary>
-    public RowOptions? Rows { get; set; }
-
-    /// <summary>
     /// Gets or sets the section component styling options.
     /// </summary>
     public SectionOptions? Sections { get; set; }
@@ -799,8 +794,6 @@ public sealed class Theme
             yield return Progresses;
         if (Radios != null)
             yield return Radios;
-        if (Rows != null)
-            yield return Rows;
         if (Sections != null)
             yield return Sections;
         if (Sliders != null)

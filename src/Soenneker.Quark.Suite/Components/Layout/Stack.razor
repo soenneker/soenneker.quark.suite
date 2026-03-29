@@ -1,0 +1,35 @@
+@namespace Soenneker.Quark.Layout
+@inherits Soenneker.Quark.Element
+@implements IStack
+
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public StackOrientation Orientation { get; set; } = StackOrientation.Vertical;
+
+    [Parameter]
+    public bool Inline { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-stack");
+            AppendClass(ref cls, Inline ? "inline-flex" : "flex");
+            AppendClass(ref cls, Orientation == StackOrientation.Horizontal ? "flex-row" : "flex-col");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+
+        hc.Add(Orientation);
+        hc.Add(Inline);
+    }
+}

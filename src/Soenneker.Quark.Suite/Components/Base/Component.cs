@@ -98,9 +98,6 @@ public abstract class Component : RenderComponentBase, IComponent
     public CssValue<GapBuilder>? Gap { get; set; }
 
     [Parameter]
-    public CssValue<GridBuilder>? Grid { get; set; }
-
-    [Parameter]
     public CssValue<SpaceBuilder>? Space { get; set; }
 
     [Parameter]
@@ -216,7 +213,6 @@ public abstract class Component : RenderComponentBase, IComponent
         AddCss(ref sty, ref cls, Overscroll);
         AddCss(ref sty, ref cls, Flex);
         AddCss(ref sty, ref cls, Gap);
-        AddCss(ref sty, ref cls, Grid);
         AddCss(ref sty, ref cls, Space);
         AddCss(ref sty, ref cls, Divide);
         AddCss(ref sty, ref cls, AlignUtility);
@@ -303,7 +299,6 @@ public abstract class Component : RenderComponentBase, IComponent
         AddIf(ref hc, Overscroll);
         AddIf(ref hc, Flex);
         AddIf(ref hc, Gap);
-        AddIf(ref hc, Grid);
         AddIf(ref hc, Space);
         AddIf(ref hc, Divide);
         AddIf(ref hc, AlignUtility);

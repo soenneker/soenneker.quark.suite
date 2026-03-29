@@ -1,0 +1,118 @@
+@page "/grids"
+@using Soenneker.Quark.Layout
+
+<PageTitle>Grid - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is6xl">
+    <Div Space="Space.Y.Is3">
+        <H1>Grid</H1>
+        <Paragraph>
+            `Grid` is a small wrapper around CSS grid utilities. Use `Columns` for column tracks, `Rows` for row
+            tracks, and `GridItem` when a child needs to span or position itself differently.
+        </Paragraph>
+    </Div>
+
+    <Div Space="Space.Y.Is6">
+        <DemoSection Title="Basic Columns"
+                     Description="Start with a fixed number of columns."
+                     Code="@(@"<Grid Columns=""@Columns.Is3"" Gap=""Gap.Is4"">
+    <Div Class=""rounded-lg border p-4"">One</Div>
+    <Div Class=""rounded-lg border p-4"">Two</Div>
+    <Div Class=""rounded-lg border p-4"">Three</Div>
+</Grid>")">
+            <Grid Columns="Columns.Is3" Gap="Gap.Is4">
+                <Div Class="rounded-lg border bg-card p-4 shadow-sm">One</Div>
+                <Div Class="rounded-lg border bg-card p-4 shadow-sm">Two</Div>
+                <Div Class="rounded-lg border bg-card p-4 shadow-sm">Three</Div>
+            </Grid>
+        </DemoSection>
+
+        <DemoSection Title="Responsive Columns"
+                     Description="Chain breakpoints when the layout should change by screen size."
+                     Code="@(@"<Grid Columns=""@Columns.Is2.OnXl.Is1"" Gap=""Gap.Is4"">
+    <Div Class=""rounded-lg border p-4"">One</Div>
+    <Div Class=""rounded-lg border p-4"">Two</Div>
+    <Div Class=""rounded-lg border p-4"">Three</Div>
+    <Div Class=""rounded-lg border p-4"">Four</Div>
+</Grid>")">
+            <Grid Columns="Columns.Is2.OnXl.Is1" Gap="Gap.Is4">
+                <Div Class="rounded-lg border bg-card p-4 shadow-sm">One</Div>
+                <Div Class="rounded-lg border bg-card p-4 shadow-sm">Two</Div>
+                <Div Class="rounded-lg border bg-card p-4 shadow-sm">Three</Div>
+                <Div Class="rounded-lg border bg-card p-4 shadow-sm">Four</Div>
+            </Grid>
+        </DemoSection>
+
+        <DemoSection Title="Item Spans"
+                     Description="Use `GridItem` when a child needs to span columns or rows."
+                     Code="@(@"<Grid Columns=""@Columns.Is3"" Gap=""Gap.Is4"">
+    <GridItem ColumnSpan=""@ColumnSpan.Is2"" Class=""rounded-lg border p-4"">Featured</GridItem>
+    <GridItem Class=""rounded-lg border p-4"">Side</GridItem>
+    <GridItem Class=""rounded-lg border p-4"">Bottom left</GridItem>
+    <GridItem Class=""rounded-lg border p-4"">Bottom right</GridItem>
+</Grid>")">
+            <Grid Columns="Columns.Is3" Gap="Gap.Is4">
+                <GridItem ColumnSpan="ColumnSpan.Is2" Class="rounded-lg border bg-card p-4 shadow-sm">Featured</GridItem>
+                <GridItem Class="rounded-lg border bg-card p-4 shadow-sm">Side</GridItem>
+                <GridItem Class="rounded-lg border bg-card p-4 shadow-sm">Bottom left</GridItem>
+                <GridItem Class="rounded-lg border bg-card p-4 shadow-sm">Bottom right</GridItem>
+            </Grid>
+        </DemoSection>
+
+        <DemoSection Title="Responsive Rows"
+                     Description="`Rows` works the same way when you want to control row tracks."
+                     Code="@(@"<Grid Columns=""@Columns.Is2"" Rows=""@Rows.Is3.OnXl.Is2"" Gap=""Gap.Is3"">
+    <Div Class=""rounded-lg border p-4"">One</Div>
+    <Div Class=""rounded-lg border p-4"">Two</Div>
+    <Div Class=""rounded-lg border p-4"">Three</Div>
+    <Div Class=""rounded-lg border p-4"">Four</Div>
+    <Div Class=""rounded-lg border p-4"">Five</Div>
+    <Div Class=""rounded-lg border p-4"">Six</Div>
+</Grid>")">
+            <Grid Columns="Columns.Is2" Rows="Rows.Is3.OnXl.Is2" Gap="Gap.Is3">
+                <Div Class="rounded-lg border bg-muted/40 p-4">One</Div>
+                <Div Class="rounded-lg border bg-muted/40 p-4">Two</Div>
+                <Div Class="rounded-lg border bg-muted/40 p-4">Three</Div>
+                <Div Class="rounded-lg border bg-muted/40 p-4">Four</Div>
+                <Div Class="rounded-lg border bg-muted/40 p-4">Five</Div>
+                <Div Class="rounded-lg border bg-muted/40 p-4">Six</Div>
+            </Grid>
+        </DemoSection>
+
+        <DemoSection Title="Responsive Item Spans"
+                     Description="`GridItem` spans can respond to breakpoints the same way as the grid itself."
+                     Code="@(@"<Grid Columns=""@Columns.Is1.OnMd.Is4"" Gap=""Gap.Is3"">
+    <GridItem ColumnSpan=""@ColumnSpan.Is1.OnMd.Is2"" RowSpan=""@RowSpan.Is1.OnMd.Is2"" Class=""rounded-lg border p-4"">
+        Feature
+    </GridItem>
+    <GridItem Class=""rounded-lg border p-4"">One</GridItem>
+    <GridItem Class=""rounded-lg border p-4"">Two</GridItem>
+    <GridItem Class=""rounded-lg border p-4"">Three</GridItem>
+</Grid>")">
+            <Grid Columns="Columns.Is1.OnMd.Is4" Gap="Gap.Is3">
+                <GridItem ColumnSpan="ColumnSpan.Is1.OnMd.Is2" RowSpan="RowSpan.Is1.OnMd.Is2" Class="rounded-lg border bg-muted/40 p-4 shadow-sm">
+                    Feature
+                </GridItem>
+                <GridItem Class="rounded-lg border bg-card p-4 shadow-sm">One</GridItem>
+                <GridItem Class="rounded-lg border bg-card p-4 shadow-sm">Two</GridItem>
+                <GridItem Class="rounded-lg border bg-card p-4 shadow-sm">Three</GridItem>
+            </Grid>
+        </DemoSection>
+
+        <DemoSection Title="Element Parameters"
+                     Description="`Grid` still supports normal element parameters like `Class`, `Margin`, and `Id`."
+                     Code="@(@"<Grid Id=""overview"" Columns=""@Columns.Is2"" Gap=""Gap.Is3"" Margin=""Margin.Is4.FromBottom"" Class=""rounded-xl border p-4"">
+    <Div Class=""rounded-lg bg-muted/40 p-4"">Left</Div>
+    <Div Class=""rounded-lg bg-muted/40 p-4"">Right</Div>
+</Grid>")">
+            <Grid Id="overview" Columns="Columns.Is2" Gap="Gap.Is3" Margin="Margin.Is4.FromBottom" Class="rounded-xl border p-4">
+                <Div Class="rounded-lg bg-muted/40 p-4">
+                    <Paragraph Margin="Margin.Is0">Left</Paragraph>
+                </Div>
+                <Div Class="rounded-lg bg-muted/40 p-4">
+                    <Paragraph Margin="Margin.Is0">Right</Paragraph>
+                </Div>
+            </Grid>
+        </DemoSection>
+    </Div>
+</Div>

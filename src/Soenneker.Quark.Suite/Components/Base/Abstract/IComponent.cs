@@ -35,7 +35,6 @@ public interface IComponent : ICoreComponent
     CssValue<OverflowBuilder>? OverflowY { get; set; }
     CssValue<FlexBuilder>? Flex { get; set; }
     CssValue<GapBuilder>? Gap { get; set; }
-    CssValue<GridBuilder>? Grid { get; set; }
     CssValue<SpaceBuilder>? Space { get; set; }
     CssValue<DivideBuilder>? Divide { get; set; }
     CssValue<AlignBuilder>? AlignUtility { get; set; }

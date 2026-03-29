@@ -1,75 +1,98 @@
+@page "/container"
 @page "/containers"
 @using Microsoft.Extensions.Logging
 
-@inject ILogger<Index> Logger
+@inject ILogger<Containers> Logger
 
-<PageTitle>Containers - Quark Suite</PageTitle>
+<PageTitle>Container - Quark Suite</PageTitle>
 
-<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is6xl">
+    <Div Space="Space.Y.Is3">
+        <H1>Container</H1>
+        <Paragraph>
+            `Container` gives you the common shadcn-style centered content wrapper by default:
+            full width, a shared max width, auto horizontal margins, and responsive horizontal padding.
+        </Paragraph>
+    </Div>
+
     <Div Space="Space.Y.Is6">
-        <DemoSection Title="Basic Container Usage" Description="Responsive Bootstrap container with centering and padding." Code="@(@"<Container BackgroundColor=""BackgroundColor.Light"" Padding=""Padding.Is3"">
-    <H3>Container Example</H3>
-    <Paragraph>Content inside a container.</Paragraph>
+        <DemoSection Title="Default Container"
+                     Description="Centered content wrapper with responsive gutters out of the box."
+                     Code="@(@"<Container Class=""rounded-xl border border-dashed border-border py-6"">
+    <H3>Default container</H3>
+    <Paragraph>Centered content with shadcn-style width and padding defaults.</Paragraph>
 </Container>")">
-            <Paragraph>The Container component provides a responsive Bootstrap container that centers content and provides appropriate padding.</Paragraph>
-            <Container BackgroundColor="BackgroundColor.Light" Padding="Padding.Is3" Margin="Margin.Is3.FromBottom">
-                <H3>Nested Container Example</H3>
-                <Paragraph>This is content inside a nested container with Bootstrap utility classes.</Paragraph>
-                <Paragraph>The container automatically handles responsive behavior and centering.</Paragraph>
+            <Paragraph>
+                Use `Container` when you want the standard centered docs or app-shell width without repeating
+                `mx-auto w-full max-w-7xl px-4 md:px-6 lg:px-8`.
+            </Paragraph>
+            <Container Class="rounded-xl border border-dashed border-border py-6" Margin="Margin.Is3.FromBottom">
+                <H3>Default container</H3>
+                <Paragraph>Centered content with shadcn-style width and padding defaults.</Paragraph>
+                <Paragraph>The built-in layout is ideal for docs pages, settings screens, and general content surfaces.</Paragraph>
             </Container>
         </DemoSection>
 
-        <DemoSection Title="Container with Custom Styling" Description="Custom Style while keeping container behavior." Code="@(@"<Container Style=""border: 2px solid #007bff; border-radius: 8px; background-color: #f8f9fa;"">
-    <H3>Styled Container</H3>
-    <Paragraph>Custom styling with Bootstrap container.</Paragraph>
+        <DemoSection Title="Override the Width"
+                     Description="Bring your own max-width utilities while keeping the base centering behavior."
+                     Code="@(@"<Container Class=""max-w-4xl rounded-xl border bg-card py-6"">
+    <H3>Narrower container</H3>
+    <Paragraph>Custom width override for tighter reading layouts.</Paragraph>
 </Container>")">
-            <Container Style="border: 2px solid #007bff; border-radius: 8px; background-color: #f8f9fa;">
-                <H3>Styled Container</H3>
-                <Paragraph>This container demonstrates custom styling while maintaining Bootstrap container behavior.</Paragraph>
+            <Paragraph>
+                Your custom `Class` value is appended after the default container classes, so width or padding overrides can intentionally win when needed.
+            </Paragraph>
+            <Container Class="max-w-4xl rounded-xl border bg-card py-6" Margin="Margin.Is3.FromBottom">
+                <H3>Narrower container</H3>
+                <Paragraph>This example trims the reading width for dense prose or form-heavy screens.</Paragraph>
                 <UnorderedList>
-                    <UnorderedListItem>Responsive width management</UnorderedListItem>
-                    <UnorderedListItem>Automatic centering</UnorderedListItem>
-                    <UnorderedListItem>Consistent padding</UnorderedListItem>
-                    <UnorderedListItem>Custom styling support</UnorderedListItem>
+                    <UnorderedListItem>The default centering still applies.</UnorderedListItem>
+                    <UnorderedListItem>`max-w-4xl` overrides the wider default.</UnorderedListItem>
+                    <UnorderedListItem>The component still keeps your content full width inside that cap.</UnorderedListItem>
+                </UnorderedList>
+            </Container>
+
+            <Container Class="max-w-2xl rounded-xl border bg-muted/30 py-6">
+                <H3>Even tighter layout</H3>
+                <Paragraph>Useful for narrow content flows like auth, onboarding, or confirmation states.</Paragraph>
+            </Container>
+        </DemoSection>
+
+        <DemoSection Title="Container + Surface Styling"
+                     Description="Layer layout behavior with your own visual treatment."
+                     Code="@(@"<Container Class=""rounded-2xl border bg-card px-6 py-8 shadow-sm"">
+    <H3>Card-like section</H3>
+    <Paragraph>Layout and surface styling can live together.</Paragraph>
+</Container>")">
+            <Container Class="rounded-2xl border bg-card px-6 py-8 shadow-sm">
+                <H3>Card-like section</H3>
+                <Paragraph>
+                    `Container` handles the outer layout, while your utility classes shape the visual surface.
+                    This is a common pattern for docs callouts, settings groups, and marketing sections.
+                </Paragraph>
+                <UnorderedList>
+                    <UnorderedListItem>Rounded corners and borders create the surface.</UnorderedListItem>
+                    <UnorderedListItem>Extra `px-6 py-8` can override the default gutter when desired.</UnorderedListItem>
+                    <UnorderedListItem>The centered width behavior still comes from `Container` itself.</UnorderedListItem>
                 </UnorderedList>
             </Container>
         </DemoSection>
 
-        <DemoSection Title="Container Properties" Description="Id, Class, Style, Margin, Padding, events from Element base." Code="@(@"<Container BackgroundColor=""BackgroundColor.Info"" TextColor=""TextColor.White"" Padding=""Padding.Is3"">
-    <H3>Container Features</H3>
-    <Paragraph>Inherits Element properties.</Paragraph>
+        <DemoSection Title="Inherited Element Features"
+                     Description="Id, Class, Style, Margin, Padding, events, and other Element features still apply."
+                     Code="@(@"<Container Id=""details"" Class=""rounded-xl border"" Margin=""Margin.Is4.FromBottom"">
+    <H3>Inherited element API</H3>
+    <Paragraph>Container still exposes the shared Element surface.</Paragraph>
 </Container>")">
-            <Container BackgroundColor="BackgroundColor.Info" TextColor="TextColor.White" Padding="Padding.Is3">
-                <H3>Container Features</H3>
-                <Paragraph>The Container component inherits all properties from the Element base class:</Paragraph>
+            <Container Id="details" Class="rounded-xl border" Margin="Margin.Is4.FromBottom">
+                <H3>Inherited element API</H3>
+                <Paragraph>`Container` still inherits the shared `Element` surface.</Paragraph>
                 <UnorderedList>
-                    <UnorderedListItem><Strong>Id:</Strong> HTML id attribute</UnorderedListItem>
-                    <UnorderedListItem><Strong>Class:</Strong> CSS classes (Bootstrap utility classes supported)</UnorderedListItem>
-                    <UnorderedListItem><Strong>Style:</Strong> Inline CSS styles</UnorderedListItem>
-                    <UnorderedListItem><Strong>Title:</Strong> Tooltip text</UnorderedListItem>
-                    <UnorderedListItem><Strong>Hidden:</Strong> Visibility control</UnorderedListItem>
-                    <UnorderedListItem><Strong>Display:</Strong> CSS display property</UnorderedListItem>
-                    <UnorderedListItem><Strong>Margin/Padding:</Strong> Spacing utilities</UnorderedListItem>
-                    <UnorderedListItem><Strong>Event Handlers:</Strong> Click, focus, keyboard events</UnorderedListItem>
+                    <UnorderedListItem><Strong>Id:</Strong> adds a standard HTML id.</UnorderedListItem>
+                    <UnorderedListItem><Strong>Class / Style:</Strong> lets you layer custom utilities or inline styles.</UnorderedListItem>
+                    <UnorderedListItem><Strong>Margin / Padding:</Strong> works alongside the default container layout.</UnorderedListItem>
+                    <UnorderedListItem><Strong>Events:</Strong> click, focus, and keyboard handlers are still available.</UnorderedListItem>
                 </UnorderedList>
-            </Container>
-        </DemoSection>
-
-        <DemoSection Title="Class Property Behavior" Description="Container class is always present with your custom classes." Code="@(@"<Container BackgroundColor=""BackgroundColor.Success"" Class=""border border-primary rounded"">
-    <H3>Custom Classes with Container</H3>
-    <Paragraph>class=""container bg-success ...""</Paragraph>
-</Container>")">
-            <Paragraph>The Container component automatically ensures the Bootstrap "container" class is always present, even When you specify additional classes:</Paragraph>
-            <Container BackgroundColor="BackgroundColor.Success" TextColor="TextColor.White" Padding="Padding.Is3" Margin="Margin.Is3.FromBottom">
-                <H3>Custom Classes with Container</H3>
-                <Paragraph>This container has custom Bootstrap classes (bg-success, text-white, p-3, mb-3) but the "container" class is automatically included.</Paragraph>
-                <Paragraph><Strong>Result:</Strong> class="container bg-success text-white p-3 mb-3"</Paragraph>
-            </Container>
-
-            <Container Class="border border-primary rounded">
-                <H3>Another Example</H3>
-                <Paragraph>This container demonstrates that custom classes are properly combined with the container class.</Paragraph>
-                <Paragraph><Strong>Result:</Strong> class="container border border-primary rounded"</Paragraph>
             </Container>
         </DemoSection>
     </Div>
