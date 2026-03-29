@@ -23,12 +23,10 @@
                            DisabledNodeStyling="@DisabledNodeStyling"
                            SelectionMode="@SelectionMode"
                            ToggleOnNodeClick="@ToggleOnNodeClick"
-                           ExpandIconName="@ExpandIconName"
-                           ExpandIconStyle="@ExpandIconStyle"
-                           ExpandIconSize="@ExpandIconSize"
-                           CollapseIconName="@CollapseIconName"
-                           CollapseIconStyle="@CollapseIconStyle"
-                           CollapseIconSize="@CollapseIconSize"
+                           ExpandIcon="@ExpandIcon"
+                           ExpandIconClass="@ExpandIconClass"
+                           CollapseIcon="@CollapseIcon"
+                           CollapseIconClass="@CollapseIconClass"
                            ContextMenu="@NodeContextMenu"
                            ContextMenuPreventDefault="@NodeContextMenuPreventDefault"
                            Virtualize="@Virtualize">
@@ -75,13 +73,11 @@
     [Parameter] public Action<TNode, NodeStyling>? DisabledNodeStyling { get; set; }
     [Parameter] public Action<TNode, NodeStyling>? NodeStyling { get; set; }
 
-    [Parameter] public string ExpandIconName { get; set; } = "chevron-right";
-    [Parameter] public IconStyle? ExpandIconStyle { get; set; }
-    [Parameter] public IconSize? ExpandIconSize { get; set; }
+    [Parameter] public LucideIcon ExpandIcon { get; set; } = LucideIcon.ChevronRight;
+    [Parameter] public string? ExpandIconClass { get; set; } = "size-4";
 
-    [Parameter] public string CollapseIconName { get; set; } = "chevron-down";
-    [Parameter] public IconStyle? CollapseIconStyle { get; set; }
-    [Parameter] public IconSize? CollapseIconSize { get; set; }
+    [Parameter] public LucideIcon CollapseIcon { get; set; } = LucideIcon.ChevronDown;
+    [Parameter] public string? CollapseIconClass { get; set; } = "size-4";
 
     [Parameter] public EventCallback<TreeViewNodeMouseEventArgs<TNode>> NodeContextMenu { get; set; }
     [Parameter] public bool NodeContextMenuPreventDefault { get; set; }
@@ -231,13 +227,11 @@
         hc.Add(Virtualize);
         hc.Add(ToggleOnNodeClick);
 
-        hc.Add(ExpandIconName);
-        hc.Add(ExpandIconStyle);
-        hc.Add(ExpandIconSize);
+        hc.Add(ExpandIcon);
+        hc.Add(ExpandIconClass);
 
-        hc.Add(CollapseIconName);
-        hc.Add(CollapseIconStyle);
-        hc.Add(CollapseIconSize);
+        hc.Add(CollapseIcon);
+        hc.Add(CollapseIconClass);
 
         hc.Add(NodeContextMenuPreventDefault);
 

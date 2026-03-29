@@ -4,9 +4,9 @@
 @implements ITab
 
 <button @onclick="HandleClick" @onkeydown="HandleKeyDown" @onkeydown:preventDefault="_preventDefaultKeys" @ref="_buttonRef" @attributes="BuildAttributes()">
-    @if (IconName.HasContent())
+    @if (Icon is not null)
     {
-        <Icon Name="@IconName" />
+        <Lucide Icon="@Icon.Value" />
     }
     @if (Title.HasContent())
     {
@@ -26,10 +26,10 @@
     public bool Disabled { get; set; }
 
     /// <summary>
-    /// Gets or sets the name of the icon to display.
+    /// Gets or sets the Lucide icon to display.
     /// </summary>
     [Parameter]
-    public string? IconName { get; set; }
+    public LucideIcon? Icon { get; set; }
 
     /// <summary>
     /// Gets or sets the target element ID for the tab content.
@@ -151,7 +151,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         hc.Add(Name);
-        hc.Add(IconName);
+        hc.Add(Icon);
         hc.Add(Target);
         hc.Add(Disabled);
         if (ParentTabs?.ResolvedSelectedTab is not null)

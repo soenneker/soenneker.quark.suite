@@ -1,3 +1,5 @@
+using Soenneker.Lucide.Enums.Icons;
+
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -11,9 +13,9 @@ public interface ITab : IElement
     string? Name { get; set; }
 
     /// <summary>
-    /// Gets or sets the icon name to display in the tab.
+    /// Gets or sets the Lucide icon to display in the tab.
     /// </summary>
-    string? IconName { get; set; }
+    LucideIcon? Icon { get; set; }
 
     /// <summary>
     /// Gets or sets the target ID of the tab panel this tab controls.

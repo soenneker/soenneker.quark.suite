@@ -5,21 +5,22 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Soenneker.Asyncs.Locks;
+using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
 
 ///<inheritdoc cref="ISonnerService"/>
 public sealed class SonnerService : ISonnerService
 {
-    private const int MountDelayMs = 16;
-    private const int RemoveDelayMs = 400;
-    private const string DefaultToasterId = "";
+    private const int _mountDelayMs = 16;
+    private const int _removeDelayMs = 400;
+    private const string _defaultToasterId = "";
     private readonly AsyncLock _sync = new();
     private readonly List<SonnerToast> _toasts = [];
     private readonly Dictionary<string, TimerState> _timers = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ToasterRegistration> _toasters = new(StringComparer.Ordinal);
     private readonly HashSet<(string ToasterId, SonnerPosition Position)> _pausedToasters = [];
-    private string _activeToasterId = DefaultToasterId;
+    private string _activeToasterId = _defaultToasterId;
     private bool _disposed;
 
     public event Action? StateChanged;
@@ -30,99 +31,101 @@ public sealed class SonnerService : ISonnerService
 
     public bool DefaultCloseButton { get; set; }
 
-    public async ValueTask<IReadOnlyList<SonnerToast>> GetToasts()
+    public async ValueTask<IReadOnlyList<SonnerToast>> GetToasts(CancellationToken cancellationToken = default)
     {
-        using (await _sync.Lock())
+        using (await _sync.Lock(cancellationToken))
         {
             return _toasts.OrderBy(toast => toast.CreatedAt)
                          .ToArray();
         }
     }
 
-    public ValueTask<string> Toast(string title, Action<SonnerToastOptions>? configure = null)
+    public ValueTask<string> Toast(string title, Action<SonnerToastOptions>? configure = null, CancellationToken cancellationToken = default)
     {
-        return CreateOrUpdate(title, null, SonnerToastType.Default, configure);
+        return CreateOrUpdate(title, null, SonnerToastType.Default, configure, cancellationToken);
     }
 
-    public ValueTask<string> Toast(RenderFragment content, Action<SonnerToastOptions>? configure = null)
+    public ValueTask<string> Toast(RenderFragment content, Action<SonnerToastOptions>? configure = null, CancellationToken cancellationToken = default)
     {
-        return CreateOrUpdate(null, content, SonnerToastType.Default, configure);
+        return CreateOrUpdate(null, content, SonnerToastType.Default, configure, cancellationToken);
     }
 
-    public ValueTask<string> Success(string title, Action<SonnerToastOptions>? configure = null)
+    public ValueTask<string> Success(string title, Action<SonnerToastOptions>? configure = null, CancellationToken cancellationToken = default)
     {
-        return CreateOrUpdate(title, null, SonnerToastType.Success, configure);
+        return CreateOrUpdate(title, null, SonnerToastType.Success, configure, cancellationToken);
     }
 
-    public ValueTask<string> Info(string title, Action<SonnerToastOptions>? configure = null)
+    public ValueTask<string> Info(string title, Action<SonnerToastOptions>? configure = null, CancellationToken cancellationToken = default)
     {
-        return CreateOrUpdate(title, null, SonnerToastType.Info, configure);
+        return CreateOrUpdate(title, null, SonnerToastType.Info, configure, cancellationToken);
     }
 
-    public ValueTask<string> Warning(string title, Action<SonnerToastOptions>? configure = null)
+    public ValueTask<string> Warning(string title, Action<SonnerToastOptions>? configure = null, CancellationToken cancellationToken = default)
     {
-        return CreateOrUpdate(title, null, SonnerToastType.Warning, configure);
+        return CreateOrUpdate(title, null, SonnerToastType.Warning, configure, cancellationToken);
     }
 
-    public ValueTask<string> Error(string title, Action<SonnerToastOptions>? configure = null)
+    public ValueTask<string> Error(string title, Action<SonnerToastOptions>? configure = null, CancellationToken cancellationToken = default)
     {
-        return CreateOrUpdate(title, null, SonnerToastType.Error, configure);
+        return CreateOrUpdate(title, null, SonnerToastType.Error, configure, cancellationToken);
     }
 
-    public ValueTask<string> Loading(string title, Action<SonnerToastOptions>? configure = null)
+    public ValueTask<string> Loading(string title, Action<SonnerToastOptions>? configure = null, CancellationToken cancellationToken = default)
     {
         return CreateOrUpdate(title, null, SonnerToastType.Loading, options =>
         {
             options.Dismissible = false;
             configure?.Invoke(options);
-        });
+        }, cancellationToken);
     }
 
-    public ValueTask<string> Custom(RenderFragment content, Action<SonnerToastOptions>? configure = null)
+    public ValueTask<string> Custom(RenderFragment content, Action<SonnerToastOptions>? configure = null, CancellationToken cancellationToken = default)
     {
-        return CreateOrUpdate(null, content, SonnerToastType.Default, configure);
+        return CreateOrUpdate(null, content, SonnerToastType.Default, configure, cancellationToken);
     }
 
-    public async ValueTask<string> Promise(ValueTask task, SonnerPromiseOptions options)
+    public async ValueTask<string> Promise(ValueTask task, SonnerPromiseOptions options, CancellationToken cancellationToken)
     {
         var id = await Loading(options.Loading, toastOptions =>
         {
             toastOptions.Description = options.Description;
             options.ConfigureLoading?.Invoke(toastOptions);
-        });
+        }, cancellationToken);
 
-        using (await _sync.Lock())
+        using (await _sync.Lock(cancellationToken))
         {
             var existing = _toasts.FirstOrDefault(toast => toast.Id == id);
             if (existing is not null)
                 existing.Promise = true;
         }
 
-        _ = HandlePromise(task, id, options);
+        _ = HandlePromise(task, id, options, cancellationToken);
         return id;
     }
 
-    public ValueTask<string> Promise(Func<ValueTask> taskFactory, SonnerPromiseOptions options)
+    public ValueTask<string> Promise(Func<ValueTask> taskFactory, SonnerPromiseOptions options, CancellationToken cancellationToken = default)
     {
-        return Promise(taskFactory(), options);
+        cancellationToken.ThrowIfCancellationRequested();
+        return Promise(taskFactory(), options, cancellationToken);
     }
 
-    public async ValueTask RegisterToaster(string? toasterId, SonnerPosition? defaultPosition, int? defaultDuration, bool? closeButton)
+    public async ValueTask RegisterToaster(string? toasterId, SonnerPosition? defaultPosition, int? defaultDuration, bool? closeButton,
+        CancellationToken cancellationToken = default)
     {
         var normalizedToasterId = NormalizeToasterId(toasterId);
 
-        using (await _sync.Lock())
+        using (await _sync.Lock(cancellationToken))
         {
             _toasters[normalizedToasterId] = new ToasterRegistration(defaultPosition, defaultDuration, closeButton);
             _activeToasterId = normalizedToasterId;
         }
     }
 
-    public async ValueTask UnregisterToaster(string? toasterId)
+    public async ValueTask UnregisterToaster(string? toasterId, CancellationToken cancellationToken = default)
     {
         var normalizedToasterId = NormalizeToasterId(toasterId);
 
-        using (await _sync.Lock())
+        using (await _sync.Lock(cancellationToken))
         {
             _toasters.Remove(normalizedToasterId);
 
@@ -134,15 +137,15 @@ public sealed class SonnerService : ISonnerService
 
             if (_activeToasterId == normalizedToasterId)
             {
-                if (_toasters.ContainsKey(DefaultToasterId))
-                    _activeToasterId = DefaultToasterId;
+                if (_toasters.ContainsKey(_defaultToasterId))
+                    _activeToasterId = _defaultToasterId;
                 else
-                    _activeToasterId = _toasters.Keys.FirstOrDefault() ?? DefaultToasterId;
+                    _activeToasterId = _toasters.Keys.FirstOrDefault() ?? _defaultToasterId;
             }
         }
     }
 
-    public async ValueTask Pause(string? toasterId, SonnerPosition position)
+    public async ValueTask Pause(string? toasterId, SonnerPosition position, CancellationToken cancellationToken = default)
     {
         if (_disposed)
             return;
@@ -152,7 +155,7 @@ public sealed class SonnerService : ISonnerService
         var normalizedToasterId = NormalizeToasterId(toasterId);
         var pausedKey = (normalizedToasterId, position);
 
-        using (await _sync.Lock())
+        using (await _sync.Lock(cancellationToken))
         {
             if (!_pausedToasters.Add(pausedKey))
                 return;
@@ -177,12 +180,13 @@ public sealed class SonnerService : ISonnerService
 
         foreach (var timer in timersToCancel)
         {
-            timer.Cancel();
+            cancellationToken.ThrowIfCancellationRequested();
+            await timer.CancelAsync();
             timer.Dispose();
         }
     }
 
-    public async ValueTask Resume(string? toasterId, SonnerPosition position)
+    public async ValueTask Resume(string? toasterId, SonnerPosition position, CancellationToken cancellationToken = default)
     {
         if (_disposed)
             return;
@@ -192,7 +196,7 @@ public sealed class SonnerService : ISonnerService
         var normalizedToasterId = NormalizeToasterId(toasterId);
         var pausedKey = (normalizedToasterId, position);
 
-        using (await _sync.Lock())
+        using (await _sync.Lock(cancellationToken))
         {
             if (!_pausedToasters.Remove(pausedKey))
                 return;
@@ -222,38 +226,40 @@ public sealed class SonnerService : ISonnerService
 
         foreach ((string id, int remainingMs, CancellationTokenSource tokenSource) in timersToStart)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             _ = AutoDismiss(id, remainingMs, tokenSource.Token);
         }
 
         foreach (var id in toastsToDismiss)
         {
-            _ = DismissCore(id, invokeAutoClose: true);
+            cancellationToken.ThrowIfCancellationRequested();
+            _ = DismissCore(id, invokeAutoClose: true, cancellationToken);
         }
     }
 
-    public async ValueTask Dismiss(string? id = null)
+    public async ValueTask Dismiss(string? id = null, CancellationToken cancellationToken = default)
     {
         if (_disposed)
             return;
 
-        if (!string.IsNullOrWhiteSpace(id))
+        if (id.HasContent())
         {
-            await DismissCore(id!, invokeAutoClose: false);
+            await DismissCore(id!, invokeAutoClose: false, cancellationToken);
             return;
         }
 
         string[] ids;
 
-        using (await _sync.Lock())
+        using (await _sync.Lock(cancellationToken))
         {
             ids = _toasts.Select(toast => toast.Id)
                          .ToArray();
         }
 
-        await Task.WhenAll(ids.Select(toastId => DismissCore(toastId, invokeAutoClose: false).AsTask()));
+        await Task.WhenAll(ids.Select(toastId => DismissCore(toastId, invokeAutoClose: false, cancellationToken).AsTask()));
     }
 
-    private async ValueTask<string> CreateOrUpdate(string? title, RenderFragment? content, SonnerToastType type, Action<SonnerToastOptions>? configure)
+    private async ValueTask<string> CreateOrUpdate(string? title, RenderFragment? content, SonnerToastType type, Action<SonnerToastOptions>? configure, CancellationToken cancellationToken)
     {
         if (_disposed)
             return string.Empty;
@@ -266,13 +272,13 @@ public sealed class SonnerService : ISonnerService
 
         SonnerToast? previous = null;
 
-        using (await _sync.Lock())
+        using (await _sync.Lock(cancellationToken))
         {
             previous = _toasts.FirstOrDefault(item => item.Id == id);
         }
 
-        var toasterId = await ResolveToasterId(options.ToasterId, previous?.ToasterId);
-        var registration = await GetToasterRegistration(toasterId);
+        var toasterId = await ResolveToasterId(options.ToasterId, previous?.ToasterId, cancellationToken);
+        var registration = await GetToasterRegistration(toasterId, cancellationToken);
         var duration = options.Duration ?? registration?.DefaultDuration ?? DefaultDuration;
         var closeButton = options.CloseButton ?? registration?.CloseButton ?? DefaultCloseButton;
         var position = options.Position ?? registration?.DefaultPosition ?? DefaultPosition;
@@ -300,7 +306,7 @@ public sealed class SonnerService : ISonnerService
             CreatedAt = previous?.CreatedAt ?? DateTimeOffset.UtcNow
         };
 
-        using (await _sync.Lock())
+        using (await _sync.Lock(cancellationToken))
         {
             var existingIndex = _toasts.FindIndex(item => item.Id == id);
 
@@ -310,7 +316,7 @@ public sealed class SonnerService : ISonnerService
                 _toasts.Add(toast);
         }
 
-        await RestartTimer(toast);
+        await RestartTimer(toast, cancellationToken);
         NotifyStateChanged();
 
         if (!isExistingToast)
@@ -323,12 +329,12 @@ public sealed class SonnerService : ISonnerService
     {
         try
         {
-            await Task.Delay(MountDelayMs);
+            await Task.Delay(_mountDelayMs);
 
             if (_disposed)
                 return;
 
-            var shouldNotify = false;
+            bool shouldNotify;
 
             using (await _sync.Lock())
             {
@@ -352,16 +358,16 @@ public sealed class SonnerService : ISonnerService
         }
     }
 
-    private async ValueTask RestartTimer(SonnerToast toast)
+    private async ValueTask RestartTimer(SonnerToast toast, CancellationToken cancellationToken)
     {
-        await CancelTimer(toast.Id);
+        await CancelTimer(toast.Id, cancellationToken);
 
         if (toast.Duration <= 0 || toast.Type == SonnerToastType.Loading)
             return;
 
         CancellationTokenSource? tokenSource = null;
 
-        using (await _sync.Lock())
+        using (await _sync.Lock(cancellationToken))
         {
             var timerState = new TimerState
             {
@@ -392,18 +398,18 @@ public sealed class SonnerService : ISonnerService
             if (cancellationToken.IsCancellationRequested || _disposed)
                 return;
 
-            await DismissCore(id, invokeAutoClose: true);
+            await DismissCore(id, invokeAutoClose: true, cancellationToken);
         }
         catch (TaskCanceledException)
         {
         }
     }
 
-    private async ValueTask DismissCore(string id, bool invokeAutoClose)
+    private async ValueTask DismissCore(string id, bool invokeAutoClose, CancellationToken cancellationToken = default)
     {
         SonnerToast? toast;
 
-        using (await _sync.Lock())
+        using (await _sync.Lock(cancellationToken))
         {
             if (_disposed)
                 return;
@@ -415,15 +421,15 @@ public sealed class SonnerService : ISonnerService
             toast.Removed = true;
         }
 
-        await CancelTimer(id);
+        await CancelTimer(id, cancellationToken);
         NotifyStateChanged();
 
-        await Task.Delay(RemoveDelayMs);
+        await Task.Delay(_removeDelayMs, cancellationToken);
 
         if (toast is null)
             return;
 
-        using (await _sync.Lock())
+        using (await _sync.Lock(cancellationToken))
         {
             var index = _toasts.FindIndex(item => item.Id == id);
             if (index >= 0)
@@ -449,7 +455,7 @@ public sealed class SonnerService : ISonnerService
         }
     }
 
-    private async ValueTask HandlePromise(ValueTask task, string id, SonnerPromiseOptions options)
+    private async ValueTask HandlePromise(ValueTask task, string id, SonnerPromiseOptions options, CancellationToken cancellationToken)
     {
         try
         {
@@ -460,7 +466,7 @@ public sealed class SonnerService : ISonnerService
                 toastOptions.Id = id;
                 toastOptions.Description = options.SuccessDescription ?? options.Description;
                 options.ConfigureSuccess?.Invoke(toastOptions);
-            });
+            }, cancellationToken);
         }
         catch
         {
@@ -469,7 +475,7 @@ public sealed class SonnerService : ISonnerService
                 toastOptions.Id = id;
                 toastOptions.Description = options.ErrorDescription ?? options.Description;
                 options.ConfigureError?.Invoke(toastOptions);
-            });
+            }, cancellationToken);
         }
     }
 
@@ -498,11 +504,11 @@ public sealed class SonnerService : ISonnerService
         }
     }
 
-    private async ValueTask CancelTimer(string id)
+    private async ValueTask CancelTimer(string id, CancellationToken cancellationToken = default)
     {
         CancellationTokenSource? cts = null;
 
-        using (await _sync.Lock())
+        using (await _sync.Lock(cancellationToken))
         {
             if (_timers.Remove(id, out var existing))
                 cts = existing.CancellationTokenSource;
@@ -520,37 +526,37 @@ public sealed class SonnerService : ISonnerService
         StateChanged?.Invoke();
     }
 
-    private async ValueTask<ToasterRegistration?> GetToasterRegistration(string toasterId)
+    private async ValueTask<ToasterRegistration?> GetToasterRegistration(string toasterId, CancellationToken cancellationToken)
     {
-        using (await _sync.Lock())
+        using (await _sync.Lock(cancellationToken))
         {
             return _toasters.GetValueOrDefault(toasterId);
         }
     }
 
-    private async ValueTask<string> ResolveToasterId(string? requestedToasterId, string? previousToasterId = null)
+    private async ValueTask<string> ResolveToasterId(string? requestedToasterId, string? previousToasterId = null, CancellationToken cancellationToken = default)
     {
-        if (!string.IsNullOrWhiteSpace(requestedToasterId))
+        if (requestedToasterId.HasContent())
             return NormalizeToasterId(requestedToasterId);
 
-        if (!string.IsNullOrWhiteSpace(previousToasterId))
+        if (previousToasterId.HasContent())
             return NormalizeToasterId(previousToasterId);
 
-        using (await _sync.Lock())
+        using (await _sync.Lock(cancellationToken))
         {
-            if (_toasters.ContainsKey(DefaultToasterId))
-                return DefaultToasterId;
+            if (_toasters.ContainsKey(_defaultToasterId))
+                return _defaultToasterId;
 
             if (_toasters.ContainsKey(_activeToasterId))
                 return _activeToasterId;
 
-            return _toasters.Keys.FirstOrDefault() ?? DefaultToasterId;
+            return _toasters.Keys.FirstOrDefault() ?? _defaultToasterId;
         }
     }
 
     private static string NormalizeToasterId(string? toasterId)
     {
-        return string.IsNullOrWhiteSpace(toasterId) ? DefaultToasterId : toasterId;
+        return string.IsNullOrWhiteSpace(toasterId) ? _defaultToasterId : toasterId;
     }
 
     private static int GetRemainingMs(TimerState timerState, DateTimeOffset now)

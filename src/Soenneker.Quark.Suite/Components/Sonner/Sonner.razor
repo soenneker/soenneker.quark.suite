@@ -1,5 +1,5 @@
 @namespace Soenneker.Quark
-@inherits Soenneker.Quark.Element
+@inherits Soenneker.Quark.CancellableElement
 
 @inject ISonnerService SonnerService
 @inject ISonnerInterop SonnerInterop
@@ -106,7 +106,7 @@
                                     data-close-button
                                     aria-label="Close toast"
                                     @onclick="() => HandleDismissAsync(toast.Id)">
-                                <Icon Name="xmark" IconSize="IconSize.ExtraSmall" aria-hidden="true" />
+                                <Lucide Icon="LucideIcon.X" Class="size-3" aria-hidden="true" />
                             </button>
                         }
                     </li>
@@ -181,7 +181,7 @@
         {
             try
             {
-                await SonnerInterop.Initialize();
+                await SonnerInterop.Initialize(CancellationToken);
             }
             catch
             {
@@ -195,7 +195,7 @@
         try
         {
             _shouldMeasureHeights = false;
-            var heights = await SonnerInterop.MeasureToastHeights(_sectionRef);
+            var heights = await SonnerInterop.MeasureToastHeights(_sectionRef, CancellationToken);
 
             if (HaveHeightsChanged(heights))
             {
@@ -213,7 +213,7 @@
         if (_disposed)
             return;
 
-        var query = (await SonnerService.GetToasts())
+        var query = (await SonnerService.GetToasts(CancellationToken))
             .Where(toast => NormalizeToasterId(toast.ToasterId) == NormalizeToasterId(ToasterId))
             .OrderByDescending(toast => toast.CreatedAt);
 
@@ -312,38 +312,33 @@
         switch (toast.Type)
         {
             case SonnerToastType.Success:
-                builder.OpenComponent<Icon>(0);
-                builder.AddAttribute(1, "Name", "circle-check");
-                builder.AddAttribute(2, "IconStyle", IconStyle.Solid);
-                                builder.AddAttribute(3, "IconSize", IconSize.Small);
+                builder.OpenComponent<Lucide>(0);
+                builder.AddAttribute(1, "Icon", LucideIcon.CircleCheck);
+                builder.AddAttribute(2, "Class", "size-4");
                 builder.CloseComponent();
                 break;
             case SonnerToastType.Info:
-                builder.OpenComponent<Icon>(0);
-                builder.AddAttribute(1, "Name", "circle-info");
-                builder.AddAttribute(2, "IconStyle", IconStyle.Solid);
-                                builder.AddAttribute(3, "IconSize", IconSize.Small);
+                builder.OpenComponent<Lucide>(0);
+                builder.AddAttribute(1, "Icon", LucideIcon.Info);
+                builder.AddAttribute(2, "Class", "size-4");
                 builder.CloseComponent();
                 break;
             case SonnerToastType.Warning:
-                builder.OpenComponent<Icon>(0);
-                builder.AddAttribute(1, "Name", "triangle-exclamation");
-                builder.AddAttribute(2, "IconStyle", IconStyle.Solid);
-                                builder.AddAttribute(3, "IconSize", IconSize.Small);
+                builder.OpenComponent<Lucide>(0);
+                builder.AddAttribute(1, "Icon", LucideIcon.TriangleAlert);
+                builder.AddAttribute(2, "Class", "size-4");
                 builder.CloseComponent();
                 break;
             case SonnerToastType.Error:
-                builder.OpenComponent<Icon>(0);
-                builder.AddAttribute(1, "Name", "circle-xmark");
-                builder.AddAttribute(2, "IconStyle", IconStyle.Solid);
-                                builder.AddAttribute(3, "IconSize", IconSize.Small);
+                builder.OpenComponent<Lucide>(0);
+                builder.AddAttribute(1, "Icon", LucideIcon.CircleX);
+                builder.AddAttribute(2, "Class", "size-4");
                 builder.CloseComponent();
                 break;
             case SonnerToastType.Loading:
-                builder.OpenComponent<Icon>(0);
-                builder.AddAttribute(1, "Name", "spinner");
-                builder.AddAttribute(2, "IconAnimation", IconAnimation.Spin);
-                                builder.AddAttribute(3, "IconSize", IconSize.Small);
+                builder.OpenComponent<Lucide>(0);
+                builder.AddAttribute(1, "Icon", LucideIcon.LoaderCircle);
+                builder.AddAttribute(2, "Class", "size-4 animate-spin");
                 builder.CloseComponent();
                 break;
         }
@@ -351,7 +346,7 @@
 
     private async Task HandleDismissAsync(string id)
     {
-        await SonnerService.Dismiss(id);
+        await SonnerService.Dismiss(id, CancellationToken);
     }
 
     private async Task HandleActionAsync(SonnerToast toast)
@@ -359,7 +354,7 @@
         if (toast.Action is not null)
             await toast.Action();
 
-        await SonnerService.Dismiss(toast.Id);
+        await SonnerService.Dismiss(toast.Id, CancellationToken);
     }
 
     private void OnStateChanged()
@@ -405,9 +400,9 @@
         if (wasActive != isActive)
         {
             if (isActive)
-                await SonnerService.Pause(ToasterId, position);
+                await SonnerService.Pause(ToasterId, position, CancellationToken);
             else
-                await SonnerService.Resume(ToasterId, position);
+                await SonnerService.Resume(ToasterId, position, CancellationToken);
         }
 
         await InvokeAsync(StateHasChanged);
@@ -451,11 +446,11 @@
 
         foreach (var position in GetActivePositions())
         {
-            await SonnerService.Resume(ToasterId, position);
+            await SonnerService.Resume(ToasterId, position, CancellationToken);
         }
 
         if (_toasterRegistered)
-            await SonnerService.UnregisterToaster(_registeredToasterId);
+            await SonnerService.UnregisterToaster(_registeredToasterId, CancellationToken);
 
         SonnerService.StateChanged -= OnStateChanged;
     }
@@ -468,13 +463,13 @@
         {
             foreach (var position in GetActivePositions())
             {
-                await SonnerService.Resume(_registeredToasterId, position);
+                await SonnerService.Resume(_registeredToasterId, position, CancellationToken);
             }
 
-            await SonnerService.UnregisterToaster(_registeredToasterId);
+            await SonnerService.UnregisterToaster(_registeredToasterId, CancellationToken);
         }
 
-        await SonnerService.RegisterToaster(ToasterId, ToastPosition, Duration, CloseButton);
+        await SonnerService.RegisterToaster(ToasterId, ToastPosition, Duration, CloseButton, CancellationToken);
         _registeredToasterId = normalizedToasterId;
         _toasterRegistered = true;
     }
