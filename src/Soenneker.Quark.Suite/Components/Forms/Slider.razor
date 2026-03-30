@@ -1,126 +1,125 @@
 @using System.Globalization
 @using System.Linq.Expressions
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
 @using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 @implements ISlider
 
+@inject ISliderInterop SliderInterop
+
 @{
-	var valuePercent = Max > Min ? ((SliderValue - Min) / (Max - Min)) * 100.0 : 0.0;
-	var valuePercentStr = valuePercent.ToString("F2", CultureInfo.InvariantCulture) + "%";
+	double[] resolvedValues = GetResolvedValues();
 }
 
-<div class="relative flex w-full touch-none select-none items-center data-[disabled]:opacity-50" style="--value-percent: @valuePercentStr" data-disabled="@(Disabled ? "true" : null)" data-slot="slider" data-orientation="horizontal">
-	<div class="relative h-1.5 w-full grow overflow-hidden rounded-full bg-muted" data-slot="slider-track" data-orientation="horizontal">
-		<div class="absolute h-full w-[var(--value-percent)] rounded-full bg-primary" data-slot="slider-range" data-orientation="horizontal"></div>
+<div @ref="ElementRef" @attributes="BuildWrapperAttributes()">
+	<div @ref="_trackRef"
+	     @attributes="BuildTrackAttributes()"
+	     @onpointerdown="HandleTrackPointerDown"
+	     @onpointerdown:preventDefault="true">
+		<div @attributes="BuildRangeAttributes(resolvedValues)"></div>
 	</div>
-	<div class="absolute left-[var(--value-percent)] top-1/2 size-4 shrink-0 -translate-x-1/2 -translate-y-1/2 pointer-events-none rounded-full border border-primary bg-white shadow-sm transition-[color,box-shadow] after:absolute after:-inset-2 after:content-['']" data-slot="slider-thumb"></div>
-	<input type="range"
-	       class="absolute inset-0 z-10 m-0 h-full w-full cursor-pointer opacity-0"
-	       value="@SliderValue.ToString(CultureInfo.InvariantCulture)"
-	       min="@Min.ToString(CultureInfo.InvariantCulture)"
-	       max="@Max.ToString(CultureInfo.InvariantCulture)"
-	       step="@Step.ToString(CultureInfo.InvariantCulture)"
-	       disabled="@Disabled"
-	       readonly="@ReadOnly"
-	       required="@Required"
-	       @oninput="HandleInput"
-	       @onchange="HandleChange" />
+	@for (int index = 0; index < resolvedValues.Length; index++)
+	{
+		int thumbIndex = index;
+		<button @attributes="BuildThumbAttributes(thumbIndex, resolvedValues[thumbIndex])"
+		        @onfocus="@(() => HandleThumbFocus(thumbIndex))"
+		        @onblur="@(() => HandleThumbBlur(thumbIndex))"
+		        @onkeydown="@(e => HandleThumbKeyDown(thumbIndex, e))"
+		        @onkeydown:preventDefault="true"
+		        @onpointerdown="@(e => HandleThumbPointerDown(thumbIndex, e))"
+		        @onpointerdown:stopPropagation="true">
+		</button>
+	}
+	@for (int index = 0; index < resolvedValues.Length; index++)
+	{
+		<input @attributes="BuildHiddenInputAttributes(index, resolvedValues[index])" />
+	}
 </div>
 
 @code {
-	/// <summary>
-	/// Gets or sets the slider value.
-	/// </summary>
 	[Parameter]
 	public double SliderValue { get; set; }
 
-	/// <summary>
-	/// Gets or sets the expression that identifies the bound value for validation.
-	/// </summary>
 	[Parameter]
 	public Expression<Func<double>>? SliderValueExpression { get; set; }
 
-	/// <summary>
-	/// Gets or sets the minimum value of the slider.
-	/// </summary>
+	[Parameter]
+	public double[]? Values { get; set; }
+
+	[Parameter]
+	public EventCallback<double[]> ValuesChanged { get; set; }
+
+	[Parameter]
+	public Expression<Func<double[]?>>? ValuesExpression { get; set; }
+
 	[Parameter]
 	public double Min { get; set; }
 
-	/// <summary>
-	/// Gets or sets the maximum value of the slider.
-	/// </summary>
 	[Parameter]
 	public double Max { get; set; } = 100;
 
-	/// <summary>
-	/// Gets or sets the step increment for the slider.
-	/// </summary>
 	[Parameter]
 	public double Step { get; set; } = 1;
 
-	/// <summary>
-	/// Gets or sets the callback invoked When the slider value changes.
-	/// </summary>
 	[Parameter]
 	public EventCallback<double> SliderValueChanged { get; set; }
 
-	/// <summary>
-	/// Gets or sets the size of the slider.
-	/// </summary>
 	[Parameter]
 	public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
 
-	/// <summary>
-	/// Gets or sets whether the input should be rendered as plain text.
-	/// </summary>
 	[Parameter]
 	public bool PlainText { get; set; }
 
-	/// <summary>
-	/// Gets or sets whether the input should use floating label styling.
-	/// </summary>
 	[Parameter]
 	public bool FloatingLabel { get; set; }
 
-	/// <summary>
-	/// Gets or sets the label text for the slider.
-	/// </summary>
 	[Parameter]
 	public string? Label { get; set; }
 
-	/// <summary>
-	/// Gets or sets the callback invoked When the input value changes.
-	/// </summary>
 	[Parameter]
 	public EventCallback<ChangeEventArgs> OnChange { get; set; }
 
-	/// <summary>
-	/// Gets or sets the callback invoked during input.
-	/// </summary>
 	[Parameter]
 	public EventCallback<ChangeEventArgs> OnInput { get; set; }
 
-	/// <summary>
-	/// Gets or sets the parent validation context.
-	/// </summary>
+	[Parameter]
+	public string Orientation { get; set; } = "horizontal";
+
 	[CascadingParameter(Name = nameof(ParentValidation))]
 	public Validation? ParentValidation { get; set; }
 
-	private double _lastValue;
-	private bool _valueChanged;
-	public object? ValidationValue => SliderValue;
+	private readonly string _hiddenInputClass = "sr-only";
+	private ElementReference _trackRef;
+	private DotNetObjectReference<Slider>? _dotNetRef;
+	private int _focusedThumbIndex = -1;
+	private int _draggingThumbIndex = -1;
+
+	private bool UsesValuesApi => Values is not null || ValuesChanged.HasDelegate || ValuesExpression is not null;
+	private bool IsVertical => string.Equals(Orientation, "vertical", StringComparison.OrdinalIgnoreCase);
+	private string OrientationValue => IsVertical ? "vertical" : "horizontal";
+	private bool IsInteractive => !Disabled && !ReadOnly;
+	public object? ValidationValue => UsesValuesApi ? GetResolvedValues() : SliderValue;
 
 	public string? GetColorClass() => null;
 
 	public string? GetSizeClass()
 	{
-		if (Size == Quark.Size.Default) return null;
+		if (Size == Quark.Size.Default)
+			return null;
+
 		string? token = null;
-		var isTheme = Size?.TryGetThemeToken(out token) == true;
-		var sizeVal = token ?? Size?.ToString();
-		return sizeVal?.ToLowerInvariant() switch { "sm" or "xs" => "h-6", "lg" => "h-10", _ => null };
+		_ = Size?.TryGetThemeToken(out token);
+		string? sizeValue = token ?? Size?.ToString();
+
+		return sizeValue?.ToLowerInvariant() switch
+		{
+			"sm" or "xs" => "h-6",
+			"lg" => "h-10",
+			_ => null
+		};
 	}
 
 	public string? GetValidationClass()
@@ -134,68 +133,550 @@
 		return null;
 	}
 
-	private static double ParseDouble(ChangeEventArgs e)
+	private double[] GetResolvedValues()
 	{
-		if (e?.Value == null)
+		if (UsesValuesApi)
+		{
+			if (Values is { Length: > 0 })
+				return NormalizeValues(Values, allowMultiple: true);
+
+			return NormalizeValues(Max > Min ? [Min, Max] : [Min], allowMultiple: true);
+		}
+
+		return NormalizeValues([SliderValue], allowMultiple: false);
+	}
+
+	private double[] NormalizeValues(IReadOnlyList<double> source, bool allowMultiple)
+	{
+		if (source.Count == 0)
+			return allowMultiple && Max > Min ? [NormalizeValue(Min), NormalizeValue(Max)] : [NormalizeValue(Min)];
+
+		int length = allowMultiple ? source.Count : 1;
+		var normalized = new double[length];
+
+		for (int i = 0; i < length; i++)
+		{
+			normalized[i] = NormalizeValue(source[i]);
+		}
+
+		Array.Sort(normalized);
+		return normalized;
+	}
+
+	private double NormalizeValue(double value)
+	{
+		double clamped = Math.Clamp(value, Min, Max);
+
+		if (Step <= 0)
+			return clamped;
+
+		double steps = Math.Round((clamped - Min) / Step, MidpointRounding.AwayFromZero);
+		double snapped = Min + (steps * Step);
+
+		return Math.Clamp(snapped, Min, Max);
+	}
+
+	private double ValueToPercent(double value)
+	{
+		if (Max <= Min)
 			return 0d;
 
-		var text = e.Value.ToString();
-
-		if (double.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
-			return result;
-
-		return 0d;
+		return Math.Clamp(((value - Min) / (Max - Min)) * 100d, 0d, 100d);
 	}
 
-	private async Task HandleInput(ChangeEventArgs e)
+	private int FindNearestThumbIndex(IReadOnlyList<double> values, double pointerValue)
 	{
-		var newValue = ParseDouble(e);
-		if (SliderValue != newValue)
+		int nearestIndex = 0;
+		double nearestDistance = double.MaxValue;
+
+		for (int i = 0; i < values.Count; i++)
 		{
-			SliderValue = newValue;
-			await SliderValueChanged.InvokeAsync(SliderValue);
-			_valueChanged = true;
+			double distance = Math.Abs(values[i] - pointerValue);
+
+			if (distance < nearestDistance)
+			{
+				nearestDistance = distance;
+				nearestIndex = i;
+			}
 		}
-		await OnInput.InvokeIfHasDelegate(e);
+
+		return nearestIndex;
 	}
 
-	private async Task HandleChange(ChangeEventArgs e)
+	private double ConstrainThumbValue(IReadOnlyList<double> values, int index, double nextValue)
 	{
-		var newValue = ParseDouble(e);
-		if (SliderValue != newValue)
+		double normalized = NormalizeValue(nextValue);
+		double minLimit = index > 0 ? values[index - 1] : Min;
+		double maxLimit = index < values.Count - 1 ? values[index + 1] : Max;
+
+		return Math.Clamp(normalized, minLimit, maxLimit);
+	}
+
+	private static bool AreValuesEqual(IReadOnlyList<double> left, IReadOnlyList<double> right)
+	{
+		if (left.Count != right.Count)
+			return false;
+
+		for (int i = 0; i < left.Count; i++)
 		{
-			SliderValue = newValue;
-			await SliderValueChanged.InvokeAsync(SliderValue);
-			_valueChanged = true;
+			if (!left[i].Equals(right[i]))
+				return false;
 		}
-		await OnChange.InvokeIfHasDelegate(e);
+
+		return true;
+	}
+
+	private ChangeEventArgs CreateChangeEventArgs(double value)
+	{
+		return new ChangeEventArgs
+		{
+			Value = value.ToString(CultureInfo.InvariantCulture)
+		};
+	}
+
+	private double GetKeyboardStep(bool isLargeStep)
+	{
+		if (Step > 0)
+			return isLargeStep ? Step * 10d : Step;
+
+		double range = Max - Min;
+		double fallback = range > 0 ? range / 100d : 1d;
+		return isLargeStep ? fallback * 10d : fallback;
+	}
+
+	private async Task<double> UpdateValueAsync(int index, double nextValue, bool notifyInput, bool notifyChange, bool markTouched)
+	{
+		double[] currentValues = GetResolvedValues();
+
+		if (index < 0 || index >= currentValues.Length)
+			return Min;
+
+		double constrainedValue = ConstrainThumbValue(currentValues, index, nextValue);
+		bool valueChanged = false;
+
+		if (UsesValuesApi)
+		{
+			double[] updatedValues = (double[]) currentValues.Clone();
+			updatedValues[index] = constrainedValue;
+
+			if (!AreValuesEqual(currentValues, updatedValues))
+			{
+				Values = updatedValues;
+				await ValuesChanged.InvokeIfHasDelegate(updatedValues);
+				valueChanged = true;
+			}
+		}
+		else if (!SliderValue.Equals(constrainedValue))
+		{
+			SliderValue = constrainedValue;
+			await SliderValueChanged.InvokeAsync(SliderValue);
+			valueChanged = true;
+		}
+
+		if (ParentValidation is not null && (valueChanged || markTouched))
+		{
+			if (markTouched)
+				ParentValidation.MarkTouched();
+
+			await ParentValidation.NotifyInputChanged(ValidationValue);
+		}
+
+		if (notifyInput && valueChanged)
+			await OnInput.InvokeIfHasDelegate(CreateChangeEventArgs(constrainedValue));
+
+		if (notifyChange && (valueChanged || markTouched))
+			await OnChange.InvokeIfHasDelegate(CreateChangeEventArgs(constrainedValue));
+
+		if (valueChanged)
+			Refresh();
+
+		return constrainedValue;
+	}
+
+	private async Task<double> GetPointerValueAsync(PointerEventArgs e)
+	{
+		return await SliderInterop.GetValueFromPointer(_trackRef, e.ClientX, e.ClientY, Min, Max, OrientationValue);
+	}
+
+	private void EnsureDotNetReference()
+	{
+		_dotNetRef ??= DotNetObjectReference.Create(this);
+	}
+
+	private async Task StartDragAsync(int index, PointerEventArgs e)
+	{
+		EnsureDotNetReference();
+
+		double initialValue = await SliderInterop.StartDrag(_trackRef, e.PointerId, e.ClientX, e.ClientY, Min, Max, OrientationValue, _dotNetRef!, index);
+		await UpdateValueAsync(index, initialValue, notifyInput: true, notifyChange: false, markTouched: false);
+	}
+
+	private string GetTrackThicknessClass()
+	{
+		if (Size == Quark.Size.Default)
+			return IsVertical ? "w-1.5" : "h-1.5";
+
+		string? token = null;
+		_ = Size?.TryGetThemeToken(out token);
+		string? sizeValue = token ?? Size?.ToString();
+
+		return sizeValue?.ToLowerInvariant() switch
+		{
+			"sm" or "xs" => IsVertical ? "w-1" : "h-1",
+			"lg" => IsVertical ? "w-2" : "h-2",
+			_ => IsVertical ? "w-1.5" : "h-1.5"
+		};
+	}
+
+	private string GetThumbSizeClass()
+	{
+		if (Size == Quark.Size.Default)
+			return "size-4";
+
+		string? token = null;
+		_ = Size?.TryGetThemeToken(out token);
+		string? sizeValue = token ?? Size?.ToString();
+
+		return sizeValue?.ToLowerInvariant() switch
+		{
+			"sm" or "xs" => "size-3",
+			"lg" => "size-5",
+			_ => "size-4"
+		};
+	}
+
+	private Dictionary<string, object> BuildWrapperAttributes()
+	{
+		var attributes = new Dictionary<string, object>();
+
+		if (Attributes is not null)
+		{
+			if (Attributes.TryGetValue("class", out var @class))
+				attributes["class"] = @class;
+
+			if (Attributes.TryGetValue("style", out var style))
+				attributes["style"] = style;
+		}
+
+		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
+		{
+			BuildOwnedClassAndStyle(ref sty, ref cls);
+			AppendClass(ref cls, "q-slider relative flex w-full touch-none items-center select-none data-[disabled]:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col");
+
+			if (Disabled || ReadOnly)
+				AppendClass(ref cls, "cursor-not-allowed");
+
+			string? sizeClass = GetSizeClass();
+
+			if (sizeClass is not null)
+				AppendClass(ref cls, sizeClass);
+		});
+
+		attributes["data-slot"] = "slider";
+		attributes["data-orientation"] = OrientationValue;
+
+		if (Disabled)
+			attributes["data-disabled"] = "true";
+
+		return attributes;
+	}
+
+	private Dictionary<string, object> BuildTrackAttributes()
+	{
+		var attributes = new Dictionary<string, object>
+		{
+			["data-slot"] = "slider-track",
+			["data-orientation"] = OrientationValue
+		};
+
+		BuildClassAttribute(attributes, (ref cls) =>
+		{
+			AppendClass(ref cls, "relative grow overflow-hidden rounded-full bg-muted data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full");
+			AppendClass(ref cls, GetTrackThicknessClass());
+		});
+
+		return attributes;
+	}
+
+	private Dictionary<string, object> BuildRangeAttributes(IReadOnlyList<double> values)
+	{
+		double startPercent = values.Count > 1 ? ValueToPercent(values[0]) : 0d;
+		double endPercent = ValueToPercent(values[^1]);
+		double sizePercent = Math.Max(0d, endPercent - startPercent);
+
+		var attributes = new Dictionary<string, object>
+		{
+			["data-slot"] = "slider-range",
+			["data-orientation"] = OrientationValue
+		};
+
+		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
+		{
+			AppendClass(ref cls, "absolute bg-primary data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full");
+
+			if (IsVertical)
+			{
+				AppendStyleDecl(ref sty, $"bottom: {startPercent.ToString("F2", CultureInfo.InvariantCulture)}%");
+				AppendStyleDecl(ref sty, $"height: {sizePercent.ToString("F2", CultureInfo.InvariantCulture)}%");
+			}
+			else
+			{
+				AppendStyleDecl(ref sty, $"left: {startPercent.ToString("F2", CultureInfo.InvariantCulture)}%");
+				AppendStyleDecl(ref sty, $"width: {sizePercent.ToString("F2", CultureInfo.InvariantCulture)}%");
+			}
+		});
+
+		return attributes;
+	}
+
+	private Dictionary<string, object> BuildThumbAttributes(int index, double value)
+	{
+		double percent = ValueToPercent(value);
+		string percentText = percent.ToString("F2", CultureInfo.InvariantCulture) + "%";
+		bool isActive = _focusedThumbIndex == index || _draggingThumbIndex == index;
+
+		var attributes = new Dictionary<string, object>
+		{
+			["type"] = "button",
+			["data-slot"] = "slider-thumb",
+			["data-orientation"] = OrientationValue,
+			["role"] = "slider",
+			["tabindex"] = Disabled ? -1 : 0,
+			["aria-valuemin"] = Min.ToString(CultureInfo.InvariantCulture),
+			["aria-valuemax"] = Max.ToString(CultureInfo.InvariantCulture),
+			["aria-valuenow"] = value.ToString(CultureInfo.InvariantCulture),
+			["aria-orientation"] = OrientationValue
+		};
+
+		if (Disabled)
+		{
+			attributes["disabled"] = true;
+			attributes["aria-disabled"] = "true";
+		}
+
+		if (ReadOnly)
+			attributes["aria-readonly"] = "true";
+
+		if (Required)
+			attributes["aria-required"] = "true";
+
+		if (AutoFocus && index == 0)
+			attributes["autofocus"] = true;
+
+		if (index == 0)
+		{
+			if (Id is not null)
+				attributes["id"] = Id;
+
+			ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
+		}
+		else if (Id is not null)
+		{
+			attributes["id"] = $"{Id}-{index}";
+		}
+
+		if (Attributes is not null && index == 0)
+		{
+			foreach (KeyValuePair<string, object> attribute in Attributes)
+			{
+				if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) ||
+				    attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase) ||
+				    attribute.Key.Equals("id", StringComparison.OrdinalIgnoreCase))
+				{
+					continue;
+				}
+
+				attributes[attribute.Key] = attribute.Value;
+			}
+		}
+
+		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
+		{
+			AppendClass(ref cls, "absolute block shrink-0 rounded-full border border-primary bg-white shadow-sm ring-ring/50 transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50");
+			AppendClass(ref cls, GetThumbSizeClass());
+
+			if (isActive)
+				AppendClass(ref cls, "ring-4");
+
+			if (IsVertical)
+			{
+				AppendStyleDecl(ref sty, "left: 50%");
+				AppendStyleDecl(ref sty, $"bottom: {percentText}");
+				AppendStyleDecl(ref sty, "transform: translate(-50%, 50%)");
+			}
+			else
+			{
+				AppendStyleDecl(ref sty, $"left: {percentText}");
+				AppendStyleDecl(ref sty, "top: 50%");
+				AppendStyleDecl(ref sty, "transform: translate(-50%, -50%)");
+			}
+		});
+
+		return attributes;
+	}
+
+	private Dictionary<string, object> BuildHiddenInputAttributes(int index, double value)
+	{
+		var attributes = new Dictionary<string, object>
+		{
+			["type"] = "hidden",
+			["class"] = _hiddenInputClass,
+			["value"] = value.ToString(CultureInfo.InvariantCulture)
+		};
+
+		if (!string.IsNullOrWhiteSpace(Name))
+			attributes["name"] = Name;
+
+		if (Disabled)
+			attributes["disabled"] = true;
+
+		if (index == 0 && Id is not null)
+			attributes["id"] = $"{Id}-value";
+		else if (Id is not null)
+			attributes["id"] = $"{Id}-value-{index}";
+
+		return attributes;
+	}
+
+	private void HandleThumbFocus(int index)
+	{
+		if (_focusedThumbIndex == index)
+			return;
+
+		_focusedThumbIndex = index;
+		Refresh();
+	}
+
+	private void HandleThumbBlur(int index)
+	{
+		if (_draggingThumbIndex == index)
+			return;
+
+		if (_focusedThumbIndex != index)
+			return;
+
+		_focusedThumbIndex = -1;
+		Refresh();
+	}
+
+	private async Task HandleThumbKeyDown(int index, KeyboardEventArgs e)
+	{
+		if (!IsInteractive)
+			return;
+
+		double currentValue = GetResolvedValues()[index];
+		double nextValue;
+
+		switch (e.Key)
+		{
+			case "Home":
+				nextValue = Min;
+				break;
+			case "End":
+				nextValue = Max;
+				break;
+			case "PageUp":
+				nextValue = currentValue + GetKeyboardStep(isLargeStep: true);
+				break;
+			case "PageDown":
+				nextValue = currentValue - GetKeyboardStep(isLargeStep: true);
+				break;
+			case "ArrowRight":
+			case "ArrowUp":
+				nextValue = currentValue + GetKeyboardStep(isLargeStep: false);
+				break;
+			case "ArrowLeft":
+			case "ArrowDown":
+				nextValue = currentValue - GetKeyboardStep(isLargeStep: false);
+				break;
+			default:
+				return;
+		}
+
+		_focusedThumbIndex = index;
+		await UpdateValueAsync(index, nextValue, notifyInput: true, notifyChange: true, markTouched: true);
+	}
+
+	private async Task HandleTrackPointerDown(PointerEventArgs e)
+	{
+		if (!IsInteractive)
+			return;
+
+		double pointerValue = await GetPointerValueAsync(e);
+		int index = FindNearestThumbIndex(GetResolvedValues(), pointerValue);
+
+		_focusedThumbIndex = index;
+		_draggingThumbIndex = index;
+		Refresh();
+
+		await UpdateValueAsync(index, pointerValue, notifyInput: true, notifyChange: false, markTouched: false);
+		await StartDragAsync(index, e);
+	}
+
+	private async Task HandleThumbPointerDown(int index, PointerEventArgs e)
+	{
+		if (!IsInteractive)
+			return;
+
+		_focusedThumbIndex = index;
+		_draggingThumbIndex = index;
+		Refresh();
+
+		await StartDragAsync(index, e);
+	}
+
+	[JSInvokable]
+	public async Task HandlePointerDragMove(int index, double value)
+	{
+		if (index < 0)
+			return;
+
+		_draggingThumbIndex = index;
+		_focusedThumbIndex = index;
+		await UpdateValueAsync(index, value, notifyInput: true, notifyChange: false, markTouched: false);
+	}
+
+	[JSInvokable]
+	public async Task HandlePointerDragEnd(int index, double value)
+	{
+		if (index < 0)
+			return;
+
+		await UpdateValueAsync(index, value, notifyInput: false, notifyChange: true, markTouched: true);
+		_draggingThumbIndex = -1;
+		_focusedThumbIndex = index;
+		Refresh();
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender && ParentValidation is not null && SliderValueExpression is not null)
+		if (firstRender)
 		{
-			await ParentValidation.InitializeInputExpression(SliderValueExpression);
+			await SliderInterop.Initialize();
+
+			if (ParentValidation is not null)
+			{
+				if (ValuesExpression is not null)
+					await ParentValidation.InitializeInputExpression(ValuesExpression);
+				else if (SliderValueExpression is not null)
+					await ParentValidation.InitializeInputExpression(SliderValueExpression);
+			}
 		}
 
-		_valueChanged = false;
 		await base.OnAfterRenderAsync(firstRender);
 	}
 
 	protected override void OnParametersSet()
 	{
-		if (!SliderValue.Equals(_lastValue))
-		{
-			_valueChanged = true;
-			_lastValue = SliderValue;
-		}
+		double[] values = GetResolvedValues();
+
+		if (_focusedThumbIndex >= values.Length)
+			_focusedThumbIndex = values.Length - 1;
+
+		if (_draggingThumbIndex >= values.Length)
+			_draggingThumbIndex = values.Length - 1;
 
 		base.OnParametersSet();
-	}
-
-	protected override bool ShouldRender()
-	{
-		return _valueChanged || base.ShouldRender();
 	}
 
 	protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -204,6 +685,16 @@
 		hc.Add(Min);
 		hc.Add(Max);
 		hc.Add(Step);
+		hc.Add(OrientationValue);
+
+		double[] values = GetResolvedValues();
+		hc.Add(values.Length);
+
+		for (int i = 0; i < values.Length; i++)
+		{
+			hc.Add(values[i]);
+		}
+
 		AddIf(ref hc, Size);
 		hc.Add(PlainText);
 		hc.Add(FloatingLabel);
@@ -212,5 +703,13 @@
 		hc.Add(Disabled);
 		hc.Add(ReadOnly);
 		hc.Add(Required);
+		hc.Add(_focusedThumbIndex);
+		hc.Add(_draggingThumbIndex);
+	}
+
+	protected override async Task OnDisposeAsync()
+	{
+		await SliderInterop.StopDrag();
+		_dotNetRef?.Dispose();
 	}
 }

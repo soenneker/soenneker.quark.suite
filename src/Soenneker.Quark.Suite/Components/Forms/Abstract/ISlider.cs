@@ -20,6 +20,21 @@ public interface ISlider : IInput
     Expression<Func<double>>? SliderValueExpression { get; set; }
 
     /// <summary>
+    /// Gets or sets the current collection of slider thumb values.
+    /// </summary>
+    double[]? Values { get; set; }
+
+    /// <summary>
+    /// Gets or sets the callback invoked when the thumb values change.
+    /// </summary>
+    EventCallback<double[]> ValuesChanged { get; set; }
+
+    /// <summary>
+    /// Gets or sets the expression that identifies the bound thumb values for validation.
+    /// </summary>
+    Expression<Func<double[]?>>? ValuesExpression { get; set; }
+
+    /// <summary>
     /// Gets or sets the minimum value of the slider range.
     /// </summary>
     double Min { get; set; }
@@ -38,4 +53,9 @@ public interface ISlider : IInput
     /// Gets or sets the callback invoked When the value changes.
     /// </summary>
     EventCallback<double> SliderValueChanged { get; set; }
+
+    /// <summary>
+    /// Gets or sets the slider orientation.
+    /// </summary>
+    string Orientation { get; set; }
 }
