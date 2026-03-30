@@ -104,7 +104,7 @@ public partial class SidebarProvider
 
             if (PersistState && !string.IsNullOrWhiteSpace(CookieKey))
             {
-                JsonElement result = await _module.InvokeAsync<JsonElement>("getSidebarState", CookieKey);
+                var result = await _module.InvokeAsync<JsonElement>("getSidebarState", CookieKey);
                 savedOpen = result.ValueKind switch
                 {
                     JsonValueKind.True => true,

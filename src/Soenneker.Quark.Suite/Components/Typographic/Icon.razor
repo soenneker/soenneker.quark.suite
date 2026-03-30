@@ -3,6 +3,7 @@
 @using System.Globalization
 @using System.Runtime.CompilerServices
 @using Soenneker.Quark.Gen.Lucide.Abstractions
+@using Soenneker.Quark.Gen.Lucide.Generated
 
 @if (_svgWithAttributes is { } svgMarkup)
 {
@@ -11,6 +12,7 @@
 @ChildContent
 
 @code {
+
     [Parameter]
     public LucideIcon Name { get; set; }
 
@@ -53,12 +55,22 @@
         if (iconName is null)
             return null;
 
-        var raw = SvgProvider?.GetSvg(iconName);
+        var raw = GetSvg(iconName);
         if (string.IsNullOrEmpty(raw))
             return null;
 
         var attrs = BuildAttributes();
         return InjectAttributesIntoSvg(raw, attrs);
+    }
+
+    private string? GetSvg(string iconName)
+    {
+        var svg = LucideIconSvgMap.GetSvg(iconName);
+
+        if (svg.HasContent())
+            return svg;
+
+        return SvgProvider?.GetSvg(iconName);
     }
 
     private static string InjectAttributesIntoSvg(string svg, IReadOnlyDictionary<string, object> attributes)
@@ -92,6 +104,7 @@
                     AppendEscapedHtmlAttribute(ref attrSb, cls);
                     attrSb.Append('"');
                 }
+
                 continue;
             }
 
@@ -103,6 +116,7 @@
                     AppendEscapedHtmlAttribute(ref attrSb, sty);
                     attrSb.Append('"');
                 }
+
                 continue;
             }
 
@@ -123,6 +137,7 @@
                     attrSb.Append(' ');
                     attrSb.Append(key);
                 }
+
                 continue;
             }
 
@@ -166,8 +181,8 @@
             return svg;
 
         // Compose final string (no Insert, no string.Create, no intermediate attr string)
-        var prefix = svg.AsSpan(0, tagEnd);   // excludes '>'
-        var suffix = svg.AsSpan(tagEnd);      // includes '>'
+        var prefix = svg.AsSpan(0, tagEnd); // excludes '>'
+        var suffix = svg.AsSpan(tagEnd); // includes '>'
 
         using var final = new PooledStringBuilder(svg.Length + attrSb.Length);
 
@@ -177,34 +192,19 @@
 
         return final.ToStringAndDispose();
     }
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsClassKey(string key)
-        => key.Length == 5
-           && (key[0] == 'c' || key[0] == 'C')
-           && key.Equals("class", StringComparison.OrdinalIgnoreCase);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsStyleKey(string key)
-        => key.Length == 5
-           && (key[0] == 's' || key[0] == 'S')
-           && key.Equals("style", StringComparison.OrdinalIgnoreCase);
+    private static bool IsClassKey(string key) => key.Length == 5 && (key[0] == 'c' || key[0] == 'C') && key.Equals("class", StringComparison.OrdinalIgnoreCase);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsHiddenKey(string key)
-        => key.Length == 6
-           && (key[0] == 'h' || key[0] == 'H')
-           && key.Equals("hidden", StringComparison.OrdinalIgnoreCase);
+    private static bool IsStyleKey(string key) => key.Length == 5 && (key[0] == 's' || key[0] == 'S') && key.Equals("style", StringComparison.OrdinalIgnoreCase);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsHiddenKey(string key) => key.Length == 6 && (key[0] == 'h' || key[0] == 'H') && key.Equals("hidden", StringComparison.OrdinalIgnoreCase);
 
     private static bool IsSvgSafeAttribute(string key)
     {
-        return key.Length > 0
-            && (key.StartsWith("aria-", StringComparison.OrdinalIgnoreCase)
-                || key.StartsWith("data-", StringComparison.OrdinalIgnoreCase)
-                || key.Equals("id", StringComparison.OrdinalIgnoreCase)
-                || key.Equals("title", StringComparison.OrdinalIgnoreCase)
-                || key.Equals("role", StringComparison.OrdinalIgnoreCase)
-                || key.Equals("tabindex", StringComparison.OrdinalIgnoreCase));
+        return key.Length > 0 && (key.StartsWith("aria-", StringComparison.OrdinalIgnoreCase) || key.StartsWith("data-", StringComparison.OrdinalIgnoreCase) || key.Equals("id", StringComparison.OrdinalIgnoreCase) || key.Equals("title", StringComparison.OrdinalIgnoreCase) || key.Equals("role", StringComparison.OrdinalIgnoreCase) || key.Equals("tabindex", StringComparison.OrdinalIgnoreCase));
     }
 
     private static void AppendEscapedHtmlAttribute(ref PooledStringBuilder sb, string value)
@@ -214,12 +214,23 @@
             var c = value[i];
             switch (c)
             {
-                case '&': sb.Append("&amp;"); break;
-                case '"': sb.Append("&quot;"); break;
-                case '<': sb.Append("&lt;"); break;
-                case '>': sb.Append("&gt;"); break;
-                default: sb.Append(c); break;
+                case '&':
+                    sb.Append("&amp;");
+                    break;
+                case '"':
+                    sb.Append("&quot;");
+                    break;
+                case '<':
+                    sb.Append("&lt;");
+                    break;
+                case '>':
+                    sb.Append("&gt;");
+                    break;
+                default:
+                    sb.Append(c);
+                    break;
             }
         }
     }
+
 }

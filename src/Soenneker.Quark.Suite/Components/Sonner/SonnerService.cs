@@ -224,7 +224,7 @@ public sealed class SonnerService : ISonnerService
             }
         }
 
-        foreach ((string id, int remainingMs, CancellationTokenSource tokenSource) in timersToStart)
+        foreach ((var id, var remainingMs, var tokenSource) in timersToStart)
         {
             cancellationToken.ThrowIfCancellationRequested();
             _ = AutoDismiss(id, remainingMs, tokenSource.Token);

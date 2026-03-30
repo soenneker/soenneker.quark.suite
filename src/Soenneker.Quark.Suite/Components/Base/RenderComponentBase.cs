@@ -160,7 +160,7 @@ public abstract class RenderComponentBase : CoreComponent
         if (Attributes is null || Attributes.Count == 0)
             return;
 
-        foreach (KeyValuePair<string, object> kv in Attributes)
+        foreach (var kv in Attributes)
         {
             hc.Add(kv.Key, StringComparer.OrdinalIgnoreCase);
             hc.Add(kv.Value);
@@ -172,14 +172,14 @@ public abstract class RenderComponentBase : CoreComponent
         if (Attributes is null)
             return;
 
-        foreach (KeyValuePair<string, object> kv in Attributes)
+        foreach (var kv in Attributes)
         {
-            string k = kv.Key;
-            object v = kv.Value;
+            var k = kv.Key;
+            var v = kv.Value;
 
             if (k.Equals("class", StringComparison.OrdinalIgnoreCase))
             {
-                string? s = v as string ?? v?.ToString();
+                var s = v as string ?? v?.ToString();
 
                 if (!string.IsNullOrEmpty(s))
                     AppendClass(ref cls, s);
@@ -189,7 +189,7 @@ public abstract class RenderComponentBase : CoreComponent
 
             if (k.Equals("style", StringComparison.OrdinalIgnoreCase))
             {
-                string? s = v as string ?? v?.ToString();
+                var s = v as string ?? v?.ToString();
 
                 if (!string.IsNullOrEmpty(s))
                     AppendStyleDecl(ref sty, s);
@@ -247,7 +247,7 @@ public abstract class RenderComponentBase : CoreComponent
         if (v is not { IsEmpty: false })
             return;
 
-        string classText = v.Value.ToString();
+        var classText = v.Value.ToString();
 
         if (classText.Length != 0)
         {
@@ -257,7 +257,7 @@ public abstract class RenderComponentBase : CoreComponent
 
         if (v.Value.IsCssStyle)
         {
-            string style = v.Value.StyleValue;
+            var style = v.Value.StyleValue;
 
             if (style.Length != 0)
                 AppendStyleDecl(ref styB, style);
@@ -265,7 +265,7 @@ public abstract class RenderComponentBase : CoreComponent
             return;
         }
 
-        string s = v.Value.ToString();
+        var s = v.Value.ToString();
 
         if (s.Length != 0)
             AppendClass(ref clsB, s);
@@ -277,7 +277,7 @@ public abstract class RenderComponentBase : CoreComponent
         if (v is not { IsEmpty: false })
             return;
 
-        string classText = v.Value.ToString();
+        var classText = v.Value.ToString();
 
         if (classText.Length != 0)
         {
@@ -285,7 +285,7 @@ public abstract class RenderComponentBase : CoreComponent
             return;
         }
 
-        string styleValue = v.Value.StyleValue;
+        var styleValue = v.Value.StyleValue;
 
         if (styleValue.Length == 0)
             return;
@@ -302,7 +302,7 @@ public abstract class RenderComponentBase : CoreComponent
         if (v is not { IsEmpty: false })
             return;
 
-        string classText = v.Value.ToString();
+        var classText = v.Value.ToString();
 
         if (classText.Length != 0)
         {
@@ -310,7 +310,7 @@ public abstract class RenderComponentBase : CoreComponent
             return;
         }
 
-        string styleValue = v.Value.StyleValue;
+        var styleValue = v.Value.StyleValue;
 
         if (styleValue.Length == 0)
             return;
@@ -327,7 +327,7 @@ public abstract class RenderComponentBase : CoreComponent
         if (v is not { IsEmpty: false } vv)
             return;
 
-        string classText = vv.ToString();
+        var classText = vv.ToString();
 
         if (classText.Length != 0)
         {
@@ -335,7 +335,7 @@ public abstract class RenderComponentBase : CoreComponent
             return;
         }
 
-        string styleValue = vv.StyleValue;
+        var styleValue = vv.StyleValue;
 
         if (styleValue.Length == 0)
             return;
@@ -352,7 +352,7 @@ public abstract class RenderComponentBase : CoreComponent
         if (v is not { IsEmpty: false } vv)
             return;
 
-        string classText = vv.ToString();
+        var classText = vv.ToString();
 
         if (classText.Length != 0)
         {
@@ -360,7 +360,7 @@ public abstract class RenderComponentBase : CoreComponent
             return;
         }
 
-        string styleValue = vv.StyleValue;
+        var styleValue = vv.StyleValue;
 
         if (styleValue.Length == 0)
             return;
@@ -398,8 +398,8 @@ public abstract class RenderComponentBase : CoreComponent
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void EnsureClassAttr(Dictionary<string, object> attrs, string token)
     {
-        attrs.TryGetValue("class", out object? clsObj);
-        string cls = EnsureClass(clsObj?.ToString(), token);
+        attrs.TryGetValue("class", out var clsObj);
+        var cls = EnsureClass(clsObj?.ToString(), token);
 
         if (cls.Length > 0)
             attrs["class"] = cls;
@@ -408,8 +408,8 @@ public abstract class RenderComponentBase : CoreComponent
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void AppendToClassAttr(Dictionary<string, object> attrs, string token)
     {
-        attrs.TryGetValue("class", out object? clsObj);
-        string cls = AppendToClass(clsObj?.ToString(), token);
+        attrs.TryGetValue("class", out var clsObj);
+        var cls = AppendToClass(clsObj?.ToString(), token);
 
         if (cls.Length > 0)
             attrs["class"] = cls;
@@ -422,15 +422,15 @@ public abstract class RenderComponentBase : CoreComponent
 
         try
         {
-            if (attrs.TryGetValue("class", out object? existing))
+            if (attrs.TryGetValue("class", out var existing))
             {
-                string? existingStr = existing.ToString();
+                var existingStr = existing.ToString();
 
                 if (!existingStr.IsNullOrWhiteSpace())
                     cls.Append(existingStr);
             }
 
-            foreach (string? c in classes)
+            foreach (var c in classes)
             {
                 if (!c.IsNullOrWhiteSpace())
                     AppendClass(ref cls, c!);
@@ -454,9 +454,9 @@ public abstract class RenderComponentBase : CoreComponent
         {
             builder(ref cls);
 
-            if (attrs.TryGetValue("class", out object? existing))
+            if (attrs.TryGetValue("class", out var existing))
             {
-                string? existingStr = existing.ToString();
+                var existingStr = existing.ToString();
 
                 if (existingStr.HasContent())
                     AppendClass(ref cls, existingStr);
@@ -480,9 +480,9 @@ public abstract class RenderComponentBase : CoreComponent
         {
             builder(ref sty);
 
-            if (attrs.TryGetValue("style", out object? existing))
+            if (attrs.TryGetValue("style", out var existing))
             {
-                string? existingStr = existing.ToString();
+                var existingStr = existing.ToString();
 
                 if (existingStr.HasContent())
                     AppendStyleDecl(ref sty, existingStr);
@@ -500,14 +500,14 @@ public abstract class RenderComponentBase : CoreComponent
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void BuildClassAndStyleAttributes(Dictionary<string, object> attrs, BuildClassAndStyleAction builder)
     {
-        attrs.TryGetValue("class", out object? existingClassObj);
-        attrs.TryGetValue("style", out object? existingStyleObj);
+        attrs.TryGetValue("class", out var existingClassObj);
+        attrs.TryGetValue("style", out var existingStyleObj);
 
-        string? existingClassStr = existingClassObj as string ?? existingClassObj?.ToString();
-        string? existingStyleStr = existingStyleObj as string ?? existingStyleObj?.ToString();
+        var existingClassStr = existingClassObj as string ?? existingClassObj?.ToString();
+        var existingStyleStr = existingStyleObj as string ?? existingStyleObj?.ToString();
 
-        int existingClassLen = existingClassStr?.Length ?? 0;
-        int existingStyleLen = existingStyleStr?.Length ?? 0;
+        var existingClassLen = existingClassStr?.Length ?? 0;
+        var existingStyleLen = existingStyleStr?.Length ?? 0;
 
         var cls = new PooledStringBuilder(Math.Max(32, existingClassLen + 32));
         var sty = new PooledStringBuilder(Math.Max(32, existingStyleLen + 32));
@@ -550,7 +550,7 @@ public abstract class RenderComponentBase : CoreComponent
         if (string.IsNullOrWhiteSpace(fullDecl))
             return;
 
-        attrs.TryGetValue("style", out object? styleObj);
+        attrs.TryGetValue("style", out var styleObj);
 
         if (styleObj is string existing && existing.Length != 0)
         {
@@ -591,7 +591,7 @@ public abstract class RenderComponentBase : CoreComponent
         if (v is not { IsEmpty: false })
             return;
 
-        string result = v.Value.ToString();
+        var result = v.Value.ToString();
 
         if (result.Length == 0)
             return;
@@ -602,7 +602,7 @@ public abstract class RenderComponentBase : CoreComponent
             return;
         }
 
-        if (v.Value.TryGetThemeToken(out string? token) && token is not null)
+        if (v.Value.TryGetThemeToken(out var token) && token is not null)
         {
             AppendClassToken(ref clsB, classPrefix, token);
             return;

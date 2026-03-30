@@ -59,7 +59,7 @@ public abstract class Element : Component, IElement
 
     protected override void OnParametersSet()
     {
-        RenderFragment? cc = ChildContent;
+        var cc = ChildContent;
         _childContentChanged = !ReferenceEquals(cc, _lastChildContentRef);
         _lastChildContentRef = cc;
 

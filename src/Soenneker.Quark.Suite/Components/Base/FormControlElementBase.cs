@@ -93,9 +93,9 @@ public abstract class FormControlElementBase : InteractiveElement
         if (CurrentFieldContext is not null && !attrs.ContainsKey("id"))
             attrs["id"] = CurrentFieldContext.ControlId;
 
-        bool effectiveInvalid = isInvalid || CurrentFieldContext?.IsInvalid == true;
+        var effectiveInvalid = isInvalid || CurrentFieldContext?.IsInvalid == true;
 
-        string? describedBy = CurrentFieldContext?.BuildDescribedBy(attrs.TryGetValue("aria-describedby", out object? existingDescribedBy)
+        var describedBy = CurrentFieldContext?.BuildDescribedBy(attrs.TryGetValue("aria-describedby", out var existingDescribedBy)
             ? existingDescribedBy?.ToString()
             : null, effectiveInvalid);
 

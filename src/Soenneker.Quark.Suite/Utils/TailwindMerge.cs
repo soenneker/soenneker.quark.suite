@@ -125,26 +125,26 @@ public static class TailwindMerge
         var tokens = new List<Token>(32);
         var winningIndexes = new Dictionary<string, int>(StringComparer.Ordinal);
 
-        for (int i = 0; i < values.Length; i++)
+        for (var i = 0; i < values.Length; i++)
         {
-            string? value = values[i];
+            var value = values[i];
             if (string.IsNullOrWhiteSpace(value))
                 continue;
 
-            ReadOnlySpan<char> span = value.AsSpan();
-            int pos = 0;
+            var span = value.AsSpan();
+            var pos = 0;
 
-            while (TryReadNextToken(span, ref pos, out ReadOnlySpan<char> tokenSpan))
+            while (TryReadNextToken(span, ref pos, out var tokenSpan))
             {
                 if (!IsProbablyValidClassToken(tokenSpan))
                     continue;
 
-                string token = tokenSpan.ToString();
+                var token = tokenSpan.ToString();
 
-                string? groupKey = GetGroupKey(tokenSpan);
+                var groupKey = GetGroupKey(tokenSpan);
                 if (groupKey is not null)
                 {
-                    if (winningIndexes.TryGetValue(groupKey, out int priorIndex))
+                    if (winningIndexes.TryGetValue(groupKey, out var priorIndex))
                         tokens[priorIndex] = default;
 
                     winningIndexes[groupKey] = tokens.Count;
@@ -159,12 +159,12 @@ public static class TailwindMerge
 
     private static string JoinTokens(List<Token> tokens)
     {
-        int count = 0;
-        int totalLength = 0;
+        var count = 0;
+        var totalLength = 0;
 
-        for (int i = 0; i < tokens.Count; i++)
+        for (var i = 0; i < tokens.Count; i++)
         {
-            string? value = tokens[i].Value;
+            var value = tokens[i].Value;
             if (value is null)
                 continue;
 
@@ -177,11 +177,11 @@ public static class TailwindMerge
 
         return string.Create(totalLength + (count - 1), tokens, static (dst, src) =>
         {
-            int pos = 0;
+            var pos = 0;
 
-            for (int i = 0; i < src.Count; i++)
+            for (var i = 0; i < src.Count; i++)
             {
-                string? value = src[i].Value;
+                var value = src[i].Value;
                 if (value is null)
                     continue;
 
@@ -206,7 +206,7 @@ public static class TailwindMerge
             return false;
         }
 
-        int start = pos;
+        var start = pos;
 
         while ((uint)pos < (uint)span.Length && !char.IsWhiteSpace(span[pos]))
             pos++;
@@ -221,9 +221,9 @@ public static class TailwindMerge
         if (token.Length == 0 || token.Length > 256)
             return false;
 
-        for (int i = 0; i < token.Length; i++)
+        for (var i = 0; i < token.Length; i++)
         {
-            char c = token[i];
+            var c = token[i];
 
             if (char.IsLetterOrDigit(c))
                 continue;
@@ -259,12 +259,12 @@ public static class TailwindMerge
 
     private static string? GetGroupKey(ReadOnlySpan<char> token)
     {
-        SplitVariants(token, out ReadOnlySpan<char> variants, out ReadOnlySpan<char> utility);
+        SplitVariants(token, out var variants, out var utility);
 
         if (utility.Length == 0)
             return null;
 
-        string? utilityGroup = GetUtilityGroup(utility);
+        var utilityGroup = GetUtilityGroup(utility);
         if (utilityGroup is null)
             return null;
 
@@ -276,13 +276,13 @@ public static class TailwindMerge
 
     private static void SplitVariants(ReadOnlySpan<char> token, out ReadOnlySpan<char> variants, out ReadOnlySpan<char> utility)
     {
-        int bracketDepth = 0;
-        int parenDepth = 0;
-        int lastColon = -1;
+        var bracketDepth = 0;
+        var parenDepth = 0;
+        var lastColon = -1;
 
-        for (int i = 0; i < token.Length; i++)
+        for (var i = 0; i < token.Length; i++)
         {
-            char c = token[i];
+            var c = token[i];
 
             switch (c)
             {
@@ -326,10 +326,10 @@ public static class TailwindMerge
         if (utility[0] == '!')
             utility = utility[1..];
 
-        if (_exactGroups.TryGetValue(utility.ToString(), out string? exact))
+        if (_exactGroups.TryGetValue(utility.ToString(), out var exact))
             return exact;
 
-        if (TryGetSpacingGroup(utility, out string? spacing))
+        if (TryGetSpacingGroup(utility, out var spacing))
             return spacing;
 
         if (TryGetSimplePrefixGroup(utility, "w-", "width"))
@@ -371,16 +371,16 @@ public static class TailwindMerge
         if (TryGetSimplePrefixGroup(utility, "grid-rows-", "grid-rows"))
             return "grid-rows";
 
-        if (TryGetBorderWidthGroup(utility, out string? borderWidth))
+        if (TryGetBorderWidthGroup(utility, out var borderWidth))
             return borderWidth;
 
-        if (TryGetColorLikeGroup(utility, "text-", out string? textGroup))
+        if (TryGetColorLikeGroup(utility, "text-", out var textGroup))
             return textGroup;
 
-        if (TryGetColorLikeGroup(utility, "bg-", out string? bgGroup))
+        if (TryGetColorLikeGroup(utility, "bg-", out var bgGroup))
             return bgGroup;
 
-        if (TryGetBorderColorGroup(utility, out string? borderColorGroup))
+        if (TryGetBorderColorGroup(utility, out var borderColorGroup))
             return borderColorGroup;
 
         return null;
@@ -422,7 +422,7 @@ public static class TailwindMerge
         if (!value.StartsWith(prefix, StringComparison.Ordinal))
             return false;
 
-        ReadOnlySpan<char> tail = value[prefix.Length..];
+        var tail = value[prefix.Length..];
         return tail.Length > 0;
     }
 
@@ -440,7 +440,7 @@ public static class TailwindMerge
 
         if (utility.StartsWith("border-", StringComparison.Ordinal))
         {
-            ReadOnlySpan<char> tail = utility["border-".Length..];
+            var tail = utility["border-".Length..];
 
             if (tail.SequenceEqual("0".AsSpan()) || tail.SequenceEqual("2".AsSpan()) ||
                 tail.SequenceEqual("4".AsSpan()) || tail.SequenceEqual("8".AsSpan()))
@@ -493,7 +493,7 @@ public static class TailwindMerge
             return false;
         }
 
-        ReadOnlySpan<char> tail = utility["border-".Length..];
+        var tail = utility["border-".Length..];
 
         if (tail.StartsWith("t-", StringComparison.Ordinal) ||
             tail.StartsWith("r-", StringComparison.Ordinal) ||
