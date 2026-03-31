@@ -1,4 +1,5 @@
 @page "/icons"
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
 <PageTitle>Lucide - Quark Suite</PageTitle>
 
@@ -84,6 +85,22 @@
             </DemoSection>
         </Section>
 
+        @if (DeveloperMode)
+        {
+            <Section Space="Space.Y.Is4">
+                <DemoSection Title="Developer Mode: Conditional Name" Description="Verifies that Icon.Name accepts a ternary expression that returns LucideIcon values." Code="@(@"<Icon Name=""@(IsPlaying ? LucideIcon.Pause : LucideIcon.Play)"" Class=""size-6""/>")">
+                    <Div Class="flex flex-wrap items-center gap-4">
+                        <Button Variant="ButtonVariant.Outline" @onclick="TogglePlaying">
+                            <Icon Name="@(IsPlaying ? LucideIcon.Pause : LucideIcon.Play)" Class="size-4" Margin="Margin.Is2.FromEnd"/>
+                            Toggle state
+                        </Button>
+                        <Icon Name="@(IsPlaying ? LucideIcon.Pause : LucideIcon.Play)" Class="size-6"/>
+                        <Small Class="text-muted-foreground">IsPlaying: @IsPlaying</Small>
+                    </Div>
+                </DemoSection>
+            </Section>
+        }
+
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Common Icons" Description="Frequently used Lucide icons.">
                 <Div Class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4">
@@ -124,3 +141,14 @@
         </Section>
     </Div>
 </Div>
+
+@code {
+    private bool DeveloperMode => bool.TryParse(Configuration["DeveloperMode"], out var developerMode) && developerMode;
+
+    private bool IsPlaying { get; set; }
+
+    private void TogglePlaying()
+    {
+        IsPlaying = !IsPlaying;
+    }
+}
