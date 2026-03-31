@@ -73,9 +73,9 @@ public sealed class ClipPathBuilder : ICssBuilder
     /// </summary>
     public ClipPathBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the clip path on widescreen breakpoint.
+    /// Applies the clip path on the 2xl breakpoint.
     /// </summary>
-    public ClipPathBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ClipPathBuilder On2xl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ClipPathBuilder ChainWithPath(string path)

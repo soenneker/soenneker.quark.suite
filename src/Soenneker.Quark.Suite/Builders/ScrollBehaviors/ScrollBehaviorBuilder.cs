@@ -59,9 +59,9 @@ public sealed class ScrollBehaviorBuilder : ICssBuilder
     /// </summary>
     public ScrollBehaviorBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the scroll behavior on widescreen breakpoint.
+    /// Applies the scroll behavior on the 2xl breakpoint.
     /// </summary>
-    public ScrollBehaviorBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ScrollBehaviorBuilder On2xl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScrollBehaviorBuilder ChainWithBehavior(string behavior)
@@ -106,7 +106,7 @@ public sealed class ScrollBehaviorBuilder : ICssBuilder
 
             var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
-                cls = BreakpointUtil.InsertBreakpointType(cls, bp);
+                cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
             if (!first) sb.Append(' ');
             else first = false;

@@ -64,9 +64,9 @@ public sealed class TextOpacityBuilder : ICssBuilder
     /// </summary>
     public TextOpacityBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
-    /// Applies the text opacity on widescreen breakpoint.
+    /// Applies the text opacity on the 2xl breakpoint.
     /// </summary>
-    public TextOpacityBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public TextOpacityBuilder On2xl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextOpacityBuilder Chain(int value)

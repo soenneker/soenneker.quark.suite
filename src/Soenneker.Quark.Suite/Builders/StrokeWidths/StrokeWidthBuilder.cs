@@ -33,7 +33,7 @@ public sealed class StrokeWidthBuilder : ICssBuilder
     public StrokeWidthBuilder OnMd => ChainBp(BreakpointType.Md);
     public StrokeWidthBuilder OnLg => ChainBp(BreakpointType.Lg);
     public StrokeWidthBuilder OnXl => ChainBp(BreakpointType.Xl);
-    public StrokeWidthBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public StrokeWidthBuilder On2xl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private StrokeWidthBuilder Chain(string value)

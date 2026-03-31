@@ -89,9 +89,9 @@ public sealed class AnimationBuilder : ICssBuilder
     public AnimationBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 
     /// <summary>
-    /// Applies the animation on widescreen breakpoint.
+    /// Applies the animation on the 2xl breakpoint.
     /// </summary>
-    public AnimationBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public AnimationBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private AnimationBuilder ChainWithAnimation(string animation)

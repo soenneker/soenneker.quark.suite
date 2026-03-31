@@ -68,9 +68,9 @@ public sealed class LinkOpacityBuilder : ICssBuilder
     /// </summary>
     public LinkOpacityBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the link opacity on widescreen breakpoint.
+    /// Applies the link opacity on the 2xl breakpoint.
     /// </summary>
-    public LinkOpacityBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public LinkOpacityBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private LinkOpacityBuilder Chain(int value)

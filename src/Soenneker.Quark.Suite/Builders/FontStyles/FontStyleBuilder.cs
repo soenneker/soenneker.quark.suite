@@ -82,9 +82,9 @@ public sealed class FontStyleBuilder : ICssBuilder
     /// </summary>
     public FontStyleBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the font style on widescreen breakpoint.
+    /// Applies the font style on the 2xl breakpoint.
     /// </summary>
-    public FontStyleBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public FontStyleBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FontStyleBuilder Chain(string value)

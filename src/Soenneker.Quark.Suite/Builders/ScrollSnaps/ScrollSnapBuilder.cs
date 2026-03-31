@@ -37,7 +37,7 @@ public sealed class ScrollSnapBuilder : ICssBuilder
     public ScrollSnapBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     public ScrollSnapBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     public ScrollSnapBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
-    public ScrollSnapBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public ScrollSnapBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScrollSnapBuilder Chain(string value)

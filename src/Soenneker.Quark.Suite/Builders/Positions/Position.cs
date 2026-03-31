@@ -4,7 +4,7 @@ using Soenneker.Quark.Enums;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Simplified position utility with fluent API and Bootstrap-first approach.
+/// Simplified position utility with fluent API and Tailwind/shadcn-aligned fluent API.
 /// </summary>
 public static class Position
 {

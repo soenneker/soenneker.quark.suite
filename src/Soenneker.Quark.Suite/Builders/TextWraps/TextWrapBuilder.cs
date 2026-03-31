@@ -92,9 +92,9 @@ public sealed class TextWrapBuilder : ICssBuilder
     /// </summary>
     public TextWrapBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the text wrap on widescreen breakpoint.
+    /// Applies the text wrap on the 2xl breakpoint.
     /// </summary>
-    public TextWrapBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public TextWrapBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextWrapBuilder Chain(string value)

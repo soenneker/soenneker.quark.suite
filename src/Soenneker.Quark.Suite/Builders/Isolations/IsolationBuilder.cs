@@ -33,7 +33,7 @@ public sealed class IsolationBuilder : ICssBuilder
     public IsolationBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     public IsolationBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     public IsolationBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
-    public IsolationBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public IsolationBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private IsolationBuilder Chain(string value)

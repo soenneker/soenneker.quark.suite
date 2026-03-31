@@ -114,9 +114,9 @@ public sealed class DisplayBuilder : ICssBuilder
 	/// </summary>
     public DisplayBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 	/// <summary>
-	/// Applies the display on widescreen breakpoint.
+	/// Applies the display on the 2xl breakpoint.
 	/// </summary>
-    public DisplayBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public DisplayBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private DisplayBuilder ChainWithDisplay(string display)

@@ -111,9 +111,9 @@ public sealed class FontWeightBuilder : ICssBuilder
     public FontWeightBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 
     /// <summary>
-    /// Applies the font weight on widescreen breakpoint.
+    /// Applies the font weight on the 2xl breakpoint.
     /// </summary>
-    public FontWeightBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public FontWeightBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FontWeightBuilder Chain(string value)

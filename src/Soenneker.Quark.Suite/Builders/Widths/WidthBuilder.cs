@@ -73,7 +73,7 @@ public sealed class WidthBuilder : ICssBuilder
     public WidthBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     public WidthBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     public WidthBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
-    public WidthBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public WidthBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     /// <summary>
     /// Applies an arbitrary Tailwind width token (e.g. "72", "[18rem]", "full").

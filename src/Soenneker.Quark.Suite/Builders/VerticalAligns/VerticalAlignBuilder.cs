@@ -108,9 +108,9 @@ public sealed class VerticalAlignBuilder : ICssBuilder
     public VerticalAlignBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 
     /// <summary>
-    /// Applies the vertical alignment on widescreen breakpoint.
+    /// Applies the vertical alignment on the 2xl breakpoint.
     /// </summary>
-    public VerticalAlignBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public VerticalAlignBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private VerticalAlignBuilder Chain(string value)

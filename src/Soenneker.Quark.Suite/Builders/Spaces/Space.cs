@@ -16,6 +16,7 @@ public static class Space
         public static SpaceBuilder Is6 => new("space-x-6");
         public static SpaceBuilder Is7 => new("space-x-7");
         public static SpaceBuilder Is8 => new("space-x-8");
+        public static SpaceBuilder Token(string value) => new("space-x", value);
     }
 
     public static class Y
@@ -29,5 +30,6 @@ public static class Space
         public static SpaceBuilder Is6 => new("space-y-6");
         public static SpaceBuilder Is7 => new("space-y-7");
         public static SpaceBuilder Is8 => new("space-y-8");
+        public static SpaceBuilder Token(string value) => new("space-y", value);
     }
 }

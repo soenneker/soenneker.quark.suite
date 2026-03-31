@@ -26,14 +26,6 @@ public static class BackgroundColor
     public static BackgroundColorBuilder Border => new("border");
     public static BackgroundColorBuilder Input => new("input");
     public static BackgroundColorBuilder Ring => new("ring");
-
-    public static BackgroundColorBuilder Success => new("success");
-    public static BackgroundColorBuilder Danger => new("danger");
-    public static BackgroundColorBuilder Warning => new("warning");
-    public static BackgroundColorBuilder Info => new("info");
-    public static BackgroundColorBuilder Light => new("light");
-    public static BackgroundColorBuilder Dark => new("dark");
-    public static BackgroundColorBuilder Link => new("link");
     public static BackgroundColorBuilder White => new("white");
     public static BackgroundColorBuilder Black => new("black");
     public static BackgroundColorBuilder Transparent => new("transparent");

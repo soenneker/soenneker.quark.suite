@@ -111,9 +111,9 @@ public sealed class FilterBuilder : ICssBuilder
     /// </summary>
     public FilterBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the filter on widescreen breakpoint.
+    /// Applies the filter on the 2xl breakpoint.
     /// </summary>
-    public FilterBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public FilterBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FilterBuilder ChainWithFilter(string filter)

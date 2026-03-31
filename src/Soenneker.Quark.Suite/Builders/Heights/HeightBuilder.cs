@@ -56,7 +56,7 @@ public sealed class HeightBuilder : ICssBuilder
     public HeightBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     public HeightBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     public HeightBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
-    public HeightBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public HeightBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     /// <summary>
     /// Applies an arbitrary Tailwind height token (e.g. "72", "[18rem]", "full").

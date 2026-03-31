@@ -47,7 +47,7 @@ public sealed class BackgroundBlendModeBuilder : ICssBuilder
     public BackgroundBlendModeBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     public BackgroundBlendModeBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     public BackgroundBlendModeBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
-    public BackgroundBlendModeBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public BackgroundBlendModeBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BackgroundBlendModeBuilder Chain(string value)

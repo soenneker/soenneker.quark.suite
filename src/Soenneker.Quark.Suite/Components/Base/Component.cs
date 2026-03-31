@@ -134,7 +134,10 @@ public abstract class Component : RenderComponentBase, IComponent
     public CssValue<BorderColorBuilder>? BorderColor { get; set; }
 
     [Parameter]
-    public CssValue<BorderRadiusBuilder>? BorderRadius { get; set; }
+    public CssValue<RadiusBuilder>? Radius { get; set; }
+
+    [Parameter]
+    public CssValue<RingBuilder>? Ring { get; set; }
 
     [Parameter]
     public CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
@@ -225,7 +228,8 @@ public abstract class Component : RenderComponentBase, IComponent
         AddCss(ref sty, ref cls, Border);
         ApplyBorderColor(ref sty, ref cls);
         ApplyBackgroundColor(ref sty, ref cls);
-        AddCss(ref sty, ref cls, BorderRadius);
+        AddCss(ref sty, ref cls, Radius);
+        AddCss(ref sty, ref cls, Ring);
         AddCss(ref sty, ref cls, BoxShadow);
         AddCss(ref sty, ref cls, BackgroundOpacity);
         AddCss(ref sty, ref cls, BorderOpacity);
@@ -311,7 +315,8 @@ public abstract class Component : RenderComponentBase, IComponent
         AddIf(ref hc, BackgroundColor);
         AddIf(ref hc, Border);
         AddIf(ref hc, BorderColor);
-        AddIf(ref hc, BorderRadius);
+        AddIf(ref hc, Radius);
+        AddIf(ref hc, Ring);
         AddIf(ref hc, BoxShadow);
         AddIf(ref hc, BackgroundOpacity);
         AddIf(ref hc, BorderOpacity);

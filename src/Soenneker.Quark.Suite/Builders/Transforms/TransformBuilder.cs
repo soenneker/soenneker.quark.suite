@@ -81,9 +81,9 @@ public sealed class TransformBuilder : ICssBuilder
     /// </summary>
     public TransformBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the transform on widescreen breakpoint.
+    /// Applies the transform on the 2xl breakpoint.
     /// </summary>
-    public TransformBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public TransformBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TransformBuilder ChainWithTransform(string transform)
@@ -122,7 +122,7 @@ public sealed class TransformBuilder : ICssBuilder
 
             var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
-                cls = BreakpointUtil.InsertBreakpointType(cls, bp);
+                cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
             if (!first) sb.Append(' ');
             else first = false;

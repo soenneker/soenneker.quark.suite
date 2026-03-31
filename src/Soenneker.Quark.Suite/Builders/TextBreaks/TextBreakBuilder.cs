@@ -60,9 +60,9 @@ public sealed class TextBreakBuilder : ICssBuilder
     /// </summary>
     public TextBreakBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
-    /// Applies the text break on widescreen breakpoint.
+    /// Applies the text break on the 2xl breakpoint.
     /// </summary>
-    public TextBreakBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public TextBreakBuilder On2xl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextBreakBuilder Chain(bool enabled)

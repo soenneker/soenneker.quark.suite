@@ -69,9 +69,9 @@ public sealed class ResizeBuilder : ICssBuilder
     /// </summary>
     public ResizeBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the resize on widescreen breakpoint.
+    /// Applies the resize on the 2xl breakpoint.
     /// </summary>
-    public ResizeBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ResizeBuilder On2xl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ResizeBuilder ChainWithResize(string resize)
@@ -116,7 +116,7 @@ public sealed class ResizeBuilder : ICssBuilder
 
             var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
             if (bp.Length != 0)
-                cls = BreakpointUtil.InsertBreakpointType(cls, bp);
+                cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
             if (!first) sb.Append(' ');
             else first = false;

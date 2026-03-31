@@ -185,9 +185,9 @@ public sealed class ColorBuilder : ICssBuilder
 	/// </summary>
     public ColorBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 	/// <summary>
-	/// Applies the color on widescreen breakpoint.
+	/// Applies the color on the 2xl breakpoint.
 	/// </summary>
-    public ColorBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public ColorBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ColorBuilder ChainValue(string value)

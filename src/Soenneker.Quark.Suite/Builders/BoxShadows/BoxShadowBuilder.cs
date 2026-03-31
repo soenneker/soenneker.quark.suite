@@ -71,9 +71,9 @@ public sealed class BoxShadowBuilder : ICssBuilder
     /// </summary>
     public BoxShadowBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the box shadow on widescreen breakpoint.
+    /// Applies the box shadow on the 2xl breakpoint.
     /// </summary>
-    public BoxShadowBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public BoxShadowBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BoxShadowBuilder Chain(string value)

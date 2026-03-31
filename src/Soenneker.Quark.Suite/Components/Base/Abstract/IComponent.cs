@@ -46,7 +46,8 @@ public interface IComponent : ICoreComponent
     CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
     CssValue<BorderBuilder>? Border { get; set; }
     CssValue<BorderColorBuilder>? BorderColor { get; set; }
-    CssValue<BorderRadiusBuilder>? BorderRadius { get; set; }
+    CssValue<RadiusBuilder>? Radius { get; set; }
+    CssValue<RingBuilder>? Ring { get; set; }
     CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
     CssValue<BackgroundOpacityBuilder>? BackgroundOpacity { get; set; }
     CssValue<BorderOpacityBuilder>? BorderOpacity { get; set; }

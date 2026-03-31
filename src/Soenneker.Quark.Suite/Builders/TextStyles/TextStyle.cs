@@ -1,7 +1,7 @@
 namespace Soenneker.Quark;
 
 /// <summary>
-/// TextStyle utility with fluent API and Bootstrap-first approach.
+/// TextStyle utility with fluent API and Tailwind/shadcn-aligned fluent API.
 /// Note: Text alignment is handled by the separate TextAlignment property.
 /// </summary>
 public static class TextStyle

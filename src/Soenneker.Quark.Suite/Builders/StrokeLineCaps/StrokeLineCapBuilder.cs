@@ -34,7 +34,7 @@ public sealed class StrokeLineCapBuilder : ICssBuilder
     public StrokeLineCapBuilder OnMd => ChainBp(BreakpointType.Md);
     public StrokeLineCapBuilder OnLg => ChainBp(BreakpointType.Lg);
     public StrokeLineCapBuilder OnXl => ChainBp(BreakpointType.Xl);
-    public StrokeLineCapBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public StrokeLineCapBuilder On2xl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private StrokeLineCapBuilder Chain(string value)

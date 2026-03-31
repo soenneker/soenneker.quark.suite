@@ -106,9 +106,9 @@ public sealed class BackdropFilterBuilder : ICssBuilder
     /// </summary>
     public BackdropFilterBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the backdrop filter on widescreen breakpoint.
+    /// Applies the backdrop filter on the 2xl breakpoint.
     /// </summary>
-    public BackdropFilterBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public BackdropFilterBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BackdropFilterBuilder ChainWithFilter(string filter)

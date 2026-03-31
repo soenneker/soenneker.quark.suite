@@ -92,9 +92,9 @@ public sealed class TextBackgroundBuilder : ICssBuilder
     /// </summary>
     public TextBackgroundBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
-    /// Applies the text background on widescreen breakpoint.
+    /// Applies the text background on the 2xl breakpoint.
     /// </summary>
-    public TextBackgroundBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public TextBackgroundBuilder On2xl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextBackgroundBuilder ChainValue(string value)

@@ -49,7 +49,7 @@ public sealed class OverscrollBuilder : ICssBuilder
     public OverscrollBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     public OverscrollBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     public OverscrollBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
-    public OverscrollBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public OverscrollBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private OverscrollBuilder Chain(string value)

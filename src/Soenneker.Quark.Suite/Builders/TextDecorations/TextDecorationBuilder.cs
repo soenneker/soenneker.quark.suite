@@ -190,9 +190,9 @@ public sealed class TextDecorationBuilder : ICssBuilder
     /// </summary>
     public TextDecorationBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the text decoration on widescreen breakpoint.
+    /// Applies the text decoration on the 2xl breakpoint.
     /// </summary>
-    public TextDecorationBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public TextDecorationBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextDecorationBuilder Chain(string value)

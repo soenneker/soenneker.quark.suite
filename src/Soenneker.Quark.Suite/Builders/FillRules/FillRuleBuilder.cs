@@ -33,7 +33,7 @@ public sealed class FillRuleBuilder : ICssBuilder
     public FillRuleBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     public FillRuleBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     public FillRuleBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
-    public FillRuleBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public FillRuleBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FillRuleBuilder Chain(string value)

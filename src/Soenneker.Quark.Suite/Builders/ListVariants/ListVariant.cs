@@ -1,22 +1,22 @@
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Bootstrap list variant classes with fluent API.
+/// Tailwind-aligned list layout variants.
 /// </summary>
 public static class ListVariant
 {
     /// <summary>
-    /// Removes default list styling (bullets, padding) - Bootstrap .list-unstyled
+    /// Removes default list styling.
     /// </summary>
-    public static ListVariantBuilder Unstyled => new(ListVariantType.Unstyled);
+    public static ListVariantBuilder None => new(ListVariantType.None);
 
     /// <summary>
-    /// Makes list items inline - Bootstrap .list-inline
+    /// Applies inline layout utilities to the list.
     /// </summary>
     public static ListVariantBuilder Inline => new(ListVariantType.Inline);
 
     /// <summary>
-    /// For items within an inline list - Bootstrap .list-inline-item
+    /// Applies inline item utilities to the list item.
     /// </summary>
     public static ListVariantBuilder InlineItem => new(ListVariantType.InlineItem);
 }

@@ -68,9 +68,9 @@ public sealed class BackgroundOpacityBuilder : ICssBuilder
     /// </summary>
     public BackgroundOpacityBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
-    /// Applies the background opacity on widescreen breakpoint.
+    /// Applies the background opacity on the 2xl breakpoint.
     /// </summary>
-    public BackgroundOpacityBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public BackgroundOpacityBuilder On2xl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BackgroundOpacityBuilder Chain(int value)

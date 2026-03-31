@@ -64,9 +64,9 @@ public sealed class LinkOffsetBuilder : ICssBuilder
     /// </summary>
     public LinkOffsetBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the link offset on widescreen breakpoint.
+    /// Applies the link offset on the 2xl breakpoint.
     /// </summary>
-    public LinkOffsetBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public LinkOffsetBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private LinkOffsetBuilder Chain(int value)

@@ -68,9 +68,9 @@ public sealed class BorderOpacityBuilder : ICssBuilder
     /// </summary>
     public BorderOpacityBuilder OnXl => ChainBp(BreakpointType.Xl);
     /// <summary>
-    /// Applies the border opacity on widescreen breakpoint.
+    /// Applies the border opacity on the 2xl breakpoint.
     /// </summary>
-    public BorderOpacityBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public BorderOpacityBuilder On2xl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BorderOpacityBuilder Chain(int value)

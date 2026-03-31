@@ -56,7 +56,7 @@ public sealed class ScrollPaddingBuilder : ICssBuilder
     public ScrollPaddingBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     public ScrollPaddingBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     public ScrollPaddingBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
-    public ScrollPaddingBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public ScrollPaddingBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScrollPaddingBuilder AddRule(ElementSideType side)

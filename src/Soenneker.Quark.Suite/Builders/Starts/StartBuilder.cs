@@ -38,7 +38,7 @@ public sealed class StartBuilder : ICssBuilder
     public StartBuilder OnMd => ChainBp(BreakpointType.Md);
     public StartBuilder OnLg => ChainBp(BreakpointType.Lg);
     public StartBuilder OnXl => ChainBp(BreakpointType.Xl);
-    public StartBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public StartBuilder On2xl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private StartBuilder Chain(string value)

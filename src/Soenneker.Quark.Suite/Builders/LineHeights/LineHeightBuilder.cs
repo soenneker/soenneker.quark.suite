@@ -70,9 +70,9 @@ public sealed class LineHeightBuilder : ICssBuilder
     /// </summary>
     public LineHeightBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the line height on widescreen breakpoint.
+    /// Applies the line height on the 2xl breakpoint.
     /// </summary>
-    public LineHeightBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public LineHeightBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private LineHeightBuilder Chain(string value)

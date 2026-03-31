@@ -211,7 +211,7 @@ public sealed class FlexBuilder : ICssBuilder
     public FlexBuilder Shrink1 => ChainWithRule("shrink", "1");
 
     /// <summary>
-    /// Apply on phone devices (portrait phones, less than 576px).
+    /// Applies on the base breakpoint.
     /// </summary>
     public FlexBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 
@@ -226,22 +226,22 @@ public sealed class FlexBuilder : ICssBuilder
     public FlexBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 
     /// <summary>
-    /// Apply on laptop devices (laptops, 992px and up).
+    /// Applies on the lg breakpoint.
     /// </summary>
     public FlexBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 
     /// <summary>
-    /// Apply on desktop devices (desktops, 1200px and up).
+    /// Applies on the xl breakpoint.
     /// </summary>
     public FlexBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 
     /// <summary>
-    /// Apply on wide screen devices (larger desktops, 1400px and up).
+    /// Applies on the 2xl breakpoint.
     /// </summary>
-    public FlexBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public FlexBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     /// <summary>
-    /// Apply on ultrawide devices (ultrawide screens, 1920px and up).
+    /// Applies on the 2xl breakpoint.
     /// </summary>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

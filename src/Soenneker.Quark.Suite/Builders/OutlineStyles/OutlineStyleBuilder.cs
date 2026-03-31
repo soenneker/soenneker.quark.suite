@@ -36,7 +36,7 @@ public sealed class OutlineStyleBuilder : ICssBuilder
     public OutlineStyleBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     public OutlineStyleBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     public OutlineStyleBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
-    public OutlineStyleBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public OutlineStyleBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private OutlineStyleBuilder Chain(string value)

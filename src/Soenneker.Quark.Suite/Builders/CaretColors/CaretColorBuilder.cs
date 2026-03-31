@@ -37,7 +37,7 @@ public sealed class CaretColorBuilder : ICssBuilder
     public CaretColorBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     public CaretColorBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     public CaretColorBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
-    public CaretColorBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public CaretColorBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private CaretColorBuilder Chain(string value)

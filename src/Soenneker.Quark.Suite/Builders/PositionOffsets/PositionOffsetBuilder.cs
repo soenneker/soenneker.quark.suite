@@ -131,9 +131,9 @@ public sealed class PositionOffsetBuilder : ICssBuilder
     public PositionOffsetBuilder OnXl => ChainBp(BreakpointType.Xl);
 
     /// <summary>
-    /// Applies the position offset on widescreen breakpoint.
+    /// Applies the position offset on the 2xl breakpoint.
     /// </summary>
-    public PositionOffsetBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public PositionOffsetBuilder On2xl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PositionOffsetBuilder Chain(string property, string value)

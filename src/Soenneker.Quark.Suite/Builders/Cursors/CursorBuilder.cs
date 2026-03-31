@@ -99,9 +99,9 @@ public sealed class CursorBuilder : ICssBuilder
     /// </summary>
     public CursorBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the cursor on widescreen breakpoint.
+    /// Applies the cursor on the 2xl breakpoint.
     /// </summary>
-    public CursorBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public CursorBuilder On2xl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private CursorBuilder ChainWithCursor(string cursor)

@@ -2,7 +2,7 @@
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Simplified screen reader utility with fluent API and Bootstrap-first approach.
+/// Simplified screen reader utility with fluent API and Tailwind/shadcn-aligned fluent API.
 /// </summary>
 public static class ScreenReader
 {

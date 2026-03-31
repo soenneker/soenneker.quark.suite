@@ -78,9 +78,9 @@ public sealed class InteractionBuilder : ICssBuilder
     /// </summary>
     public InteractionBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the interaction on widescreen breakpoint.
+    /// Applies the interaction on the 2xl breakpoint.
     /// </summary>
-    public InteractionBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public InteractionBuilder On2xl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private InteractionBuilder ChainWithInteraction(string userSelect, string pointerEvents)

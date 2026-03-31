@@ -301,7 +301,12 @@ public class ComponentOptions
     /// <summary>
     /// Gets or sets the CSS border-radius configuration.
     /// </summary>
-    public CssValue<BorderRadiusBuilder>? BorderRadius { get; set; }
+    public CssValue<RadiusBuilder>? Radius { get; set; }
+
+    /// <summary>
+    /// Gets or sets the CSS ring configuration.
+    /// </summary>
+    public CssValue<RingBuilder>? Ring { get; set; }
 
     /// <summary>
     /// Gets or sets the CSS clip-path configuration.
@@ -449,7 +454,8 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Animation, "animation");
         AddRules(buffer, baseSelector, AspectRatio, "aspect-ratio");
         AddRules(buffer, baseSelector, BackdropFilter, "backdrop-filter");
-        AddRules(buffer, baseSelector, BorderRadius, "border-radius");
+        AddRules(buffer, baseSelector, Radius, "border-radius");
+        AddRules(buffer, baseSelector, Ring, null);
         AddRules(buffer, baseSelector, ClipPath, "clip-path");
         AddRules(buffer, baseSelector, Cursor, "cursor");
         AddRules(buffer, baseSelector, Filter, "filter");

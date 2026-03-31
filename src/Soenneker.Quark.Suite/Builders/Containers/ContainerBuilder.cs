@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Builder for Bootstrap container utilities.
+/// Tailwind container utility builder.
 /// </summary>
 [TailwindPrefix("container", Responsive = false)]
 public sealed class ContainerBuilder : ICssBuilder
@@ -34,20 +34,6 @@ public sealed class ContainerBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string GetContainerClass(ContainerRule rule)
     {
-        return rule.Variant.Value switch
-        {
-            ContainerVariant.DefaultValue => "container",
-            ContainerVariant.FluidValue => "container-fluid",
-            ContainerVariant.ResponsiveValue => rule.Breakpoint.Value switch
-            {
-                ContainerBreakpoint.SmValue => "container-sm",
-                ContainerBreakpoint.MdValue => "container-md",
-                ContainerBreakpoint.LgValue => "container-lg",
-                ContainerBreakpoint.XlValue => "container-xl",
-                ContainerBreakpoint.XxlValue => "container-xxl",
-                _ => "container"
-            },
-            _ => "container"
-        };
+        return "container";
     }
 }

@@ -38,7 +38,7 @@ public sealed class ContainBuilder : ICssBuilder
     public ContainBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     public ContainBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     public ContainBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
-    public ContainBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public ContainBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ContainBuilder Chain(string value)

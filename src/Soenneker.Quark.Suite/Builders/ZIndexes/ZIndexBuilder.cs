@@ -84,9 +84,9 @@ public sealed class ZIndexBuilder : ICssBuilder
     public ZIndexBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 
     /// <summary>
-    /// Applies the z-index on widescreen breakpoint.
+    /// Applies the z-index on the 2xl breakpoint.
     /// </summary>
-    public ZIndexBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public ZIndexBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ZIndexBuilder Chain(int value)

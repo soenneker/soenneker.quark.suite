@@ -96,9 +96,9 @@ public sealed class FloatBuilder : ICssBuilder
 	/// </summary>
     public FloatBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 	/// <summary>
-	/// Applies the float on widescreen breakpoint.
+	/// Applies the float on the 2xl breakpoint.
 	/// </summary>
-    public FloatBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public FloatBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FloatBuilder ChainWithValue(string value)

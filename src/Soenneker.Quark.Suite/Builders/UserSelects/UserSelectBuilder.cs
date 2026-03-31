@@ -98,9 +98,9 @@ public sealed class UserSelectBuilder : ICssBuilder
     public UserSelectBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 
     /// <summary>
-    /// Applies the user select on widescreen breakpoint.
+    /// Applies the user select on the 2xl breakpoint.
     /// </summary>
-    public UserSelectBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public UserSelectBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private UserSelectBuilder Chain(string value)
@@ -143,7 +143,7 @@ public sealed class UserSelectBuilder : ICssBuilder
 
             var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
-                cls = BreakpointUtil.InsertBreakpointType(cls, bp);
+                cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
             if (!first) sb.Append(' ');
             else first = false;

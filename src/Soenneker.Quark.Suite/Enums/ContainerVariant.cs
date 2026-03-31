@@ -3,23 +3,13 @@ using Soenneker.Gen.EnumValues;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Represents the variant of container.
+/// Represents Tailwind container variants.
 /// </summary>
 [EnumValue<string>]
 public sealed partial class ContainerVariant
 {
     /// <summary>
-    /// Default container variant.
+    /// Tailwind's default container utility.
     /// </summary>
     public static readonly ContainerVariant Default = new("default");
-
-    /// <summary>
-    /// Fluid container variant (full width).
-    /// </summary>
-    public static readonly ContainerVariant Fluid = new("fluid");
-
-    /// <summary>
-    /// Responsive container variant.
-    /// </summary>
-    public static readonly ContainerVariant Responsive = new("responsive");
 }

@@ -59,7 +59,7 @@ public sealed class InsetBuilder : ICssBuilder
     public InsetBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     public InsetBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     public InsetBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
-    public InsetBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public InsetBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private InsetBuilder AddRule(ElementSideType side)

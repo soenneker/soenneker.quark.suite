@@ -86,9 +86,9 @@ public sealed class FocusRingBuilder : ICssBuilder
     /// </summary>
     public FocusRingBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the focus ring on widescreen breakpoint.
+    /// Applies the focus ring on the 2xl breakpoint.
     /// </summary>
-    public FocusRingBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public FocusRingBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private FocusRingBuilder Chain(string color)

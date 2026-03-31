@@ -81,7 +81,7 @@ public sealed class ObjectFitBuilder : ICssBuilder
     public ObjectFitBuilder Unset => ChainWithFit(GlobalKeyword.UnsetValue);
 
     /// <summary>
-    /// Apply on phone devices (portrait phones, less than 576px).
+    /// Applies on the base breakpoint.
     /// </summary>
     public ObjectFitBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 
@@ -91,24 +91,24 @@ public sealed class ObjectFitBuilder : ICssBuilder
     public ObjectFitBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 
     /// <summary>
-    /// Apply on mobile devices (landscape phones, 576px and up).
+    /// Applies on the md breakpoint.
     /// </summary>
     public ObjectFitBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 
     /// <summary>
-    /// Apply on laptop devices (laptops, 992px and up).
+    /// Applies on the lg breakpoint.
     /// </summary>
     public ObjectFitBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 
     /// <summary>
-    /// Apply on desktop devices (desktops, 1200px and up).
+    /// Applies on the xl breakpoint.
     /// </summary>
     public ObjectFitBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 
     /// <summary>
-    /// Apply on wide screen devices (larger desktops, 1400px and up).
+    /// Applies on the 2xl breakpoint.
     /// </summary>
-    public ObjectFitBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public ObjectFitBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObjectFitBuilder ChainWithFit(string fit)

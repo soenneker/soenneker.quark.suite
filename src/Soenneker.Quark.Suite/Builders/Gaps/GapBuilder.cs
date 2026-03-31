@@ -96,7 +96,7 @@ public sealed class GapBuilder : ICssBuilder
     public GapBuilder Row => ChainWithDirection("row");
 
     /// <summary>
-    /// Apply on phone devices (portrait phones, less than 576px).
+    /// Applies on the base breakpoint.
     /// </summary>
     public GapBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 
@@ -106,27 +106,27 @@ public sealed class GapBuilder : ICssBuilder
     public GapBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 
     /// <summary>
-    /// Apply on mobile devices (landscape phones, 576px and up).
+    /// Applies on the md breakpoint.
     /// </summary>
     public GapBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 
     /// <summary>
-    /// Apply on laptop devices (laptops, 992px and up).
+    /// Applies on the lg breakpoint.
     /// </summary>
     public GapBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 
     /// <summary>
-    /// Apply on desktop devices (desktops, 1200px and up).
+    /// Applies on the xl breakpoint.
     /// </summary>
     public GapBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 
     /// <summary>
-    /// Apply on wide screen devices (larger desktops, 1400px and up).
+    /// Applies on the 2xl breakpoint.
     /// </summary>
-    public GapBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public GapBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     /// <summary>
-    /// Apply on ultrawide devices (ultrawide screens, 1920px and up).
+    /// Applies on the 2xl breakpoint.
     /// </summary>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

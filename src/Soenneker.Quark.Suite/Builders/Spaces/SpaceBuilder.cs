@@ -18,6 +18,7 @@ public sealed class SpaceBuilder : ICssBuilder
 
     public SpaceBuilder XReverse => Chain("space-x-reverse", "");
     public SpaceBuilder YReverse => Chain("space-y-reverse", "");
+    public SpaceBuilder Token(string value) => Chain(_rules.Count > 0 ? _rules[^1].Utility : "space-x", value);
 
     public SpaceBuilder OnBase => ChainBreakpoint(BreakpointType.Base);
     public SpaceBuilder OnSm => ChainBreakpoint(BreakpointType.Sm);

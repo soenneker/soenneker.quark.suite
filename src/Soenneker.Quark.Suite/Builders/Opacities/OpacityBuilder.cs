@@ -77,9 +77,9 @@ public sealed class OpacityBuilder : ICssBuilder
     public OpacityBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 
     /// <summary>
-    /// Applies the opacity on widescreen breakpoint.
+    /// Applies the opacity on the 2xl breakpoint.
     /// </summary>
-    public OpacityBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public OpacityBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private OpacityBuilder Chain(int value)

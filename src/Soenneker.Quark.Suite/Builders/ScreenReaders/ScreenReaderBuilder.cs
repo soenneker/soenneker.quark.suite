@@ -59,9 +59,9 @@ public sealed class ScreenReaderBuilder : ICssBuilder
     /// </summary>
     public ScreenReaderBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the screen reader on widescreen breakpoint.
+    /// Applies the screen reader on the 2xl breakpoint.
     /// </summary>
-    public ScreenReaderBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ScreenReaderBuilder On2xl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScreenReaderBuilder ChainWithType(string type)

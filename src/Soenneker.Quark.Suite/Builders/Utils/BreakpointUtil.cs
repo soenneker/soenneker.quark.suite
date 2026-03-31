@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Shared utilities for converting BreakpointTypes to CSS class tokens.
+/// Shared utilities for converting breakpoint values into Tailwind-responsive class prefixes.
 /// </summary>
 public static class BreakpointUtil
 {
@@ -15,7 +15,7 @@ public static class BreakpointUtil
     /// Returns empty string for phone/extra-small (default) BreakpointTypes.
     /// </summary>
     /// <param name="breakpoint">The BreakpointType to convert</param>
-    /// <returns>The CSS class token (e.g., "sm", "md", "lg", "xl", "xxl") or empty string</returns>
+    /// <returns>The CSS class token (e.g., "sm", "md", "lg", "xl", "2xl") or empty string.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string GetBreakpointToken(BreakpointType? breakpoint)
     {
@@ -27,50 +27,13 @@ public static class BreakpointUtil
     /// Alias for GetBreakpointToken for backward compatibility.
     /// </summary>
     /// <param name="breakpoint">The BreakpointType to convert</param>
-    /// <returns>The CSS class token (e.g., "sm", "md", "lg", "xl", "xxl") or empty string</returns>
+    /// <returns>The CSS class token (e.g., "sm", "md", "lg", "xl", "2xl") or empty string.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string GetBreakpointClass(BreakpointType? breakpoint) => GetBreakpointToken(breakpoint);
 
     /// <summary>
-    /// Insert BreakpointType token into a CSS class name.
-    /// For example: "text-break" + "md" => "text-md-break".
-    /// Falls back to "bp-{className}" if no dash exists in the class name.
-    /// </summary>
-    /// <param name="className">The base CSS class name</param>
-    /// <param name="bp">The breakpoint token (e.g., "sm", "md", "lg", "xl", "xxl")</param>
-    /// <returns>The CSS class name with the breakpoint inserted</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string InsertBreakpointType(string className, string bp)
-    {
-        var dashIndex = className.IndexOf('-');
-
-        if (dashIndex > 0)
-        {
-            var len = dashIndex + 1 + bp.Length + (className.Length - dashIndex);
-
-            return string.Create(len, (className, dashIndex, bp), static (dst, s) =>
-            {
-                s.className.AsSpan(0, s.dashIndex).CopyTo(dst);
-                var idx = s.dashIndex;
-                dst[idx++] = '-';
-                s.bp.AsSpan().CopyTo(dst[idx..]);
-                idx += s.bp.Length;
-                s.className.AsSpan(s.dashIndex).CopyTo(dst[idx..]);
-            });
-        }
-
-        return string.Create(bp.Length + 1 + className.Length, (className, bp), static (dst, s) =>
-        {
-            s.bp.AsSpan().CopyTo(dst);
-            var idx = s.bp.Length;
-            dst[idx++] = '-';
-            s.className.AsSpan().CopyTo(dst[idx..]);
-        });
-    }
-
-    /// <summary>
     /// Returns the Tailwind responsive class: breakpoint prefix + class (e.g. "md" + "col-span-2" => "md:col-span-2").
-    /// Use for grid/flex utilities that use Tailwind's bp:utility format.
+    /// Use for all Tailwind utilities that use the bp:utility format.
     /// </summary>
     /// <param name="className">The base CSS class name</param>
     /// <param name="bp">The breakpoint token (e.g., "sm", "md", "lg", "xl", "2xl") or empty</param>

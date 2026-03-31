@@ -9,12 +9,12 @@ namespace Soenneker.Quark;
 public sealed partial class ListVariantType
 {
     /// <summary>
-    /// Removes default list styling (list-none).
+    /// Removes default list styling.
     /// </summary>
-    public static readonly ListVariantType Unstyled = new("unstyled");
+    public static readonly ListVariantType None = new("none");
 
     /// <summary>
-    /// Makes list items inline (inline-flex / inline).
+    /// Applies inline list layout utilities to the list.
     /// </summary>
     public static readonly ListVariantType Inline = new("inline");
 

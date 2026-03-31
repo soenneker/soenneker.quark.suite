@@ -80,9 +80,9 @@ public sealed class VisibilityBuilder : ICssBuilder
 	/// </summary>
     public VisibilityBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 	/// <summary>
-	/// Applies the visibility on widescreen breakpoint.
+	/// Applies the visibility on the 2xl breakpoint.
 	/// </summary>
-    public VisibilityBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public VisibilityBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private VisibilityBuilder Chain(string value)

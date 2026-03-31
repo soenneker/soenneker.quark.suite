@@ -49,7 +49,7 @@ public sealed class MixBlendModeBuilder : ICssBuilder
     public MixBlendModeBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     public MixBlendModeBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     public MixBlendModeBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
-    public MixBlendModeBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public MixBlendModeBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private MixBlendModeBuilder Chain(string value)

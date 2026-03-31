@@ -37,7 +37,7 @@ public sealed class AccentColorBuilder : ICssBuilder
     public AccentColorBuilder OnMd => ChainBp(BreakpointType.Md);
     public AccentColorBuilder OnLg => ChainBp(BreakpointType.Lg);
     public AccentColorBuilder OnXl => ChainBp(BreakpointType.Xl);
-    public AccentColorBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public AccentColorBuilder On2xl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private AccentColorBuilder Chain(string value)

@@ -86,37 +86,22 @@ public sealed class MarginBuilder : ICssBuilder
     public MarginBuilder FromEnd => AddRule(ElementSideType.InlineEnd);
 
 	/// <summary>
-	/// Sets the margin size to 0.
-	/// </summary>
-    public MarginBuilder Is0 => ChainWithSize(ScaleType.Is0);
-	/// <summary>
-	/// Sets the margin size to 1.
-	/// </summary>
-    public MarginBuilder Is1 => ChainWithSize(ScaleType.Is1);
-	/// <summary>
-	/// Sets the margin size to 2.
-	/// </summary>
-    public MarginBuilder Is2 => ChainWithSize(ScaleType.Is2);
-	/// <summary>
-	/// Sets the margin size to 3.
-	/// </summary>
-    public MarginBuilder Is3 => ChainWithSize(ScaleType.Is3);
-	/// <summary>
-	/// Sets the margin size to 4.
-	/// </summary>
-    public MarginBuilder Is4 => ChainWithSize(ScaleType.Is4);
-	/// <summary>
-	/// Sets the margin size to 5.
-	/// </summary>
-    public MarginBuilder Is5 => ChainWithSize(ScaleType.Is5);
-	/// <summary>
-	/// Sets the margin size to 8.
-	/// </summary>
-    public MarginBuilder Is8 => ChainWithSize("8");
-	/// <summary>
 	/// Sets the margin to auto.
 	/// </summary>
     public MarginBuilder Auto => ChainWithSize("auto");
+
+    public MarginBuilder Is0 => ChainWithSize(ScaleType.Is0);
+    public MarginBuilder Is1 => ChainWithSize(ScaleType.Is1);
+    public MarginBuilder Is2 => ChainWithSize(ScaleType.Is2);
+    public MarginBuilder Is3 => ChainWithSize(ScaleType.Is3);
+    public MarginBuilder Is4 => ChainWithSize(ScaleType.Is4);
+    public MarginBuilder Is5 => ChainWithSize(ScaleType.Is5);
+    public MarginBuilder Is8 => ChainWithSize("8");
+
+	/// <summary>
+	/// Sets the margin size from an arbitrary Tailwind spacing token.
+	/// </summary>
+    public MarginBuilder Token(string value) => ChainWithSize(value);
 
 	/// <summary>
 	/// Applies the margin on phone breakpoint.
@@ -139,9 +124,9 @@ public sealed class MarginBuilder : ICssBuilder
 	/// </summary>
     public MarginBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 	/// <summary>
-	/// Applies the margin on widescreen breakpoint.
+	/// Applies the margin on the 2xl breakpoint.
 	/// </summary>
-    public MarginBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public MarginBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private MarginBuilder AddRule(ElementSideType side)
     {

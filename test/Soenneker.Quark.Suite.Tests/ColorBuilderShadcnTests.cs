@@ -25,7 +25,7 @@ public sealed class ColorBuilderShadcnTests
     [Fact]
     public void BackgroundColor_danger_alias_maps_to_bg_destructive()
     {
-        Assert.Equal("bg-destructive", BackgroundColor.Danger.ToClass());
+        Assert.Equal("bg-destructive", BackgroundColor.Destructive.ToClass());
     }
 
     [Fact]

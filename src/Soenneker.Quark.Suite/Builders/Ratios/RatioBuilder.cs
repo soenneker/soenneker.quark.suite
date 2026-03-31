@@ -70,9 +70,9 @@ public sealed class RatioBuilder : ICssBuilder
     /// </summary>
     public RatioBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the ratio on widescreen breakpoint.
+    /// Applies the ratio on the 2xl breakpoint.
     /// </summary>
-    public RatioBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public RatioBuilder On2xl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private RatioBuilder ChainWithRatio(string ratio)

@@ -83,41 +83,19 @@ public sealed class PaddingBuilder : ICssBuilder
     public PaddingBuilder FromEnd => AddRule(ElementSideType.InlineEnd);
 
 	/// <summary>
-	/// Sets the padding size to 0.
+	/// Sets the padding size from an arbitrary Tailwind spacing token.
 	/// </summary>
     public PaddingBuilder Is0 => ChainWithSize(ScaleType.Is0);
-	/// <summary>
-	/// Sets the padding size to 1.
-	/// </summary>
     public PaddingBuilder Is1 => ChainWithSize(ScaleType.Is1);
-	/// <summary>
-	/// Sets the padding size to 2.
-	/// </summary>
     public PaddingBuilder Is2 => ChainWithSize(ScaleType.Is2);
-	/// <summary>
-	/// Sets the padding size to 3.
-	/// </summary>
     public PaddingBuilder Is3 => ChainWithSize(ScaleType.Is3);
-	/// <summary>
-	/// Sets the padding size to 4.
-	/// </summary>
     public PaddingBuilder Is4 => ChainWithSize(ScaleType.Is4);
-	/// <summary>
-	/// Sets the padding size to 5.
-	/// </summary>
     public PaddingBuilder Is5 => ChainWithSize(ScaleType.Is5);
-	/// <summary>
-	/// Sets the padding size to 6.
-	/// </summary>
     public PaddingBuilder Is6 => ChainWithSize("6");
-	/// <summary>
-	/// Sets the padding size to 8.
-	/// </summary>
     public PaddingBuilder Is8 => ChainWithSize("8");
-	/// <summary>
-	/// Sets the padding size to 16.
-	/// </summary>
     public PaddingBuilder Is16 => ChainWithSize("16");
+
+    public PaddingBuilder Token(string value) => ChainWithSize(value);
 
 	/// <summary>
 	/// Applies the padding on phone breakpoint.
@@ -140,9 +118,9 @@ public sealed class PaddingBuilder : ICssBuilder
 	/// </summary>
     public PaddingBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 	/// <summary>
-	/// Applies the padding on widescreen breakpoint.
+	/// Applies the padding on the 2xl breakpoint.
 	/// </summary>
-    public PaddingBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public PaddingBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PaddingBuilder AddRule(ElementSideType side)

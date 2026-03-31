@@ -79,29 +79,16 @@ public sealed class BorderBuilder : ICssBuilder
     public BorderBuilder FromEnd => AddRule(ElementSideType.InlineEnd);
 
 	/// <summary>
-	/// Sets the border size to 0.
+	/// Sets the border width from an arbitrary Tailwind border token.
 	/// </summary>
     public BorderBuilder Is0 => ChainWithSize(ScaleType.Is0);
-	/// <summary>
-	/// Sets the border size to 1.
-	/// </summary>
     public BorderBuilder Is1 => ChainWithSize(ScaleType.Is1);
-	/// <summary>
-	/// Sets the border size to 2.
-	/// </summary>
     public BorderBuilder Is2 => ChainWithSize(ScaleType.Is2);
-	/// <summary>
-	/// Sets the border size to 3.
-	/// </summary>
     public BorderBuilder Is3 => ChainWithSize(ScaleType.Is3);
-	/// <summary>
-	/// Sets the border size to 4.
-	/// </summary>
     public BorderBuilder Is4 => ChainWithSize(ScaleType.Is4);
-	/// <summary>
-	/// Sets the border size to 5.
-	/// </summary>
     public BorderBuilder Is5 => ChainWithSize(ScaleType.Is5);
+
+    public BorderBuilder Token(string value) => ChainWithSize(value);
 
 	/// <summary>
 	/// Applies the border on phone breakpoint.
@@ -124,9 +111,9 @@ public sealed class BorderBuilder : ICssBuilder
 	/// </summary>
     public BorderBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 	/// <summary>
-	/// Applies the border on widescreen breakpoint.
+	/// Applies the border on the 2xl breakpoint.
 	/// </summary>
-    public BorderBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public BorderBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BorderBuilder AddRule(ElementSideType side)
@@ -151,6 +138,13 @@ public sealed class BorderBuilder : ICssBuilder
     private BorderBuilder ChainWithSize(ScaleType scale)
     {
         _rules.Add(new BorderRule(scale.Value, ElementSideType.All, ConsumePendingBreakpoint()));
+        return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BorderBuilder ChainWithSize(string value)
+    {
+        _rules.Add(new BorderRule(value, ElementSideType.All, ConsumePendingBreakpoint()));
         return this;
     }
 

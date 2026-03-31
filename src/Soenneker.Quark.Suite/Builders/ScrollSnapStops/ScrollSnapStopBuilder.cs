@@ -32,7 +32,7 @@ public sealed class ScrollSnapStopBuilder : ICssBuilder
     public ScrollSnapStopBuilder OnMd => ChainBp(BreakpointType.Md);
     public ScrollSnapStopBuilder OnLg => ChainBp(BreakpointType.Lg);
     public ScrollSnapStopBuilder OnXl => ChainBp(BreakpointType.Xl);
-    public ScrollSnapStopBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public ScrollSnapStopBuilder On2xl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScrollSnapStopBuilder Chain(string value)

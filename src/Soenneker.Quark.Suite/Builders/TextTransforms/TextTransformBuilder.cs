@@ -87,9 +87,9 @@ public sealed class TextTransformBuilder : ICssBuilder
     /// </summary>
     public TextTransformBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the text transform on widescreen breakpoint.
+    /// Applies the text transform on the 2xl breakpoint.
     /// </summary>
-    public TextTransformBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public TextTransformBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextTransformBuilder Chain(string value)

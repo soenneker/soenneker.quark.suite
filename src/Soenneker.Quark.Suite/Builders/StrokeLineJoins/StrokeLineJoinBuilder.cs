@@ -34,7 +34,7 @@ public sealed class StrokeLineJoinBuilder : ICssBuilder
     public StrokeLineJoinBuilder OnMd => ChainBp(BreakpointType.Md);
     public StrokeLineJoinBuilder OnLg => ChainBp(BreakpointType.Lg);
     public StrokeLineJoinBuilder OnXl => ChainBp(BreakpointType.Xl);
-    public StrokeLineJoinBuilder OnXxl => ChainBp(BreakpointType.Xxl);
+    public StrokeLineJoinBuilder On2xl => ChainBp(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private StrokeLineJoinBuilder Chain(string value)

@@ -49,9 +49,9 @@ public sealed class TruncateBuilder : ICssBuilder
     /// </summary>
     public TruncateBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the truncate on widescreen breakpoint.
+    /// Applies the truncate on the 2xl breakpoint.
     /// </summary>
-    public TruncateBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public TruncateBuilder On2xl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TruncateBuilder ChainWithBreakpoint(BreakpointType breakpoint)

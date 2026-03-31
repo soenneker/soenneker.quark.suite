@@ -86,9 +86,9 @@ public sealed class TransitionBuilder : ICssBuilder
     /// </summary>
     public TransitionBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the transition on widescreen breakpoint.
+    /// Applies the transition on the 2xl breakpoint.
     /// </summary>
-    public TransitionBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public TransitionBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TransitionBuilder ChainWithTransition(string transition)

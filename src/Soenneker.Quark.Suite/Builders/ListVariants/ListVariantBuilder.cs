@@ -8,16 +8,12 @@ using Soenneker.Utils.PooledStringBuilders;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Builder for list variant utility classes with fluent API for chaining rules.
+/// Builder for Tailwind-aligned list layout variants.
 /// </summary>
 [TailwindPrefix("list-", Responsive = true)]
 public sealed class ListVariantBuilder : ICssBuilder
 {
     private readonly List<ListVariantRule> _rules = new(4);
-
-    private const string _classUnstyled = "list-unstyled";
-    private const string _classInline = "list-inline";
-    private const string _classInlineItem = "list-inline-item";
 
     internal ListVariantBuilder(ListVariantType type, BreakpointType? breakpoint = null)
     {
@@ -31,9 +27,9 @@ public sealed class ListVariantBuilder : ICssBuilder
     }
 
     /// <summary>
-    /// Sets the list variant to unstyled.
+    /// Removes default list styling.
     /// </summary>
-    public ListVariantBuilder Unstyled => Chain(ListVariantType.Unstyled);
+    public ListVariantBuilder None => Chain(ListVariantType.None);
     /// <summary>
     /// Sets the list variant to inline.
     /// </summary>
@@ -64,9 +60,9 @@ public sealed class ListVariantBuilder : ICssBuilder
     /// </summary>
     public ListVariantBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the list variant on widescreen breakpoint.
+    /// Applies the list variant on the 2xl breakpoint.
     /// </summary>
-    public ListVariantBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ListVariantBuilder On2xl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ListVariantBuilder Chain(ListVariantType type)
@@ -80,7 +76,7 @@ public sealed class ListVariantBuilder : ICssBuilder
     {
         if (_rules.Count == 0)
         {
-            _rules.Add(new ListVariantRule(ListVariantType.Unstyled, breakpoint));
+            _rules.Add(new ListVariantRule(ListVariantType.None, breakpoint));
             return this;
         }
 
@@ -108,9 +104,9 @@ public sealed class ListVariantBuilder : ICssBuilder
             var typeValue = rule.Type.Value;
             var cls = typeValue switch
             {
-                "unstyled" => _classUnstyled,
-                "inline" => _classInline,
-                "inline-item" => _classInlineItem,
+                "none" => "list-none p-0",
+                "inline" => "flex flex-wrap items-center gap-2 list-none p-0",
+                "inline-item" => "inline-block",
                 _ => string.Empty
             };
 
@@ -130,41 +126,7 @@ public sealed class ListVariantBuilder : ICssBuilder
         return sb.ToString();
     }
 
-    /// <summary>
-    /// Gets the CSS style string for the current configuration.
-    /// </summary>
-    /// <returns>The CSS style string.</returns>
-    public string ToStyle()
-    {
-        if (_rules.Count == 0)
-            return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var rule = _rules[i];
-            var typeValue = rule.Type.Value;
-            var style = typeValue switch
-            {
-                "unstyled" => "list-style: none; padding-left: 0;",
-                "inline" => "padding-left: 0; list-style: none;",
-                "inline-item" => "display: inline-block;",
-                _ => null
-            };
-
-            if (style == null)
-                continue;
-
-            if (!first) sb.Append(" ");
-            else first = false;
-
-            sb.Append(style);
-        }
-
-        return sb.ToString();
-    }
+    public string ToStyle() => string.Empty;
 
     /// <summary>
     /// Returns the CSS class string representation of this list variant builder.

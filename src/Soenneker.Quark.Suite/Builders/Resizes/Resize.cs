@@ -2,7 +2,7 @@
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Simplified resize utility with fluent API and Bootstrap-first approach.
+/// Simplified resize utility with fluent API and Tailwind/shadcn-aligned fluent API.
 /// </summary>
 public static class Resize
 {

@@ -93,9 +93,9 @@ public sealed class ObjectPositionBuilder : ICssBuilder
     /// </summary>
     public ObjectPositionBuilder OnXl => ChainWithBreakpoint(BreakpointType.Xl);
     /// <summary>
-    /// Applies the object position on widescreen breakpoint.
+    /// Applies the object position on the 2xl breakpoint.
     /// </summary>
-    public ObjectPositionBuilder OnXxl => ChainWithBreakpoint(BreakpointType.Xxl);
+    public ObjectPositionBuilder On2xl => ChainWithBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ObjectPositionBuilder ChainWithPosition(string position)

@@ -190,9 +190,9 @@ public sealed class BackgroundColorBuilder : ICssBuilder
 	/// </summary>
     public BackgroundColorBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
 	/// <summary>
-	/// Applies the background color on widescreen breakpoint.
+	/// Applies the background color on the 2xl breakpoint.
 	/// </summary>
-    public BackgroundColorBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public BackgroundColorBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BackgroundColorBuilder ChainValue(string value)

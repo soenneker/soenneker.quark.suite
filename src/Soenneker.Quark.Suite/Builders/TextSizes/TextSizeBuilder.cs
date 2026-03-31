@@ -8,26 +8,13 @@ using Soenneker.Utils.PooledStringBuilders;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// High-performance text size builder with fluent API for chaining text size rules.
+/// Tailwind/shadcn-aligned text size builder.
 /// </summary>
 [TailwindPrefix("text-", Responsive = true)]
 public sealed class TextSizeBuilder : ICssBuilder
 {
     private readonly List<TextSizeRule> _rules = new(4);
     private BreakpointType? _pendingBreakpoint;
-
-    // Tailwind text size utilities (for Quark Suite / shadcn). 1=largest, 6=smallest.
-    private const string _fs1 = "text-4xl";
-    private const string _fs2 = "text-3xl";
-    private const string _fs3 = "text-2xl";
-    private const string _fs4 = "text-xl";
-    private const string _fs5 = "text-base";
-    private const string _fs6 = "text-sm";
-    private const string _fs7 = "text-xs";
-    private const string _fsLg = "text-lg";
-
-    // ----- CSS prefix (compile-time) -----
-    private const string _fontSizePrefix = "font-size: ";
 
     internal TextSizeBuilder(string size, BreakpointType? breakpoint = null)
     {
@@ -40,39 +27,16 @@ public sealed class TextSizeBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
-    // ----- Fluent size chaining -----
-    /// <summary>
-    /// Sets the text size to 1.
-    /// </summary>
-    public TextSizeBuilder Is1 => ChainSize("1");
-    /// <summary>
-    /// Sets the text size to 2.
-    /// </summary>
-    public TextSizeBuilder Is2 => ChainSize("2");
-    /// <summary>
-    /// Sets the text size to 3.
-    /// </summary>
-    public TextSizeBuilder Is3 => ChainSize("3");
-    /// <summary>
-    /// Sets the text size to 4.
-    /// </summary>
-    public TextSizeBuilder Is4 => ChainSize("4");
-    /// <summary>
-    /// Sets the text size to 5.
-    /// </summary>
-    public TextSizeBuilder Is5 => ChainSize("5");
-    /// <summary>
-    /// Sets the text size to 6.
-    /// </summary>
-    public TextSizeBuilder Is6 => ChainSize("6");
-    /// <summary>
-    /// Sets the text size to 7.
-    /// </summary>
-    public TextSizeBuilder Is7 => ChainSize("7");
-    /// <summary>
-    /// Sets the text size to lg.
-    /// </summary>
+    public TextSizeBuilder Xs => ChainSize("xs");
+    public TextSizeBuilder Sm => ChainSize("sm");
+    public TextSizeBuilder Base => ChainSize("base");
     public TextSizeBuilder Lg => ChainSize("lg");
+    public TextSizeBuilder Xl => ChainSize("xl");
+    public TextSizeBuilder TwoXl => ChainSize("2xl");
+    public TextSizeBuilder ThreeXl => ChainSize("3xl");
+    public TextSizeBuilder FourXl => ChainSize("4xl");
+
+    public TextSizeBuilder Token(string value) => ChainSize(value);
 
     // ----- BreakpointType chaining -----
     /// <summary>
@@ -95,10 +59,7 @@ public sealed class TextSizeBuilder : ICssBuilder
     /// Applies the text size on desktop breakpoint.
     /// </summary>
     public TextSizeBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
-    /// <summary>
-    /// Applies the text size on widescreen breakpoint.
-    /// </summary>
-    public TextSizeBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public TextSizeBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextSizeBuilder ChainSize(string size)
     {
@@ -147,69 +108,24 @@ public sealed class TextSizeBuilder : ICssBuilder
         return sb.ToString();
     }
 
-    /// <summary>Gets the CSS style string for the current configuration.</summary>
-    public string ToStyle()
-    {
-        if (_rules.Count == 0)
-            return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var rule = _rules[i];
-
-            var sizeValue = GetSizeValue(rule.Size);
-            if (sizeValue is null)
-                continue;
-
-            if (!first)
-                sb.Append("; ");
-            else
-                first = false;
-
-            sb.Append(_fontSizePrefix);
-            sb.Append(sizeValue);
-        }
-
-        return sb.ToString();
-    }
+    public string ToStyle() => string.Empty;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string GetSizeClass(string size)
     {
         return size switch
         {
-            "1" => _fs1,
-            "2" => _fs2,
-            "3" => _fs3,
-            "4" => _fs4,
-            "5" => _fs5,
-            "6" => _fs6,
-            "7" => _fs7,
-            "lg" => _fsLg,
+            "xs" => "text-xs",
+            "sm" => "text-sm",
+            "base" => "text-base",
+            "lg" => "text-lg",
+            "xl" => "text-xl",
+            "2xl" => "text-2xl",
+            "3xl" => "text-3xl",
+            "4xl" => "text-4xl",
+            _ when size.StartsWith("text-") => size,
+            _ when size.Length > 0 => $"text-{size}",
             _ => string.Empty
         };
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string? GetSizeValue(string size)
-    {
-        // Use theme CSS variables for inline styles
-        return size switch
-        {
-            "1" => "calc(1.375rem + 1.5vw)",
-            "2" => "calc(1.325rem + 0.9vw)",
-            "3" => "calc(1.3rem + 0.6vw)",
-            "4" => "calc(1.275rem + 0.3vw)",
-            "5" => "1.25rem",
-            "6" => "1rem",
-            "7" => "0.75rem",
-            "lg" => "1.125rem",
-            _ => size
-        };
-    }
-
-
 }

@@ -39,7 +39,7 @@ public sealed class EndBuilder : ICssBuilder
     public EndBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
     public EndBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
     public EndBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
-    public EndBuilder OnXxl => SetPendingBreakpoint(BreakpointType.Xxl);
+    public EndBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private EndBuilder Chain(string value)
