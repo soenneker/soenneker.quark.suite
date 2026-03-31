@@ -1,0 +1,138 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.TypographyElement
+@implements IDisposable
+
+@if (HasChildContent)
+{
+    <div @attributes="BuildAttributes()" role="alert">
+        @ChildContent
+    </div>
+}
+else if (ShowErrorMessages && ParentValidation?.Status == ValidationStatus.Error && ParentValidation.Messages?.Any() == true)
+{
+    <div @attributes="BuildAttributes()" role="alert">
+        @foreach (var message in ParentValidation.Messages)
+        {
+            <div>@message</div>
+        }
+    </div>
+}
+else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (_messages?.Any() ?? false) && ParentValidation == null)
+{
+    <div @attributes="BuildAttributes()" role="alert">
+        @foreach (var message in _messages!)
+        {
+            <div>@message</div>
+        }
+    </div>
+}
+
+@code {
+    [CascadingParameter(Name = nameof(ParentValidation))]
+    public Validation? ParentValidation { get; set; }
+
+    [CascadingParameter(Name = nameof(ParentValidations))]
+    public Validations? ParentValidations { get; set; }
+
+    [CascadingParameter]
+    private FieldContext? FieldContext { get; set; }
+
+    [Parameter]
+    public bool ShowErrorMessages { get; set; } = true;
+
+    private bool _visible;
+    private ValidationStatus _status = ValidationStatus.None;
+    private IReadOnlyCollection<string>? _messages;
+    private IDisposable? _registration;
+    private FieldContext? _registeredFieldContext;
+    private bool HasChildContent => ChildContent is not null;
+
+    protected override void OnInitialized()
+    {
+        if (ParentValidations is not null)
+        {
+            ParentValidations._statusChanged += OnStatusChanged;
+            ParentValidations.ClearingAll += OnClearingAll;
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        var shouldRegister = FieldContext is not null && (HasChildContent || ShowErrorMessages);
+        var fieldContext = shouldRegister ? FieldContext : null;
+
+        if (!ReferenceEquals(_registeredFieldContext, fieldContext))
+        {
+            _registration?.Dispose();
+            _registeredFieldContext = fieldContext;
+            _registration = fieldContext?.RegisterError();
+        }
+    }
+
+    private async void OnStatusChanged(ValidationsStatusChangedEventArgs args)
+    {
+        _status = args.Status;
+        _messages = args.Messages;
+        _visible = args.Status != ValidationStatus.None;
+        await RefreshOffThread();
+    }
+
+    private async void OnClearingAll()
+    {
+        _visible = false;
+        _status = ValidationStatus.None;
+        _messages = null;
+        await RefreshOffThread();
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "form-message";
+
+        if (FieldContext is not null && !attributes.ContainsKey("id"))
+            attributes["id"] = FieldContext.ErrorId;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-form-message");
+            AppendClass(ref cls, "text-sm font-normal text-destructive");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(HasChildContent);
+        hc.Add(ShowErrorMessages);
+        hc.Add(_visible);
+        hc.Add(_status);
+
+        if (_messages is not null)
+            hc.Add(_messages.Count);
+
+        if (ParentValidation is not null)
+        {
+            hc.Add(ParentValidation.Status);
+            if (ParentValidation.Messages is not null)
+                hc.Add(ParentValidation.Messages.Count());
+        }
+
+        hc.Add(FieldContext?.ErrorId);
+    }
+
+    public override void Dispose()
+    {
+        _registration?.Dispose();
+        base.Dispose();
+
+        if (ParentValidations is not null)
+        {
+            ParentValidations._statusChanged -= OnStatusChanged;
+            ParentValidations.ClearingAll -= OnClearingAll;
+        }
+    }
+}

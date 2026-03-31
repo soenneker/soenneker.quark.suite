@@ -1,0 +1,58 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<CascadingValue Name="ParentFormControl" Value="this" IsFixed="true">
+    <div @attributes="BuildAttributes()">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public CssValue<ColumnBuilder>? Columns { get; set; }
+
+    [CascadingParameter(Name = "FormHorizontal")]
+    protected bool FormHorizontal { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "form-control";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-form-control");
+            AppendClass(ref cls, "group/form-control flex flex-1 flex-col gap-1.5 leading-snug");
+
+            if (FormHorizontal)
+            {
+                AppendClass(ref cls, "min-w-0");
+                var columnClassAdded = AddColumnCss(ref cls, Columns);
+                if (!columnClassAdded)
+                    AppendClass(ref cls, "col-span-12");
+            }
+        });
+    }
+
+    private static bool AddColumnCss<T>(ref PooledStringBuilder cls, CssValue<T>? cssValue) where T : class, ICssBuilder
+    {
+        if (cssValue is { IsEmpty: false })
+        {
+            var css = cssValue.Value.ToString();
+            if (css.HasContent() && !cssValue.Value.IsCssStyle)
+            {
+                AppendClass(ref cls, css);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        AddIf(ref hc, Columns);
+        hc.Add(FormHorizontal);
+    }
+}

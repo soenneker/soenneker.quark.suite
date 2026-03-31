@@ -1,0 +1,53 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.TypographyElement
+
+<label @attributes="BuildAttributes()">
+    @ChildContent
+    @if (RequiredIndicator)
+    {
+        <span class="text-destructive">*</span>
+    }
+</label>
+
+@code {
+    [Parameter]
+    public string? For { get; set; }
+
+    [Parameter]
+    public bool RequiredIndicator { get; set; }
+
+    [CascadingParameter(Name = "FormHorizontal")]
+    protected bool FormHorizontal { get; set; }
+
+    [CascadingParameter]
+    private FieldContext? FieldContext { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "form-label";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-form-label");
+            AppendClass(ref cls, "group/form-label peer/form-label flex w-fit items-center gap-2 text-sm leading-snug font-medium select-none");
+            AppendClass(ref cls, "group-data-[disabled=true]/form-item:pointer-events-none group-data-[disabled=true]/form-item:opacity-50");
+            AppendClass(ref cls, "group-data-[invalid=true]/form-item:text-destructive");
+        });
+
+        if (For.HasContent())
+            attributes["for"] = For!;
+        else if (FieldContext is not null)
+            attributes["for"] = FieldContext.ControlId;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(For);
+        hc.Add(RequiredIndicator);
+        hc.Add(FormHorizontal);
+        hc.Add(FieldContext?.ControlId);
+    }
+}

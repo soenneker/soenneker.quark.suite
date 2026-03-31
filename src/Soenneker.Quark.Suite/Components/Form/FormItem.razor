@@ -1,0 +1,92 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IDisposable
+
+<CascadingValue Name="ParentFormItem" Value="@this" IsFixed="true">
+    <CascadingValue Value="_fieldContext" IsFixed="false">
+        <CascadingValue Name="FormHorizontal" Value="Horizontal" IsFixed="true">
+            <div @attributes="BuildAttributes()">
+                @ChildContent
+            </div>
+        </CascadingValue>
+    </CascadingValue>
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public bool Horizontal { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public bool IsInvalid { get; set; }
+
+    private readonly FieldContext _fieldContext = new();
+
+    protected override void OnInitialized()
+    {
+        _fieldContext.StateChanged += OnFieldContextStateChanged;
+        base.OnInitialized();
+    }
+
+    protected override void OnParametersSet()
+    {
+        _fieldContext.Update(Horizontal, IsInvalid);
+        base.OnParametersSet();
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "form-item";
+        attributes.TryAdd("role", "group");
+        attributes["data-orientation"] = Horizontal ? "horizontal" : "vertical";
+
+        if (Disabled)
+        {
+            attributes["data-disabled"] = "true";
+            attributes["aria-disabled"] = "true";
+        }
+
+        if (_fieldContext.IsInvalid)
+            attributes["data-invalid"] = "true";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-form-item");
+            AppendClass(ref cls, "group/form-item flex w-full gap-2 data-[invalid=true]:text-destructive");
+
+            if (Horizontal)
+            {
+                AppendClass(ref cls, "flex-row items-center");
+                AppendClass(ref cls, "*:data-[slot=form-label]:flex-auto");
+                AppendClass(ref cls, "has-[>[data-slot=form-control]]:items-start has-[>[data-slot=form-control]]:[&>[role=checkbox],[role=radio]]:mt-px");
+            }
+            else
+            {
+                AppendClass(ref cls, "flex-col [&>*]:w-full [&>.sr-only]:w-auto");
+            }
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        hc.Add(Horizontal);
+        hc.Add(Disabled);
+        hc.Add(IsInvalid);
+        hc.Add(_fieldContext.IsInvalid);
+    }
+
+    private async void OnFieldContextStateChanged()
+    {
+        await RefreshOffThread();
+    }
+
+    public override void Dispose()
+    {
+        _fieldContext.StateChanged -= OnFieldContextStateChanged;
+        base.Dispose();
+    }
+}

@@ -200,20 +200,37 @@
 		return string.Empty;
 	}
 
-    private Task HandleValueChanged(string? value)
+    private async Task HandleValueChanged(string? value)
     {
         if (DateExpression is not null || Date.HasValue || DateChanged.HasDelegate)
         {
-            Date = DateTime.TryParse(value, out var dateValue) ? dateValue : null;
-            return Task.CompletedTask;
+            DateTime? next = DateTime.TryParse(value, out var dateValue) ? dateValue : null;
+            var valueChanged = Date != next;
+            Date = next;
+
+            if (valueChanged)
+            {
+                await DateChanged.InvokeIfHasDelegate(Date);
+                InvalidateRender();
+                Refresh();
+            }
+
+            return;
         }
 
         if (DateOnlyExpression is not null || DateOnly.HasValue || DateOnlyChanged.HasDelegate)
         {
-            DateOnly = System.DateOnly.TryParse(value, out var dateOnlyValue) ? dateOnlyValue : null;
-        }
+            System.DateOnly? next = System.DateOnly.TryParse(value, out var dateOnlyValue) ? dateOnlyValue : null;
+            var valueChanged = DateOnly != next;
+            DateOnly = next;
 
-        return Task.CompletedTask;
+            if (valueChanged)
+            {
+                await DateOnlyChanged.InvokeIfHasDelegate(DateOnly);
+                InvalidateRender();
+                Refresh();
+            }
+        }
     }
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -241,46 +258,12 @@
 
 	private async Task HandleInput(ChangeEventArgs e)
 	{
-		var value = e.Value?.ToString();
-		var valueChanged = false;
-		
-		if (DateExpression is not null || Date.HasValue || DateChanged.HasDelegate)
-		{
-			if (DateTime.TryParse(value, out var dateValue))
-			{
-				if (Date != dateValue)
-				{
-					Date = dateValue;
-					valueChanged = true;
-				}
-			}
-			await DateChanged.InvokeIfHasDelegate(Date);
-		}
-		else if (DateOnlyExpression is not null || DateOnly.HasValue || DateOnlyChanged.HasDelegate)
-		{
-			if (System.DateOnly.TryParse(value, out var dateOnlyValue))
-			{
-				if (DateOnly != dateOnlyValue)
-				{
-					DateOnly = dateOnlyValue;
-					valueChanged = true;
-				}
-			}
-			await DateOnlyChanged.InvokeIfHasDelegate(DateOnly);
-		}
-
 		await OnInput.InvokeIfHasDelegate(e);
 
 		if (ParentValidation is not null)
 		{
 			ParentValidation.MarkTouched();
 			await ParentValidation.NotifyInputChanged(ValidationValue);
-		}
-
-		if (valueChanged)
-		{
-			InvalidateRender();
-			Refresh();
 		}
 	}
 
@@ -297,46 +280,12 @@
 
 	private async Task HandleChange(ChangeEventArgs e)
 	{
-		var value = e?.Value?.ToString();
-		var valueChanged = false;
-		
-		if (DateExpression is not null || Date.HasValue || DateChanged.HasDelegate)
-		{
-			if (DateTime.TryParse(value, out var dateValue))
-			{
-				if (Date != dateValue)
-				{
-					Date = dateValue;
-					valueChanged = true;
-				}
-			}
-			await DateChanged.InvokeIfHasDelegate(Date);
-		}
-		else if (DateOnlyExpression is not null || DateOnly.HasValue || DateOnlyChanged.HasDelegate)
-		{
-			if (System.DateOnly.TryParse(value, out var dateOnlyValue))
-			{
-				if (DateOnly != dateOnlyValue)
-				{
-					DateOnly = dateOnlyValue;
-					valueChanged = true;
-				}
-			}
-			await DateOnlyChanged.InvokeIfHasDelegate(DateOnly);
-		}
-
 		await OnChange.InvokeIfHasDelegate(e);
 
 		if (ParentValidation is not null)
 		{
 			ParentValidation.MarkTouched();
 			await ParentValidation.NotifyInputChanged(ValidationValue);
-		}
-
-		if (valueChanged)
-		{
-			InvalidateRender();
-			Refresh();
 		}
 	}
 
