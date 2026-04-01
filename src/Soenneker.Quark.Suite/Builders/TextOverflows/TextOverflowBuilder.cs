@@ -16,8 +16,8 @@ public sealed class TextOverflowBuilder : ICssBuilder
 {
     private readonly List<TextOverflowRule> _rules = new(4);
 
-    // Tailwind: truncate (ellipsis), text-clip
-    private const string _classTruncate = "truncate";
+    // Tailwind text-overflow utilities.
+    private const string _classEllipsis = "text-ellipsis";
     private const string _classClip = "text-clip";
 
     // ----- CSS prefix -----
@@ -204,7 +204,7 @@ public sealed class TextOverflowBuilder : ICssBuilder
         return textOverflow switch
         {
             "clip" => _classClip,
-            "ellipsis" => _classTruncate,
+            "ellipsis" => _classEllipsis,
             _ => string.Empty
         };
     }

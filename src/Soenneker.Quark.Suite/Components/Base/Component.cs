@@ -44,6 +44,54 @@ public abstract class Component : RenderComponentBase, IComponent
     public CssValue<VerticalAlignBuilder>? VerticalAlign { get; set; }
 
     [Parameter]
+    public CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
+
+    [Parameter]
+    public CssValue<TextColorBuilder>? TextColor { get; set; }
+
+    [Parameter]
+    public CssValue<TextSizeBuilder>? TextSize { get; set; }
+
+    [Parameter]
+    public CssValue<TextDecorationBuilder>? TextDecoration { get; set; }
+
+    [Parameter]
+    public CssValue<TextTransformBuilder>? TextTransform { get; set; }
+
+    [Parameter]
+    public CssValue<FontFamilyBuilder>? FontFamily { get; set; }
+
+    [Parameter]
+    public CssValue<FontWeightBuilder>? FontWeight { get; set; }
+
+    [Parameter]
+    public CssValue<FontStyleBuilder>? FontStyle { get; set; }
+
+    [Parameter]
+    public CssValue<LineHeightBuilder>? LineHeight { get; set; }
+
+    [Parameter]
+    public CssValue<LetterSpacingBuilder>? LetterSpacing { get; set; }
+
+    [Parameter]
+    public CssValue<WhitespaceBuilder>? Whitespace { get; set; }
+
+    [Parameter]
+    public CssValue<TextWrapBuilder>? TextWrap { get; set; }
+
+    [Parameter]
+    public CssValue<TextBreakBuilder>? TextBreak { get; set; }
+
+    [Parameter]
+    public CssValue<TextOverflowBuilder>? TextOverflow { get; set; }
+
+    [Parameter]
+    public CssValue<TruncateBuilder>? Truncate { get; set; }
+
+    [Parameter]
+    public CssValue<FontVariantNumericBuilder>? FontVariantNumeric { get; set; }
+
+    [Parameter]
     public CssValue<MarginBuilder>? Margin { get; set; }
 
     [Parameter]
@@ -140,6 +188,9 @@ public abstract class Component : RenderComponentBase, IComponent
     public CssValue<RingBuilder>? Ring { get; set; }
 
     [Parameter]
+    public CssValue<RingColorBuilder>? RingColor { get; set; }
+
+    [Parameter]
     public CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
 
     [Parameter]
@@ -198,6 +249,22 @@ public abstract class Component : RenderComponentBase, IComponent
         AddCss(ref sty, ref cls, Visibility);
         AddCss(ref sty, ref cls, Float);
         AddCss(ref sty, ref cls, VerticalAlign);
+        AddCss(ref sty, ref cls, TextAlignment);
+        ApplyTextColor(ref sty, ref cls, TextColor);
+        AddCss(ref sty, ref cls, TextSize);
+        AddCss(ref sty, ref cls, TextDecoration);
+        AddCss(ref sty, ref cls, TextTransform);
+        AddCss(ref sty, ref cls, FontFamily);
+        AddCss(ref sty, ref cls, FontWeight);
+        AddCss(ref sty, ref cls, FontStyle);
+        AddCss(ref sty, ref cls, LineHeight);
+        AddCss(ref sty, ref cls, LetterSpacing);
+        AddCss(ref sty, ref cls, Whitespace);
+        AddCss(ref sty, ref cls, TextWrap);
+        AddCss(ref sty, ref cls, TextBreak);
+        AddCss(ref sty, ref cls, TextOverflow);
+        AddCss(ref sty, ref cls, Truncate);
+        AddCss(ref sty, ref cls, FontVariantNumeric);
         AddCss(ref sty, ref cls, Margin);
         AddCss(ref sty, ref cls, Padding);
         AddCss(ref sty, ref cls, Position);
@@ -230,6 +297,7 @@ public abstract class Component : RenderComponentBase, IComponent
         ApplyBackgroundColor(ref sty, ref cls);
         AddCss(ref sty, ref cls, Radius);
         AddCss(ref sty, ref cls, Ring);
+        AddCss(ref sty, ref cls, RingColor);
         AddCss(ref sty, ref cls, BoxShadow);
         AddCss(ref sty, ref cls, BackgroundOpacity);
         AddCss(ref sty, ref cls, BorderOpacity);
@@ -285,6 +353,22 @@ public abstract class Component : RenderComponentBase, IComponent
         AddIf(ref hc, Visibility);
         AddIf(ref hc, Float);
         AddIf(ref hc, VerticalAlign);
+        AddIf(ref hc, TextAlignment);
+        AddIf(ref hc, TextColor);
+        AddIf(ref hc, TextSize);
+        AddIf(ref hc, TextDecoration);
+        AddIf(ref hc, TextTransform);
+        AddIf(ref hc, FontFamily);
+        AddIf(ref hc, FontWeight);
+        AddIf(ref hc, FontStyle);
+        AddIf(ref hc, LineHeight);
+        AddIf(ref hc, LetterSpacing);
+        AddIf(ref hc, Whitespace);
+        AddIf(ref hc, TextWrap);
+        AddIf(ref hc, TextBreak);
+        AddIf(ref hc, TextOverflow);
+        AddIf(ref hc, Truncate);
+        AddIf(ref hc, FontVariantNumeric);
         AddIf(ref hc, Margin);
         AddIf(ref hc, Padding);
         AddIf(ref hc, Position);
@@ -317,6 +401,7 @@ public abstract class Component : RenderComponentBase, IComponent
         AddIf(ref hc, BorderColor);
         AddIf(ref hc, Radius);
         AddIf(ref hc, Ring);
+        AddIf(ref hc, RingColor);
         AddIf(ref hc, BoxShadow);
         AddIf(ref hc, BackgroundOpacity);
         AddIf(ref hc, BorderOpacity);

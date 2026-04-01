@@ -35,15 +35,9 @@ public sealed class ColorBuilderShadcnTests
     }
 
     [Fact]
-    public void Color_generic_maps_to_text_classes()
+    public void RingColor_destructive_maps_to_ring_destructive()
     {
-        Assert.Equal("text-popover-foreground", Color.PopoverForeground.ToClass());
-    }
-
-    [Fact]
-    public void FocusRing_destructive_maps_to_focus_visible_ring_destructive()
-    {
-        Assert.Equal("focus-visible:ring-destructive", FocusRing.Destructive.ToClass());
+        Assert.Equal("ring-destructive", RingColor.Destructive.ToClass());
     }
 
     [Fact]

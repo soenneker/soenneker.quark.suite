@@ -18,6 +18,22 @@ public interface IComponent : ICoreComponent
     CssValue<VisibilityBuilder>? Visibility { get; set; }
     CssValue<FloatBuilder>? Float { get; set; }
     CssValue<VerticalAlignBuilder>? VerticalAlign { get; set; }
+    CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
+    CssValue<TextColorBuilder>? TextColor { get; set; }
+    CssValue<TextSizeBuilder>? TextSize { get; set; }
+    CssValue<TextDecorationBuilder>? TextDecoration { get; set; }
+    CssValue<TextTransformBuilder>? TextTransform { get; set; }
+    CssValue<FontFamilyBuilder>? FontFamily { get; set; }
+    CssValue<FontWeightBuilder>? FontWeight { get; set; }
+    CssValue<FontStyleBuilder>? FontStyle { get; set; }
+    CssValue<LineHeightBuilder>? LineHeight { get; set; }
+    CssValue<LetterSpacingBuilder>? LetterSpacing { get; set; }
+    CssValue<WhitespaceBuilder>? Whitespace { get; set; }
+    CssValue<TextWrapBuilder>? TextWrap { get; set; }
+    CssValue<TextBreakBuilder>? TextBreak { get; set; }
+    CssValue<TextOverflowBuilder>? TextOverflow { get; set; }
+    CssValue<TruncateBuilder>? Truncate { get; set; }
+    CssValue<FontVariantNumericBuilder>? FontVariantNumeric { get; set; }
     CssValue<MarginBuilder>? Margin { get; set; }
     CssValue<PaddingBuilder>? Padding { get; set; }
     CssValue<PositionBuilder>? Position { get; set; }
@@ -48,6 +64,7 @@ public interface IComponent : ICoreComponent
     CssValue<BorderColorBuilder>? BorderColor { get; set; }
     CssValue<RadiusBuilder>? Radius { get; set; }
     CssValue<RingBuilder>? Ring { get; set; }
+    CssValue<RingColorBuilder>? RingColor { get; set; }
     CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
     CssValue<BackgroundOpacityBuilder>? BackgroundOpacity { get; set; }
     CssValue<BorderOpacityBuilder>? BorderOpacity { get; set; }

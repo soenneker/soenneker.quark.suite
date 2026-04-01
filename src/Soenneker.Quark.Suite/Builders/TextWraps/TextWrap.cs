@@ -12,10 +12,6 @@ public static class TextWrap
     /// Gets a text wrap builder with wrap value (text wraps to multiple lines).
     /// </summary>
     public static TextWrapBuilder Wrap => new(TextWrapKeyword.WrapValue);
-    /// <summary>
-    /// Gets a text wrap builder with no-wrap value (text does not wrap).
-    /// </summary>
-    public static TextWrapBuilder NoWrap => new(TextWrapKeyword.NoWrapValue);
 
     /// <summary>
     /// Gets a text wrap builder with inherit keyword.

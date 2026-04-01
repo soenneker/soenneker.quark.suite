@@ -16,11 +16,10 @@ public sealed class TextWrapBuilder : ICssBuilder
     private readonly List<TextWrapRule> _rules = new(4);
     private BreakpointType? _pendingBreakpoint;
 
-    // Tailwind text-wrap / whitespace utilities (for Quark Suite / shadcn)
+    // Tailwind text-wrap utilities.
     private const string _classWrap = "text-wrap";
     private const string _classBalance = "text-balance";
     private const string _classPretty = "text-pretty";
-    private const string _classNoWrap = "whitespace-nowrap";
     private const string _stylePrefix = "text-wrap: ";
 
     internal TextWrapBuilder(string value, BreakpointType? breakpoint = null)
@@ -38,10 +37,6 @@ public sealed class TextWrapBuilder : ICssBuilder
     /// Sets the text wrap to wrap.
     /// </summary>
     public TextWrapBuilder Wrap => Chain(TextWrapKeyword.WrapValue);
-    /// <summary>
-    /// Sets the text wrap to no-wrap.
-    /// </summary>
-    public TextWrapBuilder NoWrap => Chain(TextWrapKeyword.NoWrapValue);
     /// <summary>
     /// Sets the text wrap to balance.
     /// </summary>
@@ -129,7 +124,6 @@ public sealed class TextWrapBuilder : ICssBuilder
             var cls = rule.Value switch
             {
                 TextWrapKeyword.WrapValue => _classWrap,
-                TextWrapKeyword.NoWrapValue => _classNoWrap,
                 "balance" => _classBalance,
                 "pretty" => _classPretty,
                 _ => string.Empty
@@ -168,7 +162,6 @@ public sealed class TextWrapBuilder : ICssBuilder
             var css = rule.Value switch
             {
                 TextWrapKeyword.WrapValue => "wrap",
-                TextWrapKeyword.NoWrapValue => "nowrap",
                 "balance" => "balance",
                 "pretty" => "pretty",
                 GlobalKeyword.InheritValue => "inherit",

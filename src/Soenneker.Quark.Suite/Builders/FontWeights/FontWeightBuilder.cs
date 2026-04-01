@@ -16,13 +16,13 @@ public sealed class FontWeightBuilder : ICssBuilder
     private BreakpointType? _pendingBreakpoint;
 
     // Tailwind font-weight utilities (for Quark Suite / shadcn)
-    private const string _classLighter = "font-extralight";
+    private const string _classExtralight = "font-extralight";
     private const string _classLight = "font-light";
     private const string _classNormal = "font-normal";
     private const string _classMedium = "font-medium";
     private const string _classSemibold = "font-semibold";
     private const string _classBold = "font-bold";
-    private const string _classBolder = "font-extrabold";
+    private const string _classExtrabold = "font-extrabold";
     private const string _stylePrefix = "font-weight: ";
 
     internal FontWeightBuilder(string value, BreakpointType? breakpoint = null)
@@ -37,9 +37,9 @@ public sealed class FontWeightBuilder : ICssBuilder
     }
 
     /// <summary>
-    /// Sets the font weight to lighter.
+    /// Sets the font weight to extralight.
     /// </summary>
-    public FontWeightBuilder Lighter => Chain(FontWeightKeyword.LighterValue);
+    public FontWeightBuilder Extralight => Chain("extralight");
     /// <summary>
     /// Sets the font weight to light.
     /// </summary>
@@ -61,9 +61,9 @@ public sealed class FontWeightBuilder : ICssBuilder
     /// </summary>
     public FontWeightBuilder Bold => Chain(FontWeightKeyword.BoldValue);
     /// <summary>
-    /// Sets the font weight to bolder.
+    /// Sets the font weight to extrabold.
     /// </summary>
-    public FontWeightBuilder Bolder => Chain(FontWeightKeyword.BolderValue);
+    public FontWeightBuilder Extrabold => Chain("extrabold");
     /// <summary>
     /// Sets the font weight to inherit.
     /// </summary>
@@ -146,13 +146,13 @@ public sealed class FontWeightBuilder : ICssBuilder
             var rule = _rules[i];
             var cls = rule.Value switch
             {
-                FontWeightKeyword.LighterValue => _classLighter,
+                "extralight" => _classExtralight,
                 FontWeightKeyword.LightValue => _classLight,
                 FontWeightKeyword.NormalValue => _classNormal,
                 "medium" => _classMedium,
                 FontWeightKeyword.SemiboldValue => _classSemibold,
                 FontWeightKeyword.BoldValue => _classBold,
-                FontWeightKeyword.BolderValue => _classBolder,
+                "extrabold" => _classExtrabold,
                 _ => string.Empty
             };
             if (cls.Length == 0)
@@ -185,13 +185,13 @@ public sealed class FontWeightBuilder : ICssBuilder
             var rule = _rules[i];
             var css = rule.Value switch
             {
-                FontWeightKeyword.LighterValue => "lighter",
+                "extralight" => "200",
                 FontWeightKeyword.LightValue => "300",
                 FontWeightKeyword.NormalValue => "400",
                 "medium" => "500",
                 FontWeightKeyword.SemiboldValue => "600",
                 FontWeightKeyword.BoldValue => "700",
-                FontWeightKeyword.BolderValue => "bolder",
+                "extrabold" => "800",
                 GlobalKeyword.InheritValue => "inherit",
                 GlobalKeyword.InitialValue => "initial",
                 GlobalKeyword.UnsetValue => "unset",

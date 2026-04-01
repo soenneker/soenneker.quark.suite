@@ -9,9 +9,9 @@ namespace Soenneker.Quark;
 public static class FontWeight
 {
     /// <summary>
-    /// Gets a font weight builder with lighter value (thinner than parent).
+    /// Gets a font weight builder with extralight value (200).
     /// </summary>
-    public static FontWeightBuilder Lighter => new(FontWeightKeyword.LighterValue);
+    public static FontWeightBuilder Extralight => new("extralight");
     /// <summary>
     /// Gets a font weight builder with light value (300).
     /// </summary>
@@ -33,9 +33,9 @@ public static class FontWeight
     /// </summary>
     public static FontWeightBuilder Bold => new(FontWeightKeyword.BoldValue);
     /// <summary>
-    /// Gets a font weight builder with bolder value (thicker than parent).
+    /// Gets a font weight builder with extrabold value (800).
     /// </summary>
-    public static FontWeightBuilder Bolder => new(FontWeightKeyword.BolderValue);
+    public static FontWeightBuilder Extrabold => new("extrabold");
     /// <summary>
     /// Gets a font weight builder with inherit keyword.
     /// </summary>

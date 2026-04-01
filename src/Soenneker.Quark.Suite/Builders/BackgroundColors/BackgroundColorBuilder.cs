@@ -105,10 +105,6 @@ public sealed class BackgroundColorBuilder : ICssBuilder
 	/// </summary>
     public BackgroundColorBuilder Success => ChainValue("success");
 	/// <summary>
-	/// Sets the background color to danger.
-	/// </summary>
-    public BackgroundColorBuilder Danger => ChainValue("danger");
-	/// <summary>
 	/// Sets the background color to warning.
 	/// </summary>
     public BackgroundColorBuilder Warning => ChainValue("warning");
@@ -116,18 +112,6 @@ public sealed class BackgroundColorBuilder : ICssBuilder
 	/// Sets the background color to info.
 	/// </summary>
     public BackgroundColorBuilder Info => ChainValue("info");
-	/// <summary>
-	/// Sets the background color to light.
-	/// </summary>
-    public BackgroundColorBuilder Light => ChainValue("light");
-	/// <summary>
-	/// Sets the background color to dark.
-	/// </summary>
-    public BackgroundColorBuilder Dark => ChainValue("dark");
-	/// <summary>
-	/// Sets the background color to link.
-	/// </summary>
-    public BackgroundColorBuilder Link => ChainValue("link");
 	/// <summary>
 	/// Sets the background color to muted.
 	/// </summary>
@@ -312,30 +296,12 @@ public sealed class BackgroundColorBuilder : ICssBuilder
             "input" => "bg-input",
             "ring" => "bg-ring",
             "success" => "bg-success",
-            "danger" => "bg-destructive",
             "warning" => "bg-warning",
             "info" => "bg-info",
-            "light" => "bg-white",
-            "dark" => "bg-black",
-            "link" => "bg-accent",
             "muted" => "bg-muted",
             "white" => "bg-white",
             "black" => "bg-black",
             "transparent" => "bg-transparent",
-            "body" => "bg-background",
-            "body-secondary" => "bg-secondary",
-            "body-tertiary" => "bg-muted",
-            "body-emphasis" => "bg-accent",
-            "body-highlight" => "bg-accent",
-            "body-muted" => "bg-muted",
-            "body-reset" => "bg-background",
-            "body-inverse" => "bg-foreground",
-            "body-inverse-secondary" => "bg-secondary-foreground",
-            "body-inverse-tertiary" => "bg-muted-foreground",
-            "body-inverse-emphasis" => "bg-primary-foreground",
-            "body-inverse-highlight" => "bg-accent-foreground",
-            "body-inverse-muted" => "bg-muted-foreground",
-            "body-inverse-reset" => "bg-background",
             _ when rule.Value.StartsWith("bg-") => rule.Value,
             _ => string.Empty
         };

@@ -33,14 +33,6 @@ public sealed class RingBuilder : ICssBuilder
     public RingBuilder Four => Chain("4");
     public RingBuilder Eight => Chain("8");
     public RingBuilder Inset => Chain("inset");
-    public RingBuilder Primary => Chain("primary");
-    public RingBuilder Secondary => Chain("secondary");
-    public RingBuilder Destructive => Chain("destructive");
-    public RingBuilder Muted => Chain("muted");
-    public RingBuilder Accent => Chain("accent");
-    public RingBuilder White => Chain("white");
-    public RingBuilder Black => Chain("black");
-    public RingBuilder Token(string value) => Chain(value);
 
     public RingBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
     public RingBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
@@ -109,8 +101,6 @@ public sealed class RingBuilder : ICssBuilder
             "4" => "ring-4",
             "8" => "ring-8",
             "inset" => "ring-inset",
-            _ when token.StartsWith("ring-") => token,
-            _ when token.Length > 0 => $"ring-{token}",
             _ => string.Empty
         };
     }

@@ -89,11 +89,6 @@ public class ComponentOptions
     public CssValue<TextSizeBuilder>? TextSize { get; set; }
 
     /// <summary>
-    /// Gets or sets the CSS text style configuration.
-    /// </summary>
-    public CssValue<TextStyleBuilder>? TextStyle { get; set; }
-
-    /// <summary>
     /// Gets or sets the CSS width configuration.
     /// </summary>
     public CssValue<SizeBuilder>? BoxSize { get; set; }
@@ -249,6 +244,11 @@ public class ComponentOptions
     public CssValue<TextTransformBuilder>? TextTransform { get; set; }
 
     /// <summary>
+    /// Gets or sets the CSS font-family configuration.
+    /// </summary>
+    public CssValue<FontFamilyBuilder>? FontFamily { get; set; }
+
+    /// <summary>
     /// Gets or sets the CSS font-weight configuration.
     /// </summary>
     public CssValue<FontWeightBuilder>? FontWeight { get; set; }
@@ -262,6 +262,11 @@ public class ComponentOptions
     /// Gets or sets the CSS line-height configuration.
     /// </summary>
     public CssValue<LineHeightBuilder>? LineHeight { get; set; }
+
+    /// <summary>
+    /// Gets or sets the CSS whitespace configuration.
+    /// </summary>
+    public CssValue<WhitespaceBuilder>? Whitespace { get; set; }
 
     /// <summary>
     /// Gets or sets the CSS text-wrap configuration.
@@ -307,6 +312,11 @@ public class ComponentOptions
     /// Gets or sets the CSS ring configuration.
     /// </summary>
     public CssValue<RingBuilder>? Ring { get; set; }
+
+    /// <summary>
+    /// Gets or sets the CSS ring-color configuration.
+    /// </summary>
+    public CssValue<RingColorBuilder>? RingColor { get; set; }
 
     /// <summary>
     /// Gets or sets the CSS clip-path configuration.
@@ -364,24 +374,9 @@ public class ComponentOptions
     public CssValue<TruncateBuilder>? Truncate { get; set; }
 
     /// <summary>
-    /// Gets or sets the CSS focus-ring configuration.
+    /// Gets or sets the CSS font-variant-numeric configuration.
     /// </summary>
-    public CssValue<FocusRingBuilder>? FocusRing { get; set; }
-
-    /// <summary>
-    /// Gets or sets the CSS link-opacity configuration.
-    /// </summary>
-    public CssValue<LinkOpacityBuilder>? LinkOpacity { get; set; }
-
-    /// <summary>
-    /// Gets or sets the CSS link-offset configuration.
-    /// </summary>
-    public CssValue<LinkOffsetBuilder>? LinkOffset { get; set; }
-
-    /// <summary>
-    /// Gets or sets the CSS link-underline configuration.
-    /// </summary>
-    public CssValue<LinkUnderlineBuilder>? LinkUnderline { get; set; }
+    public CssValue<FontVariantNumericBuilder>? FontVariantNumeric { get; set; }
 
     /// <summary>
     /// Gets or sets the CSS background-opacity configuration.
@@ -413,7 +408,6 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, ScrollMargin, null);
         AddRules(buffer, baseSelector, BoxSize, null);
         AddRules(buffer, baseSelector, TextSize, "font-size");
-        AddRules(buffer, baseSelector, TextStyle, null);
         AddRules(buffer, baseSelector, Width, "width");
         AddRules(buffer, baseSelector, MinWidth, "min-width");
         AddRules(buffer, baseSelector, MaxWidth, "max-width");
@@ -444,9 +438,11 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, PointerEvents, "pointer-events");
         AddRules(buffer, baseSelector, UserSelect, "user-select");
         AddRules(buffer, baseSelector, TextTransform, "text-transform");
+        AddRules(buffer, baseSelector, FontFamily, "font-family");
         AddRules(buffer, baseSelector, FontWeight, "font-weight");
         AddRules(buffer, baseSelector, FontStyle, "font-style");
         AddRules(buffer, baseSelector, LineHeight, "line-height");
+        AddRules(buffer, baseSelector, Whitespace, "white-space");
         AddRules(buffer, baseSelector, TextWrap, "text-wrap");
         AddRules(buffer, baseSelector, TextBreak, "word-break");
         AddRules(buffer, baseSelector, BorderColor, "border-color");
@@ -456,6 +452,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, BackdropFilter, "backdrop-filter");
         AddRules(buffer, baseSelector, Radius, "border-radius");
         AddRules(buffer, baseSelector, Ring, null);
+        AddRules(buffer, baseSelector, RingColor, null);
         AddRules(buffer, baseSelector, ClipPath, "clip-path");
         AddRules(buffer, baseSelector, Cursor, "cursor");
         AddRules(buffer, baseSelector, Filter, "filter");
@@ -467,10 +464,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Transform, "transform");
         AddRules(buffer, baseSelector, Transition, "transition");
         AddRules(buffer, baseSelector, Truncate, null);
-        AddRules(buffer, baseSelector, FocusRing, null);
-        AddRules(buffer, baseSelector, LinkOpacity, null);
-        AddRules(buffer, baseSelector, LinkOffset, null);
-        AddRules(buffer, baseSelector, LinkUnderline, null);
+        AddRules(buffer, baseSelector, FontVariantNumeric, "font-variant-numeric");
         AddRules(buffer, baseSelector, BackgroundOpacity, null);
         AddRules(buffer, baseSelector, BorderOpacity, null);
         AddRules(buffer, baseSelector, TextOpacity, null);

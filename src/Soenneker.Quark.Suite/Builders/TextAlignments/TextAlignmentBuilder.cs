@@ -19,14 +19,16 @@ public sealed class TextAlignmentBuilder : ICssBuilder
     private const string _classStart = "text-start";
     private const string _classCenter = "text-center";
     private const string _classEnd = "text-end";
+    private const string _startValue = "start";
+    private const string _endValue = "end";
 
     // ----- CSS prefix (compile-time) -----
     private const string _textAlignPrefix = "text-align: ";
 
     // ----- Style constants (compile-time, EnumValue *Value are const) -----
-    private const string _styleStart = $"{_textAlignPrefix}{TextAlignKeyword.StartValue}";
+    private const string _styleStart = $"{_textAlignPrefix}{_startValue}";
     private const string _styleCenter = $"{_textAlignPrefix}{TextAlignKeyword.CenterValue}";
-    private const string _styleEnd = $"{_textAlignPrefix}{TextAlignKeyword.EndValue}";
+    private const string _styleEnd = $"{_textAlignPrefix}{_endValue}";
     private const string _styleInherit = $"{_textAlignPrefix}{GlobalKeyword.InheritValue}";
     private const string _styleInitial = $"{_textAlignPrefix}{GlobalKeyword.InitialValue}";
     private const string _styleUnset = $"{_textAlignPrefix}{GlobalKeyword.UnsetValue}";
@@ -47,7 +49,7 @@ public sealed class TextAlignmentBuilder : ICssBuilder
 	/// <summary>
 	/// Sets the text alignment to start.
 	/// </summary>
-    public TextAlignmentBuilder Start => Chain(TextAlignKeyword.StartValue);
+    public TextAlignmentBuilder Start => Chain(_startValue);
 	/// <summary>
 	/// Sets the text alignment to center.
 	/// </summary>
@@ -55,7 +57,7 @@ public sealed class TextAlignmentBuilder : ICssBuilder
 	/// <summary>
 	/// Sets the text alignment to end.
 	/// </summary>
-    public TextAlignmentBuilder End => Chain(TextAlignKeyword.EndValue);
+    public TextAlignmentBuilder End => Chain(_endValue);
 
 	/// <summary>
 	/// Sets the text alignment to inherit.
@@ -103,9 +105,9 @@ public sealed class TextAlignmentBuilder : ICssBuilder
 
             var baseClass = rule.Value switch
             {
-                TextAlignKeyword.StartValue => _classStart,
+                _startValue => _classStart,
                 TextAlignKeyword.CenterValue => _classCenter,
-                TextAlignKeyword.EndValue => _classEnd,
+                _endValue => _classEnd,
                 _ => string.Empty
             };
 
@@ -145,9 +147,9 @@ public sealed class TextAlignmentBuilder : ICssBuilder
 
             var css = rule.Value switch
             {
-                TextAlignKeyword.StartValue => _styleStart,
+                _startValue => _styleStart,
                 TextAlignKeyword.CenterValue => _styleCenter,
-                TextAlignKeyword.EndValue => _styleEnd,
+                _endValue => _styleEnd,
 
                 GlobalKeyword.InheritValue => _styleInherit,
                 GlobalKeyword.InitialValue => _styleInitial,
