@@ -4,7 +4,7 @@
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is4">
-        <DemoSection Title="Single (default)" Description="@($"Current open item: {_singleSelectedItem ?? "none"}")" Code="@(@"<Accordion Value=""_singleSelectedItem"" ValueChanged=""HandleSingleAccordionValueChanged"">
+        <DemoSection Title="Basic" Description="@($"Current open item: {_singleSelectedItem ?? "none"}")" Code="@(@"<Accordion Value=""_singleSelectedItem"" ValueChanged=""HandleSingleAccordionValueChanged"">
     <AccordionItem Value=""item-1"">
         <AccordionTrigger>Is it accessible?</AccordionTrigger>
         <AccordionContent>Yes. Uses semantic button semantics with aria attributes.</AccordionContent>
@@ -12,11 +12,10 @@
 </Accordion>")">
             <Div Space="Space.Y.Is3" Width="Width.IsFull">
                 <Paragraph Class="text-sm text-muted-foreground" Margin="Margin.Is0">
-                    In single mode, clicking the open trigger does not close it unless <code>Collapsible</code> is enabled.
+                    In basic mode, one item stays open at a time and the first item starts expanded.
                 </Paragraph>
                 <Accordion Value="@_singleSelectedItem"
                            ValueChanged="HandleSingleAccordionValueChanged"
-                           Collapsible="true"
                            Width="Width.IsFull">
                     <AccordionItem Value="item-1">
                         <AccordionTrigger>Is it accessible?</AccordionTrigger>
@@ -47,7 +46,7 @@
             </Div>
         </DemoSection>
 
-        <DemoSection Title="Collapsible single" Description="@($"Current open item: {_collapsibleSelectedItem ?? "none"}")" Code="@(@"<Accordion Value=""_collapsibleSelectedItem"" ValueChanged=""HandleCollapsibleAccordionValueChanged"" Collapsible=""true"">
+        <DemoSection Title="Multiple" Description="@($"Current open item: {_collapsibleSelectedItem ?? "none"}")" Code="@(@"<Accordion Value=""_collapsibleSelectedItem"" ValueChanged=""HandleCollapsibleAccordionValueChanged"" Collapsible=""true"">
     <AccordionItem Value=""item-1"">...</AccordionItem>
 </Accordion>")">
             <Div Space="Space.Y.Is3" Width="Width.IsFull">
@@ -77,7 +76,7 @@
             </Div>
         </DemoSection>
 
-        <DemoSection Title="Multiple mode" Description="@($"Open items: {FormatOpenItems(_multipleSelectedItems)}")" Code="@(@"<Accordion Multiple=""true"" Values=""_multipleSelectedItems"" ValuesChanged=""HandleMultipleAccordionValuesChanged"">
+        <DemoSection Title="Disabled" Description="@($"Open items: {FormatOpenItems(_multipleSelectedItems)}")" Code="@(@"<Accordion Multiple=""true"" Values=""_multipleSelectedItems"" ValuesChanged=""HandleMultipleAccordionValuesChanged"">
     <AccordionItem Value=""a"">...</AccordionItem>
     <AccordionItem Value=""b"">...</AccordionItem>
 </Accordion>")">
@@ -107,6 +106,57 @@
                     </AccordionItem>
                 </Accordion>
             </Div>
+        </DemoSection>
+
+        <DemoSection Title="Borders" Description="A bordered wrapper helps each item read like a distinct row." Code="@(@"<Div Class=""rounded-xl border border-border"">
+    <Accordion Value=""item-1"" Width=""Width.IsFull"">
+        <AccordionItem Class=""border-b border-border last:border-b-0"" Value=""item-1"">...</AccordionItem>
+        <AccordionItem Class=""border-b border-border last:border-b-0"" Value=""item-2"">...</AccordionItem>
+    </Accordion>
+</Div>")">
+            <Div Class="w-full rounded-xl border border-border">
+                <Accordion Value="item-1" Width="Width.IsFull">
+                    <AccordionItem Class="border-b border-border last:border-b-0" Value="border-1">
+                        <AccordionTrigger>Billing details</AccordionTrigger>
+                        <AccordionContent>
+                            <Paragraph Margin="Margin.Is0">Group related content with borders when the accordion lives inside settings or admin screens.</Paragraph>
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem Class="border-b border-border last:border-b-0" Value="border-2">
+                        <AccordionTrigger>Invoice recipients</AccordionTrigger>
+                        <AccordionContent>
+                            <Paragraph Margin="Margin.Is0">Each item keeps its own divider while still inheriting the shared accordion behavior.</Paragraph>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+            </Div>
+        </DemoSection>
+
+        <DemoSection Title="Card" Description="Wrap the accordion in a card when the content belongs to a larger settings panel." Code="@(@"<Card Class=""w-full max-w-xl"">
+    <CardHeader>Project settings</CardHeader>
+    <CardBody>
+        <Accordion Value=""card-1"">...</Accordion>
+    </CardBody>
+</Card>")">
+            <Card Class="w-full max-w-xl">
+                <CardHeader>Project settings</CardHeader>
+                <CardBody>
+                    <Accordion Value="card-1" Width="Width.IsFull">
+                        <AccordionItem Value="card-1">
+                            <AccordionTrigger>Access control</AccordionTrigger>
+                            <AccordionContent>
+                                <Paragraph Margin="Margin.Is0">Manage collaborators, roles, and approval flows without leaving the surrounding card.</Paragraph>
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem Value="card-2">
+                            <AccordionTrigger>Deployment preferences</AccordionTrigger>
+                            <AccordionContent>
+                                <Paragraph Margin="Margin.Is0">Cards help the accordion feel at home in dashboards, forms, and setup workflows.</Paragraph>
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
+                </CardBody>
+            </Card>
         </DemoSection>
     </Div>
 </Div>
