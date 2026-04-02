@@ -3,7 +3,7 @@ using Soenneker.Gen.EnumValues;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Represents Bootstrap alert dismissible types.
+/// Represents dismissible alert behaviors.
 /// </summary>
 [EnumValue<string>]
 public sealed partial class AlertDismissibleType

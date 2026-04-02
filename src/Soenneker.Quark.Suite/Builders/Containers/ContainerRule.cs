@@ -1,7 +1,7 @@
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Represents a CSS rule for Bootstrap container utilities.
+/// Represents a CSS rule for the Tailwind container utility.
 /// </summary>
 public readonly struct ContainerRule
 {

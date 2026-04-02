@@ -1,4 +1,4 @@
-namespace Soenneker.Quark.Layout;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Determines whether a stack lays out items vertically or horizontally.

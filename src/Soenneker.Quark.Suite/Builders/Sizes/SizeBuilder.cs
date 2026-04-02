@@ -103,7 +103,7 @@ public sealed class SizeBuilder : ICssBuilder
             "md" => "md",
             "lg" => "lg",
             "xl" => "xl",
-            "xxl" => "xxl",
+            "2xl" => "2xl",
 
             // Common Tailwind size-* utilities (explicit literals for Tailwind CLI discovery)
             "0" => "size-0",

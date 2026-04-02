@@ -14,7 +14,7 @@ public sealed partial class GutterBreakpoint
     public static readonly GutterBreakpoint None = new("");
 
     /// <summary>
-    /// Small breakpoint (≥576px).
+    /// Small breakpoint (≥640px).
     /// </summary>
     public static readonly GutterBreakpoint Sm = new("sm");
 
@@ -24,17 +24,17 @@ public sealed partial class GutterBreakpoint
     public static readonly GutterBreakpoint Md = new("md");
 
     /// <summary>
-    /// Large breakpoint (≥992px).
+    /// Large breakpoint (≥1024px).
     /// </summary>
     public static readonly GutterBreakpoint Lg = new("lg");
 
     /// <summary>
-    /// Extra large breakpoint (≥1200px).
+    /// Extra large breakpoint (≥1280px).
     /// </summary>
     public static readonly GutterBreakpoint Xl = new("xl");
 
     /// <summary>
-    /// Extra extra large breakpoint (≥1400px).
+    /// 2xl breakpoint (≥1536px).
     /// </summary>
-    public static readonly GutterBreakpoint Xxl = new("xxl");
+    public static readonly GutterBreakpoint Xxl = new("2xl");
 }
