@@ -36,21 +36,21 @@ public static class VerticalAlign
     /// <summary>
     /// Gets a vertical align builder with inherit keyword.
     /// </summary>
-    public static VerticalAlignBuilder Inherit => new(GlobalKeyword.InheritValue);
+    public static VerticalAlignBuilder Inherit => new(GlobalKeyword.Inherit);
     /// <summary>
     /// Gets a vertical align builder with initial keyword.
     /// </summary>
-    public static VerticalAlignBuilder Initial => new(GlobalKeyword.InitialValue);
+    public static VerticalAlignBuilder Initial => new(GlobalKeyword.Initial);
     /// <summary>
     /// Gets a vertical align builder with revert keyword.
     /// </summary>
-    public static VerticalAlignBuilder Revert => new(GlobalKeyword.RevertValue);
+    public static VerticalAlignBuilder Revert => new(GlobalKeyword.Revert);
     /// <summary>
     /// Gets a vertical align builder with revert-layer keyword.
     /// </summary>
-    public static VerticalAlignBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
+    public static VerticalAlignBuilder RevertLayer => new(GlobalKeyword.RevertLayer);
     /// <summary>
     /// Gets a vertical align builder with unset keyword.
     /// </summary>
-    public static VerticalAlignBuilder Unset => new(GlobalKeyword.UnsetValue);
+    public static VerticalAlignBuilder Unset => new(GlobalKeyword.Unset);
 }

@@ -36,21 +36,21 @@ public static class ObjectFit
     /// <summary>
     /// Gets an object fit builder with inherit keyword.
     /// </summary>
-    public static ObjectFitBuilder Inherit => new(GlobalKeyword.InheritValue);
+    public static ObjectFitBuilder Inherit => new(GlobalKeyword.Inherit);
     /// <summary>
     /// Gets an object fit builder with initial keyword.
     /// </summary>
-    public static ObjectFitBuilder Initial => new(GlobalKeyword.InitialValue);
+    public static ObjectFitBuilder Initial => new(GlobalKeyword.Initial);
     /// <summary>
     /// Gets an object fit builder with revert keyword.
     /// </summary>
-    public static ObjectFitBuilder Revert => new(GlobalKeyword.RevertValue);
+    public static ObjectFitBuilder Revert => new(GlobalKeyword.Revert);
     /// <summary>
     /// Gets an object fit builder with revert-layer keyword.
     /// </summary>
-    public static ObjectFitBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
+    public static ObjectFitBuilder RevertLayer => new(GlobalKeyword.RevertLayer);
     /// <summary>
     /// Gets an object fit builder with unset keyword.
     /// </summary>
-    public static ObjectFitBuilder Unset => new(GlobalKeyword.UnsetValue);
+    public static ObjectFitBuilder Unset => new(GlobalKeyword.Unset);
 }

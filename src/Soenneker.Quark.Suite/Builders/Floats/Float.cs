@@ -36,21 +36,21 @@ public static class Float
     /// <summary>
     /// Gets a float builder with inherit keyword.
     /// </summary>
-    public static FloatBuilder Inherit => new(GlobalKeyword.InheritValue);
+    public static FloatBuilder Inherit => new(GlobalKeyword.Inherit);
     /// <summary>
     /// Gets a float builder with initial keyword.
     /// </summary>
-    public static FloatBuilder Initial => new(GlobalKeyword.InitialValue);
+    public static FloatBuilder Initial => new(GlobalKeyword.Initial);
     /// <summary>
     /// Gets a float builder with revert keyword.
     /// </summary>
-    public static FloatBuilder Revert => new(GlobalKeyword.RevertValue);
+    public static FloatBuilder Revert => new(GlobalKeyword.Revert);
     /// <summary>
     /// Gets a float builder with revert-layer keyword.
     /// </summary>
-    public static FloatBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
+    public static FloatBuilder RevertLayer => new(GlobalKeyword.RevertLayer);
     /// <summary>
     /// Gets a float builder with unset keyword.
     /// </summary>
-    public static FloatBuilder Unset => new(GlobalKeyword.UnsetValue);
+    public static FloatBuilder Unset => new(GlobalKeyword.Unset);
 }

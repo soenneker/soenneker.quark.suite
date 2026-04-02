@@ -75,23 +75,23 @@ public sealed class DisplayBuilder : ICssBuilder
 	/// <summary>
 	/// Sets the display to inherit.
 	/// </summary>
-    public DisplayBuilder Inherit => ChainWithDisplay(GlobalKeyword.InheritValue);
+    public DisplayBuilder Inherit => ChainWithDisplay(GlobalKeyword.Inherit);
 	/// <summary>
 	/// Sets the display to initial.
 	/// </summary>
-    public DisplayBuilder Initial => ChainWithDisplay(GlobalKeyword.InitialValue);
+    public DisplayBuilder Initial => ChainWithDisplay(GlobalKeyword.Initial);
 	/// <summary>
 	/// Sets the display to revert.
 	/// </summary>
-    public DisplayBuilder Revert => ChainWithDisplay(GlobalKeyword.RevertValue);
+    public DisplayBuilder Revert => ChainWithDisplay(GlobalKeyword.Revert);
 	/// <summary>
 	/// Sets the display to revert-layer.
 	/// </summary>
-    public DisplayBuilder RevertLayer => ChainWithDisplay(GlobalKeyword.RevertLayerValue);
+    public DisplayBuilder RevertLayer => ChainWithDisplay(GlobalKeyword.RevertLayer);
 	/// <summary>
 	/// Sets the display to unset.
 	/// </summary>
-    public DisplayBuilder Unset => ChainWithDisplay(GlobalKeyword.UnsetValue);
+    public DisplayBuilder Unset => ChainWithDisplay(GlobalKeyword.Unset);
 
 	/// <summary>
 	/// Applies the display on phone breakpoint.

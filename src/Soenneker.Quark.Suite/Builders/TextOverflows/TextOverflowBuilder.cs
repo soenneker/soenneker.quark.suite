@@ -53,23 +53,23 @@ public sealed class TextOverflowBuilder : ICssBuilder
     /// <summary>
     /// Sets the text overflow to inherit.
     /// </summary>
-    public TextOverflowBuilder Inherit => Chain(GlobalKeyword.InheritValue);
+    public TextOverflowBuilder Inherit => Chain(GlobalKeyword.Inherit);
     /// <summary>
     /// Sets the text overflow to initial.
     /// </summary>
-    public TextOverflowBuilder Initial => Chain(GlobalKeyword.InitialValue);
+    public TextOverflowBuilder Initial => Chain(GlobalKeyword.Initial);
     /// <summary>
     /// Sets the text overflow to revert.
     /// </summary>
-    public TextOverflowBuilder Revert => Chain(GlobalKeyword.RevertValue);
+    public TextOverflowBuilder Revert => Chain(GlobalKeyword.Revert);
     /// <summary>
     /// Sets the text overflow to revert-layer.
     /// </summary>
-    public TextOverflowBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
+    public TextOverflowBuilder RevertLayer => Chain(GlobalKeyword.RevertLayer);
     /// <summary>
     /// Sets the text overflow to unset.
     /// </summary>
-    public TextOverflowBuilder Unset => Chain(GlobalKeyword.UnsetValue);
+    public TextOverflowBuilder Unset => Chain(GlobalKeyword.Unset);
 
     // ----- BreakpointType chaining -----
     /// <summary>

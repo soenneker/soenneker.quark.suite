@@ -36,21 +36,21 @@ public static class Position
     /// <summary>
     /// Inherit positioning from parent.
     /// </summary>
-    public static PositionBuilder Inherit => new(GlobalKeyword.InheritValue);
+    public static PositionBuilder Inherit => new(GlobalKeyword.Inherit);
     /// <summary>
     /// Initial positioning keyword.
     /// </summary>
-    public static PositionBuilder Initial => new(GlobalKeyword.InitialValue);
+    public static PositionBuilder Initial => new(GlobalKeyword.Initial);
     /// <summary>
     /// Revert positioning keyword.
     /// </summary>
-    public static PositionBuilder Revert => new(GlobalKeyword.RevertValue);
+    public static PositionBuilder Revert => new(GlobalKeyword.Revert);
     /// <summary>
     /// Revert-layer positioning keyword.
     /// </summary>
-    public static PositionBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
+    public static PositionBuilder RevertLayer => new(GlobalKeyword.RevertLayer);
     /// <summary>
     /// Unset positioning keyword.
     /// </summary>
-    public static PositionBuilder Unset => new(GlobalKeyword.UnsetValue);
+    public static PositionBuilder Unset => new(GlobalKeyword.Unset);
 }

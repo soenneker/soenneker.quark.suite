@@ -16,21 +16,21 @@ public static class TextWrap
     /// <summary>
     /// Gets a text wrap builder with inherit keyword.
     /// </summary>
-    public static TextWrapBuilder Inherit => new(GlobalKeyword.InheritValue);
+    public static TextWrapBuilder Inherit => new(GlobalKeyword.Inherit);
     /// <summary>
     /// Gets a text wrap builder with initial keyword.
     /// </summary>
-    public static TextWrapBuilder Initial => new(GlobalKeyword.InitialValue);
+    public static TextWrapBuilder Initial => new(GlobalKeyword.Initial);
     /// <summary>
     /// Gets a text wrap builder with revert keyword.
     /// </summary>
-    public static TextWrapBuilder Revert => new(GlobalKeyword.RevertValue);
+    public static TextWrapBuilder Revert => new(GlobalKeyword.Revert);
     /// <summary>
     /// Gets a text wrap builder with revert-layer keyword.
     /// </summary>
-    public static TextWrapBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
+    public static TextWrapBuilder RevertLayer => new(GlobalKeyword.RevertLayer);
     /// <summary>
     /// Gets a text wrap builder with unset keyword.
     /// </summary>
-    public static TextWrapBuilder Unset => new(GlobalKeyword.UnsetValue);
+    public static TextWrapBuilder Unset => new(GlobalKeyword.Unset);
 }

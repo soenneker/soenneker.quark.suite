@@ -48,23 +48,23 @@ public sealed class TextTransformBuilder : ICssBuilder
     /// <summary>
     /// Sets the text transform to inherit.
     /// </summary>
-    public TextTransformBuilder Inherit => Chain(GlobalKeyword.InheritValue);
+    public TextTransformBuilder Inherit => Chain(GlobalKeyword.Inherit);
     /// <summary>
     /// Sets the text transform to initial.
     /// </summary>
-    public TextTransformBuilder Initial => Chain(GlobalKeyword.InitialValue);
+    public TextTransformBuilder Initial => Chain(GlobalKeyword.Initial);
     /// <summary>
     /// Sets the text transform to revert.
     /// </summary>
-    public TextTransformBuilder Revert => Chain(GlobalKeyword.RevertValue);
+    public TextTransformBuilder Revert => Chain(GlobalKeyword.Revert);
     /// <summary>
     /// Sets the text transform to revert-layer.
     /// </summary>
-    public TextTransformBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
+    public TextTransformBuilder RevertLayer => Chain(GlobalKeyword.RevertLayer);
     /// <summary>
     /// Sets the text transform to unset.
     /// </summary>
-    public TextTransformBuilder Unset => Chain(GlobalKeyword.UnsetValue);
+    public TextTransformBuilder Unset => Chain(GlobalKeyword.Unset);
 
     /// <summary>
     /// Applies the text transform on phone breakpoint.

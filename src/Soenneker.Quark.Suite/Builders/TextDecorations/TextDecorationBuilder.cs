@@ -58,23 +58,23 @@ public sealed class TextDecorationBuilder : ICssBuilder
     /// <summary>
     /// Sets the text decoration to inherit.
     /// </summary>
-    public TextDecorationBuilder Inherit => Chain(GlobalKeyword.InheritValue);
+    public TextDecorationBuilder Inherit => Chain(GlobalKeyword.Inherit);
     /// <summary>
     /// Sets the text decoration to initial.
     /// </summary>
-    public TextDecorationBuilder Initial => Chain(GlobalKeyword.InitialValue);
+    public TextDecorationBuilder Initial => Chain(GlobalKeyword.Initial);
     /// <summary>
     /// Sets the text decoration to revert.
     /// </summary>
-    public TextDecorationBuilder Revert => Chain(GlobalKeyword.RevertValue);
+    public TextDecorationBuilder Revert => Chain(GlobalKeyword.Revert);
     /// <summary>
     /// Sets the text decoration to revert-layer.
     /// </summary>
-    public TextDecorationBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
+    public TextDecorationBuilder RevertLayer => Chain(GlobalKeyword.RevertLayer);
     /// <summary>
     /// Sets the text decoration to unset.
     /// </summary>
-    public TextDecorationBuilder Unset => Chain(GlobalKeyword.UnsetValue);
+    public TextDecorationBuilder Unset => Chain(GlobalKeyword.Unset);
 
     // Decoration styles
     /// <summary>
@@ -286,11 +286,11 @@ public sealed class TextDecorationBuilder : ICssBuilder
                     TextDecorationLineKeyword.UnderlineValue => "underline",
                     TextDecorationLineKeyword.LineThroughValue => "line-through",
                     TextDecorationLineKeyword.OverlineValue => "overline",
-                    GlobalKeyword.InheritValue => "inherit",
-                    GlobalKeyword.InitialValue => "initial",
-                    GlobalKeyword.UnsetValue => "unset",
-                    GlobalKeyword.RevertValue => "revert",
-                    GlobalKeyword.RevertLayerValue => "revert-layer",
+                    GlobalKeyword.Inherit => "inherit",
+                    GlobalKeyword.Initial => "initial",
+                    GlobalKeyword.Unset => "unset",
+                    GlobalKeyword.Revert => "revert",
+                    GlobalKeyword.RevertLayer => "revert-layer",
                     _ => "none"
                 };
                 sb.Append(' ');

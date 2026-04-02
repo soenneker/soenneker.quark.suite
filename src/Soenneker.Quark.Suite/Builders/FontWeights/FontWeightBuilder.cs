@@ -67,23 +67,23 @@ public sealed class FontWeightBuilder : ICssBuilder
     /// <summary>
     /// Sets the font weight to inherit.
     /// </summary>
-    public FontWeightBuilder Inherit => Chain(GlobalKeyword.InheritValue);
+    public FontWeightBuilder Inherit => Chain(GlobalKeyword.Inherit);
     /// <summary>
     /// Sets the font weight to initial.
     /// </summary>
-    public FontWeightBuilder Initial => Chain(GlobalKeyword.InitialValue);
+    public FontWeightBuilder Initial => Chain(GlobalKeyword.Initial);
     /// <summary>
     /// Sets the font weight to revert.
     /// </summary>
-    public FontWeightBuilder Revert => Chain(GlobalKeyword.RevertValue);
+    public FontWeightBuilder Revert => Chain(GlobalKeyword.Revert);
     /// <summary>
     /// Sets the font weight to revert-layer.
     /// </summary>
-    public FontWeightBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
+    public FontWeightBuilder RevertLayer => Chain(GlobalKeyword.RevertLayer);
     /// <summary>
     /// Sets the font weight to unset.
     /// </summary>
-    public FontWeightBuilder Unset => Chain(GlobalKeyword.UnsetValue);
+    public FontWeightBuilder Unset => Chain(GlobalKeyword.Unset);
 
     /// <summary>
     /// Applies the font weight on phone breakpoint.
@@ -192,11 +192,11 @@ public sealed class FontWeightBuilder : ICssBuilder
                 FontWeightKeyword.SemiboldValue => "600",
                 FontWeightKeyword.BoldValue => "700",
                 "extrabold" => "800",
-                GlobalKeyword.InheritValue => "inherit",
-                GlobalKeyword.InitialValue => "initial",
-                GlobalKeyword.UnsetValue => "unset",
-                GlobalKeyword.RevertValue => "revert",
-                GlobalKeyword.RevertLayerValue => "revert-layer",
+                GlobalKeyword.Inherit => "inherit",
+                GlobalKeyword.Initial => "initial",
+                GlobalKeyword.Unset => "unset",
+                GlobalKeyword.Revert => "revert",
+                GlobalKeyword.RevertLayer => "revert-layer",
                 _ => null
             };
             if (css is null)

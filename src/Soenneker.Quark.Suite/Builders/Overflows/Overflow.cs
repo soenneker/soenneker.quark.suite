@@ -31,23 +31,23 @@ public static class Overflow
     /// <summary>
     /// Gets an overflow builder with inherit keyword.
     /// </summary>
-    public static OverflowBuilder Inherit => new(GlobalKeyword.InheritValue);
+    public static OverflowBuilder Inherit => new(GlobalKeyword.Inherit);
     /// <summary>
     /// Gets an overflow builder with initial keyword.
     /// </summary>
-    public static OverflowBuilder Initial => new(GlobalKeyword.InitialValue);
+    public static OverflowBuilder Initial => new(GlobalKeyword.Initial);
     /// <summary>
     /// Gets an overflow builder with revert keyword.
     /// </summary>
-    public static OverflowBuilder Revert => new(GlobalKeyword.RevertValue);
+    public static OverflowBuilder Revert => new(GlobalKeyword.Revert);
     /// <summary>
     /// Gets an overflow builder with revert-layer keyword.
     /// </summary>
-    public static OverflowBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
+    public static OverflowBuilder RevertLayer => new(GlobalKeyword.RevertLayer);
     /// <summary>
     /// Gets an overflow builder with unset keyword.
     /// </summary>
-    public static OverflowBuilder Unset => new(GlobalKeyword.UnsetValue);
+    public static OverflowBuilder Unset => new(GlobalKeyword.Unset);
 
     // ----- Axis builders -----
     /// <summary>

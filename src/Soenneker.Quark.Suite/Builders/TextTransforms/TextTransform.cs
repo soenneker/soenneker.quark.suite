@@ -24,21 +24,21 @@ public static class TextTransform
     /// <summary>
     /// Gets a text transform builder with inherit keyword.
     /// </summary>
-    public static TextTransformBuilder Inherit => new(GlobalKeyword.InheritValue);
+    public static TextTransformBuilder Inherit => new(GlobalKeyword.Inherit);
     /// <summary>
     /// Gets a text transform builder with initial keyword.
     /// </summary>
-    public static TextTransformBuilder Initial => new(GlobalKeyword.InitialValue);
+    public static TextTransformBuilder Initial => new(GlobalKeyword.Initial);
     /// <summary>
     /// Gets a text transform builder with revert keyword.
     /// </summary>
-    public static TextTransformBuilder Revert => new(GlobalKeyword.RevertValue);
+    public static TextTransformBuilder Revert => new(GlobalKeyword.Revert);
     /// <summary>
     /// Gets a text transform builder with revert-layer keyword.
     /// </summary>
-    public static TextTransformBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
+    public static TextTransformBuilder RevertLayer => new(GlobalKeyword.RevertLayer);
     /// <summary>
     /// Gets a text transform builder with unset keyword.
     /// </summary>
-    public static TextTransformBuilder Unset => new(GlobalKeyword.UnsetValue);
+    public static TextTransformBuilder Unset => new(GlobalKeyword.Unset);
 }

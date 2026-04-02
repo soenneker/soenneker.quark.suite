@@ -48,23 +48,23 @@ public sealed class PositionBuilder : ICssBuilder
 	/// <summary>
 	/// Chain with inherit positioning for the next rule.
 	/// </summary>
-    public PositionBuilder Inherit => ChainWithPosition(GlobalKeyword.InheritValue);
+    public PositionBuilder Inherit => ChainWithPosition(GlobalKeyword.Inherit);
 	/// <summary>
 	/// Chain with initial positioning for the next rule.
 	/// </summary>
-    public PositionBuilder Initial => ChainWithPosition(GlobalKeyword.InitialValue);
+    public PositionBuilder Initial => ChainWithPosition(GlobalKeyword.Initial);
 	/// <summary>
 	/// Chain with revert positioning for the next rule.
 	/// </summary>
-    public PositionBuilder Revert => ChainWithPosition(GlobalKeyword.RevertValue);
+    public PositionBuilder Revert => ChainWithPosition(GlobalKeyword.Revert);
 	/// <summary>
 	/// Chain with revert-layer positioning for the next rule.
 	/// </summary>
-    public PositionBuilder RevertLayer => ChainWithPosition(GlobalKeyword.RevertLayerValue);
+    public PositionBuilder RevertLayer => ChainWithPosition(GlobalKeyword.RevertLayer);
 	/// <summary>
 	/// Chain with unset positioning for the next rule.
 	/// </summary>
-    public PositionBuilder Unset => ChainWithPosition(GlobalKeyword.UnsetValue);
+    public PositionBuilder Unset => ChainWithPosition(GlobalKeyword.Unset);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PositionBuilder ChainWithPosition(string position)

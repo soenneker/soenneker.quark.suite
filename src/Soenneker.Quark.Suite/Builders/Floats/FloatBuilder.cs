@@ -57,23 +57,23 @@ public sealed class FloatBuilder : ICssBuilder
 	/// <summary>
 	/// Sets the float to inherit.
 	/// </summary>
-    public FloatBuilder Inherit => ChainWithValue(GlobalKeyword.InheritValue);
+    public FloatBuilder Inherit => ChainWithValue(GlobalKeyword.Inherit);
 	/// <summary>
 	/// Sets the float to initial.
 	/// </summary>
-    public FloatBuilder Initial => ChainWithValue(GlobalKeyword.InitialValue);
+    public FloatBuilder Initial => ChainWithValue(GlobalKeyword.Initial);
 	/// <summary>
 	/// Sets the float to revert.
 	/// </summary>
-    public FloatBuilder Revert => ChainWithValue(GlobalKeyword.RevertValue);
+    public FloatBuilder Revert => ChainWithValue(GlobalKeyword.Revert);
 	/// <summary>
 	/// Sets the float to revert-layer.
 	/// </summary>
-    public FloatBuilder RevertLayer => ChainWithValue(GlobalKeyword.RevertLayerValue);
+    public FloatBuilder RevertLayer => ChainWithValue(GlobalKeyword.RevertLayer);
 	/// <summary>
 	/// Sets the float to unset.
 	/// </summary>
-    public FloatBuilder Unset => ChainWithValue(GlobalKeyword.UnsetValue);
+    public FloatBuilder Unset => ChainWithValue(GlobalKeyword.Unset);
 
 	/// <summary>
 	/// Applies the float on phone breakpoint.
@@ -187,11 +187,11 @@ public sealed class FloatBuilder : ICssBuilder
                 FloatKeyword.InlineStartValue => "inline-start",
                 FloatKeyword.InlineEndValue => "inline-end",
                 FloatKeyword.NoneValue => "none",
-                GlobalKeyword.InheritValue => "inherit",
-                GlobalKeyword.InitialValue => "initial",
-                GlobalKeyword.UnsetValue => "unset",
-                GlobalKeyword.RevertValue => "revert",
-                GlobalKeyword.RevertLayerValue => "revert-layer",
+                GlobalKeyword.Inherit => "inherit",
+                GlobalKeyword.Initial => "initial",
+                GlobalKeyword.Unset => "unset",
+                GlobalKeyword.Revert => "revert",
+                GlobalKeyword.RevertLayer => "revert-layer",
                 _ => null
             };
 

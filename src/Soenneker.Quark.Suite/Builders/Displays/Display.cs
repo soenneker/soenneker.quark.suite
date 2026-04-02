@@ -66,25 +66,25 @@ public static class Display
     /// <summary>
     /// Inherit from parent.
     /// </summary>
-    public static DisplayBuilder Inherit => new(GlobalKeyword.InheritValue);
+    public static DisplayBuilder Inherit => new(GlobalKeyword.Inherit);
 
     /// <summary>
     /// Initial keyword.
     /// </summary>
-    public static DisplayBuilder Initial => new(GlobalKeyword.InitialValue);
+    public static DisplayBuilder Initial => new(GlobalKeyword.Initial);
 
     /// <summary>
     /// Revert keyword.
     /// </summary>
-    public static DisplayBuilder Revert => new(GlobalKeyword.RevertValue);
+    public static DisplayBuilder Revert => new(GlobalKeyword.Revert);
 
     /// <summary>
     /// Revert-layer keyword.
     /// </summary>
-    public static DisplayBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
+    public static DisplayBuilder RevertLayer => new(GlobalKeyword.RevertLayer);
 
     /// <summary>
     /// Unset keyword.
     /// </summary>
-    public static DisplayBuilder Unset => new(GlobalKeyword.UnsetValue);
+    public static DisplayBuilder Unset => new(GlobalKeyword.Unset);
 }

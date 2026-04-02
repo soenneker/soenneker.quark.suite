@@ -19,21 +19,21 @@ public static class FontStyle
     /// <summary>
     /// Gets a font style builder with inherit keyword.
     /// </summary>
-    public static FontStyleBuilder Inherit => new(GlobalKeyword.InheritValue);
+    public static FontStyleBuilder Inherit => new(GlobalKeyword.Inherit);
     /// <summary>
     /// Gets a font style builder with initial keyword.
     /// </summary>
-    public static FontStyleBuilder Initial => new(GlobalKeyword.InitialValue);
+    public static FontStyleBuilder Initial => new(GlobalKeyword.Initial);
     /// <summary>
     /// Gets a font style builder with revert keyword.
     /// </summary>
-    public static FontStyleBuilder Revert => new(GlobalKeyword.RevertValue);
+    public static FontStyleBuilder Revert => new(GlobalKeyword.Revert);
     /// <summary>
     /// Gets a font style builder with revert-layer keyword.
     /// </summary>
-    public static FontStyleBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
+    public static FontStyleBuilder RevertLayer => new(GlobalKeyword.RevertLayer);
     /// <summary>
     /// Gets a font style builder with unset keyword.
     /// </summary>
-    public static FontStyleBuilder Unset => new(GlobalKeyword.UnsetValue);
+    public static FontStyleBuilder Unset => new(GlobalKeyword.Unset);
 }

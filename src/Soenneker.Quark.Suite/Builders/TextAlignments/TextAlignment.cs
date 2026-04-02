@@ -26,21 +26,21 @@ public static class TextAlignment
 	/// <summary>
 	/// Gets a text alignment builder with inherit keyword.
 	/// </summary>
-	public static TextAlignmentBuilder Inherit => new(GlobalKeyword.InheritValue);
+	public static TextAlignmentBuilder Inherit => new(GlobalKeyword.Inherit);
 	/// <summary>
 	/// Gets a text alignment builder with initial keyword.
 	/// </summary>
-	public static TextAlignmentBuilder Initial => new(GlobalKeyword.InitialValue);
+	public static TextAlignmentBuilder Initial => new(GlobalKeyword.Initial);
 	/// <summary>
 	/// Gets a text alignment builder with revert keyword.
 	/// </summary>
-	public static TextAlignmentBuilder Revert => new(GlobalKeyword.RevertValue);
+	public static TextAlignmentBuilder Revert => new(GlobalKeyword.Revert);
 	/// <summary>
 	/// Gets a text alignment builder with revert-layer keyword.
 	/// </summary>
-	public static TextAlignmentBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
+	public static TextAlignmentBuilder RevertLayer => new(GlobalKeyword.RevertLayer);
 	/// <summary>
 	/// Gets a text alignment builder with unset keyword.
 	/// </summary>
-	public static TextAlignmentBuilder Unset => new(GlobalKeyword.UnsetValue);
+	public static TextAlignmentBuilder Unset => new(GlobalKeyword.Unset);
 }

@@ -41,23 +41,23 @@ public sealed class VisibilityBuilder : ICssBuilder
 	/// <summary>
 	/// Sets the visibility to inherit.
 	/// </summary>
-    public VisibilityBuilder Inherit => Chain(GlobalKeyword.InheritValue);
+    public VisibilityBuilder Inherit => Chain(GlobalKeyword.Inherit);
 	/// <summary>
 	/// Sets the visibility to initial.
 	/// </summary>
-    public VisibilityBuilder Initial => Chain(GlobalKeyword.InitialValue);
+    public VisibilityBuilder Initial => Chain(GlobalKeyword.Initial);
 	/// <summary>
 	/// Sets the visibility to revert.
 	/// </summary>
-    public VisibilityBuilder Revert => Chain(GlobalKeyword.RevertValue);
+    public VisibilityBuilder Revert => Chain(GlobalKeyword.Revert);
 	/// <summary>
 	/// Sets the visibility to revert-layer.
 	/// </summary>
-    public VisibilityBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
+    public VisibilityBuilder RevertLayer => Chain(GlobalKeyword.RevertLayer);
 	/// <summary>
 	/// Sets the visibility to unset.
 	/// </summary>
-    public VisibilityBuilder Unset => Chain(GlobalKeyword.UnsetValue);
+    public VisibilityBuilder Unset => Chain(GlobalKeyword.Unset);
 
 	/// <summary>
 	/// Applies the visibility on phone breakpoint.
@@ -157,11 +157,11 @@ public sealed class VisibilityBuilder : ICssBuilder
             {
                 "invisible" => "visibility: hidden",
                 VisibilityKeyword.VisibleValue => "visibility: visible",
-                GlobalKeyword.InheritValue => "visibility: inherit",
-                GlobalKeyword.InitialValue => "visibility: initial",
-                GlobalKeyword.UnsetValue => "visibility: unset",
-                GlobalKeyword.RevertValue => "visibility: revert",
-                GlobalKeyword.RevertLayerValue => "visibility: revert-layer",
+                GlobalKeyword.Inherit => "visibility: inherit",
+                GlobalKeyword.Initial => "visibility: initial",
+                GlobalKeyword.Unset => "visibility: unset",
+                GlobalKeyword.Revert => "visibility: revert",
+                GlobalKeyword.RevertLayer => "visibility: revert-layer",
                 _ => null
             };
             if (css is null) continue;

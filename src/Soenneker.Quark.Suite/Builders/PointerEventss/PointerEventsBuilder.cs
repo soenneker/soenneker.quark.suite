@@ -22,11 +22,11 @@ public sealed class PointerEventsBuilder : ICssBuilder
 
     private const string _styleNone = $"{_pointerEventsPrefix}none";
     private const string _styleAuto = $"{_pointerEventsPrefix}auto";
-    private const string _styleInherit = $"{_pointerEventsPrefix}{GlobalKeyword.InheritValue}";
-    private const string _styleInitial = $"{_pointerEventsPrefix}{GlobalKeyword.InitialValue}";
-    private const string _styleUnset = $"{_pointerEventsPrefix}{GlobalKeyword.UnsetValue}";
-    private const string _styleRevert = $"{_pointerEventsPrefix}{GlobalKeyword.RevertValue}";
-    private const string _styleRevertLayer = $"{_pointerEventsPrefix}{GlobalKeyword.RevertLayerValue}";
+    private const string _styleInherit = $"{_pointerEventsPrefix}{GlobalKeyword.Inherit}";
+    private const string _styleInitial = $"{_pointerEventsPrefix}{GlobalKeyword.Initial}";
+    private const string _styleUnset = $"{_pointerEventsPrefix}{GlobalKeyword.Unset}";
+    private const string _styleRevert = $"{_pointerEventsPrefix}{GlobalKeyword.Revert}";
+    private const string _styleRevertLayer = $"{_pointerEventsPrefix}{GlobalKeyword.RevertLayer}";
 
     internal PointerEventsBuilder(string value, BreakpointType? breakpoint = null)
     {
@@ -52,27 +52,27 @@ public sealed class PointerEventsBuilder : ICssBuilder
     /// <summary>
     /// Sets the pointer events to inherit.
     /// </summary>
-    public PointerEventsBuilder Inherit => Chain(GlobalKeyword.InheritValue);
+    public PointerEventsBuilder Inherit => Chain(GlobalKeyword.Inherit);
 
     /// <summary>
     /// Sets the pointer events to initial.
     /// </summary>
-    public PointerEventsBuilder Initial => Chain(GlobalKeyword.InitialValue);
+    public PointerEventsBuilder Initial => Chain(GlobalKeyword.Initial);
 
     /// <summary>
     /// Sets the pointer events to revert.
     /// </summary>
-    public PointerEventsBuilder Revert => Chain(GlobalKeyword.RevertValue);
+    public PointerEventsBuilder Revert => Chain(GlobalKeyword.Revert);
 
     /// <summary>
     /// Sets the pointer events to revert-layer.
     /// </summary>
-    public PointerEventsBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
+    public PointerEventsBuilder RevertLayer => Chain(GlobalKeyword.RevertLayer);
 
     /// <summary>
     /// Sets the pointer events to unset.
     /// </summary>
-    public PointerEventsBuilder Unset => Chain(GlobalKeyword.UnsetValue);
+    public PointerEventsBuilder Unset => Chain(GlobalKeyword.Unset);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PointerEventsBuilder Chain(string value)
@@ -140,11 +140,11 @@ public sealed class PointerEventsBuilder : ICssBuilder
             {
                 PointerEventsKeyword.NoneValue => _styleNone,
                 PointerEventsKeyword.AutoValue => _styleAuto,
-                GlobalKeyword.InheritValue => _styleInherit,
-                GlobalKeyword.InitialValue => _styleInitial,
-                GlobalKeyword.UnsetValue => _styleUnset,
-                GlobalKeyword.RevertValue => _styleRevert,
-                GlobalKeyword.RevertLayerValue => _styleRevertLayer,
+                GlobalKeyword.Inherit => _styleInherit,
+                GlobalKeyword.Initial => _styleInitial,
+                GlobalKeyword.Unset => _styleUnset,
+                GlobalKeyword.Revert => _styleRevert,
+                GlobalKeyword.RevertLayer => _styleRevertLayer,
                 _ => string.Empty
             };
 

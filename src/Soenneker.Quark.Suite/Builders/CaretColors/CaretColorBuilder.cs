@@ -29,9 +29,9 @@ public sealed class CaretColorBuilder : ICssBuilder
     public CaretColorBuilder Primary => Chain("primary");
     public CaretColorBuilder Transparent => Chain("transparent");
     public CaretColorBuilder Current => Chain("current");
-    public CaretColorBuilder Inherit => Chain(GlobalKeyword.InheritValue);
-    public CaretColorBuilder Initial => Chain(GlobalKeyword.InitialValue);
-    public CaretColorBuilder Unset => Chain(GlobalKeyword.UnsetValue);
+    public CaretColorBuilder Inherit => Chain(GlobalKeyword.Inherit);
+    public CaretColorBuilder Initial => Chain(GlobalKeyword.Initial);
+    public CaretColorBuilder Unset => Chain(GlobalKeyword.Unset);
 
     public CaretColorBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
     public CaretColorBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);

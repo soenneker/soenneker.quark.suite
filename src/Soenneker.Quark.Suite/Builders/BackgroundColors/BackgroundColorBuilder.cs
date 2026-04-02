@@ -135,23 +135,23 @@ public sealed class BackgroundColorBuilder : ICssBuilder
 	/// <summary>
 	/// Sets the background color to inherit.
 	/// </summary>
-    public BackgroundColorBuilder Inherit => ChainValue(GlobalKeyword.InheritValue);
+    public BackgroundColorBuilder Inherit => ChainValue(GlobalKeyword.Inherit);
 	/// <summary>
 	/// Sets the background color to initial.
 	/// </summary>
-    public BackgroundColorBuilder Initial => ChainValue(GlobalKeyword.InitialValue);
+    public BackgroundColorBuilder Initial => ChainValue(GlobalKeyword.Initial);
 	/// <summary>
 	/// Sets the background color to revert.
 	/// </summary>
-    public BackgroundColorBuilder Revert => ChainValue(GlobalKeyword.RevertValue);
+    public BackgroundColorBuilder Revert => ChainValue(GlobalKeyword.Revert);
 	/// <summary>
 	/// Sets the background color to revert-layer.
 	/// </summary>
-    public BackgroundColorBuilder RevertLayer => ChainValue(GlobalKeyword.RevertLayerValue);
+    public BackgroundColorBuilder RevertLayer => ChainValue(GlobalKeyword.RevertLayer);
 	/// <summary>
 	/// Sets the background color to unset.
 	/// </summary>
-    public BackgroundColorBuilder Unset => ChainValue(GlobalKeyword.UnsetValue);
+    public BackgroundColorBuilder Unset => ChainValue(GlobalKeyword.Unset);
 
 	/// <summary>
 	/// Applies the background color on phone breakpoint.
