@@ -1,4 +1,4 @@
-﻿@using System.Globalization
+@using System.Globalization
 @using System.Linq
 
 @namespace Soenneker.Quark
@@ -22,7 +22,8 @@
             var css = "q-calendar-day relative flex aspect-square w-full items-center justify-center rounded-md text-sm";
             if (!day.InMonth) css += " text-muted-foreground";
             if (day.Date == DateOnly.FromDateTime(DateTime.Today)) css += " bg-accent text-accent-foreground";
-            if (DateOnlyValue.HasValue && day.Date == DateOnlyValue.Value) css += " bg-primary text-primary-foreground";
+            if (EffectiveSelectedDate.HasValue && day.Date == EffectiveSelectedDate.Value) css += " bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground";
+            else css += " hover:bg-accent hover:text-accent-foreground";
             if (day.Disabled) css += " opacity-50 pointer-events-none";
 
             <button type="button" class="@css" disabled="@day.Disabled" @onclick="() => SelectDate(day.Date)">@day.Date.Day</button>
@@ -31,6 +32,18 @@
 </div>
 
 @code {
+    [Parameter]
+    public DateOnly? SelectedDate { get; set; }
+
+    [Parameter]
+    public EventCallback<DateOnly?> SelectedDateChanged { get; set; }
+
+    [Parameter]
+    public DateOnly? DisplayMonth { get; set; }
+
+    [Parameter]
+    public EventCallback<DateOnly?> DisplayMonthChanged { get; set; }
+
     /// <summary>
     /// Gets or sets the selected date.
     /// </summary>
@@ -55,16 +68,40 @@
     [Parameter]
     public DateOnly? Max { get; set; }
 
+    [Parameter]
+    public bool ShowOutsideDays { get; set; } = true;
+
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
     private string[] _dayNames = [];
+    private bool _initialized;
+    private DateOnly? EffectiveSelectedDate => SelectedDate ?? DateOnlyValue;
 
     protected override void OnInitialized()
     {
+        base.OnInitialized();
         InitializeDayNames();
-        if (DateOnlyValue.HasValue)
-            _displayMonth = new DateOnly(DateOnlyValue.Value.Year, DateOnlyValue.Value.Month, 1);
-        else
-            _displayMonth = new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1);
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (SelectedDate is null && DateOnlyValue.HasValue)
+            SelectedDate = DateOnlyValue;
+
+        if (DisplayMonth.HasValue)
+        {
+            _displayMonth = new DateOnly(DisplayMonth.Value.Year, DisplayMonth.Value.Month, 1);
+            _initialized = true;
+            return;
+        }
+
+        if (!_initialized)
+        {
+            var initialDate = EffectiveSelectedDate ?? DateOnly.FromDateTime(DateTime.Today);
+            _displayMonth = new DateOnly(initialDate.Year, initialDate.Month, 1);
+            _initialized = true;
+        }
     }
 
     private void InitializeDayNames()
@@ -90,6 +127,8 @@
             var d = gridStart.AddDays(i);
             var inMonth = d.Month == _displayMonth.Month;
             var disabled = (Min.HasValue && d < Min.Value) || (Max.HasValue && d > Max.Value);
+            if (!ShowOutsideDays && !inMonth)
+                disabled = true;
             yield return new Cell(d, inMonth, disabled);
         }
     }
@@ -97,26 +136,28 @@
     private async Task SelectDate(DateOnly date)
     {
         if ((Min.HasValue && date < Min.Value) || (Max.HasValue && date > Max.Value)) return;
+        SelectedDate = date;
         DateOnlyValue = date;
+        await SelectedDateChanged.InvokeAsync(SelectedDate);
         await ValueChanged.InvokeAsync(DateOnlyValue);
         InvalidateRender();
         Refresh();
     }
 
-    private Task PrevMonth()
+    private async Task PrevMonth()
     {
         _displayMonth = _displayMonth.AddMonths(-1);
+        await DisplayMonthChanged.InvokeAsync(_displayMonth);
         InvalidateRender();
         Refresh();
-        return Task.CompletedTask;
     }
 
-    private Task NextMonth()
+    private async Task NextMonth()
     {
         _displayMonth = _displayMonth.AddMonths(1);
+        await DisplayMonthChanged.InvokeAsync(_displayMonth);
         InvalidateRender();
         Refresh();
-        return Task.CompletedTask;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -135,9 +176,12 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Value);
+        hc.Add(SelectedDate);
+        hc.Add(DateOnlyValue);
         hc.Add(Min);
         hc.Add(Max);
         hc.Add(_displayMonth);
+        hc.Add(DisplayMonth);
+        hc.Add(ShowOutsideDays);
     }
 }

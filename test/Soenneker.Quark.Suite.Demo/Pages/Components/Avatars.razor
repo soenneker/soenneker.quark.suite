@@ -23,25 +23,18 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Fallbacks and shapes"
-                         Description="Use initials-only fallbacks or alternate shapes for compact user references."
+            <DemoSection Title="Badge"
+                         Description="Add a simple badge when the avatar should show online or verified status."
                          Code="@FallbackCode">
                 <Div Class="flex flex-wrap items-center gap-6">
-                    <Avatar>
-                        <AvatarFallback>JD</AvatarFallback>
-                    </Avatar>
-                    <Avatar Class="rounded-lg">
-                        <AvatarFallback>MP</AvatarFallback>
-                    </Avatar>
-                    <Avatar Size="lg">
-                        <AvatarFallback>RL</AvatarFallback>
-                    </Avatar>
+                    <Avatar><AvatarFallback>JD</AvatarFallback><AvatarBadge /></Avatar>
+                    <Avatar><AvatarFallback>MP</AvatarFallback><AvatarBadge><Icon Name="LucideIcon.Check" Class="size-2" /></AvatarBadge></Avatar>
                 </Div>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Avatar groups"
+            <DemoSection Title="Avatar Group"
                          Description="Stack multiple avatars to represent teams, reviewers, or recent participants."
                          Code="@GroupCode">
                 <Div Class="flex flex-wrap items-center gap-8">
@@ -60,35 +53,15 @@
                         </Avatar>
                     </AvatarGroup>
 
-                    <AvatarGroup>
-                        <Avatar><AvatarFallback>AB</AvatarFallback></Avatar>
-                        <Avatar><AvatarFallback>CD</AvatarFallback></Avatar>
-                        <Avatar><AvatarFallback>EF</AvatarFallback></Avatar>
-                        <AvatarGroupCount>+3</AvatarGroupCount>
-                    </AvatarGroup>
                 </Div>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Badges and counts"
-                         Description="Quark extends the base avatar pattern with badges and group counts for richer status indicators."
+            <DemoSection Title="Avatar Group Count"
+                         Description="Use a trailing count to communicate that more people are present than can fit inline."
                          Code="@ExtrasCode">
                 <Div Class="flex flex-wrap items-center gap-6">
-                    <Avatar Size="sm">
-                        <AvatarFallback>SM</AvatarFallback>
-                        <AvatarBadge />
-                    </Avatar>
-                    <Avatar>
-                        <AvatarFallback>DF</AvatarFallback>
-                        <AvatarBadge>
-                            <Icon Name="LucideIcon.Check" Class="size-2" />
-                        </AvatarBadge>
-                    </Avatar>
-                    <Avatar Size="lg">
-                        <AvatarFallback>LG</AvatarFallback>
-                        <AvatarBadge />
-                    </Avatar>
                     <AvatarGroup>
                         <Avatar Size="sm"><AvatarFallback>JD</AvatarFallback></Avatar>
                         <Avatar><AvatarFallback>MP</AvatarFallback></Avatar>
@@ -96,6 +69,58 @@
                         <AvatarGroupCount>+5</AvatarGroupCount>
                     </AvatarGroup>
                 </Div>
+            </DemoSection>
+        </Section>
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Avatar Group with Icon"
+                         Description="Combine avatar groups with icon badges when the group status matters as much as the identities."
+                         Code="@GroupWithIconCode">
+                <AvatarGroup>
+                    <Avatar><AvatarFallback>QA</AvatarFallback><AvatarBadge><Icon Name="LucideIcon.Check" Class="size-2" /></AvatarBadge></Avatar>
+                    <Avatar><AvatarFallback>PM</AvatarFallback><AvatarBadge><Icon Name="LucideIcon.Clock3" Class="size-2" /></AvatarBadge></Avatar>
+                    <Avatar><AvatarFallback>UX</AvatarFallback><AvatarBadge><Icon Name="LucideIcon.MessageSquareMore" Class="size-2" /></AvatarBadge></Avatar>
+                </AvatarGroup>
+            </DemoSection>
+        </Section>
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Sizes"
+                         Description="Expose the common avatar sizes directly instead of folding them into a fallback example."
+                         Code="@(@"<Avatar Size=""sm""><AvatarFallback>SM</AvatarFallback></Avatar>
+<Avatar><AvatarFallback>MD</AvatarFallback></Avatar>
+<Avatar Size=""lg""><AvatarFallback>LG</AvatarFallback></Avatar>")">
+                <Div Class="flex flex-wrap items-center gap-6">
+                    <Avatar Size="sm"><AvatarFallback>SM</AvatarFallback></Avatar>
+                    <Avatar><AvatarFallback>MD</AvatarFallback></Avatar>
+                    <Avatar Size="lg"><AvatarFallback>LG</AvatarFallback></Avatar>
+                </Div>
+            </DemoSection>
+        </Section>
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Dropdown"
+                         Description="Wrap an avatar in a dropdown when it doubles as an account menu trigger."
+                         Code="@(@"<Dropdown>
+    <DropdownToggle Class=""p-0"">
+        <Avatar><AvatarFallback>CN</AvatarFallback></Avatar>
+    </DropdownToggle>
+    <DropdownMenu>
+        <DropdownItem>Profile</DropdownItem>
+        <DropdownItem>Billing</DropdownItem>
+    </DropdownMenu>
+</Dropdown>")">
+                <Dropdown>
+                    <DropdownToggle Class="p-0">
+                        <Avatar>
+                            <AvatarImage Src="https://github.com/shadcn.png" Alt="shadcn" />
+                            <AvatarFallback>CN</AvatarFallback>
+                        </Avatar>
+                    </DropdownToggle>
+                    <DropdownMenu>
+                        <DropdownItem>Profile</DropdownItem>
+                        <DropdownItem>Billing</DropdownItem>
+                        <DropdownDivider />
+                        <DropdownItem>Log out</DropdownItem>
+                    </DropdownMenu>
+                </Dropdown>
             </DemoSection>
         </Section>
     </Div>
@@ -116,15 +141,8 @@
 
     private const string FallbackCode =
 @"<Div Class=""flex flex-wrap items-center gap-6"">
-    <Avatar>
-        <AvatarFallback>JD</AvatarFallback>
-    </Avatar>
-    <Avatar Class=""rounded-lg"">
-        <AvatarFallback>MP</AvatarFallback>
-    </Avatar>
-    <Avatar Size=""lg"">
-        <AvatarFallback>RL</AvatarFallback>
-    </Avatar>
+    <Avatar><AvatarFallback>JD</AvatarFallback><AvatarBadge /></Avatar>
+    <Avatar><AvatarFallback>MP</AvatarFallback><AvatarBadge><Icon Name=""LucideIcon.Check"" Class=""size-2"" /></AvatarBadge></Avatar>
 </Div>";
 
     private const string GroupCode =
@@ -144,15 +162,18 @@
 </Div>";
 
     private const string ExtrasCode =
-@"<Avatar Size=""sm"">
-    <AvatarFallback>SM</AvatarFallback>
-    <AvatarBadge />
-</Avatar>
-
-<AvatarGroup>
+@"<AvatarGroup>
     <Avatar Size=""sm""><AvatarFallback>JD</AvatarFallback></Avatar>
     <Avatar><AvatarFallback>MP</AvatarFallback></Avatar>
     <Avatar Size=""lg""><AvatarFallback>RL</AvatarFallback></Avatar>
     <AvatarGroupCount>+5</AvatarGroupCount>
 </AvatarGroup>";
+
+    private const string GroupWithIconCode =
+@"<AvatarGroup>
+    <Avatar><AvatarFallback>QA</AvatarFallback><AvatarBadge><Icon Name=""LucideIcon.Check"" Class=""size-2"" /></AvatarBadge></Avatar>
+    <Avatar><AvatarFallback>PM</AvatarFallback><AvatarBadge><Icon Name=""LucideIcon.Clock3"" Class=""size-2"" /></AvatarBadge></Avatar>
+    <Avatar><AvatarFallback>UX</AvatarFallback><AvatarBadge><Icon Name=""LucideIcon.MessageSquareMore"" Class=""size-2"" /></AvatarBadge></Avatar>
+</AvatarGroup>";
+
 }

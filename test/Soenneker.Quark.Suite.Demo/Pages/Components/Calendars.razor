@@ -1,0 +1,75 @@
+@page "/calendars"
+
+<PageTitle>Calendar - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Basic"
+                         Description="Use `Calendar` as the standalone date primitive when the full month view should always be visible."
+                         Code="@(@"<Calendar SelectedDate=""_basicDate"" SelectedDateChanged=""OnBasicDateChanged"" />")">
+                <Div Class="flex flex-col items-start gap-4">
+                    <Calendar SelectedDate="_basicDate" SelectedDateChanged="OnBasicDateChanged" />
+                    <Paragraph Class="text-sm text-muted-foreground">Selected date: @_basicDate?.ToString("yyyy-MM-dd")</Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Date of Birth"
+                         Description="Bounds work well for birth dates and other historical-only selections."
+                         Code="@(@"<Calendar SelectedDate=""_birthday"" SelectedDateChanged=""OnBirthdayChanged"" Min=""_birthdayMin"" Max=""_birthdayMax"" />")">
+                <Div Class="flex flex-col items-start gap-4">
+                    <Calendar SelectedDate="_birthday"
+                              SelectedDateChanged="OnBirthdayChanged"
+                              Min="_birthdayMin"
+                              Max="_birthdayMax" />
+                    <Paragraph Class="text-sm text-muted-foreground">
+                        Choose a date between @_birthdayMin.ToString("yyyy-MM-dd") and @_birthdayMax.ToString("yyyy-MM-dd")
+                    </Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Hide Outside Days"
+                         Description="Disable outside days when the current month should stay visually focused."
+                         Code="@(@"<Calendar SelectedDate=""_focusedMonthDate"" SelectedDateChanged=""OnFocusedMonthDateChanged"" ShowOutsideDays=""false"" />")">
+                <Div Class="flex flex-col items-start gap-4">
+                    <Calendar SelectedDate="_focusedMonthDate"
+                              SelectedDateChanged="OnFocusedMonthDateChanged"
+                              ShowOutsideDays="false" />
+                    <Paragraph Class="text-sm text-muted-foreground">
+                        Outside days remain visible for layout consistency but cannot be selected in this variant.
+                    </Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+    </Div>
+</Div>
+
+@code {
+    private DateOnly? _basicDate = DateOnly.FromDateTime(DateTime.Today);
+    private readonly DateOnly _birthdayMin = new(1940, 1, 1);
+    private readonly DateOnly _birthdayMax = DateOnly.FromDateTime(DateTime.Today);
+    private DateOnly? _birthday = new(1992, 4, 12);
+    private DateOnly? _focusedMonthDate = DateOnly.FromDateTime(DateTime.Today.AddDays(3));
+
+    private Task OnBasicDateChanged(DateOnly? value)
+    {
+        _basicDate = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnBirthdayChanged(DateOnly? value)
+    {
+        _birthday = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnFocusedMonthDateChanged(DateOnly? value)
+    {
+        _focusedMonthDate = value;
+        return Task.CompletedTask;
+    }
+}

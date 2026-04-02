@@ -6,8 +6,8 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Quick actions"
-                         Description="Adapted from the shadcn command demo with searchable quick actions and shortcuts."
+            <DemoSection Title="Basic"
+                         Description="The basic command pattern is a searchable list of actions."
                          Code="@CommandCode">
                 <Div Class="max-w-md rounded-xl border bg-card shadow-sm">
                     <Command>
@@ -19,13 +19,13 @@
                             {
                                 <CommandItem OnSelect="@(() => SelectAction(action.Title))">
                                     <Span>@action.Title</Span>
-                                    <Span class="ml-auto text-xs text-muted-foreground">@action.Shortcut</Span>
+                                    <CommandShortcut>@action.Shortcut</CommandShortcut>
                                 </CommandItem>
                             }
 
                             @if (!FilteredActions.Any())
                             {
-                                <Div Class="px-3 py-3 text-sm text-muted-foreground">No actions match your search.</Div>
+                                <CommandEmpty>No actions match your search.</CommandEmpty>
                             }
                         </CommandList>
                     </Command>
@@ -39,7 +39,67 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Command dialog"
+            <DemoSection Title="Shortcuts"
+                         Description="Shortcut hints can be rendered inline at the end of each command item.">
+                <Div Class="max-w-md rounded-xl border bg-card shadow-sm">
+                    <Command>
+                        <CommandInput Placeholder="Search keyboard shortcuts..." />
+                        <CommandList>
+                            @foreach (var action in Actions.Take(4))
+                            {
+                                <CommandItem>
+                                    <Span>@action.Title</Span>
+                                    <CommandShortcut>@action.Shortcut</CommandShortcut>
+                                </CommandItem>
+                            }
+                        </CommandList>
+                    </Command>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Groups"
+                         Description="Use `CommandGroup`, `CommandSeparator`, and `CommandEmpty` to structure larger command sets.">
+                <Div Class="max-w-md rounded-xl border bg-card shadow-sm">
+                    <Command>
+                        <CommandInput Placeholder="Search grouped commands..." />
+                        <CommandList>
+                            <CommandGroup Heading="Suggestions">
+                                <CommandItem OnSelect="@(() => SelectAction("Calendar"))">Calendar</CommandItem>
+                                <CommandItem OnSelect="@(() => SelectAction("Search emoji"))">Search emoji</CommandItem>
+                            </CommandGroup>
+                            <CommandSeparator />
+                            <CommandGroup Heading="Settings">
+                                <CommandItem OnSelect="@(() => SelectAction("Profile"))">Profile</CommandItem>
+                                <CommandItem OnSelect="@(() => SelectAction("Billing"))">Billing</CommandItem>
+                                <CommandItem OnSelect="@(() => SelectAction("Team"))">Team</CommandItem>
+                            </CommandGroup>
+                        </CommandList>
+                    </Command>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Scrollable"
+                         Description="Long command sets should scroll inside the list instead of expanding the whole surface.">
+                <Div Class="max-w-md rounded-xl border bg-card shadow-sm">
+                    <Command>
+                        <CommandInput Placeholder="Search long list..." />
+                        <CommandList Class="max-h-56 overflow-y-auto">
+                            @foreach (var item in ScrollableActions)
+                            {
+                                <CommandItem OnSelect="@(() => SelectAction(item))">@item</CommandItem>
+                            }
+                        </CommandList>
+                    </Command>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Command Dialog"
                          Description="Use the dialog wrapper for a shadcn-style command palette overlay.">
                 <Div Class="space-y-3">
                     <Button Variant="ButtonVariant.Outline" OnClick="OpenDialog">Open command palette</Button>
@@ -55,7 +115,7 @@
                             {
                                 <CommandItem OnSelect="@(() => SelectDialogAction(action.Title))">
                                     <Span>@action.Title</Span>
-                                    <Span class="ml-auto text-xs text-muted-foreground">@action.Shortcut</Span>
+                                    <CommandShortcut>@action.Shortcut</CommandShortcut>
                                 </CommandItem>
                             }
                         </CommandList>
@@ -79,6 +139,25 @@
         new("Billing", "Ctrl+B"),
         new("Settings", "Ctrl+,"),
         new("Invite teammates", "Ctrl+I")
+    ];
+
+    private static readonly string[] ScrollableActions =
+    [
+        "Account",
+        "API Keys",
+        "Billing",
+        "Changelog",
+        "Dashboard",
+        "Deployments",
+        "Docs",
+        "Integrations",
+        "Members",
+        "Notifications",
+        "Projects",
+        "Security",
+        "Settings",
+        "Support",
+        "Usage"
     ];
 
     private string? _commandSearch;
@@ -144,9 +223,12 @@
 @"<Command>
     <CommandInput Placeholder=""Type a command or search..."" />
     <CommandList>
-        <CommandItem>Calendar</CommandItem>
-        <CommandItem>Billing</CommandItem>
-        <CommandItem>Settings</CommandItem>
+        <CommandGroup Heading=""Suggestions"">
+            <CommandItem>Calendar<CommandShortcut>Ctrl+K</CommandShortcut></CommandItem>
+            <CommandItem>Billing<CommandShortcut>Ctrl+B</CommandShortcut></CommandItem>
+        </CommandGroup>
+        <CommandSeparator />
+        <CommandEmpty>No results found.</CommandEmpty>
     </CommandList>
 </Command>";
 }

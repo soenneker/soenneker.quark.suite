@@ -3,33 +3,22 @@
 
 @namespace Soenneker.Quark
 @typeparam TValue
-@inherits Soenneker.Quark.FormControlElement
-@implements Soenneker.Quark.IValidationInput
+@inherits FormControlElement
+@implements IValidationInput
 @implements ISelect<TValue>
 
-<div @attributes="BuildWrapperAttributes()">
-    <select value="@SelectedValue?.ToString()" @onchange="HandleChange" @attributes="BuildAttributes()">
-        @if (DefaultItemText.HasContent())
-        {
-            <option value="@GetDefaultItemValueString()" selected="@IsDefaultItemSelected()">@DefaultItemText</option>
-        }
-        @ChildContent
-    </select>
-    <svg class="text-muted-foreground pointer-events-none absolute top-1/2 right-2.5 size-4 -translate-y-1/2 opacity-50 select-none"
-         aria-hidden="true"
-         data-slot="native-select-icon"
-         xmlns="http://www.w3.org/2000/svg"
-         width="24"
-         height="24"
-         viewBox="0 0 24 24"
-         fill="none"
-         stroke="currentColor"
-         stroke-width="2"
-         stroke-linecap="round"
-         stroke-linejoin="round">
-        <path d="m6 9 6 6 6-6"></path>
-    </svg>
-</div>
+<CascadingValue Name="ParentSelect" Value="this" IsFixed="false">
+    <CascadingValue Name="ParentSelectContext" Value="_context" IsFixed="false">
+        <div @attributes="BuildAttributes()" @onfocusout="HandleFocusOut">
+            @if (Name.HasContent())
+            {
+                <input type="hidden" name="@Name" value="@SelectedValueString" />
+            }
+
+            @ChildContent
+        </div>
+    </CascadingValue>
+</CascadingValue>
 
 @code {
     /// <summary>
@@ -87,6 +76,34 @@
     /// Gets the value used for validation.
     /// </summary>
     public object? ValidationValue => SelectedValue;
+    private readonly Dictionary<string, string?> _registeredItems = new(StringComparer.Ordinal);
+    private bool _open;
+    private readonly string _selectId = $"select-{Guid.NewGuid():N}";
+    private SelectContext _context = null!;
+
+    private string TriggerId => $"{_selectId}-trigger";
+    private string ContentId => $"{_selectId}-content";
+    private string? SelectedValueString => GetValueString(SelectedValue);
+    private bool IsInvalidState => ParentValidation?.Status == ValidationStatus.Error;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        _context = new SelectContext
+        {
+            IsOpen = () => _open,
+            HasValue = HasValue,
+            DisplayText = GetDisplayText,
+            IsDisabled = () => Disabled,
+            IsInvalid = () => IsInvalidState,
+            ToggleAsync = ToggleOpen,
+            CloseAsync = Close,
+            TriggerId = TriggerId,
+            ContentId = ContentId
+        };
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && ParentValidation is not null)
@@ -102,34 +119,47 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-    }
-
     private async void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
     {
         await RefreshOffThread();
     }
 
-    private async Task HandleChange(ChangeEventArgs e)
+    private async Task HandleFocusOut(FocusEventArgs _)
     {
-        var newValue = ConvertValue(e.Value?.ToString());
-        var valueChanged = false;
-        if (!EqualityComparer<TValue>.Default.Equals(SelectedValue, newValue))
-        {
-            SelectedValue = newValue;
-            await SelectedValueChanged.InvokeAsync(SelectedValue);
-            valueChanged = true;
-        }
+        await Task.Delay(150);
+        await Close();
+    }
 
-        await OnChange.InvokeIfHasDelegate(e);
+    internal void RegisterItem(string value, string? text)
+    {
+        _registeredItems[value] = text;
+    }
+
+    internal bool IsSelected(TValue? value)
+    {
+        return EqualityComparer<TValue>.Default.Equals(SelectedValue, value);
+    }
+
+    internal async Task SelectItem(TValue? value, string? text)
+    {
+        var valueChanged = !EqualityComparer<TValue>.Default.Equals(SelectedValue, value);
+        SelectedValue = value;
+
+        if (text.HasContent() && value is not null)
+            _registeredItems[GetValueString(value)!] = text;
+
+        if (valueChanged)
+            await SelectedValueChanged.InvokeAsync(SelectedValue);
+
+        await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = GetValueString(SelectedValue) });
 
         if (ParentValidation is not null)
         {
             ParentValidation.MarkTouched();
             await ParentValidation.NotifyInputChanged(SelectedValue);
         }
+
+        await Close();
 
         if (valueChanged)
         {
@@ -138,55 +168,47 @@
         }
     }
 
-    private static TValue? ConvertValue(string? value)
+    private async Task ToggleOpen()
     {
-        if (string.IsNullOrEmpty(value))
-            return default;
+        if (Disabled)
+            return;
 
-        try
+        _open = !_open;
+        await RefreshOffThread();
+    }
+
+    private async Task Close()
+    {
+        if (!_open)
+            return;
+
+        _open = false;
+        await RefreshOffThread();
+    }
+
+    private bool HasValue()
+    {
+        return SelectedValue is not null && !string.IsNullOrEmpty(GetValueString(SelectedValue));
+    }
+
+    private string? GetDisplayText()
+    {
+        if (SelectedValue is not null)
         {
-            var targetType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
-
-            if (targetType.IsEnum)
-            {
-                var parsed = Enum.Parse(targetType, value, ignoreCase: true);
-                return (TValue)parsed;
-            }
-
-            return (TValue)Convert.ChangeType(value, targetType);
+            var key = GetValueString(SelectedValue);
+            if (key.HasContent() && _registeredItems.TryGetValue(key!, out var label) && label.HasContent())
+                return label;
         }
-        catch
-        {
-            return default;
-        }
+
+        if (DefaultItemText.HasContent())
+            return DefaultItemText;
+
+        return Placeholder;
     }
 
-    private string? GetDefaultItemValueString()
+    private static string? GetValueString(TValue? value)
     {
-        if (DefaultItemValue == null)
-            return string.Empty;
-
-        return DefaultItemValue.ToString();
-    }
-
-    private bool IsDefaultItemSelected()
-    {
-        if (DefaultItemValue == null && SelectedValue == null)
-            return true;
-
-        return EqualityComparer<TValue>.Default.Equals(DefaultItemValue, SelectedValue);
-    }
-
-    private string? GetSizeClass()
-    {
-        if (Size == Quark.Size.Default)
-            return null;
-
-        string? token = null;
-        var isTheme = Size?.TryGetThemeToken(out token) == true;
-        var sizeVal = token ?? Size?.ToString();
-        if (string.IsNullOrEmpty(sizeVal)) return null;
-        return sizeVal.ToLowerInvariant() switch { "sm" or "xs" => "h-8 py-1", "lg" => "h-11 py-2", _ => null };
+        return value?.ToString();
     }
 
     private string? GetValidationClass()
@@ -200,42 +222,20 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        attributes["data-slot"] = "native-select";
+        attributes["data-slot"] = "select";
         attributes["data-size"] = "default";
-        attributes.Remove("placeholder");
-        ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
+        attributes["data-state"] = _open ? "open" : "closed";
+        ApplyFieldControlAttributes(attributes, IsInvalidState);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-select");
-            AppendClass(ref cls, "border-input placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground h-8 w-full min-w-0 appearance-none rounded-lg border bg-transparent py-1 pl-2.5 pr-8 text-sm transition-colors outline-none select-none disabled:pointer-events-none disabled:cursor-not-allowed");
-            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3");
-            AppendClass(ref cls, "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive");
-            
-            var sizeClass = GetSizeClass();
-            if (sizeClass != null)
-                AppendClass(ref cls, sizeClass);
-                
+            AppendClass(ref cls, "group/select relative w-full max-w-full");
+
             var validationClass = GetValidationClass();
             if (validationClass != null)
                 AppendClass(ref cls, validationClass);
         });
-
-        if (Multiple)
-            attributes["multiple"] = true;
-    }
-
-    private Dictionary<string, object> BuildWrapperAttributes()
-    {
-        var attributes = new Dictionary<string, object>();
-        attributes["data-slot"] = "native-select-wrapper";
-        attributes["data-size"] = "default";
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-select-wrapper");
-            AppendClass(ref cls, "group/native-select relative w-fit max-w-full has-[select:disabled]:opacity-50");
-        });
-        return attributes;
     }
 
     public override void Dispose()
@@ -257,5 +257,6 @@
         hc.Add(Placeholder);
         hc.Add(DefaultItemText);
         hc.Add(DefaultItemValue);
+        hc.Add(_open);
     }
 }

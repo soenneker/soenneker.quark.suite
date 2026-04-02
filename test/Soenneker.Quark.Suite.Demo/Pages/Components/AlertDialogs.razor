@@ -4,7 +4,7 @@
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Section Space="Space.Y.Is4">
-        <DemoSection Title="Default alert dialog"
+        <DemoSection Title="Basic"
                      Description="shadcn-style confirmation dialog with trigger, title, description, and actions."
                      Code="@DefaultCode">
             <AlertDialog @bind-Visible="_showDefaultAlert" CloseOnBackdropClick="false" CloseOnEscape="false">
@@ -26,7 +26,7 @@
             </AlertDialog>
         </DemoSection>
 
-        <DemoSection Title="Destructive confirm"
+        <DemoSection Title="Destructive"
                      Description="Use a destructive variant for dangerous actions."
                      Code="@DestructiveCode">
             <AlertDialog @bind-Visible="_showDestructiveAlert" CloseOnBackdropClick="false" CloseOnEscape="false">
@@ -46,13 +46,71 @@
             </AlertDialog>
         </DemoSection>
 
-        <DemoSection Title="Small dialog"
+        <DemoSection Title="Small"
                      Description="Use Size='sm' for compact confirmations."
                      Code="@SmallCode">
             <AlertDialog @bind-Visible="_showSmallAlert" CloseOnBackdropClick="false" CloseOnEscape="false">
                 <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showSmallAlert = true)">Archive item</Button>
                 <AlertDialogContent Size="sm">
                     <AlertDialogHeader>
+                        <AlertDialogTitle>Archive item?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            You can restore this item later from archives.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction>Archive</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </DemoSection>
+
+        <DemoSection Title="Media"
+                     Description="Use `AlertDialogMedia` when the dialog needs an icon or visual cue."
+                     Code="@(@"<AlertDialog>
+    <AlertDialogContent>
+        <AlertDialogHeader>
+            <AlertDialogMedia><Icon Name=""LucideIcon.TriangleAlert"" /></AlertDialogMedia>
+            <AlertDialogTitle>Heads up</AlertDialogTitle>
+        </AlertDialogHeader>
+    </AlertDialogContent>
+</AlertDialog>")">
+            <AlertDialog @bind-Visible="_showMediaAlert" CloseOnBackdropClick="false" CloseOnEscape="false">
+                <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showMediaAlert = true)">Show media dialog</Button>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogMedia>
+                            <Icon Name="LucideIcon.TriangleAlert" />
+                        </AlertDialogMedia>
+                        <AlertDialogTitle>Heads up</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This change will sign every teammate out and require them to authenticate again.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction>Continue</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </DemoSection>
+
+        <DemoSection Title="Small with Media"
+                     Description="Small dialogs can still include media when the visual cue is important."
+                     Code="@(@"<AlertDialogContent Size=""sm"">
+    <AlertDialogHeader>
+        <AlertDialogMedia><Icon Name=""LucideIcon.Archive"" /></AlertDialogMedia>
+        <AlertDialogTitle>Archive item?</AlertDialogTitle>
+    </AlertDialogHeader>
+</AlertDialogContent>")">
+            <AlertDialog @bind-Visible="_showSmallMediaAlert" CloseOnBackdropClick="false" CloseOnEscape="false">
+                <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showSmallMediaAlert = true)">Archive with media</Button>
+                <AlertDialogContent Size="sm">
+                    <AlertDialogHeader>
+                        <AlertDialogMedia>
+                            <Icon Name="LucideIcon.Archive" />
+                        </AlertDialogMedia>
                         <AlertDialogTitle>Archive item?</AlertDialogTitle>
                         <AlertDialogDescription>
                             You can restore this item later from archives.
@@ -72,6 +130,8 @@
     private bool _showDefaultAlert;
     private bool _showDestructiveAlert;
     private bool _showSmallAlert;
+    private bool _showMediaAlert;
+    private bool _showSmallMediaAlert;
 
     private Task HandleContinue() => Task.CompletedTask;
     private Task HandleDelete() => Task.CompletedTask;

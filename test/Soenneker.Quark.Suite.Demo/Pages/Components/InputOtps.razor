@@ -5,7 +5,7 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Six-digit code"
+            <DemoSection Title="Separator"
                          Description="Group OTP slots and separators to mirror the most common verification code layout."
                          Code="@OtpCode">
                 <Div Class="space-y-3">
@@ -28,6 +28,33 @@
                         Current value:
                         <Span class="font-medium text-foreground">@_otpValue</Span>
                     </Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Controlled"
+                         Description="@($"Current controlled value: {_otpValue}")"
+                         Code="@OtpCode">
+                <Div Class="space-y-3">
+                    <InputOtp OtpValue="_otpValue" OtpValueChanged="OnOtpChanged" Length="6">
+                        <InputOtpInput />
+                        <InputOtpGroup>
+                            <InputOtpSlot Index="0" />
+                            <InputOtpSlot Index="1" />
+                            <InputOtpSlot Index="2" />
+                        </InputOtpGroup>
+                        <InputOtpSeparator />
+                        <InputOtpGroup>
+                            <InputOtpSlot Index="3" />
+                            <InputOtpSlot Index="4" />
+                            <InputOtpSlot Index="5" />
+                        </InputOtpGroup>
+                    </InputOtp>
+                    <Div Class="flex gap-2">
+                        <Button Size="ButtonSize.Sm" Variant="ButtonVariant.Outline" OnClick="SetOtpSample">Fill sample</Button>
+                        <Button Size="ButtonSize.Sm" Variant="ButtonVariant.Outline" OnClick="ClearOtpSample">Clear</Button>
+                    </Div>
                 </Div>
             </DemoSection>
         </Section>
@@ -78,6 +105,33 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Invalid"
+                         Description="Use destructive styling and helper text when the code is incomplete or rejected."
+                         Code="@(@"<Div class=""space-y-3"">
+    <InputOtp OtpValue=""12"" Length=""6"" Class=""border-destructive"" />
+    <Paragraph class=""text-sm text-destructive"">Code must be 6 characters long.</Paragraph>
+</Div>")">
+                <Div Class="space-y-3">
+                    <InputOtp OtpValue="12" Length="6" Class="border-destructive">
+                        <InputOtpInput />
+                        <InputOtpGroup>
+                            <InputOtpSlot Index="0" />
+                            <InputOtpSlot Index="1" />
+                            <InputOtpSlot Index="2" />
+                        </InputOtpGroup>
+                        <InputOtpSeparator />
+                        <InputOtpGroup>
+                            <InputOtpSlot Index="3" />
+                            <InputOtpSlot Index="4" />
+                            <InputOtpSlot Index="5" />
+                        </InputOtpGroup>
+                    </InputOtp>
+                    <Paragraph class="text-sm text-destructive">Code must be 6 characters long.</Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Alphanumeric"
                          Description="OTP values can also carry invitation or access codes that include letters."
                          Code="@AlphaNumericCode">
@@ -103,7 +157,7 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Form submission"
+            <DemoSection Title="Form"
                          Description="Treat the OTP like any other controlled form value before allowing submission."
                          Code="@FormCode">
                 <Div Class="grid gap-6 md:grid-cols-2">
@@ -170,6 +224,18 @@
     private void SubmitFormOtp()
     {
         _formOtpMessage = $"Verified code {_formOtpValue}.";
+    }
+
+    private Task SetOtpSample(MouseEventArgs args)
+    {
+        _otpValue = "482917";
+        return Task.CompletedTask;
+    }
+
+    private Task ClearOtpSample(MouseEventArgs args)
+    {
+        _otpValue = "";
+        return Task.CompletedTask;
     }
 
     private const string OtpCode =

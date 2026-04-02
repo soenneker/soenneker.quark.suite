@@ -5,37 +5,37 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Common shortcuts"
+            <DemoSection Title="Group"
                          Description="Adapted from the shadcn kbd examples for grouped keyboard shortcuts."
                          Code="@KbdCode">
                 <Div Class="flex flex-col items-start gap-4">
-                    <Div Class="flex items-center gap-2">
+                    <KbdGroup>
                         <Kbd>Ctrl</Kbd>
                         <Span>+</Span>
                         <Kbd>K</Kbd>
                         <Span Class="text-sm text-muted-foreground">Open command palette</Span>
-                    </Div>
+                    </KbdGroup>
 
-                    <Div Class="flex items-center gap-2">
+                    <KbdGroup>
                         <KbdChip>Shift</KbdChip>
                         <Span>+</Span>
                         <KbdChip>Alt</KbdChip>
                         <Span>+</Span>
                         <KbdChip>S</KbdChip>
                         <Span Class="text-sm text-muted-foreground">Save all changes</Span>
-                    </Div>
+                    </KbdGroup>
 
-                    <Div Class="flex items-center gap-2">
+                    <KbdGroup>
                         <Kbd>Esc</Kbd>
                         <Span Class="text-sm text-muted-foreground">Close overlays and dialogs</Span>
-                    </Div>
+                    </KbdGroup>
                 </Div>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Buttons and helper text"
-                         Description="Keyboard hints can be embedded anywhere you need lightweight affordances.">
+            <DemoSection Title="Button"
+                         Description="Keyboard hints can be embedded directly in buttons and helper text.">
                 <Div Class="flex flex-col gap-4 md:flex-row md:items-center">
                     <Button Variant="ButtonVariant.Outline">
                         Search docs
@@ -51,14 +51,58 @@
                 </Div>
             </DemoSection>
         </Section>
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Tooltip"
+                         Description="Tooltips are a natural place to surface keyboard shortcuts without adding permanent chrome.">
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <Button Variant="ButtonVariant.Outline">Hover for shortcut</Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <KbdGroup>
+                                <Span>Open palette</Span>
+                                <Kbd>Ctrl</Kbd>
+                                <Kbd>K</Kbd>
+                            </KbdGroup>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            </DemoSection>
+        </Section>
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Input Group"
+                         Description="Use keyboard hints inside input groups when the action belongs to the field itself.">
+                <Div Class="max-w-md">
+                    <InputGroup>
+                        <InputGroupInput Placeholder="Search docs..." />
+                        <InputGroupAddon Align="InputGroupAddonAlign.InlineEnd">
+                            <KbdGroup>
+                                <KbdChip>Ctrl</KbdChip>
+                                <KbdChip>K</KbdChip>
+                            </KbdGroup>
+                        </InputGroupAddon>
+                    </InputGroup>
+                </Div>
+            </DemoSection>
+        </Section>
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Kbd"
+                         Description="Single-key hints are useful for simple affordances and onboarding copy.">
+                <Div Class="flex items-center gap-3">
+                    <Kbd>Esc</Kbd>
+                    <Paragraph Class="text-sm text-muted-foreground">Close the current dialog or flyout.</Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
     </Div>
 </Div>
 
 @code {
     private const string KbdCode =
-@"<Div Class=""flex items-center gap-2"">
+@"<KbdGroup>
     <Kbd>Ctrl</Kbd>
     <Span>+</Span>
     <Kbd>K</Kbd>
-</Div>";
+</KbdGroup>";
 }

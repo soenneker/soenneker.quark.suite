@@ -186,6 +186,23 @@
         </Div>
     </Grid>
 
+    <Grid Columns="Columns.Is1" Gap="Gap.Is4">
+        <Div Margin="Margin.Is4.FromBottom">
+            <DemoSection Title="Invalid" Description="Use destructive helper text when a payment method is required but none has been selected yet." Code="@(@"<Div class=""space-y-3 rounded-lg border border-destructive/40 p-4"">
+    <Radio Name=""planGroup"" Value=""Starter"">Starter</Radio>
+    <Radio Name=""planGroup"" Value=""Pro"">Pro</Radio>
+    <Paragraph class=""text-sm text-destructive"">Please choose a plan.</Paragraph>
+</Div>")">
+                <Div class="space-y-3 rounded-lg border border-destructive/40 bg-destructive/5 p-4">
+                    <Label Form="true">Choose a support plan</Label>
+                    <Radio Name="invalidPlanGroup" Value="Starter" Checked="@(_invalidSelection == "Starter")" OnClick="@(() => _invalidSelection = "Starter")">Starter</Radio>
+                    <Radio Name="invalidPlanGroup" Value="Pro" Checked="@(_invalidSelection == "Pro")" OnClick="@(() => _invalidSelection = "Pro")">Pro</Radio>
+                    <Paragraph class="text-sm text-destructive">Please choose a plan before continuing.</Paragraph>
+                </Div>
+            </DemoSection>
+        </Div>
+    </Grid>
+
     <Div>
         <!-- Interactive Demo -->
         <Div>
@@ -247,6 +264,7 @@
 
     // Inline radios
     private string _ratingSelected = "Good";
+    private string _invalidSelection = string.Empty;
 
     protected override void OnInitialized()
     {

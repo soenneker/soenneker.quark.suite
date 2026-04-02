@@ -8,43 +8,67 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Basic Form Layout" Description="shadcn-style form item with label, control, and description." Code="@(@"<FormItem>
-    <FormLabel For=""textInput"">Text Input</FormLabel>
-    <Input type=""text"" id=""textInput"" class=""..."" placeholder=""Enter text...""/>
-    <FormDescription>This is help text for the text input field.</FormDescription>
-</FormItem>
-<FormItem>
-    <FormLabel For=""emailInput"" RequiredIndicator=""true"">Email Address</FormLabel>
-    <Input type=""email"" id=""emailInput"" class=""..."" placeholder=""Enter email...""/>
-    <FormDescription>We'll never share your email.</FormDescription>
-</FormItem>")">
-                <FormItem>
-                    <FormLabel For="textInput">Text Input</FormLabel>
+            <DemoSection Title="Input" Description="Use the newer `Field` family for the shadcn-style label, control, and description structure." Code="@(@"<Field>
+    <FieldLabel For=""textInput"">Text Input</FieldLabel>
+    <Input type=""text"" id=""textInput"" placeholder=""Enter text..."" />
+    <FieldDescription>This is help text for the text input field.</FieldDescription>
+</Field>")">
+                <Field>
+                    <FieldLabel For="textInput">Text Input</FieldLabel>
                     <Input type="text" id="textInput" class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-base shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50" placeholder="Enter text..."/>
-                    <FormDescription>This is help text for the text input field.</FormDescription>
-                </FormItem>
+                    <FieldDescription>This is help text for the text input field.</FieldDescription>
+                </Field>
 
-                <FormItem>
-                    <FormLabel For="emailInput" RequiredIndicator="true">Email Address</FormLabel>
+                <Field>
+                    <FieldLabel For="emailInput" RequiredIndicator="true">Email Address</FieldLabel>
                     <Input type="email" id="emailInput" class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-base shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50" placeholder="Enter email..."/>
-                    <FormDescription>We'll never share your email with anyone else.</FormDescription>
-                </FormItem>
+                    <FieldDescription>We'll never share your email with anyone else.</FieldDescription>
+                </Field>
 
-                <FormItem>
-                    <FormLabel For="passwordInput">Password</FormLabel>
+                <Field>
+                    <FieldLabel For="passwordInput">Password</FieldLabel>
                     <Input type="password" id="passwordInput" class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-base shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50" placeholder="Enter password..."/>
-                </FormItem>
+                </Field>
 
-                <FormItem>
-                    <FormLabel For="textareaInput">Comments</FormLabel>
+                <Field>
+                    <FieldLabel For="textareaInput">Comments</FieldLabel>
                     <TextArea id="textareaInput" class="min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-base shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50" rows="3" placeholder="Enter your comments..."></TextArea>
-                    <FormDescription>Please provide any additional feedback.</FormDescription>
-                </FormItem>
+                    <FieldDescription>Please provide any additional feedback.</FieldDescription>
+                </Field>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Horizontal Form Layout" Description="FormItem with Horizontal=true and FormControl for label/control rows." Code="@(@"<FormItem Horizontal=""true"">
+            <DemoSection Title="FieldSet" Description="`FieldSet` and `FieldLegend` group related fields under one semantic boundary." Code="@(@"<FieldSet>
+    <FieldLegend>Notification preferences</FieldLegend>
+    <Field>
+        <FieldLabel>Email alerts</FieldLabel>
+        <Switch Label=""Enable alerts"" />
+    </Field>
+</FieldSet>")">
+                <FieldSet>
+                    <FieldLegend>Notification preferences</FieldLegend>
+                    <FieldGroup>
+                        <Field Horizontal="true">
+                            <FieldContent>
+                                <FieldLabel>Email alerts</FieldLabel>
+                                <FieldDescription>Receive build and deploy notifications in your inbox.</FieldDescription>
+                            </FieldContent>
+                            <Switch Label="Enable alerts" />
+                        </Field>
+                        <Field Horizontal="true">
+                            <FieldContent>
+                                <FieldLabel>SMS alerts</FieldLabel>
+                                <FieldDescription>Use SMS only for urgent production incidents.</FieldDescription>
+                            </FieldContent>
+                            <Switch Label="Enable SMS" />
+                        </Field>
+                    </FieldGroup>
+                </FieldSet>
+            </DemoSection>
+        </Section>
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Select" Description="Field rows can host native selects or other controls through `FormControl`." Code="@(@"<FormItem Horizontal=""true"">
     <FormLabel For=""hTextInput"">Text Input</FormLabel>
     <FormControl>
         <Input type=""text"" id=""hTextInput"" class=""..."" placeholder=""Enter text...""/>
@@ -98,7 +122,7 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Form Example" Description="Complete form built from the shadcn-style form primitives." Code="@(@"<form>
+            <DemoSection Title="Field Group" Description="Group several related fields together when they belong to the same task or submission flow." Code="@(@"<form>
     <FormItem>
         <FormLabel For=""firstName"" RequiredIndicator=""true"">First Name</FormLabel>
         <Input type=""text"" id=""firstName"" placeholder=""Enter your first name""/>
@@ -150,6 +174,84 @@
                         <Button Type="ButtonType.Button" BackgroundColor="BackgroundColor.Secondary" Margin="Margin.Is2.FromStart">Cancel</Button>
                     </Div>
                 </form>
+            </DemoSection>
+        </Section>
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Textarea" Description="Textarea fields follow the same label and description pattern." Code="@(@"<FormItem>
+    <FormLabel For=""notesField"">Notes</FormLabel>
+    <TextArea id=""notesField"" rows=""4""></TextArea>
+    <FormDescription>Add any rollout notes for the next deployment.</FormDescription>
+</FormItem>")">
+                <FormItem>
+                    <FormLabel For="notesField">Notes</FormLabel>
+                    <TextArea id="notesField" class="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-base shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50" rows="4" placeholder="Add deployment notes"></TextArea>
+                    <FormDescription>Add any rollout notes for the next deployment.</FormDescription>
+                </FormItem>
+            </DemoSection>
+        </Section>
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Checkbox" Description="Checkbox rows can also be expressed with `FormItem` and `FormControl`." Code="@(@"<FormItem Horizontal=""true"">
+    <FormLabel For=""termsField"">Terms</FormLabel>
+    <FormControl>
+        <Input type=""checkbox"" id=""termsField"" />
+        <Label for=""termsField"">I agree to the terms.</Label>
+    </FormControl>
+</FormItem>")">
+                <FormItem Horizontal="true">
+                    <FormLabel For="termsField">Terms</FormLabel>
+                    <FormControl>
+                        <Div class="flex items-center gap-2">
+                            <Input type="checkbox" id="termsField" class="size-4 rounded border border-input" />
+                            <Label for="termsField" class="text-sm font-medium leading-none cursor-pointer">I agree to the terms and conditions.</Label>
+                        </Div>
+                    </FormControl>
+                </FormItem>
+            </DemoSection>
+        </Section>
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Radio" Description="Use a labeled field row to group related radio choices." Code="@(@"<FormItem>
+    <FormLabel For=""starterPlan"">Plan</FormLabel>
+    <Radio Name=""planField"" Value=""Starter"">Starter</Radio>
+    <Radio Name=""planField"" Value=""Pro"">Pro</Radio>
+</FormItem>")">
+                <FormItem>
+                    <FormLabel For="starterPlan">Plan</FormLabel>
+                    <Radio Name="planField" Value="Starter" id="starterPlan">Starter</Radio>
+                    <Radio Name="planField" Value="Pro">Pro</Radio>
+                    <FormDescription>Choose the plan that best fits your team.</FormDescription>
+                </FormItem>
+            </DemoSection>
+        </Section>
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Switch" Description="Switches pair naturally with field descriptions for settings pages." Code="@(@"<FormItem Horizontal=""true"">
+    <FormLabel For=""autoDeploy"">Auto deploy</FormLabel>
+    <FormControl>
+        <Switch Label=""Enable on merge"" />
+    </FormControl>
+</FormItem>")">
+                <FormItem Horizontal="true">
+                    <FormLabel For="autoDeploy">Auto deploy</FormLabel>
+                    <FormControl>
+                        <Switch Label="Enable on merge" />
+                        <FormDescription>Deploy automatically when pull requests land on `main`.</FormDescription>
+                    </FormControl>
+                </FormItem>
+            </DemoSection>
+        </Section>
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Choice Card" Description="A bordered `FormItem` is the closest Quark equivalent to the shadcn choice-card field pattern." Code="@(@"<FormItem class=""rounded-lg border p-4"">
+    <FormLabel>Starter</FormLabel>
+    <FormDescription>Good for smaller teams and prototypes.</FormDescription>
+</FormItem>")">
+                <FormItem class="rounded-lg border bg-card p-4">
+                    <Div class="flex items-start justify-between gap-4">
+                        <Div class="space-y-1">
+                            <FormLabel>Starter</FormLabel>
+                            <FormDescription>Good for smaller teams and prototypes.</FormDescription>
+                        </Div>
+                        <Radio Name="planChoiceCard" Value="Starter" Checked="true" />
+                    </Div>
+                </FormItem>
             </DemoSection>
         </Section>
     </Div>

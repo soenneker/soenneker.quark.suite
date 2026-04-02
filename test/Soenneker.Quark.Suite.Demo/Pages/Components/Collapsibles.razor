@@ -1,0 +1,102 @@
+@page "/collapsibles"
+
+<PageTitle>Collapsible - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Basic"
+                         Description="Use `Collapsible`, `CollapsibleTrigger`, and `CollapsibleContent` for the shadcn-style open-and-close pattern."
+                         Code="@(@"<Collapsible Open=""_basicOpen"" OpenChanged=""OnBasicOpenChanged"">
+    <CollapsibleTrigger class=""flex w-full items-center justify-between rounded-md border px-4 py-3"">
+        <Span>Can I use this in a card?</Span>
+        <Span>@(_basicOpen ? ""Hide"" : ""Show"")</Span>
+    </CollapsibleTrigger>
+    <CollapsibleContent class=""pt-3"">
+        <Card><CardBody>Yes. The trigger and content can wrap any layout you need.</CardBody></Card>
+    </CollapsibleContent>
+</Collapsible>")">
+                <Collapsible Open="_basicOpen" OpenChanged="OnBasicOpenChanged">
+                    <CollapsibleTrigger Class="flex w-full items-center justify-between rounded-md border bg-card px-4 py-3">
+                        <Span>Can I use this in a card?</Span>
+                        <Span Class="text-sm text-muted-foreground">@(_basicOpen ? "Hide" : "Show")</Span>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent Class="pt-3">
+                        <Card>
+                            <CardBody>
+                                <Paragraph>Yes. The trigger and content can wrap any layout you need.</Paragraph>
+                            </CardBody>
+                        </Card>
+                    </CollapsibleContent>
+                </Collapsible>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="File Tree"
+                         Description="Use separate collapsibles for file-tree or outline navigation patterns."
+                         Code="@(@"<Collapsible Open=""_filesOpen"" OpenChanged=""OnFilesOpenChanged"">
+    <CollapsibleTrigger class=""flex w-full items-center justify-between rounded-md border px-4 py-3"">
+        <Span>app</Span>
+        <Span>@(_filesOpen ? ""Open"" : ""Closed"")</Span>
+    </CollapsibleTrigger>
+    <CollapsibleContent class=""pt-3"">
+        <Div class=""space-y-2 rounded-md border p-3 text-sm"">
+            <Paragraph>layout.tsx</Paragraph>
+            <Paragraph>page.tsx</Paragraph>
+            <Paragraph>loading.tsx</Paragraph>
+        </Div>
+    </CollapsibleContent>
+</Collapsible>")">
+                <Collapsible Open="_filesOpen" OpenChanged="OnFilesOpenChanged">
+                    <CollapsibleTrigger Class="flex w-full items-center justify-between rounded-md border bg-card px-4 py-3">
+                        <Span>app</Span>
+                        <Span Class="text-sm text-muted-foreground">@(_filesOpen ? "Open" : "Closed")</Span>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent Class="pt-3">
+                        <Div Class="space-y-2 rounded-md border p-3 text-sm">
+                            <Paragraph Margin="Margin.Is0">layout.tsx</Paragraph>
+                            <Paragraph Margin="Margin.Is0">page.tsx</Paragraph>
+                            <Paragraph Margin="Margin.Is0">loading.tsx</Paragraph>
+                        </Div>
+                    </CollapsibleContent>
+                </Collapsible>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Disabled"
+                         Description="Disable the whole collapsible when the current step or panel should stay locked."
+                         Code="@(@"<Collapsible Open=""true"" Disabled=""true"">
+    <CollapsibleTrigger class=""flex w-full items-center justify-between rounded-md border px-4 py-3"">
+        <Span>Production deployment</Span>
+        <Span>Locked</Span>
+    </CollapsibleTrigger>
+</Collapsible>")">
+                <Collapsible Open="true" Disabled="true">
+                    <CollapsibleTrigger Class="flex w-full items-center justify-between rounded-md border bg-card px-4 py-3">
+                        <Span>Production deployment</Span>
+                        <Span Class="text-sm text-muted-foreground">Locked</Span>
+                    </CollapsibleTrigger>
+                </Collapsible>
+            </DemoSection>
+        </Section>
+    </Div>
+</Div>
+
+@code {
+    private bool _basicOpen = true;
+    private bool _filesOpen = true;
+
+    private Task OnBasicOpenChanged(bool value)
+    {
+        _basicOpen = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnFilesOpenChanged(bool value)
+    {
+        _filesOpen = value;
+        return Task.CompletedTask;
+    }
+}

@@ -17,21 +17,13 @@
     {
         <div class="fixed inset-0 z-[19990]" @onclick="ClosePanel"></div>
         <div @ref="_panelRef" @attributes="BuildPanelAttributes()" @onclick:stopPropagation="true">
-            <div class="mb-2 flex items-center justify-between">
-                <button type="button" class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-input bg-background text-sm shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50" @onclick="PrevMonth">‹</button>
-                <div class="text-sm font-medium">@_displayMonth.ToString("MMMM yyyy", CultureInfo.CurrentUICulture)</div>
-                <button type="button" class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-input bg-background text-sm shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50" @onclick="NextMonth">›</button>
-            </div>
-            <div class="grid grid-cols-7 gap-1">
-                @foreach (var dow in _dayNames)
-                {
-                    <div class="flex h-8 items-center justify-center text-xs font-normal text-muted-foreground">@dow</div>
-                }
-                @foreach (var day in BuildMonthCells())
-                {
-                    <button type="button" class="@GetDayClass(day)" disabled="@day.Disabled" @onclick="() => SelectDate(day.Date)">@day.Date.Day</button>
-                }
-            </div>
+            <Calendar SelectedDate="SelectedDate"
+                      SelectedDateChanged="HandleCalendarChanged"
+                      DisplayMonth="_displayMonth"
+                      DisplayMonthChanged="HandleCalendarMonthChanged"
+                      Min="Min"
+                      Max="Max"
+                      Class="border-0 shadow-none p-0 min-w-0" />
         </div>
     }
 </div>
@@ -101,7 +93,6 @@
     private bool _open;
     private bool _positionObserverActive;
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
-    private string[] _dayNames = [];
     private readonly string _panelId = $"datepicker-panel-{Guid.NewGuid():N}";
 
     private static DateOnly? Parse(ChangeEventArgs e)
@@ -187,7 +178,6 @@
         if (firstRender)
         {
             _outsideRef = DotNetObjectReference.Create(new DatePickerOutsideCloseProxy(this));
-            InitializeDayNames();
             if (SelectedDate.HasValue)
                 _displayMonth = new DateOnly(SelectedDate.Value.Year, SelectedDate.Value.Month, 1);
             else
@@ -282,53 +272,6 @@
         return attrs;
     }
 
-    private void InitializeDayNames()
-    {
-        var culture = CultureInfo.CurrentCulture;
-        var first = culture.DateTimeFormat.FirstDayOfWeek;
-        var names = culture.DateTimeFormat.AbbreviatedDayNames;
-        _dayNames = Enumerable.Range(0, 7)
-            .Select(i => names[((int)first + i) % 7])
-            .ToArray();
-    }
-
-    private readonly record struct Cell(DateOnly Date, bool InMonth, bool Disabled);
-
-    private string GetDayClass(Cell day)
-    {
-        var css = "relative flex aspect-square h-8 w-8 items-center justify-center rounded-md text-sm outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50";
-
-        if (!day.InMonth)
-            css += " text-muted-foreground opacity-50";
-
-        if (day.Date == DateOnly.FromDateTime(DateTime.Today))
-            css += " bg-accent text-accent-foreground";
-
-        if (SelectedDate.HasValue && day.Date == SelectedDate.Value)
-            css += " bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground";
-        else
-            css += " hover:bg-accent hover:text-accent-foreground";
-
-        return css;
-    }
-
-    private IEnumerable<Cell> BuildMonthCells()
-    {
-        var firstOfMonth = new DateOnly(_displayMonth.Year, _displayMonth.Month, 1);
-        var culture = CultureInfo.CurrentCulture;
-        var startDow = culture.DateTimeFormat.FirstDayOfWeek;
-        var offset = ((int)firstOfMonth.DayOfWeek - (int)startDow + 7) % 7;
-        var gridStart = firstOfMonth.AddDays(-offset);
-
-        for (var i = 0; i < 42; i++)
-        {
-            var d = gridStart.AddDays(i);
-            var inMonth = d.Month == _displayMonth.Month;
-            var disabled = (Min.HasValue && d < Min.Value) || (Max.HasValue && d > Max.Value);
-            yield return new Cell(d, inMonth, disabled);
-        }
-    }
-
     private Task OpenPanel()
     {
         if (!_open)
@@ -345,10 +288,12 @@
         await RefreshOffThread();
     }
 
-
-    private async Task SelectDate(DateOnly date)
+    private async Task HandleCalendarChanged(DateOnly? date)
     {
-        if ((Min.HasValue && date < Min.Value) || (Max.HasValue && date > Max.Value))
+        if (!date.HasValue)
+            return;
+
+        if ((Min.HasValue && date.Value < Min.Value) || (Max.HasValue && date.Value > Max.Value))
             return;
 
         if (SelectedDate != date)
@@ -366,17 +311,11 @@
         await ClosePanel();
     }
 
-    private Task PrevMonth()
+    private Task HandleCalendarMonthChanged(DateOnly? month)
     {
-        _displayMonth = _displayMonth.AddMonths(-1);
-        InvalidateRender();
-        Refresh();
-        return Task.CompletedTask;
-    }
+        if (month.HasValue)
+            _displayMonth = new DateOnly(month.Value.Year, month.Value.Month, 1);
 
-    private Task NextMonth()
-    {
-        _displayMonth = _displayMonth.AddMonths(1);
         InvalidateRender();
         Refresh();
         return Task.CompletedTask;

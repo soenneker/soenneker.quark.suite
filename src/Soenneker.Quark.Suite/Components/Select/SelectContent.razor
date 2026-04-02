@@ -1,0 +1,121 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IAsyncDisposable
+
+@inject IPopoverInterop PopoverInterop
+
+@if (Context?.IsOpen() == true)
+{
+    <div @ref="_contentRef" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()" @onclick:stopPropagation="true">
+        @ChildContent
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Side { get; set; } = "bottom";
+
+    [Parameter]
+    public int SideOffset { get; set; } = 6;
+
+    [Parameter]
+    public string Align { get; set; } = "start";
+
+    [CascadingParameter(Name = "ParentSelectContext")]
+    private SelectContext? Context { get; set; }
+
+    private ElementReference _contentRef;
+    private bool _positionObserverActive;
+    private bool UseFloatingPositioning => Context?.HasTriggerElement == true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (Context?.IsOpen() != true || Context is null || !UseFloatingPositioning)
+        {
+            await StopPositionObserver();
+            return;
+        }
+
+        await PopoverInterop.ObservePosition(Context.ContentId, Context.TriggerElement, _contentRef, Side, Align, SideOffset);
+        _positionObserverActive = true;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "select-content";
+        attributes["data-state"] = Context?.IsOpen() == true ? "open" : "closed";
+        attributes["data-side"] = Side;
+        attributes["data-align"] = Align;
+        attributes["role"] = "listbox";
+        attributes["tabindex"] = -1;
+        attributes["aria-hidden"] = Context?.IsOpen() == true ? "false" : "true";
+
+        if (Context is not null)
+            attributes["id"] = Context.ContentId;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-select-content z-50 max-h-96 min-w-[8rem] overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md");
+            AppendClass(ref cls, "animate-in fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2");
+
+            if (UseFloatingPositioning)
+            {
+                AppendClass(ref cls, "fixed");
+            }
+            else
+            {
+                AppendClass(ref cls, "absolute mt-1 w-full");
+            }
+        });
+
+        if (UseFloatingPositioning)
+        {
+            BuildStyleAttribute(attributes, (ref sty) =>
+            {
+                AppendStyleDecl(ref sty, "top: 0");
+                AppendStyleDecl(ref sty, "left: 0");
+                AppendStyleDecl(ref sty, "visibility: hidden");
+                AppendStyleDecl(ref sty, "min-width: var(--quark-trigger-width)");
+                AppendStyleDecl(ref sty, "max-height: min(24rem, var(--quark-available-height))");
+            });
+        }
+        else
+        {
+            attributes["style"] = Side == "bottom" ? $"top: calc(100% + {SideOffset}px); left: 0;" : $"bottom: calc(100% + {SideOffset}px); left: 0;";
+        }
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape" && Context is not null)
+            await Context.CloseAsync();
+    }
+
+    private async ValueTask StopPositionObserver()
+    {
+        if (!_positionObserverActive || Context is null)
+            return;
+
+        await PopoverInterop.StopObserving(Context.ContentId);
+        _positionObserverActive = false;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Side);
+        hc.Add(SideOffset);
+        hc.Add(Align);
+        hc.Add(Context?.IsOpen() == true);
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        await StopPositionObserver();
+        await base.DisposeAsync();
+    }
+}

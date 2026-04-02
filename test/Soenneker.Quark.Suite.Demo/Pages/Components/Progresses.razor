@@ -8,18 +8,36 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Basic Progress" Description="Progress bar with a value." Code="@(@"<Progress ProgressValue=""25""/>")">
-                <Div Margin="Margin.Is3.FromEnd">
-                    <Progress ProgressValue="25" Margin="Margin.Is3.FromBottom"/>
+            <DemoSection Title="Label" Description="Pair progress with a text label and visible percentage just like the shadcn docs." Code="@(@"<Div Class=""space-y-2"">
+    <Div Class=""flex items-center justify-between text-sm"">
+        <Span>Upload progress</Span>
+        <Span>25%</Span>
+    </Div>
+    <Progress ProgressValue=""25"" />
+</Div>")">
+                <Div Class="w-full max-w-md space-y-2">
+                    <Div Class="flex items-center justify-between text-sm">
+                        <Span>Upload progress</Span>
+                        <Span>25%</Span>
+                    </Div>
+                    <Progress ProgressValue="25" />
                 </Div>
             </DemoSection>
         </Section>
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Different Values" Description="Progress bars at various completion levels." Code="@(@"<Progress ProgressValue=""60""/>
-<Progress ProgressValue=""90""/>")">
-                <Div Margin="Margin.Is3.FromEnd" Space="Space.Y.Is3">
-                    <Progress ProgressValue="60"/>
-                    <Progress ProgressValue="90"/>
+            <DemoSection Title="Controlled" Description="@($"Progress value {_controlledValue}% controlled by the buttons below.")" Code="@(@"<Progress ProgressValue=""@_controlledValue"" />
+<Button OnClick=""IncreaseProgress"">Increase</Button>")">
+                <Div Class="w-full max-w-md space-y-4">
+                    <Div Class="flex items-center justify-between text-sm">
+                        <Span>Deployment progress</Span>
+                        <Span>@_controlledValue%</Span>
+                    </Div>
+                    <Progress ProgressValue="@_controlledValue" />
+                    <Div Class="flex flex-wrap gap-2">
+                        <Button Size="ButtonSize.Sm" Variant="ButtonVariant.Outline" OnClick="ResetProgress">Reset</Button>
+                        <Button Size="ButtonSize.Sm" Variant="ButtonVariant.Outline" OnClick="IncreaseProgress">Increase</Button>
+                        <Button Size="ButtonSize.Sm" OnClick="CompleteProgress">Complete</Button>
+                    </Div>
                 </Div>
             </DemoSection>
         </Section>
@@ -27,9 +45,28 @@
 </Div>
 
 @code{
+    private int _controlledValue = 45;
 
     protected override void OnInitialized()
     {
+    }
+
+    private Task ResetProgress(MouseEventArgs args)
+    {
+        _controlledValue = 0;
+        return Task.CompletedTask;
+    }
+
+    private Task IncreaseProgress(MouseEventArgs args)
+    {
+        _controlledValue = Math.Min(100, _controlledValue + 15);
+        return Task.CompletedTask;
+    }
+
+    private Task CompleteProgress(MouseEventArgs args)
+    {
+        _controlledValue = 100;
+        return Task.CompletedTask;
     }
 
 }

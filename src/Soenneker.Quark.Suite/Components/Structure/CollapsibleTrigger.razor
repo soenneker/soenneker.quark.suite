@@ -1,0 +1,54 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<button type="button" @onclick="OnTriggerClick" @attributes="BuildAttributes()">
+    @ChildContent
+</button>
+
+@code {
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [CascadingParameter(Name = nameof(ParentCollapsible))]
+    public Collapsible? ParentCollapsible { get; set; }
+
+    private async Task OnTriggerClick(MouseEventArgs args)
+    {
+        if (Disabled || ParentCollapsible?.Disabled == true)
+            return;
+
+        if (ParentCollapsible is not null)
+            await ParentCollapsible.Toggle();
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "collapsible-trigger";
+        attributes["data-state"] = ParentCollapsible?.Open == true ? "open" : "closed";
+        attributes["aria-expanded"] = ParentCollapsible?.Open == true ? "true" : "false";
+
+        if (ParentCollapsible?.Id.HasContent() == true)
+            attributes["aria-controls"] = $"{ParentCollapsible.Id}-content";
+
+        if (Disabled || ParentCollapsible?.Disabled == true)
+            attributes["disabled"] = true;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-collapsible-trigger flex w-full items-center justify-between gap-2 rounded-md text-sm font-medium transition-colors");
+            AppendClass(ref cls, "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50");
+            if (Disabled || ParentCollapsible?.Disabled == true)
+                AppendClass(ref cls, "pointer-events-none opacity-50");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Disabled);
+        hc.Add(ParentCollapsible?.Open == true);
+        hc.Add(ParentCollapsible?.Disabled == true);
+    }
+}

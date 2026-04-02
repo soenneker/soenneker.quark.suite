@@ -1,0 +1,36 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+@if (ParentCollapsible?.Open == true)
+{
+    <div @attributes="BuildAttributes()">
+        @ChildContent
+    </div>
+}
+
+@code {
+    [CascadingParameter(Name = nameof(ParentCollapsible))]
+    public Collapsible? ParentCollapsible { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "collapsible-content";
+        attributes["data-state"] = ParentCollapsible?.Open == true ? "open" : "closed";
+
+        if (ParentCollapsible?.Id.HasContent() == true)
+            attributes["id"] = $"{ParentCollapsible.Id}-content";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-collapsible-content overflow-hidden");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ParentCollapsible?.Open == true);
+    }
+}

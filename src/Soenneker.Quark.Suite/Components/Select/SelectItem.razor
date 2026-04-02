@@ -3,7 +3,7 @@
 @inherits Soenneker.Quark.FormControlElement
 @implements ISelectItem<TValue>
 
-<option @attributes="BuildAttributes()">
+<div @onclick="HandleItemClick" @attributes="BuildAttributes()" role="option">
     @if (ChildContent != null)
     {
         @ChildContent
@@ -12,7 +12,7 @@
     {
         @Text
     }
-</option>
+</div>
 
 @code {
     /// <summary>
@@ -27,36 +27,45 @@
     [Parameter]
     public string? Text { get; set; }
 
-    protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
-    {
-        base.BuildOwnedAttributes(attributes);
+    [CascadingParameter(Name = "ParentSelect")]
+    private Select<TValue>? ParentSelect { get; set; }
 
-        attributes.Remove("name");
-        attributes.Remove("value");
-        attributes.Remove("readonly");
-        attributes.Remove("placeholder");
-        attributes.Remove("required");
-        attributes.Remove("autofocus");
+    private bool IsSelected => ParentSelect?.IsSelected(ItemValue) == true;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        var itemKey = ItemValue?.ToString();
+        if (itemKey.HasContent() && ParentSelect is not null)
+            ParentSelect.RegisterItem(itemKey!, Text);
+    }
+
+    private async Task HandleItemClick(MouseEventArgs _)
+    {
+        if (!Disabled && ParentSelect is not null)
+            await ParentSelect.SelectItem(ItemValue, Text);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "select-item";
+        attributes["data-selected"] = IsSelected ? "true" : "false";
+        attributes["aria-selected"] = IsSelected ? "true" : "false";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-select-item");
+            AppendClass(ref cls, "relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none");
+            AppendClass(ref cls, "data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground");
+            AppendClass(ref cls, "hover:bg-accent hover:text-accent-foreground");
         });
 
-        if (ItemValue != null)
-        {
-            var stringValue = ItemValue.ToString();
-            if (stringValue != null)
-                attributes["value"] = stringValue;
-        }
-
         if (Disabled)
-            attributes["disabled"] = true;
+        {
+            attributes["aria-disabled"] = "true";
+            attributes["data-disabled"] = "true";
+        }
 
         if (Hidden)
             attributes["hidden"] = true;
@@ -68,5 +77,6 @@
         hc.Add(ItemValue);
         hc.Add(Text);
         hc.Add(Disabled);
+        hc.Add(IsSelected);
     }
 }

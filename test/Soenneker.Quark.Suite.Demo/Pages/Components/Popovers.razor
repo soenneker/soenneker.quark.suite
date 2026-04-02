@@ -5,7 +5,7 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Basic popover"
+            <DemoSection Title="Basic"
                          Description="shadcn-style popover with trigger and content."
                          Code="@BasicCode">
                 <Popover>
@@ -39,9 +39,56 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Controlled state"
-                         Description="@($"Open: {_open}. Use DisableAutoOpen for explicit visibility control.")"
-                         Code="@ControlledCode">
+            <DemoSection Title="Align"
+                         Description="Change alignment to anchor the content start, center, or end relative to the trigger."
+                         Code="@AlignCode">
+                <Div Class="flex flex-wrap items-start gap-3">
+                    <Popover>
+                        <PopoverTrigger>
+                            <Button Variant="ButtonVariant.Outline">Start</Button>
+                        </PopoverTrigger>
+                        <PopoverContent Align="start">
+                            <PopoverHeader>
+                                <PopoverTitle>Start aligned</PopoverTitle>
+                                <PopoverDescription>
+                                    Anchor to the start edge when the trigger is part of a left-aligned layout.
+                                </PopoverDescription>
+                            </PopoverHeader>
+                        </PopoverContent>
+                    </Popover>
+                    <Popover>
+                        <PopoverTrigger>
+                            <Button Variant="ButtonVariant.Outline">Center</Button>
+                        </PopoverTrigger>
+                        <PopoverContent Align="center">
+                            <PopoverHeader>
+                                <PopoverTitle>Center aligned</PopoverTitle>
+                                <PopoverDescription>
+                                    Center alignment matches the most common popover presentation.
+                                </PopoverDescription>
+                            </PopoverHeader>
+                        </PopoverContent>
+                    </Popover>
+                    <Popover>
+                        <PopoverTrigger>
+                            <Button Variant="ButtonVariant.Outline">End</Button>
+                        </PopoverTrigger>
+                        <PopoverContent Align="end">
+                            <PopoverHeader>
+                                <PopoverTitle>End aligned</PopoverTitle>
+                                <PopoverDescription>
+                                    Use end alignment when the trigger sits near the edge of a card or panel.
+                                </PopoverDescription>
+                            </PopoverHeader>
+                        </PopoverContent>
+                    </Popover>
+                </Div>
+            </DemoSection>
+        </Section>
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="With Form"
+                         Description="@($"Open: {_open}. Use DisableAutoOpen for explicit visibility control or keep it self-managed for small forms.")"
+                         Code="@WithFormCode">
                 <Div Class="flex flex-wrap items-start gap-3">
                     <Button Class="bg-primary text-primary-foreground" OnClick="TogglePopover">
                         Toggle popover
@@ -49,15 +96,35 @@
 
                     <Popover>
                         <PopoverTrigger>
-                            <Button Variant="ButtonVariant.Outline">Info</Button>
+                            <Button Variant="ButtonVariant.Outline">Edit dimensions</Button>
                         </PopoverTrigger>
-                        <PopoverContent Open="_open" DisableAutoOpen="true" Align="start">
-                            <PopoverHeader>
-                                <PopoverTitle>Controlled popover</PopoverTitle>
-                                <PopoverDescription>
-                                    This content is driven by the <Code Inline="true">Open</Code> parameter.
-                                </PopoverDescription>
-                            </PopoverHeader>
+                        <PopoverContent Open="_open" DisableAutoOpen="true" Class="w-80">
+                            <Div Class="grid gap-4">
+                                <PopoverHeader>
+                                    <PopoverTitle>Dimensions</PopoverTitle>
+                                    <PopoverDescription>
+                                        Update the values below and save them back to the current layer.
+                                    </PopoverDescription>
+                                </PopoverHeader>
+                                <Div Class="grid gap-3">
+                                    <Div Class="grid grid-cols-3 items-center gap-4">
+                                        <Label Form="true">Width</Label>
+                                        <Input Type="text" Class="col-span-2" Value="100%" />
+                                    </Div>
+                                    <Div Class="grid grid-cols-3 items-center gap-4">
+                                        <Label Form="true">Max width</Label>
+                                        <Input Type="text" Class="col-span-2" Value="300px" />
+                                    </Div>
+                                    <Div Class="grid grid-cols-3 items-center gap-4">
+                                        <Label Form="true">Height</Label>
+                                        <Input Type="text" Class="col-span-2" Value="25px" />
+                                    </Div>
+                                </Div>
+                                <Div Class="flex justify-end gap-2">
+                                    <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">Cancel</Button>
+                                    <Button Size="ButtonSize.Sm">Save</Button>
+                                </Div>
+                            </Div>
                         </PopoverContent>
                     </Popover>
                 </Div>
@@ -88,13 +155,20 @@
     </PopoverContent>
 </Popover>";
 
-    private const string ControlledCode =
+    private const string AlignCode =
+@"<Popover><PopoverTrigger><Button Variant=""ButtonVariant.Outline"">Start</Button></PopoverTrigger><PopoverContent Align=""start"">...</PopoverContent></Popover>
+<Popover><PopoverTrigger><Button Variant=""ButtonVariant.Outline"">Center</Button></PopoverTrigger><PopoverContent Align=""center"">...</PopoverContent></Popover>
+<Popover><PopoverTrigger><Button Variant=""ButtonVariant.Outline"">End</Button></PopoverTrigger><PopoverContent Align=""end"">...</PopoverContent></Popover>";
+
+    private const string WithFormCode =
 @"<Popover>
     <PopoverTrigger>
-        <Button Variant=""ButtonVariant.Outline"">Info</Button>
+        <Button Variant=""ButtonVariant.Outline"">Edit dimensions</Button>
     </PopoverTrigger>
-    <PopoverContent Open=""_open"" DisableAutoOpen=""true"">
-        Controlled content...
+    <PopoverContent Class=""w-80"">
+        <Input Type=""text"" Value=""100%"" />
+        <Input Type=""text"" Value=""300px"" />
+        <Input Type=""text"" Value=""25px"" />
     </PopoverContent>
 </Popover>";
 }

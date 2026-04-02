@@ -1,0 +1,65 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<button @ref="_triggerRef" type="button" @onclick="OnTriggerClick" @attributes="BuildAttributes()">
+    @ChildContent
+    <svg class="pointer-events-none size-4 opacity-50 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m6 9 6 6 6-6"></path>
+    </svg>
+</button>
+
+@code {
+    [CascadingParameter(Name = "ParentSelectContext")]
+    private SelectContext? Context { get; set; }
+
+    private ElementReference _triggerRef;
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        Context?.SetTriggerElement(_triggerRef);
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task OnTriggerClick(MouseEventArgs args)
+    {
+        if (Context?.IsDisabled() == true)
+            return;
+
+        if (Context is not null)
+            await Context.ToggleAsync();
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "select-trigger";
+        attributes["data-state"] = Context?.IsOpen() == true ? "open" : "closed";
+        if (Context is not null)
+            attributes["id"] = Context.TriggerId;
+        attributes["role"] = "combobox";
+        if (Context is not null)
+            attributes["aria-controls"] = Context.ContentId;
+        attributes["aria-expanded"] = Context?.IsOpen() == true ? "true" : "false";
+
+        if (Context?.IsDisabled() == true)
+            attributes["disabled"] = true;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-select-trigger border-input bg-background ring-offset-background placeholder:text-muted-foreground flex h-10 w-full items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm");
+            AppendClass(ref cls, "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2");
+            AppendClass(ref cls, "disabled:cursor-not-allowed disabled:opacity-50");
+            if (Context?.IsInvalid() == true)
+                AppendClass(ref cls, "border-destructive");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Context?.IsOpen() == true);
+        hc.Add(Context?.IsDisabled() == true);
+        hc.Add(Context?.IsInvalid() == true);
+    }
+}

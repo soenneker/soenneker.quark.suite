@@ -70,13 +70,28 @@ class PopoverInterop {
 
         const resolvedSide = this._resolveSide(side, triggerRect, contentRect, viewportWidth, viewportHeight, padding, offset);
         const { top, left } = this._computePosition(resolvedSide, align, triggerRect, contentRect, viewportWidth, viewportHeight, padding, offset);
+        const availableHeight = this._computeAvailableHeight(resolvedSide, triggerRect, viewportHeight, padding, offset);
 
         content.style.position = "fixed";
         content.style.top = `${Math.round(top)}px`;
         content.style.left = `${Math.round(left)}px`;
         content.style.visibility = "visible";
+        content.style.setProperty("--quark-trigger-width", `${Math.round(triggerRect.width)}px`);
+        content.style.setProperty("--quark-available-height", `${Math.max(0, Math.floor(availableHeight))}px`);
         content.dataset.side = resolvedSide;
         content.dataset.align = align || "center";
+    }
+
+    _computeAvailableHeight(side, triggerRect, viewportHeight, padding, offset) {
+        switch (side) {
+            case "top":
+                return triggerRect.top - padding - offset;
+            case "left":
+            case "right":
+                return viewportHeight - (padding * 2);
+            default:
+                return viewportHeight - triggerRect.bottom - padding - offset;
+        }
     }
 
     _resolveSide(side, triggerRect, contentRect, viewportWidth, viewportHeight, padding, offset) {

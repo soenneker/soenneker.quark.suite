@@ -5,13 +5,26 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Date picker"
-                         Description="Use the date picker when you only need a calendar date."
-                         Code="@(@"<Label Form=""true"">Pick a date</Label>
-<DatePicker @bind-SelectedDate=""_dateOnly""/>")">
+            <DemoSection Title="Basic"
+                         Description="Compose a date picker from `Popover` and `Calendar` when you want the shadcn-style trigger-and-panel pattern."
+                         Code="@(@"<Popover Open=""_basicCalendarOpen"" OpenChanged=""OnBasicCalendarOpenChanged"">
+    <PopoverTrigger>
+        <Button Variant=""ButtonVariant.Outline"">@FormatDate(_dateOnly)</Button>
+    </PopoverTrigger>
+    <PopoverContent Class=""w-auto p-0"">
+        <Calendar SelectedDate=""_dateOnly"" SelectedDateChanged=""OnBasicDateChanged"" />
+    </PopoverContent>
+</Popover>")">
                 <Div Class="flex min-h-[16rem] w-full max-w-sm flex-col items-center justify-center gap-4 text-center">
                     <Label Form="true">Pick a date</Label>
-                    <DatePicker @bind-SelectedDate="_dateOnly"/>
+                    <Popover Open="_basicCalendarOpen" OpenChanged="OnBasicCalendarOpenChanged">
+                        <PopoverTrigger>
+                            <Button Variant="ButtonVariant.Outline" Class="w-[240px] justify-start text-left font-normal">@FormatDate(_dateOnly)</Button>
+                        </PopoverTrigger>
+                        <PopoverContent Class="w-auto p-0">
+                            <Calendar SelectedDate="_dateOnly" SelectedDateChanged="OnBasicDateChanged" />
+                        </PopoverContent>
+                    </Popover>
                     <Div Class="value-chip" Margin="Margin.Is0">
                         <Span Class="dot"></Span><Span>Value: @_dateOnly?.ToString("yyyy-MM-dd")</Span>
                     </Div>
@@ -20,14 +33,62 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Min and max dates"
-                         Description="Constrain the calendar when users should only choose from a known date window."
-                         Code="@(@"<DatePicker @bind-SelectedDate=""_deliveryDate"" Min=""_minDate"" Max=""_maxDate"" />")">
+            <DemoSection Title="Date of Birth"
+                         Description="A bounded `Calendar` keeps date-of-birth selection limited to an allowed historical range."
+                         Code="@(@"<Popover Open=""_birthdayCalendarOpen"" OpenChanged=""OnBirthdayCalendarOpenChanged"">
+    <PopoverTrigger>
+        <Button Variant=""ButtonVariant.Outline"">@FormatDate(_deliveryDate)</Button>
+    </PopoverTrigger>
+    <PopoverContent Class=""w-auto p-0"">
+        <Calendar SelectedDate=""_deliveryDate"" SelectedDateChanged=""OnBirthdayDateChanged"" Min=""_minDate"" Max=""_maxDate"" />
+    </PopoverContent>
+</Popover>")">
                 <Div Class="flex min-h-[16rem] w-full max-w-sm flex-col items-center justify-center gap-4 text-center">
-                    <Label Form="true">Schedule delivery</Label>
-                    <DatePicker @bind-SelectedDate="_deliveryDate" Min="_minDate" Max="_maxDate"/>
+                    <Label Form="true">Date of birth</Label>
+                    <Popover Open="_birthdayCalendarOpen" OpenChanged="OnBirthdayCalendarOpenChanged">
+                        <PopoverTrigger>
+                            <Button Variant="ButtonVariant.Outline" Class="w-[240px] justify-start text-left font-normal">@FormatDate(_deliveryDate)</Button>
+                        </PopoverTrigger>
+                        <PopoverContent Class="w-auto p-0">
+                            <Calendar SelectedDate="_deliveryDate"
+                                      SelectedDateChanged="OnBirthdayDateChanged"
+                                      Min="_minDate"
+                                      Max="_maxDate" />
+                        </PopoverContent>
+                    </Popover>
                     <Paragraph Class="text-sm text-muted-foreground" Margin="Margin.Is0">
-                        Available between @_minDate.ToString("yyyy-MM-dd") and @_maxDate.ToString("yyyy-MM-dd")
+                        Choose a date between @_minDate.ToString("yyyy-MM-dd") and @_maxDate.ToString("yyyy-MM-dd")
+                    </Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Input"
+                         Description="Use `AsChild` on `PopoverTrigger` when the trigger should look like an input instead of a button."
+                         Code="@(@"<Popover Open=""_inputCalendarOpen"" OpenChanged=""OnInputCalendarOpenChanged"">
+    <PopoverTrigger AsChild=""true"">
+        <input readonly value=""@FormatDate(_typedDate)"" />
+    </PopoverTrigger>
+    <PopoverContent Class=""w-auto p-0"">
+        <Calendar SelectedDate=""_typedDate"" SelectedDateChanged=""OnTypedDateChanged"" />
+    </PopoverContent>
+</Popover>")">
+                <Div Class="flex min-h-[16rem] w-full max-w-sm flex-col items-center justify-center gap-4 text-center">
+                    <Label Form="true">Type a date</Label>
+                    <Popover Open="_inputCalendarOpen" OpenChanged="OnInputCalendarOpenChanged">
+                        <PopoverTrigger AsChild="true">
+                            <input readonly
+                                   value="@FormatDate(_typedDate)"
+                                   placeholder="Pick a date"
+                                   class="flex h-10 w-[240px] rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" />
+                        </PopoverTrigger>
+                        <PopoverContent Class="w-auto p-0">
+                            <Calendar SelectedDate="_typedDate" SelectedDateChanged="OnTypedDateChanged" />
+                        </PopoverContent>
+                    </Popover>
+                    <Paragraph Class="text-sm text-muted-foreground" Margin="Margin.Is0">
+                        The trigger is input-shaped, but the selection still happens through the reusable calendar primitive.
                     </Paragraph>
                 </Div>
             </DemoSection>
@@ -67,13 +128,61 @@
 @code{
 
     private DateOnly? _dateOnly = DateOnly.FromDateTime(DateTime.Today);
-    private readonly DateOnly _minDate = DateOnly.FromDateTime(DateTime.Today);
-    private readonly DateOnly _maxDate = DateOnly.FromDateTime(DateTime.Today.AddDays(14));
-    private DateOnly? _deliveryDate = DateOnly.FromDateTime(DateTime.Today.AddDays(2));
+    private readonly DateOnly _minDate = new(1940, 1, 1);
+    private readonly DateOnly _maxDate = DateOnly.FromDateTime(DateTime.Today);
+    private DateOnly? _deliveryDate = new(1995, 7, 14);
+    private DateOnly? _typedDate = DateOnly.FromDateTime(DateTime.Today.AddDays(7));
+    private bool _basicCalendarOpen;
+    private bool _birthdayCalendarOpen;
+    private bool _inputCalendarOpen;
 
     private DateTime? _dateTime = DateTime.Now;
     private readonly DateTime _minDateTime = DateTime.Today.AddHours(9);
     private readonly DateTime _maxDateTime = DateTime.Today.AddDays(7).AddHours(18);
     private DateTime? _deploymentWindow = DateTime.Today.AddDays(1).AddHours(14);
+
+    private static string FormatDate(DateOnly? value)
+    {
+        return value?.ToString("MMM dd, yyyy") ?? "Pick a date";
+    }
+
+    private Task OnBasicCalendarOpenChanged(bool value)
+    {
+        _basicCalendarOpen = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnBirthdayCalendarOpenChanged(bool value)
+    {
+        _birthdayCalendarOpen = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnInputCalendarOpenChanged(bool value)
+    {
+        _inputCalendarOpen = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnBasicDateChanged(DateOnly? value)
+    {
+        _dateOnly = value;
+        _basicCalendarOpen = false;
+        return Task.CompletedTask;
+    }
+
+    private Task OnBirthdayDateChanged(DateOnly? value)
+    {
+        _deliveryDate = value;
+        _birthdayCalendarOpen = false;
+        return Task.CompletedTask;
+    }
+
+    private Task OnTypedDateChanged(DateOnly? value)
+    {
+        _typedDate = value;
+        _inputCalendarOpen = false;
+        return Task.CompletedTask;
+    }
 
 }
