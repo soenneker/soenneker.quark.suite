@@ -81,12 +81,31 @@ public sealed class BorderBuilder : ICssBuilder
 	/// Sets the border width from an arbitrary Tailwind border token.
 	/// </summary>
     public BorderBuilder Is0 => ChainWithSize(ScaleType.Is0);
+    /// <summary>
+    /// Spacing/sizing scale step `1` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 1` for integer spacing utilities unless overridden).
+    /// </summary>
     public BorderBuilder Is1 => ChainWithSize(ScaleType.Is1);
+    /// <summary>
+    /// Spacing/sizing scale step `2` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 2` for integer spacing utilities unless overridden).
+    /// </summary>
     public BorderBuilder Is2 => ChainWithSize(ScaleType.Is2);
+    /// <summary>
+    /// Spacing/sizing scale step `3` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 3` for integer spacing utilities unless overridden).
+    /// </summary>
     public BorderBuilder Is3 => ChainWithSize(ScaleType.Is3);
+    /// <summary>
+    /// Spacing/sizing scale step `4` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 4` for integer spacing utilities unless overridden).
+    /// </summary>
     public BorderBuilder Is4 => ChainWithSize(ScaleType.Is4);
+    /// <summary>
+    /// Spacing/sizing scale step `5` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 5` for integer spacing utilities unless overridden).
+    /// </summary>
     public BorderBuilder Is5 => ChainWithSize(ScaleType.Is5);
 
+    /// <summary>
+    /// Tailwind token segment (spacing scale step, arbitrary value like `[17rem]`, or theme key). Builds the matching utility class for this builder.
+    /// </summary>
+    /// <param name="value">Suffix/token after the utility prefix (see Tailwind docs for this family).</param>
     public BorderBuilder Token(string value) => ChainWithSize(value);
 
 	/// <summary>

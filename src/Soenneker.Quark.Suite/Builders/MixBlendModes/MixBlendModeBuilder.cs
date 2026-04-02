@@ -25,29 +25,98 @@ public sealed class MixBlendModeBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Fluent step for `Normal` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public MixBlendModeBuilder Normal => Chain("normal");
+    /// <summary>
+    /// Fluent step for `Multiply` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public MixBlendModeBuilder Multiply => Chain("multiply");
+    /// <summary>
+    /// Viewport-relative size (e.g. `w-screen`, `min-h-screen`) tied to the viewport width/height.
+    /// </summary>
     public MixBlendModeBuilder Screen => Chain("screen");
+    /// <summary>
+    /// Fluent step for `Overlay` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public MixBlendModeBuilder Overlay => Chain("overlay");
+    /// <summary>
+    /// Fluent step for `Darken` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public MixBlendModeBuilder Darken => Chain("darken");
+    /// <summary>
+    /// Fluent step for `Lighten` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public MixBlendModeBuilder Lighten => Chain("lighten");
+    /// <summary>
+    /// Fluent step for `Color Dodge` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public MixBlendModeBuilder ColorDodge => Chain("color-dodge");
+    /// <summary>
+    /// Fluent step for `Color Burn` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public MixBlendModeBuilder ColorBurn => Chain("color-burn");
+    /// <summary>
+    /// Fluent step for `Hard Light` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public MixBlendModeBuilder HardLight => Chain("hard-light");
+    /// <summary>
+    /// Fluent step for `Soft Light` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public MixBlendModeBuilder SoftLight => Chain("soft-light");
+    /// <summary>
+    /// Fluent step for `Difference` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public MixBlendModeBuilder Difference => Chain("difference");
+    /// <summary>
+    /// Fluent step for `Exclusion` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public MixBlendModeBuilder Exclusion => Chain("exclusion");
+    /// <summary>
+    /// Fluent step for `Hue` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public MixBlendModeBuilder Hue => Chain("hue");
+    /// <summary>
+    /// Fluent step for `Saturation` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public MixBlendModeBuilder Saturation => Chain("saturation");
+    /// <summary>
+    /// Fluent step for `Color` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public MixBlendModeBuilder Color => Chain("color");
+    /// <summary>
+    /// Fluent step for `Luminosity` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public MixBlendModeBuilder Luminosity => Chain("luminosity");
+    /// <summary>
+    /// Fluent step for `Plus Darker` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public MixBlendModeBuilder PlusDarker => Chain("plus-darker");
+    /// <summary>
+    /// Fluent step for `Plus Lighter` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public MixBlendModeBuilder PlusLighter => Chain("plus-lighter");
 
+    /// <summary>
+    /// Applies the preceding utility from the `sm` breakpoint and up (`sm:` prefix). Tailwind default: `min-width: 40rem` (640px).
+    /// </summary>
     public MixBlendModeBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    /// <summary>
+    /// Applies from the `md` breakpoint and up (`md:`). Tailwind default: `min-width: 48rem` (768px).
+    /// </summary>
     public MixBlendModeBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    /// <summary>
+    /// Applies from the `lg` breakpoint and up (`lg:`). Tailwind default: `min-width: 64rem` (1024px).
+    /// </summary>
     public MixBlendModeBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    /// <summary>
+    /// Applies from the `xl` breakpoint and up (`xl:`). Tailwind default: `min-width: 80rem` (1280px).
+    /// </summary>
     public MixBlendModeBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    /// <summary>
+    /// Applies from the `2xl` breakpoint and up (`2xl:`). Tailwind default: `min-width: 96rem` (1536px).
+    /// </summary>
     public MixBlendModeBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

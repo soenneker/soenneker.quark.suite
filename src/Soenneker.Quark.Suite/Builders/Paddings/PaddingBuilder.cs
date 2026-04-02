@@ -84,15 +84,43 @@ public sealed class PaddingBuilder : ICssBuilder
 	/// Sets the padding size from an arbitrary Tailwind spacing token.
 	/// </summary>
     public PaddingBuilder Is0 => ChainWithSize(ScaleType.Is0);
+    /// <summary>
+    /// Spacing/sizing scale step `1` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 1` for integer spacing utilities unless overridden).
+    /// </summary>
     public PaddingBuilder Is1 => ChainWithSize(ScaleType.Is1);
+    /// <summary>
+    /// Spacing/sizing scale step `2` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 2` for integer spacing utilities unless overridden).
+    /// </summary>
     public PaddingBuilder Is2 => ChainWithSize(ScaleType.Is2);
+    /// <summary>
+    /// Spacing/sizing scale step `3` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 3` for integer spacing utilities unless overridden).
+    /// </summary>
     public PaddingBuilder Is3 => ChainWithSize(ScaleType.Is3);
+    /// <summary>
+    /// Spacing/sizing scale step `4` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 4` for integer spacing utilities unless overridden).
+    /// </summary>
     public PaddingBuilder Is4 => ChainWithSize(ScaleType.Is4);
+    /// <summary>
+    /// Spacing/sizing scale step `5` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 5` for integer spacing utilities unless overridden).
+    /// </summary>
     public PaddingBuilder Is5 => ChainWithSize(ScaleType.Is5);
+    /// <summary>
+    /// Spacing/sizing scale step `6` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 6` for integer spacing utilities unless overridden).
+    /// </summary>
     public PaddingBuilder Is6 => ChainWithSize("6");
+    /// <summary>
+    /// Spacing/sizing scale step `8` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 8` for integer spacing utilities unless overridden).
+    /// </summary>
     public PaddingBuilder Is8 => ChainWithSize("8");
+    /// <summary>
+    /// Spacing/sizing scale step `16` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 16` for integer spacing utilities unless overridden).
+    /// </summary>
     public PaddingBuilder Is16 => ChainWithSize("16");
 
+    /// <summary>
+    /// Tailwind token segment (spacing scale step, arbitrary value like `[17rem]`, or theme key). Builds the matching utility class for this builder.
+    /// </summary>
+    /// <param name="value">Suffix/token after the utility prefix (see Tailwind docs for this family).</param>
     public PaddingBuilder Token(string value) => ChainWithSize(value);
 
 	/// <summary>

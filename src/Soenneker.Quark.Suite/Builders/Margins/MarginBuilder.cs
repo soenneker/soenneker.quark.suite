@@ -88,12 +88,33 @@ public sealed class MarginBuilder : ICssBuilder
 	/// </summary>
     public MarginBuilder Auto => ChainWithSize("auto");
 
+    /// <summary>
+    /// Spacing/sizing scale step `0` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 0` for integer spacing utilities unless overridden).
+    /// </summary>
     public MarginBuilder Is0 => ChainWithSize(ScaleType.Is0);
+    /// <summary>
+    /// Spacing/sizing scale step `1` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 1` for integer spacing utilities unless overridden).
+    /// </summary>
     public MarginBuilder Is1 => ChainWithSize(ScaleType.Is1);
+    /// <summary>
+    /// Spacing/sizing scale step `2` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 2` for integer spacing utilities unless overridden).
+    /// </summary>
     public MarginBuilder Is2 => ChainWithSize(ScaleType.Is2);
+    /// <summary>
+    /// Spacing/sizing scale step `3` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 3` for integer spacing utilities unless overridden).
+    /// </summary>
     public MarginBuilder Is3 => ChainWithSize(ScaleType.Is3);
+    /// <summary>
+    /// Spacing/sizing scale step `4` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 4` for integer spacing utilities unless overridden).
+    /// </summary>
     public MarginBuilder Is4 => ChainWithSize(ScaleType.Is4);
+    /// <summary>
+    /// Spacing/sizing scale step `5` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 5` for integer spacing utilities unless overridden).
+    /// </summary>
     public MarginBuilder Is5 => ChainWithSize(ScaleType.Is5);
+    /// <summary>
+    /// Spacing/sizing scale step `8` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 8` for integer spacing utilities unless overridden).
+    /// </summary>
     public MarginBuilder Is8 => ChainWithSize("8");
 
 	/// <summary>

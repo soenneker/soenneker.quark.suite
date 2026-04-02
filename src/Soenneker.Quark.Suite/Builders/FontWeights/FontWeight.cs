@@ -33,24 +33,4 @@ public static class FontWeight
     /// Gets a font weight builder with extrabold value (800).
     /// </summary>
     public static FontWeightBuilder Extrabold => new("extrabold");
-    /// <summary>
-    /// Gets a font weight builder with inherit keyword.
-    /// </summary>
-    public static FontWeightBuilder Inherit => new(GlobalKeyword.InheritValue);
-    /// <summary>
-    /// Gets a font weight builder with initial keyword.
-    /// </summary>
-    public static FontWeightBuilder Initial => new(GlobalKeyword.InitialValue);
-    /// <summary>
-    /// Gets a font weight builder with revert keyword.
-    /// </summary>
-    public static FontWeightBuilder Revert => new(GlobalKeyword.RevertValue);
-    /// <summary>
-    /// Gets a font weight builder with revert-layer keyword.
-    /// </summary>
-    public static FontWeightBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
-    /// <summary>
-    /// Gets a font weight builder with unset keyword.
-    /// </summary>
-    public static FontWeightBuilder Unset => new(GlobalKeyword.UnsetValue);
 }

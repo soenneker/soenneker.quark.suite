@@ -33,29 +33,95 @@ public sealed class ScrollMarginBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Fluent step for `From Top` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public ScrollMarginBuilder FromTop => AddRule(ElementSideType.Top);
+    /// <summary>
+    /// Fluent step for `From Right` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public ScrollMarginBuilder FromRight => AddRule(ElementSideType.Right);
+    /// <summary>
+    /// Fluent step for `From Bottom` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public ScrollMarginBuilder FromBottom => AddRule(ElementSideType.Bottom);
+    /// <summary>
+    /// Fluent step for `From Left` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public ScrollMarginBuilder FromLeft => AddRule(ElementSideType.Left);
+    /// <summary>
+    /// Fluent step for `On X` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public ScrollMarginBuilder OnX => AddRule(ElementSideType.Horizontal);
+    /// <summary>
+    /// Fluent step for `On Y` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public ScrollMarginBuilder OnY => AddRule(ElementSideType.Vertical);
+    /// <summary>
+    /// Fluent step for `On All` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public ScrollMarginBuilder OnAll => AddRule(ElementSideType.All);
+    /// <summary>
+    /// Fluent step for `From Start` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public ScrollMarginBuilder FromStart => AddRule(ElementSideType.InlineStart);
+    /// <summary>
+    /// Fluent step for `From End` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public ScrollMarginBuilder FromEnd => AddRule(ElementSideType.InlineEnd);
 
+    /// <summary>
+    /// Spacing/sizing scale step `0` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 0` for integer spacing utilities unless overridden).
+    /// </summary>
     public ScrollMarginBuilder Is0 => ChainWithSize(ScaleType.Is0);
+    /// <summary>
+    /// Spacing/sizing scale step `1` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 1` for integer spacing utilities unless overridden).
+    /// </summary>
     public ScrollMarginBuilder Is1 => ChainWithSize(ScaleType.Is1);
+    /// <summary>
+    /// Spacing/sizing scale step `2` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 2` for integer spacing utilities unless overridden).
+    /// </summary>
     public ScrollMarginBuilder Is2 => ChainWithSize(ScaleType.Is2);
+    /// <summary>
+    /// Spacing/sizing scale step `3` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 3` for integer spacing utilities unless overridden).
+    /// </summary>
     public ScrollMarginBuilder Is3 => ChainWithSize(ScaleType.Is3);
+    /// <summary>
+    /// Spacing/sizing scale step `4` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 4` for integer spacing utilities unless overridden).
+    /// </summary>
     public ScrollMarginBuilder Is4 => ChainWithSize(ScaleType.Is4);
+    /// <summary>
+    /// Spacing/sizing scale step `5` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 5` for integer spacing utilities unless overridden).
+    /// </summary>
     public ScrollMarginBuilder Is5 => ChainWithSize(ScaleType.Is5);
+    /// <summary>
+    /// Spacing/sizing scale step `24` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 24` for integer spacing utilities unless overridden).
+    /// </summary>
     public ScrollMarginBuilder Is24 => ChainWithSize("24");
+    /// <summary>
+    /// One pixel (`px` unit) — hairline borders, fixed 1px tracks, etc.
+    /// </summary>
     public ScrollMarginBuilder Px => ChainWithSize("px");
 
+    /// <summary>
+    /// Applies the preceding utility from the `sm` breakpoint and up (`sm:` prefix). Tailwind default: `min-width: 40rem` (640px).
+    /// </summary>
     public ScrollMarginBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    /// <summary>
+    /// Applies from the `md` breakpoint and up (`md:`). Tailwind default: `min-width: 48rem` (768px).
+    /// </summary>
     public ScrollMarginBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    /// <summary>
+    /// Applies from the `lg` breakpoint and up (`lg:`). Tailwind default: `min-width: 64rem` (1024px).
+    /// </summary>
     public ScrollMarginBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    /// <summary>
+    /// Applies from the `xl` breakpoint and up (`xl:`). Tailwind default: `min-width: 80rem` (1280px).
+    /// </summary>
     public ScrollMarginBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    /// <summary>
+    /// Applies from the `2xl` breakpoint and up (`2xl:`). Tailwind default: `min-width: 96rem` (1536px).
+    /// </summary>
     public ScrollMarginBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

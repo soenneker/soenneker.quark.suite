@@ -19,8 +19,6 @@ public sealed class TextWrapBuilder : ICssBuilder
     private const string _classWrap = "text-wrap";
     private const string _classBalance = "text-balance";
     private const string _classPretty = "text-pretty";
-    private const string _stylePrefix = "text-wrap: ";
-
     internal TextWrapBuilder(string value, BreakpointType? breakpoint = null)
     {
         _rules.Add(new TextWrapRule(value, breakpoint));
@@ -44,27 +42,6 @@ public sealed class TextWrapBuilder : ICssBuilder
     /// Sets the text wrap to pretty.
     /// </summary>
     public TextWrapBuilder Pretty => Chain("pretty");
-    /// <summary>
-    /// Sets the text wrap to inherit.
-    /// </summary>
-    public TextWrapBuilder Inherit => Chain(GlobalKeyword.InheritValue);
-    /// <summary>
-    /// Sets the text wrap to initial.
-    /// </summary>
-    public TextWrapBuilder Initial => Chain(GlobalKeyword.InitialValue);
-    /// <summary>
-    /// Sets the text wrap to revert.
-    /// </summary>
-    public TextWrapBuilder Revert => Chain(GlobalKeyword.RevertValue);
-    /// <summary>
-    /// Sets the text wrap to revert-layer.
-    /// </summary>
-    public TextWrapBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
-    /// <summary>
-    /// Sets the text wrap to unset.
-    /// </summary>
-    public TextWrapBuilder Unset => Chain(GlobalKeyword.UnsetValue);
-
     /// <summary>
     /// Applies the text wrap on phone breakpoint.
     /// </summary>
@@ -150,41 +127,8 @@ public sealed class TextWrapBuilder : ICssBuilder
     /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
-        if (_rules.Count == 0) return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var rule = _rules[i];
-            var css = rule.Value switch
-            {
-                TextWrapKeyword.WrapValue => "wrap",
-                "balance" => "balance",
-                "pretty" => "pretty",
-                GlobalKeyword.InheritValue => "inherit",
-                GlobalKeyword.InitialValue => "initial",
-                GlobalKeyword.UnsetValue => "unset",
-                GlobalKeyword.RevertValue => "revert",
-                GlobalKeyword.RevertLayerValue => "revert-layer",
-                _ => null
-            };
-
-            if (css is null)
-                continue;
-
-            if (!first) sb.Append("; ");
-            else first = false;
-
-            sb.Append(_stylePrefix);
-            sb.Append(css);
-        }
-
-        return sb.ToString();
+        return string.Empty;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string GetBp(BreakpointType? breakpoint) => breakpoint?.Value ?? string.Empty;
-
+    public override string ToString() => ToClass();
 }

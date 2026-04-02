@@ -13,6 +13,7 @@ namespace Soenneker.Quark;
 public sealed class PositionOffsetBuilder : ICssBuilder
 {
     private readonly List<PositionOffsetRule> _rules = new(6);
+    private BreakpointType? _pendingBreakpoint;
 
     private const string _classTranslateMiddle = "translate-middle";
     private const string _classTranslateMiddleX = "translate-middle-x";
@@ -137,22 +138,16 @@ public sealed class PositionOffsetBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PositionOffsetBuilder Chain(string property, string value)
     {
-        _rules.Add(new PositionOffsetRule(property, value, null));
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new PositionOffsetRule(property, value, breakpoint));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PositionOffsetBuilder ChainBp(BreakpointType bp)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new PositionOffsetRule("top", "0", bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new PositionOffsetRule(last.Property, last.Value, bp);
+        _pendingBreakpoint = bp;
         return this;
     }
 
@@ -193,25 +188,7 @@ public sealed class PositionOffsetBuilder : ICssBuilder
     /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
-        if (_rules.Count == 0) return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var rule = _rules[i];
-            var css = GetStyle(rule.Property, rule.Value);
-            if (css is null)
-                continue;
-
-            if (!first) sb.Append("; ");
-            else first = false;
-
-            sb.Append(css);
-        }
-
-        return sb.ToString();
+        return string.Empty;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -240,28 +217,5 @@ public sealed class PositionOffsetBuilder : ICssBuilder
         return $"{prefix}-{value}";
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string? GetStyle(string property, string value)
-    {
-        if (property == "translate") return null;
-        var cssProp = property switch
-        {
-            "top" => "top",
-            "bottom" => "bottom",
-            "start" => "inset-inline-start",
-            "end" => "inset-inline-end",
-            _ => string.Empty
-        };
-        if (cssProp.Length == 0) return null;
-        var cssVal = value switch
-        {
-            "0" => "0",
-            "50" => "50%",
-            "100" => "100%",
-            _ => string.Empty
-        };
-        if (cssVal.Length == 0) return null;
-        return $"{cssProp}: {cssVal}";
-    }
-
+    public override string ToString() => ToClass();
 }

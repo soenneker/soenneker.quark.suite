@@ -13,6 +13,7 @@ namespace Soenneker.Quark;
 public sealed class TextOpacityBuilder : ICssBuilder
 {
     private readonly List<TextOpacityRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     internal TextOpacityBuilder(int value, BreakpointType? breakpoint = null)
     {
@@ -70,22 +71,16 @@ public sealed class TextOpacityBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextOpacityBuilder Chain(int value)
     {
-        _rules.Add(new TextOpacityRule(value, null));
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new TextOpacityRule(value, breakpoint));
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextOpacityBuilder ChainBp(BreakpointType bp)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new TextOpacityRule(100, bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-        _rules[lastIdx] = new TextOpacityRule(last.Value, bp);
+        _pendingBreakpoint = bp;
         return this;
     }
 
@@ -124,23 +119,7 @@ public sealed class TextOpacityBuilder : ICssBuilder
     /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
-        if (_rules.Count == 0) return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var rule = _rules[i];
-            var css = GetStyle(rule.Value);
-            if (css is null)
-                continue;
-
-            if (!first) sb.Append("; ");
-            else first = false;
-
-            sb.Append(css);
-        }
-        return sb.ToString();
+        return string.Empty;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -156,17 +135,5 @@ public sealed class TextOpacityBuilder : ICssBuilder
         };
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string? GetStyle(int value)
-    {
-        return value switch
-        {
-            25 => "--tw-text-opacity: 0.25",
-            50 => "--tw-text-opacity: 0.5",
-            75 => "--tw-text-opacity: 0.75",
-            100 => "--tw-text-opacity: 1",
-            _ => $"--tw-text-opacity: {value}"
-        };
-    }
-
+    public override string ToString() => ToClass();
 }

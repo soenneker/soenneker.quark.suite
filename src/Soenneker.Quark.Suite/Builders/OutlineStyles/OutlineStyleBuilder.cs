@@ -25,16 +25,46 @@ public sealed class OutlineStyleBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Disables the effect (`none` token) or sets size to zero, depending on the utility.
+    /// </summary>
     public OutlineStyleBuilder None => Chain("none");
+    /// <summary>
+    /// Fluent step for `Solid` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public OutlineStyleBuilder Solid => Chain("solid");
+    /// <summary>
+    /// Fluent step for `Dashed` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public OutlineStyleBuilder Dashed => Chain("dashed");
+    /// <summary>
+    /// Fluent step for `Dotted` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public OutlineStyleBuilder Dotted => Chain("dotted");
+    /// <summary>
+    /// Fluent step for `Double` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public OutlineStyleBuilder Double => Chain("double");
 
+    /// <summary>
+    /// Applies the preceding utility from the `sm` breakpoint and up (`sm:` prefix). Tailwind default: `min-width: 40rem` (640px).
+    /// </summary>
     public OutlineStyleBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    /// <summary>
+    /// Applies from the `md` breakpoint and up (`md:`). Tailwind default: `min-width: 48rem` (768px).
+    /// </summary>
     public OutlineStyleBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    /// <summary>
+    /// Applies from the `lg` breakpoint and up (`lg:`). Tailwind default: `min-width: 64rem` (1024px).
+    /// </summary>
     public OutlineStyleBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    /// <summary>
+    /// Applies from the `xl` breakpoint and up (`xl:`). Tailwind default: `min-width: 80rem` (1280px).
+    /// </summary>
     public OutlineStyleBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    /// <summary>
+    /// Applies from the `2xl` breakpoint and up (`2xl:`). Tailwind default: `min-width: 96rem` (1536px).
+    /// </summary>
     public OutlineStyleBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

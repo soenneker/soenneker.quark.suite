@@ -20,7 +20,6 @@ public sealed class ObjectFitBuilder : ICssBuilder
     private const string _classFill = "object-fill";
     private const string _classScale = "object-scale-down";
     private const string _classNone = "object-none";
-    private const string _stylePrefix = "object-fit: ";
 
     internal ObjectFitBuilder(string fit, BreakpointType? breakpoint = null)
     {
@@ -57,27 +56,6 @@ public sealed class ObjectFitBuilder : ICssBuilder
     /// Chain with none for the next rule.
     /// </summary>
     public ObjectFitBuilder None => ChainWithFit(ObjectFitKeyword.NoneValue);
-
-    /// <summary>
-    /// Sets the object fit to inherit.
-    /// </summary>
-    public ObjectFitBuilder Inherit => ChainWithFit(GlobalKeyword.InheritValue);
-    /// <summary>
-    /// Sets the object fit to initial.
-    /// </summary>
-    public ObjectFitBuilder Initial => ChainWithFit(GlobalKeyword.InitialValue);
-    /// <summary>
-    /// Sets the object fit to revert.
-    /// </summary>
-    public ObjectFitBuilder Revert => ChainWithFit(GlobalKeyword.RevertValue);
-    /// <summary>
-    /// Sets the object fit to revert-layer.
-    /// </summary>
-    public ObjectFitBuilder RevertLayer => ChainWithFit(GlobalKeyword.RevertLayerValue);
-    /// <summary>
-    /// Sets the object fit to unset.
-    /// </summary>
-    public ObjectFitBuilder Unset => ChainWithFit(GlobalKeyword.UnsetValue);
 
     /// <summary>
     /// Applies on the base breakpoint.
@@ -161,27 +139,7 @@ public sealed class ObjectFitBuilder : ICssBuilder
     /// </summary>
     public string ToStyle()
     {
-        if (_rules.Count == 0)
-            return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var rule = _rules[i];
-            var val = rule.Fit;
-            if (string.IsNullOrEmpty(val))
-                continue;
-
-            if (!first) sb.Append("; ");
-            else first = false;
-
-            sb.Append(_stylePrefix);
-            sb.Append(val);
-        }
-
-        return sb.ToString();
+        return string.Empty;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -197,5 +155,5 @@ public sealed class ObjectFitBuilder : ICssBuilder
             _ => string.Empty
         };
     }
-
+    public override string ToString() => ToClass();
 }

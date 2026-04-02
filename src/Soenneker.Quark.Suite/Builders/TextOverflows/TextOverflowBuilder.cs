@@ -14,6 +14,7 @@ namespace Soenneker.Quark;
 public sealed class TextOverflowBuilder : ICssBuilder
 {
     private readonly List<TextOverflowRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     // Tailwind text-overflow utilities.
     private const string _classEllipsis = "text-ellipsis";
@@ -25,11 +26,6 @@ public sealed class TextOverflowBuilder : ICssBuilder
     internal TextOverflowBuilder(TextOverflowEnum textOverflow, BreakpointType? breakpoint = null)
     {
         _rules.Add(new TextOverflowRule(textOverflow.Value, breakpoint));
-    }
-
-    internal TextOverflowBuilder(string textOverflow, BreakpointType? breakpoint = null)
-    {
-        _rules.Add(new TextOverflowRule(textOverflow, breakpoint));
     }
 
     internal TextOverflowBuilder(List<TextOverflowRule> rules)
@@ -47,28 +43,6 @@ public sealed class TextOverflowBuilder : ICssBuilder
     /// Sets the text overflow to ellipsis.
     /// </summary>
     public TextOverflowBuilder Ellipsis => Chain(TextOverflowEnum.Ellipsis);
-
-    // ----- Fluent chaining (Global keywords) -----
-    /// <summary>
-    /// Sets the text overflow to inherit.
-    /// </summary>
-    public TextOverflowBuilder Inherit => Chain(GlobalKeyword.InheritValue);
-    /// <summary>
-    /// Sets the text overflow to initial.
-    /// </summary>
-    public TextOverflowBuilder Initial => Chain(GlobalKeyword.InitialValue);
-    /// <summary>
-    /// Sets the text overflow to revert.
-    /// </summary>
-    public TextOverflowBuilder Revert => Chain(GlobalKeyword.RevertValue);
-    /// <summary>
-    /// Sets the text overflow to revert-layer.
-    /// </summary>
-    public TextOverflowBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
-    /// <summary>
-    /// Sets the text overflow to unset.
-    /// </summary>
-    public TextOverflowBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
     // ----- BreakpointType chaining -----
     /// <summary>
@@ -99,23 +73,9 @@ public sealed class TextOverflowBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextOverflowBuilder Chain(TextOverflowEnum value)
     {
-        _rules.Add(new TextOverflowRule(value.Value, null));
-        return this;
-    }
-
-    // Overload for global keywords (assumes a ctor: TextOverflowRule(GlobalKeyword, BreakpointType?))
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private TextOverflowBuilder Chain(GlobalKeyword keyword)
-    {
-        _rules.Add(new TextOverflowRule(keyword.Value, null));
-        return this;
-    }
-
-    // Overload for string values
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private TextOverflowBuilder Chain(string value)
-    {
-        _rules.Add(new TextOverflowRule(value, null));
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        _rules.Add(new TextOverflowRule(value.Value, breakpoint));
         return this;
     }
 
@@ -123,17 +83,7 @@ public sealed class TextOverflowBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextOverflowBuilder ChainBp(BreakpointType bp)
     {
-        if (_rules.Count == 0)
-        {
-            _rules.Add(new TextOverflowRule(TextOverflowEnum.Clip, bp));
-            return this;
-        }
-
-        var lastIdx = _rules.Count - 1;
-        var last = _rules[lastIdx];
-
-        // Re-create the rule preserving its text-overflow value using the string value.
-        _rules[lastIdx] = new TextOverflowRule(last.Value, bp);
+        _pendingBreakpoint = bp;
         return this;
     }
 
@@ -171,30 +121,7 @@ public sealed class TextOverflowBuilder : ICssBuilder
     /// <summary>Gets the CSS style string for the current configuration.</summary>
     public string ToStyle()
     {
-        if (_rules.Count == 0)
-            return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var rule = _rules[i];
-
-            // Always use the string value (covers Clip/Ellipsis and any keyword values)
-            var value = rule.Value;
-
-            if (string.IsNullOrEmpty(value))
-                continue;
-
-            if (!first) sb.Append("; ");
-            else first = false;
-
-            sb.Append(_textOverflowPrefix);
-            sb.Append(value);
-        }
-
-        return sb.ToString();
+        return string.Empty;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -208,4 +135,5 @@ public sealed class TextOverflowBuilder : ICssBuilder
         };
     }
 
+    public override string ToString() => ToClass();
 }

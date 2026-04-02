@@ -30,27 +30,87 @@ public sealed class SizeBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Default theme radius: `rounded` with no suffix — in Tailwind’s default config typically `0.25rem` (maps to shadcn `--radius` usage when you align tokens).
+    /// </summary>
     public SizeBuilder Default => ChainWithValue(SizeType.Default.Value);
+    /// <summary>
+    /// Fluent step for `Extra Small` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public SizeBuilder ExtraSmall => ChainWithValue(SizeType.ExtraSmall.Value);
+    /// <summary>
+    /// Fluent step for `Small` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public SizeBuilder Small => ChainWithValue(SizeType.Small.Value);
+    /// <summary>
+    /// Fluent step for `Medium` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public SizeBuilder Medium => ChainWithValue(SizeType.Medium.Value);
+    /// <summary>
+    /// Fluent step for `Large` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public SizeBuilder Large => ChainWithValue(SizeType.Large.Value);
+    /// <summary>
+    /// Fluent step for `Extra Large` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public SizeBuilder ExtraLarge => ChainWithValue(SizeType.ExtraLarge.Value);
+    /// <summary>
+    /// Fluent step for `Extra Extra Large` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public SizeBuilder ExtraExtraLarge => ChainWithValue(SizeType.ExtraExtraLarge.Value);
 
     // shadcn/Tailwind size-* helpers
+    /// <summary>
+    /// Spacing/sizing scale step `0` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 0` for integer spacing utilities unless overridden).
+    /// </summary>
     public SizeBuilder Is0 => ChainWithValue("0");
+    /// <summary>
+    /// Spacing/sizing scale step `1` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 1` for integer spacing utilities unless overridden).
+    /// </summary>
     public SizeBuilder Is1 => ChainWithValue("1");
+    /// <summary>
+    /// Spacing/sizing scale step `2` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 2` for integer spacing utilities unless overridden).
+    /// </summary>
     public SizeBuilder Is2 => ChainWithValue("2");
+    /// <summary>
+    /// Spacing/sizing scale step `3` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 3` for integer spacing utilities unless overridden).
+    /// </summary>
     public SizeBuilder Is3 => ChainWithValue("3");
+    /// <summary>
+    /// Spacing/sizing scale step `4` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 4` for integer spacing utilities unless overridden).
+    /// </summary>
     public SizeBuilder Is4 => ChainWithValue("4");
+    /// <summary>
+    /// Spacing/sizing scale step `5` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 5` for integer spacing utilities unless overridden).
+    /// </summary>
     public SizeBuilder Is5 => ChainWithValue("5");
+    /// <summary>
+    /// Spacing/sizing scale step `6` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 6` for integer spacing utilities unless overridden).
+    /// </summary>
     public SizeBuilder Is6 => ChainWithValue("6");
+    /// <summary>
+    /// Spacing/sizing scale step `7` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 7` for integer spacing utilities unless overridden).
+    /// </summary>
     public SizeBuilder Is7 => ChainWithValue("7");
+    /// <summary>
+    /// Spacing/sizing scale step `8` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 8` for integer spacing utilities unless overridden).
+    /// </summary>
     public SizeBuilder Is8 => ChainWithValue("8");
+    /// <summary>
+    /// Spacing/sizing scale step `9` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 9` for integer spacing utilities unless overridden).
+    /// </summary>
     public SizeBuilder Is9 => ChainWithValue("9");
+    /// <summary>
+    /// Spacing/sizing scale step `10` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 10` for integer spacing utilities unless overridden).
+    /// </summary>
     public SizeBuilder Is10 => ChainWithValue("10");
+    /// <summary>
+    /// Spacing/sizing scale step `11` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 11` for integer spacing utilities unless overridden).
+    /// </summary>
     public SizeBuilder Is11 => ChainWithValue("11");
+    /// <summary>
+    /// Spacing/sizing scale step `12` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 12` for integer spacing utilities unless overridden).
+    /// </summary>
     public SizeBuilder Is12 => ChainWithValue("12");
 
     /// <summary>

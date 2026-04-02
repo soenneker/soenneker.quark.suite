@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Soenneker.Utils.PooledStringBuilders;
+using Soenneker.Quark.Attributes;
 
 
 namespace Soenneker.Quark;
@@ -8,24 +9,15 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Simplified pointer events builder with fluent API for chaining pointer events rules.
 /// </summary>
+[TailwindPrefix("pointer-events-", Responsive = true)]
 public sealed class PointerEventsBuilder : ICssBuilder
 {
     private readonly List<PointerEventsRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     // ----- Class constants -----
-    private const string _classNone = "pe-none";
-    private const string _classAuto = "pe-auto";
-
-    // ----- CSS prefix & style constants (EnumValue *Value are const, so const-interp is fine) -----
-    private const string _pointerEventsPrefix = "pointer-events: ";
-
-    private const string _styleNone = $"{_pointerEventsPrefix}none";
-    private const string _styleAuto = $"{_pointerEventsPrefix}auto";
-    private const string _styleInherit = $"{_pointerEventsPrefix}{GlobalKeyword.InheritValue}";
-    private const string _styleInitial = $"{_pointerEventsPrefix}{GlobalKeyword.InitialValue}";
-    private const string _styleUnset = $"{_pointerEventsPrefix}{GlobalKeyword.UnsetValue}";
-    private const string _styleRevert = $"{_pointerEventsPrefix}{GlobalKeyword.RevertValue}";
-    private const string _styleRevertLayer = $"{_pointerEventsPrefix}{GlobalKeyword.RevertLayerValue}";
+    private const string _classNone = "pointer-events-none";
+    private const string _classAuto = "pointer-events-auto";
 
     internal PointerEventsBuilder(string value, BreakpointType? breakpoint = null)
     {
@@ -49,35 +41,55 @@ public sealed class PointerEventsBuilder : ICssBuilder
     public PointerEventsBuilder Auto => Chain(PointerEventsKeyword.Auto);
 
     /// <summary>
-    /// Sets the pointer events to inherit.
+    /// Applies the pointer events on phone breakpoint.
     /// </summary>
-    public PointerEventsBuilder Inherit => Chain(GlobalKeyword.InheritValue);
+    public PointerEventsBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 
     /// <summary>
-    /// Sets the pointer events to initial.
+    /// Applies the pointer events on small breakpoint (≥640px).
     /// </summary>
-    public PointerEventsBuilder Initial => Chain(GlobalKeyword.InitialValue);
+    public PointerEventsBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 
     /// <summary>
-    /// Sets the pointer events to revert.
+    /// Applies the pointer events on tablet breakpoint.
     /// </summary>
-    public PointerEventsBuilder Revert => Chain(GlobalKeyword.RevertValue);
+    public PointerEventsBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 
     /// <summary>
-    /// Sets the pointer events to revert-layer.
+    /// Applies the pointer events on laptop breakpoint.
     /// </summary>
-    public PointerEventsBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
+    public PointerEventsBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 
     /// <summary>
-    /// Sets the pointer events to unset.
+    /// Applies the pointer events on desktop breakpoint.
     /// </summary>
-    public PointerEventsBuilder Unset => Chain(GlobalKeyword.UnsetValue);
+    public PointerEventsBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+
+    /// <summary>
+    /// Applies the pointer events on the 2xl breakpoint.
+    /// </summary>
+    public PointerEventsBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PointerEventsBuilder Chain(string value)
     {
-        _rules.Add(new PointerEventsRule(value, null));
+        _rules.Add(new PointerEventsRule(value, ConsumePendingBreakpoint()));
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private PointerEventsBuilder SetPendingBreakpoint(BreakpointType breakpoint)
+    {
+        _pendingBreakpoint = breakpoint;
+        return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     /// <summary>
@@ -125,37 +137,8 @@ public sealed class PointerEventsBuilder : ICssBuilder
     /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
-        if (_rules.Count == 0)
-            return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var rule = _rules[i];
-
-            var css = rule.Value switch
-            {
-                PointerEventsKeyword.NoneValue => _styleNone,
-                PointerEventsKeyword.AutoValue => _styleAuto,
-                GlobalKeyword.InheritValue => _styleInherit,
-                GlobalKeyword.InitialValue => _styleInitial,
-                GlobalKeyword.UnsetValue => _styleUnset,
-                GlobalKeyword.RevertValue => _styleRevert,
-                GlobalKeyword.RevertLayerValue => _styleRevertLayer,
-                _ => string.Empty
-            };
-
-            if (css.Length == 0)
-                continue;
-
-            if (!first) sb.Append("; ");
-            else first = false;
-
-            sb.Append(css);
-        }
-
-        return sb.ToString();
+        return string.Empty;
     }
+
+    public override string ToString() => ToClass();
 }

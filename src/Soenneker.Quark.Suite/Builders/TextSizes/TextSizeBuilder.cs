@@ -26,15 +26,43 @@ public sealed class TextSizeBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Fluent step for `Xs` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public TextSizeBuilder Xs => ChainSize("xs");
+    /// <summary>
+    /// `rounded-sm` — small radius (default theme `0.125rem`).
+    /// </summary>
     public TextSizeBuilder Sm => ChainSize("sm");
+    /// <summary>
+    /// Fluent step for `Base` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public TextSizeBuilder Base => ChainSize("base");
+    /// <summary>
+    /// `rounded-lg` — large radius (default theme `0.5rem`).
+    /// </summary>
     public TextSizeBuilder Lg => ChainSize("lg");
+    /// <summary>
+    /// `rounded-xl` — extra-large radius (default theme `0.75rem`).
+    /// </summary>
     public TextSizeBuilder Xl => ChainSize("xl");
+    /// <summary>
+    /// `rounded-2xl` — 2× XL radius (default theme `1rem`).
+    /// </summary>
     public TextSizeBuilder TwoXl => ChainSize("2xl");
+    /// <summary>
+    /// `rounded-3xl` — very large radius (default theme `1.5rem`).
+    /// </summary>
     public TextSizeBuilder ThreeXl => ChainSize("3xl");
+    /// <summary>
+    /// Fluent step for `Four Xl` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public TextSizeBuilder FourXl => ChainSize("4xl");
 
+    /// <summary>
+    /// Tailwind token segment (spacing scale step, arbitrary value like `[17rem]`, or theme key). Builds the matching utility class for this builder.
+    /// </summary>
+    /// <param name="value">Suffix/token after the utility prefix (see Tailwind docs for this family).</param>
     public TextSizeBuilder Token(string value) => ChainSize(value);
 
     // ----- BreakpointType chaining -----
@@ -58,6 +86,9 @@ public sealed class TextSizeBuilder : ICssBuilder
     /// Applies the text size on desktop breakpoint.
     /// </summary>
     public TextSizeBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    /// <summary>
+    /// Applies from the `2xl` breakpoint and up (`2xl:`). Tailwind default: `min-width: 96rem` (1536px).
+    /// </summary>
     public TextSizeBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextSizeBuilder ChainSize(string size)

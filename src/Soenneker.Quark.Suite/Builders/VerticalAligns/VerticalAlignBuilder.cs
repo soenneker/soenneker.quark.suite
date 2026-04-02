@@ -57,31 +57,6 @@ public sealed class VerticalAlignBuilder : ICssBuilder
     public VerticalAlignBuilder TextBottom => Chain(VerticalAlignKeyword.TextBottomValue);
 
     /// <summary>
-    /// Sets the vertical alignment to inherit.
-    /// </summary>
-    public VerticalAlignBuilder Inherit => Chain(GlobalKeyword.InheritValue);
-
-    /// <summary>
-    /// Sets the vertical alignment to initial.
-    /// </summary>
-    public VerticalAlignBuilder Initial => Chain(GlobalKeyword.InitialValue);
-
-    /// <summary>
-    /// Sets the vertical alignment to revert.
-    /// </summary>
-    public VerticalAlignBuilder Revert => Chain(GlobalKeyword.RevertValue);
-
-    /// <summary>
-    /// Sets the vertical alignment to revert-layer.
-    /// </summary>
-    public VerticalAlignBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
-
-    /// <summary>
-    /// Sets the vertical alignment to unset.
-    /// </summary>
-    public VerticalAlignBuilder Unset => Chain(GlobalKeyword.UnsetValue);
-
-    /// <summary>
     /// Applies the vertical alignment on phone breakpoint.
     /// </summary>
     public VerticalAlignBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
@@ -177,27 +152,7 @@ public sealed class VerticalAlignBuilder : ICssBuilder
     /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
-        if (_rules.Count == 0) return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var rule = _rules[i];
-            var val = rule.Value;
-            if (string.IsNullOrEmpty(val))
-                continue;
-
-            if (!first) sb.Append("; ");
-            else first = false;
-
-            sb.Append("vertical-align: ");
-            sb.Append(val);
-        }
-        return sb.ToString();
+        return string.Empty;
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string GetBp(BreakpointType? breakpoint) => breakpoint?.Value ?? string.Empty;
-
+    public override string ToString() => ToClass();
 }

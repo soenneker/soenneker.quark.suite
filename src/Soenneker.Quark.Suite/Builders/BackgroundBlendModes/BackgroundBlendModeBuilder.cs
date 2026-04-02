@@ -25,27 +25,90 @@ public sealed class BackgroundBlendModeBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Fluent step for `Normal` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public BackgroundBlendModeBuilder Normal => Chain("normal");
+    /// <summary>
+    /// Fluent step for `Multiply` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public BackgroundBlendModeBuilder Multiply => Chain("multiply");
+    /// <summary>
+    /// Viewport-relative size (e.g. `w-screen`, `min-h-screen`) tied to the viewport width/height.
+    /// </summary>
     public BackgroundBlendModeBuilder Screen => Chain("screen");
+    /// <summary>
+    /// Fluent step for `Overlay` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public BackgroundBlendModeBuilder Overlay => Chain("overlay");
+    /// <summary>
+    /// Fluent step for `Darken` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public BackgroundBlendModeBuilder Darken => Chain("darken");
+    /// <summary>
+    /// Fluent step for `Lighten` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public BackgroundBlendModeBuilder Lighten => Chain("lighten");
+    /// <summary>
+    /// Fluent step for `Color Dodge` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public BackgroundBlendModeBuilder ColorDodge => Chain("color-dodge");
+    /// <summary>
+    /// Fluent step for `Color Burn` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public BackgroundBlendModeBuilder ColorBurn => Chain("color-burn");
+    /// <summary>
+    /// Fluent step for `Hard Light` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public BackgroundBlendModeBuilder HardLight => Chain("hard-light");
+    /// <summary>
+    /// Fluent step for `Soft Light` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public BackgroundBlendModeBuilder SoftLight => Chain("soft-light");
+    /// <summary>
+    /// Fluent step for `Difference` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public BackgroundBlendModeBuilder Difference => Chain("difference");
+    /// <summary>
+    /// Fluent step for `Exclusion` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public BackgroundBlendModeBuilder Exclusion => Chain("exclusion");
+    /// <summary>
+    /// Fluent step for `Hue` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public BackgroundBlendModeBuilder Hue => Chain("hue");
+    /// <summary>
+    /// Fluent step for `Saturation` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public BackgroundBlendModeBuilder Saturation => Chain("saturation");
+    /// <summary>
+    /// Fluent step for `Color` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public BackgroundBlendModeBuilder Color => Chain("color");
+    /// <summary>
+    /// Fluent step for `Luminosity` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public BackgroundBlendModeBuilder Luminosity => Chain("luminosity");
 
+    /// <summary>
+    /// Applies the preceding utility from the `sm` breakpoint and up (`sm:` prefix). Tailwind default: `min-width: 40rem` (640px).
+    /// </summary>
     public BackgroundBlendModeBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    /// <summary>
+    /// Applies from the `md` breakpoint and up (`md:`). Tailwind default: `min-width: 48rem` (768px).
+    /// </summary>
     public BackgroundBlendModeBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    /// <summary>
+    /// Applies from the `lg` breakpoint and up (`lg:`). Tailwind default: `min-width: 64rem` (1024px).
+    /// </summary>
     public BackgroundBlendModeBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    /// <summary>
+    /// Applies from the `xl` breakpoint and up (`xl:`). Tailwind default: `min-width: 80rem` (1280px).
+    /// </summary>
     public BackgroundBlendModeBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    /// <summary>
+    /// Applies from the `2xl` breakpoint and up (`2xl:`). Tailwind default: `min-width: 96rem` (1536px).
+    /// </summary>
     public BackgroundBlendModeBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

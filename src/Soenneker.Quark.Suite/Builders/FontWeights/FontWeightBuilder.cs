@@ -22,8 +22,6 @@ public sealed class FontWeightBuilder : ICssBuilder
     private const string _classSemibold = "font-semibold";
     private const string _classBold = "font-bold";
     private const string _classExtrabold = "font-extrabold";
-    private const string _stylePrefix = "font-weight: ";
-
     internal FontWeightBuilder(string value, BreakpointType? breakpoint = null)
     {
         _rules.Add(new FontWeightRule(value, breakpoint));
@@ -63,27 +61,6 @@ public sealed class FontWeightBuilder : ICssBuilder
     /// Sets the font weight to extrabold.
     /// </summary>
     public FontWeightBuilder Extrabold => Chain("extrabold");
-    /// <summary>
-    /// Sets the font weight to inherit.
-    /// </summary>
-    public FontWeightBuilder Inherit => Chain(GlobalKeyword.InheritValue);
-    /// <summary>
-    /// Sets the font weight to initial.
-    /// </summary>
-    public FontWeightBuilder Initial => Chain(GlobalKeyword.InitialValue);
-    /// <summary>
-    /// Sets the font weight to revert.
-    /// </summary>
-    public FontWeightBuilder Revert => Chain(GlobalKeyword.RevertValue);
-    /// <summary>
-    /// Sets the font weight to revert-layer.
-    /// </summary>
-    public FontWeightBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
-    /// <summary>
-    /// Sets the font weight to unset.
-    /// </summary>
-    public FontWeightBuilder Unset => Chain(GlobalKeyword.UnsetValue);
-
     /// <summary>
     /// Applies the font weight on phone breakpoint.
     /// </summary>
@@ -175,41 +152,7 @@ public sealed class FontWeightBuilder : ICssBuilder
     /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
-        if (_rules.Count == 0) return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var rule = _rules[i];
-            var css = rule.Value switch
-            {
-                "extralight" => "200",
-                FontWeightKeyword.LightValue => "300",
-                FontWeightKeyword.NormalValue => "400",
-                "medium" => "500",
-                FontWeightKeyword.SemiboldValue => "600",
-                FontWeightKeyword.BoldValue => "700",
-                "extrabold" => "800",
-                GlobalKeyword.InheritValue => "inherit",
-                GlobalKeyword.InitialValue => "initial",
-                GlobalKeyword.UnsetValue => "unset",
-                GlobalKeyword.RevertValue => "revert",
-                GlobalKeyword.RevertLayerValue => "revert-layer",
-                _ => null
-            };
-            if (css is null)
-                continue;
-
-            if (!first) sb.Append("; ");
-            else first = false;
-
-            sb.Append(_stylePrefix);
-            sb.Append(css);
-        }
-
-        return sb.ToString();
+        return string.Empty;
     }
-
-
+    public override string ToString() => ToClass();
 }

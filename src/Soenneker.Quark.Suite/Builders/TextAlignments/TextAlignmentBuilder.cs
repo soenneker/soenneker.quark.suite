@@ -13,6 +13,7 @@ namespace Soenneker.Quark;
 public sealed class TextAlignmentBuilder : ICssBuilder
 {
     private readonly List<TextAlignmentRule> _rules = new(4);
+    private BreakpointType? _pendingBreakpoint;
 
     // ----- Class name constants (compile-time) -----
     private const string _classStart = "text-start";
@@ -20,19 +21,6 @@ public sealed class TextAlignmentBuilder : ICssBuilder
     private const string _classEnd = "text-end";
     private const string _startValue = "start";
     private const string _endValue = "end";
-
-    // ----- CSS prefix (compile-time) -----
-    private const string _textAlignPrefix = "text-align: ";
-
-    // ----- Style constants (compile-time, EnumValue *Value are const) -----
-    private const string _styleStart = $"{_textAlignPrefix}{_startValue}";
-    private const string _styleCenter = $"{_textAlignPrefix}{TextAlignKeyword.CenterValue}";
-    private const string _styleEnd = $"{_textAlignPrefix}{_endValue}";
-    private const string _styleInherit = $"{_textAlignPrefix}{GlobalKeyword.InheritValue}";
-    private const string _styleInitial = $"{_textAlignPrefix}{GlobalKeyword.InitialValue}";
-    private const string _styleUnset = $"{_textAlignPrefix}{GlobalKeyword.UnsetValue}";
-    private const string _styleRevert = $"{_textAlignPrefix}{GlobalKeyword.RevertValue}";
-    private const string _styleRevertLayer = $"{_textAlignPrefix}{GlobalKeyword.RevertLayerValue}";
 
     internal TextAlignmentBuilder(string value, BreakpointType? breakpoint = null)
     {
@@ -59,31 +47,50 @@ public sealed class TextAlignmentBuilder : ICssBuilder
     public TextAlignmentBuilder End => Chain(_endValue);
 
 	/// <summary>
-	/// Sets the text alignment to inherit.
+	/// Applies the text alignment on phone breakpoint.
 	/// </summary>
-    public TextAlignmentBuilder Inherit => Chain(GlobalKeyword.InheritValue);
+    public TextAlignmentBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 	/// <summary>
-	/// Sets the text alignment to initial.
+	/// Applies the text alignment on small breakpoint (≥640px).
 	/// </summary>
-    public TextAlignmentBuilder Initial => Chain(GlobalKeyword.InitialValue);
+    public TextAlignmentBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
 	/// <summary>
-	/// Sets the text alignment to revert.
+	/// Applies the text alignment on tablet breakpoint.
 	/// </summary>
-    public TextAlignmentBuilder Revert => Chain(GlobalKeyword.RevertValue);
+    public TextAlignmentBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
 	/// <summary>
-	/// Sets the text alignment to revert-layer.
+	/// Applies the text alignment on laptop breakpoint.
 	/// </summary>
-    public TextAlignmentBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
+    public TextAlignmentBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
 	/// <summary>
-	/// Sets the text alignment to unset.
+	/// Applies the text alignment on desktop breakpoint.
 	/// </summary>
-    public TextAlignmentBuilder Unset => Chain(GlobalKeyword.UnsetValue);
+    public TextAlignmentBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+	/// <summary>
+	/// Applies the text alignment on the 2xl breakpoint.
+	/// </summary>
+    public TextAlignmentBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextAlignmentBuilder Chain(string value)
     {
-        _rules.Add(new TextAlignmentRule(value, null));
+        _rules.Add(new TextAlignmentRule(value, ConsumePendingBreakpoint()));
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private TextAlignmentBuilder SetPendingBreakpoint(BreakpointType breakpoint)
+    {
+        _pendingBreakpoint = breakpoint;
+        return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
 	/// <summary>
@@ -134,42 +141,8 @@ public sealed class TextAlignmentBuilder : ICssBuilder
 	/// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
-        if (_rules.Count == 0)
-            return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var rule = _rules[i];
-
-            var css = rule.Value switch
-            {
-                _startValue => _styleStart,
-                TextAlignKeyword.CenterValue => _styleCenter,
-                _endValue => _styleEnd,
-
-                GlobalKeyword.InheritValue => _styleInherit,
-                GlobalKeyword.InitialValue => _styleInitial,
-                GlobalKeyword.UnsetValue => _styleUnset,
-                GlobalKeyword.RevertValue => _styleRevert,
-                GlobalKeyword.RevertLayerValue => _styleRevertLayer,
-
-                _ => string.Empty
-            };
-
-            if (css.Length == 0)
-                continue;
-
-            if (!first)
-                sb.Append("; ");
-            else
-                first = false;
-
-            sb.Append(css);
-        }
-
-        return sb.ToString();
+        return string.Empty;
     }
+
+    public override string ToString() => ToClass();
 }

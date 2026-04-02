@@ -29,25 +29,4 @@ public static class VerticalAlign
     /// Gets a vertical align builder with text-bottom alignment.
     /// </summary>
     public static VerticalAlignBuilder TextBottom => new("text-bottom");
-
-    /// <summary>
-    /// Gets a vertical align builder with inherit keyword.
-    /// </summary>
-    public static VerticalAlignBuilder Inherit => new(GlobalKeyword.InheritValue);
-    /// <summary>
-    /// Gets a vertical align builder with initial keyword.
-    /// </summary>
-    public static VerticalAlignBuilder Initial => new(GlobalKeyword.InitialValue);
-    /// <summary>
-    /// Gets a vertical align builder with revert keyword.
-    /// </summary>
-    public static VerticalAlignBuilder Revert => new(GlobalKeyword.RevertValue);
-    /// <summary>
-    /// Gets a vertical align builder with revert-layer keyword.
-    /// </summary>
-    public static VerticalAlignBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
-    /// <summary>
-    /// Gets a vertical align builder with unset keyword.
-    /// </summary>
-    public static VerticalAlignBuilder Unset => new(GlobalKeyword.UnsetValue);
 }

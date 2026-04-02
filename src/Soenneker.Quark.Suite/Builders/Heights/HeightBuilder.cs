@@ -26,35 +26,113 @@ public sealed class HeightBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Spacing/sizing scale step `25` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 25` for integer spacing utilities unless overridden).
+    /// </summary>
     public HeightBuilder Is25 => ChainWithSize("25");
+    /// <summary>
+    /// Spacing/sizing scale step `50` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 50` for integer spacing utilities unless overridden).
+    /// </summary>
     public HeightBuilder Is50 => ChainWithSize("50");
+    /// <summary>
+    /// Spacing/sizing scale step `75` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 75` for integer spacing utilities unless overridden).
+    /// </summary>
     public HeightBuilder Is75 => ChainWithSize("75");
+    /// <summary>
+    /// Spacing/sizing scale step `100` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 100` for integer spacing utilities unless overridden).
+    /// </summary>
     public HeightBuilder Is100 => ChainWithSize("100");
 
+    /// <summary>
+    /// Spacing/sizing scale step `0` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 0` for integer spacing utilities unless overridden).
+    /// </summary>
     public HeightBuilder Is0 => ChainWithSize("0");
+    /// <summary>
+    /// Spacing/sizing scale step `8` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 8` for integer spacing utilities unless overridden).
+    /// </summary>
     public HeightBuilder Is8 => ChainWithSize("8");
+    /// <summary>
+    /// Spacing/sizing scale step `16` — uses Tailwind’s default spacing scale (each step is typically `0.25rem × 16` for integer spacing utilities unless overridden).
+    /// </summary>
     public HeightBuilder Is16 => ChainWithSize("16");
+    /// <summary>
+    /// Fluent step for `Is Px` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public HeightBuilder IsPx => ChainWithSize("px");
+    /// <summary>
+    /// Fluent step for `Is Full` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public HeightBuilder IsFull => ChainWithSize("full");
+    /// <summary>
+    /// Fluent step for `Is Screen` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public HeightBuilder IsScreen => ChainWithSize("screen");
+    /// <summary>
+    /// Fluent step for `Is Fit` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public HeightBuilder IsFit => ChainWithSize("fit");
+    /// <summary>
+    /// Fluent step for `Is Min` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public HeightBuilder IsMin => ChainWithSize("min");
+    /// <summary>
+    /// Fluent step for `Is Max` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public HeightBuilder IsMax => ChainWithSize("max");
 
+    /// <summary>
+    /// Fluent step for `Is1of2` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public HeightBuilder Is1of2 => ChainWithSize("1/2");
+    /// <summary>
+    /// Fluent step for `Is1of3` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public HeightBuilder Is1of3 => ChainWithSize("1/3");
+    /// <summary>
+    /// Fluent step for `Is2of3` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public HeightBuilder Is2of3 => ChainWithSize("2/3");
+    /// <summary>
+    /// Fluent step for `Is1of4` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public HeightBuilder Is1of4 => ChainWithSize("1/4");
+    /// <summary>
+    /// Fluent step for `Is2of4` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public HeightBuilder Is2of4 => ChainWithSize("2/4");
+    /// <summary>
+    /// Fluent step for `Is3of4` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public HeightBuilder Is3of4 => ChainWithSize("3/4");
 
+    /// <summary>
+    /// `auto` — browser-default sizing/behavior for the underlying utility.
+    /// </summary>
     public HeightBuilder Auto => ChainWithSize("auto");
 
+    /// <summary>
+    /// Scopes the next utility to the default (unprefixed) breakpoint. In Tailwind’s mobile‑first model, unprefixed utilities apply from 0px unless a larger breakpoint overrides them.
+    /// </summary>
     public HeightBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
+    /// <summary>
+    /// Applies the preceding utility from the `sm` breakpoint and up (`sm:` prefix). Tailwind default: `min-width: 40rem` (640px).
+    /// </summary>
     public HeightBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    /// <summary>
+    /// Applies from the `md` breakpoint and up (`md:`). Tailwind default: `min-width: 48rem` (768px).
+    /// </summary>
     public HeightBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    /// <summary>
+    /// Applies from the `lg` breakpoint and up (`lg:`). Tailwind default: `min-width: 64rem` (1024px).
+    /// </summary>
     public HeightBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    /// <summary>
+    /// Applies from the `xl` breakpoint and up (`xl:`). Tailwind default: `min-width: 80rem` (1280px).
+    /// </summary>
     public HeightBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    /// <summary>
+    /// Applies from the `2xl` breakpoint and up (`2xl:`). Tailwind default: `min-width: 96rem` (1536px).
+    /// </summary>
     public HeightBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     /// <summary>

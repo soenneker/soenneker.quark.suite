@@ -31,37 +31,113 @@ public sealed class RadiusBuilder : ICssBuilder
 
     // ----- Positions -----
 
+    /// <summary>
+    /// Targets all corners (`rounded-*` with no corner suffix).
+    /// </summary>
     public RadiusBuilder All => SetPosition(null);
+    /// <summary>
+    /// Top corners only (`rounded-t-*`).
+    /// </summary>
     public RadiusBuilder Top => SetPosition("t");
+    /// <summary>
+    /// Bottom corners only (`rounded-b-*`).
+    /// </summary>
     public RadiusBuilder Bottom => SetPosition("b");
+    /// <summary>
+    /// Left corners only (`rounded-l-*`).
+    /// </summary>
     public RadiusBuilder Left => SetPosition("l");
+    /// <summary>
+    /// Right corners only (`rounded-r-*`).
+    /// </summary>
     public RadiusBuilder Right => SetPosition("r");
 
+    /// <summary>
+    /// Top-left corner only (`rounded-tl-*`).
+    /// </summary>
     public RadiusBuilder TopLeft => SetPosition("tl");
+    /// <summary>
+    /// Top-right corner only (`rounded-tr-*`).
+    /// </summary>
     public RadiusBuilder TopRight => SetPosition("tr");
+    /// <summary>
+    /// Bottom-left corner only (`rounded-bl-*`).
+    /// </summary>
     public RadiusBuilder BottomLeft => SetPosition("bl");
+    /// <summary>
+    /// Bottom-right corner only (`rounded-br-*`).
+    /// </summary>
     public RadiusBuilder BottomRight => SetPosition("br");
 
     // ----- Sizes -----
 
+    /// <summary>
+    /// Default theme radius: `rounded` with no suffix — in Tailwind’s default config typically `0.25rem` (maps to shadcn `--radius` usage when you align tokens).
+    /// </summary>
     public RadiusBuilder Default => Add(null);
+    /// <summary>
+    /// <c>rounded-none</c> — <c>border-radius: 0</c> on the selected corners (fully square corners).
+    /// </summary>
     public RadiusBuilder None => Add("none");
+    /// <summary>
+    /// `rounded-sm` — small radius (default theme `0.125rem`).
+    /// </summary>
     public RadiusBuilder Sm => Add("sm");
+    /// <summary>
+    /// `rounded-md` — medium radius (default theme `0.375rem`); common for cards and inputs in shadcn.
+    /// </summary>
     public RadiusBuilder Md => Add("md");
+    /// <summary>
+    /// `rounded-lg` — large radius (default theme `0.5rem`).
+    /// </summary>
     public RadiusBuilder Lg => Add("lg");
+    /// <summary>
+    /// `rounded-xl` — extra-large radius (default theme `0.75rem`).
+    /// </summary>
     public RadiusBuilder Xl => Add("xl");
+    /// <summary>
+    /// `rounded-2xl` — 2× XL radius (default theme `1rem`).
+    /// </summary>
     public RadiusBuilder TwoXl => Add("2xl");
+    /// <summary>
+    /// `rounded-3xl` — very large radius (default theme `1.5rem`).
+    /// </summary>
     public RadiusBuilder ThreeXl => Add("3xl");
+    /// <summary>
+    /// “Full” extremum for this utility. For border radius this is `rounded-full` (`border-radius: 9999px`), producing pills/circles; for width/height often `100%` (`w-full` / `h-full`).
+    /// </summary>
     public RadiusBuilder Full => Add("full");
+    /// <summary>
+    /// Custom <c>rounded-*</c> suffix: theme scale key, arbitrary length (for example <c>[2vw]</c>), or CSS variable reference aligned with shadcn’s <c>--radius</c> pattern.
+    /// </summary>
+    /// <param name="value">The segment after <c>rounded-</c> (and any corner prefix such as <c>tl-</c>).</param>
     public RadiusBuilder Token(string value) => Add(value);
 
     // ----- Breakpoints -----
 
+    /// <summary>
+    /// Scopes the next utility to the default (unprefixed) breakpoint. In Tailwind’s mobile‑first model, unprefixed utilities apply from 0px unless a larger breakpoint overrides them.
+    /// </summary>
     public RadiusBuilder OnBase => SetBreakpoint(BreakpointType.Base);
+    /// <summary>
+    /// Applies the preceding utility from the `sm` breakpoint and up (`sm:` prefix). Tailwind default: `min-width: 40rem` (640px).
+    /// </summary>
     public RadiusBuilder OnSm => SetBreakpoint(BreakpointType.Sm);
+    /// <summary>
+    /// Applies from the `md` breakpoint and up (`md:`). Tailwind default: `min-width: 48rem` (768px).
+    /// </summary>
     public RadiusBuilder OnMd => SetBreakpoint(BreakpointType.Md);
+    /// <summary>
+    /// Applies from the `lg` breakpoint and up (`lg:`). Tailwind default: `min-width: 64rem` (1024px).
+    /// </summary>
     public RadiusBuilder OnLg => SetBreakpoint(BreakpointType.Lg);
+    /// <summary>
+    /// Applies from the `xl` breakpoint and up (`xl:`). Tailwind default: `min-width: 80rem` (1280px).
+    /// </summary>
     public RadiusBuilder OnXl => SetBreakpoint(BreakpointType.Xl);
+    /// <summary>
+    /// Applies from the `2xl` breakpoint and up (`2xl:`). Tailwind default: `min-width: 96rem` (1536px).
+    /// </summary>
     public RadiusBuilder On2xl => SetBreakpoint(BreakpointType.Xxl);
 
     // ----- Core -----

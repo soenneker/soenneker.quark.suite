@@ -1,7 +1,6 @@
 using Soenneker.Quark.Attributes;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Soenneker.Extensions.String;
 using Soenneker.Utils.PooledStringBuilders;
 
 
@@ -72,27 +71,6 @@ public sealed class DisplayBuilder : ICssBuilder
 	/// </summary>
     public DisplayBuilder TableRow => ChainWithDisplay(DisplayKeyword.TableRowValue);
 	/// <summary>
-	/// Sets the display to inherit.
-	/// </summary>
-    public DisplayBuilder Inherit => ChainWithDisplay(GlobalKeyword.InheritValue);
-	/// <summary>
-	/// Sets the display to initial.
-	/// </summary>
-    public DisplayBuilder Initial => ChainWithDisplay(GlobalKeyword.InitialValue);
-	/// <summary>
-	/// Sets the display to revert.
-	/// </summary>
-    public DisplayBuilder Revert => ChainWithDisplay(GlobalKeyword.RevertValue);
-	/// <summary>
-	/// Sets the display to revert-layer.
-	/// </summary>
-    public DisplayBuilder RevertLayer => ChainWithDisplay(GlobalKeyword.RevertLayerValue);
-	/// <summary>
-	/// Sets the display to unset.
-	/// </summary>
-    public DisplayBuilder Unset => ChainWithDisplay(GlobalKeyword.UnsetValue);
-
-	/// <summary>
 	/// Applies the display on phone breakpoint.
 	/// </summary>
     public DisplayBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
@@ -120,9 +98,7 @@ public sealed class DisplayBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private DisplayBuilder ChainWithDisplay(string display)
     {
-        var bp = _pendingBreakpoint;
-        _pendingBreakpoint = null;
-        _rules.Add(new DisplayRule(display, bp));
+        _rules.Add(new DisplayRule(display, ConsumePendingBreakpoint()));
         return this;
     }
 
@@ -131,6 +107,14 @@ public sealed class DisplayBuilder : ICssBuilder
     {
         _pendingBreakpoint = breakpoint;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
 	/// <summary>
@@ -152,7 +136,7 @@ public sealed class DisplayBuilder : ICssBuilder
             if (cls.Length == 0)
                 continue;
 
-            var bp = BreakpointUtil.GetBreakpointClass(rule.Breakpoint);
+            var bp = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (bp.Length != 0)
                 cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, bp);
 
@@ -171,29 +155,7 @@ public sealed class DisplayBuilder : ICssBuilder
 	/// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
-        if (_rules.Count == 0)
-            return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var rule = _rules[i];
-            var val = rule.Display;
-            if (val.IsNullOrEmpty())
-                continue;
-
-            if (!first)
-                sb.Append("; ");
-            else
-                first = false;
-
-            sb.Append("display: ");
-            sb.Append(val);
-        }
-
-        return sb.ToString();
+        return string.Empty;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -216,6 +178,5 @@ public sealed class DisplayBuilder : ICssBuilder
             _ => string.Empty
         };
     }
-
-
+    public override string ToString() => ToClass();
 }

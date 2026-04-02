@@ -14,25 +14,4 @@ public static class Visibility
     /// Gets a visibility builder with invisible value (element is hidden but takes up space).
     /// </summary>
     public static VisibilityBuilder Invisible => new("invisible");
-
-    /// <summary>
-    /// Gets a visibility builder with inherit keyword.
-    /// </summary>
-    public static VisibilityBuilder Inherit => new(GlobalKeyword.InheritValue);
-    /// <summary>
-    /// Gets a visibility builder with initial keyword.
-    /// </summary>
-    public static VisibilityBuilder Initial => new(GlobalKeyword.InitialValue);
-    /// <summary>
-    /// Gets a visibility builder with revert keyword.
-    /// </summary>
-    public static VisibilityBuilder Revert => new(GlobalKeyword.RevertValue);
-    /// <summary>
-    /// Gets a visibility builder with revert-layer keyword.
-    /// </summary>
-    public static VisibilityBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
-    /// <summary>
-    /// Gets a visibility builder with unset keyword.
-    /// </summary>
-    public static VisibilityBuilder Unset => new(GlobalKeyword.UnsetValue);
 }

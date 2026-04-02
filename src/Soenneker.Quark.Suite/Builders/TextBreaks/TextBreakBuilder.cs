@@ -127,25 +127,7 @@ public sealed class TextBreakBuilder : ICssBuilder
     /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
-        if (_rules.Count == 0)
-            return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var style = GetStyleValue(_rules[i].Value);
-            if (style is null)
-                continue;
-
-            if (!first) sb.Append("; ");
-            else first = false;
-
-            sb.Append(style);
-        }
-
-        return sb.ToString();
+        return string.Empty;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -161,16 +143,5 @@ public sealed class TextBreakBuilder : ICssBuilder
         };
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string? GetStyleValue(string value)
-    {
-        return value switch
-        {
-            "normal" => "overflow-wrap: normal; word-break: normal",
-            "words" => "overflow-wrap: break-word",
-            "all" => "word-break: break-all",
-            "keep" => "word-break: keep-all",
-            _ => null
-        };
-    }
+    public override string ToString() => ToClass();
 }

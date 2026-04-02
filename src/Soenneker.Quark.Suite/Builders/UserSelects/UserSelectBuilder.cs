@@ -15,10 +15,9 @@ public sealed class UserSelectBuilder : ICssBuilder
     private readonly List<UserSelectRule> _rules = new(4);
     private BreakpointType? _pendingBreakpoint;
 
-    private const string _classNone = "user-select-none";
-    private const string _classAuto = "user-select-auto";
-    private const string _classAll = "user-select-all";
-    private const string _stylePrefix = "user-select: ";
+    private const string _classNone = "select-none";
+    private const string _classAuto = "select-auto";
+    private const string _classAll = "select-all";
 
     internal UserSelectBuilder(string value, BreakpointType? breakpoint = null)
     {
@@ -45,31 +44,6 @@ public sealed class UserSelectBuilder : ICssBuilder
     /// Sets the user select to all.
     /// </summary>
     public UserSelectBuilder All => Chain(UserSelectKeyword.AllValue);
-
-    /// <summary>
-    /// Sets the user select to inherit.
-    /// </summary>
-    public UserSelectBuilder Inherit => Chain(GlobalKeyword.InheritValue);
-
-    /// <summary>
-    /// Sets the user select to initial.
-    /// </summary>
-    public UserSelectBuilder Initial => Chain(GlobalKeyword.InitialValue);
-
-    /// <summary>
-    /// Sets the user select to revert.
-    /// </summary>
-    public UserSelectBuilder Revert => Chain(GlobalKeyword.RevertValue);
-
-    /// <summary>
-    /// Sets the user select to revert-layer.
-    /// </summary>
-    public UserSelectBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
-
-    /// <summary>
-    /// Sets the user select to unset.
-    /// </summary>
-    public UserSelectBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
     /// <summary>
     /// Applies the user select on phone breakpoint.
@@ -104,9 +78,7 @@ public sealed class UserSelectBuilder : ICssBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private UserSelectBuilder Chain(string value)
     {
-        var bp = _pendingBreakpoint;
-        _pendingBreakpoint = null;
-        _rules.Add(new UserSelectRule(value, bp));
+        _rules.Add(new UserSelectRule(value, ConsumePendingBreakpoint()));
         return this;
     }
 
@@ -115,6 +87,14 @@ public sealed class UserSelectBuilder : ICssBuilder
     {
         _pendingBreakpoint = bp;
         return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BreakpointType? ConsumePendingBreakpoint()
+    {
+        var breakpoint = _pendingBreakpoint;
+        _pendingBreakpoint = null;
+        return breakpoint;
     }
 
     /// <summary>
@@ -158,25 +138,7 @@ public sealed class UserSelectBuilder : ICssBuilder
     /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
-        if (_rules.Count == 0) return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var rule = _rules[i];
-            var val = rule.Value;
-            if (string.IsNullOrEmpty(val))
-                continue;
-
-            if (!first) sb.Append("; ");
-            else first = false;
-
-            sb.Append(_stylePrefix);
-            sb.Append(val);
-        }
-        return sb.ToString();
+        return string.Empty;
     }
-
-
+    public override string ToString() => ToClass();
 }

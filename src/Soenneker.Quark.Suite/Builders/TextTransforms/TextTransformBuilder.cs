@@ -19,8 +19,6 @@ public sealed class TextTransformBuilder : ICssBuilder
     private const string _classLower = "lowercase";
     private const string _classUpper = "uppercase";
     private const string _classCap = "capitalize";
-    private const string _stylePrefix = "text-transform: ";
-
     internal TextTransformBuilder(string value, BreakpointType? breakpoint = null)
     {
         _rules.Add(new TextTransformRule(value, breakpoint));
@@ -44,27 +42,6 @@ public sealed class TextTransformBuilder : ICssBuilder
     /// Sets the text transform to capitalize.
     /// </summary>
     public TextTransformBuilder Capitalize => Chain(TextTransformKeyword.CapitalizeValue);
-    /// <summary>
-    /// Sets the text transform to inherit.
-    /// </summary>
-    public TextTransformBuilder Inherit => Chain(GlobalKeyword.InheritValue);
-    /// <summary>
-    /// Sets the text transform to initial.
-    /// </summary>
-    public TextTransformBuilder Initial => Chain(GlobalKeyword.InitialValue);
-    /// <summary>
-    /// Sets the text transform to revert.
-    /// </summary>
-    public TextTransformBuilder Revert => Chain(GlobalKeyword.RevertValue);
-    /// <summary>
-    /// Sets the text transform to revert-layer.
-    /// </summary>
-    public TextTransformBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
-    /// <summary>
-    /// Sets the text transform to unset.
-    /// </summary>
-    public TextTransformBuilder Unset => Chain(GlobalKeyword.UnsetValue);
-
     /// <summary>
     /// Applies the text transform on phone breakpoint.
     /// </summary>
@@ -153,27 +130,8 @@ public sealed class TextTransformBuilder : ICssBuilder
     /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
-        if (_rules.Count == 0) return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var rule = _rules[i];
-            var val = rule.Value;
-            if (string.IsNullOrEmpty(val))
-                continue;
-
-            if (!first) sb.Append("; ");
-            else first = false;
-
-            sb.Append(_stylePrefix);
-            sb.Append(val);
-        }
-        return sb.ToString();
+        return string.Empty;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string GetBp(BreakpointType? breakpoint) => breakpoint?.Value ?? string.Empty;
-
+    public override string ToString() => ToClass();
 }

@@ -11,23 +11,11 @@ public static class TextWrap
     public static TextWrapBuilder Wrap => new(TextWrapKeyword.WrapValue);
 
     /// <summary>
-    /// Gets a text wrap builder with inherit keyword.
+    /// Gets a text wrap builder with balance value.
     /// </summary>
-    public static TextWrapBuilder Inherit => new(GlobalKeyword.InheritValue);
+    public static TextWrapBuilder Balance => new("balance");
     /// <summary>
-    /// Gets a text wrap builder with initial keyword.
+    /// Gets a text wrap builder with pretty value.
     /// </summary>
-    public static TextWrapBuilder Initial => new(GlobalKeyword.InitialValue);
-    /// <summary>
-    /// Gets a text wrap builder with revert keyword.
-    /// </summary>
-    public static TextWrapBuilder Revert => new(GlobalKeyword.RevertValue);
-    /// <summary>
-    /// Gets a text wrap builder with revert-layer keyword.
-    /// </summary>
-    public static TextWrapBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
-    /// <summary>
-    /// Gets a text wrap builder with unset keyword.
-    /// </summary>
-    public static TextWrapBuilder Unset => new(GlobalKeyword.UnsetValue);
+    public static TextWrapBuilder Pretty => new("pretty");
 }

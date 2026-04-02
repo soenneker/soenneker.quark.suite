@@ -11,37 +11,75 @@ namespace Soenneker.Quark;
 [TailwindPrefix("caret-", Responsive = true)]
 public sealed class CaretColorBuilder : ICssBuilder
 {
-    private readonly List<CaretColorRule> _rules = new(4);
+    private static readonly HashSet<string> SemanticTokens = new(System.StringComparer.Ordinal)
+    {
+        "primary",
+        "current",
+        "transparent"
+    };
+
+    private const string Prefix = "caret-";
+
+    private readonly List<ColorRule> _rules = new(4);
     private BreakpointType? _pendingBreakpoint;
 
-    internal CaretColorBuilder(string value, BreakpointType? breakpoint = null)
+    internal CaretColorBuilder(string value, BreakpointType? breakpoint = null, bool isUtility = false)
     {
-        _rules.Add(new CaretColorRule(value, breakpoint));
+        _rules.Add(new ColorRule(value, breakpoint, isUtility));
     }
 
-    internal CaretColorBuilder(List<CaretColorRule> rules)
+    internal CaretColorBuilder(List<ColorRule> rules)
     {
         if (rules is { Count: > 0 })
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// Fluent step for `Primary` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public CaretColorBuilder Primary => Chain("primary");
+    /// <summary>
+    /// Fully transparent color (`transparent`).
+    /// </summary>
     public CaretColorBuilder Transparent => Chain("transparent");
+    /// <summary>
+    /// `currentColor` — uses the element’s computed `color` (common for icons and rings).
+    /// </summary>
     public CaretColorBuilder Current => Chain("current");
-    public CaretColorBuilder Inherit => Chain(GlobalKeyword.InheritValue);
-    public CaretColorBuilder Initial => Chain(GlobalKeyword.InitialValue);
-    public CaretColorBuilder Unset => Chain(GlobalKeyword.UnsetValue);
+    /// <summary>
+    /// Scopes the next utility to the default (unprefixed) breakpoint.
+    /// </summary>
+    public CaretColorBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
 
+    /// <summary>
+    /// Applies the preceding utility from the `sm` breakpoint and up (`sm:` prefix). Tailwind default: `min-width: 40rem` (640px).
+    /// </summary>
     public CaretColorBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    /// <summary>
+    /// Applies from the `md` breakpoint and up (`md:`). Tailwind default: `min-width: 48rem` (768px).
+    /// </summary>
     public CaretColorBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    /// <summary>
+    /// Applies from the `lg` breakpoint and up (`lg:`). Tailwind default: `min-width: 64rem` (1024px).
+    /// </summary>
     public CaretColorBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    /// <summary>
+    /// Applies from the `xl` breakpoint and up (`xl:`). Tailwind default: `min-width: 80rem` (1280px).
+    /// </summary>
     public CaretColorBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    /// <summary>
+    /// Applies from the `2xl` breakpoint and up (`2xl:`). Tailwind default: `min-width: 96rem` (1536px).
+    /// </summary>
     public CaretColorBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
+    public CaretColorBuilder Token(string token) => Chain(token);
+
+    public CaretColorBuilder Utility(string utility) => Chain(utility, isUtility: true);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private CaretColorBuilder Chain(string value)
+    private CaretColorBuilder Chain(string value, bool isUtility = false)
     {
-        _rules.Add(new CaretColorRule(value, ConsumePendingBreakpoint()));
+        _rules.Add(new ColorRule(value, ConsumePendingBreakpoint(), isUtility));
         return this;
     }
 
@@ -67,7 +105,7 @@ public sealed class CaretColorBuilder : ICssBuilder
         var first = true;
         foreach (var rule in _rules)
         {
-            var cls = GetClass(rule.Value);
+            var cls = ColorUtility.GetClass(Prefix, rule, SemanticTokens);
             if (cls.Length == 0) continue;
             var b = BreakpointUtil.GetBreakpointToken(rule.Breakpoint);
             if (b.Length != 0) cls = BreakpointUtil.ApplyTailwindBreakpoint(cls, b);
@@ -78,42 +116,7 @@ public sealed class CaretColorBuilder : ICssBuilder
         return sb.ToString();
     }
 
-    public string ToStyle()
-    {
-        if (_rules.Count == 0) return string.Empty;
-        using var sb = new PooledStringBuilder();
-        var first = true;
-        foreach (var rule in _rules)
-        {
-            var styleVal = rule.Value switch
-            {
-                "primary" => "var(--primary)",
-                "transparent" => "transparent",
-                "current" => "currentColor",
-                "inherit" => "inherit",
-                "initial" => "initial",
-                "unset" => "unset",
-                _ => rule.Value.StartsWith("--") || rule.Value.StartsWith("#") || rule.Value.StartsWith("rgb") ? rule.Value : null
-            };
-            if (styleVal is null) continue;
-            if (!first) sb.Append("; ");
-            else first = false;
-            sb.Append("caret-color: ");
-            sb.Append(styleVal);
-        }
-        return sb.ToString();
-    }
+    public string ToStyle() => string.Empty;
 
     public override string ToString() => ToClass();
-
-    private static string GetClass(string v) => v switch
-    {
-        "primary" => "caret-primary",
-        "transparent" => "caret-transparent",
-        "current" => "caret-current",
-        "inherit" => "caret-inherit",
-        "initial" => "caret-initial",
-        "unset" => "caret-unset",
-        _ => v.StartsWith("caret-") ? v : string.Empty
-    };
 }

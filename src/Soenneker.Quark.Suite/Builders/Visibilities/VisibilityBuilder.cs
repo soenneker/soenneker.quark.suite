@@ -38,27 +38,6 @@ public sealed class VisibilityBuilder : ICssBuilder
 	/// </summary>
     public VisibilityBuilder Invisible => Chain("invisible");
 	/// <summary>
-	/// Sets the visibility to inherit.
-	/// </summary>
-    public VisibilityBuilder Inherit => Chain(GlobalKeyword.InheritValue);
-	/// <summary>
-	/// Sets the visibility to initial.
-	/// </summary>
-    public VisibilityBuilder Initial => Chain(GlobalKeyword.InitialValue);
-	/// <summary>
-	/// Sets the visibility to revert.
-	/// </summary>
-    public VisibilityBuilder Revert => Chain(GlobalKeyword.RevertValue);
-	/// <summary>
-	/// Sets the visibility to revert-layer.
-	/// </summary>
-    public VisibilityBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
-	/// <summary>
-	/// Sets the visibility to unset.
-	/// </summary>
-    public VisibilityBuilder Unset => Chain(GlobalKeyword.UnsetValue);
-
-	/// <summary>
 	/// Applies the visibility on phone breakpoint.
 	/// </summary>
     public VisibilityBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
@@ -145,35 +124,7 @@ public sealed class VisibilityBuilder : ICssBuilder
 	/// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
-        if (_rules.Count == 0) return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var rule = _rules[i];
-            var css = rule.Value switch
-            {
-                "invisible" => "visibility: hidden",
-                VisibilityKeyword.VisibleValue => "visibility: visible",
-                GlobalKeyword.InheritValue => "visibility: inherit",
-                GlobalKeyword.InitialValue => "visibility: initial",
-                GlobalKeyword.UnsetValue => "visibility: unset",
-                GlobalKeyword.RevertValue => "visibility: revert",
-                GlobalKeyword.RevertLayerValue => "visibility: revert-layer",
-                _ => null
-            };
-            if (css is null) continue;
-
-            if (!first) sb.Append("; ");
-            else first = false;
-
-            sb.Append(css);
-        }
-        return sb.ToString();
+        return string.Empty;
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string GetBp(BreakpointType? breakpoint) => breakpoint?.Value ?? string.Empty;
-
+    public override string ToString() => ToClass();
 }

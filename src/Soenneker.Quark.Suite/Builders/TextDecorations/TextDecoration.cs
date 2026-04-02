@@ -17,25 +17,8 @@ public static class TextDecoration
     /// Gets a text decoration builder with line-through value (text has a line through it).
     /// </summary>
     public static TextDecorationBuilder LineThrough => new("line-through");
-
     /// <summary>
-    /// Gets a text decoration builder with inherit keyword.
+    /// Gets a text decoration builder with overline value.
     /// </summary>
-    public static TextDecorationBuilder Inherit => new(GlobalKeyword.InheritValue);
-    /// <summary>
-    /// Gets a text decoration builder with initial keyword.
-    /// </summary>
-    public static TextDecorationBuilder Initial => new(GlobalKeyword.InitialValue);
-    /// <summary>
-    /// Gets a text decoration builder with revert keyword.
-    /// </summary>
-    public static TextDecorationBuilder Revert => new(GlobalKeyword.RevertValue);
-    /// <summary>
-    /// Gets a text decoration builder with revert-layer keyword.
-    /// </summary>
-    public static TextDecorationBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
-    /// <summary>
-    /// Gets a text decoration builder with unset keyword.
-    /// </summary>
-    public static TextDecorationBuilder Unset => new(GlobalKeyword.UnsetValue);
+    public static TextDecorationBuilder Overline => new("overline");
 }

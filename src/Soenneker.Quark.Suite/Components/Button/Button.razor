@@ -185,8 +185,7 @@ else
         var isLink = RenderAsLink;
         var isDisabled = Disabled || Loading || attributes.ContainsKey("disabled");
 
-        if (!attributes.ContainsKey("data-slot"))
-            attributes["data-slot"] = "button";
+        attributes.TryAdd("data-slot", "button");
         attributes["data-variant"] = Variant.ToString().ToLowerInvariant();
 
         var effectiveSize = ButtonGroup?.Size ?? Size;
@@ -198,8 +197,8 @@ else
             attributes.Remove("disabled");
         }
 
-        if (isLink && isDisabled && !attributes.ContainsKey("tabindex"))
-            attributes["tabindex"] = -1;
+        if (isLink && isDisabled)
+            attributes.TryAdd("tabindex", -1);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

@@ -18,8 +18,6 @@ public sealed class FontStyleBuilder : ICssBuilder
     // Tailwind font-style utilities (for Quark Suite / shadcn)
     private const string _classItalic = "italic";
     private const string _classNormal = "not-italic";
-    private const string _stylePrefix = "font-style: ";
-
     internal FontStyleBuilder(string value, BreakpointType? breakpoint = null)
     {
         _rules.Add(new FontStyleRule(value, breakpoint));
@@ -39,27 +37,6 @@ public sealed class FontStyleBuilder : ICssBuilder
     /// Sets the font style to normal.
     /// </summary>
     public FontStyleBuilder Normal => Chain(FontStyleKeyword.NormalValue);
-    /// <summary>
-    /// Sets the font style to inherit.
-    /// </summary>
-    public FontStyleBuilder Inherit => Chain(GlobalKeyword.InheritValue);
-    /// <summary>
-    /// Sets the font style to initial.
-    /// </summary>
-    public FontStyleBuilder Initial => Chain(GlobalKeyword.InitialValue);
-    /// <summary>
-    /// Sets the font style to revert.
-    /// </summary>
-    public FontStyleBuilder Revert => Chain(GlobalKeyword.RevertValue);
-    /// <summary>
-    /// Sets the font style to revert-layer.
-    /// </summary>
-    public FontStyleBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
-    /// <summary>
-    /// Sets the font style to unset.
-    /// </summary>
-    public FontStyleBuilder Unset => Chain(GlobalKeyword.UnsetValue);
-
     /// <summary>
     /// Applies the font style on phone breakpoint.
     /// </summary>
@@ -147,25 +124,7 @@ public sealed class FontStyleBuilder : ICssBuilder
     /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
-        if (_rules.Count == 0) return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var rule = _rules[i];
-            var val = rule.Value;
-            if (string.IsNullOrEmpty(val))
-                continue;
-
-            if (!first) sb.Append("; ");
-            else first = false;
-
-            sb.Append(_stylePrefix);
-            sb.Append(val);
-        }
-        return sb.ToString();
+        return string.Empty;
     }
-
-
+    public override string ToString() => ToClass();
 }

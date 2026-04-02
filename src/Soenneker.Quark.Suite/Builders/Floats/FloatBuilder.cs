@@ -20,8 +20,6 @@ public sealed class FloatBuilder : ICssBuilder
     private const string _classEnd = "float-end";
     private const string _classNone = "float-none";
 
-    private const string _floatPrefix = "float: ";
-
     internal FloatBuilder(string value, BreakpointType? breakpoint = null)
     {
         _rules.Add(new FloatRule(value, breakpoint));
@@ -53,27 +51,6 @@ public sealed class FloatBuilder : ICssBuilder
 	/// Sets the float to end (inline-end).
 	/// </summary>
     public FloatBuilder End => ChainWithValue(FloatKeyword.InlineEndValue);
-	/// <summary>
-	/// Sets the float to inherit.
-	/// </summary>
-    public FloatBuilder Inherit => ChainWithValue(GlobalKeyword.InheritValue);
-	/// <summary>
-	/// Sets the float to initial.
-	/// </summary>
-    public FloatBuilder Initial => ChainWithValue(GlobalKeyword.InitialValue);
-	/// <summary>
-	/// Sets the float to revert.
-	/// </summary>
-    public FloatBuilder Revert => ChainWithValue(GlobalKeyword.RevertValue);
-	/// <summary>
-	/// Sets the float to revert-layer.
-	/// </summary>
-    public FloatBuilder RevertLayer => ChainWithValue(GlobalKeyword.RevertLayerValue);
-	/// <summary>
-	/// Sets the float to unset.
-	/// </summary>
-    public FloatBuilder Unset => ChainWithValue(GlobalKeyword.UnsetValue);
-
 	/// <summary>
 	/// Applies the float on phone breakpoint.
 	/// </summary>
@@ -169,43 +146,7 @@ public sealed class FloatBuilder : ICssBuilder
     /// <returns>The CSS style string.</returns>
     public string ToStyle()
     {
-        if (_rules.Count == 0)
-            return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var rule = _rules[i];
-
-            var css = rule.Value switch
-            {
-                FloatKeyword.LeftValue => "left",
-                FloatKeyword.RightValue => "right",
-                FloatKeyword.InlineStartValue => "inline-start",
-                FloatKeyword.InlineEndValue => "inline-end",
-                FloatKeyword.NoneValue => "none",
-                GlobalKeyword.InheritValue => "inherit",
-                GlobalKeyword.InitialValue => "initial",
-                GlobalKeyword.UnsetValue => "unset",
-                GlobalKeyword.RevertValue => "revert",
-                GlobalKeyword.RevertLayerValue => "revert-layer",
-                _ => null
-            };
-
-            if (css is null)
-                continue;
-
-            if (!first) sb.Append("; ");
-            else first = false;
-
-            sb.Append(_floatPrefix);
-            sb.Append(css);
-        }
-
-        return sb.ToString();
+        return string.Empty;
     }
-
-
+    public override string ToString() => ToClass();
 }

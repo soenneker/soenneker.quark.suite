@@ -41,8 +41,14 @@ public sealed class ColorBuilderShadcnTests
     }
 
     [Fact]
-    public void BackgroundColor_from_css_falls_back_to_style()
+    public void BackgroundColor_token_maps_to_bg_blue_500()
     {
-        Assert.Equal("#123456", BackgroundColor.FromCss("#123456").ToStyle());
+        Assert.Equal("bg-blue-500", BackgroundColor.Token("blue-500").ToClass());
+    }
+
+    [Fact]
+    public void BackgroundColor_utility_passthrough_maps_directly()
+    {
+        Assert.Equal("bg-primary/20", BackgroundColor.Utility("bg-primary/20").ToClass());
     }
 }

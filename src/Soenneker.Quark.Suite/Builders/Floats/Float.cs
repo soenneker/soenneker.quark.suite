@@ -29,25 +29,4 @@ public static class Float
     /// Gets a float builder with end value (float inline-end).
     /// </summary>
     public static FloatBuilder End => new(FloatKeyword.InlineEndValue);
-
-    /// <summary>
-    /// Gets a float builder with inherit keyword.
-    /// </summary>
-    public static FloatBuilder Inherit => new(GlobalKeyword.InheritValue);
-    /// <summary>
-    /// Gets a float builder with initial keyword.
-    /// </summary>
-    public static FloatBuilder Initial => new(GlobalKeyword.InitialValue);
-    /// <summary>
-    /// Gets a float builder with revert keyword.
-    /// </summary>
-    public static FloatBuilder Revert => new(GlobalKeyword.RevertValue);
-    /// <summary>
-    /// Gets a float builder with revert-layer keyword.
-    /// </summary>
-    public static FloatBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
-    /// <summary>
-    /// Gets a float builder with unset keyword.
-    /// </summary>
-    public static FloatBuilder Unset => new(GlobalKeyword.UnsetValue);
 }

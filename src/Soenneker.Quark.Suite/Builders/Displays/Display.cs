@@ -59,29 +59,4 @@ public static class Display
     /// Display table-row.
     /// </summary>
     public static DisplayBuilder TableRow => new(DisplayKeyword.TableRowValue);
-
-    /// <summary>
-    /// Inherit from parent.
-    /// </summary>
-    public static DisplayBuilder Inherit => new(GlobalKeyword.InheritValue);
-
-    /// <summary>
-    /// Initial keyword.
-    /// </summary>
-    public static DisplayBuilder Initial => new(GlobalKeyword.InitialValue);
-
-    /// <summary>
-    /// Revert keyword.
-    /// </summary>
-    public static DisplayBuilder Revert => new(GlobalKeyword.RevertValue);
-
-    /// <summary>
-    /// Revert-layer keyword.
-    /// </summary>
-    public static DisplayBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
-
-    /// <summary>
-    /// Unset keyword.
-    /// </summary>
-    public static DisplayBuilder Unset => new(GlobalKeyword.UnsetValue);
 }

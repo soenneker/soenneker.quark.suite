@@ -26,11 +26,6 @@ public sealed class OverflowBuilder : ICssBuilder
     private const string _classVisibleY = "overflow-y-visible";
     private const string _classScrollY = "overflow-y-scroll";
 
-    // ----- CSS prefixes -----
-    private const string _overflowPrefix = "overflow: ";
-    private const string _overflowXPrefix = "overflow-x: ";
-    private const string _overflowYPrefix = "overflow-y: ";
-
     internal OverflowBuilder(string overflow)
     {
         _rules.Add(new OverflowRule(overflow, null));
@@ -66,27 +61,6 @@ public sealed class OverflowBuilder : ICssBuilder
 	/// Sets the overflow to scroll.
 	/// </summary>
     public OverflowBuilder Scroll => Chain(OverflowKeyword.ScrollValue);
-
-	/// <summary>
-	/// Sets the overflow to inherit.
-	/// </summary>
-    public OverflowBuilder Inherit => Chain(GlobalKeyword.InheritValue);
-	/// <summary>
-	/// Sets the overflow to initial.
-	/// </summary>
-    public OverflowBuilder Initial => Chain(GlobalKeyword.InitialValue);
-	/// <summary>
-	/// Sets the overflow to revert.
-	/// </summary>
-    public OverflowBuilder Revert => Chain(GlobalKeyword.RevertValue);
-	/// <summary>
-	/// Sets the overflow to revert-layer.
-	/// </summary>
-    public OverflowBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
-	/// <summary>
-	/// Sets the overflow to unset.
-	/// </summary>
-    public OverflowBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
 	/// <summary>
 	/// Applies overflow on the X axis.
@@ -152,26 +126,7 @@ public sealed class OverflowBuilder : ICssBuilder
     /// <summary>Gets the CSS style string for the current configuration.</summary>
     public string ToStyle()
     {
-        if (_rules.Count == 0)
-            return string.Empty;
-
-        using var sb = new PooledStringBuilder();
-        var first = true;
-
-        for (var i = 0; i < _rules.Count; i++)
-        {
-            var value = _rules[i].Overflow;
-            if (string.IsNullOrEmpty(value))
-                continue;
-
-            if (!first) sb.Append("; ");
-            else first = false;
-
-            sb.Append(GetOverflowPrefix());
-            sb.Append(value);
-        }
-
-        return sb.ToString();
+        return string.Empty;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -197,17 +152,6 @@ public sealed class OverflowBuilder : ICssBuilder
         }
 
         return baseClass;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private string GetOverflowPrefix()
-    {
-        return _axis switch
-        {
-            "-x" => _overflowXPrefix,
-            "-y" => _overflowYPrefix,
-            _ => _overflowPrefix
-        };
     }
 
     /// <summary>Gets the string representation of the builder (same as ToClass).</summary>

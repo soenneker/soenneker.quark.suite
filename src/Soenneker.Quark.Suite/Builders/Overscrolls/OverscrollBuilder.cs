@@ -26,16 +26,43 @@ public sealed class OverscrollBuilder : ICssBuilder
             _rules.AddRange(rules);
     }
 
+    /// <summary>
+    /// `auto` — browser-default sizing/behavior for the underlying utility.
+    /// </summary>
     public OverscrollBuilder Auto => Chain("auto");
+    /// <summary>
+    /// Fluent step for `Contain` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public OverscrollBuilder Contain => Chain("contain");
+    /// <summary>
+    /// Disables the effect (`none` token) or sets size to zero, depending on the utility.
+    /// </summary>
     public OverscrollBuilder None => Chain("none");
 
+    /// <summary>
+    /// Fluent step for `XAuto` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public OverscrollBuilder XAuto => Chain("x-auto");
+    /// <summary>
+    /// Fluent step for `XContain` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public OverscrollBuilder XContain => Chain("x-contain");
+    /// <summary>
+    /// Fluent step for `XNone` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public OverscrollBuilder XNone => Chain("x-none");
 
+    /// <summary>
+    /// Fluent step for `YAuto` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public OverscrollBuilder YAuto => Chain("y-auto");
+    /// <summary>
+    /// Fluent step for `YContain` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public OverscrollBuilder YContain => Chain("y-contain");
+    /// <summary>
+    /// Fluent step for `YNone` in this Tailwind/shadcn-aligned builder. See the corresponding `-*` utility in the Tailwind docs for exact CSS.
+    /// </summary>
     public OverscrollBuilder YNone => Chain("y-none");
 
     /// <summary>
@@ -43,11 +70,29 @@ public sealed class OverscrollBuilder : ICssBuilder
     /// </summary>
     public OverscrollBuilder Token(string token) => Chain(token);
 
+    /// <summary>
+    /// Scopes the next utility to the default (unprefixed) breakpoint. In Tailwind’s mobile‑first model, unprefixed utilities apply from 0px unless a larger breakpoint overrides them.
+    /// </summary>
     public OverscrollBuilder OnBase => SetPendingBreakpoint(BreakpointType.Base);
+    /// <summary>
+    /// Applies the preceding utility from the `sm` breakpoint and up (`sm:` prefix). Tailwind default: `min-width: 40rem` (640px).
+    /// </summary>
     public OverscrollBuilder OnSm => SetPendingBreakpoint(BreakpointType.Sm);
+    /// <summary>
+    /// Applies from the `md` breakpoint and up (`md:`). Tailwind default: `min-width: 48rem` (768px).
+    /// </summary>
     public OverscrollBuilder OnMd => SetPendingBreakpoint(BreakpointType.Md);
+    /// <summary>
+    /// Applies from the `lg` breakpoint and up (`lg:`). Tailwind default: `min-width: 64rem` (1024px).
+    /// </summary>
     public OverscrollBuilder OnLg => SetPendingBreakpoint(BreakpointType.Lg);
+    /// <summary>
+    /// Applies from the `xl` breakpoint and up (`xl:`). Tailwind default: `min-width: 80rem` (1280px).
+    /// </summary>
     public OverscrollBuilder OnXl => SetPendingBreakpoint(BreakpointType.Xl);
+    /// <summary>
+    /// Applies from the `2xl` breakpoint and up (`2xl:`). Tailwind default: `min-width: 96rem` (1536px).
+    /// </summary>
     public OverscrollBuilder On2xl => SetPendingBreakpoint(BreakpointType.Xxl);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
