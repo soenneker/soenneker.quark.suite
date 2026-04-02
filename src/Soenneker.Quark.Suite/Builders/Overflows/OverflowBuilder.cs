@@ -72,23 +72,23 @@ public sealed class OverflowBuilder : ICssBuilder
 	/// <summary>
 	/// Sets the overflow to inherit.
 	/// </summary>
-    public OverflowBuilder Inherit => Chain(GlobalKeyword.Inherit);
+    public OverflowBuilder Inherit => Chain(GlobalKeyword.InheritValue);
 	/// <summary>
 	/// Sets the overflow to initial.
 	/// </summary>
-    public OverflowBuilder Initial => Chain(GlobalKeyword.Initial);
+    public OverflowBuilder Initial => Chain(GlobalKeyword.InitialValue);
 	/// <summary>
 	/// Sets the overflow to revert.
 	/// </summary>
-    public OverflowBuilder Revert => Chain(GlobalKeyword.Revert);
+    public OverflowBuilder Revert => Chain(GlobalKeyword.RevertValue);
 	/// <summary>
 	/// Sets the overflow to revert-layer.
 	/// </summary>
-    public OverflowBuilder RevertLayer => Chain(GlobalKeyword.RevertLayer);
+    public OverflowBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
 	/// <summary>
 	/// Sets the overflow to unset.
 	/// </summary>
-    public OverflowBuilder Unset => Chain(GlobalKeyword.Unset);
+    public OverflowBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
 	/// <summary>
 	/// Applies overflow on the X axis.

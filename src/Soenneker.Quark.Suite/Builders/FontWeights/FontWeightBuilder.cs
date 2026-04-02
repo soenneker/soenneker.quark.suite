@@ -67,23 +67,23 @@ public sealed class FontWeightBuilder : ICssBuilder
     /// <summary>
     /// Sets the font weight to inherit.
     /// </summary>
-    public FontWeightBuilder Inherit => Chain(GlobalKeyword.Inherit);
+    public FontWeightBuilder Inherit => Chain(GlobalKeyword.InheritValue);
     /// <summary>
     /// Sets the font weight to initial.
     /// </summary>
-    public FontWeightBuilder Initial => Chain(GlobalKeyword.Initial);
+    public FontWeightBuilder Initial => Chain(GlobalKeyword.InitialValue);
     /// <summary>
     /// Sets the font weight to revert.
     /// </summary>
-    public FontWeightBuilder Revert => Chain(GlobalKeyword.Revert);
+    public FontWeightBuilder Revert => Chain(GlobalKeyword.RevertValue);
     /// <summary>
     /// Sets the font weight to revert-layer.
     /// </summary>
-    public FontWeightBuilder RevertLayer => Chain(GlobalKeyword.RevertLayer);
+    public FontWeightBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
     /// <summary>
     /// Sets the font weight to unset.
     /// </summary>
-    public FontWeightBuilder Unset => Chain(GlobalKeyword.Unset);
+    public FontWeightBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
     /// <summary>
     /// Applies the font weight on phone breakpoint.
@@ -192,11 +192,11 @@ public sealed class FontWeightBuilder : ICssBuilder
                 FontWeightKeyword.SemiboldValue => "600",
                 FontWeightKeyword.BoldValue => "700",
                 "extrabold" => "800",
-                GlobalKeyword.Inherit => "inherit",
-                GlobalKeyword.Initial => "initial",
-                GlobalKeyword.Unset => "unset",
-                GlobalKeyword.Revert => "revert",
-                GlobalKeyword.RevertLayer => "revert-layer",
+                GlobalKeyword.InheritValue => "inherit",
+                GlobalKeyword.InitialValue => "initial",
+                GlobalKeyword.UnsetValue => "unset",
+                GlobalKeyword.RevertValue => "revert",
+                GlobalKeyword.RevertLayerValue => "revert-layer",
                 _ => null
             };
             if (css is null)

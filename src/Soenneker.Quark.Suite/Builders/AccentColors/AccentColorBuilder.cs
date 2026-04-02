@@ -29,9 +29,9 @@ public sealed class AccentColorBuilder : ICssBuilder
     public AccentColorBuilder Primary => Chain("primary");
     public AccentColorBuilder Transparent => Chain("transparent");
     public AccentColorBuilder Current => Chain("current");
-    public AccentColorBuilder Inherit => Chain(GlobalKeyword.Inherit);
-    public AccentColorBuilder Initial => Chain(GlobalKeyword.Initial);
-    public AccentColorBuilder Unset => Chain(GlobalKeyword.Unset);
+    public AccentColorBuilder Inherit => Chain(GlobalKeyword.InheritValue);
+    public AccentColorBuilder Initial => Chain(GlobalKeyword.InitialValue);
+    public AccentColorBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
     public AccentColorBuilder OnSm => ChainBp(BreakpointType.Sm);
     public AccentColorBuilder OnMd => ChainBp(BreakpointType.Md);

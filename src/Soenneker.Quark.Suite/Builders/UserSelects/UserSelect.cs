@@ -24,21 +24,21 @@ public static class UserSelect
     /// <summary>
     /// Gets a user select builder with inherit keyword.
     /// </summary>
-    public static UserSelectBuilder Inherit => new(GlobalKeyword.Inherit);
+    public static UserSelectBuilder Inherit => new(GlobalKeyword.InheritValue);
     /// <summary>
     /// Gets a user select builder with initial keyword.
     /// </summary>
-    public static UserSelectBuilder Initial => new(GlobalKeyword.Initial);
+    public static UserSelectBuilder Initial => new(GlobalKeyword.InitialValue);
     /// <summary>
     /// Gets a user select builder with revert keyword.
     /// </summary>
-    public static UserSelectBuilder Revert => new(GlobalKeyword.Revert);
+    public static UserSelectBuilder Revert => new(GlobalKeyword.RevertValue);
     /// <summary>
     /// Gets a user select builder with revert-layer keyword.
     /// </summary>
-    public static UserSelectBuilder RevertLayer => new(GlobalKeyword.RevertLayer);
+    public static UserSelectBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
     /// <summary>
     /// Gets a user select builder with unset keyword.
     /// </summary>
-    public static UserSelectBuilder Unset => new(GlobalKeyword.Unset);
+    public static UserSelectBuilder Unset => new(GlobalKeyword.UnsetValue);
 }

@@ -39,21 +39,21 @@ public static class FontWeight
     /// <summary>
     /// Gets a font weight builder with inherit keyword.
     /// </summary>
-    public static FontWeightBuilder Inherit => new(GlobalKeyword.Inherit);
+    public static FontWeightBuilder Inherit => new(GlobalKeyword.InheritValue);
     /// <summary>
     /// Gets a font weight builder with initial keyword.
     /// </summary>
-    public static FontWeightBuilder Initial => new(GlobalKeyword.Initial);
+    public static FontWeightBuilder Initial => new(GlobalKeyword.InitialValue);
     /// <summary>
     /// Gets a font weight builder with revert keyword.
     /// </summary>
-    public static FontWeightBuilder Revert => new(GlobalKeyword.Revert);
+    public static FontWeightBuilder Revert => new(GlobalKeyword.RevertValue);
     /// <summary>
     /// Gets a font weight builder with revert-layer keyword.
     /// </summary>
-    public static FontWeightBuilder RevertLayer => new(GlobalKeyword.RevertLayer);
+    public static FontWeightBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
     /// <summary>
     /// Gets a font weight builder with unset keyword.
     /// </summary>
-    public static FontWeightBuilder Unset => new(GlobalKeyword.Unset);
+    public static FontWeightBuilder Unset => new(GlobalKeyword.UnsetValue);
 }

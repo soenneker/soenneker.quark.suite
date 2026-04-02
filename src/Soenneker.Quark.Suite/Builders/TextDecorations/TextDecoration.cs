@@ -24,21 +24,21 @@ public static class TextDecoration
     /// <summary>
     /// Gets a text decoration builder with inherit keyword.
     /// </summary>
-    public static TextDecorationBuilder Inherit => new(GlobalKeyword.Inherit);
+    public static TextDecorationBuilder Inherit => new(GlobalKeyword.InheritValue);
     /// <summary>
     /// Gets a text decoration builder with initial keyword.
     /// </summary>
-    public static TextDecorationBuilder Initial => new(GlobalKeyword.Initial);
+    public static TextDecorationBuilder Initial => new(GlobalKeyword.InitialValue);
     /// <summary>
     /// Gets a text decoration builder with revert keyword.
     /// </summary>
-    public static TextDecorationBuilder Revert => new(GlobalKeyword.Revert);
+    public static TextDecorationBuilder Revert => new(GlobalKeyword.RevertValue);
     /// <summary>
     /// Gets a text decoration builder with revert-layer keyword.
     /// </summary>
-    public static TextDecorationBuilder RevertLayer => new(GlobalKeyword.RevertLayer);
+    public static TextDecorationBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
     /// <summary>
     /// Gets a text decoration builder with unset keyword.
     /// </summary>
-    public static TextDecorationBuilder Unset => new(GlobalKeyword.Unset);
+    public static TextDecorationBuilder Unset => new(GlobalKeyword.UnsetValue);
 }

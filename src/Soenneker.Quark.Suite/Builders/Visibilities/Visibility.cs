@@ -21,21 +21,21 @@ public static class Visibility
     /// <summary>
     /// Gets a visibility builder with inherit keyword.
     /// </summary>
-    public static VisibilityBuilder Inherit => new(GlobalKeyword.Inherit);
+    public static VisibilityBuilder Inherit => new(GlobalKeyword.InheritValue);
     /// <summary>
     /// Gets a visibility builder with initial keyword.
     /// </summary>
-    public static VisibilityBuilder Initial => new(GlobalKeyword.Initial);
+    public static VisibilityBuilder Initial => new(GlobalKeyword.InitialValue);
     /// <summary>
     /// Gets a visibility builder with revert keyword.
     /// </summary>
-    public static VisibilityBuilder Revert => new(GlobalKeyword.Revert);
+    public static VisibilityBuilder Revert => new(GlobalKeyword.RevertValue);
     /// <summary>
     /// Gets a visibility builder with revert-layer keyword.
     /// </summary>
-    public static VisibilityBuilder RevertLayer => new(GlobalKeyword.RevertLayer);
+    public static VisibilityBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
     /// <summary>
     /// Gets a visibility builder with unset keyword.
     /// </summary>
-    public static VisibilityBuilder Unset => new(GlobalKeyword.Unset);
+    public static VisibilityBuilder Unset => new(GlobalKeyword.UnsetValue);
 }

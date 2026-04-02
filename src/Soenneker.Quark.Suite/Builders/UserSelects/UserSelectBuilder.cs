@@ -50,27 +50,27 @@ public sealed class UserSelectBuilder : ICssBuilder
     /// <summary>
     /// Sets the user select to inherit.
     /// </summary>
-    public UserSelectBuilder Inherit => Chain(GlobalKeyword.Inherit);
+    public UserSelectBuilder Inherit => Chain(GlobalKeyword.InheritValue);
 
     /// <summary>
     /// Sets the user select to initial.
     /// </summary>
-    public UserSelectBuilder Initial => Chain(GlobalKeyword.Initial);
+    public UserSelectBuilder Initial => Chain(GlobalKeyword.InitialValue);
 
     /// <summary>
     /// Sets the user select to revert.
     /// </summary>
-    public UserSelectBuilder Revert => Chain(GlobalKeyword.Revert);
+    public UserSelectBuilder Revert => Chain(GlobalKeyword.RevertValue);
 
     /// <summary>
     /// Sets the user select to revert-layer.
     /// </summary>
-    public UserSelectBuilder RevertLayer => Chain(GlobalKeyword.RevertLayer);
+    public UserSelectBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
 
     /// <summary>
     /// Sets the user select to unset.
     /// </summary>
-    public UserSelectBuilder Unset => Chain(GlobalKeyword.Unset);
+    public UserSelectBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
     /// <summary>
     /// Applies the user select on phone breakpoint.

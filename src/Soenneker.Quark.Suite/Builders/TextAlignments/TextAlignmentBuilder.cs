@@ -29,11 +29,11 @@ public sealed class TextAlignmentBuilder : ICssBuilder
     private const string _styleStart = $"{_textAlignPrefix}{_startValue}";
     private const string _styleCenter = $"{_textAlignPrefix}{TextAlignKeyword.CenterValue}";
     private const string _styleEnd = $"{_textAlignPrefix}{_endValue}";
-    private const string _styleInherit = $"{_textAlignPrefix}{GlobalKeyword.Inherit}";
-    private const string _styleInitial = $"{_textAlignPrefix}{GlobalKeyword.Initial}";
-    private const string _styleUnset = $"{_textAlignPrefix}{GlobalKeyword.Unset}";
-    private const string _styleRevert = $"{_textAlignPrefix}{GlobalKeyword.Revert}";
-    private const string _styleRevertLayer = $"{_textAlignPrefix}{GlobalKeyword.RevertLayer}";
+    private const string _styleInherit = $"{_textAlignPrefix}{GlobalKeyword.InheritValue}";
+    private const string _styleInitial = $"{_textAlignPrefix}{GlobalKeyword.InitialValue}";
+    private const string _styleUnset = $"{_textAlignPrefix}{GlobalKeyword.UnsetValue}";
+    private const string _styleRevert = $"{_textAlignPrefix}{GlobalKeyword.RevertValue}";
+    private const string _styleRevertLayer = $"{_textAlignPrefix}{GlobalKeyword.RevertLayerValue}";
 
     internal TextAlignmentBuilder(string value, BreakpointType? breakpoint = null)
     {
@@ -62,23 +62,23 @@ public sealed class TextAlignmentBuilder : ICssBuilder
 	/// <summary>
 	/// Sets the text alignment to inherit.
 	/// </summary>
-    public TextAlignmentBuilder Inherit => Chain(GlobalKeyword.Inherit);
+    public TextAlignmentBuilder Inherit => Chain(GlobalKeyword.InheritValue);
 	/// <summary>
 	/// Sets the text alignment to initial.
 	/// </summary>
-    public TextAlignmentBuilder Initial => Chain(GlobalKeyword.Initial);
+    public TextAlignmentBuilder Initial => Chain(GlobalKeyword.InitialValue);
 	/// <summary>
 	/// Sets the text alignment to revert.
 	/// </summary>
-    public TextAlignmentBuilder Revert => Chain(GlobalKeyword.Revert);
+    public TextAlignmentBuilder Revert => Chain(GlobalKeyword.RevertValue);
 	/// <summary>
 	/// Sets the text alignment to revert-layer.
 	/// </summary>
-    public TextAlignmentBuilder RevertLayer => Chain(GlobalKeyword.RevertLayer);
+    public TextAlignmentBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
 	/// <summary>
 	/// Sets the text alignment to unset.
 	/// </summary>
-    public TextAlignmentBuilder Unset => Chain(GlobalKeyword.Unset);
+    public TextAlignmentBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TextAlignmentBuilder Chain(string value)
@@ -151,11 +151,11 @@ public sealed class TextAlignmentBuilder : ICssBuilder
                 TextAlignKeyword.CenterValue => _styleCenter,
                 _endValue => _styleEnd,
 
-                GlobalKeyword.Inherit => _styleInherit,
-                GlobalKeyword.Initial => _styleInitial,
-                GlobalKeyword.Unset => _styleUnset,
-                GlobalKeyword.Revert => _styleRevert,
-                GlobalKeyword.RevertLayer => _styleRevertLayer,
+                GlobalKeyword.InheritValue => _styleInherit,
+                GlobalKeyword.InitialValue => _styleInitial,
+                GlobalKeyword.UnsetValue => _styleUnset,
+                GlobalKeyword.RevertValue => _styleRevert,
+                GlobalKeyword.RevertLayerValue => _styleRevertLayer,
 
                 _ => string.Empty
             };

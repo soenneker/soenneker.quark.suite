@@ -30,11 +30,11 @@ public static class BackgroundColor
     public static BackgroundColorBuilder Black => new("black");
     public static BackgroundColorBuilder Transparent => new("transparent");
 
-    public static BackgroundColorBuilder Inherit => new(GlobalKeyword.Inherit);
-    public static BackgroundColorBuilder Initial => new(GlobalKeyword.Initial);
-    public static BackgroundColorBuilder Revert => new(GlobalKeyword.Revert);
-    public static BackgroundColorBuilder RevertLayer => new(GlobalKeyword.RevertLayer);
-    public static BackgroundColorBuilder Unset => new(GlobalKeyword.Unset);
+    public static BackgroundColorBuilder Inherit => new(GlobalKeyword.InheritValue);
+    public static BackgroundColorBuilder Initial => new(GlobalKeyword.InitialValue);
+    public static BackgroundColorBuilder Revert => new(GlobalKeyword.RevertValue);
+    public static BackgroundColorBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
+    public static BackgroundColorBuilder Unset => new(GlobalKeyword.UnsetValue);
 
     public static BackgroundColorBuilder FromCss(string css) => new(css);
 }

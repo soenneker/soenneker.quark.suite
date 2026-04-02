@@ -60,27 +60,27 @@ public sealed class VerticalAlignBuilder : ICssBuilder
     /// <summary>
     /// Sets the vertical alignment to inherit.
     /// </summary>
-    public VerticalAlignBuilder Inherit => Chain(GlobalKeyword.Inherit);
+    public VerticalAlignBuilder Inherit => Chain(GlobalKeyword.InheritValue);
 
     /// <summary>
     /// Sets the vertical alignment to initial.
     /// </summary>
-    public VerticalAlignBuilder Initial => Chain(GlobalKeyword.Initial);
+    public VerticalAlignBuilder Initial => Chain(GlobalKeyword.InitialValue);
 
     /// <summary>
     /// Sets the vertical alignment to revert.
     /// </summary>
-    public VerticalAlignBuilder Revert => Chain(GlobalKeyword.Revert);
+    public VerticalAlignBuilder Revert => Chain(GlobalKeyword.RevertValue);
 
     /// <summary>
     /// Sets the vertical alignment to revert-layer.
     /// </summary>
-    public VerticalAlignBuilder RevertLayer => Chain(GlobalKeyword.RevertLayer);
+    public VerticalAlignBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
 
     /// <summary>
     /// Sets the vertical alignment to unset.
     /// </summary>
-    public VerticalAlignBuilder Unset => Chain(GlobalKeyword.Unset);
+    public VerticalAlignBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
     /// <summary>
     /// Applies the vertical alignment on phone breakpoint.

@@ -43,23 +43,23 @@ public sealed class FontStyleBuilder : ICssBuilder
     /// <summary>
     /// Sets the font style to inherit.
     /// </summary>
-    public FontStyleBuilder Inherit => Chain(GlobalKeyword.Inherit);
+    public FontStyleBuilder Inherit => Chain(GlobalKeyword.InheritValue);
     /// <summary>
     /// Sets the font style to initial.
     /// </summary>
-    public FontStyleBuilder Initial => Chain(GlobalKeyword.Initial);
+    public FontStyleBuilder Initial => Chain(GlobalKeyword.InitialValue);
     /// <summary>
     /// Sets the font style to revert.
     /// </summary>
-    public FontStyleBuilder Revert => Chain(GlobalKeyword.Revert);
+    public FontStyleBuilder Revert => Chain(GlobalKeyword.RevertValue);
     /// <summary>
     /// Sets the font style to revert-layer.
     /// </summary>
-    public FontStyleBuilder RevertLayer => Chain(GlobalKeyword.RevertLayer);
+    public FontStyleBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
     /// <summary>
     /// Sets the font style to unset.
     /// </summary>
-    public FontStyleBuilder Unset => Chain(GlobalKeyword.Unset);
+    public FontStyleBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
     /// <summary>
     /// Applies the font style on phone breakpoint.

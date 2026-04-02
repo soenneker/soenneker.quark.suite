@@ -48,23 +48,23 @@ public sealed class TextWrapBuilder : ICssBuilder
     /// <summary>
     /// Sets the text wrap to inherit.
     /// </summary>
-    public TextWrapBuilder Inherit => Chain(GlobalKeyword.Inherit);
+    public TextWrapBuilder Inherit => Chain(GlobalKeyword.InheritValue);
     /// <summary>
     /// Sets the text wrap to initial.
     /// </summary>
-    public TextWrapBuilder Initial => Chain(GlobalKeyword.Initial);
+    public TextWrapBuilder Initial => Chain(GlobalKeyword.InitialValue);
     /// <summary>
     /// Sets the text wrap to revert.
     /// </summary>
-    public TextWrapBuilder Revert => Chain(GlobalKeyword.Revert);
+    public TextWrapBuilder Revert => Chain(GlobalKeyword.RevertValue);
     /// <summary>
     /// Sets the text wrap to revert-layer.
     /// </summary>
-    public TextWrapBuilder RevertLayer => Chain(GlobalKeyword.RevertLayer);
+    public TextWrapBuilder RevertLayer => Chain(GlobalKeyword.RevertLayerValue);
     /// <summary>
     /// Sets the text wrap to unset.
     /// </summary>
-    public TextWrapBuilder Unset => Chain(GlobalKeyword.Unset);
+    public TextWrapBuilder Unset => Chain(GlobalKeyword.UnsetValue);
 
     /// <summary>
     /// Applies the text wrap on phone breakpoint.
@@ -164,11 +164,11 @@ public sealed class TextWrapBuilder : ICssBuilder
                 TextWrapKeyword.WrapValue => "wrap",
                 "balance" => "balance",
                 "pretty" => "pretty",
-                GlobalKeyword.Inherit => "inherit",
-                GlobalKeyword.Initial => "initial",
-                GlobalKeyword.Unset => "unset",
-                GlobalKeyword.Revert => "revert",
-                GlobalKeyword.RevertLayer => "revert-layer",
+                GlobalKeyword.InheritValue => "inherit",
+                GlobalKeyword.InitialValue => "initial",
+                GlobalKeyword.UnsetValue => "unset",
+                GlobalKeyword.RevertValue => "revert",
+                GlobalKeyword.RevertLayerValue => "revert-layer",
                 _ => null
             };
 

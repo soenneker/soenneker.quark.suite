@@ -62,23 +62,23 @@ public sealed class ObjectFitBuilder : ICssBuilder
     /// <summary>
     /// Sets the object fit to inherit.
     /// </summary>
-    public ObjectFitBuilder Inherit => ChainWithFit(GlobalKeyword.Inherit);
+    public ObjectFitBuilder Inherit => ChainWithFit(GlobalKeyword.InheritValue);
     /// <summary>
     /// Sets the object fit to initial.
     /// </summary>
-    public ObjectFitBuilder Initial => ChainWithFit(GlobalKeyword.Initial);
+    public ObjectFitBuilder Initial => ChainWithFit(GlobalKeyword.InitialValue);
     /// <summary>
     /// Sets the object fit to revert.
     /// </summary>
-    public ObjectFitBuilder Revert => ChainWithFit(GlobalKeyword.Revert);
+    public ObjectFitBuilder Revert => ChainWithFit(GlobalKeyword.RevertValue);
     /// <summary>
     /// Sets the object fit to revert-layer.
     /// </summary>
-    public ObjectFitBuilder RevertLayer => ChainWithFit(GlobalKeyword.RevertLayer);
+    public ObjectFitBuilder RevertLayer => ChainWithFit(GlobalKeyword.RevertLayerValue);
     /// <summary>
     /// Sets the object fit to unset.
     /// </summary>
-    public ObjectFitBuilder Unset => ChainWithFit(GlobalKeyword.Unset);
+    public ObjectFitBuilder Unset => ChainWithFit(GlobalKeyword.UnsetValue);
 
     /// <summary>
     /// Applies on the base breakpoint.

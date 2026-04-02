@@ -2,24 +2,21 @@ using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark;
 
-/// <summary>
-/// Legacy Quark step render mode. Replaced by <see cref="StepsRenderMode"/>.
-/// </summary>
 [EnumValue<string>]
-public sealed partial class StepRenderMode
+public sealed partial class StepsRenderMode
 {
     /// <summary>
     /// Default render mode - always renders step content.
     /// </summary>
-    public static readonly StepRenderMode Default = new("default");
+    public static readonly StepsRenderMode Default = new("default");
 
     /// <summary>
     /// Lazy load mode - renders step content only on first visit.
     /// </summary>
-    public static readonly StepRenderMode LazyLoad = new("lazy-load");
+    public static readonly StepsRenderMode LazyLoad = new("lazy-load");
 
     /// <summary>
     /// Lazy reload mode - only renders the active step content.
     /// </summary>
-    public static readonly StepRenderMode LazyReload = new("lazy-reload");
+    public static readonly StepsRenderMode LazyReload = new("lazy-reload");
 }

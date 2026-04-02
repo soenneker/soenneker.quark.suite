@@ -20,21 +20,21 @@ public static class PointerEvents
     /// <summary>
     /// Gets a pointer events builder with inherit keyword.
     /// </summary>
-    public static PointerEventsBuilder Inherit => new(GlobalKeyword.Inherit);
+    public static PointerEventsBuilder Inherit => new(GlobalKeyword.InheritValue);
     /// <summary>
     /// Gets a pointer events builder with initial keyword.
     /// </summary>
-    public static PointerEventsBuilder Initial => new(GlobalKeyword.Initial);
+    public static PointerEventsBuilder Initial => new(GlobalKeyword.InitialValue);
     /// <summary>
     /// Gets a pointer events builder with revert keyword.
     /// </summary>
-    public static PointerEventsBuilder Revert => new(GlobalKeyword.Revert);
+    public static PointerEventsBuilder Revert => new(GlobalKeyword.RevertValue);
     /// <summary>
     /// Gets a pointer events builder with revert-layer keyword.
     /// </summary>
-    public static PointerEventsBuilder RevertLayer => new(GlobalKeyword.RevertLayer);
+    public static PointerEventsBuilder RevertLayer => new(GlobalKeyword.RevertLayerValue);
     /// <summary>
     /// Gets a pointer events builder with unset keyword.
     /// </summary>
-    public static PointerEventsBuilder Unset => new(GlobalKeyword.Unset);
+    public static PointerEventsBuilder Unset => new(GlobalKeyword.UnsetValue);
 }
