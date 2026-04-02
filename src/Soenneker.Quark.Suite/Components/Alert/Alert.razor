@@ -82,7 +82,12 @@
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
             AppendClass(ref cls, "q-alert");
-            AppendClass(ref cls, "relative grid w-full grid-cols-[0_1fr] items-start gap-0.5 rounded-lg border px-2.5 py-2 text-sm has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] has-[>svg]:gap-x-3 [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current");
+            AppendClass(ref cls, "relative grid w-full items-start rounded-lg border px-2.5 py-2 text-sm [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current");
+
+            if (HasIcon())
+                AppendClass(ref cls, "grid-cols-[calc(var(--spacing)*4)_1fr] gap-x-3");
+            else
+                AppendClass(ref cls, "grid-cols-[0_1fr] gap-0.5");
 
             if (Variant == AlertVariant.Danger)
                 AppendClass(ref cls, "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90");
@@ -210,6 +215,8 @@
         AlertVariant.Danger => LucideIcon.CircleX,
         _ => LucideIcon.Info
     };
+
+    private bool HasIcon() => AlertIcon is not null || ShowDefaultIcon;
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
