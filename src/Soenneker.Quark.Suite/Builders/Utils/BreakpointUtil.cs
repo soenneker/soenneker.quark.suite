@@ -1,6 +1,4 @@
 using System;
-using Soenneker.Quark.Enums;
-
 using System.Runtime.CompilerServices;
 
 namespace Soenneker.Quark;

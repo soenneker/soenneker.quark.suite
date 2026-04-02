@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using Soenneker.Quark.Enums;
 
 namespace Soenneker.Quark.Components.Surface.Interactive.Buttons.Abstract;
 

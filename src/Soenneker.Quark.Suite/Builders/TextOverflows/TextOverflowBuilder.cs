@@ -1,10 +1,9 @@
 using Soenneker.Quark.Attributes;
-using Soenneker.Quark.Enums;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Soenneker.Utils.PooledStringBuilders;
 
-using TextOverflowEnum = Soenneker.Quark.Enums.TextOverflowKeyword;
+using TextOverflowEnum = Soenneker.Quark.TextOverflowKeyword;
 
 namespace Soenneker.Quark;
 

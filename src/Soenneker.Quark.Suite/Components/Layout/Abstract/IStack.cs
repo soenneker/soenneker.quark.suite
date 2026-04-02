@@ -1,5 +1,3 @@
-using Soenneker.Quark;
-
 namespace Soenneker.Quark;
 
 /// <summary>

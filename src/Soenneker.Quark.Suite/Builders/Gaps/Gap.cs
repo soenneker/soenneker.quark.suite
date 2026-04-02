@@ -8,32 +8,32 @@ public static class Gap
     /// <summary>
     /// No gap (0).
     /// </summary>
-    public static GapBuilder Is0 => new(Enums.ScaleType.Is0Value);
+    public static GapBuilder Is0 => new(ScaleType.Is0Value);
 
     /// <summary>
     /// Size 1 gap (0.25rem).
     /// </summary>
-    public static GapBuilder Is1 => new(Enums.ScaleType.Is1Value);
+    public static GapBuilder Is1 => new(ScaleType.Is1Value);
 
     /// <summary>
     /// Size 2 gap (0.5rem).
     /// </summary>
-    public static GapBuilder Is2 => new(Enums.ScaleType.Is2Value);
+    public static GapBuilder Is2 => new(ScaleType.Is2Value);
 
     /// <summary>
     /// Size 3 gap (1rem).
     /// </summary>
-    public static GapBuilder Is3 => new(Enums.ScaleType.Is3Value);
+    public static GapBuilder Is3 => new(ScaleType.Is3Value);
 
     /// <summary>
     /// Size 4 gap (1.5rem).
     /// </summary>
-    public static GapBuilder Is4 => new(Enums.ScaleType.Is4Value);
+    public static GapBuilder Is4 => new(ScaleType.Is4Value);
 
     /// <summary>
     /// Size 5 gap (3rem).
     /// </summary>
-    public static GapBuilder Is5 => new(Enums.ScaleType.Is5Value);
+    public static GapBuilder Is5 => new(ScaleType.Is5Value);
 
     /// <summary>
     /// Create from an arbitrary Tailwind gap token (e.g. "1.5", "6", "8", "16", "20").
