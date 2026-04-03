@@ -17,9 +17,6 @@ public abstract class InteractiveElement : Element
     public CssValue<RingOffsetBuilder>? RingOffset { get; set; }
 
     [Parameter]
-    public CssValue<InteractionBuilder>? Interaction { get; set; }
-
-    [Parameter]
     public CssValue<OutlineStyleBuilder>? OutlineStyle { get; set; }
 
     [Parameter]
@@ -45,7 +42,6 @@ public abstract class InteractiveElement : Element
         base.BuildOwnedClassAndStyle(ref sty, ref cls);
 
         AddCss(ref sty, ref cls, RingOffset);
-        AddCss(ref sty, ref cls, Interaction);
         AddCss(ref sty, ref cls, OutlineStyle);
     }
 
@@ -84,7 +80,6 @@ public abstract class InteractiveElement : Element
         base.ComputeRenderKeyCore(ref hc);
 
         AddIf(ref hc, RingOffset);
-        AddIf(ref hc, Interaction);
         AddIf(ref hc, OutlineStyle);
         hc.Add(OnDoubleClick.HasDelegate);
         hc.Add(OnMouseOver.HasDelegate);

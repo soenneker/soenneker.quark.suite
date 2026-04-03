@@ -28,9 +28,6 @@ public abstract class MediaElement : Element
     public bool Lazy { get; set; }
 
     [Parameter]
-    public CssValue<RatioBuilder>? Ratio { get; set; }
-
-    [Parameter]
     public CssValue<FillBuilder>? Fill { get; set; }
 
     [Parameter]
@@ -55,7 +52,6 @@ public abstract class MediaElement : Element
         AddCss(ref sty, ref cls, AspectRatio);
         AddCss(ref sty, ref cls, ObjectFit);
         AddCss(ref sty, ref cls, ObjectPosition);
-        AddCss(ref sty, ref cls, Ratio);
         AddCss(ref sty, ref cls, Fill);
         AddCss(ref sty, ref cls, Stroke);
         AddCss(ref sty, ref cls, StrokeWidth);
@@ -74,7 +70,6 @@ public abstract class MediaElement : Element
         AddIf(ref hc, AspectRatio);
         AddIf(ref hc, ObjectFit);
         AddIf(ref hc, ObjectPosition);
-        AddIf(ref hc, Ratio);
         AddIf(ref hc, Fill);
         AddIf(ref hc, Stroke);
         AddIf(ref hc, StrokeWidth);

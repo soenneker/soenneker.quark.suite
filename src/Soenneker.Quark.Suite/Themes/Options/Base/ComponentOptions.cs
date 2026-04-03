@@ -334,11 +334,6 @@ public class ComponentOptions
     public CssValue<FilterBuilder>? Filter { get; set; }
 
     /// <summary>
-    /// Gets or sets the CSS interaction configuration.
-    /// </summary>
-    public CssValue<InteractionBuilder>? Interaction { get; set; }
-
-    /// <summary>
     /// Gets or sets the CSS object-position configuration.
     /// </summary>
     public CssValue<ObjectPositionBuilder>? ObjectPosition { get; set; }
@@ -372,6 +367,11 @@ public class ComponentOptions
     /// Gets or sets the CSS truncate configuration.
     /// </summary>
     public CssValue<TruncateBuilder>? Truncate { get; set; }
+
+    /// <summary>
+    /// Gets or sets the CSS line clamp configuration.
+    /// </summary>
+    public CssValue<LineClampBuilder>? LineClamp { get; set; }
 
     /// <summary>
     /// Gets or sets the CSS font-variant-numeric configuration.
@@ -456,7 +456,6 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, ClipPath, "clip-path");
         AddRules(buffer, baseSelector, Cursor, "cursor");
         AddRules(buffer, baseSelector, Filter, "filter");
-        AddRules(buffer, baseSelector, Interaction, null);
         AddRules(buffer, baseSelector, ObjectPosition, "object-position");
         AddRules(buffer, baseSelector, Resize, "resize");
         AddRules(buffer, baseSelector, ScreenReader, null);
@@ -464,6 +463,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Transform, "transform");
         AddRules(buffer, baseSelector, Transition, "transition");
         AddRules(buffer, baseSelector, Truncate, null);
+        AddRules(buffer, baseSelector, LineClamp, null);
         AddRules(buffer, baseSelector, FontVariantNumeric, "font-variant-numeric");
         AddRules(buffer, baseSelector, BackgroundOpacity, null);
         AddRules(buffer, baseSelector, BorderOpacity, null);

@@ -89,6 +89,9 @@ public abstract class Component : RenderComponentBase, IComponent
     public CssValue<TruncateBuilder>? Truncate { get; set; }
 
     [Parameter]
+    public CssValue<LineClampBuilder>? LineClamp { get; set; }
+
+    [Parameter]
     public CssValue<FontVariantNumericBuilder>? FontVariantNumeric { get; set; }
 
     [Parameter]
@@ -264,6 +267,7 @@ public abstract class Component : RenderComponentBase, IComponent
         AddCss(ref sty, ref cls, TextBreak);
         AddCss(ref sty, ref cls, TextOverflow);
         AddCss(ref sty, ref cls, Truncate);
+        AddCss(ref sty, ref cls, LineClamp);
         AddCss(ref sty, ref cls, FontVariantNumeric);
         AddCss(ref sty, ref cls, Margin);
         AddCss(ref sty, ref cls, Padding);
@@ -368,6 +372,7 @@ public abstract class Component : RenderComponentBase, IComponent
         AddIf(ref hc, TextBreak);
         AddIf(ref hc, TextOverflow);
         AddIf(ref hc, Truncate);
+        AddIf(ref hc, LineClamp);
         AddIf(ref hc, FontVariantNumeric);
         AddIf(ref hc, Margin);
         AddIf(ref hc, Padding);
