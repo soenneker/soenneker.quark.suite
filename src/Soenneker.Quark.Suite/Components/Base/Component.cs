@@ -182,7 +182,7 @@ public abstract class Component : RenderComponentBase, IComponent
     public CssValue<BorderColorBuilder>? BorderColor { get; set; }
 
     [Parameter]
-    public CssValue<RadiusBuilder>? Radius { get; set; }
+    public CssValue<RoundedBuilder>? Rounded { get; set; }
 
     [Parameter]
     public CssValue<RingBuilder>? Ring { get; set; }
@@ -295,7 +295,7 @@ public abstract class Component : RenderComponentBase, IComponent
         AddCss(ref sty, ref cls, Border);
         ApplyBorderColor(ref sty, ref cls);
         ApplyBackgroundColor(ref sty, ref cls);
-        AddCss(ref sty, ref cls, Radius);
+        AddCss(ref sty, ref cls, Rounded);
         AddCss(ref sty, ref cls, Ring);
         AddCss(ref sty, ref cls, RingColor);
         AddCss(ref sty, ref cls, BoxShadow);
@@ -399,7 +399,7 @@ public abstract class Component : RenderComponentBase, IComponent
         AddIf(ref hc, BackgroundColor);
         AddIf(ref hc, Border);
         AddIf(ref hc, BorderColor);
-        AddIf(ref hc, Radius);
+        AddIf(ref hc, Rounded);
         AddIf(ref hc, Ring);
         AddIf(ref hc, RingColor);
         AddIf(ref hc, BoxShadow);

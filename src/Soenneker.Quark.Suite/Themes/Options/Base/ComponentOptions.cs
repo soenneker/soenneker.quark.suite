@@ -10,7 +10,7 @@ namespace Soenneker.Quark;
 /// </summary>
 public class ComponentOptions
 {
-    private static readonly SearchValues<char> CssSelectorPrefixChars = SearchValues.Create(":.#[");
+    private static readonly SearchValues<char> _cssSelectorPrefixChars = SearchValues.Create(":.#[");
 
     /// <summary>Gets or sets the CSS selector for this component (e.g., "a", "i", ":root").</summary>
     public string Selector { get; set; } = ":root";
@@ -306,7 +306,7 @@ public class ComponentOptions
     /// <summary>
     /// Gets or sets the CSS border-radius configuration.
     /// </summary>
-    public CssValue<RadiusBuilder>? Radius { get; set; }
+    public CssValue<RoundedBuilder>? Rounded { get; set; }
 
     /// <summary>
     /// Gets or sets the CSS ring configuration.
@@ -450,7 +450,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Animation, "animation");
         AddRules(buffer, baseSelector, AspectRatio, "aspect-ratio");
         AddRules(buffer, baseSelector, BackdropFilter, "backdrop-filter");
-        AddRules(buffer, baseSelector, Radius, "border-radius");
+        AddRules(buffer, baseSelector, Rounded, "border-radius");
         AddRules(buffer, baseSelector, Ring, null);
         AddRules(buffer, baseSelector, RingColor, null);
         AddRules(buffer, baseSelector, ClipPath, "clip-path");
@@ -544,7 +544,7 @@ public class ComponentOptions
 
         var first = trimmed[0];
 
-        if (CssSelectorPrefixChars.Contains(first))
+        if (_cssSelectorPrefixChars.Contains(first))
             return baseSelector + trimmed;
 
         return $"{baseSelector} {trimmed}";

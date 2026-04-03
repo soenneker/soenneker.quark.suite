@@ -59,7 +59,7 @@ public sealed class StepsOptions : ComponentOptions
     /// <summary>
     /// Gets or sets the border radius for step content.
     /// </summary>
-    public string? ContentRadius { get; set; }
+    public string? ContentRounded { get; set; }
     /// <summary>
     /// Gets or sets the box shadow for step content.
     /// </summary>
@@ -174,9 +174,9 @@ public sealed class StepsOptions : ComponentOptions
             buffer.Add(new ComponentCssRule(".tab-content", $"border-color: {ContentBorder} !important"));
         }
 
-        if (ContentRadius.HasContent())
+        if (ContentRounded.HasContent())
         {
-            buffer.Add(new ComponentCssRule(".tab-content", $"border-radius: {ContentRadius} !important"));
+            buffer.Add(new ComponentCssRule(".tab-content", $"border-radius: {ContentRounded} !important"));
         }
 
         if (ContentShadow.HasContent())
