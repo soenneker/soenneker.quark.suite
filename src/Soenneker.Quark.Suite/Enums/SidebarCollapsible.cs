@@ -1,11 +1,14 @@
+using Soenneker.Gen.EnumValues;
+
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Sidebar collapse behavior.
 /// </summary>
-public enum SidebarCollapsible
+[EnumValue<string>]
+public sealed partial class SidebarCollapsible
 {
-    Offcanvas,
-    Icon,
-    None
+    public static readonly SidebarCollapsible Offcanvas = new("offcanvas");
+    public static readonly SidebarCollapsible Icon = new("icon");
+    public static readonly SidebarCollapsible None = new("none");
 }

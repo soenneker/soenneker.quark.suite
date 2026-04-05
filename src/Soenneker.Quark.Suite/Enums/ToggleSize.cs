@@ -1,22 +1,25 @@
+using Soenneker.Gen.EnumValues;
+
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Defines size options for <see cref="Toggle"/>.
 /// </summary>
-public enum ToggleSize
+[EnumValue<string>]
+public sealed partial class ToggleSize
 {
     /// <summary>
     /// Default size.
     /// </summary>
-    Default,
+    public static readonly ToggleSize Default = new("default");
 
     /// <summary>
     /// Small size.
     /// </summary>
-    Small,
+    public static readonly ToggleSize Small = new("small");
 
     /// <summary>
     /// Large size.
     /// </summary>
-    Large
+    public static readonly ToggleSize Large = new("large");
 }

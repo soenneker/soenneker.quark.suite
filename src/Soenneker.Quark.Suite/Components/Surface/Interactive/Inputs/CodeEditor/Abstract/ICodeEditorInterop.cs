@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace Soenneker.Quark;
 
@@ -64,4 +65,16 @@ public interface ICodeEditorInterop : IAsyncDisposable
     /// <param name="maxLines">Maximum number of lines to display (default: no limit).</param>
     /// <param name="cancellationToken"></param>
     ValueTask AddContentChangeListener(ElementReference container, int? minLines = null, int? maxLines = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Registers a .NET callback invoked when the app theme changes (light/dark).
+    /// </summary>
+    ValueTask RegisterThemeChangedCallback<T>(DotNetObjectReference<T> dotNetRef, CancellationToken cancellationToken = default)
+        where T : class;
+
+    /// <summary>
+    /// Unregisters the theme-changed callback. Swallows errors if JS is no longer available.
+    /// </summary>
+    ValueTask UnregisterThemeChangedCallback<T>(DotNetObjectReference<T> dotNetRef)
+        where T : class;
 }

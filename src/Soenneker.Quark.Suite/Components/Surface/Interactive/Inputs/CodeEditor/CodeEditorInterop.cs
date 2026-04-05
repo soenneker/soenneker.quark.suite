@@ -233,6 +233,30 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
     }
 
+    /// <inheritdoc />
+    public async ValueTask RegisterThemeChangedCallback<T>(DotNetObjectReference<T> dotNetRef, CancellationToken cancellationToken = default)
+        where T : class
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+            await _jsRuntime.InvokeVoidAsync("ThemeInterop.registerThemeChangedCallback", linked, dotNetRef);
+    }
+
+    /// <inheritdoc />
+    public async ValueTask UnregisterThemeChangedCallback<T>(DotNetObjectReference<T> dotNetRef)
+        where T : class
+    {
+        try
+        {
+            await _jsRuntime.InvokeVoidAsync("ThemeInterop.unregisterThemeChangedCallback", dotNetRef);
+        }
+        catch
+        {
+            // Ignore if JS or theme interop is no longer available
+        }
+    }
+
     public async ValueTask DisposeAsync()
     {
         await _resourceLoader.DisposeModule(_modulePath);

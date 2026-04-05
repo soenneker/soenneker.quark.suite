@@ -1,17 +1,20 @@
+using Soenneker.Gen.EnumValues;
+
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Defines the selection mode for <see cref="ToggleGroup"/>.
 /// </summary>
-public enum ToggleGroupType
+[EnumValue<string>]
+public sealed partial class ToggleGroupType
 {
     /// <summary>
     /// Only one toggle can be pressed at a time.
     /// </summary>
-    Single,
+    public static readonly ToggleGroupType Single = new("single");
 
     /// <summary>
     /// Multiple toggles can be pressed.
     /// </summary>
-    Multiple
+    public static readonly ToggleGroupType Multiple = new("multiple");
 }

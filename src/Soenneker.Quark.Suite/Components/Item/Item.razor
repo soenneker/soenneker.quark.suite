@@ -12,19 +12,17 @@
     public ItemSize Size { get; set; } = ItemSize.Default;
 
     private static string GetVariantClass(ItemVariant variant)
-        => variant switch
+        => variant.Value switch
         {
-            ItemVariant.Default => "bg-transparent",
-            ItemVariant.Outline => "border-border",
-            ItemVariant.Muted => "bg-muted/50",
+            ItemVariant.OutlineValue => "border-border",
+            ItemVariant.MutedValue => "bg-muted/50",
             _ => "bg-transparent"
         };
 
     private static string GetSizeClass(ItemSize size)
-        => size switch
+        => size.Value switch
         {
-            ItemSize.Default => "p-4 gap-4",
-            ItemSize.Small => "py-3 px-4 gap-2.5",
+            ItemSize.SmallValue => "py-3 px-4 gap-2.5",
             _ => "p-4 gap-4"
         };
 
@@ -33,7 +31,11 @@
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "item";
         attributes["data-variant"] = Variant.ToString().ToLowerInvariant();
-        attributes["data-size"] = Size == ItemSize.Small ? "sm" : "default";
+        attributes["data-size"] = Size.Value switch
+        {
+            ItemSize.SmallValue => "sm",
+            _ => "default"
+        };
 
         // shadcn/ui item base - exact copy from new-york-v4 ui/item.tsx
         BuildClassAttribute(attributes, (ref cls) =>

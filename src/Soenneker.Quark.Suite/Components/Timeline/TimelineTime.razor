@@ -1,0 +1,20 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<time @attributes="BuildAttributes()">
+    @ChildContent
+</time>
+
+@code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "timeline-time";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-timeline-time");
+            AppendClass(ref cls, "text-sm font-medium tracking-tight text-muted-foreground");
+        });
+    }
+}

@@ -1,11 +1,14 @@
+using Soenneker.Gen.EnumValues;
+
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Sidebar menu button size.
 /// </summary>
-public enum SidebarMenuButtonSize
+[EnumValue<string>]
+public sealed partial class SidebarMenuButtonSize
 {
-    Default,
-    Sm,
-    Lg
+    public static readonly SidebarMenuButtonSize Default = new("default");
+    public static readonly SidebarMenuButtonSize Sm = new("sm");
+    public static readonly SidebarMenuButtonSize Lg = new("lg");
 }

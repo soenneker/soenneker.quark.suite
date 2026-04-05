@@ -1,10 +1,13 @@
+using Soenneker.Gen.EnumValues;
+
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Defines size variants for <see cref="Item"/>.
 /// </summary>
-public enum ItemSize
+[EnumValue<string>]
+public sealed partial class ItemSize
 {
-    Default,
-    Small
+    public static readonly ItemSize Default = new("default");
+    public static readonly ItemSize Small = new("small");
 }

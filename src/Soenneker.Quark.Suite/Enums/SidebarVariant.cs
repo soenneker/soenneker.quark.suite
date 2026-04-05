@@ -1,11 +1,14 @@
+using Soenneker.Gen.EnumValues;
+
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Sidebar visual variant.
 /// </summary>
-public enum SidebarVariant
+[EnumValue<string>]
+public sealed partial class SidebarVariant
 {
-    Sidebar,
-    Floating,
-    Inset
+    public static readonly SidebarVariant Sidebar = new("sidebar");
+    public static readonly SidebarVariant Floating = new("floating");
+    public static readonly SidebarVariant Inset = new("inset");
 }

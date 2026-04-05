@@ -1,17 +1,20 @@
+using Soenneker.Gen.EnumValues;
+
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Defines size options for <see cref="NativeSelect"/>.
 /// </summary>
-public enum NativeSelectSize
+[EnumValue<string>]
+public sealed partial class NativeSelectSize
 {
     /// <summary>
     /// Default height.
     /// </summary>
-    Default,
+    public static readonly NativeSelectSize Default = new("default");
 
     /// <summary>
     /// Small height.
     /// </summary>
-    Small
+    public static readonly NativeSelectSize Small = new("small");
 }

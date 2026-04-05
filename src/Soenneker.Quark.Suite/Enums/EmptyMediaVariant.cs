@@ -1,17 +1,20 @@
+using Soenneker.Gen.EnumValues;
+
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Defines visual variants for <see cref="EmptyMedia"/>.
 /// </summary>
-public enum EmptyMediaVariant
+[EnumValue<string>]
+public sealed partial class EmptyMediaVariant
 {
     /// <summary>
     /// Transparent media container.
     /// </summary>
-    Default,
+    public static readonly EmptyMediaVariant Default = new("default");
 
     /// <summary>
     /// Rounded icon container with muted background.
     /// </summary>
-    Icon
+    public static readonly EmptyMediaVariant Icon = new("icon");
 }

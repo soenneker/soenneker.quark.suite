@@ -88,4 +88,10 @@ class ThemeInterop {
     }
 }
 
-window.ThemeInterop = new ThemeInterop();
+const themeInterop = window.ThemeInterop ?? new ThemeInterop();
+
+window.ThemeInterop = themeInterop;
+
+if (document.currentScript?.dataset?.quarkThemeBootstrap === "true") {
+    themeInterop.initialize();
+}

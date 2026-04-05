@@ -7,7 +7,6 @@
 
 @inject ICodeEditorInterop CodeEditorInterop
 @inject IThemeInterop ThemeInterop
-@inject IJSRuntime JSRuntime
 
 <div @ref="_container" @attributes="BuildContainerAttributes()"></div>
 
@@ -105,7 +104,7 @@
                 var isDark = await ThemeInterop.GetIsDarkAsync();
                 effectiveTheme = isDark ? "vs-dark" : "vs";
                 _themeCallbackRef = DotNetObjectReference.Create(this);
-                await JSRuntime.InvokeVoidAsync("ThemeInterop.registerThemeChangedCallback", _themeCallbackRef);
+                await CodeEditorInterop.RegisterThemeChangedCallback(_themeCallbackRef);
             }
 
             var options = new
@@ -224,14 +223,7 @@
     {
         if (_themeCallbackRef != null)
         {
-            try
-            {
-                await JSRuntime.InvokeVoidAsync("ThemeInterop.unregisterThemeChangedCallback", _themeCallbackRef);
-            }
-            catch
-            {
-                // Ignore if JS or theme interop is no longer available
-            }
+            await CodeEditorInterop.UnregisterThemeChangedCallback(_themeCallbackRef);
             _themeCallbackRef.Dispose();
             _themeCallbackRef = null;
         }

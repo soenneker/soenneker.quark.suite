@@ -11,7 +11,7 @@
                      SidebarWidth="calc(var(--spacing) * 72)"
                      SidebarWidthMobile="100vw"
                      style="--header-height: 4.5rem;">
-        <Header ShowSidebarTrigger="@ShowNavigationSidebar">
+        <Header ShowSidebarTrigger="@ShowSidebarTrigger">
             <BrandContent>
                 <HeaderBrand To=""
                              AriaLabel="Quark Suite home"
@@ -43,7 +43,7 @@
             </ActionsContent>
         </Header>
 
-        @if (ShowNavigationSidebar)
+        @if (ShowDesktopNavigationSidebar)
         {
             <Div class="container-wrapper min-h-0 flex-1 overflow-hidden" Padding="Padding.Is2.OnX">
                 <Div class="flex h-full min-h-0">
@@ -107,16 +107,50 @@
         }
         else
         {
-            <Div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
-                <Main class="@MainClass">
-                    @if (CurrentPageTitle is not null)
-                    {
-                        <Div class="mb-8 space-y-2">
-                            <h1 class="text-4xl font-bold tracking-tight">@CurrentPageTitle</h1>
-                        </Div>
-                    }
-                    @Body
-                </Main>
+            <Div class="min-h-0 flex-1 overflow-hidden">
+                @if (ShowSidebarTrigger)
+                {
+                    <Div class="lg:hidden">
+                        <Sidebar Collapsible="SidebarCollapsible.None"
+                                 Shell="SidebarShell.Navigation"
+                                 MobileMode="SidebarMobileMode.FullScreen"
+                                 MobileShowBackdrop="false"
+                                 MobileLockScroll="false"
+                                 MobileShowCloseButton="false"
+                                 MobileOffsetTop="var(--header-height)">
+                            <MobileContent>
+                                <NavigationLinks Items="DocsNavigation.TopLinks"
+                                                 Mode="NavigationLinksMode.Stack"
+                                                 Title="Menu"
+                                                 IsActive="IsTopNavActive" />
+                                <NavigationLinks Items="DocsNavigation.SectionLinks"
+                                                 Mode="NavigationLinksMode.Stack"
+                                                 Title="Sections"
+                                                 IsActive="IsSectionActive" />
+                                <NavigationLinks Items="DocsNavigation.ComponentLinks"
+                                                 Mode="NavigationLinksMode.Stack"
+                                                 Title="Components"
+                                                 IsActive="IsCurrentPath" />
+                                <NavigationLinks Items="DocsNavigation.PrimitiveLinks"
+                                                 Mode="NavigationLinksMode.Stack"
+                                                 Title="Primitives"
+                                                 IsActive="IsCurrentPath" />
+                            </MobileContent>
+                        </Sidebar>
+                    </Div>
+                }
+
+                <Div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+                    <Main class="@MainClass">
+                        @if (CurrentPageTitle is not null)
+                        {
+                            <Div class="mb-8 space-y-2">
+                                <h1 class="text-4xl font-bold tracking-tight">@CurrentPageTitle</h1>
+                            </Div>
+                        }
+                        @Body
+                    </Main>
+                </Div>
             </Div>
         }
     </SidebarProvider>
@@ -144,13 +178,14 @@
         ThemeService.ThemeChanged += OnThemeChanged;
     }
 
-    private bool ShowNavigationSidebar => CurrentPath != "/";
+    private bool ShowDesktopNavigationSidebar => CurrentPath != "/";
+    private bool ShowSidebarTrigger => true;
 
     private string? CurrentPageTitle
     {
         get
         {
-            if (!ShowNavigationSidebar)
+            if (!ShowDesktopNavigationSidebar)
                 return null;
 
             NavigationItem[] groups =
@@ -170,7 +205,7 @@
         }
     }
 
-    private string MainClass => ShowNavigationSidebar
+    private string MainClass => ShowDesktopNavigationSidebar
         ? "min-w-0 flex-1 px-4 py-6 md:px-6 lg:px-8 lg:py-8"
         : "min-w-0 flex-1";
 

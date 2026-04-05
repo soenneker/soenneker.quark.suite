@@ -1,17 +1,20 @@
+using Soenneker.Gen.EnumValues;
+
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Defines the visual variant for <see cref="Toggle"/>.
 /// </summary>
-public enum ToggleVariant
+[EnumValue<string>]
+public sealed partial class ToggleVariant
 {
     /// <summary>
     /// Transparent background until hovered/pressed.
     /// </summary>
-    Default,
+    public static readonly ToggleVariant Default = new("default");
 
     /// <summary>
     /// Outlined toggle with border.
     /// </summary>
-    Outline
+    public static readonly ToggleVariant Outline = new("outline");
 }

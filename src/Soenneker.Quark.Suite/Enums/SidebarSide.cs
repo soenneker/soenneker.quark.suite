@@ -1,10 +1,13 @@
+using Soenneker.Gen.EnumValues;
+
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Sidebar placement side.
 /// </summary>
-public enum SidebarSide
+[EnumValue<string>]
+public sealed partial class SidebarSide
 {
-    Left,
-    Right
+    public static readonly SidebarSide Left = new("left");
+    public static readonly SidebarSide Right = new("right");
 }

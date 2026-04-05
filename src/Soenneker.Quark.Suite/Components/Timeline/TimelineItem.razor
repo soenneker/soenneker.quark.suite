@@ -1,0 +1,230 @@
+@namespace Soenneker.Quark
+
+@inherits Soenneker.Quark.Element
+
+<li @attributes="BuildAttributes()">
+    <div class="@ContentGridClass">
+        @if (Align == TimelineAlign.Left)
+        {
+            @IconColumn
+            <div class="@ContentWrapperClass">@ContentBody</div>
+        }
+        else if (Align == TimelineAlign.Right)
+        {
+            <div class="@ContentWrapperEndClass" data-timeline-end>@ContentBody</div>
+            @IconColumn
+        }
+        else if (IsReversed)
+        {
+            <div class="@ContentWrapperEndClass" data-timeline-end>@ContentBody</div>
+            @IconColumn
+            @DateColumn
+        }
+        else
+        {
+            @DateColumn
+            @IconColumn
+            <div class="@ContentWrapperClass">@ContentBody</div>
+        }
+    </div>
+</li>
+
+@code {
+    private int _itemIndex;
+
+    [CascadingParameter]
+    public Timeline? ParentTimeline { get; set; }
+
+    [Parameter]
+    public TimelineColor IconColor { get; set; } = TimelineColor.Primary;
+
+    [Parameter]
+    public TimelineStatus Status { get; set; } = TimelineStatus.Completed;
+
+    [Parameter]
+    public TimelineColor? ConnectorColor { get; set; }
+
+    [Parameter]
+    public bool ShowConnector { get; set; } = true;
+
+    [Parameter]
+    public TimelineSize IconSize { get; set; } = TimelineSize.Medium;
+
+    [Parameter]
+    public TimelineIconVariant IconVariant { get; set; } = TimelineIconVariant.Solid;
+
+    [Parameter]
+    public TimelineConnectorStyle ConnectorStyle { get; set; } = TimelineConnectorStyle.Solid;
+
+    [Parameter]
+    public bool Loading { get; set; }
+
+    [Parameter]
+    public bool IsCollapsible { get; set; }
+
+    [Parameter]
+    public bool DefaultOpen { get; set; } = true;
+
+    [Parameter]
+    public RenderFragment? DetailContent { get; set; }
+
+    [Parameter]
+    public string? ConnectorClass { get; set; }
+
+    [Parameter]
+    public RenderFragment? IconContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? Marker { get; set; }
+
+    [Parameter]
+    public RenderFragment? TimeContent { get; set; }
+
+    [Parameter]
+    public string? Time { get; set; }
+
+    [Parameter]
+    public string? Description { get; set; }
+
+    private TimelineAlign Align => ParentTimeline?.Align ?? TimelineAlign.Center;
+
+    private TimelineSize Size => ParentTimeline?.Size ?? TimelineSize.Medium;
+
+    private bool IsReversed => Align == TimelineAlign.Alternate && _itemIndex % 2 != 0;
+
+    private bool UseShorthand => ChildContent == null && Title.HasContent();
+
+    protected override void OnParametersSet()
+    {
+        _itemIndex = ParentTimeline?.RegisterItem() ?? 0;
+        base.OnParametersSet();
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "timeline-item";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-timeline-item");
+            AppendClass(ref cls, "relative w-full");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(IconColor);
+        hc.Add(Status);
+        hc.Add(ConnectorColor);
+        hc.Add(ShowConnector);
+        hc.Add(IconSize);
+        hc.Add(IconVariant);
+        hc.Add(ConnectorStyle);
+        hc.Add(Loading);
+        hc.Add(IsCollapsible);
+        hc.Add(DefaultOpen);
+        hc.Add(DetailContent is not null);
+        hc.Add(ConnectorClass);
+        hc.Add(IconContent is not null);
+        hc.Add(Marker is not null);
+        hc.Add(TimeContent is not null);
+        hc.Add(Title);
+        hc.Add(Time);
+        hc.Add(Description);
+        hc.Add(_itemIndex);
+    }
+
+    private string ContentGridClass => Align.Value switch
+    {
+        TimelineAlign.LeftValue => $"grid grid-cols-[auto_1fr] gap-4 items-start{(Status == TimelineStatus.InProgress ? " aria-current-step" : null)}",
+        TimelineAlign.RightValue => $"grid grid-cols-[1fr_auto] gap-4 items-start{(Status == TimelineStatus.InProgress ? " aria-current-step" : null)}",
+        _ => $"grid grid-cols-[1fr_auto_1fr] gap-4 items-start{(Status == TimelineStatus.InProgress ? " aria-current-step" : null)}"
+    };
+
+    private string IconMinHeightClass => Size.Value switch
+    {
+        TimelineSize.SmallValue => "min-h-8",
+        TimelineSize.LargeValue => "min-h-12",
+        _ => "min-h-10"
+    };
+
+    private string ContentWrapperClass => $"grid items-center {IconMinHeightClass}";
+
+    private string ContentWrapperEndClass => $"grid items-center justify-items-end {IconMinHeightClass}";
+
+    private string DateColumnClass => $"flex flex-col justify-center {IconMinHeightClass}";
+
+    private string ConnectorGapClass => Size.Value switch
+    {
+        TimelineSize.SmallValue => "-mb-2",
+        TimelineSize.LargeValue => "-mb-6",
+        _ => "-mb-4"
+    };
+
+    private string ComputedConnectorClass => $"flex-1 min-h-16 {ConnectorGapClass}{(ConnectorClass.HasContent() ? $" {ConnectorClass}" : null)}";
+
+    private RenderFragment? EffectiveIconContent => IconContent ?? Marker;
+
+    private RenderFragment IconColumn => @<div class="flex flex-col items-center self-stretch">
+        <div class="relative z-[1]">
+            @if (EffectiveIconContent != null)
+            {
+                @EffectiveIconContent
+            }
+            else
+            {
+                <TimelineIcon Color="@IconColor" Size="@IconSize" Status="@Status" Variant="@IconVariant" Loading="@Loading" />
+            }
+        </div>
+        @if (ShowConnector)
+        {
+            <TimelineConnector Status="@Status" Color="@ConnectorColor" ConnectorStyle="@ConnectorStyle" Class="@ComputedConnectorClass" />
+        }
+    </div>;
+
+    private RenderFragment DateColumn => @<div class="@DateColumnClass">
+        @if (TimeContent != null)
+        {
+            @TimeContent
+        }
+        else if (UseShorthand && Time.HasContent())
+        {
+            <TimelineTime Class="text-right pr-4">@Time</TimelineTime>
+        }
+    </div>;
+
+    private RenderFragment ContentBody => @<div>
+        @if (UseShorthand)
+        {
+            <TimelineContent>
+                <TimelineHeader>
+                    <TimelineTitle>@Title</TimelineTitle>
+                </TimelineHeader>
+                @if (Description.HasContent())
+                {
+                    <TimelineDescription>@Description</TimelineDescription>
+                }
+            </TimelineContent>
+        }
+        else if (IsCollapsible && DetailContent != null)
+        {
+            <Collapsible Open="@DefaultOpen">
+                <CollapsibleTrigger Class="group flex w-full items-center gap-2 cursor-pointer">
+                    <div class="flex-1">
+                        @ChildContent
+                    </div>
+                    <Icon Name="LucideIcon.ChevronDown" Class="transition-transform duration-200 group-data-[state=open]:rotate-180 shrink-0" />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                    @DetailContent
+                </CollapsibleContent>
+            </Collapsible>
+        }
+        else
+        {
+            @ChildContent
+        }
+    </div>;
+}

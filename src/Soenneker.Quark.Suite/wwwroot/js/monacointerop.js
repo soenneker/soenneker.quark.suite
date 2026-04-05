@@ -1,4 +1,3 @@
-// Monaco editor interop module
 export class MonacoInterop {
     constructor() {
         this.editors = new WeakMap();

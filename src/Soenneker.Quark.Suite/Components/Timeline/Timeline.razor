@@ -1,0 +1,60 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<CascadingValue Value="this" IsFixed="true">
+    <ol @attributes="BuildAttributes()">
+        @if (ChildContent != null)
+        {
+            @ChildContent
+        }
+    </ol>
+</CascadingValue>
+
+@code {
+    private int _itemCounter;
+
+    [Parameter]
+    public TimelineAlign Align { get; set; } = TimelineAlign.Center;
+
+    [Parameter]
+    public TimelineSize Size { get; set; } = TimelineSize.Medium;
+
+    [Parameter]
+    public TimelineConnectorFit ConnectorFit { get; set; } = TimelineConnectorFit.Spaced;
+
+    internal int RegisterItem() => _itemCounter++;
+
+    protected override void OnParametersSet()
+    {
+        _itemCounter = 0;
+        base.OnParametersSet();
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "timeline";
+        attributes["data-align"] = Align.ToString().ToLowerInvariant();
+        attributes["aria-label"] = AriaLabel ?? "Timeline";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-timeline");
+            AppendClass(ref cls, "relative flex flex-col");
+            AppendClass(ref cls, Size.Value switch
+            {
+                TimelineSize.SmallValue => "gap-2",
+                TimelineSize.LargeValue => "gap-6",
+                _ => "gap-4"
+            });
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Align);
+        hc.Add(Size);
+        hc.Add(ConnectorFit);
+    }
+}

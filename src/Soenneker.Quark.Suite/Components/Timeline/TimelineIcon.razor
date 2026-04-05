@@ -1,0 +1,112 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    <div class="@IconClass">
+        @if (ChildContent != null)
+        {
+            <div class="@IconInnerClass">
+                @ChildContent
+            </div>
+        }
+        else
+        {
+            <div class="@DotClass"></div>
+        }
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public Timeline? ParentTimeline { get; set; }
+
+    [Parameter]
+    public TimelineColor Color { get; set; } = TimelineColor.Primary;
+
+    [Parameter]
+    public TimelineStatus Status { get; set; } = TimelineStatus.Completed;
+
+    [Parameter]
+    public TimelineSize? Size { get; set; }
+
+    [Parameter]
+    public TimelineIconVariant Variant { get; set; } = TimelineIconVariant.Solid;
+
+    [Parameter]
+    public bool Loading { get; set; }
+
+    private TimelineSize ComputedSize => Size ?? ParentTimeline?.Size ?? TimelineSize.Medium;
+
+    private TimelineColor EffectiveColor => Status == TimelineStatus.Pending ? TimelineColor.Muted : Color;
+
+    private bool IsConnected => ParentTimeline?.ConnectorFit == TimelineConnectorFit.Connected;
+
+    private string IconClass => ComputedSize.Value switch
+    {
+        TimelineSize.SmallValue => $"{IconColorClass} h-8 w-8",
+        TimelineSize.LargeValue => $"{IconColorClass} h-12 w-12",
+        _ => $"{IconColorClass} h-10 w-10"
+    };
+
+    private string IconInnerClass => ComputedSize.Value switch
+    {
+        TimelineSize.SmallValue => "flex h-4 w-4 items-center justify-center",
+        TimelineSize.LargeValue => "flex h-6 w-6 items-center justify-center",
+        _ => "flex h-5 w-5 items-center justify-center"
+    };
+
+    private string DotClass => ComputedSize.Value switch
+    {
+        TimelineSize.SmallValue => "h-4 w-4 rounded-full",
+        TimelineSize.LargeValue => "h-6 w-6 rounded-full",
+        _ => "h-5 w-5 rounded-full"
+    };
+
+    private string IconColorClass => Variant.Value == TimelineIconVariant.OutlineValue
+        ? EffectiveColor.Value switch
+        {
+            TimelineColor.PrimaryValue => "flex items-center justify-center rounded-full bg-background border-2 border-primary text-primary",
+            TimelineColor.SecondaryValue => "flex items-center justify-center rounded-full bg-background border-2 border-secondary text-secondary",
+            TimelineColor.MutedValue => "flex items-center justify-center rounded-full bg-background border-2 border-muted text-muted-foreground",
+            TimelineColor.AccentValue => "flex items-center justify-center rounded-full bg-background border-2 border-accent text-accent",
+            TimelineColor.DestructiveValue => "flex items-center justify-center rounded-full bg-background border-2 border-destructive text-destructive",
+            _ => "flex items-center justify-center rounded-full bg-background border-2 border-primary text-primary"
+        }
+        : EffectiveColor.Value switch
+        {
+            TimelineColor.PrimaryValue => "flex items-center justify-center rounded-full bg-primary text-primary-foreground",
+            TimelineColor.SecondaryValue => "flex items-center justify-center rounded-full bg-secondary text-secondary-foreground",
+            TimelineColor.MutedValue => "flex items-center justify-center rounded-full bg-muted text-muted-foreground",
+            TimelineColor.AccentValue => "flex items-center justify-center rounded-full bg-accent text-accent-foreground",
+            TimelineColor.DestructiveValue => "flex items-center justify-center rounded-full bg-destructive text-destructive-foreground",
+            _ => "flex items-center justify-center rounded-full bg-primary text-primary-foreground"
+        };
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "timeline-icon";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-timeline-icon relative rounded-full shadow-sm");
+            if (!IsConnected)
+                AppendClass(ref cls, "ring-8 ring-background");
+
+            if (Loading)
+                AppendClass(ref cls, "animate-pulse");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Color);
+        hc.Add(Status);
+        hc.Add(Size);
+        hc.Add(Variant);
+        hc.Add(Loading);
+        hc.Add(ParentTimeline?.ConnectorFit);
+        hc.Add(ChildContent is not null);
+    }
+}

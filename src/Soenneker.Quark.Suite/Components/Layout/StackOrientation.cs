@@ -1,10 +1,13 @@
+using Soenneker.Gen.EnumValues;
+
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Determines whether a stack lays out items vertically or horizontally.
 /// </summary>
-public enum StackOrientation
+[EnumValue<string>]
+public sealed partial class StackOrientation
 {
-    Vertical,
-    Horizontal
+    public static readonly StackOrientation Vertical = new("vertical");
+    public static readonly StackOrientation Horizontal = new("horizontal");
 }

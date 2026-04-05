@@ -217,8 +217,8 @@
             .Where(toast => NormalizeToasterId(toast.ToasterId) == NormalizeToasterId(ToasterId))
             .OrderByDescending(toast => toast.CreatedAt);
 
-        if (ToastPosition.HasValue)
-            query = query.Where(toast => toast.Position == ToastPosition.Value)
+        if (ToastPosition is not null)
+            query = query.Where(toast => toast.Position == ToastPosition)
                          .OrderByDescending(toast => toast.CreatedAt);
 
         _groups = query.GroupBy(toast => toast.Position)
@@ -227,13 +227,13 @@
                        .ToList();
     }
 
-    private static int GetPositionOrder(SonnerPosition position) => position switch
+    private static int GetPositionOrder(SonnerPosition position) => position.Value switch
     {
-        SonnerPosition.TopLeft => 0,
-        SonnerPosition.TopCenter => 1,
-        SonnerPosition.TopRight => 2,
-        SonnerPosition.BottomLeft => 3,
-        SonnerPosition.BottomCenter => 4,
+        SonnerPosition.TopLeftValue => 0,
+        SonnerPosition.TopCenterValue => 1,
+        SonnerPosition.TopRightValue => 2,
+        SonnerPosition.BottomLeftValue => 3,
+        SonnerPosition.BottomCenterValue => 4,
         _ => 5
     };
 
@@ -282,60 +282,60 @@
         return $"--index: {index}; --toasts-before: {index}; --z-index: {zIndex}; --offset: {offset}px; --initial-height: {initialHeight}px;";
     }
 
-    private static string GetDataType(SonnerToast toast) => toast.Type switch
+    private static string GetDataType(SonnerToast toast) => toast.Type.Value switch
     {
-        SonnerToastType.Success => "success",
-        SonnerToastType.Info => "info",
-        SonnerToastType.Warning => "warning",
-        SonnerToastType.Error => "error",
-        SonnerToastType.Loading => "loading",
+        SonnerToastType.SuccessValue => "success",
+        SonnerToastType.InfoValue => "info",
+        SonnerToastType.WarningValue => "warning",
+        SonnerToastType.ErrorValue => "error",
+        SonnerToastType.LoadingValue => "loading",
         _ => "default"
     };
 
-    private static string GetXPosition(SonnerPosition position) => position switch
+    private static string GetXPosition(SonnerPosition position) => position.Value switch
     {
-        SonnerPosition.TopLeft or SonnerPosition.BottomLeft => "left",
-        SonnerPosition.TopCenter or SonnerPosition.BottomCenter => "center",
+        SonnerPosition.TopLeftValue or SonnerPosition.BottomLeftValue => "left",
+        SonnerPosition.TopCenterValue or SonnerPosition.BottomCenterValue => "center",
         _ => "right"
     };
 
-    private static string GetYPosition(SonnerPosition position) => position switch
+    private static string GetYPosition(SonnerPosition position) => position.Value switch
     {
-        SonnerPosition.TopLeft or SonnerPosition.TopCenter or SonnerPosition.TopRight => "top",
+        SonnerPosition.TopLeftValue or SonnerPosition.TopCenterValue or SonnerPosition.TopRightValue => "top",
         _ => "bottom"
     };
 
-    private static bool HasIcon(SonnerToast toast) => toast.Type != SonnerToastType.Default;
+    private static bool HasIcon(SonnerToast toast) => toast.Type.Value != SonnerToastType.DefaultValue;
 
     private static RenderFragment GetIcon(SonnerToast toast) => builder =>
     {
-        switch (toast.Type)
+        switch (toast.Type.Value)
         {
-            case SonnerToastType.Success:
+            case SonnerToastType.SuccessValue:
                 builder.OpenComponent<Icon>(0);
                 builder.AddAttribute(1, "Name", LucideIcon.CircleCheck);
                 builder.AddAttribute(2, "Class", "size-4");
                 builder.CloseComponent();
                 break;
-            case SonnerToastType.Info:
+            case SonnerToastType.InfoValue:
                 builder.OpenComponent<Icon>(0);
                 builder.AddAttribute(1, "Name", LucideIcon.Info);
                 builder.AddAttribute(2, "Class", "size-4");
                 builder.CloseComponent();
                 break;
-            case SonnerToastType.Warning:
+            case SonnerToastType.WarningValue:
                 builder.OpenComponent<Icon>(0);
                 builder.AddAttribute(1, "Name", LucideIcon.TriangleAlert);
                 builder.AddAttribute(2, "Class", "size-4");
                 builder.CloseComponent();
                 break;
-            case SonnerToastType.Error:
+            case SonnerToastType.ErrorValue:
                 builder.OpenComponent<Icon>(0);
                 builder.AddAttribute(1, "Name", LucideIcon.CircleX);
                 builder.AddAttribute(2, "Class", "size-4");
                 builder.CloseComponent();
                 break;
-            case SonnerToastType.Loading:
+            case SonnerToastType.LoadingValue:
                 builder.OpenComponent<Icon>(0);
                 builder.AddAttribute(1, "Name", LucideIcon.LoaderCircle);
                 builder.AddAttribute(2, "Class", "size-4 animate-spin");

@@ -1,11 +1,14 @@
+using Soenneker.Gen.EnumValues;
+
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Defines media style variants for <see cref="ItemMedia"/>.
 /// </summary>
-public enum ItemMediaVariant
+[EnumValue<string>]
+public sealed partial class ItemMediaVariant
 {
-    Default,
-    Icon,
-    Image
+    public static readonly ItemMediaVariant Default = new("default");
+    public static readonly ItemMediaVariant Icon = new("icon");
+    public static readonly ItemMediaVariant Image = new("image");
 }

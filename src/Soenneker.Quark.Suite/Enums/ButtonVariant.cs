@@ -1,26 +1,29 @@
+using Soenneker.Gen.EnumValues;
+
 namespace Soenneker.Quark;
 
 /// <summary>
 /// Defines the visual style variant for a Button component.
 /// Follows shadcn/ui design system using CSS custom properties.
 /// </summary>
-public enum ButtonVariant
+[EnumValue<string>]
+public sealed partial class ButtonVariant
 {
     /// <summary>Default primary button style (solid background).</summary>
-    Default,
+    public static readonly ButtonVariant Default = new("default");
 
     /// <summary>Destructive action style (delete, remove).</summary>
-    Destructive,
+    public static readonly ButtonVariant Destructive = new("destructive");
 
     /// <summary>Outlined style with transparent background and border.</summary>
-    Outline,
+    public static readonly ButtonVariant Outline = new("outline");
 
     /// <summary>Secondary style with muted background.</summary>
-    Secondary,
+    public static readonly ButtonVariant Secondary = new("secondary");
 
     /// <summary>Ghost style - no background, shows on hover.</summary>
-    Ghost,
+    public static readonly ButtonVariant Ghost = new("ghost");
 
     /// <summary>Link-styled button (underlined text).</summary>
-    Link
+    public static readonly ButtonVariant Link = new("link");
 }

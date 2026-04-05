@@ -1,0 +1,85 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()"></div>
+
+@code {
+    [Parameter]
+    public TimelineStatus Status { get; set; } = TimelineStatus.Completed;
+
+    [Parameter]
+    public TimelineColor? Color { get; set; }
+
+    [Parameter]
+    public TimelineConnectorStyle ConnectorStyle { get; set; } = TimelineConnectorStyle.Solid;
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "timeline-connector";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-timeline-connector w-0.5");
+
+            if (ConnectorStyle != TimelineConnectorStyle.Solid)
+            {
+                AppendClass(ref cls, "border-l-2");
+                var borderStyleClass = ConnectorStyle.Value switch
+                {
+                    TimelineConnectorStyle.DashedValue => "border-dashed",
+                    TimelineConnectorStyle.DottedValue => "border-dotted",
+                    _ => null
+                };
+
+                if (borderStyleClass != null)
+                    AppendClass(ref cls, borderStyleClass);
+            }
+
+            if (ConnectorStyle == TimelineConnectorStyle.Solid)
+            {
+                AppendClass(ref cls, Color?.Value switch
+                {
+                    TimelineColor.PrimaryValue => "bg-primary",
+                    TimelineColor.SecondaryValue => "bg-secondary",
+                    TimelineColor.MutedValue => "bg-muted",
+                    TimelineColor.AccentValue => "bg-accent",
+                    TimelineColor.DestructiveValue => "bg-destructive",
+                    _ => Status.Value switch
+                    {
+                        TimelineStatus.CompletedValue => "bg-primary",
+                        TimelineStatus.InProgressValue => "bg-linear-to-b from-primary to-muted",
+                        TimelineStatus.PendingValue => "bg-muted",
+                        _ => "bg-primary"
+                    }
+                });
+            }
+            else
+            {
+                AppendClass(ref cls, Color?.Value switch
+                {
+                    TimelineColor.PrimaryValue => "border-primary",
+                    TimelineColor.SecondaryValue => "border-secondary",
+                    TimelineColor.MutedValue => "border-muted",
+                    TimelineColor.AccentValue => "border-accent",
+                    TimelineColor.DestructiveValue => "border-destructive",
+                    _ => Status.Value switch
+                    {
+                        TimelineStatus.CompletedValue => "border-primary",
+                        TimelineStatus.InProgressValue => "border-primary",
+                        TimelineStatus.PendingValue => "border-muted",
+                        _ => "border-primary"
+                    }
+                });
+            }
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Status);
+        hc.Add(Color);
+        hc.Add(ConnectorStyle);
+    }
+}

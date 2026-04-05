@@ -76,6 +76,7 @@ public static class DocsNavigation
         new("Switch", "switches"),
         new("Tabs", "tabs"),
         new("Textarea", "textareas"),
+        new("Timeline", "timelines"),
         new("Toggle", "toggles"),
         new("Tooltip", "tooltips"),
         new("Typography", "typography")

@@ -1,0 +1,33 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<TimelineIcon Size="@ComputedSize" @attributes="BuildAttributes()">
+    @ChildContent
+</TimelineIcon>
+
+@code {
+    [CascadingParameter]
+    public Timeline? ParentTimeline { get; set; }
+
+    [Parameter]
+    public TimelineSize? Size { get; set; }
+
+    private TimelineSize ComputedSize => Size ?? ParentTimeline?.Size ?? TimelineSize.Medium;
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "timeline-marker";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-timeline-marker");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Size);
+    }
+}

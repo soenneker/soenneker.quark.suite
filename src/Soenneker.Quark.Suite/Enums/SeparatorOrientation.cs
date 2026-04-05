@@ -1,8 +1,11 @@
+using Soenneker.Gen.EnumValues;
+
 namespace Soenneker.Quark;
 
 /// <summary>shadcn Separator orientation.</summary>
-public enum SeparatorOrientation
+[EnumValue<string>]
+public sealed partial class SeparatorOrientation
 {
-    Horizontal,
-    Vertical
+    public static readonly SeparatorOrientation Horizontal = new("horizontal");
+    public static readonly SeparatorOrientation Vertical = new("vertical");
 }
