@@ -34,14 +34,14 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "timeline";
-        attributes["data-align"] = Align.ToString().ToLowerInvariant();
+        attributes["data-align"] = Align?.Value ?? TimelineAlign.Center.Value;
         attributes["aria-label"] = AriaLabel ?? "Timeline";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-timeline");
             AppendClass(ref cls, "relative flex flex-col");
-            AppendClass(ref cls, Size.Value switch
+            AppendClass(ref cls, Size?.Value switch
             {
                 TimelineSize.SmallValue => "gap-2",
                 TimelineSize.LargeValue => "gap-6",

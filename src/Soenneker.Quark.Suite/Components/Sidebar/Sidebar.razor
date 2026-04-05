@@ -22,7 +22,7 @@
                 <SheetDescription>Displays the mobile sidebar.</SheetDescription>
             </SheetHeader>
             <div class="flex h-full w-full flex-col">
-                @if (Shell == SidebarShell.Navigation)
+                @if (IsNavigationShell(Shell))
                 {
                     <div class="no-scrollbar flex min-h-0 flex-1 flex-col gap-12 overflow-y-auto bg-background px-6 py-6">
                         @RenderMobileBody()
@@ -36,10 +36,10 @@
         </SheetContent>
     </Sheet>
 }
-else if (Collapsible == SidebarCollapsible.None)
+else if (IsNoneCollapsible(Collapsible))
 {
     <aside @attributes="BuildStaticAttributes()">
-        @if (Shell == SidebarShell.Navigation)
+        @if (IsNavigationShell(Shell))
         {
             <div class="hidden h-9 lg:block"></div>
             <div class="absolute top-8 z-10 hidden h-8 w-(--sidebar-menu-width) shrink-0 bg-linear-to-b from-background via-background/80 to-background/50 blur-xs lg:block"></div>
@@ -48,7 +48,7 @@ else if (Collapsible == SidebarCollapsible.None)
 
         @ChildContent
 
-        @if (Shell == SidebarShell.Navigation)
+        @if (IsNavigationShell(Shell))
         {
             <div class="sticky -bottom-1 z-10 hidden h-16 shrink-0 bg-linear-to-t from-background via-background/80 to-background/50 blur-xs lg:block"></div>
         }
@@ -67,6 +67,7 @@ else
 }
 
 @code {
+
     [Parameter]
     public SidebarSide Side { get; set; } = SidebarSide.Left;
 
@@ -74,7 +75,7 @@ else
     public SidebarVariant Variant { get; set; } = SidebarVariant.Sidebar;
 
     [Parameter]
-    public SidebarShell Shell { get; set; }
+    public SidebarShell Shell { get; set; } = SidebarShell.Default;
 
     [Parameter]
     public SidebarCollapsible Collapsible { get; set; } = SidebarCollapsible.Offcanvas;
@@ -130,17 +131,66 @@ else
     [CascadingParameter(Name = "SidebarContextState")]
     public SidebarContextState? State { get; set; }
 
-    private static string ToDataSide(SidebarSide side) => side == SidebarSide.Right ? "right" : "left";
-    private static string ToDataVariant(SidebarVariant variant) => variant.ToString().ToLowerInvariant();
-    private static string ToDataCollapsible(SidebarCollapsible collapsible) => collapsible.ToString().ToLowerInvariant();
-    private static string ToDataMobileMode(SidebarMobileMode mode) => mode.ToString().ToLowerInvariant();
-    private static string ToDataShell(SidebarShell shell) => shell.ToString().ToLowerInvariant();
+    private static bool IsRightSide(SidebarSide? side) => ReferenceEquals(side, SidebarSide.Right);
+    private static bool IsNavigationShell(SidebarShell? shell) => ReferenceEquals(shell, SidebarShell.Navigation);
+    private static bool IsNoneCollapsible(SidebarCollapsible? collapsible) => ReferenceEquals(collapsible, SidebarCollapsible.None);
+    private static bool IsAutoMobileMode(SidebarMobileMode? mode) => ReferenceEquals(mode, SidebarMobileMode.Auto);
+    private static bool IsHiddenMobileMode(SidebarMobileMode? mode) => ReferenceEquals(mode, SidebarMobileMode.Hidden);
+    private static bool IsFullScreenMobileMode(SidebarMobileMode? mode) => ReferenceEquals(mode, SidebarMobileMode.FullScreen);
+    private static bool IsFloatingLikeVariant(SidebarVariant? variant) => ReferenceEquals(variant, SidebarVariant.Floating) || ReferenceEquals(variant, SidebarVariant.Inset);
+
+    private static string ToDataSide(SidebarSide? side) => IsRightSide(side) ? "right" : "left";
+
+    private static string ToDataVariant(SidebarVariant? variant)
+    {
+        if (ReferenceEquals(variant, SidebarVariant.Floating))
+            return "floating";
+
+        if (ReferenceEquals(variant, SidebarVariant.Inset))
+            return "inset";
+
+        return "sidebar";
+    }
+
+    private static string ToDataCollapsible(SidebarCollapsible? collapsible)
+    {
+        if (ReferenceEquals(collapsible, SidebarCollapsible.Icon))
+            return "icon";
+
+        if (IsNoneCollapsible(collapsible))
+            return "none";
+
+        return "offcanvas";
+    }
+
+    private static string ToDataMobileMode(SidebarMobileMode? mode)
+    {
+        if (IsHiddenMobileMode(mode))
+            return "hidden";
+
+        if (ReferenceEquals(mode, SidebarMobileMode.Sheet))
+            return "sheet";
+
+        if (IsFullScreenMobileMode(mode))
+            return "full-screen";
+
+        return "auto";
+    }
+
+    private static string ToDataShell(SidebarShell? shell) => IsNavigationShell(shell) ? "navigation" : "default";
 
     private bool IsCollapsed => State is not null && !State.Open;
-    private SidebarMobileMode ResolvedMobileMode => MobileMode == SidebarMobileMode.Auto
-        ? Collapsible == SidebarCollapsible.None ? SidebarMobileMode.Hidden : SidebarMobileMode.Sheet
-        : MobileMode;
-    private bool ShouldRenderMobileSidebar => State?.IsMobile == true && ResolvedMobileMode != SidebarMobileMode.Hidden;
+
+    private SidebarMobileMode ResolvedMobileMode
+    {
+        get
+        {
+            var mode = MobileMode ?? SidebarMobileMode.Auto;
+            return IsAutoMobileMode(mode) ? IsNoneCollapsible(Collapsible) ? SidebarMobileMode.Hidden : SidebarMobileMode.Sheet : mode;
+        }
+    }
+
+    private bool ShouldRenderMobileSidebar => State?.IsMobile == true && !IsHiddenMobileMode(ResolvedMobileMode);
 
     private Task OnMobileVisibleChanged(bool visible)
     {
@@ -179,11 +229,9 @@ else
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-sidebar");
-            AppendClass(ref cls, Shell == SidebarShell.Navigation
-                ? "group peer hidden h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground lg:flex"
-                : "group peer flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground");
+            AppendClass(ref cls, IsNavigationShell(Shell) ? "group peer hidden h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground lg:flex" : "group peer flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground");
 
-            if (Shell == SidebarShell.Navigation)
+            if (IsNavigationShell(Shell))
                 AppendClass(ref cls, "relative shrink-0 overflow-hidden [--sidebar-menu-width:--spacing(56)] lg:bg-transparent");
         });
 
@@ -217,10 +265,10 @@ else
             if (!MobileShowCloseButton)
                 AppendClass(ref cls, "[&>button]:hidden");
 
-            if (ResolvedMobileMode == SidebarMobileMode.FullScreen)
+            if (IsFullScreenMobileMode(ResolvedMobileMode))
                 AppendClass(ref cls, "inset-0 h-svh w-screen max-w-none rounded-none border-0 sm:max-w-none");
 
-            if (Shell == SidebarShell.Navigation)
+            if (IsNavigationShell(Shell))
                 AppendClass(ref cls, "gap-0 border-none bg-background/90 shadow-none backdrop-blur");
 
             if (MobileClass.HasContent())
@@ -235,9 +283,7 @@ else
 
     private string? GetMobileContainerClass()
     {
-        return Shell == SidebarShell.Navigation
-            ? ClassNames.Combine("z-40", MobileContainerClass)
-            : MobileContainerClass;
+        return IsNavigationShell(Shell) ? ClassNames.Combine("z-40", MobileContainerClass) : MobileContainerClass;
     }
 
     private string? GetMobileContainerStyle()
@@ -300,7 +346,7 @@ else
             AppendClass(ref cls, "group-data-[collapsible=offcanvas]:w-0");
             AppendClass(ref cls, "group-data-[side=right]:rotate-180");
 
-            if (Variant.Value is SidebarVariant.FloatingValue or SidebarVariant.InsetValue)
+            if (IsFloatingLikeVariant(Variant))
                 AppendClass(ref cls, "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]");
             else
                 AppendClass(ref cls, "group-data-[collapsible=icon]:w-(--sidebar-width-icon)");
@@ -320,12 +366,12 @@ else
         {
             AppendClass(ref cls, "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex");
 
-            if (Side == SidebarSide.Left)
+            if (!IsRightSide(Side))
                 AppendClass(ref cls, "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]");
             else
                 AppendClass(ref cls, "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]");
 
-            if (Variant.Value is SidebarVariant.FloatingValue or SidebarVariant.InsetValue)
+            if (IsFloatingLikeVariant(Variant))
                 AppendClass(ref cls, "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]");
             else
                 AppendClass(ref cls, "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l");
@@ -426,4 +472,5 @@ else
         hc.Add(State?.OpenMobile);
         hc.Add(State?.IsMobile);
     }
+
 }

@@ -227,7 +227,7 @@
                        .ToList();
     }
 
-    private static int GetPositionOrder(SonnerPosition position) => position.Value switch
+    private static int GetPositionOrder(SonnerPosition position) => position?.Value switch
     {
         SonnerPosition.TopLeftValue => 0,
         SonnerPosition.TopCenterValue => 1,
@@ -282,7 +282,7 @@
         return $"--index: {index}; --toasts-before: {index}; --z-index: {zIndex}; --offset: {offset}px; --initial-height: {initialHeight}px;";
     }
 
-    private static string GetDataType(SonnerToast toast) => toast.Type.Value switch
+    private static string GetDataType(SonnerToast toast) => toast.Type?.Value switch
     {
         SonnerToastType.SuccessValue => "success",
         SonnerToastType.InfoValue => "info",
@@ -292,24 +292,24 @@
         _ => "default"
     };
 
-    private static string GetXPosition(SonnerPosition position) => position.Value switch
+    private static string GetXPosition(SonnerPosition position) => position?.Value switch
     {
         SonnerPosition.TopLeftValue or SonnerPosition.BottomLeftValue => "left",
         SonnerPosition.TopCenterValue or SonnerPosition.BottomCenterValue => "center",
         _ => "right"
     };
 
-    private static string GetYPosition(SonnerPosition position) => position.Value switch
+    private static string GetYPosition(SonnerPosition position) => position?.Value switch
     {
         SonnerPosition.TopLeftValue or SonnerPosition.TopCenterValue or SonnerPosition.TopRightValue => "top",
         _ => "bottom"
     };
 
-    private static bool HasIcon(SonnerToast toast) => toast.Type.Value != SonnerToastType.DefaultValue;
+    private static bool HasIcon(SonnerToast toast) => toast.Type?.Value != SonnerToastType.DefaultValue;
 
     private static RenderFragment GetIcon(SonnerToast toast) => builder =>
     {
-        switch (toast.Type.Value)
+        switch (toast.Type?.Value)
         {
             case SonnerToastType.SuccessValue:
                 builder.OpenComponent<Icon>(0);

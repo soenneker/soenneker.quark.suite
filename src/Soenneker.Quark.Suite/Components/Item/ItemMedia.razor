@@ -9,7 +9,7 @@
     public ItemMediaVariant Variant { get; set; } = ItemMediaVariant.Default;
 
     private static string GetVariantClass(ItemMediaVariant variant)
-        => variant.Value switch
+        => variant?.Value switch
         {
             ItemMediaVariant.IconValue => "size-8 border rounded-sm bg-muted [&_svg:not([class*='size-'])]:size-4",
             ItemMediaVariant.ImageValue => "size-10 rounded-sm overflow-hidden [&_img]:size-full [&_img]:object-cover",
@@ -20,7 +20,7 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "item-media";
-        attributes["data-variant"] = Variant.ToString().ToLowerInvariant();
+        attributes["data-variant"] = Variant?.Value ?? ItemMediaVariant.Default.Value;
 
         // shadcn/ui item-media base - exact copy from new-york-v4 ui/item.tsx
         BuildClassAttribute(attributes, (ref cls) =>

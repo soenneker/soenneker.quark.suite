@@ -34,14 +34,14 @@
     public ToggleSize Size { get; set; } = ToggleSize.Default;
 
     private static string GetVariantClass(ToggleVariant variant)
-        => variant.Value switch
+        => variant?.Value switch
         {
             ToggleVariant.OutlineValue => "border border-input bg-transparent shadow-xs hover:bg-accent hover:text-accent-foreground",
             _ => "bg-transparent"
         };
 
     private static string GetSizeClass(ToggleSize size)
-        => size.Value switch
+        => size?.Value switch
         {
             ToggleSize.SmallValue => "h-8 px-1.5 min-w-8",
             ToggleSize.LargeValue => "h-10 px-2.5 min-w-10",
@@ -56,7 +56,7 @@
         attributes["data-slot"] = "toggle";
         attributes["aria-pressed"] = Pressed ? "true" : "false";
         attributes["data-state"] = Pressed ? "on" : "off";
-        attributes["data-variant"] = Variant.ToString().ToLowerInvariant();
+        attributes["data-variant"] = Variant?.Value ?? ToggleVariant.Default.Value;
 
         if (Disabled)
             attributes["disabled"] = true;

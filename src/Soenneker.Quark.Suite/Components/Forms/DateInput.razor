@@ -175,11 +175,13 @@
 		return sizeVal.ToLowerInvariant() switch { "sm" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
 	}
 
+    private string InputModeValue => InputMode?.Value ?? DateInputMode.Date.Value;
+
 	private string GetCurrentValue()
 	{
 		if (Date.HasValue)
 		{
-			return InputMode.Value switch
+			return InputModeValue switch
 			{
 				"date" => Date.Value.ToString("yyyy-MM-dd"),
 				"datetime-local" => Date.Value.ToString("yyyy-MM-ddTHH:mm"),
@@ -189,7 +191,7 @@
 		}
 		else if (DateOnly.HasValue)
 		{
-			return InputMode.Value switch
+			return InputModeValue switch
 			{
 				"date" => DateOnly.Value.ToString("yyyy-MM-dd"),
 				"datetime-local" => DateOnly.Value.ToString("yyyy-MM-ddTHH:mm"),
@@ -291,7 +293,7 @@
 
 	private string GetInputModeString()
 	{
-		return InputMode.Value;
+		return InputModeValue;
 	}
 
 	private Dictionary<string, object> BuildInputAttributes()
@@ -301,7 +303,7 @@
 		// Add DateInput-specific attributes
 		if (Min != default)
 		{
-			var minString = InputMode.Value switch
+			var minString = InputModeValue switch
 			{
 				"date" => Min.ToString("yyyy-MM-dd"),
 				"datetime-local" => Min.ToString("yyyy-MM-ddTHH:mm"),
@@ -312,7 +314,7 @@
 		}
 		else if (MinDateOnly != default)
 		{
-			var minString = InputMode.Value switch
+			var minString = InputModeValue switch
 			{
 				"date" => MinDateOnly.ToString("yyyy-MM-dd"),
 				"datetime-local" => MinDateOnly.ToString("yyyy-MM-ddTHH:mm"),
@@ -324,7 +326,7 @@
 
 		if (Max != default)
 		{
-			var maxString = InputMode.Value switch
+			var maxString = InputModeValue switch
 			{
 				"date" => Max.ToString("yyyy-MM-dd"),
 				"datetime-local" => Max.ToString("yyyy-MM-ddTHH:mm"),
@@ -335,7 +337,7 @@
 		}
 		else if (MaxDateOnly != default)
 		{
-			var maxString = InputMode.Value switch
+			var maxString = InputModeValue switch
 			{
 				"date" => MaxDateOnly.ToString("yyyy-MM-dd"),
 				"datetime-local" => MaxDateOnly.ToString("yyyy-MM-ddTHH:mm"),

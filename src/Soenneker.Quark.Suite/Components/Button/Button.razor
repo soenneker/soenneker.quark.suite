@@ -49,7 +49,7 @@ else
     [CascadingParameter(Name = "TriggerContext")]
     private TriggerContext? TriggerContext { get; set; }
 
-    private bool RenderAsLink => Type == ButtonType.Link || To.HasContent();
+    private bool RenderAsLink => string.Equals(Type?.Value, "link", StringComparison.Ordinal) || To.HasContent();
 
     private bool PreventLinkDefault =>
         Disabled ||
@@ -133,7 +133,7 @@ else
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string GetShadcnVariantClass(ButtonVariant variant)
-        => variant.Value switch
+        => variant?.Value switch
         {
             ButtonVariant.DestructiveValue => "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40",
             ButtonVariant.OutlineValue => "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
@@ -145,7 +145,7 @@ else
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string GetShadcnSizeClass(ButtonSize size)
-        => size.Value switch
+        => size?.Value switch
         {
             ButtonSize.XsValue => "h-6 gap-1 px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
             ButtonSize.SmValue => "h-8 gap-1.5 px-3 has-[>svg]:px-2.5",
@@ -159,7 +159,7 @@ else
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string GetSizeDataAttr(ButtonSize size)
-        => size.Value switch
+        => size?.Value switch
         {
             ButtonSize.XsValue => "xs",
             ButtonSize.SmValue => "sm",
@@ -183,7 +183,7 @@ else
         var isDisabled = Disabled || Loading || attributes.ContainsKey("disabled");
 
         attributes.TryAdd("data-slot", "button");
-        attributes["data-variant"] = Variant.ToString().ToLowerInvariant();
+        attributes["data-variant"] = Variant?.Value ?? ButtonVariant.Default.Value;
 
         var effectiveSize = ButtonGroup?.Size ?? Size;
         attributes["data-size"] = GetSizeDataAttr(effectiveSize);
@@ -240,7 +240,7 @@ else
         }
 
         if (!isLink)
-            attributes["type"] = Type.Value;
+            attributes["type"] = Type?.Value ?? "button";
 
         if (isLink)
         {
@@ -322,7 +322,7 @@ else
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string GetRadiusClass(ButtonSize size)
-        => size.Value switch
+        => size?.Value switch
         {
             ButtonSize.XsValue => "rounded-md",
             ButtonSize.SmValue => "rounded-md",

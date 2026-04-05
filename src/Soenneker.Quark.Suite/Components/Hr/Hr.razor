@@ -15,9 +15,10 @@
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        attributes["data-orientation"] = Orientation.ToString().ToLowerInvariant();
+        var orientation = Orientation?.Value ?? SeparatorOrientation.Horizontal.Value;
+        attributes["data-orientation"] = orientation;
         if (!Decorative)
-            attributes["aria-orientation"] = Orientation.ToString().ToLowerInvariant();
+            attributes["aria-orientation"] = orientation;
         // shadcn Separator - new-york-v4 ui/separator.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {

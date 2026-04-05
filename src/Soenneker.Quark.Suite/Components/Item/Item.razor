@@ -12,7 +12,7 @@
     public ItemSize Size { get; set; } = ItemSize.Default;
 
     private static string GetVariantClass(ItemVariant variant)
-        => variant.Value switch
+        => variant?.Value switch
         {
             ItemVariant.OutlineValue => "border-border",
             ItemVariant.MutedValue => "bg-muted/50",
@@ -20,7 +20,7 @@
         };
 
     private static string GetSizeClass(ItemSize size)
-        => size.Value switch
+        => size?.Value switch
         {
             ItemSize.SmallValue => "py-3 px-4 gap-2.5",
             _ => "p-4 gap-4"
@@ -30,8 +30,8 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "item";
-        attributes["data-variant"] = Variant.ToString().ToLowerInvariant();
-        attributes["data-size"] = Size.Value switch
+        attributes["data-variant"] = Variant?.Value ?? ItemVariant.Default.Value;
+        attributes["data-size"] = Size?.Value switch
         {
             ItemSize.SmallValue => "sm",
             _ => "default"

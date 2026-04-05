@@ -7,7 +7,7 @@ public static class AlertVariantClasses
     /// </summary>
     public static string GetVariantClasses(AlertVariant variant, bool accentBorder)
     {
-        return variant.Value switch
+        return variant?.Value switch
         {
             AlertVariant.SuccessValue => accentBorder
                 ? "border-l-alert-success bg-alert-success-bg border-alert-success/30 [&>svg]:text-alert-success"

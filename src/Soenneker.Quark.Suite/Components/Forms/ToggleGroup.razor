@@ -51,7 +51,7 @@
     public int Spacing { get; set; }
 
     private static string GetVariantClass(ToggleVariant variant)
-        => variant.Value switch
+        => variant?.Value switch
         {
             ToggleVariant.OutlineValue => "data-[variant=outline]:shadow-xs",
             _ => ""
@@ -62,9 +62,9 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "toggle-group";
-        attributes["data-type"] = Type.ToString().ToLowerInvariant();
-        attributes["data-variant"] = Variant.ToString().ToLowerInvariant();
-        attributes["data-size"] = Size.ToString().ToLowerInvariant();
+        attributes["data-type"] = Type?.Value ?? ToggleGroupType.Single.Value;
+        attributes["data-variant"] = Variant?.Value ?? ToggleVariant.Default.Value;
+        attributes["data-size"] = Size?.Value ?? ToggleSize.Default.Value;
         attributes["data-spacing"] = Spacing.ToString();
         if (Spacing > 0)
             attributes["style"] = $"--toggle-gap: {Spacing}px";

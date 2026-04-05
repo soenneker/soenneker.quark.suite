@@ -18,7 +18,7 @@
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string GetShadcnVariantClass(BadgeVariant variant)
-        => variant.Value switch
+        => variant?.Value switch
         {
             BadgeVariant.SecondaryValue => "bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
             BadgeVariant.DestructiveValue => "bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
@@ -33,7 +33,7 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "badge";
-        attributes["data-variant"] = Variant.ToString().ToLowerInvariant();
+        attributes["data-variant"] = Variant?.Value ?? BadgeVariant.Default.Value;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
