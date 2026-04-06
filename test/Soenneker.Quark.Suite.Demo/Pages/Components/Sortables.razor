@@ -1,0 +1,185 @@
+@page "/sortables"
+@using System.Linq
+
+<PageTitle>Sortable - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" Class="max-w-6xl">
+    <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Basic List"
+                         Description="Drag entire cards to reorder a backlog. The component raises an event so your page can persist the new order."
+                         Code="@(@"<SortableList OnReorder=""HandleBacklogReorder"">
+    @foreach (var item in _backlog)
+    {
+        <SortableItem ItemId=""@item.Id"">
+            ...
+        </SortableItem>
+    }
+</SortableList>")">
+                <Div Width="Width.IsFull" Class="max-w-3xl">
+                    <SortableList OnReorder="HandleBacklogReorder">
+                        @foreach (var card in _backlog)
+                        {
+                            <SortableItem ItemId="@card.Id">
+                                <div class="w-full rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm transition-shadow hover:shadow-md">
+                                    <div class="flex items-start justify-between gap-4">
+                                        <div class="space-y-1">
+                                            <div class="text-sm font-semibold">@card.Title</div>
+                                            <div class="text-sm text-muted-foreground">@card.Owner</div>
+                                        </div>
+                                        <span class="@($"inline-flex rounded-full px-2 py-1 text-xs font-medium {card.BadgeClass}")">
+                                            @card.Status
+                                        </span>
+                                    </div>
+                                </div>
+                            </SortableItem>
+                        }
+                    </SortableList>
+
+                    <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is4.FromTop.Is0.FromBottom">
+                        Current order: <Strong>@GetBacklogOrder()</Strong>
+                    </Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Handle Only"
+                         Description="Set HandleOnly to require a dedicated drag affordance instead of making the whole row draggable."
+                         Code="@(@"<SortableList HandleOnly=""true"" OnReorder=""HandleReleaseStepReorder"">
+    <SortableItem ItemId=""deploy"">
+        <SortableHandle>
+            <Icon Name=""LucideIcon.GripVertical"" />
+        </SortableHandle>
+    </SortableItem>
+</SortableList>")">
+                <Div Width="Width.IsFull" Class="max-w-3xl">
+                    <SortableList HandleOnly="true" OnReorder="HandleReleaseStepReorder">
+                        @foreach (var step in _releaseSteps)
+                        {
+                            <SortableItem ItemId="@step.Id">
+                                <div class="flex w-full items-center gap-3 rounded-xl border border-border bg-background p-4 shadow-sm">
+                                    <SortableHandle Class="size-9 rounded-lg border border-border bg-muted/40 text-muted-foreground">
+                                        <Icon Name="LucideIcon.GripVertical" Class="size-4" />
+                                    </SortableHandle>
+
+                                    <div class="min-w-0 flex-1 text-left">
+                                        <div class="truncate text-sm font-semibold">@step.Title</div>
+                                        <div class="truncate text-sm text-muted-foreground">@step.Detail</div>
+                                    </div>
+
+                                    <span class="inline-flex rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
+                                        @step.Environment
+                                    </span>
+                                </div>
+                            </SortableItem>
+                        }
+                    </SortableList>
+
+                    <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is4.FromTop.Is0.FromBottom">
+                        Last move: <Strong>@_lastMoveSummary</Strong>
+                    </Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Disabled"
+                         Description="Disable the list when the ordering is read-only or controlled elsewhere.">
+                <Div Width="Width.IsFull" Class="max-w-3xl">
+                    <SortableList Disabled="true">
+                        @foreach (var item in _frozenChecklist)
+                        {
+                            <SortableItem ItemId="@item.Id">
+                                <div class="w-full rounded-xl border border-dashed border-border bg-muted/20 p-4 text-left">
+                                    <div class="text-sm font-semibold">@item.Title</div>
+                                    <div class="text-sm text-muted-foreground">@item.Detail</div>
+                                </div>
+                            </SortableItem>
+                        }
+                    </SortableList>
+                </Div>
+            </DemoSection>
+        </Section>
+    </Div>
+</Div>
+
+@code {
+    private readonly List<SortableCard> _backlog =
+    [
+        new("usage-analytics", "Usage analytics dashboard", "Owned by Product", "Ready", "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"),
+        new("billing-export", "Billing export retry policy", "Owned by Platform", "In review", "bg-blue-500/10 text-blue-700 dark:text-blue-300"),
+        new("empty-state", "Empty state polish", "Owned by Design", "Todo", "bg-amber-500/10 text-amber-700 dark:text-amber-300"),
+        new("audit-log", "Audit log filters", "Owned by Support", "Blocked", "bg-rose-500/10 text-rose-700 dark:text-rose-300")
+    ];
+
+    private readonly List<SortableStep> _releaseSteps =
+    [
+        new("build", "Build artifacts", "Create and sign the release bundle.", "CI"),
+        new("smoke", "Run smoke tests", "Verify the preview environment before promote.", "Preview"),
+        new("promote", "Promote to production", "Approve the rollout window and push live.", "Prod"),
+        new("announce", "Post release note", "Notify support and customer success.", "Ops")
+    ];
+
+    private readonly List<SortableStep> _frozenChecklist =
+    [
+        new("contract", "Contract signed", "Locked after legal review.", "Ready"),
+        new("dns", "DNS validated", "Owned by infrastructure automation.", "Ready"),
+        new("handoff", "Customer handoff", "Waiting on scheduled launch window.", "Queued")
+    ];
+
+    private string _lastMoveSummary = "No changes yet.";
+
+    private Task HandleBacklogReorder(SortableReorderEventArgs args)
+    {
+        if (TryMoveItem(_backlog, args))
+        {
+            _lastMoveSummary = $"{args.ItemId ?? "item"} moved from {args.OldIndex + 1} to {args.NewIndex + 1}.";
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task HandleReleaseStepReorder(SortableReorderEventArgs args)
+    {
+        if (TryMoveItem(_releaseSteps, args))
+        {
+            _lastMoveSummary = $"{args.ItemId ?? "step"} moved from {args.OldIndex + 1} to {args.NewIndex + 1}.";
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private string GetBacklogOrder()
+    {
+        return string.Join(" -> ", _backlog.Select(card => card.Title));
+    }
+
+    private static bool TryMoveItem<T>(List<T> items, SortableReorderEventArgs args)
+    {
+        if (args.OldIndex < 0 || args.NewIndex < 0)
+        {
+            return false;
+        }
+
+        if (args.OldIndex >= items.Count || args.NewIndex >= items.Count)
+        {
+            return false;
+        }
+
+        if (args.OldIndex == args.NewIndex)
+        {
+            return false;
+        }
+
+        T item = items[args.OldIndex];
+        items.RemoveAt(args.OldIndex);
+        items.Insert(args.NewIndex, item);
+
+        return true;
+    }
+
+    private sealed record SortableCard(string Id, string Title, string Owner, string Status, string BadgeClass);
+
+    private sealed record SortableStep(string Id, string Title, string Detail, string Environment);
+}

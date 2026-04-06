@@ -69,6 +69,7 @@ public static class DocsNavigation
         new("Sidebar", "sidebar"),
         new("Skeleton", "skeletons"),
         new("Slider", "sliders"),
+        new("Sortable", "sortables", IsNew: true),
         new("Sonner", "sonner"),
         new("Spinner", "spinners"),
         new("Stack", "stack"),

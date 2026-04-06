@@ -1,0 +1,27 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements ISortableHandle
+
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "sortable-handle";
+        attributes["data-sortable-handle"] = string.Empty;
+
+        if (!attributes.ContainsKey("aria-label") && AriaLabel is null)
+        {
+            attributes["aria-label"] = "Drag handle";
+        }
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-sortable-handle inline-flex shrink-0 items-center justify-center cursor-grab touch-none select-none");
+        });
+    }
+}

@@ -1,0 +1,134 @@
+@using Microsoft.JSInterop
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements ISortableList
+
+@inject ISortableInterop SortableInterop
+
+<div @ref="ElementRef" @attributes="BuildAttributes()">
+    <CascadingValue Value="this" IsFixed="true">
+        @ChildContent
+    </CascadingValue>
+</div>
+
+@code {
+    private readonly string _listId = $"sortable-{Guid.NewGuid():N}";
+    private DotNetObjectReference<SortableList>? _dotNetRef;
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public bool Sort { get; set; } = true;
+
+    [Parameter]
+    public int AnimationMs { get; set; } = 150;
+
+    [Parameter]
+    public string? Group { get; set; }
+
+    [Parameter]
+    public bool HandleOnly { get; set; }
+
+    [Parameter]
+    public string ItemSelector { get; set; } = "[data-sortable-item]";
+
+    [Parameter]
+    public string? HandleSelector { get; set; }
+
+    [Parameter]
+    public string? FilterSelector { get; set; }
+
+    [Parameter]
+    public EventCallback<SortableReorderEventArgs> OnReorder { get; set; }
+
+    [JSInvokable]
+    public async Task HandleReorder(SortableReorderEventArgs args)
+    {
+        if (args.OldIndex < 0 || args.NewIndex < 0)
+        {
+            return;
+        }
+
+        if (OnReorder.HasDelegate)
+        {
+            await OnReorder.InvokeAsync(args);
+        }
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "sortable-list";
+        attributes["data-sortable-list-id"] = _listId;
+
+        if (!attributes.ContainsKey("role"))
+        {
+            attributes["role"] = Role ?? "list";
+        }
+
+        if (Disabled)
+        {
+            attributes["data-disabled"] = "true";
+            attributes["aria-disabled"] = "true";
+        }
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-sortable-list flex flex-col gap-2");
+
+            if (Disabled)
+            {
+                AppendClass(ref cls, "opacity-80");
+            }
+        });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await SortableInterop.Initialize();
+
+        _dotNetRef ??= DotNetObjectReference.Create(this);
+
+        await SortableInterop.InitializeList(ElementRef, Disabled, Sort, AnimationMs, ItemSelector, ResolveHandleSelector(), FilterSelector, Group, _dotNetRef);
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override async Task OnDisposeAsync()
+    {
+        try
+        {
+            await SortableInterop.Destroy(ElementRef);
+        }
+        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
+        {
+        }
+
+        _dotNetRef?.Dispose();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Disabled);
+        hc.Add(Sort);
+        hc.Add(AnimationMs);
+        hc.Add(Group);
+        hc.Add(HandleOnly);
+        hc.Add(ItemSelector);
+        hc.Add(HandleSelector);
+        hc.Add(FilterSelector);
+    }
+
+    private string? ResolveHandleSelector()
+    {
+        if (HandleSelector is not null)
+        {
+            return HandleSelector;
+        }
+
+        return HandleOnly ? "[data-sortable-handle]" : null;
+    }
+}

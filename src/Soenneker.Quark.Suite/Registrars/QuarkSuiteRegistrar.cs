@@ -28,6 +28,7 @@ public static class QuarkSuiteRegistrar
                 .AddQuarkPopoverAsScoped()
                 .AddQuarkValidationAsScoped()
                 .AddQuarkTableAsScoped()
+                .AddQuarkSortableAsScoped()
                 .AddQuarkSonnerAsScoped()
                 .AddQuarkThemeAsScoped()
                 .AddQuarkDatePickerAsScoped()
