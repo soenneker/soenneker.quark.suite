@@ -54,4 +54,4 @@ Then start using components in Razor:
 
 ## Theming
 
-The suite includes runtime theme interop and theme-related infrastructure. For most apps, `AddQuarkSuiteAsScoped()` is the only required registration. If you need custom theme generation, the source also includes `Theme` and `ThemeProvider`.
+The suite includes browser theme interop for light/dark mode. For most apps, `AddQuarkSuiteAsScoped()` is the only required registration. If you need custom build-time theme generation, author a `Theme` and use `Soenneker.Quark.Gen.Themes` to emit the generated CSS artifacts.

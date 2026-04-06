@@ -1,0 +1,410 @@
+@using System.Globalization
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Components.Web
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.FormControlElementBase
+@implements ICurrencyInput
+
+<div class="q-currency-input relative">
+    @if (ShowSymbol && !SymbolAtEnd)
+    {
+        <span class="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-3 text-sm text-muted-foreground">
+            @EffectiveSymbol
+        </span>
+    }
+
+    <Input Id="@Id"
+           Name="@Name"
+           Type="text"
+           Value="@DisplayValue"
+           ValueChanged="@HandleValueChanged"
+           Size="@Size"
+           PlainText="@PlainText"
+           FloatingLabel="@FloatingLabel"
+           Label="@Label"
+           Placeholder="@Placeholder"
+           Disabled="@Disabled"
+           ReadOnly="@ReadOnly"
+           Required="@Required"
+           Class="@InputClass"
+           Style="@Style"
+           AriaLabel="@AriaLabel"
+           AriaDescribedBy="@AriaDescribedBy"
+           OnClick="@OnClick"
+           OnDoubleClick="@OnDoubleClick"
+           OnMouseOver="@OnMouseOver"
+           OnMouseOut="@OnMouseOut"
+           OnKeyDown="@OnKeyDown"
+           OnInput="HandleInput"
+           OnChange="HandleChange"
+           OnFocus="HandleInputFocus"
+           OnBlur="HandleInputBlur"
+           @attributes="BuildInputAttributes()"
+           ValidationValueSelector="@(() => (object?)Value)" />
+
+    @if (ShowSymbol && SymbolAtEnd)
+    {
+        <span class="pointer-events-none absolute inset-y-0 right-0 z-10 flex items-center pr-3 text-sm text-muted-foreground">
+            @EffectiveSymbol
+        </span>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public decimal? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<decimal?> ValueChanged { get; set; }
+
+    [Parameter]
+    public Expression<Func<decimal?>>? ValueExpression { get; set; }
+
+    [Parameter]
+    public decimal? Min { get; set; }
+
+    [Parameter]
+    public decimal? Max { get; set; }
+
+    [Parameter]
+    public bool AllowNegative { get; set; } = true;
+
+    [Parameter]
+    public int DecimalPlaces { get; set; } = 2;
+
+    [Parameter]
+    public bool UseThousandsSeparator { get; set; } = true;
+
+    [Parameter]
+    public string? Symbol { get; set; }
+
+    [Parameter]
+    public bool ShowSymbol { get; set; } = true;
+
+    [Parameter]
+    public bool SymbolAtEnd { get; set; }
+
+    [Parameter]
+    public string? CultureName { get; set; }
+
+    [Parameter]
+    public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
+
+    [Parameter]
+    public bool PlainText { get; set; }
+
+    [Parameter]
+    public bool FloatingLabel { get; set; }
+
+    [Parameter]
+    public string? Label { get; set; }
+
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnChange { get; set; }
+
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnInput { get; set; }
+
+    [CascadingParameter(Name = nameof(ParentValidation))]
+    public Validation? ParentValidation { get; set; }
+
+    public object? ValidationValue => Value;
+
+    private string _editingValue = string.Empty;
+    private bool _isFocused;
+
+    private string EffectiveSymbol
+    {
+        get
+        {
+            if (!string.IsNullOrWhiteSpace(Symbol))
+                return Symbol;
+
+            return GetCultureInfo().NumberFormat.CurrencySymbol;
+        }
+    }
+
+    private string DisplayValue => _isFocused ? _editingValue : FormatDisplayValue(Value);
+
+    private string InputClass
+    {
+        get
+        {
+            var extraPadding = ShowSymbol
+                ? SymbolAtEnd
+                    ? "pr-9"
+                    : "pl-9"
+                : null;
+
+            return extraPadding is null ? "text-right tabular-nums" : $"text-right tabular-nums {extraPadding}";
+        }
+    }
+
+    public string? GetValidationClass()
+    {
+        if (ParentValidation?.Status == ValidationStatus.Error)
+            return "is-invalid";
+
+        if (ParentValidation?.Status == ValidationStatus.Success)
+            return "is-valid";
+
+        return null;
+    }
+
+    public string? GetColorClass()
+    {
+        return null;
+    }
+
+    public string? GetSizeClass()
+    {
+        if (Size == Quark.Size.Default)
+            return null;
+
+        string? token = null;
+        bool isTheme = Size?.TryGetThemeToken(out token) == true;
+        string? sizeValue = token ?? Size?.ToString();
+
+        if (isTheme && sizeValue is not null)
+            return sizeValue.ToLowerInvariant() switch { "sm" or "xs" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
+
+        return sizeValue?.ToLowerInvariant() switch { "sm" or "xs" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (!_isFocused)
+            _editingValue = FormatEditingValue(Value);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && ParentValidation is not null && ValueExpression is not null)
+        {
+            await ParentValidation.InitializeInputExpression(ValueExpression);
+            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
+    {
+        await RefreshOffThread();
+    }
+
+    private async Task HandleValueChanged(string? value)
+    {
+        _editingValue = value ?? string.Empty;
+
+        if (!TryParseCurrency(_editingValue, out var next))
+            return;
+
+        var valueChanged = !Nullable.Equals(Value, next);
+        Value = next;
+
+        if (valueChanged)
+        {
+            await ValueChanged.InvokeIfHasDelegate(Value);
+            InvalidateRender();
+            Refresh();
+        }
+    }
+
+    private async Task HandleInput(ChangeEventArgs e)
+    {
+        await OnInput.InvokeIfHasDelegate(e);
+
+        if (ParentValidation is not null)
+        {
+            ParentValidation.MarkTouched();
+            await ParentValidation.NotifyInputChanged(Value);
+        }
+    }
+
+    private async Task HandleChange(ChangeEventArgs e)
+    {
+        await OnChange.InvokeIfHasDelegate(e);
+
+        if (ParentValidation is not null)
+        {
+            ParentValidation.MarkTouched();
+            await ParentValidation.NotifyInputChanged(Value);
+        }
+    }
+
+    private async Task HandleInputFocus(FocusEventArgs e)
+    {
+        _isFocused = true;
+        _editingValue = FormatEditingValue(Value);
+
+        await OnFocus.InvokeIfHasDelegate(e);
+        InvalidateRender();
+        Refresh();
+    }
+
+    private async Task HandleInputBlur(FocusEventArgs e)
+    {
+        _isFocused = false;
+        _editingValue = FormatEditingValue(Value);
+
+        await OnBlur.InvokeIfHasDelegate(e);
+        InvalidateRender();
+        Refresh();
+    }
+
+    private Dictionary<string, object> BuildInputAttributes()
+    {
+        var attributes = new Dictionary<string, object>(Attributes?.Count ?? 0, StringComparer.OrdinalIgnoreCase);
+
+        if (Attributes is not null)
+        {
+            foreach (KeyValuePair<string, object> pair in Attributes)
+            {
+                if (pair.Key.Equals("onfocus", StringComparison.OrdinalIgnoreCase) ||
+                    pair.Key.Equals("onblur", StringComparison.OrdinalIgnoreCase) ||
+                    pair.Key.Equals("oninput", StringComparison.OrdinalIgnoreCase) ||
+                    pair.Key.Equals("onchange", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                attributes[pair.Key] = pair.Value;
+            }
+        }
+
+        attributes["inputmode"] = DecimalPlaces > 0 ? "decimal" : "numeric";
+
+        return attributes;
+    }
+
+    private bool TryParseCurrency(string? input, out decimal? result)
+    {
+        result = null;
+
+        if (string.IsNullOrWhiteSpace(input))
+            return true;
+
+        var culture = GetCultureInfo();
+        string normalized = input.Trim();
+
+        if (!string.IsNullOrWhiteSpace(EffectiveSymbol))
+            normalized = normalized.Replace(EffectiveSymbol, "", StringComparison.Ordinal);
+
+        string? currencySymbol = culture.NumberFormat.CurrencySymbol;
+        if (!string.IsNullOrWhiteSpace(currencySymbol))
+            normalized = normalized.Replace(currencySymbol, "", StringComparison.Ordinal);
+
+        normalized = normalized.Replace(culture.NumberFormat.CurrencyGroupSeparator, "", StringComparison.Ordinal);
+        normalized = normalized.Replace(culture.NumberFormat.NumberGroupSeparator, "", StringComparison.Ordinal);
+        normalized = normalized.Replace(" ", "", StringComparison.Ordinal);
+
+        string currencyDecimalSeparator = culture.NumberFormat.CurrencyDecimalSeparator;
+        if (!string.Equals(currencyDecimalSeparator, ".", StringComparison.Ordinal))
+            normalized = normalized.Replace(currencyDecimalSeparator, ".", StringComparison.Ordinal);
+
+        string numberDecimalSeparator = culture.NumberFormat.NumberDecimalSeparator;
+        if (!string.Equals(numberDecimalSeparator, ".", StringComparison.Ordinal) &&
+            !string.Equals(numberDecimalSeparator, currencyDecimalSeparator, StringComparison.Ordinal))
+        {
+            normalized = normalized.Replace(numberDecimalSeparator, ".", StringComparison.Ordinal);
+        }
+
+        normalized = normalized.Replace("(", "-", StringComparison.Ordinal);
+        normalized = normalized.Replace(")", "", StringComparison.Ordinal);
+
+        if (!AllowNegative && normalized.Contains('-', StringComparison.Ordinal))
+            return false;
+
+        if (!decimal.TryParse(normalized, NumberStyles.Number | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out decimal parsed))
+            return false;
+
+        result = Clamp(parsed);
+        return true;
+    }
+
+    private decimal Clamp(decimal value)
+    {
+        decimal rounded = Math.Round(value, Math.Max(0, DecimalPlaces), MidpointRounding.AwayFromZero);
+
+        if (!AllowNegative && rounded < 0)
+            rounded = 0;
+
+        if (Min.HasValue && rounded < Min.Value)
+            rounded = Min.Value;
+
+        if (Max.HasValue && rounded > Max.Value)
+            rounded = Max.Value;
+
+        return rounded;
+    }
+
+    private string FormatDisplayValue(decimal? value)
+    {
+        if (!value.HasValue)
+            return string.Empty;
+
+        string format = UseThousandsSeparator ? "N" : "F";
+        return value.Value.ToString($"{format}{Math.Max(0, DecimalPlaces)}", GetCultureInfo());
+    }
+
+    private string FormatEditingValue(decimal? value)
+    {
+        if (!value.HasValue)
+            return string.Empty;
+
+        return value.Value.ToString($"F{Math.Max(0, DecimalPlaces)}", GetCultureInfo());
+    }
+
+    private CultureInfo GetCultureInfo()
+    {
+        if (string.IsNullOrWhiteSpace(CultureName))
+            return CultureInfo.CurrentCulture;
+
+        try
+        {
+            return CultureInfo.GetCultureInfo(CultureName);
+        }
+        catch (CultureNotFoundException)
+        {
+            return CultureInfo.CurrentCulture;
+        }
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+
+        if (ParentValidation is not null)
+            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Value);
+        hc.Add(Min);
+        hc.Add(Max);
+        hc.Add(AllowNegative);
+        hc.Add(DecimalPlaces);
+        hc.Add(UseThousandsSeparator);
+        hc.Add(Symbol);
+        hc.Add(ShowSymbol);
+        hc.Add(SymbolAtEnd);
+        hc.Add(CultureName);
+        AddIf(ref hc, Size);
+        hc.Add(PlainText);
+        hc.Add(FloatingLabel);
+        hc.Add(Label);
+        hc.Add(Placeholder);
+        hc.Add(Disabled);
+        hc.Add(ReadOnly);
+        hc.Add(Required);
+        hc.Add(_isFocused);
+        hc.Add(_editingValue);
+    }
+}

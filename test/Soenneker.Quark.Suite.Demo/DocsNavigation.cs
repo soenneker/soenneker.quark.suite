@@ -37,6 +37,7 @@ public static class DocsNavigation
         new("Command", "commands"),
         new("Context Menu", "context-menus"),
         new("Container", "container"),
+        new("Currency Input", "currency-inputs", IsNew: true),
         new("Table", "tables-basic"),
         new("Date Picker", "datepickers"),
         new("Dialog", "dialogs"),

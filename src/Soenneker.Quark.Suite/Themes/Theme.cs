@@ -13,6 +13,11 @@ public sealed class Theme
     public string Name { get; set; } = "Default";
 
     /// <summary>
+    /// Gets or sets the strongly typed shadcn and Tailwind theme tokens used to generate the shared theme fragment.
+    /// </summary>
+    public ThemeTokens Tokens { get; set; } = new();
+
+    /// <summary>
     /// Gets or sets the alert component styling options.
     /// </summary>
     public AlertOptions? Alerts { get; set; }
@@ -1012,6 +1017,5 @@ public sealed class Theme
             yield return TreeViewNodeContents;
         if (ValidationsContainers != null)
             yield return ValidationsContainers;
-        // Note: Snackbar is not a ComponentOptions, so it's excluded
     }
 }

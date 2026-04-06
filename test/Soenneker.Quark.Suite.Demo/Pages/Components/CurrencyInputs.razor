@@ -1,0 +1,193 @@
+@page "/currency-inputs"
+@using System.Globalization
+
+<PageTitle>CurrencyInput - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Div Space="Space.Y.Is6">
+        <DemoSection Title="Basic CurrencyInput"
+                     Description="The default experience formats a nullable decimal value as currency while editing stays numeric."
+                     Code="@(@"<Field>
+    <FieldLabel For=""priceInput"">Price</FieldLabel>
+    <FieldBody>
+        <CurrencyInput Id=""priceInput"" @bind-Value=""_basicAmount"" />
+    </FieldBody>
+</Field>")">
+            <Field>
+                <FieldLabel For="priceInput">Price</FieldLabel>
+                <FieldBody>
+                    <CurrencyInput Id="priceInput" @bind-Value="_basicAmount" />
+                    <Small Class="form-text" TextColor="TextColor.MutedForeground">
+                        Bound value: @FormatPreview(_basicAmount, "en-US", "$")
+                    </Small>
+                </FieldBody>
+            </Field>
+        </DemoSection>
+
+        <Hr/>
+
+        <DemoSection Title="Culture And Symbol Placement"
+                     Description="You can keep the same decimal value while changing separators, decimal precision, and whether the symbol leads or trails the number."
+                     Code="@(@"<Field>
+    <FieldLabel For=""usdInput"">US Dollar</FieldLabel>
+    <FieldBody>
+        <CurrencyInput Id=""usdInput"" @bind-Value=""_usdAmount"" CultureName=""en-US"" Symbol=""$"" />
+    </FieldBody>
+</Field>
+
+<Field>
+    <FieldLabel For=""eurInput"">Euro</FieldLabel>
+    <FieldBody>
+        <CurrencyInput Id=""eurInput"" @bind-Value=""_eurAmount"" CultureName=""fr-FR"" Symbol=""EUR"" SymbolAtEnd=""true"" />
+    </FieldBody>
+</Field>")">
+            <Grid Columns="Columns.Is1.OnLg.Is2" Gap="Gap.Is4">
+                <Field>
+                    <FieldLabel For="usdInput">US Dollar</FieldLabel>
+                    <FieldBody>
+                        <CurrencyInput Id="usdInput"
+                                       @bind-Value="_usdAmount"
+                                       CultureName="en-US"
+                                       Symbol="$" />
+                        <Small Class="form-text" TextColor="TextColor.MutedForeground">
+                            Preview: @FormatPreview(_usdAmount, "en-US", "$")
+                        </Small>
+                    </FieldBody>
+                </Field>
+
+                <Field>
+                    <FieldLabel For="eurInput">Euro</FieldLabel>
+                    <FieldBody>
+                        <CurrencyInput Id="eurInput"
+                                       @bind-Value="_eurAmount"
+                                       CultureName="fr-FR"
+                                       Symbol="EUR"
+                                       SymbolAtEnd="true" />
+                        <Small Class="form-text" TextColor="TextColor.MutedForeground">
+                            Preview: @FormatPreview(_eurAmount, "fr-FR", "EUR", true)
+                        </Small>
+                    </FieldBody>
+                </Field>
+            </Grid>
+        </DemoSection>
+
+        <Hr/>
+
+        <DemoSection Title="Constraints"
+                     Description="Min, max, negative handling, and custom precision help keep pricing and totals within safe business rules."
+                     Code="@(@"<Field>
+    <FieldLabel For=""budgetInput"">Budget</FieldLabel>
+    <FieldBody>
+        <CurrencyInput Id=""budgetInput"" @bind-Value=""_budgetAmount"" Min=""0"" Max=""50000"" AllowNegative=""false"" />
+    </FieldBody>
+</Field>
+
+<Field>
+    <FieldLabel For=""microInput"">Usage Charge</FieldLabel>
+    <FieldBody>
+        <CurrencyInput Id=""microInput"" @bind-Value=""_microAmount"" DecimalPlaces=""4"" Symbol=""credits"" SymbolAtEnd=""true"" />
+    </FieldBody>
+</Field>")">
+            <Grid Columns="Columns.Is1.OnLg.Is2" Gap="Gap.Is4">
+                <Field>
+                    <FieldLabel For="budgetInput">Budget</FieldLabel>
+                    <FieldBody>
+                        <CurrencyInput Id="budgetInput"
+                                       @bind-Value="_budgetAmount"
+                                       Min="0"
+                                       Max="50000"
+                                       AllowNegative="false" />
+                        <Small Class="form-text" TextColor="TextColor.MutedForeground">
+                            Clamped between 0 and 50,000: @FormatPreview(_budgetAmount, "en-US", "$")
+                        </Small>
+                    </FieldBody>
+                </Field>
+
+                <Field>
+                    <FieldLabel For="microInput">Usage Charge</FieldLabel>
+                    <FieldBody>
+                        <CurrencyInput Id="microInput"
+                                       @bind-Value="_microAmount"
+                                       DecimalPlaces="4"
+                                       Symbol="credits"
+                                       SymbolAtEnd="true"
+                                       ShowSymbol="true" />
+                        <Small Class="form-text" TextColor="TextColor.MutedForeground">
+                            High precision preview: @FormatPreview(_microAmount, "en-US", "credits", true, 4)
+                        </Small>
+                    </FieldBody>
+                </Field>
+            </Grid>
+        </DemoSection>
+
+        <Hr/>
+
+        <DemoSection Title="Validation"
+                     Description="CurrencyInput participates in the existing validation primitives so totals and deposits can share the same field and error patterns."
+                     Code="@(@"<Validations Model=""_validationModel"">
+    <Validation Action=""@ValidateDeposit"">
+        <CurrencyInput Id=""depositInput"" @bind-Value=""_validationModel.Deposit"" Min=""0"" AllowNegative=""false"" />
+        <ValidationError />
+    </Validation>
+</Validations>")">
+            <Validations Model="_validationModel">
+                <Field>
+                    <FieldLabel For="depositInput" RequiredIndicator="true">Deposit</FieldLabel>
+                    <FieldBody>
+                        <Validation Action="@ValidateDeposit">
+                            <CurrencyInput Id="depositInput"
+                                           @bind-Value="_validationModel.Deposit"
+                                           Min="0"
+                                           AllowNegative="false" />
+                            <ValidationError/>
+                        </Validation>
+                    </FieldBody>
+                </Field>
+            </Validations>
+        </DemoSection>
+    </Div>
+</Div>
+
+@code {
+    private decimal? _basicAmount = 1234.56m;
+    private decimal? _usdAmount = 2499.95m;
+    private decimal? _eurAmount = 1999.95m;
+    private decimal? _budgetAmount = 15000m;
+    private decimal? _microAmount = 0.0425m;
+
+    private ValidationModel _validationModel = new();
+
+    private static string FormatPreview(decimal? value, string cultureName, string symbol, bool symbolAtEnd = false, int decimals = 2)
+    {
+        if (!value.HasValue)
+            return "null";
+
+        var culture = CultureInfo.GetCultureInfo(cultureName);
+        string amount = value.Value.ToString($"N{decimals}", culture);
+        return symbolAtEnd ? $"{amount} {symbol}" : $"{symbol}{amount}";
+    }
+
+    private void ValidateDeposit(ValidatorEventArgs e)
+    {
+        if (e.Value is not decimal amount || amount <= 0)
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Deposit must be greater than zero.";
+            return;
+        }
+
+        if (amount < 100)
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Deposit must be at least $100.00.";
+            return;
+        }
+
+        e.Status = ValidationStatus.Success;
+    }
+
+    private sealed class ValidationModel
+    {
+        public decimal? Deposit { get; set; }
+    }
+}

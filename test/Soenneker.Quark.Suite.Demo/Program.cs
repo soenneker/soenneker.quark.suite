@@ -36,19 +36,6 @@ public sealed class Program
                 BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
             });
 
-            var theme = new Theme
-            {
-                Anchors = new AnchorOptions
-                {
-                    //TextDecoration = TextDecoration.None
-                }
-            };
-
-            var provider = new ThemeProvider();
-            provider.AddTheme(theme);
-
-            builder.Services.AddThemeProviderAsScoped(provider);
-
             var quarkOptions = new QuarkOptions
             {
                 Debug = true,

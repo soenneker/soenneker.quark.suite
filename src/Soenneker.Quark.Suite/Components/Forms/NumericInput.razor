@@ -7,8 +7,7 @@
 @implements INumericInput
 
 <div class="q-numeric-input">
-    <Input @ref="_inputComponent" 
-           Id="@Id"
+    <Input Id="@Id"
            Name="@Name"
            Type="number"
            Value="@GetNumericValueString()"
@@ -110,8 +109,6 @@
     [CascadingParameter(Name = nameof(ParentValidation))]
     public Validation? ParentValidation { get; set; }
 
-    private Input? _inputComponent;
-
     public object? ValidationValue => Value;
 
     public string? GetValidationClass()
@@ -137,19 +134,6 @@
         var isTheme = Size?.TryGetThemeToken(out token) == true;
         var sizeVal = token ?? Size?.ToString();
         return sizeVal?.ToLowerInvariant() switch { "sm" or "xs" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
-    }
-
-    private static decimal? ParseDecimal(ChangeEventArgs e)
-    {
-        if (e?.Value == null)
-            return null;
-
-        var text = e.Value.ToString();
-
-        if (decimal.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
-            return result;
-
-        return null;
     }
 
     private string? GetNumericValueString()
