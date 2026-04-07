@@ -1,11 +1,24 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.InteractiveElement
 
-<button @onclick="HandleClick"
-        @ref="_elementRef"
-        @attributes="BuildAttributes()">
-    @ChildContent
-</button>
+@if (AsChild)
+{
+    <span @onclick="HandleActivate"
+          @ref="_elementRef"
+          @attributes="BuildWrapperAttributes()">
+        <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
+            @ChildContent
+        </CascadingValue>
+    </span>
+}
+else
+{
+    <button @onclick="HandleActivate"
+            @ref="_elementRef"
+            @attributes="BuildAttributes()">
+        @ChildContent
+    </button>
+}
 
 @code {
     [CascadingParameter(Name = "ParentDrawer")]
@@ -14,8 +27,12 @@
     [CascadingParameter]
     private OverlayLabelContext? Context { get; set; }
 
+    [Parameter]
+    public bool AsChild { get; set; }
+
     private ElementReference _elementRef;
-    protected override async Task HandleClick(MouseEventArgs e)
+
+    private async Task HandleActivate(MouseEventArgs e)
     {
         if (ParentDrawer is not null)
         {
@@ -45,9 +62,54 @@
         });
     }
 
+    private TriggerContext GetTriggerContext()
+    {
+        return new TriggerContext
+        {
+            IsOpen = ParentDrawer?.Visible == true,
+            DataState = ParentDrawer?.Visible == true ? "open" : "closed",
+            AriaHasPopup = "dialog",
+            AriaControls = Context?.ContentId,
+            Toggle = ParentDrawer is null
+                ? null
+                : async () =>
+                {
+                    if (ParentDrawer.Visible)
+                    {
+                        await ParentDrawer.Hide();
+                    }
+                    else
+                    {
+                        ParentDrawer.SetRestoreFocusTarget(_elementRef);
+                        await ParentDrawer.Show();
+                    }
+                },
+            Open = ParentDrawer is null ? null : async () =>
+            {
+                ParentDrawer.SetRestoreFocusTarget(_elementRef);
+                await ParentDrawer.Show();
+            },
+            Close = ParentDrawer is null ? null : () => ParentDrawer.Hide()
+        };
+    }
+
+    private Dictionary<string, object> BuildWrapperAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+        attributes["data-slot"] = "drawer-trigger-wrapper";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-drawer-trigger-wrapper inline-flex");
+        });
+
+        return attributes;
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AsChild);
         hc.Add(ParentDrawer?.Visible ?? false);
         hc.Add(Context?.ContentId);
     }

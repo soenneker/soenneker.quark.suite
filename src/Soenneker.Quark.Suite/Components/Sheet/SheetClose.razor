@@ -1,25 +1,42 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements ISheetClose
 
-<button type="button" @onclick="HandleClick" @attributes="BuildAttributes()">
-    @if (ChildContent is null)
-    {
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="size-4"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-        <span class="sr-only">Close</span>
-    }
-    else
-    {
+@if (AsChild)
+{
+    <span @onclick="HandleWrapperClick" @attributes="BuildWrapperAttributes()">
         @ChildContent
-    }
-</button>
+    </span>
+}
+else
+{
+    <button type="button" @onclick="HandleDefaultClick" @attributes="BuildAttributes()">
+        @if (ChildContent is null)
+        {
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="size-4"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            <span class="sr-only">Close</span>
+        }
+        else
+        {
+            @ChildContent
+        }
+    </button>
+}
 
 @code {
     [CascadingParameter(Name = nameof(ParentSheet))]
     public Sheet? ParentSheet { get; set; }
 
     [Parameter]
+    public bool AsChild { get; set; }
+
+    [Parameter]
     public bool AutoClose { get; set; } = true;
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -35,16 +52,44 @@
         });
     }
 
-    protected override async Task HandleClick(MouseEventArgs e)
+    private Dictionary<string, object> BuildWrapperAttributes()
     {
+        var attributes = new Dictionary<string, object>
+        {
+            ["data-slot"] = "sheet-close-wrapper"
+        };
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-sheet-close-wrapper inline-flex");
+        });
+
+        return attributes;
+    }
+
+    private async Task HandleClose()
+    {
+        await OnClose.InvokeIfHasDelegate();
+
         if (AutoClose && ParentSheet is not null)
             await ParentSheet.Hide();
+    }
 
+    private async Task HandleWrapperClick(MouseEventArgs _)
+    {
+        await HandleClose();
+    }
+
+    private async Task HandleDefaultClick(MouseEventArgs e)
+    {
+        await HandleClose();
         await base.HandleClick(e);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AsChild);
         hc.Add(AutoClose);
     }
 }

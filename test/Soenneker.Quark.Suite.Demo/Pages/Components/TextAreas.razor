@@ -5,61 +5,122 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Default" Description="Default shadcn-style textarea with binding."
-                        Code="@(@"<TextArea @bind-Value=""_message"" Placeholder=""Type your message..."" />")">
-                <TextArea @bind-Value="_message" Placeholder="Type your message..."></TextArea>
-                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">Value: @_message</Paragraph>
+            <DemoSection Title="Demo"
+                         Code="@DemoCode">
+                <TextArea Placeholder="Type your message here." />
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Rows and max length" Description="Configure size and content limits."
-                        Code="@(@"<TextArea @bind-Value=""_notes"" Rows=""6"" MaxLength=""200"" Placeholder=""Up to 200 chars..."" />")">
-                <TextArea @bind-Value="_notes" Rows="6" MaxLength="200" Placeholder="Up to 200 chars..."></TextArea>
+            <DemoSection Title="Button"
+                         Code="@ButtonCode">
+                <Div Class="grid w-full gap-2">
+                    <TextArea Placeholder="Type your message here." />
+                    <Button>Send message</Button>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Disabled"
+                         Code="@DisabledCode">
+                <Field Disabled="true">
+                    <FieldLabel For="textarea-disabled">Message</FieldLabel>
+                    <TextArea Id="textarea-disabled" Placeholder="Type your message here." Disabled="true" />
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Field"
+                         Code="@FieldCode">
+                <Field>
+                    <FieldLabel For="textarea-message">Message</FieldLabel>
+                    <FieldDescription>Enter your message below.</FieldDescription>
+                    <TextArea Id="textarea-message" Placeholder="Type your message here." />
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Invalid"
+                         Code="@InvalidCode">
+                <Field IsInvalid="true">
+                    <FieldLabel For="textarea-invalid">Message</FieldLabel>
+                    <TextArea Id="textarea-invalid" Placeholder="Type your message here." aria-invalid="true" />
+                    <FieldDescription>Please enter a valid message.</FieldDescription>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Quark-only examples</H2>
+            <Paragraph TextColor="TextColor.MutedForeground">
+                These examples show additional textarea behaviors beyond the core examples above.
+            </Paragraph>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Rows and Max Length"
+                         Description="Configure size and content limits for longer multi-line input."
+                         Code="@RowsCode">
+                <TextArea @bind-Value="_notes" Rows="6" MaxLength="200" Placeholder="Up to 200 chars..." />
                 <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">Characters: @(_notes?.Length ?? 0)/200</Paragraph>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Disabled" Description="Common textarea states."
-                        Code="@(@"<TextArea Value=""Disabled content"" Disabled=""true"" />
-<TextArea Value=""Read-only content"" ReadOnly=""true"" />")">
-                <Div Space="Space.Y.Is3">
-                    <TextArea Value="Disabled content" Disabled="@true"></TextArea>
-                    <TextArea Value="Read-only content" ReadOnly="@true"></TextArea>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Invalid" Description="Use destructive border styling or nearby validation copy when the message needs correction."
-                        Code="@(@"<TextArea Value=""Please enter at least 20 characters."" Class=""border-destructive focus-visible:ring-destructive"" />
-<Paragraph class=""text-sm text-destructive"">Message must be at least 20 characters.</Paragraph>")">
-                <Div Space="Space.Y.Is3">
-                    <TextArea Value="Please enter at least 20 characters." Class="border-destructive focus-visible:ring-destructive"></TextArea>
-                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.Destructive">Message must be at least 20 characters.</Paragraph>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Button" Description="Pair the textarea with a submit action for feedback or support forms."
-                        Code="@(@"<Div class=""space-y-3"">
-    <TextArea @bind-Value=""_message"" Placeholder=""Type your message..."" />
-    <Button>Send message</Button>
-</Div>")">
-                <Div Space="Space.Y.Is3">
-                    <TextArea @bind-Value="_message" Placeholder="Type your message..."></TextArea>
-                    <Div Display="Display.Flex" AlignUtility="Align.JustifyEnd">
-                        <Button>Send message</Button>
-                    </Div>
-                </Div>
+            <DemoSection Title="Bound Value"
+                         Description="Bind textarea input directly when the page needs live state feedback."
+                         Code="@BoundValueCode">
+                <TextArea @bind-Value="_message" Placeholder="Type your message..." />
+                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">Value: @_message</Paragraph>
             </DemoSection>
         </Section>
     </Div>
 </Div>
 
 @code {
+    private const string DemoCode = @"<TextArea Placeholder=""Type your message here."" />";
+
+    private const string ButtonCode =
+@"<Div Class=""grid w-full gap-2"">
+    <TextArea Placeholder=""Type your message here."" />
+    <Button>Send message</Button>
+</Div>";
+
+    private const string DisabledCode =
+@"<Field Disabled=""true"">
+    <FieldLabel For=""textarea-disabled"">Message</FieldLabel>
+    <TextArea Id=""textarea-disabled"" Placeholder=""Type your message here."" Disabled=""true"" />
+</Field>";
+
+    private const string FieldCode =
+@"<Field>
+    <FieldLabel For=""textarea-message"">Message</FieldLabel>
+    <FieldDescription>Enter your message below.</FieldDescription>
+    <TextArea Id=""textarea-message"" Placeholder=""Type your message here."" />
+</Field>";
+
+    private const string InvalidCode =
+@"<Field IsInvalid=""true"">
+    <FieldLabel For=""textarea-invalid"">Message</FieldLabel>
+    <TextArea Id=""textarea-invalid"" Placeholder=""Type your message here."" aria-invalid=""true"" />
+    <FieldDescription>Please enter a valid message.</FieldDescription>
+</Field>";
+
+    private const string RowsCode =
+@"<TextArea @bind-Value=""_notes"" Rows=""6"" MaxLength=""200"" Placeholder=""Up to 200 chars..."" />
+<Paragraph TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is0"">
+    Characters: @(_notes?.Length ?? 0)/200
+</Paragraph>";
+
+    private const string BoundValueCode =
+@"<TextArea @bind-Value=""_message"" Placeholder=""Type your message..."" />
+<Paragraph TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is0"">
+    Value: @_message
+</Paragraph>";
+
     private string? _message;
     private string? _notes;
 }

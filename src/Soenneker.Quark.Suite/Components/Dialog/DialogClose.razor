@@ -1,0 +1,94 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+@if (AsChild)
+{
+    <span @onclick="HandleWrapperClick" @attributes="BuildWrapperAttributes()">
+        @ChildContent
+    </span>
+}
+else
+{
+    <Button Type="ButtonType.Button"
+            Variant="@Variant"
+            Size="@Size"
+            OnClick="HandleCloseButtonClick"
+            @attributes="BuildAttributes()">
+        @ChildContent
+    </Button>
+}
+
+@code {
+    [CascadingParameter(Name = nameof(ParentDialog))]
+    public Dialog? ParentDialog { get; set; }
+
+    [Parameter]
+    public bool AsChild { get; set; }
+
+    [Parameter]
+    public bool AutoClose { get; set; } = true;
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    [Parameter]
+    public ButtonVariant Variant { get; set; } = ButtonVariant.Outline;
+
+    [Parameter]
+    public ButtonSize Size { get; set; } = ButtonSize.Default;
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "dialog-close";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-dialog-close");
+        });
+    }
+
+    private Dictionary<string, object> BuildWrapperAttributes()
+    {
+        var attributes = new Dictionary<string, object>
+        {
+            ["data-slot"] = "dialog-close-wrapper"
+        };
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-dialog-close-wrapper inline-flex");
+        });
+
+        return attributes;
+    }
+
+    private async Task HandleCloseClick()
+    {
+        await OnClose.InvokeIfHasDelegate();
+
+        if (AutoClose && ParentDialog is not null)
+            await ParentDialog.Hide();
+    }
+
+    private async Task HandleWrapperClick(MouseEventArgs _)
+    {
+        await HandleCloseClick();
+    }
+
+    private async Task HandleCloseButtonClick(MouseEventArgs _)
+    {
+        await HandleCloseClick();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AsChild);
+        hc.Add(AutoClose);
+        hc.Add(Variant);
+        hc.Add(Size);
+    }
+}

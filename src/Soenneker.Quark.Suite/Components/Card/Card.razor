@@ -9,16 +9,25 @@
 </CascadingValue>
 
 @code {
+    [Parameter]
+    public CardSize Size { get; set; } = CardSize.Default;
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "card";
-        attributes["data-size"] = "sm";
+        attributes["data-size"] = Size?.Value ?? CardSize.Default.Value;
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-card");
-            AppendClass(ref cls, "group/card flex flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 text-sm text-card-foreground ring-1 ring-foreground/10");
+            AppendClass(ref cls, "group/card flex flex-col gap-6 overflow-hidden rounded-xl border bg-card py-6 text-sm text-card-foreground shadow-sm");
             AppendClass(ref cls, "data-[size=sm]:gap-3 data-[size=sm]:py-3");
         });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Size);
     }
 }

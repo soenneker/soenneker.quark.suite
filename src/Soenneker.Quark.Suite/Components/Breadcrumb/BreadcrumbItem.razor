@@ -2,7 +2,7 @@
 @inherits Soenneker.Quark.Element
 @implements IBreadcrumbItem
 
-@if (To.HasContent())
+@if (To.HasContent() && !AsChild)
 {
     <li @attributes="BuildListItemAttributes()">
         @if (ShowSeparator)
@@ -11,6 +11,10 @@
                 @if (ParentBreadcrumb?.UseTextDivider == true)
                 {
                     @ParentBreadcrumb.ResolvedDividerText
+                }
+                else if (ParentBreadcrumb?.SeparatorContent is not null)
+                {
+                    @ParentBreadcrumb.SeparatorContent
                 }
                 else
                 {
@@ -35,6 +39,10 @@ else
                 {
                     @ParentBreadcrumb.ResolvedDividerText
                 }
+                else if (ParentBreadcrumb?.SeparatorContent is not null)
+                {
+                    @ParentBreadcrumb.SeparatorContent
+                }
                 else
                 {
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -43,7 +51,13 @@ else
                 }
             </span>
         }
-        @if (Active)
+        @if (AsChild)
+        {
+            <CascadingValue Name="@SlotAttributes.Name" Value="BuildLinkAttributes()" IsFixed="false">
+                @ChildContent
+            </CascadingValue>
+        }
+        else if (Active)
         {
             <span @attributes="BuildPageAttributes()">
                 @ChildContent
@@ -76,6 +90,9 @@ else
     /// </summary>
     [Parameter]
     public bool Active { get; set; }
+
+    [Parameter]
+    public bool AsChild { get; set; }
 
     protected override void OnInitialized()
     {
@@ -188,9 +205,11 @@ else
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(To);
         hc.Add(Active);
+        hc.Add(AsChild);
         hc.Add(_index);
         hc.Add(ParentBreadcrumb?.UseTextDivider);
         hc.Add(ParentBreadcrumb?.ResolvedDividerText);
+        hc.Add(ParentBreadcrumb?.SeparatorContent);
     }
 
     public override void Dispose()

@@ -4,12 +4,13 @@
 <PaginationItem>
     <PaginationLink To="@To" OnClick="@OnClick" Disabled="@Disabled" @attributes="BuildAttributes()" aria-label="Go to previous page">
         <Icon Name="LucideIcon.ChevronLeft" class="size-4" />
-        <span class="hidden sm:inline">Previous</span>
+        <span class="hidden sm:inline">@Text</span>
     </PaginationLink>
 </PaginationItem>
 
 @code {
     [Parameter] public string? To { get; set; }
+    [Parameter] public string Text { get; set; } = "Previous";
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -20,6 +21,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         hc.Add(To);
+        hc.Add(Text);
         hc.Add(Disabled);
     }
 }

@@ -1,9 +1,21 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()">@ChildContent</div>
+@if (AsChild)
+{
+    <CascadingValue Name="@SlotAttributes.Name" Value="BuildAttributes()" IsFixed="false">
+        @ChildContent
+    </CascadingValue>
+}
+else
+{
+    <div @attributes="BuildAttributes()">@ChildContent</div>
+}
 
 @code {
+    [Parameter]
+    public bool AsChild { get; set; }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -12,7 +24,13 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-button-group-text inline-flex items-center border border-input bg-background px-3 py-2 text-sm text-muted-foreground");
+            AppendClass(ref cls, "q-button-group-text flex items-center gap-2 rounded-md border bg-muted px-4 text-sm font-medium shadow-xs [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4");
         });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AsChild);
     }
 }

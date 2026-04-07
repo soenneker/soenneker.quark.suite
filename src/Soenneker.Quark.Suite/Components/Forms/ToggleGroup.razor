@@ -86,8 +86,9 @@
     {
         if (Type == ToggleGroupType.Single)
         {
-            Value = v;
-            await ValueChanged.InvokeAsync(v);
+            var next = string.Equals(Value, v, StringComparison.Ordinal) ? null : v;
+            Value = next;
+            await ValueChanged.InvokeAsync(next);
         }
         else
         {

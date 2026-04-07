@@ -4,16 +4,35 @@
 <div @attributes="BuildAttributes()"></div>
 
 @code {
+    [CascadingParameter]
+    public Soenneker.Quark.Components.Surface.Interactive.Buttons.Abstract.IButtonGroup? ButtonGroup { get; set; }
+
+    [Parameter]
+    public SeparatorOrientation? Orientation { get; set; }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
+        SeparatorOrientation effectiveOrientation = Orientation ?? (ButtonGroup?.Vertical == true ? SeparatorOrientation.Horizontal : SeparatorOrientation.Vertical);
+        string orientation = effectiveOrientation == SeparatorOrientation.Horizontal ? "horizontal" : "vertical";
+
         attributes["data-slot"] = "button-group-separator";
+        attributes["data-orientation"] = orientation;
+        attributes["aria-hidden"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-button-group-separator bg-border shrink-0");
-            AppendClass(ref cls, "w-px self-stretch");
+            AppendClass(ref cls, "q-button-group-separator relative m-0! self-stretch bg-input");
+            AppendClass(ref cls, "data-[orientation=vertical]:h-auto data-[orientation=vertical]:w-px");
+            AppendClass(ref cls, "data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full");
         });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ButtonGroup?.Vertical);
+        hc.Add(Orientation);
     }
 }

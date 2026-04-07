@@ -18,12 +18,26 @@
     [Parameter]
     public bool Disabled { get; set; }
 
+    private string? _generatedId;
+
+    internal string ResolvedId => Id.HasContent() ? Id! : _generatedId ??= $"collapsible-{Guid.NewGuid():N}";
+    internal string TriggerId => $"{ResolvedId}-trigger";
+    internal string ContentId => $"{ResolvedId}-content";
+
     internal async Task Toggle()
     {
         if (Disabled)
             return;
 
-        Open = !Open;
+        await SetOpen(!Open);
+    }
+
+    internal async Task SetOpen(bool open)
+    {
+        if (Disabled || Open == open)
+            return;
+
+        Open = open;
         InvalidateRender();
         Refresh();
         await OpenChanged.InvokeIfHasDelegate(Open);

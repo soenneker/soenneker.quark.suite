@@ -2,6 +2,9 @@
 # Do not edit manually. Class names for Tailwind @source to scan.
 **:data-[slot=navigation-menu-link]:focus:outline-none
 **:data-[slot=navigation-menu-link]:focus:ring-0
+*:[span]:last:flex
+*:[span]:last:gap-2
+*:[span]:last:items-center
 *:[svg:not([class*='size-'])]:size-8
 *:data-[slot=alert-description]:text-destructive/90
 *:data-[slot=avatar]:ring-2
@@ -9,6 +12,10 @@
 *:data-[slot=field-group]:gap-4
 *:data-[slot=field-label]:flex-auto
 *:data-[slot=form-label]:flex-auto
+*:data-[slot=select-value]:flex
+*:data-[slot=select-value]:gap-2
+*:data-[slot=select-value]:items-center
+*:data-[slot=select-value]:line-clamp-1
 --border-radius:
 --front-toast-height:
 --gap:
@@ -96,9 +103,11 @@ HandleCalendarMonthChanged
 HandleCancelClick
 HandleChange
 HandleClick
+HandleCloseButtonClick
 HandleColumnSort
 HandleContainerRefReady
 HandleContextMenu
+HandleDefaultClick
 HandleDismiss
 HandleFocus
 HandleFocusIn
@@ -119,6 +128,7 @@ HandleSearch
 HandleTrackPointerDown
 HandleTriggerClick
 HandleValueChanged
+HandleWrapperClick
 HasLoadedOnce
 Highlight
 Home
@@ -185,6 +195,7 @@ ParentAccordion
 ParentAccordionItem
 ParentAlert
 ParentAlertDialog
+ParentAvatar
 ParentBreadcrumb
 ParentCarousel
 ParentCollapsible
@@ -230,6 +241,7 @@ ShowCode
 Sidebar
 SidebarContextState
 SidebarProvider
+StopTriggerClickPropagation
 TNode
 Table
 Theme
@@ -255,17 +267,14 @@ Validations
 [&::-webkit-scrollbar]:h-2.5
 [&::-webkit-scrollbar]:w-2.5
 [&:has([role=checkbox])]:pr-0
-[&>*:first-child]:rounded-l-md
-[&>*:first-child]:rounded-t-md
-[&>*:focus-visible]:relative
-[&>*:focus-visible]:z-10
-[&>*:last-child]:rounded-b-md
-[&>*:last-child]:rounded-r-md
 [&>*]:data-[slot=field]:p-4
+[&>*]:focus-visible:relative
+[&>*]:focus-visible:z-10
 [&>*]:max-w-full
 [&>*]:rounded-none
 [&>*]:w-full
 [&>.sr-only]:w-auto
+[&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit
 [&>[data-slot=tabs-trigger]]:flex-1
 [&>[role=checkbox]]:translate-y-[2px]
 [&>a:hover]:text-primary
@@ -275,6 +284,7 @@ Validations
 [&>div]:rotate-90
 [&>iframe]:object-cover
 [&>img]:object-cover
+[&>input]:flex-1
 [&>kbd]:rounded-[calc(var(--radius)-5px)]
 [&>span:last-child]:truncate
 [&>svg:not([class*='size-'])]:size-4
@@ -306,7 +316,7 @@ Validations
 [--sidebar-menu-width:--spacing(56)]
 [.border-b]:pb-3
 [.border-t]:pt-3
-[.border-t]:pt-4
+[.border-t]:pt-6
 [[data-side=left][data-collapsible=offcanvas]_&]:-right-2
 [[data-side=left][data-state=collapsed]_&]:cursor-e-resize
 [[data-side=right][data-collapsible=offcanvas]_&]:-left-2
@@ -351,6 +361,7 @@ after:w-[2px]
 after:w-full
 alert
 alert-
+alert-action
 alert-description
 alert-dialog
 alert-dialog-action
@@ -444,6 +455,7 @@ bg-destructive
 bg-destructive/10
 bg-foreground
 bg-gradient-to-t
+bg-input
 bg-linear-to-b
 bg-linear-to-t
 bg-muted
@@ -497,6 +509,7 @@ bottom-full
 bottom:
 bounds
 breadcrumb
+breadcrumb-ellipsis
 breadcrumb-item
 breadcrumb-link
 breadcrumb-list
@@ -660,6 +673,7 @@ data-[orientation=horizontal]:h-full
 data-[orientation=horizontal]:h-px
 data-[orientation=horizontal]:w-full
 data-[orientation=vertical]:flex-col
+data-[orientation=vertical]:h-auto
 data-[orientation=vertical]:h-full
 data-[orientation=vertical]:min-h-4
 data-[orientation=vertical]:min-h-44
@@ -795,27 +809,31 @@ destructive
 detected
 determine
 dialog
+dialog-body
 dialog-close
+dialog-close-wrapper
+dialog-container
 dialog-content
 dialog-description
 dialog-footer
 dialog-header
 dialog-overlay
 dialog-title
+dialog-trigger
+dialog-trigger-wrapper
 dir
 direction-provider
 disabled
-disabled:bg-input/50
 disabled:cursor-not-allowed
 disabled:opacity-50
 disabled:pointer-events-none
 disablepictureinpicture
 disableremoteplayback
-display:
 disposal:
 double
 drawer
 drawer-close
+drawer-close-wrapper
 drawer-content
 drawer-description
 drawer-footer
@@ -823,6 +841,7 @@ drawer-header
 drawer-overlay
 drawer-title
 drawer-trigger
+drawer-trigger-wrapper
 dropdown-menu
 dropdown-menu-checkbox-item
 dropdown-menu-content
@@ -875,7 +894,7 @@ fields
 file:bg-transparent
 file:border-0
 file:font-medium
-file:h-6
+file:h-7
 file:inline-flex
 file:text-foreground
 file:text-sm
@@ -911,7 +930,6 @@ focus-visible:ring-4
 focus-visible:ring-[3px]
 focus-visible:ring-destructive/20
 focus-visible:ring-offset-1
-focus-visible:ring-offset-2
 focus-visible:ring-ring
 focus-visible:ring-ring/50
 focus-visible:z-10
@@ -987,6 +1005,8 @@ group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]
 group-data-[collapsible=offcanvas]:translate-x-0
 group-data-[collapsible=offcanvas]:w-0
 group-data-[direction=bottom]/drawer-content:block
+group-data-[direction=bottom]/drawer-content:text-center
+group-data-[direction=top]/drawer-content:text-center
 group-data-[disabled=true]/field:opacity-50
 group-data-[disabled=true]/field:pointer-events-none
 group-data-[disabled=true]/form-item:opacity-50
@@ -1017,6 +1037,8 @@ group-data-[size=sm]/alert-dialog-content:grid-cols-2
 group-data-[size=sm]/avatar:[&>svg]:hidden
 group-data-[size=sm]/avatar:size-2
 group-data-[size=sm]/avatar:text-xs
+group-data-[size=sm]/card:[.border-t]:pt-4
+group-data-[size=sm]/card:px-4
 group-data-[size=sm]/switch:size-3
 group-data-[state=open]:rotate-180
 group-data-[variant=floating]:border
@@ -1128,6 +1150,7 @@ has-[>[data-align=block-start]]:flex-col
 has-[>[data-align=block-start]]:h-auto
 has-[>[data-align=inline-end]]:[&>input]:pr-2
 has-[>[data-align=inline-start]]:[&>input]:pl-2
+has-[>[data-slot=button-group]]:gap-2
 has-[>[data-slot=checkbox-group]]:gap-3
 has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px
 has-[>[data-slot=field-content]]:items-start
@@ -1156,6 +1179,7 @@ has-[[data-slot=input-group-control]:focus-visible]:ring-ring/50
 has-[[data-slot][aria-invalid=true]]:border-destructive
 has-[[data-slot][aria-invalid=true]]:ring-destructive/20
 has-[select:disabled]:opacity-50
+has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-md
 has-data-[slot=alert-dialog-media]:gap-x-6
 has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr]
 has-data-[state=checked]:bg-primary/5
@@ -1233,7 +1257,6 @@ inset-x-0
 inset-y-0
 int
 intermediate
-invisible
 is
 is-invalid
 is-valid
@@ -1252,6 +1275,7 @@ item-title
 items-center
 items-end
 items-start
+items-stretch
 justify-between
 justify-center
 justify-end
@@ -1300,6 +1324,7 @@ long
 longdesc
 loop
 ltr
+m-0!
 m14
 m15
 m21
@@ -1484,6 +1509,8 @@ onplay
 ontimeupdate
 ontoggle
 onvolumechange
+opacity-0
+opacity-100
 opacity-50
 opacity-60
 opacity-70
@@ -1572,10 +1599,12 @@ position:
 possible
 poster
 pr-10
+pr-16
 pr-2
 pr-2.5
 pr-3
 pr-4
+pr-8
 pr-9
 prefix
 preload
@@ -1613,6 +1642,7 @@ q-accordion-header
 q-accordion-item
 q-accordion-trigger
 q-alert
+q-alert-action
 q-alert-description
 q-alert-dialog
 q-alert-dialog-action
@@ -1641,6 +1671,7 @@ q-badge
 q-blockquote
 q-br
 q-breadcrumb
+q-breadcrumb-ellipsis
 q-breadcrumb-item
 q-breadcrumb-link
 q-breadcrumb-page
@@ -1721,15 +1752,21 @@ q-date-time-picker
 q-details
 q-dialog
 q-dialog-body
+q-dialog-close
 q-dialog-close-button
+q-dialog-close-wrapper
 q-dialog-content
+q-dialog-description
 q-dialog-footer
 q-dialog-header
-q-dialog-panel
+q-dialog-overlay
 q-dialog-title
+q-dialog-trigger
+q-dialog-trigger-wrapper
 q-div
 q-drawer
 q-drawer-close
+q-drawer-close-wrapper
 q-drawer-content
 q-drawer-description
 q-drawer-footer
@@ -1737,6 +1774,7 @@ q-drawer-header
 q-drawer-overlay
 q-drawer-title
 q-drawer-trigger
+q-drawer-trigger-wrapper
 q-dropdown
 q-dropdown-checkbox-item
 q-dropdown-divider
@@ -1904,6 +1942,7 @@ q-select-value
 q-separator
 q-sheet
 q-sheet-close
+q-sheet-close-wrapper
 q-sheet-content
 q-sheet-description
 q-sheet-footer
@@ -1911,6 +1950,7 @@ q-sheet-header
 q-sheet-overlay
 q-sheet-title
 q-sheet-trigger
+q-sheet-trigger-wrapper
 q-sidebar
 q-sidebar-content
 q-sidebar-footer
@@ -2054,13 +2094,11 @@ right-3.5
 right-4
 right-full
 ring-0
-ring-1
 ring-2
 ring-4
 ring-8
 ring-background
 ring-destructive/20
-ring-foreground/10
 ring-offset-background
 ring-ring/50
 ring-sidebar-ring
@@ -2103,6 +2141,7 @@ select
 select-content
 select-group
 select-item
+select-item-indicator
 select-label
 select-none
 select-separator
@@ -2122,6 +2161,7 @@ shadow-sm
 shadow-xs
 sheet
 sheet-close
+sheet-close-wrapper
 sheet-content
 sheet-description
 sheet-footer
@@ -2129,6 +2169,7 @@ sheet-header
 sheet-overlay
 sheet-title
 sheet-trigger
+sheet-trigger-wrapper
 show
 shrink-0
 sidebar

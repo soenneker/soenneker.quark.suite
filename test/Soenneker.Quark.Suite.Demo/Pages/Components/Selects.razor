@@ -5,239 +5,399 @@
 <PageTitle>Select Component - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
-    <Section Space="Space.Y.Is4">
-        <DemoSection Title="Align Item With Trigger" Description="The new composed select mirrors the shadcn trigger/content/value pattern." Code="@(@"<Select TValue=""string"" @bind-SelectedValue=""_selectedFruit"">
-    <SelectTrigger>
-        <SelectValue Placeholder=""Select a fruit"" />
-    </SelectTrigger>
-    <SelectContent>
-        <SelectItem TValue=""string"" ItemValue=""apple"" Text=""Apple"" />
-        <SelectItem TValue=""string"" ItemValue=""banana"" Text=""Banana"" />
-        <SelectItem TValue=""string"" ItemValue=""blueberry"" Text=""Blueberry"" />
-    </SelectContent>
-</Select>")">
-            <Div Display="Display.Flex" AlignUtility="Align.ItemsCenter" Gap="Gap.Is4">
-                <Div class="w-[220px]">
-                    <Select TValue="string" @bind-SelectedValue="_selectedFruit">
-                        <SelectTrigger>
-                            <SelectValue Placeholder="Select a fruit" />
-                        </SelectTrigger>
-                        <SelectContent>
+    <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Demo"
+                         Code="@DemoCode">
+                <Select TValue="string" @bind-SelectedValue="_selectedFruit">
+                    <SelectTrigger Class="w-full max-w-48">
+                        <SelectValue Placeholder="Select a fruit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectLabel>Fruits</SelectLabel>
                             <SelectItem TValue="string" ItemValue="@("apple")" Text="Apple" />
                             <SelectItem TValue="string" ItemValue="@("banana")" Text="Banana" />
                             <SelectItem TValue="string" ItemValue="@("blueberry")" Text="Blueberry" />
                             <SelectItem TValue="string" ItemValue="@("grapes")" Text="Grapes" />
                             <SelectItem TValue="string" ItemValue="@("pineapple")" Text="Pineapple" />
-                        </SelectContent>
-                    </Select>
-                </Div>
-                @if (!string.IsNullOrEmpty(_selectedFruit))
-                {
-                    <Paragraph TextSize="TextSize.Sm">Selected: <strong>@_selectedFruit</strong></Paragraph>
-                }
-            </Div>
-        </DemoSection>
-    </Section>
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+            </DemoSection>
+        </Section>
 
-    <Section Space="Space.Y.Is4">
-        <DemoSection Title="Groups" Description="Organize related items into labeled groups." Code="@(@"<Select TValue=""string"" @bind-SelectedValue=""_selectedAnimal"">
-    <SelectTrigger>
-        <SelectValue Placeholder=""Select an animal"" />
-    </SelectTrigger>
-    <SelectContent>
-        <SelectGroup Label=""Mammals"">
-            <SelectItem TValue=""string"" ItemValue=""cat"" Text=""Cat"" />
-            <SelectItem TValue=""string"" ItemValue=""dog"" Text=""Dog"" />
-        </SelectGroup>
-        <SelectSeparator />
-        <SelectGroup Label=""Birds"">
-            <SelectItem TValue=""string"" ItemValue=""eagle"" Text=""Eagle"" />
-            <SelectItem TValue=""string"" ItemValue=""parrot"" Text=""Parrot"" />
-        </SelectGroup>
-    </SelectContent>
-</Select>")">
-            <Div Display="Display.Flex" AlignUtility="Align.ItemsCenter" Gap="Gap.Is4">
-                <Div class="w-[220px]">
-                    <Select TValue="string" @bind-SelectedValue="_selectedAnimal">
-                        <SelectTrigger>
-                            <SelectValue Placeholder="Select an animal" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup Label="Mammals">
-                                <SelectItem TValue="string" ItemValue="@("cat")" Text="Cat" />
-                                <SelectItem TValue="string" ItemValue="@("dog")" Text="Dog" />
-                                <SelectItem TValue="string" ItemValue="@("elephant")" Text="Elephant" />
-                            </SelectGroup>
-                            <SelectSeparator />
-                            <SelectGroup Label="Birds">
-                                <SelectItem TValue="string" ItemValue="@("eagle")" Text="Eagle" />
-                                <SelectItem TValue="string" ItemValue="@("parrot")" Text="Parrot" />
-                                <SelectItem TValue="string" ItemValue="@("penguin")" Text="Penguin" />
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
-                </Div>
-                @if (!string.IsNullOrEmpty(_selectedAnimal))
-                {
-                    <Paragraph TextSize="TextSize.Sm">Selected: <strong>@_selectedAnimal</strong></Paragraph>
-                }
-            </Div>
-        </DemoSection>
-    </Section>
-
-    <Section Space="Space.Y.Is4">
-        <DemoSection Title="Scrollable" Description="Use a taller content panel with overflow when the option list is long." Code="@(@"<Select TValue=""string"" @bind-SelectedValue=""_selectedCountry"">
-    <SelectTrigger>
-        <SelectValue Placeholder=""Select a country"" />
-    </SelectTrigger>
-    <SelectContent Class=""max-h-60"">
-        @foreach (var country in _countries)
-        {
-            <SelectItem TValue=""string"" ItemValue=""@country"" Text=""@country"" />
-        }
-    </SelectContent>
-</Select>")">
-            <Div Display="Display.Flex" AlignUtility="Align.ItemsCenter" Gap="Gap.Is4">
-                <Div class="w-[220px]">
-                    <Select TValue="string" @bind-SelectedValue="_selectedCountry">
-                        <SelectTrigger>
-                            <SelectValue Placeholder="Select a country" />
-                        </SelectTrigger>
-                        <SelectContent Class="max-h-60">
-                            @foreach (var country in _countries)
-                            {
-                                <SelectItem TValue="string" ItemValue="@country" Text="@country" />
-                            }
-                        </SelectContent>
-                    </Select>
-                </Div>
-                @if (!string.IsNullOrEmpty(_selectedCountry))
-                {
-                    <Paragraph TextSize="TextSize.Sm">Selected: <strong>@_selectedCountry</strong></Paragraph>
-                }
-            </Div>
-        </DemoSection>
-    </Section>
-
-    <Section Space="Space.Y.Is4">
-        <DemoSection Title="Disabled"
-                     Description="Disable a select when the user cannot change the value yet or the current step is locked."
-                     Code="@(@"<Select TValue=""string"" SelectedValue=""starter"" Disabled=""true"">
-    <SelectTrigger>
-        <SelectValue Placeholder=""Choose a plan"" />
-    </SelectTrigger>
-    <SelectContent>
-        <SelectItem TValue=""string"" ItemValue=""starter"" Text=""Starter"" />
-        <SelectItem TValue=""string"" ItemValue=""pro"" Text=""Pro"" />
-        <SelectItem TValue=""string"" ItemValue=""enterprise"" Text=""Enterprise"" />
-    </SelectContent>
-</Select>")">
-            <Div Display="Display.Flex" AlignUtility="Align.ItemsCenter" Gap="Gap.Is4">
-                <Div class="w-[220px]">
-                    <Select TValue="string" SelectedValue="@("starter")" Disabled="true">
-                        <SelectTrigger>
-                            <SelectValue Placeholder="Choose a plan" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem TValue="string" ItemValue="@("starter")" Text="Starter" />
-                            <SelectItem TValue="string" ItemValue="@("pro")" Text="Pro" />
-                            <SelectItem TValue="string" ItemValue="@("enterprise")" Text="Enterprise" />
-                        </SelectContent>
-                    </Select>
-                </Div>
-                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">The current plan is locked until the billing cycle closes.</Paragraph>
-            </Div>
-        </DemoSection>
-    </Section>
-
-    <Section Space="Space.Y.Is4">
-        <DemoSection Title="Invalid" Description="Apply invalid treatment on the trigger when the current selection needs correction." Code="@(@"<Select TValue=""string"" SelectedValue="""" >
-    <SelectTrigger Class=""border-destructive text-destructive"">
-        <SelectValue Placeholder=""Select a value"" />
-    </SelectTrigger>
-    <SelectContent>
-        <SelectItem TValue=""string"" ItemValue=""starter"" Text=""Starter"" />
-        <SelectItem TValue=""string"" ItemValue=""pro"" Text=""Pro"" />
-    </SelectContent>
-</Select>")">
-            <Div Display="Display.Flex" AlignUtility="Align.ItemsCenter" Gap="Gap.Is4">
-                <Div class="w-[220px]">
-                    <Select TValue="string" SelectedValue="@("")">
-                        <SelectTrigger Class="border-destructive text-destructive">
-                            <SelectValue Placeholder="Select a value" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem TValue="string" ItemValue="@("starter")" Text="Starter" />
-                            <SelectItem TValue="string" ItemValue="@("pro")" Text="Pro" />
-                        </SelectContent>
-                    </Select>
-                </Div>
-                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.Destructive">Please choose a plan before continuing.</Paragraph>
-            </Div>
-        </DemoSection>
-    </Section>
-
-    <Section Space="Space.Y.Is4">
-        <DemoSection Title="Form Validation" Description="Select integrates with EditForm and validation messaging through two-way SelectedValue binding." Code="@(@"<EditForm Model=""_formModel"" OnValidSubmit=""HandleSubmit"" class=""max-w-md space-y-4"">
-    <DataAnnotationsValidator />
-    <Select TValue=""string"" @bind-SelectedValue=""_formModel.Fruit"">
-        <SelectTrigger>
-            <SelectValue Placeholder=""Select a fruit"" />
-        </SelectTrigger>
-        <SelectContent>
-            <SelectItem TValue=""string"" ItemValue=""apple"" Text=""Apple"" />
-            <SelectItem TValue=""string"" ItemValue=""banana"" Text=""Banana"" />
-            <SelectItem TValue=""string"" ItemValue=""blueberry"" Text=""Blueberry"" />
-        </SelectContent>
-    </Select>
-</EditForm>")">
-            <EditForm Model="_formModel" OnValidSubmit="HandleSubmit" class="max-w-md space-y-4">
-                <DataAnnotationsValidator />
-                <Div Space="Space.Y.Is2">
-                    <Label TextSize="TextSize.Sm" FontWeight="FontWeight.Medium">Favorite Fruit</Label>
-                    <Select TValue="string" @bind-SelectedValue="_formModel.Fruit">
-                        <SelectTrigger>
-                            <SelectValue Placeholder="Select a fruit" />
-                        </SelectTrigger>
-                        <SelectContent>
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Disabled"
+                         Code="@DisabledCode">
+                <Select TValue="string" Disabled="true">
+                    <SelectTrigger Class="w-full max-w-48">
+                        <SelectValue Placeholder="Select a fruit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
                             <SelectItem TValue="string" ItemValue="@("apple")" Text="Apple" />
                             <SelectItem TValue="string" ItemValue="@("banana")" Text="Banana" />
                             <SelectItem TValue="string" ItemValue="@("blueberry")" Text="Blueberry" />
+                            <SelectItem TValue="string" ItemValue="@("grapes")" Text="Grapes" Disabled="true" />
+                            <SelectItem TValue="string" ItemValue="@("pineapple")" Text="Pineapple" />
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Groups"
+                         Code="@GroupsCode">
+                <Select TValue="string" @bind-SelectedValue="_selectedProduce">
+                    <SelectTrigger Class="w-full max-w-48">
+                        <SelectValue Placeholder="Select a fruit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectLabel>Fruits</SelectLabel>
+                            <SelectItem TValue="string" ItemValue="@("apple")" Text="Apple" />
+                            <SelectItem TValue="string" ItemValue="@("banana")" Text="Banana" />
+                            <SelectItem TValue="string" ItemValue="@("blueberry")" Text="Blueberry" />
+                        </SelectGroup>
+                        <SelectSeparator />
+                        <SelectGroup>
+                            <SelectLabel>Vegetables</SelectLabel>
+                            <SelectItem TValue="string" ItemValue="@("carrot")" Text="Carrot" />
+                            <SelectItem TValue="string" ItemValue="@("broccoli")" Text="Broccoli" />
+                            <SelectItem TValue="string" ItemValue="@("spinach")" Text="Spinach" />
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Scrollable"
+                         Code="@ScrollableCode">
+                <Select TValue="string" @bind-SelectedValue="_selectedTimezone">
+                    <SelectTrigger Class="w-full max-w-64">
+                        <SelectValue Placeholder="Select a timezone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectLabel>North America</SelectLabel>
+                            <SelectItem TValue="string" ItemValue="@("est")" Text="Eastern Standard Time" />
+                            <SelectItem TValue="string" ItemValue="@("cst")" Text="Central Standard Time" />
+                            <SelectItem TValue="string" ItemValue="@("mst")" Text="Mountain Standard Time" />
+                            <SelectItem TValue="string" ItemValue="@("pst")" Text="Pacific Standard Time" />
+                            <SelectItem TValue="string" ItemValue="@("akst")" Text="Alaska Standard Time" />
+                            <SelectItem TValue="string" ItemValue="@("hst")" Text="Hawaii Standard Time" />
+                        </SelectGroup>
+                        <SelectGroup>
+                            <SelectLabel>Europe &amp; Africa</SelectLabel>
+                            <SelectItem TValue="string" ItemValue="@("gmt")" Text="Greenwich Mean Time" />
+                            <SelectItem TValue="string" ItemValue="@("cet")" Text="Central European Time" />
+                            <SelectItem TValue="string" ItemValue="@("eet")" Text="Eastern European Time" />
+                            <SelectItem TValue="string" ItemValue="@("west")" Text="Western European Summer Time" />
+                            <SelectItem TValue="string" ItemValue="@("cat")" Text="Central Africa Time" />
+                            <SelectItem TValue="string" ItemValue="@("eat")" Text="East Africa Time" />
+                        </SelectGroup>
+                        <SelectGroup>
+                            <SelectLabel>Asia</SelectLabel>
+                            <SelectItem TValue="string" ItemValue="@("msk")" Text="Moscow Time" />
+                            <SelectItem TValue="string" ItemValue="@("ist")" Text="India Standard Time" />
+                            <SelectItem TValue="string" ItemValue="@("cst_china")" Text="China Standard Time" />
+                            <SelectItem TValue="string" ItemValue="@("jst")" Text="Japan Standard Time" />
+                            <SelectItem TValue="string" ItemValue="@("kst")" Text="Korea Standard Time" />
+                            <SelectItem TValue="string" ItemValue="@("ist_indonesia")" Text="Indonesia Central Standard Time" />
+                        </SelectGroup>
+                        <SelectGroup>
+                            <SelectLabel>Australia &amp; Pacific</SelectLabel>
+                            <SelectItem TValue="string" ItemValue="@("awst")" Text="Australian Western Standard Time" />
+                            <SelectItem TValue="string" ItemValue="@("acst")" Text="Australian Central Standard Time" />
+                            <SelectItem TValue="string" ItemValue="@("aest")" Text="Australian Eastern Standard Time" />
+                            <SelectItem TValue="string" ItemValue="@("nzst")" Text="New Zealand Standard Time" />
+                            <SelectItem TValue="string" ItemValue="@("fjt")" Text="Fiji Time" />
+                        </SelectGroup>
+                        <SelectGroup>
+                            <SelectLabel>South America</SelectLabel>
+                            <SelectItem TValue="string" ItemValue="@("art")" Text="Argentina Time" />
+                            <SelectItem TValue="string" ItemValue="@("bot")" Text="Bolivia Time" />
+                            <SelectItem TValue="string" ItemValue="@("brt")" Text="Brasilia Time" />
+                            <SelectItem TValue="string" ItemValue="@("clt")" Text="Chile Standard Time" />
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Invalid"
+                         Code="@InvalidCode">
+                <Field IsInvalid="true" Class="w-full max-w-48">
+                    <FieldLabel>Fruit</FieldLabel>
+                    <Select TValue="string">
+                        <SelectTrigger aria-invalid="true">
+                            <SelectValue Placeholder="Select a fruit" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectItem TValue="string" ItemValue="@("apple")" Text="Apple" />
+                                <SelectItem TValue="string" ItemValue="@("banana")" Text="Banana" />
+                                <SelectItem TValue="string" ItemValue="@("blueberry")" Text="Blueberry" />
+                            </SelectGroup>
                         </SelectContent>
                     </Select>
-                    <ValidationMessage For="@(() => _formModel.Fruit)" TextSize="TextSize.Sm" TextColor="TextColor.Destructive" />
-                </Div>
-                <Div Display="Display.Flex" Gap="Gap.Is4">
-                    <Button Type="ButtonType.Submit" Variant="ButtonVariant.Default">Submit</Button>
-                    <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline" OnClick="@(_ => ResetForm())">Reset</Button>
-                </Div>
-                @if (!string.IsNullOrEmpty(_formMessage))
-                {
-                    <Div class="p-4 bg-card rounded-lg border">
-                        <Paragraph TextSize="TextSize.Sm">@_formMessage</Paragraph>
+                    <FieldError>Please select a fruit.</FieldError>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Field"
+                         Code="@FieldCode">
+                <Field Class="w-full max-w-xs">
+                    <FieldLabel>Department</FieldLabel>
+                    <Select TValue="string" @bind-SelectedValue="_selectedDepartment">
+                        <SelectTrigger>
+                            <SelectValue Placeholder="Choose department" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectItem TValue="string" ItemValue="@("engineering")" Text="Engineering" />
+                                <SelectItem TValue="string" ItemValue="@("design")" Text="Design" />
+                                <SelectItem TValue="string" ItemValue="@("marketing")" Text="Marketing" />
+                                <SelectItem TValue="string" ItemValue="@("sales")" Text="Sales" />
+                                <SelectItem TValue="string" ItemValue="@("support")" Text="Customer Support" />
+                                <SelectItem TValue="string" ItemValue="@("hr")" Text="Human Resources" />
+                                <SelectItem TValue="string" ItemValue="@("finance")" Text="Finance" />
+                                <SelectItem TValue="string" ItemValue="@("operations")" Text="Operations" />
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                    <FieldDescription>Select your department or area of work.</FieldDescription>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Quark-only examples</H2>
+            <Paragraph TextColor="TextColor.MutedForeground">
+                These examples show additional select integrations beyond the core examples above.
+            </Paragraph>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Form Validation"
+                         Description="Select integrates with `EditForm` and validation messaging through two-way selection binding."
+                         Code="@FormCode">
+                <EditForm Model="_formModel" OnValidSubmit="HandleSubmit" class="max-w-md space-y-4">
+                    <DataAnnotationsValidator />
+                    <Field>
+                        <FieldLabel>Favorite Fruit</FieldLabel>
+                        <Select TValue="string" @bind-SelectedValue="_formModel.Fruit">
+                            <SelectTrigger>
+                                <SelectValue Placeholder="Select a fruit" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem TValue="string" ItemValue="@("apple")" Text="Apple" />
+                                <SelectItem TValue="string" ItemValue="@("banana")" Text="Banana" />
+                                <SelectItem TValue="string" ItemValue="@("blueberry")" Text="Blueberry" />
+                            </SelectContent>
+                        </Select>
+                        <ValidationMessage For="@(() => _formModel.Fruit)" TextSize="TextSize.Sm" TextColor="TextColor.Destructive" />
+                    </Field>
+                    <Div Display="Display.Flex" Gap="Gap.Is4">
+                        <Button Type="ButtonType.Submit">Submit</Button>
+                        <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline" OnClick="@(_ => ResetForm())">Reset</Button>
                     </Div>
-                }
-            </EditForm>
-        </DemoSection>
-    </Section>
+                    @if (!string.IsNullOrEmpty(_formMessage))
+                    {
+                        <Div class="p-4 bg-card rounded-lg border">
+                            <Paragraph TextSize="TextSize.Sm">@_formMessage</Paragraph>
+                        </Div>
+                    }
+                </EditForm>
+            </DemoSection>
+        </Section>
+    </Div>
 </Div>
 
 @code {
     private string? _selectedFruit;
-    private string? _selectedAnimal;
-    private string? _selectedCountry;
-    private readonly string[] _countries =
-    {
-        "Afghanistan", "Albania", "Algeria", "Andorra", "Angola",
-        "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
-        "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus",
-        "Belgium", "Belize", "Benin", "Bhutan", "Bolivia",
-        "Brazil", "Bulgaria", "Canada", "Chile", "China",
-        "Colombia", "Croatia", "Czech Republic", "Denmark", "Egypt"
-    };
+    private string? _selectedProduce;
+    private string? _selectedTimezone;
+    private string? _selectedDepartment;
 
     private SelectFormModel _formModel = new();
     private string? _formMessage;
+
+    private const string DemoCode =
+@"<Select TValue=""string"" @bind-SelectedValue=""_selectedFruit"">
+    <SelectTrigger Class=""w-full max-w-48"">
+        <SelectValue Placeholder=""Select a fruit"" />
+    </SelectTrigger>
+    <SelectContent>
+        <SelectGroup>
+            <SelectLabel>Fruits</SelectLabel>
+            <SelectItem TValue=""string"" ItemValue=""@(""apple"")"" Text=""Apple"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""banana"")"" Text=""Banana"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""blueberry"")"" Text=""Blueberry"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""grapes"")"" Text=""Grapes"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""pineapple"")"" Text=""Pineapple"" />
+        </SelectGroup>
+    </SelectContent>
+</Select>";
+
+    private const string DisabledCode =
+@"<Select TValue=""string"" Disabled=""true"">
+    <SelectTrigger Class=""w-full max-w-48"">
+        <SelectValue Placeholder=""Select a fruit"" />
+    </SelectTrigger>
+    <SelectContent>
+        <SelectGroup>
+            <SelectItem TValue=""string"" ItemValue=""@(""apple"")"" Text=""Apple"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""banana"")"" Text=""Banana"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""blueberry"")"" Text=""Blueberry"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""grapes"")"" Text=""Grapes"" Disabled=""true"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""pineapple"")"" Text=""Pineapple"" />
+        </SelectGroup>
+    </SelectContent>
+</Select>";
+
+    private const string GroupsCode =
+@"<Select TValue=""string"" @bind-SelectedValue=""_selectedProduce"">
+    <SelectTrigger Class=""w-full max-w-48"">
+        <SelectValue Placeholder=""Select a fruit"" />
+    </SelectTrigger>
+    <SelectContent>
+        <SelectGroup>
+            <SelectLabel>Fruits</SelectLabel>
+            <SelectItem TValue=""string"" ItemValue=""@(""apple"")"" Text=""Apple"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""banana"")"" Text=""Banana"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""blueberry"")"" Text=""Blueberry"" />
+        </SelectGroup>
+        <SelectSeparator />
+        <SelectGroup>
+            <SelectLabel>Vegetables</SelectLabel>
+            <SelectItem TValue=""string"" ItemValue=""@(""carrot"")"" Text=""Carrot"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""broccoli"")"" Text=""Broccoli"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""spinach"")"" Text=""Spinach"" />
+        </SelectGroup>
+    </SelectContent>
+</Select>";
+
+    private const string ScrollableCode =
+@"<Select TValue=""string"" @bind-SelectedValue=""_selectedTimezone"">
+    <SelectTrigger Class=""w-full max-w-64"">
+        <SelectValue Placeholder=""Select a timezone"" />
+    </SelectTrigger>
+    <SelectContent>
+        <SelectGroup>
+            <SelectLabel>North America</SelectLabel>
+            <SelectItem TValue=""string"" ItemValue=""@(""est"")"" Text=""Eastern Standard Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""cst"")"" Text=""Central Standard Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""mst"")"" Text=""Mountain Standard Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""pst"")"" Text=""Pacific Standard Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""akst"")"" Text=""Alaska Standard Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""hst"")"" Text=""Hawaii Standard Time"" />
+        </SelectGroup>
+        <SelectGroup>
+            <SelectLabel>Europe &amp; Africa</SelectLabel>
+            <SelectItem TValue=""string"" ItemValue=""@(""gmt"")"" Text=""Greenwich Mean Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""cet"")"" Text=""Central European Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""eet"")"" Text=""Eastern European Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""west"")"" Text=""Western European Summer Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""cat"")"" Text=""Central Africa Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""eat"")"" Text=""East Africa Time"" />
+        </SelectGroup>
+        <SelectGroup>
+            <SelectLabel>Asia</SelectLabel>
+            <SelectItem TValue=""string"" ItemValue=""@(""msk"")"" Text=""Moscow Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""ist"")"" Text=""India Standard Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""cst_china"")"" Text=""China Standard Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""jst"")"" Text=""Japan Standard Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""kst"")"" Text=""Korea Standard Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""ist_indonesia"")"" Text=""Indonesia Central Standard Time"" />
+        </SelectGroup>
+        <SelectGroup>
+            <SelectLabel>Australia &amp; Pacific</SelectLabel>
+            <SelectItem TValue=""string"" ItemValue=""@(""awst"")"" Text=""Australian Western Standard Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""acst"")"" Text=""Australian Central Standard Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""aest"")"" Text=""Australian Eastern Standard Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""nzst"")"" Text=""New Zealand Standard Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""fjt"")"" Text=""Fiji Time"" />
+        </SelectGroup>
+        <SelectGroup>
+            <SelectLabel>South America</SelectLabel>
+            <SelectItem TValue=""string"" ItemValue=""@(""art"")"" Text=""Argentina Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""bot"")"" Text=""Bolivia Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""brt"")"" Text=""Brasilia Time"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""clt"")"" Text=""Chile Standard Time"" />
+        </SelectGroup>
+    </SelectContent>
+</Select>";
+
+    private const string InvalidCode =
+@"<Field IsInvalid=""true"" Class=""w-full max-w-48"">
+    <FieldLabel>Fruit</FieldLabel>
+    <Select TValue=""string"">
+        <SelectTrigger aria-invalid=""true"">
+            <SelectValue Placeholder=""Select a fruit"" />
+        </SelectTrigger>
+        <SelectContent>
+            <SelectGroup>
+                <SelectItem TValue=""string"" ItemValue=""@(""apple"")"" Text=""Apple"" />
+                <SelectItem TValue=""string"" ItemValue=""@(""banana"")"" Text=""Banana"" />
+                <SelectItem TValue=""string"" ItemValue=""@(""blueberry"")"" Text=""Blueberry"" />
+            </SelectGroup>
+        </SelectContent>
+    </Select>
+    <FieldError>Please select a fruit.</FieldError>
+</Field>";
+
+    private const string FieldCode =
+@"<Field Class=""w-full max-w-xs"">
+    <FieldLabel>Department</FieldLabel>
+    <Select TValue=""string"" @bind-SelectedValue=""_selectedDepartment"">
+        <SelectTrigger>
+            <SelectValue Placeholder=""Choose department"" />
+        </SelectTrigger>
+        <SelectContent>
+            <SelectGroup>
+                <SelectItem TValue=""string"" ItemValue=""@(""engineering"")"" Text=""Engineering"" />
+                <SelectItem TValue=""string"" ItemValue=""@(""design"")"" Text=""Design"" />
+                <SelectItem TValue=""string"" ItemValue=""@(""marketing"")"" Text=""Marketing"" />
+                <SelectItem TValue=""string"" ItemValue=""@(""sales"")"" Text=""Sales"" />
+                <SelectItem TValue=""string"" ItemValue=""@(""support"")"" Text=""Customer Support"" />
+                <SelectItem TValue=""string"" ItemValue=""@(""hr"")"" Text=""Human Resources"" />
+                <SelectItem TValue=""string"" ItemValue=""@(""finance"")"" Text=""Finance"" />
+                <SelectItem TValue=""string"" ItemValue=""@(""operations"")"" Text=""Operations"" />
+            </SelectGroup>
+        </SelectContent>
+    </Select>
+    <FieldDescription>Select your department or area of work.</FieldDescription>
+</Field>";
+
+    private const string FormCode =
+@"<EditForm Model=""_formModel"" OnValidSubmit=""HandleSubmit"" class=""max-w-md space-y-4"">
+    <DataAnnotationsValidator />
+    <Field>
+        <FieldLabel>Favorite Fruit</FieldLabel>
+        <Select TValue=""string"" @bind-SelectedValue=""_formModel.Fruit"">
+            <SelectTrigger>
+                <SelectValue Placeholder=""Select a fruit"" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem TValue=""string"" ItemValue=""@(""apple"")"" Text=""Apple"" />
+                <SelectItem TValue=""string"" ItemValue=""@(""banana"")"" Text=""Banana"" />
+                <SelectItem TValue=""string"" ItemValue=""@(""blueberry"")"" Text=""Blueberry"" />
+            </SelectContent>
+        </Select>
+        <ValidationMessage For=""@(() => _formModel.Fruit)"" TextSize=""TextSize.Sm"" TextColor=""TextColor.Destructive"" />
+    </Field>
+    <Div Display=""Display.Flex"" Gap=""Gap.Is4"">
+        <Button Type=""ButtonType.Submit"">Submit</Button>
+        <Button Type=""ButtonType.Button"" Variant=""ButtonVariant.Outline"">Reset</Button>
+    </Div>
+</EditForm>";
 
     private void HandleSubmit()
     {

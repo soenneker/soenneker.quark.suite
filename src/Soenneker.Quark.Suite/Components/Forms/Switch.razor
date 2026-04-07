@@ -6,22 +6,34 @@
 @implements ISwitch
 @implements IDisposable
 <div @attributes="BuildWrapperAttributes()">
-    <label class="inline-flex cursor-pointer items-center gap-2">
+    @if (HasInlineLabel)
+    {
+        <label for="@ControlId" class="inline-flex cursor-pointer items-center gap-2">
+            <span class="group/switch relative inline-flex shrink-0">
+                <input id="@ControlId" type="checkbox" checked="@Checked" @onclick="HandleInputClick" @onchange="HandleChange" @attributes="BuildInputAttributes()" />
+                <span @attributes="BuildTrackAttributes()">
+                    <span @attributes="BuildThumbAttributes()"></span>
+                </span>
+            </span>
+            @if (ChildContent != null)
+            {
+                <span @attributes="BuildLabelAttributes()">@ChildContent</span>
+            }
+            else if (Label.HasContent())
+            {
+                <span @attributes="BuildLabelAttributes()">@Label</span>
+            }
+        </label>
+    }
+    else
+    {
         <span class="group/switch relative inline-flex shrink-0">
             <input id="@ControlId" type="checkbox" checked="@Checked" @onclick="HandleInputClick" @onchange="HandleChange" @attributes="BuildInputAttributes()" />
             <span @attributes="BuildTrackAttributes()">
                 <span @attributes="BuildThumbAttributes()"></span>
             </span>
         </span>
-        @if (ChildContent != null)
-        {
-            <span @attributes="BuildLabelAttributes()">@ChildContent</span>
-        }
-        else if (Label.HasContent())
-        {
-            <span @attributes="BuildLabelAttributes()">@Label</span>
-        }
-    </label>
+    }
 </div>
 
 @code {
@@ -40,6 +52,8 @@
     public Validation? ParentValidation { get; set; }
 
     public object? ValidationValue => Checked;
+
+    private bool HasInlineLabel => ChildContent != null || Label.HasContent();
 
     private string ControlId => CurrentFieldContext?.ControlId ?? Id!;
 

@@ -37,7 +37,21 @@ public sealed class PopoverInterop : IPopoverInterop
             await _initializer.Init(linked);
     }
 
-    public async ValueTask ObservePosition(string popoverId, ElementReference trigger, ElementReference content, string side, string align, int sideOffset = 4,
+    public async ValueTask ObservePosition(string popoverId, ElementReference trigger, ElementReference content,
+        string side, string align, int sideOffset = 4, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            await _initializer.Init(linked);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("observePosition", linked, popoverId, trigger, content, null, side, align, sideOffset);
+        }
+    }
+
+    public async ValueTask ObservePosition(string popoverId, ElementReference trigger, ElementReference content,
+        DotNetObjectReference<PopoverOutsideCloseProxy> callbackReference, string side, string align, int sideOffset = 4,
         CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
@@ -46,7 +60,7 @@ public sealed class PopoverInterop : IPopoverInterop
         {
             await _initializer.Init(linked);
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("observePosition", linked, popoverId, trigger, content, side, align, sideOffset);
+            await module.InvokeVoidAsync("observePosition", linked, popoverId, trigger, content, callbackReference, side, align, sideOffset);
         }
     }
 

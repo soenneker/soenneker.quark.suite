@@ -126,7 +126,7 @@ function updatePosition(trigger, content, side, align, sideOffset) {
     content.dataset.align = align || "center";
 }
 
-export function observePosition(popoverId, trigger, content, side, align, sideOffset) {
+export function observePosition(popoverId, trigger, content, callbackReference, side, align, sideOffset) {
     if (!popoverId || !trigger || !content) {
         return;
     }
@@ -153,9 +153,29 @@ export function observePosition(popoverId, trigger, content, side, align, sideOf
     window.addEventListener("resize", scheduleUpdate);
     window.addEventListener("scroll", scheduleUpdate, true);
 
+    const handleInteractOutside = async (event) => {
+        const target = event.target;
+
+        if (!target) {
+            return;
+        }
+
+        if (trigger.contains(target) || content.contains(target)) {
+            return;
+        }
+
+        if (callbackReference) {
+            await callbackReference.invokeMethodAsync("Close");
+        }
+    };
+
+    document.addEventListener("pointerdown", handleInteractOutside, true);
+    document.addEventListener("focusin", handleInteractOutside, true);
+
     observers.set(popoverId, {
         resizeObserver,
-        scheduleUpdate
+        scheduleUpdate,
+        handleInteractOutside
     });
 
     scheduleUpdate();
@@ -170,6 +190,8 @@ export function stopObserving(popoverId) {
 
     window.removeEventListener("resize", observer.scheduleUpdate);
     window.removeEventListener("scroll", observer.scheduleUpdate, true);
+    document.removeEventListener("pointerdown", observer.handleInteractOutside, true);
+    document.removeEventListener("focusin", observer.handleInteractOutside, true);
 
     if (observer.resizeObserver) {
         observer.resizeObserver.disconnect();

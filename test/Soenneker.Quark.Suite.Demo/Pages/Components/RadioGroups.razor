@@ -1,347 +1,359 @@
 @page "/radiogroups"
-@using Microsoft.Extensions.Logging
-@inject ILogger<Index> Logger
 
 <PageTitle>Radio Group - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <Grid Columns="Columns.Is1.OnLg.Is2" Gap="Gap.Is4">
-        <!-- Basic Usage -->
-        <Div Margin="Margin.Is4.FromBottom">
-            <DemoSection Title="Description" Description="Simple radio group with shared state and keyboard navigation." Code="@(@"<RadioGroup Name=""basicGroup"" Value=""@_basicSelected"" ValueChanged=""OnBasicSelectionChanged"" Class=""w-fit"" AriaLabel=""Basic options"">
-    <Radio Value=""Option1"">Option 1</Radio>
-    <Radio Value=""Option2"">Option 2</Radio>
-    <Radio Value=""Option3"">Option 3</Radio>
-</RadioGroup>")">
-                <RadioGroup Name="basicGroup" Value="@_basicSelected" ValueChanged="OnBasicSelectionChanged" Class="w-fit" AriaLabel="Basic options">
-                    <Radio Value="Option1">
-                        Option 1
-                    </Radio>
-                    <Radio Value="Option2">
-                        Option 2
-                    </Radio>
-                    <Radio Value="Option3">
-                        Option 3
-                    </Radio>
-                </RadioGroup>
-                <Div Margin="Margin.Is3.FromTop">
-                    <Small TextColor="TextColor.MutedForeground">Selected: <Strong>@_basicSelected</Strong></Small>
-                </Div>
-            </DemoSection>
-        </Div>
-
-        <!-- Disabled States -->
-        <Div Margin="Margin.Is4.FromBottom">
-            <DemoSection Title="Disabled" Description="Examples of disabled radio buttons." Code="@(@"<Radio Name=""notifications"" Value=""Email"" Checked=""..."" OnClick=""..."">Email</Radio>
-<Radio Name=""notifications"" Value=""Push"" Disabled=""true"">Push (Coming Soon)</Radio>
-<Radio Name=""notifications"" Value=""None"" Disabled=""true"">None (Disabled)</Radio>")">
-                <Label Form="true">Notification Preferences</Label>
-                <Radio Name="notifications" Value="Email" Checked="@(_notificationPreference == "Email")"
-                       OnClick="@(() => _notificationPreference = "Email")">
-                    Email
-                </Radio>
-                <Radio Name="notifications" Value="SMS" Checked="@(_notificationPreference == "SMS")"
-                       OnClick="@(() => _notificationPreference = "SMS")">
-                    SMS
-                </Radio>
-                <Radio Name="notifications" Value="Push" Checked="@(_notificationPreference == "Push")"
-                       OnClick="@(() => _notificationPreference = "Push")" Disabled="true">
-                    Push (Coming Soon)
-                </Radio>
-                <Radio Name="notifications" Value="None" Checked="@(_notificationPreference == "None")"
-                       OnClick="@(() => _notificationPreference = "None")" Disabled="true">
-                    None (Disabled)
-                </Radio>
-                <Div Margin="Margin.Is3.FromTop">
-                    <Small TextColor="TextColor.MutedForeground">Selected: <Strong>@_notificationPreference</Strong></Small>
-                </Div>
-            </DemoSection>
-        </Div>
-    </Grid>
-
-    <Div>
-        <!-- Inline Radios -->
-        <Div Margin="Margin.Is4.FromBottom">
-            <DemoSection Title="Choice Card" Description="Inline radios are a close Quark equivalent for the shadcn choice-card pattern." Code="@(@"<Label Form=""true"">How would you rate your experience?</Label>
-<Div>
-    <Radio Name=""ratingGroup"" Value=""Excellent"" Checked=""..."" OnClick=""..."" Inline=""true"">Excellent</Radio>
-    <Radio Name=""ratingGroup"" Value=""Good"" Inline=""true"">Good</Radio>
-    <Radio Name=""ratingGroup"" Value=""Fair"" Inline=""true"">Fair</Radio>
-    <Radio Name=""ratingGroup"" Value=""Poor"" Inline=""true"">Poor</Radio>
-</Div>")">
-                <Label Form="true">How would you rate your experience?</Label>
-                <Div>
-                    <Radio Name="ratingGroup" Value="Excellent" Checked="@(_ratingSelected == "Excellent")" OnClick="@(() => _ratingSelected = "Excellent")" Inline="true">Excellent</Radio>
-                    <Radio Name="ratingGroup" Value="Good" Checked="@(_ratingSelected == "Good")" OnClick="@(() => _ratingSelected = "Good")" Inline="true">Good</Radio>
-                    <Radio Name="ratingGroup" Value="Fair" Checked="@(_ratingSelected == "Fair")" OnClick="@(() => _ratingSelected = "Fair")" Inline="true">Fair</Radio>
-                    <Radio Name="ratingGroup" Value="Poor" Checked="@(_ratingSelected == "Poor")" OnClick="@(() => _ratingSelected = "Poor")" Inline="true">Poor</Radio>
-                </Div>
-                <Div Margin="Margin.Is3.FromTop">
-                    <Small TextColor="TextColor.MutedForeground">Selected Rating: <Strong>@_ratingSelected</Strong></Small>
-                </Div>
-            </DemoSection>
-        </Div>
-    </Div>
-
-    <Grid Columns="Columns.Is1.OnLg.Is2" Gap="Gap.Is4">
-        <!-- Event Handling Examples -->
-        <Div Margin="Margin.Is4.FromBottom">
-            <DemoSection Title="Event Handling" Description="Radio buttons with OnClick, OnChange, OnFocus." Code="@(@"<Radio Name=""eventGroup"" Value=""Click"" Checked=""..."" OnClick=""@(() => HandleRadioClick(\""Click\""))""/>
-<Radio Name=""eventGroup"" Value=""Change"" OnChange=""@(e => HandleRadioChange(e, \""Change\""))""/>
-<Radio Name=""eventGroup"" Value=""Focus"" OnFocus=""@(() => HandleRadioFocus(\""Focus\""))""/>")">
-                <Label Form="true">Event Logging</Label>
-                <Div Class="form-check">
-                    <Radio Name="eventGroup" Value="Click" Checked="@(_eventSelected == "Click")" OnClick="@(() => HandleRadioClick("Click"))"/>
-                    <Label Class="form-check-label">Click Event</Label>
-                </Div>
-                <Div Class="form-check">
-                    <Radio Name="eventGroup" Value="Change" Checked="@(_eventSelected == "Change")" OnChange="@(e => HandleRadioChange(e, "Change"))"/>
-                    <Label Class="form-check-label">Change Event</Label>
-                </Div>
-                <Div Class="form-check">
-                    <Radio Name="eventGroup" Value="Focus" Checked="@(_eventSelected == "Focus")" OnFocus="@(() => HandleRadioFocus("Focus"))"/>
-                    <Label Class="form-check-label">Focus Event</Label>
-                </Div>
-                <Div Margin="Margin.Is3.FromTop">
-                    <Small TextColor="TextColor.MutedForeground">Last Event: <Strong>@_lastEvent</Strong></Small>
-                </Div>
-            </DemoSection>
-        </Div>
-
-        <!-- Color Variants -->
-        <Div Margin="Margin.Is4.FromBottom">
-            <DemoSection Title="Color Variants" Description="Radio buttons with BackgroundColor (Primary, Success, Warning, Danger)." Code="@(@"<Radio Name=""themeGroup"" Value=""Primary"" BackgroundColor=""BackgroundColor.Primary"" OnClick=""...""/>
-<Radio Name=""themeGroup"" Value=""Success"" BackgroundColor=""BackgroundColor.Accent""/>
-<Radio Name=""themeGroup"" Value=""Danger"" BackgroundColor=""BackgroundColor.Destructive""/>")">
-                <Label Form="true">Theme Selection</Label>
-                <Div Class="form-check">
-                    <Radio Name="themeGroup" Value="Primary" Checked="@(_themeSelected == "Primary")" BackgroundColor="BackgroundColor.Primary" OnClick="@(() => SelectTheme("Primary"))"/>
-                    <Label Class="form-check-label">Primary Theme</Label>
-                </Div>
-                <Div Class="form-check">
-                    <Radio Name="themeGroup" Value="Success" Checked="@(_themeSelected == "Success")" BackgroundColor="BackgroundColor.Accent" OnClick="@(() => SelectTheme("Success"))"/>
-                    <Label Class="form-check-label">Success Theme</Label>
-                </Div>
-                <Div Class="form-check">
-                    <Radio Name="themeGroup" Value="Warning" Checked="@(_themeSelected == "Warning")" BackgroundColor="BackgroundColor.Muted" OnClick="@(() => SelectTheme("Warning"))"/>
-                    <Label Class="form-check-label">Warning Theme</Label>
-                </Div>
-                <Div Class="form-check">
-                    <Radio Name="themeGroup" Value="Danger" Checked="@(_themeSelected == "Danger")" BackgroundColor="BackgroundColor.Destructive" OnClick="@(() => SelectTheme("Danger"))"/>
-                    <Label Class="form-check-label">Danger Theme</Label>
-                </Div>
-                <Div Margin="Margin.Is3.FromTop">
-                    <Small TextColor="TextColor.MutedForeground">Selected Theme: <Strong>@_themeSelected</Strong></Small>
-                </Div>
-            </DemoSection>
-        </Div>
-    </Grid>
-
-    <Grid Columns="Columns.Is1.OnLg.Is2" Gap="Gap.Is4">
-        <!-- Size Variants -->
-        <Div Margin="Margin.Is4.FromBottom">
-            <DemoSection Title="Size Variants" Description="Radio buttons with Size (ExtraSmall through ExtraExtraLarge)." Code="@(@"<Radio Name=""sizeGroup"" Value=""Small"" Size=""Size.Small"" OnClick=""...""/>Small
-<Radio Name=""sizeGroup"" Value=""Medium"" Size=""Size.Medium""/>Medium (Default)
-<Radio Name=""sizeGroup"" Value=""Large"" Size=""Size.Large""/>Large")">
-                <Label Form="true">Size Preference</Label>
-                <Radio Name="sizeGroup" Value="ExtraSmall" Checked="@(_sizeSelected == "ExtraSmall")" Size="Size.ExtraSmall" OnClick="@(() => SelectSize("ExtraSmall"))">Extra Small Size</Radio>
-                <Radio Name="sizeGroup" Value="Small" Checked="@(_sizeSelected == "Small")" Size="Size.Small" OnClick="@(() => SelectSize("Small"))">Small Size</Radio>
-                <Radio Name="sizeGroup" Value="Medium" Checked="@(_sizeSelected == "Medium")" Size="Size.Medium" OnClick="@(() => SelectSize("Medium"))">Medium Size (Default)</Radio>
-                <Radio Name="sizeGroup" Value="Large" Checked="@(_sizeSelected == "Large")" Size="Size.Large" OnClick="@(() => SelectSize("Large"))">Large Size</Radio>
-                <Radio Name="sizeGroup" Value="ExtraLarge" Checked="@(_sizeSelected == "ExtraLarge")" Size="Size.ExtraLarge" OnClick="@(() => SelectSize("ExtraLarge"))">Extra Large Size</Radio>
-                <Radio Name="sizeGroup" Value="ExtraExtraLarge" Checked="@(_sizeSelected == "ExtraExtraLarge")" Size="Size.ExtraExtraLarge" OnClick="@(() => SelectSize("ExtraExtraLarge"))">Extra Extra Large Size</Radio>
-                <Div Margin="Margin.Is3.FromTop">
-                    <Small TextColor="TextColor.MutedForeground">Selected Size: <Strong>@_sizeSelected</Strong></Small>
-                </Div>
-            </DemoSection>
-        </Div>
-
-        <!-- Form Integration -->
-        <Div Margin="Margin.Is4.FromBottom">
-            <DemoSection Title="Fieldset" Description="Radio buttons grouped with validation and helper text." Code="@(@"<Validations @ref=""_validations"" Model=""@_formModel"">
-    <Validation Action=""ValidatePaymentMethod"">
-        <Radio Name=""paymentGroup"" Value=""CreditCard"" Checked=""..."" OnChange=""@(e => _formModel.PaymentMethod = \""CreditCard\"")"">Credit Card</Radio>
-        <Radio Name=""paymentGroup"" Value=""PayPal"" OnChange=""@(e => _formModel.PaymentMethod = \""PayPal\"")"">PayPal</Radio>
-        <ValidationError />
-    </Validation>
-</Validations>")">
-                <Validations @ref="_validations" Model="@_formModel">
-                    <Validation Action="ValidatePaymentMethod">
-                        <Div Margin="Margin.Is3.FromBottom">
-                            <Label Form="true">Payment Method</Label>
-                            <Radio Name="paymentGroup" Value="CreditCard" Checked="@(_formModel.PaymentMethod == "CreditCard")" OnChange="@(e => _formModel.PaymentMethod = "CreditCard")">Credit Card</Radio>
-                            <Radio Name="paymentGroup" Value="PayPal" Checked="@(_formModel.PaymentMethod == "PayPal")" OnChange="@(e => _formModel.PaymentMethod = "PayPal")">PayPal</Radio>
-                            <Radio Name="paymentGroup" Value="BankTransfer" Checked="@(_formModel.PaymentMethod == "BankTransfer")" OnChange="@(e => _formModel.PaymentMethod = "BankTransfer")">Bank Transfer</Radio>
-                        </Div>
-                        <ValidationError Margin="Margin.Is2.FromTop" />
-                    </Validation>
-                    <Div Margin="Margin.Is3.FromTop">
-                        <Button BackgroundColor="BackgroundColor.Primary" OnClick="SubmitForm">Submit Form</Button>
-                        <Span Margin="Margin.Is2.FromStart">@_submitResult</Span>
+            <DemoSection Title="Demo"
+                         Code="@DemoCode">
+                <RadioGroup Name="density-demo" Value="@_demoValue" ValueChanged="OnDemoValueChanged" Class="w-fit" AriaLabel="Density options">
+                    <Div Class="flex items-center gap-3">
+                        <Radio Id="r1" Value="default" />
+                        <Label For="r1">Default</Label>
                     </Div>
-                </Validations>
+                    <Div Class="flex items-center gap-3">
+                        <Radio Id="r2" Value="comfortable" />
+                        <Label For="r2">Comfortable</Label>
+                    </Div>
+                    <Div Class="flex items-center gap-3">
+                        <Radio Id="r3" Value="compact" />
+                        <Label For="r3">Compact</Label>
+                    </Div>
+                </RadioGroup>
             </DemoSection>
-        </Div>
-    </Grid>
+        </Section>
 
-    <Grid Columns="Columns.Is1" Gap="Gap.Is4">
-        <Div Margin="Margin.Is4.FromBottom">
-            <DemoSection Title="Invalid" Description="Use destructive helper text when a payment method is required but none has been selected yet." Code="@(@"<Div class=""space-y-3 rounded-lg border border-destructive/40 p-4"">
-    <Radio Name=""planGroup"" Value=""Starter"">Starter</Radio>
-    <Radio Name=""planGroup"" Value=""Pro"">Pro</Radio>
-    <Paragraph class=""text-sm text-destructive"">Please choose a plan.</Paragraph>
-</Div>")">
-                <Div class="space-y-3 rounded-lg border border-destructive/40 bg-destructive/5 p-4">
-                    <Label Form="true">Choose a support plan</Label>
-                    <Radio Name="invalidPlanGroup" Value="Starter" Checked="@(_invalidSelection == "Starter")" OnClick="@(() => _invalidSelection = "Starter")">Starter</Radio>
-                    <Radio Name="invalidPlanGroup" Value="Pro" Checked="@(_invalidSelection == "Pro")" OnClick="@(() => _invalidSelection = "Pro")">Pro</Radio>
-                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.Destructive">Please choose a plan before continuing.</Paragraph>
-                </Div>
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Description"
+                         Code="@DescriptionCode">
+                <RadioGroup Name="density-description" Value="@_descriptionValue" ValueChanged="OnDescriptionValueChanged" Class="w-fit" AriaLabel="Density descriptions">
+                    <Field Horizontal="true">
+                        <Radio Id="desc-r1" Value="default" />
+                        <FieldContent>
+                            <FieldLabel For="desc-r1">Default</FieldLabel>
+                            <FieldDescription>Standard spacing for most use cases.</FieldDescription>
+                        </FieldContent>
+                    </Field>
+                    <Field Horizontal="true">
+                        <Radio Id="desc-r2" Value="comfortable" />
+                        <FieldContent>
+                            <FieldLabel For="desc-r2">Comfortable</FieldLabel>
+                            <FieldDescription>More space between elements.</FieldDescription>
+                        </FieldContent>
+                    </Field>
+                    <Field Horizontal="true">
+                        <Radio Id="desc-r3" Value="compact" />
+                        <FieldContent>
+                            <FieldLabel For="desc-r3">Compact</FieldLabel>
+                            <FieldDescription>Minimal spacing for dense layouts.</FieldDescription>
+                        </FieldContent>
+                    </Field>
+                </RadioGroup>
             </DemoSection>
-        </Div>
-    </Grid>
+        </Section>
 
-    <Div>
-        <!-- Interactive Demo -->
-        <Div>
-            <DemoSection Title="Interactive Demo" Description="Master radio that enables/disables controlled options." Code="@(@"<Radio Name=""masterGroup"" Value=""All"" Checked=""@_masterSelected"" OnClick=""@(() => ToggleMaster())""/>Select All
-<Radio Name=""controlledGroup"" Value=""Option1"" Checked=""@_masterSelected"" Disabled=""@(!_masterSelected)""/>Option 1
-<Radio Name=""controlledGroup"" Value=""Option2"" Disabled=""@(!_masterSelected)""/>Option 2")">
-                <Label Form="true">Master Control</Label>
-                <Div Class="form-check">
-                    <Radio Name="masterGroup" Value="All" Checked="@_masterSelected" OnClick="@(() => ToggleMaster())"/>
-                    <Label Class="form-check-label">Select All Options</Label>
-                </Div>
-                <Label Form="true" Class="block mt-3">Controlled Options</Label>
-                <Div Class="form-check">
-                    <Radio Name="controlledGroup" Value="Option1" Checked="@_masterSelected" Disabled="@(!_masterSelected)" />
-                    <Label Class="form-check-label">Option 1</Label>
-                </Div>
-                <Div Class="form-check">
-                    <Radio Name="controlledGroup" Value="Option2" Checked="@_masterSelected" Disabled="@(!_masterSelected)" />
-                    <Label Class="form-check-label">Option 2</Label>
-                </Div>
-                <Div Class="form-check">
-                    <Radio Name="controlledGroup" Value="Option3" Checked="@_masterSelected" Disabled="@(!_masterSelected)" />
-                    <Label Class="form-check-label">Option 3</Label>
-                </Div>
-                <Div Margin="Margin.Is3.FromTop">
-                    <Small TextColor="TextColor.MutedForeground">Master Status: <Strong>@(_masterSelected ? "Enabled" : "Disabled")</Strong></Small>
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Disabled"
+                         Code="@DisabledCode">
+                <RadioGroup Name="disabled-options" Value="@_disabledValue" ValueChanged="OnDisabledValueChanged" Class="w-fit" AriaLabel="Disabled radio options">
+                    <Field Horizontal="true" Disabled="true">
+                        <Radio Id="disabled-1" Value="option1" Disabled="true" />
+                        <FieldLabel For="disabled-1" FontWeight="FontWeight.Normal">Disabled</FieldLabel>
+                    </Field>
+                    <Field Horizontal="true">
+                        <Radio Id="disabled-2" Value="option2" />
+                        <FieldLabel For="disabled-2" FontWeight="FontWeight.Normal">Option 2</FieldLabel>
+                    </Field>
+                    <Field Horizontal="true">
+                        <Radio Id="disabled-3" Value="option3" />
+                        <FieldLabel For="disabled-3" FontWeight="FontWeight.Normal">Option 3</FieldLabel>
+                    </Field>
+                </RadioGroup>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Invalid"
+                         Code="@InvalidCode">
+                <FieldSet Class="w-full max-w-xs">
+                    <FieldLegend Variant="FieldLegendVariant.Label">Notification Preferences</FieldLegend>
+                    <FieldDescription>Choose how you want to receive notifications.</FieldDescription>
+                    <RadioGroup Name="invalid-notifications" Value="@_invalidValue" ValueChanged="OnInvalidValueChanged" AriaLabel="Notification preferences">
+                        <Field Horizontal="true" IsInvalid="true">
+                            <Radio Id="invalid-email" Value="email" aria-invalid="true" />
+                            <FieldLabel For="invalid-email" FontWeight="FontWeight.Normal">Email only</FieldLabel>
+                        </Field>
+                        <Field Horizontal="true" IsInvalid="true">
+                            <Radio Id="invalid-sms" Value="sms" aria-invalid="true" />
+                            <FieldLabel For="invalid-sms" FontWeight="FontWeight.Normal">SMS only</FieldLabel>
+                        </Field>
+                        <Field Horizontal="true" IsInvalid="true">
+                            <Radio Id="invalid-both" Value="both" aria-invalid="true" />
+                            <FieldLabel For="invalid-both" FontWeight="FontWeight.Normal">Both Email &amp; SMS</FieldLabel>
+                        </Field>
+                    </RadioGroup>
+                </FieldSet>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Choice Card"
+                         Code="@ChoiceCardCode">
+                <RadioGroup Name="plan-choice-card" Value="@_choiceCardValue" ValueChanged="OnChoiceCardValueChanged" Class="max-w-sm" AriaLabel="Subscription plans">
+                    <FieldLabel For="plus-plan">
+                        <Field Horizontal="true">
+                            <FieldContent>
+                                <FieldTitle>Plus</FieldTitle>
+                                <FieldDescription>For individuals and small teams.</FieldDescription>
+                            </FieldContent>
+                            <Radio Id="plus-plan" Value="plus" />
+                        </Field>
+                    </FieldLabel>
+                    <FieldLabel For="pro-plan">
+                        <Field Horizontal="true">
+                            <FieldContent>
+                                <FieldTitle>Pro</FieldTitle>
+                                <FieldDescription>For growing businesses.</FieldDescription>
+                            </FieldContent>
+                            <Radio Id="pro-plan" Value="pro" />
+                        </Field>
+                    </FieldLabel>
+                    <FieldLabel For="enterprise-plan">
+                        <Field Horizontal="true">
+                            <FieldContent>
+                                <FieldTitle>Enterprise</FieldTitle>
+                                <FieldDescription>For large teams and enterprises.</FieldDescription>
+                            </FieldContent>
+                            <Radio Id="enterprise-plan" Value="enterprise" />
+                        </Field>
+                    </FieldLabel>
+                </RadioGroup>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Fieldset"
+                         Code="@FieldsetCode">
+                <FieldSet Class="w-full max-w-xs">
+                    <FieldLegend Variant="FieldLegendVariant.Label">Subscription Plan</FieldLegend>
+                    <FieldDescription>Yearly and lifetime plans offer significant savings.</FieldDescription>
+                    <RadioGroup Name="subscription-plan" Value="@_fieldsetValue" ValueChanged="OnFieldsetValueChanged" AriaLabel="Subscription plans">
+                        <Field Horizontal="true">
+                            <Radio Id="plan-monthly" Value="monthly" />
+                            <FieldLabel For="plan-monthly" FontWeight="FontWeight.Normal">Monthly ($9.99/month)</FieldLabel>
+                        </Field>
+                        <Field Horizontal="true">
+                            <Radio Id="plan-yearly" Value="yearly" />
+                            <FieldLabel For="plan-yearly" FontWeight="FontWeight.Normal">Yearly ($99.99/year)</FieldLabel>
+                        </Field>
+                        <Field Horizontal="true">
+                            <Radio Id="plan-lifetime" Value="lifetime" />
+                            <FieldLabel For="plan-lifetime" FontWeight="FontWeight.Normal">Lifetime ($299.99)</FieldLabel>
+                        </Field>
+                    </RadioGroup>
+                </FieldSet>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Quark-only examples</H2>
+            <Paragraph TextColor="TextColor.MutedForeground">
+                These examples show additional radio APIs beyond the core examples above.
+            </Paragraph>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Inline Content"
+                         Description="Standalone radios can still render inline label content inside the component."
+                         Code="@InlineContentCode">
+                <Div Class="flex flex-wrap gap-4">
+                    <Radio Name="rating-inline" Value="excellent" Checked="@(_inlineRating == "excellent")" OnClick="@(() => _inlineRating = "excellent")" Inline="true">Excellent</Radio>
+                    <Radio Name="rating-inline" Value="good" Checked="@(_inlineRating == "good")" OnClick="@(() => _inlineRating = "good")" Inline="true">Good</Radio>
+                    <Radio Name="rating-inline" Value="fair" Checked="@(_inlineRating == "fair")" OnClick="@(() => _inlineRating = "fair")" Inline="true">Fair</Radio>
                 </Div>
             </DemoSection>
-        </Div>
-    </Div>
         </Section>
     </Div>
 </Div>
 
 @code {
-    // Basic usage
-    private string _basicSelected = "Option1";
+    private const string DemoCode =
+@"<RadioGroup Name=""density-demo"" Value=""@_demoValue"" ValueChanged=""OnDemoValueChanged"" Class=""w-fit"" AriaLabel=""Density options"">
+    <Div Class=""flex items-center gap-3"">
+        <Radio Id=""r1"" Value=""default"" />
+        <Label For=""r1"">Default</Label>
+    </Div>
+    <Div Class=""flex items-center gap-3"">
+        <Radio Id=""r2"" Value=""comfortable"" />
+        <Label For=""r2"">Comfortable</Label>
+    </Div>
+    <Div Class=""flex items-center gap-3"">
+        <Radio Id=""r3"" Value=""compact"" />
+        <Label For=""r3"">Compact</Label>
+    </Div>
+</RadioGroup>";
 
-    // Disabled states
-    private string _notificationPreference = "Email";
+    private const string DescriptionCode =
+@"<RadioGroup Name=""density-description"" Value=""@_descriptionValue"" ValueChanged=""OnDescriptionValueChanged"" Class=""w-fit"" AriaLabel=""Density descriptions"">
+    <Field Horizontal=""true"">
+        <Radio Id=""desc-r1"" Value=""default"" />
+        <FieldContent>
+            <FieldLabel For=""desc-r1"">Default</FieldLabel>
+            <FieldDescription>Standard spacing for most use cases.</FieldDescription>
+        </FieldContent>
+    </Field>
+    <Field Horizontal=""true"">
+        <Radio Id=""desc-r2"" Value=""comfortable"" />
+        <FieldContent>
+            <FieldLabel For=""desc-r2"">Comfortable</FieldLabel>
+            <FieldDescription>More space between elements.</FieldDescription>
+        </FieldContent>
+    </Field>
+    <Field Horizontal=""true"">
+        <Radio Id=""desc-r3"" Value=""compact"" />
+        <FieldContent>
+            <FieldLabel For=""desc-r3"">Compact</FieldLabel>
+            <FieldDescription>Minimal spacing for dense layouts.</FieldDescription>
+        </FieldContent>
+    </Field>
+</RadioGroup>";
 
-    // Event handling
-    private string _eventSelected = "Click";
-    private string _lastEvent = "None";
+    private const string DisabledCode =
+@"<RadioGroup Name=""disabled-options"" Value=""@_disabledValue"" ValueChanged=""OnDisabledValueChanged"" Class=""w-fit"" AriaLabel=""Disabled radio options"">
+    <Field Horizontal=""true"" Disabled=""true"">
+        <Radio Id=""disabled-1"" Value=""option1"" Disabled=""true"" />
+        <FieldLabel For=""disabled-1"" FontWeight=""FontWeight.Normal"">Disabled</FieldLabel>
+    </Field>
+    <Field Horizontal=""true"">
+        <Radio Id=""disabled-2"" Value=""option2"" />
+        <FieldLabel For=""disabled-2"" FontWeight=""FontWeight.Normal"">Option 2</FieldLabel>
+    </Field>
+    <Field Horizontal=""true"">
+        <Radio Id=""disabled-3"" Value=""option3"" />
+        <FieldLabel For=""disabled-3"" FontWeight=""FontWeight.Normal"">Option 3</FieldLabel>
+    </Field>
+</RadioGroup>";
 
-    // Color variants
-    private string _themeSelected = "Primary";
+    private const string InvalidCode =
+@"<FieldSet Class=""w-full max-w-xs"">
+    <FieldLegend Variant=""FieldLegendVariant.Label"">Notification Preferences</FieldLegend>
+    <FieldDescription>Choose how you want to receive notifications.</FieldDescription>
+    <RadioGroup Name=""invalid-notifications"" Value=""@_invalidValue"" ValueChanged=""OnInvalidValueChanged"" AriaLabel=""Notification preferences"">
+        <Field Horizontal=""true"" IsInvalid=""true"">
+            <Radio Id=""invalid-email"" Value=""email"" aria-invalid=""true"" />
+            <FieldLabel For=""invalid-email"" FontWeight=""FontWeight.Normal"">Email only</FieldLabel>
+        </Field>
+        <Field Horizontal=""true"" IsInvalid=""true"">
+            <Radio Id=""invalid-sms"" Value=""sms"" aria-invalid=""true"" />
+            <FieldLabel For=""invalid-sms"" FontWeight=""FontWeight.Normal"">SMS only</FieldLabel>
+        </Field>
+        <Field Horizontal=""true"" IsInvalid=""true"">
+            <Radio Id=""invalid-both"" Value=""both"" aria-invalid=""true"" />
+            <FieldLabel For=""invalid-both"" FontWeight=""FontWeight.Normal"">Both Email &amp; SMS</FieldLabel>
+        </Field>
+    </RadioGroup>
+</FieldSet>";
 
-    // Size variants
-    private string _sizeSelected = "Default";
+    private const string ChoiceCardCode =
+@"<RadioGroup Name=""plan-choice-card"" Value=""@_choiceCardValue"" ValueChanged=""OnChoiceCardValueChanged"" Class=""max-w-sm"" AriaLabel=""Subscription plans"">
+    <FieldLabel For=""plus-plan"">
+        <Field Horizontal=""true"">
+            <FieldContent>
+                <FieldTitle>Plus</FieldTitle>
+                <FieldDescription>For individuals and small teams.</FieldDescription>
+            </FieldContent>
+            <Radio Id=""plus-plan"" Value=""plus"" />
+        </Field>
+    </FieldLabel>
+    <FieldLabel For=""pro-plan"">
+        <Field Horizontal=""true"">
+            <FieldContent>
+                <FieldTitle>Pro</FieldTitle>
+                <FieldDescription>For growing businesses.</FieldDescription>
+            </FieldContent>
+            <Radio Id=""pro-plan"" Value=""pro"" />
+        </Field>
+    </FieldLabel>
+    <FieldLabel For=""enterprise-plan"">
+        <Field Horizontal=""true"">
+            <FieldContent>
+                <FieldTitle>Enterprise</FieldTitle>
+                <FieldDescription>For large teams and enterprises.</FieldDescription>
+            </FieldContent>
+            <Radio Id=""enterprise-plan"" Value=""enterprise"" />
+        </Field>
+    </FieldLabel>
+</RadioGroup>";
 
-    // Form integration
-    private Validations? _validations;
-    private FormModel _formModel = new();
-    private string _submitResult = string.Empty;
+    private const string FieldsetCode =
+@"<FieldSet Class=""w-full max-w-xs"">
+    <FieldLegend Variant=""FieldLegendVariant.Label"">Subscription Plan</FieldLegend>
+    <FieldDescription>Yearly and lifetime plans offer significant savings.</FieldDescription>
+    <RadioGroup Name=""subscription-plan"" Value=""@_fieldsetValue"" ValueChanged=""OnFieldsetValueChanged"" AriaLabel=""Subscription plans"">
+        <Field Horizontal=""true"">
+            <Radio Id=""plan-monthly"" Value=""monthly"" />
+            <FieldLabel For=""plan-monthly"" FontWeight=""FontWeight.Normal"">Monthly ($9.99/month)</FieldLabel>
+        </Field>
+        <Field Horizontal=""true"">
+            <Radio Id=""plan-yearly"" Value=""yearly"" />
+            <FieldLabel For=""plan-yearly"" FontWeight=""FontWeight.Normal"">Yearly ($99.99/year)</FieldLabel>
+        </Field>
+        <Field Horizontal=""true"">
+            <Radio Id=""plan-lifetime"" Value=""lifetime"" />
+            <FieldLabel For=""plan-lifetime"" FontWeight=""FontWeight.Normal"">Lifetime ($299.99)</FieldLabel>
+        </Field>
+    </RadioGroup>
+</FieldSet>";
 
-    // Interactive demo
-    private bool _masterSelected = false;
+    private const string InlineContentCode =
+@"<Div Class=""flex flex-wrap gap-4"">
+    <Radio Name=""rating-inline"" Value=""excellent"" Checked=""@(_inlineRating == ""excellent"")"" OnClick=""@(() => _inlineRating = ""excellent"")"" Inline=""true"">Excellent</Radio>
+    <Radio Name=""rating-inline"" Value=""good"" Checked=""@(_inlineRating == ""good"")"" OnClick=""@(() => _inlineRating = ""good"")"" Inline=""true"">Good</Radio>
+    <Radio Name=""rating-inline"" Value=""fair"" Checked=""@(_inlineRating == ""fair"")"" OnClick=""@(() => _inlineRating = ""fair"")"" Inline=""true"">Fair</Radio>
+</Div>";
 
-    // Inline radios
-    private string _ratingSelected = "Good";
-    private string _invalidSelection = string.Empty;
+    private string _demoValue = "comfortable";
+    private string _descriptionValue = "comfortable";
+    private string _disabledValue = "option2";
+    private string _invalidValue = "email";
+    private string _choiceCardValue = "plus";
+    private string _fieldsetValue = "monthly";
+    private string _inlineRating = "good";
 
-    protected override void OnInitialized()
+    private Task OnDemoValueChanged(string? value)
     {
-        Logger.LogInformation("Radios demo page initialized");
-    }
-
-    private Task OnBasicSelectionChanged(string? option)
-    {
-        _basicSelected = option ?? string.Empty;
+        _demoValue = value ?? string.Empty;
         return Task.CompletedTask;
     }
 
-    private void HandleRadioClick(string value)
+    private Task OnDescriptionValueChanged(string? value)
     {
-        _eventSelected = value;
-        _lastEvent = $"Click: {value} at {DateTime.Now:HH:mm:ss}";
-        StateHasChanged();
+        _descriptionValue = value ?? string.Empty;
+        return Task.CompletedTask;
     }
 
-    private void HandleRadioChange(ChangeEventArgs e, string value)
+    private Task OnDisabledValueChanged(string? value)
     {
-        _eventSelected = value;
-        _lastEvent = $"Change: {value} at {DateTime.Now:HH:mm:ss}";
-        StateHasChanged();
+        _disabledValue = value ?? string.Empty;
+        return Task.CompletedTask;
     }
 
-    private void HandleRadioFocus(string value)
+    private Task OnInvalidValueChanged(string? value)
     {
-        _eventSelected = value;
-        _lastEvent = $"Focus: {value} at {DateTime.Now:HH:mm:ss}";
-        StateHasChanged();
+        _invalidValue = value ?? string.Empty;
+        return Task.CompletedTask;
     }
 
-    private void SelectTheme(string theme)
+    private Task OnChoiceCardValueChanged(string? value)
     {
-        _themeSelected = theme;
-        StateHasChanged();
+        _choiceCardValue = value ?? string.Empty;
+        return Task.CompletedTask;
     }
 
-    private void SelectSize(string size)
+    private Task OnFieldsetValueChanged(string? value)
     {
-        _sizeSelected = size;
-        StateHasChanged();
-    }
-
-    private async Task SubmitForm()
-    {
-        if (_validations is null)
-            return;
-
-        var ok = await _validations.Validate();
-        _submitResult = ok ? "Form submitted successfully!" : "Please fix validation errors.";
-        StateHasChanged();
-    }
-
-    private void ToggleMaster()
-    {
-        _masterSelected = !_masterSelected;
-        StateHasChanged();
-    }
-
-    private void ValidatePaymentMethod(ValidatorEventArgs args)
-    {
-        var paymentMethod = args.Value?.ToString();
-        if (string.IsNullOrEmpty(paymentMethod))
-        {
-            args.Status = ValidationStatus.Error;
-            args.ErrorText = "Please select a payment method.";
-        }
-        else
-        {
-            args.Status = ValidationStatus.Success;
-        }
-    }
-
-    public class FormModel
-    {
-        public string PaymentMethod { get; set; } = string.Empty;
+        _fieldsetValue = value ?? string.Empty;
+        return Task.CompletedTask;
     }
 }

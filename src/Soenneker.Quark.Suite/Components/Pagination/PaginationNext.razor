@@ -3,13 +3,14 @@
 
 <PaginationItem>
     <PaginationLink To="@To" OnClick="@OnClick" Disabled="@Disabled" @attributes="BuildAttributes()" aria-label="Go to next page">
-        <span class="hidden sm:inline">Next</span>
+        <span class="hidden sm:inline">@Text</span>
         <Icon Name="LucideIcon.ChevronRight" class="size-4" />
     </PaginationLink>
 </PaginationItem>
 
 @code {
     [Parameter] public string? To { get; set; }
+    [Parameter] public string Text { get; set; } = "Next";
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -20,6 +21,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         hc.Add(To);
+        hc.Add(Text);
         hc.Add(Disabled);
     }
 }

@@ -4,7 +4,16 @@
 @inherits Soenneker.Quark.TypographyElement
 @implements IBadge
 
-<span @attributes="BuildAttributes()">@ChildContent</span>
+@if (AsChild)
+{
+    <CascadingValue Name="@SlotAttributes.Name" Value="BuildAttributes()" IsFixed="false">
+        @ChildContent
+    </CascadingValue>
+}
+else
+{
+    <span @attributes="BuildAttributes()">@ChildContent</span>
+}
 
 @code {
     private const string _shadcnBadgeBase =
@@ -15,6 +24,9 @@
     /// </summary>
     [Parameter]
     public BadgeVariant Variant { get; set; } = BadgeVariant.Default;
+
+    [Parameter]
+    public bool AsChild { get; set; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string GetShadcnVariantClass(BadgeVariant variant)
@@ -51,5 +63,6 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Variant);
+        hc.Add(AsChild);
     }
 }

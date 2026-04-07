@@ -3,24 +3,12 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.OverlayElement
 @implements IDialog
-@implements IDisposable
 
-@if (Visible)
-{
-    <CascadingValue Name="ParentDialog" Value="@this">
-        <CascadingValue Value="_context" IsFixed="false">
-            <div @onkeydown="HandleKeyDown" @onclick="HandleBackdropClick" @attributes="BuildAttributes()">
-                @if (ShowBackdrop)
-                {
-                    <div class="fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0" data-slot="dialog-overlay" data-state="@(Visible ? "open" : "closed")" aria-hidden="true"></div>
-                }
-                <div @ref="_dialogRef" @attributes="BuildDialogAttributes()" @onclick:stopPropagation="true">
-                    @ChildContent
-                </div>
-            </div>
-        </CascadingValue>
+<CascadingValue Name="ParentDialog" Value="@this">
+    <CascadingValue Value="_context" IsFixed="false">
+        @ChildContent
     </CascadingValue>
-}
+</CascadingValue>
 
 @code {
     /// <summary>
@@ -54,102 +42,6 @@
     public EventCallback OnBackdropClick { get; set; }
 
     private readonly OverlayLabelContext _context = new("dialog");
-    private ElementReference _dialogRef;
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        attributes["data-slot"] = "dialog";
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-dialog");
-            AppendClass(ref cls, "fixed inset-0 z-50");
-            if (!Visible)
-                AppendClass(ref cls, "pointer-events-none invisible");
-        });
-
-        if (Visible)
-            BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, "display: flex"));
-
-        attributes["tabindex"] = -1;
-        attributes["data-state"] = Visible ? "open" : "closed";
-
-        if (Static)
-            attributes["data-backdrop"] = "static";
-    }
-
-    private Dictionary<string, object> BuildDialogAttributes()
-    {
-        var attributes = new Dictionary<string, object>();
-
-        attributes["data-slot"] = "dialog-content";
-        attributes["id"] = _context.ContentId;
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-dialog-panel");
-            AppendClass(ref cls, "fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 outline-none sm:max-w-lg");
-            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95");
-            if (Scrollable)
-                AppendClass(ref cls, "max-h-[90vh] overflow-y-auto");
-            if (DialogSize != null && !string.IsNullOrEmpty(DialogSize.Value))
-            {
-                var size = DialogSize.Value.ToLowerInvariant();
-                if (size == "sm") AppendClass(ref cls, "sm:max-w-sm");
-                else if (size == "lg") AppendClass(ref cls, "sm:max-w-2xl");
-                else if (size == "xl") AppendClass(ref cls, "sm:max-w-4xl");
-            }
-        });
-
-        attributes["role"] = "dialog";
-        attributes["aria-modal"] = "true";
-        attributes["tabindex"] = -1;
-        attributes["data-state"] = Visible ? "open" : "closed";
-
-        if (_context.HasTitle)
-            attributes["aria-labelledby"] = _context.TitleId;
-
-        if (_context.HasDescription)
-            attributes["aria-describedby"] = _context.DescriptionId;
-
-        return attributes;
-    }
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-        _context.StateChanged += OnContextStateChanged;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (Visible)
-            SetOverlayContentElement(_dialogRef);
-
-        await base.OnAfterRenderAsync(firstRender);
-    }
-
-    private async void OnContextStateChanged()
-    {
-        await RefreshOffThread();
-    }
-
-    protected override async Task HandleKeyDown(KeyboardEventArgs e)
-    {
-        if (!Static && e.Key == "Escape")
-        {
-            await Hide();
-        }
-    }
-
-    private async Task HandleBackdropClick(MouseEventArgs args)
-    {
-        if (!Static)
-        {
-            await OnBackdropClick.InvokeIfHasDelegate();
-            await Hide();
-        }
-    }
 
     /// <summary>
     /// Shows the dialog.
@@ -183,6 +75,7 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(Centered);
         hc.Add(Scrollable);
         hc.Add(DialogSize);
@@ -195,9 +88,4 @@
         hc.Add(_context.DescriptionId);
     }
 
-    public override void Dispose()
-    {
-        _context.StateChanged -= OnContextStateChanged;
-        base.Dispose();
-    }
 }

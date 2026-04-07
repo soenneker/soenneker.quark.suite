@@ -1,16 +1,42 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<button type="button" @onclick="OnTriggerClick" @attributes="BuildAttributes()">
-    @ChildContent
-</button>
+@if (AsChild)
+{
+    <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
+        @ChildContent
+    </CascadingValue>
+}
+else
+{
+    <button type="button" @onclick="OnTriggerClick" @attributes="BuildAttributes()">
+        @ChildContent
+    </button>
+}
 
 @code {
+    [Parameter]
+    public bool AsChild { get; set; }
+
     [Parameter]
     public bool Disabled { get; set; }
 
     [CascadingParameter(Name = nameof(ParentCollapsible))]
     public Collapsible? ParentCollapsible { get; set; }
+
+    private TriggerContext GetTriggerContext()
+    {
+        return new TriggerContext
+        {
+            TriggerId = ParentCollapsible?.TriggerId,
+            IsOpen = ParentCollapsible?.Open == true,
+            DataState = ParentCollapsible?.Open == true ? "open" : "closed",
+            AriaControls = ParentCollapsible?.ContentId,
+            Toggle = ParentCollapsible is null ? null : () => ParentCollapsible.Toggle(),
+            Open = ParentCollapsible is null ? null : () => ParentCollapsible.SetOpen(true),
+            Close = ParentCollapsible is null ? null : () => ParentCollapsible.SetOpen(false)
+        };
+    }
 
     private async Task OnTriggerClick(MouseEventArgs args)
     {
@@ -28,9 +54,11 @@
         attributes["data-slot"] = "collapsible-trigger";
         attributes["data-state"] = ParentCollapsible?.Open == true ? "open" : "closed";
         attributes["aria-expanded"] = ParentCollapsible?.Open == true ? "true" : "false";
-
-        if (ParentCollapsible?.Id.HasContent() == true)
-            attributes["aria-controls"] = $"{ParentCollapsible.Id}-content";
+        if (ParentCollapsible is not null)
+        {
+            attributes["id"] = ParentCollapsible.TriggerId;
+            attributes["aria-controls"] = ParentCollapsible.ContentId;
+        }
 
         if (Disabled || ParentCollapsible?.Disabled == true)
             attributes["disabled"] = true;
@@ -48,6 +76,7 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Disabled);
+        hc.Add(AsChild);
         hc.Add(ParentCollapsible?.Open == true);
         hc.Add(ParentCollapsible?.Disabled == true);
     }

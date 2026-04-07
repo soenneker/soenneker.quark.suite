@@ -9,6 +9,8 @@ internal sealed class TriggerContext
 
     public bool IsOpen { get; init; }
 
+    public string? DataState { get; init; }
+
     public string? AriaHasPopup { get; init; }
 
     public string? AriaControls { get; init; }

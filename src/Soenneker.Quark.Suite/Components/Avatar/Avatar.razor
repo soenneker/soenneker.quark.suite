@@ -1,9 +1,11 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()">
-    @ChildContent
-</div>
+<CascadingValue Name="ParentAvatar" Value="@this" IsFixed="true">
+    <div @attributes="BuildAttributes()">
+        @ChildContent
+    </div>
+</CascadingValue>
 
 @code {
     /// <summary>
@@ -12,6 +14,53 @@
     /// </summary>
     [Parameter]
     public string Size { get; set; } = "default";
+
+    private string? _registeredImageSource;
+    private bool _hasImageSource;
+    private bool _imageLoaded;
+    private bool _imageFailed;
+
+    internal bool ShowFallback => !_hasImageSource || !_imageLoaded;
+    internal bool ShowImage => _hasImageSource && !_imageFailed;
+    internal bool IsImageVisible => _imageLoaded && !_imageFailed;
+
+    internal void RegisterImage(string? src)
+    {
+        bool hasImageSource = src.HasContent();
+        bool sourceChanged = !string.Equals(_registeredImageSource, src, StringComparison.Ordinal);
+
+        if (!sourceChanged && _hasImageSource == hasImageSource)
+            return;
+
+        _registeredImageSource = src;
+        _hasImageSource = hasImageSource;
+        _imageLoaded = false;
+        _imageFailed = !hasImageSource;
+
+        _ = RefreshOffThread();
+    }
+
+    internal Task NotifyImageLoaded()
+    {
+        if (_imageLoaded && !_imageFailed)
+            return Task.CompletedTask;
+
+        _imageLoaded = true;
+        _imageFailed = false;
+
+        return RefreshOffThread();
+    }
+
+    internal Task NotifyImageFailed()
+    {
+        if (_imageFailed && !_imageLoaded)
+            return Task.CompletedTask;
+
+        _imageLoaded = false;
+        _imageFailed = true;
+
+        return RefreshOffThread();
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {

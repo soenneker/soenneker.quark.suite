@@ -32,29 +32,27 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-button-group inline-flex w-fit");
+            AppendClass(ref cls, "q-button-group inline-flex w-fit items-stretch");
+            AppendClass(ref cls, "has-[>[data-slot=button-group]]:gap-2 [&>*]:focus-visible:relative [&>*]:focus-visible:z-10");
+            AppendClass(ref cls, "has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-md");
+            AppendClass(ref cls, "[&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1");
 
             if (Vertical)
             {
                 AppendClass(ref cls,
                     "flex-col " +
                     "[&>*]:rounded-none " +
-                    "[&>*:first-child]:rounded-t-md " +
-                    "[&>*:last-child]:rounded-b-md " +
+                    "[&>*:not(:first-child)]:rounded-t-none " +
                     "[&>*:not(:first-child)]:border-t-0 " +
-                    "[&>*:focus-visible]:relative " +
-                    "[&>*:focus-visible]:z-10");
+                    "[&>*:not(:last-child)]:rounded-b-none");
             }
             else
             {
                 AppendClass(ref cls,
                     "flex-row " +
-                    "[&>*]:rounded-none " +
-                    "[&>*:first-child]:rounded-l-md " +
-                    "[&>*:last-child]:rounded-r-md " +
+                    "[&>*:not(:first-child)]:rounded-l-none " +
                     "[&>*:not(:first-child)]:border-l-0 " +
-                    "[&>*:focus-visible]:relative " +
-                    "[&>*:focus-visible]:z-10");
+                    "[&>*:not(:last-child)]:rounded-r-none");
             }
         });
     }

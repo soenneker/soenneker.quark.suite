@@ -9,6 +9,8 @@
 </a>
 
 @code {
+    [CascadingParameter(Name = SlotAttributes.Name)]
+    private IReadOnlyDictionary<string, object>? SlotAttributeOverrides { get; set; }
 
     /// <summary>
     /// Gets or sets the URL to navigate to.
@@ -43,6 +45,8 @@
 
         if (Target is not null)
             attributes["target"] = Target.Value;
+
+        SlotAttributes.MergeInto(attributes, SlotAttributeOverrides);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -51,5 +55,6 @@
         hc.Add(To);
         hc.Add(Target);
         hc.Add(PreventDefault);
+        hc.Add(SlotAttributeOverrides?.Count ?? 0);
     }
 }

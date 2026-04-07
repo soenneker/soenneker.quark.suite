@@ -4,35 +4,62 @@
 @using Soenneker.Blazor.Extensions.EventCallback
 @implements ICheck
 <div @attributes="BuildWrapperAttributes()">
-    <label @attributes="BuildLabelAttributes()">
-        <input
-            @attributes="BuildInputAttributes()"
-            @onclick="HandleInputClick"
-            @onchange="HandleChange" />
-        <span @attributes="BuildIndicatorAttributes()">
-            @if (Checked || Indeterminate)
+    @if (HasInlineLabel)
+    {
+        <label @attributes="BuildLabelAttributes()">
+            <input
+                @attributes="BuildInputAttributes()"
+                @onclick="HandleInputClick"
+                @onchange="HandleChange" />
+            <span @attributes="BuildIndicatorAttributes()">
+                @if (Checked || Indeterminate)
+                {
+                    <span data-slot="checkbox-indicator" class="grid place-content-center text-current transition-none">
+                        @if (Indeterminate)
+                        {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M5 12h14"/></svg>
+                        }
+                        else
+                        {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M20 6 9 17 4 12"/></svg>
+                        }
+                    </span>
+                }
+            </span>
+            @if (ChildContent is not null)
             {
-                <span data-slot="checkbox-indicator" class="grid place-content-center text-current transition-none">
-                    @if (Indeterminate)
-                    {
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M5 12h14"/></svg>
-                    }
-                    else
-                    {
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M20 6 9 17 4 12"/></svg>
-                    }
-                </span>
+                @ChildContent
             }
+            else if (Label.HasContent())
+            {
+                @Label
+            }
+        </label>
+    }
+    else
+    {
+        <span class="relative inline-flex shrink-0">
+            <input
+                @attributes="BuildInputAttributes()"
+                @onclick="HandleInputClick"
+                @onchange="HandleChange" />
+            <span @attributes="BuildIndicatorAttributes()">
+                @if (Checked || Indeterminate)
+                {
+                    <span data-slot="checkbox-indicator" class="grid place-content-center text-current transition-none">
+                        @if (Indeterminate)
+                        {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M5 12h14"/></svg>
+                        }
+                        else
+                        {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M20 6 9 17 4 12"/></svg>
+                        }
+                    </span>
+                }
+            </span>
         </span>
-        @if (ChildContent is not null)
-        {
-            @ChildContent
-        }
-        else if (Label.HasContent())
-        {
-            @Label
-        }
-    </label>
+    }
 </div>
 
 @code {
@@ -88,6 +115,7 @@
     /// </summary>
     public object? ValidationValue => Checked;
 
+    private bool HasInlineLabel => ChildContent is not null || Label.HasContent();
     private string AriaCheckedValue => Indeterminate ? "mixed" : Checked ? "true" : "false";
 
     private string DataState => Indeterminate ? "indeterminate" : Checked ? "checked" : "unchecked";

@@ -7,9 +7,19 @@
 @inject NavigationManager Navigation
 @inject ICollapseCoordinator CollapseCoordinator
 
-@if (RenderAsLink)
+@if (AsChild)
 {
-    <a href="@To" @onclick="HandleClick" @onclick:preventDefault="PreventLinkDefault" @attributes="BuildAttributes()">
+    <CascadingValue Name="@SlotAttributes.Name" Value="BuildSlotAttributes()" IsFixed="false">
+        @ChildContent
+    </CascadingValue>
+}
+else if (RenderAsLink)
+{
+    <a href="@To"
+       @onclick="HandleClick"
+       @onclick:preventDefault="PreventLinkDefault"
+       @onclick:stopPropagation="StopTriggerClickPropagation"
+       @attributes="BuildAttributes()">
         @if (Loading)
         {
             <span class="animate-spin size-4 mr-2 inline-block rounded-full border-2 border-current border-t-transparent" role="status" aria-hidden="true"></span>
@@ -26,7 +36,9 @@
 }
 else
 {
-    <button @onclick="HandleClick" @attributes="BuildAttributes()">
+    <button @onclick="HandleClick"
+            @onclick:stopPropagation="StopTriggerClickPropagation"
+            @attributes="BuildAttributes()">
         @if (Loading)
         {
             <span class="animate-spin size-4 mr-2 inline-block rounded-full border-2 border-current border-t-transparent" role="status" aria-hidden="true"></span>
@@ -58,6 +70,8 @@ else
         TriggerContext?.Toggle is not null ||
         (To.HasContent() && !To!.StartsWith("#", StringComparison.Ordinal));
 
+    private bool StopTriggerClickPropagation => TriggerContext?.Toggle is not null;
+
     private const string _buttonBase =
         "inline-flex shrink-0 items-center justify-center gap-2 text-sm font-medium whitespace-nowrap transition-all outline-none " +
         "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 " +
@@ -76,6 +90,12 @@ else
     /// </summary>
     [Parameter]
     public bool Block { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the child component should receive button styling directly.
+    /// </summary>
+    [Parameter]
+    public bool AsChild { get; set; }
 
     /// <summary>
     /// Gets or sets whether the button is in a loading state (opinionated extension with shadcn styling).
@@ -226,6 +246,9 @@ else
             if (TriggerContext.TriggerId is not null)
                 attributes["id"] = TriggerContext.TriggerId;
 
+            if (TriggerContext.DataState is not null)
+                attributes["data-state"] = TriggerContext.DataState;
+
             if (TriggerContext.AriaHasPopup is not null)
                 attributes["aria-haspopup"] = TriggerContext.AriaHasPopup;
 
@@ -275,6 +298,19 @@ else
 
         if (TriggerContext?.OnFocusOut is not null)
             attributes["onfocusout"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleTriggerFocusOut);
+    }
+
+    private IReadOnlyDictionary<string, object> BuildSlotAttributes()
+    {
+        var attributes = new Dictionary<string, object>(BuildAttributes());
+
+        attributes.Remove("type");
+        attributes.Remove("disabled");
+        attributes.Remove("form");
+        attributes.Remove("name");
+        attributes.Remove("value");
+
+        return attributes;
     }
 
     protected override async Task HandleClick(MouseEventArgs args)
@@ -337,6 +373,7 @@ else
         hc.Add(Size);
         hc.Add(Disabled);
         hc.Add(Block);
+        hc.Add(AsChild);
         hc.Add(Loading);
         hc.Add(Type);
         hc.Add(LoadingTemplate);

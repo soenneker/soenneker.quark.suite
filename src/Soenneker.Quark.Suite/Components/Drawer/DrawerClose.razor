@@ -1,18 +1,47 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<Button Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" OnClick="HandleClick" @attributes="BuildAttributes()">
-    @ChildContent
-</Button>
+@if (AsChild)
+{
+    <span @onclick="HandleWrapperClick" @attributes="BuildWrapperAttributes()">
+        @ChildContent
+    </span>
+}
+else
+{
+    <Button Variant="@Variant" Size="@Size" OnClick="HandleDefaultClick" @attributes="BuildAttributes()">
+        @if (ChildContent is null)
+        {
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="size-4"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            <span class="sr-only">Close</span>
+        }
+        else
+        {
+            @ChildContent
+        }
+    </Button>
+}
 
 @code {
     [CascadingParameter(Name = "ParentDrawer")]
     private Drawer? ParentDrawer { get; set; }
 
-    protected override async Task HandleClick(MouseEventArgs e)
+    [Parameter]
+    public bool AsChild { get; set; }
+
+    [Parameter]
+    public bool AutoClose { get; set; } = true;
+
+    [Parameter]
+    public ButtonVariant Variant { get; set; } = ButtonVariant.Ghost;
+
+    [Parameter]
+    public ButtonSize Size { get; set; } = ButtonSize.Icon;
+
+    private async Task HandleClose()
     {
-        await (ParentDrawer?.Hide() ?? Task.CompletedTask);
-        await base.HandleClick(e);
+        if (AutoClose && ParentDrawer is not null)
+            await ParentDrawer.Hide();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -25,5 +54,40 @@
         {
             AppendClass(ref cls, "q-drawer-close");
         });
+    }
+
+    private Dictionary<string, object> BuildWrapperAttributes()
+    {
+        var attributes = new Dictionary<string, object>
+        {
+            ["data-slot"] = "drawer-close-wrapper"
+        };
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-drawer-close-wrapper inline-flex");
+        });
+
+        return attributes;
+    }
+
+    private async Task HandleWrapperClick(MouseEventArgs _)
+    {
+        await HandleClose();
+    }
+
+    private async Task HandleDefaultClick(MouseEventArgs e)
+    {
+        await HandleClose();
+        await base.HandleClick(e);
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AsChild);
+        hc.Add(AutoClose);
+        hc.Add(Variant);
+        hc.Add(Size);
     }
 }

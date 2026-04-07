@@ -18,9 +18,11 @@
 
         attributes["data-slot"] = "collapsible-content";
         attributes["data-state"] = ParentCollapsible?.Open == true ? "open" : "closed";
-
-        if (ParentCollapsible?.Id.HasContent() == true)
-            attributes["id"] = $"{ParentCollapsible.Id}-content";
+        if (ParentCollapsible is not null)
+        {
+            attributes["id"] = ParentCollapsible.ContentId;
+            attributes["aria-labelledby"] = ParentCollapsible.TriggerId;
+        }
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

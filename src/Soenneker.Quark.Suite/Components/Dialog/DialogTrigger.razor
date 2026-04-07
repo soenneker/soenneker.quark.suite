@@ -1,6 +1,5 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TriggerElement
-@implements ISheetTrigger
 
 @if (AsChild)
 {
@@ -12,14 +11,14 @@
 }
 else
 {
-    <button type="button" @onclick="HandleActivate" @ref="_elementRef" @attributes="BuildAttributes()">
+    <button type="button" @ref="_elementRef" @onclick="HandleActivate" @attributes="BuildAttributes()">
         @ChildContent
     </button>
 }
 
 @code {
-    [CascadingParameter(Name = nameof(ParentSheet))]
-    public Sheet? ParentSheet { get; set; }
+    [CascadingParameter(Name = nameof(ParentDialog))]
+    public Dialog? ParentDialog { get; set; }
 
     [CascadingParameter]
     private OverlayLabelContext? Context { get; set; }
@@ -33,9 +32,9 @@ else
     {
         base.BuildAttributesCore(attributes);
 
-        attributes["data-slot"] = "sheet-trigger";
+        attributes["data-slot"] = "dialog-trigger";
         attributes["aria-haspopup"] = "dialog";
-        attributes["aria-expanded"] = ParentSheet?.Visible == true ? "true" : "false";
+        attributes["aria-expanded"] = ParentDialog?.Visible == true ? "true" : "false";
 
         if (Disabled)
             attributes["disabled"] = true;
@@ -45,7 +44,7 @@ else
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-sheet-trigger");
+            AppendClass(ref cls, "q-dialog-trigger");
             if (Disabled)
                 AppendClass(ref cls, "pointer-events-none opacity-50");
         });
@@ -55,41 +54,41 @@ else
     {
         return new TriggerContext
         {
-            IsOpen = ParentSheet?.Visible == true,
-            DataState = ParentSheet?.Visible == true ? "open" : "closed",
+            IsOpen = ParentDialog?.Visible == true,
+            DataState = ParentDialog?.Visible == true ? "open" : "closed",
             AriaHasPopup = "dialog",
             AriaControls = Context?.ContentId,
-            Toggle = ParentSheet is null
+            Toggle = ParentDialog is null
                 ? null
                 : async () =>
                 {
-                    if (ParentSheet.Visible)
+                    if (ParentDialog.Visible)
                     {
-                        await ParentSheet.Hide();
+                        await ParentDialog.Hide();
                     }
                     else
                     {
-                        ParentSheet.SetRestoreFocusTarget(_elementRef);
-                        await ParentSheet.Show();
+                        ParentDialog.SetRestoreFocusTarget(_elementRef);
+                        await ParentDialog.Show();
                     }
                 },
-            Open = ParentSheet is null ? null : async () =>
+            Open = ParentDialog is null ? null : async () =>
             {
-                ParentSheet.SetRestoreFocusTarget(_elementRef);
-                await ParentSheet.Show();
+                ParentDialog.SetRestoreFocusTarget(_elementRef);
+                await ParentDialog.Show();
             },
-            Close = ParentSheet is null ? null : () => ParentSheet.Hide()
+            Close = ParentDialog is null ? null : () => ParentDialog.Hide()
         };
     }
 
     private Dictionary<string, object> BuildWrapperAttributes()
     {
         var attributes = new Dictionary<string, object>();
-        attributes["data-slot"] = "sheet-trigger-wrapper";
+        attributes["data-slot"] = "dialog-trigger-wrapper";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-sheet-trigger-wrapper inline-flex");
+            AppendClass(ref cls, "q-dialog-trigger-wrapper inline-flex");
             if (Disabled)
                 AppendClass(ref cls, "pointer-events-none opacity-50");
         });
@@ -99,10 +98,10 @@ else
 
     private async Task HandleActivate(MouseEventArgs args)
     {
-        if (!Disabled && ParentSheet is not null)
+        if (!Disabled && ParentDialog is not null)
         {
-            ParentSheet.SetRestoreFocusTarget(_elementRef);
-            await ParentSheet.Show();
+            ParentDialog.SetRestoreFocusTarget(_elementRef);
+            await ParentDialog.Show();
         }
 
         await base.HandleClick(args);
@@ -113,7 +112,7 @@ else
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(AsChild);
         hc.Add(Disabled);
-        hc.Add(ParentSheet?.Visible ?? false);
+        hc.Add(ParentDialog?.Visible ?? false);
         hc.Add(Context?.ContentId);
     }
 }

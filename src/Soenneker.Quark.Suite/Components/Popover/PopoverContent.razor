@@ -3,6 +3,7 @@
 @implements IAsyncDisposable
 
 @inject IPopoverInterop PopoverInterop
+@using Microsoft.JSInterop
 
 <div @ref="_contentRef" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
     @ChildContent
@@ -32,6 +33,7 @@
 
     private ElementReference _contentRef;
     private bool _positionObserverActive;
+    private DotNetObjectReference<PopoverOutsideCloseProxy>? _outsideRef;
     private bool IsOpen => Context?.IsOpen ?? Open;
     private bool UseFloatingPositioning => Context?.HasTriggerElement == true;
 
@@ -39,13 +41,19 @@
     {
         await base.OnAfterRenderAsync(firstRender);
 
+        if (firstRender && Context is not null)
+            _outsideRef = DotNetObjectReference.Create(new PopoverOutsideCloseProxy(Context));
+
         if (!IsOpen || Context is null || !UseFloatingPositioning)
         {
             await StopPositionObserver();
             return;
         }
 
-        await PopoverInterop.ObservePosition(Context.ContentId, Context.TriggerElement, _contentRef, Side, Align, SideOffset);
+        if (_outsideRef is null)
+            _outsideRef = DotNetObjectReference.Create(new PopoverOutsideCloseProxy(Context));
+
+        await PopoverInterop.ObservePosition(Context.ContentId, Context.TriggerElement, _contentRef, _outsideRef, Side, Align, SideOffset);
         _positionObserverActive = true;
     }
 
@@ -125,6 +133,7 @@
     public override async ValueTask DisposeAsync()
     {
         await StopPositionObserver();
+        _outsideRef?.Dispose();
         await base.DisposeAsync();
     }
 }

@@ -1,0 +1,240 @@
+@page "/drawers"
+
+<PageTitle>Drawer - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Demo"
+                         Code="@DemoCode">
+                <Drawer>
+                    <DrawerTrigger AsChild="true">
+                        <Button Variant="ButtonVariant.Outline">Open Drawer</Button>
+                    </DrawerTrigger>
+                    <DrawerContent>
+                        <Div Class="mx-auto w-full max-w-sm">
+                            <DrawerHeader>
+                                <DrawerTitle>Move Goal</DrawerTitle>
+                                <DrawerDescription>Set your daily activity goal.</DrawerDescription>
+                            </DrawerHeader>
+                            <Div Class="p-4 pb-0">
+                                <Div Class="flex items-center justify-center gap-2">
+                                    <Button Variant="ButtonVariant.Outline"
+                                            Size="ButtonSize.Icon"
+                                            Class="h-8 w-8 shrink-0 rounded-full"
+                                            Disabled="@(_goal <= 200)"
+                                            OnClick="DecreaseGoal">
+                                        <Icon Name="LucideIcon.Minus" />
+                                        <Span Class="sr-only">Decrease</Span>
+                                    </Button>
+                                    <Div Class="flex-1 text-center">
+                                        <Div Class="text-7xl font-bold tracking-tighter">@_goal</Div>
+                                        <Div Class="text-[0.70rem] uppercase text-muted-foreground">Calories/day</Div>
+                                    </Div>
+                                    <Button Variant="ButtonVariant.Outline"
+                                            Size="ButtonSize.Icon"
+                                            Class="h-8 w-8 shrink-0 rounded-full"
+                                            Disabled="@(_goal >= 400)"
+                                            OnClick="IncreaseGoal">
+                                        <Icon Name="LucideIcon.Plus" />
+                                        <Span Class="sr-only">Increase</Span>
+                                    </Button>
+                                </Div>
+                                <Div Class="mt-3 flex h-[120px] items-end gap-2">
+                                    @foreach (var value in _drawerGoals)
+                                    {
+                                        <Div Class="min-w-0 flex-1 rounded-sm bg-foreground/90"
+                                             Style="@($"height: {Math.Max(16, value / 4)}px")"></Div>
+                                    }
+                                </Div>
+                            </Div>
+                            <DrawerFooter>
+                                <Button>Submit</Button>
+                                <DrawerClose AsChild="true">
+                                    <Button Variant="ButtonVariant.Outline">Cancel</Button>
+                                </DrawerClose>
+                            </DrawerFooter>
+                        </Div>
+                    </DrawerContent>
+                </Drawer>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Scrollable Content"
+                         Code="@ScrollableCode">
+                <Drawer>
+                    <DrawerTrigger AsChild="true">
+                        <Button Variant="ButtonVariant.Outline">Scrollable Content</Button>
+                    </DrawerTrigger>
+                    <DrawerContent Direction="right">
+                        <DrawerHeader>
+                            <DrawerTitle>Move Goal</DrawerTitle>
+                            <DrawerDescription>Set your daily activity goal.</DrawerDescription>
+                        </DrawerHeader>
+                        <Div Class="overflow-y-auto px-4">
+                            @for (var i = 0; i < 10; i++)
+                            {
+                                <Paragraph Class="mb-4 leading-normal">
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                                </Paragraph>
+                            }
+                        </Div>
+                        <DrawerFooter>
+                            <Button>Submit</Button>
+                            <DrawerClose AsChild="true">
+                                <Button Variant="ButtonVariant.Outline">Cancel</Button>
+                            </DrawerClose>
+                        </DrawerFooter>
+                    </DrawerContent>
+                </Drawer>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Sides"
+                         Code="@SidesCode">
+                <Div Display="Display.Flex" Flex="Flex.Wrap" Gap="Gap.Is2">
+                    @foreach (var side in _drawerSides)
+                    {
+                        <Drawer>
+                            <DrawerTrigger AsChild="true">
+                                <Button Variant="ButtonVariant.Outline" Class="capitalize">@side</Button>
+                            </DrawerTrigger>
+                            <DrawerContent Direction="@side"
+                                           Class="data-[direction=bottom]:max-h-[50vh] data-[direction=top]:max-h-[50vh]">
+                                <DrawerHeader>
+                                    <DrawerTitle>Move Goal</DrawerTitle>
+                                    <DrawerDescription>Set your daily activity goal.</DrawerDescription>
+                                </DrawerHeader>
+                                <Div Class="overflow-y-auto px-4">
+                                    @for (var i = 0; i < 10; i++)
+                                    {
+                                        <Paragraph Class="mb-4 leading-normal">
+                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                                        </Paragraph>
+                                    }
+                                </Div>
+                                <DrawerFooter>
+                                    <Button>Submit</Button>
+                                    <DrawerClose AsChild="true">
+                                        <Button Variant="ButtonVariant.Outline">Cancel</Button>
+                                    </DrawerClose>
+                                </DrawerFooter>
+                            </DrawerContent>
+                        </Drawer>
+                    }
+                </Div>
+            </DemoSection>
+        </Section>
+    </Div>
+</Div>
+
+@code {
+    private int _goal = 350;
+    private readonly int[] _drawerGoals = [400, 300, 200, 300, 200, 278, 189, 239, 300, 200, 278, 189, 349];
+    private readonly string[] _drawerSides = ["top", "right", "bottom", "left"];
+
+    private Task DecreaseGoal()
+    {
+        _goal = Math.Max(200, _goal - 10);
+        return Task.CompletedTask;
+    }
+
+    private Task IncreaseGoal()
+    {
+        _goal = Math.Min(400, _goal + 10);
+        return Task.CompletedTask;
+    }
+
+    private const string DemoCode =
+@"<Drawer>
+    <DrawerTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Open Drawer</Button>
+    </DrawerTrigger>
+    <DrawerContent>
+        <Div Class=""mx-auto w-full max-w-sm"">
+            <DrawerHeader>
+                <DrawerTitle>Move Goal</DrawerTitle>
+                <DrawerDescription>Set your daily activity goal.</DrawerDescription>
+            </DrawerHeader>
+            <Div Class=""p-4 pb-0"">
+                <Div Class=""flex items-center justify-center gap-2"">
+                    <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Icon"" Class=""h-8 w-8 shrink-0 rounded-full"">
+                        <Icon Name=""LucideIcon.Minus"" />
+                        <Span Class=""sr-only"">Decrease</Span>
+                    </Button>
+                    <Div Class=""flex-1 text-center"">
+                        <Div Class=""text-7xl font-bold tracking-tighter"">@_goal</Div>
+                        <Div Class=""text-[0.70rem] uppercase text-muted-foreground"">Calories/day</Div>
+                    </Div>
+                    <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Icon"" Class=""h-8 w-8 shrink-0 rounded-full"">
+                        <Icon Name=""LucideIcon.Plus"" />
+                        <Span Class=""sr-only"">Increase</Span>
+                    </Button>
+                </Div>
+            </Div>
+            <DrawerFooter>
+                <Button>Submit</Button>
+                <DrawerClose AsChild=""true"">
+                    <Button Variant=""ButtonVariant.Outline"">Cancel</Button>
+                </DrawerClose>
+            </DrawerFooter>
+        </Div>
+    </DrawerContent>
+</Drawer>";
+
+    private const string ScrollableCode =
+@"<Drawer>
+    <DrawerTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Scrollable Content</Button>
+    </DrawerTrigger>
+    <DrawerContent Direction=""right"">
+        <DrawerHeader>
+            <DrawerTitle>Move Goal</DrawerTitle>
+            <DrawerDescription>Set your daily activity goal.</DrawerDescription>
+        </DrawerHeader>
+        <Div Class=""overflow-y-auto px-4"">
+            @for (var i = 0; i < 10; i++)
+            {
+                <Paragraph Class=""mb-4 leading-normal"">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </Paragraph>
+            }
+        </Div>
+        <DrawerFooter>
+            <Button>Submit</Button>
+            <DrawerClose AsChild=""true"">
+                <Button Variant=""ButtonVariant.Outline"">Cancel</Button>
+            </DrawerClose>
+        </DrawerFooter>
+    </DrawerContent>
+</Drawer>";
+
+    private const string SidesCode =
+@"<Drawer>
+    <DrawerTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">top</Button>
+    </DrawerTrigger>
+    <DrawerContent Direction=""top"" Class=""data-[direction=bottom]:max-h-[50vh] data-[direction=top]:max-h-[50vh]"">
+        <DrawerHeader>
+            <DrawerTitle>Move Goal</DrawerTitle>
+            <DrawerDescription>Set your daily activity goal.</DrawerDescription>
+        </DrawerHeader>
+        <Div Class=""overflow-y-auto px-4"">
+            @for (var i = 0; i < 10; i++)
+            {
+                <Paragraph Class=""mb-4 leading-normal"">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </Paragraph>
+            }
+        </Div>
+        <DrawerFooter>
+            <Button>Submit</Button>
+            <DrawerClose AsChild=""true"">
+                <Button Variant=""ButtonVariant.Outline"">Cancel</Button>
+            </DrawerClose>
+        </DrawerFooter>
+    </DrawerContent>
+</Drawer>";
+}

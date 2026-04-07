@@ -6,7 +6,30 @@
 @implements IRadio
 @implements IDisposable
 <div @attributes="BuildWrapperAttributes()">
-    <label @attributes="BuildLabelAttributes()">
+    @if (HasInlineLabel)
+    {
+        <label @attributes="BuildLabelAttributes()">
+            <input
+                @attributes="BuildInputAttributes()"
+                @onclick="HandleInputClick"
+                @onchange="HandleChange"
+                @onkeydown="HandleKeyDown"
+                @onkeydown:preventDefault="_preventDefault"
+                @ref="_elementRef" />
+            <span @attributes="BuildIndicatorAttributes()">
+                @if (EffectiveChecked)
+                {
+                    <span data-slot="radio-group-indicator" class="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-foreground"></span>
+                }
+            </span>
+            @if (ChildContent != null)
+            {
+                @ChildContent
+            }
+        </label>
+    }
+    else
+    {
         <input
             @attributes="BuildInputAttributes()"
             @onclick="HandleInputClick"
@@ -20,11 +43,7 @@
                 <span data-slot="radio-group-indicator" class="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-foreground"></span>
             }
         </span>
-        @if (ChildContent != null)
-        {
-            @ChildContent
-        }
-    </label>
+    }
 </div>
 
 @code {
@@ -42,6 +61,7 @@
 
     private ElementReference _elementRef;
     private bool _preventDefault;
+    private bool HasInlineLabel => ChildContent != null;
 
     /// <summary>
     /// When inside RadioGroup, reflects group value; otherwise uses Checked.

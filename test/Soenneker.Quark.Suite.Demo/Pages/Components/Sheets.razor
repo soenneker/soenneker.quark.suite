@@ -5,33 +5,32 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Default"
-                         Description="Use a sheet for supporting tasks that should stay close to the current page context."
-                         Code="@DefaultCode">
-                <Sheet @bind-Visible="_showDefaultSheet">
-                    <SheetTrigger>
-                        <Button Variant="ButtonVariant.Outline">Edit profile</Button>
+            <DemoSection Title="Demo"
+                         Code="@DemoCode">
+                <Sheet>
+                    <SheetTrigger AsChild="true">
+                        <Button Variant="ButtonVariant.Outline">Open</Button>
                     </SheetTrigger>
                     <SheetContent>
                         <SheetHeader>
                             <SheetTitle>Edit profile</SheetTitle>
                             <SheetDescription>
-                                Make changes to your profile here. Click save when you are done.
+                                Make changes to your profile here. Click save when you're done.
                             </SheetDescription>
                         </SheetHeader>
                         <Div Class="grid flex-1 auto-rows-min gap-6 px-4">
                             <Div Class="grid gap-3">
-                                <Label Form="true">Name</Label>
-                                <TextInput Placeholder="Pedro Duarte" />
+                                <Label For="sheet-demo-name">Name</Label>
+                                <Input Id="sheet-demo-name" Value="Pedro Duarte" />
                             </Div>
                             <Div Class="grid gap-3">
-                                <Label Form="true">Username</Label>
-                                <TextInput Placeholder="@("@peduarte")" />
+                                <Label For="sheet-demo-username">Username</Label>
+                                <Input Id="sheet-demo-username" Value="@("@peduarte")" />
                             </Div>
                         </Div>
                         <SheetFooter>
-                            <Button OnClick="@(() => _showDefaultSheet = false)">Save changes</Button>
-                            <SheetClose>
+                            <Button>Save changes</Button>
+                            <SheetClose AsChild="true">
                                 <Button Variant="ButtonVariant.Outline">Close</Button>
                             </SheetClose>
                         </SheetFooter>
@@ -41,96 +40,83 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Side"
-                         Description="Sheets can slide in from each edge depending on the kind of task you want to show."
+            <DemoSection Title="No Close Button"
+                         Code="@NoCloseCode">
+                <Sheet>
+                    <SheetTrigger AsChild="true">
+                        <Button Variant="ButtonVariant.Outline">No Close Button</Button>
+                    </SheetTrigger>
+                    <SheetContent ShowCloseButton="false">
+                        <SheetHeader>
+                            <SheetTitle>No Close Button</SheetTitle>
+                            <SheetDescription>
+                                This sheet doesn't have a close button in the top-right corner. You can only close it using the button below.
+                            </SheetDescription>
+                        </SheetHeader>
+                        <SheetFooter>
+                            <SheetClose AsChild="true">
+                                <Button Variant="ButtonVariant.Outline">Close</Button>
+                            </SheetClose>
+                        </SheetFooter>
+                    </SheetContent>
+                </Sheet>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Sides"
                          Code="@SidesCode">
                 <Div Display="Display.Flex" Flex="Flex.Wrap" Gap="Gap.Is2">
-                    <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showLeft = true)">Left</Button>
-                    <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showRight = true)">Right</Button>
-                    <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showTop = true)">Top</Button>
-                    <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showBottom = true)">Bottom</Button>
+                    @foreach (var side in _sheetSides)
+                    {
+                        <Sheet>
+                            <SheetTrigger AsChild="true">
+                                <Button Variant="ButtonVariant.Outline" Class="capitalize">@side</Button>
+                            </SheetTrigger>
+                            <SheetContent Side="@side"
+                                          Class="data-[side=bottom]:max-h-[50vh] data-[side=top]:max-h-[50vh]">
+                                <SheetHeader>
+                                    <SheetTitle>Edit profile</SheetTitle>
+                                    <SheetDescription>
+                                        Make changes to your profile here. Click save when you're done.
+                                    </SheetDescription>
+                                </SheetHeader>
+                                <Div Class="overflow-y-auto px-4">
+                                    @for (var i = 0; i < 10; i++)
+                                    {
+                                        <Paragraph Class="mb-4 leading-normal">
+                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                                        </Paragraph>
+                                    }
+                                </Div>
+                                <SheetFooter>
+                                    <Button>Save changes</Button>
+                                    <SheetClose AsChild="true">
+                                        <Button Variant="ButtonVariant.Outline">Cancel</Button>
+                                    </SheetClose>
+                                </SheetFooter>
+                            </SheetContent>
+                        </Sheet>
+                    }
                 </Div>
-
-                <Sheet @bind-Visible="_showLeft">
-                    <SheetContent Side="left">
-                        <SheetHeader>
-                            <SheetTitle>Left sheet</SheetTitle>
-                            <SheetDescription>Great for navigation, filters, or app-level tools.</SheetDescription>
-                        </SheetHeader>
-                    </SheetContent>
-                </Sheet>
-
-                <Sheet @bind-Visible="_showRight">
-                    <SheetContent Side="right">
-                        <SheetHeader>
-                            <SheetTitle>Right sheet</SheetTitle>
-                            <SheetDescription>Common for detail panels and inspector workflows.</SheetDescription>
-                        </SheetHeader>
-                    </SheetContent>
-                </Sheet>
-
-                <Sheet @bind-Visible="_showTop">
-                    <SheetContent Side="top">
-                        <SheetHeader>
-                            <SheetTitle>Top sheet</SheetTitle>
-                            <SheetDescription>Useful for short, high-priority notices.</SheetDescription>
-                        </SheetHeader>
-                    </SheetContent>
-                </Sheet>
-
-                <Sheet @bind-Visible="_showBottom">
-                    <SheetContent Side="bottom">
-                        <SheetHeader>
-                            <SheetTitle>Bottom sheet</SheetTitle>
-                            <SheetDescription>Works well for mobile-friendly drawers and action trays.</SheetDescription>
-                        </SheetHeader>
-                    </SheetContent>
-                </Sheet>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="No Close Button"
-                         Description="Hide the default close affordance when the footer actions should drive the flow."
-                         Code="@NoCloseCode">
-                <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showNoClose = true)">Open billing sheet</Button>
-            </DemoSection>
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Quark-only examples</H2>
+            <Paragraph TextColor="TextColor.MutedForeground">
+                These examples show additional sheet patterns beyond the core examples above.
+            </Paragraph>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Scrollable content"
-                         Description="Long body content stays scrollable while preserving the sheet layout and footer actions."
+            <DemoSection Title="Scrollable Content"
                          Code="@ScrollableCode">
                 <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showScrollable = true)">Open activity drawer</Button>
             </DemoSection>
         </Section>
     </Div>
 </Div>
-
-<Sheet @bind-Visible="_showNoClose">
-    <SheetContent ShowCloseButton="false">
-        <SheetHeader>
-            <SheetTitle>Billing settings</SheetTitle>
-            <SheetDescription>
-                Review seat count, payment method, and invoice recipients before confirming changes.
-            </SheetDescription>
-        </SheetHeader>
-        <Div Class="grid flex-1 auto-rows-min gap-6 px-4">
-            <Div Class="grid gap-3">
-                <Label Form="true">Workspace plan</Label>
-                <TextInput Placeholder="Business" />
-            </Div>
-            <Div Class="grid gap-3">
-                <Label Form="true">Billing email</Label>
-                <TextInput Placeholder="finance@acme.io" />
-            </Div>
-        </Div>
-        <SheetFooter>
-            <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showNoClose = false)">Cancel</Button>
-            <Button OnClick="@(() => _showNoClose = false)">Confirm</Button>
-        </SheetFooter>
-    </SheetContent>
-</Sheet>
 
 <Sheet @bind-Visible="_showScrollable">
     <SheetContent Side="right">
@@ -159,37 +145,32 @@
 </Sheet>
 
 @code {
-    private bool _showDefaultSheet;
-    private bool _showLeft;
-    private bool _showRight;
-    private bool _showTop;
-    private bool _showBottom;
-    private bool _showNoClose;
     private bool _showScrollable;
+    private readonly string[] _sheetSides = ["top", "right", "bottom", "left"];
 
-    private const string DefaultCode =
-@"<Sheet @bind-Visible=""show"">
-    <SheetTrigger>
-        <Button Variant=""ButtonVariant.Outline"">Edit profile</Button>
+    private const string DemoCode =
+@"<Sheet>
+    <SheetTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Open</Button>
     </SheetTrigger>
     <SheetContent>
         <SheetHeader>
             <SheetTitle>Edit profile</SheetTitle>
-            <SheetDescription>Make changes to your profile here. Click save when you are done.</SheetDescription>
+            <SheetDescription>Make changes to your profile here. Click save when you're done.</SheetDescription>
         </SheetHeader>
         <Div Class=""grid flex-1 auto-rows-min gap-6 px-4"">
             <Div Class=""grid gap-3"">
-                <Label Form=""true"">Name</Label>
-                <TextInput Placeholder=""Pedro Duarte"" />
+                <Label For=""sheet-demo-name"">Name</Label>
+                <Input Id=""sheet-demo-name"" Value=""Pedro Duarte"" />
             </Div>
             <Div Class=""grid gap-3"">
-                <Label Form=""true"">Username</Label>
-                <TextInput Placeholder=""@peduarte"" />
+                <Label For=""sheet-demo-username"">Username</Label>
+                <Input Id=""sheet-demo-username"" Value=""@peduarte"" />
             </Div>
         </Div>
         <SheetFooter>
             <Button>Save changes</Button>
-            <SheetClose>
+            <SheetClose AsChild=""true"">
                 <Button Variant=""ButtonVariant.Outline"">Close</Button>
             </SheetClose>
         </SheetFooter>
@@ -197,21 +178,50 @@
 </Sheet>";
 
     private const string SidesCode =
-@"<Sheet @bind-Visible=""leftOpen""><SheetContent Side=""left"">...</SheetContent></Sheet>
-<Sheet @bind-Visible=""rightOpen""><SheetContent Side=""right"">...</SheetContent></Sheet>
-<Sheet @bind-Visible=""topOpen""><SheetContent Side=""top"">...</SheetContent></Sheet>
-<Sheet @bind-Visible=""bottomOpen""><SheetContent Side=""bottom"">...</SheetContent></Sheet>";
+@"<Sheet>
+    <SheetTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">top</Button>
+    </SheetTrigger>
+    <SheetContent Side=""top"" Class=""data-[side=bottom]:max-h-[50vh] data-[side=top]:max-h-[50vh]"">
+        <SheetHeader>
+            <SheetTitle>Edit profile</SheetTitle>
+            <SheetDescription>
+                Make changes to your profile here. Click save when you're done.
+            </SheetDescription>
+        </SheetHeader>
+        <Div Class=""overflow-y-auto px-4"">
+            @for (var i = 0; i < 10; i++)
+            {
+                <Paragraph Class=""mb-4 leading-normal"">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </Paragraph>
+            }
+        </Div>
+        <SheetFooter>
+            <Button>Save changes</Button>
+            <SheetClose AsChild=""true"">
+                <Button Variant=""ButtonVariant.Outline"">Cancel</Button>
+            </SheetClose>
+        </SheetFooter>
+    </SheetContent>
+</Sheet>";
 
     private const string NoCloseCode =
-@"<Sheet @bind-Visible=""showBilling"">
+@"<Sheet>
+    <SheetTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">No Close Button</Button>
+    </SheetTrigger>
     <SheetContent ShowCloseButton=""false"">
         <SheetHeader>
-            <SheetTitle>Billing settings</SheetTitle>
-            <SheetDescription>Review the current workspace plan and invoice contact.</SheetDescription>
+            <SheetTitle>No Close Button</SheetTitle>
+            <SheetDescription>
+                This sheet doesn't have a close button in the top-right corner. You can only close it using the button below.
+            </SheetDescription>
         </SheetHeader>
         <SheetFooter>
-            <Button Variant=""ButtonVariant.Outline"">Cancel</Button>
-            <Button>Confirm</Button>
+            <SheetClose AsChild=""true"">
+                <Button Variant=""ButtonVariant.Outline"">Close</Button>
+            </SheetClose>
         </SheetFooter>
     </SheetContent>
 </Sheet>";
@@ -226,7 +236,12 @@
         <Div Class=""grid flex-1 gap-4 px-4"">
             @for (var i = 1; i <= 12; i++)
             {
-                <Div Class=""rounded-lg border p-4"">...</Div>
+                <Div Class=""rounded-lg border p-4"">
+                    <Paragraph TextSize=""TextSize.Sm"" FontWeight=""FontWeight.Medium"" Margin=""Margin.Is0"">Deployment @i</Paragraph>
+                    <Paragraph TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is0"">
+                        Completed successfully and promoted to production.
+                    </Paragraph>
+                </Div>
             }
         </Div>
         <SheetFooter>

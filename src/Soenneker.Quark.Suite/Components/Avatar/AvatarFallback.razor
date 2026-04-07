@@ -1,11 +1,17 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()">
-    @ChildContent
-</div>
+@if (ParentAvatar?.ShowFallback ?? true)
+{
+    <div @attributes="BuildAttributes()">
+        @ChildContent
+    </div>
+}
 
 @code {
+    [CascadingParameter(Name = nameof(ParentAvatar))]
+    protected Avatar? ParentAvatar { get; set; }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -15,7 +21,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-avatar-fallback");
-            AppendClass(ref cls, "bg-muted text-muted-foreground flex size-full items-center justify-center rounded-full text-sm group-data-[size=sm]/avatar:text-xs");
+            AppendClass(ref cls, "absolute inset-0 bg-muted text-muted-foreground flex size-full items-center justify-center rounded-full text-sm group-data-[size=sm]/avatar:text-xs");
         });
     }
 }

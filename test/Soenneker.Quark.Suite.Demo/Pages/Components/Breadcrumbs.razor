@@ -1,125 +1,258 @@
 @page "/breadcrumbs"
-@using Microsoft.Extensions.Logging
-@inject ILogger<Breadcrumbs> Logger
 
 <PageTitle>Breadcrumbs - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Basic" Description="Simple breadcrumb trail with Home, Library, and current page."
-                        Code="@(@"<Breadcrumb>
-    <BreadcrumbItem To="""">Home</BreadcrumbItem>
-    <BreadcrumbItem To=""library"">Library</BreadcrumbItem>
-    <BreadcrumbItem Active=""true"">Data</BreadcrumbItem>
-</Breadcrumb>")">
+            <DemoSection Title="Demo"
+                         Code="@DemoCode">
                 <Breadcrumb>
-                    <BreadcrumbItem To="">Home</BreadcrumbItem>
-                    <BreadcrumbItem To="library">Library</BreadcrumbItem>
-                    <BreadcrumbItem Active="true">Data</BreadcrumbItem>
+                    <BreadcrumbItem AsChild="true">
+                        <Anchor To="">Home</Anchor>
+                    </BreadcrumbItem>
+                    <BreadcrumbItem>
+                        <Dropdown>
+                            <DropdownToggle Class="flex items-center gap-1 bg-transparent px-2 py-1 text-sm font-normal text-muted-foreground shadow-none hover:bg-accent hover:text-foreground">
+                                <BreadcrumbEllipsis />
+                                <Span Class="sr-only">Toggle menu</Span>
+                            </DropdownToggle>
+                            <DropdownMenu>
+                                <DropdownItem>Documentation</DropdownItem>
+                                <DropdownItem>Themes</DropdownItem>
+                                <DropdownItem>GitHub</DropdownItem>
+                            </DropdownMenu>
+                        </Dropdown>
+                    </BreadcrumbItem>
+                    <BreadcrumbItem AsChild="true">
+                        <Anchor To="components">Components</Anchor>
+                    </BreadcrumbItem>
+                    <BreadcrumbItem Active="true">Breadcrumb</BreadcrumbItem>
                 </Breadcrumb>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Custom Separator" Description="Use text dividers when the path benefits from a stronger visual separator." Code="@(@"<Breadcrumb DividerText=""•"">
-    <BreadcrumbItem To="""">Home</BreadcrumbItem>
-    <BreadcrumbItem To=""products"">Products</BreadcrumbItem>
-    <BreadcrumbItem Active=""true"">Phones</BreadcrumbItem>
-</Breadcrumb>")">
+            <DemoSection Title="Basic"
+                         Description="A basic breadcrumb with a home link, a components link, and the current page."
+                         Code="@BasicCode">
+                <Breadcrumb>
+                    <BreadcrumbItem AsChild="true">
+                        <Anchor To="">Home</Anchor>
+                    </BreadcrumbItem>
+                    <BreadcrumbItem AsChild="true">
+                        <Anchor To="components">Components</Anchor>
+                    </BreadcrumbItem>
+                    <BreadcrumbItem Active="true">Breadcrumb</BreadcrumbItem>
+                </Breadcrumb>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Custom Separator"
+                         Description="Breadcrumb separators can render custom content instead of only plain text."
+                         Code="@CustomSeparatorCode">
+                <Breadcrumb SeparatorContent="@DotSeparator">
+                    <BreadcrumbItem AsChild="true">
+                        <Anchor To="">Home</Anchor>
+                    </BreadcrumbItem>
+                    <BreadcrumbItem AsChild="true">
+                        <Anchor To="components">Components</Anchor>
+                    </BreadcrumbItem>
+                    <BreadcrumbItem Active="true">Breadcrumb</BreadcrumbItem>
+                </Breadcrumb>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Dropdown"
+                         Description="A breadcrumb item can host a dropdown when several sibling paths need to stay collapsed."
+                         Code="@DropdownCode">
+                <Breadcrumb SeparatorContent="@DotSeparator">
+                    <BreadcrumbItem AsChild="true">
+                        <Anchor To="">Home</Anchor>
+                    </BreadcrumbItem>
+                    <BreadcrumbItem>
+                        <Dropdown>
+                            <DropdownToggle Class="flex items-center gap-1 bg-transparent px-2 py-1 text-sm font-normal text-muted-foreground shadow-none hover:bg-accent hover:text-foreground">
+                                Components
+                                <Icon Name="LucideIcon.ChevronDown" Class="size-3.5" />
+                            </DropdownToggle>
+                            <DropdownMenu>
+                                <DropdownItem>Documentation</DropdownItem>
+                                <DropdownItem>Themes</DropdownItem>
+                                <DropdownItem>GitHub</DropdownItem>
+                            </DropdownMenu>
+                        </Dropdown>
+                    </BreadcrumbItem>
+                    <BreadcrumbItem Active="true">Breadcrumb</BreadcrumbItem>
+                </Breadcrumb>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Collapsed"
+                         Description="Use BreadcrumbEllipsis when a long path should collapse in the middle."
+                         Code="@CollapsedCode">
+                <Breadcrumb>
+                    <BreadcrumbItem AsChild="true">
+                        <Anchor To="">Home</Anchor>
+                    </BreadcrumbItem>
+                    <BreadcrumbItem>
+                        <BreadcrumbEllipsis />
+                    </BreadcrumbItem>
+                    <BreadcrumbItem AsChild="true">
+                        <Anchor To="components">Components</Anchor>
+                    </BreadcrumbItem>
+                    <BreadcrumbItem Active="true">Breadcrumb</BreadcrumbItem>
+                </Breadcrumb>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Link Component"
+                         Description="Breadcrumb items can pass breadcrumb-link styling into a child Quark link."
+                         Code="@LinkComponentCode">
+                <Breadcrumb>
+                    <BreadcrumbItem AsChild="true">
+                        <Anchor To="">Home</Anchor>
+                    </BreadcrumbItem>
+                    <BreadcrumbItem AsChild="true">
+                        <Anchor To="components">Components</Anchor>
+                    </BreadcrumbItem>
+                    <BreadcrumbItem Active="true">Breadcrumb</BreadcrumbItem>
+                </Breadcrumb>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Quark-only examples</H2>
+            <Paragraph TextColor="TextColor.MutedForeground">
+                These examples keep Quark-specific breadcrumb conveniences separate from the core examples above.
+            </Paragraph>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Text Divider"
+                         Description="Quark still supports a simple text divider for lightweight breadcrumb trails."
+                         Code="@TextDividerCode">
                 <Breadcrumb DividerText="•">
-                    <BreadcrumbItem To="">Home</BreadcrumbItem>
-                    <BreadcrumbItem To="products">Products</BreadcrumbItem>
+                    <BreadcrumbItem AsChild="true">
+                        <Anchor To="">Home</Anchor>
+                    </BreadcrumbItem>
+                    <BreadcrumbItem AsChild="true">
+                        <Anchor To="products">Products</Anchor>
+                    </BreadcrumbItem>
                     <BreadcrumbItem Active="true">Phones</BreadcrumbItem>
                 </Breadcrumb>
             </DemoSection>
         </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Dropdown" Description="Use a dropdown in the middle of a breadcrumb trail when several sibling paths need to stay collapsed." Code="@(@"<Div Class=""flex items-center gap-2 text-sm"">
-    <Breadcrumb>
-        <BreadcrumbItem To="""">Home</BreadcrumbItem>
-    </Breadcrumb>
-    <Dropdown>
-        <DropdownToggle Class=""bg-transparent px-2 py-1 text-sm hover:bg-accent"">Sections</DropdownToggle>
-        <DropdownMenu>
-            <DropdownItem>Design</DropdownItem>
-            <DropdownItem>Engineering</DropdownItem>
-        </DropdownMenu>
-    </Dropdown>
-    <Breadcrumb>
-        <BreadcrumbItem Active=""true"">Profile</BreadcrumbItem>
-    </Breadcrumb>
-</Div>")">
-                <Div Class="flex items-center gap-2 text-sm">
-                    <Breadcrumb>
-                        <BreadcrumbItem To="">Home</BreadcrumbItem>
-                    </Breadcrumb>
-                    <Dropdown>
-                        <DropdownToggle Class="bg-transparent px-2 py-1 text-sm hover:bg-accent">Sections</DropdownToggle>
-                        <DropdownMenu>
-                            <DropdownItem>Design</DropdownItem>
-                            <DropdownItem>Engineering</DropdownItem>
-                            <DropdownItem>Support</DropdownItem>
-                        </DropdownMenu>
-                    </Dropdown>
-                    <Breadcrumb>
-                        <BreadcrumbItem Active="true">Profile</BreadcrumbItem>
-                    </Breadcrumb>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Collapsed" Description="Use a simplified middle section when the full hierarchy would be too long to show at once." Code="@(@"<Breadcrumb>
-    <BreadcrumbItem To="""">Home</BreadcrumbItem>
-    <BreadcrumbItem To=""products"">Products</BreadcrumbItem>
-    <BreadcrumbItem Active=""true"">...</BreadcrumbItem>
-</Breadcrumb>")">
-                <Breadcrumb>
-                    <BreadcrumbItem To="">Home</BreadcrumbItem>
-                    <BreadcrumbItem To="products">Products</BreadcrumbItem>
-                    <BreadcrumbItem Active="true">...</BreadcrumbItem>
-                </Breadcrumb>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Link Component" Description="Quark breadcrumb items already render as links when a `To` value is supplied." Code="@(@"<Breadcrumb>
-    <BreadcrumbItem To=""docs"">Documentation</BreadcrumbItem>
-    <BreadcrumbItem To=""docs/api"">API Reference</BreadcrumbItem>
-    <BreadcrumbItem Active=""true"">OAuth 2.0</BreadcrumbItem>
-</Breadcrumb>")">
-                <Breadcrumb>
-                    <BreadcrumbItem To="docs">Documentation</BreadcrumbItem>
-                    <BreadcrumbItem To="docs/api">API Reference</BreadcrumbItem>
-                    <BreadcrumbItem Active="true">OAuth 2.0</BreadcrumbItem>
-                </Breadcrumb>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="With aria label" Description="Set AriaLabel on Breadcrumb for accessibility." Code="@(@"<Breadcrumb AriaLabel=""Product navigation breadcrumb"">
-    <BreadcrumbItem To="""">Store</BreadcrumbItem>
-    <BreadcrumbItem To=""category/electronics"">Electronics</BreadcrumbItem>
-    <BreadcrumbItem To=""category/electronics/computers"">Computers</BreadcrumbItem>
-    <BreadcrumbItem Active=""true"">Laptops</BreadcrumbItem>
-</Breadcrumb>")">
-                <Breadcrumb AriaLabel="Product navigation breadcrumb">
-                    <BreadcrumbItem To="">Store</BreadcrumbItem>
-                    <BreadcrumbItem To="category/electronics">Electronics</BreadcrumbItem>
-                    <BreadcrumbItem To="category/electronics/computers">Computers</BreadcrumbItem>
-                    <BreadcrumbItem Active="true">Laptops</BreadcrumbItem>
-                </Breadcrumb>
-            </DemoSection>
-        </Section>
-
     </Div>
 </Div>
 
 @code {
-    protected override void OnInitialized()
-    {
-        Logger.LogInformation("Breadcrumbs demo page initialized");
-    }
+    private const string DemoCode =
+@"<Breadcrumb>
+    <BreadcrumbItem AsChild=""true"">
+        <Anchor To="""">Home</Anchor>
+    </BreadcrumbItem>
+    <BreadcrumbItem>
+        <Dropdown>
+            <DropdownToggle Class=""flex items-center gap-1 bg-transparent px-2 py-1 text-sm font-normal text-muted-foreground shadow-none hover:bg-accent hover:text-foreground"">
+                <BreadcrumbEllipsis />
+                <Span Class=""sr-only"">Toggle menu</Span>
+            </DropdownToggle>
+            <DropdownMenu>
+                <DropdownItem>Documentation</DropdownItem>
+                <DropdownItem>Themes</DropdownItem>
+                <DropdownItem>GitHub</DropdownItem>
+            </DropdownMenu>
+        </Dropdown>
+    </BreadcrumbItem>
+    <BreadcrumbItem AsChild=""true"">
+        <Anchor To=""components"">Components</Anchor>
+    </BreadcrumbItem>
+    <BreadcrumbItem Active=""true"">Breadcrumb</BreadcrumbItem>
+</Breadcrumb>";
+
+    private const string BasicCode =
+@"<Breadcrumb>
+    <BreadcrumbItem AsChild=""true"">
+        <Anchor To="""">Home</Anchor>
+    </BreadcrumbItem>
+    <BreadcrumbItem AsChild=""true"">
+        <Anchor To=""components"">Components</Anchor>
+    </BreadcrumbItem>
+    <BreadcrumbItem Active=""true"">Breadcrumb</BreadcrumbItem>
+</Breadcrumb>";
+
+    private const string CustomSeparatorCode =
+@"<Breadcrumb SeparatorContent=""@DotSeparator"">
+    <BreadcrumbItem AsChild=""true"">
+        <Anchor To="""">Home</Anchor>
+    </BreadcrumbItem>
+    <BreadcrumbItem AsChild=""true"">
+        <Anchor To=""components"">Components</Anchor>
+    </BreadcrumbItem>
+    <BreadcrumbItem Active=""true"">Breadcrumb</BreadcrumbItem>
+</Breadcrumb>";
+
+    private const string DropdownCode =
+@"<Breadcrumb SeparatorContent=""@DotSeparator"">
+    <BreadcrumbItem AsChild=""true"">
+        <Anchor To="""">Home</Anchor>
+    </BreadcrumbItem>
+    <BreadcrumbItem>
+        <Dropdown>
+            <DropdownToggle Class=""flex items-center gap-1 bg-transparent px-2 py-1 text-sm font-normal text-muted-foreground shadow-none hover:bg-accent hover:text-foreground"">
+                Components
+                <Icon Name=""LucideIcon.ChevronDown"" Class=""size-3.5"" />
+            </DropdownToggle>
+            <DropdownMenu>
+                <DropdownItem>Documentation</DropdownItem>
+                <DropdownItem>Themes</DropdownItem>
+                <DropdownItem>GitHub</DropdownItem>
+            </DropdownMenu>
+        </Dropdown>
+    </BreadcrumbItem>
+    <BreadcrumbItem Active=""true"">Breadcrumb</BreadcrumbItem>
+</Breadcrumb>";
+
+    private const string CollapsedCode =
+@"<Breadcrumb>
+    <BreadcrumbItem AsChild=""true"">
+        <Anchor To="""">Home</Anchor>
+    </BreadcrumbItem>
+    <BreadcrumbItem>
+        <BreadcrumbEllipsis />
+    </BreadcrumbItem>
+    <BreadcrumbItem AsChild=""true"">
+        <Anchor To=""components"">Components</Anchor>
+    </BreadcrumbItem>
+    <BreadcrumbItem Active=""true"">Breadcrumb</BreadcrumbItem>
+</Breadcrumb>";
+
+    private const string LinkComponentCode =
+@"<Breadcrumb>
+    <BreadcrumbItem AsChild=""true"">
+        <Anchor To="""">Home</Anchor>
+    </BreadcrumbItem>
+    <BreadcrumbItem AsChild=""true"">
+        <Anchor To=""components"">Components</Anchor>
+    </BreadcrumbItem>
+    <BreadcrumbItem Active=""true"">Breadcrumb</BreadcrumbItem>
+</Breadcrumb>";
+
+    private const string TextDividerCode =
+@"<Breadcrumb DividerText=""•"">
+    <BreadcrumbItem AsChild=""true"">
+        <Anchor To="""">Home</Anchor>
+    </BreadcrumbItem>
+    <BreadcrumbItem AsChild=""true"">
+        <Anchor To=""products"">Products</Anchor>
+    </BreadcrumbItem>
+    <BreadcrumbItem Active=""true"">Phones</BreadcrumbItem>
+</Breadcrumb>";
+
+    private RenderFragment DotSeparator => @<Icon Name="LucideIcon.Dot" />;
 }

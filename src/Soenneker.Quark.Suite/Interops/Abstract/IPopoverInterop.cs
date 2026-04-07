@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,6 +20,13 @@ public interface IPopoverInterop : IAsyncDisposable
     /// Starts tracking a popover against its trigger and keeps the content positioned.
     /// </summary>
     ValueTask ObservePosition(string popoverId, ElementReference trigger, ElementReference content, string side, string align, int sideOffset = 4,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Starts tracking a popover against its trigger, keeps the content positioned, and wires outside-click dismissal.
+    /// </summary>
+    ValueTask ObservePosition(string popoverId, ElementReference trigger, ElementReference content, DotNetObjectReference<PopoverOutsideCloseProxy> callbackReference,
+        string side, string align, int sideOffset = 4,
         CancellationToken cancellationToken = default);
 
     /// <summary>

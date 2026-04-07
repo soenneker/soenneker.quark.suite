@@ -35,6 +35,7 @@
     // Internal state tracking for child components
     private bool _hasMessage;
     private bool _hasDescription;
+    private bool _hasAction;
     
     [Parameter]
     public AlertVariant Variant { get; set; } = AlertVariant.Default;
@@ -88,6 +89,9 @@
                 AppendClass(ref cls, "grid-cols-[calc(var(--spacing)*4)_1fr] gap-x-3");
             else
                 AppendClass(ref cls, "grid-cols-[0_1fr] gap-0.5");
+
+            if (_hasAction)
+                AppendClass(ref cls, "pr-16");
 
             if (Variant == AlertVariant.Danger)
                 AppendClass(ref cls, "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90");
@@ -152,6 +156,15 @@
             return;
 
         _hasDescription = true;
+        _ = RefreshOffThread();
+    }
+
+    internal void NotifyHasAction()
+    {
+        if (_hasAction)
+            return;
+
+        _hasAction = true;
         _ = RefreshOffThread();
     }
 
@@ -228,5 +241,6 @@
         hc.Add(Visible);
         hc.Add(_hasMessage);
         hc.Add(_hasDescription);
+        hc.Add(_hasAction);
     }
 }
