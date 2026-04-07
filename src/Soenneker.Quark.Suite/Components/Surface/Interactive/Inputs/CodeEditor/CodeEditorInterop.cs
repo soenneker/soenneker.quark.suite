@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Soenneker.Asyncs.Initializers;
+using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
@@ -12,7 +13,7 @@ namespace Soenneker.Quark;
 /// <inheritdoc cref="ICodeEditorInterop"/>
 public sealed class CodeEditorInterop : ICodeEditorInterop
 {
-    private readonly IJSRuntime _jsRuntime;
+    private readonly IModuleImportUtil _moduleImportUtil;
     private readonly IResourceLoader _resourceLoader;
     private readonly AsyncInitializer _initializer;
     private readonly CancellationScope _cancellationScope = new();
@@ -33,12 +34,10 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     private const string _loaderIntegrity = "sha256-NbWd+AtBqLc78c6xWbRPBAVnwqtT9Od6PQAtncOdVdE=";
 
     private readonly QuarkOptions _quarkOptions;
-    private IJSObjectReference? _module;
-    private IJSObjectReference? _themeModule;
 
-    public CodeEditorInterop(IJSRuntime jsRuntime, IResourceLoader resourceLoader, QuarkOptions quarkOptions)
+    public CodeEditorInterop(IModuleImportUtil moduleImportUtil, IResourceLoader resourceLoader, QuarkOptions quarkOptions)
     {
-        _jsRuntime = jsRuntime;
+        _moduleImportUtil = moduleImportUtil;
         _resourceLoader = resourceLoader;
         _quarkOptions = quarkOptions;
         _initializer = new AsyncInitializer(InitializeResources);
@@ -77,20 +76,8 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
             await _resourceLoader.LoadScript(loaderUrl, cancellationToken: token);
         }
 
-        _module ??= await _jsRuntime.InvokeAsync<IJSObjectReference>("import", token, _modulePath);
-        await _module.InvokeVoidAsync("ensureConfigured", token, monacoBaseUrl);
-    }
-
-    private async ValueTask<IJSObjectReference> GetModule(CancellationToken cancellationToken)
-    {
-        _module ??= await _jsRuntime.InvokeAsync<IJSObjectReference>("import", cancellationToken, _modulePath);
-        return _module;
-    }
-
-    private async ValueTask<IJSObjectReference> GetThemeModule(CancellationToken cancellationToken = default)
-    {
-        _themeModule ??= await _jsRuntime.InvokeAsync<IJSObjectReference>("import", cancellationToken, _themeModulePath);
-        return _themeModule;
+        IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
+        await module.InvokeVoidAsync("ensureConfigured", token, monacoBaseUrl);
     }
 
     /// <summary>
@@ -120,7 +107,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         using (source)
         {
             await _initializer.Init(linked);
-            IJSObjectReference module = await GetModule(linked);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("createEditor", linked, container, optionsJson);
         }
     }
@@ -139,7 +126,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         using (source)
         {
             await _initializer.Init(linked);
-            IJSObjectReference module = await GetModule(linked);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("setValue", linked, container, value);
         }
     }
@@ -157,7 +144,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         using (source)
         {
             await _initializer.Init(linked);
-            IJSObjectReference module = await GetModule(linked);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             return await module.InvokeAsync<string?>("getValue", linked, container);
         }
     }
@@ -176,7 +163,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         using (source)
         {
             await _initializer.Init(linked);
-            IJSObjectReference module = await GetModule(linked);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("setLanguage", linked, container, language);
         }
     }
@@ -194,7 +181,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         using (source)
         {
             await _initializer.Init(linked);
-            IJSObjectReference module = await GetModule(linked);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("setTheme", linked, theme);
         }
     }
@@ -211,7 +198,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
 
         using (source)
         {
-            IJSObjectReference module = await GetModule(linked);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("disposeEditor", linked, container);
         }
     }
@@ -231,7 +218,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         using (source)
         {
             await _initializer.Init(linked);
-            IJSObjectReference module = await GetModule(linked);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("updateContentHeight", linked, container, minLines, maxLines);
         }
     }
@@ -251,7 +238,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         using (source)
         {
             await _initializer.Init(linked);
-            IJSObjectReference module = await GetModule(linked);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("addContentChangeListener", linked, container, null, minLines, maxLines);
         }
     }
@@ -264,7 +251,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
 
         using (source)
         {
-            IJSObjectReference themeModule = await GetThemeModule(linked);
+            IJSObjectReference themeModule = await _moduleImportUtil.GetContentModuleReference(_themeModulePath, linked);
             await themeModule.InvokeVoidAsync("registerThemeChangedCallback", linked, dotNetRef);
         }
     }
@@ -275,7 +262,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     {
         try
         {
-            IJSObjectReference themeModule = await GetThemeModule();
+            IJSObjectReference themeModule = await _moduleImportUtil.GetContentModuleReference(_themeModulePath);
             await themeModule.InvokeVoidAsync("unregisterThemeChangedCallback", dotNetRef);
         }
         catch
@@ -286,12 +273,6 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
 
     public async ValueTask DisposeAsync()
     {
-        if (_module is not null)
-            await _module.DisposeAsync();
-
-        if (_themeModule is not null)
-            await _themeModule.DisposeAsync();
-
         await _initializer.DisposeAsync();
         await _cancellationScope.DisposeAsync();
     }

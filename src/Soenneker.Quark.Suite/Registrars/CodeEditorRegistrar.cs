@@ -16,7 +16,8 @@ public static class CodeEditorRegistrar
     /// <returns>The service collection for method chaining.</returns>
     public static IServiceCollection AddQuarkCodeEditorAsScoped(this IServiceCollection services)
     {
-        services.AddResourceLoaderAsScoped().TryAddScoped<ICodeEditorInterop, CodeEditorInterop>();
+        services.AddResourceLoaderAsScoped()
+                .TryAddScoped<ICodeEditorInterop, CodeEditorInterop>();
         return services;
     }
 }

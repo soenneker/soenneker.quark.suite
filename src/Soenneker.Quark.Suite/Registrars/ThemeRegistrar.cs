@@ -16,7 +16,8 @@ public static class ThemeRegistrar
     /// <returns>The service collection for method chaining.</returns>
     public static IServiceCollection AddQuarkThemeAsScoped(this IServiceCollection services)
     {
-        services.AddResourceLoaderAsScoped().TryAddScoped<IThemeInterop, ThemeInterop>();
+        services.AddResourceLoaderAsScoped()
+                .TryAddScoped<IThemeInterop, ThemeInterop>();
         return services;
     }
 }

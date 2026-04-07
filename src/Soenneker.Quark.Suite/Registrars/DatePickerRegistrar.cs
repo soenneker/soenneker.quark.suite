@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Soenneker.Blazor.Utils.ModuleImport.Registrars;
 using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
 
 namespace Soenneker.Quark;
@@ -16,7 +17,9 @@ public static class DatePickerRegistrar
     /// <returns>The service collection for method chaining.</returns>
     public static IServiceCollection AddQuarkDatePickerAsScoped(this IServiceCollection services)
     {
-        services.AddResourceLoaderAsScoped().TryAddScoped<IDatePickerInterop, DatePickerInterop>();
+        services.AddModuleImportUtilAsScoped()
+                .AddResourceLoaderAsScoped()
+                .TryAddScoped<IDatePickerInterop, DatePickerInterop>();
 
         return services;
     }

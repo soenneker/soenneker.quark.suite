@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Soenneker.Asyncs.Initializers;
+using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
 using System.Threading;
@@ -11,28 +12,21 @@ namespace Soenneker.Quark;
 /// <inheritdoc cref="IOverlayInterop"/>
 public sealed class OverlayInterop : IOverlayInterop
 {
-    private readonly IJSRuntime _jsRuntime;
+    private readonly IModuleImportUtil _moduleImportUtil;
     private readonly AsyncInitializer _initializer;
     private readonly CancellationScope _cancellationScope = new();
 
     private const string _modulePath = "/_content/Soenneker.Quark.Suite/js/overlayinterop.js";
-    private IJSObjectReference? _module;
 
-    public OverlayInterop(IJSRuntime jsRuntime)
+    public OverlayInterop(IModuleImportUtil moduleImportUtil)
     {
-        _jsRuntime = jsRuntime;
+        _moduleImportUtil = moduleImportUtil;
         _initializer = new AsyncInitializer(InitializeResources);
     }
 
     private async ValueTask InitializeResources(CancellationToken token)
     {
-        _module ??= await _jsRuntime.InvokeAsync<IJSObjectReference>("import", token, _modulePath);
-    }
-
-    private async ValueTask<IJSObjectReference> GetModule(CancellationToken cancellationToken)
-    {
-        _module ??= await _jsRuntime.InvokeAsync<IJSObjectReference>("import", cancellationToken, _modulePath);
-        return _module;
+        await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
     }
 
     public async ValueTask Initialize(CancellationToken cancellationToken = default)
@@ -51,7 +45,7 @@ public sealed class OverlayInterop : IOverlayInterop
         using (source)
         {
             await _initializer.Init(linked);
-            IJSObjectReference module = await GetModule(linked);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("activate", linked, overlayId, container, trapFocus, lockScroll, initialFocusSelector);
         }
     }
@@ -63,16 +57,13 @@ public sealed class OverlayInterop : IOverlayInterop
         using (source)
         {
             await _initializer.Init(linked);
-            IJSObjectReference module = await GetModule(linked);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("deactivate", linked, overlayId, unlockScroll);
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (_module is not null)
-            await _module.DisposeAsync();
-
         await _initializer.DisposeAsync();
         await _cancellationScope.DisposeAsync();
     }

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Soenneker.Asyncs.Initializers;
+using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
@@ -12,7 +13,7 @@ namespace Soenneker.Quark;
 /// <inheritdoc cref="ISortableInterop"/>
 public sealed class SortableInterop : ISortableInterop
 {
-    private readonly IJSRuntime _jsRuntime;
+    private readonly IModuleImportUtil _moduleImportUtil;
     private readonly IResourceLoader _resourceLoader;
     private readonly AsyncInitializer _initializer;
     private readonly CancellationScope _cancellationScope = new();
@@ -20,11 +21,10 @@ public sealed class SortableInterop : ISortableInterop
     private const string _modulePath = "/_content/Soenneker.Quark.Suite/js/sortableinterop.js";
     private const string _cdnScriptUrl = "https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js";
     private const string _cdnScriptIntegrity = "sha256-v0JBvHP+9/EcWaKDpp/oBRzdMcbY/1orm6IZ54Mfz3Y=";
-    private IJSObjectReference? _module;
 
-    public SortableInterop(IJSRuntime jsRuntime, IResourceLoader resourceLoader)
+    public SortableInterop(IModuleImportUtil moduleImportUtil, IResourceLoader resourceLoader)
     {
-        _jsRuntime = jsRuntime;
+        _moduleImportUtil = moduleImportUtil;
         _resourceLoader = resourceLoader;
         _initializer = new AsyncInitializer(InitializeResources);
     }
@@ -32,14 +32,8 @@ public sealed class SortableInterop : ISortableInterop
     private async ValueTask InitializeResources(CancellationToken token)
     {
         await _resourceLoader.LoadScript(_cdnScriptUrl, integrity: _cdnScriptIntegrity, cancellationToken: token);
-        _module ??= await _jsRuntime.InvokeAsync<IJSObjectReference>("import", token, _modulePath);
-        await _module.InvokeVoidAsync("ensureAvailable", token);
-    }
-
-    private async ValueTask<IJSObjectReference> GetModule(CancellationToken cancellationToken)
-    {
-        _module ??= await _jsRuntime.InvokeAsync<IJSObjectReference>("import", cancellationToken, _modulePath);
-        return _module;
+        IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
+        await module.InvokeVoidAsync("ensureAvailable", token);
     }
 
     public async ValueTask Initialize(CancellationToken cancellationToken = default)
@@ -60,7 +54,7 @@ public sealed class SortableInterop : ISortableInterop
         using (source)
         {
             await _initializer.Init(linked);
-            IJSObjectReference module = await GetModule(linked);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("initializeList", linked, element, disabled, sort, animation, itemSelector, handleSelector,
                 filterSelector, group, callbackReference);
         }
@@ -73,16 +67,13 @@ public sealed class SortableInterop : ISortableInterop
         using (source)
         {
             await _initializer.Init(linked);
-            IJSObjectReference module = await GetModule(linked);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("destroy", linked, element);
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (_module is not null)
-            await _module.DisposeAsync();
-
         await _initializer.DisposeAsync();
         await _cancellationScope.DisposeAsync();
     }

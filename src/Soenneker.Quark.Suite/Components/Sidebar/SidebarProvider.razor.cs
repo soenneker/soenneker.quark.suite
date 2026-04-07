@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 
 namespace Soenneker.Quark;
 
@@ -21,7 +22,7 @@ public partial class SidebarProvider
     private bool _isMobileDetected;
 
     [Inject]
-    private IJSRuntime JSRuntime { get; set; } = null!;
+    private IModuleImportUtil ModuleImportUtil { get; set; } = null!;
 
     [Inject]
     private NavigationManager NavigationManager { get; set; } = null!;
@@ -97,7 +98,7 @@ public partial class SidebarProvider
 
         try
         {
-            _module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", ModulePath);
+            _module = await ModuleImportUtil.GetContentModuleReference(ModulePath);
             _dotNetRef = DotNetObjectReference.Create(this);
 
             bool? savedOpen = null;
@@ -236,7 +237,6 @@ public partial class SidebarProvider
             try
             {
                 await _module.InvokeVoidAsync("cleanup");
-                await _module.DisposeAsync();
             }
             catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
             {

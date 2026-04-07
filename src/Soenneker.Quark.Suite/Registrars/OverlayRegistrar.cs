@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
+using Soenneker.Blazor.Utils.ModuleImport.Registrars;
 
 namespace Soenneker.Quark;
 
@@ -14,7 +14,8 @@ public static class OverlayRegistrar
     /// </summary>
     public static IServiceCollection AddQuarkOverlayAsScoped(this IServiceCollection services)
     {
-        services.AddResourceLoaderAsScoped().TryAddScoped<IOverlayInterop, OverlayInterop>();
+        services.AddModuleImportUtilAsScoped()
+                .TryAddScoped<IOverlayInterop, OverlayInterop>();
         return services;
     }
 }

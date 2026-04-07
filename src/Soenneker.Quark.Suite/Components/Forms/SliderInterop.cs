@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Soenneker.Asyncs.Initializers;
+using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
 
@@ -11,28 +12,26 @@ namespace Soenneker.Quark;
 /// <inheritdoc cref="ISliderInterop"/>
 public sealed class SliderInterop : ISliderInterop
 {
-    private readonly IJSRuntime _jsRuntime;
+    private readonly IModuleImportUtil _moduleImportUtil;
     private readonly AsyncInitializer _initializer;
     private readonly CancellationScope _cancellationScope = new();
 
     private const string _modulePath = "/_content/Soenneker.Quark.Suite/js/sliderinterop.js";
-    private IJSObjectReference? _module;
 
-    public SliderInterop(IJSRuntime jsRuntime)
+    public SliderInterop(IModuleImportUtil moduleImportUtil)
     {
-        _jsRuntime = jsRuntime;
+        _moduleImportUtil = moduleImportUtil;
         _initializer = new AsyncInitializer(InitializeResources);
     }
 
     private async ValueTask InitializeResources(CancellationToken token)
     {
-        _module ??= await _jsRuntime.InvokeAsync<IJSObjectReference>("import", token, _modulePath);
+        await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
     }
 
     private async ValueTask<IJSObjectReference> GetModule(CancellationToken cancellationToken)
     {
-        _module ??= await _jsRuntime.InvokeAsync<IJSObjectReference>("import", cancellationToken, _modulePath);
-        return _module;
+        return await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);
     }
 
     public async ValueTask Initialize(CancellationToken cancellationToken = default)
@@ -85,9 +84,6 @@ public sealed class SliderInterop : ISliderInterop
 
     public async ValueTask DisposeAsync()
     {
-        if (_module is not null)
-            await _module.DisposeAsync();
-
         await _initializer.DisposeAsync();
         await _cancellationScope.DisposeAsync();
     }

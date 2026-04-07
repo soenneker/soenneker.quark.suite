@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
+using Soenneker.Blazor.Utils.ModuleImport.Registrars;
 
 namespace Soenneker.Quark;
 
@@ -14,7 +14,8 @@ public static class SliderRegistrar
     /// </summary>
     public static IServiceCollection AddQuarkSliderAsScoped(this IServiceCollection services)
     {
-        services.AddResourceLoaderAsScoped().TryAddScoped<ISliderInterop, SliderInterop>();
+        services.AddModuleImportUtilAsScoped()
+                .TryAddScoped<ISliderInterop, SliderInterop>();
         return services;
     }
 }

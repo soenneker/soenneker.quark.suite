@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Soenneker.Blazor.Utils.ModuleImport.Registrars;
 using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
 
 namespace Soenneker.Quark;
@@ -14,7 +15,9 @@ public static class SortableRegistrar
     /// </summary>
     public static IServiceCollection AddQuarkSortableAsScoped(this IServiceCollection services)
     {
-        services.AddResourceLoaderAsScoped().TryAddScoped<ISortableInterop, SortableInterop>();
+        services.AddModuleImportUtilAsScoped()
+                .AddResourceLoaderAsScoped()
+                .TryAddScoped<ISortableInterop, SortableInterop>();
         return services;
     }
 }
