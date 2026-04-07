@@ -19,8 +19,8 @@ public sealed class SonnerInterop : ISonnerInterop
     private readonly CancellationScope _cancellationScope = new();
 
     private const string _stylePath = "/_content/Soenneker.Quark.Suite/css/sonner.css";
-    private const string _modulePath = "Soenneker.Quark.Suite/js/sonnerinterop.js";
-    private const string _moduleName = "SonnerInterop";
+    private const string _modulePath = "/_content/Soenneker.Quark.Suite/js/sonnerinterop.js";
+    private IJSObjectReference? _module;
 
     public SonnerInterop(IJSRuntime jsRuntime, IResourceLoader resourceLoader)
     {
@@ -37,7 +37,13 @@ public sealed class SonnerInterop : ISonnerInterop
     private async ValueTask InitializeResourcesInternal(CancellationToken token)
     {
         await _resourceLoader.LoadStyle(_stylePath, cancellationToken: token);
-        await _resourceLoader.ImportModule(_modulePath, token);
+        _module ??= await _jsRuntime.InvokeAsync<IJSObjectReference>("import", token, _modulePath);
+    }
+
+    private async ValueTask<IJSObjectReference> GetModule(CancellationToken cancellationToken)
+    {
+        _module ??= await _jsRuntime.InvokeAsync<IJSObjectReference>("import", cancellationToken, _modulePath);
+        return _module;
     }
 
     public async ValueTask Initialize(CancellationToken cancellationToken = default)
@@ -55,13 +61,16 @@ public sealed class SonnerInterop : ISonnerInterop
         using (source)
         {
             await _initializer.Init(linked);
-            return await _jsRuntime.InvokeAsync<Dictionary<string, double>>("SonnerInterop.measureToastHeights", linked, section);
+            IJSObjectReference module = await GetModule(linked);
+            return await module.InvokeAsync<Dictionary<string, double>>("measureToastHeights", linked, section);
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        await _resourceLoader.DisposeModule(_modulePath);
+        if (_module is not null)
+            await _module.DisposeAsync();
+
         await _initializer.DisposeAsync();
         await _cancellationScope.DisposeAsync();
     }

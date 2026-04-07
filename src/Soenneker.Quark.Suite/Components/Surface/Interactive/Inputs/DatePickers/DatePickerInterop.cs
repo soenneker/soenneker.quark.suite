@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Soenneker.Asyncs.Initializers;
-using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
 using System;
@@ -14,22 +13,27 @@ namespace Soenneker.Quark;
 public sealed class DatePickerInterop : IDatePickerInterop, IAsyncDisposable
 {
     private readonly IJSRuntime _jsRuntime;
-    private readonly IResourceLoader _resourceLoader;
     private readonly AsyncInitializer _initializer;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _modulePath = "Soenneker.Quark.Suite/js/popoverinterop.js";
+    private const string _modulePath = "/_content/Soenneker.Quark.Suite/js/popoverinterop.js";
+    private IJSObjectReference? _module;
 
-    public DatePickerInterop(IJSRuntime jsRuntime, IResourceLoader resourceLoader)
+    public DatePickerInterop(IJSRuntime jsRuntime)
     {
         _jsRuntime = jsRuntime;
-        _resourceLoader = resourceLoader;
         _initializer = new AsyncInitializer(InitializeResources);
     }
 
     private async ValueTask InitializeResources(CancellationToken token)
     {
-        _ = await _resourceLoader.ImportModule(_modulePath, token);
+        _module ??= await _jsRuntime.InvokeAsync<IJSObjectReference>("import", token, _modulePath);
+    }
+
+    private async ValueTask<IJSObjectReference> GetModule(CancellationToken cancellationToken)
+    {
+        _module ??= await _jsRuntime.InvokeAsync<IJSObjectReference>("import", cancellationToken, _modulePath);
+        return _module;
     }
 
     /// <inheritdoc />
@@ -52,7 +56,8 @@ public sealed class DatePickerInterop : IDatePickerInterop, IAsyncDisposable
         using (source)
         {
             await _initializer.Init(linked);
-            await _jsRuntime.InvokeVoidAsync("PopoverInterop.observePosition", linked, pickerId, trigger, content, side, align, sideOffset);
+            IJSObjectReference module = await GetModule(linked);
+            await module.InvokeVoidAsync("observePosition", linked, pickerId, trigger, content, side, align, sideOffset);
         }
     }
 
@@ -64,13 +69,16 @@ public sealed class DatePickerInterop : IDatePickerInterop, IAsyncDisposable
         using (source)
         {
             await _initializer.Init(linked);
-            await _jsRuntime.InvokeVoidAsync("PopoverInterop.stopObserving", linked, pickerId);
+            IJSObjectReference module = await GetModule(linked);
+            await module.InvokeVoidAsync("stopObserving", linked, pickerId);
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        await _resourceLoader.DisposeModule(_modulePath);
+        if (_module is not null)
+            await _module.DisposeAsync();
+
         await _initializer.DisposeAsync();
         await _cancellationScope.DisposeAsync();
     }

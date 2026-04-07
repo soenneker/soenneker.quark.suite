@@ -1,6 +1,5 @@
 using Microsoft.JSInterop;
 using Soenneker.Asyncs.Initializers;
-using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
 using System.Threading;
@@ -12,23 +11,27 @@ namespace Soenneker.Quark;
 public sealed class ThemeInterop : IThemeInterop
 {
     private readonly IJSRuntime _jsRuntime;
-    private readonly IResourceLoader _resourceLoader;
     private readonly AsyncInitializer _initializer;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _modulePath = "Soenneker.Quark.Suite/js/themeinterop.js";
-    private const string _moduleName = "ThemeInterop";
+    private const string _modulePath = "/_content/Soenneker.Quark.Suite/js/themeinterop.js";
+    private IJSObjectReference? _module;
 
-    public ThemeInterop(IJSRuntime jsRuntime, IResourceLoader resourceLoader)
+    public ThemeInterop(IJSRuntime jsRuntime)
     {
         _jsRuntime = jsRuntime;
-        _resourceLoader = resourceLoader;
         _initializer = new AsyncInitializer(InitializeResources);
     }
 
     private async ValueTask InitializeResources(CancellationToken token)
     {
-        _ = await _resourceLoader.ImportModule(_modulePath, token);
+        _module ??= await _jsRuntime.InvokeAsync<IJSObjectReference>("import", token, _modulePath);
+    }
+
+    private async ValueTask<IJSObjectReference> GetModule(CancellationToken cancellationToken)
+    {
+        _module ??= await _jsRuntime.InvokeAsync<IJSObjectReference>("import", cancellationToken, _modulePath);
+        return _module;
     }
 
     public async ValueTask<bool> Initialize(CancellationToken cancellationToken = default)
@@ -38,7 +41,8 @@ public sealed class ThemeInterop : IThemeInterop
         using (source)
         {
             await _initializer.Init(linked);
-            return await _jsRuntime.InvokeAsync<bool>("ThemeInterop.initialize", linked);
+            IJSObjectReference module = await GetModule(linked);
+            return await module.InvokeAsync<bool>("initialize", linked);
         }
     }
 
@@ -49,7 +53,8 @@ public sealed class ThemeInterop : IThemeInterop
         using (source)
         {
             await _initializer.Init(linked);
-            return await _jsRuntime.InvokeAsync<bool>("ThemeInterop.toggle", linked);
+            IJSObjectReference module = await GetModule(linked);
+            return await module.InvokeAsync<bool>("toggle", linked);
         }
     }
 
@@ -60,13 +65,16 @@ public sealed class ThemeInterop : IThemeInterop
         using (source)
         {
             await _initializer.Init(linked);
-            return await _jsRuntime.InvokeAsync<bool>("ThemeInterop.resolveIsDark", linked);
+            IJSObjectReference module = await GetModule(linked);
+            return await module.InvokeAsync<bool>("resolveIsDark", linked);
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        await _resourceLoader.DisposeModule(_modulePath);
+        if (_module is not null)
+            await _module.DisposeAsync();
+
         await _initializer.DisposeAsync();
         await _cancellationScope.DisposeAsync();
     }

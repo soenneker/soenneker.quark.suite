@@ -34,7 +34,7 @@ public class ComponentsCssGeneratorTests
         // Arrange
         var theme = new Theme
         {
-            Divs = new DivOptions()
+            Divs = new DivOptions
             {
                 TextDecoration = TextDecoration.Underline
             }

@@ -1,97 +1,83 @@
-class ThemeInterop {
-    constructor() {
-        this.storageKey = "quark-theme";
-        this.root = document.documentElement;
-        this.media = window.matchMedia("(prefers-color-scheme: dark)");
-        this._themeChangedRefs = new Map();
-        this._themeChangedListener = null;
+const storageKey = "quark-theme";
+const root = document.documentElement;
+const media = window.matchMedia("(prefers-color-scheme: dark)");
+const themeChangedRefs = new Map();
+let themeChangedListener = null;
+
+function getThemeChangedRefId(dotNetRef) {
+    if (!dotNetRef) {
+        return null;
     }
 
-    resolveIsDark() {
-        const stored = localStorage.getItem(this.storageKey);
-        if (stored === "dark") return true;
-        if (stored === "light") return false;
-        return this.media.matches;
-    }
+    return dotNetRef._id ?? dotNetRef._dotNetObjectId ?? dotNetRef.__dotNetObject ?? null;
+}
 
-    applyTheme(isDark) {
-        this.root.classList.toggle("dark", isDark);
-        localStorage.setItem(this.storageKey, isDark ? "dark" : "light");
-        window.dispatchEvent(new CustomEvent("quark-theme-changed", { detail: { isDark } }));
-        return isDark;
-    }
-
-    initialize() {
-        return this.applyTheme(this.resolveIsDark());
-    }
-
-    toggle() {
-        return this.applyTheme(!this.root.classList.contains("dark"));
-    }
-
-    getThemeChangedRefId(dotNetRef) {
-        if (!dotNetRef) {
-            return null;
-        }
-
-        // Blazor runtime internals may vary by version, so check known id shapes.
-        return dotNetRef._id ?? dotNetRef._dotNetObjectId ?? dotNetRef.__dotNetObject ?? null;
-    }
-
-    ensureThemeChangedListener() {
-        if (this._themeChangedListener) {
-            return;
-        }
-
-        this._themeChangedListener = (e) => {
-            const refs = Array.from(this._themeChangedRefs.entries());
-
-            refs.forEach(([id, ref]) => {
-                Promise.resolve(ref.invokeMethodAsync("OnThemeChanged", e.detail.isDark))
-                    .catch(() => {
-                        // Reference was likely disposed; stop calling it.
-                        this._themeChangedRefs.delete(id);
-                        this.removeThemeChangedListenerIfUnused();
-                    });
-            });
-        };
-
-        window.addEventListener("quark-theme-changed", this._themeChangedListener);
-    }
-
-    removeThemeChangedListenerIfUnused() {
-        if (this._themeChangedRefs.size === 0 && this._themeChangedListener) {
-            window.removeEventListener("quark-theme-changed", this._themeChangedListener);
-            this._themeChangedListener = null;
-        }
-    }
-
-    registerThemeChangedCallback(dotNetRef) {
-        const id = this.getThemeChangedRefId(dotNetRef);
-
-        if (id == null) {
-            return;
-        }
-
-        this._themeChangedRefs.set(id, dotNetRef);
-        this.ensureThemeChangedListener();
-    }
-
-    unregisterThemeChangedCallback(dotNetRef) {
-        const id = this.getThemeChangedRefId(dotNetRef);
-
-        if (id != null) {
-            this._themeChangedRefs.delete(id);
-        }
-
-        this.removeThemeChangedListenerIfUnused();
+function removeThemeChangedListenerIfUnused() {
+    if (themeChangedRefs.size === 0 && themeChangedListener) {
+        window.removeEventListener("quark-theme-changed", themeChangedListener);
+        themeChangedListener = null;
     }
 }
 
-const themeInterop = window.ThemeInterop ?? new ThemeInterop();
+function ensureThemeChangedListener() {
+    if (themeChangedListener) {
+        return;
+    }
 
-window.ThemeInterop = themeInterop;
+    themeChangedListener = (e) => {
+        const refs = Array.from(themeChangedRefs.entries());
 
-if (document.currentScript?.dataset?.quarkThemeBootstrap === "true") {
-    themeInterop.initialize();
+        refs.forEach(([id, ref]) => {
+            Promise.resolve(ref.invokeMethodAsync("OnThemeChanged", e.detail.isDark))
+                .catch(() => {
+                    themeChangedRefs.delete(id);
+                    removeThemeChangedListenerIfUnused();
+                });
+        });
+    };
+
+    window.addEventListener("quark-theme-changed", themeChangedListener);
+}
+
+function applyTheme(isDark) {
+    root.classList.toggle("dark", isDark);
+    localStorage.setItem(storageKey, isDark ? "dark" : "light");
+    window.dispatchEvent(new CustomEvent("quark-theme-changed", { detail: { isDark } }));
+    return isDark;
+}
+
+export function resolveIsDark() {
+    const stored = localStorage.getItem(storageKey);
+    if (stored === "dark") return true;
+    if (stored === "light") return false;
+    return media.matches;
+}
+
+export function initialize() {
+    return applyTheme(resolveIsDark());
+}
+
+export function toggle() {
+    return applyTheme(!root.classList.contains("dark"));
+}
+
+export function registerThemeChangedCallback(dotNetRef) {
+    const id = getThemeChangedRefId(dotNetRef);
+
+    if (id == null) {
+        return;
+    }
+
+    themeChangedRefs.set(id, dotNetRef);
+    ensureThemeChangedListener();
+}
+
+export function unregisterThemeChangedCallback(dotNetRef) {
+    const id = getThemeChangedRefId(dotNetRef);
+
+    if (id != null) {
+        themeChangedRefs.delete(id);
+    }
+
+    removeThemeChangedListenerIfUnused();
 }
