@@ -22,7 +22,7 @@
     public string Align { get; set; } = "start";
 
     [Parameter]
-    public new string Position { get; set; } = "item-aligned";
+    public string ContentPosition { get; set; } = "item-aligned";
 
     [CascadingParameter(Name = "ParentSelectContext")]
     private SelectContext? Context { get; set; }
@@ -30,7 +30,7 @@
     private ElementReference _contentRef;
     private bool _positionObserverActive;
     private bool UseFloatingPositioning =>
-        string.Equals(Position, "popper", StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(ContentPosition, "popper", StringComparison.OrdinalIgnoreCase) &&
         Context?.HasTriggerElement == true;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -55,7 +55,7 @@
         attributes["data-state"] = Context?.IsOpen() == true ? "open" : "closed";
         attributes["data-side"] = Side;
         attributes["data-align"] = Align;
-        attributes["data-position"] = Position;
+        attributes["data-position"] = ContentPosition;
         attributes["role"] = "listbox";
         attributes["tabindex"] = -1;
         attributes["aria-hidden"] = Context?.IsOpen() == true ? "false" : "true";
@@ -118,7 +118,7 @@
         hc.Add(Side);
         hc.Add(SideOffset);
         hc.Add(Align);
-        hc.Add(Position);
+        hc.Add(ContentPosition);
         hc.Add(Context?.IsOpen() == true);
     }
 
