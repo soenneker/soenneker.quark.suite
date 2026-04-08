@@ -112,6 +112,19 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
     }
 
+    /// <inheritdoc />
+    public async ValueTask Layout(ElementReference container, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            await _initializer.Init(linked);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("layoutEditor", linked, container);
+        }
+    }
+
     /// <summary>
     /// Sets the value of the editor content.
     /// </summary>

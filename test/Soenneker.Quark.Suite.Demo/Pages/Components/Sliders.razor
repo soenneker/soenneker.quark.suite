@@ -1,4 +1,6 @@
 @page "/sliders"
+@using System.Globalization
+@using System.Linq
 
 <PageTitle>Sliders - Quark Suite</PageTitle>
 
@@ -8,9 +10,12 @@
             <DemoSection Title="Demo"
                          Description="@($"Current value: {_demoValue}.")"
                          Code="@DemoCode">
-                <Div Class="mx-auto w-full max-w-xs">
-                    <Slider Min="0" Max="100" SliderValue="@_demoValue" SliderValueChanged="HandleDemoValueChanged" />
-                </Div>
+                <Slider Min="0"
+                        Max="100"
+                        Step="1"
+                        SliderValue="@_demoValue"
+                        SliderValueChanged="HandleDemoValueChanged"
+                        Class="mx-auto w-full max-w-xs" />
             </DemoSection>
         </Section>
 
@@ -18,56 +23,83 @@
             <DemoSection Title="Range"
                          Description="@($"Range: {RangeMin} - {RangeMax}.")"
                          Code="@RangeCode">
-                <Div Class="mx-auto w-full max-w-xs">
-                    <Slider Min="0" Max="100" Step="5" Values="@_rangeValues" ValuesChanged="HandleRangeValuesChanged" />
-                </Div>
+                <Slider Min="0"
+                        Max="100"
+                        Step="5"
+                        Values="@_rangeValues"
+                        ValuesChanged="HandleRangeValuesChanged"
+                        Class="mx-auto w-full max-w-xs" />
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Multiple Thumbs"
-                         Description="@($"Values: {string.Join(", ", _multipleValues)}.")"
+                         Description="@($"Values: {string.Join(", ", _multipleValues.Select(v => v.ToString(CultureInfo.InvariantCulture)))}.")"
                          Code="@MultipleCode">
-                <Div Class="mx-auto w-full max-w-xs">
-                    <Slider Min="0" Max="100" Step="5" Values="@_multipleValues" ValuesChanged="HandleMultipleValuesChanged" />
-                </Div>
+                <Slider Min="0"
+                        Max="100"
+                        Step="10"
+                        Values="@_multipleValues"
+                        ValuesChanged="HandleMultipleValuesChanged"
+                        Class="mx-auto w-full max-w-xs" />
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Vertical"
-                         Description="@($"Current value: {_verticalValue}.")"
+                         Description="@($"Left: {_verticalLeft}, right: {_verticalRight}.")"
                          Code="@VerticalCode">
-                <Div Class="flex h-64 items-center justify-center">
-                    <Slider Min="0" Max="100" SliderValue="@_verticalValue" SliderValueChanged="HandleVerticalValueChanged" Orientation="vertical" />
+                <Div Class="mx-auto flex w-full max-w-xs items-center justify-center gap-6">
+                    <Slider Min="0"
+                            Max="100"
+                            Step="1"
+                            SliderValue="@_verticalLeft"
+                            SliderValueChanged="HandleVerticalLeftChanged"
+                            Orientation="vertical"
+                            Class="h-40" />
+                    <Slider Min="0"
+                            Max="100"
+                            Step="1"
+                            SliderValue="@_verticalRight"
+                            SliderValueChanged="HandleVerticalRightChanged"
+                            Orientation="vertical"
+                            Class="h-40" />
                 </Div>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Controlled"
-                         Description="@($"Current value: {_controlledValue}.")"
+                         Description="@TemperatureDescription"
                          Code="@ControlledCode">
-                <Div Space="Space.Y.Is4">
-                    <Div Class="mx-auto w-full max-w-xs">
-                        <Slider Min="0" Max="100" SliderValue="@_controlledValue" SliderValueChanged="HandleControlledValueChanged" />
+                <Div Class="mx-auto grid w-full max-w-xs gap-3">
+                    <Div Display="Display.Flex" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Between" Gap="Gap.Is2">
+                        <Label For="slider-demo-temperature">Temperature</Label>
+                        <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">
+                            @TemperatureText
+                        </Paragraph>
                     </Div>
-                    <Div Display="Display.Flex" Flex="Flex.Wrap" Gap="Gap.Is2">
-                        <Button Size="ButtonSize.Sm" OnClick="@(() => SetControlledValue(0))">0</Button>
-                        <Button Size="ButtonSize.Sm" Variant="ButtonVariant.Outline" OnClick="@(() => SetControlledValue(50))">50</Button>
-                        <Button Size="ButtonSize.Sm" OnClick="@(() => SetControlledValue(100))">100</Button>
-                    </Div>
+                    <Slider Id="slider-demo-temperature"
+                            Min="0"
+                            Max="1"
+                            Step="0.1"
+                            Values="@_temperatureValues"
+                            ValuesChanged="HandleTemperatureValuesChanged"
+                            Class="w-full" />
                 </Div>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Disabled"
-                         Description="Use the disabled prop to prevent interaction."
+                         Description="Set Disabled to prevent interaction."
                          Code="@DisabledCode">
-                <Div Class="mx-auto w-full max-w-xs">
-                    <Slider Min="0" Max="100" SliderValue="50" Disabled="true" />
-                </Div>
+                <Slider Min="0"
+                        Max="100"
+                        Step="1"
+                        SliderValue="50"
+                        Disabled="true"
+                        Class="mx-auto w-full max-w-xs" />
             </DemoSection>
         </Section>
 
@@ -76,17 +108,22 @@
                          Description="@($"Current value: {_rtlValue}.")"
                          Code="@RtlCode">
                 <DirectionProvider Dir="rtl">
-                    <Div class="mx-auto w-full max-w-xs text-right">
-                        <Slider Min="0" Max="100" SliderValue="@_rtlValue" SliderValueChanged="HandleRtlValueChanged" />
+                    <Div Class="mx-auto w-full max-w-xs text-right">
+                        <Slider Min="0"
+                                Max="100"
+                                Step="1"
+                                SliderValue="@_rtlValue"
+                                SliderValueChanged="HandleRtlValueChanged"
+                                Class="w-full" />
                     </Div>
                 </DirectionProvider>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Quark-only examples</H2>
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
             <Paragraph TextColor="TextColor.MutedForeground">
-                These examples show additional slider variants beyond the core shadcn coverage above.
+                Step increments and size variants.
             </Paragraph>
         </Section>
 
@@ -94,9 +131,12 @@
             <DemoSection Title="Step"
                          Description="@($"Step 5; current value: {_stepValue}.")"
                          Code="@StepCode">
-                <Div Class="mx-auto w-full max-w-xs">
-                    <Slider Min="0" Max="100" Step="5" SliderValue="@_stepValue" SliderValueChanged="HandleStepValueChanged" />
-                </Div>
+                <Slider Min="0"
+                        Max="100"
+                        Step="5"
+                        SliderValue="@_stepValue"
+                        SliderValueChanged="HandleStepValueChanged"
+                        Class="mx-auto w-full max-w-xs" />
             </DemoSection>
         </Section>
 
@@ -105,9 +145,24 @@
                          Description="Small, default, and large sizing options."
                          Code="@SizesCode">
                 <Div Space="Space.Y.Is4">
-                    <Slider Min="0" Max="100" SliderValue="@_smallValue" Size="Size.Small" SliderValueChanged="HandleSmallValueChanged" />
-                    <Slider Min="0" Max="100" SliderValue="@_defaultValue" Size="Size.Default" SliderValueChanged="HandleDefaultValueChanged" />
-                    <Slider Min="0" Max="100" SliderValue="@_largeValue" Size="Size.Large" SliderValueChanged="HandleLargeValueChanged" />
+                    <Slider Min="0"
+                            Max="100"
+                            SliderValue="@_smallValue"
+                            Size="Size.Small"
+                            SliderValueChanged="HandleSmallValueChanged"
+                            Class="w-full" />
+                    <Slider Min="0"
+                            Max="100"
+                            SliderValue="@_defaultValue"
+                            Size="Size.Default"
+                            SliderValueChanged="HandleDefaultValueChanged"
+                            Class="w-full" />
+                    <Slider Min="0"
+                            Max="100"
+                            SliderValue="@_largeValue"
+                            Size="Size.Large"
+                            SliderValueChanged="HandleLargeValueChanged"
+                            Class="w-full" />
                 </Div>
             </DemoSection>
         </Section>
@@ -115,12 +170,13 @@
 </Div>
 
 @code {
-    private double _demoValue = 33;
-    private double[] _rangeValues = [20, 80];
-    private double[] _multipleValues = [15, 45, 85];
-    private double _verticalValue = 60;
-    private double _controlledValue = 25;
-    private double _rtlValue = 40;
+    private double _demoValue = 75;
+    private double[] _rangeValues = [25, 50];
+    private double[] _multipleValues = [10, 20, 70];
+    private double _verticalLeft = 50;
+    private double _verticalRight = 25;
+    private double[] _temperatureValues = [0.3, 0.7];
+    private double _rtlValue = 75;
     private double _stepValue = 30;
     private double _smallValue = 35;
     private double _defaultValue = 60;
@@ -129,35 +185,102 @@
     private double RangeMin => _rangeValues.Length > 0 ? _rangeValues[0] : 0;
     private double RangeMax => _rangeValues.Length > 1 ? _rangeValues[^1] : RangeMin;
 
-    private const string DemoCode = @"<Slider Min=""0"" Max=""100"" SliderValue=""33"" />";
+    private string TemperatureText =>
+        string.Join(", ", _temperatureValues.Select(v => v.ToString("0.0", CultureInfo.InvariantCulture)));
+
+    private string TemperatureDescription =>
+        $"Values: {TemperatureText}.";
+
+    private const string DemoCode = @"<Slider Min=""0""
+        Max=""100""
+        Step=""1""
+        SliderValue=""@_demoValue""
+        SliderValueChanged=""HandleDemoValueChanged""
+        Class=""mx-auto w-full max-w-xs"" />";
 
     private const string RangeCode =
-@"<Slider Min=""0"" Max=""100"" Step=""5"" Values=""@_rangeValues"" ValuesChanged=""HandleRangeValuesChanged"" />";
+@"<Slider Min=""0""
+        Max=""100""
+        Step=""5""
+        Values=""@_rangeValues""
+        ValuesChanged=""HandleRangeValuesChanged""
+        Class=""mx-auto w-full max-w-xs"" />";
 
     private const string MultipleCode =
-@"<Slider Min=""0"" Max=""100"" Step=""5"" Values=""@_multipleValues"" ValuesChanged=""HandleMultipleValuesChanged"" />";
+@"<Slider Min=""0""
+        Max=""100""
+        Step=""10""
+        Values=""@_multipleValues""
+        ValuesChanged=""HandleMultipleValuesChanged""
+        Class=""mx-auto w-full max-w-xs"" />";
 
     private const string VerticalCode =
-@"<Slider Min=""0"" Max=""100"" SliderValue=""@_verticalValue"" SliderValueChanged=""HandleVerticalValueChanged"" Orientation=""vertical"" />";
+@"<Div Class=""mx-auto flex w-full max-w-xs items-center justify-center gap-6"">
+    <Slider Min=""0""
+            Max=""100""
+            Step=""1""
+            SliderValue=""@_verticalLeft""
+            SliderValueChanged=""HandleVerticalLeftChanged""
+            Orientation=""vertical""
+            Class=""h-40"" />
+    <Slider Min=""0""
+            Max=""100""
+            Step=""1""
+            SliderValue=""@_verticalRight""
+            SliderValueChanged=""HandleVerticalRightChanged""
+            Orientation=""vertical""
+            Class=""h-40"" />
+</Div>";
 
     private const string ControlledCode =
-@"<Slider Min=""0"" Max=""100"" SliderValue=""@_controlledValue"" SliderValueChanged=""HandleControlledValueChanged"" />";
+@"<Div Class=""mx-auto grid w-full max-w-xs gap-3"">
+    <Div Display=""Display.Flex"" AlignItems=""AlignItems.Center"" JustifyContent=""JustifyContent.Between"" Gap=""Gap.Is2"">
+        <Label For=""slider-demo-temperature"">Temperature</Label>
+        <Paragraph TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is0"">
+            @TemperatureText
+        </Paragraph>
+    </Div>
+    <Slider Id=""slider-demo-temperature""
+            Min=""0""
+            Max=""1""
+            Step=""0.1""
+            Values=""@_temperatureValues""
+            ValuesChanged=""HandleTemperatureValuesChanged""
+            Class=""w-full"" />
+</Div>";
 
     private const string DisabledCode =
-@"<Slider Min=""0"" Max=""100"" SliderValue=""50"" Disabled=""true"" />";
+@"<Slider Min=""0""
+        Max=""100""
+        Step=""1""
+        SliderValue=""50""
+        Disabled=""true""
+        Class=""mx-auto w-full max-w-xs"" />";
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
-    <Slider Min=""0"" Max=""100"" SliderValue=""@_rtlValue"" SliderValueChanged=""HandleRtlValueChanged"" />
+    <Div Class=""mx-auto w-full max-w-xs text-right"">
+        <Slider Min=""0""
+                Max=""100""
+                Step=""1""
+                SliderValue=""@_rtlValue""
+                SliderValueChanged=""HandleRtlValueChanged""
+                Class=""w-full"" />
+    </Div>
 </DirectionProvider>";
 
     private const string StepCode =
-@"<Slider Min=""0"" Max=""100"" Step=""5"" SliderValue=""@_stepValue"" SliderValueChanged=""HandleStepValueChanged"" />";
+@"<Slider Min=""0""
+        Max=""100""
+        Step=""5""
+        SliderValue=""@_stepValue""
+        SliderValueChanged=""HandleStepValueChanged""
+        Class=""mx-auto w-full max-w-xs"" />";
 
     private const string SizesCode =
-@"<Slider Min=""0"" Max=""100"" SliderValue=""@_smallValue"" Size=""Size.Small"" SliderValueChanged=""HandleSmallValueChanged"" />
-<Slider Min=""0"" Max=""100"" SliderValue=""@_defaultValue"" Size=""Size.Default"" SliderValueChanged=""HandleDefaultValueChanged"" />
-<Slider Min=""0"" Max=""100"" SliderValue=""@_largeValue"" Size=""Size.Large"" SliderValueChanged=""HandleLargeValueChanged"" />";
+@"<Slider Min=""0"" Max=""100"" SliderValue=""@_smallValue"" Size=""Size.Small"" SliderValueChanged=""HandleSmallValueChanged"" Class=""w-full"" />
+<Slider Min=""0"" Max=""100"" SliderValue=""@_defaultValue"" Size=""Size.Default"" SliderValueChanged=""HandleDefaultValueChanged"" Class=""w-full"" />
+<Slider Min=""0"" Max=""100"" SliderValue=""@_largeValue"" Size=""Size.Large"" SliderValueChanged=""HandleLargeValueChanged"" Class=""w-full"" />";
 
     private Task HandleDemoValueChanged(double value)
     {
@@ -177,15 +300,21 @@
         return Task.CompletedTask;
     }
 
-    private Task HandleVerticalValueChanged(double value)
+    private Task HandleVerticalLeftChanged(double value)
     {
-        _verticalValue = value;
+        _verticalLeft = value;
         return Task.CompletedTask;
     }
 
-    private Task HandleControlledValueChanged(double value)
+    private Task HandleVerticalRightChanged(double value)
     {
-        _controlledValue = value;
+        _verticalRight = value;
+        return Task.CompletedTask;
+    }
+
+    private Task HandleTemperatureValuesChanged(double[] values)
+    {
+        _temperatureValues = values;
         return Task.CompletedTask;
     }
 
@@ -216,12 +345,6 @@
     private Task HandleLargeValueChanged(double value)
     {
         _largeValue = value;
-        return Task.CompletedTask;
-    }
-
-    private Task SetControlledValue(double value)
-    {
-        _controlledValue = value;
         return Task.CompletedTask;
     }
 }

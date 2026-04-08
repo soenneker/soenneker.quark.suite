@@ -1,81 +1,90 @@
 @page "/progresses"
+@using System.Threading
+@implements IAsyncDisposable
 
 <PageTitle>Progress - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Demo"
+                         Description="@($"Value animates from 13 to 66 after a short delay. Current: {_demoProgress}.")"
+                         Code="@DemoCode">
+                <Progress ProgressValue="@_demoProgress" Class="w-[60%]" />
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Basic"
+                         Description="A single determinate value."
+                         Code="@BasicCode">
+                <Progress ProgressValue="33" Class="w-full" />
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Label"
-                         Description="Pair progress with field metadata when users need context around what is being completed."
+                         Description="Associate the bar with a label using matching id and for values."
                          Code="@LabelCode">
-                <Div Class="w-full max-w-md">
-                    <Field>
-                        <Div Class="flex items-center justify-between text-sm">
-                            <FieldLabel>Upload progress</FieldLabel>
-                            <Span>25%</Span>
-                        </Div>
-                        <Progress ProgressValue="25" />
-                    </Field>
-                </Div>
+                <Field Class="w-full max-w-sm">
+                    <FieldLabel For="progress-upload" Class="!w-full flex flex-row items-center justify-between gap-2">
+                        <Span>Upload progress</Span>
+                        <Span Class="text-muted-foreground">66%</Span>
+                    </FieldLabel>
+                    <Progress Id="progress-upload" ProgressValue="66" Class="w-full" />
+                </Field>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Controlled"
-                         Description="@($"Adjust the slider to control the progress value. Current value: {_controlledValue:F0}%.")"
+                         Description="@($"Drag the slider to set the bar. Current: {GetControlledPercent()}%.")"
                          Code="@ControlledCode">
-                <Div Class="w-full max-w-md space-y-4">
-                    <Field>
-                        <Div class="flex items-center justify-between text-sm">
-                            <FieldLabel>Deployment progress</FieldLabel>
-                            <Span>@($"{_controlledValue:F0}%")</Span>
-                        </Div>
-                        <Progress ProgressValue="@GetControlledPercent()" />
-                    </Field>
+                <Div Class="flex w-full max-w-sm flex-col gap-4">
+                    <Progress ProgressValue="@GetControlledPercent()" Class="w-full" />
                     <Slider Min="0"
                             Max="100"
                             Step="1"
                             SliderValue="@_controlledValue"
-                            SliderValueChanged="HandleControlledValueChanged" />
+                            SliderValueChanged="HandleControlledValueChanged"
+                            Class="w-full" />
                 </Div>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
-                         Description="Progress indicators should remain readable in right-to-left contexts."
+                         Description="Layout and the bar respond to right-to-left direction."
                          Code="@RtlCode">
                 <DirectionProvider Dir="rtl">
-                    <Div Class="w-full max-w-md text-right">
-                        <Field>
-                            <Div Class="flex items-center justify-between text-sm">
-                                <FieldLabel>تقدم الرفع</FieldLabel>
-                                <Span>25%</Span>
-                            </Div>
-                            <Progress ProgressValue="25" />
-                        </Field>
-                    </Div>
+                    <Field Class="w-full max-w-sm">
+                        <FieldLabel For="progress-upload-rtl" Class="!w-full flex flex-row items-center justify-between gap-2">
+                            <Span>تقدم الرفع</Span>
+                            <Span Class="text-muted-foreground">66%</Span>
+                        </FieldLabel>
+                        <Progress Id="progress-upload-rtl" ProgressValue="66" Class="w-full" />
+                    </Field>
                 </DirectionProvider>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Quark-only examples</H2>
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
             <Paragraph TextColor="TextColor.MutedForeground">
-                These examples show additional progress behaviors beyond the core examples above.
+                Indeterminate state when completion is unknown.
             </Paragraph>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Indeterminate"
-                         Description="Use indeterminate progress while work is active but the exact completion percentage is not yet known."
+                         Description="Shows activity without a specific percentage."
                          Code="@IndeterminateCode">
                 <Div Class="w-full max-w-md space-y-2">
-                    <Div class="flex items-center justify-between text-sm">
+                    <Div Class="flex items-center justify-between text-sm">
                         <Span>Preparing assets</Span>
-                        <Span class="text-muted-foreground">Loading</Span>
+                        <Span Class="text-muted-foreground">Loading</Span>
                     </Div>
-                    <Progress Indeterminate="true" AriaValueText="Preparing assets" />
+                    <Progress Indeterminate="true" AriaValueText="Preparing assets" Class="w-full" />
                 </Div>
             </DemoSection>
         </Section>
@@ -83,50 +92,112 @@
 </Div>
 
 @code {
-    private double _controlledValue = 45;
+    private CancellationTokenSource? _demoCts;
+    private int _demoProgress = 13;
+    private double _controlledValue = 50;
+
+    private const string DemoCode =
+@"@using System.Threading
+@implements IAsyncDisposable
+
+<Progress ProgressValue=""@_demoProgress"" Class=""w-[60%]"" />
+
+@code {
+    private CancellationTokenSource? _demoCts;
+    private int _demoProgress = 13;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        _demoCts = new CancellationTokenSource();
+
+        try
+        {
+            await Task.Delay(500, _demoCts.Token);
+            _demoProgress = 66;
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        _demoCts?.Cancel();
+        _demoCts?.Dispose();
+        return ValueTask.CompletedTask;
+    }
+}";
+
+    private const string BasicCode = @"<Progress ProgressValue=""33"" Class=""w-full"" />";
 
     private const string LabelCode =
-@"<Field>
-    <Div Class=""flex items-center justify-between text-sm"">
-        <FieldLabel>Upload progress</FieldLabel>
-        <Span>25%</Span>
-    </Div>
-    <Progress ProgressValue=""25"" />
+@"<Field Class=""w-full max-w-sm"">
+    <FieldLabel For=""progress-upload"" Class=""!w-full flex flex-row items-center justify-between gap-2"">
+        <Span>Upload progress</Span>
+        <Span Class=""text-muted-foreground"">66%</Span>
+    </FieldLabel>
+    <Progress Id=""progress-upload"" ProgressValue=""66"" Class=""w-full"" />
 </Field>";
 
     private const string ControlledCode =
-@"<Field>
-    <Div class=""flex items-center justify-between text-sm"">
-        <FieldLabel>Deployment progress</FieldLabel>
-        <Span>@($""{_controlledValue:F0}%"")</Span>
-    </Div>
-    <Progress ProgressValue=""@GetControlledPercent()"" />
-</Field>
-<Slider Min=""0""
-        Max=""100""
-        Step=""1""
-        SliderValue=""@_controlledValue""
-        SliderValueChanged=""HandleControlledValueChanged"" />";
+@"<Div Class=""flex w-full max-w-sm flex-col gap-4"">
+    <Progress ProgressValue=""@GetControlledPercent()"" Class=""w-full"" />
+    <Slider Min=""0""
+            Max=""100""
+            Step=""1""
+            SliderValue=""@_controlledValue""
+            SliderValueChanged=""HandleControlledValueChanged""
+            Class=""w-full"" />
+</Div>";
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
-    <Field>
-        <Div Class=""flex items-center justify-between text-sm"">
-            <FieldLabel>تقدم الرفع</FieldLabel>
-            <Span>25%</Span>
-        </Div>
-        <Progress ProgressValue=""25"" />
+    <Field Class=""w-full max-w-sm"">
+        <FieldLabel For=""progress-upload-rtl"" Class=""!w-full flex flex-row items-center justify-between gap-2"">
+            <Span>تقدم الرفع</Span>
+            <Span Class=""text-muted-foreground"">66%</Span>
+        </FieldLabel>
+        <Progress Id=""progress-upload-rtl"" ProgressValue=""66"" Class=""w-full"" />
     </Field>
 </DirectionProvider>";
 
     private const string IndeterminateCode =
-@"<Div Class=""space-y-2"">
-    <Div class=""flex items-center justify-between text-sm"">
+@"<Div Class=""w-full max-w-md space-y-2"">
+    <Div Class=""flex items-center justify-between text-sm"">
         <Span>Preparing assets</Span>
-        <Span class=""text-muted-foreground"">Loading</Span>
+        <Span Class=""text-muted-foreground"">Loading</Span>
     </Div>
-    <Progress Indeterminate=""true"" AriaValueText=""Preparing assets"" />
+    <Progress Indeterminate=""true"" AriaValueText=""Preparing assets"" Class=""w-full"" />
 </Div>";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        _demoCts = new CancellationTokenSource();
+
+        try
+        {
+            await Task.Delay(500, _demoCts.Token);
+            _demoProgress = 66;
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        _demoCts?.Cancel();
+        _demoCts?.Dispose();
+        return ValueTask.CompletedTask;
+    }
 
     private int GetControlledPercent()
     {

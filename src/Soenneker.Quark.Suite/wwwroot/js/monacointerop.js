@@ -69,6 +69,15 @@ export function disposeEditor(container) {
     }
 }
 
+// Re-measures the editor after the container becomes visible or changes size (e.g. parent was display:none).
+export function layoutEditor(container) {
+    const editor = editors.get(container);
+
+    if (!editor) return;
+
+    editor.layout();
+}
+
 export function updateContentHeight(container, minLines, maxLines) {
     const editor = getEditor(container);
     const model = editor.getModel();

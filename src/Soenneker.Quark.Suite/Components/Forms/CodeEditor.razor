@@ -135,6 +135,15 @@
             _lastMinLines = MinLines;
             _lastMaxLines = MaxLines;
         }
+        else if (_initialized)
+        {
+            // OnParametersSet runs before the browser lays out visibility changes (e.g. DemoSection code panel
+            // uses `hidden` on small viewports until "View Code"). Sync Monaco after paint.
+            if (AutoHeight)
+                await CodeEditorInterop.UpdateContentHeight(_container, MinLines, MaxLines);
+            else
+                await CodeEditorInterop.Layout(_container);
+        }
 
         _valueChanged = false;
         await base.OnAfterRenderAsync(firstRender);

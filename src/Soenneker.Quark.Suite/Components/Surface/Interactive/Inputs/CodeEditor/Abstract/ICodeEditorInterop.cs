@@ -49,6 +49,11 @@ public interface ICodeEditorInterop : IAsyncDisposable
     ValueTask DisposeEditor(ElementReference container, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Calls Monaco <c>layout()</c> on the editor so it picks up the container size after visibility or layout changes.
+    /// </summary>
+    ValueTask Layout(ElementReference container, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Updates the editor height based on the current content line count.
     /// </summary>
     /// <param name="container">Container element hosting the editor.</param>

@@ -28,29 +28,6 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Disabled"
-                         Code="@DisabledCode">
-                <Field Horizontal="true" Disabled="true" Class="w-fit">
-                    <Switch Id="switch-disabled-unchecked" Disabled="true" />
-                    <FieldLabel For="switch-disabled-unchecked">Disabled</FieldLabel>
-                </Field>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Invalid"
-                         Code="@InvalidCode">
-                <Field Horizontal="true" IsInvalid="true" Class="max-w-sm">
-                    <FieldContent>
-                        <FieldLabel For="switch-terms">Accept terms and conditions</FieldLabel>
-                        <FieldDescription>You must accept the terms and conditions to continue.</FieldDescription>
-                    </FieldContent>
-                    <Switch Id="switch-terms" aria-invalid="true" />
-                </Field>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
             <DemoSection Title="Choice Card"
                          Code="@ChoiceCardCode">
                 <FieldGroup Class="w-full max-w-sm">
@@ -77,6 +54,29 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Disabled"
+                         Code="@DisabledCode">
+                <Field Horizontal="true" Disabled="true" Class="w-fit">
+                    <Switch Id="switch-disabled-unchecked" Disabled="true" />
+                    <FieldLabel For="switch-disabled-unchecked">Disabled</FieldLabel>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Invalid"
+                         Code="@InvalidCode">
+                <Field Horizontal="true" IsInvalid="true" Class="max-w-sm">
+                    <FieldContent>
+                        <FieldLabel For="switch-terms">Accept terms and conditions</FieldLabel>
+                        <FieldDescription>You must accept the terms and conditions to continue.</FieldDescription>
+                    </FieldContent>
+                    <Switch Id="switch-terms" aria-invalid="true" />
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Sizes"
                          Code="@SizesCode">
                 <FieldGroup Class="w-full max-w-[10rem]">
@@ -96,27 +96,27 @@
             <DemoSection Title="RTL"
                          Code="@RtlCode">
                 <DirectionProvider Dir="rtl">
-                    <Field Horizontal="true" Class="max-w-sm text-right">
+                    <Field Horizontal="true" Class="max-w-sm">
                         <FieldContent>
-                            <FieldLabel For="switch-rtl">مشاركة عبر الأجهزة</FieldLabel>
-                            <FieldDescription>تتم مزامنة وضع التركيز عبر أجهزتك، ويتوقف عند مغادرة التطبيق.</FieldDescription>
+                            <FieldLabel For="switch-focus-mode-rtl">المشاركة عبر الأجهزة</FieldLabel>
+                            <FieldDescription>يتم مشاركة التركيز عبر الأجهزة، ويتم إيقاف تشغيله عند مغادرة التطبيق.</FieldDescription>
                         </FieldContent>
-                        <Switch Id="switch-rtl" Checked="@_rtlSwitchChecked" CheckedChanged="HandleRtlSwitchChanged" />
+                        <Switch Id="switch-focus-mode-rtl" Checked="@_rtlSwitchChecked" CheckedChanged="HandleRtlSwitchChanged" />
                     </Field>
                 </DirectionProvider>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Quark-only examples</H2>
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
             <Paragraph TextColor="TextColor.MutedForeground">
-                These examples show additional switch APIs beyond the core examples above.
+                Inline label content and legacy Label parameter usage.
             </Paragraph>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Inline Content"
-                         Description="Switches can also render inline label content directly inside the component."
+                         Description="Switches can render label content as child content or via the Label parameter."
                          Code="@InlineContentCode">
                 <Div Space="Space.Y.Is3">
                     <Switch @bind-Checked="_inlineContentChecked">
@@ -145,21 +145,6 @@
     <Switch Id=""switch-focus-mode"" />
 </Field>";
 
-    private const string DisabledCode =
-@"<Field Horizontal=""true"" Disabled=""true"" Class=""w-fit"">
-    <Switch Id=""switch-disabled-unchecked"" Disabled=""true"" />
-    <FieldLabel For=""switch-disabled-unchecked"">Disabled</FieldLabel>
-</Field>";
-
-    private const string InvalidCode =
-@"<Field Horizontal=""true"" IsInvalid=""true"" Class=""max-w-sm"">
-    <FieldContent>
-        <FieldLabel For=""switch-terms"">Accept terms and conditions</FieldLabel>
-        <FieldDescription>You must accept the terms and conditions to continue.</FieldDescription>
-    </FieldContent>
-    <Switch Id=""switch-terms"" aria-invalid=""true"" />
-</Field>";
-
     private const string ChoiceCardCode =
 @"<FieldGroup Class=""w-full max-w-sm"">
     <FieldLabel For=""switch-share"">
@@ -182,6 +167,21 @@
     </FieldLabel>
 </FieldGroup>";
 
+    private const string DisabledCode =
+@"<Field Horizontal=""true"" Disabled=""true"" Class=""w-fit"">
+    <Switch Id=""switch-disabled-unchecked"" Disabled=""true"" />
+    <FieldLabel For=""switch-disabled-unchecked"">Disabled</FieldLabel>
+</Field>";
+
+    private const string InvalidCode =
+@"<Field Horizontal=""true"" IsInvalid=""true"" Class=""max-w-sm"">
+    <FieldContent>
+        <FieldLabel For=""switch-terms"">Accept terms and conditions</FieldLabel>
+        <FieldDescription>You must accept the terms and conditions to continue.</FieldDescription>
+    </FieldContent>
+    <Switch Id=""switch-terms"" aria-invalid=""true"" />
+</Field>";
+
     private const string SizesCode =
 @"<FieldGroup Class=""w-full max-w-[10rem]"">
     <Field Horizontal=""true"">
@@ -196,12 +196,12 @@
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
-    <Field Horizontal=""true"" Class=""max-w-sm text-right"">
+    <Field Horizontal=""true"" Class=""max-w-sm"">
         <FieldContent>
-            <FieldLabel For=""switch-rtl"">مشاركة عبر الأجهزة</FieldLabel>
-            <FieldDescription>تتم مزامنة وضع التركيز عبر أجهزتك، ويتوقف عند مغادرة التطبيق.</FieldDescription>
+            <FieldLabel For=""switch-focus-mode-rtl"">المشاركة عبر الأجهزة</FieldLabel>
+            <FieldDescription>يتم مشاركة التركيز عبر الأجهزة، ويتم إيقاف تشغيله عند مغادرة التطبيق.</FieldDescription>
         </FieldContent>
-        <Switch Id=""switch-rtl"" Checked=""@_rtlSwitchChecked"" CheckedChanged=""HandleRtlSwitchChanged"" />
+        <Switch Id=""switch-focus-mode-rtl"" Checked=""@_rtlSwitchChecked"" CheckedChanged=""HandleRtlSwitchChanged"" />
     </Field>
 </DirectionProvider>";
 
