@@ -13,7 +13,7 @@ public partial class SidebarProvider
 {
     private const string _defaultCookieKey = "sidebar_state";
     private const string _defaultShortcutKey = "b";
-    private const string _modulePath = "_content/Soenneker.Quark.Suite/js/sidebarinterop.js";
+    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/sidebarinterop.js";
 
     private IJSObjectReference? _module;
     private DotNetObjectReference<SidebarProvider>? _dotNetRef;

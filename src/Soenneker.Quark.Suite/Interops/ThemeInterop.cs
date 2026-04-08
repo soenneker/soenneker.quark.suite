@@ -13,7 +13,7 @@ public sealed class ThemeInterop : IThemeInterop
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _modulePath = "_content/Soenneker.Quark.Suite/js/themeinterop.js";
+    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/themeinterop.js";
 
     public ThemeInterop(IModuleImportUtil moduleImportUtil)
     {

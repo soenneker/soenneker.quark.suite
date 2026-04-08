@@ -14,7 +14,7 @@ public sealed class PopoverInterop : IPopoverInterop
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _modulePath = "_content/Soenneker.Quark.Suite/js/popoverinterop.js";
+    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/popoverinterop.js";
 
     public PopoverInterop(IModuleImportUtil moduleImportUtil)
     {

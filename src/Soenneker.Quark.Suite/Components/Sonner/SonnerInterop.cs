@@ -20,7 +20,7 @@ public sealed class SonnerInterop : ISonnerInterop
     private readonly CancellationScope _cancellationScope = new();
 
     private const string _stylePath = "_content/Soenneker.Quark.Suite/css/sonner.css";
-    private const string _modulePath = "_content/Soenneker.Quark.Suite/js/sonnerinterop.js";
+    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/sonnerinterop.js";
 
     public SonnerInterop(IModuleImportUtil moduleImportUtil, IResourceLoader resourceLoader)
     {

@@ -15,7 +15,7 @@ public sealed class DatePickerInterop : IDatePickerInterop, IAsyncDisposable
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _modulePath = "_content/Soenneker.Quark.Suite/js/popoverinterop.js";
+    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/popoverinterop.js";
 
     public DatePickerInterop(IModuleImportUtil moduleImportUtil)
     {

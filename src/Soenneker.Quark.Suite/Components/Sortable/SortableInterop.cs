@@ -18,7 +18,7 @@ public sealed class SortableInterop : ISortableInterop
     private readonly AsyncInitializer _initializer;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _modulePath = "_content/Soenneker.Quark.Suite/js/sortableinterop.js";
+    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/sortableinterop.js";
     private const string _cdnScriptUrl = "https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js";
     private const string _cdnScriptIntegrity = "sha256-v0JBvHP+9/EcWaKDpp/oBRzdMcbY/1orm6IZ54Mfz3Y=";
 

@@ -18,8 +18,8 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     private readonly AsyncInitializer _initializer;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _modulePath = "_content/Soenneker.Quark.Suite/js/monacointerop.js";
-    private const string _themeModulePath = "_content/Soenneker.Quark.Suite/js/themeinterop.js";
+    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/monacointerop.js";
+    private const string _themeModulePath = "./_content/Soenneker.Quark.Suite/js/themeinterop.js";
     
     private const string _cdnBaseUrl = "https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1";
     private const string _cdnCssPath = "/min/vs/editor/editor.main.css";

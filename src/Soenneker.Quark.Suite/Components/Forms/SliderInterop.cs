@@ -14,7 +14,7 @@ public sealed class SliderInterop : ISliderInterop
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _modulePath = "_content/Soenneker.Quark.Suite/js/sliderinterop.js";
+    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/sliderinterop.js";
 
     public SliderInterop(IModuleImportUtil moduleImportUtil)
     {
