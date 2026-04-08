@@ -1,11 +1,129 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()">
-    @ChildContent
-</div>
+<CascadingValue Name="ParentCommand" Value="@this" IsFixed="true">
+    <div @attributes="BuildAttributes()">
+        @ChildContent
+    </div>
+</CascadingValue>
 
 @code {
+    private readonly List<CommandEntry> _entries = [];
+    private CommandItem? _activeItem;
+    private string? _search;
+    private readonly string _listId = $"command-list-{Guid.NewGuid():N}";
+
+    internal string? Search => _search;
+
+    internal bool HasVisibleItems => _entries.Any(entry => entry.IsVisible);
+
+    internal string? ActiveItemId => _activeItem?.Id;
+
+    internal string ListId => _listId;
+
+    internal void RegisterItem(CommandItem item, CommandGroup? group)
+    {
+        if (_entries.Any(entry => ReferenceEquals(entry.Item, item)))
+            return;
+
+        _entries.Add(new CommandEntry { Item = item, Group = group });
+
+        if (_activeItem is null && item.IsVisibleResolved && !item.Disabled)
+            _activeItem = item;
+
+        Refresh();
+    }
+
+    internal void UnregisterItem(CommandItem item)
+    {
+        var entry = _entries.FirstOrDefault(candidate => ReferenceEquals(candidate.Item, item));
+        if (entry is null)
+            return;
+
+        _entries.Remove(entry);
+
+        if (ReferenceEquals(_activeItem, item))
+            _activeItem = GetVisibleEntries().FirstOrDefault()?.Item;
+
+        Refresh();
+    }
+
+    internal bool IsItemActive(CommandItem item)
+    {
+        return ReferenceEquals(_activeItem, item);
+    }
+
+    internal bool IsItemVisible(CommandItem item)
+    {
+        var entry = _entries.FirstOrDefault(candidate => ReferenceEquals(candidate.Item, item));
+        return entry?.Matches(_search) ?? true;
+    }
+
+    internal bool GroupHasVisibleItems(CommandGroup group)
+    {
+        return _entries.Any(entry => ReferenceEquals(entry.Group, group) && entry.IsVisible);
+    }
+
+    internal async Task SetSearchAsync(string? value)
+    {
+        _search = value;
+        _activeItem = GetVisibleEntries().FirstOrDefault()?.Item;
+        await RefreshOffThread();
+    }
+
+    internal async Task SetActiveItemAsync(CommandItem item)
+    {
+        if (!item.IsVisibleResolved || item.Disabled)
+            return;
+
+        if (!ReferenceEquals(_activeItem, item))
+        {
+            _activeItem = item;
+            await RefreshOffThread();
+        }
+    }
+
+    internal async Task HandleInputNavigationAsync(string key)
+    {
+        var visibleEntries = GetVisibleEntries();
+        if (visibleEntries.Count == 0)
+            return;
+
+        var currentIndex = _activeItem is null
+            ? -1
+            : visibleEntries.FindIndex(entry => ReferenceEquals(entry.Item, _activeItem));
+
+        var nextIndex = key switch
+        {
+            "ArrowDown" => currentIndex < 0 ? 0 : Math.Min(currentIndex + 1, visibleEntries.Count - 1),
+            "ArrowUp" => currentIndex < 0 ? visibleEntries.Count - 1 : Math.Max(currentIndex - 1, 0),
+            "Home" => 0,
+            "End" => visibleEntries.Count - 1,
+            _ => -1
+        };
+
+        if (nextIndex < 0)
+            return;
+
+        var nextEntry = visibleEntries[nextIndex];
+        _activeItem = nextEntry.Item;
+        await RefreshOffThread();
+        await nextEntry.FocusAsync();
+    }
+
+    internal async Task SelectActiveItemAsync()
+    {
+        if (_activeItem is null || !_activeItem.IsVisibleResolved || _activeItem.Disabled)
+            return;
+
+        await _activeItem.SelectAsync();
+    }
+
+    private List<CommandEntry> GetVisibleEntries()
+    {
+        return _entries.Where(entry => entry.IsVisible && !entry.IsDisabled).ToList();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -17,5 +135,12 @@
             AppendClass(ref cls, "q-command");
             AppendClass(ref cls, "bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md");
         });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(_search);
+        hc.Add(_activeItem?.Id);
     }
 }

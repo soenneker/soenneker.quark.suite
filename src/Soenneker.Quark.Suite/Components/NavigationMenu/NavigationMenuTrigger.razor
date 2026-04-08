@@ -2,7 +2,7 @@
 @inherits Soenneker.Quark.FormControlElement
 @implements INavigationMenuTrigger
 
-<button @attributes="BuildAttributes()">
+<button @attributes="BuildAttributes()" @onclick="HandleTriggerClick" @onkeydown="HandleKeyDown" @onmouseenter="HandleMouseEnter" @ref="_buttonRef">
     @ChildContent
     @if (ShowChevron)
     {
@@ -12,11 +12,29 @@
 </button>
 
 @code {
+    private ElementReference _buttonRef;
+
     [Parameter]
     public bool Open { get; set; }
 
     [Parameter]
     public bool ShowChevron { get; set; } = true;
+
+    [CascadingParameter(Name = "ParentNavigationMenu")]
+    private NavigationMenu? ParentNavigationMenu { get; set; }
+
+    [CascadingParameter]
+    private NavigationMenuItem? ParentNavigationMenuItem { get; set; }
+
+    private bool ResolvedOpen => ParentNavigationMenuItem is not null ? ParentNavigationMenuItem.IsOpenResolved : Open;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if (firstRender && ParentNavigationMenu is not null && ParentNavigationMenuItem is not null)
+            ParentNavigationMenu.RegisterTrigger(ParentNavigationMenuItem, this);
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -24,8 +42,9 @@
 
         attributes["type"] = "button";
         attributes["data-slot"] = "navigation-menu-trigger";
-        attributes["data-state"] = Open ? "open" : "closed";
-        attributes["aria-expanded"] = Open ? "true" : "false";
+        attributes["data-state"] = ResolvedOpen ? "open" : "closed";
+        attributes["aria-expanded"] = ResolvedOpen ? "true" : "false";
+        attributes["tabindex"] = Disabled ? -1 : 0;
 
         if (Disabled)
             attributes["disabled"] = true;
@@ -44,7 +63,47 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         hc.Add(Open);
+        hc.Add(ResolvedOpen);
         hc.Add(Disabled);
         hc.Add(ShowChevron);
+    }
+
+    private async Task HandleTriggerClick(MouseEventArgs _)
+    {
+        if (Disabled || ParentNavigationMenu is null || ParentNavigationMenuItem is null)
+            return;
+
+        await ParentNavigationMenu.ToggleItemAsync(ParentNavigationMenuItem);
+    }
+
+    private async Task HandleMouseEnter(MouseEventArgs _)
+    {
+        if (Disabled || ParentNavigationMenu is null || ParentNavigationMenuItem is null)
+            return;
+
+        await ParentNavigationMenu.OpenItemAsync(ParentNavigationMenuItem);
+    }
+
+    protected override async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (Disabled || ParentNavigationMenu is null || ParentNavigationMenuItem is null)
+        {
+            await base.HandleKeyDown(e);
+            return;
+        }
+
+        if (e.Key is "ArrowRight" or "ArrowLeft" or "Home" or "End")
+            await ParentNavigationMenu.HandleTriggerNavigationAsync(ParentNavigationMenuItem, e.Key);
+        else if (e.Key is "Enter" or " " or "ArrowDown")
+            await ParentNavigationMenu.OpenItemAsync(ParentNavigationMenuItem);
+        else if (e.Key == "Escape")
+            await ParentNavigationMenu.CloseAllAsync();
+
+        await base.HandleKeyDown(e);
+    }
+
+    internal async Task FocusAsync()
+    {
+        await _buttonRef.FocusAsync();
     }
 }

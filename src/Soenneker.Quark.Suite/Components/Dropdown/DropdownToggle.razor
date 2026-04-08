@@ -3,11 +3,12 @@
 @using Soenneker.Blazor.Extensions.EventCallback
 @implements IDropdownToggle
 
-<button @attributes="BuildAttributes()" type="button" @onclick="OnClickHandler">
+<button @attributes="BuildAttributes()" type="button" @onclick="OnClickHandler" @onkeydown="HandleToggleKeyDown" @ref="_buttonRef">
     @ChildContent
 </button>
 
 @code {
+    private ElementReference _buttonRef;
 
     /// <summary>
     /// Gets or sets whether this is a split button toggle.
@@ -23,6 +24,17 @@
 
     [CascadingParameter(Name = nameof(ParentDropdown))]
     public Dropdown? ParentDropdown { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if (firstRender)
+        {
+            ParentDropdown?.RegisterToggle(this);
+            ParentDropdown?.SetTriggerElement(_buttonRef);
+        }
+    }
 
     private async Task OnClickHandler(MouseEventArgs e)
     {
@@ -70,5 +82,21 @@
         hc.Add(IsSplit);
         hc.Add(ParentDropdown?.Visible == true);
         hc.Add(ParentDropdown?.Disabled == true);
+    }
+
+    private async Task HandleToggleKeyDown(KeyboardEventArgs e)
+    {
+        if (ParentDropdown is null || Disabled || ParentDropdown.Disabled)
+            return;
+
+        if (e.Key is "ArrowDown" or "Enter" or " ")
+            await ParentDropdown.OpenAndFocusFirstItemAsync();
+        else if (e.Key == "Escape" && ParentDropdown.Visible)
+            await ParentDropdown.Hide();
+    }
+
+    internal async Task FocusAsync()
+    {
+        await _buttonRef.FocusAsync();
     }
 }

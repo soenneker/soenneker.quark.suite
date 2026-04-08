@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace Soenneker.Quark;
 
@@ -19,6 +20,8 @@ internal sealed class TriggerContext
 
     public Func<Task>? Toggle { get; init; }
 
+    public Func<Task>? OnClick { get; init; }
+
     public Func<Task>? Open { get; init; }
 
     public Func<Task>? Close { get; init; }
@@ -30,4 +33,6 @@ internal sealed class TriggerContext
     public Func<Task>? OnFocusIn { get; init; }
 
     public Func<Task>? OnFocusOut { get; init; }
+
+    public Func<KeyboardEventArgs, Task>? OnKeyDown { get; init; }
 }

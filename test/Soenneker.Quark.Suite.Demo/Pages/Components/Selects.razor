@@ -28,6 +28,40 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Align Item With Trigger"
+                         Description="Use the default item-aligned mode or switch to popper positioning."
+                         Code="@AlignItemCode">
+                <Div class="grid gap-4 md:grid-cols-2">
+                    <Select TValue="string" @bind-SelectedValue="_selectedAlignedFruit">
+                        <SelectTrigger Class="w-full">
+                            <SelectValue Placeholder="Item aligned" />
+                        </SelectTrigger>
+                        <SelectContent Position="item-aligned">
+                            <SelectGroup>
+                                <SelectItem TValue="string" ItemValue="@("apple")" Text="Apple" />
+                                <SelectItem TValue="string" ItemValue="@("banana")" Text="Banana" />
+                                <SelectItem TValue="string" ItemValue="@("blueberry")" Text="Blueberry" />
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+
+                    <Select TValue="string" @bind-SelectedValue="_selectedPopperFruit">
+                        <SelectTrigger Class="w-full">
+                            <SelectValue Placeholder="Popper" />
+                        </SelectTrigger>
+                        <SelectContent Position="popper">
+                            <SelectGroup>
+                                <SelectItem TValue="string" ItemValue="@("apple")" Text="Apple" />
+                                <SelectItem TValue="string" ItemValue="@("banana")" Text="Banana" />
+                                <SelectItem TValue="string" ItemValue="@("blueberry")" Text="Blueberry" />
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Disabled"
                          Code="@DisabledCode">
                 <Select TValue="string" Disabled="true">
@@ -151,6 +185,29 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="RTL"
+                         Description="Select also supports right-to-left layouts."
+                         Code="@RtlCode">
+                <DirectionProvider Dir="rtl">
+                    <Div class="w-full text-right">
+                        <Select TValue="string" @bind-SelectedValue="_selectedRtlFruit">
+                            <SelectTrigger Class="w-full max-w-48">
+                                <SelectValue Placeholder="اختر فاكهة" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectItem TValue="string" ItemValue="@("apple")" Text="تفاح" />
+                                    <SelectItem TValue="string" ItemValue="@("banana")" Text="موز" />
+                                    <SelectItem TValue="string" ItemValue="@("grapes")" Text="عنب" />
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </Div>
+                </DirectionProvider>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Field"
                          Code="@FieldCode">
                 <Field Class="w-full max-w-xs">
@@ -222,8 +279,11 @@
 
 @code {
     private string? _selectedFruit;
+    private string? _selectedAlignedFruit;
+    private string? _selectedPopperFruit;
     private string? _selectedProduce;
     private string? _selectedTimezone;
+    private string? _selectedRtlFruit;
     private string? _selectedDepartment;
 
     private SelectFormModel _formModel = new();
@@ -242,6 +302,33 @@
             <SelectItem TValue=""string"" ItemValue=""@(""blueberry"")"" Text=""Blueberry"" />
             <SelectItem TValue=""string"" ItemValue=""@(""grapes"")"" Text=""Grapes"" />
             <SelectItem TValue=""string"" ItemValue=""@(""pineapple"")"" Text=""Pineapple"" />
+        </SelectGroup>
+    </SelectContent>
+</Select>";
+
+    private const string AlignItemCode =
+@"<Select TValue=""string"">
+    <SelectTrigger Class=""w-full"">
+        <SelectValue Placeholder=""Item aligned"" />
+    </SelectTrigger>
+    <SelectContent Position=""item-aligned"">
+        <SelectGroup>
+            <SelectItem TValue=""string"" ItemValue=""@(""apple"")"" Text=""Apple"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""banana"")"" Text=""Banana"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""blueberry"")"" Text=""Blueberry"" />
+        </SelectGroup>
+    </SelectContent>
+</Select>
+
+<Select TValue=""string"">
+    <SelectTrigger Class=""w-full"">
+        <SelectValue Placeholder=""Popper"" />
+    </SelectTrigger>
+    <SelectContent Position=""popper"">
+        <SelectGroup>
+            <SelectItem TValue=""string"" ItemValue=""@(""apple"")"" Text=""Apple"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""banana"")"" Text=""Banana"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""blueberry"")"" Text=""Blueberry"" />
         </SelectGroup>
     </SelectContent>
 </Select>";
@@ -352,6 +439,22 @@
     </Select>
     <FieldError>Please select a fruit.</FieldError>
 </Field>";
+
+    private const string RtlCode =
+@"<DirectionProvider Dir=""rtl"">
+    <Select TValue=""string"">
+        <SelectTrigger Class=""w-full max-w-48"">
+            <SelectValue Placeholder=""اختر فاكهة"" />
+        </SelectTrigger>
+        <SelectContent>
+            <SelectGroup>
+                <SelectItem TValue=""string"" ItemValue=""@(""apple"")"" Text=""تفاح"" />
+                <SelectItem TValue=""string"" ItemValue=""@(""banana"")"" Text=""موز"" />
+                <SelectItem TValue=""string"" ItemValue=""@(""grapes"")"" Text=""عنب"" />
+            </SelectGroup>
+        </SelectContent>
+    </Select>
+</DirectionProvider>";
 
     private const string FieldCode =
 @"<Field Class=""w-full max-w-xs"">

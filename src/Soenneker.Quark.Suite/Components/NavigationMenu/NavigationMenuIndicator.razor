@@ -7,13 +7,15 @@
 </div>
 
 @code {
+    [CascadingParameter(Name = "ParentNavigationMenu")]
+    private NavigationMenu? ParentNavigationMenu { get; set; }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "navigation-menu-indicator";
-        attributes["data-state"] = Visible ? "visible" : "hidden";
+        attributes["data-state"] = Visible || ParentNavigationMenu?.HasOpenItem == true ? "visible" : "hidden";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -26,5 +28,6 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         hc.Add(Visible);
+        hc.Add(ParentNavigationMenu?.HasOpenItem);
     }
 }

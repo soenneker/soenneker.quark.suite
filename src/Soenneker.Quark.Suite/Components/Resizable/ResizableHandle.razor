@@ -1,7 +1,11 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()">
+<div @attributes="BuildAttributes()"
+     @onpointerdown="HandlePointerDown"
+     @onpointerdown:preventDefault="true"
+     @onkeydown="HandleKeyDown"
+     @onkeydown:preventDefault="true">
     @if (WithHandle)
     {
         <div class="bg-border z-10 flex h-4 w-3 items-center justify-center rounded-xs border">
@@ -14,13 +18,68 @@
     [CascadingParameter(Name = "ParentResizablePanelGroup")]
     private ResizablePanelGroup? ParentPanelGroup { get; set; }
 
+    private ResizablePanelGroup? _registeredParentPanelGroup;
+    private int _index;
+
     /// <summary>
     /// Gets or sets whether to show a visible grip handle.
     /// </summary>
     [Parameter]
     public bool WithHandle { get; set; }
 
-    private bool IsVertical => ParentPanelGroup?.Orientation == "vertical";
+    private bool IsVertical => ParentPanelGroup?.IsVertical == true;
+    private string SeparatorOrientation => ParentPanelGroup?.GetSeparatorOrientation() ?? "vertical";
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        RegisterWithParent();
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (!ReferenceEquals(_registeredParentPanelGroup, ParentPanelGroup))
+        {
+            _registeredParentPanelGroup?.UnregisterHandle(this);
+            RegisterWithParent();
+        }
+    }
+
+    private void RegisterWithParent()
+    {
+        if (ParentPanelGroup is null)
+            return;
+
+        _registeredParentPanelGroup = ParentPanelGroup;
+        _index = ParentPanelGroup.RegisterHandle(this);
+    }
+
+    internal void SetIndex(int index)
+    {
+        if (_index == index)
+            return;
+
+        _index = index;
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandlePointerDown(PointerEventArgs e)
+    {
+        if (ParentPanelGroup is null)
+            return;
+
+        await ParentPanelGroup.StartHandleDragAsync(_index, e);
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (ParentPanelGroup is null)
+            return;
+
+        await ParentPanelGroup.HandleHandleKeyDownAsync(_index, e);
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -28,14 +87,21 @@
 
         attributes["data-slot"] = "resizable-handle";
         attributes["role"] = "separator";
-        attributes["aria-orientation"] = IsVertical ? "vertical" : "horizontal";
+        attributes["tabindex"] = 0;
+        attributes["aria-orientation"] = SeparatorOrientation;
+        attributes["aria-valuemin"] = 0;
+        attributes["aria-valuemax"] = 100;
+        attributes["aria-valuenow"] = ParentPanelGroup?.GetHandleValue(_index) ?? 50d;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-resizable-handle");
-            AppendClass(ref cls, "bg-border relative flex w-px items-center justify-center after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1");
+            AppendClass(ref cls, "bg-border relative flex shrink-0 items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1");
+
             if (IsVertical)
-                AppendClass(ref cls, "h-px w-full after:left-0 after:h-1 after:w-full after:translate-x-0 after:-translate-y-1/2 [&>div]:rotate-90");
+                AppendClass(ref cls, "h-px w-full cursor-row-resize after:absolute after:inset-x-0 after:top-1/2 after:h-1 after:-translate-y-1/2 [&>div]:rotate-90");
+            else
+                AppendClass(ref cls, "h-full w-px cursor-col-resize after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2");
         });
     }
 
@@ -44,5 +110,13 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(WithHandle);
         hc.Add(IsVertical);
+        hc.Add(_index);
+        hc.Add(SeparatorOrientation);
+    }
+
+    public override void Dispose()
+    {
+        _registeredParentPanelGroup?.UnregisterHandle(this);
+        base.Dispose();
     }
 }

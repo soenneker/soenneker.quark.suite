@@ -1,0 +1,26 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+@if (ParentCombobox?.HasVisibleItems != true)
+{
+    <div @attributes="BuildAttributes()">
+        @ChildContent
+    </div>
+}
+
+@code {
+    [CascadingParameter(Name = "ParentCombobox")]
+    private Combobox? ParentCombobox { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "combobox-empty";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-combobox-empty");
+            AppendClass(ref cls, "px-2 py-2 text-sm text-muted-foreground");
+        });
+    }
+}

@@ -1,9 +1,12 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@implements IAsyncDisposable
+
+@inject IPopoverInterop PopoverInterop
 
 @if (ParentCombobox?.Open == true)
 {
-    <div @attributes="BuildAttributes()" @onclick:stopPropagation="true">
+    <div @ref="_contentRef" @attributes="BuildAttributes()" @onclick:stopPropagation="true">
         @ChildContent
     </div>
 }
@@ -21,6 +24,28 @@
     [Parameter]
     public string Align { get; set; } = "start";
 
+    [Parameter]
+    public int AlignOffset { get; set; }
+
+    private ElementReference _contentRef;
+    private bool _positionObserverActive;
+
+    private bool UseFloatingPositioning => ParentCombobox?.HasTriggerElement == true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (ParentCombobox?.Open != true || ParentCombobox is null || !UseFloatingPositioning)
+        {
+            await StopPositionObserver();
+            return;
+        }
+
+        await PopoverInterop.ObservePosition(ParentCombobox.ContentId, ParentCombobox.TriggerElement, _contentRef, Side, Align, SideOffset);
+        _positionObserverActive = true;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -33,18 +58,50 @@
         attributes["tabindex"] = -1;
         attributes["aria-hidden"] = ParentCombobox?.Open == true ? "false" : "true";
 
+        if (ParentCombobox?.Multiple == true)
+            attributes["aria-multiselectable"] = "true";
+
         if (ParentCombobox is not null)
             attributes["id"] = ParentCombobox.ContentId;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-combobox-content");
-            AppendClass(ref cls, "absolute z-50 mt-1 max-h-96 min-w-[8rem] overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md");
+            AppendClass(ref cls, "z-50 max-h-96 min-w-[8rem] overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md");
             AppendClass(ref cls, "animate-in fade-in-0 zoom-in-95");
             AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2");
+
+            if (UseFloatingPositioning)
+            {
+                AppendClass(ref cls, "fixed");
+            }
+            else
+            {
+                AppendClass(ref cls, "absolute mt-1");
+            }
         });
 
-        attributes["style"] = Side == "bottom" ? $"top: calc(100% + {SideOffset}px); left: 0;" : $"bottom: calc(100% + {SideOffset}px); left: 0;";
+        if (UseFloatingPositioning)
+        {
+            BuildStyleAttribute(attributes, (ref sty) =>
+            {
+                AppendStyleDecl(ref sty, "top: 0");
+                AppendStyleDecl(ref sty, "left: 0");
+                AppendStyleDecl(ref sty, "visibility: hidden");
+                AppendStyleDecl(ref sty, "min-width: var(--quark-trigger-width)");
+                AppendStyleDecl(ref sty, "max-height: min(24rem, var(--quark-available-height))");
+
+                if (AlignOffset != 0)
+                    AppendStyleDecl(ref sty, $"margin-left: {AlignOffset}px");
+            });
+        }
+        else
+        {
+            string inlineStart = AlignOffset == 0 ? "0" : $"{AlignOffset}px";
+            attributes["style"] = Side == "bottom"
+                ? $"top: calc(100% + {SideOffset}px); left: {inlineStart};"
+                : $"bottom: calc(100% + {SideOffset}px); left: {inlineStart};";
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -53,6 +110,22 @@
         hc.Add(Side);
         hc.Add(SideOffset);
         hc.Add(Align);
+        hc.Add(AlignOffset);
         hc.Add(ParentCombobox?.Open ?? false);
+    }
+
+    private async ValueTask StopPositionObserver()
+    {
+        if (!_positionObserverActive || ParentCombobox is null)
+            return;
+
+        await PopoverInterop.StopObserving(ParentCombobox.ContentId);
+        _positionObserverActive = false;
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        await StopPositionObserver();
+        await base.DisposeAsync();
     }
 }

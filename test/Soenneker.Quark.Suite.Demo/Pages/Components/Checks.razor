@@ -80,12 +80,82 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Table"
+                         Code="@TableCode">
+                <TableElement>
+                    <Thead>
+                        <Tr>
+                            <Th Class="w-12">
+                                <Check Id="checkbox-table-all"
+                                       Checked="@_tableSelectAll"
+                                       Indeterminate="@_tableSelectIndeterminate"
+                                       CheckedChanged="HandleTableSelectAllChanged" />
+                            </Th>
+                            <Th>Invoice</Th>
+                            <Th>Status</Th>
+                            <Th Class="text-right">Amount</Th>
+                        </Tr>
+                    </Thead>
+                    <Tbody>
+                        <Tr>
+                            <Td>
+                                <Check Id="checkbox-table-inv001"
+                                       Checked="@_tableInvoice001"
+                                       CheckedChanged="@(value => HandleTableRowChanged(nameof(_tableInvoice001), value))" />
+                            </Td>
+                            <Td Class="font-medium">INV001</Td>
+                            <Td>Paid</Td>
+                            <Td Class="text-right">$250.00</Td>
+                        </Tr>
+                        <Tr>
+                            <Td>
+                                <Check Id="checkbox-table-inv002"
+                                       Checked="@_tableInvoice002"
+                                       CheckedChanged="@(value => HandleTableRowChanged(nameof(_tableInvoice002), value))" />
+                            </Td>
+                            <Td Class="font-medium">INV002</Td>
+                            <Td>Pending</Td>
+                            <Td Class="text-right">$150.00</Td>
+                        </Tr>
+                        <Tr>
+                            <Td>
+                                <Check Id="checkbox-table-inv003"
+                                       Checked="@_tableInvoice003"
+                                       CheckedChanged="@(value => HandleTableRowChanged(nameof(_tableInvoice003), value))" />
+                            </Td>
+                            <Td Class="font-medium">INV003</Td>
+                            <Td>Unpaid</Td>
+                            <Td Class="text-right">$350.00</Td>
+                        </Tr>
+                    </Tbody>
+                </TableElement>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Invalid"
                          Code="@InvalidCode">
                 <Field Orientation="Orientation.Horizontal" IsInvalid="true">
                     <Check Id="terms-checkbox-invalid" aria-invalid="true" />
                     <FieldLabel For="terms-checkbox-invalid">Accept terms and conditions</FieldLabel>
                 </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="RTL"
+                         Code="@RtlCode">
+                <DirectionProvider Dir="rtl">
+                    <Div class="flex flex-col gap-4 text-right">
+                        <Field Orientation="Orientation.Horizontal">
+                            <Check Id="terms-checkbox-rtl" Checked="@_rtlChecked" CheckedChanged="HandleRtlCheckedChanged" />
+                            <FieldContent>
+                                <FieldLabel For="terms-checkbox-rtl">الموافقة على الشروط والأحكام</FieldLabel>
+                                <FieldDescription>بالمتابعة، فإنك توافق على سياسات الاستخدام والخصوصية.</FieldDescription>
+                            </FieldContent>
+                        </Field>
+                    </Div>
+                </DirectionProvider>
             </DemoSection>
         </Section>
 
@@ -148,11 +218,18 @@
     private bool _showCds;
     private bool _showServers;
 
+    private bool _tableSelectAll;
+    private bool _tableSelectIndeterminate = true;
+    private bool _tableInvoice001 = true;
+    private bool _tableInvoice002;
+    private bool _tableInvoice003 = true;
+
     private bool _selectAllChecked;
     private bool _selectAllIndeterminate;
     private bool _itemRead = true;
     private bool _itemWrite;
     private bool _itemExecute;
+    private bool _rtlChecked = true;
 
     private FormModel _formModel = new();
     private string _formMessage = "";
@@ -218,11 +295,56 @@
     </FieldGroup>
 </FieldSet>";
 
+    private const string TableCode =
+@"<TableElement>
+    <Thead>
+        <Tr>
+            <Th Class=""w-12"">
+                <Check Id=""checkbox-table-all"" Checked=""@_tableSelectAll"" Indeterminate=""@_tableSelectIndeterminate"" CheckedChanged=""HandleTableSelectAllChanged"" />
+            </Th>
+            <Th>Invoice</Th>
+            <Th>Status</Th>
+            <Th Class=""text-right"">Amount</Th>
+        </Tr>
+    </Thead>
+    <Tbody>
+        <Tr>
+            <Td><Check Id=""checkbox-table-inv001"" Checked=""@_tableInvoice001"" CheckedChanged=""..."" /></Td>
+            <Td Class=""font-medium"">INV001</Td>
+            <Td>Paid</Td>
+            <Td Class=""text-right"">$250.00</Td>
+        </Tr>
+        <Tr>
+            <Td><Check Id=""checkbox-table-inv002"" Checked=""@_tableInvoice002"" CheckedChanged=""..."" /></Td>
+            <Td Class=""font-medium"">INV002</Td>
+            <Td>Pending</Td>
+            <Td Class=""text-right"">$150.00</Td>
+        </Tr>
+        <Tr>
+            <Td><Check Id=""checkbox-table-inv003"" Checked=""@_tableInvoice003"" CheckedChanged=""..."" /></Td>
+            <Td Class=""font-medium"">INV003</Td>
+            <Td>Unpaid</Td>
+            <Td Class=""text-right"">$350.00</Td>
+        </Tr>
+    </Tbody>
+</TableElement>";
+
     private const string InvalidCode =
 @"<Field Orientation=""Orientation.Horizontal"" IsInvalid=""true"">
     <Check Id=""terms-checkbox-invalid"" aria-invalid=""true"" />
     <FieldLabel For=""terms-checkbox-invalid"">Accept terms and conditions</FieldLabel>
 </Field>";
+
+    private const string RtlCode =
+@"<DirectionProvider Dir=""rtl"">
+    <Field Orientation=""Orientation.Horizontal"">
+        <Check Id=""terms-checkbox-rtl"" Checked=""@_rtlChecked"" CheckedChanged=""HandleRtlCheckedChanged"" />
+        <FieldContent>
+            <FieldLabel For=""terms-checkbox-rtl"">الموافقة على الشروط والأحكام</FieldLabel>
+            <FieldDescription>بالمتابعة، فإنك توافق على سياسات الاستخدام والخصوصية.</FieldDescription>
+        </FieldContent>
+    </Field>
+</DirectionProvider>";
 
     private const string IndeterminateCode =
 @"<Check Checked=""_selectAllChecked"" CheckedChanged=""HandleSelectAllChanged"" Indeterminate=""_selectAllIndeterminate"" Id=""select-all"">
@@ -253,6 +375,7 @@
     protected override void OnInitialized()
     {
         UpdateSelectAll();
+        UpdateTableSelectAll();
     }
 
     private void HandleSelectAllChanged(bool value)
@@ -262,6 +385,16 @@
         _itemRead = value;
         _itemWrite = value;
         _itemExecute = value;
+    }
+
+    private Task HandleTableSelectAllChanged(bool value)
+    {
+        _tableSelectAll = value;
+        _tableSelectIndeterminate = false;
+        _tableInvoice001 = value;
+        _tableInvoice002 = value;
+        _tableInvoice003 = value;
+        return Task.CompletedTask;
     }
 
     private void HandlePermissionChanged(string permission, bool value)
@@ -282,12 +415,45 @@
         UpdateSelectAll();
     }
 
+    private Task HandleTableRowChanged(string row, bool value)
+    {
+        switch (row)
+        {
+            case nameof(_tableInvoice001):
+                _tableInvoice001 = value;
+                break;
+            case nameof(_tableInvoice002):
+                _tableInvoice002 = value;
+                break;
+            case nameof(_tableInvoice003):
+                _tableInvoice003 = value;
+                break;
+        }
+
+        UpdateTableSelectAll();
+        return Task.CompletedTask;
+    }
+
+    private Task HandleRtlCheckedChanged(bool value)
+    {
+        _rtlChecked = value;
+        return Task.CompletedTask;
+    }
+
     private void UpdateSelectAll()
     {
         var all = _itemRead && _itemWrite && _itemExecute;
         var none = !_itemRead && !_itemWrite && !_itemExecute;
         _selectAllChecked = all;
         _selectAllIndeterminate = !all && !none;
+    }
+
+    private void UpdateTableSelectAll()
+    {
+        var all = _tableInvoice001 && _tableInvoice002 && _tableInvoice003;
+        var none = !_tableInvoice001 && !_tableInvoice002 && !_tableInvoice003;
+        _tableSelectAll = all;
+        _tableSelectIndeterminate = !all && !none;
     }
 
     private void HandleValidSubmit()

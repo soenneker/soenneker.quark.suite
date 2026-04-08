@@ -123,6 +123,30 @@
                 </AlertDialogContent>
             </AlertDialog>
         </DemoSection>
+
+        <DemoSection Title="RTL"
+                     Description="Alert dialogs should also read naturally in right-to-left layouts."
+                     Code="@RtlCode">
+            <DirectionProvider Dir="rtl">
+                <AlertDialog @bind-Visible="_showRtlAlert" CloseOnBackdropClick="false" CloseOnEscape="false">
+                    <AlertDialogTrigger>
+                        <Button Variant="ButtonVariant.Outline">اعرض الحوار</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>هل أنت متأكد تمامًا؟</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                لا يمكن التراجع عن هذا الإجراء. سيؤدي هذا إلى حذف حسابك نهائيًا وإزالة بياناتك من خوادمنا.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                            <AlertDialogAction OnAction="HandleContinue">متابعة</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </DirectionProvider>
+        </DemoSection>
     </Section>
 </Div>
 
@@ -132,6 +156,7 @@
     private bool _showSmallAlert;
     private bool _showMediaAlert;
     private bool _showSmallMediaAlert;
+    private bool _showRtlAlert;
 
     private Task HandleContinue() => Task.CompletedTask;
     private Task HandleDelete() => Task.CompletedTask;
@@ -184,4 +209,25 @@
         </AlertDialogFooter>
     </AlertDialogContent>
 </AlertDialog>";
+
+    private const string RtlCode =
+@"<DirectionProvider Dir=""rtl"">
+    <AlertDialog @bind-Visible=""showRtl"" CloseOnBackdropClick=""false"" CloseOnEscape=""false"">
+        <AlertDialogTrigger>
+            <Button Variant=""ButtonVariant.Outline"">اعرض الحوار</Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>هل أنت متأكد تمامًا؟</AlertDialogTitle>
+                <AlertDialogDescription>
+                    لا يمكن التراجع عن هذا الإجراء.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                <AlertDialogAction>متابعة</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+</DirectionProvider>";
 }

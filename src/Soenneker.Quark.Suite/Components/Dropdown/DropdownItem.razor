@@ -1,21 +1,24 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 @implements IDropdownItem
+@implements IDropdownFocusableItem
 
 @if (IsLink)
 {
-    <a @attributes="BuildAttributes()" @onclick="OnClickHandler">
+    <a @attributes="BuildAttributes()" @onclick="OnClickHandler" @onkeydown="HandleMenuKeyDown" @ref="_elementRef">
         @ChildContent
     </a>
 }
 else
 {
-    <button @attributes="BuildAttributes()" type="button" @onclick="OnClickHandler">
+    <button @attributes="BuildAttributes()" type="button" @onclick="OnClickHandler" @onkeydown="HandleMenuKeyDown" @ref="_elementRef">
         @ChildContent
     </button>
 }
 
 @code {
+    private ElementReference _elementRef;
+
     [Parameter]
     public bool Inset { get; set; }
 
@@ -29,7 +32,7 @@ else
     /// Gets or sets whether the dropdown item should be rendered as a link.
     /// </summary>
     [Parameter]
-    public bool IsLink { get; set; } = true;
+    public bool IsLink { get; set; }
 
     /// <summary>
     /// Gets or sets the href attribute for the link.
@@ -58,6 +61,24 @@ else
     [CascadingParameter(Name = nameof(ParentDropdown))]
     public Dropdown? ParentDropdown { get; set; }
 
+    [CascadingParameter(Name = "DropdownNavigationSub")]
+    private DropdownSub? NavigationSub { get; set; }
+
+    bool IDropdownFocusableItem.IsDisabledForNavigation => Disabled;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if (!firstRender)
+            return;
+
+        if (NavigationSub is not null)
+            NavigationSub.RegisterItem(this);
+        else
+            ParentDropdown?.RegisterItem(this);
+    }
+
     private async Task OnClickHandler(MouseEventArgs e)
     {
         if (Disabled)
@@ -79,14 +100,14 @@ else
         attributes["role"] = "menuitem";
         attributes["tabindex"] = -1;
 
-        //if (Inset.Value.)
-        //    attributes["data-inset"] = "true";
+        if (Inset)
+            attributes["data-inset"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-dropdown-item");
             AppendClass(ref cls, "relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground");
-            AppendClass(ref cls, "data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8");
+            AppendClass(ref cls, "data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 rtl:data-[inset]:pl-2 rtl:data-[inset]:pr-8");
             AppendClass(ref cls, "data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground data-[variant=destructive]:*:[svg]:text-destructive!");
         });
@@ -122,5 +143,46 @@ else
         hc.Add(Target);
         hc.Add(Inset);
         hc.Add(Variant);
+    }
+
+    private async Task HandleMenuKeyDown(KeyboardEventArgs e)
+    {
+        if (ParentDropdown is null)
+            return;
+
+        if (e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
+        {
+            if (NavigationSub is not null)
+                await NavigationSub.HandleItemNavigationAsync(this, e.Key);
+            else
+                await ParentDropdown.HandleItemNavigationAsync(this, e.Key);
+        }
+        else if (e.Key == "ArrowLeft" && NavigationSub is not null)
+            await NavigationSub.CloseAndFocusTriggerAsync();
+        else if (e.Key == "Escape")
+        {
+            if (NavigationSub is not null)
+                await NavigationSub.CloseAndFocusTriggerAsync();
+            else
+            {
+                await ParentDropdown.Hide();
+                await ParentDropdown.FocusTriggerAsync();
+            }
+        }
+    }
+
+    async Task IDropdownFocusableItem.FocusAsync()
+    {
+        await _elementRef.FocusAsync();
+    }
+
+    public override void Dispose()
+    {
+        if (NavigationSub is not null)
+            NavigationSub.UnregisterItem(this);
+        else
+            ParentDropdown?.UnregisterItem(this);
+
+        base.Dispose();
     }
 }

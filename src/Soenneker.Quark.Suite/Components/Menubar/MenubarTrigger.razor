@@ -1,13 +1,32 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
-<button @attributes="BuildAttributes()">
+<button @attributes="BuildAttributes()" @onkeydown="HandleKeyDown" @ref="_elementRef">
     @ChildContent
 </button>
 
 @code {
+    private ElementReference _elementRef;
+
     [Parameter]
     public bool Open { get; set; }
+
+    [CascadingParameter(Name = "ParentMenubar")]
+    private Menubar? ParentMenubar { get; set; }
+
+    [CascadingParameter(Name = "ParentMenubarMenu")]
+    private MenubarMenu? ParentMenubarMenu { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if (firstRender)
+        {
+            ParentMenubarMenu?.RegisterTrigger(this);
+            ParentMenubar?.RegisterTrigger(this);
+        }
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -19,7 +38,7 @@
         attributes["role"] = "menuitem";
         attributes["aria-haspopup"] = "menu";
         attributes["aria-expanded"] = Open ? "true" : "false";
-        attributes["tabindex"] = -1;
+        attributes["tabindex"] = Disabled ? -1 : 0;
 
         if (Disabled)
             attributes["disabled"] = true;
@@ -35,5 +54,37 @@
     {
         hc.Add(Open);
         hc.Add(Disabled);
+    }
+
+    protected override async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (ParentMenubar is not null && e.Key is "ArrowRight" or "ArrowLeft" or "Home" or "End")
+            await ParentMenubar.HandleTriggerNavigationAsync(this, e.Key);
+        else if (ParentMenubarMenu is not null)
+        {
+            if (e.Key is "ArrowDown" or "Enter" or " ")
+                await ParentMenubarMenu.FocusFirstItemAsync();
+            else if (e.Key == "ArrowUp")
+                await ParentMenubarMenu.FocusLastItemAsync();
+        }
+
+        await base.HandleKeyDown(e);
+    }
+
+    internal async Task FocusAsync()
+    {
+        await _elementRef.FocusAsync();
+    }
+
+    internal async Task FocusMenuFirstItemAsync()
+    {
+        if (ParentMenubarMenu is not null)
+            await ParentMenubarMenu.FocusFirstItemAsync();
+    }
+
+    public override void Dispose()
+    {
+        ParentMenubar?.UnregisterTrigger(this);
+        base.Dispose();
     }
 }

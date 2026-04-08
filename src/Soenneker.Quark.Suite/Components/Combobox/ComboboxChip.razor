@@ -1,0 +1,56 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<span @attributes="BuildAttributes()">
+    @ChildContent
+    @if (ShowRemove)
+    {
+        <button type="button" @onclick="HandleRemoveClick" @onmousedown:preventDefault="true" class="inline-flex items-center justify-center rounded-sm p-0.5 hover:bg-black/10 dark:hover:bg-white/10" tabindex="-1" aria-label="Remove selection">
+            <Icon Name="LucideIcon.X" Class="size-3" />
+        </button>
+    }
+</span>
+
+@code {
+    [Parameter]
+    public string Value { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool ShowRemove { get; set; } = true;
+
+    [CascadingParameter(Name = "ParentCombobox")]
+    private Combobox? ParentCombobox { get; set; }
+
+    private async Task HandleRemoveClick(MouseEventArgs _)
+    {
+        if (ParentCombobox is null || ParentCombobox.Disabled)
+            return;
+
+        await ParentCombobox.RemoveValueAsync(Value);
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "combobox-chip";
+        attributes["data-value"] = Value;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-combobox-chip");
+            AppendClass(ref cls, "inline-flex items-center gap-1 rounded-sm bg-muted px-2 py-1 text-sm text-foreground");
+
+            if (ParentCombobox?.Disabled == true)
+                AppendClass(ref cls, "pointer-events-none opacity-50");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Value);
+        hc.Add(ShowRemove);
+        hc.Add(ParentCombobox?.Disabled);
+    }
+}

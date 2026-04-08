@@ -2,17 +2,149 @@
 @inherits Soenneker.Quark.Element
 @implements INavigationMenu
 
-<nav @attributes="BuildAttributes()">
-    @ChildContent
-    @if (Viewport)
-    {
-        <NavigationMenuViewport />
-    }
-</nav>
+<CascadingValue Name="ParentNavigationMenu" Value="@this" IsFixed="true">
+    <nav @attributes="BuildAttributes()" @onmouseleave="HandleMouseLeave">
+        @ChildContent
+        @if (Viewport)
+        {
+            <NavigationMenuViewport />
+        }
+    </nav>
+</CascadingValue>
 
 @code {
+    private readonly List<NavigationMenuEntry> _entries = [];
+    private NavigationMenuItem? _openItem;
+
     [Parameter]
-    public bool Viewport { get; set; } = true;
+    public bool Viewport { get; set; }
+
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
+
+    internal void RegisterItem(NavigationMenuItem item)
+    {
+        if (_entries.Any(entry => ReferenceEquals(entry.Item, item)))
+            return;
+
+        _entries.Add(new NavigationMenuEntry { Item = item });
+        Refresh();
+    }
+
+    internal void UnregisterItem(NavigationMenuItem item)
+    {
+        var entry = _entries.FirstOrDefault(candidate => ReferenceEquals(candidate.Item, item));
+        if (entry is null)
+            return;
+
+        _entries.Remove(entry);
+
+        if (ReferenceEquals(_openItem, item))
+            _openItem = null;
+
+        Refresh();
+    }
+
+    internal void RegisterTrigger(NavigationMenuItem item, NavigationMenuTrigger trigger)
+    {
+        var entry = _entries.FirstOrDefault(candidate => ReferenceEquals(candidate.Item, item));
+        if (entry is not null)
+            entry.Trigger = trigger;
+    }
+
+    internal bool IsItemOpen(NavigationMenuItem item)
+    {
+        return ReferenceEquals(_openItem, item);
+    }
+
+    internal bool HasOpenItem => _openItem is not null;
+
+    internal async Task OpenItemAsync(NavigationMenuItem item)
+    {
+        if (item.Disabled)
+            return;
+
+        if (!ReferenceEquals(_openItem, item))
+        {
+            _openItem = item;
+            await RefreshOffThread();
+        }
+    }
+
+    internal async Task CloseItemAsync(NavigationMenuItem item)
+    {
+        if (!ReferenceEquals(_openItem, item))
+            return;
+
+        _openItem = null;
+        await RefreshOffThread();
+    }
+
+    internal async Task ToggleItemAsync(NavigationMenuItem item)
+    {
+        if (ReferenceEquals(_openItem, item))
+            await CloseItemAsync(item);
+        else
+            await OpenItemAsync(item);
+    }
+
+    internal async Task CloseAllAsync()
+    {
+        if (_openItem is null)
+            return;
+
+        _openItem = null;
+        await RefreshOffThread();
+    }
+
+    private async Task HandleMouseLeave(MouseEventArgs _)
+    {
+        await CloseAllAsync();
+    }
+
+    internal async Task HandleTriggerNavigationAsync(NavigationMenuItem currentItem, string key)
+    {
+        var enabledEntries = _entries.Where(entry => !entry.IsDisabled && entry.Trigger is not null).ToList();
+        if (enabledEntries.Count == 0)
+            return;
+
+        var currentIndex = enabledEntries.FindIndex(entry => ReferenceEquals(entry.Item, currentItem));
+        if (currentIndex < 0)
+            return;
+
+        var nextIndex = key switch
+        {
+            "Home" => 0,
+            "End" => enabledEntries.Count - 1,
+            "ArrowRight" when IsHorizontalRtl() => (currentIndex - 1 + enabledEntries.Count) % enabledEntries.Count,
+            "ArrowLeft" when IsHorizontalRtl() => (currentIndex + 1) % enabledEntries.Count,
+            "ArrowRight" => (currentIndex + 1) % enabledEntries.Count,
+            "ArrowLeft" => (currentIndex - 1 + enabledEntries.Count) % enabledEntries.Count,
+            _ => -1
+        };
+
+        if (nextIndex < 0)
+            return;
+
+        var nextEntry = enabledEntries[nextIndex];
+        await OpenItemAsync(nextEntry.Item);
+        await nextEntry.FocusTriggerAsync();
+    }
+
+    private bool IsHorizontalRtl()
+    {
+        if (string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (Attributes is not null &&
+            Attributes.TryGetValue("dir", out var dirValue) &&
+            string.Equals(dirValue?.ToString(), "rtl", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return false;
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -20,6 +152,7 @@
 
         attributes["data-slot"] = "navigation-menu";
         attributes["data-viewport"] = Viewport ? "true" : "false";
+        attributes["dir"] = IsHorizontalRtl() ? "rtl" : "ltr";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -31,5 +164,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         hc.Add(Viewport);
+        hc.Add(_openItem?.Id);
+        hc.Add(DirectionProviderDir);
     }
 }

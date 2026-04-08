@@ -2,7 +2,13 @@
 @inherits Soenneker.Quark.Element
 @using Microsoft.AspNetCore.Components.Routing
 
-@if (ShouldRenderNavLink)
+@if (AsChild)
+{
+    <CascadingValue Name="@SlotAttributes.Name" Value="BuildSlotAttributes()" IsFixed="false">
+        @ChildContent
+    </CascadingValue>
+}
+else if (ShouldRenderNavLink)
 {
     <NavLink href="@To"
              Match="@Match"
@@ -37,6 +43,9 @@ else
     [Parameter]
     public NavLinkMatch Match { get; set; }
 
+    [Parameter]
+    public bool AsChild { get; set; }
+
     [CascadingParameter(Name = "SidebarProvider")]
     public SidebarProvider? SidebarProvider { get; set; }
 
@@ -68,6 +77,11 @@ else
         });
     }
 
+    private IReadOnlyDictionary<string, object> BuildSlotAttributes()
+    {
+        return BuildAttributes();
+    }
+
     private async Task HandleActivate(MouseEventArgs args)
     {
         if (To.HasContent() && State?.IsMobile == true && SidebarProvider is not null)
@@ -83,6 +97,7 @@ else
         hc.Add(Size);
         hc.Add(Active);
         hc.Add(Match);
+        hc.Add(AsChild);
         hc.Add(State?.IsMobile);
     }
 }

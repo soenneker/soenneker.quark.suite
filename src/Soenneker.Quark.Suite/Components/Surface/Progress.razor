@@ -7,9 +7,10 @@
      role="progressbar"
      aria-valuemin="0"
      aria-valuemax="@Max"
-     aria-valuenow="@ProgressValue">
+     aria-valuenow="@GetAriaValueNow()"
+     aria-valuetext="@GetAriaValueText()">
     <div data-slot="progress-indicator"
-         class="q-progress-indicator bg-primary h-full w-full flex-1 transition-all"
+         class="@GetIndicatorClass()"
          style="@GetIndicatorStyle()"></div>
 </div>
 
@@ -21,6 +22,18 @@
     public int ProgressValue { get; set; }
 
     /// <summary>
+    /// Gets or sets whether the progress should render as an indeterminate loading state.
+    /// </summary>
+    [Parameter]
+    public bool Indeterminate { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ARIA value text announced for indeterminate progress.
+    /// </summary>
+    [Parameter]
+    public string? AriaValueText { get; set; }
+
+    /// <summary>
     /// Gets or sets the maximum value for ARIA semantics.
     /// </summary>
     [Parameter]
@@ -28,16 +41,41 @@
 
     private string GetIndicatorStyle()
     {
+        if (Indeterminate)
+            return "width: 40%;";
+
         var val = ProgressValue;
         if (val < 0) val = 0;
         if (val > Max) val = Max;
         var pct = Max > 0 ? (val * 100.0 / Max) : 0;
-        return $"transform: translateX(-{100 - pct:F0}%);";
+        return $"width: {pct:F0}%;";
+    }
+
+    private string GetIndicatorClass()
+    {
+        return Indeterminate
+            ? "q-progress-indicator absolute inset-y-0 left-0 rtl:left-auto rtl:right-0 bg-primary h-full animate-pulse rounded-full transition-all"
+            : "q-progress-indicator absolute inset-y-0 left-0 rtl:left-auto rtl:right-0 bg-primary h-full rounded-full transition-all";
+    }
+
+    private string? GetAriaValueNow()
+    {
+        return Indeterminate ? null : ProgressValue.ToString();
+    }
+
+    private string? GetAriaValueText()
+    {
+        if (!Indeterminate)
+            return null;
+
+        return AriaValueText.HasContent() ? AriaValueText : "Loading";
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "progress";
+        attributes["data-state"] = Indeterminate ? "indeterminate" : "complete";
 
         // shadcn Progress root - new-york-v4 ui/progress.tsx
         BuildClassAttribute(attributes, (ref cls) =>
@@ -45,11 +83,14 @@
             AppendClass(ref cls, "q-progress");
             AppendClass(ref cls, "bg-primary/20 relative h-2 w-full overflow-hidden rounded-full");
         });
+
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         hc.Add(ProgressValue);
         hc.Add(Max);
+        hc.Add(Indeterminate);
+        hc.Add(AriaValueText);
     }
 }

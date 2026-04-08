@@ -1,7 +1,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<button @ref="_triggerRef" type="button" @onclick="OnTriggerClick" @attributes="BuildAttributes()">
+<button @ref="_triggerRef" type="button" @onclick="OnTriggerClick" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
     @ChildContent
     <svg class="pointer-events-none size-4 opacity-50 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="m6 9 6 6 6-6"></path>
@@ -29,6 +29,17 @@
             await Context.ToggleAsync();
     }
 
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (Context?.IsDisabled() == true || Context is null)
+            return;
+
+        if (e.Key is "ArrowDown" or "Enter" or " ")
+            await Context.OpenFirstAsync();
+        else if (e.Key == "ArrowUp")
+            await Context.OpenLastAsync();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -41,6 +52,7 @@
         if (Context is not null)
             attributes["aria-controls"] = Context.ContentId;
         attributes["aria-expanded"] = Context?.IsOpen() == true ? "true" : "false";
+        attributes["aria-activedescendant"] = Context?.ActiveItemId() ?? string.Empty;
 
         if (Context?.IsDisabled() == true)
             attributes["disabled"] = true;

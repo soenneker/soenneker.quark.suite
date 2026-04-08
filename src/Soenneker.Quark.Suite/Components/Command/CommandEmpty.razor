@@ -1,9 +1,15 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()">@ChildContent</div>
+@if (ParentCommand?.HasVisibleItems != true)
+{
+    <div @attributes="BuildAttributes()">@ChildContent</div>
+}
 
 @code {
+    [CascadingParameter(Name = "ParentCommand")]
+    private Command? ParentCommand { get; set; }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -14,5 +20,11 @@
         {
             AppendClass(ref cls, "q-command-empty py-6 text-center text-sm");
         });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ParentCommand?.HasVisibleItems);
     }
 }

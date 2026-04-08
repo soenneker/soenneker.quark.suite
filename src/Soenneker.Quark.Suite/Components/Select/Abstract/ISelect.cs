@@ -46,11 +46,6 @@ public interface ISelect<TValue> : IElement
     CssValue<SizeBuilder>? Size { get; set; }
 
     /// <summary>
-    /// Gets or sets whether multiple selection is allowed.
-    /// </summary>
-    bool Multiple { get; set; }
-
-    /// <summary>
     /// Gets or sets the placeholder text displayed When no option is selected.
     /// </summary>
     string? Placeholder { get; set; }

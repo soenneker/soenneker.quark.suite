@@ -1,10 +1,16 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
-<div @attributes="BuildWrapperAttributes()">
+<div @ref="_wrapperRef" @attributes="BuildWrapperAttributes()">
+    @if (ChildContent is not null)
+    {
+        @ChildContent
+    }
     <input value="@GetDisplayValue()"
            @oninput="HandleInput"
            @onfocus="HandleFocus"
+           @onkeydown="HandleKeyDown"
+           @onkeydown:preventDefault="_preventDefaultKeys"
            @attributes="BuildAttributes()" />
     <button type="button" @onclick="ToggleOpen" @attributes="BuildButtonAttributes()">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
@@ -15,9 +21,21 @@
     [CascadingParameter(Name = "ParentCombobox")]
     private Combobox? ParentCombobox { get; set; }
 
+    private bool _preventDefaultKeys;
+    private ElementReference _wrapperRef;
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        ParentCombobox?.SetTriggerElement(_wrapperRef);
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
     private string GetDisplayValue()
     {
         if (ParentCombobox == null) return "";
+        if (ParentCombobox.Multiple)
+            return ParentCombobox.Search ?? "";
+
         return ParentCombobox.Open ? (ParentCombobox.Search ?? "") : (ParentCombobox.Value ?? "");
     }
 
@@ -31,16 +49,29 @@
         }
     }
 
-    private async Task HandleFocus(FocusEventArgs _)
+    protected override async Task HandleFocus(FocusEventArgs e)
     {
         if (ParentCombobox != null && !ParentCombobox.Disabled)
             await ParentCombobox.SetOpen(true);
+
+        await base.HandleFocus(e);
     }
 
     private async Task ToggleOpen(MouseEventArgs _)
     {
         if (ParentCombobox != null)
             await ParentCombobox.SetOpen(!ParentCombobox.Open);
+    }
+
+    protected override async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        bool preventBackspace = e.Key == "Backspace" && ParentCombobox?.Multiple == true && (ParentCombobox.Search.IsNullOrEmpty());
+        _preventDefaultKeys = e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End" or "Enter" or "Escape" || preventBackspace;
+
+        if (ParentCombobox != null && _preventDefaultKeys)
+            await ParentCombobox.HandleInputKeyDownAsync(e.Key);
+
+        await base.HandleKeyDown(e);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -53,6 +84,7 @@
         attributes["autocomplete"] = "off";
         attributes["aria-autocomplete"] = "list";
         attributes["aria-expanded"] = ParentCombobox?.Open == true ? "true" : "false";
+        attributes["aria-activedescendant"] = ParentCombobox?.ActiveItemId ?? string.Empty;
 
         if (ParentCombobox is not null)
         {
@@ -63,7 +95,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-combobox-input");
-            AppendClass(ref cls, "h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 pr-10 text-base shadow-xs transition-[color,box-shadow] outline-none");
+            AppendClass(ref cls, "h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 pr-10 rtl:pr-3 rtl:pl-10 text-base shadow-xs transition-[color,box-shadow] outline-none");
             AppendClass(ref cls, "placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30");
             AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50");
             AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40");
@@ -108,7 +140,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-combobox-trigger");
-            AppendClass(ref cls, "text-muted-foreground absolute inset-y-0 right-0 inline-flex items-center justify-center px-3");
+            AppendClass(ref cls, "text-muted-foreground absolute inset-y-0 right-0 rtl:right-auto rtl:left-0 inline-flex items-center justify-center px-3");
         });
 
         return attributes;

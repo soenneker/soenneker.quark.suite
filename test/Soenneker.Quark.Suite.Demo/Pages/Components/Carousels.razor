@@ -3,67 +3,269 @@
 <PageTitle>Carousel - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
-    <Div Space="Space.Y.Is6">
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Card carousel"
-                         Description="Adapted from the shadcn carousel demo with numbered cards inside the carousel shell."
-                         Code="@CarouselCode">
-                <Div Class="mx-auto w-full max-w-sm px-12">
-                    <Carousel>
-                        <CarouselContent>
-                            @for (var index = 1; index <= 5; index++)
-                            {
-                                <CarouselItem>
+    <Section Space="Space.Y.Is3">
+        <H1 class="text-3xl font-semibold tracking-tight">Carousel</H1>
+        <Paragraph class="max-w-3xl text-sm text-muted-foreground">
+            A carousel with motion and swipe-inspired navigation. The examples below now follow the rendered shadcn carousel docs, using the same example ordering
+            and covering sizes, spacing, orientation, options, and API state.
+        </Paragraph>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Demo"
+                     Description="The default numbered-card carousel from the shadcn docs."
+                     Code="@DemoCode"
+                     CodeLanguage="razor">
+            <Div Class="mx-auto w-full max-w-xs px-12">
+                <Carousel Class="w-full max-w-xs">
+                    <CarouselContent>
+                        @for (var index = 1; index <= 5; index++)
+                        {
+                            <CarouselItem>
+                                <Div class="p-1">
                                     <Card>
                                         <CardBody Class="flex aspect-square items-center justify-center p-6">
                                             <Span Class="text-4xl font-semibold">@index</Span>
                                         </CardBody>
                                     </Card>
-                                </CarouselItem>
-                            }
-                        </CarouselContent>
-                        <CarouselPrevious />
-                        <CarouselNext />
-                    </Carousel>
-                </Div>
-            </DemoSection>
-        </Section>
+                                </Div>
+                            </CarouselItem>
+                        }
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                </Carousel>
+            </Div>
+        </DemoSection>
+    </Section>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Vertical orientation"
-                         Description="Switch the orientation to vertical for stacked slide layouts.">
-                <Div Class="mx-auto h-96 w-full max-w-sm px-12">
-                    <Carousel Orientation="vertical" Class="h-full">
-                        <CarouselContent Class="h-full">
-                            @for (var index = 1; index <= 3; index++)
-                            {
-                                <CarouselItem>
-                                    <Card Class="h-full">
-                                        <CardBody Class="flex h-full flex-col justify-between p-6">
-                                            <Div Space="Space.Y.Is2">
-                                                <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" TextColor="TextColor.MutedForeground">Slide @index</Paragraph>
-                                                <H3 class="text-xl font-semibold">Release checkpoint</H3>
-                                                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Use vertical carousels for stacked announcements, playlists, or timeline snapshots.</Paragraph>
-                                            </Div>
-                                            <Button Variant="ButtonVariant.Outline">Review</Button>
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Sizes"
+                     Description="Use basis utility classes on `CarouselItem` to match the shadcn size examples."
+                     Code="@SizesCode"
+                     CodeLanguage="razor">
+            <Div Class="mx-auto w-full max-w-sm px-12">
+                <Carousel Class="w-full max-w-sm">
+                    <CarouselContent>
+                        @for (var index = 1; index <= 5; index++)
+                        {
+                            <CarouselItem Class="md:basis-1/2 lg:basis-1/3">
+                                <Div class="p-1">
+                                    <Card>
+                                        <CardBody Class="flex aspect-square items-center justify-center p-6">
+                                            <Span Class="text-3xl font-semibold">@index</Span>
                                         </CardBody>
                                     </Card>
-                                </CarouselItem>
-                            }
-                        </CarouselContent>
-                        <CarouselPrevious />
-                        <CarouselNext />
-                    </Carousel>
+                                </Div>
+                            </CarouselItem>
+                        }
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                </Carousel>
+            </Div>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Spacing"
+                     Description="Adjust `CarouselContent` and `CarouselItem` spacing with the same negative-margin plus padding pattern used in shadcn."
+                     Code="@SpacingCode"
+                     CodeLanguage="razor">
+            <Div Class="mx-auto w-full max-w-sm px-12">
+                <Carousel Class="w-full max-w-sm">
+                    <CarouselContent Class="-ml-1">
+                        @for (var index = 1; index <= 5; index++)
+                        {
+                            <CarouselItem Class="pl-1 md:basis-1/2 lg:basis-1/3">
+                                <Div class="p-1">
+                                    <Card>
+                                        <CardBody Class="flex aspect-square items-center justify-center p-6">
+                                            <Span Class="text-2xl font-semibold">@index</Span>
+                                        </CardBody>
+                                    </Card>
+                                </Div>
+                            </CarouselItem>
+                        }
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                </Carousel>
+            </Div>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Orientation"
+                     Description="Switch the orientation to vertical for stacked slide layouts."
+                     Code="@OrientationCode"
+                     CodeLanguage="razor">
+            <Div Class="mx-auto w-full max-w-xs px-12">
+                <Carousel Orientation="vertical" Class="w-full max-w-xs">
+                    <CarouselContent Class="-mt-1 h-[200px]">
+                        @for (var index = 1; index <= 5; index++)
+                        {
+                            <CarouselItem Class="pt-1 md:basis-1/2">
+                                <Div class="p-1">
+                                    <Card>
+                                        <CardBody Class="flex items-center justify-center p-6">
+                                            <Span Class="text-3xl font-semibold">@index</Span>
+                                        </CardBody>
+                                    </Card>
+                                </Div>
+                            </CarouselItem>
+                        }
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                </Carousel>
+            </Div>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Options"
+                     Description="Quark exposes the most visible carousel option directly with `Loop=true`, enabling wrap-around navigation."
+                     Code="@OptionsCode"
+                     CodeLanguage="razor">
+            <Div Class="mx-auto w-full max-w-xs px-12">
+                <Carousel Loop="true" Class="w-full max-w-xs">
+                    <CarouselContent>
+                        @for (var index = 1; index <= 4; index++)
+                        {
+                            <CarouselItem>
+                                <Div class="p-1">
+                                    <Card>
+                                        <CardBody Class="flex aspect-square items-center justify-center p-6">
+                                            <Span Class="text-3xl font-semibold">@index</Span>
+                                        </CardBody>
+                                    </Card>
+                                </Div>
+                            </CarouselItem>
+                        }
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                </Carousel>
+            </Div>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="API"
+                     Description="@($"Slide {_carouselCurrent} of {_carouselCount}. The API callback now lets the page subscribe to selection changes.")"
+                     Code="@ApiCode"
+                     CodeLanguage="razor">
+            <Div Class="mx-auto max-w-xs">
+                <Carousel SetApi="HandleCarouselApi" Class="w-full max-w-xs">
+                    <CarouselContent>
+                        @for (var index = 1; index <= 5; index++)
+                        {
+                            <CarouselItem>
+                                <Card>
+                                    <CardBody Class="flex aspect-square items-center justify-center p-6">
+                                        <Span Class="text-4xl font-semibold">@index</Span>
+                                    </CardBody>
+                                </Card>
+                            </CarouselItem>
+                        }
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                </Carousel>
+                <Div class="py-2 text-center text-sm text-muted-foreground">
+                    Slide @_carouselCurrent of @_carouselCount
                 </Div>
-            </DemoSection>
-        </Section>
-    </Div>
+            </Div>
+        </DemoSection>
+    </Section>
 </Div>
 
 @code {
-    private const string CarouselCode =
-@"<Carousel>
+    private const string DemoCode =
+@"<Carousel Class=""w-full max-w-xs"">
     <CarouselContent>
+        @for (var index = 1; index <= 5; index++)
+        {
+            <CarouselItem>
+                <Div class=""p-1"">
+                    <Card>
+                        <CardBody Class=""flex aspect-square items-center justify-center p-6"">
+                            <Span Class=""text-4xl font-semibold"">@index</Span>
+                        </CardBody>
+                    </Card>
+                </Div>
+            </CarouselItem>
+        }
+    </CarouselContent>
+    <CarouselPrevious />
+    <CarouselNext />
+</Carousel>";
+
+    private const string SizesCode =
+@"<Carousel Class=""w-full max-w-sm"">
+    <CarouselContent>
+        @for (var index = 1; index <= 5; index++)
+        {
+            <CarouselItem Class=""md:basis-1/2 lg:basis-1/3"">
+                <Div class=""p-1"">
+                    <Card>
+                        <CardBody Class=""flex aspect-square items-center justify-center p-6"">
+                            <Span Class=""text-3xl font-semibold"">@index</Span>
+                        </CardBody>
+                    </Card>
+                </Div>
+            </CarouselItem>
+        }
+    </CarouselContent>
+    <CarouselPrevious />
+    <CarouselNext />
+</Carousel>";
+
+    private const string SpacingCode =
+@"<Carousel Class=""w-full max-w-sm"">
+    <CarouselContent Class=""-ml-1"">
+        @for (var index = 1; index <= 5; index++)
+        {
+            <CarouselItem Class=""pl-1 md:basis-1/2 lg:basis-1/3"">
+                <Div class=""p-1"">
+                    <Card>
+                        <CardBody Class=""flex aspect-square items-center justify-center p-6"">
+                            <Span Class=""text-2xl font-semibold"">@index</Span>
+                        </CardBody>
+                    </Card>
+                </Div>
+            </CarouselItem>
+        }
+    </CarouselContent>
+    <CarouselPrevious />
+    <CarouselNext />
+</Carousel>";
+
+    private const string OrientationCode =
+@"<Carousel Orientation=""vertical"" Class=""w-full max-w-xs"">
+    <CarouselContent Class=""-mt-1 h-[200px]"">
+        @for (var index = 1; index <= 5; index++)
+        {
+            <CarouselItem Class=""pt-1 md:basis-1/2"">
+                <Div class=""p-1"">
+                    <Card>
+                        <CardBody Class=""flex items-center justify-center p-6"">
+                            <Span Class=""text-3xl font-semibold"">@index</Span>
+                        </CardBody>
+                    </Card>
+                </Div>
+            </CarouselItem>
+        }
+    </CarouselContent>
+    <CarouselPrevious />
+    <CarouselNext />
+</Carousel>";
+
+    private const string OptionsCode =
+@"<Carousel Loop=""true"" Class=""w-full max-w-xs"">
+    <CarouselContent>
+        <CarouselItem>...</CarouselItem>
         <CarouselItem>...</CarouselItem>
         <CarouselItem>...</CarouselItem>
         <CarouselItem>...</CarouselItem>
@@ -71,4 +273,49 @@
     <CarouselPrevious />
     <CarouselNext />
 </Carousel>";
+
+    private const string ApiCode =
+@"<Carousel SetApi=""HandleCarouselApi"" Class=""w-full max-w-xs"">
+    <CarouselContent>
+        @for (var index = 1; index <= 5; index++)
+        {
+            <CarouselItem>...</CarouselItem>
+        }
+    </CarouselContent>
+    <CarouselPrevious />
+    <CarouselNext />
+</Carousel>";
+
+    private CarouselApi? _carouselApi;
+    private int _carouselCurrent = 1;
+    private int _carouselCount = 5;
+
+    private void HandleCarouselApi(CarouselApi api)
+    {
+        if (!ReferenceEquals(_carouselApi, api))
+        {
+            if (_carouselApi is not null)
+                _carouselApi.Select -= OnCarouselSelect;
+
+            _carouselApi = api;
+            _carouselApi.Select += OnCarouselSelect;
+        }
+
+        UpdateCarouselState();
+    }
+
+    private void OnCarouselSelect()
+    {
+        UpdateCarouselState();
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateCarouselState()
+    {
+        if (_carouselApi is null)
+            return;
+
+        _carouselCount = _carouselApi.ScrollSnapList().Count;
+        _carouselCurrent = _carouselCount == 0 ? 0 : _carouselApi.SelectedScrollSnap() + 1;
+    }
 }

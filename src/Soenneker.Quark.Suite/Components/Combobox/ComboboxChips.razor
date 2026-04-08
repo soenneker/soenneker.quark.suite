@@ -1,0 +1,35 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @ref="_wrapperRef" @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    private ElementReference _wrapperRef;
+
+    [CascadingParameter(Name = "ParentCombobox")]
+    private Combobox? ParentCombobox { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        ParentCombobox?.SetTriggerElement(_wrapperRef);
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "combobox-chips";
+        attributes["role"] = "group";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-combobox-chips");
+            AppendClass(ref cls, "border-input relative flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border bg-transparent px-2 py-1 shadow-xs transition-[color,box-shadow] outline-none dark:bg-input/30");
+            AppendClass(ref cls, "has-[[data-combobox-slot=combobox-chip-input]:focus-visible]:border-ring has-[[data-combobox-slot=combobox-chip-input]:focus-visible]:ring-ring/50 has-[[data-combobox-slot=combobox-chip-input]:focus-visible]:ring-[3px]");
+            AppendClass(ref cls, "has-[[data-combobox-slot=combobox-chip-input][aria-invalid=true]]:ring-destructive/20 has-[[data-combobox-slot=combobox-chip-input][aria-invalid=true]]:border-destructive dark:has-[[data-combobox-slot=combobox-chip-input][aria-invalid=true]]:ring-destructive/40");
+        });
+    }
+}

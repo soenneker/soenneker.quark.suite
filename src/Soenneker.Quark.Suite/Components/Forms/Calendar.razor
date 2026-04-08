@@ -5,28 +5,104 @@
 @inherits Soenneker.Quark.FormControlElement
 
 <div @attributes="BuildAttributes()">
-    <div class="q-calendar-header flex items-center justify-between mb-4">
-        <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" OnClick="PrevMonth" aria-label="Previous month">‹</Button>
-        <div class="q-calendar-title font-semibold text-sm">@_displayMonth.ToString("MMMM yyyy", CultureInfo.CurrentUICulture)</div>
-        <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" OnClick="NextMonth" aria-label="Next month">›</Button>
-    </div>
-    <div class="q-calendar-weekdays flex mb-2">
-        @foreach (var dow in _dayNames)
+    <div class="q-calendar-months flex flex-col gap-4 md:flex-row">
+        @for (var monthIndex = 0; monthIndex < Math.Max(NumberOfMonths, 1); monthIndex++)
         {
-            <div class="q-calendar-weekday flex-1 text-center text-muted-foreground text-xs font-normal">@dow</div>
-        }
-    </div>
-    <div class="q-calendar-grid grid grid-cols-7 gap-1">
-        @foreach (var day in BuildMonthCells())
-        {
-            var css = "q-calendar-day relative flex aspect-square w-full items-center justify-center rounded-md text-sm";
-            if (!day.InMonth) css += " text-muted-foreground";
-            if (day.Date == DateOnly.FromDateTime(DateTime.Today)) css += " bg-accent text-accent-foreground";
-            if (EffectiveSelectedDate.HasValue && day.Date == EffectiveSelectedDate.Value) css += " bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground";
-            else css += " hover:bg-accent hover:text-accent-foreground";
-            if (day.Disabled) css += " opacity-50 pointer-events-none";
+            var month = _displayMonth.AddMonths(monthIndex);
+            var weeks = BuildMonthWeeks(month);
 
-            <button type="button" class="@css" disabled="@day.Disabled" @onclick="() => SelectDate(day.Date)">@day.Date.Day</button>
+            <div class="q-calendar-month flex flex-col gap-4">
+                <div class="q-calendar-header mb-4 flex items-center justify-between">
+                    @if (monthIndex == 0)
+                    {
+                        <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" OnClick="PrevMonth" aria-label="Previous month">‹</Button>
+                    }
+                    else
+                    {
+                        <span class="inline-flex size-8"></span>
+                    }
+
+                    @if (CaptionLayout == "dropdown")
+                    {
+                        <div class="q-calendar-title flex items-center gap-2">
+                            <select class="h-8 rounded-md border border-input bg-background px-2 text-sm" value="@month.Month" @onchange="OnMonthChanged">
+                                @foreach (var optionMonth in Enumerable.Range(1, 12))
+                                {
+                                    <option value="@optionMonth">@GetMonthLabel(optionMonth)</option>
+                                }
+                            </select>
+                            <select class="h-8 rounded-md border border-input bg-background px-2 text-sm" value="@month.Year" @onchange="OnYearChanged">
+                                @foreach (var year in GetSelectableYears())
+                                {
+                                    <option value="@year">@year</option>
+                                }
+                            </select>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="q-calendar-title text-sm font-semibold">@month.ToString("MMMM yyyy", ResolveCulture())</div>
+                    }
+
+                    @if (monthIndex == Math.Max(NumberOfMonths, 1) - 1)
+                    {
+                        <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" OnClick="NextMonth" aria-label="Next month">›</Button>
+                    }
+                    else
+                    {
+                        <span class="inline-flex size-8"></span>
+                    }
+                </div>
+
+                <div class="q-calendar-weekdays grid mb-2 @(ShowWeekNumber ? "grid-cols-8" : "grid-cols-7")">
+                    @if (ShowWeekNumber)
+                    {
+                        <div class="q-calendar-week-number-header text-center text-xs font-normal text-muted-foreground">Wk</div>
+                    }
+
+                    @foreach (var dow in _dayNames)
+                    {
+                        <div class="q-calendar-weekday text-center text-xs font-normal text-muted-foreground">@dow</div>
+                    }
+                </div>
+
+                <div class="q-calendar-grid grid gap-1 @(ShowWeekNumber ? "grid-cols-8" : "grid-cols-7")">
+                    @foreach (var week in weeks)
+                    {
+                        @if (ShowWeekNumber)
+                        {
+                            <div class="q-calendar-week-number flex aspect-square items-center justify-center text-xs text-muted-foreground">
+                                @GetWeekNumber(week[0].Date)
+                            </div>
+                        }
+
+                        @foreach (var day in week)
+                        {
+                            var dayContext = BuildDayContext(day);
+                            var css = "q-calendar-day relative flex aspect-square w-full items-center justify-center rounded-md text-sm";
+                            if (!day.InMonth) css += " text-muted-foreground";
+                            if (dayContext.IsToday) css += " bg-accent text-accent-foreground";
+                            if (dayContext.IsRangeStart || dayContext.IsRangeEnd) css += " bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground";
+                            else if (dayContext.IsRangeMiddle) css += " bg-accent/70 text-accent-foreground";
+                            else if (dayContext.IsSelected) css += " bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground";
+                            else css += " hover:bg-accent hover:text-accent-foreground";
+                            if (day.Disabled) css += " opacity-50 pointer-events-none";
+                            css = AppendModifierClasses(css, dayContext.Modifiers);
+
+                            <button type="button" class="@css" disabled="@day.Disabled" @onclick="() => SelectDate(day.Date)">
+                                @if (DayContent is not null)
+                                {
+                                    @DayContent(dayContext)
+                                }
+                                else
+                                {
+                                    @day.Date.Day
+                                }
+                            </button>
+                        }
+                    }
+                </div>
+            </div>
         }
     </div>
 </div>
@@ -37,6 +113,21 @@
 
     [Parameter]
     public EventCallback<DateOnly?> SelectedDateChanged { get; set; }
+
+    [Parameter]
+    public DateOnly[]? SelectedDates { get; set; }
+
+    [Parameter]
+    public EventCallback<DateOnly[]> SelectedDatesChanged { get; set; }
+
+    [Parameter]
+    public CalendarSelectionMode Mode { get; set; } = CalendarSelectionMode.Single;
+
+    [Parameter]
+    public CalendarDateRange? SelectedRange { get; set; }
+
+    [Parameter]
+    public EventCallback<CalendarDateRange?> SelectedRangeChanged { get; set; }
 
     [Parameter]
     public DateOnly? DisplayMonth { get; set; }
@@ -71,10 +162,41 @@
     [Parameter]
     public bool ShowOutsideDays { get; set; } = true;
 
+    [Parameter]
+    public int NumberOfMonths { get; set; } = 1;
+
+    [Parameter]
+    public bool ShowWeekNumber { get; set; }
+
+    [Parameter]
+    public bool FixedWeeks { get; set; } = true;
+
+    [Parameter]
+    public string CaptionLayout { get; set; } = "label";
+
+    [Parameter]
+    public string? CultureName { get; set; }
+
+    [Parameter]
+    public DateOnly[]? DisabledDates { get; set; }
+
+    [Parameter]
+    public Dictionary<string, Func<DateOnly, bool>>? Modifiers { get; set; }
+
+    [Parameter]
+    public Dictionary<string, string>? ModifierClasses { get; set; }
+
+    [Parameter]
+    public RenderFragment<CalendarDayContext>? DayContent { get; set; }
+
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
     private string[] _dayNames = [];
     private bool _initialized;
+    private bool IsRangeMode => Mode == CalendarSelectionMode.Range;
+    private bool IsMultipleMode => Mode == CalendarSelectionMode.Multiple;
     private DateOnly? EffectiveSelectedDate => SelectedDate ?? DateOnlyValue;
+    private CalendarDateRange? EffectiveSelectedRange => SelectedRange;
+    private IReadOnlyList<DateOnly> EffectiveSelectedDates => SelectedDates ?? [];
 
     protected override void OnInitialized()
     {
@@ -85,8 +207,9 @@
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
+        InitializeDayNames();
 
-        if (SelectedDate is null && DateOnlyValue.HasValue)
+        if (!IsRangeMode && SelectedDate is null && DateOnlyValue.HasValue)
             SelectedDate = DateOnlyValue;
 
         if (DisplayMonth.HasValue)
@@ -98,7 +221,11 @@
 
         if (!_initialized)
         {
-            var initialDate = EffectiveSelectedDate ?? DateOnly.FromDateTime(DateTime.Today);
+            var initialDate = IsRangeMode
+                ? EffectiveSelectedRange?.From ?? EffectiveSelectedRange?.To ?? DateOnly.FromDateTime(DateTime.Today)
+                : IsMultipleMode
+                    ? EffectiveSelectedDates.FirstOrDefault(DateOnly.FromDateTime(DateTime.Today))
+                    : EffectiveSelectedDate ?? DateOnly.FromDateTime(DateTime.Today);
             _displayMonth = new DateOnly(initialDate.Year, initialDate.Month, 1);
             _initialized = true;
         }
@@ -106,7 +233,7 @@
 
     private void InitializeDayNames()
     {
-        var culture = CultureInfo.CurrentCulture;
+        var culture = ResolveCulture();
         var first = culture.DateTimeFormat.FirstDayOfWeek;
         var names = culture.DateTimeFormat.AbbreviatedDayNames;
         _dayNames = Enumerable.Range(0, 7).Select(i => names[((int)first + i) % 7]).ToArray();
@@ -114,34 +241,220 @@
 
     private record Cell(DateOnly Date, bool InMonth, bool Disabled);
 
-    private IEnumerable<Cell> BuildMonthCells()
+    private List<List<Cell>> BuildMonthWeeks(DateOnly month)
     {
-        var firstOfMonth = new DateOnly(_displayMonth.Year, _displayMonth.Month, 1);
-        var culture = CultureInfo.CurrentCulture;
+        var firstOfMonth = new DateOnly(month.Year, month.Month, 1);
+        var culture = ResolveCulture();
         var startDow = culture.DateTimeFormat.FirstDayOfWeek;
         var offset = ((int)firstOfMonth.DayOfWeek - (int)startDow + 7) % 7;
         var gridStart = firstOfMonth.AddDays(-offset);
+        var weeks = new List<List<Cell>>(6);
+        var currentWeek = new List<Cell>(7);
 
         for (var i = 0; i < 42; i++)
         {
             var d = gridStart.AddDays(i);
-            var inMonth = d.Month == _displayMonth.Month;
-            var disabled = (Min.HasValue && d < Min.Value) || (Max.HasValue && d > Max.Value);
+            var inMonth = d.Month == month.Month;
+            var disabled = (Min.HasValue && d < Min.Value) ||
+                           (Max.HasValue && d > Max.Value) ||
+                           (DisabledDates?.Contains(d) == true);
             if (!ShowOutsideDays && !inMonth)
                 disabled = true;
-            yield return new Cell(d, inMonth, disabled);
+
+            currentWeek.Add(new Cell(d, inMonth, disabled));
+
+            if (currentWeek.Count == 7)
+            {
+                weeks.Add(currentWeek);
+                currentWeek = new List<Cell>(7);
+            }
         }
+
+        if (!FixedWeeks)
+        {
+            var lastWeekWithMonthDays = weeks.FindLastIndex(week => week.Any(cell => cell.InMonth));
+            if (lastWeekWithMonthDays >= 0)
+                weeks = weeks.Take(lastWeekWithMonthDays + 1).ToList();
+        }
+
+        return weeks;
     }
 
     private async Task SelectDate(DateOnly date)
     {
-        if ((Min.HasValue && date < Min.Value) || (Max.HasValue && date > Max.Value)) return;
+        if ((Min.HasValue && date < Min.Value) || (Max.HasValue && date > Max.Value) || (DisabledDates?.Contains(date) == true))
+            return;
+
+        if (IsRangeMode)
+        {
+            var nextRange = BuildNextRange(date);
+            SelectedRange = nextRange;
+            await SelectedRangeChanged.InvokeAsync(nextRange);
+            InvalidateRender();
+            Refresh();
+            return;
+        }
+
+        if (IsMultipleMode)
+        {
+            var values = EffectiveSelectedDates.ToList();
+            var existingIndex = values.FindIndex(candidate => candidate == date);
+
+            if (existingIndex >= 0)
+                values.RemoveAt(existingIndex);
+            else
+                values.Add(date);
+
+            SelectedDates = values.ToArray();
+            await SelectedDatesChanged.InvokeAsync(SelectedDates);
+            InvalidateRender();
+            Refresh();
+            return;
+        }
+
         SelectedDate = date;
         DateOnlyValue = date;
         await SelectedDateChanged.InvokeAsync(SelectedDate);
         await ValueChanged.InvokeAsync(DateOnlyValue);
         InvalidateRender();
         Refresh();
+    }
+
+    private CalendarDateRange BuildNextRange(DateOnly date)
+    {
+        if (SelectedRange?.From is null || SelectedRange.To is not null)
+            return new CalendarDateRange(date, null);
+
+        if (date < SelectedRange.From.Value)
+            return new CalendarDateRange(date, SelectedRange.From.Value);
+
+        return new CalendarDateRange(SelectedRange.From.Value, date);
+    }
+
+    private bool IsDateInRange(DateOnly date)
+    {
+        if (EffectiveSelectedRange?.From is null || EffectiveSelectedRange.To is null)
+            return false;
+
+        return date > EffectiveSelectedRange.From.Value && date < EffectiveSelectedRange.To.Value;
+    }
+
+    private bool IsRangeEndpoint(DateOnly date)
+    {
+        if (EffectiveSelectedRange?.From is null)
+            return false;
+
+        return date == EffectiveSelectedRange.From.Value || (EffectiveSelectedRange.To.HasValue && date == EffectiveSelectedRange.To.Value);
+    }
+
+    private bool IsDateSelected(DateOnly date)
+    {
+        if (IsMultipleMode)
+            return EffectiveSelectedDates.Contains(date);
+
+        return EffectiveSelectedDate.HasValue && date == EffectiveSelectedDate.Value;
+    }
+
+    private int GetWeekNumber(DateOnly date)
+    {
+        var culture = ResolveCulture();
+        return culture.Calendar.GetWeekOfYear(date.ToDateTime(TimeOnly.MinValue), culture.DateTimeFormat.CalendarWeekRule, culture.DateTimeFormat.FirstDayOfWeek);
+    }
+
+    private async Task OnMonthChanged(ChangeEventArgs args)
+    {
+        if (!int.TryParse(args.Value?.ToString(), out var month))
+            return;
+
+        _displayMonth = new DateOnly(_displayMonth.Year, month, 1);
+        await DisplayMonthChanged.InvokeAsync(_displayMonth);
+        InvalidateRender();
+        Refresh();
+    }
+
+    private async Task OnYearChanged(ChangeEventArgs args)
+    {
+        if (!int.TryParse(args.Value?.ToString(), out var year))
+            return;
+
+        _displayMonth = new DateOnly(year, _displayMonth.Month, 1);
+        await DisplayMonthChanged.InvokeAsync(_displayMonth);
+        InvalidateRender();
+        Refresh();
+    }
+
+    private IEnumerable<int> GetSelectableYears()
+    {
+        int minYear = Min?.Year ?? (_displayMonth.Year - 10);
+        int maxYear = Max?.Year ?? (_displayMonth.Year + 10);
+
+        return Enumerable.Range(minYear, maxYear - minYear + 1);
+    }
+
+    private string GetMonthLabel(int month)
+    {
+        return ResolveCulture().DateTimeFormat.GetMonthName(month);
+    }
+
+    private CultureInfo ResolveCulture()
+    {
+        if (CultureName.IsNullOrEmpty())
+            return CultureInfo.CurrentCulture;
+
+        try
+        {
+            return CultureInfo.GetCultureInfo(CultureName);
+        }
+        catch (CultureNotFoundException)
+        {
+            return CultureInfo.CurrentCulture;
+        }
+    }
+
+    private CalendarDayContext BuildDayContext(Cell day)
+    {
+        var modifiers = GetModifierNames(day.Date);
+
+        return new CalendarDayContext(
+            day.Date,
+            day.InMonth,
+            day.Disabled,
+            day.Date == DateOnly.FromDateTime(DateTime.Today),
+            IsDateSelected(day.Date),
+            EffectiveSelectedRange?.From == day.Date,
+            EffectiveSelectedRange?.To == day.Date,
+            IsDateInRange(day.Date),
+            modifiers);
+    }
+
+    private List<string> GetModifierNames(DateOnly date)
+    {
+        if (Modifiers is null || Modifiers.Count == 0)
+            return [];
+
+        var matches = new List<string>();
+
+        foreach (var pair in Modifiers)
+        {
+            if (pair.Value.Invoke(date))
+                matches.Add(pair.Key);
+        }
+
+        return matches;
+    }
+
+    private string AppendModifierClasses(string css, IReadOnlyList<string> modifiers)
+    {
+        if (ModifierClasses is null || modifiers.Count == 0)
+            return css;
+
+        foreach (var modifier in modifiers)
+        {
+            if (ModifierClasses.TryGetValue(modifier, out string? classes) && !classes.IsNullOrEmpty())
+                css += $" {classes}";
+        }
+
+        return css;
     }
 
     private async Task PrevMonth()
@@ -177,11 +490,30 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(SelectedDate);
+        hc.Add(Mode);
+        hc.Add(SelectedRange?.From);
+        hc.Add(SelectedRange?.To);
         hc.Add(DateOnlyValue);
         hc.Add(Min);
         hc.Add(Max);
         hc.Add(_displayMonth);
         hc.Add(DisplayMonth);
         hc.Add(ShowOutsideDays);
+        hc.Add(NumberOfMonths);
+        hc.Add(ShowWeekNumber);
+        hc.Add(FixedWeeks);
+        hc.Add(CaptionLayout);
+        hc.Add(CultureName);
+        hc.Add(DisabledDates?.Length ?? 0);
+        hc.Add(Modifiers?.Count ?? 0);
+        hc.Add(ModifierClasses?.Count ?? 0);
+
+        if (SelectedDates is not null)
+        {
+            foreach (DateOnly selectedDate in SelectedDates)
+            {
+                hc.Add(selectedDate);
+            }
+        }
     }
 }

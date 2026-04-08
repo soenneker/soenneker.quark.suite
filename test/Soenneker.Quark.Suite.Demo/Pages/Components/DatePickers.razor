@@ -33,6 +33,64 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Range Picker"
+                         Description="Use a range calendar inside the popover when users need a start and end date from the same picker."
+                         Code="@(@"<Popover Open=""_rangeCalendarOpen"" OpenChanged=""OnRangeCalendarOpenChanged"">
+    <PopoverTrigger>
+        <Button Variant=""ButtonVariant.Outline"">@FormatRange(_rangeDate)</Button>
+    </PopoverTrigger>
+    <PopoverContent Class=""w-auto p-0"">
+        <Calendar Mode=""CalendarSelectionMode.Range"" SelectedRange=""_rangeDate"" SelectedRangeChanged=""OnRangeDateChanged"" NumberOfMonths=""2"" />
+    </PopoverContent>
+</Popover>")">
+                <Div Class="flex min-h-[16rem] w-full max-w-sm flex-col items-center justify-center gap-4 text-center">
+                    <Label Form="true">Pick a date range</Label>
+                    <Popover Open="_rangeCalendarOpen" OpenChanged="OnRangeCalendarOpenChanged">
+                        <PopoverTrigger>
+                            <Button Variant="ButtonVariant.Outline" Class="w-[280px] justify-start text-left font-normal">@FormatRange(_rangeDate)</Button>
+                        </PopoverTrigger>
+                        <PopoverContent Class="w-auto p-0">
+                            <Calendar Mode="CalendarSelectionMode.Range"
+                                      SelectedRange="_rangeDate"
+                                      SelectedRangeChanged="OnRangeDateChanged"
+                                      NumberOfMonths="2" />
+                        </PopoverContent>
+                    </Popover>
+                    <Div Class="value-chip" Margin="Margin.Is0">
+                        <Span Class="dot"></Span><Span>Value: @FormatRange(_rangeDate)</Span>
+                    </Div>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="With Dropdowns"
+                         Description="Use the calendar caption dropdown layout when users need direct month and year selection."
+                         Code="@(@"<Popover Open=""_dropdownPickerOpen"" OpenChanged=""OnDropdownPickerOpenChanged"">
+    <PopoverTrigger>
+        <Button Variant=""ButtonVariant.Outline"">@FormatDate(_dropdownPickerDate)</Button>
+    </PopoverTrigger>
+    <PopoverContent Class=""w-auto p-0"">
+        <Calendar SelectedDate=""_dropdownPickerDate"" SelectedDateChanged=""OnDropdownPickerDateChanged"" CaptionLayout=""dropdown"" />
+    </PopoverContent>
+</Popover>")">
+                <Div Class="flex min-h-[16rem] w-full max-w-sm flex-col items-center justify-center gap-4 text-center">
+                    <Label Form="true">Pick a date with dropdowns</Label>
+                    <Popover Open="_dropdownPickerOpen" OpenChanged="OnDropdownPickerOpenChanged">
+                        <PopoverTrigger>
+                            <Button Variant="ButtonVariant.Outline" Class="w-[240px] justify-start text-left font-normal">@FormatDate(_dropdownPickerDate)</Button>
+                        </PopoverTrigger>
+                        <PopoverContent Class="w-auto p-0">
+                            <Calendar SelectedDate="_dropdownPickerDate"
+                                      SelectedDateChanged="OnDropdownPickerDateChanged"
+                                      CaptionLayout="dropdown" />
+                        </PopoverContent>
+                    </Popover>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Date of Birth"
                          Description="A bounded `Calendar` keeps date-of-birth selection limited to an allowed historical range."
                          Code="@(@"<Popover Open=""_birthdayCalendarOpen"" OpenChanged=""OnBirthdayCalendarOpenChanged"">
@@ -132,9 +190,13 @@
     private readonly DateOnly _maxDate = DateOnly.FromDateTime(DateTime.Today);
     private DateOnly? _deliveryDate = new(1995, 7, 14);
     private DateOnly? _typedDate = DateOnly.FromDateTime(DateTime.Today.AddDays(7));
+    private DateOnly? _dropdownPickerDate = DateOnly.FromDateTime(DateTime.Today.AddDays(21));
     private bool _basicCalendarOpen;
+    private bool _dropdownPickerOpen;
+    private bool _rangeCalendarOpen;
     private bool _birthdayCalendarOpen;
     private bool _inputCalendarOpen;
+    private CalendarDateRange? _rangeDate = new(DateOnly.FromDateTime(DateTime.Today), DateOnly.FromDateTime(DateTime.Today.AddDays(4)));
 
     private DateTime? _dateTime = DateTime.Now;
     private readonly DateTime _minDateTime = DateTime.Today.AddHours(9);
@@ -158,6 +220,18 @@
         return Task.CompletedTask;
     }
 
+    private Task OnDropdownPickerOpenChanged(bool value)
+    {
+        _dropdownPickerOpen = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnRangeCalendarOpenChanged(bool value)
+    {
+        _rangeCalendarOpen = value;
+        return Task.CompletedTask;
+    }
+
     private Task OnInputCalendarOpenChanged(bool value)
     {
         _inputCalendarOpen = value;
@@ -178,11 +252,39 @@
         return Task.CompletedTask;
     }
 
+    private Task OnDropdownPickerDateChanged(DateOnly? value)
+    {
+        _dropdownPickerDate = value;
+        _dropdownPickerOpen = false;
+        return Task.CompletedTask;
+    }
+
+    private Task OnRangeDateChanged(CalendarDateRange? value)
+    {
+        _rangeDate = value;
+
+        if (value?.From is not null && value.To is not null)
+            _rangeCalendarOpen = false;
+
+        return Task.CompletedTask;
+    }
+
     private Task OnTypedDateChanged(DateOnly? value)
     {
         _typedDate = value;
         _inputCalendarOpen = false;
         return Task.CompletedTask;
+    }
+
+    private static string FormatRange(CalendarDateRange? value)
+    {
+        if (value?.From is null)
+            return "Pick a date range";
+
+        if (value.To is null)
+            return value.From.Value.ToString("MMM dd, yyyy");
+
+        return $"{value.From.Value:MMM dd, yyyy} - {value.To.Value:MMM dd, yyyy}";
     }
 
 }

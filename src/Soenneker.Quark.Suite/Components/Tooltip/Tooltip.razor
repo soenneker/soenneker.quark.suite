@@ -34,7 +34,7 @@
     protected override void OnInitialized()
     {
         _open = OpenChanged.HasDelegate ? Open : DefaultOpen;
-        _context = new TooltipContext(() => _open, RequestOpenAsync, CloseAsync);
+        _context = new TooltipContext(() => _open, RequestOpenAsync, OpenImmediateAsync, CloseAsync);
     }
 
     protected override void OnParametersSet()
@@ -99,6 +99,18 @@
             return;
 
         await SetOpenAsync(false);
+    }
+
+    private async Task OpenImmediateAsync()
+    {
+        _pendingOpenCts?.Cancel();
+        _pendingOpenCts?.Dispose();
+        _pendingOpenCts = null;
+
+        if (_open)
+            return;
+
+        await SetOpenAsync(true);
     }
 
     private async Task SetOpenAsync(bool open)

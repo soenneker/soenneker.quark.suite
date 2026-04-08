@@ -29,6 +29,11 @@ public interface ISliderInterop : IAsyncDisposable
         DotNetObjectReference<Slider> callbackReference, int thumbIndex, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Returns whether the slider track is rendered in a right-to-left direction.
+    /// </summary>
+    ValueTask<bool> IsDirectionRtl(ElementReference track, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Stops any active drag tracking.
     /// </summary>
     ValueTask StopDrag(CancellationToken cancellationToken = default);

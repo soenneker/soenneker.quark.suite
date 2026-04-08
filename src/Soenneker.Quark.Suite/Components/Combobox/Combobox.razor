@@ -1,5 +1,6 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
+@implements IAsyncDisposable
 
 <CascadingValue Name="ParentCombobox" Value="@this" IsFixed="true">
     <div @attributes="BuildAttributes()" @onfocusout="HandleFocusOut">
@@ -9,9 +10,21 @@
 
 @code {
     private readonly string _comboboxId = $"combobox-{Guid.NewGuid():N}";
+    private readonly List<ComboboxItem> _items = [];
+    private ElementReference _triggerElement;
+    private bool _hasTriggerElement;
 
     [Parameter]
     public EventCallback<string?> ValueChanged { get; set; }
+
+    [Parameter]
+    public bool Multiple { get; set; }
+
+    [Parameter]
+    public string[]? Values { get; set; }
+
+    [Parameter]
+    public EventCallback<string[]> ValueChangedMultiple { get; set; }
 
     [Parameter]
     public string? Search { get; set; }
@@ -25,24 +38,66 @@
     [Parameter]
     public EventCallback<bool> OpenChanged { get; set; }
 
+    [Parameter]
+    public bool AutoHighlight { get; set; }
+
     internal string InputId => $"{_comboboxId}-input";
 
     internal string ContentId => $"{_comboboxId}-listbox";
 
+    internal string? ActiveItemId => _items.FirstOrDefault(item => item.IsActiveItem)?.ItemId;
+
+    internal bool HasVisibleItems => _items.Any(item => !item.Hidden);
+
+    internal bool HasTriggerElement => _hasTriggerElement;
+
+    internal ElementReference TriggerElement => _triggerElement;
+
+    internal IReadOnlyList<string> SelectedValues => Values ?? [];
+
+    internal void SetTriggerElement(ElementReference elementReference)
+    {
+        _triggerElement = elementReference;
+        _hasTriggerElement = true;
+    }
+
     internal async Task Select(string? v)
     {
+        if (Multiple)
+        {
+            await ToggleValueAsync(v);
+            return;
+        }
+
         Value = v;
         Search = v ?? "";
         Open = false;
+        SetActiveValue(v);
         await ValueChanged.InvokeAsync(v);
+        await SearchChanged.InvokeAsync(Search);
         await OpenChanged.InvokeAsync(false);
         InvalidateRender();
         Refresh();
     }
 
+    internal bool IsSelected(string? value)
+    {
+        if (value.IsNullOrEmpty())
+            return false;
+
+        if (Multiple)
+            return Values?.Any(selected => string.Equals(selected, value, StringComparison.Ordinal)) == true;
+
+        return string.Equals(Value, value, StringComparison.Ordinal);
+    }
+
     internal async Task SetOpen(bool open)
     {
         Open = open;
+        if (open)
+            EnsureActiveItem();
+        else
+            SetActiveValue(null);
         await OpenChanged.InvokeAsync(open);
         InvalidateRender();
         Refresh();
@@ -52,8 +107,175 @@
     {
         Search = s ?? "";
         await SearchChanged.InvokeAsync(Search);
+        EnsureActiveItem();
         InvalidateRender();
         Refresh();
+    }
+
+    internal void RegisterItem(ComboboxItem item)
+    {
+        if (!_items.Contains(item))
+        {
+            _items.Add(item);
+            EnsureActiveItem();
+        }
+    }
+
+    internal void UnregisterItem(ComboboxItem item)
+    {
+        if (_items.Remove(item) && item.IsActiveItem)
+            EnsureActiveItem();
+    }
+
+    internal void SetActiveItem(ComboboxItem item)
+    {
+        if (!item.Disabled && !item.Hidden)
+        {
+            SetActiveValue(item.Value);
+            Refresh();
+        }
+    }
+
+    internal async Task HandleInputKeyDownAsync(string key)
+    {
+        switch (key)
+        {
+            case "ArrowDown":
+            case "ArrowUp":
+            case "Home":
+            case "End":
+                if (!Open)
+                    Open = true;
+
+                MoveActiveItem(key);
+                await OpenChanged.InvokeAsync(Open);
+                InvalidateRender();
+                Refresh();
+                break;
+            case "Enter":
+                var activeItem = _items.FirstOrDefault(item => item.IsActiveItem && !item.Hidden && !item.Disabled);
+                if (activeItem is not null)
+                    await Select(activeItem.Value);
+                break;
+            case "Escape":
+                await SetOpen(false);
+                break;
+            case "Backspace":
+                if (Multiple && Search.IsNullOrEmpty())
+                    await RemoveLastValueAsync();
+                break;
+        }
+    }
+
+    internal async Task RemoveValueAsync(string value)
+    {
+        if (!Multiple || value.IsNullOrEmpty())
+            return;
+
+        var list = Values?.ToList() ?? [];
+        if (!list.Remove(value))
+            return;
+
+        Values = list.ToArray();
+        await ValueChangedMultiple.InvokeAsync(Values);
+        EnsureActiveItem();
+        InvalidateRender();
+        Refresh();
+    }
+
+    private void MoveActiveItem(string key)
+    {
+        var visibleItems = _items.Where(item => !item.Hidden && !item.Disabled).ToList();
+        if (visibleItems.Count == 0)
+        {
+            SetActiveValue(null);
+            return;
+        }
+
+        var currentIndex = visibleItems.FindIndex(item => item.IsActiveItem);
+        var nextIndex = key switch
+        {
+            "Home" => 0,
+            "End" => visibleItems.Count - 1,
+            "ArrowUp" when currentIndex < 0 => visibleItems.Count - 1,
+            "ArrowDown" when currentIndex < 0 => 0,
+            "ArrowDown" => (currentIndex + 1) % visibleItems.Count,
+            "ArrowUp" => (currentIndex - 1 + visibleItems.Count) % visibleItems.Count,
+            _ => currentIndex
+        };
+
+        SetActiveValue(visibleItems[nextIndex].Value);
+    }
+
+    private void EnsureActiveItem()
+    {
+        var visibleItems = _items.Where(item => !item.Hidden && !item.Disabled).ToList();
+        if (visibleItems.Count == 0)
+        {
+            SetActiveValue(null);
+            return;
+        }
+
+        if (_items.Any(item => item.IsActiveItem && !item.Hidden && !item.Disabled))
+            return;
+
+        if (AutoHighlight)
+        {
+            SetActiveValue(visibleItems[0].Value);
+            return;
+        }
+
+        if (Value is not null)
+        {
+            var selectedItem = visibleItems.FirstOrDefault(item => string.Equals(item.Value, Value, StringComparison.Ordinal));
+            if (selectedItem is not null)
+            {
+                SetActiveValue(selectedItem.Value);
+                return;
+            }
+        }
+
+        SetActiveValue(visibleItems[0].Value);
+    }
+
+    private async Task ToggleValueAsync(string? value)
+    {
+        if (value.IsNullOrEmpty())
+            return;
+
+        var list = Values?.ToList() ?? [];
+
+        var existing = list.FirstOrDefault(selected => string.Equals(selected, value, StringComparison.Ordinal));
+
+        if (existing is not null)
+            list.Remove(existing);
+        else
+            list.Add(value);
+
+        Values = list.ToArray();
+        Search = "";
+        Open = true;
+        SetActiveValue(value);
+
+        await ValueChangedMultiple.InvokeAsync(Values);
+        await SearchChanged.InvokeAsync(Search);
+        await OpenChanged.InvokeAsync(Open);
+        InvalidateRender();
+        Refresh();
+    }
+
+    private async Task RemoveLastValueAsync()
+    {
+        if (!Multiple || Values is null || Values.Length == 0)
+            return;
+
+        await RemoveValueAsync(Values[^1]);
+    }
+
+    private void SetActiveValue(string? value)
+    {
+        foreach (var item in _items)
+            item.SetActive(string.Equals(item.Value, value, StringComparison.Ordinal));
     }
 
     private async Task HandleFocusOut(FocusEventArgs _)
@@ -85,5 +307,21 @@
         hc.Add(Search);
         hc.Add(Open);
         hc.Add(Disabled);
+        hc.Add(AutoHighlight);
+        hc.Add(Multiple);
+
+        if (Values is not null)
+        {
+            foreach (string value in Values)
+            {
+                hc.Add(value);
+            }
+        }
+    }
+
+    public override ValueTask DisposeAsync()
+    {
+        _hasTriggerElement = false;
+        return base.DisposeAsync();
     }
 }

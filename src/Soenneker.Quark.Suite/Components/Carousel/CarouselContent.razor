@@ -58,8 +58,10 @@
         BuildStyleAttribute(attrs, (ref sty) =>
         {
             var index = ParentCarousel?.CurrentIndex ?? 0;
+            var count = ParentCarousel?.ItemCount ?? 0;
             var axis = horizontal ? "X" : "Y";
-            AppendStyleDecl(ref sty, $"transform: translate{axis}(-{index * 100}%); transition: transform 300ms ease-in-out");
+            var step = count > 0 ? 100.0 / count : 0;
+            AppendStyleDecl(ref sty, $"transform: translate{axis}(-{index * step}%); transition: transform 300ms ease-in-out");
         });
         return attrs;
     }

@@ -1,5 +1,6 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using System.Linq
 
 <CascadingValue Name="ParentCarousel" Value="@this" IsFixed="true">
 <div @attributes="BuildAttributes()" role="region" aria-roledescription="carousel">
@@ -14,12 +15,38 @@
     [Parameter]
     public string Orientation { get; set; } = "horizontal";
 
+    [Parameter]
+    public bool Loop { get; set; }
+
+    [Parameter]
+    public Action<CarouselApi>? SetApi { get; set; }
+
     internal event Action? StateChanged;
+    private readonly CarouselApi _api = new();
+    private Action<CarouselApi>? _lastSetApi;
 
     internal int CurrentIndex { get; private set; }
     internal int ItemCount { get; private set; }
     internal bool CanScrollPrevious => CurrentIndex > 0;
     internal bool CanScrollNext => CurrentIndex < ItemCount - 1;
+
+    protected override void OnInitialized()
+    {
+        _api.SelectedIndexAccessor = () => CurrentIndex;
+        _api.ScrollSnapListAccessor = () => ItemCount <= 0 ? Array.Empty<int>() : Enumerable.Range(0, ItemCount).ToArray();
+        base.OnInitialized();
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (SetApi is not null && !ReferenceEquals(_lastSetApi, SetApi))
+        {
+            _lastSetApi = SetApi;
+            SetApi(_api);
+        }
+    }
 
     internal void RegisterItem()
     {
@@ -60,9 +87,9 @@
         var nextIndex = index;
 
         if (nextIndex < 0)
-            nextIndex = 0;
+            nextIndex = Loop ? ItemCount - 1 : 0;
         else if (nextIndex >= ItemCount)
-            nextIndex = ItemCount - 1;
+            nextIndex = Loop ? 0 : ItemCount - 1;
 
         if (nextIndex == CurrentIndex)
             return;
@@ -73,6 +100,7 @@
 
     private void NotifyStateChanged()
     {
+        _api.NotifySelect();
         StateChanged?.Invoke();
     }
 
@@ -94,6 +122,7 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Orientation);
+        hc.Add(Loop);
         hc.Add(CurrentIndex);
         hc.Add(ItemCount);
     }

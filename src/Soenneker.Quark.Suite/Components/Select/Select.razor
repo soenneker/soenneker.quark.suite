@@ -21,6 +21,9 @@
 </CascadingValue>
 
 @code {
+    private readonly List<ISelectFocusableItem> _items = [];
+    private ISelectFocusableItem? _activeItem;
+
     /// <summary>
     /// Gets or sets the selected value.
     /// </summary>
@@ -50,12 +53,6 @@
     /// </summary>
     [Parameter]
     public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
-
-    /// <summary>
-    /// Gets or sets whether multiple items can be selected.
-    /// </summary>
-    [Parameter]
-    public bool Multiple { get; set; }
 
     /// <summary>
     /// Gets or sets the default item text.
@@ -98,7 +95,11 @@
             IsDisabled = () => Disabled,
             IsInvalid = () => IsInvalidState,
             ToggleAsync = ToggleOpen,
+            OpenFirstAsync = OpenAndFocusFirstAsync,
+            OpenLastAsync = OpenAndFocusLastAsync,
             CloseAsync = Close,
+            FocusTriggerAsync = FocusTriggerAsync,
+            ActiveItemId = () => _activeItem?.ItemId,
             TriggerId = TriggerId,
             ContentId = ContentId
         };
@@ -133,6 +134,21 @@
     internal void RegisterItem(string value, string? text)
     {
         _registeredItems[value] = text;
+    }
+
+    internal void RegisterFocusableItem(ISelectFocusableItem item)
+    {
+        if (_items.Contains(item))
+            return;
+
+        _items.Add(item);
+        EnsureActiveItem();
+    }
+
+    internal void UnregisterFocusableItem(ISelectFocusableItem item)
+    {
+        if (_items.Remove(item) && ReferenceEquals(_activeItem, item))
+            EnsureActiveItem();
     }
 
     internal bool IsSelected(TValue? value)
@@ -174,6 +190,10 @@
             return;
 
         _open = !_open;
+        if (_open)
+            EnsureActiveItem();
+        else
+            SetActiveItem(null);
         await RefreshOffThread();
     }
 
@@ -183,7 +203,112 @@
             return;
 
         _open = false;
+        SetActiveItem(null);
         await RefreshOffThread();
+    }
+
+    internal async Task CloseFromKeyboardAsync()
+    {
+        await Close();
+        await FocusTriggerAsync();
+    }
+
+    internal async Task HandleItemNavigationAsync(ISelectFocusableItem currentItem, string key)
+    {
+        var enabledItems = _items.Where(i => !i.IsDisabledForNavigation).ToList();
+        if (enabledItems.Count == 0)
+            return;
+
+        var currentIndex = enabledItems.FindIndex(item => ReferenceEquals(item, currentItem));
+        if (currentIndex < 0)
+            return;
+
+        var nextIndex = key switch
+        {
+            "Home" => 0,
+            "End" => enabledItems.Count - 1,
+            "ArrowDown" => (currentIndex + 1) % enabledItems.Count,
+            "ArrowUp" => (currentIndex - 1 + enabledItems.Count) % enabledItems.Count,
+            _ => -1
+        };
+
+        if (nextIndex < 0)
+            return;
+
+        var nextItem = enabledItems[nextIndex];
+        SetActiveItem(nextItem);
+        await nextItem.FocusAsync();
+    }
+
+    internal void SetActiveItem(ISelectFocusableItem? item)
+    {
+        if (ReferenceEquals(_activeItem, item))
+            return;
+
+        _activeItem?.SetActive(false);
+        _activeItem = item;
+        _activeItem?.SetActive(true);
+        Refresh();
+    }
+
+    private void EnsureActiveItem()
+    {
+        var enabledItems = _items.Where(i => !i.IsDisabledForNavigation).ToList();
+        if (enabledItems.Count == 0)
+        {
+            SetActiveItem(null);
+            return;
+        }
+
+        if (_activeItem is not null && enabledItems.Contains(_activeItem))
+            return;
+
+        var selectedItem = enabledItems.FirstOrDefault(item => string.Equals(item.Value, SelectedValueString, StringComparison.Ordinal));
+        SetActiveItem(selectedItem ?? enabledItems[0]);
+    }
+
+    private async Task OpenAndFocusFirstAsync()
+    {
+        if (!_open)
+        {
+            _open = true;
+            await RefreshOffThread();
+        }
+
+        EnsureActiveItem();
+        if (_activeItem is not null)
+            await _activeItem.FocusAsync();
+    }
+
+    private async Task OpenAndFocusLastAsync()
+    {
+        var enabledItems = _items.Where(i => !i.IsDisabledForNavigation).ToList();
+        if (enabledItems.Count == 0)
+        {
+            if (!_open)
+            {
+                _open = true;
+                await RefreshOffThread();
+            }
+
+            return;
+        }
+
+        if (!_open)
+        {
+            _open = true;
+            await RefreshOffThread();
+        }
+
+        var lastItem = enabledItems[^1];
+        SetActiveItem(lastItem);
+        await lastItem.FocusAsync();
+    }
+
+    private async Task FocusTriggerAsync()
+    {
+        if (_context.HasTriggerElement)
+            await _context.TriggerElement.FocusAsync();
     }
 
     private bool HasValue()
@@ -253,7 +378,6 @@
         hc.Add(Disabled);
         hc.Add(Required);
         AddIf(ref hc, Size);
-        hc.Add(Multiple);
         hc.Add(Placeholder);
         hc.Add(DefaultItemText);
         hc.Add(DefaultItemValue);

@@ -93,6 +93,21 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="RTL"
+                         Code="@RtlCode">
+                <DirectionProvider Dir="rtl">
+                    <Field Horizontal="true" Class="max-w-sm text-right">
+                        <FieldContent>
+                            <FieldLabel For="switch-rtl">مشاركة عبر الأجهزة</FieldLabel>
+                            <FieldDescription>تتم مزامنة وضع التركيز عبر أجهزتك، ويتوقف عند مغادرة التطبيق.</FieldDescription>
+                        </FieldContent>
+                        <Switch Id="switch-rtl" Checked="@_rtlSwitchChecked" CheckedChanged="HandleRtlSwitchChanged" />
+                    </Field>
+                </DirectionProvider>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Quark-only examples</H2>
             <Paragraph TextColor="TextColor.MutedForeground">
                 These examples show additional switch APIs beyond the core examples above.
@@ -179,6 +194,17 @@
     </Field>
 </FieldGroup>";
 
+    private const string RtlCode =
+@"<DirectionProvider Dir=""rtl"">
+    <Field Horizontal=""true"" Class=""max-w-sm text-right"">
+        <FieldContent>
+            <FieldLabel For=""switch-rtl"">مشاركة عبر الأجهزة</FieldLabel>
+            <FieldDescription>تتم مزامنة وضع التركيز عبر أجهزتك، ويتوقف عند مغادرة التطبيق.</FieldDescription>
+        </FieldContent>
+        <Switch Id=""switch-rtl"" Checked=""@_rtlSwitchChecked"" CheckedChanged=""HandleRtlSwitchChanged"" />
+    </Field>
+</DirectionProvider>";
+
     private const string InlineContentCode =
 @"<Div Space=""Space.Y.Is3"">
     <Switch @bind-Checked=""_inlineContentChecked"">
@@ -189,4 +215,11 @@
 
     private bool _inlineContentChecked;
     private bool _legacyLabelChecked;
+    private bool _rtlSwitchChecked = true;
+
+    private Task HandleRtlSwitchChanged(bool value)
+    {
+        _rtlSwitchChecked = value;
+        return Task.CompletedTask;
+    }
 }

@@ -2,7 +2,16 @@
 @inherits Soenneker.Quark.Element
 @implements IItem
 
-<div @attributes="BuildAttributes()">@ChildContent</div>
+@if (AsChild)
+{
+    <CascadingValue Name="@SlotAttributes.Name" Value="BuildSlotAttributes()" IsFixed="false">
+        @ChildContent
+    </CascadingValue>
+}
+else
+{
+    <div @attributes="BuildAttributes()">@ChildContent</div>
+}
 
 @code {
     [Parameter]
@@ -10,6 +19,9 @@
 
     [Parameter]
     public ItemSize Size { get; set; } = ItemSize.Default;
+
+    [Parameter]
+    public bool AsChild { get; set; }
 
     private static string GetVariantClass(ItemVariant variant)
         => variant?.Value switch
@@ -22,6 +34,7 @@
     private static string GetSizeClass(ItemSize size)
         => size?.Value switch
         {
+            ItemSize.ExtraSmallValue => "py-2 px-3 gap-2",
             ItemSize.SmallValue => "py-3 px-4 gap-2.5",
             _ => "p-4 gap-4"
         };
@@ -33,6 +46,7 @@
         attributes["data-variant"] = Variant?.Value ?? ItemVariant.Default.Value;
         attributes["data-size"] = Size?.Value switch
         {
+            ItemSize.ExtraSmallValue => "xs",
             ItemSize.SmallValue => "sm",
             _ => "default"
         };
@@ -47,9 +61,15 @@
         });
     }
 
+    private IReadOnlyDictionary<string, object> BuildSlotAttributes()
+    {
+        return BuildAttributes();
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         hc.Add(Variant);
         hc.Add(Size);
+        hc.Add(AsChild);
     }
 }

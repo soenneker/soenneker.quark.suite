@@ -36,6 +36,9 @@
 </CascadingValue>
 
 @code {
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
+
     /// <summary>
     /// Gets or sets whether the tabs should be displayed as pills.
     /// </summary>
@@ -105,6 +108,24 @@
         return _tabs.FirstOrDefault(t => !t.Disabled && t.Name.HasContent())?.Name;
     }
 
+    private bool IsHorizontalRtl()
+    {
+        if (Vertical)
+            return false;
+
+        if (string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (Attributes is not null &&
+            Attributes.TryGetValue("dir", out var dirValue) &&
+            string.Equals(dirValue?.ToString(), "rtl", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     internal async Task HandleKeyNavigationAsync(Tab currentTab, string key)
     {
         if (_tabs.Count == 0)
@@ -122,6 +143,8 @@
         {
             "Home" => 0,
             "End" => enabledTabs.Count - 1,
+            "ArrowRight" when !Vertical && IsHorizontalRtl() => (currentIndex - 1 + enabledTabs.Count) % enabledTabs.Count,
+            "ArrowLeft" when !Vertical && IsHorizontalRtl() => (currentIndex + 1) % enabledTabs.Count,
             "ArrowRight" when !Vertical => (currentIndex + 1) % enabledTabs.Count,
             "ArrowLeft" when !Vertical => (currentIndex - 1 + enabledTabs.Count) % enabledTabs.Count,
             "ArrowDown" when Vertical => (currentIndex + 1) % enabledTabs.Count,
@@ -232,7 +255,6 @@
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "tabs";
         attributes["data-orientation"] = Vertical ? "vertical" : "horizontal";
-        attributes["dir"] = "ltr";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-tabs group/tabs flex gap-2 data-[orientation=horizontal]:flex-col");

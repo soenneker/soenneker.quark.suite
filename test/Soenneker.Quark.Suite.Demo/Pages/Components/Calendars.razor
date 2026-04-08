@@ -16,6 +16,118 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Range Calendar"
+                         Description="Use range mode when users need to choose a start and end date from the same month view."
+                         Code="@(@"<Calendar Mode=""CalendarSelectionMode.Range"" SelectedRange=""_selectedRange"" SelectedRangeChanged=""OnSelectedRangeChanged"" />")">
+                <Div Class="flex flex-col items-start gap-4">
+                    <Calendar Mode="CalendarSelectionMode.Range"
+                              SelectedRange="_selectedRange"
+                              SelectedRangeChanged="OnSelectedRangeChanged" />
+                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                        Range: @FormatRange(_selectedRange)
+                    </Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Multiple Dates"
+                         Description="Multiple mode lets users toggle several independent dates from the same calendar."
+                         Code="@(@"<Calendar Mode=""CalendarSelectionMode.Multiple"" SelectedDates=""_selectedDates"" SelectedDatesChanged=""OnSelectedDatesChanged"" />")">
+                <Div Class="flex flex-col items-start gap-4">
+                    <Calendar Mode="CalendarSelectionMode.Multiple"
+                              SelectedDates="_selectedDates"
+                              SelectedDatesChanged="OnSelectedDatesChanged" />
+                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                        Selected dates: @FormatDates(_selectedDates)
+                    </Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Week Numbers"
+                         Description="Week numbers help with scheduling and planning workflows that reference ISO-like calendar weeks."
+                         Code="@(@"<Calendar SelectedDate=""_weekNumberDate"" SelectedDateChanged=""OnWeekNumberDateChanged"" ShowWeekNumber=""true"" />")">
+                <Div Class="flex flex-col items-start gap-4">
+                    <Calendar SelectedDate="_weekNumberDate"
+                              SelectedDateChanged="OnWeekNumberDateChanged"
+                              ShowWeekNumber="true" />
+                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                        Selected date: @_weekNumberDate?.ToString("yyyy-MM-dd")
+                    </Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Multi-Month Range"
+                         Description="Increase `NumberOfMonths` to present a broader range-selection surface without changing the calendar primitive."
+                         Code="@(@"<Calendar Mode=""CalendarSelectionMode.Range"" SelectedRange=""_multiMonthRange"" SelectedRangeChanged=""OnMultiMonthRangeChanged"" NumberOfMonths=""3"" />")">
+                <Div Class="flex flex-col items-start gap-4">
+                    <Calendar Mode="CalendarSelectionMode.Range"
+                              SelectedRange="_multiMonthRange"
+                              SelectedRangeChanged="OnMultiMonthRangeChanged"
+                              NumberOfMonths="3" />
+                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                        Range: @FormatRange(_multiMonthRange)
+                    </Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Dropdown Caption"
+                         Description="Use month/year dropdowns and a culture override to match the richer shadcn calendar caption pattern."
+                         Code="@DropdownCaptionCode">
+                <Div Class="flex flex-col items-start gap-4">
+                    <Calendar SelectedDate="_dropdownCaptionDate"
+                              SelectedDateChanged="OnDropdownCaptionDateChanged"
+                              CaptionLayout="dropdown"
+                              CultureName="es-ES" />
+                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                        Selected date: @_dropdownCaptionDate?.ToString("yyyy-MM-dd")
+                    </Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Booked Dates"
+                         Description="Use modifiers plus disabled dates to style and block already-booked days."
+                         Code="@BookedDatesCode">
+                <Div Class="flex flex-col items-start gap-4">
+                    <Calendar SelectedDate="_bookedDate"
+                              SelectedDateChanged="OnBookedDateChanged"
+                              DisplayMonth="_bookedDisplayMonth"
+                              DisabledDates="_bookedDates"
+                              Modifiers="@BookedModifiers"
+                              ModifierClasses="@BookedModifierClasses" />
+                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                        Booked dates are crossed out and cannot be selected.
+                    </Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Custom Days"
+                         Description="Customize day cells with additional content such as pricing or availability cues."
+                         Code="@CustomDaysCode">
+                <Div Class="flex flex-col items-start gap-4">
+                    <Calendar Mode="CalendarSelectionMode.Range"
+                              SelectedRange="_customDayRange"
+                              SelectedRangeChanged="OnCustomDayRangeChanged"
+                              CaptionLayout="dropdown"
+                              DayContent="@RenderPricingDay" />
+                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                        Weekend dates render a higher nightly rate in the day cell.
+                    </Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Date of Birth"
                          Description="Bounds work well for birth dates and other historical-only selections."
                          Code="@(@"<Calendar SelectedDate=""_birthday"" SelectedDateChanged=""OnBirthdayChanged"" Min=""_birthdayMin"" Max=""_birthdayMax"" />")">
@@ -50,10 +162,40 @@
 
 @code {
     private DateOnly? _basicDate = DateOnly.FromDateTime(DateTime.Today);
+    private CalendarDateRange? _selectedRange = new(DateOnly.FromDateTime(DateTime.Today), DateOnly.FromDateTime(DateTime.Today.AddDays(5)));
+    private DateOnly[] _selectedDates =
+    [
+        DateOnly.FromDateTime(DateTime.Today),
+        DateOnly.FromDateTime(DateTime.Today.AddDays(2)),
+        DateOnly.FromDateTime(DateTime.Today.AddDays(5))
+    ];
+    private DateOnly? _weekNumberDate = DateOnly.FromDateTime(DateTime.Today.AddDays(10));
+    private CalendarDateRange? _multiMonthRange = new(DateOnly.FromDateTime(DateTime.Today.AddDays(12)), DateOnly.FromDateTime(DateTime.Today.AddDays(42)));
+    private DateOnly? _dropdownCaptionDate = DateOnly.FromDateTime(DateTime.Today.AddDays(14));
+    private readonly DateOnly _bookedDisplayMonth = new(DateTime.Today.Year, DateTime.Today.Month, 1);
+    private DateOnly[] _bookedDates =
+    [
+        DateOnly.FromDateTime(DateTime.Today.AddDays(3)),
+        DateOnly.FromDateTime(DateTime.Today.AddDays(4)),
+        DateOnly.FromDateTime(DateTime.Today.AddDays(8)),
+        DateOnly.FromDateTime(DateTime.Today.AddDays(9))
+    ];
+    private DateOnly? _bookedDate = DateOnly.FromDateTime(DateTime.Today.AddDays(12));
+    private CalendarDateRange? _customDayRange = new(DateOnly.FromDateTime(DateTime.Today.AddDays(20)), DateOnly.FromDateTime(DateTime.Today.AddDays(27)));
     private readonly DateOnly _birthdayMin = new(1940, 1, 1);
     private readonly DateOnly _birthdayMax = DateOnly.FromDateTime(DateTime.Today);
     private DateOnly? _birthday = new(1992, 4, 12);
     private DateOnly? _focusedMonthDate = DateOnly.FromDateTime(DateTime.Today.AddDays(3));
+
+    private Dictionary<string, Func<DateOnly, bool>> BookedModifiers => new()
+    {
+        ["booked"] = date => _bookedDates.Contains(date)
+    };
+
+    private static Dictionary<string, string> BookedModifierClasses => new()
+    {
+        ["booked"] = "line-through opacity-100"
+    };
 
     private Task OnBasicDateChanged(DateOnly? value)
     {
@@ -67,9 +209,97 @@
         return Task.CompletedTask;
     }
 
+    private Task OnSelectedRangeChanged(CalendarDateRange? value)
+    {
+        _selectedRange = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnSelectedDatesChanged(DateOnly[] value)
+    {
+        _selectedDates = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnWeekNumberDateChanged(DateOnly? value)
+    {
+        _weekNumberDate = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnMultiMonthRangeChanged(CalendarDateRange? value)
+    {
+        _multiMonthRange = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnDropdownCaptionDateChanged(DateOnly? value)
+    {
+        _dropdownCaptionDate = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnBookedDateChanged(DateOnly? value)
+    {
+        _bookedDate = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnCustomDayRangeChanged(CalendarDateRange? value)
+    {
+        _customDayRange = value;
+        return Task.CompletedTask;
+    }
+
     private Task OnFocusedMonthDateChanged(DateOnly? value)
     {
         _focusedMonthDate = value;
         return Task.CompletedTask;
     }
+
+    private static string FormatRange(CalendarDateRange? value)
+    {
+        if (value?.From is null)
+            return "No dates selected";
+
+        if (value.To is null)
+            return value.From.Value.ToString("yyyy-MM-dd");
+
+        return $"{value.From.Value:yyyy-MM-dd} to {value.To.Value:yyyy-MM-dd}";
+    }
+
+    private static string FormatDates(IEnumerable<DateOnly> values)
+    {
+        var selected = values.Select(value => value.ToString("yyyy-MM-dd")).ToArray();
+        return selected.Length == 0 ? "No dates selected" : string.Join(", ", selected);
+    }
+
+    private static bool IsWeekend(DateOnly date)
+    {
+        return date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday;
+    }
+
+    private RenderFragment<CalendarDayContext> RenderPricingDay => context => @<div class="flex flex-col items-center leading-none">
+        <span>@context.Date.Day</span>
+        @if (context.InMonth)
+        {
+            <span class="text-[10px] opacity-70">@(IsWeekend(context.Date) ? "$120" : "$100")</span>
+        }
+    </div>;
+
+    private const string DropdownCaptionCode =
+@"<Calendar SelectedDate=""selectedDate"" SelectedDateChanged=""OnDateChanged"" CaptionLayout=""dropdown"" CultureName=""es-ES"" />";
+
+    private const string BookedDatesCode =
+@"<Calendar SelectedDate=""selectedDate""
+          DisabledDates=""bookedDates""
+          Modifiers=""BookedModifiers""
+          ModifierClasses=""BookedModifierClasses"" />";
+
+    private const string CustomDaysCode =
+@"<Calendar Mode=""CalendarSelectionMode.Range""
+          SelectedRange=""selectedRange""
+          SelectedRangeChanged=""OnRangeChanged""
+          CaptionLayout=""dropdown""
+          DayContent=""RenderPricingDay"" />";
 }

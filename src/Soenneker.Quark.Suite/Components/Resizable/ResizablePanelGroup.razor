@@ -1,38 +1,406 @@
+@using System.Globalization
+@using System.Linq
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@implements IAsyncDisposable
+
+@inject IResizableInterop ResizableInterop
 
 <CascadingValue Name="ParentResizablePanelGroup" Value="@this" IsFixed="true">
-<div @attributes="BuildAttributes()">
-    @ChildContent
-</div>
+    <div @ref="ElementRef" @attributes="BuildAttributes()">
+        @ChildContent
+    </div>
 </CascadingValue>
 
 @code {
+    private readonly List<ResizablePanel> _panels = [];
+    private readonly List<ResizableHandle> _handles = [];
+    private DotNetObjectReference<ResizablePanelGroup>? _dotNetRef;
+    private double[]? _sizes;
+    private bool _layoutDirty = true;
+    private bool _isDragging;
+
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
+
     /// <summary>
     /// Gets or sets orientation: horizontal or vertical.
     /// </summary>
     [Parameter]
     public string Orientation { get; set; } = "horizontal";
 
+    internal string OrientationValue => string.Equals(Orientation, "vertical", StringComparison.OrdinalIgnoreCase) ? "vertical" : "horizontal";
+    internal bool IsVertical => OrientationValue == "vertical";
+
+    private bool IsHorizontalRtl()
+    {
+        if (IsVertical)
+            return false;
+
+        if (string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (Attributes is not null &&
+            Attributes.TryGetValue("dir", out var dirValue) &&
+            string.Equals(dirValue?.ToString(), "rtl", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    internal int RegisterPanel(ResizablePanel panel)
+    {
+        if (!_panels.Contains(panel))
+        {
+            _panels.Add(panel);
+            _layoutDirty = true;
+            UpdatePanelIndexes();
+        }
+
+        return _panels.IndexOf(panel);
+    }
+
+    internal void UnregisterPanel(ResizablePanel panel)
+    {
+        if (_panels.Remove(panel))
+        {
+            _layoutDirty = true;
+            UpdatePanelIndexes();
+            Refresh();
+        }
+    }
+
+    internal int RegisterHandle(ResizableHandle handle)
+    {
+        if (!_handles.Contains(handle))
+        {
+            _handles.Add(handle);
+            UpdateHandleIndexes();
+        }
+
+        return _handles.IndexOf(handle);
+    }
+
+    internal void UnregisterHandle(ResizableHandle handle)
+    {
+        if (_handles.Remove(handle))
+        {
+            UpdateHandleIndexes();
+            Refresh();
+        }
+    }
+
+    internal void NotifyPanelConfigurationChanged()
+    {
+        _layoutDirty = true;
+
+        if (!_isDragging)
+            Refresh();
+    }
+
+    internal string BuildPanelStyle(ResizablePanel panel, int index)
+    {
+        EnsureLayoutState();
+
+        double size = index >= 0 && _sizes is { Length: > 0 } && index < _sizes.Length ? _sizes[index] : 0d;
+        var styles = new List<string>
+        {
+            $"flex: 0 0 {size.ToString("0.###", CultureInfo.InvariantCulture)}%"
+        };
+
+        if (IsVertical)
+        {
+            styles.Add("min-height: 0");
+
+            if (panel.MinSize.HasValue)
+                styles.Add($"min-height: {panel.MinSize.Value.ToString(CultureInfo.InvariantCulture)}px");
+
+            if (panel.MaxSize.HasValue)
+                styles.Add($"max-height: {panel.MaxSize.Value.ToString(CultureInfo.InvariantCulture)}px");
+        }
+        else
+        {
+            styles.Add("min-width: 0");
+
+            if (panel.MinSize.HasValue)
+                styles.Add($"min-width: {panel.MinSize.Value.ToString(CultureInfo.InvariantCulture)}px");
+
+            if (panel.MaxSize.HasValue)
+                styles.Add($"max-width: {panel.MaxSize.Value.ToString(CultureInfo.InvariantCulture)}px");
+        }
+
+        return string.Join("; ", styles);
+    }
+
+    internal string GetSeparatorOrientation()
+    {
+        return IsVertical ? "horizontal" : "vertical";
+    }
+
+    internal double GetHandleValue(int handleIndex)
+    {
+        EnsureLayoutState();
+
+        if (_sizes is null || handleIndex < 0 || handleIndex >= _sizes.Length)
+            return 50d;
+
+        return Math.Round(_sizes[handleIndex], 2, MidpointRounding.AwayFromZero);
+    }
+
+    internal async Task StartHandleDragAsync(int handleIndex, PointerEventArgs e)
+    {
+        if (handleIndex < 0 || handleIndex >= _panels.Count - 1)
+            return;
+
+        _dotNetRef ??= DotNetObjectReference.Create(this);
+        _isDragging = true;
+
+        await ResizableInterop.StartDrag(ElementRef, (long)e.PointerId, e.ClientX, e.ClientY, OrientationValue, _dotNetRef, handleIndex);
+    }
+
+    internal async Task HandleHandleKeyDownAsync(int handleIndex, KeyboardEventArgs e)
+    {
+        double delta = e.ShiftKey ? 10d : 5d;
+        double signedDelta;
+
+        if (IsVertical)
+        {
+            signedDelta = e.Key switch
+            {
+                "ArrowUp" => -delta,
+                "ArrowDown" => delta,
+                _ => 0d
+            };
+        }
+        else
+        {
+            signedDelta = e.Key switch
+            {
+                "ArrowLeft" when IsHorizontalRtl() => delta,
+                "ArrowRight" when IsHorizontalRtl() => -delta,
+                "ArrowLeft" => -delta,
+                "ArrowRight" => delta,
+                _ => 0d
+            };
+        }
+
+        if (signedDelta == 0d)
+            return;
+
+        AdjustHandleByDelta(handleIndex, signedDelta, 0d);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public async Task HandlePointerDragMove(int handleIndex, double percentage, double containerSize)
+    {
+        AdjustHandleToPercentage(handleIndex, percentage, containerSize);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public async Task HandlePointerDragEnd(int handleIndex, double percentage, double containerSize)
+    {
+        AdjustHandleToPercentage(handleIndex, percentage, containerSize);
+        _isDragging = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void EnsureLayoutState()
+    {
+        if (!_layoutDirty && _sizes is not null && _sizes.Length == _panels.Count)
+            return;
+
+        if (_panels.Count == 0)
+        {
+            _sizes = Array.Empty<double>();
+            _layoutDirty = false;
+            return;
+        }
+
+        double totalWeight = _panels.Sum(panel => Math.Max(1, panel.DefaultSize));
+        var nextSizes = new double[_panels.Count];
+
+        for (int i = 0; i < _panels.Count; i++)
+        {
+            double weight = Math.Max(1, _panels[i].DefaultSize);
+            nextSizes[i] = (weight / totalWeight) * 100d;
+        }
+
+        NormalizeSizes(nextSizes);
+        _sizes = nextSizes;
+        _layoutDirty = false;
+    }
+
+    private void AdjustHandleToPercentage(int handleIndex, double percentage, double containerSize)
+    {
+        EnsureLayoutState();
+
+        if (_sizes is null || handleIndex < 0 || handleIndex >= _sizes.Length - 1)
+            return;
+
+        double offset = 0d;
+
+        for (int i = 0; i < handleIndex; i++)
+        {
+            offset += _sizes[i];
+        }
+
+        double pairTotal = _sizes[handleIndex] + _sizes[handleIndex + 1];
+        double nextPrimary = percentage - offset;
+        ApplyPairSizes(handleIndex, pairTotal, nextPrimary, containerSize);
+    }
+
+    private void AdjustHandleByDelta(int handleIndex, double deltaPercent, double containerSize)
+    {
+        EnsureLayoutState();
+
+        if (_sizes is null || handleIndex < 0 || handleIndex >= _sizes.Length - 1)
+            return;
+
+        double pairTotal = _sizes[handleIndex] + _sizes[handleIndex + 1];
+        double nextPrimary = _sizes[handleIndex] + deltaPercent;
+        ApplyPairSizes(handleIndex, pairTotal, nextPrimary, containerSize);
+    }
+
+    private void ApplyPairSizes(int handleIndex, double pairTotal, double requestedPrimarySize, double containerSize)
+    {
+        if (_sizes is null)
+            return;
+
+        (double minPrimary, double maxPrimary) = GetAllowedRange(handleIndex, pairTotal, containerSize);
+        double primarySize = Math.Clamp(requestedPrimarySize, minPrimary, maxPrimary);
+        double secondarySize = pairTotal - primarySize;
+
+        _sizes[handleIndex] = primarySize;
+        _sizes[handleIndex + 1] = secondarySize;
+        NormalizeSizes(_sizes);
+    }
+
+    private (double minPrimary, double maxPrimary) GetAllowedRange(int handleIndex, double pairTotal, double containerSize)
+    {
+        ResizablePanel primary = _panels[handleIndex];
+        ResizablePanel secondary = _panels[handleIndex + 1];
+
+        double primaryMin = GetMinPercent(primary.MinSize, containerSize);
+        double secondaryMin = GetMinPercent(secondary.MinSize, containerSize);
+        double primaryMax = GetMaxPercent(primary.MaxSize, containerSize);
+        double secondaryMax = GetMaxPercent(secondary.MaxSize, containerSize);
+
+        double lowerBound = Math.Max(primaryMin, pairTotal - secondaryMax);
+        double upperBound = Math.Min(primaryMax, pairTotal - secondaryMin);
+
+        if (upperBound < lowerBound)
+            return (lowerBound, lowerBound);
+
+        return (lowerBound, upperBound);
+    }
+
+    private static double GetMinPercent(int? pixelValue, double containerSize)
+    {
+        if (!pixelValue.HasValue || pixelValue.Value <= 0 || containerSize <= 0)
+            return 0d;
+
+        return Math.Clamp((pixelValue.Value / containerSize) * 100d, 0d, 100d);
+    }
+
+    private static double GetMaxPercent(int? pixelValue, double containerSize)
+    {
+        if (!pixelValue.HasValue || pixelValue.Value <= 0 || containerSize <= 0)
+            return double.PositiveInfinity;
+
+        return Math.Clamp((pixelValue.Value / containerSize) * 100d, 0d, 100d);
+    }
+
+    private static void NormalizeSizes(IList<double> sizes)
+    {
+        if (sizes.Count == 0)
+            return;
+
+        double total = sizes.Sum();
+
+        if (total <= 0)
+        {
+            double equal = 100d / sizes.Count;
+
+            for (int i = 0; i < sizes.Count; i++)
+            {
+                sizes[i] = equal;
+            }
+
+            return;
+        }
+
+        for (int i = 0; i < sizes.Count; i++)
+        {
+            sizes[i] = (sizes[i] / total) * 100d;
+        }
+    }
+
+    private void UpdatePanelIndexes()
+    {
+        for (int i = 0; i < _panels.Count; i++)
+        {
+            _panels[i].SetIndex(i);
+        }
+    }
+
+    private void UpdateHandleIndexes()
+    {
+        for (int i = 0; i < _handles.Count; i++)
+        {
+            _handles[i].SetIndex(i);
+        }
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "resizable-panel-group";
-        attributes["data-orientation"] = Orientation;
+        attributes["data-orientation"] = OrientationValue;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-resizable-panel-group");
             AppendClass(ref cls, "flex h-full w-full");
-            if (Orientation == "vertical")
+
+            if (IsVertical)
                 AppendClass(ref cls, "flex-col");
         });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await ResizableInterop.Initialize();
+
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Orientation);
+        hc.Add(OrientationValue);
+
+        if (_sizes is not null)
+        {
+            foreach (double size in _sizes)
+            {
+                hc.Add(size);
+            }
+        }
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        await ResizableInterop.StopDrag();
+        _dotNetRef?.Dispose();
+        await base.DisposeAsync();
     }
 }

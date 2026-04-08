@@ -5,147 +5,109 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Basic" Description="@($"Range 0–100; value {_minMaxValue}.")" Code="@(@"<Slider Min=""0"" Max=""100"" SliderValue=""@_minMaxValue"" SliderValueChanged=""HandleMinMaxValueChanged""/>")">
+            <DemoSection Title="Demo"
+                         Description="@($"Current value: {_demoValue}.")"
+                         Code="@DemoCode">
                 <Div Class="mx-auto w-full max-w-xs">
-                    <Slider Min="0" Max="100" SliderValue="@_minMaxValue" SliderValueChanged="HandleMinMaxValueChanged"/>
+                    <Slider Min="0" Max="100" SliderValue="@_demoValue" SliderValueChanged="HandleDemoValueChanged" />
                 </Div>
-                <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0">Current value: <Strong>@_minMaxValue</Strong></Paragraph>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Step" Description="@($"Step 5; value {_stepValue}.")" Code="@(@"<Slider Min=""0"" Max=""100"" Step=""5"" SliderValue=""@_stepValue"" SliderValueChanged=""HandleStepValueChanged""/>")">
+            <DemoSection Title="Range"
+                         Description="@($"Range: {RangeMin} - {RangeMax}.")"
+                         Code="@RangeCode">
                 <Div Class="mx-auto w-full max-w-xs">
-                    <Slider Min="0" Max="100" Step="5" SliderValue="@_stepValue" SliderValueChanged="HandleStepValueChanged"/>
+                    <Slider Min="0" Max="100" Step="5" Values="@_rangeValues" ValuesChanged="HandleRangeValuesChanged" />
                 </Div>
-                <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0">Current value: <Strong>@_stepValue</Strong> (Step: 5)</Paragraph>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Sizes" Description="Small, default, and large." Code="@(@"<Slider Min=""0"" Max=""100"" SliderValue=""@_smallValue"" Size=""Size.Small"" SliderValueChanged=""...""/>
-<Slider Min=""0"" Max=""100"" SliderValue=""@_defaultValue"" Size=""Size.Default"" SliderValueChanged=""...""/>
-<Slider Min=""0"" Max=""100"" SliderValue=""@_largeValue"" Size=""Size.Large"" SliderValueChanged=""...""/>")">
+            <DemoSection Title="Multiple Thumbs"
+                         Description="@($"Values: {string.Join(", ", _multipleValues)}.")"
+                         Code="@MultipleCode">
+                <Div Class="mx-auto w-full max-w-xs">
+                    <Slider Min="0" Max="100" Step="5" Values="@_multipleValues" ValuesChanged="HandleMultipleValuesChanged" />
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Vertical"
+                         Description="@($"Current value: {_verticalValue}.")"
+                         Code="@VerticalCode">
+                <Div Class="flex h-64 items-center justify-center">
+                    <Slider Min="0" Max="100" SliderValue="@_verticalValue" SliderValueChanged="HandleVerticalValueChanged" Orientation="vertical" />
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Controlled"
+                         Description="@($"Current value: {_controlledValue}.")"
+                         Code="@ControlledCode">
                 <Div Space="Space.Y.Is4">
-                    <Div>
-                        <H5 TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" TextColor="TextColor.MutedForeground">Small</H5>
-                        <Div Class="mx-auto w-full max-w-xs">
-                            <Slider Min="0" Max="100" SliderValue="@_smallValue" Size="Size.Small" SliderValueChanged="HandleSmallValueChanged"/>
-                        </Div>
-                        <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0">Value: <Strong>@_smallValue</Strong></Paragraph>
+                    <Div Class="mx-auto w-full max-w-xs">
+                        <Slider Min="0" Max="100" SliderValue="@_controlledValue" SliderValueChanged="HandleControlledValueChanged" />
                     </Div>
-                    <Div>
-                        <H5 TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" TextColor="TextColor.MutedForeground">Default</H5>
-                        <Div Class="mx-auto w-full max-w-xs">
-                            <Slider Min="0" Max="100" SliderValue="@_defaultValue" Size="Size.Default" SliderValueChanged="HandleDefaultValueChanged"/>
-                        </Div>
-                        <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0">Value: <Strong>@_defaultValue</Strong></Paragraph>
-                    </Div>
-                    <Div>
-                        <H5 TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" TextColor="TextColor.MutedForeground">Large</H5>
-                        <Div Class="mx-auto w-full max-w-xs">
-                            <Slider Min="0" Max="100" SliderValue="@_largeValue" Size="Size.Large" SliderValueChanged="HandleLargeValueChanged"/>
-                        </Div>
-                        <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0">Value: <Strong>@_largeValue</Strong></Paragraph>
+                    <Div Display="Display.Flex" Flex="Flex.Wrap" Gap="Gap.Is2">
+                        <Button Size="ButtonSize.Sm" OnClick="@(() => SetControlledValue(0))">0</Button>
+                        <Button Size="ButtonSize.Sm" Variant="ButtonVariant.Outline" OnClick="@(() => SetControlledValue(50))">50</Button>
+                        <Button Size="ButtonSize.Sm" OnClick="@(() => SetControlledValue(100))">100</Button>
                     </Div>
                 </Div>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Colors" Description="Primary, success, warning, danger." Code="@(@"<Slider Min=""0"" Max=""100"" SliderValue=""@_primaryValue"" Color=""primary"" SliderValueChanged=""...""/>
-<Slider Min=""0"" Max=""100"" SliderValue=""@_successValue"" Color=""success"" SliderValueChanged=""...""/>
-<Slider Min=""0"" Max=""100"" SliderValue=""@_dangerValue"" Color=""destructive"" SliderValueChanged=""...""/>")">
+            <DemoSection Title="Disabled"
+                         Description="Use the disabled prop to prevent interaction."
+                         Code="@DisabledCode">
+                <Div Class="mx-auto w-full max-w-xs">
+                    <Slider Min="0" Max="100" SliderValue="50" Disabled="true" />
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="RTL"
+                         Description="@($"Current value: {_rtlValue}.")"
+                         Code="@RtlCode">
+                <DirectionProvider Dir="rtl">
+                    <Div class="mx-auto w-full max-w-xs text-right">
+                        <Slider Min="0" Max="100" SliderValue="@_rtlValue" SliderValueChanged="HandleRtlValueChanged" />
+                    </Div>
+                </DirectionProvider>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Quark-only examples</H2>
+            <Paragraph TextColor="TextColor.MutedForeground">
+                These examples show additional slider variants beyond the core shadcn coverage above.
+            </Paragraph>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Step"
+                         Description="@($"Step 5; current value: {_stepValue}.")"
+                         Code="@StepCode">
+                <Div Class="mx-auto w-full max-w-xs">
+                    <Slider Min="0" Max="100" Step="5" SliderValue="@_stepValue" SliderValueChanged="HandleStepValueChanged" />
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Sizes"
+                         Description="Small, default, and large sizing options."
+                         Code="@SizesCode">
                 <Div Space="Space.Y.Is4">
-                    <Div>
-                        <H5 TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" TextColor="TextColor.MutedForeground">Primary</H5>
-                        <Div Class="mx-auto w-full max-w-xs">
-                            <Slider Min="0" Max="100" SliderValue="@_primaryValue" Color="primary" SliderValueChanged="HandlePrimaryValueChanged"/>
-                        </Div>
-                        <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0">@_primaryValue</Paragraph>
-                    </Div>
-                    <Div>
-                        <H5 TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" TextColor="TextColor.MutedForeground">Success</H5>
-                        <Div Class="mx-auto w-full max-w-xs">
-                            <Slider Min="0" Max="100" SliderValue="@_successValue" Color="success" SliderValueChanged="HandleSuccessValueChanged"/>
-                        </Div>
-                        <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0">@_successValue</Paragraph>
-                    </Div>
-                    <Div>
-                        <H5 TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" TextColor="TextColor.MutedForeground">Warning</H5>
-                        <Div Class="mx-auto w-full max-w-xs">
-                            <Slider Min="0" Max="100" SliderValue="@_warningValue" Color="warning" SliderValueChanged="HandleWarningValueChanged"/>
-                        </Div>
-                        <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0">@_warningValue</Paragraph>
-                    </Div>
-                    <Div>
-                        <H5 TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" TextColor="TextColor.MutedForeground">Danger</H5>
-                        <Div Class="mx-auto w-full max-w-xs">
-                            <Slider Min="0" Max="100" SliderValue="@_dangerValue" Color="destructive" SliderValueChanged="HandleDangerValueChanged"/>
-                        </Div>
-                        <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0">@_dangerValue</Paragraph>
-                    </Div>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Disabled" Description="Slider is read-only." Code="@(@"<Slider Min=""0"" Max=""100"" SliderValue=""50"" Disabled=""true""/>")">
-                <Div Class="mx-auto w-full max-w-xs">
-                    <Slider Min="0" Max="100" SliderValue="50" Disabled="true"/>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Range" Description="@($"Min {RangeMin}, max {RangeMax}.")" Code="@(@"<Slider Min=""0"" Max=""100"" Step=""5"" Values=""@_rangeValues"" ValuesChanged=""HandleRangeValuesChanged"" />")">
-                <Div Class="mx-auto w-full max-w-xs">
-                    <Slider Min="0" Max="100" Step="5" Values="@_rangeValues" ValuesChanged="HandleRangeValuesChanged"/>
-                </Div>
-                <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0">Range: <Strong>@RangeMin</Strong> – <Strong>@RangeMax</Strong></Paragraph>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="With labels" Description="@($"Labels 0–100; value {_labeledValue}.")" Code="@(@"<Slider Min=""0"" Max=""100"" SliderValue=""@_labeledValue"" MinLabel=""0"" MaxLabel=""100"" SliderValueChanged=""...""/>")">
-            <Div>
-                <Div Display="Display.Flex" JustifyContent="JustifyContent.Between" Margin="Margin.Is2.FromBottom">
-                    <Span>0</Span>
-                    <Span>25</Span>
-                    <Span>50</Span>
-                    <Span>75</Span>
-                    <Span>100</Span>
-                </Div>
-                <Div Class="mx-auto w-full max-w-xs">
-                    <Slider Min="0" Max="100" SliderValue="@_labeledValue" SliderValueChanged="HandleLabeledValueChanged"/>
-                </Div>
-                <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0">Value: <Strong>@_labeledValue</Strong></Paragraph>
-            </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Controlled" Description="@($"Value {_interactiveValue}; buttons set 0, 50, 100, or random.")">
-                <Div Class="mx-auto w-full max-w-xs">
-                    <Slider Min="0" Max="100" SliderValue="@_interactiveValue" SliderValueChanged="HandleInteractiveValueChanged"/>
-                </Div>
-                <Div Display="Display.Flex" Flex="Flex.Wrap" Gap="Gap.Is2" Margin="Margin.Is4.FromTop">
-                    <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" Size="ButtonSize.Sm" OnClick="SetToZero">0</Button>
-                    <Button BackgroundColor="BackgroundColor.Secondary" TextColor="TextColor.SecondaryForeground" Size="ButtonSize.Sm" OnClick="SetToFifty">50</Button>
-                    <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" Size="ButtonSize.Sm" OnClick="SetToHundred">100</Button>
-                    <Button BackgroundColor="BackgroundColor.Muted" TextColor="TextColor.MutedForeground" Size="ButtonSize.Sm" OnClick="SetRandom">Random</Button>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Custom attributes" Description="@($"Name, Id, Class; value {_customValue}.")">
-                <Div Class="mx-auto w-full max-w-xs">
-                    <Slider Min="0" Max="100" SliderValue="@_customValue"
-                            SliderValueChanged="HandleCustomValueChanged"
-                            Name="customSlider"
-                            Id="customSlider"
-                            Class="custom-slider"/>
+                    <Slider Min="0" Max="100" SliderValue="@_smallValue" Size="Size.Small" SliderValueChanged="HandleSmallValueChanged" />
+                    <Slider Min="0" Max="100" SliderValue="@_defaultValue" Size="Size.Default" SliderValueChanged="HandleDefaultValueChanged" />
+                    <Slider Min="0" Max="100" SliderValue="@_largeValue" Size="Size.Large" SliderValueChanged="HandleLargeValueChanged" />
                 </Div>
             </DemoSection>
         </Section>
@@ -153,153 +115,113 @@
 </Div>
 
 @code {
-
-    private double _basicValue = 50;
-    private double _minMaxValue = 25;
+    private double _demoValue = 33;
+    private double[] _rangeValues = [20, 80];
+    private double[] _multipleValues = [15, 45, 85];
+    private double _verticalValue = 60;
+    private double _controlledValue = 25;
+    private double _rtlValue = 40;
     private double _stepValue = 30;
-    private double _smallValue = 40;
+    private double _smallValue = 35;
     private double _defaultValue = 60;
     private double _largeValue = 80;
-    private double _primaryValue = 35;
-    private double _successValue = 65;
-    private double _warningValue = 45;
-    private double _dangerValue = 75;
-    private double[] _rangeValues = [20, 80];
-    private double _labeledValue = 50;
-    private double _interactiveValue = 25;
-    private double _customValue = 55;
+
     private double RangeMin => _rangeValues.Length > 0 ? _rangeValues[0] : 0;
     private double RangeMax => _rangeValues.Length > 1 ? _rangeValues[^1] : RangeMin;
 
-    private async Task HandleBasicValueChanged(double value)
+    private const string DemoCode = @"<Slider Min=""0"" Max=""100"" SliderValue=""33"" />";
+
+    private const string RangeCode =
+@"<Slider Min=""0"" Max=""100"" Step=""5"" Values=""@_rangeValues"" ValuesChanged=""HandleRangeValuesChanged"" />";
+
+    private const string MultipleCode =
+@"<Slider Min=""0"" Max=""100"" Step=""5"" Values=""@_multipleValues"" ValuesChanged=""HandleMultipleValuesChanged"" />";
+
+    private const string VerticalCode =
+@"<Slider Min=""0"" Max=""100"" SliderValue=""@_verticalValue"" SliderValueChanged=""HandleVerticalValueChanged"" Orientation=""vertical"" />";
+
+    private const string ControlledCode =
+@"<Slider Min=""0"" Max=""100"" SliderValue=""@_controlledValue"" SliderValueChanged=""HandleControlledValueChanged"" />";
+
+    private const string DisabledCode =
+@"<Slider Min=""0"" Max=""100"" SliderValue=""50"" Disabled=""true"" />";
+
+    private const string RtlCode =
+@"<DirectionProvider Dir=""rtl"">
+    <Slider Min=""0"" Max=""100"" SliderValue=""@_rtlValue"" SliderValueChanged=""HandleRtlValueChanged"" />
+</DirectionProvider>";
+
+    private const string StepCode =
+@"<Slider Min=""0"" Max=""100"" Step=""5"" SliderValue=""@_stepValue"" SliderValueChanged=""HandleStepValueChanged"" />";
+
+    private const string SizesCode =
+@"<Slider Min=""0"" Max=""100"" SliderValue=""@_smallValue"" Size=""Size.Small"" SliderValueChanged=""HandleSmallValueChanged"" />
+<Slider Min=""0"" Max=""100"" SliderValue=""@_defaultValue"" Size=""Size.Default"" SliderValueChanged=""HandleDefaultValueChanged"" />
+<Slider Min=""0"" Max=""100"" SliderValue=""@_largeValue"" Size=""Size.Large"" SliderValueChanged=""HandleLargeValueChanged"" />";
+
+    private Task HandleDemoValueChanged(double value)
     {
-        _basicValue = value;
-        StateHasChanged();
-        await Task.CompletedTask;
+        _demoValue = value;
+        return Task.CompletedTask;
     }
 
-    private async Task HandleMinMaxValueChanged(double value)
-    {
-        _minMaxValue = value;
-        StateHasChanged();
-        await Task.CompletedTask;
-    }
-
-    private async Task HandleStepValueChanged(double value)
-    {
-        _stepValue = value;
-        StateHasChanged();
-        await Task.CompletedTask;
-    }
-
-    private async Task HandleSmallValueChanged(double value)
-    {
-        _smallValue = value;
-        StateHasChanged();
-        await Task.CompletedTask;
-    }
-
-    private async Task HandleDefaultValueChanged(double value)
-    {
-        _defaultValue = value;
-        StateHasChanged();
-        await Task.CompletedTask;
-    }
-
-    private async Task HandleLargeValueChanged(double value)
-    {
-        _largeValue = value;
-        StateHasChanged();
-        await Task.CompletedTask;
-    }
-
-    private async Task HandlePrimaryValueChanged(double value)
-    {
-        _primaryValue = value;
-        StateHasChanged();
-        await Task.CompletedTask;
-    }
-
-    private async Task HandleSuccessValueChanged(double value)
-    {
-        _successValue = value;
-        StateHasChanged();
-        await Task.CompletedTask;
-    }
-
-    private async Task HandleWarningValueChanged(double value)
-    {
-        _warningValue = value;
-        StateHasChanged();
-        await Task.CompletedTask;
-    }
-
-    private async Task HandleDangerValueChanged(double value)
-    {
-        _dangerValue = value;
-        StateHasChanged();
-        await Task.CompletedTask;
-    }
-
-    private async Task HandleRangeValuesChanged(double[] values)
+    private Task HandleRangeValuesChanged(double[] values)
     {
         _rangeValues = values;
-        StateHasChanged();
-        await Task.CompletedTask;
+        return Task.CompletedTask;
     }
 
-    private async Task HandleLabeledValueChanged(double value)
+    private Task HandleMultipleValuesChanged(double[] values)
     {
-        _labeledValue = value;
-        StateHasChanged();
-        await Task.CompletedTask;
+        _multipleValues = values;
+        return Task.CompletedTask;
     }
 
-    private async Task HandleInteractiveValueChanged(double value)
+    private Task HandleVerticalValueChanged(double value)
     {
-        _interactiveValue = value;
-        StateHasChanged();
-        await Task.CompletedTask;
+        _verticalValue = value;
+        return Task.CompletedTask;
     }
 
-    private async Task HandleCustomValueChanged(double value)
+    private Task HandleControlledValueChanged(double value)
     {
-        _customValue = value;
-        StateHasChanged();
-        await Task.CompletedTask;
+        _controlledValue = value;
+        return Task.CompletedTask;
     }
 
-    private async Task SetToZero()
+    private Task HandleRtlValueChanged(double value)
     {
-        _interactiveValue = 0;
-        StateHasChanged();
-        await Task.CompletedTask;
+        _rtlValue = value;
+        return Task.CompletedTask;
     }
 
-    private async Task SetToFifty()
+    private Task HandleStepValueChanged(double value)
     {
-        _interactiveValue = 50;
-        StateHasChanged();
-        await Task.CompletedTask;
+        _stepValue = value;
+        return Task.CompletedTask;
     }
 
-    private async Task SetToHundred()
+    private Task HandleSmallValueChanged(double value)
     {
-        _interactiveValue = 100;
-        StateHasChanged();
-        await Task.CompletedTask;
+        _smallValue = value;
+        return Task.CompletedTask;
     }
 
-    private async Task SetRandom()
+    private Task HandleDefaultValueChanged(double value)
     {
-        var random = new Random();
-        _interactiveValue = random.Next(0, 101);
-        StateHasChanged();
-        await Task.CompletedTask;
+        _defaultValue = value;
+        return Task.CompletedTask;
     }
 
-    protected override void OnInitialized()
+    private Task HandleLargeValueChanged(double value)
     {
+        _largeValue = value;
+        return Task.CompletedTask;
     }
 
+    private Task SetControlledValue(double value)
+    {
+        _controlledValue = value;
+        return Task.CompletedTask;
+    }
 }

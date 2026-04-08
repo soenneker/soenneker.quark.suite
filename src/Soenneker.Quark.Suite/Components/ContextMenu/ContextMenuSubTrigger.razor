@@ -1,12 +1,15 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
+@implements IContextMenuFocusableItem
 
-<div @onmouseenter="HandleOpen" @onclick="HandleOpen" @attributes="BuildAttributes()">
+<div @onmouseenter="HandleOpen" @onclick="HandleOpen" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()" @ref="_elementRef">
     @ChildContent
-    <Icon Name="LucideIcon.ChevronRight" Class="ml-auto size-4" />
+    <Icon Name="LucideIcon.ChevronRight" Class="ml-auto size-4 rtl:ml-0 rtl:mr-auto rtl:rotate-180" />
 </div>
 
 @code {
+    private ElementReference _elementRef;
+
     [Parameter]
     public bool Inset { get; set; }
 
@@ -16,9 +19,59 @@
     [CascadingParameter(Name = "ParentContextMenuSub")]
     private ContextMenuSub? ParentContextMenuSub { get; set; }
 
+    [CascadingParameter(Name = "ContextMenuNavigationSub")]
+    private ContextMenuSub? NavigationSub { get; set; }
+
+    [CascadingParameter(Name = "ParentContextMenu")]
+    private ContextMenu? ParentContextMenu { get; set; }
+
+    bool IContextMenuFocusableItem.IsDisabledForNavigation => Disabled;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if (!firstRender)
+            return;
+
+        if (ParentContextMenuSub is not null)
+            ParentContextMenuSub.RegisterTrigger(this);
+
+        if (NavigationSub is not null)
+            NavigationSub.RegisterItem(this);
+        else
+            ParentContextMenu?.RegisterItem(this);
+    }
+
     private void HandleOpen()
     {
         ParentContextMenuSub?.OpenSubmenu();
+    }
+
+    protected override async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
+        {
+            if (NavigationSub is not null)
+                await NavigationSub.HandleItemNavigationAsync(this, e.Key);
+            else if (ParentContextMenu is not null)
+                await ParentContextMenu.HandleItemNavigationAsync(this, e.Key);
+
+            return;
+        }
+
+        if (e.Key is "ArrowRight" or "Enter" or " ")
+        {
+            if (ParentContextMenuSub is not null)
+                await ParentContextMenuSub.OpenAndFocusFirstItemAsync();
+
+            return;
+        }
+
+        if (e.Key == "Escape" && ParentContextMenuSub is not null)
+            await ParentContextMenuSub.CloseAndFocusTriggerAsync();
+
+        await base.HandleKeyDown(e);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -27,13 +80,15 @@
         var isOpen = Open || ParentContextMenuSub?.Open == true;
         attributes["data-slot"] = "context-menu-sub-trigger";
         attributes["data-state"] = isOpen ? "open" : "closed";
-        // if (Inset)
-        //     attributes["data-inset"] = "true";
+        attributes["role"] = "menuitem";
+        attributes["aria-haspopup"] = "menu";
+        attributes["aria-expanded"] = isOpen ? "true" : "false";
+        attributes["tabindex"] = Disabled ? -1 : 0;
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-context-menu-sub-trigger");
             AppendClass(ref cls, "flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-hidden select-none");
-            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground data-[inset]:pl-8 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground");
+            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground data-[inset]:pl-8 rtl:data-[inset]:pl-2 rtl:data-[inset]:pr-8 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground");
         });
     }
@@ -43,5 +98,26 @@
         hc.Add(Inset);
         hc.Add(Open);
         hc.Add(ParentContextMenuSub?.Open ?? false);
+        hc.Add(NavigationSub?.Open ?? false);
+    }
+
+    async Task IContextMenuFocusableItem.FocusAsync()
+    {
+        await _elementRef.FocusAsync();
+    }
+
+    internal async Task FocusAsync()
+    {
+        await _elementRef.FocusAsync();
+    }
+
+    public override void Dispose()
+    {
+        if (NavigationSub is not null)
+            NavigationSub.UnregisterItem(this);
+        else
+            ParentContextMenu?.UnregisterItem(this);
+
+        base.Dispose();
     }
 }

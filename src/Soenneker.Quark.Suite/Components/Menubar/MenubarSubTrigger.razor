@@ -1,17 +1,54 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
+@implements IMenubarFocusableItem
 
-<div @attributes="BuildAttributes()">
+<div @attributes="BuildAttributes()" @onkeydown="HandleKeyDown" @onmouseenter="HandlePointerOpen" @onclick="HandlePointerOpen" @ref="_elementRef">
     @ChildContent
-    <Icon Name="LucideIcon.ChevronRight" Class="ml-auto h-4 w-4" />
+    <Icon Name="LucideIcon.ChevronRight" Class="ml-auto h-4 w-4 rtl:ml-0 rtl:mr-auto rtl:rotate-180" />
 </div>
 
 @code {
+    private ElementReference _elementRef;
+
     [Parameter]
     public bool Open { get; set; }
 
     [Parameter]
     public bool Inset { get; set; }
+
+    [CascadingParameter(Name = "ParentMenubarSub")]
+    private MenubarSub? ParentMenubarSub { get; set; }
+
+    [CascadingParameter(Name = "ParentMenubar")]
+    private Menubar? ParentMenubar { get; set; }
+
+    [CascadingParameter(Name = "ParentMenubarMenu")]
+    private MenubarMenu? ParentMenubarMenu { get; set; }
+
+    [CascadingParameter(Name = "MenubarNavigationSub")]
+    private MenubarSub? NavigationSub { get; set; }
+
+    bool IMenubarFocusableItem.IsDisabledForNavigation => Disabled;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if (!firstRender)
+            return;
+
+        ParentMenubarSub?.RegisterTrigger(this);
+
+        if (NavigationSub is not null)
+            NavigationSub.RegisterItem(this);
+        else
+            ParentMenubarMenu?.RegisterItem(this);
+    }
+
+    private void HandlePointerOpen()
+    {
+        // Focus-within/hover CSS controls visibility; this ensures the trigger itself receives focusable interaction.
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -34,7 +71,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-menubar-sub-trigger");
-            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-none select-none data-[inset]:pl-8");
+            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-none select-none data-[inset]:pl-8 rtl:data-[inset]:pl-2 rtl:data-[inset]:pr-8");
             if (Disabled)
                 AppendClass(ref cls, "pointer-events-none opacity-50");
         });
@@ -45,5 +82,49 @@
         hc.Add(Open);
         hc.Add(Inset);
         hc.Add(Disabled);
+    }
+
+    protected override async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
+        {
+            if (NavigationSub is not null)
+                await NavigationSub.HandleItemNavigationAsync(this, e.Key);
+            else if (ParentMenubarMenu is not null)
+                await ParentMenubarMenu.HandleItemNavigationAsync(this, e.Key);
+        }
+        else if ((ParentMenubar?.IsSubmenuOpenKey(e.Key) ?? (e.Key == "ArrowRight")) || e.Key is "Enter" or " ")
+        {
+            if (ParentMenubarSub is not null)
+                await ParentMenubarSub.FocusFirstItemAsync();
+        }
+        else if (NavigationSub is not null && ParentMenubar?.IsSubmenuCloseKey(e.Key) == true)
+            await NavigationSub.FocusTriggerAsync();
+        else if (NavigationSub is null && ParentMenubar is not null && ParentMenubarMenu is not null && e.Key is "ArrowRight" or "ArrowLeft")
+            await ParentMenubar.HandleMenuTraversalAsync(ParentMenubarMenu, e.Key);
+        else if (e.Key == "Escape" && ParentMenubarMenu is not null)
+            await ParentMenubarMenu.FocusTriggerAsync();
+
+        await base.HandleKeyDown(e);
+    }
+
+    async Task IMenubarFocusableItem.FocusAsync()
+    {
+        await _elementRef.FocusAsync();
+    }
+
+    internal async Task FocusAsync()
+    {
+        await _elementRef.FocusAsync();
+    }
+
+    public override void Dispose()
+    {
+        if (NavigationSub is not null)
+            NavigationSub.UnregisterItem(this);
+        else
+            ParentMenubarMenu?.UnregisterItem(this);
+
+        base.Dispose();
     }
 }

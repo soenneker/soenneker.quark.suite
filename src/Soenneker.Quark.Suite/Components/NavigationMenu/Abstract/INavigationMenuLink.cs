@@ -19,4 +19,9 @@ public interface INavigationMenuLink : IElement
     /// Gets or sets the target for the anchor element.
     /// </summary>
     string? Target { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the link should pass its styling to a child element.
+    /// </summary>
+    bool AsChild { get; set; }
 }

@@ -70,6 +70,18 @@ public sealed class SliderInterop : ISliderInterop
         }
     }
 
+    public async ValueTask<bool> IsDirectionRtl(ElementReference track, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            await _initializer.Init(linked);
+            IJSObjectReference module = await GetModule(linked);
+            return await module.InvokeAsync<bool>("isDirectionRtl", linked, track);
+        }
+    }
+
     public async ValueTask StopDrag(CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);

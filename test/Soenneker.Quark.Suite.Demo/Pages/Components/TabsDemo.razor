@@ -3,375 +3,537 @@
 <PageTitle>Tabs - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
-    <Div Space="Space.Y.Is6">
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Line" Description="Default tabs provide the closest Quark equivalent to the line-style tabs in the shadcn docs."
-                        Code="@(@"<Tabs>
-    <Tab Name=""tab1"" Title=""Home""><Div Class=""p-3""><H5>Content</H5></Div></Tab>
-    <Tab Name=""tab2"" Title=""Profile""><Div Class=""p-3""><H5>Profile</H5></Div></Tab>
-</Tabs>")">
-                <Tabs>
-                        <Tab Name="tab1" Title="Home">
-                            <Div Padding="Padding.Is3">
-                                <H5>Home Content</H5>
-                                <Paragraph>This is the content for the Home tab. You can put any content here including other components.</Paragraph>
-                                <Button BackgroundColor="BackgroundColor.Primary">Action Button</Button>
-                            </Div>
-                        </Tab>
-                        <Tab Name="tab2" Title="Profile">
-                            <Div Padding="Padding.Is3">
-                                <H5>Profile Content</H5>
-                                <Paragraph Margin="Margin.Is0">This is the content for the Profile tab. Here you might display user information or settings.</Paragraph>
-                                <Div Space="Space.Y.Is1">
-                                    <Label Form="true">Name:</Label>
-                                    <TextInput Placeholder="Enter your name" />
-                                </Div>
-                            </Div>
-                        </Tab>
-                        <Tab Name="tab3" Title="Settings">
-                            <Div Padding="Padding.Is3">
-                                <H5>Settings Content</H5>
-                                <Paragraph>This is the content for the Settings tab. Configuration options would go here.</Paragraph>
-                                <Switch @bind-Checked="_setting1">Enable notifications</Switch>
-                            </Div>
-                        </Tab>
-                    </Tabs>
-            </DemoSection>
-        </Section>
+    <Section Space="Space.Y.Is3">
+        <H1 class="text-3xl font-semibold tracking-tight">Tabs</H1>
+        <Paragraph class="max-w-3xl text-sm text-muted-foreground">
+            A set of layered sections of content that are displayed one at a time. The examples below now follow the rendered shadcn tabs docs first, then place
+            Quark-only patterns in a separate section.
+        </Paragraph>
+    </Section>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Controlled tabs" Description="@($"SelectedTab and OnSelectedTabChanged; current: {_selectedTab}.")" Code="@(@"<Tabs SelectedTab=""_selectedTab"" OnSelectedTabChanged=""HandleTabChanged"">
-    <Tab Name=""controlled1"" Title=""First Tab""><Div Class=""p-3"">First content</Div></Tab>
-    <Tab Name=""controlled2"" Title=""Second Tab""><Div Class=""p-3"">Second content</Div></Tab>
-    <Tab Name=""controlled3"" Title=""Third Tab""><Div Class=""p-3"">Third content</Div></Tab>
-</Tabs>")">
-                <Div Rounded="Rounded.Xl" Border="Border.Is1" BorderColor="BorderColor.Border" BackgroundColor='BackgroundColor.Token("muted/30")' Padding="Padding.Is6">
-                    <Tabs SelectedTab="@_selectedTab" OnSelectedTabChanged="HandleTabChanged">
-                        <Tab Name="controlled1" Title="First Tab">
-                            <Div Padding="Padding.Is3">
-                                <H5>First Tab Content</H5>
-                                <Paragraph Margin="Margin.Is0">This is the first tab content. Current selected tab: <Strong>@_selectedTab</Strong></Paragraph>
-                            </Div>
-                        </Tab>
-                        <Tab Name="controlled2" Title="Second Tab">
-                            <Div Padding="Padding.Is3">
-                                <H5>Second Tab Content</H5>
-                                <Paragraph Margin="Margin.Is0">This is the second tab content. Current selected tab: <Strong>@_selectedTab</Strong></Paragraph>
-                            </Div>
-                        </Tab>
-                        <Tab Name="controlled3" Title="Third Tab">
-                            <Div Padding="Padding.Is3">
-                                <H5>Third Tab Content</H5>
-                                <Paragraph Margin="Margin.Is0">This is the third tab content. Current selected tab: <Strong>@_selectedTab</Strong></Paragraph>
-                            </Div>
-                        </Tab>
-                    </Tabs>
-                </Div>
-                <Div Display="Display.Flex" Flex="Flex.Wrap" Gap="Gap.Is2" Margin="Margin.Is4.FromTop">
-                    <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" Size="ButtonSize.Sm" OnClick="GoToFirstTab">First</Button>
-                    <Button BackgroundColor="BackgroundColor.Secondary" TextColor="TextColor.SecondaryForeground" Size="ButtonSize.Sm" OnClick="GoToSecondTab">Second</Button>
-                    <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" Size="ButtonSize.Sm" OnClick="GoToThirdTab">Third</Button>
-                </Div>
-            </DemoSection>
-        </Section>
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Default"
+                     Description="The default account/password preview that matches the main shadcn tabs example."
+                     Code="@DefaultCode"
+                     CodeLanguage="razor">
+            <Tabs Class="w-[400px]">
+                <Tab Name="account" Title="Account">
+                    <Card Class="mt-4">
+                        <CardHeader>
+                            <CardTitle>Account</CardTitle>
+                            <CardDescription>Make changes to your account here. Click save when you're done.</CardDescription>
+                        </CardHeader>
+                        <CardBody Class="space-y-4">
+                            <Field>
+                                <FieldLabel For="tabs-account-name">Name</FieldLabel>
+                                <Input Id="tabs-account-name" Value="Pedro Duarte" />
+                            </Field>
+                            <Field>
+                                <FieldLabel For="tabs-account-username">Username</FieldLabel>
+                                <Input Id="tabs-account-username" Value="@UsernameSample" />
+                            </Field>
+                        </CardBody>
+                        <CardFooter Class="justify-end">
+                            <Button>Save changes</Button>
+                        </CardFooter>
+                    </Card>
+                </Tab>
+                <Tab Name="password" Title="Password">
+                    <Card Class="mt-4">
+                        <CardHeader>
+                            <CardTitle>Password</CardTitle>
+                            <CardDescription>Change your password here. After saving, you'll be logged out.</CardDescription>
+                        </CardHeader>
+                        <CardBody Class="space-y-4">
+                            <Field>
+                                <FieldLabel For="tabs-current-password">Current password</FieldLabel>
+                                <Input Id="tabs-current-password" Type="password" />
+                            </Field>
+                            <Field>
+                                <FieldLabel For="tabs-new-password">New password</FieldLabel>
+                                <Input Id="tabs-new-password" Type="password" />
+                            </Field>
+                        </CardBody>
+                        <CardFooter Class="justify-end">
+                            <Button>Save password</Button>
+                        </CardFooter>
+                    </Card>
+                </Tab>
+            </Tabs>
+        </DemoSection>
+    </Section>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Pills style" Description="Pills variant for tab headers." Code="@(@"<Tabs Pills=""true"">
-    <Tab Name=""pills1"" Title=""Pill 1""><Div Class=""p-3"">Pill Tab 1</Div></Tab>
-    <Tab Name=""pills2"" Title=""Pill 2""><Div Class=""p-3"">Pill Tab 2</Div></Tab>
-    <Tab Name=""pills3"" Title=""Pill 3""><Div Class=""p-3"">Pill Tab 3</Div></Tab>
-</Tabs>")">
-                <Div Rounded="Rounded.Xl" Border="Border.Is1" BorderColor="BorderColor.Border" BackgroundColor='BackgroundColor.Token("muted/30")' Padding="Padding.Is6">
-                    <H5 TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" TextColor="TextColor.MutedForeground">Pills</H5>
-                    <Tabs Pills="true">
-                        <Tab Name="pills1" Title="Pill 1">
-                            <Div Padding="Padding.Is3">
-                                <H5>Pill Tab 1</H5>
-                                <Paragraph>This tab uses the pills style for a different appearance.</Paragraph>
-                            </Div>
-                        </Tab>
-                        <Tab Name="pills2" Title="Pill 2">
-                            <Div Padding="Padding.Is3">
-                                <H5>Pill Tab 2</H5>
-                                <Paragraph>Another pill-style tab with different content.</Paragraph>
-                            </Div>
-                        </Tab>
-                        <Tab Name="pills3" Title="Pill 3">
-                            <Div Padding="Padding.Is3">
-                                <H5>Pill Tab 3</H5>
-                                <Paragraph>Third pill-style tab to demonstrate the styling.</Paragraph>
-                            </Div>
-                        </Tab>
-                    </Tabs>
-                </Div>
-            </DemoSection>
-        </Section>
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Line"
+                     Description="Use `TabsListVariant.Line` for the line style shown in the shadcn docs."
+                     Code="@LineCode"
+                     CodeLanguage="razor">
+            <Tabs TabsListVariant="TabsListVariant.Line" Class="w-[400px]">
+                <Tab Name="overview" Title="Overview">
+                    <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                        Overview content.
+                    </Div>
+                </Tab>
+                <Tab Name="analytics" Title="Analytics">
+                    <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                        Analytics content.
+                    </Div>
+                </Tab>
+                <Tab Name="reports" Title="Reports">
+                    <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                        Reports content.
+                    </Div>
+                </Tab>
+            </Tabs>
+        </DemoSection>
+    </Section>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Icons" Description="Set the `Icon` parameter with Lucide icons." Code="@(@"<Tabs>
-                                                                                                               <Tab Name=""icon1"" Title=""Home"" Icon=""LucideIcon.House""><Div Class=""p-3"">Home with Icon</Div></Tab>
-                                                                                                               <Tab Name=""icon2"" Title=""Profile"" Icon=""LucideIcon.User""><Div Class=""p-3"">Profile with Icon</Div></Tab>
-                                                                                                               <Tab Name=""icon3"" Title=""Settings"" Icon=""LucideIcon.Cog""><Div Class=""p-3"">Settings with Icon</Div></Tab>
-</Tabs>")">
-                <Div Rounded="Rounded.Xl" Border="Border.Is1" BorderColor="BorderColor.Border" BackgroundColor='BackgroundColor.Token("muted/30")' Padding="Padding.Is6">
-                    <Tabs>
-                        <Tab Name="icon1" Title="Home" Icon="LucideIcon.House">
-                            <Div Padding="Padding.Is3">
-                                <H5>Home with Icon</H5>
-                                <Paragraph>This tab has a home icon in the title.</Paragraph>
-                            </Div>
-                        </Tab>
-                        <Tab Name="icon2" Title="Profile" Icon="LucideIcon.User">
-                            <Div Padding="Padding.Is3">
-                                <H5>Profile with Icon</H5>
-                                <Paragraph>This tab has a user icon in the title.</Paragraph>
-                            </Div>
-                        </Tab>
-                        <Tab Name="icon3" Title="Settings" Icon="LucideIcon.Cog">
-                            <Div Padding="Padding.Is3">
-                                <H5>Settings with Icon</H5>
-                                <Paragraph>This tab has a settings icon in the title.</Paragraph>
-                            </Div>
-                        </Tab>
-                        <Tab Name="icon4" Title="Messages" Icon="LucideIcon.Mail">
-                            <Div Padding="Padding.Is3">
-                                <H5>Messages with Icon</H5>
-                                <Paragraph>This tab has an envelope icon in the title.</Paragraph>
-                            </Div>
-                        </Tab>
-                    </Tabs>
-                </Div>
-            </DemoSection>
-        </Section>
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Vertical"
+                     Description="Use `Vertical=true` to render the triggers on the side like the shadcn vertical example."
+                     Code="@VerticalCode"
+                     CodeLanguage="razor">
+            <Tabs Vertical="true" Class="w-full max-w-2xl">
+                <Tab Name="account-vertical" Title="Account">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Account</CardTitle>
+                            <CardDescription>Manage your profile and public details.</CardDescription>
+                        </CardHeader>
+                        <CardBody>
+                            <Paragraph Margin="Margin.Is0">This panel demonstrates vertical tab content.</Paragraph>
+                        </CardBody>
+                    </Card>
+                </Tab>
+                <Tab Name="password-vertical" Title="Password">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Password</CardTitle>
+                            <CardDescription>Update authentication settings.</CardDescription>
+                        </CardHeader>
+                        <CardBody>
+                            <Paragraph Margin="Margin.Is0">Use the arrow keys to move between vertical tabs.</Paragraph>
+                        </CardBody>
+                    </Card>
+                </Tab>
+                <Tab Name="notifications-vertical" Title="Notifications">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Notifications</CardTitle>
+                            <CardDescription>Choose which updates you want to receive.</CardDescription>
+                        </CardHeader>
+                        <CardBody>
+                            <Paragraph Margin="Margin.Is0">Vertical layout keeps the tab list visible beside the content.</Paragraph>
+                        </CardBody>
+                    </Card>
+                </Tab>
+            </Tabs>
+        </DemoSection>
+    </Section>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Vertical" Description="Tabs on the left side." Code="@(@"<Tabs Vertical=""true"">
-    <Tab Name=""vertical1"" Title=""Dashboard""><Div Class=""p-3"">Dashboard content</Div></Tab>
-    <Tab Name=""vertical2"" Title=""Analytics""><Div Class=""p-3"">Analytics content</Div></Tab>
-    <Tab Name=""vertical3"" Title=""Reports""><Div Class=""p-3"">Reports content</Div></Tab>
-</Tabs>")">
-                <Div Rounded="Rounded.Xl" Border="Border.Is1" BorderColor="BorderColor.Border" BackgroundColor='BackgroundColor.Token("muted/30")' Padding="Padding.Is6">
-                    <Tabs Vertical="true">
-                        <Tab Name="vertical1" Title="Dashboard">
-                            <Div Padding="Padding.Is3">
-                                <H5>Dashboard Content</H5>
-                                <Paragraph>This is a vertical tab layout. The tabs are displayed on the left side.</Paragraph>
-                                <Grid Columns="Columns.Is1.OnMd.Is3" Gap="Gap.Is4">
-                                    <Div>
-                                        <Card>
-                                            <CardBody>
-                                                <CardTitle>Widget 1</CardTitle>
-                                                <CardText>Some content here</CardText>
-                                            </CardBody>
-                                        </Card>
-                                    </Div>
-                                    <Div>
-                                        <Card>
-                                            <CardBody>
-                                                <CardTitle>Widget 2</CardTitle>
-                                                <CardText>Some content here</CardText>
-                                            </CardBody>
-                                        </Card>
-                                    </Div>
-                                    <Div>
-                                        <Card>
-                                            <CardBody>
-                                                <CardTitle>Widget 3</CardTitle>
-                                                <CardText>Some content here</CardText>
-                                            </CardBody>
-                                        </Card>
-                                    </Div>
-                                </Grid>
-                            </Div>
-                        </Tab>
-                        <Tab Name="vertical2" Title="Analytics">
-                            <Div Padding="Padding.Is3">
-                                <H5>Analytics Content</H5>
-                                <Paragraph>Analytics and reporting features would be displayed here.</Paragraph>
-                                <Div class="progress mb-2">
-                                    <Div class="progress-bar" style="width: 75%">75%</Div>
-                                </Div>
-                                <Div class="progress mb-2">
-                                    <Div class="progress-bar bg-success" style="width: 60%">60%</Div>
-                                </Div>
-                                <Div class="progress">
-                                    <Div class="progress-bar bg-warning" style="width: 40%">40%</Div>
-                                </Div>
-                            </Div>
-                        </Tab>
-                        <Tab Name="vertical3" Title="Reports">
-                            <Div Padding="Padding.Is3">
-                                <H5>Reports Content</H5>
-                                <Paragraph>Various reports and data visualization would be shown here.</Paragraph>
-                                <Button BackgroundColor="BackgroundColor.Primary">Generate Report</Button>
-                                <Button BackgroundColor="BackgroundColor.Secondary">Export Data</Button>
-                            </Div>
-                        </Tab>
-                    </Tabs>
-                </Div>
-            </DemoSection>
-        </Section>
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Disabled"
+                     Description="Disabled triggers are skipped by keyboard navigation and cannot be selected."
+                     Code="@DisabledCode"
+                     CodeLanguage="razor">
+            <Tabs Class="w-[400px]">
+                <Tab Name="enabled" Title="Enabled">
+                    <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                        This tab can be selected normally.
+                    </Div>
+                </Tab>
+                <Tab Name="disabled" Title="Disabled" Disabled="true">
+                    <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                        This content is unreachable because the trigger is disabled.
+                    </Div>
+                </Tab>
+                <Tab Name="active" Title="Another enabled">
+                    <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                        This is another enabled tab.
+                    </Div>
+                </Tab>
+            </Tabs>
+        </DemoSection>
+    </Section>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Disabled" Description="One tab is disabled." Code="@(@"<Tabs>
-    <Tab Name=""disabled1"" Title=""Enabled Tab""><Div Class=""p-3"">This tab is enabled</Div></Tab>
-    <Tab Name=""disabled2"" Title=""Disabled Tab"" Disabled=""true""><Div Class=""p-3"">Disabled content</Div></Tab>
-    <Tab Name=""disabled3"" Title=""Another Enabled Tab""><Div Class=""p-3"">Also enabled</Div></Tab>
-</Tabs>")">
-                <Div Rounded="Rounded.Xl" Border="Border.Is1" BorderColor="BorderColor.Border" BackgroundColor='BackgroundColor.Token("muted/30")' Padding="Padding.Is6">
-                    <Tabs>
-                        <Tab Name="disabled1" Title="Enabled Tab">
-                            <Div Padding="Padding.Is3">
-                                <H5>This tab is enabled</H5>
-                                <Paragraph>You can interact with this tab normally.</Paragraph>
-                            </Div>
-                        </Tab>
-                        <Tab Name="disabled2" Title="Disabled Tab" Disabled="true">
-                            <Div Padding="Padding.Is3">
-                                <H5>This tab is disabled</H5>
-                                <Paragraph>This content won't be shown because the tab is disabled.</Paragraph>
-                            </Div>
-                        </Tab>
-                        <Tab Name="disabled3" Title="Another Enabled Tab">
-                            <Div Padding="Padding.Is3">
-                                <H5>This tab is also enabled</H5>
-                                <Paragraph>You can switch to this tab as well.</Paragraph>
-                            </Div>
-                        </Tab>
-                    </Tabs>
-                </Div>
-            </DemoSection>
-        </Section>
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Icons"
+                     Description="Set the `Icon` parameter to show the tabs-with-icons pattern from shadcn."
+                     Code="@IconsCode"
+                     CodeLanguage="razor">
+            <Tabs Class="w-[420px]">
+                <Tab Name="home-icon" Title="Home" Icon="LucideIcon.House">
+                    <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                        Home content with an icon in the trigger.
+                    </Div>
+                </Tab>
+                <Tab Name="members-icon" Title="Members" Icon="LucideIcon.Users">
+                    <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                        Members content with an icon in the trigger.
+                    </Div>
+                </Tab>
+                <Tab Name="settings-icon" Title="Settings" Icon="LucideIcon.Cog">
+                    <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                        Settings content with an icon in the trigger.
+                    </Div>
+                </Tab>
+            </Tabs>
+        </DemoSection>
+    </Section>
 
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Dynamic tabs" Description="@($"Add/remove tabs; count: {_dynamicTabs.Count}.")" Code="@(@"<Tabs SelectedTab=""_dynamicSelectedTab"" OnSelectedTabChanged=""HandleDynamicTabChanged"">
-    @foreach (DynamicTab tab in _dynamicTabs) {
-        <Tab Name=""@tab.Name"" Title=""@tab.Title""><Div Class=""p-3"">@tab.Content</Div></Tab>
-    }
-</Tabs>
-<Button OnClick=""AddTab"">Add Tab</Button>
-<Button OnClick=""RemoveTab"">Remove Tab</Button>")">
-                <Div Rounded="Rounded.Xl" Border="Border.Is1" BorderColor="BorderColor.Border" BackgroundColor='BackgroundColor.Token("muted/30")' Padding="Padding.Is6">
-                    <Tabs SelectedTab="@_dynamicSelectedTab" OnSelectedTabChanged="HandleDynamicTabChanged">
-                        @foreach (var tab in _dynamicTabs)
-                        {
-                            <Tab Name="@tab.Name" Title="@tab.Title">
-                                <Div Padding="Padding.Is3">
-                                    <H5>@tab.Title Content</H5>
-                                    <Paragraph>This is dynamic tab content for: <Strong>@tab.Title</Strong></Paragraph>
-                                    <Paragraph>Tab ID: <code>@tab.Name</code></Paragraph>
-                                </Div>
-                            </Tab>
-                        }
-                    </Tabs>
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="RTL"
+                     Description="Tabs now respect inherited direction, so the shadcn RTL example is possible in Quark."
+                     Code="@RtlCode"
+                     CodeLanguage="razor">
+            <DirectionProvider Dir="rtl">
+                <Tabs TabsListVariant="TabsListVariant.Line" Class="w-[400px]">
+                    <Tab Name="rtl-account" Title="الحساب">
+                        <Div class="mt-4 rounded-md border border-border p-4 text-right text-sm text-muted-foreground">
+                            مثال على علامات التبويب باتجاه من اليمين إلى اليسار.
+                        </Div>
+                    </Tab>
+                    <Tab Name="rtl-password" Title="كلمة المرور">
+                        <Div class="mt-4 rounded-md border border-border p-4 text-right text-sm text-muted-foreground">
+                            اتجاه المكوّن الآن يُورث بشكل صحيح بدلاً من فرض `ltr`.
+                        </Div>
+                    </Tab>
+                </Tabs>
+            </DirectionProvider>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <Div Space="Space.Y.Is2">
+            <H2 class="text-xl font-semibold">Quark-only examples</H2>
+            <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                These patterns are supported by Quark but are not part of the core shadcn tabs docs coverage.
+            </Paragraph>
+        </Div>
+
+        <DemoSection Title="Controlled tabs"
+                     Description="@($"Selected tab: {_controlledTab}.")"
+                     Code="@ControlledCode"
+                     CodeLanguage="razor">
+            <Div class="space-y-4">
+                <Tabs SelectedTab="_controlledTab" OnSelectedTabChanged="OnControlledTabChanged" Class="w-[400px]">
+                    <Tab Name="overview-controlled" Title="Overview">
+                        <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                            Parent-controlled content for Overview.
+                        </Div>
+                    </Tab>
+                    <Tab Name="activity-controlled" Title="Activity">
+                        <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                            Parent-controlled content for Activity.
+                        </Div>
+                    </Tab>
+                    <Tab Name="settings-controlled" Title="Settings">
+                        <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                            Parent-controlled content for Settings.
+                        </Div>
+                    </Tab>
+                </Tabs>
+
+                <Div class="flex flex-wrap gap-2">
+                    <Button Size="ButtonSize.Sm" OnClick="SelectOverviewControlled">Overview</Button>
+                    <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="SelectActivityControlled">Activity</Button>
+                    <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="SelectSettingsControlled">Settings</Button>
                 </Div>
-                <Div Display="Display.Flex" Flex="Flex.Wrap" Gap="Gap.Is2" Margin="Margin.Is4.FromTop">
-                    <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" Size="ButtonSize.Sm" OnClick="AddDynamicTab">Add Tab</Button>
-                    <Button BackgroundColor="BackgroundColor.Destructive" TextColor="TextColor.DestructiveForeground" Size="ButtonSize.Sm" OnClick="RemoveDynamicTab">Remove Last</Button>
-                    <Button BackgroundColor="BackgroundColor.Muted" TextColor="TextColor.MutedForeground" Size="ButtonSize.Sm" OnClick="ClearDynamicTabs">Clear All</Button>
+            </Div>
+        </DemoSection>
+
+        <DemoSection Title="Dynamic tabs"
+                     Description="@($"Add and remove tabs dynamically. Current count: {_dynamicTabs.Count}.")"
+                     Code="@DynamicCode"
+                     CodeLanguage="razor">
+            <Div class="space-y-4">
+                <Tabs SelectedTab="_dynamicSelectedTab" OnSelectedTabChanged="OnDynamicTabChanged" Class="w-full max-w-2xl">
+                    @foreach (var tab in _dynamicTabs)
+                    {
+                        <Tab Name="@tab.Name" Title="@tab.Title">
+                            <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                                @tab.Content
+                            </Div>
+                        </Tab>
+                    }
+                </Tabs>
+
+                <Div class="flex flex-wrap gap-2">
+                    <Button Size="ButtonSize.Sm" OnClick="AddDynamicTab">Add tab</Button>
+                    <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="RemoveDynamicTab">Remove last</Button>
+                    <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="ResetDynamicTabs">Reset</Button>
                 </Div>
-            </DemoSection>
-        </Section>
-    </Div>
+            </Div>
+        </DemoSection>
+    </Section>
 </Div>
 
 @code {
-    private string _selectedTab = "controlled1";
-    private string _dynamicSelectedTab = "";
-    private List<DynamicTab> _dynamicTabs = [];
-    private int _dynamicTabCounter = 1;
-    private bool _setting1;
+    private const string DefaultCode = """
+        <Tabs Class="w-[400px]">
+            <Tab Name="account" Title="Account">
+                <Card Class="mt-4">
+                    <CardHeader>
+                        <CardTitle>Account</CardTitle>
+                        <CardDescription>Make changes to your account here. Click save when you're done.</CardDescription>
+                    </CardHeader>
+                    <CardBody Class="space-y-4">
+                        <Field>
+                            <FieldLabel For="tabs-account-name">Name</FieldLabel>
+                            <Input Id="tabs-account-name" Value="Pedro Duarte" />
+                        </Field>
+                        <Field>
+                            <FieldLabel For="tabs-account-username">Username</FieldLabel>
+                            <Input Id="tabs-account-username" Value="@peduarte" />
+                        </Field>
+                    </CardBody>
+                    <CardFooter Class="justify-end">
+                        <Button>Save changes</Button>
+                    </CardFooter>
+                </Card>
+            </Tab>
+            <Tab Name="password" Title="Password">
+                <Card Class="mt-4">
+                    <CardHeader>
+                        <CardTitle>Password</CardTitle>
+                        <CardDescription>Change your password here. After saving, you'll be logged out.</CardDescription>
+                    </CardHeader>
+                    <CardBody Class="space-y-4">
+                        <Field>
+                            <FieldLabel For="tabs-current-password">Current password</FieldLabel>
+                            <Input Id="tabs-current-password" Type="password" />
+                        </Field>
+                        <Field>
+                            <FieldLabel For="tabs-new-password">New password</FieldLabel>
+                            <Input Id="tabs-new-password" Type="password" />
+                        </Field>
+                    </CardBody>
+                    <CardFooter Class="justify-end">
+                        <Button>Save password</Button>
+                    </CardFooter>
+                </Card>
+            </Tab>
+        </Tabs>
+        """;
 
-    public class DynamicTab
-    {
-        public string Name { get; set; } = "";
-        public string Title { get; set; } = "";
-    }
+    private const string UsernameSample = "@peduarte";
 
-    private async Task HandleTabChanged(string tabName)
-    {
-        _selectedTab = tabName;
-        StateHasChanged();
-        await Task.CompletedTask;
-    }
+    private const string LineCode = """
+        <Tabs TabsListVariant="TabsListVariant.Line" Class="w-[400px]">
+            <Tab Name="overview" Title="Overview">
+                <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                    Overview content.
+                </Div>
+            </Tab>
+            <Tab Name="analytics" Title="Analytics">
+                <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                    Analytics content.
+                </Div>
+            </Tab>
+            <Tab Name="reports" Title="Reports">
+                <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                    Reports content.
+                </Div>
+            </Tab>
+        </Tabs>
+        """;
 
-    private async Task HandleDynamicTabChanged(string tabName)
-    {
-        _dynamicSelectedTab = tabName;
-        StateHasChanged();
-        await Task.CompletedTask;
-    }
+    private const string VerticalCode = """
+        <Tabs Vertical="true" Class="w-full max-w-2xl">
+            <Tab Name="account-vertical" Title="Account">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Account</CardTitle>
+                        <CardDescription>Manage your profile and public details.</CardDescription>
+                    </CardHeader>
+                    <CardBody>
+                        <Paragraph Margin="Margin.Is0">This panel demonstrates vertical tab content.</Paragraph>
+                    </CardBody>
+                </Card>
+            </Tab>
+            <Tab Name="password-vertical" Title="Password">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Password</CardTitle>
+                        <CardDescription>Update authentication settings.</CardDescription>
+                    </CardHeader>
+                    <CardBody>
+                        <Paragraph Margin="Margin.Is0">Use the arrow keys to move between vertical tabs.</Paragraph>
+                    </CardBody>
+                </Card>
+            </Tab>
+            <Tab Name="notifications-vertical" Title="Notifications">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Notifications</CardTitle>
+                        <CardDescription>Choose which updates you want to receive.</CardDescription>
+                    </CardHeader>
+                    <CardBody>
+                        <Paragraph Margin="Margin.Is0">Vertical layout keeps the tab list visible beside the content.</Paragraph>
+                    </CardBody>
+                </Card>
+            </Tab>
+        </Tabs>
+        """;
 
-    private async Task GoToFirstTab()
-    {
-        _selectedTab = "controlled1";
-        StateHasChanged();
-        await Task.CompletedTask;
-    }
+    private const string DisabledCode = """
+        <Tabs Class="w-[400px]">
+            <Tab Name="enabled" Title="Enabled">
+                <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                    This tab can be selected normally.
+                </Div>
+            </Tab>
+            <Tab Name="disabled" Title="Disabled" Disabled="true">
+                <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                    This content is unreachable because the trigger is disabled.
+                </Div>
+            </Tab>
+            <Tab Name="active" Title="Another enabled">
+                <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                    This is another enabled tab.
+                </Div>
+            </Tab>
+        </Tabs>
+        """;
 
-    private async Task GoToSecondTab()
-    {
-        _selectedTab = "controlled2";
-        StateHasChanged();
-        await Task.CompletedTask;
-    }
+    private const string IconsCode = """
+        <Tabs Class="w-[420px]">
+            <Tab Name="home-icon" Title="Home" Icon="LucideIcon.House">
+                <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                    Home content with an icon in the trigger.
+                </Div>
+            </Tab>
+            <Tab Name="members-icon" Title="Members" Icon="LucideIcon.Users">
+                <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                    Members content with an icon in the trigger.
+                </Div>
+            </Tab>
+            <Tab Name="settings-icon" Title="Settings" Icon="LucideIcon.Cog">
+                <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                    Settings content with an icon in the trigger.
+                </Div>
+            </Tab>
+        </Tabs>
+        """;
 
-    private async Task GoToThirdTab()
-    {
-        _selectedTab = "controlled3";
-        StateHasChanged();
-        await Task.CompletedTask;
-    }
+    private const string RtlCode = """
+        <DirectionProvider Dir="rtl">
+            <Tabs TabsListVariant="TabsListVariant.Line" Class="w-[400px]">
+                <Tab Name="rtl-account" Title="الحساب">
+                    <Div class="mt-4 rounded-md border border-border p-4 text-right text-sm text-muted-foreground">
+                        مثال على علامات التبويب باتجاه من اليمين إلى اليسار.
+                    </Div>
+                </Tab>
+                <Tab Name="rtl-password" Title="كلمة المرور">
+                    <Div class="mt-4 rounded-md border border-border p-4 text-right text-sm text-muted-foreground">
+                        اتجاه المكوّن الآن يُورث بشكل صحيح بدلاً من فرض `ltr`.
+                    </Div>
+                </Tab>
+            </Tabs>
+        </DirectionProvider>
+        """;
 
-    private async Task AddDynamicTab()
-    {
-        var newTab = new DynamicTab
-        {
-            Name = $"dynamic{_dynamicTabCounter}",
-            Title = $"Dynamic Tab {_dynamicTabCounter}"
-        };
-        _dynamicTabs.Add(newTab);
-        _dynamicTabCounter++;
-        
-        if (_dynamicTabs.Count == 1)
-        {
-            _dynamicSelectedTab = newTab.Name;
-        }
-        
-        StateHasChanged();
-        await Task.CompletedTask;
-    }
+    private const string ControlledCode = """
+        <Tabs SelectedTab="_controlledTab" OnSelectedTabChanged="OnControlledTabChanged" Class="w-[400px]">
+            <Tab Name="overview-controlled" Title="Overview">
+                <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                    Parent-controlled content for Overview.
+                </Div>
+            </Tab>
+            <Tab Name="activity-controlled" Title="Activity">
+                <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                    Parent-controlled content for Activity.
+                </Div>
+            </Tab>
+            <Tab Name="settings-controlled" Title="Settings">
+                <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                    Parent-controlled content for Settings.
+                </Div>
+            </Tab>
+        </Tabs>
+        """;
 
-    private async Task RemoveDynamicTab()
-    {
-        if (_dynamicTabs.Count > 0)
-        {
-            var lastTab = _dynamicTabs.Last();
-            _dynamicTabs.Remove(lastTab);
-            
-            if (_dynamicSelectedTab == lastTab.Name)
+    private const string DynamicCode = """
+        <Tabs SelectedTab="_dynamicSelectedTab" OnSelectedTabChanged="OnDynamicTabChanged" Class="w-full max-w-2xl">
+            @foreach (var tab in _dynamicTabs)
             {
-                _dynamicSelectedTab = _dynamicTabs.Count > 0 ? _dynamicTabs.Last().Name : "";
+                <Tab Name="@tab.Name" Title="@tab.Title">
+                    <Div class="mt-4 rounded-md border border-border p-4 text-sm text-muted-foreground">
+                        @tab.Content
+                    </Div>
+                </Tab>
             }
-        }
-        
-        StateHasChanged();
-        await Task.CompletedTask;
+        </Tabs>
+        """;
+
+    private string _controlledTab = "overview-controlled";
+    private string _dynamicSelectedTab = "release-1";
+    private readonly List<DynamicTabModel> _dynamicTabs =
+    [
+        new("release-1", "Release 1", "Release 1 notes and rollout details."),
+        new("release-2", "Release 2", "Release 2 notes and rollout details.")
+    ];
+
+    private int _dynamicCounter = 3;
+
+    private sealed record DynamicTabModel(string Name, string Title, string Content);
+
+    private Task OnControlledTabChanged(string tab)
+    {
+        _controlledTab = tab;
+        return Task.CompletedTask;
     }
 
-    private async Task ClearDynamicTabs()
+    private Task OnDynamicTabChanged(string tab)
+    {
+        _dynamicSelectedTab = tab;
+        return Task.CompletedTask;
+    }
+
+    private Task SelectOverviewControlled()
+    {
+        _controlledTab = "overview-controlled";
+        return Task.CompletedTask;
+    }
+
+    private Task SelectActivityControlled()
+    {
+        _controlledTab = "activity-controlled";
+        return Task.CompletedTask;
+    }
+
+    private Task SelectSettingsControlled()
+    {
+        _controlledTab = "settings-controlled";
+        return Task.CompletedTask;
+    }
+
+    private Task AddDynamicTab()
+    {
+        var name = $"release-{_dynamicCounter}";
+        _dynamicTabs.Add(new DynamicTabModel(name, $"Release {_dynamicCounter}", $"Release {_dynamicCounter} notes and rollout details."));
+        _dynamicSelectedTab = name;
+        _dynamicCounter++;
+        return Task.CompletedTask;
+    }
+
+    private Task RemoveDynamicTab()
+    {
+        if (_dynamicTabs.Count == 0)
+            return Task.CompletedTask;
+
+        _dynamicTabs.RemoveAt(_dynamicTabs.Count - 1);
+        _dynamicSelectedTab = _dynamicTabs.Count > 0 ? _dynamicTabs[^1].Name : string.Empty;
+        return Task.CompletedTask;
+    }
+
+    private Task ResetDynamicTabs()
     {
         _dynamicTabs.Clear();
-        _dynamicSelectedTab = "";
-        StateHasChanged();
-        await Task.CompletedTask;
-    }
-
-    protected override void OnInitialized()
-    {
-        // Initialize with a few dynamic tabs
-        _dynamicTabs.Add(new DynamicTab { Name = "dynamic1", Title = "Dynamic Tab 1" });
-        _dynamicTabs.Add(new DynamicTab { Name = "dynamic2", Title = "Dynamic Tab 2" });
-        _dynamicSelectedTab = "dynamic1";
+        _dynamicTabs.Add(new DynamicTabModel("release-1", "Release 1", "Release 1 notes and rollout details."));
+        _dynamicTabs.Add(new DynamicTabModel("release-2", "Release 2", "Release 2 notes and rollout details."));
+        _dynamicSelectedTab = "release-1";
+        _dynamicCounter = 3;
+        return Task.CompletedTask;
     }
 }

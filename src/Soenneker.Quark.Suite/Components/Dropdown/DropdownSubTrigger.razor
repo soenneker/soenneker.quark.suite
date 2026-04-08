@@ -1,29 +1,98 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
+@implements IDropdownFocusableItem
 
-<div @attributes="BuildAttributes()">
+<div @onmouseenter="HandleOpen" @onclick="HandleOpen" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()" @ref="_elementRef">
     @ChildContent
-    <Icon Name="LucideIcon.ChevronRight" Class="ml-auto size-4" />
+    <Icon Name="LucideIcon.ChevronRight" Class="ml-auto size-4 rtl:ml-0 rtl:mr-auto rtl:rotate-180" />
 </div>
 
 @code {
+    private ElementReference _elementRef;
+
     [Parameter]
     public bool Inset { get; set; }
 
     [Parameter]
     public bool Open { get; set; }
 
+    [CascadingParameter(Name = "ParentDropdownSub")]
+    private DropdownSub? ParentDropdownSub { get; set; }
+
+    [CascadingParameter(Name = "DropdownNavigationSub")]
+    private DropdownSub? NavigationSub { get; set; }
+
+    [CascadingParameter(Name = nameof(ParentDropdown))]
+    private Dropdown? ParentDropdown { get; set; }
+
+    bool IDropdownFocusableItem.IsDisabledForNavigation => Disabled;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if (!firstRender)
+            return;
+
+        if (ParentDropdownSub is not null)
+            ParentDropdownSub.RegisterTrigger(this);
+
+        if (NavigationSub is not null)
+            NavigationSub.RegisterItem(this);
+        else
+            ParentDropdown?.RegisterItem(this);
+    }
+
+    private void HandleOpen()
+    {
+        ParentDropdownSub?.OpenSubmenu();
+    }
+
+    protected override async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
+        {
+            if (NavigationSub is not null)
+                await NavigationSub.HandleItemNavigationAsync(this, e.Key);
+            else if (ParentDropdown is not null)
+                await ParentDropdown.HandleItemNavigationAsync(this, e.Key);
+
+            return;
+        }
+
+        if (e.Key is "ArrowRight" or "Enter" or " ")
+        {
+            if (ParentDropdownSub is not null)
+                await ParentDropdownSub.OpenAndFocusFirstItemAsync();
+
+            return;
+        }
+
+        if (e.Key == "Escape" && ParentDropdownSub is not null)
+            await ParentDropdownSub.CloseAndFocusTriggerAsync();
+
+        await base.HandleKeyDown(e);
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        var isOpen = Open || ParentDropdownSub?.Open == true;
         attributes["data-slot"] = "dropdown-menu-sub-trigger";
-        attributes["data-state"] = Open ? "open" : "closed";
+        attributes["data-state"] = isOpen ? "open" : "closed";
+        attributes["role"] = "menuitem";
+        attributes["aria-haspopup"] = "menu";
+        attributes["aria-expanded"] = isOpen ? "true" : "false";
+        attributes["tabindex"] = Disabled ? -1 : 0;
+
+        if (Inset)
+            attributes["data-inset"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-dropdown-sub-trigger");
             AppendClass(ref cls, "flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none");
-            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground data-[inset]:pl-8 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground");
+            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground data-[inset]:pl-8 rtl:data-[inset]:pl-2 rtl:data-[inset]:pr-8 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground");
         });
     }
@@ -32,5 +101,27 @@
     {
         hc.Add(Inset);
         hc.Add(Open);
+        hc.Add(ParentDropdownSub?.Open ?? false);
+        hc.Add(NavigationSub?.Open ?? false);
+    }
+
+    async Task IDropdownFocusableItem.FocusAsync()
+    {
+        await _elementRef.FocusAsync();
+    }
+
+    internal async Task FocusAsync()
+    {
+        await _elementRef.FocusAsync();
+    }
+
+    public override void Dispose()
+    {
+        if (NavigationSub is not null)
+            NavigationSub.UnregisterItem(this);
+        else
+            ParentDropdown?.UnregisterItem(this);
+
+        base.Dispose();
     }
 }

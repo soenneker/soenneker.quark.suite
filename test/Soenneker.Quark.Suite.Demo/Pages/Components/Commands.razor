@@ -11,21 +11,16 @@
                          Code="@CommandCode">
                 <Div Class="max-w-md rounded-xl border bg-card shadow-sm">
                     <Command>
-                        <CommandInput Value="_commandSearch"
-                                      ValueChanged="OnCommandSearchChanged"
-                                      Placeholder="Type a command or search..." />
+                        <CommandInput Placeholder="Type a command or search..." />
                         <CommandList>
-                            @foreach (var action in FilteredActions)
+                            <CommandEmpty>No actions match your search.</CommandEmpty>
+
+                            @foreach (var action in Actions)
                             {
-                                <CommandItem OnSelect="@(() => SelectAction(action.Title))">
+                                <CommandItem SearchValue="@action.Title" OnSelect="@(() => SelectAction(action.Title))">
                                     <Span>@action.Title</Span>
                                     <CommandShortcut>@action.Shortcut</CommandShortcut>
                                 </CommandItem>
-                            }
-
-                            @if (!FilteredActions.Any())
-                            {
-                                <CommandEmpty>No actions match your search.</CommandEmpty>
                             }
                         </CommandList>
                     </Command>
@@ -47,7 +42,7 @@
                         <CommandList>
                             @foreach (var action in Actions.Take(4))
                             {
-                                <CommandItem>
+                                <CommandItem SearchValue="@action.Title">
                                     <Span>@action.Title</Span>
                                     <CommandShortcut>@action.Shortcut</CommandShortcut>
                                 </CommandItem>
@@ -65,15 +60,16 @@
                     <Command>
                         <CommandInput Placeholder="Search grouped commands..." />
                         <CommandList>
+                            <CommandEmpty>No grouped commands match your search.</CommandEmpty>
                             <CommandGroup Heading="Suggestions">
-                                <CommandItem OnSelect="@(() => SelectAction("Calendar"))">Calendar</CommandItem>
-                                <CommandItem OnSelect="@(() => SelectAction("Search emoji"))">Search emoji</CommandItem>
+                                <CommandItem SearchValue="Calendar" OnSelect="@(() => SelectAction("Calendar"))">Calendar</CommandItem>
+                                <CommandItem SearchValue="Search emoji" OnSelect="@(() => SelectAction("Search emoji"))">Search emoji</CommandItem>
                             </CommandGroup>
                             <CommandSeparator />
                             <CommandGroup Heading="Settings">
-                                <CommandItem OnSelect="@(() => SelectAction("Profile"))">Profile</CommandItem>
-                                <CommandItem OnSelect="@(() => SelectAction("Billing"))">Billing</CommandItem>
-                                <CommandItem OnSelect="@(() => SelectAction("Team"))">Team</CommandItem>
+                                <CommandItem SearchValue="Profile" OnSelect="@(() => SelectAction("Profile"))">Profile</CommandItem>
+                                <CommandItem SearchValue="Billing" OnSelect="@(() => SelectAction("Billing"))">Billing</CommandItem>
+                                <CommandItem SearchValue="Team" OnSelect="@(() => SelectAction("Team"))">Team</CommandItem>
                             </CommandGroup>
                         </CommandList>
                     </Command>
@@ -88,9 +84,10 @@
                     <Command>
                         <CommandInput Placeholder="Search long list..." />
                         <CommandList Class="max-h-56 overflow-y-auto">
+                            <CommandEmpty>No results found.</CommandEmpty>
                             @foreach (var item in ScrollableActions)
                             {
-                                <CommandItem OnSelect="@(() => SelectAction(item))">@item</CommandItem>
+                                <CommandItem SearchValue="@item" OnSelect="@(() => SelectAction(item))">@item</CommandItem>
                             }
                         </CommandList>
                     </Command>
@@ -107,13 +104,13 @@
                     <CommandDialog Title="Workspace actions"
                                    Visible="_dialogOpen"
                                    VisibleChanged="OnDialogVisibilityChanged">
-                        <CommandInput Value="_dialogSearch"
-                                      ValueChanged="OnDialogSearchChanged"
-                                      Placeholder="Search workspace actions..." />
+                        <CommandInput Placeholder="Search workspace actions..." />
                         <CommandList>
-                            @foreach (var action in FilteredDialogActions)
+                            <CommandEmpty>No workspace actions match your search.</CommandEmpty>
+
+                            @foreach (var action in Actions)
                             {
-                                <CommandItem OnSelect="@(() => SelectDialogAction(action.Title))">
+                                <CommandItem SearchValue="@action.Title" OnSelect="@(() => SelectDialogAction(action.Title))">
                                     <Span>@action.Title</Span>
                                     <CommandShortcut>@action.Shortcut</CommandShortcut>
                                 </CommandItem>
@@ -160,37 +157,10 @@
         "Usage"
     ];
 
-    private string? _commandSearch;
     private string _lastAction = "None";
 
     private bool _dialogOpen;
-    private string? _dialogSearch;
     private string _dialogSelection = "None";
-
-    private IEnumerable<CommandAction> FilteredActions =>
-        FilterActions(_commandSearch);
-
-    private IEnumerable<CommandAction> FilteredDialogActions =>
-        FilterActions(_dialogSearch);
-
-    private static IEnumerable<CommandAction> FilterActions(string? search)
-    {
-        return Actions.Where(action =>
-            string.IsNullOrWhiteSpace(search) ||
-            action.Title.Contains(search, StringComparison.OrdinalIgnoreCase));
-    }
-
-    private Task OnCommandSearchChanged(string? value)
-    {
-        _commandSearch = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnDialogSearchChanged(string? value)
-    {
-        _dialogSearch = value;
-        return Task.CompletedTask;
-    }
 
     private Task OpenDialog(MouseEventArgs _)
     {
@@ -223,12 +193,15 @@
 @"<Command>
     <CommandInput Placeholder=""Type a command or search..."" />
     <CommandList>
+        <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup Heading=""Suggestions"">
-            <CommandItem>Calendar<CommandShortcut>Ctrl+K</CommandShortcut></CommandItem>
-            <CommandItem>Billing<CommandShortcut>Ctrl+B</CommandShortcut></CommandItem>
+            <CommandItem SearchValue=""Calendar"">Calendar<CommandShortcut>Ctrl+K</CommandShortcut></CommandItem>
+            <CommandItem SearchValue=""Billing"">Billing<CommandShortcut>Ctrl+B</CommandShortcut></CommandItem>
         </CommandGroup>
         <CommandSeparator />
-        <CommandEmpty>No results found.</CommandEmpty>
+        <CommandGroup Heading=""Settings"">
+            <CommandItem SearchValue=""Settings"">Settings<CommandShortcut>Ctrl+S</CommandShortcut></CommandItem>
+        </CommandGroup>
     </CommandList>
 </Command>";
 }

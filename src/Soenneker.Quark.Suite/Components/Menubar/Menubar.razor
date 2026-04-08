@@ -1,12 +1,109 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()">
-    @ChildContent
-</div>
+<CascadingValue Name="ParentMenubar" Value="@this" IsFixed="true">
+    <div @attributes="BuildAttributes()">
+        @ChildContent
+    </div>
+</CascadingValue>
 
 @code {
     private readonly string _menubarId = $"menubar-{Guid.NewGuid():N}";
+    private readonly List<MenubarTrigger> _triggers = [];
+
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
+
+    internal void RegisterTrigger(MenubarTrigger trigger)
+    {
+        if (!_triggers.Contains(trigger))
+            _triggers.Add(trigger);
+    }
+
+    internal void UnregisterTrigger(MenubarTrigger trigger)
+    {
+        _triggers.Remove(trigger);
+    }
+
+    internal async Task HandleTriggerNavigationAsync(MenubarTrigger currentTrigger, string key, bool openMenu = false)
+    {
+        var enabledTriggers = _triggers.Where(trigger => !trigger.Disabled).ToList();
+        if (enabledTriggers.Count == 0)
+            return;
+
+        var currentIndex = enabledTriggers.FindIndex(trigger => ReferenceEquals(trigger, currentTrigger));
+        if (currentIndex < 0)
+            return;
+
+        var nextIndex = key switch
+        {
+            "Home" => 0,
+            "End" => enabledTriggers.Count - 1,
+            "ArrowRight" when IsHorizontalRtl() => (currentIndex - 1 + enabledTriggers.Count) % enabledTriggers.Count,
+            "ArrowLeft" when IsHorizontalRtl() => (currentIndex + 1) % enabledTriggers.Count,
+            "ArrowRight" => (currentIndex + 1) % enabledTriggers.Count,
+            "ArrowLeft" => (currentIndex - 1 + enabledTriggers.Count) % enabledTriggers.Count,
+            _ => -1
+        };
+
+        if (nextIndex < 0)
+            return;
+
+        var targetTrigger = enabledTriggers[nextIndex];
+        await targetTrigger.FocusAsync();
+
+        if (openMenu)
+            await targetTrigger.FocusMenuFirstItemAsync();
+    }
+
+    internal async Task HandleMenuTraversalAsync(MenubarMenu currentMenu, string key)
+    {
+        if (currentMenu.Trigger is not null)
+            await HandleTriggerNavigationAsync(currentMenu.Trigger, key, openMenu: true);
+    }
+
+    internal bool IsSubmenuOpenKey(string key)
+    {
+        return IsHorizontalRtl() ? key == "ArrowLeft" : key == "ArrowRight";
+    }
+
+    internal bool IsSubmenuCloseKey(string key)
+    {
+        return IsHorizontalRtl() ? key == "ArrowRight" : key == "ArrowLeft";
+    }
+
+    private bool IsHorizontalRtl()
+    {
+        if (string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (Attributes is not null &&
+            Attributes.TryGetValue("dir", out var dirValue) &&
+            string.Equals(dirValue?.ToString(), "rtl", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private string GetResolvedDirection()
+    {
+        if (string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase))
+            return "rtl";
+
+        if (string.Equals(DirectionProviderDir, "ltr", StringComparison.OrdinalIgnoreCase))
+            return "ltr";
+
+        if (Attributes is not null &&
+            Attributes.TryGetValue("dir", out var dirValue) &&
+            string.Equals(dirValue?.ToString(), "rtl", StringComparison.OrdinalIgnoreCase))
+        {
+            return "rtl";
+        }
+
+        return "ltr";
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -18,12 +115,18 @@
         attributes["data-modal"] = "false";
         attributes["role"] = "menubar";
         attributes["aria-orientation"] = "horizontal";
-        attributes["dir"] = "ltr";
+        attributes["dir"] = GetResolvedDirection();
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-menubar");
             AppendClass(ref cls, "bg-background flex h-9 items-center gap-1 rounded-md border p-1 shadow-xs");
         });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(DirectionProviderDir);
     }
 }

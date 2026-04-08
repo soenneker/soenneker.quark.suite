@@ -298,6 +298,9 @@ else
 
         if (TriggerContext?.OnFocusOut is not null)
             attributes["onfocusout"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleTriggerFocusOut);
+
+        if (TriggerContext?.OnKeyDown is not null)
+            attributes["onkeydown"] = EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleTriggerKeyDown);
     }
 
     private IReadOnlyDictionary<string, object> BuildSlotAttributes()
@@ -318,6 +321,9 @@ else
         var isDisabled = Disabled || Loading || (Attributes is not null && Attributes.ContainsKey("disabled"));
         if (isDisabled)
             return;
+
+        if (TriggerContext?.OnClick is not null)
+            await TriggerContext.OnClick();
 
         if (TriggerContext?.Toggle is not null)
             await TriggerContext.Toggle();
@@ -354,6 +360,11 @@ else
     private Task HandleTriggerFocusOut(FocusEventArgs args)
     {
         return TriggerContext?.OnFocusOut?.Invoke() ?? Task.CompletedTask;
+    }
+
+    private Task HandleTriggerKeyDown(KeyboardEventArgs args)
+    {
+        return TriggerContext?.OnKeyDown?.Invoke(args) ?? Task.CompletedTask;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

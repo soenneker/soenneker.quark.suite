@@ -3,7 +3,12 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
-<button @onclick="HandleClick" @attributes="BuildAttributes()">
+<button @onclick="HandleClick"
+        @onkeydown="HandleKeyDown"
+        @onkeydown:preventDefault="_preventDefaultKeys"
+        @onfocus="HandleFocus"
+        @ref="_buttonRef"
+        @attributes="BuildAttributes()">
     @ChildContent
 </button>
 
@@ -23,7 +28,14 @@
     [Parameter]
     public ToggleSize? Size { get; set; }
 
+    private ElementReference _buttonRef;
+    private bool _preventDefaultKeys;
+
     private bool Pressed => ParentToggleGroup?.IsPressed(Value) ?? false;
+
+    private bool IsDisabled => Disabled || ParentToggleGroup?.Disabled == true;
+    internal bool IsDisabledInGroup => IsDisabled;
+    internal bool IsPressedInGroup => Pressed;
 
     private static string GetVariantClass(ToggleVariant variant)
         => variant?.Value switch
@@ -40,6 +52,14 @@
             _ => "h-9 px-3 min-w-0 shrink-0"
         };
 
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if (firstRender)
+            ParentToggleGroup?.RegisterItem(this);
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -55,7 +75,9 @@
         attributes["data-variant"] = variant?.Value ?? ToggleVariant.Default.Value;
         attributes["data-size"] = size?.Value ?? ToggleSize.Default.Value;
         attributes["data-spacing"] = ParentToggleGroup?.Spacing.ToString() ?? "0";
-        if (Disabled)
+        attributes["data-orientation"] = ParentToggleGroup?.Orientation?.Value ?? ToggleGroupOrientation.Horizontal.Value;
+        attributes["tabindex"] = ParentToggleGroup?.IsItemTabStop(this) == true ? 0 : -1;
+        if (IsDisabled)
             attributes["disabled"] = true;
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -64,26 +86,74 @@
             AppendClass(ref cls, "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium hover:bg-muted hover:text-muted-foreground disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 whitespace-nowrap");
             AppendClass(ref cls, GetVariantClass(variant));
             AppendClass(ref cls, GetSizeClass(size));
-            AppendClass(ref cls, "data-[spacing=0]:rounded-none data-[spacing=0]:shadow-none data-[spacing=0]:first:rounded-l-md data-[spacing=0]:last:rounded-r-md data-[spacing=0]:data-[variant=outline]:border-l-0 data-[spacing=0]:data-[variant=outline]:first:border-l");
+            AppendClass(ref cls, "data-[spacing=0]:rounded-none data-[spacing=0]:shadow-none data-[spacing=0]:first:rounded-l-md data-[spacing=0]:last:rounded-r-md rtl:data-[spacing=0]:first:rounded-l-none rtl:data-[spacing=0]:first:rounded-r-md rtl:data-[spacing=0]:last:rounded-r-none rtl:data-[spacing=0]:last:rounded-l-md");
+            AppendClass(ref cls, "data-[spacing=0]:data-[variant=outline]:border-l-0 data-[spacing=0]:data-[variant=outline]:first:border-l rtl:data-[spacing=0]:data-[variant=outline]:border-l rtl:data-[spacing=0]:data-[variant=outline]:border-r-0 rtl:data-[spacing=0]:data-[variant=outline]:first:border-l-0 rtl:data-[spacing=0]:data-[variant=outline]:first:border-r");
+            AppendClass(ref cls, "data-[orientation=vertical]:w-full");
+            AppendClass(ref cls, "data-[orientation=vertical]:data-[spacing=0]:first:rounded-t-md data-[orientation=vertical]:data-[spacing=0]:first:rounded-b-none");
+            AppendClass(ref cls, "data-[orientation=vertical]:data-[spacing=0]:last:rounded-b-md data-[orientation=vertical]:data-[spacing=0]:last:rounded-t-none");
+            AppendClass(ref cls, "data-[orientation=vertical]:data-[spacing=0]:data-[variant=outline]:border-l data-[orientation=vertical]:data-[spacing=0]:data-[variant=outline]:border-t-0 data-[orientation=vertical]:data-[spacing=0]:data-[variant=outline]:first:border-t");
         });
     }
 
     protected override async Task HandleClick(MouseEventArgs e)
     {
-        if (Disabled || ParentToggleGroup == null)
+        if (IsDisabled || ParentToggleGroup == null)
             return;
 
+        ParentToggleGroup.NotifyItemFocused(this);
         await ParentToggleGroup.SelectValue(Value);
         await OnClick.InvokeIfHasDelegate(e);
+    }
+
+    protected override Task HandleFocus(FocusEventArgs e)
+    {
+        ParentToggleGroup?.NotifyItemFocused(this);
+        return base.HandleFocus(e);
+    }
+
+    protected override async Task HandleKeyDown(KeyboardEventArgs args)
+    {
+        bool vertical = ParentToggleGroup?.Orientation == ToggleGroupOrientation.Vertical;
+
+        _preventDefaultKeys = args.Key switch
+        {
+            "Home" or "End" => true,
+            "ArrowLeft" or "ArrowRight" when !vertical => true,
+            "ArrowUp" or "ArrowDown" when vertical => true,
+            _ => false
+        };
+
+        if (_preventDefaultKeys && ParentToggleGroup is not null)
+            await ParentToggleGroup.HandleItemKeyNavigationAsync(this, args.Key);
+
+        await base.HandleKeyDown(args);
+    }
+
+    internal async Task FocusAsync()
+    {
+        try
+        {
+            await _buttonRef.FocusAsync();
+        }
+        catch
+        {
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Value);
-        hc.Add(Disabled);
+        hc.Add(IsDisabled);
         hc.Add(Variant);
         hc.Add(Size);
         hc.Add(ParentToggleGroup?.IsPressed(Value));
+        hc.Add(ParentToggleGroup?.IsItemTabStop(this));
+    }
+
+    public override void Dispose()
+    {
+        ParentToggleGroup?.UnregisterItem(this);
+        base.Dispose();
     }
 }

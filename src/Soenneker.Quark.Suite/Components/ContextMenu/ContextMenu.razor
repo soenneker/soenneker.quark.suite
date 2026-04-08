@@ -14,6 +14,8 @@
 }
 
 @code {
+    private readonly List<IContextMenuFocusableItem> _items = [];
+
     internal bool Open { get; set; }
     internal double X { get; set; }
     internal double Y { get; set; }
@@ -21,13 +23,17 @@
 
     internal void RegisterContent(RenderFragment content) => _content = content;
 
-    internal void Show(double x, double y)
+    internal async Task ShowAsync(double x, double y)
     {
         X = x;
         Y = y;
         Open = true;
         InvalidateRender();
-        Refresh();
+        await RefreshOffThread();
+
+        var firstItem = _items.FirstOrDefault(i => !i.IsDisabledForNavigation);
+        if (firstItem is not null)
+            await firstItem.FocusAsync();
     }
 
     internal void Close()
@@ -40,6 +46,40 @@
         }
     }
 
+    internal void RegisterItem(IContextMenuFocusableItem item)
+    {
+        if (!_items.Contains(item))
+            _items.Add(item);
+    }
+
+    internal void UnregisterItem(IContextMenuFocusableItem item)
+    {
+        _items.Remove(item);
+    }
+
+    internal async Task HandleItemNavigationAsync(IContextMenuFocusableItem currentItem, string key)
+    {
+        var enabledItems = _items.Where(i => !i.IsDisabledForNavigation).ToList();
+        if (enabledItems.Count == 0)
+            return;
+
+        var currentIndex = enabledItems.FindIndex(i => ReferenceEquals(i, currentItem));
+        if (currentIndex < 0)
+            return;
+
+        var nextIndex = key switch
+        {
+            "Home" => 0,
+            "End" => enabledItems.Count - 1,
+            "ArrowDown" => (currentIndex + 1) % enabledItems.Count,
+            "ArrowUp" => (currentIndex - 1 + enabledItems.Count) % enabledItems.Count,
+            _ => -1
+        };
+
+        if (nextIndex >= 0)
+            await enabledItems[nextIndex].FocusAsync();
+    }
+
     private Dictionary<string, object> BuildContentAttributes()
     {
         var attrs = new Dictionary<string, object>();
@@ -49,6 +89,7 @@
         attrs["role"] = "menu";
         attrs["tabindex"] = -1;
         attrs["style"] = $"position: fixed; left: {X}px; top: {Y}px; z-index: 50;";
+        attrs["onkeydown"] = EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleContentKeyDown);
         BuildClassAttribute(attrs, (ref cls) =>
         {
             AppendClass(ref cls, "q-context-menu-content");
@@ -57,5 +98,13 @@
             AppendClass(ref cls, "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
         });
         return attrs;
+    }
+
+    private Task HandleContentKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape")
+            Close();
+
+        return Task.CompletedTask;
     }
 }

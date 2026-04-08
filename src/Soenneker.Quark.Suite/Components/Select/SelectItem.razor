@@ -2,9 +2,10 @@
 @typeparam TValue
 @inherits Soenneker.Quark.FormControlElement
 @implements ISelectItem<TValue>
+@implements ISelectFocusableItem
 
-<div @onclick="HandleItemClick" @attributes="BuildAttributes()" role="option">
-    <span data-slot="select-item-indicator" class="absolute right-2 flex size-3.5 items-center justify-center">
+<div @onclick="HandleItemClick" @onkeydown="HandleKeyDown" @onmouseenter="HandleMouseEnter" @attributes="BuildAttributes()" role="option" @ref="_elementRef">
+    <span data-slot="select-item-indicator" class="absolute right-2 flex size-3.5 items-center justify-center rtl:right-auto rtl:left-2">
         @if (IsSelected)
         {
             <svg class="size-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -23,6 +24,9 @@
 </div>
 
 @code {
+    private ElementReference _elementRef;
+    private bool _isActive;
+
     /// <summary>
     /// Gets or sets the value of the select item.
     /// </summary>
@@ -39,6 +43,17 @@
     private Select<TValue>? ParentSelect { get; set; }
 
     private bool IsSelected => ParentSelect?.IsSelected(ItemValue) == true;
+    string? ISelectFocusableItem.Value => ItemValue?.ToString();
+    string ISelectFocusableItem.ItemId => $"select-item-{Id}";
+    bool ISelectFocusableItem.IsDisabledForNavigation => Disabled;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        if (Id.IsNullOrEmpty())
+            Id = Guid.NewGuid().ToString("N");
+    }
 
     protected override void OnParametersSet()
     {
@@ -49,10 +64,39 @@
             ParentSelect.RegisterItem(itemKey!, Text);
     }
 
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if (firstRender)
+            ParentSelect?.RegisterFocusableItem(this);
+    }
+
     private async Task HandleItemClick(MouseEventArgs _)
     {
         if (!Disabled && ParentSelect is not null)
             await ParentSelect.SelectItem(ItemValue, Text);
+    }
+
+    private Task HandleMouseEnter(MouseEventArgs _)
+    {
+        ParentSelect?.SetActiveItem(this);
+        return Task.CompletedTask;
+    }
+
+    protected override async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (ParentSelect is null)
+            return;
+
+        if (e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
+            await ParentSelect.HandleItemNavigationAsync(this, e.Key);
+        else if (e.Key is "Enter" or " ")
+            await ParentSelect.SelectItem(ItemValue, Text);
+        else if (e.Key == "Escape")
+            await ParentSelect.CloseFromKeyboardAsync();
+
+        await base.HandleKeyDown(e);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -60,12 +104,16 @@
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "select-item";
         attributes["data-selected"] = IsSelected ? "true" : "false";
+        attributes["data-highlighted"] = _isActive ? "true" : "false";
         attributes["aria-selected"] = IsSelected ? "true" : "false";
+        attributes["id"] = $"select-item-{Id}";
+        attributes["tabindex"] = -1;
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-select-item");
-            AppendClass(ref cls, "relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none");
+            AppendClass(ref cls, "relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 rtl:pr-2 rtl:pl-8 text-sm outline-hidden select-none");
             AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground hover:bg-accent hover:text-accent-foreground");
+            AppendClass(ref cls, "data-[highlighted=true]:bg-accent data-[highlighted=true]:text-accent-foreground");
             AppendClass(ref cls, "data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground");
             AppendClass(ref cls, "*:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2");
@@ -88,5 +136,26 @@
         hc.Add(Text);
         hc.Add(Disabled);
         hc.Add(IsSelected);
+        hc.Add(_isActive);
+    }
+
+    async Task ISelectFocusableItem.FocusAsync()
+    {
+        await _elementRef.FocusAsync();
+    }
+
+    void ISelectFocusableItem.SetActive(bool active)
+    {
+        if (_isActive != active)
+        {
+            _isActive = active;
+            Refresh();
+        }
+    }
+
+    public override void Dispose()
+    {
+        ParentSelect?.UnregisterFocusableItem(this);
+        base.Dispose();
     }
 }

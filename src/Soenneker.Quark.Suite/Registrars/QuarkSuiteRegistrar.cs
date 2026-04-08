@@ -35,6 +35,7 @@ public static class QuarkSuiteRegistrar
                 .AddQuarkThemeAsScoped()
                 .AddQuarkDatePickerAsScoped()
                 .AddQuarkSliderAsScoped()
+                .AddQuarkResizableAsScoped()
                 .AddQuarkTreeViewAsScoped()
                 .AddQuarkStepsAsScoped()
                 .AddQuarkCodeEditorAsScoped()

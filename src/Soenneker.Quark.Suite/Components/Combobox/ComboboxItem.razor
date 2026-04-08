@@ -1,20 +1,50 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
-<div @onclick="HandleItemClick" @attributes="BuildAttributes()" role="option">
+<div @onclick="HandleItemClick" @onmouseenter="HandleMouseEnter" @attributes="BuildAttributes()" role="option">
     @ChildContent
+    @if (IsSelected)
+    {
+        <span class="ml-auto rtl:ml-0 rtl:mr-auto inline-flex items-center">
+            <Icon Name="LucideIcon.Check" Class="size-4" />
+        </span>
+    }
 </div>
 
 @code {
     [CascadingParameter(Name = "ParentCombobox")]
     private Combobox? ParentCombobox { get; set; }
 
-    private bool IsSelected => ParentCombobox?.Value == Value;
+    private bool IsSelected => ParentCombobox?.IsSelected(Value) == true;
+    internal bool IsActiveItem { get; private set; }
+    internal string ItemId => $"combobox-item-{Id}";
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        if (Id.IsNullOrEmpty())
+            Id = Guid.NewGuid().ToString("N");
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if (firstRender)
+            ParentCombobox?.RegisterItem(this);
+    }
 
     private async Task HandleItemClick(MouseEventArgs _)
     {
         if (!Disabled && ParentCombobox != null)
             await ParentCombobox.Select(Value);
+    }
+
+    private Task HandleMouseEnter(MouseEventArgs _)
+    {
+        ParentCombobox?.SetActiveItem(this);
+        return Task.CompletedTask;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -24,7 +54,10 @@
         attributes["data-slot"] = "combobox-item";
         attributes["data-value"] = Value ?? "";
         attributes["data-selected"] = IsSelected ? "true" : "false";
+        attributes["data-highlighted"] = IsActiveItem ? "true" : "false";
         attributes["aria-selected"] = IsSelected ? "true" : "false";
+        attributes["id"] = ItemId;
+        attributes["tabindex"] = -1;
         if (Disabled)
         {
             attributes["aria-disabled"] = "true";
@@ -36,6 +69,7 @@
             AppendClass(ref cls, "q-combobox-item");
             AppendClass(ref cls, "relative flex cursor-default select-none items-center rounded-sm px-2 py-2 text-sm outline-none");
             AppendClass(ref cls, "data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground");
+            AppendClass(ref cls, "data-[highlighted=true]:bg-accent/70 data-[highlighted=true]:text-accent-foreground");
             AppendClass(ref cls, "hover:bg-accent hover:text-accent-foreground");
             AppendClass(ref cls, "data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50");
         });
@@ -47,5 +81,21 @@
         hc.Add(Value);
         hc.Add(Disabled);
         hc.Add(IsSelected);
+        hc.Add(IsActiveItem);
+    }
+
+    internal void SetActive(bool active)
+    {
+        if (IsActiveItem != active)
+        {
+            IsActiveItem = active;
+            Refresh();
+        }
+    }
+
+    public override void Dispose()
+    {
+        ParentCombobox?.UnregisterItem(this);
+        base.Dispose();
     }
 }

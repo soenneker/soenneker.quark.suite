@@ -6,6 +6,15 @@
 </div>
 
 @code {
+    [CascadingParameter(Name = "ParentResizablePanelGroup")]
+    private ResizablePanelGroup? ParentPanelGroup { get; set; }
+
+    private ResizablePanelGroup? _registeredParentPanelGroup;
+    private int _index;
+    private int _lastDefaultSize;
+    private int? _lastMinSize;
+    private int? _lastMaxSize;
+
     /// <summary>
     /// Gets or sets the default size as a flex grow value (1 = equal, 2 = twice, etc.).
     /// </summary>
@@ -24,17 +33,57 @@
     [Parameter]
     public int? MaxSize { get; set; }
 
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        RegisterWithParent();
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        bool sizeChanged = _lastDefaultSize != DefaultSize || _lastMinSize != MinSize || _lastMaxSize != MaxSize;
+
+        if (!ReferenceEquals(_registeredParentPanelGroup, ParentPanelGroup))
+        {
+            _registeredParentPanelGroup?.UnregisterPanel(this);
+            RegisterWithParent();
+            sizeChanged = true;
+        }
+
+        if (sizeChanged)
+        {
+            ParentPanelGroup?.NotifyPanelConfigurationChanged();
+            _lastDefaultSize = DefaultSize;
+            _lastMinSize = MinSize;
+            _lastMaxSize = MaxSize;
+        }
+    }
+
+    private void RegisterWithParent()
+    {
+        if (ParentPanelGroup is null)
+            return;
+
+        _registeredParentPanelGroup = ParentPanelGroup;
+        _index = ParentPanelGroup.RegisterPanel(this);
+    }
+
+    internal void SetIndex(int index)
+    {
+        if (_index == index)
+            return;
+
+        _index = index;
+        _ = InvokeAsync(StateHasChanged);
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "resizable-panel";
-
-        var style = new List<string> { $"flex: {DefaultSize} 1 0%" };
-        if (MinSize.HasValue)
-            style.Add($"min-width: {MinSize}px");
-        if (MaxSize.HasValue)
-            style.Add($"max-width: {MaxSize}px");
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -42,7 +91,8 @@
             AppendClass(ref cls, "overflow-auto");
         });
 
-        attributes["style"] = string.Join("; ", style);
+        if (ParentPanelGroup is not null)
+            attributes["style"] = ParentPanelGroup.BuildPanelStyle(this, _index);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -51,5 +101,12 @@
         hc.Add(DefaultSize);
         hc.Add(MinSize);
         hc.Add(MaxSize);
+        hc.Add(_index);
+    }
+
+    public override void Dispose()
+    {
+        _registeredParentPanelGroup?.UnregisterPanel(this);
+        base.Dispose();
     }
 }

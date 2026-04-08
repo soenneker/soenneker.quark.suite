@@ -90,19 +90,47 @@
 	[CascadingParameter(Name = nameof(ParentValidation))]
 	public Validation? ParentValidation { get; set; }
 
+	[CascadingParameter(Name = "DirectionProviderDir")]
+	private string? DirectionProviderDir { get; set; }
+
 	private readonly string _hiddenInputClass = "sr-only";
 	private ElementReference _trackRef;
 	private DotNetObjectReference<Slider>? _dotNetRef;
 	private int _focusedThumbIndex = -1;
 	private int _draggingThumbIndex = -1;
+	private bool _isRtl;
 
 	private bool UsesValuesApi => Values is not null || ValuesChanged.HasDelegate || ValuesExpression is not null;
 	private bool IsVertical => string.Equals(Orientation, "vertical", StringComparison.OrdinalIgnoreCase);
 	private string OrientationValue => IsVertical ? "vertical" : "horizontal";
+	private bool IsHorizontalRtl => !IsVertical && ResolveIsRtl();
 	private bool IsInteractive => !Disabled && !ReadOnly;
 	public object? ValidationValue => UsesValuesApi ? GetResolvedValues() : SliderValue;
 
 	public string? GetColorClass() => null;
+
+	private bool ResolveIsRtl()
+	{
+		if (string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase))
+			return true;
+
+		if (string.Equals(DirectionProviderDir, "ltr", StringComparison.OrdinalIgnoreCase))
+			return false;
+
+		if (Attributes is not null &&
+			Attributes.TryGetValue("dir", out var dirValue))
+		{
+			string? direction = dirValue?.ToString();
+
+			if (string.Equals(direction, "rtl", StringComparison.OrdinalIgnoreCase))
+				return true;
+
+			if (string.Equals(direction, "ltr", StringComparison.OrdinalIgnoreCase))
+				return false;
+		}
+
+		return _isRtl;
+	}
 
 	public string? GetSizeClass()
 	{
@@ -420,7 +448,11 @@
 			}
 			else
 			{
-				AppendStyleDecl(ref sty, $"left: {startPercent.ToString("F2", CultureInfo.InvariantCulture)}%");
+				if (IsHorizontalRtl)
+					AppendStyleDecl(ref sty, $"right: {startPercent.ToString("F2", CultureInfo.InvariantCulture)}%");
+				else
+					AppendStyleDecl(ref sty, $"left: {startPercent.ToString("F2", CultureInfo.InvariantCulture)}%");
+
 				AppendStyleDecl(ref sty, $"width: {sizePercent.ToString("F2", CultureInfo.InvariantCulture)}%");
 			}
 		});
@@ -505,9 +537,13 @@
 			}
 			else
 			{
-				AppendStyleDecl(ref sty, $"left: {percentText}");
+				if (IsHorizontalRtl)
+					AppendStyleDecl(ref sty, $"right: {percentText}");
+				else
+					AppendStyleDecl(ref sty, $"left: {percentText}");
+
 				AppendStyleDecl(ref sty, "top: 50%");
-				AppendStyleDecl(ref sty, "transform: translate(-50%, -50%)");
+				AppendStyleDecl(ref sty, IsHorizontalRtl ? "transform: translate(50%, -50%)" : "transform: translate(-50%, -50%)");
 			}
 		});
 
@@ -581,10 +617,18 @@
 				nextValue = currentValue - GetKeyboardStep(isLargeStep: true);
 				break;
 			case "ArrowRight":
+				nextValue = IsHorizontalRtl
+					? currentValue - GetKeyboardStep(isLargeStep: false)
+					: currentValue + GetKeyboardStep(isLargeStep: false);
+				break;
 			case "ArrowUp":
 				nextValue = currentValue + GetKeyboardStep(isLargeStep: false);
 				break;
 			case "ArrowLeft":
+				nextValue = IsHorizontalRtl
+					? currentValue + GetKeyboardStep(isLargeStep: false)
+					: currentValue - GetKeyboardStep(isLargeStep: false);
+				break;
 			case "ArrowDown":
 				nextValue = currentValue - GetKeyboardStep(isLargeStep: false);
 				break;
@@ -660,6 +704,34 @@
 				else if (SliderValueExpression is not null)
 					await ParentValidation.InitializeInputExpression(SliderValueExpression);
 			}
+
+		}
+
+		bool resolvedIsRtl;
+
+		if (string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase))
+		{
+			resolvedIsRtl = true;
+		}
+		else if (string.Equals(DirectionProviderDir, "ltr", StringComparison.OrdinalIgnoreCase))
+		{
+			resolvedIsRtl = false;
+		}
+		else if (Attributes is not null &&
+			Attributes.TryGetValue("dir", out var dirValue) &&
+			(dirValue is not null))
+		{
+			resolvedIsRtl = string.Equals(dirValue.ToString(), "rtl", StringComparison.OrdinalIgnoreCase);
+		}
+		else
+		{
+			resolvedIsRtl = await SliderInterop.IsDirectionRtl(_trackRef);
+		}
+
+		if (_isRtl != resolvedIsRtl)
+		{
+			_isRtl = resolvedIsRtl;
+			Refresh();
 		}
 
 		await base.OnAfterRenderAsync(firstRender);
@@ -702,6 +774,8 @@
 		hc.Add(Disabled);
 		hc.Add(ReadOnly);
 		hc.Add(Required);
+		hc.Add(_isRtl);
+		hc.Add(DirectionProviderDir);
 		hc.Add(_focusedThumbIndex);
 		hc.Add(_draggingThumbIndex);
 	}

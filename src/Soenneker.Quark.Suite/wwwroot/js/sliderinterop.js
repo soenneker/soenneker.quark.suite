@@ -4,6 +4,10 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
+function isRtl(trackElement) {
+  return !!trackElement && window.getComputedStyle(trackElement).direction === "rtl";
+}
+
 function getRatio(trackElement, clientX, clientY, orientation) {
   if (!trackElement) {
     return 0;
@@ -21,6 +25,10 @@ function getRatio(trackElement, clientX, clientY, orientation) {
 
   if (rect.width <= 0) {
     return 0;
+  }
+
+  if (isRtl(trackElement)) {
+    return clamp((rect.right - clientX) / rect.width, 0, 1);
   }
 
   return clamp((clientX - rect.left) / rect.width, 0, 1);
@@ -48,6 +56,10 @@ export function getValueFromPointer(trackElement, clientX, clientY, min, max, or
 
 export function stopDrag() {
   removeActiveDrag();
+}
+
+export function isDirectionRtl(trackElement) {
+  return isRtl(trackElement);
 }
 
 export function startDrag(trackElement, pointerId, clientX, clientY, min, max, orientation, dotNetRef, thumbIndex) {

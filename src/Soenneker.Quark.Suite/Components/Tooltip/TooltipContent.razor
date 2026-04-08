@@ -1,7 +1,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()">
+<div @onmouseenter="HandleMouseEnter" @onmouseleave="HandleMouseLeave" @attributes="BuildAttributes()">
     @ChildContent
     @if (ShowArrow)
     {
@@ -60,8 +60,12 @@
         {
             AppendClass(ref cls, "q-tooltip-content");
             AppendClass(ref cls, "z-50 w-fit origin-(--radix-tooltip-content-transform-origin) rounded-md bg-foreground px-3 py-1.5 text-xs text-balance text-background data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
-            AppendClass(ref cls, "absolute left-1/2 -translate-x-1/2 bottom-full");
-            AppendClass(ref cls, "pointer-events-none data-[state=closed]:hidden data-[state=open]:block");
+            AppendClass(ref cls, "absolute");
+            AppendClass(ref cls, "data-[side=top]:bottom-full data-[side=top]:left-1/2 data-[side=top]:-translate-x-1/2");
+            AppendClass(ref cls, "data-[side=bottom]:top-full data-[side=bottom]:left-1/2 data-[side=bottom]:-translate-x-1/2");
+            AppendClass(ref cls, "data-[side=left]:right-full data-[side=left]:top-1/2 data-[side=left]:-translate-y-1/2");
+            AppendClass(ref cls, "data-[side=right]:left-full data-[side=right]:top-1/2 data-[side=right]:-translate-y-1/2");
+            AppendClass(ref cls, "data-[state=closed]:hidden data-[state=open]:block");
 
             if (Context is null && !DisableAutoOpen)
                 AppendClass(ref cls, "group-hover/tooltip:block group-focus-within/tooltip:block");
@@ -70,8 +74,8 @@
         var offsetStyle = Side switch
         {
             "bottom" => $"margin-top: {offset}px;",
-            "left" => $"margin-right: {offset}px;",
-            "right" => $"margin-left: {offset}px;",
+            "left" => $"margin-inline-end: {offset}px;",
+            "right" => $"margin-inline-start: {offset}px;",
             _ => $"margin-bottom: {offset}px;"
         };
 
@@ -86,5 +90,15 @@
         hc.Add(SideOffset);
         hc.Add(DisableAutoOpen);
         hc.Add(ShowArrow);
+    }
+
+    private Task HandleMouseEnter(MouseEventArgs e)
+    {
+        return Context?.OpenImmediate() ?? Task.CompletedTask;
+    }
+
+    private Task HandleMouseLeave(MouseEventArgs e)
+    {
+        return Context?.Close() ?? Task.CompletedTask;
     }
 }

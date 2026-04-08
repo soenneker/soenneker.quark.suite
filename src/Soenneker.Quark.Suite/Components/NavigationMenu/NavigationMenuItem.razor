@@ -2,20 +2,33 @@
 @inherits Soenneker.Quark.FormControlElement
 @implements INavigationMenuItem
 
-<li @attributes="BuildAttributes()">
-    @ChildContent
-</li>
+<CascadingValue Value="@this" IsFixed="true">
+    <li @attributes="BuildAttributes()">
+        @ChildContent
+    </li>
+</CascadingValue>
 
 @code {
     [Parameter]
     public bool Open { get; set; }
+
+    [CascadingParameter(Name = "ParentNavigationMenu")]
+    private NavigationMenu? ParentNavigationMenu { get; set; }
+
+    internal bool IsOpenResolved => ParentNavigationMenu?.IsItemOpen(this) ?? Open;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        ParentNavigationMenu?.RegisterItem(this);
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "navigation-menu-item";
-        attributes["data-state"] = Open ? "open" : "closed";
+        attributes["data-state"] = IsOpenResolved ? "open" : "closed";
 
         if (Disabled)
             attributes["aria-disabled"] = "true";
@@ -33,6 +46,13 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         hc.Add(Open);
+        hc.Add(IsOpenResolved);
         hc.Add(Disabled);
+    }
+
+    public override void Dispose()
+    {
+        ParentNavigationMenu?.UnregisterItem(this);
+        base.Dispose();
     }
 }

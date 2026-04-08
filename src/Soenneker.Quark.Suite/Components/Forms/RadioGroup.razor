@@ -17,6 +17,9 @@
     private string? _name;
     private readonly List<Radio> _radios = [];
 
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
+
     /// <summary>
     /// Callback when the selected value changes.
     /// </summary>
@@ -30,6 +33,24 @@
     public string Orientation { get; set; } = "vertical";
 
     private string OrientationValue => Orientation?.ToLowerInvariantFast() == "horizontal" ? "horizontal" : "vertical";
+
+    private bool IsHorizontalRtl()
+    {
+        if (OrientationValue != "horizontal")
+            return false;
+
+        if (string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (Attributes is not null &&
+            Attributes.TryGetValue("dir", out var dirValue) &&
+            string.Equals(dirValue?.ToString(), "rtl", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return false;
+    }
 
     /// <summary>
     /// Gets the effective name for the group (generated if not set).
@@ -99,6 +120,8 @@
 
         var nextIndex = key switch
         {
+            "ArrowRight" when IsHorizontalRtl() => (currentIndex - 1 + enabledRadios.Count) % enabledRadios.Count,
+            "ArrowLeft" when IsHorizontalRtl() => (currentIndex + 1) % enabledRadios.Count,
             "ArrowRight" or "ArrowDown" => (currentIndex + 1) % enabledRadios.Count,
             "ArrowLeft" or "ArrowUp" => (currentIndex - 1 + enabledRadios.Count) % enabledRadios.Count,
             "Home" => 0,

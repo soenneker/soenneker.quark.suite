@@ -1,13 +1,44 @@
 ﻿@namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
-<div @onclick="HandleItemClick" @onkeydown="HandleKeyDown" @onkeydown:preventDefault @attributes="BuildAttributes()" role="option">
-    @ChildContent
-</div>
+@if (IsVisibleResolved)
+{
+    <div @onclick="HandleItemClick" @onkeydown="HandleKeyDown" @onmouseenter="HandleMouseEnter" @attributes="BuildAttributes()" role="option" @ref="_elementRef">
+        @ChildContent
+    </div>
+}
 
 @code {
+    private ElementReference _elementRef;
+
     [Parameter]
     public EventCallback OnSelect { get; set; }
+
+    [Parameter]
+    public string? SearchValue { get; set; }
+
+    [Parameter]
+    public string[]? Keywords { get; set; }
+
+    [CascadingParameter(Name = "ParentCommand")]
+    private Command? ParentCommand { get; set; }
+
+    [CascadingParameter]
+    private CommandGroup? ParentCommandGroup { get; set; }
+
+    internal bool IsVisibleResolved => ParentCommand?.IsItemVisible(this) ?? true;
+
+    internal string SearchText => string.Join(' ', new[] { SearchValue }.Concat(Keywords ?? []));
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        if (!Id.HasContent())
+            Id = $"command-item-{Guid.NewGuid():N}";
+
+        ParentCommand?.RegisterItem(this, ParentCommandGroup);
+    }
 
     private async Task HandleItemClick(MouseEventArgs _)
     {
@@ -15,13 +46,20 @@
             await OnSelect.InvokeAsync();
     }
 
+    private async Task HandleMouseEnter(MouseEventArgs _)
+    {
+        if (Disabled || ParentCommand is null)
+            return;
+
+        await ParentCommand.SetActiveItemAsync(this);
+    }
+
     protected override async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter" || e.Key == " ")
-        {
-            if (!Disabled && OnSelect.HasDelegate)
-                await OnSelect.InvokeAsync();
-        }
+        if (e.Key is "Enter" or " ")
+            await SelectAsync();
+        else if (ParentCommand is not null && e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
+            await ParentCommand.HandleInputNavigationAsync(e.Key);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -29,7 +67,11 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "command-item";
-        attributes["tabindex"] = Disabled ? -1 : 0;
+        attributes["id"] = Id!;
+        attributes["tabindex"] = Disabled ? -1 : -1;
+        attributes["aria-selected"] = ParentCommand?.IsItemActive(this) == true ? "true" : "false";
+        attributes["data-value"] = SearchText;
+        attributes["data-disabled"] = Disabled ? "true" : "false";
         if (Disabled)
             attributes["aria-disabled"] = "true";
 
@@ -47,5 +89,25 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Disabled);
+        hc.Add(IsVisibleResolved);
+        hc.Add(ParentCommand?.IsItemActive(this));
+        hc.Add(SearchValue);
+    }
+
+    internal async Task FocusAsync()
+    {
+        await _elementRef.FocusAsync();
+    }
+
+    internal async Task SelectAsync()
+    {
+        if (!Disabled && OnSelect.HasDelegate)
+            await OnSelect.InvokeAsync();
+    }
+
+    public override void Dispose()
+    {
+        ParentCommand?.UnregisterItem(this);
+        base.Dispose();
     }
 }

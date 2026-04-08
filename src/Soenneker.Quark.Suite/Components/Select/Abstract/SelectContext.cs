@@ -15,7 +15,11 @@ internal sealed class SelectContext
     public required Func<bool> IsDisabled { get; init; }
     public required Func<bool> IsInvalid { get; init; }
     public required Func<Task> ToggleAsync { get; init; }
+    public required Func<Task> OpenFirstAsync { get; init; }
+    public required Func<Task> OpenLastAsync { get; init; }
     public required Func<Task> CloseAsync { get; init; }
+    public required Func<Task> FocusTriggerAsync { get; init; }
+    public required Func<string?> ActiveItemId { get; init; }
     public required string TriggerId { get; init; }
     public required string ContentId { get; init; }
 

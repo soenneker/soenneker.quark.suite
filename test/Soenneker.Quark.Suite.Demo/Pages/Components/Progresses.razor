@@ -1,72 +1,141 @@
 @page "/progresses"
-@using Microsoft.Extensions.Logging
-
-@inject ILogger<Index> Logger
 
 <PageTitle>Progress - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Label" Description="Pair progress with a text label and visible percentage just like the shadcn docs." Code="@(@"<Div Class=""space-y-2"">
-    <Div Class=""flex items-center justify-between text-sm"">
-        <Span>Upload progress</Span>
-        <Span>25%</Span>
-    </Div>
-    <Progress ProgressValue=""25"" />
-</Div>")">
-                <Div Class="w-full max-w-md space-y-2">
-                    <Div Display="Display.Flex" AlignUtility="Align.ItemsCenter.JustifyBetween" TextSize="TextSize.Sm">
-                        <Span>Upload progress</Span>
-                        <Span>25%</Span>
-                    </Div>
-                    <Progress ProgressValue="25" />
+            <DemoSection Title="Label"
+                         Description="Pair progress with field metadata when users need context around what is being completed."
+                         Code="@LabelCode">
+                <Div Class="w-full max-w-md">
+                    <Field>
+                        <Div Class="flex items-center justify-between text-sm">
+                            <FieldLabel>Upload progress</FieldLabel>
+                            <Span>25%</Span>
+                        </Div>
+                        <Progress ProgressValue="25" />
+                    </Field>
                 </Div>
             </DemoSection>
         </Section>
+
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Controlled" Description="@($"Progress value {_controlledValue}% controlled by the buttons below.")" Code="@(@"<Progress ProgressValue=""@_controlledValue"" />
-<Button OnClick=""IncreaseProgress"">Increase</Button>")">
+            <DemoSection Title="Controlled"
+                         Description="@($"Adjust the slider to control the progress value. Current value: {_controlledValue:F0}%.")"
+                         Code="@ControlledCode">
                 <Div Class="w-full max-w-md space-y-4">
-                    <Div Display="Display.Flex" AlignUtility="Align.ItemsCenter.JustifyBetween" TextSize="TextSize.Sm">
-                        <Span>Deployment progress</Span>
-                        <Span>@_controlledValue%</Span>
+                    <Field>
+                        <Div class="flex items-center justify-between text-sm">
+                            <FieldLabel>Deployment progress</FieldLabel>
+                            <Span>@($"{_controlledValue:F0}%")</Span>
+                        </Div>
+                        <Progress ProgressValue="@GetControlledPercent()" />
+                    </Field>
+                    <Slider Min="0"
+                            Max="100"
+                            Step="1"
+                            SliderValue="@_controlledValue"
+                            SliderValueChanged="HandleControlledValueChanged" />
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="RTL"
+                         Description="Progress indicators should remain readable in right-to-left contexts."
+                         Code="@RtlCode">
+                <DirectionProvider Dir="rtl">
+                    <Div Class="w-full max-w-md text-right">
+                        <Field>
+                            <Div Class="flex items-center justify-between text-sm">
+                                <FieldLabel>تقدم الرفع</FieldLabel>
+                                <Span>25%</Span>
+                            </Div>
+                            <Progress ProgressValue="25" />
+                        </Field>
                     </Div>
-                    <Progress ProgressValue="@_controlledValue" />
-                    <Div Display="Display.Flex" Flex="Flex.Wrap" Gap="Gap.Is2">
-                        <Button Size="ButtonSize.Sm" Variant="ButtonVariant.Outline" OnClick="ResetProgress">Reset</Button>
-                        <Button Size="ButtonSize.Sm" Variant="ButtonVariant.Outline" OnClick="IncreaseProgress">Increase</Button>
-                        <Button Size="ButtonSize.Sm" OnClick="CompleteProgress">Complete</Button>
+                </DirectionProvider>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Quark-only examples</H2>
+            <Paragraph TextColor="TextColor.MutedForeground">
+                These examples show additional progress behaviors beyond the core examples above.
+            </Paragraph>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Indeterminate"
+                         Description="Use indeterminate progress while work is active but the exact completion percentage is not yet known."
+                         Code="@IndeterminateCode">
+                <Div Class="w-full max-w-md space-y-2">
+                    <Div class="flex items-center justify-between text-sm">
+                        <Span>Preparing assets</Span>
+                        <Span class="text-muted-foreground">Loading</Span>
                     </Div>
+                    <Progress Indeterminate="true" AriaValueText="Preparing assets" />
                 </Div>
             </DemoSection>
         </Section>
     </Div>
 </Div>
 
-@code{
-    private int _controlledValue = 45;
+@code {
+    private double _controlledValue = 45;
 
-    protected override void OnInitialized()
+    private const string LabelCode =
+@"<Field>
+    <Div Class=""flex items-center justify-between text-sm"">
+        <FieldLabel>Upload progress</FieldLabel>
+        <Span>25%</Span>
+    </Div>
+    <Progress ProgressValue=""25"" />
+</Field>";
+
+    private const string ControlledCode =
+@"<Field>
+    <Div class=""flex items-center justify-between text-sm"">
+        <FieldLabel>Deployment progress</FieldLabel>
+        <Span>@($""{_controlledValue:F0}%"")</Span>
+    </Div>
+    <Progress ProgressValue=""@GetControlledPercent()"" />
+</Field>
+<Slider Min=""0""
+        Max=""100""
+        Step=""1""
+        SliderValue=""@_controlledValue""
+        SliderValueChanged=""HandleControlledValueChanged"" />";
+
+    private const string RtlCode =
+@"<DirectionProvider Dir=""rtl"">
+    <Field>
+        <Div Class=""flex items-center justify-between text-sm"">
+            <FieldLabel>تقدم الرفع</FieldLabel>
+            <Span>25%</Span>
+        </Div>
+        <Progress ProgressValue=""25"" />
+    </Field>
+</DirectionProvider>";
+
+    private const string IndeterminateCode =
+@"<Div Class=""space-y-2"">
+    <Div class=""flex items-center justify-between text-sm"">
+        <Span>Preparing assets</Span>
+        <Span class=""text-muted-foreground"">Loading</Span>
+    </Div>
+    <Progress Indeterminate=""true"" AriaValueText=""Preparing assets"" />
+</Div>";
+
+    private int GetControlledPercent()
     {
+        return (int)Math.Round(_controlledValue, MidpointRounding.AwayFromZero);
     }
 
-    private Task ResetProgress(MouseEventArgs args)
+    private Task HandleControlledValueChanged(double value)
     {
-        _controlledValue = 0;
+        _controlledValue = value;
         return Task.CompletedTask;
     }
-
-    private Task IncreaseProgress(MouseEventArgs args)
-    {
-        _controlledValue = Math.Min(100, _controlledValue + 15);
-        return Task.CompletedTask;
-    }
-
-    private Task CompleteProgress(MouseEventArgs args)
-    {
-        _controlledValue = 100;
-        return Task.CompletedTask;
-    }
-
 }

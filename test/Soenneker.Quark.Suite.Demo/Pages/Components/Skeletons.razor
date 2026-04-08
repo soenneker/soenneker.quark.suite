@@ -45,19 +45,27 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Card"
                         Description="Compose multiple skeletons together to preview a card layout."
-                        Code="@(@"<Div Display=""Display.Flex"" AlignUtility=""Align.ItemsCenter"" Space=""Space.X.Is4"">
-    <Skeleton Height=""Height.Token(""12"")"" Width=""Width.Token(""12"")"" Rounded=""Rounded.Full"" />
+                        Code="@(@"<Div Class=""max-w-sm rounded-lg border bg-card p-4 space-y-4"">
+    <Skeleton Height=""Height.Token(""40"")"" Width=""Width.IsFull"" Rounded=""Rounded.Lg"" />
     <Div Space=""Space.Y.Is2"">
-        <Skeleton Height=""Height.Token(""4"")"" Width=""Width.Token(""[250px]"")"" />
-        <Skeleton Height=""Height.Token(""4"")"" Width=""Width.Token(""[200px]"")"" />
+        <Skeleton Height=""Height.Token(""4"")"" Width=""Width.Token(""[220px]"")"" />
+        <Skeleton Height=""Height.Token(""4"")"" Width=""Width.Token(""[160px]"")"" />
+    </Div>
+    <Div Display=""Display.Flex"" JustifyContent=""JustifyContent.Between"">
+        <Skeleton Height=""Height.Token(""8"")"" Width=""Width.Token(""[90px]"")"" Rounded=""Rounded.Md"" />
+        <Skeleton Height=""Height.Token(""8"")"" Width=""Width.Token(""[70px]"")"" Rounded=""Rounded.Md"" />
     </Div>
 </Div>")">
                 <Div MaxWidth="MaxWidth.IsSm" Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4">
-                    <Div Display="Display.Flex" AlignUtility="Align.ItemsCenter" Space="Space.X.Is4">
-                        <Skeleton Height="@(Height.Token("12"))" Width="@(Width.Token("12"))" Rounded="Rounded.Full" />
+                    <Div Space="Space.Y.Is4">
+                        <Skeleton Height="@(Height.Token("40"))" Width="Width.IsFull" Rounded="Rounded.Lg" />
                         <Div Space="Space.Y.Is2">
-                            <Skeleton Height="@(Height.Token("4"))" Width="@(Width.Token("[250px]"))" />
-                            <Skeleton Height="@(Height.Token("4"))" Width="@(Width.Token("[200px]"))" />
+                            <Skeleton Height="@(Height.Token("4"))" Width="@(Width.Token("[220px]"))" />
+                            <Skeleton Height="@(Height.Token("4"))" Width="@(Width.Token("[160px]"))" />
+                        </Div>
+                        <Div Display="Display.Flex" JustifyContent="JustifyContent.Between">
+                            <Skeleton Height="@(Height.Token("8"))" Width="@(Width.Token("[90px]"))" Rounded="Rounded.Md" />
+                            <Skeleton Height="@(Height.Token("8"))" Width="@(Width.Token("[70px]"))" Rounded="Rounded.Md" />
                         </Div>
                     </Div>
                 </Div>
@@ -123,5 +131,36 @@
                 </Div>
             </DemoSection>
         </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="RTL"
+                        Description="Skeleton layouts also work in right-to-left reading order."
+                        Code="@RtlCode">
+                <DirectionProvider Dir="rtl">
+                    <Div MaxWidth="MaxWidth.IsSm" Rounded="Rounded.Lg" Border="Border.Is1" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is4">
+                        <Div Display="Display.Flex" AlignUtility="Align.ItemsCenter" Space="Space.X.Is4" Class="justify-end">
+                            <Div Space="Space.Y.Is2">
+                                <Skeleton Height="@(Height.Token("4"))" Width="@(Width.Token("[180px]"))" />
+                                <Skeleton Height="@(Height.Token("4"))" Width="@(Width.Token("[120px]"))" />
+                            </Div>
+                            <Skeleton Height="@(Height.Token("12"))" Width="@(Width.Token("12"))" Rounded="Rounded.Full" />
+                        </Div>
+                    </Div>
+                </DirectionProvider>
+            </DemoSection>
+        </Section>
     </Div>
 </Div>
+
+@code {
+    private const string RtlCode =
+@"<DirectionProvider Dir=""rtl"">
+    <Div Display=""Display.Flex"" AlignUtility=""Align.ItemsCenter"" Space=""Space.X.Is4"" Class=""justify-end"">
+        <Div Space=""Space.Y.Is2"">
+            <Skeleton Height=""Height.Token(""4"")"" Width=""Width.Token(""[180px]"")"" />
+            <Skeleton Height=""Height.Token(""4"")"" Width=""Width.Token(""[120px]"")"" />
+        </Div>
+        <Skeleton Height=""Height.Token(""12"")"" Width=""Width.Token(""12"")"" Rounded=""Rounded.Full"" />
+    </Div>
+</DirectionProvider>";
+}

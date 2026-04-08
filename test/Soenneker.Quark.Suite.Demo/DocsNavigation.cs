@@ -42,7 +42,7 @@ public static class DocsNavigation
         new("Date Picker", "datepickers"),
         new("Dialog", "dialogs"),
         new("Direction", "directions"),
-        new("Drawer", "sheets"),
+        new("Drawer", "drawers"),
         new("Dropdown Menu", "dropdowns"),
         new("Empty", "empties"),
         new("Field", "fields"),
@@ -80,6 +80,7 @@ public static class DocsNavigation
         new("Textarea", "textareas"),
         new("Timeline", "timelines"),
         new("Toggle", "toggles"),
+        new("Toggle Group", "toggle-groups"),
         new("Tooltip", "tooltips"),
         new("Typography", "typography")
     ];

@@ -157,6 +157,32 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="RTL"
+                         Code="@RtlCode">
+                <DirectionProvider Dir="rtl">
+                    <RadioGroup Name="rtl-density"
+                                Value="@_rtlValue"
+                                ValueChanged="OnRtlValueChanged"
+                                Class="w-fit text-right"
+                                AriaLabel="خيارات الكثافة">
+                        <Div Class="flex items-center gap-3">
+                            <Radio Id="rtl-r1" Value="default" />
+                            <Label For="rtl-r1">افتراضي</Label>
+                        </Div>
+                        <Div Class="flex items-center gap-3">
+                            <Radio Id="rtl-r2" Value="comfortable" />
+                            <Label For="rtl-r2">مريح</Label>
+                        </Div>
+                        <Div Class="flex items-center gap-3">
+                            <Radio Id="rtl-r3" Value="compact" />
+                            <Label For="rtl-r3">مضغوط</Label>
+                        </Div>
+                    </RadioGroup>
+                </DirectionProvider>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Quark-only examples</H2>
             <Paragraph TextColor="TextColor.MutedForeground">
                 These examples show additional radio APIs beyond the core examples above.
@@ -306,6 +332,24 @@
     </RadioGroup>
 </FieldSet>";
 
+    private const string RtlCode =
+@"<DirectionProvider Dir=""rtl"">
+    <RadioGroup Name=""rtl-density"" Value=""@_rtlValue"" ValueChanged=""OnRtlValueChanged"" Class=""w-fit text-right"" AriaLabel=""خيارات الكثافة"">
+        <Div Class=""flex items-center gap-3"">
+            <Radio Id=""rtl-r1"" Value=""default"" />
+            <Label For=""rtl-r1"">افتراضي</Label>
+        </Div>
+        <Div Class=""flex items-center gap-3"">
+            <Radio Id=""rtl-r2"" Value=""comfortable"" />
+            <Label For=""rtl-r2"">مريح</Label>
+        </Div>
+        <Div Class=""flex items-center gap-3"">
+            <Radio Id=""rtl-r3"" Value=""compact"" />
+            <Label For=""rtl-r3"">مضغوط</Label>
+        </Div>
+    </RadioGroup>
+</DirectionProvider>";
+
     private const string InlineContentCode =
 @"<Div Class=""flex flex-wrap gap-4"">
     <Radio Name=""rating-inline"" Value=""excellent"" Checked=""@(_inlineRating == ""excellent"")"" OnClick=""@(() => _inlineRating = ""excellent"")"" Inline=""true"">Excellent</Radio>
@@ -319,6 +363,7 @@
     private string _invalidValue = "email";
     private string _choiceCardValue = "plus";
     private string _fieldsetValue = "monthly";
+    private string _rtlValue = "comfortable";
     private string _inlineRating = "good";
 
     private Task OnDemoValueChanged(string? value)
@@ -354,6 +399,12 @@
     private Task OnFieldsetValueChanged(string? value)
     {
         _fieldsetValue = value ?? string.Empty;
+        return Task.CompletedTask;
+    }
+
+    private Task OnRtlValueChanged(string? value)
+    {
+        _rtlValue = value ?? string.Empty;
         return Task.CompletedTask;
     }
 }

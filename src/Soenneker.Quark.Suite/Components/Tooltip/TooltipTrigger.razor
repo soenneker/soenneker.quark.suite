@@ -75,12 +75,14 @@ else
             AriaControls = ParentTriggerContext?.AriaControls,
             AriaDescribedBy = BuildAriaDescribedBy(),
             Toggle = ParentTriggerContext?.Toggle,
+            OnClick = Context is null ? null : () => Context.Close(),
             Open = Context is null ? null : () => Context.Open(),
             Close = Context is null ? null : () => Context.Close(),
             OnMouseEnter = Context is null ? null : () => Context.Open(),
             OnMouseLeave = Context is null ? null : () => Context.Close(),
-            OnFocusIn = Context is null ? null : () => Context.Open(),
-            OnFocusOut = Context is null ? null : () => Context.Close()
+            OnFocusIn = Context is null ? null : () => Context.OpenImmediate(),
+            OnFocusOut = Context is null ? null : () => Context.Close(),
+            OnKeyDown = Context is null ? null : e => HandleTriggerKeyDownCore(e, Context)
         };
     }
 
@@ -100,7 +102,7 @@ else
 
     protected override Task HandleClick(MouseEventArgs e)
     {
-        return ParentTriggerContext?.Toggle?.Invoke() ?? Task.CompletedTask;
+        return HandleTriggerClickCore(Context, ParentTriggerContext);
     }
 
     private Task HandleMouseEnter(MouseEventArgs e)
@@ -115,7 +117,7 @@ else
 
     private Task HandleFocusIn(FocusEventArgs e)
     {
-        return Context?.Open() ?? Task.CompletedTask;
+        return Context?.OpenImmediate() ?? Task.CompletedTask;
     }
 
     private Task HandleFocusOut(FocusEventArgs e)
@@ -125,10 +127,24 @@ else
 
     private Task HandleKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Escape" && Context is not null)
-            return Context.Close();
+        return Context is null ? Task.CompletedTask : HandleTriggerKeyDownCore(e, Context);
+    }
+
+    private static Task HandleTriggerKeyDownCore(KeyboardEventArgs e, TooltipContext context)
+    {
+        if ((e.Key == "Escape" || e.Key == "Enter" || e.Key == " ") && context.IsOpen)
+            return context.Close();
 
         return Task.CompletedTask;
+    }
+
+    private static async Task HandleTriggerClickCore(TooltipContext? context, TriggerContext? parentTriggerContext)
+    {
+        if (context is not null)
+            await context.Close();
+
+        if (parentTriggerContext?.Toggle is not null)
+            await parentTriggerContext.Toggle();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
