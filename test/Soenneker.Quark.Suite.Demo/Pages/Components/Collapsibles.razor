@@ -5,26 +5,34 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Basic"
-                         Description="Card with a text trigger and collapsible body—the usual shadcn-style starting point."
+            <DemoSection Title="Demo"
+                         Description="Compact starred-repositories example with a small toggle trigger."
                          Code="@BasicCode"
                          CodeLanguage="razor">
-                <Card Class="mx-auto w-full max-w-sm">
-                    <CardBody>
-                        <Collapsible Open="_basicOpen" OpenChanged="OnBasicOpenChanged" Class="rounded-md data-[state=open]:bg-muted">
-                            <CollapsibleTrigger AsChild="true">
-                                <Button Variant="ButtonVariant.Ghost" Class="group w-full justify-start">
-                                    Product details
-                                    <Icon Name="LucideIcon.ChevronDown" Class="ml-auto transition-transform group-data-[state=open]:rotate-180" />
-                                </Button>
-                            </CollapsibleTrigger>
-                            <CollapsibleContent Class="flex flex-col items-start gap-2 p-2.5 pt-0 text-sm">
-                                <Div>This panel can be expanded or collapsed to reveal additional content.</Div>
-                                <Button Size="ButtonSize.Xs">Learn More</Button>
-                            </CollapsibleContent>
-                        </Collapsible>
-                    </CardBody>
-                </Card>
+                <Collapsible Open="_basicOpen" OpenChanged="OnBasicOpenChanged" Class="flex w-[350px] flex-col gap-2">
+                    <Div class="flex items-center justify-between gap-4 px-4">
+                        <Div class="text-sm font-semibold">@("@peduarte") starred 3 repositories</Div>
+                        <CollapsibleTrigger AsChild="true">
+                            <Button Variant="ButtonVariant.Ghost"
+                                    Size="ButtonSize.IconSm"
+                                    Class="size-8">
+                                <Icon Name="LucideIcon.ChevronsUpDown" />
+                                <Span class="sr-only">Toggle</Span>
+                            </Button>
+                        </CollapsibleTrigger>
+                    </Div>
+                    <Div class="rounded-md border px-4 py-2 font-mono text-sm">
+                        @("@radix-ui/primitives")
+                    </Div>
+                    <CollapsibleContent Class="flex flex-col gap-2">
+                        <Div class="rounded-md border px-4 py-2 font-mono text-sm">
+                            @("@radix-ui/colors")
+                        </Div>
+                        <Div class="rounded-md border px-4 py-2 font-mono text-sm">
+                            @("@stitches/react")
+                        </Div>
+                    </CollapsibleContent>
+                </Collapsible>
             </DemoSection>
         </Section>
 
@@ -124,90 +132,98 @@
                          CodeLanguage="razor">
                 <Card Class="mx-auto w-full max-w-[16rem] gap-2" Size="CardSize.Sm">
                     <CardHeader>
-                        <Tabs Value="explorer">
-                            <TabsList Class="w-full">
-                                <TabsTrigger Value="explorer">Explorer</TabsTrigger>
-                                <TabsTrigger Value="outline">Outline</TabsTrigger>
-                            </TabsList>
+                        <Tabs SelectedTab="@_fileTreeTab"
+                              OnSelectedTabChanged="OnFileTreeTabChanged"
+                              Justified="true"
+                              Class="w-full">
+                            <Tab Name="explorer" Title="Explorer">
+                                <Div class="mt-3 flex flex-col gap-1">
+                                    <Collapsible Open="_componentsOpen" OpenChanged="OnComponentsOpenChanged">
+                                        <CollapsibleTrigger AsChild="true">
+                                            <Button Variant="ButtonVariant.Ghost"
+                                                    Size="ButtonSize.Sm"
+                                                    Class="group w-full justify-start transition-none hover:bg-accent hover:text-accent-foreground">
+                                                <Icon Name="LucideIcon.ChevronRight" Class="transition-transform group-data-[state=open]:rotate-90" />
+                                                <Icon Name="LucideIcon.Folder" />
+                                                components
+                                            </Button>
+                                        </CollapsibleTrigger>
+                                        <CollapsibleContent Class="mt-1 ml-5">
+                                            <Div class="flex flex-col gap-1">
+                                                <Collapsible Open="_uiOpen" OpenChanged="OnUiOpenChanged">
+                                                    <CollapsibleTrigger AsChild="true">
+                                                        <Button Variant="ButtonVariant.Ghost"
+                                                                Size="ButtonSize.Sm"
+                                                                Class="group w-full justify-start transition-none hover:bg-accent hover:text-accent-foreground">
+                                                            <Icon Name="LucideIcon.ChevronRight" Class="transition-transform group-data-[state=open]:rotate-90" />
+                                                            <Icon Name="LucideIcon.Folder" />
+                                                            ui
+                                                        </Button>
+                                                    </CollapsibleTrigger>
+                                                    <CollapsibleContent Class="mt-1 ml-5">
+                                                        <Div class="flex flex-col gap-1">
+                                                            <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Class="w-full justify-start gap-2 text-foreground">
+                                                                <Icon Name="LucideIcon.File" />
+                                                                button.tsx
+                                                            </Button>
+                                                            <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Class="w-full justify-start gap-2 text-foreground">
+                                                                <Icon Name="LucideIcon.File" />
+                                                                card.tsx
+                                                            </Button>
+                                                            <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Class="w-full justify-start gap-2 text-foreground">
+                                                                <Icon Name="LucideIcon.File" />
+                                                                dialog.tsx
+                                                            </Button>
+                                                        </Div>
+                                                    </CollapsibleContent>
+                                                </Collapsible>
+                                                <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Class="w-full justify-start gap-2 text-foreground">
+                                                    <Icon Name="LucideIcon.File" />
+                                                    login-form.tsx
+                                                </Button>
+                                            </Div>
+                                        </CollapsibleContent>
+                                    </Collapsible>
+                                    <Collapsible Open="_libOpen" OpenChanged="OnLibOpenChanged">
+                                        <CollapsibleTrigger AsChild="true">
+                                            <Button Variant="ButtonVariant.Ghost"
+                                                    Size="ButtonSize.Sm"
+                                                    Class="group w-full justify-start transition-none hover:bg-accent hover:text-accent-foreground">
+                                                <Icon Name="LucideIcon.ChevronRight" Class="transition-transform group-data-[state=open]:rotate-90" />
+                                                <Icon Name="LucideIcon.Folder" />
+                                                lib
+                                            </Button>
+                                        </CollapsibleTrigger>
+                                        <CollapsibleContent Class="mt-1 ml-5">
+                                            <Div class="flex flex-col gap-1">
+                                                <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Class="w-full justify-start gap-2 text-foreground">
+                                                    <Icon Name="LucideIcon.File" />
+                                                    utils.ts
+                                                </Button>
+                                                <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Class="w-full justify-start gap-2 text-foreground">
+                                                    <Icon Name="LucideIcon.File" />
+                                                    api.ts
+                                                </Button>
+                                            </Div>
+                                        </CollapsibleContent>
+                                    </Collapsible>
+                                    <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Class="w-full justify-start gap-2 text-foreground">
+                                        <Icon Name="LucideIcon.File" />
+                                        package.json
+                                    </Button>
+                                </Div>
+                            </Tab>
+                            <Tab Name="outline" Title="Outline">
+                                <Div class="mt-3 flex flex-col gap-2 rounded-md border p-3 text-sm">
+                                    <Paragraph FontWeight="FontWeight.Medium" Margin="Margin.Is0">login-form.tsx</Paragraph>
+                                    <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0">LoginForm</Paragraph>
+                                    <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0">SocialButtons</Paragraph>
+                                    <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0">PasswordField</Paragraph>
+                                </Div>
+                            </Tab>
                         </Tabs>
                     </CardHeader>
-                    <CardBody>
-                        <Div class="flex flex-col gap-1">
-                            <Collapsible Open="_componentsOpen" OpenChanged="OnComponentsOpenChanged">
-                                <CollapsibleTrigger AsChild="true">
-                                    <Button Variant="ButtonVariant.Ghost"
-                                            Size="ButtonSize.Sm"
-                                            Class="group w-full justify-start transition-none hover:bg-accent hover:text-accent-foreground">
-                                        <Icon Name="LucideIcon.ChevronRight" Class="transition-transform group-data-[state=open]:rotate-90" />
-                                        <Icon Name="LucideIcon.Folder" />
-                                        components
-                                    </Button>
-                                </CollapsibleTrigger>
-                                <CollapsibleContent Class="mt-1 ml-5">
-                                    <Div class="flex flex-col gap-1">
-                                        <Collapsible Open="_uiOpen" OpenChanged="OnUiOpenChanged">
-                                            <CollapsibleTrigger AsChild="true">
-                                                <Button Variant="ButtonVariant.Ghost"
-                                                        Size="ButtonSize.Sm"
-                                                        Class="group w-full justify-start transition-none hover:bg-accent hover:text-accent-foreground">
-                                                    <Icon Name="LucideIcon.ChevronRight" Class="transition-transform group-data-[state=open]:rotate-90" />
-                                                    <Icon Name="LucideIcon.Folder" />
-                                                    ui
-                                                </Button>
-                                            </CollapsibleTrigger>
-                                            <CollapsibleContent Class="mt-1 ml-5">
-                                                <Div class="flex flex-col gap-1">
-                                                    <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Class="w-full justify-start gap-2 text-foreground">
-                                                        <Icon Name="LucideIcon.File" />
-                                                        button.tsx
-                                                    </Button>
-                                                    <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Class="w-full justify-start gap-2 text-foreground">
-                                                        <Icon Name="LucideIcon.File" />
-                                                        card.tsx
-                                                    </Button>
-                                                    <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Class="w-full justify-start gap-2 text-foreground">
-                                                        <Icon Name="LucideIcon.File" />
-                                                        dialog.tsx
-                                                    </Button>
-                                                </Div>
-                                            </CollapsibleContent>
-                                        </Collapsible>
-                                        <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Class="w-full justify-start gap-2 text-foreground">
-                                            <Icon Name="LucideIcon.File" />
-                                            login-form.tsx
-                                        </Button>
-                                    </Div>
-                                </CollapsibleContent>
-                            </Collapsible>
-                            <Collapsible Open="_libOpen" OpenChanged="OnLibOpenChanged">
-                                <CollapsibleTrigger AsChild="true">
-                                    <Button Variant="ButtonVariant.Ghost"
-                                            Size="ButtonSize.Sm"
-                                            Class="group w-full justify-start transition-none hover:bg-accent hover:text-accent-foreground">
-                                        <Icon Name="LucideIcon.ChevronRight" Class="transition-transform group-data-[state=open]:rotate-90" />
-                                        <Icon Name="LucideIcon.Folder" />
-                                        lib
-                                    </Button>
-                                </CollapsibleTrigger>
-                                <CollapsibleContent Class="mt-1 ml-5">
-                                    <Div class="flex flex-col gap-1">
-                                        <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Class="w-full justify-start gap-2 text-foreground">
-                                            <Icon Name="LucideIcon.File" />
-                                            utils.ts
-                                        </Button>
-                                        <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Class="w-full justify-start gap-2 text-foreground">
-                                            <Icon Name="LucideIcon.File" />
-                                            api.ts
-                                        </Button>
-                                    </Div>
-                                </CollapsibleContent>
-                            </Collapsible>
-                            <Button Variant="ButtonVariant.Link" Size="ButtonSize.Sm" Class="w-full justify-start gap-2 text-foreground">
-                                <Icon Name="LucideIcon.File" />
-                                package.json
-                            </Button>
-                        </Div>
-                    </CardBody>
+                    <CardBody />
                 </Card>
             </DemoSection>
         </Section>
@@ -275,6 +291,7 @@
     private bool _basicOpen = true;
     private bool _settingsOpen;
     private bool _rtlOpen;
+    private string _fileTreeTab = "explorer";
     private bool _componentsOpen = true;
     private bool _uiOpen = true;
     private bool _libOpen = true;
@@ -307,22 +324,28 @@
 </Collapsible>";
 
     private const string BasicCode =
-@"<Card Class=""mx-auto w-full max-w-sm"">
-    <CardBody>
-        <Collapsible Open=""_basicOpen"" OpenChanged=""OnBasicOpenChanged"" Class=""rounded-md data-[state=open]:bg-muted"">
-            <CollapsibleTrigger AsChild=""true"">
-                <Button Variant=""ButtonVariant.Ghost"" Class=""group w-full justify-start"">
-                    Product details
-                    <Icon Name=""LucideIcon.ChevronDown"" Class=""ml-auto transition-transform group-data-[state=open]:rotate-180"" />
-                </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent Class=""flex flex-col items-start gap-2 p-2.5 pt-0 text-sm"">
-                <Div>This panel can be expanded or collapsed to reveal additional content.</Div>
-                <Button Size=""ButtonSize.Xs"">Learn More</Button>
-            </CollapsibleContent>
-        </Collapsible>
-    </CardBody>
-</Card>";
+@"<Collapsible Open=""_basicOpen"" OpenChanged=""OnBasicOpenChanged"" Class=""flex w-[350px] flex-col gap-2"">
+    <Div class=""flex items-center justify-between gap-4 px-4"">
+        <Div class=""text-sm font-semibold"">@peduarte starred 3 repositories</Div>
+        <CollapsibleTrigger AsChild=""true"">
+            <Button Variant=""ButtonVariant.Ghost"" Size=""ButtonSize.IconSm"" Class=""size-8"">
+                <Icon Name=""LucideIcon.ChevronsUpDown"" />
+                <Span class=""sr-only"">Toggle</Span>
+            </Button>
+        </CollapsibleTrigger>
+    </Div>
+    <Div class=""rounded-md border px-4 py-2 font-mono text-sm"">
+        @radix-ui/primitives
+    </Div>
+    <CollapsibleContent Class=""flex flex-col gap-2"">
+        <Div class=""rounded-md border px-4 py-2 font-mono text-sm"">
+            @radix-ui/colors
+        </Div>
+        <Div class=""rounded-md border px-4 py-2 font-mono text-sm"">
+            @stitches/react
+        </Div>
+    </CollapsibleContent>
+</Collapsible>";
 
     private const string SettingsCode =
 @"<Card Class=""mx-auto w-full max-w-xs"" Size=""CardSize.Sm"">
@@ -373,29 +396,34 @@
     private const string FileTreeCode =
 @"<Card Class=""mx-auto w-full max-w-[16rem] gap-2"" Size=""CardSize.Sm"">
     <CardHeader>
-        <Tabs Value=""explorer"">
-            <TabsList Class=""w-full"">
-                <TabsTrigger Value=""explorer"">Explorer</TabsTrigger>
-                <TabsTrigger Value=""outline"">Outline</TabsTrigger>
-            </TabsList>
+        <Tabs SelectedTab=""@_fileTreeTab"" OnSelectedTabChanged=""OnFileTreeTabChanged"" Justified=""true"" Class=""w-full"">
+            <Tab Name=""explorer"" Title=""Explorer"">
+                <Div class=""mt-3 flex flex-col gap-1"">
+                    <Collapsible Open=""_componentsOpen"" OpenChanged=""OnComponentsOpenChanged"">
+                        <CollapsibleTrigger AsChild=""true"">
+                            <Button Variant=""ButtonVariant.Ghost"" Size=""ButtonSize.Sm"" Class=""group w-full justify-start transition-none hover:bg-accent hover:text-accent-foreground"">
+                                <Icon Name=""LucideIcon.ChevronRight"" Class=""transition-transform group-data-[state=open]:rotate-90"" />
+                                <Icon Name=""LucideIcon.Folder"" />
+                                components
+                            </Button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent Class=""mt-1 ml-5"">
+                            ...
+                        </CollapsibleContent>
+                    </Collapsible>
+                </Div>
+            </Tab>
+            <Tab Name=""outline"" Title=""Outline"">
+                <Div class=""mt-3 flex flex-col gap-2 rounded-md border p-3 text-sm"">
+                    <Paragraph FontWeight=""FontWeight.Medium"" Margin=""Margin.Is0"">login-form.tsx</Paragraph>
+                    <Paragraph TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is0"">LoginForm</Paragraph>
+                    <Paragraph TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is0"">SocialButtons</Paragraph>
+                    <Paragraph TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is0"">PasswordField</Paragraph>
+                </Div>
+            </Tab>
         </Tabs>
     </CardHeader>
-    <CardBody>
-        <Div class=""flex flex-col gap-1"">
-            <Collapsible Open=""_componentsOpen"" OpenChanged=""OnComponentsOpenChanged"">
-                <CollapsibleTrigger AsChild=""true"">
-                    <Button Variant=""ButtonVariant.Ghost"" Size=""ButtonSize.Sm"" Class=""group w-full justify-start transition-none hover:bg-accent hover:text-accent-foreground"">
-                        <Icon Name=""LucideIcon.ChevronRight"" Class=""transition-transform group-data-[state=open]:rotate-90"" />
-                        <Icon Name=""LucideIcon.Folder"" />
-                        components
-                    </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent Class=""mt-1 ml-5"">
-                    ...
-                </CollapsibleContent>
-            </Collapsible>
-        </Div>
-    </CardBody>
+    <CardBody />
 </Card>";
 
     private const string RtlCode =
@@ -470,6 +498,12 @@
     private Task OnLibOpenChanged(bool value)
     {
         _libOpen = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnFileTreeTabChanged(string value)
+    {
+        _fileTreeTab = value;
         return Task.CompletedTask;
     }
 }

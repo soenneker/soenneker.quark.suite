@@ -5,8 +5,8 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Basic"
-                         Description="Adapted from the shadcn hover-card example for previewing account details behind a lightweight trigger."
+            <DemoSection Title="Demo"
+                         Description="Preview account details behind a lightweight trigger."
                          Code="@HoverCardCode"
                          CodeLanguage="razor">
                 <Div Class="flex min-h-48 items-center justify-center">
@@ -54,7 +54,7 @@
                             <Button Variant="ButtonVariant.Outline">Bottom center</Button>
                         </HoverCardTrigger>
                         <HoverCardContent Side="bottom" Align="center">
-                            <Paragraph TextSize="TextSize.Sm">The default shadcn-style placement sits below the trigger.</Paragraph>
+                            <Paragraph TextSize="TextSize.Sm">The default placement sits below the trigger.</Paragraph>
                         </HoverCardContent>
                     </HoverCard>
 
@@ -105,9 +105,32 @@
 
 @code {
     private const string SidesCode =
-@"<HoverCard><HoverCardTrigger AsChild=""true""><Button Variant=""ButtonVariant.Outline"">Top start</Button></HoverCardTrigger><HoverCardContent Side=""top"" Align=""start"">...</HoverCardContent></HoverCard>
-<HoverCard><HoverCardTrigger AsChild=""true""><Button Variant=""ButtonVariant.Outline"">Bottom center</Button></HoverCardTrigger><HoverCardContent Side=""bottom"" Align=""center"">...</HoverCardContent></HoverCard>
-<HoverCard><HoverCardTrigger AsChild=""true""><Button Variant=""ButtonVariant.Outline"">Right end</Button></HoverCardTrigger><HoverCardContent Side=""right"" Align=""end"">...</HoverCardContent></HoverCard>";
+@"<Div Class=""flex min-h-56 flex-wrap items-center justify-center gap-8"">
+    <HoverCard OpenDelay=""100"">
+        <HoverCardTrigger AsChild=""true"">
+            <Button Variant=""ButtonVariant.Outline"">Top start</Button>
+        </HoverCardTrigger>
+        <HoverCardContent Side=""top"" Align=""start"">
+            <Paragraph TextSize=""TextSize.Sm"">Preview content aligned to the trigger start edge.</Paragraph>
+        </HoverCardContent>
+    </HoverCard>
+    <HoverCard OpenDelay=""100"">
+        <HoverCardTrigger AsChild=""true"">
+            <Button Variant=""ButtonVariant.Outline"">Bottom center</Button>
+        </HoverCardTrigger>
+        <HoverCardContent Side=""bottom"" Align=""center"">
+            <Paragraph TextSize=""TextSize.Sm"">The default placement sits below the trigger.</Paragraph>
+        </HoverCardContent>
+    </HoverCard>
+    <HoverCard OpenDelay=""100"">
+        <HoverCardTrigger AsChild=""true"">
+            <Button Variant=""ButtonVariant.Outline"">Right end</Button>
+        </HoverCardTrigger>
+        <HoverCardContent Side=""right"" Align=""end"">
+            <Paragraph TextSize=""TextSize.Sm"">Use end alignment when a preview needs to anchor to the far edge.</Paragraph>
+        </HoverCardContent>
+    </HoverCard>
+</Div>";
 
     private const string HoverCardCode =
 @"<HoverCard>
@@ -115,7 +138,17 @@
         <Button Variant=""ButtonVariant.Link"">nextjs</Button>
     </HoverCardTrigger>
     <HoverCardContent Class=""w-80"">
-        <Paragraph>Preview profile details here.</Paragraph>
+        <Div Class=""flex items-start gap-4"">
+            <Avatar>
+                <AvatarImage Src=""https://github.com/vercel.png"" Alt=""Vercel"" />
+                <AvatarFallback>VC</AvatarFallback>
+            </Avatar>
+            <Div Space=""Space.Y.Is1"">
+                <Paragraph class=""text-sm font-semibold"">nextjs</Paragraph>
+                <Paragraph TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"">The React framework for production applications.</Paragraph>
+                <Paragraph class=""text-xs text-muted-foreground"">Joined December 2021</Paragraph>
+            </Div>
+        </Div>
     </HoverCardContent>
 </HoverCard>";
 
@@ -126,7 +159,16 @@
             <Button Variant=""ButtonVariant.Link"">واجهة المستخدم</Button>
         </HoverCardTrigger>
         <HoverCardContent Class=""w-80"">
-            <Paragraph>اعرض تفاصيل المعاينة هنا.</Paragraph>
+            <Div Class=""flex items-start gap-4"">
+                <Avatar>
+                    <AvatarFallback>QM</AvatarFallback>
+                </Avatar>
+                <Div Space=""Space.Y.Is1"">
+                    <Paragraph class=""text-sm font-semibold"">واجهة المستخدم</Paragraph>
+                    <Paragraph TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"">نظام مكونات مرن لبناء تطبيقات الإنتاج بسرعة.</Paragraph>
+                    <Paragraph class=""text-xs text-muted-foreground"">تم التحديث هذا الأسبوع</Paragraph>
+                </Div>
+            </Div>
         </HoverCardContent>
     </HoverCard>
 </DirectionProvider>";

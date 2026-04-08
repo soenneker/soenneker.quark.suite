@@ -144,7 +144,6 @@ CodeLanguage="razor">
     private string? _requiredValue;
     private string? _maxLengthValue;
     private string? _minLengthValue;
-    private string? _patternValue;
     private string? _disabledValue = "This is disabled content";
     private string? _readOnlyValue = "This is read-only content";
     private string? _changeValue;
@@ -153,7 +152,7 @@ CodeLanguage="razor">
     private string? _additionalNotes;
     private string? _counterValue;
     private string? _prefilledValue = "This is some pre-filled content that demonstrates how the MemoInput component can display existing text.";
-    private string? _formStatus = "Ready to submit";
+    private string _formStatus = "Ready to submit";
 
     private DateTime _lastChangeTime;
     private DateTime _lastInputTime;
@@ -183,19 +182,21 @@ CodeLanguage="razor">
 
     private void SubmitForm()
     {
-        if (_contactMessage.IsNullOrWhiteSpace())
+        var contactMessage = _contactMessage;
+
+        if (contactMessage.IsNullOrWhiteSpace())
         {
             _formStatus = "Message is required!";
             return;
         }
 
-        if (_contactMessage.Length < 10)
+        if (contactMessage.Length < 10)
         {
             _formStatus = "Message must be at least 10 characters long!";
             return;
         }
 
-        _formStatus = $"Form submitted successfully at {DateTime.Now:HH:mm:ss}! Message: {_contactMessage.Substring(0, Math.Min(50, _contactMessage.Length))}...";
+        _formStatus = $"Form submitted successfully at {DateTime.Now:HH:mm:ss}! Message: {contactMessage.Substring(0, Math.Min(50, contactMessage.Length))}...";
 
         // Reset form
         _contactMessage = string.Empty;

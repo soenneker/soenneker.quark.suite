@@ -1,9 +1,84 @@
 @page "/radiogroups"
+@using Microsoft.AspNetCore.Components.Forms
 
 <PageTitle>Radio Group - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Demo"
+                         Description="The standard radio group list with label wiring."
+                         Code="@DemoCode"
+                         CodeLanguage="razor">
+                <RadioGroup Name="density-demo" Value="@_demoValue" ValueChanged="OnDemoValueChanged" Class="w-fit" AriaLabel="Density options">
+                    <Div Class="flex items-center gap-3">
+                        <Radio Id="r1" Value="default" />
+                        <Label For="r1">Default</Label>
+                    </Div>
+                    <Div Class="flex items-center gap-3">
+                        <Radio Id="r2" Value="comfortable" />
+                        <Label For="r2">Comfortable</Label>
+                    </Div>
+                    <Div Class="flex items-center gap-3">
+                        <Radio Id="r3" Value="compact" />
+                        <Label For="r3">Compact</Label>
+                    </Div>
+                </RadioGroup>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Form"
+                         Description="Form-style radio group with validation and submitted value preview."
+                         Code="@FormCode"
+                         CodeLanguage="razor">
+                <EditForm Model="_formModel" OnSubmit="@(_ => HandleFormSubmit())" class="w-2/3 space-y-6">
+                    <Field Class="space-y-3">
+                        <FieldLabel>Notify me about...</FieldLabel>
+                        <RadioGroup Name="notify-type"
+                                    Value="@_formModel.Type"
+                                    ValueChanged="OnFormTypeChanged"
+                                    AriaLabel="Notification type">
+                            <Field Horizontal="true">
+                                <Radio Id="notify-all" Value="all" />
+                                <FieldLabel For="notify-all" FontWeight="FontWeight.Normal">All new messages</FieldLabel>
+                            </Field>
+                            <Field Horizontal="true">
+                                <Radio Id="notify-mentions" Value="mentions" />
+                                <FieldLabel For="notify-mentions" FontWeight="FontWeight.Normal">Direct messages and mentions</FieldLabel>
+                            </Field>
+                            <Field Horizontal="true">
+                                <Radio Id="notify-none" Value="none" />
+                                <FieldLabel For="notify-none" FontWeight="FontWeight.Normal">Nothing</FieldLabel>
+                            </Field>
+                        </RadioGroup>
+                        @if (_showFormError)
+                        {
+                            <Paragraph Class="text-sm text-destructive" Margin="Margin.Is0">
+                                You need to select a notification type.
+                            </Paragraph>
+                        }
+                    </Field>
+
+                    <Button Type="ButtonType.Submit">Submit</Button>
+
+                    @if (!string.IsNullOrEmpty(_submittedTypeJson))
+                    {
+                        <pre class="rounded-lg bg-neutral-950 p-4 text-sm text-white">@_submittedTypeJson</pre>
+                    }
+                </EditForm>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <Div Space="Space.Y.Is2">
+                <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
+                <Paragraph TextColor="TextColor.MutedForeground">
+                    Descriptions, choice cards, fieldsets, invalid states, RTL, and inline content.
+                </Paragraph>
+            </Div>
+        </Section>
+
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Description"
                          Description="Pair each radio with a label and supporting description."
@@ -175,35 +250,6 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
-            <Paragraph TextColor="TextColor.MutedForeground">
-                Minimal label wiring and inline radio content beyond the reference sections above.
-            </Paragraph>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Simple list"
-                         Description="Plain Label + Radio rows without FieldDescription."
-                         Code="@SimpleListCode"
-                         CodeLanguage="razor">
-                <RadioGroup Name="density-demo" Value="@_demoValue" ValueChanged="OnDemoValueChanged" Class="w-fit" AriaLabel="Density options">
-                    <Div Class="flex items-center gap-3">
-                        <Radio Id="r1" Value="default" />
-                        <Label For="r1">Default</Label>
-                    </Div>
-                    <Div Class="flex items-center gap-3">
-                        <Radio Id="r2" Value="comfortable" />
-                        <Label For="r2">Comfortable</Label>
-                    </Div>
-                    <Div Class="flex items-center gap-3">
-                        <Radio Id="r3" Value="compact" />
-                        <Label For="r3">Compact</Label>
-                    </Div>
-                </RadioGroup>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
             <DemoSection Title="Inline Content"
                          Description="Standalone radios can render label text inside the component."
                          Code="@InlineContentCode"
@@ -219,6 +265,49 @@
 </Div>
 
 @code {
+    private sealed class RadioFormModel
+    {
+        public string? Type { get; set; }
+    }
+
+    private const string DemoCode =
+@"<RadioGroup Name=""density-demo"" Value=""@_demoValue"" ValueChanged=""OnDemoValueChanged"" Class=""w-fit"" AriaLabel=""Density options"">
+    <Div Class=""flex items-center gap-3"">
+        <Radio Id=""r1"" Value=""default"" />
+        <Label For=""r1"">Default</Label>
+    </Div>
+    <Div Class=""flex items-center gap-3"">
+        <Radio Id=""r2"" Value=""comfortable"" />
+        <Label For=""r2"">Comfortable</Label>
+    </Div>
+    <Div Class=""flex items-center gap-3"">
+        <Radio Id=""r3"" Value=""compact"" />
+        <Label For=""r3"">Compact</Label>
+    </Div>
+</RadioGroup>";
+
+    private const string FormCode =
+@"<EditForm Model=""_formModel"" OnSubmit=""@(_ => HandleFormSubmit())"" class=""w-2/3 space-y-6"">
+    <Field Class=""space-y-3"">
+        <FieldLabel>Notify me about...</FieldLabel>
+        <RadioGroup Name=""notify-type"" Value=""@_formModel.Type"" ValueChanged=""OnFormTypeChanged"" AriaLabel=""Notification type"">
+            <Field Horizontal=""true"">
+                <Radio Id=""notify-all"" Value=""all"" />
+                <FieldLabel For=""notify-all"" FontWeight=""FontWeight.Normal"">All new messages</FieldLabel>
+            </Field>
+            <Field Horizontal=""true"">
+                <Radio Id=""notify-mentions"" Value=""mentions"" />
+                <FieldLabel For=""notify-mentions"" FontWeight=""FontWeight.Normal"">Direct messages and mentions</FieldLabel>
+            </Field>
+            <Field Horizontal=""true"">
+                <Radio Id=""notify-none"" Value=""none"" />
+                <FieldLabel For=""notify-none"" FontWeight=""FontWeight.Normal"">Nothing</FieldLabel>
+            </Field>
+        </RadioGroup>
+    </Field>
+    <Button Type=""ButtonType.Submit"">Submit</Button>
+</EditForm>";
+
     private const string DescriptionCode =
 @"<RadioGroup Name=""density-description"" Value=""@_descriptionValue"" ValueChanged=""OnDescriptionValueChanged"" Class=""w-fit"" AriaLabel=""Density descriptions"">
     <Field Horizontal=""true"">
@@ -262,15 +351,6 @@
                 <FieldDescription>For growing businesses.</FieldDescription>
             </FieldContent>
             <Radio Id=""pro-plan"" Value=""pro"" />
-        </Field>
-    </FieldLabel>
-    <FieldLabel For=""enterprise-plan"">
-        <Field Horizontal=""true"">
-            <FieldContent>
-                <FieldTitle>Enterprise</FieldTitle>
-                <FieldDescription>For large teams and enterprises.</FieldDescription>
-            </FieldContent>
-            <Radio Id=""enterprise-plan"" Value=""enterprise"" />
         </Field>
     </FieldLabel>
 </RadioGroup>";
@@ -349,22 +429,6 @@
     </RadioGroup>
 </DirectionProvider>";
 
-    private const string SimpleListCode =
-@"<RadioGroup Name=""density-demo"" Value=""@_demoValue"" ValueChanged=""OnDemoValueChanged"" Class=""w-fit"" AriaLabel=""Density options"">
-    <Div Class=""flex items-center gap-3"">
-        <Radio Id=""r1"" Value=""default"" />
-        <Label For=""r1"">Default</Label>
-    </Div>
-    <Div Class=""flex items-center gap-3"">
-        <Radio Id=""r2"" Value=""comfortable"" />
-        <Label For=""r2"">Comfortable</Label>
-    </Div>
-    <Div Class=""flex items-center gap-3"">
-        <Radio Id=""r3"" Value=""compact"" />
-        <Label For=""r3"">Compact</Label>
-    </Div>
-</RadioGroup>";
-
     private const string InlineContentCode =
 @"<Div Class=""flex flex-wrap gap-4"">
     <Radio Name=""rating-inline"" Value=""excellent"" Checked=""@(_inlineRating == ""excellent"")"" OnClick=""@(() => _inlineRating = ""excellent"")"" Inline=""true"">Excellent</Radio>
@@ -380,6 +444,9 @@
     private string _fieldsetValue = "monthly";
     private string _rtlValue = "comfortable";
     private string _inlineRating = "good";
+    private readonly RadioFormModel _formModel = new();
+    private bool _showFormError;
+    private string? _submittedTypeJson;
 
     private Task OnDemoValueChanged(string? value)
     {
@@ -420,6 +487,33 @@
     private Task OnRtlValueChanged(string? value)
     {
         _rtlValue = value ?? string.Empty;
+        return Task.CompletedTask;
+    }
+
+    private Task OnFormTypeChanged(string? value)
+    {
+        _formModel.Type = value;
+        _showFormError = false;
+        return Task.CompletedTask;
+    }
+
+    private Task HandleFormSubmit()
+    {
+        if (string.IsNullOrWhiteSpace(_formModel.Type))
+        {
+            _showFormError = true;
+            _submittedTypeJson = null;
+            return Task.CompletedTask;
+        }
+
+        _showFormError = false;
+        _submittedTypeJson =
+            $$"""
+              {
+                "type": "{{_formModel.Type}}"
+              }
+              """;
+
         return Task.CompletedTask;
     }
 }

@@ -6,23 +6,47 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Basic"
-                         Description="The basic command pattern is a searchable list of actions."
+            <DemoSection Title="Demo"
+                         Description="Searchable command surface with grouped actions, icons, disabled items, and shortcuts."
                          Code="@CommandCode"
                          CodeLanguage="razor">
                 <Div Class="max-w-md rounded-xl border bg-card shadow-sm">
                     <Command>
                         <CommandInput Placeholder="Type a command or search..." />
                         <CommandList>
-                            <CommandEmpty>No actions match your search.</CommandEmpty>
-
-                            @foreach (var action in Actions)
-                            {
-                                <CommandItem SearchValue="@action.Title" OnSelect="@(() => SelectAction(action.Title))">
-                                    <Span>@action.Title</Span>
-                                    <CommandShortcut>@action.Shortcut</CommandShortcut>
+                            <CommandEmpty>No results found.</CommandEmpty>
+                            <CommandGroup Heading="Suggestions">
+                                <CommandItem SearchValue="Calendar" OnSelect="@(() => SelectAction("Calendar"))">
+                                    <Icon Name="LucideIcon.Calendar" />
+                                    <Span>Calendar</Span>
                                 </CommandItem>
-                            }
+                                <CommandItem SearchValue="Search Emoji" OnSelect="@(() => SelectAction("Search Emoji"))">
+                                    <Icon Name="LucideIcon.Smile" />
+                                    <Span>Search Emoji</Span>
+                                </CommandItem>
+                                <CommandItem SearchValue="Calculator" Disabled="true">
+                                    <Icon Name="LucideIcon.Calculator" />
+                                    <Span>Calculator</Span>
+                                </CommandItem>
+                            </CommandGroup>
+                            <CommandSeparator />
+                            <CommandGroup Heading="Settings">
+                                <CommandItem SearchValue="Profile" OnSelect="@(() => SelectAction("Profile"))">
+                                    <Icon Name="LucideIcon.User" />
+                                    <Span>Profile</Span>
+                                    <CommandShortcut>Ctrl+P</CommandShortcut>
+                                </CommandItem>
+                                <CommandItem SearchValue="Billing" OnSelect="@(() => SelectAction("Billing"))">
+                                    <Icon Name="LucideIcon.CreditCard" />
+                                    <Span>Billing</Span>
+                                    <CommandShortcut>Ctrl+B</CommandShortcut>
+                                </CommandItem>
+                                <CommandItem SearchValue="Settings" OnSelect="@(() => SelectAction("Settings"))">
+                                    <Icon Name="LucideIcon.Settings" />
+                                    <Span>Settings</Span>
+                                    <CommandShortcut>Ctrl+S</CommandShortcut>
+                                </CommandItem>
+                            </CommandGroup>
                         </CommandList>
                     </Command>
                 </Div>
@@ -103,8 +127,8 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Command Dialog"
-                         Description="Use the dialog wrapper for a shadcn-style command palette overlay."
+        <DemoSection Title="Command Dialog"
+                         Description="Use the dialog wrapper for a command palette overlay."
                          Code="@CommandDialogCode"
                          CodeLanguage="razor">
                 <Div Space="Space.Y.Is3">
@@ -204,12 +228,36 @@
     <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup Heading=""Suggestions"">
-            <CommandItem SearchValue=""Calendar"">Calendar<CommandShortcut>Ctrl+K</CommandShortcut></CommandItem>
-            <CommandItem SearchValue=""Billing"">Billing<CommandShortcut>Ctrl+B</CommandShortcut></CommandItem>
+            <CommandItem SearchValue=""Calendar"">
+                <Icon Name=""LucideIcon.Calendar"" />
+                <Span>Calendar</Span>
+            </CommandItem>
+            <CommandItem SearchValue=""Search Emoji"">
+                <Icon Name=""LucideIcon.Smile"" />
+                <Span>Search Emoji</Span>
+            </CommandItem>
+            <CommandItem SearchValue=""Calculator"" Disabled=""true"">
+                <Icon Name=""LucideIcon.Calculator"" />
+                <Span>Calculator</Span>
+            </CommandItem>
         </CommandGroup>
         <CommandSeparator />
         <CommandGroup Heading=""Settings"">
-            <CommandItem SearchValue=""Settings"">Settings<CommandShortcut>Ctrl+S</CommandShortcut></CommandItem>
+            <CommandItem SearchValue=""Profile"">
+                <Icon Name=""LucideIcon.User"" />
+                <Span>Profile</Span>
+                <CommandShortcut>Ctrl+P</CommandShortcut>
+            </CommandItem>
+            <CommandItem SearchValue=""Billing"">
+                <Icon Name=""LucideIcon.CreditCard"" />
+                <Span>Billing</Span>
+                <CommandShortcut>Ctrl+B</CommandShortcut>
+            </CommandItem>
+            <CommandItem SearchValue=""Settings"">
+                <Icon Name=""LucideIcon.Settings"" />
+                <Span>Settings</Span>
+                <CommandShortcut>Ctrl+S</CommandShortcut>
+            </CommandItem>
         </CommandGroup>
     </CommandList>
 </Command>";

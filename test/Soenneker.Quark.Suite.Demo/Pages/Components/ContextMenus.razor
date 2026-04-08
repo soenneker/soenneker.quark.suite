@@ -5,28 +5,57 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Basic"
-                         Description="Start with a simple menu for common browser-style actions."
+            <DemoSection Title="Demo"
+                         Description="Browser-style context menu with shortcuts, submenu, checkboxes, and radio items."
                          Code="@BasicCode"
                          CodeLanguage="razor">
                 <ContextMenu>
                     <ContextMenuTrigger Class="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">
-                        Right click for basic actions
+                        Right click here
                     </ContextMenuTrigger>
                     <ContextMenuContent>
                         <Div Class="w-52">
-                            <ContextMenuItem>
+                            <ContextMenuItem Inset="true">
                                 Back
-                                <ContextMenuShortcut>Ctrl+[</ContextMenuShortcut>
+                                <ContextMenuShortcut>Cmd+[</ContextMenuShortcut>
                             </ContextMenuItem>
-                            <ContextMenuItem Disabled="true">
+                            <ContextMenuItem Inset="true" Disabled="true">
                                 Forward
-                                <ContextMenuShortcut>Ctrl+]</ContextMenuShortcut>
+                                <ContextMenuShortcut>Cmd+]</ContextMenuShortcut>
                             </ContextMenuItem>
-                            <ContextMenuItem>
+                            <ContextMenuItem Inset="true">
                                 Reload
-                                <ContextMenuShortcut>Ctrl+R</ContextMenuShortcut>
+                                <ContextMenuShortcut>Cmd+R</ContextMenuShortcut>
                             </ContextMenuItem>
+                            <ContextMenuSub>
+                                <ContextMenuSubTrigger Inset="true">More Tools</ContextMenuSubTrigger>
+                                <ContextMenuSubContent Class="w-44">
+                                    <ContextMenuItem>Save Page...</ContextMenuItem>
+                                    <ContextMenuItem>Create Shortcut...</ContextMenuItem>
+                                    <ContextMenuItem>Name Window...</ContextMenuItem>
+                                    <ContextMenuSeparator />
+                                    <ContextMenuItem>Developer Tools</ContextMenuItem>
+                                    <ContextMenuSeparator />
+                                    <ContextMenuItem Variant="destructive">Delete</ContextMenuItem>
+                                </ContextMenuSubContent>
+                            </ContextMenuSub>
+                            <ContextMenuSeparator />
+                            <ContextMenuCheckboxItem @bind-Checked="_showBookmarks">
+                                Show Bookmarks
+                            </ContextMenuCheckboxItem>
+                            <ContextMenuCheckboxItem @bind-Checked="_showFullUrls">
+                                Show Full URLs
+                            </ContextMenuCheckboxItem>
+                            <ContextMenuSeparator />
+                            <ContextMenuRadioGroup>
+                                <ContextMenuLabel Inset="true">People</ContextMenuLabel>
+                                <ContextMenuRadioItem Selected="@IsPedroSelected" SelectedChanged="@(selected => OnPersonSelected("pedro", selected))">
+                                    Pedro Duarte
+                                </ContextMenuRadioItem>
+                                <ContextMenuRadioItem Selected="@IsColmSelected" SelectedChanged="@(selected => OnPersonSelected("colm", selected))">
+                                    Colm Tuite
+                                </ContextMenuRadioItem>
+                            </ContextMenuRadioGroup>
                         </Div>
                     </ContextMenuContent>
                 </ContextMenu>
@@ -158,8 +187,11 @@
     private bool _showFullUrls;
     private bool _showLineNumbers = true;
     private string _selectedDensity = "comfortable";
+    private string _selectedPerson = "pedro";
     private bool IsComfortableSelected => _selectedDensity == "comfortable";
     private bool IsCompactSelected => _selectedDensity == "compact";
+    private bool IsPedroSelected => _selectedPerson == "pedro";
+    private bool IsColmSelected => _selectedPerson == "colm";
 
     private void OnDensitySelected(string density, bool selected)
     {
@@ -167,16 +199,43 @@
             _selectedDensity = density;
     }
 
+    private void OnPersonSelected(string person, bool selected)
+    {
+        if (selected)
+            _selectedPerson = person;
+    }
+
     private const string BasicCode =
 @"<ContextMenu>
     <ContextMenuTrigger Class=""flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm"">
-        Right click for basic actions
+        Right click here
     </ContextMenuTrigger>
     <ContextMenuContent>
         <Div Class=""w-52"">
-            <ContextMenuItem>Back<ContextMenuShortcut>Ctrl+[</ContextMenuShortcut></ContextMenuItem>
-            <ContextMenuItem Disabled=""true"">Forward<ContextMenuShortcut>Ctrl+]</ContextMenuShortcut></ContextMenuItem>
-            <ContextMenuItem>Reload<ContextMenuShortcut>Ctrl+R</ContextMenuShortcut></ContextMenuItem>
+            <ContextMenuItem Inset=""true"">Back<ContextMenuShortcut>Cmd+[</ContextMenuShortcut></ContextMenuItem>
+            <ContextMenuItem Inset=""true"" Disabled=""true"">Forward<ContextMenuShortcut>Cmd+]</ContextMenuShortcut></ContextMenuItem>
+            <ContextMenuItem Inset=""true"">Reload<ContextMenuShortcut>Cmd+R</ContextMenuShortcut></ContextMenuItem>
+            <ContextMenuSub>
+                <ContextMenuSubTrigger Inset=""true"">More Tools</ContextMenuSubTrigger>
+                <ContextMenuSubContent Class=""w-44"">
+                    <ContextMenuItem>Save Page...</ContextMenuItem>
+                    <ContextMenuItem>Create Shortcut...</ContextMenuItem>
+                    <ContextMenuItem>Name Window...</ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem>Developer Tools</ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem Variant=""destructive"">Delete</ContextMenuItem>
+                </ContextMenuSubContent>
+            </ContextMenuSub>
+            <ContextMenuSeparator />
+            <ContextMenuCheckboxItem @bind-Checked=""showBookmarks"">Show Bookmarks</ContextMenuCheckboxItem>
+            <ContextMenuCheckboxItem @bind-Checked=""showFullUrls"">Show Full URLs</ContextMenuCheckboxItem>
+            <ContextMenuSeparator />
+            <ContextMenuRadioGroup>
+                <ContextMenuLabel Inset=""true"">People</ContextMenuLabel>
+                <ContextMenuRadioItem Selected=""true"">Pedro Duarte</ContextMenuRadioItem>
+                <ContextMenuRadioItem>Colm Tuite</ContextMenuRadioItem>
+            </ContextMenuRadioGroup>
         </Div>
     </ContextMenuContent>
 </ContextMenu>";

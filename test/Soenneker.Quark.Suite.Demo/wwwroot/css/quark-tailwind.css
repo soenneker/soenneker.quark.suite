@@ -40,6 +40,7 @@
     --color-blue-500: oklch(62.3% 0.214 259.815);
     --color-blue-600: oklch(54.6% 0.245 262.881);
     --color-blue-700: oklch(48.8% 0.243 264.376);
+    --color-blue-900: oklch(37.9% 0.146 265.522);
     --color-blue-950: oklch(28.2% 0.091 267.935);
     --color-violet-500: oklch(60.6% 0.25 292.717);
     --color-purple-50: oklch(97.7% 0.014 308.299);
@@ -51,6 +52,7 @@
     --color-rose-700: oklch(51.4% 0.222 16.935);
     --color-neutral-300: oklch(87% 0 0);
     --color-neutral-800: oklch(26.9% 0 0);
+    --color-neutral-950: oklch(14.5% 0 0);
     --color-black: #000;
     --color-white: #fff;
     --spacing: 0.25rem;
@@ -480,6 +482,9 @@
   .col-span-2 {
     grid-column: span 2 / span 2;
   }
+  .col-span-3 {
+    grid-column: span 3 / span 3;
+  }
   .col-span-12 {
     grid-column: span 12 / span 12;
   }
@@ -569,6 +574,9 @@
   }
   .my-1 {
     margin-block: calc(var(--spacing) * 1);
+  }
+  .my-2 {
+    margin-block: calc(var(--spacing) * 2);
   }
   .my-3 {
     margin-block: calc(var(--spacing) * 3);
@@ -1017,9 +1025,6 @@
   .min-h-svh {
     min-height: 100svh;
   }
-  .\!w-full {
-    width: 100% !important;
-  }
   .w-\(--sidebar-menu-width\) {
     width: var(--sidebar-menu-width);
   }
@@ -1080,6 +1085,9 @@
   .w-14 {
     width: calc(var(--spacing) * 14);
   }
+  .w-16 {
+    width: calc(var(--spacing) * 16);
+  }
   .w-20 {
     width: calc(var(--spacing) * 20);
   }
@@ -1094,6 +1102,9 @@
   }
   .w-44 {
     width: calc(var(--spacing) * 44);
+  }
+  .w-48 {
+    width: calc(var(--spacing) * 48);
   }
   .w-52 {
     width: calc(var(--spacing) * 52);
@@ -1121,6 +1132,9 @@
   }
   .w-\[150px\] {
     width: 150px;
+  }
+  .w-\[180px\] {
+    width: 180px;
   }
   .w-\[200px\] {
     width: 200px;
@@ -1190,9 +1204,6 @@
   }
   .max-w-48 {
     max-width: calc(var(--spacing) * 48);
-  }
-  .max-w-64 {
-    max-width: calc(var(--spacing) * 64);
   }
   .max-w-\[10rem\] {
     max-width: 10rem;
@@ -2054,6 +2065,9 @@
       background-color: color-mix(in oklab, var(--muted) 50%, transparent);
     }
   }
+  .bg-neutral-950 {
+    background-color: var(--color-neutral-950);
+  }
   .bg-popover {
     background-color: var(--popover);
   }
@@ -2254,9 +2268,6 @@
   }
   .p-2 {
     padding: calc(var(--spacing) * 2);
-  }
-  .p-2\.5 {
-    padding: calc(var(--spacing) * 2.5);
   }
   .p-3 {
     padding: calc(var(--spacing) * 3);
@@ -3706,6 +3717,16 @@
       }
     }
   }
+  .hover\:bg-accent\/50 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--accent);
+        @supports (color: color-mix(in lab, red, red)) {
+          background-color: color-mix(in oklab, var(--accent) 50%, transparent);
+        }
+      }
+    }
+  }
   .hover\:bg-black\/10 {
     &:hover {
       @media (hover: hover) {
@@ -4104,6 +4125,16 @@
       @supports (color: color-mix(in lab, red, red)) {
         background-color: color-mix(in oklab, var(--primary) 5%, transparent);
       }
+    }
+  }
+  .has-\[\[aria-checked\=true\]\]\:border-blue-600 {
+    &:has(*:is([aria-checked=true])) {
+      border-color: var(--color-blue-600);
+    }
+  }
+  .has-\[\[aria-checked\=true\]\]\:bg-blue-50 {
+    &:has(*:is([aria-checked=true])) {
+      background-color: var(--color-blue-50);
     }
   }
   .has-\[\[data-combobox-slot\=combobox-chip-input\]\:focus-visible\]\:border-ring {
@@ -4657,11 +4688,6 @@
       left: calc(1 / 2 * 100%);
     }
   }
-  .data-\[side\=bottom\]\:max-h-\[50vh\] {
-    &[data-side="bottom"] {
-      max-height: 50vh;
-    }
-  }
   .data-\[side\=bottom\]\:-translate-x-1\/2 {
     &[data-side="bottom"] {
       --tw-translate-x: calc(calc(1 / 2 * 100%) * -1);
@@ -4723,11 +4749,6 @@
   .data-\[side\=top\]\:left-1\/2 {
     &[data-side="top"] {
       left: calc(1 / 2 * 100%);
-    }
-  }
-  .data-\[side\=top\]\:max-h-\[50vh\] {
-    &[data-side="top"] {
-      max-height: 50vh;
     }
   }
   .data-\[side\=top\]\:-translate-x-1\/2 {
@@ -4957,9 +4978,19 @@
       translate: var(--tw-translate-x) var(--tw-translate-y);
     }
   }
+  .data-\[state\=checked\]\:border-blue-600 {
+    &[data-state="checked"] {
+      border-color: var(--color-blue-600);
+    }
+  }
   .data-\[state\=checked\]\:border-primary {
     &[data-state="checked"] {
       border-color: var(--primary);
+    }
+  }
+  .data-\[state\=checked\]\:bg-blue-600 {
+    &[data-state="checked"] {
+      background-color: var(--color-blue-600);
     }
   }
   .data-\[state\=checked\]\:bg-primary {
@@ -4970,6 +5001,11 @@
   .data-\[state\=checked\]\:text-primary-foreground {
     &[data-state="checked"] {
       color: var(--primary-foreground);
+    }
+  }
+  .data-\[state\=checked\]\:text-white {
+    &[data-state="checked"] {
+      color: var(--color-white);
     }
   }
   .data-\[state\=closed\]\:hidden {
@@ -5119,11 +5155,6 @@
       @supports (color: color-mix(in lab, red, red)) {
         background-color: color-mix(in oklab, var(--accent) 50%, transparent);
       }
-    }
-  }
-  .data-\[state\=open\]\:bg-muted {
-    &[data-state="open"] {
-      background-color: var(--muted);
     }
   }
   .data-\[state\=open\]\:bg-secondary {
@@ -6465,6 +6496,11 @@
       background-color: var(--color-amber-950);
     }
   }
+  .dark\:bg-blue-600 {
+    &:is(.dark *) {
+      background-color: var(--color-blue-600);
+    }
+  }
   .dark\:bg-blue-950 {
     &:is(.dark *) {
       background-color: var(--color-blue-950);
@@ -6677,6 +6713,20 @@
       }
     }
   }
+  .dark\:has-\[\[aria-checked\=true\]\]\:border-blue-900 {
+    &:is(.dark *) {
+      &:has(*:is([aria-checked=true])) {
+        border-color: var(--color-blue-900);
+      }
+    }
+  }
+  .dark\:has-\[\[aria-checked\=true\]\]\:bg-blue-950 {
+    &:is(.dark *) {
+      &:has(*:is([aria-checked=true])) {
+        background-color: var(--color-blue-950);
+      }
+    }
+  }
   .dark\:has-\[\[data-combobox-slot\=combobox-chip-input\]\[aria-invalid\=true\]\]\:ring-destructive\/40 {
     &:is(.dark *) {
       &:has(*:is([data-combobox-slot=combobox-chip-input][aria-invalid=true])) {
@@ -6714,6 +6764,20 @@
         @supports (color: color-mix(in lab, red, red)) {
           --tw-ring-color: color-mix(in oklab, var(--destructive) 40%, transparent);
         }
+      }
+    }
+  }
+  .dark\:data-\[state\=checked\]\:border-blue-700 {
+    &:is(.dark *) {
+      &[data-state="checked"] {
+        border-color: var(--color-blue-700);
+      }
+    }
+  }
+  .dark\:data-\[state\=checked\]\:bg-blue-700 {
+    &:is(.dark *) {
+      &[data-state="checked"] {
+        background-color: var(--color-blue-700);
       }
     }
   }

@@ -7,6 +7,20 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Demo"
+                         Description="@($"Single thumb with min, max, and step. Current: {_demoValue}.")"
+                         Code="@BasicCode"
+                         CodeLanguage="razor">
+                <Slider Min="0"
+                        Max="100"
+                        Step="1"
+                        SliderValue="@_demoValue"
+                        SliderValueChanged="HandleDemoValueChanged"
+                        Class="mx-auto w-full max-w-xs" />
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Range"
                          Description="@($"Two-thumb range. Current: {RangeMin} – {RangeMax}.")"
                          Code="@RangeCode"
@@ -64,11 +78,9 @@
                          Code="@ControlledCode"
                          CodeLanguage="razor">
                 <Div Class="mx-auto grid w-full max-w-xs gap-3">
-                    <Div Display="Display.Flex" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Between" Gap="Gap.Is2">
+                    <Div Class="flex items-center justify-between gap-2">
                         <Label For="slider-demo-temperature">Temperature</Label>
-                        <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">
-                            @TemperatureText
-                        </Paragraph>
+                        <Span Class="text-sm text-muted-foreground">@TemperatureText</Span>
                     </Div>
                     <Slider Id="slider-demo-temperature"
                             Min="0"
@@ -96,6 +108,13 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
+            <Paragraph TextColor="TextColor.MutedForeground">
+                Direction, coarser steps, and size variants.
+            </Paragraph>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
                          Description="@($"Slider direction follows DirectionProvider. Value: {_rtlValue}.")"
                          Code="@RtlCode"
@@ -110,27 +129,6 @@
                                 Class="w-full" />
                     </Div>
                 </DirectionProvider>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
-            <Paragraph TextColor="TextColor.MutedForeground">
-                Single-thumb slider, step increments, and size variants beyond the reference sections above.
-            </Paragraph>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Basic"
-                         Description="@($"Single thumb with min, max, and step. Current: {_demoValue}.")"
-                         Code="@BasicCode"
-                         CodeLanguage="razor">
-                <Slider Min="0"
-                        Max="100"
-                        Step="1"
-                        SliderValue="@_demoValue"
-                        SliderValueChanged="HandleDemoValueChanged"
-                        Class="mx-auto w-full max-w-xs" />
             </DemoSection>
         </Section>
 
@@ -179,7 +177,7 @@
 </Div>
 
 @code {
-    private double _demoValue = 75;
+    private double _demoValue = 50;
     private double[] _rangeValues = [25, 50];
     private double[] _multipleValues = [10, 20, 70];
     private double _verticalLeft = 50;
@@ -243,11 +241,9 @@
 
     private const string ControlledCode =
 @"<Div Class=""mx-auto grid w-full max-w-xs gap-3"">
-    <Div Display=""Display.Flex"" AlignItems=""AlignItems.Center"" JustifyContent=""JustifyContent.Between"" Gap=""Gap.Is2"">
+    <Div Class=""flex items-center justify-between gap-2"">
         <Label For=""slider-demo-temperature"">Temperature</Label>
-        <Paragraph TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"" Margin=""Margin.Is0"">
-            @TemperatureText
-        </Paragraph>
+        <Span Class=""text-sm text-muted-foreground"">@TemperatureText</Span>
     </Div>
     <Slider Id=""slider-demo-temperature""
             Min=""0""

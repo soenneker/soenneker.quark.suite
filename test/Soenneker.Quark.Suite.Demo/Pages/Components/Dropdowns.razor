@@ -5,52 +5,209 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Basic"
-                         Description="A basic dropdown menu with groups, labels, and separators."
+            <DemoSection Title="Demo"
+                         Description="Standard grouped menu with labels, separators, and account actions."
                          Code="@BasicCode"
                          CodeLanguage="razor">
                 <Dropdown>
-                    <DropdownToggle>Open</DropdownToggle>
+                    <DropdownToggle AsChild="true">
+                        <Button Variant="ButtonVariant.Outline">Open</Button>
+                    </DropdownToggle>
                     <DropdownMenu>
+                        <DropdownLabel>My Account</DropdownLabel>
                         <DropdownGroup>
-                            <DropdownLabel>My Account</DropdownLabel>
-                            <DropdownItem>Profile</DropdownItem>
-                            <DropdownItem>Billing</DropdownItem>
+                            <DropdownItem>
+                                Profile
+                                <DropdownShortcut>⇧⌘P</DropdownShortcut>
+                            </DropdownItem>
+                            <DropdownItem>
+                                Billing
+                                <DropdownShortcut>⌘B</DropdownShortcut>
+                            </DropdownItem>
+                            <DropdownItem>
+                                Settings
+                                <DropdownShortcut>⌘S</DropdownShortcut>
+                            </DropdownItem>
+                            <DropdownItem>
+                                Keyboard shortcuts
+                                <DropdownShortcut>⌘K</DropdownShortcut>
+                            </DropdownItem>
                         </DropdownGroup>
                         <DropdownDivider />
                         <DropdownGroup>
                             <DropdownItem>Team</DropdownItem>
-                            <DropdownItem>Subscription</DropdownItem>
+                            <DropdownSub>
+                                <DropdownSubTrigger>Invite users</DropdownSubTrigger>
+                                <DropdownSubContent>
+                                    <DropdownItem>Email</DropdownItem>
+                                    <DropdownItem>Message</DropdownItem>
+                                    <DropdownDivider />
+                                    <DropdownItem>More...</DropdownItem>
+                                </DropdownSubContent>
+                            </DropdownSub>
+                            <DropdownItem>
+                                New Team
+                                <DropdownShortcut>⌘+T</DropdownShortcut>
+                            </DropdownItem>
                         </DropdownGroup>
+                        <DropdownDivider />
+                        <DropdownItem>GitHub</DropdownItem>
+                        <DropdownItem>Support</DropdownItem>
+                        <DropdownItem Disabled="true">API</DropdownItem>
+                        <DropdownDivider />
+                        <DropdownItem>
+                            Log out
+                            <DropdownShortcut>⇧⌘Q</DropdownShortcut>
+                        </DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Submenu"
-                         Description="Use nested dropdown submenu primitives to expose secondary actions."
-                         Code="@SubmenuCode"
+            <DemoSection Title="Checkboxes"
+                         Description="Use checkbox items for independent menu toggles."
+                         Code="@CheckboxesCode"
                          CodeLanguage="razor">
                 <Dropdown>
-                    <DropdownToggle>Invite users</DropdownToggle>
+                    <DropdownToggle AsChild="true">
+                        <Button Variant="ButtonVariant.Outline">Open</Button>
+                    </DropdownToggle>
                     <DropdownMenu>
-                        <DropdownItem>Email</DropdownItem>
-                        <DropdownItem>Message</DropdownItem>
-                        <DropdownSub>
-                            <DropdownSubTrigger>More...</DropdownSubTrigger>
-                            <DropdownSubContent>
-                                <DropdownItem>Calendar</DropdownItem>
-                                <DropdownItem>Slack</DropdownItem>
-                            </DropdownSubContent>
-                        </DropdownSub>
+                        <DropdownLabel>Appearance</DropdownLabel>
+                        <DropdownDivider />
+                        <DropdownCheckboxItem Checked="@_showStatusBar" CheckedChanged="HandleShowStatusBarChanged">Status Bar</DropdownCheckboxItem>
+                        <DropdownCheckboxItem Checked="@_showActivityBar" CheckedChanged="HandleShowActivityBarChanged" Disabled="true">Activity Bar</DropdownCheckboxItem>
+                        <DropdownCheckboxItem Checked="@_showPanel" CheckedChanged="HandleShowPanelChanged">Panel</DropdownCheckboxItem>
                     </DropdownMenu>
                 </Dropdown>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Radio Group"
+                         Description="Use radio items for mutually exclusive choices."
+                         Code="@RadioGroupCode"
+                         CodeLanguage="razor">
+                <Dropdown>
+                    <DropdownToggle AsChild="true">
+                        <Button Variant="ButtonVariant.Outline">Open</Button>
+                    </DropdownToggle>
+                    <DropdownMenu>
+                        <DropdownLabel>Panel Position</DropdownLabel>
+                        <DropdownDivider />
+                        <DropdownRadioGroup>
+                            <DropdownRadioItem Selected="@(_sortBy == "top")" SelectedChanged="HandleSortByTopChanged">Top</DropdownRadioItem>
+                            <DropdownRadioItem Selected="@(_sortBy == "bottom")" SelectedChanged="HandleSortByBottomChanged">Bottom</DropdownRadioItem>
+                            <DropdownRadioItem Selected="@(_sortBy == "right")" SelectedChanged="HandleSortByRightChanged">Right</DropdownRadioItem>
+                        </DropdownRadioGroup>
+                    </DropdownMenu>
+                </Dropdown>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Dialog"
+                         Description="Menu items can launch alert and share flows from the actual dropdown interaction."
+                         Code="@DialogCode"
+                         CodeLanguage="razor">
+                <Div Class="space-y-4">
+                    <Dropdown RightAligned="true">
+                        <DropdownToggle AsChild="true">
+                            <Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm" aria-label="Open menu">
+                                <Icon Name="LucideIcon.Ellipsis" />
+                            </Button>
+                        </DropdownToggle>
+                        <DropdownMenu>
+                            <DropdownLabel>File Actions</DropdownLabel>
+                            <DropdownGroup>
+                                <DropdownItem Clicked="OpenNewDialog">New File...</DropdownItem>
+                                <DropdownItem Clicked="OpenShareDialog">Share...</DropdownItem>
+                                <DropdownItem Disabled="true">Download</DropdownItem>
+                            </DropdownGroup>
+                        </DropdownMenu>
+                    </Dropdown>
+
+                    <Dialog @bind-Visible="_showNewDialog">
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Create New File</DialogTitle>
+                                <DialogDescription>
+                                    Provide a name for your new file. Click create when you're done.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <Field Class="pb-3">
+                                <FieldLabel For="dropdown-filename">File Name</FieldLabel>
+                                <Input Id="dropdown-filename" Placeholder="document.txt" />
+                            </Field>
+                            <DialogFooter>
+                                <DialogClose AsChild="true">
+                                    <Button Variant="ButtonVariant.Outline">Cancel</Button>
+                                </DialogClose>
+                                <Button>Create</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+
+                    <Dialog @bind-Visible="_showShareDialog">
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Share File</DialogTitle>
+                                <DialogDescription>
+                                    Anyone with the link will be able to view this file.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <Div Class="grid gap-4 py-3">
+                                <Field>
+                                    <FieldLabel For="dropdown-share-email">Email Address</FieldLabel>
+                                    <Input Id="dropdown-share-email" Type="email" Placeholder="hello@example.com" />
+                                </Field>
+                                <Field>
+                                    <FieldLabel For="dropdown-share-message">Message (Optional)</FieldLabel>
+                                    <TextArea Id="dropdown-share-message" Placeholder="Check out this file" />
+                                </Field>
+                            </Div>
+                            <DialogFooter>
+                                <DialogClose AsChild="true">
+                                    <Button Variant="ButtonVariant.Outline">Cancel</Button>
+                                </DialogClose>
+                                <Button>Send Invite</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <Div Space="Space.Y.Is2">
+                <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
+                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                    Extended menu layouts, variants, RTL, and app-specific actions.
+                </Paragraph>
+            </Div>
+
             <Div Class="flex flex-wrap gap-6">
+                <DemoSection Title="Submenu"
+                             Description="Use nested dropdown submenu primitives to expose secondary actions."
+                             Code="@SubmenuCode"
+                             CodeLanguage="razor">
+                    <Dropdown>
+                        <DropdownToggle>Invite users</DropdownToggle>
+                        <DropdownMenu>
+                            <DropdownItem>Email</DropdownItem>
+                            <DropdownItem>Message</DropdownItem>
+                            <DropdownSub>
+                                <DropdownSubTrigger>More...</DropdownSubTrigger>
+                                <DropdownSubContent>
+                                    <DropdownItem>Calendar</DropdownItem>
+                                    <DropdownItem>Slack</DropdownItem>
+                                </DropdownSubContent>
+                            </DropdownSub>
+                        </DropdownMenu>
+                    </Dropdown>
+                </DemoSection>
+
                 <DemoSection Title="Shortcuts"
                              Description="Add `DropdownShortcut` for keyboard hints."
                              Code="@ShortcutsCode"
@@ -83,47 +240,7 @@
                         </DropdownMenu>
                     </Dropdown>
                 </DemoSection>
-            </Div>
-        </Section>
 
-        <Section Space="Space.Y.Is4">
-            <Div Class="flex flex-wrap gap-6">
-                <DemoSection Title="Checkboxes"
-                             Description="Use checkbox items for independent menu toggles."
-                             Code="@CheckboxesCode"
-                             CodeLanguage="razor">
-                    <Dropdown>
-                        <DropdownToggle>Preferences</DropdownToggle>
-                        <DropdownMenu>
-                            <DropdownCheckboxItem Checked="@_showStatusBar" CheckedChanged="HandleShowStatusBarChanged">Status bar</DropdownCheckboxItem>
-                            <DropdownCheckboxItem Checked="@_showActivityBar" CheckedChanged="HandleShowActivityBarChanged">Activity bar</DropdownCheckboxItem>
-                            <DropdownCheckboxItem Checked="@_showPanel" CheckedChanged="HandleShowPanelChanged">Panel</DropdownCheckboxItem>
-                        </DropdownMenu>
-                    </Dropdown>
-                </DemoSection>
-
-                <DemoSection Title="Radio Group"
-                             Description="Use radio items for exclusive choices."
-                             Code="@RadioGroupCode"
-                             CodeLanguage="razor">
-                    <Dropdown>
-                        <DropdownToggle>Sort by</DropdownToggle>
-                        <DropdownMenu>
-                            <DropdownLabel>Sort by</DropdownLabel>
-                            <DropdownDivider />
-                            <DropdownRadioGroup>
-                                <DropdownRadioItem Selected="@(_sortBy == "name")" SelectedChanged="HandleSortByNameChanged">Name</DropdownRadioItem>
-                                <DropdownRadioItem Selected="@(_sortBy == "date-modified")" SelectedChanged="HandleSortByDateModifiedChanged">Date modified</DropdownRadioItem>
-                                <DropdownRadioItem Selected="@(_sortBy == "created-date")" SelectedChanged="HandleSortByCreatedDateChanged">Created date</DropdownRadioItem>
-                            </DropdownRadioGroup>
-                        </DropdownMenu>
-                    </Dropdown>
-                </DemoSection>
-            </Div>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <Div Class="flex flex-wrap gap-6">
                 <DemoSection Title="Destructive"
                              Description="Use the destructive variant for irreversible actions."
                              Code="@DestructiveCode"
@@ -149,8 +266,8 @@
                             <DropdownItem>
                                 <Avatar Size="sm"><AvatarFallback>CN</AvatarFallback></Avatar>
                                 <Div Class="grid gap-0.5">
-                                    <Span class="text-sm font-medium">shadcn</Span>
-                                    <Span class="text-xs text-muted-foreground">@("@")shadcn</Span>
+                                    <Span class="text-sm font-medium">Jake Doe</Span>
+                                    <Span class="text-xs text-muted-foreground">@("@")jakedoe</Span>
                                 </Div>
                             </DropdownItem>
                             <DropdownDivider />
@@ -243,7 +360,7 @@
                 </DemoSection>
 
                 <DemoSection Title="Inset"
-                             Description="Inset labels, items, checkboxes, radios, and sub-triggers match the indented shadcn menu layout."
+                             Description="Inset labels, items, checkboxes, radios, and sub-triggers create an indented menu layout."
                              Code="@InsetCode"
                              CodeLanguage="razor">
                     <Dropdown>
@@ -312,13 +429,6 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <Div Space="Space.Y.Is2">
-                <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
-                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                    Navigation links, split actions, and explicit click handlers.
-                </Paragraph>
-            </Div>
-
             <Div Class="flex flex-wrap gap-6">
                 <DemoSection Title="Links"
                              Description="Render menu items as anchors when the action is true navigation."
@@ -367,10 +477,12 @@
 </Div>
 
 @code {
+    private bool _showNewDialog;
+    private bool _showShareDialog;
     private bool _showStatusBar = true;
     private bool _showActivityBar;
-    private bool _showPanel = true;
-    private string _sortBy = "date-modified";
+    private bool _showPanel;
+    private string _sortBy = "bottom";
     private bool _showSidebar = true;
     private bool _showNotifications = true;
     private string _teamRole = "editor";
@@ -381,18 +493,55 @@
 
     private const string BasicCode =
 @"<Dropdown>
-    <DropdownToggle>Open</DropdownToggle>
+    <DropdownToggle AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Open</Button>
+    </DropdownToggle>
     <DropdownMenu>
+        <DropdownLabel>My Account</DropdownLabel>
         <DropdownGroup>
-            <DropdownLabel>My Account</DropdownLabel>
-            <DropdownItem>Profile</DropdownItem>
-            <DropdownItem>Billing</DropdownItem>
+            <DropdownItem>
+                Profile
+                <DropdownShortcut>⇧⌘P</DropdownShortcut>
+            </DropdownItem>
+            <DropdownItem>
+                Billing
+                <DropdownShortcut>⌘B</DropdownShortcut>
+            </DropdownItem>
+            <DropdownItem>
+                Settings
+                <DropdownShortcut>⌘S</DropdownShortcut>
+            </DropdownItem>
+            <DropdownItem>
+                Keyboard shortcuts
+                <DropdownShortcut>⌘K</DropdownShortcut>
+            </DropdownItem>
         </DropdownGroup>
         <DropdownDivider />
         <DropdownGroup>
             <DropdownItem>Team</DropdownItem>
-            <DropdownItem>Subscription</DropdownItem>
+            <DropdownSub>
+                <DropdownSubTrigger>Invite users</DropdownSubTrigger>
+                <DropdownSubContent>
+                    <DropdownItem>Email</DropdownItem>
+                    <DropdownItem>Message</DropdownItem>
+                    <DropdownDivider />
+                    <DropdownItem>More...</DropdownItem>
+                </DropdownSubContent>
+            </DropdownSub>
+            <DropdownItem>
+                New Team
+                <DropdownShortcut>⌘+T</DropdownShortcut>
+            </DropdownItem>
         </DropdownGroup>
+        <DropdownDivider />
+        <DropdownItem>GitHub</DropdownItem>
+        <DropdownItem>Support</DropdownItem>
+        <DropdownItem Disabled=""true"">API</DropdownItem>
+        <DropdownDivider />
+        <DropdownItem>
+            Log out
+            <DropdownShortcut>⇧⌘Q</DropdownShortcut>
+        </DropdownItem>
     </DropdownMenu>
 </Dropdown>";
 
@@ -439,27 +588,102 @@
 
     private const string CheckboxesCode =
 @"<Dropdown>
-    <DropdownToggle>Preferences</DropdownToggle>
+    <DropdownToggle AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Open</Button>
+    </DropdownToggle>
     <DropdownMenu>
-        <DropdownCheckboxItem Checked=""@_showStatusBar"" CheckedChanged=""HandleShowStatusBarChanged"">Status bar</DropdownCheckboxItem>
-        <DropdownCheckboxItem Checked=""@_showActivityBar"" CheckedChanged=""HandleShowActivityBarChanged"">Activity bar</DropdownCheckboxItem>
+        <DropdownLabel>Appearance</DropdownLabel>
+        <DropdownDivider />
+        <DropdownCheckboxItem Checked=""@_showStatusBar"" CheckedChanged=""HandleShowStatusBarChanged"">Status Bar</DropdownCheckboxItem>
+        <DropdownCheckboxItem Checked=""@_showActivityBar"" CheckedChanged=""HandleShowActivityBarChanged"" Disabled=""true"">Activity Bar</DropdownCheckboxItem>
         <DropdownCheckboxItem Checked=""@_showPanel"" CheckedChanged=""HandleShowPanelChanged"">Panel</DropdownCheckboxItem>
     </DropdownMenu>
 </Dropdown>";
 
     private const string RadioGroupCode =
-@"<Dropdown>
-    <DropdownToggle>Sort by</DropdownToggle>
-    <DropdownMenu>
-        <DropdownLabel>Sort by</DropdownLabel>
-        <DropdownDivider />
-        <DropdownRadioGroup>
-            <DropdownRadioItem Selected=""@(_sortBy == ""name"")"" SelectedChanged=""HandleSortByNameChanged"">Name</DropdownRadioItem>
-            <DropdownRadioItem Selected=""@(_sortBy == ""date-modified"")"" SelectedChanged=""HandleSortByDateModifiedChanged"">Date modified</DropdownRadioItem>
-            <DropdownRadioItem Selected=""@(_sortBy == ""created-date"")"" SelectedChanged=""HandleSortByCreatedDateChanged"">Created date</DropdownRadioItem>
-        </DropdownRadioGroup>
-    </DropdownMenu>
-</Dropdown>";
+@"<Div Class=""space-y-4"">
+    <Dropdown>
+        <DropdownToggle AsChild=""true"">
+            <Button Variant=""ButtonVariant.Outline"">Open</Button>
+        </DropdownToggle>
+        <DropdownMenu>
+            <DropdownLabel>Panel Position</DropdownLabel>
+            <DropdownDivider />
+            <DropdownRadioGroup>
+                <DropdownRadioItem Selected=""@(_sortBy == ""top"")"" SelectedChanged=""HandleSortByTopChanged"">Top</DropdownRadioItem>
+                <DropdownRadioItem Selected=""@(_sortBy == ""bottom"")"" SelectedChanged=""HandleSortByBottomChanged"">Bottom</DropdownRadioItem>
+                <DropdownRadioItem Selected=""@(_sortBy == ""right"")"" SelectedChanged=""HandleSortByRightChanged"">Right</DropdownRadioItem>
+            </DropdownRadioGroup>
+        </DropdownMenu>
+    </Dropdown>
+</Div>";
+
+    private const string DialogCode =
+@"<Div Class=""space-y-4"">
+    <Dropdown RightAligned=""true"">
+        <DropdownToggle AsChild=""true"">
+            <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.IconSm"" aria-label=""Open menu"">
+                <Icon Name=""LucideIcon.Ellipsis"" />
+            </Button>
+        </DropdownToggle>
+        <DropdownMenu>
+            <DropdownLabel>File Actions</DropdownLabel>
+            <DropdownGroup>
+                <DropdownItem Clicked=""OpenNewDialog"">New File...</DropdownItem>
+                <DropdownItem Clicked=""OpenShareDialog"">Share...</DropdownItem>
+                <DropdownItem Disabled=""true"">Download</DropdownItem>
+            </DropdownGroup>
+        </DropdownMenu>
+    </Dropdown>
+
+    <Dialog @bind-Visible=""_showNewDialog"">
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Create New File</DialogTitle>
+                <DialogDescription>
+                    Provide a name for your new file. Click create when you're done.
+                </DialogDescription>
+            </DialogHeader>
+            <Field Class=""pb-3"">
+                <FieldLabel For=""dropdown-filename"">File Name</FieldLabel>
+                <Input Id=""dropdown-filename"" Placeholder=""document.txt"" />
+            </Field>
+            <DialogFooter>
+                <DialogClose AsChild=""true"">
+                    <Button Variant=""ButtonVariant.Outline"">Cancel</Button>
+                </DialogClose>
+                <Button>Create</Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
+
+    <Dialog @bind-Visible=""_showShareDialog"">
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Share File</DialogTitle>
+                <DialogDescription>
+                    Anyone with the link will be able to view this file.
+                </DialogDescription>
+            </DialogHeader>
+            <Div Class=""grid gap-4 py-3"">
+                <Field>
+                    <FieldLabel For=""dropdown-share-email"">Email Address</FieldLabel>
+                    <Input Id=""dropdown-share-email"" Type=""email"" Placeholder=""hello@example.com"" />
+                </Field>
+                <Field>
+                    <FieldLabel For=""dropdown-share-message"">Message (Optional)</FieldLabel>
+                    <TextArea Id=""dropdown-share-message"" Placeholder=""Check out this file"" />
+                </Field>
+            </Div>
+            <DialogFooter>
+                <DialogClose AsChild=""true"">
+                    <Button Variant=""ButtonVariant.Outline"">Cancel</Button>
+                </DialogClose>
+                <Button>Send Invite</Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
+</Div>";
 
     private const string DestructiveCode =
 @"<Dropdown>
@@ -479,8 +703,8 @@
         <DropdownItem>
             <Avatar Size=""sm""><AvatarFallback>CN</AvatarFallback></Avatar>
             <Div Class=""grid gap-0.5"">
-                <Span class=""text-sm font-medium"">shadcn</Span>
-                <Span class=""text-xs text-muted-foreground"">@(""@"")shadcn</Span>
+                <Span class=""text-sm font-medium"">Jake Doe</Span>
+                <Span class=""text-xs text-muted-foreground"">@(""@"")jakedoe</Span>
             </Div>
         </DropdownItem>
         <DropdownDivider />
@@ -552,16 +776,24 @@
         <Button Variant=""ButtonVariant.Outline"">Open dialog</Button>
     </DialogTrigger>
     <DialogContent>
+        <DialogHeader>
+            <DialogTitle>Workspace actions</DialogTitle>
+            <DialogDescription>Open the dropdown from within the dialog content.</DialogDescription>
+        </DialogHeader>
         <Dropdown>
             <DropdownToggle>Open menu</DropdownToggle>
             <DropdownMenu>
                 <DropdownItem><Icon Name=""LucideIcon.Copy"" />Copy</DropdownItem>
+                <DropdownItem><Icon Name=""LucideIcon.Scissors"" />Cut</DropdownItem>
                 <DropdownSub>
                     <DropdownSubTrigger>More options</DropdownSubTrigger>
                     <DropdownSubContent>
                         <DropdownItem>Save page</DropdownItem>
+                        <DropdownItem>Create shortcut</DropdownItem>
                     </DropdownSubContent>
                 </DropdownSub>
+                <DropdownDivider />
+                <DropdownItem Variant=""destructive""><Icon Name=""LucideIcon.Trash2"" />Delete</DropdownItem>
             </DropdownMenu>
         </Dropdown>
     </DialogContent>
@@ -570,12 +802,35 @@
     private const string InsetCode =
 @"<Dropdown>
     <DropdownToggle>Inset menu</DropdownToggle>
-    <DropdownMenu>
-        <DropdownLabel Inset=""true"">Appearance</DropdownLabel>
-        <DropdownCheckboxItem Inset=""true"">Bookmarks</DropdownCheckboxItem>
-        <DropdownRadioItem Inset=""true"">System</DropdownRadioItem>
+    <DropdownMenu Class=""w-52"">
+        <DropdownGroup>
+            <DropdownLabel>Actions</DropdownLabel>
+            <DropdownItem><Icon Name=""LucideIcon.Copy"" />Copy</DropdownItem>
+            <DropdownItem><Icon Name=""LucideIcon.Scissors"" />Cut</DropdownItem>
+            <DropdownItem Inset=""true"">Paste</DropdownItem>
+        </DropdownGroup>
+        <DropdownDivider />
+        <DropdownGroup>
+            <DropdownLabel Inset=""true"">Appearance</DropdownLabel>
+            <DropdownCheckboxItem Inset=""true"" Checked=""@_showBookmarks"" CheckedChanged=""HandleShowBookmarksChanged"">Bookmarks</DropdownCheckboxItem>
+            <DropdownCheckboxItem Inset=""true"" Checked=""@_showFullUrls"" CheckedChanged=""HandleShowFullUrlsChanged"">Full URLs</DropdownCheckboxItem>
+        </DropdownGroup>
+        <DropdownDivider />
+        <DropdownGroup>
+            <DropdownLabel Inset=""true"">Theme</DropdownLabel>
+            <DropdownRadioGroup>
+                <DropdownRadioItem Inset=""true"" Selected=""@(_theme == ""light"")"" SelectedChanged=""HandleThemeLightChanged"">Light</DropdownRadioItem>
+                <DropdownRadioItem Inset=""true"" Selected=""@(_theme == ""dark"")"" SelectedChanged=""HandleThemeDarkChanged"">Dark</DropdownRadioItem>
+                <DropdownRadioItem Inset=""true"" Selected=""@(_theme == ""system"")"" SelectedChanged=""HandleThemeSystemChanged"">System</DropdownRadioItem>
+            </DropdownRadioGroup>
+        </DropdownGroup>
+        <DropdownDivider />
         <DropdownSub>
             <DropdownSubTrigger Inset=""true"">More options</DropdownSubTrigger>
+            <DropdownSubContent>
+                <DropdownItem>Save page</DropdownItem>
+                <DropdownItem>Create shortcut</DropdownItem>
+            </DropdownSubContent>
         </DropdownSub>
     </DropdownMenu>
 </Dropdown>";
@@ -628,26 +883,26 @@
         return Task.CompletedTask;
     }
 
-    private Task HandleSortByNameChanged(bool selected)
+    private Task HandleSortByTopChanged(bool selected)
     {
         if (selected)
-            _sortBy = "name";
+            _sortBy = "top";
 
         return Task.CompletedTask;
     }
 
-    private Task HandleSortByDateModifiedChanged(bool selected)
+    private Task HandleSortByBottomChanged(bool selected)
     {
         if (selected)
-            _sortBy = "date-modified";
+            _sortBy = "bottom";
 
         return Task.CompletedTask;
     }
 
-    private Task HandleSortByCreatedDateChanged(bool selected)
+    private Task HandleSortByRightChanged(bool selected)
     {
         if (selected)
-            _sortBy = "created-date";
+            _sortBy = "right";
 
         return Task.CompletedTask;
     }
@@ -725,6 +980,18 @@
     private void OnItemClicked(MouseEventArgs _)
     {
         _lastClicked = DateTime.Now.ToString("HH:mm:ss");
+        StateHasChanged();
+    }
+
+    private void OpenNewDialog(MouseEventArgs _)
+    {
+        _showNewDialog = true;
+        StateHasChanged();
+    }
+
+    private void OpenShareDialog(MouseEventArgs _)
+    {
+        _showShareDialog = true;
         StateHasChanged();
     }
 }

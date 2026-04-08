@@ -1,11 +1,135 @@
 @page "/checks"
-@using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components.Forms
 
 <PageTitle>Checkbox Component - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Demo"
+                         Description="The standard checkbox coverage: label, description, disabled state, and card-style selection."
+                         Code="@DemoCode"
+                         CodeLanguage="razor">
+                <Div Class="flex max-w-sm flex-col gap-6">
+                    <Div Class="flex items-center gap-3">
+                        <Check Id="terms" />
+                        <Label For="terms">Accept terms and conditions</Label>
+                    </Div>
+
+                    <Div Class="flex items-start gap-3">
+                        <Check Id="terms-2" Checked="true" />
+                        <Div Class="grid gap-2">
+                            <Label For="terms-2">Accept terms and conditions</Label>
+                            <Paragraph Class="text-sm text-muted-foreground" Margin="Margin.Is0">
+                                By clicking this checkbox, you agree to the terms and conditions.
+                            </Paragraph>
+                        </Div>
+                    </Div>
+
+                    <Div Class="flex items-start gap-3">
+                        <Check Id="toggle" Disabled="true" />
+                        <Label For="toggle">Enable notifications</Label>
+                    </Div>
+
+                    <Label For="toggle-2"
+                           Class="flex items-start gap-3 rounded-lg border p-3 hover:bg-accent/50 has-[[aria-checked=true]]:border-blue-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950">
+                        <Check Id="toggle-2"
+                               Checked="true"
+                               IndicatorClass="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700" />
+                        <Div Class="grid gap-1.5 font-normal">
+                            <Paragraph Class="text-sm leading-none font-medium" Margin="Margin.Is0">
+                                Enable notifications
+                            </Paragraph>
+                            <Paragraph Class="text-sm text-muted-foreground" Margin="Margin.Is0">
+                                You can enable or disable notifications at any time.
+                            </Paragraph>
+                        </Div>
+                    </Label>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Form Single"
+                         Description="Single checkbox in a bordered form row with a submitted value preview."
+                         Code="@FormSingleCode"
+                         CodeLanguage="razor">
+                <EditForm Model="_singleForm" OnSubmit="@(_ => HandleSingleSubmit())" class="flex max-w-md flex-col items-start gap-4">
+                    <Field Horizontal="true" Class="items-start gap-2 rounded-md border p-4 shadow-sm">
+                        <Check Id="mobile"
+                               Checked="@_singleForm.Mobile"
+                               CheckedChanged="HandleMobileChanged" />
+                        <Div Class="space-y-1 leading-none">
+                            <FieldLabel For="mobile">Use different settings for my mobile devices</FieldLabel>
+                            <FieldDescription>
+                                You can manage your mobile notifications in the mobile settings page.
+                            </FieldDescription>
+                        </Div>
+                    </Field>
+
+                    <Button Type="ButtonType.Submit">Submit</Button>
+
+                    @if (!string.IsNullOrEmpty(_singleSubmitJson))
+                    {
+                        <pre class="rounded-lg bg-neutral-950 p-4 text-sm text-white">@_singleSubmitJson</pre>
+                    }
+                </EditForm>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Form Multiple"
+                         Description="Multiple checkbox binding with validation feedback and a submitted value preview."
+                         Code="@FormMultipleCode"
+                         CodeLanguage="razor">
+                <EditForm Model="_multipleForm" OnSubmit="@(_ => HandleMultipleSubmit())" class="space-y-8">
+                    <Field>
+                        <Div Class="mb-4">
+                            <FieldLabel Class="text-base">Sidebar</FieldLabel>
+                            <FieldDescription>
+                                Select the items you want to display in the sidebar.
+                            </FieldDescription>
+                        </Div>
+
+                        <FieldGroup Class="gap-3">
+                            @foreach (var item in _sidebarItems)
+                            {
+                                <Field Horizontal="true" Class="items-center gap-2">
+                                    <Check Id="@item.Id"
+                                           Checked="@_multipleForm.Items.Contains(item.Id)"
+                                           CheckedChanged="@(checkedValue => HandleSidebarItemChanged(item.Id, checkedValue))" />
+                                    <FieldLabel For="@item.Id" Class="text-sm font-normal">@item.Label</FieldLabel>
+                                </Field>
+                            }
+                        </FieldGroup>
+
+                        @if (_showMultipleError)
+                        {
+                            <Paragraph Class="mt-3 text-sm text-destructive" Margin="Margin.Is0">
+                                You have to select at least one item.
+                            </Paragraph>
+                        }
+                    </Field>
+
+                    <Button Type="ButtonType.Submit">Submit</Button>
+
+                    @if (!string.IsNullOrEmpty(_multipleSubmitJson))
+                    {
+                        <pre class="rounded-lg bg-neutral-950 p-4 text-sm text-white">@_multipleSubmitJson</pre>
+                    }
+                </EditForm>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <Div Space="Space.Y.Is2">
+                <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
+                <Paragraph TextColor="TextColor.MutedForeground">
+                    Invalid, indeterminate, table-selection, grouped, and RTL checkbox patterns.
+                </Paragraph>
+            </Div>
+        </Section>
+
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Invalid State"
                          Description="Show validation styling when the checkbox fails validation."
@@ -21,47 +145,20 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Basic"
-                         Description="A single checkbox with a field label."
-                         Code="@BasicCode"
+            <DemoSection Title="Indeterminate"
+                         Description="Use an indeterminate parent checkbox to reflect a partial selection state."
+                         Code="@IndeterminateCode"
                          CodeLanguage="razor">
-                <FieldGroup Class="mx-auto w-56">
-                    <Field Horizontal="true">
-                        <Check Id="terms-checkbox-basic" Name="terms-checkbox-basic" />
-                        <FieldLabel For="terms-checkbox-basic">Accept terms and conditions</FieldLabel>
-                    </Field>
-                </FieldGroup>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Description"
-                         Description="Add supporting text below the label."
-                         Code="@DescriptionCode"
-                         CodeLanguage="razor">
-                <FieldGroup Class="mx-auto w-72">
-                    <Field Horizontal="true">
-                        <Check Id="terms-checkbox-desc" Name="terms-checkbox-desc" Checked="true" />
-                        <FieldContent>
-                            <FieldLabel For="terms-checkbox-desc">Accept terms and conditions</FieldLabel>
-                            <FieldDescription>By clicking this checkbox, you agree to the terms and conditions.</FieldDescription>
-                        </FieldContent>
-                    </Field>
-                </FieldGroup>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Disabled"
-                         Description="Disable the field to prevent interaction."
-                         Code="@DisabledCode"
-                         CodeLanguage="razor">
-                <FieldGroup Class="mx-auto w-56">
-                    <Field Horizontal="true" Disabled="true">
-                        <Check Id="toggle-checkbox-disabled" Name="toggle-checkbox-disabled" Disabled="true" />
-                        <FieldLabel For="toggle-checkbox-disabled">Enable notifications</FieldLabel>
-                    </Field>
-                </FieldGroup>
+                <Div Space="Space.Y.Is3">
+                    <Check Checked="@_selectAllChecked" CheckedChanged="HandleSelectAllChanged" Indeterminate="@_selectAllIndeterminate" Id="select-all">
+                        Select all
+                    </Check>
+                    <Div class="ml-6 space-y-3">
+                        <Check Checked="@_itemRead" CheckedChanged="@(v => HandlePermissionChanged(nameof(_itemRead), v))" Id="item-read">Read</Check>
+                        <Check Checked="@_itemWrite" CheckedChanged="@(v => HandlePermissionChanged(nameof(_itemWrite), v))" Id="item-write">Write</Check>
+                        <Check Checked="@_itemExecute" CheckedChanged="@(v => HandlePermissionChanged(nameof(_itemExecute), v))" Id="item-execute">Execute</Check>
+                    </Div>
+                </Div>
             </DemoSection>
         </Section>
 
@@ -75,20 +172,20 @@
                     <FieldDescription>Select the items you want to show on the desktop.</FieldDescription>
                     <FieldGroup Class="gap-3">
                         <Field Horizontal="true">
-                            <Check Id="finder-pref-9k2-hard-disks-ljj-checkbox" Name="finder-pref-9k2-hard-disks-ljj-checkbox" Checked="true" />
-                            <FieldLabel For="finder-pref-9k2-hard-disks-ljj-checkbox" Class="font-normal">Hard disks</FieldLabel>
+                            <Check Id="finder-pref-hard-disks" Checked="true" />
+                            <FieldLabel For="finder-pref-hard-disks" Class="font-normal">Hard disks</FieldLabel>
                         </Field>
                         <Field Horizontal="true">
-                            <Check Id="finder-pref-9k2-external-disks-1yg-checkbox" Name="finder-pref-9k2-external-disks-1yg-checkbox" Checked="true" />
-                            <FieldLabel For="finder-pref-9k2-external-disks-1yg-checkbox" Class="font-normal">External disks</FieldLabel>
+                            <Check Id="finder-pref-external-disks" Checked="true" />
+                            <FieldLabel For="finder-pref-external-disks" Class="font-normal">External disks</FieldLabel>
                         </Field>
                         <Field Horizontal="true">
-                            <Check Id="finder-pref-9k2-cds-dvds-fzt-checkbox" Name="finder-pref-9k2-cds-dvds-fzt-checkbox" />
-                            <FieldLabel For="finder-pref-9k2-cds-dvds-fzt-checkbox" Class="font-normal">CDs, DVDs, and iPods</FieldLabel>
+                            <Check Id="finder-pref-cds" />
+                            <FieldLabel For="finder-pref-cds" Class="font-normal">CDs, DVDs, and iPods</FieldLabel>
                         </Field>
                         <Field Horizontal="true">
-                            <Check Id="finder-pref-9k2-connected-servers-6l2-checkbox" Name="finder-pref-9k2-connected-servers-6l2-checkbox" />
-                            <FieldLabel For="finder-pref-9k2-connected-servers-6l2-checkbox" Class="font-normal">Connected servers</FieldLabel>
+                            <Check Id="finder-pref-connected-servers" />
+                            <FieldLabel For="finder-pref-connected-servers" Class="font-normal">Connected servers</FieldLabel>
                         </Field>
                     </FieldGroup>
                 </FieldSet>
@@ -143,114 +240,22 @@
                 <DirectionProvider Dir="rtl">
                     <FieldGroup Class="max-w-sm">
                         <Field Horizontal="true">
-                            <Check Id="terms-checkbox-rtl" Name="terms-checkbox" />
+                            <Check Id="terms-checkbox-rtl" />
                             <Label For="terms-checkbox-rtl">قبول الشروط والأحكام</Label>
                         </Field>
                         <Field Horizontal="true">
-                            <Check Id="terms-checkbox-2-rtl" Name="terms-checkbox-2" Checked="true" />
+                            <Check Id="terms-checkbox-2-rtl" Checked="true" />
                             <FieldContent>
                                 <FieldLabel For="terms-checkbox-2-rtl">قبول الشروط والأحكام</FieldLabel>
                                 <FieldDescription>بالنقر على هذا المربع، فإنك توافق على الشروط.</FieldDescription>
                             </FieldContent>
                         </Field>
                         <Field Horizontal="true" Disabled="true">
-                            <Check Id="toggle-checkbox-rtl" Name="toggle-checkbox" Disabled="true" />
+                            <Check Id="toggle-checkbox-rtl" Disabled="true" />
                             <FieldLabel For="toggle-checkbox-rtl">تفعيل الإشعارات</FieldLabel>
-                        </Field>
-                        <Field Horizontal="true">
-                            <Check Id="toggle-checkbox-2-rtl-inner" Name="toggle-checkbox-2" />
-                            <FieldContent>
-                                <FieldTitle>تفعيل الإشعارات</FieldTitle>
-                                <FieldDescription>يمكنك تفعيل أو إلغاء تفعيل الإشعارات في أي وقت.</FieldDescription>
-                            </FieldContent>
                         </Field>
                     </FieldGroup>
                 </DirectionProvider>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
-            <Paragraph TextColor="TextColor.MutedForeground">
-                Combined field preview, indeterminate parents, and form validation.
-            </Paragraph>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Combined"
-                         Description="Several checkbox patterns in one field group."
-                         Code="@CombinedCode"
-                         CodeLanguage="razor">
-                <FieldGroup Class="max-w-sm">
-                    <Field Horizontal="true">
-                        <Check Id="terms-checkbox" Name="terms-checkbox" />
-                        <Label For="terms-checkbox">Accept terms and conditions</Label>
-                    </Field>
-                    <Field Horizontal="true">
-                        <Check Id="terms-checkbox-2" Name="terms-checkbox-2" Checked="true" />
-                        <FieldContent>
-                            <FieldLabel For="terms-checkbox-2">Accept terms and conditions</FieldLabel>
-                            <FieldDescription>By clicking this checkbox, you agree to the terms.</FieldDescription>
-                        </FieldContent>
-                    </Field>
-                    <Field Horizontal="true" Disabled="true">
-                        <Check Id="toggle-checkbox" Name="toggle-checkbox" Disabled="true" />
-                        <FieldLabel For="toggle-checkbox">Enable notifications</FieldLabel>
-                    </Field>
-                    <Field Horizontal="true">
-                        <Check Id="toggle-checkbox-2" Name="toggle-checkbox-2" />
-                        <FieldContent>
-                            <FieldTitle>Enable notifications</FieldTitle>
-                            <FieldDescription>You can enable or disable notifications at any time.</FieldDescription>
-                        </FieldContent>
-                    </Field>
-                </FieldGroup>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Indeterminate"
-                         Description="Use an indeterminate parent checkbox to reflect a partial selection state."
-                         Code="@IndeterminateCode"
-                         CodeLanguage="razor">
-                <Div Space="Space.Y.Is3">
-                    <Check Checked="@_selectAllChecked" CheckedChanged="HandleSelectAllChanged" Indeterminate="@_selectAllIndeterminate" Id="select-all">
-                        Select all
-                    </Check>
-                    <Div class="ml-6 space-y-3">
-                        <Check Checked="@_itemRead" CheckedChanged="@(v => HandlePermissionChanged(nameof(_itemRead), v))" Id="item-read">Read</Check>
-                        <Check Checked="@_itemWrite" CheckedChanged="@(v => HandlePermissionChanged(nameof(_itemWrite), v))" Id="item-write">Write</Check>
-                        <Check Checked="@_itemExecute" CheckedChanged="@(v => HandlePermissionChanged(nameof(_itemExecute), v))" Id="item-execute">Execute</Check>
-                    </Div>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Form Validation"
-                         Description="Checkbox integrates with EditForm and validation messaging through two-way checked binding."
-                         Code="@FormCode"
-                         CodeLanguage="razor">
-                <EditForm Model="_formModel" OnValidSubmit="HandleValidSubmit" class="space-y-4">
-                    <DataAnnotationsValidator />
-                    <Field>
-                        <Check @bind-Checked="_formModel.AcceptTerms" Id="terms">I accept the terms and conditions</Check>
-                        <ValidationMessage For="@(() => _formModel.AcceptTerms)" TextSize="TextSize.Sm" TextColor="TextColor.Destructive" />
-                    </Field>
-                    <Field>
-                        <Check @bind-Checked="_formModel.Subscribe" Id="subscribe">Subscribe to newsletter (optional)</Check>
-                    </Field>
-                    <Div Display="Display.Flex" Gap="Gap.Is4">
-                        <Button Type="ButtonType.Submit">Submit</Button>
-                        <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline" OnClick="@(_ => ResetForm())">Reset</Button>
-                    </Div>
-                    @if (!string.IsNullOrEmpty(_formMessage))
-                    {
-                        <Div class="p-4 bg-card rounded-lg border">
-                            <Paragraph TextSize="TextSize.Sm">@_formMessage</Paragraph>
-                        </Div>
-                    }
-                </EditForm>
             </DemoSection>
         </Section>
     </Div>
@@ -258,6 +263,16 @@
 
 @code {
     private sealed record TablePerson(string Id, string Name, string Email, string Role);
+    private sealed record SidebarItem(string Id, string Label);
+    private sealed class SingleCheckboxForm
+    {
+        public bool Mobile { get; set; } = true;
+    }
+
+    private sealed class MultipleCheckboxForm
+    {
+        public HashSet<string> Items { get; } = ["recents", "home"];
+    }
 
     private static readonly TablePerson[] _tablePeople =
     [
@@ -267,72 +282,105 @@
         new("4", "David Kim", "david.kim@example.com", "Editor")
     ];
 
+    private static readonly SidebarItem[] _sidebarItems =
+    [
+        new("recents", "Recents"),
+        new("home", "Home"),
+        new("applications", "Applications"),
+        new("desktop", "Desktop"),
+        new("downloads", "Downloads"),
+        new("documents", "Documents")
+    ];
+
     private readonly HashSet<string> _selectedTableRows = ["1"];
+    private readonly SingleCheckboxForm _singleForm = new();
+    private readonly MultipleCheckboxForm _multipleForm = new();
 
     private bool _tableSelectAll;
     private bool _tableSelectIndeterminate = true;
-
     private bool _selectAllChecked;
     private bool _selectAllIndeterminate;
     private bool _itemRead = true;
     private bool _itemWrite;
     private bool _itemExecute;
+    private bool _showMultipleError;
+    private string? _singleSubmitJson;
+    private string? _multipleSubmitJson;
 
-    private FormModel _formModel = new();
-    private string _formMessage = "";
+    private const string DemoCode =
+@"<Div Class=""flex max-w-sm flex-col gap-6"">
+    <Div Class=""flex items-center gap-3"">
+        <Check Id=""terms"" />
+        <Label For=""terms"">Accept terms and conditions</Label>
+    </Div>
+    <Div Class=""flex items-start gap-3"">
+        <Check Id=""terms-2"" Checked=""true"" />
+        <Div Class=""grid gap-2"">
+            <Label For=""terms-2"">Accept terms and conditions</Label>
+            <Paragraph Class=""text-sm text-muted-foreground"" Margin=""Margin.Is0"">
+                By clicking this checkbox, you agree to the terms and conditions.
+            </Paragraph>
+        </Div>
+    </Div>
+    <Div Class=""flex items-start gap-3"">
+        <Check Id=""toggle"" Disabled=""true"" />
+        <Label For=""toggle"">Enable notifications</Label>
+    </Div>
+    <Label For=""toggle-2""
+           Class=""flex items-start gap-3 rounded-lg border p-3 hover:bg-accent/50 has-[[aria-checked=true]]:border-blue-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950"">
+        <Check Id=""toggle-2""
+               Checked=""true""
+               IndicatorClass=""data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"" />
+        <Div Class=""grid gap-1.5 font-normal"">
+            <Paragraph Class=""text-sm leading-none font-medium"" Margin=""Margin.Is0"">
+                Enable notifications
+            </Paragraph>
+            <Paragraph Class=""text-sm text-muted-foreground"" Margin=""Margin.Is0"">
+                You can enable or disable notifications at any time.
+            </Paragraph>
+        </Div>
+    </Label>
+</Div>";
 
-    private const string CombinedCode =
-@"<FieldGroup Class=""max-w-sm"">
-    <Field Horizontal=""true"">
-        <Check Id=""terms-checkbox"" Name=""terms-checkbox"" />
-        <Label For=""terms-checkbox"">Accept terms and conditions</Label>
+    private const string FormSingleCode =
+@"<EditForm Model=""_singleForm"" OnSubmit=""@(_ => HandleSingleSubmit())"" class=""flex max-w-md flex-col items-start gap-4"">
+    <Field Horizontal=""true"" Class=""items-start gap-2 rounded-md border p-4 shadow-sm"">
+        <Check Id=""mobile""
+               Checked=""@_singleForm.Mobile""
+               CheckedChanged=""HandleMobileChanged"" />
+        <Div Class=""space-y-1 leading-none"">
+            <FieldLabel For=""mobile"">Use different settings for my mobile devices</FieldLabel>
+            <FieldDescription>
+                You can manage your mobile notifications in the mobile settings page.
+            </FieldDescription>
+        </Div>
     </Field>
-    <Field Horizontal=""true"">
-        <Check Id=""terms-checkbox-2"" Name=""terms-checkbox-2"" Checked=""true"" />
-        <FieldContent>
-            <FieldLabel For=""terms-checkbox-2"">Accept terms and conditions</FieldLabel>
-            <FieldDescription>By clicking this checkbox, you agree to the terms.</FieldDescription>
-        </FieldContent>
-    </Field>
-    <Field Horizontal=""true"" Disabled=""true"">
-        <Check Id=""toggle-checkbox"" Name=""toggle-checkbox"" Disabled=""true"" />
-        <FieldLabel For=""toggle-checkbox"">Enable notifications</FieldLabel>
-    </Field>
-    <Field Horizontal=""true"">
-        <Check Id=""toggle-checkbox-2"" Name=""toggle-checkbox-2"" />
-        <FieldContent>
-            <FieldTitle>Enable notifications</FieldTitle>
-            <FieldDescription>You can enable or disable notifications at any time.</FieldDescription>
-        </FieldContent>
-    </Field>
-</FieldGroup>";
+    <Button Type=""ButtonType.Submit"">Submit</Button>
+</EditForm>";
 
-    private const string BasicCode =
-@"<FieldGroup Class=""mx-auto w-56"">
-    <Field Horizontal=""true"">
-        <Check Id=""terms-checkbox-basic"" Name=""terms-checkbox-basic"" />
-        <FieldLabel For=""terms-checkbox-basic"">Accept terms and conditions</FieldLabel>
+    private const string FormMultipleCode =
+@"<EditForm Model=""_multipleForm"" OnSubmit=""@(_ => HandleMultipleSubmit())"" class=""space-y-8"">
+    <Field>
+        <Div Class=""mb-4"">
+            <FieldLabel Class=""text-base"">Sidebar</FieldLabel>
+            <FieldDescription>
+                Select the items you want to display in the sidebar.
+            </FieldDescription>
+        </Div>
+        <FieldGroup Class=""gap-3"">
+            @foreach (var item in _sidebarItems)
+            {
+                <Field Horizontal=""true"" Class=""items-center gap-2"">
+                    <Check Id=""@item.Id""
+                           Checked=""@_multipleForm.Items.Contains(item.Id)""
+                           CheckedChanged=""@(checkedValue => HandleSidebarItemChanged(item.Id, checkedValue))"" />
+                    <FieldLabel For=""@item.Id"" Class=""text-sm font-normal"">@item.Label</FieldLabel>
+                </Field>
+            }
+        </FieldGroup>
     </Field>
-</FieldGroup>";
-
-    private const string DescriptionCode =
-@"<FieldGroup Class=""mx-auto w-72"">
-    <Field Horizontal=""true"">
-        <Check Id=""terms-checkbox-desc"" Name=""terms-checkbox-desc"" Checked=""true"" />
-        <FieldContent>
-            <FieldLabel For=""terms-checkbox-desc"">Accept terms and conditions</FieldLabel>
-            <FieldDescription>By clicking this checkbox, you agree to the terms and conditions.</FieldDescription>
-        </FieldContent>
-    </Field>
-</FieldGroup>";
-
-    private const string DisabledCode =
-@"<FieldGroup Class=""mx-auto w-56"">
-    <Field Horizontal=""true"" Disabled=""true"">
-        <Check Id=""toggle-checkbox-disabled"" Name=""toggle-checkbox-disabled"" Disabled=""true"" />
-        <FieldLabel For=""toggle-checkbox-disabled"">Enable notifications</FieldLabel>
-    </Field>
-</FieldGroup>";
+    <Button Type=""ButtonType.Submit"">Submit</Button>
+</EditForm>";
 
     private const string InvalidCode =
 @"<FieldGroup Class=""mx-auto w-56"">
@@ -342,26 +390,32 @@
     </Field>
 </FieldGroup>";
 
+    private const string IndeterminateCode =
+@"<Check Checked=""_selectAllChecked"" CheckedChanged=""HandleSelectAllChanged"" Indeterminate=""_selectAllIndeterminate"" Id=""select-all"">
+    Select all
+</Check>
+<Div class=""ml-6 space-y-3"">
+    <Check Checked=""_itemRead"" CheckedChanged=""@(v => HandlePermissionChanged(nameof(_itemRead), v))"" Id=""item-read"">Read</Check>
+    <Check Checked=""_itemWrite"" CheckedChanged=""@(v => HandlePermissionChanged(nameof(_itemWrite), v))"" Id=""item-write"">Write</Check>
+    <Check Checked=""_itemExecute"" CheckedChanged=""@(v => HandlePermissionChanged(nameof(_itemExecute), v))"" Id=""item-execute"">Execute</Check>
+</Div>";
+
     private const string GroupCode =
 @"<FieldSet>
     <FieldLegend Variant=""FieldLegendVariant.Label"">Show these items on the desktop:</FieldLegend>
     <FieldDescription>Select the items you want to show on the desktop.</FieldDescription>
     <FieldGroup Class=""gap-3"">
         <Field Horizontal=""true"">
-            <Check Id=""finder-pref-9k2-hard-disks-ljj-checkbox"" Name=""finder-pref-9k2-hard-disks-ljj-checkbox"" Checked=""true"" />
-            <FieldLabel For=""finder-pref-9k2-hard-disks-ljj-checkbox"" Class=""font-normal"">Hard disks</FieldLabel>
+            <Check Id=""finder-pref-hard-disks"" Checked=""true"" />
+            <FieldLabel For=""finder-pref-hard-disks"" Class=""font-normal"">Hard disks</FieldLabel>
         </Field>
         <Field Horizontal=""true"">
-            <Check Id=""finder-pref-9k2-external-disks-1yg-checkbox"" Name=""finder-pref-9k2-external-disks-1yg-checkbox"" Checked=""true"" />
-            <FieldLabel For=""finder-pref-9k2-external-disks-1yg-checkbox"" Class=""font-normal"">External disks</FieldLabel>
+            <Check Id=""finder-pref-external-disks"" Checked=""true"" />
+            <FieldLabel For=""finder-pref-external-disks"" Class=""font-normal"">External disks</FieldLabel>
         </Field>
         <Field Horizontal=""true"">
-            <Check Id=""finder-pref-9k2-cds-dvds-fzt-checkbox"" Name=""finder-pref-9k2-cds-dvds-fzt-checkbox"" />
-            <FieldLabel For=""finder-pref-9k2-cds-dvds-fzt-checkbox"" Class=""font-normal"">CDs, DVDs, and iPods</FieldLabel>
-        </Field>
-        <Field Horizontal=""true"">
-            <Check Id=""finder-pref-9k2-connected-servers-6l2-checkbox"" Name=""finder-pref-9k2-connected-servers-6l2-checkbox"" />
-            <FieldLabel For=""finder-pref-9k2-connected-servers-6l2-checkbox"" Class=""font-normal"">Connected servers</FieldLabel>
+            <Check Id=""finder-pref-cds"" />
+            <FieldLabel For=""finder-pref-cds"" Class=""font-normal"">CDs, DVDs, and iPods</FieldLabel>
         </Field>
     </FieldGroup>
 </FieldSet>";
@@ -397,55 +451,22 @@
 @"<DirectionProvider Dir=""rtl"">
     <FieldGroup Class=""max-w-sm"">
         <Field Horizontal=""true"">
-            <Check Id=""terms-checkbox-rtl"" Name=""terms-checkbox"" />
+            <Check Id=""terms-checkbox-rtl"" />
             <Label For=""terms-checkbox-rtl"">قبول الشروط والأحكام</Label>
         </Field>
         <Field Horizontal=""true"">
-            <Check Id=""terms-checkbox-2-rtl"" Name=""terms-checkbox-2"" Checked=""true"" />
+            <Check Id=""terms-checkbox-2-rtl"" Checked=""true"" />
             <FieldContent>
                 <FieldLabel For=""terms-checkbox-2-rtl"">قبول الشروط والأحكام</FieldLabel>
                 <FieldDescription>بالنقر على هذا المربع، فإنك توافق على الشروط.</FieldDescription>
             </FieldContent>
         </Field>
         <Field Horizontal=""true"" Disabled=""true"">
-            <Check Id=""toggle-checkbox-rtl"" Name=""toggle-checkbox"" Disabled=""true"" />
+            <Check Id=""toggle-checkbox-rtl"" Disabled=""true"" />
             <FieldLabel For=""toggle-checkbox-rtl"">تفعيل الإشعارات</FieldLabel>
-        </Field>
-        <Field Horizontal=""true"">
-            <Check Id=""toggle-checkbox-2-rtl-inner"" Name=""toggle-checkbox-2"" />
-            <FieldContent>
-                <FieldTitle>تفعيل الإشعارات</FieldTitle>
-                <FieldDescription>يمكنك تفعيل أو إلغاء تفعيل الإشعارات في أي وقت.</FieldDescription>
-            </FieldContent>
         </Field>
     </FieldGroup>
 </DirectionProvider>";
-
-    private const string IndeterminateCode =
-@"<Check Checked=""_selectAllChecked"" CheckedChanged=""HandleSelectAllChanged"" Indeterminate=""_selectAllIndeterminate"" Id=""select-all"">
-    Select all
-</Check>
-<Div class=""ml-6 space-y-3"">
-    <Check Checked=""_itemRead"" CheckedChanged=""@(v => HandlePermissionChanged(nameof(_itemRead), v))"" Id=""item-read"">Read</Check>
-    <Check Checked=""_itemWrite"" CheckedChanged=""@(v => HandlePermissionChanged(nameof(_itemWrite), v))"" Id=""item-write"">Write</Check>
-    <Check Checked=""_itemExecute"" CheckedChanged=""@(v => HandlePermissionChanged(nameof(_itemExecute), v))"" Id=""item-execute"">Execute</Check>
-</Div>";
-
-    private const string FormCode =
-@"<EditForm Model=""_formModel"" OnValidSubmit=""HandleValidSubmit"" class=""space-y-4"">
-    <DataAnnotationsValidator />
-    <Field>
-        <Check @bind-Checked=""_formModel.AcceptTerms"" Id=""terms"">I accept the terms and conditions</Check>
-        <ValidationMessage For=""@(() => _formModel.AcceptTerms)"" TextSize=""TextSize.Sm"" TextColor=""TextColor.Destructive"" />
-    </Field>
-    <Field>
-        <Check @bind-Checked=""_formModel.Subscribe"" Id=""subscribe"">Subscribe to newsletter (optional)</Check>
-    </Field>
-    <Div Display=""Display.Flex"" Gap=""Gap.Is4"">
-        <Button Type=""ButtonType.Submit"">Submit</Button>
-        <Button Type=""ButtonType.Button"" Variant=""ButtonVariant.Outline"" OnClick=""@(_ => ResetForm())"">Reset</Button>
-    </Div>
-</EditForm>";
 
     protected override void OnInitialized()
     {
@@ -462,6 +483,55 @@
     }
 
     private bool GetRowSelected(string id) => _selectedTableRows.Contains(id);
+
+    private Task HandleMobileChanged(bool value)
+    {
+        _singleForm.Mobile = value;
+        return Task.CompletedTask;
+    }
+
+    private Task HandleSidebarItemChanged(string id, bool value)
+    {
+        if (value)
+            _multipleForm.Items.Add(id);
+        else
+            _multipleForm.Items.Remove(id);
+
+        _showMultipleError = false;
+        return Task.CompletedTask;
+    }
+
+    private Task HandleSingleSubmit()
+    {
+        _singleSubmitJson =
+            $$"""
+              {
+                "mobile": {{_singleForm.Mobile.ToString().ToLowerInvariant()}}
+              }
+              """;
+
+        return Task.CompletedTask;
+    }
+
+    private Task HandleMultipleSubmit()
+    {
+        if (_multipleForm.Items.Count == 0)
+        {
+            _showMultipleError = true;
+            _multipleSubmitJson = null;
+            return Task.CompletedTask;
+        }
+
+        _showMultipleError = false;
+        _multipleSubmitJson =
+            $$"""
+              {
+                "items": [{{string.Join(", ", _multipleForm.Items.Select(item => $"\"{item}\""))}}]
+              }
+              """;
+
+        return Task.CompletedTask;
+    }
 
     private void HandleSelectAllChanged(bool value)
     {
@@ -532,25 +602,5 @@
         var none = _selectedTableRows.Count == 0;
         _tableSelectAll = all;
         _tableSelectIndeterminate = !all && !none;
-    }
-
-    private void HandleValidSubmit()
-    {
-        _formMessage = $"Submitted at {DateTime.Now:HH:mm:ss}. Terms: {_formModel.AcceptTerms}, Subscribe: {_formModel.Subscribe}";
-    }
-
-    private void ResetForm()
-    {
-        _formModel = new FormModel();
-        _formMessage = "";
-    }
-
-    private sealed class FormModel
-    {
-        [Required(ErrorMessage = "You must accept terms.")]
-        [Range(typeof(bool), "true", "true", ErrorMessage = "You must accept terms.")]
-        public bool AcceptTerms { get; set; }
-
-        public bool Subscribe { get; set; }
     }
 }

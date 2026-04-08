@@ -319,6 +319,7 @@ CodeLanguage="razor">
             Logger.LogInformation("PagedResultDemo: EmployeeService returned {Count} employees, TotalCount={TotalCount}, ContinuationToken='{Token}'", pagedResult.Items.Count, pagedResult.TotalCount, pagedResult.ContinuationToken ?? "null");
 
             _currentEmployees = pagedResult.Items;
+            _totalRecords = pagedResult.TotalCount.GetValueOrDefault(_currentEmployees.Count);
 
             // Update the Table's continuation token paging
             _quarkTable?.UpdateContinuationTokenPaging(pagedResult.Items.Count, pagedResult.ContinuationToken, serverSideRequest.ContinuationToken);

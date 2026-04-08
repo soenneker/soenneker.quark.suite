@@ -5,12 +5,8 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Basic" Description="Simple native select control with binding."
-                        Code="@(@"<NativeSelect @bind-Value=""_fruit"">
-    <NativeSelectOption Value="""">Select a fruit...</NativeSelectOption>
-    <NativeSelectOption Value=""apple"">Apple</NativeSelectOption>
-    <NativeSelectOption Value=""banana"">Banana</NativeSelectOption>
-</NativeSelect>")"
+            <DemoSection Title="Demo" Description="Simple native select control with binding."
+                        Code="@BasicCode"
 CodeLanguage="razor">
                 <Div Display="Display.Flex" AlignUtility="Align.ItemsCenter" Gap="Gap.Is4">
                     <NativeSelect @bind-Value="_fruit">
@@ -26,14 +22,7 @@ CodeLanguage="razor">
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Groups" Description="Use option groups to organize long lists."
-                        Code="@(@"<NativeSelect @bind-Value=""_animal"">
-    <NativeSelectOptGroup Label=""Mammals"">
-        <NativeSelectOption Value=""cat"">Cat</NativeSelectOption>
-    </NativeSelectOptGroup>
-    <NativeSelectOptGroup Label=""Birds"">
-        <NativeSelectOption Value=""eagle"">Eagle</NativeSelectOption>
-    </NativeSelectOptGroup>
-</NativeSelect>")"
+                        Code="@GroupsCode"
 CodeLanguage="razor">
                 <NativeSelect @bind-Value="_animal">
                     <NativeSelectOption Value="">Select an animal...</NativeSelectOption>
@@ -51,8 +40,7 @@ CodeLanguage="razor">
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Disabled" Description="Small size and disabled state."
-                        Code="@(@"<NativeSelect Size=""NativeSelectSize.Small"">...</NativeSelect>
-<NativeSelect Disabled=""true"">...</NativeSelect>")"
+                        Code="@DisabledCode"
 CodeLanguage="razor">
                 <Div Space="Space.Y.Is3">
                     <NativeSelect Size="NativeSelectSize.Small" @bind-Value="_sizeDemo">
@@ -68,10 +56,7 @@ CodeLanguage="razor">
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Invalid" Description="Use a destructive border and supporting copy when the current selection needs correction."
-                        Code="@(@"<NativeSelect Value="""" Class=""border-destructive text-destructive"">
-    <NativeSelectOption Value="""">Select a plan...</NativeSelectOption>
-    <NativeSelectOption Value=""starter"">Starter</NativeSelectOption>
-</NativeSelect>")"
+                        Code="@InvalidCode"
 CodeLanguage="razor">
                 <Div Space="Space.Y.Is2">
                     <NativeSelect Value="" Class="border-destructive text-destructive">
@@ -90,4 +75,49 @@ CodeLanguage="razor">
     private string? _fruit;
     private string? _animal;
     private string? _sizeDemo;
+
+    private const string BasicCode =
+@"<Div Display=""Display.Flex"" AlignUtility=""Align.ItemsCenter"" Gap=""Gap.Is4"">
+    <NativeSelect @bind-Value=""_fruit"">
+        <NativeSelectOption Value="""">Select a fruit...</NativeSelectOption>
+        <NativeSelectOption Value=""apple"">Apple</NativeSelectOption>
+        <NativeSelectOption Value=""banana"">Banana</NativeSelectOption>
+        <NativeSelectOption Value=""blueberry"">Blueberry</NativeSelectOption>
+    </NativeSelect>
+    <Span TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"">Selected: @(_fruit ?? ""(none)"")</Span>
+</Div>";
+
+    private const string GroupsCode =
+@"<NativeSelect @bind-Value=""_animal"">
+    <NativeSelectOption Value="""">Select an animal...</NativeSelectOption>
+    <NativeSelectOptGroup Label=""Mammals"">
+        <NativeSelectOption Value=""cat"">Cat</NativeSelectOption>
+        <NativeSelectOption Value=""dog"">Dog</NativeSelectOption>
+    </NativeSelectOptGroup>
+    <NativeSelectOptGroup Label=""Birds"">
+        <NativeSelectOption Value=""eagle"">Eagle</NativeSelectOption>
+        <NativeSelectOption Value=""parrot"">Parrot</NativeSelectOption>
+    </NativeSelectOptGroup>
+</NativeSelect>";
+
+    private const string DisabledCode =
+@"<Div Space=""Space.Y.Is3"">
+    <NativeSelect Size=""NativeSelectSize.Small"" @bind-Value=""_sizeDemo"">
+        <NativeSelectOption Value="""">Small size</NativeSelectOption>
+        <NativeSelectOption Value=""one"">Option one</NativeSelectOption>
+    </NativeSelect>
+    <NativeSelect Disabled=""true"" Value="""">
+        <NativeSelectOption Value="""">Disabled select</NativeSelectOption>
+    </NativeSelect>
+</Div>";
+
+    private const string InvalidCode =
+@"<Div Space=""Space.Y.Is2"">
+    <NativeSelect Value="""" Class=""border-destructive text-destructive"">
+        <NativeSelectOption Value="""">Select a plan...</NativeSelectOption>
+        <NativeSelectOption Value=""starter"">Starter</NativeSelectOption>
+        <NativeSelectOption Value=""pro"">Pro</NativeSelectOption>
+    </NativeSelect>
+    <Paragraph TextSize=""TextSize.Sm"" TextColor=""TextColor.Destructive"">Please choose a plan before continuing.</Paragraph>
+</Div>";
 }

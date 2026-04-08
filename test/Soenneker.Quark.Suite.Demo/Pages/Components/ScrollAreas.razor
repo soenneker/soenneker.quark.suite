@@ -5,23 +5,21 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Vertical"
-                         Description="Use a scroll area when a panel should keep a fixed footprint while still exposing longer content."
+            <DemoSection Title="Demo"
+                         Description="Fixed-height tag list with separators between items."
                          Code="@VerticalCode"
                          CodeLanguage="razor">
-                <Div Class="relative w-full max-w-sm">
-                    <ScrollArea Class="h-72 rounded-md border">
+                <Div Class="relative w-full max-w-48">
+                    <ScrollArea Class="h-72 w-48 rounded-md border">
                         <Div Class="p-4">
-                            @for (var i = 0; i < _notes.Length; i++)
+                            <H4 TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" Class="mb-4 leading-none">Tags</H4>
+                            @for (var i = 0; i < _tags.Length; i++)
                             {
-                                <Div Space="Space.Y.Is1">
-                                    <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" Margin="Margin.Is0">@_notes[i].Title</Paragraph>
-                                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">@_notes[i].Description</Paragraph>
-                                </Div>
+                                <Div class="text-sm">@_tags[i]</Div>
 
-                                @if (i < _notes.Length - 1)
+                                @if (i < _tags.Length - 1)
                                 {
-                                    <Separator Class="my-4" />
+                                    <Separator Class="my-2" />
                                 }
                             }
                         </Div>
@@ -91,14 +89,9 @@
 </Div>
 
 @code {
-    private static readonly (string Title, string Description)[] _notes =
-    [
-        ("Authentication", "Added session replay protection and rotated the default cookie secret."),
-        ("Billing", "Improved invoice reminders and retry handling for expired cards."),
-        ("Deployments", "Streamlined release approvals and added a quieter production summary."),
-        ("Observability", "Expanded log filtering so noisy background jobs are easier to suppress."),
-        ("Editor", "Reduced initial render cost on larger tables and command palettes.")
-    ];
+    private static readonly string[] _tags = Enumerable.Range(1, 50)
+        .Select(index => $"v1.2.0-beta.{50 - index + 1}")
+        .ToArray();
 
     private static readonly (string Title, string Description)[] _releases =
     [
@@ -119,13 +112,14 @@
     ];
 
     private const string VerticalCode =
-@"<Div Class=""relative w-full max-w-sm"">
-    <ScrollArea Class=""h-72 rounded-md border"">
+@"<Div Class=""relative w-full max-w-48"">
+    <ScrollArea Class=""h-72 w-48 rounded-md border"">
         <Div Class=""p-4"">
-            @foreach (var note in notes)
+            <H4 TextSize=""TextSize.Sm"" FontWeight=""FontWeight.Medium"" Class=""mb-4 leading-none"">Tags</H4>
+            @foreach (var tag in tags)
             {
-                <Div Class=""space-y-1"">...</Div>
-                <Separator Class=""my-4"" />
+                <Div class=""text-sm"">@tag</Div>
+                <Separator Class=""my-2"" />
             }
         </Div>
     </ScrollArea>

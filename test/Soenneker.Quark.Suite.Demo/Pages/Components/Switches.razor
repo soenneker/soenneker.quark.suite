@@ -1,9 +1,69 @@
 @page "/switches"
+@using Microsoft.AspNetCore.Components.Forms
 
 <PageTitle>Switches - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Demo"
+                         Description="The standard switch and label pairing."
+                         Code="@BasicCode"
+                         CodeLanguage="razor">
+                <Div Class="flex items-center space-x-2">
+                    <Switch Id="airplane-mode" />
+                    <Label For="airplane-mode">Airplane Mode</Label>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Form"
+                         Description="Settings-style rows with descriptions and a submitted value preview."
+                         Code="@FormCode"
+                         CodeLanguage="razor">
+                <EditForm Model="_formModel" OnSubmit="@(_ => HandleFormSubmit())" class="w-full max-w-xl space-y-6">
+                    <Div>
+                        <H3 Class="mb-4 text-lg font-medium">Email Notifications</H3>
+                        <Div Class="space-y-4">
+                            <Field Horizontal="true" Class="items-center justify-between rounded-lg border p-3 shadow-sm">
+                                <FieldContent>
+                                    <FieldLabel For="marketing-emails">Marketing emails</FieldLabel>
+                                    <FieldDescription>
+                                        Receive emails about new products, features, and more.
+                                    </FieldDescription>
+                                </FieldContent>
+                                <Switch Id="marketing-emails"
+                                        Checked="@_formModel.MarketingEmails"
+                                        CheckedChanged="HandleMarketingEmailsChanged" />
+                            </Field>
+
+                            <Field Horizontal="true" Class="items-center justify-between rounded-lg border p-3 shadow-sm">
+                                <FieldContent>
+                                    <FieldLabel For="security-emails">Security emails</FieldLabel>
+                                    <FieldDescription>
+                                        Receive emails about your account security.
+                                    </FieldDescription>
+                                </FieldContent>
+                                <Switch Id="security-emails"
+                                        Checked="@_formModel.SecurityEmails"
+                                        CheckedChanged="HandleSecurityEmailsChanged"
+                                        Disabled="true"
+                                        aria-readonly="true" />
+                            </Field>
+                        </Div>
+                    </Div>
+
+                    <Button Type="ButtonType.Submit">Submit</Button>
+
+                    @if (!string.IsNullOrEmpty(_submittedSwitchJson))
+                    {
+                        <pre class="rounded-lg bg-neutral-950 p-4 text-sm text-white">@_submittedSwitchJson</pre>
+                    }
+                </EditForm>
+            </DemoSection>
+        </Section>
+
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Description"
                          Description="Label and supporting text beside the switch."
@@ -110,22 +170,12 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
-            <Paragraph TextColor="TextColor.MutedForeground">
-                Simple label pairing and inline or legacy label APIs.
-            </Paragraph>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Basic"
-                         Description="Switch next to a standalone label."
-                         Code="@BasicCode"
-                         CodeLanguage="razor">
-                <Div Class="flex items-center space-x-2">
-                    <Switch Id="airplane-mode" />
-                    <Label For="airplane-mode">Airplane Mode</Label>
-                </Div>
-            </DemoSection>
+            <Div Space="Space.Y.Is2">
+                <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
+                <Paragraph TextColor="TextColor.MutedForeground">
+                    Inline switch labels and the legacy `Label` parameter.
+                </Paragraph>
+            </Div>
         </Section>
 
         <Section Space="Space.Y.Is4">
@@ -145,11 +195,51 @@
 </Div>
 
 @code {
+    private sealed class SwitchFormModel
+    {
+        public bool MarketingEmails { get; set; }
+        public bool SecurityEmails { get; set; } = true;
+    }
+
     private const string BasicCode =
 @"<Div Class=""flex items-center space-x-2"">
     <Switch Id=""airplane-mode"" />
     <Label For=""airplane-mode"">Airplane Mode</Label>
 </Div>";
+
+    private const string FormCode =
+@"<EditForm Model=""_formModel"" OnSubmit=""@(_ => HandleFormSubmit())"" class=""w-full max-w-xl space-y-6"">
+    <Div>
+        <H3 Class=""mb-4 text-lg font-medium"">Email Notifications</H3>
+        <Div Class=""space-y-4"">
+            <Field Horizontal=""true"" Class=""items-center justify-between rounded-lg border p-3 shadow-sm"">
+                <FieldContent>
+                    <FieldLabel For=""marketing-emails"">Marketing emails</FieldLabel>
+                    <FieldDescription>
+                        Receive emails about new products, features, and more.
+                    </FieldDescription>
+                </FieldContent>
+                <Switch Id=""marketing-emails""
+                        Checked=""@_formModel.MarketingEmails""
+                        CheckedChanged=""HandleMarketingEmailsChanged"" />
+            </Field>
+            <Field Horizontal=""true"" Class=""items-center justify-between rounded-lg border p-3 shadow-sm"">
+                <FieldContent>
+                    <FieldLabel For=""security-emails"">Security emails</FieldLabel>
+                    <FieldDescription>
+                        Receive emails about your account security.
+                    </FieldDescription>
+                </FieldContent>
+                <Switch Id=""security-emails""
+                        Checked=""@_formModel.SecurityEmails""
+                        CheckedChanged=""HandleSecurityEmailsChanged""
+                        Disabled=""true""
+                        aria-readonly=""true"" />
+            </Field>
+        </Div>
+    </Div>
+    <Button Type=""ButtonType.Submit"">Submit</Button>
+</EditForm>";
 
     private const string DescriptionCode =
 @"<Field Horizontal=""true"" Class=""max-w-sm"">
@@ -228,13 +318,40 @@
     <Switch @bind-Checked=""_legacyLabelChecked"" Label=""Dark mode"" />
 </Div>";
 
+    private readonly SwitchFormModel _formModel = new();
+    private string? _submittedSwitchJson;
     private bool _inlineContentChecked;
     private bool _legacyLabelChecked;
     private bool _rtlSwitchChecked = true;
 
+    private Task HandleMarketingEmailsChanged(bool value)
+    {
+        _formModel.MarketingEmails = value;
+        return Task.CompletedTask;
+    }
+
+    private Task HandleSecurityEmailsChanged(bool value)
+    {
+        _formModel.SecurityEmails = value;
+        return Task.CompletedTask;
+    }
+
     private Task HandleRtlSwitchChanged(bool value)
     {
         _rtlSwitchChecked = value;
+        return Task.CompletedTask;
+    }
+
+    private Task HandleFormSubmit()
+    {
+        _submittedSwitchJson =
+            $$"""
+              {
+                "marketing_emails": {{_formModel.MarketingEmails.ToString().ToLowerInvariant()}},
+                "security_emails": {{_formModel.SecurityEmails.ToString().ToLowerInvariant()}}
+              }
+              """;
+
         return Task.CompletedTask;
     }
 }

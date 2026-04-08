@@ -6,7 +6,7 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Basic"
+            <DemoSection Title="Demo"
                          Description="Standard modal with header, form fields, and footer actions."
                          Code="@BasicCode"
                          CodeLanguage="razor">
@@ -137,7 +137,7 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Chat Settings"
-                         Description="Larger dialog with tabbed settings, matching the rich shadcn-style example."
+                         Description="Larger dialog with tabbed settings for more advanced configuration flows."
                          Code="@ChatSettingsCode"
                          CodeLanguage="razor">
                 <Dialog DialogSize="DialogSize.Large">
@@ -152,14 +152,12 @@
                             </DialogDescription>
                         </DialogHeader>
                         <DialogBody>
-                            <Tabs Value="@_dialogTab" ValueChanged="HandleDialogTabChanged">
-                                <TabsList Class="w-full">
-                                    <TabsTrigger Value="general">General</TabsTrigger>
-                                    <TabsTrigger Value="notifications">Notifications</TabsTrigger>
-                                    <TabsTrigger Value="security">Security</TabsTrigger>
-                                </TabsList>
-                                <Div class="border rounded-lg p-4">
-                                    <TabsContent Value="general">
+                            <Tabs SelectedTab="@_dialogTab"
+                                  OnSelectedTabChanged="HandleDialogTabChanged"
+                                  Justified="true"
+                                  Class="w-full">
+                                <Tab Name="general" Title="General">
+                                    <Div class="mt-4 rounded-lg border p-4">
                                         <FieldGroup>
                                             <Field Orientation="Orientation.Horizontal">
                                                 <FieldLabel For="theme">Theme</FieldLabel>
@@ -181,8 +179,10 @@
                                                 <Input Id="nickname" Value="Broski" />
                                             </Field>
                                         </FieldGroup>
-                                    </TabsContent>
-                                    <TabsContent Value="notifications">
+                                    </Div>
+                                </Tab>
+                                <Tab Name="notifications" Title="Notifications">
+                                    <Div class="mt-4 rounded-lg border p-4">
                                         <FieldGroup>
                                             <Field Orientation="Orientation.Horizontal">
                                                 <Check Id="push-notifications" @bind-Checked="_dialogPushNotifications" />
@@ -193,8 +193,10 @@
                                                 <FieldLabel For="email-notifications" Class="font-normal">Email notifications</FieldLabel>
                                             </Field>
                                         </FieldGroup>
-                                    </TabsContent>
-                                    <TabsContent Value="security">
+                                    </Div>
+                                </Tab>
+                                <Tab Name="security" Title="Security">
+                                    <Div class="mt-4 rounded-lg border p-4">
                                         <FieldGroup>
                                             <Field Orientation="Orientation.Horizontal">
                                                 <FieldContent>
@@ -204,8 +206,8 @@
                                                 <Switch Id="dialog-2fa" Checked="@_dialogTwoFactorEnabled" CheckedChanged="HandleDialogTwoFactorChanged" />
                                             </Field>
                                         </FieldGroup>
-                                    </TabsContent>
-                                </Div>
+                                    </Div>
+                                </Tab>
                             </Tabs>
                         </DialogBody>
                         <DialogFooter>
@@ -264,7 +266,7 @@
             <Div Space="Space.Y.Is2">
                 <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
                 <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                    Backdrop guard, sizing, and vertical centering beyond the core docs patterns.
+                    Backdrop guard, sizing, and vertical centering beyond the core examples.
                 </Paragraph>
             </Div>
 
@@ -480,14 +482,9 @@
             </DialogDescription>
         </DialogHeader>
         <DialogBody>
-            <Tabs Value=""@_dialogTab"" ValueChanged=""HandleDialogTabChanged"">
-                <TabsList Class=""w-full"">
-                    <TabsTrigger Value=""general"">General</TabsTrigger>
-                    <TabsTrigger Value=""notifications"">Notifications</TabsTrigger>
-                    <TabsTrigger Value=""security"">Security</TabsTrigger>
-                </TabsList>
-                <Div class=""border rounded-lg p-4"">
-                    <TabsContent Value=""general"">
+            <Tabs SelectedTab=""@_dialogTab"" OnSelectedTabChanged=""HandleDialogTabChanged"" Justified=""true"" Class=""w-full"">
+                <Tab Name=""general"" Title=""General"">
+                    <Div class=""mt-4 rounded-lg border p-4"">
                         <FieldGroup>
                             <Field Orientation=""Orientation.Horizontal"">
                                 <FieldLabel For=""theme"">Theme</FieldLabel>
@@ -509,8 +506,10 @@
                                 <Input Id=""nickname"" Value=""Broski"" />
                             </Field>
                         </FieldGroup>
-                    </TabsContent>
-                    <TabsContent Value=""notifications"">
+                    </Div>
+                </Tab>
+                <Tab Name=""notifications"" Title=""Notifications"">
+                    <Div class=""mt-4 rounded-lg border p-4"">
                         <FieldGroup>
                             <Field Orientation=""Orientation.Horizontal"">
                                 <Check Id=""push-notifications"" @bind-Checked=""_dialogPushNotifications"" />
@@ -521,8 +520,10 @@
                                 <FieldLabel For=""email-notifications"" Class=""font-normal"">Email notifications</FieldLabel>
                             </Field>
                         </FieldGroup>
-                    </TabsContent>
-                    <TabsContent Value=""security"">
+                    </Div>
+                </Tab>
+                <Tab Name=""security"" Title=""Security"">
+                    <Div class=""mt-4 rounded-lg border p-4"">
                         <FieldGroup>
                             <Field Orientation=""Orientation.Horizontal"">
                                 <FieldContent>
@@ -532,8 +533,8 @@
                                 <Switch Id=""dialog-2fa"" Checked=""@_dialogTwoFactorEnabled"" CheckedChanged=""HandleDialogTwoFactorChanged"" />
                             </Field>
                         </FieldGroup>
-                    </TabsContent>
-                </Div>
+                    </Div>
+                </Tab>
             </Tabs>
         </DialogBody>
         <DialogFooter>

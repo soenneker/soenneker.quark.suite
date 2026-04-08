@@ -5,17 +5,25 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Demo"
+                         Description="The default Radix button pairing: text button plus icon button."
+                         Code="@DemoCode"
+                         CodeLanguage="razor">
+                <Div Class="flex flex-wrap items-center gap-2 md:flex-row">
+                    <Button Variant="ButtonVariant.Outline">Button</Button>
+                    <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" aria-label="Submit">
+                        <Icon Name="LucideIcon.ArrowUp" />
+                    </Button>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Size"
-                         Description="Display the full size matrix, including compact and icon variants."
+                         Description="Match the standard small, default, and large size matrix."
                          Code="@SizeCode"
                          CodeLanguage="razor">
                 <Div Class="flex flex-col items-start gap-8 sm:flex-row">
-                    <Div Class="flex items-start gap-2">
-                        <Button Size="ButtonSize.Xs" Variant="ButtonVariant.Outline">Extra Small</Button>
-                        <Button Size="ButtonSize.IconXs" Variant="ButtonVariant.Outline" aria-label="Submit">
-                            <Icon Name="LucideIcon.ArrowUpRight" />
-                        </Button>
-                    </Div>
                     <Div Class="flex items-start gap-2">
                         <Button Size="ButtonSize.Sm" Variant="ButtonVariant.Outline">Small</Button>
                         <Button Size="ButtonSize.IconSm" Variant="ButtonVariant.Outline" aria-label="Submit">
@@ -127,40 +135,14 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Spinner"
-                         Description="A spinner can be rendered inline at either edge of the button content."
-                         Code="@SpinnerCode"
+            <DemoSection Title="Loading"
+                         Description="Disabled loading state with the standard inline spinner."
+                         Code="@LoadingCode"
                          CodeLanguage="razor">
-                <Div Class="flex gap-2">
-                    <Button Variant="ButtonVariant.Outline" Disabled="true">
-                        <Spinner Size="Size.Small" />
-                        Generating
-                    </Button>
-                    <Button Variant="ButtonVariant.Secondary" Disabled="true">
-                        Downloading
-                        <Spinner Size="Size.Small" />
-                    </Button>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Button Group"
-                         Description="The button page links to grouped actions, so the demo mirrors that compact action cluster."
-                         Code="@ButtonGroupCode"
-                         CodeLanguage="razor">
-                <ButtonGroup AriaLabel="Message actions">
-                    <ButtonGroup>
-                        <Button Variant="ButtonVariant.Outline">Archive</Button>
-                        <Button Variant="ButtonVariant.Outline">Report</Button>
-                    </ButtonGroup>
-                    <ButtonGroup>
-                        <Button Variant="ButtonVariant.Outline">Snooze</Button>
-                        <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" aria-label="More actions">
-                            <Icon Name="LucideIcon.Ellipsis" />
-                        </Button>
-                    </ButtonGroup>
-                </ButtonGroup>
+                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" Disabled="true">
+                    <Spinner Size="Size.Small" />
+                    Submit
+                </Button>
             </DemoSection>
         </Section>
 
@@ -179,9 +161,39 @@
             <Div Space="Space.Y.Is2">
                 <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
                 <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                    Navigation and form button types beyond the core variants.
+                    Quark-specific size extensions, grouped actions, and navigation helpers.
                 </Paragraph>
             </Div>
+
+            <DemoSection Title="Extended Sizes"
+                         Description="Extra-small button sizes beyond the core Radix size set."
+                         Code="@ExtendedSizesCode"
+                         CodeLanguage="razor">
+                <Div Class="flex items-start gap-2">
+                    <Button Size="ButtonSize.Xs" Variant="ButtonVariant.Outline">Extra Small</Button>
+                    <Button Size="ButtonSize.IconXs" Variant="ButtonVariant.Outline" aria-label="Submit">
+                        <Icon Name="LucideIcon.ArrowUpRight" />
+                    </Button>
+                </Div>
+            </DemoSection>
+
+            <DemoSection Title="Button Group"
+                         Description="Grouped actions and nested group composition."
+                         Code="@ButtonGroupCode"
+                         CodeLanguage="razor">
+                <ButtonGroup AriaLabel="Message actions">
+                    <ButtonGroup>
+                        <Button Variant="ButtonVariant.Outline">Archive</Button>
+                        <Button Variant="ButtonVariant.Outline">Report</Button>
+                    </ButtonGroup>
+                    <ButtonGroup>
+                        <Button Variant="ButtonVariant.Outline">Snooze</Button>
+                        <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" aria-label="More actions">
+                            <Icon Name="LucideIcon.Ellipsis" />
+                        </Button>
+                    </ButtonGroup>
+                </ButtonGroup>
+            </DemoSection>
 
             <DemoSection Title="Navigation Button"
                          Description="Quark buttons can navigate directly without wrapping a child anchor."
@@ -209,10 +221,35 @@
 </Div>
 
 @code {
+    private const string DemoCode =
+@"<Div Class=""flex flex-wrap items-center gap-2 md:flex-row"">
+    <Button Variant=""ButtonVariant.Outline"">Button</Button>
+    <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Icon"" aria-label=""Submit"">
+        <Icon Name=""LucideIcon.ArrowUp"" />
+    </Button>
+</Div>";
+
     private const string SizeCode =
-@"<Button Size=""ButtonSize.Xs"" Variant=""ButtonVariant.Outline"">Extra Small</Button>
-<Button Size=""ButtonSize.IconXs"" Variant=""ButtonVariant.Outline"" aria-label=""Submit""><Icon Name=""LucideIcon.ArrowUpRight"" /></Button>
-<!-- ... Sm/Default/Lg + matching icon sizes -->";
+@"<Div Class=""flex flex-col items-start gap-8 sm:flex-row"">
+    <Div Class=""flex items-start gap-2"">
+        <Button Size=""ButtonSize.Sm"" Variant=""ButtonVariant.Outline"">Small</Button>
+        <Button Size=""ButtonSize.IconSm"" Variant=""ButtonVariant.Outline"" aria-label=""Submit"">
+            <Icon Name=""LucideIcon.ArrowUpRight"" />
+        </Button>
+    </Div>
+    <Div Class=""flex items-start gap-2"">
+        <Button Variant=""ButtonVariant.Outline"">Default</Button>
+        <Button Size=""ButtonSize.Icon"" Variant=""ButtonVariant.Outline"" aria-label=""Submit"">
+            <Icon Name=""LucideIcon.ArrowUpRight"" />
+        </Button>
+    </Div>
+    <Div Class=""flex items-start gap-2"">
+        <Button Size=""ButtonSize.Lg"" Variant=""ButtonVariant.Outline"">Large</Button>
+        <Button Size=""ButtonSize.IconLg"" Variant=""ButtonVariant.Outline"" aria-label=""Submit"">
+            <Icon Name=""LucideIcon.ArrowUpRight"" />
+        </Button>
+    </Div>
+</Div>";
 
     private const string DefaultCode = @"<Button>Button</Button>";
 
@@ -242,15 +279,19 @@
     <Icon Name=""LucideIcon.ArrowUp"" />
 </Button>";
 
-    private const string SpinnerCode =
-@"<Button Variant=""ButtonVariant.Outline"" Disabled=""true"">
+    private const string LoadingCode =
+@"<Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Sm"" Disabled=""true"">
     <Spinner Size=""Size.Small"" />
-    Generating
-</Button>
-<Button Variant=""ButtonVariant.Secondary"" Disabled=""true"">
-    Downloading
-    <Spinner Size=""Size.Small"" />
+    Submit
 </Button>";
+
+    private const string ExtendedSizesCode =
+@"<Div Class=""flex items-start gap-2"">
+    <Button Size=""ButtonSize.Xs"" Variant=""ButtonVariant.Outline"">Extra Small</Button>
+    <Button Size=""ButtonSize.IconXs"" Variant=""ButtonVariant.Outline"" aria-label=""Submit"">
+        <Icon Name=""LucideIcon.ArrowUpRight"" />
+    </Button>
+</Div>";
 
     private const string ButtonGroupCode =
 @"<ButtonGroup AriaLabel=""Message actions"">

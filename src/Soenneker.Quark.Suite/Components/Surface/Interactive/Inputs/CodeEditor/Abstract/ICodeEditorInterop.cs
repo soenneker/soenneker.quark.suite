@@ -21,6 +21,7 @@ public interface ICodeEditorInterop : IAsyncDisposable
     /// </summary>
     /// <param name="container">Container element to host the editor.</param>
     /// <param name="optionsJson">Monaco editor options JSON string.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
     ValueTask CreateEditor(ElementReference container, string optionsJson, CancellationToken cancellationToken = default);
 
     /// <summary>

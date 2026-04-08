@@ -2,9 +2,20 @@
 @inherits Soenneker.Quark.TriggerElement
 @implements IAlertDialogTrigger
 
-<button type="button" @onclick="HandleActivate" @ref="_elementRef" @attributes="BuildAttributes()">
-    @ChildContent
-</button>
+@if (AsChild)
+{
+    <span @ref="_elementRef" @onclick="HandleActivate" @attributes="BuildWrapperAttributes()">
+        <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
+            @ChildContent
+        </CascadingValue>
+    </span>
+}
+else
+{
+    <button type="button" @onclick="HandleActivate" @ref="_elementRef" @attributes="BuildAttributes()">
+        @ChildContent
+    </button>
+}
 
 @code {
     [CascadingParameter(Name = nameof(ParentAlertDialog))]
@@ -12,6 +23,9 @@
 
     [CascadingParameter]
     private OverlayLabelContext? Context { get; set; }
+
+    [Parameter]
+    public bool AsChild { get; set; }
 
     private ElementReference _elementRef;
 
@@ -48,8 +62,55 @@
         await base.HandleClick(args);
     }
 
+    private TriggerContext GetTriggerContext()
+    {
+        return new TriggerContext
+        {
+            IsOpen = ParentAlertDialog?.Visible == true,
+            DataState = ParentAlertDialog?.Visible == true ? "open" : "closed",
+            AriaHasPopup = "alertdialog",
+            AriaControls = Context?.ContentId,
+            Toggle = ParentAlertDialog is null
+                ? null
+                : async () =>
+                {
+                    if (ParentAlertDialog.Visible)
+                        await ParentAlertDialog.Hide();
+                    else
+                    {
+                        ParentAlertDialog.SetRestoreFocusTarget(_elementRef);
+                        await ParentAlertDialog.Show();
+                    }
+                },
+            Open = ParentAlertDialog is null
+                ? null
+                : async () =>
+                {
+                    ParentAlertDialog.SetRestoreFocusTarget(_elementRef);
+                    await ParentAlertDialog.Show();
+                },
+            Close = ParentAlertDialog is null ? null : () => ParentAlertDialog.Hide()
+        };
+    }
+
+    private Dictionary<string, object> BuildWrapperAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+        attributes["data-slot"] = "alert-dialog-trigger-wrapper";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-alert-dialog-trigger-wrapper inline-flex");
+            if (Disabled)
+                AppendClass(ref cls, "pointer-events-none opacity-50");
+        });
+
+        return attributes;
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        hc.Add(AsChild);
         hc.Add(Disabled);
         hc.Add(ParentAlertDialog?.Visible ?? false);
         hc.Add(Context?.ContentId);

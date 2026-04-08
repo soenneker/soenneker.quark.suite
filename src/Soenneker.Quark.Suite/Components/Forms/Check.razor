@@ -102,6 +102,18 @@
     public string? Label { get; set; }
 
     /// <summary>
+    /// Gets or sets an additional class applied to the visual checkbox indicator.
+    /// </summary>
+    [Parameter]
+    public string? IndicatorClass { get; set; }
+
+    /// <summary>
+    /// Gets or sets inline style applied to the visual checkbox indicator.
+    /// </summary>
+    [Parameter]
+    public string? IndicatorStyle { get; set; }
+
+    /// <summary>
     /// Gets or sets the callback invoked When the check state changes.
     /// </summary>
     [Parameter]
@@ -264,7 +276,14 @@
             var validationClass = GetValidationClass();
             if (validationClass != null)
                 AppendClass(ref cls, validationClass);
+
+            if (IndicatorClass.HasContent())
+                AppendClass(ref cls, IndicatorClass!);
         });
+
+        if (IndicatorStyle.HasContent())
+            attributes["style"] = IndicatorStyle!;
+
         return attributes;
     }
 
@@ -345,5 +364,7 @@
         hc.Add(Inline);
         hc.Add(Reverse);
         hc.Add(Label);
+        hc.Add(IndicatorClass);
+        hc.Add(IndicatorStyle);
     }
 }
