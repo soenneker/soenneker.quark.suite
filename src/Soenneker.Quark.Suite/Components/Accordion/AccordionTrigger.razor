@@ -34,7 +34,8 @@
 
     private bool IsOpen => ParentAccordionItem?.IsOpen == true;
 
-    internal bool IsDisabled => Disabled || ParentAccordionItem?.Disabled == true;
+    internal bool IsDisabled =>
+        Disabled || ParentAccordion?.Disabled == true || ParentAccordionItem?.Disabled == true;
 
     private string ChevronClass => IsOpen
         ? "text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 rotate-180 transition-transform duration-200"
@@ -57,12 +58,25 @@
 
     protected override Task HandleKeyDown(KeyboardEventArgs e)
     {
-        _preventDefault = e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End";
+        _preventDefault = ShouldRoveFocus(e.Key);
 
         if (!IsDisabled && ParentAccordion is not null && _preventDefault)
             ParentAccordion.HandleKeyNavigation(Value, e.Key);
 
         return base.HandleKeyDown(e);
+    }
+
+    private bool ShouldRoveFocus(string key)
+    {
+        if (ParentAccordion is null)
+            return false;
+
+        if (key is "Home" or "End")
+            return true;
+
+        return ParentAccordion.IsVerticalOrientation
+            ? key is "ArrowDown" or "ArrowUp"
+            : key is "ArrowLeft" or "ArrowRight";
     }
 
     internal async Task FocusAsync()
@@ -88,7 +102,16 @@
         if (ParentAccordionItem is not null)
         {
             attributes["id"] = ParentAccordionItem.TriggerId;
-            attributes["aria-controls"] = ParentAccordionItem.ContentId;
+            if (ParentAccordionItem.ForceMount || IsOpen)
+                attributes["aria-controls"] = ParentAccordionItem.ContentId;
+        }
+
+        if (ParentAccordion is not null)
+        {
+            attributes["data-orientation"] = ParentAccordion.Orientation?.Value ?? AccordionOrientation.Vertical.Value;
+
+            if (!ParentAccordion.Multiple && !ParentAccordion.Collapsible && IsOpen)
+                attributes["aria-disabled"] = "true";
         }
 
         if (IsDisabled)
@@ -108,6 +131,17 @@
             ["data-slot"] = "accordion-header"
         };
 
+        if (ParentAccordion is not null)
+            attributes["data-orientation"] = ParentAccordion.Orientation?.Value ?? AccordionOrientation.Vertical.Value;
+
+        if (ParentAccordionItem is not null)
+        {
+            attributes["data-state"] = ParentAccordionItem.IsOpen ? "open" : "closed";
+
+            if (ParentAccordionItem.Disabled || ParentAccordion?.Disabled == true)
+                attributes["data-disabled"] = "true";
+        }
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-accordion-header flex");
@@ -118,9 +152,15 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(ShowChevron);
         hc.Add(IsOpen);
         hc.Add(IsDisabled);
+        hc.Add(ParentAccordion?.Orientation);
+        hc.Add(ParentAccordion?.Disabled);
+        hc.Add(ParentAccordion?.Collapsible);
+        hc.Add(ParentAccordion?.Multiple);
+        hc.Add(ParentAccordionItem?.ForceMount == true);
     }
 
     public override void Dispose()

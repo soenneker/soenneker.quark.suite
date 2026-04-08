@@ -31,4 +31,9 @@ public interface ITab : IElement
     /// Gets or sets whether this tab is disabled.
     /// </summary>
     bool Disabled { get; set; }
+
+    /// <summary>
+    /// When true, panel content stays mounted when the tab is inactive (Radix <c>forceMount</c>).
+    /// </summary>
+    bool ForceMount { get; set; }
 }

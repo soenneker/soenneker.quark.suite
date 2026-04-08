@@ -17,6 +17,12 @@
     [Parameter]
     public EventCallback OnBackdropClick { get; set; }
 
+    /// <summary>
+    /// When <c>true</c>, Escape and backdrop clicks do not close the alert dialog.
+    /// </summary>
+    [Parameter]
+    public bool Static { get; set; }
+
     private readonly OverlayLabelContext _context = new("alert-dialog");
 
     /// <summary>
@@ -49,9 +55,16 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(Visible);
         hc.Add(ShowBackdrop);
+        hc.Add(Static);
         hc.Add(CloseOnBackdropClick);
         hc.Add(CloseOnEscape);
+        hc.Add(_context.ContentId);
+        hc.Add(_context.HasTitle);
+        hc.Add(_context.HasDescription);
+        hc.Add(_context.TitleId);
+        hc.Add(_context.DescriptionId);
     }
 }

@@ -94,7 +94,10 @@
             DisplayText = GetDisplayText,
             Size = GetSizeValue,
             IsDisabled = () => Disabled,
-            IsInvalid = () => IsInvalidState,
+            IsInvalid = () => IsInvalidState || CurrentFieldContext?.IsInvalid == true,
+            IsRequired = () => Required,
+            EffectiveTriggerId = () => CurrentFieldContext?.ControlId ?? TriggerId,
+            AriaDescribedBy = () => BuildSelectAriaDescribedBy(),
             ToggleAsync = ToggleOpen,
             OpenFirstAsync = OpenAndFocusFirstAsync,
             OpenLastAsync = OpenAndFocusLastAsync,
@@ -353,10 +356,29 @@
 
     private string? GetValidationClass()
     {
-        if (ParentValidation?.Status == ValidationStatus.Error)
+        if (ParentValidation?.Status == ValidationStatus.Error || CurrentFieldContext?.IsInvalid == true)
             return "border-destructive ring-destructive/20 dark:ring-destructive/40";
 
         return null;
+    }
+
+    private string? BuildSelectAriaDescribedBy()
+    {
+        var effectiveInvalid = IsInvalidState || CurrentFieldContext?.IsInvalid == true;
+
+        return CurrentFieldContext?.BuildDescribedBy(null, effectiveInvalid);
+    }
+
+    protected override void BuildOwnedAttributes(Dictionary<string, object> attrs)
+    {
+        base.BuildOwnedAttributes(attrs);
+
+        attrs.Remove("required");
+        attrs.Remove("disabled");
+        attrs.Remove("readonly");
+        attrs.Remove("placeholder");
+        attrs.Remove("autofocus");
+        attrs.Remove("name");
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -365,7 +387,6 @@
         attributes["data-slot"] = "select";
         attributes["data-size"] = "default";
         attributes["data-state"] = _open ? "open" : "closed";
-        ApplyFieldControlAttributes(attributes, IsInvalidState);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

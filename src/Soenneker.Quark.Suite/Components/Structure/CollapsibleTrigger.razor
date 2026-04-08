@@ -32,6 +32,7 @@ else
         return new TriggerContext
         {
             TriggerId = ParentCollapsible?.TriggerId,
+            ParentDisabled = ParentCollapsible?.Disabled == true,
             IsOpen = ParentCollapsible?.Open == true,
             DataState = ParentCollapsible?.Open == true ? "open" : "closed",
             AriaControls = ParentCollapsible?.ContentId,
@@ -64,7 +65,10 @@ else
         }
 
         if (Disabled || ParentCollapsible?.Disabled == true)
+        {
+            attributes["data-disabled"] = "true";
             attributes["disabled"] = true;
+        }
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -84,6 +88,7 @@ else
         hc.Add(AsChild);
         hc.Add(ParentCollapsible?.Open == true);
         hc.Add(ParentCollapsible?.Disabled == true);
+        hc.Add(ParentCollapsible?.TriggerId);
         hc.Add(SlotAttributeOverrides?.Count ?? 0);
     }
 }

@@ -34,8 +34,30 @@
     private ElementReference _contentRef;
     private bool _positionObserverActive;
     private DotNetObjectReference<PopoverOutsideCloseProxy>? _outsideRef;
+    private PopoverContext? _subscribedContext;
     private bool IsOpen => Context?.IsOpen ?? Open;
     private bool UseFloatingPositioning => Context?.HasTriggerElement == true;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (!ReferenceEquals(_subscribedContext, Context))
+        {
+            if (_subscribedContext is not null)
+                _subscribedContext.StateChanged -= OnContextStateChanged;
+
+            _subscribedContext = Context;
+
+            if (_subscribedContext is not null)
+                _subscribedContext.StateChanged += OnContextStateChanged;
+        }
+    }
+
+    private async void OnContextStateChanged()
+    {
+        await RefreshOffThread();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -71,6 +93,16 @@
             attributes["id"] = Context.ContentId;
             attributes["tabindex"] = -1;
             attributes["role"] = "dialog";
+            attributes["aria-modal"] = Context.Modal ? "true" : "false";
+
+            if (Context.HasTitle)
+            {
+                attributes["aria-labelledby"] = Context.TitleId;
+                attributes.Remove("aria-label");
+            }
+
+            if (Context.HasDescription)
+                attributes["aria-describedby"] = Context.DescriptionId;
         }
 
         attributes["aria-hidden"] = IsOpen ? "false" : "true";
@@ -122,6 +154,11 @@
         hc.Add(SideOffset);
         hc.Add(DisableAutoOpen);
         hc.Add(CloseOnEscape);
+        hc.Add(Context?.Modal ?? false);
+        hc.Add(Context?.HasTitle);
+        hc.Add(Context?.HasDescription);
+        hc.Add(Context?.TitleId);
+        hc.Add(Context?.DescriptionId);
     }
 
     private async ValueTask StopPositionObserver()
@@ -135,6 +172,12 @@
 
     public override async ValueTask DisposeAsync()
     {
+        if (_subscribedContext is not null)
+        {
+            _subscribedContext.StateChanged -= OnContextStateChanged;
+            _subscribedContext = null;
+        }
+
         await StopPositionObserver();
         _outsideRef?.Dispose();
         await base.DisposeAsync();

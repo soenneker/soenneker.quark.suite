@@ -28,6 +28,16 @@ public interface ITabs : IElement
     TabsListVariant TabsListVariant { get; set; }
 
     /// <summary>
+    /// Radix <c>activationMode</c>: automatic activates the focused tab; manual moves focus with arrows and activates with Space/Enter or click.
+    /// </summary>
+    TabsActivationMode ActivationMode { get; set; }
+
+    /// <summary>
+    /// Radix <c>loop</c>: when <c>false</c>, arrow keys do not wrap from first/last tab.
+    /// </summary>
+    bool Loop { get; set; }
+
+    /// <summary>
     /// Gets or sets the currently selected tab name.
     /// </summary>
     string? SelectedTab { get; set; }

@@ -7,7 +7,10 @@
 @if (ParentDrawer?.Visible == true)
 {
     <div @onkeydown="HandleKeyDown" @onclick="HandleBackdropClick" @attributes="BuildContainerAttributes()">
-        <div @attributes="BuildOverlayAttributes()"></div>
+        @if (ParentDrawer.ShowBackdrop)
+        {
+            <div @attributes="BuildOverlayAttributes()"></div>
+        }
         <div @onclick:stopPropagation="true" @ref="_contentRef" @attributes="BuildAttributes()">
             <div class="bg-muted mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full group-data-[direction=bottom]/drawer-content:block"></div>
             @ChildContent
@@ -65,14 +68,17 @@
         attributes["data-state"] = ParentDrawer?.Visible == true ? "open" : "closed";
         attributes["data-direction"] = Side;
         attributes["role"] = "dialog";
-        attributes["aria-modal"] = "true";
+        attributes["aria-modal"] = ParentDrawer?.TrapFocus != false ? "true" : "false";
         attributes["tabindex"] = -1;
 
         if (Context is not null)
             attributes["id"] = Context.ContentId;
 
         if (Context?.HasTitle == true)
+        {
             attributes["aria-labelledby"] = Context.TitleId;
+            attributes.Remove("aria-label");
+        }
 
         if (Context?.HasDescription == true)
             attributes["aria-describedby"] = Context.DescriptionId;
@@ -111,6 +117,10 @@
         attrs["tabindex"] = -1;
         attrs["data-state"] = ParentDrawer?.Visible == true ? "open" : "closed";
         attrs["data-slot"] = "drawer";
+
+        if (ParentDrawer?.Static == true)
+            attrs["data-backdrop"] = "static";
+
         return attrs;
     }
 
@@ -130,14 +140,18 @@
 
     protected override async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        if (ParentDrawer?.CloseOnEscape == true && e.Key == "Escape")
+        if (ParentDrawer is null || ParentDrawer.Static || !ParentDrawer.CloseOnEscape)
+            return;
+
+        if (e.Key == "Escape")
             await ParentDrawer.Hide();
     }
 
     private async Task HandleBackdropClick(MouseEventArgs _)
     {
-        if (ParentDrawer is null || !ParentDrawer.CloseOnBackdropClick)
+        if (ParentDrawer is null || ParentDrawer.Static || !ParentDrawer.CloseOnBackdropClick)
             return;
+
         await ParentDrawer.OnBackdropClick.InvokeIfHasDelegate();
         await ParentDrawer.Hide();
     }
@@ -147,6 +161,11 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Direction);
         hc.Add(ParentDrawer?.Visible ?? false);
+        hc.Add(ParentDrawer?.ShowBackdrop ?? true);
+        hc.Add(ParentDrawer?.TrapFocus ?? true);
+        hc.Add(ParentDrawer?.CloseOnEscape ?? true);
+        hc.Add(ParentDrawer?.CloseOnBackdropClick ?? true);
+        hc.Add(ParentDrawer?.Static ?? false);
         hc.Add(Context?.HasTitle);
         hc.Add(Context?.HasDescription);
         hc.Add(Context?.ContentId);

@@ -1,10 +1,13 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-@if (ParentCollapsible?.Open == true)
+@if (ParentCollapsible is not null)
 {
     <div @attributes="BuildAttributes()">
-        @ChildContent
+        @if (ParentCollapsible.Open)
+        {
+            @ChildContent
+        }
     </div>
 }
 
@@ -16,13 +19,21 @@
     {
         base.BuildAttributesCore(attributes);
 
+        var open = ParentCollapsible?.Open == true;
         attributes["data-slot"] = "collapsible-content";
-        attributes["data-state"] = ParentCollapsible?.Open == true ? "open" : "closed";
+        attributes["data-state"] = open ? "open" : "closed";
+
         if (ParentCollapsible is not null)
         {
             attributes["id"] = ParentCollapsible.ContentId;
+            attributes["role"] = "region";
             attributes["aria-labelledby"] = ParentCollapsible.TriggerId;
+            if (ParentCollapsible.Disabled)
+                attributes["data-disabled"] = "true";
         }
+
+        if (!open)
+            attributes["hidden"] = true;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -34,5 +45,7 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(ParentCollapsible?.Open == true);
+        hc.Add(ParentCollapsible?.Disabled == true);
+        hc.Add(ParentCollapsible?.TriggerId);
     }
 }

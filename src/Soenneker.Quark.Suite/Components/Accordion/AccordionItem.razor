@@ -15,6 +15,10 @@
     [Parameter]
     public bool Disabled { get; set; }
 
+    /// <summary>When <c>false</c>, panel markup is not rendered while closed. The trigger omits <c>aria-controls</c> while unmounted.</summary>
+    [Parameter]
+    public bool ForceMount { get; set; } = true;
+
     [CascadingParameter(Name = nameof(ParentAccordion))]
     public Accordion? ParentAccordion { get; set; }
 
@@ -30,7 +34,7 @@
 
     internal async Task Toggle()
     {
-        if (Disabled || ParentAccordion is null)
+        if (ParentAccordion is null || ParentAccordion.Disabled || Disabled)
             return;
 
         await ParentAccordion.ToggleItem(ResolvedValue);
@@ -41,27 +45,32 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "accordion-item";
+        attributes["data-orientation"] = ParentAccordion?.Orientation?.Value ?? AccordionOrientation.Vertical.Value;
         attributes["data-state"] = IsOpen ? "open" : "closed";
 
         if (IsOpen)
             attributes["data-open"] = "true";
 
-        if (Disabled)
+        var effectiveDisabled = Disabled || ParentAccordion?.Disabled == true;
+        if (effectiveDisabled)
             attributes["data-disabled"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-accordion-item");
             AppendClass(ref cls, "border-b last:border-b-0");
-            if (Disabled)
+            if (effectiveDisabled)
                 AppendClass(ref cls, "opacity-50");
         });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(Value);
         hc.Add(Disabled);
+        hc.Add(ForceMount);
+        hc.Add(ParentAccordion?.Disabled == true);
         hc.Add(IsOpen);
     }
 }

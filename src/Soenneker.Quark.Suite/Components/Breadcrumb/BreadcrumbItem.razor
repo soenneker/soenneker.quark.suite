@@ -8,72 +8,56 @@
         @ChildContent
     </li>
 }
-else if (To.HasContent() && !AsChild)
-{
-    <li @attributes="BuildListItemAttributes()">
-        @if (ShowSeparator)
-        {
-            <span @attributes="BuildSeparatorAttributes()">
-                @if (ParentBreadcrumb?.UseTextDivider == true)
-                {
-                    @ParentBreadcrumb.ResolvedDividerText
-                }
-                else if (ParentBreadcrumb?.SeparatorContent is not null)
-                {
-                    @ParentBreadcrumb.SeparatorContent
-                }
-                else
-                {
-                    <svg class="rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="m9 18 6-6-6-6" />
-                    </svg>
-                }
-            </span>
-        }
-        <Anchor To="@To" @attributes="BuildLinkAttributes()">
-            @ChildContent
-        </Anchor>
-    </li>
-}
 else
 {
-    <li @attributes="BuildListItemAttributes()">
-        @if (ShowSeparator)
-        {
-            <span @attributes="BuildSeparatorAttributes()">
-                @if (ParentBreadcrumb?.UseTextDivider == true)
-                {
-                    @ParentBreadcrumb.ResolvedDividerText
-                }
-                else if (ParentBreadcrumb?.SeparatorContent is not null)
-                {
-                    @ParentBreadcrumb.SeparatorContent
-                }
-                else
-                {
-                    <svg class="rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="m9 18 6-6-6-6" />
-                    </svg>
-                }
-            </span>
-        }
-        @if (AsChild)
-        {
-            <CascadingValue Name="@SlotAttributes.Name" Value="BuildLinkAttributes()" IsFixed="false">
+    @if (ShowSeparator)
+    {
+        <li @attributes="BuildSeparatorLiAttributes()">
+            @if (ParentBreadcrumb?.UseTextDivider == true)
+            {
+                @ParentBreadcrumb.ResolvedDividerText
+            }
+            else if (ParentBreadcrumb?.SeparatorContent is not null)
+            {
+                @ParentBreadcrumb.SeparatorContent
+            }
+            else
+            {
+                <svg class="rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m9 18 6-6-6-6" />
+                </svg>
+            }
+        </li>
+    }
+    @if (To.HasContent() && !AsChild)
+    {
+        <li @attributes="BuildListItemAttributes()">
+            <Anchor To="@To" @attributes="BuildLinkAttributes()">
                 @ChildContent
-            </CascadingValue>
-        }
-        else if (Active)
-        {
-            <span @attributes="BuildPageAttributes()">
+            </Anchor>
+        </li>
+    }
+    else
+    {
+        <li @attributes="BuildListItemAttributes()">
+            @if (AsChild)
+            {
+                <CascadingValue Name="@SlotAttributes.Name" Value="BuildLinkAttributes()" IsFixed="false">
+                    @ChildContent
+                </CascadingValue>
+            }
+            else if (Active)
+            {
+                <span @attributes="BuildPageAttributes()">
+                    @ChildContent
+                </span>
+            }
+            else
+            {
                 @ChildContent
-            </span>
-        }
-        else
-        {
-            @ChildContent
-        }
-    </li>
+            }
+        </li>
+    }
 }
 
 @code {
@@ -151,7 +135,8 @@ else
         return attributes;
     }
 
-    private Dictionary<string, object> BuildSeparatorAttributes()
+    /// <summary>Matches <see cref="BreadcrumbSeparator"/>: its own <c>li</c>, not a span inside the content item.</summary>
+    private Dictionary<string, object> BuildSeparatorLiAttributes()
     {
         var attributes = new Dictionary<string, object>
         {

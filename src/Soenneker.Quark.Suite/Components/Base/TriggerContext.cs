@@ -9,6 +9,9 @@ internal sealed class TriggerContext
 {
     public string? TriggerId { get; init; }
 
+    /// <summary>When true, the parent primitive (e.g. Collapsible) is disabled; the trigger should not be interactive.</summary>
+    public bool ParentDisabled { get; init; }
+
     public bool IsOpen { get; init; }
 
     public string? DataState { get; init; }

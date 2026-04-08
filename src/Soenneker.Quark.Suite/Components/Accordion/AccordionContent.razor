@@ -2,7 +2,7 @@
 @inherits Soenneker.Quark.Element
 @implements IAccordionContent
 
-@if (ForceMount || IsOpen)
+@if (ContentMounted)
 {
     <div @attributes="BuildAttributes()">
         <div @attributes="BuildInnerAttributes()">
@@ -14,19 +14,19 @@
 }
 
 @code {
-    [Parameter]
-    public bool ForceMount { get; set; } = true;
-
     [CascadingParameter(Name = nameof(ParentAccordionItem))]
     public AccordionItem? ParentAccordionItem { get; set; }
 
     private bool IsOpen => ParentAccordionItem?.IsOpen == true;
+
+    private bool ContentMounted => (ParentAccordionItem?.ForceMount ?? true) || IsOpen;
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "accordion-content";
+        attributes["data-orientation"] = ParentAccordionItem?.ParentAccordion?.Orientation?.Value ?? AccordionOrientation.Vertical.Value;
         attributes["data-state"] = IsOpen ? "open" : "closed";
         attributes["role"] = "region";
         attributes["aria-hidden"] = IsOpen ? "false" : "true";
@@ -38,6 +38,9 @@
         {
             attributes["id"] = ParentAccordionItem.ContentId;
             attributes["aria-labelledby"] = ParentAccordionItem.TriggerId;
+
+            if (ParentAccordionItem.Disabled || ParentAccordionItem.ParentAccordion?.Disabled == true)
+                attributes["data-disabled"] = "true";
         }
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -74,7 +77,11 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(IsOpen);
-        hc.Add(ForceMount);
+        hc.Add(ParentAccordionItem?.ForceMount == true);
+        hc.Add(ParentAccordionItem?.ParentAccordion?.Orientation);
+        hc.Add(ParentAccordionItem?.ParentAccordion?.Disabled == true);
+        hc.Add(ParentAccordionItem?.Disabled == true);
     }
 }

@@ -1,5 +1,5 @@
 @namespace Soenneker.Quark
-@inherits Soenneker.Quark.InteractiveElement
+@inherits Soenneker.Quark.TriggerElement
 
 @if (AsChild)
 {
@@ -9,16 +9,14 @@
 }
 else
 {
-    <button @onclick="HandleActivate"
-            @ref="_elementRef"
-            @attributes="BuildAttributes()">
+    <button type="button" @onclick="HandleActivate" @ref="_elementRef" @attributes="BuildAttributes()">
         @ChildContent
     </button>
 }
 
 @code {
-    [CascadingParameter(Name = "ParentDrawer")]
-    private Drawer? ParentDrawer { get; set; }
+    [CascadingParameter(Name = nameof(ParentDrawer))]
+    public Drawer? ParentDrawer { get; set; }
 
     [CascadingParameter]
     private OverlayLabelContext? Context { get; set; }
@@ -28,33 +26,27 @@ else
 
     private ElementReference _elementRef;
 
-    private async Task HandleActivate(MouseEventArgs e)
-    {
-        if (ParentDrawer is not null)
-        {
-            ParentDrawer.SetRestoreFocusTarget(_elementRef);
-            await ParentDrawer.Show();
-        }
-
-        await base.HandleClick(e);
-    }
-
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        attributes["type"] = "button";
         attributes["data-slot"] = "drawer-trigger";
+        attributes["data-state"] = ParentDrawer?.Visible == true ? "open" : "closed";
         attributes["aria-haspopup"] = "dialog";
         attributes["aria-expanded"] = ParentDrawer?.Visible == true ? "true" : "false";
 
-        if (Context is not null)
+        if (Disabled)
+            attributes["disabled"] = true;
+
+        if (Context is not null && ParentDrawer?.Visible == true)
             attributes["aria-controls"] = Context.ContentId;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-drawer-trigger");
             AppendClass(ref cls, "inline-flex cursor-pointer");
+            if (Disabled)
+                AppendClass(ref cls, "pointer-events-none opacity-50");
         });
     }
 
@@ -65,7 +57,7 @@ else
             IsOpen = ParentDrawer?.Visible == true,
             DataState = ParentDrawer?.Visible == true ? "open" : "closed",
             AriaHasPopup = "dialog",
-            AriaControls = Context?.ContentId,
+            AriaControls = ParentDrawer?.Visible == true ? Context?.ContentId : null,
             RegisterElement = elementReference => _elementRef = elementReference,
             Toggle = ParentDrawer is null
                 ? null
@@ -90,10 +82,27 @@ else
         };
     }
 
+    private async Task HandleActivate(MouseEventArgs args)
+    {
+        if (!Disabled && ParentDrawer is not null)
+        {
+            if (ParentDrawer.Visible)
+                await ParentDrawer.Hide();
+            else
+            {
+                ParentDrawer.SetRestoreFocusTarget(_elementRef);
+                await ParentDrawer.Show();
+            }
+        }
+
+        await base.HandleClick(args);
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(AsChild);
+        hc.Add(Disabled);
         hc.Add(ParentDrawer?.Visible ?? false);
         hc.Add(Context?.ContentId);
     }

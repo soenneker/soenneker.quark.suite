@@ -5,13 +5,15 @@
 <div @attributes="BuildAttributes()">
     @if (Label.HasContent())
     {
-        <SelectLabel>@Label</SelectLabel>
+        <SelectLabel Id="@_groupLabelId">@Label</SelectLabel>
     }
 
     @ChildContent
 </div>
 
 @code {
+    private readonly string _groupLabelId = $"select-group-label-{Guid.NewGuid():N}";
+
     /// <summary>
     /// Gets or sets the label for the select group.
     /// </summary>
@@ -22,6 +24,10 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "select-group";
+        attributes["role"] = "group";
+
+        if (Label.HasContent())
+            attributes["aria-labelledby"] = _groupLabelId;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

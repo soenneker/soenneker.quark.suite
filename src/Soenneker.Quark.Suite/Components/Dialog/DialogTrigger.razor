@@ -31,13 +31,14 @@ else
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "dialog-trigger";
+        attributes["data-state"] = ParentDialog?.Visible == true ? "open" : "closed";
         attributes["aria-haspopup"] = "dialog";
         attributes["aria-expanded"] = ParentDialog?.Visible == true ? "true" : "false";
 
         if (Disabled)
             attributes["disabled"] = true;
 
-        if (Context is not null)
+        if (Context is not null && ParentDialog?.Visible == true)
             attributes["aria-controls"] = Context.ContentId;
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -55,7 +56,7 @@ else
             IsOpen = ParentDialog?.Visible == true,
             DataState = ParentDialog?.Visible == true ? "open" : "closed",
             AriaHasPopup = "dialog",
-            AriaControls = Context?.ContentId,
+            AriaControls = ParentDialog?.Visible == true ? Context?.ContentId : null,
             RegisterElement = elementReference => _elementRef = elementReference,
             Toggle = ParentDialog is null
                 ? null
@@ -84,8 +85,13 @@ else
     {
         if (!Disabled && ParentDialog is not null)
         {
-            ParentDialog.SetRestoreFocusTarget(_elementRef);
-            await ParentDialog.Show();
+            if (ParentDialog.Visible)
+                await ParentDialog.Hide();
+            else
+            {
+                ParentDialog.SetRestoreFocusTarget(_elementRef);
+                await ParentDialog.Show();
+            }
         }
 
         await base.HandleClick(args);

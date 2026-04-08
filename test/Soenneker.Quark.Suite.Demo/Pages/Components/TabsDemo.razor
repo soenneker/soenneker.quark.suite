@@ -194,12 +194,35 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Manual activation"
+                         Description="Radix manual mode: arrow keys move focus; Space or Enter activates the focused tab (click still activates immediately)."
+                         Code="@ManualActivationCode"
+                         CodeLanguage="razor">
+                <Tabs Composed="true"
+                      ActivationMode="TabsActivationMode.Manual"
+                      SelectedTab="ma-a"
+                      Class="w-full max-w-sm">
+                    <TabsList>
+                        <TabsTrigger Value="ma-a">Tab A</TabsTrigger>
+                        <TabsTrigger Value="ma-b">Tab B</TabsTrigger>
+                    </TabsList>
+                    <TabsContent Value="ma-a">
+                        <Paragraph Margin="Margin.Is0" Class="mt-4 text-sm text-muted-foreground">Panel A — use arrows to move focus, then Space/Enter to show.</Paragraph>
+                    </TabsContent>
+                    <TabsContent Value="ma-b">
+                        <Paragraph Margin="Margin.Is0" Class="mt-4 text-sm text-muted-foreground">Panel B</Paragraph>
+                    </TabsContent>
+                </Tabs>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
                          Description="Tabs respect inherited direction in right-to-left layouts."
                          Code="@RtlCode"
                          CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
-                    <Tabs TabsListVariant="TabsListVariant.Line" Class="w-[400px]">
+                    <Tabs TabsListVariant="TabsListVariant.Line" Dir="rtl" Class="w-[400px]">
                         <Tab Name="rtl-account" Title="الحساب">
                             <Div class="mt-4 rounded-md border border-border p-4 text-right text-sm text-muted-foreground">
                                 مثال على علامات التبويب باتجاه من اليمين إلى اليسار.
@@ -407,9 +430,20 @@
         </Tabs>
         """;
 
+    private const string ManualActivationCode = """
+        <Tabs Composed="true" ActivationMode="TabsActivationMode.Manual" SelectedTab="ma-a" Class="w-full max-w-sm">
+            <TabsList>
+                <TabsTrigger Value="ma-a">Tab A</TabsTrigger>
+                <TabsTrigger Value="ma-b">Tab B</TabsTrigger>
+            </TabsList>
+            <TabsContent Value="ma-a">Panel A</TabsContent>
+            <TabsContent Value="ma-b">Panel B</TabsContent>
+        </Tabs>
+        """;
+
     private const string RtlCode = """
         <DirectionProvider Dir="rtl">
-            <Tabs TabsListVariant="TabsListVariant.Line" Class="w-[400px]">
+            <Tabs TabsListVariant="TabsListVariant.Line" Dir="rtl" Class="w-[400px]">
                 <Tab Name="rtl-account" Title="الحساب">
                     <Div class="mt-4 rounded-md border border-border p-4 text-right text-sm text-muted-foreground">
                         مثال على علامات التبويب باتجاه من اليمين إلى اليسار.

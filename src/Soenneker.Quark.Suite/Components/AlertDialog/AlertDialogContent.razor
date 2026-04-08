@@ -72,7 +72,7 @@
         });
 
         attributes["role"] = "alertdialog";
-        attributes["aria-modal"] = "true";
+        attributes["aria-modal"] = ParentAlertDialog?.TrapFocus != false ? "true" : "false";
         attributes["tabindex"] = -1;
         attributes["data-slot"] = "alert-dialog-content";
         attributes["data-size"] = normalizedSize;
@@ -82,7 +82,10 @@
             attributes["id"] = Context.ContentId;
 
         if (Context?.HasTitle == true)
+        {
             attributes["aria-labelledby"] = Context.TitleId;
+            attributes.Remove("aria-label");
+        }
 
         if (Context?.HasDescription == true)
             attributes["aria-describedby"] = Context.DescriptionId;
@@ -101,6 +104,9 @@
         attributes["tabindex"] = -1;
         attributes["data-slot"] = "alert-dialog";
         attributes["data-state"] = ParentAlertDialog?.Visible == true ? "open" : "closed";
+
+        if (ParentAlertDialog?.Static == true)
+            attributes["data-backdrop"] = "static";
 
         return attributes;
     }
@@ -125,19 +131,23 @@
 
         attributes["data-state"] = ParentAlertDialog?.Visible == true ? "open" : "closed";
         attributes["data-slot"] = "alert-dialog-overlay";
+        attributes["aria-hidden"] = "true";
 
         return attributes;
     }
 
     protected override async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        if (ParentAlertDialog?.CloseOnEscape == true && e.Key == "Escape")
+        if (ParentAlertDialog is null || ParentAlertDialog.Static || !ParentAlertDialog.CloseOnEscape)
+            return;
+
+        if (e.Key == "Escape")
             await ParentAlertDialog.Hide();
     }
 
     private async Task HandleBackdropClick(MouseEventArgs _)
     {
-        if (ParentAlertDialog is null || !ParentAlertDialog.CloseOnBackdropClick)
+        if (ParentAlertDialog is null || ParentAlertDialog.Static || !ParentAlertDialog.CloseOnBackdropClick)
             return;
 
         await ParentAlertDialog.OnBackdropClick.InvokeIfHasDelegate();
@@ -146,8 +156,14 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(Size);
         hc.Add(ParentAlertDialog?.Visible ?? false);
+        hc.Add(ParentAlertDialog?.ShowBackdrop ?? true);
+        hc.Add(ParentAlertDialog?.TrapFocus ?? true);
+        hc.Add(ParentAlertDialog?.CloseOnEscape ?? true);
+        hc.Add(ParentAlertDialog?.CloseOnBackdropClick ?? true);
+        hc.Add(ParentAlertDialog?.Static ?? false);
         hc.Add(Context?.HasTitle);
         hc.Add(Context?.HasDescription);
         hc.Add(Context?.ContentId);

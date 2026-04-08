@@ -32,13 +32,14 @@ else
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "alert-dialog-trigger";
+        attributes["data-state"] = ParentAlertDialog?.Visible == true ? "open" : "closed";
         attributes["aria-haspopup"] = "alertdialog";
         attributes["aria-expanded"] = ParentAlertDialog?.Visible == true ? "true" : "false";
 
         if (Disabled)
             attributes["disabled"] = true;
 
-        if (Context is not null)
+        if (Context is not null && ParentAlertDialog?.Visible == true)
             attributes["aria-controls"] = Context.ContentId;
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -67,7 +68,7 @@ else
             IsOpen = ParentAlertDialog?.Visible == true,
             DataState = ParentAlertDialog?.Visible == true ? "open" : "closed",
             AriaHasPopup = "alertdialog",
-            AriaControls = Context?.ContentId,
+            AriaControls = ParentAlertDialog?.Visible == true ? Context?.ContentId : null,
             RegisterElement = elementReference => _elementRef = elementReference,
             Toggle = ParentAlertDialog is null
                 ? null
@@ -94,6 +95,7 @@ else
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(AsChild);
         hc.Add(Disabled);
         hc.Add(ParentAlertDialog?.Visible ?? false);

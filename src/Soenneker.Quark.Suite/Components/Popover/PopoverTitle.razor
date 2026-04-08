@@ -1,21 +1,55 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TypographyElement
+@implements IDisposable
 
 <div @attributes="BuildAttributes()">
     @ChildContent
 </div>
 
 @code {
+    [CascadingParameter]
+    private PopoverContext? Context { get; set; }
+
+    private PopoverContext? _registeredContext;
+    private IDisposable? _titleRegistration;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (ReferenceEquals(_registeredContext, Context))
+            return;
+
+        _titleRegistration?.Dispose();
+        _registeredContext = Context;
+        _titleRegistration = Context?.RegisterTitle();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "popover-title";
 
+        if (!attributes.ContainsKey("id") && Context is not null)
+            attributes["id"] = Context.TitleId;
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-popover-title");
             AppendClass(ref cls, "font-medium");
         });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Context?.TitleId);
+    }
+
+    public override void Dispose()
+    {
+        _titleRegistration?.Dispose();
+        base.Dispose();
     }
 }

@@ -18,7 +18,10 @@
                     @foreach (var tab in _tabs)
                     {
                         <div @attributes="BuildTabContentAttributes(tab)">
-                            @tab.ChildContent
+                            @if (string.Equals(tab.Name, ResolvedSelectedTab, StringComparison.Ordinal) || tab.ForceMount)
+                            {
+                                @tab.ChildContent
+                            }
                         </div>
                     }
                 </div>
@@ -32,7 +35,10 @@
             @foreach (var tab in _tabs)
             {
                 <div @attributes="BuildTabContentAttributes(tab)">
-                    @tab.ChildContent
+                    @if (string.Equals(tab.Name, ResolvedSelectedTab, StringComparison.Ordinal) || tab.ForceMount)
+                    {
+                        @tab.ChildContent
+                    }
                 </div>
             }
         }
@@ -55,6 +61,18 @@
     [Parameter]
     public bool Composed { get; set; }
 
+    /// <summary>Radix <c>activationMode</c>; default <see cref="TabsActivationMode.Automatic"/> (select on focus).</summary>
+    [Parameter]
+    public TabsActivationMode ActivationMode { get; set; } = TabsActivationMode.Automatic;
+
+    /// <summary>Radix <c>loop</c>; when <c>false</c>, arrow navigation does not wrap at the ends.</summary>
+    [Parameter]
+    public bool Loop { get; set; } = true;
+
+    /// <summary>HTML <c>dir</c> on the tabs root; falls back to <c>DirectionProviderDir</c>.</summary>
+    [Parameter]
+    public string? Dir { get; set; }
+
     [Parameter]
     public string? SelectedTab { get; set; }
 
@@ -66,6 +84,9 @@
 
     private readonly List<Tab> _tabs = [];
     private readonly List<TabsTrigger> _explicitTriggers = [];
+
+    /// <summary>Manual activation: which trigger has keyboard roving focus (Radix roving tabindex).</summary>
+    private string? _manualRovingFocusValue;
 
     internal string? ResolvedSelectedTab => GetResolvedSelectedTab();
 
@@ -150,6 +171,36 @@
         return false;
     }
 
+    internal bool IsAutomaticActivation =>
+        string.Equals(ActivationMode?.Value, TabsActivationMode.Automatic.Value, StringComparison.Ordinal);
+
+    internal void NotifyManualRovingFocus(string? value)
+    {
+        if (IsAutomaticActivation || !value.HasContent())
+            return;
+
+        if (string.Equals(_manualRovingFocusValue, value, StringComparison.Ordinal))
+            return;
+
+        _manualRovingFocusValue = value;
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>Radix: in manual mode, tabindex 0 follows roving focus; otherwise selected tab.</summary>
+    internal int GetTriggerTabIndex(string? value, bool isSelected)
+    {
+        if (!value.HasContent())
+            return -1;
+
+        if (IsAutomaticActivation)
+            return isSelected ? 0 : -1;
+
+        if (_manualRovingFocusValue.HasContent())
+            return string.Equals(_manualRovingFocusValue, value, StringComparison.Ordinal) ? 0 : -1;
+
+        return isSelected ? 0 : -1;
+    }
+
     internal async Task HandleKeyNavigationAsync(Tab currentTab, string key)
     {
         if (_tabs.Count == 0)
@@ -171,7 +222,7 @@
         if (!targetTab.Name.HasContent())
             return;
 
-        await SelectTab(targetTab.Name!);
+        // Radix: arrow keys only move roving focus; automatic mode selects via trigger @onfocus.
         await targetTab.FocusAsync();
     }
 
@@ -196,7 +247,6 @@
         if (!targetTrigger.Value.HasContent())
             return;
 
-        await SelectTab(targetTrigger.Value!);
         await targetTrigger.FocusAsync();
     }
 
@@ -206,14 +256,30 @@
         {
             "Home" => 0,
             "End" => count - 1,
-            "ArrowRight" when !Vertical && IsHorizontalRtl() => (currentIndex - 1 + count) % count,
-            "ArrowLeft" when !Vertical && IsHorizontalRtl() => (currentIndex + 1) % count,
-            "ArrowRight" when !Vertical => (currentIndex + 1) % count,
-            "ArrowLeft" when !Vertical => (currentIndex - 1 + count) % count,
-            "ArrowDown" when Vertical => (currentIndex + 1) % count,
-            "ArrowUp" when Vertical => (currentIndex - 1 + count) % count,
+            "ArrowRight" when !Vertical && IsHorizontalRtl() => MoveTabIndexPrev(currentIndex, count),
+            "ArrowLeft" when !Vertical && IsHorizontalRtl() => MoveTabIndexNext(currentIndex, count),
+            "ArrowRight" when !Vertical => MoveTabIndexNext(currentIndex, count),
+            "ArrowLeft" when !Vertical => MoveTabIndexPrev(currentIndex, count),
+            "ArrowDown" when Vertical => MoveTabIndexNext(currentIndex, count),
+            "ArrowUp" when Vertical => MoveTabIndexPrev(currentIndex, count),
             _ => -1
         };
+    }
+
+    private int MoveTabIndexNext(int currentIndex, int count)
+    {
+        if (currentIndex >= count - 1)
+            return Loop ? 0 : -1;
+
+        return currentIndex + 1;
+    }
+
+    private int MoveTabIndexPrev(int currentIndex, int count)
+    {
+        if (currentIndex <= 0)
+            return Loop ? count - 1 : -1;
+
+        return currentIndex - 1;
     }
 
     public async Task SelectTab(string tabName)
@@ -222,6 +288,9 @@
             return;
 
         SelectedTab = tabName;
+
+        if (!IsAutomaticActivation && tabName.HasContent())
+            _manualRovingFocusValue = tabName;
 
         if (OnSelectedTabChanged.HasDelegate)
             await OnSelectedTabChanged.InvokeAsync(tabName);
@@ -279,8 +348,9 @@
 
         attributes["data-slot"] = "tabs-content";
         attributes["data-state"] = isActive ? "active" : "inactive";
+        attributes["data-orientation"] = Vertical ? "vertical" : "horizontal";
         attributes["role"] = "tabpanel";
-        attributes["tabindex"] = 0;
+        attributes["tabindex"] = isActive ? 0 : -1;
 
         if (!isActive)
             attributes["hidden"] = true;
@@ -307,6 +377,10 @@
         attributes["data-slot"] = "tabs";
         attributes["data-orientation"] = Vertical ? "vertical" : "horizontal";
 
+        var resolvedDir = Dir.HasContent() ? Dir : DirectionProviderDir;
+        if (resolvedDir.HasContent())
+            attributes["dir"] = resolvedDir!;
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-tabs group/tabs flex gap-2 data-[orientation=horizontal]:flex-col");
@@ -316,10 +390,16 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(Pills);
         hc.Add(Vertical);
         hc.Add(Justified);
         hc.Add(Composed);
+        hc.Add(ActivationMode);
+        hc.Add(Loop);
+        hc.Add(Dir);
+        hc.Add(DirectionProviderDir);
+        hc.Add(_manualRovingFocusValue);
         hc.Add(TabsListVariant);
         if (SelectedTab is not null)
             hc.Add(SelectedTab);

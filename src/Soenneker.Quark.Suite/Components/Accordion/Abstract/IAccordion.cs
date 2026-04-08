@@ -14,6 +14,16 @@ public interface IAccordion : IElement
     bool Multiple { get; set; }
 
     /// <summary>
+    /// When true, the entire accordion is non-interactive (Radix <c>disabled</c> on root).
+    /// </summary>
+    bool Disabled { get; set; }
+
+    /// <summary>
+    /// Layout orientation (Radix: vertical uses ArrowUp/ArrowDown; horizontal uses ArrowLeft/ArrowRight with RTL mirroring).
+    /// </summary>
+    AccordionOrientation Orientation { get; set; }
+
+    /// <summary>
     /// Gets or sets the currently open item value for single mode.
     /// </summary>
     string? Value { get; set; }

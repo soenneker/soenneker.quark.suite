@@ -15,6 +15,9 @@ internal sealed class SelectContext
     public required Func<string> Size { get; init; }
     public required Func<bool> IsDisabled { get; init; }
     public required Func<bool> IsInvalid { get; init; }
+    public required Func<bool> IsRequired { get; init; }
+    public required Func<string> EffectiveTriggerId { get; init; }
+    public required Func<string?> AriaDescribedBy { get; init; }
     public required Func<Task> ToggleAsync { get; init; }
     public required Func<Task> OpenFirstAsync { get; init; }
     public required Func<Task> OpenLastAsync { get; init; }

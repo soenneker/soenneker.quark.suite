@@ -48,12 +48,23 @@
         attributes["data-size"] = Context?.Size() ?? "default";
         attributes["data-state"] = Context?.IsOpen() == true ? "open" : "closed";
         if (Context is not null)
-            attributes["id"] = Context.TriggerId;
+            attributes["id"] = Context.EffectiveTriggerId();
         attributes["role"] = "combobox";
         attributes["aria-haspopup"] = "listbox";
-        if (Context is not null)
+        attributes["aria-autocomplete"] = "none";
+        if (Context is not null && Context.IsOpen() == true)
             attributes["aria-controls"] = Context.ContentId;
         attributes["aria-expanded"] = Context?.IsOpen() == true ? "true" : "false";
+
+        if (Context?.IsRequired() == true)
+            attributes["aria-required"] = "true";
+
+        if (Context?.IsInvalid() == true)
+            attributes["aria-invalid"] = "true";
+
+        var describedBy = Context?.AriaDescribedBy();
+        if (describedBy.HasContent())
+            attributes["aria-describedby"] = describedBy!;
 
         if (!Context?.HasValue() ?? true)
             attributes["data-placeholder"] = "true";
@@ -82,5 +93,9 @@
         hc.Add(Context?.IsOpen() == true);
         hc.Add(Context?.IsDisabled() == true);
         hc.Add(Context?.IsInvalid() == true);
+        hc.Add(Context?.IsRequired() == true);
+        hc.Add(Context?.EffectiveTriggerId());
+        hc.Add(Context?.AriaDescribedBy());
+        hc.Add(Context?.ActiveItemId());
     }
 }

@@ -17,6 +17,10 @@
     [Parameter]
     public bool DefaultOpen { get; set; }
 
+    /// <summary>Radix <c>modal</c>; default <c>false</c> (popover does not trap the page as a modal dialog).</summary>
+    [Parameter]
+    public bool Modal { get; set; }
+
     private bool _open;
     private PopoverContext _context = null!;
 
@@ -30,6 +34,8 @@
     {
         if (OpenChanged.HasDelegate)
             _open = Open;
+
+        _context.Modal = Modal;
 
         base.OnParametersSet();
     }
@@ -65,5 +71,6 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(_open);
+        hc.Add(Modal);
     }
 }

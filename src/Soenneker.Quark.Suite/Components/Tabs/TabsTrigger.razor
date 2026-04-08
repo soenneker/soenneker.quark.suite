@@ -1,7 +1,12 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<button @onclick="HandleClick" @onkeydown="HandleKeyDown" @onkeydown:preventDefault="_preventDefaultKeys" @ref="_buttonRef" @attributes="BuildAttributes()">
+<button @onclick="HandleClick"
+        @onfocus="HandleFocusAsync"
+        @onkeydown="HandleKeyDown"
+        @onkeydown:preventDefault="_preventDefaultKeys"
+        @ref="_buttonRef"
+        @attributes="BuildAttributes()">
     @ChildContent
 </button>
 
@@ -45,10 +50,11 @@
             attributes["aria-controls"] = contentId;
 
         attributes["aria-selected"] = IsActive ? "true" : "false";
-        attributes["tabindex"] = IsActive ? 0 : -1;
+        attributes["tabindex"] = ParentTabs?.GetTriggerTabIndex(Value, IsActive) ?? (IsActive ? 0 : -1);
 
         if (Disabled)
         {
+            attributes["data-disabled"] = "true";
             attributes["aria-disabled"] = "true";
             attributes["disabled"] = true;
         }
@@ -68,8 +74,34 @@
         await base.HandleClick(args);
     }
 
+    private async Task HandleFocusAsync(FocusEventArgs args)
+    {
+        if (ParentTabs is null || !Value.HasContent())
+            return;
+
+        ParentTabs.NotifyManualRovingFocus(Value!);
+
+        if (Disabled)
+            return;
+
+        if (!ParentTabs.IsAutomaticActivation)
+            return;
+
+        if (!IsActive)
+            await ParentTabs.SelectTab(Value!);
+    }
+
     private async Task HandleKeyDown(KeyboardEventArgs args)
     {
+        if (args.Key is " " or "Enter")
+        {
+            if (!Disabled && ParentTabs is not null && Value.HasContent())
+                await ParentTabs.SelectTab(Value!);
+
+            _preventDefaultKeys = true;
+            return;
+        }
+
         _preventDefaultKeys = args.Key switch
         {
             "Home" or "End" => true,
@@ -99,5 +131,6 @@
         hc.Add(Value);
         hc.Add(Disabled);
         hc.Add(ParentTabs?.ResolvedSelectedTab);
+        hc.Add(ParentTabs?.ActivationMode);
     }
 }

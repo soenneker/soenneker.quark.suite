@@ -36,6 +36,9 @@ else
         attributes["type"] = "button";
         attributes["data-slot"] = "hover-card-trigger";
 
+        if (Context is not null)
+            attributes["data-state"] = Context.IsOpen ? "open" : "closed";
+
         if (ParentTriggerContext?.TriggerId is not null)
             attributes["id"] = ParentTriggerContext.TriggerId;
         else if (Context?.TriggerId is not null)
@@ -70,6 +73,7 @@ else
         {
             TriggerId = ParentTriggerContext?.TriggerId ?? Context?.TriggerId,
             IsOpen = ParentTriggerContext?.AriaControls is not null ? ParentTriggerContext.IsOpen : Context?.IsOpen == true,
+            DataState = Context?.IsOpen == true ? "open" : "closed",
             AriaHasPopup = ParentTriggerContext?.AriaHasPopup,
             AriaControls = ParentTriggerContext?.AriaControls,
             AriaDescribedBy = BuildAriaDescribedBy(),

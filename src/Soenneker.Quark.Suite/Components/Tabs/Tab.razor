@@ -3,7 +3,12 @@
 @inherits Soenneker.Quark.Element
 @implements ITab
 
-<button @onclick="HandleClick" @onkeydown="HandleKeyDown" @onkeydown:preventDefault="_preventDefaultKeys" @ref="_buttonRef" @attributes="BuildAttributes()">
+<button @onclick="HandleClick"
+        @onfocus="HandleFocusAsync"
+        @onkeydown="HandleKeyDown"
+        @onkeydown:preventDefault="_preventDefaultKeys"
+        @ref="_buttonRef"
+        @attributes="BuildAttributes()">
     @if (Icon is not null)
     {
         <Icon Name="@Icon.Value" />
@@ -33,6 +38,10 @@
 
     [Parameter]
     public bool Active { get; set; }
+
+    /// <summary>Radix <c>forceMount</c>: keep panel content mounted when this tab is inactive.</summary>
+    [Parameter]
+    public bool ForceMount { get; set; }
 
     [CascadingParameter(Name = nameof(ParentTabs))]
     public Tabs? ParentTabs { get; set; }
@@ -72,10 +81,11 @@
             attributes["aria-controls"] = targetId;
 
         attributes["aria-selected"] = IsActive ? "true" : "false";
-        attributes["tabindex"] = IsActive ? 0 : -1;
+        attributes["tabindex"] = ParentTabs?.GetTriggerTabIndex(Name, IsActive) ?? (IsActive ? 0 : -1);
 
         if (Disabled)
         {
+            attributes["data-disabled"] = "true";
             attributes["aria-disabled"] = "true";
             attributes["disabled"] = true;
         }
@@ -95,8 +105,34 @@
         await base.HandleClick(args);
     }
 
+    private async Task HandleFocusAsync(FocusEventArgs args)
+    {
+        if (ParentTabs is null || !Name.HasContent())
+            return;
+
+        ParentTabs.NotifyManualRovingFocus(Name!);
+
+        if (Disabled)
+            return;
+
+        if (!ParentTabs.IsAutomaticActivation)
+            return;
+
+        if (!IsActive)
+            await ParentTabs.SelectTab(Name!);
+    }
+
     private async Task HandleKeyDown(KeyboardEventArgs args)
     {
+        if (args.Key is " " or "Enter")
+        {
+            if (!Disabled && ParentTabs is not null && Name.HasContent())
+                await ParentTabs.SelectTab(Name!);
+
+            _preventDefaultKeys = true;
+            return;
+        }
+
         _preventDefaultKeys = args.Key switch
         {
             "Home" or "End" => true,
@@ -116,11 +152,14 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(Name);
         hc.Add(Icon);
         hc.Add(Target);
         hc.Add(Disabled);
         if (ParentTabs?.ResolvedSelectedTab is not null)
             hc.Add(ParentTabs.ResolvedSelectedTab);
+        hc.Add(ParentTabs?.ActivationMode);
+        hc.Add(ForceMount);
     }
 }

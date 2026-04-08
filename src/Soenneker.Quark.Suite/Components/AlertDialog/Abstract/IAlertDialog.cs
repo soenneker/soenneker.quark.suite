@@ -34,6 +34,11 @@ public interface IAlertDialog : IElement
     bool CloseOnBackdropClick { get; set; }
 
     /// <summary>
+    /// When <c>true</c>, Escape and backdrop do not dismiss (same idea as <see cref="Dialog.Static"/>).
+    /// </summary>
+    bool Static { get; set; }
+
+    /// <summary>
     /// Gets or sets the callback invoked when the alert dialog is shown.
     /// </summary>
     EventCallback OnShow { get; set; }

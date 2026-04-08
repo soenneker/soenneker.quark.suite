@@ -96,7 +96,7 @@
         });
 
         attributes["role"] = "dialog";
-        attributes["aria-modal"] = "true";
+        attributes["aria-modal"] = ParentDialog?.TrapFocus != false ? "true" : "false";
         attributes["tabindex"] = -1;
         attributes["data-slot"] = "dialog-content";
         attributes["data-state"] = ParentDialog?.Visible == true ? "open" : "closed";
@@ -105,7 +105,10 @@
             attributes["id"] = Context.ContentId;
 
         if (Context?.HasTitle == true)
+        {
             attributes["aria-labelledby"] = Context.TitleId;
+            attributes.Remove("aria-label");
+        }
 
         if (Context?.HasDescription == true)
             attributes["aria-describedby"] = Context.DescriptionId;
@@ -149,13 +152,16 @@
 
     protected override async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        if (ParentDialog?.Static != true && e.Key == "Escape")
-            await ParentDialog!.Hide();
+        if (ParentDialog is null || ParentDialog.Static || !ParentDialog.CloseOnEscape)
+            return;
+
+        if (e.Key == "Escape")
+            await ParentDialog.Hide();
     }
 
     private async Task HandleBackdropClick(MouseEventArgs _)
     {
-        if (ParentDialog is null || ParentDialog.Static)
+        if (ParentDialog is null || ParentDialog.Static || !ParentDialog.CloseOnBackdropClick)
             return;
 
         await ParentDialog.OnBackdropClick.InvokeIfHasDelegate();
@@ -168,10 +174,14 @@
         hc.Add(ShowCloseButton);
         hc.Add(Centered);
         hc.Add(ParentDialog?.Visible ?? false);
+        hc.Add(ParentDialog?.ShowBackdrop ?? true);
         hc.Add(ParentDialog?.Centered ?? false);
         hc.Add(ParentDialog?.Scrollable ?? false);
         hc.Add(ParentDialog?.DialogSize);
         hc.Add(ParentDialog?.Static ?? false);
+        hc.Add(ParentDialog?.TrapFocus ?? true);
+        hc.Add(ParentDialog?.CloseOnEscape ?? true);
+        hc.Add(ParentDialog?.CloseOnBackdropClick ?? true);
         hc.Add(Context?.HasTitle);
         hc.Add(Context?.HasDescription);
         hc.Add(Context?.ContentId);

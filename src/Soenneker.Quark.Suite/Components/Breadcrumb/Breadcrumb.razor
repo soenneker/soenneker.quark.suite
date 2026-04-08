@@ -55,6 +55,10 @@
     [Parameter]
     public bool Composed { get; set; }
 
+    /// <summary>HTML <c>dir</c> on the navigation root (e.g. <c>rtl</c>); matches shadcn RTL breadcrumb examples.</summary>
+    [Parameter]
+    public string? Dir { get; set; }
+
     private readonly List<BreadcrumbItem> _items = [];
 
     internal bool UseTextDivider => Divider || DividerText.HasContent();
@@ -86,6 +90,9 @@
 
         attributes["data-slot"] = "breadcrumb";
 
+        if (Dir.HasContent())
+            attributes["dir"] = Dir!;
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-breadcrumb");
@@ -115,12 +122,14 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(Large);
         hc.Add(Small);
         hc.Add(Divider);
         hc.Add(DividerText);
         hc.Add(SeparatorContent);
         hc.Add(Composed);
+        hc.Add(Dir);
         hc.Add(AriaLabel);
     }
 }

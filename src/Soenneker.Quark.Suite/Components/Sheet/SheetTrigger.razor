@@ -32,13 +32,14 @@ else
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "sheet-trigger";
+        attributes["data-state"] = ParentSheet?.Visible == true ? "open" : "closed";
         attributes["aria-haspopup"] = "dialog";
         attributes["aria-expanded"] = ParentSheet?.Visible == true ? "true" : "false";
 
         if (Disabled)
             attributes["disabled"] = true;
 
-        if (Context is not null)
+        if (Context is not null && ParentSheet?.Visible == true)
             attributes["aria-controls"] = Context.ContentId;
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -56,7 +57,7 @@ else
             IsOpen = ParentSheet?.Visible == true,
             DataState = ParentSheet?.Visible == true ? "open" : "closed",
             AriaHasPopup = "dialog",
-            AriaControls = Context?.ContentId,
+            AriaControls = ParentSheet?.Visible == true ? Context?.ContentId : null,
             RegisterElement = elementReference => _elementRef = elementReference,
             Toggle = ParentSheet is null
                 ? null
@@ -85,8 +86,13 @@ else
     {
         if (!Disabled && ParentSheet is not null)
         {
-            ParentSheet.SetRestoreFocusTarget(_elementRef);
-            await ParentSheet.Show();
+            if (ParentSheet.Visible)
+                await ParentSheet.Hide();
+            else
+            {
+                ParentSheet.SetRestoreFocusTarget(_elementRef);
+                await ParentSheet.Show();
+            }
         }
 
         await base.HandleClick(args);

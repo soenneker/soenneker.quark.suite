@@ -122,6 +122,32 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Horizontal"
+                         Description="Radix orientation: roving tabindex uses Arrow Left/Arrow Right (mirrored when wrapped in DirectionProvider Dir=rtl)."
+                         Code="@HorizontalCode"
+                         CodeLanguage="razor">
+                <Accordion Value="@_horizontalValue"
+                           ValueChanged="HandleHorizontalChanged"
+                           Collapsible="true"
+                           Orientation="AccordionOrientation.Horizontal"
+                           Class="max-w-lg">
+                    <AccordionItem Value="h1">
+                        <AccordionTrigger>Overview</AccordionTrigger>
+                        <AccordionContent>
+                            High-level summary of the feature set and core capabilities.
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem Value="h2">
+                        <AccordionTrigger>API</AccordionTrigger>
+                        <AccordionContent>
+                            REST and GraphQL endpoints with authentication and rate limiting.
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Disabled"
                          Description="Disable individual items when a section should not expand."
                          Code="@DisabledCode"
@@ -146,6 +172,31 @@
                         <AccordionTrigger>How do I update my email address?</AccordionTrigger>
                         <AccordionContent>
                             You can update your email address in your account settings. You'll receive a verification email at your new address to confirm the change.
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Root disabled"
+                         Description="Radix root disabled: entire accordion is non-interactive (no expand/collapse or roving keys)."
+                         Code="@RootDisabledCode"
+                         CodeLanguage="razor">
+                <Accordion Value="a"
+                           Collapsible="true"
+                           Disabled="true"
+                           Class="max-w-lg">
+                    <AccordionItem Value="a">
+                        <AccordionTrigger>Would open if enabled</AccordionTrigger>
+                        <AccordionContent>
+                            This content stays inert while the accordion root is disabled.
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem Value="b">
+                        <AccordionTrigger>Second item</AccordionTrigger>
+                        <AccordionContent>
+                            Also locked while the root is disabled.
                         </AccordionContent>
                     </AccordionItem>
                 </Accordion>
@@ -266,6 +317,7 @@
     private string? _bordersValue = "billing";
     private string? _cardValue = "plans";
     private string? _disabledValue = "item-1";
+    private string? _horizontalValue = "h1";
 
     private const string ShippingCode =
 @"<Accordion Value=""_demoValue"" ValueChanged=""HandleDemoChanged"" Collapsible=""true"" Class=""max-w-lg"">
@@ -348,6 +400,18 @@
     </AccordionItem>
 </Accordion>";
 
+    private const string HorizontalCode =
+@"<Accordion Value=""_horizontalValue"" ValueChanged=""HandleHorizontalChanged"" Collapsible=""true"" Orientation=""AccordionOrientation.Horizontal"" Class=""max-w-lg"">
+    <AccordionItem Value=""h1"">
+        <AccordionTrigger>Overview</AccordionTrigger>
+        <AccordionContent>High-level summary of the feature set and core capabilities.</AccordionContent>
+    </AccordionItem>
+    <AccordionItem Value=""h2"">
+        <AccordionTrigger>API</AccordionTrigger>
+        <AccordionContent>REST and GraphQL endpoints with authentication and rate limiting.</AccordionContent>
+    </AccordionItem>
+</Accordion>";
+
     private const string BordersCode =
 @"<Accordion Value=""_bordersValue"" ValueChanged=""HandleBordersChanged"" Collapsible=""true"" Class=""max-w-lg rounded-lg border"">
     <AccordionItem Value=""billing"" Class=""border-b px-4 last:border-b-0"">
@@ -395,6 +459,14 @@
         </Accordion>
     </CardBody>
 </Card>";
+
+    private const string RootDisabledCode =
+@"<Accordion Value=""a"" Collapsible=""true"" Disabled=""true"" Class=""max-w-lg"">
+    <AccordionItem Value=""a"">
+        <AccordionTrigger>Would open if enabled</AccordionTrigger>
+        <AccordionContent>Locked while root is disabled.</AccordionContent>
+    </AccordionItem>
+</Accordion>";
 
     private const string DisabledCode =
 @"<Accordion Value=""_disabledValue"" ValueChanged=""HandleDisabledChanged"" Collapsible=""true"" Class=""w-full max-w-lg"">
@@ -463,6 +535,12 @@
     private Task HandleDisabledChanged(string? value)
     {
         _disabledValue = value;
+        return Task.CompletedTask;
+    }
+
+    private Task HandleHorizontalChanged(string? value)
+    {
+        _horizontalValue = value;
         return Task.CompletedTask;
     }
 }

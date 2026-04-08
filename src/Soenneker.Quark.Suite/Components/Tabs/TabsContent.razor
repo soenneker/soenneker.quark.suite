@@ -2,12 +2,19 @@
 @inherits Soenneker.Quark.Element
 
 <div @attributes="BuildAttributes()">
-    @ChildContent
+    @if (IsActive || ForceMount)
+    {
+        @ChildContent
+    }
 </div>
 
 @code {
     [Parameter]
     public string? Value { get; set; }
+
+    /// <summary>Radix <c>forceMount</c>: keep panel content in the tree even when inactive (e.g. animations).</summary>
+    [Parameter]
+    public bool ForceMount { get; set; }
 
     [CascadingParameter(Name = nameof(ParentTabs))]
     private Tabs? ParentTabs { get; set; }
@@ -20,8 +27,9 @@
 
         attributes["data-slot"] = "tabs-content";
         attributes["data-state"] = IsActive ? "active" : "inactive";
+        attributes["data-orientation"] = ParentTabs?.Vertical == true ? "vertical" : "horizontal";
         attributes["role"] = "tabpanel";
-        attributes["tabindex"] = 0;
+        attributes["tabindex"] = IsActive ? 0 : -1;
 
         if (!IsActive)
             attributes["hidden"] = true;
@@ -48,5 +56,7 @@
         hc.Add(Value);
         hc.Add(IsActive);
         hc.Add(ParentTabs?.Vertical);
+        hc.Add(ParentTabs?.ActivationMode);
+        hc.Add(ForceMount);
     }
 }

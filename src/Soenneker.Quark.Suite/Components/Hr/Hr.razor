@@ -16,8 +16,10 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         var orientation = Orientation?.Value ?? SeparatorOrientation.Horizontal.Value;
+        attributes["data-slot"] = "separator";
         attributes["data-orientation"] = orientation;
-        if (!Decorative)
+        // Radix: aria-orientation only when semantic and vertical (horizontal omits it).
+        if (!Decorative && string.Equals(orientation, SeparatorOrientation.Vertical.Value, StringComparison.Ordinal))
             attributes["aria-orientation"] = orientation;
         // shadcn Separator - new-york-v4 ui/separator.tsx
         BuildClassAttribute(attributes, (ref cls) =>
@@ -28,6 +30,7 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(Orientation);
         hc.Add(Decorative);
     }
