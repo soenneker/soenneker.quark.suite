@@ -3,7 +3,7 @@
 @using System.Linq
 
 <CascadingValue Name="ParentCarousel" Value="@this" IsFixed="true">
-<div @attributes="BuildAttributes()" role="region" aria-roledescription="carousel">
+<div @attributes="BuildAttributes()" role="region" aria-roledescription="carousel" @onkeydown="HandleKeyDown">
     @ChildContent
 </div>
 </CascadingValue>
@@ -27,13 +27,17 @@
 
     internal int CurrentIndex { get; private set; }
     internal int ItemCount { get; private set; }
-    internal bool CanScrollPrevious => CurrentIndex > 0;
-    internal bool CanScrollNext => CurrentIndex < ItemCount - 1;
+    internal bool CanScrollPrevious => ItemCount > 1 && (Loop || CurrentIndex > 0);
+    internal bool CanScrollNext => ItemCount > 1 && (Loop || CurrentIndex < ItemCount - 1);
 
     protected override void OnInitialized()
     {
         _api.SelectedIndexAccessor = () => CurrentIndex;
         _api.ScrollSnapListAccessor = () => ItemCount <= 0 ? Array.Empty<int>() : Enumerable.Range(0, ItemCount).ToArray();
+        _api.CanScrollPreviousAccessor = () => CanScrollPrevious;
+        _api.CanScrollNextAccessor = () => CanScrollNext;
+        _api.ScrollPreviousAction = Previous;
+        _api.ScrollNextAction = Next;
         base.OnInitialized();
     }
 
@@ -77,6 +81,16 @@
     internal void Next()
     {
         GoTo(CurrentIndex + 1);
+    }
+
+    private Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "ArrowLeft")
+            Previous();
+        else if (e.Key == "ArrowRight")
+            Next();
+
+        return Task.CompletedTask;
     }
 
     private void GoTo(int index)

@@ -7,7 +7,9 @@
 @if (Context?.IsOpen() == true)
 {
     <div @ref="_contentRef" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()" @onclick:stopPropagation="true">
-        @ChildContent
+        <div class="@BuildViewportClass()">
+            @ChildContent
+        </div>
     </div>
 }
 
@@ -19,7 +21,7 @@
     public int SideOffset { get; set; } = 6;
 
     [Parameter]
-    public string Align { get; set; } = "start";
+    public string Align { get; set; } = "center";
 
     [Parameter]
     public string ContentPosition { get; set; } = "item-aligned";
@@ -65,12 +67,12 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-select-content z-50 max-h-96 min-w-[8rem] overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md");
-            AppendClass(ref cls, "animate-in fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2");
+            AppendClass(ref cls, "q-select-content relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border bg-popover text-popover-foreground shadow-md");
+            AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
 
             if (UseFloatingPositioning)
             {
-                AppendClass(ref cls, "fixed");
+                AppendClass(ref cls, "fixed data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1");
             }
             else
             {
@@ -101,6 +103,13 @@
     {
         if (e.Key == "Escape" && Context is not null)
             await Context.CloseAsync();
+    }
+
+    private string BuildViewportClass()
+    {
+        return UseFloatingPositioning
+            ? "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] scroll-my-1 p-1"
+            : "p-1";
     }
 
     private async ValueTask StopPositionObserver()

@@ -92,6 +92,7 @@
             IsOpen = () => _open,
             HasValue = HasValue,
             DisplayText = GetDisplayText,
+            Size = GetSizeValue,
             IsDisabled = () => Disabled,
             IsInvalid = () => IsInvalidState,
             ToggleAsync = ToggleOpen,
@@ -334,6 +335,20 @@
     private static string? GetValueString(TValue? value)
     {
         return value?.ToString();
+    }
+
+    private string GetSizeValue()
+    {
+        string? themeToken = null;
+
+        if (Size?.TryGetThemeToken(out themeToken) == true && themeToken.HasContent())
+            return string.Equals(themeToken, "sm", StringComparison.OrdinalIgnoreCase) ? "sm" : "default";
+
+        var sizeValue = Size?.ToString();
+
+        return string.Equals(sizeValue, "sm", StringComparison.OrdinalIgnoreCase)
+            ? "sm"
+            : "default";
     }
 
     private string? GetValidationClass()

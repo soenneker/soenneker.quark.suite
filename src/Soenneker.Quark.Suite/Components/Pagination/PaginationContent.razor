@@ -6,6 +6,9 @@
 </ul>
 
 @code {
+    [CascadingParameter(Name = "ParentPagination")]
+    private Pagination? ParentPagination { get; set; }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -15,7 +18,14 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-pagination-content");
-            AppendClass(ref cls, "flex flex-row items-center gap-0.5");
+            AppendClass(ref cls, "flex items-center gap-1");
+
+            var sizeClass = ParentPagination?.GetSizeClass();
+            if (sizeClass is not null)
+                AppendClass(ref cls, sizeClass);
+
+            if (ParentPagination?.Vertical == true)
+                AppendClass(ref cls, "flex-col");
         });
     }
 }

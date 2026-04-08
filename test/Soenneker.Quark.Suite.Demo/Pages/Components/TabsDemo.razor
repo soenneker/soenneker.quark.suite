@@ -6,12 +6,16 @@
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Demo"
-                         Description="Account and password panels with the standard tabs layout."
+                         Description="The shadcn account/password tabs layout using explicit list, trigger, and content composition."
                          Code="@DemoCode"
                          CodeLanguage="razor">
                 <Div class="flex w-full max-w-sm flex-col gap-6">
-                    <Tabs Class="w-full max-w-sm">
-                        <Tab Name="account" Title="Account">
+                    <Tabs Composed="true" SelectedTab="account" Class="w-full max-w-sm">
+                        <TabsList>
+                            <TabsTrigger Value="account">Account</TabsTrigger>
+                            <TabsTrigger Value="password">Password</TabsTrigger>
+                        </TabsList>
+                        <TabsContent Value="account">
                             <Card Class="mt-4">
                                 <CardHeader>
                                     <CardTitle>Account</CardTitle>
@@ -33,8 +37,8 @@
                                     <Button>Save changes</Button>
                                 </CardFooter>
                             </Card>
-                        </Tab>
-                        <Tab Name="password" Title="Password">
+                        </TabsContent>
+                        <TabsContent Value="password">
                             <Card Class="mt-4">
                                 <CardHeader>
                                     <CardTitle>Password</CardTitle>
@@ -56,7 +60,7 @@
                                     <Button>Save password</Button>
                                 </CardFooter>
                             </Card>
-                        </Tab>
+                        </TabsContent>
                     </Tabs>
                 </Div>
             </DemoSection>
@@ -250,8 +254,12 @@
 
     private const string DemoCode = """
         <Div class="flex w-full max-w-sm flex-col gap-6">
-            <Tabs Class="w-full max-w-sm">
-                <Tab Name="account" Title="Account">
+            <Tabs Composed="true" SelectedTab="account" Class="w-full max-w-sm">
+                <TabsList>
+                    <TabsTrigger Value="account">Account</TabsTrigger>
+                    <TabsTrigger Value="password">Password</TabsTrigger>
+                </TabsList>
+                <TabsContent Value="account">
                     <Card Class="mt-4">
                         <CardHeader>
                             <CardTitle>Account</CardTitle>
@@ -273,8 +281,8 @@
                             <Button>Save changes</Button>
                         </CardFooter>
                     </Card>
-                </Tab>
-                <Tab Name="password" Title="Password">
+                </TabsContent>
+                <TabsContent Value="password">
                     <Card Class="mt-4">
                         <CardHeader>
                             <CardTitle>Password</CardTitle>
@@ -296,7 +304,7 @@
                             <Button>Save password</Button>
                         </CardFooter>
                     </Card>
-                </Tab>
+                </TabsContent>
             </Tabs>
         </Div>
         """;

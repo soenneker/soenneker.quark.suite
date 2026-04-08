@@ -1,0 +1,29 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<ol @attributes="BuildAttributes()">
+    @ChildContent
+</ol>
+
+@code {
+    [CascadingParameter(Name = "ParentBreadcrumb")]
+    private Breadcrumb? ParentBreadcrumb { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "breadcrumb-list";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground sm:gap-2.5");
+
+            if (ParentBreadcrumb?.Large == true)
+                AppendClass(ref cls, "text-base");
+
+            if (ParentBreadcrumb?.Small == true)
+                AppendClass(ref cls, "text-xs");
+        });
+    }
+}

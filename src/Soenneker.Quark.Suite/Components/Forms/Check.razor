@@ -3,15 +3,12 @@
 @implements Soenneker.Quark.IValidationInput
 @using Soenneker.Blazor.Extensions.EventCallback
 @implements ICheck
+
 <div @attributes="BuildWrapperAttributes()">
     @if (HasInlineLabel)
     {
         <label @attributes="BuildLabelAttributes()">
-            <input
-                @attributes="BuildInputAttributes()"
-                @onclick="HandleInputClick"
-                @onchange="HandleChange" />
-            <span @attributes="BuildIndicatorAttributes()">
+            <button @onclick="HandleToggleClick" @attributes="BuildControlAttributes()">
                 @if (Checked || Indeterminate)
                 {
                     <span data-slot="checkbox-indicator" class="grid place-content-center text-current transition-none">
@@ -25,7 +22,7 @@
                         }
                     </span>
                 }
-            </span>
+            </button>
             @if (ChildContent is not null)
             {
                 @ChildContent
@@ -38,100 +35,62 @@
     }
     else
     {
-        <span class="relative inline-flex shrink-0">
-            <input
-                @attributes="BuildInputAttributes()"
-                @onclick="HandleInputClick"
-                @onchange="HandleChange" />
-            <span @attributes="BuildIndicatorAttributes()">
-                @if (Checked || Indeterminate)
-                {
-                    <span data-slot="checkbox-indicator" class="grid place-content-center text-current transition-none">
-                        @if (Indeterminate)
-                        {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M5 12h14"/></svg>
-                        }
-                        else
-                        {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M20 6 9 17 4 12"/></svg>
-                        }
-                    </span>
-                }
-            </span>
-        </span>
+        <button @onclick="HandleToggleClick" @attributes="BuildControlAttributes()">
+            @if (Checked || Indeterminate)
+            {
+                <span data-slot="checkbox-indicator" class="grid place-content-center text-current transition-none">
+                    @if (Indeterminate)
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M5 12h14"/></svg>
+                    }
+                    else
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M20 6 9 17 4 12"/></svg>
+                    }
+                </span>
+            }
+        </button>
     }
 </div>
 
 @code {
     public override string? Id { get; set; } = $"check-{Guid.NewGuid():N}";
 
-    /// <summary>
-    /// Gets or sets whether the check is in an indeterminate state.
-    /// </summary>
     [Parameter]
     public bool Indeterminate { get; set; }
 
-    /// <summary>
-    /// Gets or sets the size of the check.
-    /// </summary>
     [Parameter]
     public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
 
-    /// <summary>
-    /// Gets or sets whether the check should be displayed as a switch.
-    /// </summary>
     [Parameter]
     public bool Switch { get; set; }
 
-    /// <summary>
-    /// Gets or sets whether the check should be displayed inline.
-    /// </summary>
     [Parameter]
     public bool Inline { get; set; }
 
-    /// <summary>
-    /// Gets or sets whether the label should be displayed before the check.
-    /// </summary>
     [Parameter]
     public bool Reverse { get; set; }
 
-    /// <summary>
-    /// Gets or sets the label text for the check.
-    /// </summary>
     [Parameter]
     public string? Label { get; set; }
 
-    /// <summary>
-    /// Gets or sets an additional class applied to the visual checkbox indicator.
-    /// </summary>
     [Parameter]
     public string? IndicatorClass { get; set; }
 
-    /// <summary>
-    /// Gets or sets inline style applied to the visual checkbox indicator.
-    /// </summary>
     [Parameter]
     public string? IndicatorStyle { get; set; }
 
-    /// <summary>
-    /// Gets or sets the callback invoked When the check state changes.
-    /// </summary>
     [Parameter]
     public EventCallback<ChangeEventArgs> OnChange { get; set; }
 
     [CascadingParameter(Name = nameof(ParentValidation))]
     public Validation? ParentValidation { get; set; }
 
-    /// <summary>
-    /// Gets the value used for validation.
-    /// </summary>
     public object? ValidationValue => Checked;
 
     private bool HasInlineLabel => ChildContent is not null || Label.HasContent();
     private string AriaCheckedValue => Indeterminate ? "mixed" : Checked ? "true" : "false";
-
     private string DataState => Indeterminate ? "indeterminate" : Checked ? "checked" : "unchecked";
-
     private string ControlId => CurrentFieldContext?.ControlId ?? Id!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -146,11 +105,6 @@
         }
 
         await base.OnAfterRenderAsync(firstRender);
-    }
-
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
     }
 
     private async void OnParentValidationStatusChanged(object? s, ValidationStatusChangedEventArgs e)
@@ -171,16 +125,20 @@
 
         if (Style.HasContent())
             attributes["style"] = Style;
+
         return attributes;
     }
 
     public virtual Dictionary<string, object> BuildLabelAttributes()
     {
-        var attributes = new Dictionary<string, object>();
+        var attributes = new Dictionary<string, object>
+        {
+            ["for"] = ControlId
+        };
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "flex items-center gap-2 text-sm font-medium leading-none");
-            AppendClass(ref cls, "focus-within:outline-none focus-within:ring-[3px] focus-within:ring-ring/50 rounded-[4px]");
             if (Reverse)
                 AppendClass(ref cls, "flex-row-reverse justify-end");
             if (Disabled)
@@ -188,42 +146,49 @@
             else
                 AppendClass(ref cls, "cursor-pointer");
         });
-        attributes["for"] = ControlId;
+
         return attributes;
     }
 
-    public virtual Dictionary<string, object> BuildInputAttributes()
+    public virtual Dictionary<string, object> BuildControlAttributes()
     {
         var attributes = new Dictionary<string, object>
         {
             ["id"] = ControlId,
-            ["type"] = "checkbox",
-            ["checked"] = Checked,
+            ["type"] = "button",
+            ["role"] = "checkbox",
             ["aria-checked"] = AriaCheckedValue,
+            ["data-slot"] = "checkbox",
             ["data-state"] = DataState
         };
-
-        if (Value.HasContent())
-            attributes["value"] = Value!;
 
         if (Name.HasContent())
             attributes["name"] = Name!;
 
-        if (Required)
-            attributes["required"] = true;
-
-        if (AutoFocus)
-            attributes["autofocus"] = true;
+        if (Value.HasContent())
+            attributes["value"] = Value!;
 
         if (Disabled)
+        {
             attributes["disabled"] = true;
+            attributes["data-disabled"] = "true";
+        }
+
+        if (Checked)
+            attributes["data-checked"] = "true";
+        else
+            attributes["data-unchecked"] = "true";
+
+        if (Indeterminate)
+            attributes["data-indeterminate"] = "true";
 
         if (Attributes is not null)
         {
             foreach (var attribute in Attributes)
             {
                 if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase))
+                    attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("type", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
@@ -236,45 +201,19 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "peer sr-only");
-        });
-
-        return attributes;
-    }
-
-    public virtual Dictionary<string, object> BuildIndicatorAttributes()
-    {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "checkbox",
-            ["data-state"] = DataState
-        };
-
-        if (Checked)
-            attributes["data-checked"] = "true";
-        else
-            attributes["data-unchecked"] = "true";
-
-        if (Indeterminate)
-            attributes["data-indeterminate"] = "true";
-
-        if (Disabled)
-            attributes["data-disabled"] = "true";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
             AppendClass(ref cls, "q-check-indicator");
-            AppendClass(ref cls, "border-input dark:bg-input/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:border-primary");
-            AppendClass(ref cls, "data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground data-[state=indeterminate]:border-primary");
+            AppendClass(ref cls, "peer");
+            AppendClass(ref cls, "border-input dark:bg-input/30 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground");
+            AppendClass(ref cls, "data-[state=indeterminate]:border-primary data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground");
             AppendClass(ref cls, "data-[state=unchecked]:bg-transparent data-[state=unchecked]:text-current");
             AppendClass(ref cls, "shrink-0 rounded-[4px] border shadow-xs transition-[color,box-shadow] outline-none");
-            AppendClass(ref cls, "peer-focus-visible:border-ring peer-focus-visible:ring-ring/50 peer-focus-visible:ring-[3px]");
-            AppendClass(ref cls, "peer-aria-invalid:ring-destructive/20 dark:peer-aria-invalid:ring-destructive/40 peer-aria-invalid:border-destructive");
-            AppendClass(ref cls, "peer-disabled:cursor-not-allowed peer-disabled:opacity-50 grid place-content-center");
-            var sizeClass = GetSizeClass();
-            AppendClass(ref cls, sizeClass ?? "size-4");
+            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50");
+            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40");
+            AppendClass(ref cls, "disabled:cursor-not-allowed disabled:opacity-50 grid place-content-center");
+            AppendClass(ref cls, GetSizeClass() ?? "size-4");
+
             var validationClass = GetValidationClass();
-            if (validationClass != null)
+            if (validationClass is not null)
                 AppendClass(ref cls, validationClass);
 
             if (IndicatorClass.HasContent())
@@ -289,9 +228,9 @@
 
     private string? GetValidationClass()
     {
-        if (ParentValidation?.Status == ValidationStatus.Error)
-            return "border-destructive ring-destructive/20 dark:ring-destructive/40";
-        return null;
+        return ParentValidation?.Status == ValidationStatus.Error
+            ? "border-destructive ring-destructive/20 dark:ring-destructive/40"
+            : null;
     }
 
     private string? GetSizeClass()
@@ -312,23 +251,12 @@
         };
     }
 
-    private Task HandleInputClick(MouseEventArgs args)
-    {
-        return base.HandleClick(args);
-    }
-
-    private async Task HandleChange(ChangeEventArgs args)
+    protected override async Task HandleClick(MouseEventArgs args)
     {
         if (Disabled)
             return;
 
-        var next = args.Value switch
-        {
-            bool value => value,
-            string value when bool.TryParse(value, out var parsed) => parsed,
-            _ => !Checked
-        };
-
+        var next = !Checked;
         Checked = next;
         Indeterminate = false;
         await CheckedChanged.InvokeAsync(next);
@@ -342,6 +270,12 @@
         }
 
         await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = next });
+        await base.HandleClick(args);
+    }
+
+    private Task HandleToggleClick(MouseEventArgs args)
+    {
+        return HandleClick(args);
     }
 
     public override void Dispose()

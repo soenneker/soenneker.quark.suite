@@ -1,5 +1,7 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
+@using System.Text
+@using System.Text.RegularExpressions
 
 <CascadingValue Name="ParentInputOtp" Value="@this" IsFixed="true">
     <div @attributes="BuildAttributes()">
@@ -27,9 +29,33 @@
     [Parameter]
     public int Length { get; set; } = 6;
 
+    /// <summary>
+    /// Optional regex pattern used to validate entered characters.
+    /// </summary>
+    [Parameter]
+    public string? Pattern { get; set; }
+
+    /// <summary>
+    /// Controls the virtual keyboard hint for the hidden input.
+    /// </summary>
+    [Parameter]
+    public string? InputMode { get; set; }
+
+    /// <summary>
+    /// Gets or sets the autocomplete attribute for the hidden input.
+    /// </summary>
+    [Parameter]
+    public string AutoComplete { get; set; } = "one-time-code";
+
+    internal string? InputId => Id;
+
     internal async Task SetValue(string v)
     {
-        if (v.Length > Length) v = v[..Length];
+        v = Sanitize(v);
+
+        if (v.Length > Length)
+            v = v[..Length];
+
         OtpValue = v;
         await OtpValueChanged.InvokeAsync(OtpValue);
         InvalidateRender();
@@ -38,25 +64,58 @@
 
     internal char? GetSlot(int index)
     {
-        if (index < 0 || index >= Length) return null;
-        var v = OtpValue ?? "";
-        return index < v.Length ? v[index] : (char?)null;
+        if (index < 0 || index >= Length)
+            return null;
+
+        var value = OtpValue ?? "";
+        return index < value.Length ? value[index] : (char?) null;
     }
 
     internal int ActiveIndex => Math.Min((OtpValue ?? "").Length, Length - 1);
+
+    internal string GetEffectiveInputMode()
+    {
+        if (!string.IsNullOrWhiteSpace(InputMode))
+            return InputMode!;
+
+        return "text";
+    }
+
+    private string Sanitize(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return string.Empty;
+
+        if (string.IsNullOrWhiteSpace(Pattern))
+            return value;
+
+        var builder = new StringBuilder(value.Length);
+
+        foreach (char character in value)
+        {
+            if (Regex.IsMatch(character.ToString(), Pattern, RegexOptions.CultureInvariant))
+                builder.Append(character);
+        }
+
+        return builder.ToString();
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "input-otp";
+
+        if (attributes.ContainsKey("id"))
+            attributes.Remove("id");
+
         if (Disabled)
             attributes["data-disabled"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-input-otp");
-            AppendClass(ref cls, "flex items-center gap-2 has-[[data-disabled]]:opacity-50");
+            AppendClass(ref cls, "flex items-center data-[disabled=true]:opacity-50");
         });
     }
 
@@ -65,6 +124,9 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(OtpValue);
         hc.Add(Length);
+        hc.Add(Pattern);
+        hc.Add(InputMode);
+        hc.Add(AutoComplete);
         hc.Add(Disabled);
     }
 }

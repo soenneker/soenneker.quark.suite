@@ -9,25 +9,20 @@
                          Description="Fixed-height tag list with separators between items."
                          Code="@VerticalCode"
                          CodeLanguage="razor">
-                <Div Class="relative w-full max-w-48">
-                    <ScrollArea Class="h-72 w-48 rounded-md border">
-                        <Div Class="p-4">
-                            <H4 TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" Class="mb-4 leading-none">Tags</H4>
-                            @for (var i = 0; i < _tags.Length; i++)
-                            {
-                                <Div class="text-sm">@_tags[i]</Div>
+                <ScrollArea Class="h-72 w-48 rounded-md border">
+                    <Div Class="p-4">
+                        <H4 TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" Class="mb-4 leading-none">Tags</H4>
+                        @for (var i = 0; i < _tags.Length; i++)
+                        {
+                            <Div class="text-sm">@_tags[i]</Div>
 
-                                @if (i < _tags.Length - 1)
-                                {
-                                    <Separator Class="my-2" />
-                                }
+                            @if (i < _tags.Length - 1)
+                            {
+                                <Separator Class="my-2" />
                             }
-                        </Div>
-                    </ScrollArea>
-                    <Div Class="pointer-events-none absolute inset-y-0 right-0 flex py-2">
-                        <ScrollBar />
+                        }
                     </Div>
-                </Div>
+                </ScrollArea>
             </DemoSection>
         </Section>
 
@@ -36,23 +31,25 @@
                          Description="Horizontal scroll areas help showcase collections without forcing every item into a narrow grid."
                          Code="@HorizontalCode"
                          CodeLanguage="razor">
-                <Div Class="relative w-full max-w-2xl">
-                    <ScrollArea Class="rounded-md border whitespace-nowrap">
-                        <Div Class="flex w-max space-x-4 p-4">
-                            @foreach (var release in _releases)
-                            {
-                                <Div Class="w-40 shrink-0 rounded-lg border bg-card p-4">
-                                    <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" Margin="Margin.Is0">@release.Title</Paragraph>
-                                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">@release.Description</Paragraph>
-                                </Div>
-                            }
-                        </Div>
-                    </ScrollArea>
-                    <Div Class="pointer-events-none absolute inset-x-0 bottom-0 flex px-2 pb-1">
-                        <ScrollBar Orientation="horizontal" />
+                <ScrollArea Class="w-96 rounded-md border whitespace-nowrap" ShowHorizontalScrollBar="true">
+                    <Div Class="flex w-max space-x-4 p-4">
+                        @foreach (var release in _releases)
+                        {
+                            <Div Class="w-40 shrink-0 rounded-lg border bg-card p-4">
+                                <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" Margin="Margin.Is0">@release.Title</Paragraph>
+                                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">@release.Description</Paragraph>
+                            </Div>
+                        }
                     </Div>
-                </Div>
+                </ScrollArea>
             </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
+            <Paragraph TextColor="TextColor.MutedForeground">
+                Direction-aware usage beyond the shadcn-equivalent vertical and horizontal examples.
+            </Paragraph>
         </Section>
 
         <Section Space="Space.Y.Is4">
@@ -61,27 +58,22 @@
                          Code="@RtlCode"
                          CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
-                    <Div Class="relative w-full max-w-sm text-right">
-                        <ScrollArea Class="h-72 rounded-md border">
-                            <Div Class="p-4">
-                                @for (var i = 0; i < _arabicNotes.Length; i++)
-                                {
-                                    <Div Space="Space.Y.Is1">
-                                        <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" Margin="Margin.Is0">@_arabicNotes[i].Title</Paragraph>
-                                        <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">@_arabicNotes[i].Description</Paragraph>
-                                    </Div>
+                    <ScrollArea Class="h-72 w-48 rounded-md border text-right">
+                        <Div Class="p-4">
+                            @for (var i = 0; i < _arabicNotes.Length; i++)
+                            {
+                                <Div Space="Space.Y.Is1">
+                                    <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Medium" Margin="Margin.Is0">@_arabicNotes[i].Title</Paragraph>
+                                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">@_arabicNotes[i].Description</Paragraph>
+                                </Div>
 
-                                    @if (i < _arabicNotes.Length - 1)
-                                    {
-                                        <Separator Class="my-4" />
-                                    }
+                                @if (i < _arabicNotes.Length - 1)
+                                {
+                                    <Separator Class="my-4" />
                                 }
-                            </Div>
-                        </ScrollArea>
-                        <Div Class="pointer-events-none absolute inset-y-0 right-0 flex py-2 rtl:left-0 rtl:right-auto">
-                            <ScrollBar />
+                            }
                         </Div>
-                    </Div>
+                    </ScrollArea>
                 </DirectionProvider>
             </DemoSection>
         </Section>
@@ -112,52 +104,37 @@
     ];
 
     private const string VerticalCode =
-@"<Div Class=""relative w-full max-w-48"">
-    <ScrollArea Class=""h-72 w-48 rounded-md border"">
-        <Div Class=""p-4"">
-            <H4 TextSize=""TextSize.Sm"" FontWeight=""FontWeight.Medium"" Class=""mb-4 leading-none"">Tags</H4>
-            @foreach (var tag in tags)
-            {
-                <Div class=""text-sm"">@tag</Div>
-                <Separator Class=""my-2"" />
-            }
-        </Div>
-    </ScrollArea>
-    <Div Class=""pointer-events-none absolute inset-y-0 right-0 flex py-2"">
-        <ScrollBar />
+@"<ScrollArea Class=""h-72 w-48 rounded-md border"">
+    <Div Class=""p-4"">
+        <H4 TextSize=""TextSize.Sm"" FontWeight=""FontWeight.Medium"" Class=""mb-4 leading-none"">Tags</H4>
+        @foreach (var tag in tags)
+        {
+            <Div class=""text-sm"">@tag</Div>
+            <Separator Class=""my-2"" />
+        }
     </Div>
-</Div>";
+</ScrollArea>";
 
     private const string HorizontalCode =
-@"<Div Class=""relative w-full max-w-2xl"">
-    <ScrollArea Class=""rounded-md border whitespace-nowrap"">
-        <Div Class=""flex w-max space-x-4 p-4"">
-            @foreach (var release in releases)
-            {
-                <Div Class=""w-40 shrink-0 rounded-lg border bg-card p-4"">...</Div>
-            }
-        </Div>
-    </ScrollArea>
-    <Div Class=""pointer-events-none absolute inset-x-0 bottom-0 flex px-2 pb-1"">
-        <ScrollBar Orientation=""horizontal"" />
+@"<ScrollArea Class=""w-96 rounded-md border whitespace-nowrap"" ShowHorizontalScrollBar=""true"">
+    <Div Class=""flex w-max space-x-4 p-4"">
+        @foreach (var release in releases)
+        {
+            <Div Class=""w-40 shrink-0 rounded-lg border bg-card p-4"">...</Div>
+        }
     </Div>
-</Div>";
+</ScrollArea>";
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
-    <Div Class=""relative w-full max-w-sm text-right"">
-        <ScrollArea Class=""h-72 rounded-md border"">
-            <Div Class=""p-4"">
-                @foreach (var note in arabicNotes)
-                {
-                    <Div Class=""space-y-1"">...</Div>
-                    <Separator Class=""my-4"" />
-                }
-            </Div>
-        </ScrollArea>
-        <Div Class=""pointer-events-none absolute inset-y-0 right-0 flex py-2 rtl:left-0 rtl:right-auto"">
-            <ScrollBar />
+    <ScrollArea Class=""h-72 w-48 rounded-md border text-right"">
+        <Div Class=""p-4"">
+            @foreach (var note in arabicNotes)
+            {
+                <Div Class=""space-y-1"">...</Div>
+                <Separator Class=""my-4"" />
+            }
         </Div>
-    </Div>
+    </ScrollArea>
 </DirectionProvider>";
 }

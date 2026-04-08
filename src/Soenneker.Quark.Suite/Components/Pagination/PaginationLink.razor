@@ -23,6 +23,12 @@ else
     public bool Active { get; set; }
 
     /// <summary>
+    /// Gets or sets the button size variant used for pagination links.
+    /// </summary>
+    [Parameter]
+    public ButtonSize Size { get; set; } = ButtonSize.Icon;
+
+    /// <summary>
     /// Gets or sets the link target (href). When set, the link navigates; otherwise behaves as button.
     /// </summary>
     [Parameter]
@@ -39,9 +45,16 @@ else
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-pagination-link");
-            AppendClass(ref cls, "group/button inline-flex size-9 items-center justify-center rounded-lg border border-transparent bg-background text-sm font-medium whitespace-nowrap transition-colors outline-none hover:bg-accent hover:text-accent-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50");
+            AppendClass(ref cls, "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap outline-none transition-all");
+            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50");
+            AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
+            AppendClass(ref cls, Size == ButtonSize.Default ? "h-9 px-4 py-2 has-[>svg]:px-3" : "size-9");
+
             if (Active)
-                AppendClass(ref cls, "bg-primary text-primary-foreground");
+                AppendClass(ref cls, "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50");
+            else
+                AppendClass(ref cls, "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50");
+
             if (Disabled)
                 AppendClass(ref cls, "opacity-50 pointer-events-none");
         });
@@ -53,11 +66,6 @@ else
             if (!attributes.ContainsKey("tabindex"))
                 attributes["tabindex"] = -1;
         }
-        else if (To.HasContent())
-        {
-            if (!attributes.ContainsKey("role"))
-                attributes["role"] = "button";
-        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -65,5 +73,6 @@ else
         hc.Add(Active);
         hc.Add(Disabled);
         hc.Add(To);
+        hc.Add(Size);
     }
 }

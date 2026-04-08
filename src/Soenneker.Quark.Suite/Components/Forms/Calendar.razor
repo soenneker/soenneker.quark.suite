@@ -5,101 +5,138 @@
 @inherits Soenneker.Quark.FormControlElement
 
 <div @attributes="BuildAttributes()">
-    <div class="q-calendar-months flex flex-col gap-4 md:flex-row">
+    <div class="q-calendar-months relative flex flex-col gap-4 md:flex-row">
         @for (var monthIndex = 0; monthIndex < Math.Max(NumberOfMonths, 1); monthIndex++)
         {
             var month = _displayMonth.AddMonths(monthIndex);
             var weeks = BuildMonthWeeks(month);
 
-            <div class="q-calendar-month flex flex-col gap-4">
-                <div class="q-calendar-header mb-4 flex items-center justify-between">
+            <div class="q-calendar-month flex w-full flex-col gap-4">
+                <div class="q-calendar-header relative flex h-8 w-full items-center justify-center px-8">
                     @if (monthIndex == 0)
                     {
-                        <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" OnClick="PrevMonth" aria-label="Previous month">‹</Button>
+                        <Button Variant="ButtonVariant.Ghost"
+                                Size="ButtonSize.IconSm"
+                                Class="absolute left-0 size-8 p-0 select-none"
+                                OnClick="PrevMonth"
+                                aria-label="Previous month">
+                            <Icon Name="LucideIcon.ChevronLeft" Class="size-4" />
+                        </Button>
                     }
                     else
                     {
-                        <span class="inline-flex size-8"></span>
+                        <span class="absolute left-0 inline-flex size-8"></span>
                     }
 
                     @if (CaptionLayout == "dropdown")
                     {
-                        <div class="q-calendar-title flex items-center gap-2">
-                            <select class="h-8 rounded-md border border-input bg-background px-2 text-sm" value="@month.Month" @onchange="OnMonthChanged">
-                                @foreach (var optionMonth in Enumerable.Range(1, 12))
-                                {
-                                    <option value="@optionMonth">@GetMonthLabel(optionMonth)</option>
-                                }
-                            </select>
-                            <select class="h-8 rounded-md border border-input bg-background px-2 text-sm" value="@month.Year" @onchange="OnYearChanged">
-                                @foreach (var year in GetSelectableYears())
-                                {
-                                    <option value="@year">@year</option>
-                                }
-                            </select>
+                        <div class="q-calendar-title flex h-8 w-full items-center justify-center gap-1.5 text-sm font-medium">
+                            <div class="relative rounded-md border border-input shadow-xs has-focus:border-ring has-focus:ring-[3px] has-focus:ring-ring/50">
+                                <select class="absolute inset-0 bg-popover opacity-0"
+                                        value="@month.Month"
+                                        @onchange="OnMonthChanged">
+                                    @foreach (var optionMonth in Enumerable.Range(1, 12))
+                                    {
+                                        <option value="@optionMonth">@GetMonthLabel(optionMonth)</option>
+                                    }
+                                </select>
+                                <div class="flex h-8 items-center gap-1 rounded-md pr-1 pl-2 text-sm">
+                                    <span>@GetMonthLabel(month.Month)</span>
+                                    <Icon Name="LucideIcon.ChevronDown" Class="size-3.5 text-muted-foreground" />
+                                </div>
+                            </div>
+                            <div class="relative rounded-md border border-input shadow-xs has-focus:border-ring has-focus:ring-[3px] has-focus:ring-ring/50">
+                                <select class="absolute inset-0 bg-popover opacity-0"
+                                        value="@month.Year"
+                                        @onchange="OnYearChanged">
+                                    @foreach (var year in GetSelectableYears())
+                                    {
+                                        <option value="@year">@year</option>
+                                    }
+                                </select>
+                                <div class="flex h-8 items-center gap-1 rounded-md pr-1 pl-2 text-sm">
+                                    <span>@month.Year</span>
+                                    <Icon Name="LucideIcon.ChevronDown" Class="size-3.5 text-muted-foreground" />
+                                </div>
+                            </div>
                         </div>
                     }
                     else
                     {
-                        <div class="q-calendar-title text-sm font-semibold">@month.ToString("MMMM yyyy", ResolveCulture())</div>
+                        <div class="q-calendar-title flex h-8 w-full items-center justify-center text-sm font-medium select-none">@month.ToString("MMMM yyyy", ResolveCulture())</div>
                     }
 
                     @if (monthIndex == Math.Max(NumberOfMonths, 1) - 1)
                     {
-                        <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.Icon" OnClick="NextMonth" aria-label="Next month">›</Button>
+                        <Button Variant="ButtonVariant.Ghost"
+                                Size="ButtonSize.IconSm"
+                                Class="absolute right-0 size-8 p-0 select-none"
+                                OnClick="NextMonth"
+                                aria-label="Next month">
+                            <Icon Name="LucideIcon.ChevronRight" Class="size-4" />
+                        </Button>
                     }
                     else
                     {
-                        <span class="inline-flex size-8"></span>
+                        <span class="absolute right-0 inline-flex size-8"></span>
                     }
                 </div>
 
-                <div class="q-calendar-weekdays grid mb-2 @(ShowWeekNumber ? "grid-cols-8" : "grid-cols-7")">
+                <div class="q-calendar-weekdays flex">
                     @if (ShowWeekNumber)
                     {
-                        <div class="q-calendar-week-number-header text-center text-xs font-normal text-muted-foreground">Wk</div>
+                        <div class="q-calendar-week-number-header flex size-8 items-center justify-center text-center text-[0.8rem] text-muted-foreground select-none">Wk</div>
                     }
 
                     @foreach (var dow in _dayNames)
                     {
-                        <div class="q-calendar-weekday text-center text-xs font-normal text-muted-foreground">@dow</div>
+                        <div class="q-calendar-weekday flex-1 rounded-md text-center text-[0.8rem] font-normal text-muted-foreground select-none">@dow</div>
                     }
                 </div>
 
-                <div class="q-calendar-grid grid gap-1 @(ShowWeekNumber ? "grid-cols-8" : "grid-cols-7")">
+                <div class="q-calendar-grid w-full border-collapse">
                     @foreach (var week in weeks)
                     {
-                        @if (ShowWeekNumber)
-                        {
-                            <div class="q-calendar-week-number flex aspect-square items-center justify-center text-xs text-muted-foreground">
-                                @GetWeekNumber(week[0].Date)
-                            </div>
-                        }
+                        <div class="q-calendar-week mt-2 flex w-full">
+                            @if (ShowWeekNumber)
+                            {
+                                <div class="q-calendar-week-number flex size-8 items-center justify-center text-center text-[0.8rem] text-muted-foreground select-none">
+                                    @GetWeekNumber(week[0].Date)
+                                </div>
+                            }
 
-                        @foreach (var day in week)
-                        {
-                            var dayContext = BuildDayContext(day);
-                            var css = "q-calendar-day relative flex aspect-square w-full items-center justify-center rounded-md text-sm";
-                            if (!day.InMonth) css += " text-muted-foreground";
-                            if (dayContext.IsToday) css += " bg-accent text-accent-foreground";
-                            if (dayContext.IsRangeStart || dayContext.IsRangeEnd) css += " bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground";
-                            else if (dayContext.IsRangeMiddle) css += " bg-accent/70 text-accent-foreground";
-                            else if (dayContext.IsSelected) css += " bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground";
-                            else css += " hover:bg-accent hover:text-accent-foreground";
-                            if (day.Disabled) css += " opacity-50 pointer-events-none";
-                            css = AppendModifierClasses(css, dayContext.Modifiers);
+                            @foreach (var day in week)
+                            {
+                                var dayContext = BuildDayContext(day);
+                                var cellCss = GetDayCellClass(dayContext, day);
+                                var buttonCss = GetDayButtonClass(dayContext, day);
 
-                            <button type="button" class="@css" disabled="@day.Disabled" @onclick="() => SelectDate(day.Date)">
-                                @if (DayContent is not null)
-                                {
-                                    @DayContent(dayContext)
-                                }
-                                else
-                                {
-                                    @day.Date.Day
-                                }
-                            </button>
-                        }
+                                <div class="@cellCss"
+                                     data-selected="@(GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle))"
+                                     data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))"
+                                     data-range-end="@(GetDataBoolean(dayContext.IsRangeEnd))"
+                                     data-range-middle="@(GetDataBoolean(dayContext.IsRangeMiddle))">
+                                    <button type="button"
+                                            class="@buttonCss"
+                                            disabled="@day.Disabled"
+                                            data-day="@day.Date.ToString("yyyy-MM-dd")"
+                                            data-selected-single="@(GetDataBoolean(dayContext.IsSelected && !dayContext.IsRangeStart && !dayContext.IsRangeEnd && !dayContext.IsRangeMiddle))"
+                                            data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))"
+                                            data-range-end="@(GetDataBoolean(dayContext.IsRangeEnd))"
+                                            data-range-middle="@(GetDataBoolean(dayContext.IsRangeMiddle))"
+                                            @onclick="() => SelectDate(day.Date)">
+                                        @if (DayContent is not null)
+                                        {
+                                            @DayContent(dayContext)
+                                        }
+                                        else
+                                        {
+                                            @day.Date.Day
+                                        }
+                                    </button>
+                                </div>
+                            }
+                        </div>
                     }
                 </div>
             </div>
@@ -457,6 +494,56 @@
         return css;
     }
 
+    private string GetDayCellClass(CalendarDayContext dayContext, Cell day)
+    {
+        var css = "q-calendar-day group/day relative aspect-square h-8 w-8 p-0 text-center select-none";
+
+        if (ShowWeekNumber)
+            css += " [&:nth-child(2)[data-selected=true]_button]:rounded-l-md";
+        else
+            css += " [&:first-child[data-selected=true]_button]:rounded-l-md";
+
+        css += " [&:last-child[data-selected=true]_button]:rounded-r-md";
+
+        if (dayContext.IsRangeStart)
+            css += " rounded-l-md bg-accent";
+        if (dayContext.IsRangeEnd)
+            css += " rounded-r-md bg-accent";
+
+        if (!ShowOutsideDays && !day.InMonth)
+            css += " invisible";
+
+        css = AppendModifierClasses(css, dayContext.Modifiers);
+
+        return css;
+    }
+
+    private string GetDayButtonClass(CalendarDayContext dayContext, Cell day)
+    {
+        var css = "flex aspect-square size-auto h-8 w-full min-w-8 flex-col items-center justify-center gap-1 rounded-md text-sm leading-none font-normal outline-none transition-[color,background-color,box-shadow]";
+
+        if (day.Disabled)
+            css += " pointer-events-none opacity-50";
+
+        if (!day.InMonth)
+            css += " text-muted-foreground aria-selected:text-muted-foreground";
+
+        css += " focus-visible:relative focus-visible:z-10 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50";
+
+        if (dayContext.IsRangeStart || dayContext.IsRangeEnd)
+            css += " bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground";
+        else if (dayContext.IsRangeMiddle)
+            css += " rounded-none bg-accent text-accent-foreground";
+        else if (dayContext.IsSelected)
+            css += " bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground";
+        else if (dayContext.IsToday)
+            css += " bg-accent text-accent-foreground";
+        else
+            css += " hover:bg-accent hover:text-accent-foreground";
+
+        return css;
+    }
+
     private async Task PrevMonth()
     {
         _displayMonth = _displayMonth.AddMonths(-1);
@@ -482,8 +569,13 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-calendar");
-            AppendClass(ref cls, "bg-background p-3 rounded-md [--cell-size:2rem]");
+            AppendClass(ref cls, "group/calendar w-fit bg-background p-3 rounded-md [--cell-size:2rem]");
         });
+    }
+
+    private static string GetDataBoolean(bool value)
+    {
+        return value ? "true" : "false";
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

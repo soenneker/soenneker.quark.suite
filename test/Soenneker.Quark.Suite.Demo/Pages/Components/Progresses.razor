@@ -7,6 +7,15 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Demo"
+                         Description="@($"Value updates from 13 to 66 after a short delay. Current: {_demoProgress}.")"
+                         Code="@DemoCode"
+                         CodeLanguage="razor">
+                <Progress ProgressValue="@_demoProgress" Class="w-[60%]" />
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Progress Bar"
                          Description="Determinate values from empty through complete."
                          Code="@ProgressBarCode"
@@ -33,23 +42,6 @@
                     </FieldLabel>
                     <Progress Id="progress-upload" ProgressValue="66" Class="w-full" />
                 </Field>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Controlled"
-                         Description="@($"Use a slider to drive the bar. Current: {GetControlledPercent()}%.")"
-                         Code="@ControlledCode"
-                         CodeLanguage="razor">
-                <Div Class="flex w-full max-w-md flex-col gap-4">
-                    <Progress ProgressValue="@GetControlledPercent()" Class="w-full" />
-                    <Slider Min="0"
-                            Max="100"
-                            Step="1"
-                            SliderValue="@_controlledValue"
-                            SliderValueChanged="HandleControlledValueChanged"
-                            Class="w-full" />
-                </Div>
             </DemoSection>
         </Section>
 
@@ -83,8 +75,25 @@
         <Section Space="Space.Y.Is4">
             <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
             <Paragraph TextColor="TextColor.MutedForeground">
-                Layout direction, motion, and indeterminate loading.
+                Controlled values, upload layouts, layout direction, and indeterminate loading.
             </Paragraph>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Controlled"
+                         Description="@($"Use a slider to drive the bar. Current: {GetControlledPercent()}%.")"
+                         Code="@ControlledCode"
+                         CodeLanguage="razor">
+                <Div Class="flex w-full max-w-md flex-col gap-4">
+                    <Progress ProgressValue="@GetControlledPercent()" Class="w-full" />
+                    <Slider Min="0"
+                            Max="100"
+                            Step="1"
+                            SliderValue="@_controlledValue"
+                            SliderValueChanged="HandleControlledValueChanged"
+                            Class="w-full" />
+                </Div>
+            </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
@@ -101,15 +110,6 @@
                         <Progress Id="progress-upload-rtl" ProgressValue="66" Class="w-full" />
                     </Field>
                 </DirectionProvider>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Animated"
-                         Description="@($"Value updates from 13 to 66 after a short delay. Current: {_demoProgress}.")"
-                         Code="@AnimatedCode"
-                         CodeLanguage="razor">
-                <Progress ProgressValue="@_demoProgress" Class="w-[60%]" />
             </DemoSection>
         </Section>
 
@@ -144,6 +144,42 @@
     ];
 
     private sealed record UploadFileRow(string Id, string Name, int Progress, string TimeRemaining);
+
+    private const string DemoCode =
+@"@using System.Threading
+@implements IAsyncDisposable
+
+<Progress ProgressValue=""@_demoProgress"" Class=""w-[60%]"" />
+
+@code {
+    private CancellationTokenSource? _demoCts;
+    private int _demoProgress = 13;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        _demoCts = new CancellationTokenSource();
+
+        try
+        {
+            await Task.Delay(500, _demoCts.Token);
+            _demoProgress = 66;
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        _demoCts?.Cancel();
+        _demoCts?.Dispose();
+        return ValueTask.CompletedTask;
+    }
+}";
 
     private const string ProgressBarCode =
 @"<Div Class=""flex w-full max-w-md flex-col gap-4"">
@@ -259,42 +295,6 @@
         <Progress Id=""progress-upload-rtl"" ProgressValue=""66"" Class=""w-full"" />
     </Field>
 </DirectionProvider>";
-
-    private const string AnimatedCode =
-@"@using System.Threading
-@implements IAsyncDisposable
-
-<Progress ProgressValue=""@_demoProgress"" Class=""w-[60%]"" />
-
-@code {
-    private CancellationTokenSource? _demoCts;
-    private int _demoProgress = 13;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender)
-            return;
-
-        _demoCts = new CancellationTokenSource();
-
-        try
-        {
-            await Task.Delay(500, _demoCts.Token);
-            _demoProgress = 66;
-            await InvokeAsync(StateHasChanged);
-        }
-        catch (OperationCanceledException)
-        {
-        }
-    }
-
-    public ValueTask DisposeAsync()
-    {
-        _demoCts?.Cancel();
-        _demoCts?.Dispose();
-        return ValueTask.CompletedTask;
-    }
-}";
 
     private const string IndeterminateCode =
 @"<Div Class=""w-full max-w-md space-y-2"">

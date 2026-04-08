@@ -21,6 +21,36 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Field"
+                         Description="@PriceRangeDescription"
+                         Code="@FieldCode"
+                         CodeLanguage="razor">
+                <Div Class="w-full max-w-md">
+                    <Field>
+                        <FieldLabel>Price Range</FieldLabel>
+                        <FieldDescription>
+                            Set your budget range ($<Span Class="font-medium tabular-nums">@PriceRangeMin</Span> - <Span Class="font-medium tabular-nums">@PriceRangeMax</Span>).
+                        </FieldDescription>
+                        <Slider Values="@_fieldValues"
+                                ValuesChanged="HandleFieldValuesChanged"
+                                Min="0"
+                                Max="1000"
+                                Step="10"
+                                AriaLabel="Price Range"
+                                Class="mt-2 w-full" />
+                    </Field>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
+            <Paragraph TextColor="TextColor.MutedForeground">
+                Range, multiple thumbs, vertical layout, controlled values, disabled state, RTL, step size, and alternate sizes.
+            </Paragraph>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Range"
                          Description="@($"Two-thumb range. Current: {RangeMin} – {RangeMax}.")"
                          Code="@RangeCode"
@@ -108,13 +138,6 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
-            <Paragraph TextColor="TextColor.MutedForeground">
-                Direction, coarser steps, and size variants.
-            </Paragraph>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
                          Description="@($"Slider direction follows DirectionProvider. Value: {_rtlValue}.")"
                          Code="@RtlCode"
@@ -179,6 +202,7 @@
 @code {
     private double _demoValue = 50;
     private double[] _rangeValues = [25, 50];
+    private double[] _fieldValues = [200, 800];
     private double[] _multipleValues = [10, 20, 70];
     private double _verticalLeft = 50;
     private double _verticalRight = 25;
@@ -191,6 +215,8 @@
 
     private double RangeMin => _rangeValues.Length > 0 ? _rangeValues[0] : 0;
     private double RangeMax => _rangeValues.Length > 1 ? _rangeValues[^1] : RangeMin;
+    private double PriceRangeMin => _fieldValues.Length > 0 ? _fieldValues[0] : 0;
+    private double PriceRangeMax => _fieldValues.Length > 1 ? _fieldValues[^1] : PriceRangeMin;
 
     private string TemperatureText =>
         string.Join(", ", _temperatureValues.Select(v => v.ToString("0.0", CultureInfo.InvariantCulture)));
@@ -198,12 +224,32 @@
     private string TemperatureDescription =>
         $"Label + live readout. Values: {TemperatureText}.";
 
+    private string PriceRangeDescription =>
+        $"Set your budget range (${PriceRangeMin:0} - {PriceRangeMax:0}).";
+
     private const string BasicCode = @"<Slider Min=""0""
         Max=""100""
         Step=""1""
         SliderValue=""@_demoValue""
         SliderValueChanged=""HandleDemoValueChanged""
         Class=""mx-auto w-full max-w-xs"" />";
+
+    private const string FieldCode =
+@"<Div Class=""w-full max-w-md"">
+    <Field>
+        <FieldLabel>Price Range</FieldLabel>
+        <FieldDescription>
+            Set your budget range ($<Span Class=""font-medium tabular-nums"">@PriceRangeMin</Span> - <Span Class=""font-medium tabular-nums"">@PriceRangeMax</Span>).
+        </FieldDescription>
+        <Slider Values=""@_fieldValues""
+                ValuesChanged=""HandleFieldValuesChanged""
+                Min=""0""
+                Max=""1000""
+                Step=""10""
+                AriaLabel=""Price Range""
+                Class=""mt-2 w-full"" />
+    </Field>
+</Div>";
 
     private const string RangeCode =
 @"<Slider Min=""0""
@@ -296,6 +342,12 @@
     private Task HandleRangeValuesChanged(double[] values)
     {
         _rangeValues = values;
+        return Task.CompletedTask;
+    }
+
+    private Task HandleFieldValuesChanged(double[] values)
+    {
+        _fieldValues = values;
         return Task.CompletedTask;
     }
 

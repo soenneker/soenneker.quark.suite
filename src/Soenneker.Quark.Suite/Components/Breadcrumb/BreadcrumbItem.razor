@@ -2,7 +2,13 @@
 @inherits Soenneker.Quark.Element
 @implements IBreadcrumbItem
 
-@if (To.HasContent() && !AsChild)
+@if (ParentBreadcrumb?.Composed == true)
+{
+    <li @attributes="BuildListItemAttributes()">
+        @ChildContent
+    </li>
+}
+else if (To.HasContent() && !AsChild)
 {
     <li @attributes="BuildListItemAttributes()">
         @if (ShowSeparator)

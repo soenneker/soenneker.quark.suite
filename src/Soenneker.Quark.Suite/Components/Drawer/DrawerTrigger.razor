@@ -3,13 +3,9 @@
 
 @if (AsChild)
 {
-    <span @onclick="HandleActivate"
-          @ref="_elementRef"
-          @attributes="BuildWrapperAttributes()">
-        <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
-            @ChildContent
-        </CascadingValue>
-    </span>
+    <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
+        @ChildContent
+    </CascadingValue>
 }
 else
 {
@@ -70,6 +66,7 @@ else
             DataState = ParentDrawer?.Visible == true ? "open" : "closed",
             AriaHasPopup = "dialog",
             AriaControls = Context?.ContentId,
+            RegisterElement = elementReference => _elementRef = elementReference,
             Toggle = ParentDrawer is null
                 ? null
                 : async () =>
@@ -91,19 +88,6 @@ else
             },
             Close = ParentDrawer is null ? null : () => ParentDrawer.Hide()
         };
-    }
-
-    private Dictionary<string, object> BuildWrapperAttributes()
-    {
-        var attributes = new Dictionary<string, object>();
-        attributes["data-slot"] = "drawer-trigger-wrapper";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-drawer-trigger-wrapper inline-flex");
-        });
-
-        return attributes;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

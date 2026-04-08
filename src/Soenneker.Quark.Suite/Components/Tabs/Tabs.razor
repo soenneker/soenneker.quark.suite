@@ -4,7 +4,11 @@
 
 <CascadingValue Name="ParentTabs" Value="this">
     <div @attributes="BuildAttributes()">
-        @if (Vertical)
+        @if (Composed)
+        {
+            @ChildContent
+        }
+        else if (Vertical)
         {
             <div class="grid grid-cols-[auto_1fr] gap-4">
                 <div role="tablist" class="group/tabs-list shrink-0" @attributes="BuildTabsListAttributes()">
@@ -39,59 +43,68 @@
     [CascadingParameter(Name = "DirectionProviderDir")]
     private string? DirectionProviderDir { get; set; }
 
-    /// <summary>
-    /// Gets or sets whether the tabs should be displayed as pills.
-    /// </summary>
     [Parameter]
     public bool Pills { get; set; }
 
-    /// <summary>
-    /// Gets or sets whether the tabs should be displayed vertically.
-    /// </summary>
     [Parameter]
     public bool Vertical { get; set; }
 
-    /// <summary>
-    /// Gets or sets whether the tabs should be justified.
-    /// </summary>
     [Parameter]
     public bool Justified { get; set; }
 
-    /// <summary>
-    /// Gets or sets the currently selected tab.
-    /// </summary>
+    [Parameter]
+    public bool Composed { get; set; }
+
     [Parameter]
     public string? SelectedTab { get; set; }
 
-    /// <summary>
-    /// Gets or sets the callback invoked When the selected tab changes.
-    /// </summary>
     [Parameter]
     public EventCallback<string> OnSelectedTabChanged { get; set; }
 
+    [Parameter]
+    public TabsListVariant TabsListVariant { get; set; } = TabsListVariant.Default;
+
     private readonly List<Tab> _tabs = [];
+    private readonly List<TabsTrigger> _explicitTriggers = [];
+
     internal string? ResolvedSelectedTab => GetResolvedSelectedTab();
 
-    /// <summary>
-    /// Registers a tab with the tabs component.
-    /// </summary>
-    /// <param name="tab">The tab to register.</param>
+    internal const string TabsTriggerBaseClass =
+        "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all " +
+        "group-data-[orientation=vertical]/tabs:w-full group-data-[orientation=vertical]/tabs:justify-start hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring " +
+        "disabled:pointer-events-none disabled:opacity-50 group-data-[variant=default]/tabs-list:data-[state=active]:shadow-sm group-data-[variant=line]/tabs-list:data-[state=active]:shadow-none dark:text-muted-foreground dark:hover:text-foreground " +
+        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 " +
+        "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-[state=active]:bg-transparent dark:group-data-[variant=line]/tabs-list:data-[state=active]:border-transparent dark:group-data-[variant=line]/tabs-list:data-[state=active]:bg-transparent " +
+        "data-[state=active]:bg-background data-[state=active]:text-foreground dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 dark:data-[state=active]:text-foreground " +
+        "after:absolute after:bg-foreground after:opacity-0 after:transition-opacity group-data-[orientation=horizontal]/tabs:after:inset-x-0 group-data-[orientation=horizontal]/tabs:after:bottom-[-5px] group-data-[orientation=horizontal]/tabs:after:h-0.5 group-data-[orientation=vertical]/tabs:after:inset-y-0 group-data-[orientation=vertical]/tabs:after:-right-1 group-data-[orientation=vertical]/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-[state=active]:after:opacity-100";
+
     public void RegisterTab(Tab tab)
     {
-        if (!_tabs.Contains(tab))
-        {
-            _tabs.Add(tab);
-            _ = RefreshOffThread();
-        }
+        if (_tabs.Contains(tab))
+            return;
+
+        _tabs.Add(tab);
+        _ = RefreshOffThread();
     }
 
-    /// <summary>
-    /// Unregisters a tab from the tabs component.
-    /// </summary>
-    /// <param name="tab">The tab to unregister.</param>
     public void UnregisterTab(Tab tab)
     {
         _tabs.Remove(tab);
+        _ = RefreshOffThread();
+    }
+
+    internal void RegisterTrigger(TabsTrigger trigger)
+    {
+        if (_explicitTriggers.Contains(trigger))
+            return;
+
+        _explicitTriggers.Add(trigger);
+        _ = RefreshOffThread();
+    }
+
+    internal void UnregisterTrigger(TabsTrigger trigger)
+    {
+        _explicitTriggers.Remove(trigger);
         _ = RefreshOffThread();
     }
 
@@ -99,11 +112,22 @@
     {
         if (SelectedTab.HasContent())
         {
-            var matchingTab = _tabs.FirstOrDefault(t => !t.Disabled && string.Equals(t.Name, SelectedTab, StringComparison.Ordinal));
+            if (Composed)
+            {
+                var matchingTrigger = _explicitTriggers.FirstOrDefault(t => !t.Disabled && string.Equals(t.Value, SelectedTab, StringComparison.Ordinal));
+                if (matchingTrigger is not null)
+                    return matchingTrigger.Value;
 
+                return SelectedTab;
+            }
+
+            var matchingTab = _tabs.FirstOrDefault(t => !t.Disabled && string.Equals(t.Name, SelectedTab, StringComparison.Ordinal));
             if (matchingTab is not null)
                 return matchingTab.Name;
         }
+
+        if (Composed)
+            return _explicitTriggers.FirstOrDefault(t => !t.Disabled && t.Value.HasContent())?.Value;
 
         return _tabs.FirstOrDefault(t => !t.Disabled && t.Name.HasContent())?.Name;
     }
@@ -139,19 +163,7 @@
         if (currentIndex < 0)
             return;
 
-        var nextIndex = key switch
-        {
-            "Home" => 0,
-            "End" => enabledTabs.Count - 1,
-            "ArrowRight" when !Vertical && IsHorizontalRtl() => (currentIndex - 1 + enabledTabs.Count) % enabledTabs.Count,
-            "ArrowLeft" when !Vertical && IsHorizontalRtl() => (currentIndex + 1) % enabledTabs.Count,
-            "ArrowRight" when !Vertical => (currentIndex + 1) % enabledTabs.Count,
-            "ArrowLeft" when !Vertical => (currentIndex - 1 + enabledTabs.Count) % enabledTabs.Count,
-            "ArrowDown" when Vertical => (currentIndex + 1) % enabledTabs.Count,
-            "ArrowUp" when Vertical => (currentIndex - 1 + enabledTabs.Count) % enabledTabs.Count,
-            _ => -1
-        };
-
+        var nextIndex = ResolveNextIndex(enabledTabs.Count, currentIndex, key);
         if (nextIndex < 0)
             return;
 
@@ -163,61 +175,100 @@
         await targetTab.FocusAsync();
     }
 
-    /// <summary>
-    /// Selects the specified tab.
-    /// </summary>
-    /// <param name="tabName">The name of the tab to select.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    internal async Task HandleExplicitKeyNavigationAsync(TabsTrigger currentTrigger, string key)
+    {
+        if (_explicitTriggers.Count == 0)
+            return;
+
+        var enabledTriggers = _explicitTriggers.Where(t => !t.Disabled && t.Value.HasContent()).ToList();
+        if (enabledTriggers.Count == 0)
+            return;
+
+        var currentIndex = enabledTriggers.FindIndex(t => ReferenceEquals(t, currentTrigger));
+        if (currentIndex < 0)
+            return;
+
+        var nextIndex = ResolveNextIndex(enabledTriggers.Count, currentIndex, key);
+        if (nextIndex < 0)
+            return;
+
+        var targetTrigger = enabledTriggers[nextIndex];
+        if (!targetTrigger.Value.HasContent())
+            return;
+
+        await SelectTab(targetTrigger.Value!);
+        await targetTrigger.FocusAsync();
+    }
+
+    private int ResolveNextIndex(int count, int currentIndex, string key)
+    {
+        return key switch
+        {
+            "Home" => 0,
+            "End" => count - 1,
+            "ArrowRight" when !Vertical && IsHorizontalRtl() => (currentIndex - 1 + count) % count,
+            "ArrowLeft" when !Vertical && IsHorizontalRtl() => (currentIndex + 1) % count,
+            "ArrowRight" when !Vertical => (currentIndex + 1) % count,
+            "ArrowLeft" when !Vertical => (currentIndex - 1 + count) % count,
+            "ArrowDown" when Vertical => (currentIndex + 1) % count,
+            "ArrowUp" when Vertical => (currentIndex - 1 + count) % count,
+            _ => -1
+        };
+    }
+
     public async Task SelectTab(string tabName)
     {
-        if (SelectedTab != tabName)
-        {
-            SelectedTab = tabName;
+        if (SelectedTab == tabName)
+            return;
 
-            if (OnSelectedTabChanged.HasDelegate)
-            {
-                await OnSelectedTabChanged.InvokeAsync(tabName);
-            }
+        SelectedTab = tabName;
 
-            InvalidateRender();
-            Refresh();
-        }
+        if (OnSelectedTabChanged.HasDelegate)
+            await OnSelectedTabChanged.InvokeAsync(tabName);
+
+        InvalidateRender();
+        Refresh();
     }
 
-    protected override void OnParametersSet()
+    internal bool IsTabSelected(string? value)
     {
-        base.OnParametersSet();
-        
-        // Trigger a re-render When SelectedTab parameter changes
-        // The Tab components will determine their active state based on the cascaded SelectedTab
+        return string.Equals(ResolvedSelectedTab, value, StringComparison.Ordinal);
     }
 
-    /// <summary>TabsList variant: default (bg-muted) or line (underline).</summary>
-    [Parameter]
-    public TabsListVariant TabsListVariant { get; set; } = TabsListVariant.Default;
+    internal string? GetTriggerId(string? value)
+    {
+        return value.HasContent() ? $"tab-trigger-{value}" : null;
+    }
+
+    internal string? GetContentId(string? value)
+    {
+        return value.HasContent() ? $"tab-content-{value}" : null;
+    }
 
     private Dictionary<string, object> BuildTabsListAttributes()
     {
-        var attrs = new Dictionary<string, object>();
-        attrs["data-slot"] = "tabs-list";
-        attrs["data-variant"] = TabsListVariant?.Value ?? Soenneker.Quark.TabsListVariant.Default.Value;
-        attrs["aria-orientation"] = Vertical ? "vertical" : "horizontal";
-        attrs["tabindex"] = -1;
+        var attrs = new Dictionary<string, object>
+        {
+            ["data-slot"] = "tabs-list",
+            ["data-variant"] = TabsListVariant?.Value ?? Soenneker.Quark.TabsListVariant.Default.Value,
+            ["aria-orientation"] = Vertical ? "vertical" : "horizontal",
+            ["tabindex"] = -1
+        };
+
         BuildClassAttribute(attrs, (ref cls) =>
         {
             AppendClass(ref cls, "q-tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground");
             AppendClass(ref cls, Vertical ? "h-fit flex-col" : "h-9");
+
             if (TabsListVariant == TabsListVariant.Default)
-            {
                 AppendClass(ref cls, "bg-muted");
-            }
             else
-            {
-                AppendClass(ref cls, "gap-1 bg-transparent rounded-none");
-            }
+                AppendClass(ref cls, "gap-1 rounded-none bg-transparent");
+
             if (Justified)
                 AppendClass(ref cls, "w-full [&>[data-slot=tabs-trigger]]:flex-1");
         });
+
         return attrs;
     }
 
@@ -242,7 +293,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-tabs-content outline-none");
+            AppendClass(ref cls, "q-tabs-content flex-1 outline-none");
             if (Vertical)
                 AppendClass(ref cls, "min-w-0");
         });
@@ -255,6 +306,7 @@
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "tabs";
         attributes["data-orientation"] = Vertical ? "vertical" : "horizontal";
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-tabs group/tabs flex gap-2 data-[orientation=horizontal]:flex-col");
@@ -267,6 +319,7 @@
         hc.Add(Pills);
         hc.Add(Vertical);
         hc.Add(Justified);
+        hc.Add(Composed);
         hc.Add(TabsListVariant);
         if (SelectedTab is not null)
             hc.Add(SelectedTab);

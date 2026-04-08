@@ -5,16 +5,14 @@
 @implements Soenneker.Quark.IValidationInput
 @implements ISwitch
 @implements IDisposable
+
 <div @attributes="BuildWrapperAttributes()">
     @if (HasInlineLabel)
     {
         <label for="@ControlId" class="inline-flex cursor-pointer items-center gap-2">
-            <span class="group/switch relative inline-flex shrink-0">
-                <input id="@ControlId" type="checkbox" checked="@Checked" @onclick="HandleInputClick" @onchange="HandleChange" @attributes="BuildInputAttributes()" />
-                <span @attributes="BuildTrackAttributes()">
-                    <span @attributes="BuildThumbAttributes()"></span>
-                </span>
-            </span>
+            <button @onclick="HandleToggleClick" @attributes="BuildControlAttributes()">
+                <span @attributes="BuildThumbAttributes()"></span>
+            </button>
             @if (ChildContent != null)
             {
                 <span @attributes="BuildLabelAttributes()">@ChildContent</span>
@@ -27,12 +25,9 @@
     }
     else
     {
-        <span class="group/switch relative inline-flex shrink-0">
-            <input id="@ControlId" type="checkbox" checked="@Checked" @onclick="HandleInputClick" @onchange="HandleChange" @attributes="BuildInputAttributes()" />
-            <span @attributes="BuildTrackAttributes()">
-                <span @attributes="BuildThumbAttributes()"></span>
-            </span>
-        </span>
+        <button @onclick="HandleToggleClick" @attributes="BuildControlAttributes()">
+            <span @attributes="BuildThumbAttributes()"></span>
+        </button>
     }
 </div>
 
@@ -54,7 +49,6 @@
     public object? ValidationValue => Checked;
 
     private bool HasInlineLabel => ChildContent != null || Label.HasContent();
-
     private string ControlId => CurrentFieldContext?.ControlId ?? Id!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -71,11 +65,6 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-    }
-
     private async void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
     {
         await RefreshOffThread();
@@ -83,7 +72,9 @@
 
     private bool IsSmSize()
     {
-        if (Size == null) return false;
+        if (Size == null)
+            return false;
+
         var s = Size.Value.ToString()?.ToLowerInvariant();
         return s == "sm" || s == "xs";
     }
@@ -106,47 +97,22 @@
     private Dictionary<string, object> BuildLabelAttributes()
     {
         var attributes = new Dictionary<string, object>();
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-50"));
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "text-sm font-medium leading-none"));
         return attributes;
     }
 
-    // Switch track: peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent, transition-colors, focus-visible:ring-2, disabled:*, size, checked:bg-primary / bg-input
-    private Dictionary<string, object> BuildTrackAttributes()
+    private Dictionary<string, object> BuildControlAttributes()
     {
         var attributes = new Dictionary<string, object>();
         var sm = IsSmSize();
+
+        attributes["id"] = ControlId;
+        attributes["type"] = "button";
+        attributes["role"] = "switch";
+        attributes["aria-checked"] = Checked ? "true" : "false";
         attributes["data-slot"] = "switch";
         attributes["data-size"] = sm ? "sm" : "default";
         attributes["data-state"] = Checked ? "checked" : "unchecked";
-
-        if (Checked)
-            attributes["data-checked"] = "true";
-        else
-            attributes["data-unchecked"] = "true";
-
-        if (Disabled)
-            attributes["data-disabled"] = "true";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "group/switch peer inline-flex shrink-0 cursor-pointer items-center rounded-full border border-transparent shadow-xs transition-all outline-none");
-            AppendClass(ref cls, "peer-focus-visible:border-ring peer-focus-visible:ring-[3px] peer-focus-visible:ring-ring/50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50");
-            AppendClass(ref cls, "data-[state=checked]:bg-primary data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80");
-            AppendClass(ref cls, sm ? "h-3.5 w-6" : "h-[1.15rem] w-8");
-            var v = GetValidationClass();
-            if (v != null) AppendClass(ref cls, v);
-        });
-        return attributes;
-    }
-
-    private Dictionary<string, object> BuildInputAttributes()
-    {
-        var attributes = new Dictionary<string, object>
-        {
-            ["class"] = "sr-only peer",
-            ["role"] = "switch",
-            ["aria-checked"] = Checked ? "true" : "false"
-        };
 
         if (Name.HasContent())
             attributes["name"] = Name!;
@@ -154,21 +120,19 @@
         if (Value.HasContent())
             attributes["value"] = Value!;
 
-        if (Required)
-            attributes["required"] = true;
-
-        if (AutoFocus)
-            attributes["autofocus"] = true;
-
         if (Disabled)
+        {
             attributes["disabled"] = true;
+            attributes["data-disabled"] = "true";
+        }
 
         if (Attributes is not null)
         {
             foreach (var attribute in Attributes)
             {
                 if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase))
+                    attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("type", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
@@ -178,21 +142,37 @@
         }
 
         ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-switch-control peer group/switch inline-flex shrink-0 items-center rounded-full border border-transparent shadow-xs transition-all outline-none");
+            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50");
+            AppendClass(ref cls, "data-[state=checked]:bg-primary data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80");
+            AppendClass(ref cls, sm ? "h-3.5 w-6" : "h-[1.15rem] w-8");
+
+            var validationClass = GetValidationClass();
+            if (validationClass is not null)
+                AppendClass(ref cls, validationClass);
+        });
+
         return attributes;
     }
 
     private string? GetValidationClass()
     {
-        if (ParentValidation?.Status == ValidationStatus.Error)
-            return "peer-aria-invalid:ring-destructive/20 dark:peer-aria-invalid:ring-destructive/40 peer-aria-invalid:border-destructive";
-        return null;
+        return ParentValidation?.Status == ValidationStatus.Error
+            ? "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40"
+            : null;
     }
 
     private Dictionary<string, object> BuildThumbAttributes()
     {
-        var attributes = new Dictionary<string, object>();
-        attributes["data-slot"] = "switch-thumb";
-        attributes["data-state"] = Checked ? "checked" : "unchecked";
+        var attributes = new Dictionary<string, object>
+        {
+            ["data-slot"] = "switch-thumb",
+            ["data-state"] = Checked ? "checked" : "unchecked"
+        };
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "pointer-events-none block rounded-full bg-background ring-0 transition-transform");
@@ -200,25 +180,16 @@
             AppendClass(ref cls, "data-[state=checked]:translate-x-[calc(100%-2px)] rtl:data-[state=checked]:-translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0");
             AppendClass(ref cls, "dark:data-[state=checked]:bg-primary-foreground dark:data-[state=unchecked]:bg-foreground");
         });
+
         return attributes;
     }
 
-    private Task HandleInputClick(MouseEventArgs args)
-    {
-        return base.HandleClick(args);
-    }
-
-    private async Task HandleChange(ChangeEventArgs e)
+    protected override async Task HandleClick(MouseEventArgs args)
     {
         if (Disabled)
             return;
 
-        var next = e.Value switch
-        {
-            bool value => value,
-            string value when bool.TryParse(value, out var parsed) => parsed,
-            _ => !Checked
-        };
+        var next = !Checked;
 
         if (next != Checked)
         {
@@ -234,13 +205,18 @@
             await ParentValidation.NotifyInputChanged(next);
         }
 
-        await OnChange.InvokeIfHasDelegate(e);
+        await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = next });
+        await base.HandleClick(args);
+    }
+
+    private Task HandleToggleClick(MouseEventArgs args)
+    {
+        return HandleClick(args);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-
         hc.Add(Checked);
         hc.Add(Disabled);
         hc.Add(Name);

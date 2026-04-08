@@ -54,10 +54,13 @@
         attributes["data-slot"] = "combobox-item";
         attributes["data-value"] = Value ?? "";
         attributes["data-selected"] = IsSelected ? "true" : "false";
-        attributes["data-highlighted"] = IsActiveItem ? "true" : "false";
         attributes["aria-selected"] = IsSelected ? "true" : "false";
         attributes["id"] = ItemId;
         attributes["tabindex"] = -1;
+
+        if (IsActiveItem)
+            attributes["data-highlighted"] = string.Empty;
+
         if (Disabled)
         {
             attributes["aria-disabled"] = "true";
@@ -69,7 +72,7 @@
             AppendClass(ref cls, "q-combobox-item");
             AppendClass(ref cls, "relative flex cursor-default select-none items-center rounded-sm px-2 py-2 text-sm outline-none");
             AppendClass(ref cls, "data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground");
-            AppendClass(ref cls, "data-[highlighted=true]:bg-accent/70 data-[highlighted=true]:text-accent-foreground");
+            AppendClass(ref cls, "data-[highlighted]:bg-accent/70 data-[highlighted]:text-accent-foreground");
             AppendClass(ref cls, "hover:bg-accent hover:text-accent-foreground");
             AppendClass(ref cls, "data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50");
         });

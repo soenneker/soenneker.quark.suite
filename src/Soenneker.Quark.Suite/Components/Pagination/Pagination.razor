@@ -3,11 +3,11 @@
 @inherits Soenneker.Quark.Element
 @implements IPagination
 
-<nav @attributes="BuildAttributes()">
-    <ul @attributes="BuildListAttributes()">
+<CascadingValue Name="ParentPagination" Value="this">
+    <nav @attributes="BuildAttributes()">
 	    @ChildContent
-    </ul>
-</nav>
+    </nav>
+</CascadingValue>
 
 @code {
     /// <summary>
@@ -22,7 +22,7 @@
     [Parameter]
     public bool Vertical { get; set; }
 
-    private string? GetSizeClass()
+    internal string? GetSizeClass()
     {
         if (Size == Quark.Size.Default)
             return null;
@@ -35,10 +35,6 @@
         return Size?.ToString() != null ? $"pagination-{Size}" : null;
     }
 
-    /// <summary>
-    /// Builds the attributes dictionary for the pagination component.
-    /// </summary>
-    /// <returns>A dictionary of HTML attributes.</returns>
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -46,31 +42,12 @@
         attributes["data-slot"] = "pagination";
         attributes["role"] = "navigation";
         attributes["aria-label"] = "pagination";
+        attributes["data-orientation"] = Vertical ? "vertical" : "horizontal";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-pagination");
             AppendClass(ref cls, "mx-auto flex w-full justify-center");
         });
-    }
-
-    private Dictionary<string, object> BuildListAttributes()
-    {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "pagination-content"
-        };
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-pagination-content flex items-center gap-0.5");
-            var sizeClass = GetSizeClass();
-            if (sizeClass != null)
-                AppendClass(ref cls, sizeClass);
-            if (Vertical)
-                AppendClass(ref cls, "flex-col");
-        });
-
-        return attributes;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

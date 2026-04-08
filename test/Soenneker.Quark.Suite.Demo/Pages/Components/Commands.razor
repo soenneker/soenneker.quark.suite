@@ -59,6 +59,48 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Command Dialog"
+                         Description="The shadcn command dialog pattern for a command palette overlay."
+                         Code="@CommandDialogCode"
+                         CodeLanguage="razor">
+                <Div Space="Space.Y.Is3">
+                    <Button Variant="ButtonVariant.Outline" OnClick="OpenDialog">Open command palette</Button>
+
+                    <CommandDialog Title="Workspace actions"
+                                   Visible="_dialogOpen"
+                                   VisibleChanged="OnDialogVisibilityChanged">
+                        <CommandInput Placeholder="Search workspace actions..." />
+                        <CommandList>
+                            <CommandEmpty>No workspace actions match your search.</CommandEmpty>
+
+                            @foreach (var action in Actions)
+                            {
+                                <CommandItem SearchValue="@action.Title" OnSelect="@(() => SelectDialogAction(action.Title))">
+                                    <Span>@action.Title</Span>
+                                    <CommandShortcut>@action.Shortcut</CommandShortcut>
+                                </CommandItem>
+                            }
+                        </CommandList>
+                    </CommandDialog>
+
+                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                        Dialog selection:
+                        <Span FontWeight="FontWeight.Medium" TextColor="TextColor.Foreground">@_dialogSelection</Span>
+                    </Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <Div Space="Space.Y.Is2">
+                <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
+                <Paragraph TextColor="TextColor.MutedForeground">
+                    Shortcut-only lists, grouped variants, and long scrolling command sets.
+                </Paragraph>
+            </Div>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Shortcuts"
                          Description="Shortcut hints can be rendered inline at the end of each command item."
                          Code="@CommandShortcutsCode"
@@ -126,38 +168,6 @@
             </DemoSection>
         </Section>
 
-        <Section Space="Space.Y.Is4">
-        <DemoSection Title="Command Dialog"
-                         Description="Use the dialog wrapper for a command palette overlay."
-                         Code="@CommandDialogCode"
-                         CodeLanguage="razor">
-                <Div Space="Space.Y.Is3">
-                    <Button Variant="ButtonVariant.Outline" OnClick="OpenDialog">Open command palette</Button>
-
-                    <CommandDialog Title="Workspace actions"
-                                   Visible="_dialogOpen"
-                                   VisibleChanged="OnDialogVisibilityChanged">
-                        <CommandInput Placeholder="Search workspace actions..." />
-                        <CommandList>
-                            <CommandEmpty>No workspace actions match your search.</CommandEmpty>
-
-                            @foreach (var action in Actions)
-                            {
-                                <CommandItem SearchValue="@action.Title" OnSelect="@(() => SelectDialogAction(action.Title))">
-                                    <Span>@action.Title</Span>
-                                    <CommandShortcut>@action.Shortcut</CommandShortcut>
-                                </CommandItem>
-                            }
-                        </CommandList>
-                    </CommandDialog>
-
-                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                        Dialog selection:
-                        <Span FontWeight="FontWeight.Medium" TextColor="TextColor.Foreground">@_dialogSelection</Span>
-                    </Paragraph>
-                </Div>
-            </DemoSection>
-        </Section>
     </Div>
 </Div>
 

@@ -12,6 +12,7 @@ internal sealed class SelectContext
     public required Func<bool> IsOpen { get; init; }
     public required Func<bool> HasValue { get; init; }
     public required Func<string?> DisplayText { get; init; }
+    public required Func<string> Size { get; init; }
     public required Func<bool> IsDisabled { get; init; }
     public required Func<bool> IsInvalid { get; init; }
     public required Func<Task> ToggleAsync { get; init; }

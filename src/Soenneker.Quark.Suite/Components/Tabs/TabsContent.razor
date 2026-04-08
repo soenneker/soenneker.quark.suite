@@ -1,0 +1,52 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public string? Value { get; set; }
+
+    [CascadingParameter(Name = nameof(ParentTabs))]
+    private Tabs? ParentTabs { get; set; }
+
+    private bool IsActive => ParentTabs?.IsTabSelected(Value) == true;
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "tabs-content";
+        attributes["data-state"] = IsActive ? "active" : "inactive";
+        attributes["role"] = "tabpanel";
+        attributes["tabindex"] = 0;
+
+        if (!IsActive)
+            attributes["hidden"] = true;
+
+        var contentId = ParentTabs?.GetContentId(Value);
+        if (contentId is not null)
+            attributes["id"] = contentId;
+
+        var triggerId = ParentTabs?.GetTriggerId(Value);
+        if (triggerId is not null)
+            attributes["aria-labelledby"] = triggerId;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-tabs-content flex-1 outline-none");
+            if (ParentTabs?.Vertical == true)
+                AppendClass(ref cls, "min-w-0");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Value);
+        hc.Add(IsActive);
+        hc.Add(ParentTabs?.Vertical);
+    }
+}

@@ -199,7 +199,7 @@
 
     protected override Task HandleKeyDown(KeyboardEventArgs e)
     {
-        _preventDefault = e.Key is "Home" or "End";
+        _preventDefault = e.Key is "Home" or "End" or "ArrowLeft" or "ArrowRight" or "ArrowUp" or "ArrowDown";
 
         if (!EffectiveDisabled && ParentRadioGroup is not null && _preventDefault)
             ParentRadioGroup.HandleKeyNavigation(this, e.Key);
@@ -233,7 +233,8 @@
             ["name"] = ParentRadioGroup?.EffectiveName ?? Name ?? ControlId,
             ["value"] = Value ?? string.Empty,
             ["checked"] = EffectiveChecked,
-            ["data-state"] = EffectiveChecked ? "checked" : "unchecked"
+            ["data-state"] = EffectiveChecked ? "checked" : "unchecked",
+            ["tabindex"] = ParentRadioGroup?.IsTabStop(this) == false ? -1 : 0
         };
 
         if (Required)

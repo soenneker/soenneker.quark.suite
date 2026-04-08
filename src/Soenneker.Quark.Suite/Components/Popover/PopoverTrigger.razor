@@ -3,11 +3,9 @@
 
 @if (AsChild)
 {
-    <span @ref="_triggerRef" @onclick="HandleTriggerClick" @attributes="BuildWrapperAttributes()">
-        <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
-            @ChildContent
-        </CascadingValue>
-    </span>
+    <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
+        @ChildContent
+    </CascadingValue>
 }
 else
 {
@@ -27,7 +25,9 @@ else
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        Context?.SetTriggerElement(_triggerRef);
+        if (!AsChild)
+            Context?.SetTriggerElement(_triggerRef);
+
         return base.OnAfterRenderAsync(firstRender);
     }
 
@@ -70,29 +70,21 @@ else
             AriaControls = Context?.ContentId,
             Toggle = Context is null ? null : () => Context.Toggle(),
             Open = Context is null ? null : () => Context.Open(),
-            Close = Context is null ? null : () => Context.Close()
+            Close = Context is null ? null : () => Context.Close(),
+            RegisterElement = Context is null
+                ? null
+                : elementReference =>
+                {
+                    _triggerRef = elementReference;
+                    Context.SetTriggerElement(elementReference);
+                }
         };
-    }
-
-    private Dictionary<string, object> BuildWrapperAttributes()
-    {
-        var attributes = new Dictionary<string, object>();
-        attributes["data-slot"] = "popover-trigger-wrapper";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-popover-trigger-wrapper inline-flex max-w-full");
-        });
-
-        return attributes;
     }
 
     private async Task HandleTriggerClick(MouseEventArgs e)
     {
         if (Disabled)
             return;
-
-        Context?.SetTriggerElement(_triggerRef);
 
         if (Context is not null)
             await Context.Toggle();
@@ -105,5 +97,6 @@ else
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Disabled);
         hc.Add(Context?.IsOpen);
+        hc.Add(AsChild);
     }
 }

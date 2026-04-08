@@ -7,8 +7,8 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Demo"
                          Description="Compose a date picker from `Popover` and `Calendar` when you want a trigger-and-panel pattern."
-                         Code="@(@"<Popover Open=""_basicCalendarOpen"" OpenChanged=""OnBasicCalendarOpenChanged"">
-    <PopoverTrigger>
+                         Code="@(@"<Popover>
+    <PopoverTrigger AsChild=""true"">
         <Button Variant=""ButtonVariant.Outline"" Class=""w-[240px] justify-start text-left font-normal"">
             <Icon Name=""LucideIcon.Calendar"" />
             @FormatDate(_dateOnly)
@@ -19,11 +19,10 @@
     </PopoverContent>
 </Popover>")"
 CodeLanguage="razor">
-                <Div Class="flex min-h-[16rem] w-full max-w-sm flex-col items-center justify-center gap-4 text-center">
-                    <Label Form="true">Pick a date</Label>
-                    <Popover Open="_basicCalendarOpen" OpenChanged="OnBasicCalendarOpenChanged">
-                        <PopoverTrigger>
-                            <Button Variant="ButtonVariant.Outline" Class="w-[240px] justify-start text-left font-normal">
+                <Div Class="flex w-full justify-center">
+                    <Popover>
+                        <PopoverTrigger AsChild="true">
+                            <Button Variant="ButtonVariant.Outline" Class="@($"w-[240px] justify-start text-left font-normal{(_dateOnly is null ? " text-muted-foreground" : "")}")">
                                 <Icon Name="LucideIcon.Calendar" />
                                 @FormatDate(_dateOnly)
                             </Button>
@@ -32,9 +31,6 @@ CodeLanguage="razor">
                             <Calendar SelectedDate="_dateOnly" SelectedDateChanged="OnBasicDateChanged" />
                         </PopoverContent>
                     </Popover>
-                    <Div Class="value-chip" Margin="Margin.Is0">
-                        <Span Class="dot"></Span><Span>Value: @_dateOnly?.ToString("yyyy-MM-dd")</Span>
-                    </Div>
                 </Div>
             </DemoSection>
         </Section>
@@ -42,31 +38,76 @@ CodeLanguage="razor">
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Range Picker"
                          Description="Use a range calendar inside the popover when users need a start and end date from the same picker."
-                         Code="@(@"<Popover Open=""_rangeCalendarOpen"" OpenChanged=""OnRangeCalendarOpenChanged"">
-    <PopoverTrigger>
-        <Button Variant=""ButtonVariant.Outline"">@FormatRange(_rangeDate)</Button>
+                         Code="@(@"<Popover>
+    <PopoverTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"" Class=""w-[300px] justify-start text-left font-normal"" Id=""date"">
+            <Icon Name=""LucideIcon.Calendar"" />
+            @FormatRange(_rangeDate)
+        </Button>
     </PopoverTrigger>
-    <PopoverContent Class=""w-auto p-0"">
+    <PopoverContent Class=""w-auto p-0"" Align=""start"">
         <Calendar Mode=""CalendarSelectionMode.Range"" SelectedRange=""_rangeDate"" SelectedRangeChanged=""OnRangeDateChanged"" NumberOfMonths=""2"" />
     </PopoverContent>
 </Popover>")"
 CodeLanguage="razor">
-                <Div Class="flex min-h-[16rem] w-full max-w-sm flex-col items-center justify-center gap-4 text-center">
-                    <Label Form="true">Pick a date range</Label>
-                    <Popover Open="_rangeCalendarOpen" OpenChanged="OnRangeCalendarOpenChanged">
-                        <PopoverTrigger>
-                            <Button Variant="ButtonVariant.Outline" Class="w-[280px] justify-start text-left font-normal">@FormatRange(_rangeDate)</Button>
+                <Div Class="grid gap-2 justify-center">
+                    <Popover>
+                        <PopoverTrigger AsChild="true">
+                            <Button Id="date" Variant="ButtonVariant.Outline" Class="@($"w-[300px] justify-start text-left font-normal{(_rangeDate?.From is null ? " text-muted-foreground" : "")}")">
+                                <Icon Name="LucideIcon.Calendar" />
+                                @FormatRange(_rangeDate)
+                            </Button>
                         </PopoverTrigger>
-                        <PopoverContent Class="w-auto p-0">
+                        <PopoverContent Class="w-auto p-0" Align="start">
                             <Calendar Mode="CalendarSelectionMode.Range"
                                       SelectedRange="_rangeDate"
                                       SelectedRangeChanged="OnRangeDateChanged"
                                       NumberOfMonths="2" />
                         </PopoverContent>
                     </Popover>
-                    <Div Class="value-chip" Margin="Margin.Is0">
-                        <Span Class="dot"></Span><Span>Value: @FormatRange(_rangeDate)</Span>
-                    </Div>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <Div Space="Space.Y.Is2">
+                <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
+                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                    Calendar caption variants, bounded historical selection, and Quark-specific date-time picker primitives.
+                </Paragraph>
+            </Div>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Input-styled trigger"
+                         Description="Use a supported button trigger styled like an input when you want the field appearance without relying on raw HTML slotting."
+                         Code="@(@"<Popover>
+    <PopoverTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"" Class=""w-[240px] justify-start border-input bg-background text-left font-normal shadow-xs"">
+            @FormatDate(_typedDate)
+        </Button>
+    </PopoverTrigger>
+    <PopoverContent Class=""w-auto p-0"">
+        <Calendar SelectedDate=""_typedDate"" SelectedDateChanged=""OnTypedDateChanged"" />
+    </PopoverContent>
+</Popover>")"
+CodeLanguage="razor">
+                <Div Class="flex min-h-[16rem] w-full max-w-sm flex-col items-center justify-center gap-4 text-center">
+                    <Label Form="true">Type a date</Label>
+                    <Popover>
+                        <PopoverTrigger AsChild="true">
+                            <Button Variant="ButtonVariant.Outline"
+                                    Class="@($"w-[240px] justify-start border-input bg-background text-left font-normal shadow-xs{(_typedDate is null ? " text-muted-foreground" : "")}")">
+                                @FormatDate(_typedDate)
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent Class="w-auto p-0">
+                            <Calendar SelectedDate="_typedDate" SelectedDateChanged="OnTypedDateChanged" />
+                        </PopoverContent>
+                    </Popover>
+                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">
+                        This stays on the supported trigger path while matching an input-like field surface.
+                    </Paragraph>
                 </Div>
             </DemoSection>
         </Section>
@@ -132,38 +173,6 @@ CodeLanguage="razor">
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Input"
-                         Description="Use `AsChild` on `PopoverTrigger` when the trigger should look like an input instead of a button."
-                         Code="@(@"<Popover Open=""_inputCalendarOpen"" OpenChanged=""OnInputCalendarOpenChanged"">
-    <PopoverTrigger AsChild=""true"">
-        <input readonly value=""@FormatDate(_typedDate)"" />
-    </PopoverTrigger>
-    <PopoverContent Class=""w-auto p-0"">
-        <Calendar SelectedDate=""_typedDate"" SelectedDateChanged=""OnTypedDateChanged"" />
-    </PopoverContent>
-</Popover>")"
-CodeLanguage="razor">
-                <Div Class="flex min-h-[16rem] w-full max-w-sm flex-col items-center justify-center gap-4 text-center">
-                    <Label Form="true">Type a date</Label>
-                    <Popover Open="_inputCalendarOpen" OpenChanged="OnInputCalendarOpenChanged">
-                        <PopoverTrigger AsChild="true">
-                            <input readonly
-                                   value="@FormatDate(_typedDate)"
-                                   placeholder="Pick a date"
-                                   class="flex h-10 w-[240px] rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" />
-                        </PopoverTrigger>
-                        <PopoverContent Class="w-auto p-0">
-                            <Calendar SelectedDate="_typedDate" SelectedDateChanged="OnTypedDateChanged" />
-                        </PopoverContent>
-                    </Popover>
-                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">
-                        The trigger is input-shaped, but the selection still happens through the reusable calendar primitive.
-                    </Paragraph>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
             <DemoSection Title="Date and time"
                          Description="DateTimePicker adds time selection when the exact moment matters."
                          Code="@(@"<Label Form=""true"">Pick a date and time</Label>
@@ -198,18 +207,15 @@ CodeLanguage="razor">
 
 @code{
 
-    private DateOnly? _dateOnly = DateOnly.FromDateTime(DateTime.Today);
+    private DateOnly? _dateOnly;
     private readonly DateOnly _minDate = new(1940, 1, 1);
     private readonly DateOnly _maxDate = DateOnly.FromDateTime(DateTime.Today);
     private DateOnly? _deliveryDate = new(1995, 7, 14);
     private DateOnly? _typedDate = DateOnly.FromDateTime(DateTime.Today.AddDays(7));
     private DateOnly? _dropdownPickerDate = DateOnly.FromDateTime(DateTime.Today.AddDays(21));
-    private bool _basicCalendarOpen;
     private bool _dropdownPickerOpen;
-    private bool _rangeCalendarOpen;
     private bool _birthdayCalendarOpen;
-    private bool _inputCalendarOpen;
-    private CalendarDateRange? _rangeDate = new(DateOnly.FromDateTime(DateTime.Today), DateOnly.FromDateTime(DateTime.Today.AddDays(4)));
+    private CalendarDateRange? _rangeDate = new(new DateOnly(2022, 1, 20), new DateOnly(2022, 2, 9));
 
     private DateTime? _dateTime = DateTime.Now;
     private readonly DateTime _minDateTime = DateTime.Today.AddHours(9);
@@ -219,12 +225,6 @@ CodeLanguage="razor">
     private static string FormatDate(DateOnly? value)
     {
         return value?.ToString("MMM dd, yyyy") ?? "Pick a date";
-    }
-
-    private Task OnBasicCalendarOpenChanged(bool value)
-    {
-        _basicCalendarOpen = value;
-        return Task.CompletedTask;
     }
 
     private Task OnBirthdayCalendarOpenChanged(bool value)
@@ -239,22 +239,9 @@ CodeLanguage="razor">
         return Task.CompletedTask;
     }
 
-    private Task OnRangeCalendarOpenChanged(bool value)
-    {
-        _rangeCalendarOpen = value;
-        return Task.CompletedTask;
-    }
-
-    private Task OnInputCalendarOpenChanged(bool value)
-    {
-        _inputCalendarOpen = value;
-        return Task.CompletedTask;
-    }
-
     private Task OnBasicDateChanged(DateOnly? value)
     {
         _dateOnly = value;
-        _basicCalendarOpen = false;
         return Task.CompletedTask;
     }
 
@@ -275,17 +262,12 @@ CodeLanguage="razor">
     private Task OnRangeDateChanged(CalendarDateRange? value)
     {
         _rangeDate = value;
-
-        if (value?.From is not null && value.To is not null)
-            _rangeCalendarOpen = false;
-
         return Task.CompletedTask;
     }
 
     private Task OnTypedDateChanged(DateOnly? value)
     {
         _typedDate = value;
-        _inputCalendarOpen = false;
         return Task.CompletedTask;
     }
 

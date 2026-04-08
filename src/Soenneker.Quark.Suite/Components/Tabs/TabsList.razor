@@ -1,0 +1,43 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div role="tablist" @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    [CascadingParameter(Name = nameof(ParentTabs))]
+    private Tabs? ParentTabs { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "tabs-list";
+        attributes["data-variant"] = ParentTabs?.TabsListVariant?.Value ?? Soenneker.Quark.TabsListVariant.Default.Value;
+        attributes["aria-orientation"] = ParentTabs?.Vertical == true ? "vertical" : "horizontal";
+        attributes["tabindex"] = -1;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-tabs-list group/tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground");
+            AppendClass(ref cls, ParentTabs?.Vertical == true ? "h-fit flex-col" : "h-9");
+
+            if (ParentTabs?.TabsListVariant == TabsListVariant.Default)
+                AppendClass(ref cls, "bg-muted");
+            else
+                AppendClass(ref cls, "gap-1 rounded-none bg-transparent");
+
+            if (ParentTabs?.Justified == true)
+                AppendClass(ref cls, "w-full [&>[data-slot=tabs-trigger]]:flex-1");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ParentTabs?.Vertical);
+        hc.Add(ParentTabs?.Justified);
+        hc.Add(ParentTabs?.TabsListVariant);
+    }
+}

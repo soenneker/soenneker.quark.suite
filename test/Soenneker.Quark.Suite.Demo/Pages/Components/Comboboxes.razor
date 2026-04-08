@@ -7,7 +7,86 @@
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Demo"
-                         Description="Searchable framework picker with open-state control and selected value feedback."
+                         Description="The shadcn combobox pattern built from button, popover, and command primitives."
+                         Code="@PopoverFrameworkCode"
+                         CodeLanguage="razor">
+                <Popover Open="_frameworkCommandOpen" OpenChanged="OnFrameworkCommandOpenChanged">
+                    <PopoverTrigger AsChild="true">
+                        <Button Variant="ButtonVariant.Outline"
+                                role="combobox"
+                                aria-expanded="@_frameworkCommandOpen"
+                                Class="w-[200px] justify-between">
+                            @GetFrameworkCommandLabel()
+                            <Icon Name="LucideIcon.ChevronsUpDown" Class="opacity-50" />
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent Class="w-[200px] p-0">
+                        <Command>
+                            <CommandInput Placeholder="Search framework..." Class="h-9" />
+                            <CommandList>
+                                <CommandEmpty>No framework found.</CommandEmpty>
+                                <CommandGroup>
+                                    @foreach (var framework in Frameworks)
+                                    {
+                                        <CommandItem SearchValue="@framework" OnSelect="@(() => SelectFrameworkCommand(framework))">
+                                            @framework
+                                            <Icon Name="LucideIcon.Check" Class="@GetFrameworkCommandCheckClass(framework)" />
+                                        </CommandItem>
+                                    }
+                                </CommandGroup>
+                            </CommandList>
+                        </Command>
+                    </PopoverContent>
+                </Popover>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Popover"
+                         Description="The secondary shadcn combobox example for picking a status beside inline label text."
+                         Code="@PopoverStatusCode"
+                         CodeLanguage="razor">
+                <Div Class="flex items-center space-x-4">
+                    <Paragraph Class="text-sm text-muted-foreground" Margin="Margin.Is0">Status</Paragraph>
+                    <Popover Open="_statusCommandOpen" OpenChanged="OnStatusCommandOpenChanged">
+                        <PopoverTrigger AsChild="true">
+                            <Button Variant="ButtonVariant.Outline" Class="w-[150px] justify-start">
+                                @GetStatusCommandLabel()
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent Class="p-0" Side="right" Align="start">
+                            <Command>
+                                <CommandInput Placeholder="Change status..." />
+                                <CommandList>
+                                    <CommandEmpty>No results found.</CommandEmpty>
+                                    <CommandGroup>
+                                        @foreach (var status in Statuses)
+                                        {
+                                            <CommandItem SearchValue="@status.Value" OnSelect="@(() => SelectStatusCommand(status))">
+                                                @status.Label
+                                            </CommandItem>
+                                        }
+                                    </CommandGroup>
+                                </CommandList>
+                            </Command>
+                        </PopoverContent>
+                    </Popover>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <Div Space="Space.Y.Is2">
+                <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
+                <Paragraph TextColor="TextColor.MutedForeground">
+                    Quark's dedicated combobox primitive, multi-select patterns, and dialog usage.
+                </Paragraph>
+            </Div>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Input combobox"
+                         Description="Quark's dedicated combobox primitive with inline search, open-state control, and selected value feedback."
                          Code="@FrameworkCode"
                          CodeLanguage="razor">
                 <Div Class="max-w-sm space-y-3">
@@ -330,6 +409,7 @@
 
 @code {
     private sealed record TimezoneGroup(string Label, string[] Items);
+    private sealed record StatusOption(string Value, string Label);
 
     private static readonly string[] Frameworks =
     [
@@ -347,6 +427,15 @@
         "German",
         "Japanese",
         "Arabic"
+    ];
+
+    private static readonly StatusOption[] Statuses =
+    [
+        new("backlog", "Backlog"),
+        new("todo", "Todo"),
+        new("in progress", "In Progress"),
+        new("done", "Done"),
+        new("canceled", "Canceled")
     ];
 
     private static readonly TimezoneGroup[] TimezoneGroups =
@@ -374,6 +463,10 @@
     private string? _selectedFramework;
     private string? _frameworkSearch;
     private bool _frameworkOpen;
+    private string? _frameworkCommandValue;
+    private bool _frameworkCommandOpen;
+    private StatusOption? _selectedStatus;
+    private bool _statusCommandOpen;
 
     private string _language = "English";
     private string? _languageSearch;
@@ -417,6 +510,47 @@
     private IEnumerable<string> FilteredLockedFrameworks => FilterFrameworks(_lockedFrameworkSearch);
 
     private IEnumerable<string> FilteredDialogFrameworks => FilterFrameworks(_dialogFrameworkSearch);
+
+    private string GetFrameworkCommandLabel()
+    {
+        return string.IsNullOrWhiteSpace(_frameworkCommandValue) ? "Select framework..." : _frameworkCommandValue;
+    }
+
+    private string GetFrameworkCommandCheckClass(string framework)
+    {
+        return string.Equals(_frameworkCommandValue, framework, StringComparison.Ordinal) ? "ml-auto opacity-100" : "ml-auto opacity-0";
+    }
+
+    private string GetStatusCommandLabel()
+    {
+        return _selectedStatus is null ? "+ Set status" : _selectedStatus.Label;
+    }
+
+    private Task OnFrameworkCommandOpenChanged(bool value)
+    {
+        _frameworkCommandOpen = value;
+        return Task.CompletedTask;
+    }
+
+    private Task SelectFrameworkCommand(string framework)
+    {
+        _frameworkCommandValue = string.Equals(_frameworkCommandValue, framework, StringComparison.Ordinal) ? null : framework;
+        _frameworkCommandOpen = false;
+        return Task.CompletedTask;
+    }
+
+    private Task OnStatusCommandOpenChanged(bool value)
+    {
+        _statusCommandOpen = value;
+        return Task.CompletedTask;
+    }
+
+    private Task SelectStatusCommand(StatusOption status)
+    {
+        _selectedStatus = status;
+        _statusCommandOpen = false;
+        return Task.CompletedTask;
+    }
 
     private Task OnFrameworkChanged(string? value)
     {
@@ -581,6 +715,54 @@
             string.IsNullOrWhiteSpace(search) ||
             framework.Contains(search, StringComparison.OrdinalIgnoreCase));
     }
+
+    private const string PopoverFrameworkCode =
+@"<Popover Open=""_frameworkCommandOpen"" OpenChanged=""OnFrameworkCommandOpenChanged"">
+    <PopoverTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"" role=""combobox"" aria-expanded=""@_frameworkCommandOpen"" Class=""w-[200px] justify-between"">
+            @GetFrameworkCommandLabel()
+            <Icon Name=""LucideIcon.ChevronsUpDown"" Class=""opacity-50"" />
+        </Button>
+    </PopoverTrigger>
+    <PopoverContent Class=""w-[200px] p-0"">
+        <Command>
+            <CommandInput Placeholder=""Search framework..."" Class=""h-9"" />
+            <CommandList>
+                <CommandEmpty>No framework found.</CommandEmpty>
+                <CommandGroup>
+                    <CommandItem SearchValue=""Next.js"">
+                        Next.js
+                        <Icon Name=""LucideIcon.Check"" Class=""ml-auto opacity-100"" />
+                    </CommandItem>
+                </CommandGroup>
+            </CommandList>
+        </Command>
+    </PopoverContent>
+</Popover>";
+
+    private const string PopoverStatusCode =
+@"<Div Class=""flex items-center space-x-4"">
+    <Paragraph Class=""text-sm text-muted-foreground"" Margin=""Margin.Is0"">Status</Paragraph>
+    <Popover Open=""_statusCommandOpen"" OpenChanged=""OnStatusCommandOpenChanged"">
+        <PopoverTrigger AsChild=""true"">
+            <Button Variant=""ButtonVariant.Outline"" Class=""w-[150px] justify-start"">
+                @GetStatusCommandLabel()
+            </Button>
+        </PopoverTrigger>
+        <PopoverContent Class=""p-0"" Side=""right"" Align=""start"">
+            <Command>
+                <CommandInput Placeholder=""Change status..."" />
+                <CommandList>
+                    <CommandEmpty>No results found.</CommandEmpty>
+                    <CommandGroup>
+                        <CommandItem SearchValue=""backlog"">Backlog</CommandItem>
+                        <CommandItem SearchValue=""todo"">Todo</CommandItem>
+                    </CommandGroup>
+                </CommandList>
+            </Command>
+        </PopoverContent>
+    </Popover>
+</Div>";
 
     private const string FrameworkCode =
 @"<Combobox Value=""selectedFramework"" ValueChanged=""OnFrameworkChanged"" Search=""search"" SearchChanged=""OnSearchChanged"">

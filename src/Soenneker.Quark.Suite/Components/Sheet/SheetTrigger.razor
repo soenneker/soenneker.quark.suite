@@ -4,11 +4,9 @@
 
 @if (AsChild)
 {
-    <span @ref="_elementRef" @onclick="HandleActivate" @attributes="BuildWrapperAttributes()">
-        <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
-            @ChildContent
-        </CascadingValue>
-    </span>
+    <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
+        @ChildContent
+    </CascadingValue>
 }
 else
 {
@@ -59,6 +57,7 @@ else
             DataState = ParentSheet?.Visible == true ? "open" : "closed",
             AriaHasPopup = "dialog",
             AriaControls = Context?.ContentId,
+            RegisterElement = elementReference => _elementRef = elementReference,
             Toggle = ParentSheet is null
                 ? null
                 : async () =>
@@ -80,21 +79,6 @@ else
             },
             Close = ParentSheet is null ? null : () => ParentSheet.Hide()
         };
-    }
-
-    private Dictionary<string, object> BuildWrapperAttributes()
-    {
-        var attributes = new Dictionary<string, object>();
-        attributes["data-slot"] = "sheet-trigger-wrapper";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-sheet-trigger-wrapper inline-flex");
-            if (Disabled)
-                AppendClass(ref cls, "pointer-events-none opacity-50");
-        });
-
-        return attributes;
     }
 
     private async Task HandleActivate(MouseEventArgs args)

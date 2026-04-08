@@ -5,9 +5,30 @@
     <div @attributes="BuildViewportAttributes()">
         @ChildContent
     </div>
+
+    @if (ShowVerticalScrollBar)
+    {
+        <ScrollBar />
+    }
+
+    @if (ShowHorizontalScrollBar)
+    {
+        <ScrollBar Orientation="horizontal" />
+    }
+
+    @if (ShowVerticalScrollBar && ShowHorizontalScrollBar)
+    {
+        <div data-slot="scroll-area-corner" class="bg-border/40 absolute right-0 bottom-0 size-2.5"></div>
+    }
 </div>
 
 @code {
+    [Parameter]
+    public bool ShowVerticalScrollBar { get; set; } = true;
+
+    [Parameter]
+    public bool ShowHorizontalScrollBar { get; set; }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -17,21 +38,32 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-scroll-area");
-            AppendClass(ref cls, "relative overflow-hidden");
+            AppendClass(ref cls, "relative");
         });
     }
 
     private Dictionary<string, object> BuildViewportAttributes()
     {
-        var attrs = new Dictionary<string, object>();
-        attrs["data-slot"] = "scroll-area-viewport";
-        BuildClassAttribute(attrs, (ref cls) =>
+        var attributes = new Dictionary<string, object>
+        {
+            ["data-slot"] = "scroll-area-viewport",
+            ["tabindex"] = 0
+        };
+
+        BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-scroll-area-viewport");
-            AppendClass(ref cls, "h-full w-full rounded-[inherit] overflow-auto outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 transition-[color,box-shadow]");
-            AppendClass(ref cls, "[&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar]:h-2.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border");
+            AppendClass(ref cls, "size-full rounded-[inherit] overflow-auto transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1");
+            AppendClass(ref cls, "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]");
         });
-        attrs["tabindex"] = 0;
-        return attrs;
+
+        return attributes;
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ShowVerticalScrollBar);
+        hc.Add(ShowHorizontalScrollBar);
     }
 }

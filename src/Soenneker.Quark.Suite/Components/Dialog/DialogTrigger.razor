@@ -3,11 +3,9 @@
 
 @if (AsChild)
 {
-    <span @ref="_elementRef" @onclick="HandleActivate" @attributes="BuildWrapperAttributes()">
-        <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
-            @ChildContent
-        </CascadingValue>
-    </span>
+    <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
+        @ChildContent
+    </CascadingValue>
 }
 else
 {
@@ -58,6 +56,7 @@ else
             DataState = ParentDialog?.Visible == true ? "open" : "closed",
             AriaHasPopup = "dialog",
             AriaControls = Context?.ContentId,
+            RegisterElement = elementReference => _elementRef = elementReference,
             Toggle = ParentDialog is null
                 ? null
                 : async () =>
@@ -79,21 +78,6 @@ else
             },
             Close = ParentDialog is null ? null : () => ParentDialog.Hide()
         };
-    }
-
-    private Dictionary<string, object> BuildWrapperAttributes()
-    {
-        var attributes = new Dictionary<string, object>();
-        attributes["data-slot"] = "dialog-trigger-wrapper";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-dialog-trigger-wrapper inline-flex");
-            if (Disabled)
-                AppendClass(ref cls, "pointer-events-none opacity-50");
-        });
-
-        return attributes;
     }
 
     private async Task HandleActivate(MouseEventArgs args)

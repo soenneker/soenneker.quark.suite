@@ -1,59 +1,31 @@
 @namespace Soenneker.Quark
-
 @inherits Soenneker.Quark.Element
-@implements ITab
 
 <button @onclick="HandleClick" @onkeydown="HandleKeyDown" @onkeydown:preventDefault="_preventDefaultKeys" @ref="_buttonRef" @attributes="BuildAttributes()">
-    @if (Icon is not null)
-    {
-        <Icon Name="@Icon.Value" />
-    }
-    @if (Title.HasContent())
-    {
-        @Title
-    }
-    else
-    {
-        @ChildContent
-    }
+    @ChildContent
 </button>
 
 @code {
     [Parameter]
-    public string? Name { get; set; }
+    public string? Value { get; set; }
 
     [Parameter]
     public bool Disabled { get; set; }
 
-    [Parameter]
-    public LucideIcon? Icon { get; set; }
-
-    [Parameter]
-    public string? Target { get; set; }
-
-    [Parameter]
-    public bool Active { get; set; }
-
     [CascadingParameter(Name = nameof(ParentTabs))]
-    public Tabs? ParentTabs { get; set; }
+    private Tabs? ParentTabs { get; set; }
 
     private ElementReference _buttonRef;
     private bool _preventDefaultKeys;
 
-    private bool IsActive => string.Equals(ParentTabs?.ResolvedSelectedTab, Name, StringComparison.Ordinal);
+    private bool IsActive => ParentTabs?.IsTabSelected(Value) == true;
 
     protected override void OnAfterRender(bool firstRender)
     {
         base.OnAfterRender(firstRender);
 
         if (firstRender && ParentTabs is not null)
-            ParentTabs.RegisterTab(this);
-    }
-
-    public override void Dispose()
-    {
-        ParentTabs?.UnregisterTab(this);
-        base.Dispose();
+            ParentTabs.RegisterTrigger(this);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -64,12 +36,13 @@
         attributes["data-state"] = IsActive ? "active" : "inactive";
         attributes["role"] = "tab";
 
-        if (Name.HasContent())
-            attributes["id"] = $"tab-trigger-{Name}";
+        var triggerId = ParentTabs?.GetTriggerId(Value);
+        if (triggerId is not null)
+            attributes["id"] = triggerId;
 
-        var targetId = Target ?? (Name.HasContent() ? $"tab-content-{Name}" : null);
-        if (targetId is not null)
-            attributes["aria-controls"] = targetId;
+        var contentId = ParentTabs?.GetContentId(Value);
+        if (contentId is not null)
+            attributes["aria-controls"] = contentId;
 
         attributes["aria-selected"] = IsActive ? "true" : "false";
         attributes["tabindex"] = IsActive ? 0 : -1;
@@ -82,15 +55,15 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-tab q-tabs-trigger");
+            AppendClass(ref cls, "q-tabs-trigger");
             AppendClass(ref cls, Tabs.TabsTriggerBaseClass);
         });
     }
 
     protected override async Task HandleClick(MouseEventArgs args)
     {
-        if (!Disabled && ParentTabs != null && Name.HasContent())
-            await ParentTabs.SelectTab(Name!);
+        if (!Disabled && ParentTabs is not null && Value.HasContent())
+            await ParentTabs.SelectTab(Value!);
 
         await base.HandleClick(args);
     }
@@ -106,7 +79,7 @@
         };
 
         if (_preventDefaultKeys && ParentTabs is not null)
-            await ParentTabs.HandleKeyNavigationAsync(this, args.Key);
+            await ParentTabs.HandleExplicitKeyNavigationAsync(this, args.Key);
     }
 
     internal async Task FocusAsync()
@@ -114,13 +87,17 @@
         await _buttonRef.FocusAsync();
     }
 
+    public override void Dispose()
+    {
+        ParentTabs?.UnregisterTrigger(this);
+        base.Dispose();
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
-        hc.Add(Name);
-        hc.Add(Icon);
-        hc.Add(Target);
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Value);
         hc.Add(Disabled);
-        if (ParentTabs?.ResolvedSelectedTab is not null)
-            hc.Add(ParentTabs.ResolvedSelectedTab);
+        hc.Add(ParentTabs?.ResolvedSelectedTab);
     }
 }

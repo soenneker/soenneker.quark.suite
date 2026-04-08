@@ -16,6 +16,7 @@
 else if (RenderAsLink)
 {
     <a href="@To"
+       @ref="_elementRef"
        @onclick="HandleClick"
        @onclick:preventDefault="PreventLinkDefault"
        @onclick:stopPropagation="StopTriggerClickPropagation"
@@ -36,7 +37,8 @@ else if (RenderAsLink)
 }
 else
 {
-    <button @onclick="HandleClick"
+    <button @ref="_elementRef"
+            @onclick="HandleClick"
             @onclick:stopPropagation="StopTriggerClickPropagation"
             @attributes="BuildAttributes()">
         @if (Loading)
@@ -60,6 +62,8 @@ else
 
     [CascadingParameter(Name = "TriggerContext")]
     private TriggerContext? TriggerContext { get; set; }
+
+    private ElementReference _elementRef;
 
     private bool RenderAsLink => string.Equals(Type?.Value, "link", StringComparison.Ordinal) || To.HasContent();
 
@@ -190,6 +194,12 @@ else
             ButtonSize.IconLgValue => "icon-lg",
             _ => "default"
         };
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        TriggerContext?.RegisterElement?.Invoke(_elementRef);
+        return base.OnAfterRenderAsync(firstRender);
+    }
 
     /// <summary>
     /// Builds the attributes dictionary for the button component.

@@ -6,21 +6,48 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Demo" Description="Show the standard shadcn toast with description and undo action." Code="@(@"@inject ISonnerUtil Toasts
+<Sonner />
+
+await Toasts.Toast(""Event has been created"", options =>
+{
+    options.Description = ""Sunday, December 03, 2023 at 9:00 AM"";
+    options.ActionLabel = ""Undo"";
+    options.Action = () => ValueTask.CompletedTask;
+});")"
+CodeLanguage="razor">
+                <Button Variant="ButtonVariant.Outline" @onclick="ShowDemoToast">Show Toast</Button>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Types" Description="Default and typed Sonner notifications." Code="@(@"@inject ISonnerUtil Toasts
 <Sonner />
 
 await Toasts.Toast(""Event has been created"");
 await Toasts.Success(""Saved successfully"");
-await Toasts.Warning(""Review this change"");
-await Toasts.Error(""Unable to continue"");")"
+await Toasts.Info(""Be at the area 10 minutes before the event time"");
+await Toasts.Warning(""Event start time cannot be earlier than 8am"");
+await Toasts.Error(""Event has not been created"");")"
 CodeLanguage="razor">
                 <Div Display="Display.Flex" Flex="Flex.Wrap" Gap="Gap.Is2">
-                    <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="ShowBasic">Default</Button>
-                    <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="ShowSuccess">Success</Button>
-                    <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="ShowWarning">Warning</Button>
-                    <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="ShowError">Error</Button>
+                    <Button Variant="ButtonVariant.Outline" @onclick="ShowBasic">Default</Button>
+                    <Button Variant="ButtonVariant.Outline" @onclick="ShowSuccess">Success</Button>
+                    <Button Variant="ButtonVariant.Outline" @onclick="ShowInfo">Info</Button>
+                    <Button Variant="ButtonVariant.Outline" @onclick="ShowWarning">Warning</Button>
+                    <Button Variant="ButtonVariant.Outline" @onclick="ShowError">Error</Button>
+                    <Button Variant="ButtonVariant.Outline" @onclick="ShowPromiseSuccess">Promise</Button>
                 </Div>
             </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <Div Space="Space.Y.Is2">
+                <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
+                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                    Extended Sonner behaviors beyond the two shadcn reference demos.
+                </Paragraph>
+            </Div>
         </Section>
 
         <Section Space="Space.Y.Is4">
@@ -86,6 +113,16 @@ CodeLanguage="razor">
 </Div>
 
 @code {
+    private async Task ShowDemoToast()
+    {
+        _ = await Toasts.Toast("Event has been created", options =>
+        {
+            options.Description = "Sunday, December 03, 2023 at 9:00 AM";
+            options.ActionLabel = "Undo";
+            options.Action = () => ValueTask.CompletedTask;
+        });
+    }
+
     private async Task ShowBasic()
     {
         _ = await Toasts.Toast("Event has been created");
@@ -94,6 +131,11 @@ CodeLanguage="razor">
     private async Task ShowSuccess()
     {
         _ = await Toasts.Success("Saved successfully");
+    }
+
+    private async Task ShowInfo()
+    {
+        _ = await Toasts.Info("Be at the area 10 minutes before the event time");
     }
 
     private async Task ShowWarning()

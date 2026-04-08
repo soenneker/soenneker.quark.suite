@@ -15,6 +15,9 @@
 </div>
 
 @code {
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
+
     /// <summary>
     /// Gets or sets the current progress value (0–100).
     /// </summary>
@@ -39,28 +42,50 @@
     [Parameter]
     public int Max { get; set; } = 100;
 
-    private string GetIndicatorStyle()
+    private int GetClampedValue()
     {
-        if (Indeterminate)
-            return "width: 40%;";
-
         var val = ProgressValue;
         if (val < 0) val = 0;
         if (val > Max) val = Max;
-        var pct = Max > 0 ? (val * 100.0 / Max) : 0;
-        return $"width: {pct:F0}%;";
+        return val;
+    }
+
+    private bool IsRtl()
+    {
+        if (string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (Attributes is not null &&
+            Attributes.TryGetValue("dir", out var dirValue) &&
+            string.Equals(dirValue?.ToString(), "rtl", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private string GetIndicatorStyle()
+    {
+        if (Indeterminate)
+            return "transform: translateX(0%);";
+
+        var pct = Max > 0 ? (GetClampedValue() * 100.0 / Max) : 0;
+        var offset = 100 - pct;
+        var translate = IsRtl() ? offset : -offset;
+        return $"transform: translateX({translate:F0}%);";
     }
 
     private string GetIndicatorClass()
     {
         return Indeterminate
-            ? "q-progress-indicator absolute inset-y-0 left-0 rtl:left-auto rtl:right-0 bg-primary h-full animate-pulse rounded-full transition-all"
-            : "q-progress-indicator absolute inset-y-0 left-0 rtl:left-auto rtl:right-0 bg-primary h-full rounded-full transition-all";
+            ? "q-progress-indicator h-full w-full flex-1 bg-primary rounded-full transition-all animate-pulse"
+            : "q-progress-indicator h-full w-full flex-1 bg-primary transition-all";
     }
 
     private string? GetAriaValueNow()
     {
-        return Indeterminate ? null : ProgressValue.ToString();
+        return Indeterminate ? null : GetClampedValue().ToString();
     }
 
     private string? GetAriaValueText()
@@ -75,9 +100,8 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "progress";
-        attributes["data-state"] = Indeterminate ? "indeterminate" : "complete";
+        attributes["data-state"] = Indeterminate ? "indeterminate" : "determinate";
 
-        // shadcn Progress root - new-york-v4 ui/progress.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-progress");

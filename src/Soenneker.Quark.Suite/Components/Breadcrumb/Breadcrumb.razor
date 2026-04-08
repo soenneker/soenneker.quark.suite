@@ -4,9 +4,16 @@
 
 <CascadingValue Name="ParentBreadcrumb" Value="@this" IsFixed="true">
     <nav @attributes="BuildAttributes()">
-        <ol @attributes="BuildListAttributes()">
+        @if (Composed)
+        {
             @ChildContent
-        </ol>
+        }
+        else
+        {
+            <ol @attributes="BuildListAttributes()">
+                @ChildContent
+            </ol>
+        }
     </nav>
 </CascadingValue>
 
@@ -41,6 +48,12 @@
     /// </summary>
     [Parameter]
     public RenderFragment? SeparatorContent { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether explicit breadcrumb primitives are being used.
+    /// </summary>
+    [Parameter]
+    public bool Composed { get; set; }
 
     private readonly List<BreadcrumbItem> _items = [];
 
@@ -107,6 +120,7 @@
         hc.Add(Divider);
         hc.Add(DividerText);
         hc.Add(SeparatorContent);
+        hc.Add(Composed);
         hc.Add(AriaLabel);
     }
 }

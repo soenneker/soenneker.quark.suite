@@ -5,14 +5,57 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Demo"
+                         Description="Outline toggle group with icon-only formatting controls."
+                         Code="@DemoCode"
+                         CodeLanguage="razor">
+                <ToggleGroup Type="ToggleGroupType.Multiple"
+                             Variant="ToggleVariant.Outline"
+                             Values="@_demoFormats"
+                             ValueChangedMultiple="HandleDemoFormatsChanged">
+                    <ToggleGroupItem Value="bold" aria-label="Toggle bold">
+                        <Icon Name="LucideIcon.Bold" />
+                    </ToggleGroupItem>
+                    <ToggleGroupItem Value="italic" aria-label="Toggle italic">
+                        <Icon Name="LucideIcon.Italic" />
+                    </ToggleGroupItem>
+                    <ToggleGroupItem Value="strikethrough" aria-label="Toggle strikethrough">
+                        <Icon Name="LucideIcon.Underline" />
+                    </ToggleGroupItem>
+                </ToggleGroup>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Single"
+                         Description="Single-selection toggle groups keep one formatting control active at a time."
+                         Code="@SingleCode"
+                         CodeLanguage="razor">
+                <ToggleGroup Type="ToggleGroupType.Single"
+                             Value="@_singleFormat"
+                             ValueChanged="HandleSingleFormatChanged">
+                    <ToggleGroupItem Value="bold" aria-label="Toggle bold">
+                        <Icon Name="LucideIcon.Bold" />
+                    </ToggleGroupItem>
+                    <ToggleGroupItem Value="italic" aria-label="Toggle italic">
+                        <Icon Name="LucideIcon.Italic" />
+                    </ToggleGroupItem>
+                    <ToggleGroupItem Value="strikethrough" aria-label="Toggle strikethrough">
+                        <Icon Name="LucideIcon.Underline" />
+                    </ToggleGroupItem>
+                </ToggleGroup>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Outline"
                          Description="Use the outline variant for grouped formatting controls."
                          Code="@OutlineCode"
                          CodeLanguage="razor">
                 <ToggleGroup Type="ToggleGroupType.Single"
                              Variant="ToggleVariant.Outline"
-                             Value="@_singleAlignment"
-                             ValueChanged="HandleSingleAlignmentChanged">
+                             Value="@_outlineAlignment"
+                             ValueChanged="HandleOutlineAlignmentChanged">
                     <ToggleGroupItem Value="left" aria-label="Align left">Left</ToggleGroupItem>
                     <ToggleGroupItem Value="center" aria-label="Align center">Center</ToggleGroupItem>
                     <ToggleGroupItem Value="right" aria-label="Align right">Right</ToggleGroupItem>
@@ -59,17 +102,27 @@
                          CodeLanguage="razor">
                 <ToggleGroup Type="ToggleGroupType.Multiple"
                              Variant="ToggleVariant.Outline"
-                             Spacing="8"
+                             Size="ToggleSize.Small"
+                             Spacing="2"
                              Values="@_multipleFormats"
                              ValueChangedMultiple="HandleMultipleFormatsChanged">
-                    <ToggleGroupItem Value="bold" aria-label="Toggle bold">
-                        <Icon Name="LucideIcon.Bold" />
+                    <ToggleGroupItem Value="star"
+                                     aria-label="Toggle star"
+                                     Class="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-yellow-500 data-[state=on]:*:[svg]:stroke-yellow-500">
+                        <Icon Name="LucideIcon.Star" />
+                        Star
                     </ToggleGroupItem>
-                    <ToggleGroupItem Value="italic" aria-label="Toggle italic">
-                        <Icon Name="LucideIcon.Italic" />
+                    <ToggleGroupItem Value="heart"
+                                     aria-label="Toggle heart"
+                                     Class="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-red-500 data-[state=on]:*:[svg]:stroke-red-500">
+                        <Icon Name="LucideIcon.Heart" />
+                        Heart
                     </ToggleGroupItem>
-                    <ToggleGroupItem Value="underline" aria-label="Toggle underline">
-                        <Icon Name="LucideIcon.Underline" />
+                    <ToggleGroupItem Value="bookmark"
+                                     aria-label="Toggle bookmark"
+                                     Class="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-blue-500 data-[state=on]:*:[svg]:stroke-blue-500">
+                        <Icon Name="LucideIcon.Bookmark" />
+                        Bookmark
                     </ToggleGroupItem>
                 </ToggleGroup>
             </DemoSection>
@@ -124,6 +177,31 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="RTL"
+                         Description="Toggle groups should preserve selection flow in right-to-left layouts."
+                         Code="@RtlCode"
+                         CodeLanguage="razor">
+                <DirectionProvider Dir="rtl">
+                    <ToggleGroup Type="ToggleGroupType.Single"
+                                 Variant="ToggleVariant.Outline"
+                                 Value="@_rtlAlignment"
+                                 ValueChanged="HandleRtlAlignmentChanged">
+                        <ToggleGroupItem Value="right" aria-label="محاذاة لليمين">يمين</ToggleGroupItem>
+                        <ToggleGroupItem Value="center" aria-label="محاذاة للوسط">وسط</ToggleGroupItem>
+                        <ToggleGroupItem Value="left" aria-label="محاذاة لليسار">يسار</ToggleGroupItem>
+                    </ToggleGroup>
+                </DirectionProvider>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <Div Space="Space.Y.Is2">
+                <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
+                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                    Quark-specific compositions built on the same toggle group primitive.
+                </Paragraph>
+            </Div>
+
             <DemoSection Title="Custom"
                          Description="Custom compositions can pair grouped actions with field content without giving up the toggle group state model."
                          Code="@CustomCode"
@@ -143,39 +221,54 @@
                 </Field>
             </DemoSection>
         </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="RTL"
-                         Description="Toggle groups should preserve selection flow in right-to-left layouts."
-                         Code="@RtlCode"
-                         CodeLanguage="razor">
-                <DirectionProvider Dir="rtl">
-                    <ToggleGroup Type="ToggleGroupType.Single"
-                                 Variant="ToggleVariant.Outline"
-                                 Value="@_rtlAlignment"
-                                 ValueChanged="HandleRtlAlignmentChanged">
-                        <ToggleGroupItem Value="right" aria-label="محاذاة لليمين">يمين</ToggleGroupItem>
-                        <ToggleGroupItem Value="center" aria-label="محاذاة للوسط">وسط</ToggleGroupItem>
-                        <ToggleGroupItem Value="left" aria-label="محاذاة لليسار">يسار</ToggleGroupItem>
-                    </ToggleGroup>
-                </DirectionProvider>
-            </DemoSection>
-        </Section>
     </Div>
 </Div>
 
 @code {
-    private string? _singleAlignment = "center";
-    private string[] _multipleFormats = ["bold"];
+    private string[] _demoFormats = ["bold"];
+    private string? _singleFormat = "italic";
+    private string? _outlineAlignment = "center";
+    private string[] _multipleFormats = ["bookmark"];
     private string? _verticalAlignment = "middle";
     private string? _fontWeight = "medium";
     private string? _rtlAlignment = "center";
 
+    private const string DemoCode =
+@"<ToggleGroup Type=""ToggleGroupType.Multiple""
+             Variant=""ToggleVariant.Outline""
+             Values=""@_demoFormats""
+             ValueChangedMultiple=""HandleDemoFormatsChanged"">
+    <ToggleGroupItem Value=""bold"" aria-label=""Toggle bold"">
+        <Icon Name=""LucideIcon.Bold"" />
+    </ToggleGroupItem>
+    <ToggleGroupItem Value=""italic"" aria-label=""Toggle italic"">
+        <Icon Name=""LucideIcon.Italic"" />
+    </ToggleGroupItem>
+    <ToggleGroupItem Value=""strikethrough"" aria-label=""Toggle strikethrough"">
+        <Icon Name=""LucideIcon.Underline"" />
+    </ToggleGroupItem>
+</ToggleGroup>";
+
+    private const string SingleCode =
+@"<ToggleGroup Type=""ToggleGroupType.Single""
+             Value=""@_singleFormat""
+             ValueChanged=""HandleSingleFormatChanged"">
+    <ToggleGroupItem Value=""bold"" aria-label=""Toggle bold"">
+        <Icon Name=""LucideIcon.Bold"" />
+    </ToggleGroupItem>
+    <ToggleGroupItem Value=""italic"" aria-label=""Toggle italic"">
+        <Icon Name=""LucideIcon.Italic"" />
+    </ToggleGroupItem>
+    <ToggleGroupItem Value=""strikethrough"" aria-label=""Toggle strikethrough"">
+        <Icon Name=""LucideIcon.Underline"" />
+    </ToggleGroupItem>
+</ToggleGroup>";
+
     private const string OutlineCode =
 @"<ToggleGroup Type=""ToggleGroupType.Single""
              Variant=""ToggleVariant.Outline""
-             Value=""@_singleAlignment""
-             ValueChanged=""HandleSingleAlignmentChanged"">
+             Value=""@_outlineAlignment""
+             ValueChanged=""HandleOutlineAlignmentChanged"">
     <ToggleGroupItem Value=""left"" aria-label=""Align left"">Left</ToggleGroupItem>
     <ToggleGroupItem Value=""center"" aria-label=""Align center"">Center</ToggleGroupItem>
     <ToggleGroupItem Value=""right"" aria-label=""Align right"">Right</ToggleGroupItem>
@@ -203,17 +296,27 @@
     private const string SpacingCode =
 @"<ToggleGroup Type=""ToggleGroupType.Multiple""
              Variant=""ToggleVariant.Outline""
-             Spacing=""8""
+             Size=""ToggleSize.Small""
+             Spacing=""2""
              Values=""@_multipleFormats""
              ValueChangedMultiple=""HandleMultipleFormatsChanged"">
-    <ToggleGroupItem Value=""bold"" aria-label=""Toggle bold"">
-        <Icon Name=""LucideIcon.Bold"" />
+    <ToggleGroupItem Value=""star""
+                     aria-label=""Toggle star""
+                     Class=""data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-yellow-500 data-[state=on]:*:[svg]:stroke-yellow-500"">
+        <Icon Name=""LucideIcon.Star"" />
+        Star
     </ToggleGroupItem>
-    <ToggleGroupItem Value=""italic"" aria-label=""Toggle italic"">
-        <Icon Name=""LucideIcon.Italic"" />
+    <ToggleGroupItem Value=""heart""
+                     aria-label=""Toggle heart""
+                     Class=""data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-red-500 data-[state=on]:*:[svg]:stroke-red-500"">
+        <Icon Name=""LucideIcon.Heart"" />
+        Heart
     </ToggleGroupItem>
-    <ToggleGroupItem Value=""underline"" aria-label=""Toggle underline"">
-        <Icon Name=""LucideIcon.Underline"" />
+    <ToggleGroupItem Value=""bookmark""
+                     aria-label=""Toggle bookmark""
+                     Class=""data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-blue-500 data-[state=on]:*:[svg]:stroke-blue-500"">
+        <Icon Name=""LucideIcon.Bookmark"" />
+        Bookmark
     </ToggleGroupItem>
 </ToggleGroup>";
 
@@ -274,9 +377,21 @@
     </ToggleGroup>
 </DirectionProvider>";
 
-    private Task HandleSingleAlignmentChanged(string? value)
+    private Task HandleDemoFormatsChanged(string[] values)
     {
-        _singleAlignment = value;
+        _demoFormats = values;
+        return Task.CompletedTask;
+    }
+
+    private Task HandleSingleFormatChanged(string? value)
+    {
+        _singleFormat = value;
+        return Task.CompletedTask;
+    }
+
+    private Task HandleOutlineAlignmentChanged(string? value)
+    {
+        _outlineAlignment = value;
         return Task.CompletedTask;
     }
 
