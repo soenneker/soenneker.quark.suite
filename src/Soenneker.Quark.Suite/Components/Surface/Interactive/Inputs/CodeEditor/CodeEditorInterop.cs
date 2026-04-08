@@ -18,8 +18,8 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     private readonly AsyncInitializer _initializer;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _modulePath = "/_content/Soenneker.Quark.Suite/js/monacointerop.js";
-    private const string _themeModulePath = "/_content/Soenneker.Quark.Suite/js/themeinterop.js";
+    private const string _modulePath = "_content/Soenneker.Quark.Suite/js/monacointerop.js";
+    private const string _themeModulePath = "_content/Soenneker.Quark.Suite/js/themeinterop.js";
     
     private const string _cdnBaseUrl = "https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1";
     private const string _cdnCssPath = "/min/vs/editor/editor.main.css";
@@ -112,7 +112,6 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
     }
 
-    /// <inheritdoc />
     public async ValueTask Layout(ElementReference container, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
@@ -256,7 +255,6 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
     }
 
-    /// <inheritdoc />
     public async ValueTask RegisterThemeChangedCallback<T>(DotNetObjectReference<T> dotNetRef, CancellationToken cancellationToken = default)
         where T : class
     {
@@ -269,7 +267,6 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
     }
 
-    /// <inheritdoc />
     public async ValueTask UnregisterThemeChangedCallback<T>(DotNetObjectReference<T> dotNetRef)
         where T : class
     {
@@ -288,6 +285,8 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
     {
         await _initializer.DisposeAsync();
         await _cancellationScope.DisposeAsync();
+        await _moduleImportUtil.DisposeContentModule(_modulePath);
+        await _moduleImportUtil.DisposeContentModule(_themeModulePath);
     }
 }
 

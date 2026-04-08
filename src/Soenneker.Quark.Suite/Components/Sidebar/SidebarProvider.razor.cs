@@ -11,9 +11,9 @@ namespace Soenneker.Quark;
 
 public partial class SidebarProvider
 {
-    private const string DefaultCookieKey = "sidebar_state";
-    private const string DefaultShortcutKey = "b";
-    private const string ModulePath = "./_content/Soenneker.Quark.Suite/js/sidebarinterop.js";
+    private const string _defaultCookieKey = "sidebar_state";
+    private const string _defaultShortcutKey = "b";
+    private const string _modulePath = "_content/Soenneker.Quark.Suite/js/sidebarinterop.js";
 
     private IJSObjectReference? _module;
     private DotNetObjectReference<SidebarProvider>? _dotNetRef;
@@ -46,13 +46,13 @@ public partial class SidebarProvider
     public bool? IsMobile { get; set; }
 
     [Parameter]
-    public string CookieKey { get; set; } = DefaultCookieKey;
+    public string CookieKey { get; set; } = _defaultCookieKey;
 
     [Parameter]
     public bool PersistState { get; set; } = true;
 
     [Parameter]
-    public string KeyboardShortcutKey { get; set; } = DefaultShortcutKey;
+    public string KeyboardShortcutKey { get; set; } = _defaultShortcutKey;
 
     [Parameter]
     public bool CloseMobileOnNavigation { get; set; } = true;
@@ -98,7 +98,7 @@ public partial class SidebarProvider
 
         try
         {
-            _module = await ModuleImportUtil.GetContentModuleReference(ModulePath);
+            _module = await ModuleImportUtil.GetContentModuleReference(_modulePath);
             _dotNetRef = DotNetObjectReference.Create(this);
 
             bool? savedOpen = null;
@@ -245,6 +245,8 @@ public partial class SidebarProvider
 
         NavigationManager.LocationChanged -= OnLocationChanged;
         _dotNetRef?.Dispose();
+        if (_module is not null)
+            await ModuleImportUtil.DisposeContentModule(_modulePath);
         await base.DisposeAsync();
         GC.SuppressFinalize(this);
     }

@@ -19,8 +19,8 @@ public sealed class SonnerInterop : ISonnerInterop
     private readonly AsyncInitializer _initializer;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _stylePath = "/_content/Soenneker.Quark.Suite/css/sonner.css";
-    private const string _modulePath = "/_content/Soenneker.Quark.Suite/js/sonnerinterop.js";
+    private const string _stylePath = "_content/Soenneker.Quark.Suite/css/sonner.css";
+    private const string _modulePath = "_content/Soenneker.Quark.Suite/js/sonnerinterop.js";
 
     public SonnerInterop(IModuleImportUtil moduleImportUtil, IResourceLoader resourceLoader)
     {
@@ -29,12 +29,7 @@ public sealed class SonnerInterop : ISonnerInterop
         _initializer = new AsyncInitializer(InitializeResources);
     }
 
-    private ValueTask InitializeResources(CancellationToken token)
-    {
-        return InitializeResourcesInternal(token);
-    }
-
-    private async ValueTask InitializeResourcesInternal(CancellationToken token)
+    private async ValueTask InitializeResources(CancellationToken token)
     {
         await _resourceLoader.LoadStyle(_stylePath, cancellationToken: token);
         await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
@@ -64,5 +59,6 @@ public sealed class SonnerInterop : ISonnerInterop
     {
         await _initializer.DisposeAsync();
         await _cancellationScope.DisposeAsync();
+        await _moduleImportUtil.DisposeContentModule(_modulePath);
     }
 }

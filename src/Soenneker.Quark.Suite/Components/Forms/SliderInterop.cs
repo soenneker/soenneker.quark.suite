@@ -2,7 +2,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using Soenneker.Asyncs.Initializers;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
@@ -13,20 +12,13 @@ namespace Soenneker.Quark;
 public sealed class SliderInterop : ISliderInterop
 {
     private readonly IModuleImportUtil _moduleImportUtil;
-    private readonly AsyncInitializer _initializer;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _modulePath = "/_content/Soenneker.Quark.Suite/js/sliderinterop.js";
+    private const string _modulePath = "_content/Soenneker.Quark.Suite/js/sliderinterop.js";
 
     public SliderInterop(IModuleImportUtil moduleImportUtil)
     {
         _moduleImportUtil = moduleImportUtil;
-        _initializer = new AsyncInitializer(InitializeResources);
-    }
-
-    private async ValueTask InitializeResources(CancellationToken token)
-    {
-        await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
     }
 
     private async ValueTask<IJSObjectReference> GetModule(CancellationToken cancellationToken)
@@ -40,7 +32,7 @@ public sealed class SliderInterop : ISliderInterop
 
         using (source)
         {
-            await _initializer.Init(linked);
+            await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
         }
     }
 
@@ -51,7 +43,6 @@ public sealed class SliderInterop : ISliderInterop
 
         using (source)
         {
-            await _initializer.Init(linked);
             IJSObjectReference module = await GetModule(linked);
             return await module.InvokeAsync<double>("getValueFromPointer", linked, track, clientX, clientY, min, max, orientation);
         }
@@ -64,7 +55,6 @@ public sealed class SliderInterop : ISliderInterop
 
         using (source)
         {
-            await _initializer.Init(linked);
             IJSObjectReference module = await GetModule(linked);
             return await module.InvokeAsync<double>("startDrag", linked, track, pointerId, clientX, clientY, min, max, orientation, callbackReference, thumbIndex);
         }
@@ -76,7 +66,6 @@ public sealed class SliderInterop : ISliderInterop
 
         using (source)
         {
-            await _initializer.Init(linked);
             IJSObjectReference module = await GetModule(linked);
             return await module.InvokeAsync<bool>("isDirectionRtl", linked, track);
         }
@@ -88,7 +77,6 @@ public sealed class SliderInterop : ISliderInterop
 
         using (source)
         {
-            await _initializer.Init(linked);
             IJSObjectReference module = await GetModule(linked);
             await module.InvokeVoidAsync("stopDrag", linked);
         }
@@ -96,7 +84,7 @@ public sealed class SliderInterop : ISliderInterop
 
     public async ValueTask DisposeAsync()
     {
-        await _initializer.DisposeAsync();
         await _cancellationScope.DisposeAsync();
+        await _moduleImportUtil.DisposeContentModule(_modulePath);
     }
 }
