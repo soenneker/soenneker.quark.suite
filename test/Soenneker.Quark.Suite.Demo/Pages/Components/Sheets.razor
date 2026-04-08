@@ -5,8 +5,10 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Demo"
-                         Code="@DemoCode">
+            <DemoSection Title="Basic"
+                         Description="Standard sheet with header, fields, and footer actions."
+                         Code="@BasicCode"
+                         CodeLanguage="razor">
                 <Sheet>
                     <SheetTrigger AsChild="true">
                         <Button Variant="ButtonVariant.Outline">Open</Button>
@@ -40,32 +42,10 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="No Close Button"
-                         Code="@NoCloseCode">
-                <Sheet>
-                    <SheetTrigger AsChild="true">
-                        <Button Variant="ButtonVariant.Outline">No Close Button</Button>
-                    </SheetTrigger>
-                    <SheetContent ShowCloseButton="false">
-                        <SheetHeader>
-                            <SheetTitle>No Close Button</SheetTitle>
-                            <SheetDescription>
-                                This sheet doesn't have a close button in the top-right corner. You can only close it using the button below.
-                            </SheetDescription>
-                        </SheetHeader>
-                        <SheetFooter>
-                            <SheetClose AsChild="true">
-                                <Button Variant="ButtonVariant.Outline">Close</Button>
-                            </SheetClose>
-                        </SheetFooter>
-                    </SheetContent>
-                </Sheet>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
             <DemoSection Title="Side"
-                         Code="@SidesCode">
+                         Description="Sheets can slide in from top, right, bottom, or left via `Side`."
+                         Code="@SidesCode"
+                         CodeLanguage="razor">
                 <Div Display="Display.Flex" Flex="Flex.Wrap" Gap="Gap.Is2">
                     @foreach (var side in _sheetSides)
                     {
@@ -103,8 +83,36 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="No Close Button"
+                         Description="Hide the sheet corner close control when dismissal uses footer actions only."
+                         Code="@NoCloseCode"
+                         CodeLanguage="razor">
+                <Sheet>
+                    <SheetTrigger AsChild="true">
+                        <Button Variant="ButtonVariant.Outline">No Close Button</Button>
+                    </SheetTrigger>
+                    <SheetContent ShowCloseButton="false">
+                        <SheetHeader>
+                            <SheetTitle>No Close Button</SheetTitle>
+                            <SheetDescription>
+                                This sheet doesn't have a close button in the top-right corner. You can only close it using the button below.
+                            </SheetDescription>
+                        </SheetHeader>
+                        <SheetFooter>
+                            <SheetClose AsChild="true">
+                                <Button Variant="ButtonVariant.Outline">Close</Button>
+                            </SheetClose>
+                        </SheetFooter>
+                    </SheetContent>
+                </Sheet>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
-                         Code="@RtlCode">
+                         Description="Sheet chrome and content in a right-to-left context."
+                         Code="@RtlCode"
+                         CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
                     <Div class="w-full text-right">
                         <Sheet>
@@ -142,15 +150,17 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Quark-only examples</H2>
-            <Paragraph TextColor="TextColor.MutedForeground">
-                These examples show additional sheet patterns beyond the core examples above.
-            </Paragraph>
-        </Section>
+            <Div Space="Space.Y.Is2">
+                <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
+                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                    Imperative open via bound visibility and a scrollable activity list.
+                </Paragraph>
+            </Div>
 
-        <Section Space="Space.Y.Is4">
             <DemoSection Title="Scrollable Content"
-                         Code="@ScrollableCode">
+                         Description="Programmatically open a wide activity drawer with `Visible` binding."
+                         Code="@ScrollableCode"
+                         CodeLanguage="razor">
                 <Button Variant="ButtonVariant.Outline" OnClick="@(() => _showScrollable = true)">Open activity drawer</Button>
             </DemoSection>
         </Section>
@@ -187,7 +197,7 @@
     private bool _showScrollable;
     private readonly string[] _sheetSides = ["top", "right", "bottom", "left"];
 
-    private const string DemoCode =
+    private const string BasicCode =
 @"<Sheet>
     <SheetTrigger AsChild=""true"">
         <Button Variant=""ButtonVariant.Outline"">Open</Button>

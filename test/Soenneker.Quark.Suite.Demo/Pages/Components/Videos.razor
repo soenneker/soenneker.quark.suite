@@ -12,7 +12,8 @@
     Poster=""https://.../poster.jpg""
     Style=""width: 100%; max-height: 400px;""
     Border=""Border.Is1""
-    Rounded=""Rounded.Default""/>")">
+    Rounded=""Rounded.Default""/>")"
+    CodeLanguage="razor">
                 <Video 
                     Source="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
                     Poster="https://peach.blender.org/wp-content/uploads/title_anouncement.jpg?x11217"
@@ -24,7 +25,8 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Video with options" Description="Autoplay, loop, muted, plays inline." Code="@(@"<Video Source=""..."" Autoplay=""true"" Loop=""true"" Muted=""true"" PlaysInline=""true""/>")">
+            <DemoSection Title="Video with options" Description="Autoplay, loop, muted, plays inline." Code="@(@"<Video Source=""..."" Autoplay=""true"" Loop=""true"" Muted=""true"" PlaysInline=""true""/>")"
+            CodeLanguage="razor">
                             <Paragraph Margin="Margin.Is0">Video player with autoplay, loop, and muted options enabled.</Paragraph>
                             <Video 
                                 Source="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
@@ -45,7 +47,8 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Event handling" Description="Play, pause, ended callbacks." Code="@(@"<Video Source=""..."" OnPlay=""OnPlay"" OnPause=""OnPause"" OnEnded=""OnEnded""/>")">
+            <DemoSection Title="Event handling" Description="Play, pause, ended callbacks." Code="@(@"<Video Source=""..."" OnPlay=""OnPlay"" OnPause=""OnPause"" OnEnded=""OnEnded""/>")"
+            CodeLanguage="razor">
                             <Paragraph Margin="Margin.Is0">Video with event callbacks for play, pause, and ended states.</Paragraph>
                             
                             @if (!string.IsNullOrEmpty(_videoStatus))
@@ -68,7 +71,10 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Multiple sources" Description="Source elements for format compatibility.">
+            <DemoSection Title="Multiple sources"
+                         Description="Source elements for format compatibility."
+                         Code="@MultipleSourcesCode"
+                         CodeLanguage="razor">
                 <Video 
                                 Poster="https://peach.blender.org/wp-content/uploads/title_anouncement.jpg?x11217"
                                 Style="width: 100%; max-height: 400px;"
@@ -82,7 +88,10 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Audio player" Description="HTML5 audio with controls.">
+            <DemoSection Title="Audio player"
+                         Description="HTML5 audio with controls."
+                         Code="@AudioPlayerCode"
+                         CodeLanguage="razor">
                 <Audio 
                     Source="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
                     Width="Width.Is100"
@@ -91,7 +100,10 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Audio with events" Description="Play, pause, ended callbacks.">
+            <DemoSection Title="Audio with events"
+                         Description="Play, pause, ended callbacks."
+                         Code="@AudioEventsCode"
+                         CodeLanguage="razor">
                             <Paragraph Margin="Margin.Is0">Audio player with play/pause event tracking.</Paragraph>
                             
                             @if (!string.IsNullOrEmpty(_audioStatus))
@@ -111,7 +123,10 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Audio with loop" Description="Loop continuously.">
+            <DemoSection Title="Audio with loop"
+                         Description="Loop continuously."
+                         Code="@AudioLoopCode"
+                         CodeLanguage="razor">
                 <Audio 
                     Source="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
                     Loop="true"
@@ -125,6 +140,25 @@
 </Div>
 
 @code {
+    private const string MultipleSourcesCode =
+@"<Video Poster=""..."" Style=""width: 100%; max-height: 400px;"" Border=""Border.Is1"" Rounded=""Rounded.Default"">
+    <source src=""https://.../video.mp4"" type=""video/mp4"" />
+    <Text>Your browser does not support the video tag.</Text>
+</Video>";
+
+    private const string AudioPlayerCode =
+@"<Audio Source=""https://.../audio.mp3"" Width=""Width.Is100"" />";
+
+    private const string AudioEventsCode =
+@"<Audio Source=""https://.../audio.mp3""
+    OnPlay=""HandleAudioPlay""
+    OnPause=""HandleAudioPause""
+    OnEnded=""HandleAudioEnded""
+    Width=""Width.Is100"" />";
+
+    private const string AudioLoopCode =
+@"<Audio Source=""https://.../audio.mp3"" Loop=""true"" Width=""Width.Is100"" />";
+
     private string? _videoStatus;
     private string? _audioStatus;
 

@@ -1,101 +1,180 @@
 @page "/labels"
-@using Microsoft.Extensions.Logging
-@inject ILogger<Labels> Logger
 
-<Div Class="space-y-12">
-    <Section Space="Space.Y.Is6">
-        <DemoSection Title="Basic Label" Code="@(@"<Label Form=""true"">Basic Label</Label>
-<Input type=""text"" class=""input"" placeholder=""Enter text""/>")">
-            <Div Space="Space.Y.Is1">
-                <Label Form="true">Basic Label</Label>
-                <Input type="text" class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" placeholder="Enter text"/>
-            </Div>
-        </DemoSection>
-    </Section>
+<PageTitle>Label - Quark Suite</PageTitle>
 
-    <Section Space="Space.Y.Is6">
-        <DemoSection Title="With Form Controls" Code="@(@"<Div Class=""grid gap-4 md:grid-cols-2"">
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Div Space="Space.Y.Is6">
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Label in Field"
+                         Description="Associate the label with the control using FieldLabel and matching ids."
+                         Code="@LabelInFieldCode"
+                         CodeLanguage="razor">
+                <Field Class="max-w-xs">
+                    <FieldLabel For="label-field-email">Email</FieldLabel>
+                    <Input Id="label-field-email" Type="email" Placeholder="name@example.com" />
+                    <FieldDescription>We will never share your email.</FieldDescription>
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="RTL"
+                         Description="Labels and inputs follow DirectionProvider."
+                         Code="@RtlCode"
+                         CodeLanguage="razor">
+                <DirectionProvider Dir="rtl">
+                    <Field Class="max-w-xs text-right">
+                        <FieldLabel For="label-rtl-email">البريد الإلكتروني</FieldLabel>
+                        <Input Id="label-rtl-email" Type="email" Placeholder="بريد@مثال.كوم" />
+                        <FieldDescription>لن نشارك بريدك مع أحد.</FieldDescription>
+                    </Field>
+                </DirectionProvider>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
+            <Paragraph TextColor="TextColor.MutedForeground">
+                Standalone labels, grids, and pairing with native controls.
+            </Paragraph>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Basic"
+                         Description="Label with Form association for stacked layout."
+                         Code="@BasicCode"
+                         CodeLanguage="razor">
+                <Div Class="max-w-xs space-y-1">
+                    <Label Form="true" For="label-basic-input">Basic Label</Label>
+                    <Input Id="label-basic-input" Placeholder="Enter text" />
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="With Form Controls"
+                         Description="Two columns of labeled inputs."
+                         Code="@FormControlsCode"
+                         CodeLanguage="razor">
+                <Div Class="grid gap-4 md:grid-cols-2">
+                    <Div Class="space-y-1">
+                        <Label Form="true" For="label-username">Username</Label>
+                        <Input Id="label-username" Placeholder="Enter username" />
+                    </Div>
+                    <Div Class="space-y-1">
+                        <Label Form="true" For="label-password">Password</Label>
+                        <Input Id="label-password" Type="password" Placeholder="Enter password" />
+                    </Div>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="With Checkbox and Radio"
+                         Description="Label as caption for checkbox or radio controls."
+                         Code="@CheckboxRadioCode"
+                         CodeLanguage="razor">
+                <Div Class="space-y-4">
+                    <Div Class="flex items-center gap-2">
+                        <input type="checkbox" id="label-remember-me" class="h-4 w-4 rounded border-input" />
+                        <Label For="label-remember-me" Class="cursor-pointer">Remember me</Label>
+                    </Div>
+                    <Div>
+                        <Label Form="true" Class="mb-2 block">Choose an option:</Label>
+                        <Div Class="flex gap-4">
+                            <Div Class="flex items-center gap-2">
+                                <input type="radio" name="label-option" id="label-option1" value="option1" class="h-4 w-4" />
+                                <Label For="label-option1" Class="cursor-pointer">Option 1</Label>
+                            </Div>
+                            <Div Class="flex items-center gap-2">
+                                <input type="radio" name="label-option" id="label-option2" value="option2" class="h-4 w-4" />
+                                <Label For="label-option2" Class="cursor-pointer">Option 2</Label>
+                            </Div>
+                        </Div>
+                    </Div>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Label Features"
+                         Description="Common Label properties in Quark."
+                         Code="@FeaturesCode"
+                         CodeLanguage="razor">
+                <Div Class="rounded-xl border bg-muted/30 p-6">
+                    <UnorderedList Class="list-inside list-disc space-y-1 text-sm">
+                        <UnorderedListItem><Strong>Id, Class, Style</Strong> — HTML attributes</UnorderedListItem>
+                        <UnorderedListItem><Strong>Form, For</Strong> — Form association</UnorderedListItem>
+                        <UnorderedListItem><Strong>Margin/Padding</Strong> — Spacing</UnorderedListItem>
+                    </UnorderedList>
+                </Div>
+            </DemoSection>
+        </Section>
+    </Div>
+</Div>
+
+@code {
+    private const string LabelInFieldCode =
+@"<Field Class=""max-w-xs"">
+    <FieldLabel For=""label-field-email"">Email</FieldLabel>
+    <Input Id=""label-field-email"" Type=""email"" Placeholder=""name@example.com"" />
+    <FieldDescription>We will never share your email.</FieldDescription>
+</Field>";
+
+    private const string RtlCode =
+@"<DirectionProvider Dir=""rtl"">
+    <Field Class=""max-w-xs text-right"">
+        <FieldLabel For=""label-rtl-email"">البريد الإلكتروني</FieldLabel>
+        <Input Id=""label-rtl-email"" Type=""email"" Placeholder=""بريد@مثال.كوم"" />
+        <FieldDescription>لن نشارك بريدك مع أحد.</FieldDescription>
+    </Field>
+</DirectionProvider>";
+
+    private const string BasicCode =
+@"<Div Class=""max-w-xs space-y-1"">
+    <Label Form=""true"" For=""label-basic-input"">Basic Label</Label>
+    <Input Id=""label-basic-input"" Placeholder=""Enter text"" />
+</Div>";
+
+    private const string FormControlsCode =
+@"<Div Class=""grid gap-4 md:grid-cols-2"">
     <Div Class=""space-y-1"">
-        <Label Form=""true"" For=""username"">Username</Label>
-        <Input type=""text"" id=""username"" class=""flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"" placeholder=""Enter username""/>
+        <Label Form=""true"" For=""label-username"">Username</Label>
+        <Input Id=""label-username"" Placeholder=""Enter username"" />
     </Div>
     <Div Class=""space-y-1"">
-        <Label Form=""true"" For=""password"">Password</Label>
-        <Input type=""password"" id=""password"" class=""flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"" placeholder=""Enter password""/>
+        <Label Form=""true"" For=""label-password"">Password</Label>
+        <Input Id=""label-password"" Type=""password"" Placeholder=""Enter password"" />
     </Div>
-</Div>")">
-            <Div Class="grid gap-4 md:grid-cols-2">
-                <Div Space="Space.Y.Is1">
-                    <Label Form="true" For="username">Username</Label>
-                    <Input type="text" id="username" class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" placeholder="Enter username"/>
-                </Div>
-                <Div Space="Space.Y.Is1">
-                    <Label Form="true" For="password">Password</Label>
-                    <Input type="password" id="password" class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" placeholder="Enter password"/>
-                </Div>
-            </Div>
-        </DemoSection>
-    </Section>
+</Div>";
 
-    <Section Space="Space.Y.Is6">
-        <DemoSection Title="With Checkbox & Radio" Code="@(@"<Div Class=""space-y-4"">
+    private const string CheckboxRadioCode =
+@"<Div Class=""space-y-4"">
     <Div Class=""flex items-center gap-2"">
-        <Input type=""checkbox"" id=""rememberMe"" class=""h-4 w-4 rounded border-input""/>
-        <Label For=""rememberMe"" Class=""cursor-pointer"">Remember me</Label>
+        <input type=""checkbox"" id=""label-remember-me"" class=""h-4 w-4 rounded border-input"" />
+        <Label For=""label-remember-me"" Class=""cursor-pointer"">Remember me</Label>
     </Div>
     <Div>
         <Label Form=""true"" Class=""mb-2 block"">Choose an option:</Label>
         <Div Class=""flex gap-4"">
             <Div Class=""flex items-center gap-2"">
-                <Input type=""radio"" name=""option"" id=""option1"" value=""option1"" class=""h-4 w-4""/>
-                <Label For=""option1"" Class=""cursor-pointer"">Option 1</Label>
+                <input type=""radio"" name=""label-option"" id=""label-option1"" value=""option1"" class=""h-4 w-4"" />
+                <Label For=""label-option1"" Class=""cursor-pointer"">Option 1</Label>
             </Div>
             <Div Class=""flex items-center gap-2"">
-                <Input type=""radio"" name=""option"" id=""option2"" value=""option2"" class=""h-4 w-4""/>
-                <Label For=""option2"" Class=""cursor-pointer"">Option 2</Label>
+                <input type=""radio"" name=""label-option"" id=""label-option2"" value=""option2"" class=""h-4 w-4"" />
+                <Label For=""label-option2"" Class=""cursor-pointer"">Option 2</Label>
             </Div>
         </Div>
     </Div>
-</Div>")">
-            <Div Space="Space.Y.Is4">
-                <Div Display="Display.Flex" AlignUtility="Align.ItemsCenter" Gap="Gap.Is2">
-                    <Input type="checkbox" id="rememberMe" class="h-4 w-4 rounded border-input"/>
-                    <Label For="rememberMe" Class="cursor-pointer">Remember me</Label>
-                </Div>
-                <Div>
-                    <Label Form="true" Class="mb-2 block">Choose an option:</Label>
-                    <Div Display="Display.Flex" Gap="Gap.Is4">
-                        <Div Display="Display.Flex" AlignUtility="Align.ItemsCenter" Gap="Gap.Is2">
-                            <Input type="radio" name="option" id="option1" value="option1" class="h-4 w-4"/>
-                            <Label For="option1" Class="cursor-pointer">Option 1</Label>
-                        </Div>
-                        <Div Display="Display.Flex" AlignUtility="Align.ItemsCenter" Gap="Gap.Is2">
-                            <Input type="radio" name="option" id="option2" value="option2" class="h-4 w-4"/>
-                            <Label For="option2" Class="cursor-pointer">Option 2</Label>
-                        </Div>
-                    </Div>
-                </Div>
-            </Div>
-        </DemoSection>
-    </Section>
+</Div>";
 
-    <Section Space="Space.Y.Is6">
-        <DemoSection Title="Label Features" Description="Overview of component structure and capabilities." Code="@(@"<UnorderedList Class=""list-inside list-disc space-y-1 text-sm"">
-    <UnorderedListItem><Strong>Id, Class, Style</Strong> — HTML attributes</UnorderedListItem>
-    <UnorderedListItem><Strong>Form, For</Strong> — Form association</UnorderedListItem>
-    <UnorderedListItem><Strong>Margin/Padding</Strong> — Spacing</UnorderedListItem>
-</UnorderedList>")">
-            <Div Class="rounded-xl border bg-muted/30 p-6">
-                <UnorderedList Class="list-inside list-disc space-y-1 text-sm">
-                    <UnorderedListItem><Strong>Id, Class, Style</Strong> — HTML attributes</UnorderedListItem>
-                    <UnorderedListItem><Strong>Form, For</Strong> — Form association</UnorderedListItem>
-                    <UnorderedListItem><Strong>Margin/Padding</Strong> — Spacing</UnorderedListItem>
-                </UnorderedList>
-            </Div>
-        </DemoSection>
-    </Section>
-</Div>
-
-@code {
-    protected override void OnInitialized() => Logger.LogInformation("Labels demo initialized");
+    private const string FeaturesCode =
+@"<Div Class=""rounded-xl border bg-muted/30 p-6"">
+    <UnorderedList Class=""list-inside list-disc space-y-1 text-sm"">
+        <UnorderedListItem><Strong>Id, Class, Style</Strong> — HTML attributes</UnorderedListItem>
+        <UnorderedListItem><Strong>Form, For</Strong> — Form association</UnorderedListItem>
+        <UnorderedListItem><Strong>Margin/Padding</Strong> — Spacing</UnorderedListItem>
+    </UnorderedList>
+</Div>";
 }

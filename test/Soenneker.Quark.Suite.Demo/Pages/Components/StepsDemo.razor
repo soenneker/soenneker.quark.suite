@@ -17,7 +17,8 @@
         <StepPanel Name=""step2"">Content for step 2</StepPanel>
         <StepPanel Name=""step3"">Content for step 3</StepPanel>
     </StepContent>
-</Steps>")">
+</Steps>")"
+CodeLanguage="razor">
         <Steps @ref="_basicStepsRef" @bind-SelectedStep="_currentStep" BackgroundColor="@("#FFFFFF")">
             <Step Name="step1">
                 <StepMarker>
@@ -78,7 +79,8 @@
         <StepPanel Name=""contact"">...</StepPanel>
         <StepPanel Name=""review"">...</StepPanel>
     </StepContent>
-</Steps>")">
+</Steps>")"
+CodeLanguage="razor">
         <Steps @ref="_validationStepsRef" @bind-SelectedStep="_currentValidationStep">
             <Step Name="personal">
                 <StepMarker>
@@ -161,7 +163,10 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Custom content" Description="Emoji markers and phase titles (Design, Development, Testing, Deployment).">
+            <DemoSection Title="Custom content"
+                         Description="Emoji markers and phase titles (Design, Development, Testing, Deployment)."
+                         Code="@StepsCustomContentCode"
+                         CodeLanguage="razor">
         <Steps @ref="_styledStepsRef" @bind-SelectedStep="_currentStyledStep">
             <Step Name="design">
                 <StepMarker>
@@ -245,7 +250,10 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Steps with navigation" Description="Account → Profile → Preferences with Complete Setup.">
+            <DemoSection Title="Steps with navigation"
+                         Description="Account → Profile → Preferences with Complete Setup."
+                         Code="@StepsNavigationCode"
+                         CodeLanguage="razor">
         <Steps @ref="_navigationStepsRef" @bind-SelectedStep="_currentNavigationStep">
             <Step Name="account">
                 <StepMarker>
@@ -343,7 +351,10 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Steps features" Description="Overview of component structure and capabilities.">
+            <DemoSection Title="Steps features"
+                         Description="Overview of component structure and capabilities."
+                         Code="@StepsFeaturesOverviewCode"
+                         CodeLanguage="razor">
                 <Div Rounded="Rounded.Lg" Border="Border.Is1" BorderColor="BorderColor.Border" BackgroundColor='BackgroundColor.Token("muted/50")' Padding="Padding.Is4">
                     <H3 TextSize="TextSize.Lg" FontWeight="FontWeight.Semibold">Steps Features</H3>
                     <Paragraph Margin="Margin.Is0">Steps components provide guided workflow functionality:</Paragraph>
@@ -364,6 +375,32 @@
 </Div>
 
 @code {
+    private const string StepsCustomContentCode =
+@"<Steps @bind-SelectedStep=""_currentStyledStep"">
+    <Step Name=""design"">
+        <StepMarker><Span>🎨</Span></StepMarker>
+        <StepCaption><Div Class=""step-title"">Design</Div></StepCaption>
+    </Step>
+    <StepContent>
+        <StepPanel Name=""design"">...</StepPanel>
+    </StepContent>
+</Steps>";
+
+    private const string StepsNavigationCode =
+@"<Steps @bind-SelectedStep=""_currentNavigationStep"">
+    <Step Name=""account"">...</Step>
+    <StepContent>
+        <StepPanel Name=""account"">
+            <TextInput Id=""username"" @bind-Value=""_accountInfo.Username""/>
+        </StepPanel>
+    </StepContent>
+</Steps>";
+
+    private const string StepsFeaturesOverviewCode =
+@"<Steps> — container
+<Step> — marker + caption
+<StepContent>/<StepPanel> — content per step";
+
     private Steps? _basicStepsRef;
     private Steps? _validationStepsRef;
     private Steps? _styledStepsRef;

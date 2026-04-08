@@ -5,9 +5,35 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Demo"
-                         Code="@DemoCode">
-                <Collapsible Open="_demoOpen" OpenChanged="OnDemoOpenChanged" Class="flex w-[350px] flex-col gap-2">
+            <DemoSection Title="Basic"
+                         Description="Card with a text trigger and collapsible body—the usual shadcn-style starting point."
+                         Code="@BasicCode"
+                         CodeLanguage="razor">
+                <Card Class="mx-auto w-full max-w-sm">
+                    <CardBody>
+                        <Collapsible Open="_basicOpen" OpenChanged="OnBasicOpenChanged" Class="rounded-md data-[state=open]:bg-muted">
+                            <CollapsibleTrigger AsChild="true">
+                                <Button Variant="ButtonVariant.Ghost" Class="group w-full justify-start">
+                                    Product details
+                                    <Icon Name="LucideIcon.ChevronDown" Class="ml-auto transition-transform group-data-[state=open]:rotate-180" />
+                                </Button>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent Class="flex flex-col items-start gap-2 p-2.5 pt-0 text-sm">
+                                <Div>This panel can be expanded or collapsed to reveal additional content.</Div>
+                                <Button Size="ButtonSize.Xs">Learn More</Button>
+                            </CollapsibleContent>
+                        </Collapsible>
+                    </CardBody>
+                </Card>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Order"
+                         Description="Order summary with status row and expandable shipping and line items."
+                         Code="@OrderCode"
+                         CodeLanguage="razor">
+                <Collapsible Open="_orderOpen" OpenChanged="OnOrderOpenChanged" Class="flex w-[350px] flex-col gap-2">
                     <Div class="flex items-center justify-between gap-4 px-4">
                         <Div class="text-sm font-semibold">Order #4189</Div>
                         <CollapsibleTrigger AsChild="true">
@@ -38,30 +64,10 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Basic"
-                         Code="@BasicCode">
-                <Card Class="mx-auto w-full max-w-sm">
-                    <CardBody>
-                        <Collapsible Open="_basicOpen" OpenChanged="OnBasicOpenChanged" Class="rounded-md data-[state=open]:bg-muted">
-                            <CollapsibleTrigger AsChild="true">
-                                <Button Variant="ButtonVariant.Ghost" Class="group w-full justify-start">
-                                    Product details
-                                    <Icon Name="LucideIcon.ChevronDown" Class="ml-auto transition-transform group-data-[state=open]:rotate-180" />
-                                </Button>
-                            </CollapsibleTrigger>
-                            <CollapsibleContent Class="flex flex-col items-start gap-2 p-2.5 pt-0 text-sm">
-                                <Div>This panel can be expanded or collapsed to reveal additional content.</Div>
-                                <Button Size="ButtonSize.Xs">Learn More</Button>
-                            </CollapsibleContent>
-                        </Collapsible>
-                    </CardBody>
-                </Card>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
             <DemoSection Title="Settings"
-                         Code="@SettingsCode">
+                         Description="Expandable fields for corner radius, with a compact toggle trigger."
+                         Code="@SettingsCode"
+                         CodeLanguage="razor">
                 <Card Class="mx-auto w-full max-w-xs" Size="CardSize.Sm">
                     <CardHeader>
                         <H3>Radius</H3>
@@ -113,7 +119,9 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="File Tree"
-                         Code="@FileTreeCode">
+                         Description="Nested folders and files using stacked collapsibles inside a small explorer card."
+                         Code="@FileTreeCode"
+                         CodeLanguage="razor">
                 <Card Class="mx-auto w-full max-w-[16rem] gap-2" Size="CardSize.Sm">
                     <CardHeader>
                         <Tabs Value="explorer">
@@ -206,7 +214,9 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
-                         Code="@RtlCode">
+                         Description="Order-style layout with inherited RTL direction."
+                         Code="@RtlCode"
+                         CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
                     <Div class="flex justify-center">
                         <Collapsible Open="_rtlOpen" OpenChanged="OnRtlOpenChanged" Class="flex w-[350px] flex-col gap-2 text-right">
@@ -238,16 +248,17 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Quark-only examples</H2>
-            <Paragraph TextColor="TextColor.MutedForeground">
-                These examples show additional collapsible states beyond the core examples above.
-            </Paragraph>
-        </Section>
+            <Div Space="Space.Y.Is2">
+                <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
+                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                    Non-interactive and locked panels.
+                </Paragraph>
+            </Div>
 
-        <Section Space="Space.Y.Is4">
             <DemoSection Title="Disabled"
                          Description="Disable the whole collapsible when a panel should stay locked."
-                         Code="@DisabledCode">
+                         Code="@DisabledCode"
+                         CodeLanguage="razor">
                 <Collapsible Open="true" Disabled="true">
                     <CollapsibleTrigger Class="flex w-full items-center justify-between rounded-md border bg-card px-4 py-3">
                         <Span>Production deployment</Span>
@@ -260,7 +271,7 @@
 </Div>
 
 @code {
-    private bool _demoOpen;
+    private bool _orderOpen;
     private bool _basicOpen = true;
     private bool _settingsOpen;
     private bool _rtlOpen;
@@ -268,8 +279,8 @@
     private bool _uiOpen = true;
     private bool _libOpen = true;
 
-    private const string DemoCode =
-@"<Collapsible Open=""_demoOpen"" OpenChanged=""OnDemoOpenChanged"" Class=""flex w-[350px] flex-col gap-2"">
+    private const string OrderCode =
+@"<Collapsible Open=""_orderOpen"" OpenChanged=""OnOrderOpenChanged"" Class=""flex w-[350px] flex-col gap-2"">
     <Div class=""flex items-center justify-between gap-4 px-4"">
         <Div class=""text-sm font-semibold"">Order #4189</Div>
         <CollapsibleTrigger AsChild=""true"">
@@ -420,9 +431,9 @@
     </CollapsibleTrigger>
 </Collapsible>";
 
-    private Task OnDemoOpenChanged(bool value)
+    private Task OnOrderOpenChanged(bool value)
     {
-        _demoOpen = value;
+        _orderOpen = value;
         return Task.CompletedTask;
     }
 

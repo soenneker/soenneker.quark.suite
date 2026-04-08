@@ -5,36 +5,11 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Demo"
-                         Code="@DemoCode">
-                <TextArea Placeholder="Type your message here." />
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Button"
-                         Code="@ButtonCode">
-                <Div Class="grid w-full gap-2">
-                    <TextArea Placeholder="Type your message here." />
-                    <Button>Send message</Button>
-                </Div>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Disabled"
-                         Code="@DisabledCode">
-                <Field Disabled="true">
-                    <FieldLabel For="textarea-disabled">Message</FieldLabel>
-                    <TextArea Id="textarea-disabled" Placeholder="Type your message here." Disabled="true" />
-                </Field>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
             <DemoSection Title="Field"
-                         Code="@FieldCode">
-                <Field>
+                         Description="Compose label, description, and textarea together."
+                         Code="@FieldCode"
+                         CodeLanguage="razor">
+                <Field Class="max-w-xs">
                     <FieldLabel For="textarea-message">Message</FieldLabel>
                     <FieldDescription>Enter your message below.</FieldDescription>
                     <TextArea Id="textarea-message" Placeholder="Type your message here." />
@@ -43,27 +18,69 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Disabled"
+                         Description="Disable the control and set data-disabled on the field."
+                         Code="@DisabledCode"
+                         CodeLanguage="razor">
+                <Field Class="max-w-xs" Disabled="true">
+                    <FieldLabel For="textarea-disabled">Message</FieldLabel>
+                    <TextArea Id="textarea-disabled" Placeholder="Type your message here." Disabled="true" />
+                </Field>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Invalid"
-                         Code="@InvalidCode">
-                <Field IsInvalid="true">
+                         Description="Use Field IsInvalid so the textarea gets aria-invalid styling."
+                         Code="@InvalidCode"
+                         CodeLanguage="razor">
+                <Field Class="max-w-xs" IsInvalid="true">
                     <FieldLabel For="textarea-invalid">Message</FieldLabel>
-                    <TextArea Id="textarea-invalid" Placeholder="Type your message here." aria-invalid="true" />
+                    <TextArea Id="textarea-invalid" Placeholder="Type your message here." />
                     <FieldDescription>Please enter a valid message.</FieldDescription>
                 </Field>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Quark-only examples</H2>
+            <DemoSection Title="Button"
+                         Description="Stack a primary action under the textarea."
+                         Code="@ButtonCode"
+                         CodeLanguage="razor">
+                <Div Class="grid w-full max-w-xs gap-2">
+                    <TextArea Placeholder="Type your message here." />
+                    <Button>Send message</Button>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="RTL"
+                         Description="Textareas respect direction from DirectionProvider."
+                         Code="@RtlCode"
+                         CodeLanguage="razor">
+                <DirectionProvider Dir="rtl">
+                    <Field Class="w-full max-w-xs">
+                        <FieldLabel For="feedback">التعليقات</FieldLabel>
+                        <TextArea Id="feedback" Rows="4" Placeholder="شاركنا ملاحظاتك حول التجربة..." />
+                        <FieldDescription>نقدر وقتك في مشاركة الملاحظات.</FieldDescription>
+                    </Field>
+                </DirectionProvider>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
             <Paragraph TextColor="TextColor.MutedForeground">
-                These examples show additional textarea behaviors beyond the core examples above.
+                Row limits, max length, and two-way binding patterns for longer forms.
             </Paragraph>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Rows and Max Length"
                          Description="Configure size and content limits for longer multi-line input."
-                         Code="@RowsCode">
+                         Code="@RowsCode"
+                         CodeLanguage="razor">
                 <TextArea @bind-Value="_notes" Rows="6" MaxLength="200" Placeholder="Up to 200 chars..." />
                 <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">Characters: @(_notes?.Length ?? 0)/200</Paragraph>
             </DemoSection>
@@ -71,8 +88,9 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Bound Value"
-                         Description="Bind textarea input directly when the page needs live state feedback."
-                         Code="@BoundValueCode">
+                         Description="Bind textarea value when the page needs live state feedback."
+                         Code="@BoundValueCode"
+                         CodeLanguage="razor">
                 <TextArea @bind-Value="_message" Placeholder="Type your message..." />
                 <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">Value: @_message</Paragraph>
             </DemoSection>
@@ -81,33 +99,40 @@
 </Div>
 
 @code {
-    private const string DemoCode = @"<TextArea Placeholder=""Type your message here."" />";
-
-    private const string ButtonCode =
-@"<Div Class=""grid w-full gap-2"">
-    <TextArea Placeholder=""Type your message here."" />
-    <Button>Send message</Button>
-</Div>";
-
-    private const string DisabledCode =
-@"<Field Disabled=""true"">
-    <FieldLabel For=""textarea-disabled"">Message</FieldLabel>
-    <TextArea Id=""textarea-disabled"" Placeholder=""Type your message here."" Disabled=""true"" />
-</Field>";
-
     private const string FieldCode =
-@"<Field>
+@"<Field Class=""max-w-xs"">
     <FieldLabel For=""textarea-message"">Message</FieldLabel>
     <FieldDescription>Enter your message below.</FieldDescription>
     <TextArea Id=""textarea-message"" Placeholder=""Type your message here."" />
 </Field>";
 
+    private const string DisabledCode =
+@"<Field Class=""max-w-xs"" Disabled=""true"">
+    <FieldLabel For=""textarea-disabled"">Message</FieldLabel>
+    <TextArea Id=""textarea-disabled"" Placeholder=""Type your message here."" Disabled=""true"" />
+</Field>";
+
     private const string InvalidCode =
-@"<Field IsInvalid=""true"">
+@"<Field Class=""max-w-xs"" IsInvalid=""true"">
     <FieldLabel For=""textarea-invalid"">Message</FieldLabel>
-    <TextArea Id=""textarea-invalid"" Placeholder=""Type your message here."" aria-invalid=""true"" />
+    <TextArea Id=""textarea-invalid"" Placeholder=""Type your message here."" />
     <FieldDescription>Please enter a valid message.</FieldDescription>
 </Field>";
+
+    private const string ButtonCode =
+@"<Div Class=""grid w-full max-w-xs gap-2"">
+    <TextArea Placeholder=""Type your message here."" />
+    <Button>Send message</Button>
+</Div>";
+
+    private const string RtlCode =
+@"<DirectionProvider Dir=""rtl"">
+    <Field Class=""w-full max-w-xs"">
+        <FieldLabel For=""feedback"">التعليقات</FieldLabel>
+        <TextArea Id=""feedback"" Rows=""4"" Placeholder=""شاركنا ملاحظاتك حول التجربة..."" />
+        <FieldDescription>نقدر وقتك في مشاركة الملاحظات.</FieldDescription>
+    </Field>
+</DirectionProvider>";
 
     private const string RowsCode =
 @"<TextArea @bind-Value=""_notes"" Rows=""6"" MaxLength=""200"" Placeholder=""Up to 200 chars..."" />

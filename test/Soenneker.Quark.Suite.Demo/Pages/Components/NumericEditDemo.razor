@@ -10,7 +10,8 @@
         <NumericInput Id=""basicNumeric"" Placeholder=""Enter a number..."" @bind-Value=""_basicValue""/>
     </FieldBody>
 </Field>
-<NumericInput Id=""decimalNumeric"" Placeholder=""Enter a decimal..."" @bind-Value=""_decimalValue""/>")">
+<NumericInput Id=""decimalNumeric"" Placeholder=""Enter a decimal..."" @bind-Value=""_decimalValue""/>")"
+CodeLanguage="razor">
         <Field>
             <FieldLabel For="basicNumeric">Basic Numeric Input</FieldLabel>
             <FieldBody>
@@ -31,7 +32,8 @@
 <Hr/>
 
 <DemoSection Title="NumericInput with Min/Max" Description="Min and Max constrain the value range." Code="@(@"<NumericInput Id=""minMaxNumeric"" Min=""18"" Max=""100"" Placeholder=""Enter your age..."" @bind-Value=""_ageValue""/>
-<NumericInput Id=""positiveNumeric"" Min=""0"" Placeholder=""Positive only..."" @bind-Value=""_positiveValue""/>")">
+<NumericInput Id=""positiveNumeric"" Min=""0"" Placeholder=""Positive only..."" @bind-Value=""_positiveValue""/>")"
+CodeLanguage="razor">
     <Field>
         <FieldLabel For="minMaxNumeric">Age (18-100)</FieldLabel>
         <FieldBody>
@@ -51,7 +53,8 @@
 <Hr/>
 
 <DemoSection Title="NumericInput with Step" Description="Step for increment/decrement." Code="@(@"<NumericInput Id=""stepNumeric"" Step=""5"" Placeholder=""Increments of 5..."" @bind-Value=""_stepValue""/>
-<NumericInput Id=""decimalStepNumeric"" Step=""0.1m"" Placeholder=""Decimal increments..."" @bind-Value=""_decimalStepValue""/>")">
+<NumericInput Id=""decimalStepNumeric"" Step=""0.1m"" Placeholder=""Decimal increments..."" @bind-Value=""_decimalStepValue""/>")"
+CodeLanguage="razor">
     <Div Margin="Margin.Is3.FromEnd" Space="Space.Y.Is4">
         <Field>
             <FieldLabel For="stepNumeric">Step by 5</FieldLabel>
@@ -77,7 +80,8 @@
         <NumericInput Id=""requiredNumeric"" Placeholder=""Required"" @bind-Value=""_validationModel.RequiredNumber""/>
         <ValidationError/>
     </Validation>
-</Validations>")">
+</Validations>")"
+CodeLanguage="razor">
     <Validations Model="_validationModel">
         <Div Margin="Margin.Is3.FromEnd" Space="Space.Y.Is4">
             <Field>
@@ -105,7 +109,8 @@
 <Hr/>
 
 <DemoSection Title="NumericInput with Different Sizes" Description="Size and Class for styling." Code="@(@"<NumericInput Id=""smallNumeric"" Class=""form-control-sm"" @bind-Value=""_smallValue""/>
-<NumericInput Id=""largeNumeric"" Class=""form-control-lg"" @bind-Value=""_largeValue""/>")">
+<NumericInput Id=""largeNumeric"" Class=""form-control-lg"" @bind-Value=""_largeValue""/>")"
+CodeLanguage="razor">
     <Div Margin="Margin.Is3.FromEnd" Space="Space.Y.Is4">
         <Field>
             <FieldLabel For="smallNumeric">Small NumericInput</FieldLabel>
@@ -130,7 +135,10 @@
 
 <Hr/>
 
-<DemoSection Title="NumericInput with Custom Styling" Description="Override styles with Style and Class.">
+<DemoSection Title="NumericInput with Custom Styling"
+             Description="Override styles with Style and Class."
+             Code="@NumericCustomStylingCode"
+             CodeLanguage="razor">
     <Div Margin="Margin.Is3.FromEnd">
         <Div Margin="Margin.Is3.FromBottom">
             <Label For="customNumeric" Form="true">Custom Styled NumericInput</Label>
@@ -153,7 +161,10 @@
 
 <Hr/>
 
-<DemoSection Title="NumericInput with Icons and Add-ons" Description="Input groups with icons and add-ons.">
+<DemoSection Title="NumericInput with Icons and Add-ons"
+             Description="Input groups with icons and add-ons."
+             Code="@NumericIconsAddonsCode"
+             CodeLanguage="razor">
     <Div Margin="Margin.Is3.FromEnd">
         <Div Margin="Margin.Is3.FromBottom">
             <Label For="iconNumeric" Form="true">NumericInput with Icon</Label>
@@ -177,7 +188,10 @@
 
 <Hr/>
 
-<DemoSection Title="NumericInput Events" Description="Input, focus, and blur event handling.">
+<DemoSection Title="NumericInput Events"
+             Description="Input, focus, and blur event handling."
+             Code="@NumericEventsCode"
+             CodeLanguage="razor">
     <Div Margin="Margin.Is3.FromEnd">
         <Div Margin="Margin.Is3.FromBottom">
             <Label For="eventNumeric" Form="true">NumericInput with Events</Label>
@@ -196,7 +210,10 @@
 
 <Hr/>
 
-<DemoSection Title="NumericInput Component Properties" Description="Properties inherited from Element base.">
+<DemoSection Title="NumericInput Component Properties"
+             Description="Properties inherited from Element base."
+             Code="@NumericComponentPropertiesCode"
+             CodeLanguage="razor">
     <Div BackgroundColor="BackgroundColor.Muted" Padding="Padding.Is3" Margin="Margin.Is3.FromBottom">
         <H3>NumericInput Features</H3>
         <Paragraph>The NumericInput component inherits all properties from the Element base class plus:</Paragraph>
@@ -217,7 +234,10 @@
 
 <Hr/>
 
-<DemoSection Title="Accessibility Features" Description="ARIA attributes for screen readers.">
+<DemoSection Title="Accessibility Features"
+             Description="ARIA attributes for screen readers."
+             Code="@NumericA11yCode"
+             CodeLanguage="razor">
     <Div Margin="Margin.Is3.FromEnd">
         <Div Margin="Margin.Is3.FromBottom">
             <Label For="accessibleNumeric" Form="true">Accessible NumericInput</Label>
@@ -234,6 +254,24 @@
 </Div>
 
 @code {
+    private const string NumericCustomStylingCode =
+@"<NumericInput Class=""custom-numeric"" Style=""border: 2px solid #6f42c1; ..."" @bind-Value=""_customValue""/>";
+
+    private const string NumericIconsAddonsCode =
+@"<Div Class=""input-group"">
+    <Span Class=""input-group-text""><Icon Name=""LucideIcon.Calculator""/></Span>
+    <NumericInput @bind-Value=""_iconValue""/>
+</Div>";
+
+    private const string NumericEventsCode =
+@"<NumericInput @bind-Value=""_eventValue"" @oninput=""HandleInput"" @onfocus=""HandleFocus"" @onblur=""HandleBlur""/>";
+
+    private const string NumericComponentPropertiesCode =
+@"<NumericInput Min=""0"" Max=""100"" Step=""1"" Placeholder=""..."" ReadOnly=""false"" Disabled=""false"" />";
+
+    private const string NumericA11yCode =
+@"<NumericInput AriaLabel=""Enter a numeric value"" AriaDescribedBy=""numeric-help"" @bind-Value=""_accessibleValue""/>
+<Small Id=""numeric-help"">Helper text</Small>";
 
     private decimal? _basicValue = null;
     private decimal? _decimalValue = null;

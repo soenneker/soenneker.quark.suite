@@ -7,25 +7,10 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Demo"
-                         Description="@($"Value animates from 13 to 66 after a short delay. Current: {_demoProgress}.")"
-                         Code="@DemoCode">
-                <Progress ProgressValue="@_demoProgress" Class="w-[60%]" />
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-            <DemoSection Title="Basic"
-                         Description="A single determinate value."
-                         Code="@BasicCode">
-                <Progress ProgressValue="33" Class="w-full" />
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
             <DemoSection Title="Label"
                          Description="Associate the bar with a label using matching id and for values."
-                         Code="@LabelCode">
+                         Code="@LabelCode"
+                         CodeLanguage="razor">
                 <Field Class="w-full max-w-sm">
                     <FieldLabel For="progress-upload" Class="!w-full flex flex-row items-center justify-between gap-2">
                         <Span>Upload progress</Span>
@@ -39,7 +24,8 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Controlled"
                          Description="@($"Drag the slider to set the bar. Current: {GetControlledPercent()}%.")"
-                         Code="@ControlledCode">
+                         Code="@ControlledCode"
+                         CodeLanguage="razor">
                 <Div Class="flex w-full max-w-sm flex-col gap-4">
                     <Progress ProgressValue="@GetControlledPercent()" Class="w-full" />
                     <Slider Min="0"
@@ -55,7 +41,8 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
                          Description="Layout and the bar respond to right-to-left direction."
-                         Code="@RtlCode">
+                         Code="@RtlCode"
+                         CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
                     <Field Class="w-full max-w-sm">
                         <FieldLabel For="progress-upload-rtl" Class="!w-full flex flex-row items-center justify-between gap-2">
@@ -71,14 +58,33 @@
         <Section Space="Space.Y.Is4">
             <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
             <Paragraph TextColor="TextColor.MutedForeground">
-                Indeterminate state when completion is unknown.
+                Static value, delayed update, and indeterminate loading.
             </Paragraph>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Basic"
+                         Description="A single determinate value."
+                         Code="@BasicCode"
+                         CodeLanguage="razor">
+                <Progress ProgressValue="33" Class="w-full" />
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Animated"
+                         Description="@($"Value updates from 13 to 66 after a short delay. Current: {_demoProgress}.")"
+                         Code="@AnimatedCode"
+                         CodeLanguage="razor">
+                <Progress ProgressValue="@_demoProgress" Class="w-[60%]" />
+            </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Indeterminate"
                          Description="Shows activity without a specific percentage."
-                         Code="@IndeterminateCode">
+                         Code="@IndeterminateCode"
+                         CodeLanguage="razor">
                 <Div Class="w-full max-w-md space-y-2">
                     <Div Class="flex items-center justify-between text-sm">
                         <Span>Preparing assets</Span>
@@ -96,7 +102,7 @@
     private int _demoProgress = 13;
     private double _controlledValue = 50;
 
-    private const string DemoCode =
+    private const string AnimatedCode =
 @"@using System.Threading
 @implements IAsyncDisposable
 

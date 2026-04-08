@@ -7,22 +7,10 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Demo"
-                         Description="@($"Current value: {_demoValue}.")"
-                         Code="@DemoCode">
-                <Slider Min="0"
-                        Max="100"
-                        Step="1"
-                        SliderValue="@_demoValue"
-                        SliderValueChanged="HandleDemoValueChanged"
-                        Class="mx-auto w-full max-w-xs" />
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
             <DemoSection Title="Range"
-                         Description="@($"Range: {RangeMin} - {RangeMax}.")"
-                         Code="@RangeCode">
+                         Description="@($"Two-thumb range. Current: {RangeMin} – {RangeMax}.")"
+                         Code="@RangeCode"
+                         CodeLanguage="razor">
                 <Slider Min="0"
                         Max="100"
                         Step="5"
@@ -34,8 +22,9 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Multiple Thumbs"
-                         Description="@($"Values: {string.Join(", ", _multipleValues.Select(v => v.ToString(CultureInfo.InvariantCulture)))}.")"
-                         Code="@MultipleCode">
+                         Description="@($"Several thumbs on one track. Values: {string.Join(", ", _multipleValues.Select(v => v.ToString(CultureInfo.InvariantCulture)))}.")"
+                         Code="@MultipleCode"
+                         CodeLanguage="razor">
                 <Slider Min="0"
                         Max="100"
                         Step="10"
@@ -47,8 +36,9 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Vertical"
-                         Description="@($"Left: {_verticalLeft}, right: {_verticalRight}.")"
-                         Code="@VerticalCode">
+                         Description="@($"Vertical sliders. Left: {_verticalLeft}, right: {_verticalRight}.")"
+                         Code="@VerticalCode"
+                         CodeLanguage="razor">
                 <Div Class="mx-auto flex w-full max-w-xs items-center justify-center gap-6">
                     <Slider Min="0"
                             Max="100"
@@ -71,7 +61,8 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Controlled"
                          Description="@TemperatureDescription"
-                         Code="@ControlledCode">
+                         Code="@ControlledCode"
+                         CodeLanguage="razor">
                 <Div Class="mx-auto grid w-full max-w-xs gap-3">
                     <Div Display="Display.Flex" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Between" Gap="Gap.Is2">
                         <Label For="slider-demo-temperature">Temperature</Label>
@@ -93,7 +84,8 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Disabled"
                          Description="Set Disabled to prevent interaction."
-                         Code="@DisabledCode">
+                         Code="@DisabledCode"
+                         CodeLanguage="razor">
                 <Slider Min="0"
                         Max="100"
                         Step="1"
@@ -105,8 +97,9 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
-                         Description="@($"Current value: {_rtlValue}.")"
-                         Code="@RtlCode">
+                         Description="@($"Slider direction follows DirectionProvider. Value: {_rtlValue}.")"
+                         Code="@RtlCode"
+                         CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
                     <Div Class="mx-auto w-full max-w-xs text-right">
                         <Slider Min="0"
@@ -123,14 +116,29 @@
         <Section Space="Space.Y.Is4">
             <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
             <Paragraph TextColor="TextColor.MutedForeground">
-                Step increments and size variants.
+                Single-thumb slider, step increments, and size variants beyond the reference sections above.
             </Paragraph>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Basic"
+                         Description="@($"Single thumb with min, max, and step. Current: {_demoValue}.")"
+                         Code="@BasicCode"
+                         CodeLanguage="razor">
+                <Slider Min="0"
+                        Max="100"
+                        Step="1"
+                        SliderValue="@_demoValue"
+                        SliderValueChanged="HandleDemoValueChanged"
+                        Class="mx-auto w-full max-w-xs" />
+            </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Step"
                          Description="@($"Step 5; current value: {_stepValue}.")"
-                         Code="@StepCode">
+                         Code="@StepCode"
+                         CodeLanguage="razor">
                 <Slider Min="0"
                         Max="100"
                         Step="5"
@@ -143,7 +151,8 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Sizes"
                          Description="Small, default, and large sizing options."
-                         Code="@SizesCode">
+                         Code="@SizesCode"
+                         CodeLanguage="razor">
                 <Div Space="Space.Y.Is4">
                     <Slider Min="0"
                             Max="100"
@@ -189,9 +198,9 @@
         string.Join(", ", _temperatureValues.Select(v => v.ToString("0.0", CultureInfo.InvariantCulture)));
 
     private string TemperatureDescription =>
-        $"Values: {TemperatureText}.";
+        $"Label + live readout. Values: {TemperatureText}.";
 
-    private const string DemoCode = @"<Slider Min=""0""
+    private const string BasicCode = @"<Slider Min=""0""
         Max=""100""
         Step=""1""
         SliderValue=""@_demoValue""

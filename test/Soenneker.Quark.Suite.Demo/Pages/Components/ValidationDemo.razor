@@ -24,7 +24,8 @@
         </FieldBody>
     </Field>
     <Button BackgroundColor=""@BackgroundColor.Primary"" @onclick=""ValidateForm"">Validate Form</Button>
-</Validations>")">
+</Validations>")"
+CodeLanguage="razor">
                 <Div Margin="Margin.Is3.FromEnd" Space="Space.Y.Is4">
                     <Validations @ref="_basicValidationsRef" Model="_basicModel">
                         <Field>
@@ -73,7 +74,8 @@
         </FieldBody>
     </Field>
     <Button BackgroundColor=""@BackgroundColor.Accent"" @onclick=""ValidateForm"">Validate All</Button>
-</Validations>")">
+</Validations>")"
+CodeLanguage="razor">
                 <Div Margin="Margin.Is3.FromEnd" Space="Space.Y.Is4">
                     <Validations @ref="_complexValidationsRef" Model="_complexModel">
                         <Grid Columns="Columns.Is1.OnMd.Is2" Gap="Gap.Is4">
@@ -174,7 +176,8 @@
             <DemoSection Title="Pattern Validation" Description="UsePattern, PatternString, PatternMessage for regex validation." Code="@(@"<Validation UsePattern=""true"" PatternString=""^\d{5}(-\d{4})?$"" PatternMessage=""Please enter a valid US ZIP code"">
     <TextInput Id=""zipCode"" @bind-Value=""_model.ZipCode"" />
     <ValidationError />
-</Validation>")">
+</Validation>")"
+CodeLanguage="razor">
                 <Div Margin="Margin.Is3.FromEnd" Space="Space.Y.Is4">
                     <Validations @ref="_patternValidationsRef" Model="_patternModel">
                         <Field>
@@ -214,7 +217,8 @@
             <DemoSection Title="Custom Validation Messages" Description="Custom validators with Action and error messages." Code="@(@"<Validation Action=""@ValidateUsername"">
     <TextInput Id=""username"" @bind-Value=""_model.Username"" />
     <ValidationError />
-</Validation>")">
+</Validation>")"
+CodeLanguage="razor">
                 <Div Margin="Margin.Is3.FromEnd" Space="Space.Y.Is4">
                     <Validations @ref="_customValidationsRef" Model="_customModel">
                         <Field>
@@ -246,7 +250,8 @@
     <TextInput Id=""successField"" @bind-Value=""_model.SuccessField"" />
     <ValidationError />
     <ValidationSuccess />
-</Validation>")">
+</Validation>")"
+CodeLanguage="razor">
                 <Div Margin="Margin.Is3.FromEnd" Space="Space.Y.Is4">
                     <Validations @ref="_successValidationsRef" Model="_successModel">
                         <Field>
@@ -266,7 +271,10 @@
 
             <Hr/>
 
-            <DemoSection Title="Validation Component Properties" Description="Validations, Validation, ValidationError, ValidationSuccess.">
+            <DemoSection Title="Validation Component Properties"
+                         Description="Validations, Validation, ValidationError, ValidationSuccess."
+                         Code="@ValidationComponentPropertiesCode"
+                         CodeLanguage="razor">
                 <Div BackgroundColor="BackgroundColor.Muted" Padding="Padding.Is3" Margin="Margin.Is3.FromBottom">
                     <H3>Validation Features</H3>
                     <Paragraph>Validation components provide comprehensive form validation:</Paragraph>
@@ -285,7 +293,10 @@
 
             <Hr/>
 
-            <DemoSection Title="Real-time Validation" Description="Validates as you type.">
+            <DemoSection Title="Real-time Validation"
+                         Description="Validates as you type."
+                         Code="@RealtimeValidationCode"
+                         CodeLanguage="razor">
                 <Div Margin="Margin.Is3.FromEnd" Space="Space.Y.Is4">
                     <Validations Model="_realtimeModel">
                         <Field>
@@ -309,6 +320,24 @@
 </Div>
 
 @code {
+    private const string ValidationComponentPropertiesCode =
+@"<Validations Model=""_model"">
+    <Validation>
+        <TextInput @bind-Value=""_model.Field"" />
+        <ValidationError />
+        <ValidationSuccess />
+    </Validation>
+</Validations>";
+
+    private const string RealtimeValidationCode =
+@"<Validations Model=""_realtimeModel"">
+    <Validation Action=""@ValidateRealtime"">
+        <TextInput @bind-Value=""_realtimeModel.RealtimeField"" @oninput=""HandleRealtimeInput"" />
+        <ValidationError />
+        <ValidationSuccess />
+    </Validation>
+</Validations>";
+
     private Validations? _basicValidationsRef;
     private Validations? _complexValidationsRef;
     private Validations? _patternValidationsRef;

@@ -8,7 +8,8 @@
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Basic"
                          Description="The basic command pattern is a searchable list of actions."
-                         Code="@CommandCode">
+                         Code="@CommandCode"
+                         CodeLanguage="razor">
                 <Div Class="max-w-md rounded-xl border bg-card shadow-sm">
                     <Command>
                         <CommandInput Placeholder="Type a command or search..." />
@@ -35,7 +36,9 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Shortcuts"
-                         Description="Shortcut hints can be rendered inline at the end of each command item.">
+                         Description="Shortcut hints can be rendered inline at the end of each command item."
+                         Code="@CommandShortcutsCode"
+                         CodeLanguage="razor">
                 <Div Class="max-w-md rounded-xl border bg-card shadow-sm">
                     <Command>
                         <CommandInput Placeholder="Search keyboard shortcuts..." />
@@ -55,7 +58,9 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Groups"
-                         Description="Use `CommandGroup`, `CommandSeparator`, and `CommandEmpty` to structure larger command sets.">
+                         Description="Use `CommandGroup`, `CommandSeparator`, and `CommandEmpty` to structure larger command sets."
+                         Code="@CommandGroupsCode"
+                         CodeLanguage="razor">
                 <Div Class="max-w-md rounded-xl border bg-card shadow-sm">
                     <Command>
                         <CommandInput Placeholder="Search grouped commands..." />
@@ -79,7 +84,9 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Scrollable"
-                         Description="Long command sets should scroll inside the list instead of expanding the whole surface.">
+                         Description="Long command sets should scroll inside the list instead of expanding the whole surface."
+                         Code="@CommandScrollableCode"
+                         CodeLanguage="razor">
                 <Div Class="max-w-md rounded-xl border bg-card shadow-sm">
                     <Command>
                         <CommandInput Placeholder="Search long list..." />
@@ -97,7 +104,9 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Command Dialog"
-                         Description="Use the dialog wrapper for a shadcn-style command palette overlay.">
+                         Description="Use the dialog wrapper for a shadcn-style command palette overlay."
+                         Code="@CommandDialogCode"
+                         CodeLanguage="razor">
                 <Div Space="Space.Y.Is3">
                     <Button Variant="ButtonVariant.Outline" OnClick="OpenDialog">Open command palette</Button>
 
@@ -204,4 +213,23 @@
         </CommandGroup>
     </CommandList>
 </Command>";
+
+    private const string CommandShortcutsCode =
+@"<CommandItem SearchValue=""Calendar"">Calendar<CommandShortcut>Ctrl+K</CommandShortcut></CommandItem>";
+
+    private const string CommandGroupsCode =
+@"<CommandList>
+    <CommandGroup Heading=""Suggestions"">...</CommandGroup>
+    <CommandSeparator />
+    <CommandGroup Heading=""Settings"">...</CommandGroup>
+</CommandList>";
+
+    private const string CommandScrollableCode =
+@"<CommandList Class=""max-h-56 overflow-y-auto"">...</CommandList>";
+
+    private const string CommandDialogCode =
+@"<CommandDialog Title=""Workspace actions"" Visible=""_dialogOpen"" VisibleChanged=""OnDialogVisibilityChanged"">
+    <CommandInput Placeholder=""Search..."" />
+    <CommandList>...</CommandList>
+</CommandDialog>";
 }

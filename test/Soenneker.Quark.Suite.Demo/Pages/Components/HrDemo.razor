@@ -6,7 +6,8 @@
     <Div Space="Space.Y.Is4">
         <DemoSection Title="Basic Horizontal Rules" Code="@(@"<Text>Content above</Text>
 <Hr/>
-<Text>Content below</Text>")">
+<Text>Content below</Text>")"
+CodeLanguage="razor">
             <Div>
                 <Text>Content above the horizontal rule</Text>
                 <Hr/>
@@ -14,7 +15,9 @@
             </Div>
         </DemoSection>
 
-        <DemoSection Title="Styled with Tailwind">
+        <DemoSection Title="Styled with Tailwind"
+                     Code="@HrStyledCode"
+                     CodeLanguage="razor">
             <Div Space="Space.Y.Is4">
                 <Div>
                     <Text>Default:</Text>
@@ -37,7 +40,8 @@
 
         <DemoSection Title="In Sections" Description="Hr separates content sections." Code="@(@"<Text>Section 1 content</Text>
 <Hr/>
-<Text>Section 2 content</Text>")">
+<Text>Section 2 content</Text>")"
+CodeLanguage="razor">
             <Div>
                 <Div TextSize="TextSize.Lg" FontWeight="FontWeight.Semibold">Section 1</Div>
                 <Text>Content of section 1.</Text>
@@ -50,7 +54,10 @@
             </Div>
         </DemoSection>
 
-        <DemoSection Title="Interactive" Description="Hr supports click events and other interactions.">
+        <DemoSection Title="Interactive"
+                     Description="Hr supports click events and other interactions."
+                     Code="@HrInteractiveCode"
+                     CodeLanguage="razor">
             <Div>
                 <Text Class="mb-2 block">Hover and click the rule below:</Text>
                 <Hr Class="cursor-pointer transition-all duration-300 hover:opacity-50" @onclick="HandleHrClick" Title="Click me!"/>
@@ -61,6 +68,14 @@
 </Div>
 
 @code {
+    private const string HrStyledCode =
+@"<Hr/>
+<Hr Class=""border-primary""/>
+<Hr Style=""height: 5px; background: linear-gradient(...); border: none;""/>";
+
+    private const string HrInteractiveCode =
+@"<Hr Class=""cursor-pointer hover:opacity-50"" @onclick=""HandleHrClick"" Title=""Click me!""/>";
+
     private int _clickCount;
 
     private void HandleHrClick(MouseEventArgs args)

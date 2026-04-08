@@ -15,7 +15,8 @@
             ...
         </SortableItem>
     }
-</SortableList>")">
+</SortableList>")"
+CodeLanguage="razor">
                 <Div Width="Width.IsFull" Class="max-w-3xl">
                     <SortableList OnReorder="HandleBacklogReorder">
                         @foreach (var card in _backlog)
@@ -52,7 +53,8 @@
             <Icon Name=""LucideIcon.GripVertical"" />
         </SortableHandle>
     </SortableItem>
-</SortableList>")">
+</SortableList>")"
+CodeLanguage="razor">
                 <Div Width="Width.IsFull" Class="max-w-3xl">
                     <SortableList HandleOnly="true" OnReorder="HandleReleaseStepReorder">
                         @foreach (var step in _releaseSteps)
@@ -85,7 +87,9 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Disabled"
-                         Description="Disable the list when the ordering is read-only or controlled elsewhere.">
+                         Description="Disable the list when the ordering is read-only or controlled elsewhere."
+                         Code="@SortableDisabledCode"
+                         CodeLanguage="razor">
                 <Div Width="Width.IsFull" Class="max-w-3xl">
                     <SortableList Disabled="true">
                         @foreach (var item in _frozenChecklist)
@@ -105,6 +109,11 @@
 </Div>
 
 @code {
+    private const string SortableDisabledCode =
+@"<SortableList Disabled=""true"">
+    <SortableItem ItemId=""a"">...</SortableItem>
+</SortableList>";
+
     private readonly List<SortableCard> _backlog =
     [
         new("usage-analytics", "Usage analytics dashboard", "Owned by Product", "Ready", "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"),
