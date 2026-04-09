@@ -14,8 +14,9 @@ public static class OverlayRegistrar
     /// </summary>
     public static IServiceCollection AddQuarkOverlayAsScoped(this IServiceCollection services)
     {
-        services.AddModuleImportUtilAsScoped()
-                .TryAddScoped<IOverlayInterop, OverlayInterop>();
+        services.AddModuleImportUtilAsScoped();
+        services.TryAddScoped<IOverlayInterop, OverlayInterop>();
+        services.TryAddScoped<IOverlayPortalService, OverlayPortalService>();
         return services;
     }
 }

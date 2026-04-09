@@ -1,9 +1,13 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using Microsoft.AspNetCore.Components.Web
 
 @if (ParentCollapsible is not null)
 {
-    <div @attributes="BuildAttributes()">
+    <div @onkeydown="HandleContentKeyDown"
+         @onkeydown:preventDefault="_contentEscapePreventDefault"
+         @onkeydown:stopPropagation="_contentEscapeStopPropagation"
+         @attributes="BuildAttributes()">
         @if (ParentCollapsible.Open)
         {
             @ChildContent
@@ -12,8 +16,32 @@
 }
 
 @code {
+    private bool _contentEscapePreventDefault;
+    private bool _contentEscapeStopPropagation;
+
     [CascadingParameter(Name = nameof(ParentCollapsible))]
     public Collapsible? ParentCollapsible { get; set; }
+
+    /// <summary>When <c>true</c> (default), Escape collapses the panel (Radix/shadcn-style; helps when focus is inside the region).</summary>
+    [Parameter]
+    public bool CloseOnEscape { get; set; } = true;
+
+    /// <summary>When <c>true</c> (default), after Escape closes the panel, focus returns to the trigger (requires a registered trigger element).</summary>
+    [Parameter]
+    public bool RestoreFocusToTriggerOnEscape { get; set; } = true;
+
+    private async Task HandleContentKeyDown(KeyboardEventArgs e)
+    {
+        _contentEscapePreventDefault = false;
+        _contentEscapeStopPropagation = false;
+
+        if (!CloseOnEscape || e.Key != "Escape" || ParentCollapsible is null || ParentCollapsible.Disabled || !ParentCollapsible.Open)
+            return;
+
+        _contentEscapePreventDefault = true;
+        _contentEscapeStopPropagation = true;
+        await ParentCollapsible.SetOpen(false, RestoreFocusToTriggerOnEscape);
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -22,6 +50,7 @@
         var open = ParentCollapsible?.Open == true;
         attributes["data-slot"] = "collapsible-content";
         attributes["data-state"] = open ? "open" : "closed";
+        attributes["aria-hidden"] = open ? "false" : "true";
 
         if (ParentCollapsible is not null)
         {
@@ -33,7 +62,10 @@
         }
 
         if (!open)
+        {
             attributes["hidden"] = true;
+            attributes["inert"] = true;
+        }
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -47,5 +79,7 @@
         hc.Add(ParentCollapsible?.Open == true);
         hc.Add(ParentCollapsible?.Disabled == true);
         hc.Add(ParentCollapsible?.TriggerId);
+        hc.Add(CloseOnEscape);
+        hc.Add(RestoreFocusToTriggerOnEscape);
     }
 }

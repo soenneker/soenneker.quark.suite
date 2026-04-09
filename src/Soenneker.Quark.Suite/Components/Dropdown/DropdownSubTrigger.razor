@@ -2,13 +2,15 @@
 @inherits Soenneker.Quark.FormControlElement
 @implements IDropdownFocusableItem
 
-<div @onmouseenter="HandleOpen" @onclick="HandleOpen" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()" @ref="_elementRef">
+<div @onmouseenter="HandleOpen" @onclick="HandleOpen" @onkeydown="HandleKeyDown" @onkeydown:preventDefault="_preventDefaultKeys" @onkeydown:stopPropagation="_stopPropagation" @attributes="BuildAttributes()" @ref="_elementRef">
     @ChildContent
     <Icon Name="LucideIcon.ChevronRight" Class="ml-auto size-4 rtl:ml-0 rtl:mr-auto rtl:rotate-180" />
 </div>
 
 @code {
     private ElementReference _elementRef;
+    private bool _preventDefaultKeys;
+    private bool _stopPropagation;
 
     [Parameter]
     public bool Inset { get; set; }
@@ -27,12 +29,9 @@
 
     bool IDropdownFocusableItem.IsDisabledForNavigation => Disabled;
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override void OnParametersSet()
     {
-        base.OnAfterRender(firstRender);
-
-        if (!firstRender)
-            return;
+        base.OnParametersSet();
 
         if (ParentDropdownSub is not null)
             ParentDropdownSub.RegisterTrigger(this);
@@ -50,12 +49,21 @@
 
     protected override async Task HandleKeyDown(KeyboardEventArgs e)
     {
+        _preventDefaultKeys = false;
+        _stopPropagation = false;
+
         if (e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
         {
             if (NavigationSub is not null)
+            {
                 await NavigationSub.HandleItemNavigationAsync(this, e.Key);
+                _preventDefaultKeys = true;
+            }
             else if (ParentDropdown is not null)
+            {
                 await ParentDropdown.HandleItemNavigationAsync(this, e.Key);
+                _preventDefaultKeys = true;
+            }
 
             return;
         }
@@ -63,13 +71,20 @@
         if (e.Key is "ArrowRight" or "Enter" or " ")
         {
             if (ParentDropdownSub is not null)
+            {
                 await ParentDropdownSub.OpenAndFocusFirstItemAsync();
+                _preventDefaultKeys = true;
+            }
 
             return;
         }
 
         if (e.Key == "Escape" && ParentDropdownSub is not null)
+        {
             await ParentDropdownSub.CloseAndFocusTriggerAsync();
+            _preventDefaultKeys = true;
+            _stopPropagation = true;
+        }
 
         await base.HandleKeyDown(e);
     }

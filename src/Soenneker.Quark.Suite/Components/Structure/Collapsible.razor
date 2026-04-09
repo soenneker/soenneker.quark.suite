@@ -1,6 +1,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Microsoft.AspNetCore.Components
 
 <CascadingValue Name="ParentCollapsible" Value="this">
     <div @attributes="BuildAttributes()">
@@ -19,6 +20,8 @@
     public bool Disabled { get; set; }
 
     private string? _generatedId;
+    private ElementReference _triggerElementRef;
+    private bool _pendingFocusTrigger;
 
     internal string ResolvedId => Id.HasContent() ? Id! : _generatedId ??= $"collapsible-{Guid.NewGuid():N}";
     internal string TriggerId => $"{ResolvedId}-trigger";
@@ -32,15 +35,44 @@
         await SetOpen(!Open);
     }
 
-    internal async Task SetOpen(bool open)
+    /// <summary>Sets the open state; optionally returns focus to the trigger after closing from content.</summary>
+    /// <param name="open">Target open state.</param>
+    /// <param name="restoreFocusToTrigger">When closing from the content region (e.g. Escape), move focus back to the trigger (Radix-style).</param>
+    internal async Task SetOpen(bool open, bool restoreFocusToTrigger = false)
     {
         if (Disabled || Open == open)
             return;
 
         Open = open;
+        if (!open && restoreFocusToTrigger)
+            _pendingFocusTrigger = true;
+
         InvalidateRender();
         Refresh();
         await OpenChanged.InvokeIfHasDelegate(Open);
+    }
+
+    internal void RegisterTriggerElement(ElementReference elementReference)
+    {
+        _triggerElementRef = elementReference;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!_pendingFocusTrigger)
+            return;
+
+        _pendingFocusTrigger = false;
+
+        try
+        {
+            await _triggerElementRef.FocusAsync();
+        }
+        catch (InvalidOperationException)
+        {
+        }
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

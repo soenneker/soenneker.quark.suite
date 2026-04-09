@@ -1,5 +1,6 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TriggerElement
+@using Microsoft.AspNetCore.Components.Web
 
 @if (AsChild)
 {
@@ -9,12 +10,21 @@
 }
 else
 {
-    <button type="button" @ref="_elementRef" @onclick="HandleActivate" @attributes="BuildAttributes()">
+    <button type="button"
+            @ref="_elementRef"
+            @onclick="HandleActivate"
+            @onkeydown="HandleOverlayDismissKeyDown"
+            @onkeydown:preventDefault="_keyPreventDefault"
+            @onkeydown:stopPropagation="_keyStopPropagation"
+            @attributes="BuildAttributes()">
         @ChildContent
     </button>
 }
 
 @code {
+    private bool _keyPreventDefault;
+    private bool _keyStopPropagation;
+
     [CascadingParameter(Name = nameof(ParentDialog))]
     public Dialog? ParentDialog { get; set; }
 
@@ -35,6 +45,9 @@ else
         attributes["aria-haspopup"] = "dialog";
         attributes["aria-expanded"] = ParentDialog?.Visible == true ? "true" : "false";
 
+        if (Context is not null)
+            attributes["id"] = Context.TriggerId;
+
         if (Disabled)
             attributes["disabled"] = true;
 
@@ -53,10 +66,14 @@ else
     {
         return new TriggerContext
         {
+            TriggerId = Context?.TriggerId,
             IsOpen = ParentDialog?.Visible == true,
             DataState = ParentDialog?.Visible == true ? "open" : "closed",
             AriaHasPopup = "dialog",
             AriaControls = ParentDialog?.Visible == true ? Context?.ContentId : null,
+            OnKeyDown = ParentDialog is null || Context is null
+                ? null
+                : e => OverlayTriggerKeyDown.HandleDismissWhenOpen(e, ParentDialog.Visible, () => ParentDialog.Hide()),
             RegisterElement = elementReference => _elementRef = elementReference,
             Toggle = ParentDialog is null
                 ? null
@@ -79,6 +96,25 @@ else
             },
             Close = ParentDialog is null ? null : () => ParentDialog.Hide()
         };
+    }
+
+    private async Task HandleOverlayDismissKeyDown(KeyboardEventArgs e)
+    {
+        _keyPreventDefault = false;
+        _keyStopPropagation = false;
+
+        if (Disabled || ParentDialog is null || Context is null)
+            return;
+
+        if ((e.Key == "Escape" || e.Key == "Enter" || e.Key == " ") && ParentDialog.Visible)
+        {
+            _keyPreventDefault = true;
+
+            if (e.Key == "Escape")
+                _keyStopPropagation = true;
+
+            await ParentDialog.Hide();
+        }
     }
 
     private async Task HandleActivate(MouseEventArgs args)
@@ -104,5 +140,6 @@ else
         hc.Add(Disabled);
         hc.Add(ParentDialog?.Visible ?? false);
         hc.Add(Context?.ContentId);
+        hc.Add(Context?.TriggerId);
     }
 }

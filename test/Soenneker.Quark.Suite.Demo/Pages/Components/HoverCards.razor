@@ -107,6 +107,33 @@
                 </DirectionProvider>
             </DemoSection>
         </Section>
+
+        <Section Space="Space.Y.Is4">
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Quark</H2>
+            <Paragraph TextColor="TextColor.MutedForeground">
+                <code>HoverCardContent</code> exposes a non-modal dialog (<code>role="dialog"</code>, <code>aria-modal="false"</code>).
+                When the preview has no visible heading, set the inherited <code>AriaLabel</code> on the content surface.
+                With a <code>HoverCardTrigger</code>, content uses the same viewport popper as <code>Popover</code> (flip/clamp, outside dismiss via <code>CloseImmediate</code>).
+                Set <code>DisableFloatingPosition</code> to keep the legacy absolute panel under the trigger.
+            </Paragraph>
+            <DemoSection Title="Accessible name without a heading"
+                         Description="Use AriaLabel so the dialog has an accessible name when content is body-only."
+                         Code="@AriaLabelCode"
+                         CodeLanguage="razor">
+                <Div Class="flex min-h-32 items-center justify-center">
+                    <HoverCard OpenDelay="100" CloseDelay="100">
+                        <HoverCardTrigger AsChild="true">
+                            <Button Variant="ButtonVariant.Outline">Preview</Button>
+                        </HoverCardTrigger>
+                        <HoverCardContent AriaLabel="Account preview" Class="max-w-xs">
+                            <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                                Supplementary text only — the panel name comes from aria-label, not a heading.
+                            </Paragraph>
+                        </HoverCardContent>
+                    </HoverCard>
+                </Div>
+            </DemoSection>
+        </Section>
     </Div>
 </Div>
 
@@ -156,6 +183,16 @@
                 <Paragraph class=""text-xs text-muted-foreground"">Joined December 2021</Paragraph>
             </Div>
         </Div>
+    </HoverCardContent>
+</HoverCard>";
+
+    private const string AriaLabelCode =
+@"<HoverCard OpenDelay=""100"" CloseDelay=""100"">
+    <HoverCardTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Preview</Button>
+    </HoverCardTrigger>
+    <HoverCardContent AriaLabel=""Account preview"" Class=""max-w-xs"">
+        <Paragraph TextSize=""TextSize.Sm"">Body-only content; name from aria-label.</Paragraph>
     </HoverCardContent>
 </HoverCard>";
 

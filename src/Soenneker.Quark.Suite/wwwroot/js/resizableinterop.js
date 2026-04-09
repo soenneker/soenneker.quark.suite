@@ -1,5 +1,64 @@
 let activeDrag = null;
 
+const resizableKeyboardGuards = new WeakMap();
+
+/**
+ * aria-orientation on the separator matches WAI-ARIA: horizontal line = vertical resize (ArrowUp/Down),
+ * vertical line = horizontal resize (ArrowLeft/Right). Must align with ResizablePanelGroup.HandleHandleKeyDownAsync.
+ */
+function shouldPreventResizeKey(handleEl, key) {
+  const o = handleEl.getAttribute("aria-orientation");
+  if (o === "horizontal") {
+    return key === "ArrowUp" || key === "ArrowDown";
+  }
+  if (o === "vertical") {
+    return key === "ArrowLeft" || key === "ArrowRight";
+  }
+  return false;
+}
+
+/**
+ * Capture-phase keydown on the panel group root: preventDefault only for resize arrow keys on a handle
+ * so Tab/Escape/other keys are not swallowed (Blazor previously used blanket @onkeydown:preventDefault on the handle).
+ */
+export function attachResizableKeyboardGuard(groupElement) {
+  if (!groupElement) {
+    return;
+  }
+
+  detachResizableKeyboardGuard(groupElement);
+
+  const handler = (ev) => {
+    const handle = ev.target?.closest?.('[data-slot="resizable-handle"]');
+    if (!handle || !groupElement.contains(handle)) {
+      return;
+    }
+
+    if (!shouldPreventResizeKey(handle, ev.key)) {
+      return;
+    }
+
+    ev.preventDefault();
+  };
+
+  groupElement.addEventListener("keydown", handler, true);
+  resizableKeyboardGuards.set(groupElement, handler);
+}
+
+export function detachResizableKeyboardGuard(groupElement) {
+  if (!groupElement) {
+    return;
+  }
+
+  const handler = resizableKeyboardGuards.get(groupElement);
+  if (!handler) {
+    return;
+  }
+
+  groupElement.removeEventListener("keydown", handler, true);
+  resizableKeyboardGuards.delete(groupElement);
+}
+
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }

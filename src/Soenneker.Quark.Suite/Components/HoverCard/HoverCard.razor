@@ -31,8 +31,10 @@
 
     protected override void OnInitialized()
     {
+        base.OnInitialized();
+
         _open = OpenChanged.HasDelegate ? Open : DefaultOpen;
-        _context = new HoverCardContext(() => _open, RequestOpenAsync, RequestCloseAsync);
+        _context = new HoverCardContext(() => _open, RequestOpenAsync, RequestOpenImmediateAsync, RequestCloseAsync, RequestCloseImmediateAsync);
     }
 
     protected override void OnParametersSet()
@@ -51,6 +53,22 @@
     private async Task RequestCloseAsync()
     {
         await ScheduleOpenStateAsync(false, CloseDelay);
+    }
+
+    private Task RequestCloseImmediateAsync()
+    {
+        _pendingTransitionCts?.Cancel();
+        _pendingTransitionCts?.Dispose();
+        _pendingTransitionCts = null;
+        return SetOpenAsync(false);
+    }
+
+    private Task RequestOpenImmediateAsync()
+    {
+        _pendingTransitionCts?.Cancel();
+        _pendingTransitionCts?.Dispose();
+        _pendingTransitionCts = null;
+        return SetOpenAsync(true);
     }
 
     private async Task ScheduleOpenStateAsync(bool open, int delay)

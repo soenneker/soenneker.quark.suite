@@ -6,10 +6,12 @@
        @onfocus="HandleFocus"
        @onkeydown="HandleKeyDown"
        @onkeydown:preventDefault="_preventDefaultKeys"
+       @onkeydown:stopPropagation="_escapeStopPropagation"
        @attributes="BuildAttributes()" />
 
 @code {
     private bool _preventDefaultKeys;
+    private bool _escapeStopPropagation;
 
     [CascadingParameter(Name = "ParentCombobox")]
     private Combobox? ParentCombobox { get; set; }
@@ -39,11 +41,22 @@
 
     protected override async Task HandleKeyDown(KeyboardEventArgs e)
     {
+        _escapeStopPropagation = false;
         bool preventBackspace = e.Key == "Backspace" && (ParentCombobox?.Search.IsNullOrEmpty() ?? false);
-        _preventDefaultKeys = e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End" or "Enter" or "Escape" || preventBackspace;
+        var listOpen = ParentCombobox?.Open == true;
+        _preventDefaultKeys = e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End"
+            || (e.Key == "Enter" && listOpen)
+            || preventBackspace
+            || (e.Key == "Escape" && listOpen);
 
         if (ParentCombobox != null && _preventDefaultKeys)
+        {
+            var wasOpen = ParentCombobox.Open;
             await ParentCombobox.HandleInputKeyDownAsync(e.Key);
+
+            if (e.Key == "Escape" && wasOpen)
+                _escapeStopPropagation = true;
+        }
 
         await base.HandleKeyDown(e);
     }
@@ -58,7 +71,9 @@
         attributes["autocomplete"] = "off";
         attributes["aria-autocomplete"] = "list";
         attributes["aria-expanded"] = ParentCombobox?.Open == true ? "true" : "false";
-        attributes["aria-activedescendant"] = ParentCombobox?.ActiveItemId ?? string.Empty;
+
+        if (ParentCombobox?.ActiveItemId.HasContent() == true)
+            attributes["aria-activedescendant"] = ParentCombobox.ActiveItemId;
 
         if (ParentCombobox is not null)
         {

@@ -4,7 +4,7 @@
 @implements ISelectItem<TValue>
 @implements ISelectFocusableItem
 
-<div @onclick="HandleItemClick" @onkeydown="HandleKeyDown" @onmouseenter="HandleMouseEnter" @attributes="BuildAttributes()" role="option" @ref="_elementRef">
+<div @onclick="HandleItemClick" @onkeydown="HandleKeyDown" @onkeydown:preventDefault="_preventDefaultKeys" @onkeydown:stopPropagation="_stopPropagation" @onmouseenter="HandleMouseEnter" @attributes="BuildAttributes()" role="option" @ref="_elementRef">
     <span data-slot="select-item-indicator" class="absolute right-2 flex size-3.5 items-center justify-center rtl:right-auto rtl:left-2">
         @if (IsSelected)
         {
@@ -26,6 +26,9 @@
 @code {
     private ElementReference _elementRef;
     private bool _isActive;
+    private bool _preventDefaultKeys;
+    private bool _stopPropagation;
+    private Select<TValue>? _registeredSelect;
 
     /// <summary>
     /// Gets or sets the value of the select item.
@@ -44,6 +47,7 @@
 
     private bool IsSelected => ParentSelect?.IsSelected(ItemValue) == true;
     string? ISelectFocusableItem.Value => ItemValue?.ToString();
+    string? ISelectFocusableItem.SearchText => Text.HasContent() ? Text : ItemValue?.ToString();
     string ISelectFocusableItem.ItemId => $"select-item-{Id}";
     bool ISelectFocusableItem.IsDisabledForNavigation => Disabled;
 
@@ -59,17 +63,20 @@
     {
         base.OnParametersSet();
 
+        if (!ReferenceEquals(_registeredSelect, ParentSelect))
+        {
+            if (_registeredSelect is not null)
+                _registeredSelect.UnregisterFocusableItem(this);
+
+            _registeredSelect = ParentSelect;
+
+            if (_registeredSelect is not null)
+                _registeredSelect.RegisterFocusableItem(this);
+        }
+
         var itemKey = ItemValue?.ToString();
         if (itemKey.HasContent() && ParentSelect is not null)
             ParentSelect.RegisterItem(itemKey!, Text);
-    }
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        base.OnAfterRender(firstRender);
-
-        if (firstRender)
-            ParentSelect?.RegisterFocusableItem(this);
     }
 
     private async Task HandleItemClick(MouseEventArgs _)
@@ -86,15 +93,37 @@
 
     protected override async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        if (ParentSelect is null)
+        _preventDefaultKeys = false;
+        _stopPropagation = false;
+
+        if (ParentSelect is null || Disabled)
             return;
 
+        if (!e.CtrlKey && !e.MetaKey && !e.AltKey && e.Key.Length == 1 && !char.IsControl(e.Key[0]))
+        {
+            if (await ParentSelect.TryHandleTypeaheadAsync(e.Key))
+            {
+                _preventDefaultKeys = true;
+                return;
+            }
+        }
+
         if (e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
+        {
             await ParentSelect.HandleItemNavigationAsync(this, e.Key);
+            _preventDefaultKeys = true;
+        }
         else if (e.Key is "Enter" or " ")
+        {
             await ParentSelect.SelectItem(ItemValue, Text);
+            _preventDefaultKeys = true;
+        }
         else if (e.Key == "Escape")
+        {
             await ParentSelect.CloseFromKeyboardAsync();
+            _preventDefaultKeys = true;
+            _stopPropagation = true;
+        }
 
         await base.HandleKeyDown(e);
     }
@@ -146,6 +175,14 @@
         await _elementRef.FocusAsync();
     }
 
+    async Task ISelectFocusableItem.InvokeSelectAsync()
+    {
+        if (Disabled || ParentSelect is null)
+            return;
+
+        await ParentSelect.SelectItem(ItemValue, Text);
+    }
+
     void ISelectFocusableItem.SetActive(bool active)
     {
         if (_isActive != active)
@@ -155,9 +192,16 @@
         }
     }
 
+    ElementReference ISelectFocusableItem.GetScrollAnchor()
+    {
+        return _elementRef;
+    }
+
     public override void Dispose()
     {
-        ParentSelect?.UnregisterFocusableItem(this);
+        if (_registeredSelect is not null)
+            _registeredSelect.UnregisterFocusableItem(this);
+
         base.Dispose();
     }
 }

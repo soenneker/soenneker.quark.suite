@@ -77,6 +77,8 @@ Code
 Column
 Column_{columnIndex}
 Compose
+ComputeRenderKeyCore
+Context
 ContextMenuNavigationSub
 Copied!
 Copy
@@ -110,7 +112,9 @@ HandleChange
 HandleClick
 HandleCloseButtonClick
 HandleColumnSort
+HandleContainerKeyDown
 HandleContainerRefReady
+HandleContentKeyDown
 HandleContextMenu
 HandleDefaultClick
 HandleDismiss
@@ -129,6 +133,7 @@ HandleMouseEnter
 HandleMouseLeave
 HandleNextClick
 HandleOpen
+HandleOverlayDismissKeyDown
 HandlePointerDown
 HandlePointerOpen
 HandlePreviousClick
@@ -139,6 +144,8 @@ HandleToggleClick
 HandleToggleKeyDown
 HandleTrackPointerDown
 HandleTriggerClick
+HandleTriggerEscapeKeyDown
+HandleTriggerFocus
 HandleValueChanged
 HandleWrapperClick
 HasLoadedOnce
@@ -196,6 +203,8 @@ OnMobileVisibleChanged
 OnMonthChanged
 OnPageSizeChangedHandler
 OnParametersSetAsync
+OnScrollDownPointerDown
+OnScrollUpPointerDown
 OnSearchInputHandler
 OnTriggerClick
 OnYearChanged
@@ -253,6 +262,7 @@ PrevMonth
 PreventDefault
 PreventLinkDefault
 Previous
+QuarkOverlayPortalHost
 Remove
 Scheduling
 Search
@@ -266,16 +276,17 @@ SidebarContextState
 SidebarProvider
 StopTriggerClickPropagation
 TNode
+TabListAriaLabel
+TabListAriaLabelledBy
 Table
 Theme
 Timeline
 Toggle
 ToggleAmPm
-ToggleClicked
+ToggleClickedAsync
 ToggleOpen
 TooltipProvider
 TotalRecords
-TreeViewNodeState<TNode>
 TriggerContext
 Unable
 UpdateContinuationTokenPaging
@@ -588,6 +599,7 @@ collapsible-content
 collapsible-trigger
 color:
 column
+columnheader
 columns
 combobox
 combobox-chip
@@ -826,6 +838,7 @@ data-[variant=label]:text-sm
 data-[variant=legend]:text-base
 data-active
 data-align
+data-align-trigger
 data-backdrop
 data-checked
 data-collapsible
@@ -868,6 +881,7 @@ data-value
 data-variant
 data-viewport
 date
+datepicker-content
 datetime-local
 decimal
 decoding
@@ -1057,6 +1071,7 @@ grid-flow-col
 grid-item
 grid-rows-[0fr]
 grid-rows-[auto_1fr]
+gridcell
 group
 group-action
 group-content
@@ -1205,6 +1220,7 @@ h-8
 h-9
 h-[1.15rem]
 h-[30px]
+h-[var(--radix-select-trigger-height)]
 h-auto
 h-fit
 h-full
@@ -1407,6 +1423,7 @@ ltr
 m-0!
 m14
 m15
+m18
 m21
 m6
 m9
@@ -1420,12 +1437,12 @@ margin-top:
 max
 max-h-(--radix-context-menu-content-available-height)
 max-h-(--radix-dropdown-menu-content-available-height)
-max-h-(--radix-select-content-available-height)
 max-h-0
 max-h-96
 max-h-[300px]
 max-h-[80vh]
 max-h-[90vh]
+max-h-[min(24rem,var(--radix-select-content-available-height,var(--quark-available-height)))]
 max-height:
 max-w-(--skeleton-width)
 max-w-0
@@ -1517,6 +1534,7 @@ min-w-[120px]
 min-w-[12rem]
 min-w-[18rem]
 min-w-[8rem]
+min-w-[var(--radix-select-trigger-width)]
 min-width:
 minlength
 mixed
@@ -1558,7 +1576,6 @@ new
 next
 no
 no-scrollbar
-node
 non-clickable
 none
 not
@@ -1613,8 +1630,8 @@ origin-(--radix-dropdown-menu-content-transform-origin)
 origin-(--radix-hover-card-content-transform-origin)
 origin-(--radix-menubar-content-transform-origin)
 origin-(--radix-popover-content-transform-origin)
-origin-(--radix-select-content-transform-origin)
 origin-(--radix-tooltip-content-transform-origin)
+origin-[var(--radix-select-content-transform-origin)]
 origin-top-center
 out
 outline-hidden
@@ -1624,9 +1641,11 @@ overflow-hidden
 overflow-x-auto
 overflow-x-hidden
 overflow-y-auto
+overlay-portal-host
 p-0
 p-0.5
 p-1
+p-1.5
 p-2
 p-3
 p-4
@@ -2001,6 +2020,8 @@ q-numeric-input
 q-ordered-list
 q-ordered-list-item
 q-overlay-container
+q-overlay-portal-host
+q-overlay-portal-layer
 q-pagination
 q-pagination-content
 q-pagination-ellipsis
@@ -2040,9 +2061,12 @@ q-select-content
 q-select-group
 q-select-item
 q-select-label
+q-select-scroll-down
+q-select-scroll-up
 q-select-separator
 q-select-trigger
 q-select-value
+q-select-viewport
 q-separator
 q-sheet
 q-sheet-close
@@ -2166,6 +2190,7 @@ q-validations
 q-video
 quark-calendar-panel
 quark-date-container
+quark-overlay-portal-host
 radio
 radio-group
 radio-group-indicator
@@ -2188,6 +2213,7 @@ resizable-panel
 resizable-panel-group
 resize-none
 resize:
+restoreFocusToTrigger
 return
 right
 right-0
@@ -2233,6 +2259,7 @@ rounded-t-xl
 rounded-tl-sm
 rounded-xl
 rounded-xs
+row
 row-span-2
 row-start-1
 rows
@@ -2308,6 +2335,7 @@ scroll-area-corner
 scroll-area-scrollbar
 scroll-area-viewport
 scroll-my-1
+scroll-my-1.5
 scroll-py-1
 select
 select-content
@@ -2317,9 +2345,12 @@ select-item-indicator
 select-item-{Id}
 select-label
 select-none
+select-scroll-down-button
+select-scroll-up-button
 select-separator
 select-trigger
 select-value
+select-viewport
 selection
 selection:bg-primary
 selection:text-primary-foreground
@@ -2596,10 +2627,13 @@ translate-x-px
 translate-y-0.5
 translate-y-[-50%]
 translate-y-[calc(-50%_-_2px)]
+tree
+treeitem
 trigger
 true
 truncate
 tt
+tuple
 type
 ui
 uint
@@ -2671,8 +2705,9 @@ z-10
 z-20
 z-40
 z-50
-z-[19990]
+z-[100]
+z-[109]
+z-[110]
 z-[1]
-z-[20000]
 z-index:
 zoom-in-95

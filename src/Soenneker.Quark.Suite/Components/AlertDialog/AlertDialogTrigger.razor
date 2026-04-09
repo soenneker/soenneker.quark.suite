@@ -1,6 +1,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TriggerElement
 @implements IAlertDialogTrigger
+@using Microsoft.AspNetCore.Components.Web
 
 @if (AsChild)
 {
@@ -10,12 +11,21 @@
 }
 else
 {
-    <button type="button" @onclick="HandleActivate" @ref="_elementRef" @attributes="BuildAttributes()">
+    <button type="button"
+            @onclick="HandleActivate"
+            @ref="_elementRef"
+            @onkeydown="HandleOverlayDismissKeyDown"
+            @onkeydown:preventDefault="_keyPreventDefault"
+            @onkeydown:stopPropagation="_keyStopPropagation"
+            @attributes="BuildAttributes()">
         @ChildContent
     </button>
 }
 
 @code {
+    private bool _keyPreventDefault;
+    private bool _keyStopPropagation;
+
     [CascadingParameter(Name = nameof(ParentAlertDialog))]
     public AlertDialog? ParentAlertDialog { get; set; }
 
@@ -36,6 +46,9 @@ else
         attributes["aria-haspopup"] = "alertdialog";
         attributes["aria-expanded"] = ParentAlertDialog?.Visible == true ? "true" : "false";
 
+        if (Context is not null)
+            attributes["id"] = Context.TriggerId;
+
         if (Disabled)
             attributes["disabled"] = true;
 
@@ -48,6 +61,25 @@ else
             if (Disabled)
                 AppendClass(ref cls, "pointer-events-none opacity-50");
         });
+    }
+
+    private async Task HandleOverlayDismissKeyDown(KeyboardEventArgs e)
+    {
+        _keyPreventDefault = false;
+        _keyStopPropagation = false;
+
+        if (Disabled || ParentAlertDialog is null || Context is null)
+            return;
+
+        if ((e.Key == "Escape" || e.Key == "Enter" || e.Key == " ") && ParentAlertDialog.Visible)
+        {
+            _keyPreventDefault = true;
+
+            if (e.Key == "Escape")
+                _keyStopPropagation = true;
+
+            await ParentAlertDialog.Hide();
+        }
     }
 
     private async Task HandleActivate(MouseEventArgs args)
@@ -65,10 +97,14 @@ else
     {
         return new TriggerContext
         {
+            TriggerId = Context?.TriggerId,
             IsOpen = ParentAlertDialog?.Visible == true,
             DataState = ParentAlertDialog?.Visible == true ? "open" : "closed",
             AriaHasPopup = "alertdialog",
             AriaControls = ParentAlertDialog?.Visible == true ? Context?.ContentId : null,
+            OnKeyDown = ParentAlertDialog is null || Context is null
+                ? null
+                : e => OverlayTriggerKeyDown.HandleDismissWhenOpen(e, ParentAlertDialog.Visible, () => ParentAlertDialog.Hide()),
             RegisterElement = elementReference => _elementRef = elementReference,
             Toggle = ParentAlertDialog is null
                 ? null
@@ -100,5 +136,6 @@ else
         hc.Add(Disabled);
         hc.Add(ParentAlertDialog?.Visible ?? false);
         hc.Add(Context?.ContentId);
+        hc.Add(Context?.TriggerId);
     }
 }

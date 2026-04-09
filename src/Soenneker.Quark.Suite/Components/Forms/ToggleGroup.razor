@@ -80,8 +80,13 @@
 
     internal void UnregisterItem(ToggleGroupItem item)
     {
-        if (_items.Remove(item))
-            _ = RefreshOffThread();
+        if (!_items.Remove(item))
+            return;
+
+        if (ReferenceEquals(_focusedItem, item))
+            _focusedItem = null;
+
+        _ = RefreshOffThread();
     }
 
     internal bool IsItemTabStop(ToggleGroupItem item)
@@ -130,20 +135,24 @@
         return false;
     }
 
-    internal async Task HandleItemKeyNavigationAsync(ToggleGroupItem currentItem, string key)
+    /// <summary>
+    /// Roving focus per orientation (horizontal: Left/Right + RTL; vertical: Up/Down) plus Home/End.
+    /// </summary>
+    /// <returns><c>true</c> if the key was handled (caller should prevent default).</returns>
+    internal async Task<bool> TryHandleItemKeyNavigationAsync(ToggleGroupItem currentItem, string key)
     {
-        if (_items.Count == 0)
-            return;
+        if (Disabled || _items.Count == 0)
+            return false;
 
         var enabledItems = _items.Where(i => !i.IsDisabledInGroup).ToList();
         if (enabledItems.Count == 0)
-            return;
+            return false;
 
         var currentIndex = enabledItems.FindIndex(i => ReferenceEquals(i, currentItem));
         if (currentIndex < 0)
-            return;
+            return false;
 
-        bool vertical = Orientation == ToggleGroupOrientation.Vertical;
+        var vertical = Orientation == ToggleGroupOrientation.Vertical;
 
         var nextIndex = key switch
         {
@@ -159,10 +168,11 @@
         };
 
         if (nextIndex < 0)
-            return;
+            return false;
 
         _focusedItem = enabledItems[nextIndex];
         await enabledItems[nextIndex].FocusAsync();
+        return true;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

@@ -7,6 +7,7 @@ namespace Soenneker.Quark;
 
 /// <summary>
 /// Focused base for overlay visibility state and overlay lifecycle callbacks.
+/// Modal Escape is handled in <see cref="IOverlayInterop"/> (document capture, stack-aware) for nested overlays.
 /// </summary>
 public abstract class OverlayElement : InteractiveElement
 {
@@ -50,6 +51,7 @@ public abstract class OverlayElement : InteractiveElement
     private ElementReference _overlayContentElement;
     private bool _hasOverlayContentElement;
     private bool _overlayBehaviorActive;
+    private DotNetObjectReference<OverlayElement>? _escapeInvoker;
 
     protected override bool ShouldRender()
     {
@@ -100,12 +102,46 @@ public abstract class OverlayElement : InteractiveElement
 
         try
         {
-            await OverlayInterop.Activate(_overlayId, _overlayContentElement, TrapFocus, LockScroll, InitialFocusSelector);
+            _escapeInvoker?.Dispose();
+            _escapeInvoker = DotNetObjectReference.Create(this);
+            await OverlayInterop.Activate(_overlayId, _overlayContentElement, TrapFocus, LockScroll, InitialFocusSelector, _escapeInvoker);
             _overlayBehaviorActive = true;
         }
         catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
         {
+            _escapeInvoker?.Dispose();
+            _escapeInvoker = null;
         }
+    }
+
+    /// <summary>
+    /// Invoked from the overlay module when Escape is pressed and this overlay is the top of the stack.
+    /// Returns whether the key event should be stopped so lower layers do not also react.
+    /// </summary>
+    [JSInvokable]
+    public async Task<bool> OnEscapeKeyAsync()
+    {
+        if (!CloseOnEscape || !ShouldDismissFromEscape())
+            return false;
+
+        await DismissFromEscapeAsync();
+        return true;
+    }
+
+    /// <summary>
+    /// When <c>false</c>, Escape is not turned into a dismiss (event may propagate — e.g. <c>Static</c> dialogs).
+    /// </summary>
+    protected virtual bool ShouldDismissFromEscape()
+    {
+        return true;
+    }
+
+    /// <summary>
+    /// Override to dismiss when the document-level Escape handler fires for this overlay (top of stack).
+    /// </summary>
+    protected virtual Task DismissFromEscapeAsync()
+    {
+        return Task.CompletedTask;
     }
 
     protected virtual async Task OnOverlayHiddenAsync()
@@ -143,6 +179,8 @@ public abstract class OverlayElement : InteractiveElement
         finally
         {
             _overlayBehaviorActive = false;
+            _escapeInvoker?.Dispose();
+            _escapeInvoker = null;
         }
     }
 

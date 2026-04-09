@@ -24,6 +24,8 @@
 </button>
 
 @code {
+    private Tabs? _registeredTabs;
+
     [Parameter]
     public string? Name { get; set; }
 
@@ -51,17 +53,31 @@
 
     private bool IsActive => string.Equals(ParentTabs?.ResolvedSelectedTab, Name, StringComparison.Ordinal);
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override void OnParametersSet()
     {
-        base.OnAfterRender(firstRender);
+        base.OnParametersSet();
+        SyncRegistrationWithParent();
+    }
 
-        if (firstRender && ParentTabs is not null)
-            ParentTabs.RegisterTab(this);
+    private void SyncRegistrationWithParent()
+    {
+        if (!ReferenceEquals(_registeredTabs, ParentTabs))
+        {
+            if (_registeredTabs is not null)
+                _registeredTabs.UnregisterTab(this);
+
+            _registeredTabs = ParentTabs;
+
+            if (_registeredTabs is not null)
+                _registeredTabs.RegisterTab(this);
+        }
     }
 
     public override void Dispose()
     {
-        ParentTabs?.UnregisterTab(this);
+        if (_registeredTabs is not null)
+            _registeredTabs.UnregisterTab(this);
+
         base.Dispose();
     }
 

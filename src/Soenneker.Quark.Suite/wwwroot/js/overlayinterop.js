@@ -10,7 +10,11 @@ const focusableSelectors = [
 ].join(', ');
 
 const traps = new Map();
+const escapeHandlers = new Map();
+/** @type {Map<string, Element>} overlay content roots (for Escape deferral to nested floating layers) */
+const overlayContainers = new Map();
 const overlayStack = [];
+let modalAccessibilityRestore = null;
 let scrollLockCount = 0;
 let originalBodyOverflow = '';
 let originalBodyPaddingRight = '';
@@ -147,6 +151,76 @@ function lockBodyScroll() {
     scrollLockCount++;
 }
 
+/** Layers that handle Escape before the modal (must stay in sync with Quark data-slot / data-state). */
+const openFloatingLayerSelector = [
+    '[data-slot="popover-content"][data-state="open"]',
+    '[data-slot="select-content"][data-state="open"]',
+    '[data-slot="dropdown-menu-content"][data-state="open"]',
+    '[data-slot="combobox-content"][data-state="open"]',
+    '[data-slot="hover-card-content"][data-state="open"]',
+    '[data-slot="context-menu-content"][data-state="open"]',
+    '[data-slot="context-menu-sub-content"][data-state="open"]',
+    '[data-slot="menubar-content"][data-state="open"]',
+    '[data-slot="menubar-sub-content"][data-state="open"]',
+    '[data-slot="navigation-menu-viewport"][data-state="open"]',
+    '[data-slot="datepicker-content"][data-state="open"]',
+    '[data-slot="tooltip-content"][data-state="open"]'
+].join(',');
+
+function hasOpenFloatingDescendant(modalRoot) {
+    if (!modalRoot || typeof modalRoot.querySelector !== 'function') {
+        return false;
+    }
+
+    return !!modalRoot.querySelector(openFloatingLayerSelector);
+}
+
+function hideSiblingsOfPortalHost() {
+    const host = document.getElementById('quark-overlay-portal-host');
+
+    if (!host?.parentElement) {
+        return () => {};
+    }
+
+    const parent = host.parentElement;
+    const hidden = [];
+
+    for (const child of parent.children) {
+        if (child === host) {
+            continue;
+        }
+
+        const prevAria = child.getAttribute('aria-hidden');
+        const hadInert = 'inert' in child && child.inert === true;
+
+        child.setAttribute('data-q-modal-hidden', '');
+        child.setAttribute('aria-hidden', 'true');
+
+        if ('inert' in child) {
+            child.inert = true;
+        }
+
+        hidden.push({ node: child, prevAria, hadInert });
+    }
+
+    return () => {
+        for (const { node, prevAria, hadInert } of hidden) {
+            node.removeAttribute('data-q-modal-hidden');
+
+            if (prevAria === null) {
+                node.removeAttribute('aria-hidden');
+            }
+            else {
+                node.setAttribute('aria-hidden', prevAria);
+            }
+
+            if ('inert' in node) {
+                node.inert = hadInert;
+            }
+        }
+    };
+}
+
 function unlockBodyScroll() {
     if (scrollLockCount === 0) {
         return;
@@ -160,12 +234,21 @@ function unlockBodyScroll() {
     }
 }
 
-export function activate(overlayId, container, trapFocus, lockScroll, initialFocusSelector) {
+export function activate(overlayId, container, trapFocus, lockScroll, initialFocusSelector, dotNetRef) {
     if (!overlayId || !container) {
         return;
     }
 
+    overlayContainers.set(overlayId, container);
+
+    const existingEscape = escapeHandlers.get(overlayId);
+    if (existingEscape) {
+        document.removeEventListener('keydown', existingEscape, true);
+        escapeHandlers.delete(overlayId);
+    }
+
     const alreadyActive = overlayStack.includes(overlayId);
+    const wasStackEmpty = overlayStack.length === 0;
     removeOverlay(overlayId);
     overlayStack.push(overlayId);
 
@@ -175,6 +258,39 @@ export function activate(overlayId, container, trapFocus, lockScroll, initialFoc
 
     if (lockScroll && !alreadyActive) {
         lockBodyScroll();
+    }
+
+    if (wasStackEmpty) {
+        modalAccessibilityRestore = hideSiblingsOfPortalHost();
+    }
+
+    if (dotNetRef) {
+        const escapeHandler = async (ev) => {
+            if (ev.key !== 'Escape') {
+                return;
+            }
+
+            if (overlayStack[overlayStack.length - 1] !== overlayId) {
+                return;
+            }
+
+            const modalRoot = overlayContainers.get(overlayId);
+            if (modalRoot && hasOpenFloatingDescendant(modalRoot)) {
+                return;
+            }
+
+            try {
+                const handled = await dotNetRef.invokeMethodAsync('OnEscapeKeyAsync');
+                if (handled) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                }
+            } catch {
+            }
+        };
+
+        document.addEventListener('keydown', escapeHandler, true);
+        escapeHandlers.set(overlayId, escapeHandler);
     }
 
     focusInitial(container, initialFocusSelector);
@@ -187,10 +303,50 @@ export function deactivate(overlayId, unlockScroll) {
 
     const wasActive = overlayStack.includes(overlayId);
 
+    overlayContainers.delete(overlayId);
+
+    const escapeHandler = escapeHandlers.get(overlayId);
+    if (escapeHandler) {
+        document.removeEventListener('keydown', escapeHandler, true);
+        escapeHandlers.delete(overlayId);
+    }
+
     disposeFocusTrap(overlayId);
     removeOverlay(overlayId);
+
+    if (overlayStack.length === 0 && modalAccessibilityRestore) {
+        modalAccessibilityRestore();
+        modalAccessibilityRestore = null;
+    }
 
     if (unlockScroll && wasActive) {
         unlockBodyScroll();
     }
+}
+
+/** Bubble-phase Escape → C# closes open tooltips (works with hover-only tooltips when modal capture defers first). */
+const tooltipEscapeStack = [];
+
+function onTooltipEscapeBubble(ev) {
+    if (ev.key !== 'Escape' || tooltipEscapeStack.length === 0) {
+        return;
+    }
+
+    const top = tooltipEscapeStack[tooltipEscapeStack.length - 1];
+    void top.invokeMethodAsync('OnTooltipDocumentEscape').catch(() => {});
+}
+
+let tooltipEscapeBubbleAttached = false;
+
+export function registerTooltipEscape(dotNetRef) {
+    tooltipEscapeStack.push(dotNetRef);
+
+    if (!tooltipEscapeBubbleAttached) {
+        tooltipEscapeBubbleAttached = true;
+        document.addEventListener('keydown', onTooltipEscapeBubble, false);
+    }
+}
+
+export function unregisterTooltipEscape() {
+    tooltipEscapeStack.pop();
 }

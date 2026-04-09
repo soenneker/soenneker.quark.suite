@@ -22,4 +22,9 @@ public sealed class TreeViewState<TNode>
     /// Gets or sets the selection mode for the TreeView.
     /// </summary>
     public TreeViewSelectionMode SelectionMode { get; set; } = TreeViewSelectionMode.Single;
+
+    /// <summary>
+    /// Key of the <see cref="TreeViewNodeState{TNode}"/> that owns roving keyboard focus (<c>tabindex="0"</c>).
+    /// </summary>
+    public string? FocusedNodeKey { get; set; }
 }

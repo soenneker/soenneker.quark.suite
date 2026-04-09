@@ -2,12 +2,14 @@
 @inherits Soenneker.Quark.FormControlElement
 @implements IMenubarFocusableItem
 
-<div @attributes="BuildAttributes()" @onclick="HandleItemClick" @onkeydown="HandleKeyDown" @ref="_elementRef">
+<div @attributes="BuildAttributes()" @onclick="HandleItemClick" @onkeydown="HandleKeyDown" @onkeydown:preventDefault="_preventDefaultKeys" @onkeydown:stopPropagation="_stopPropagation" @ref="_elementRef">
     @ChildContent
 </div>
 
 @code {
     private ElementReference _elementRef;
+    private bool _preventDefaultKeys;
+    private bool _stopPropagation;
 
     [Parameter]
     public bool Inset { get; set; }
@@ -26,12 +28,9 @@
 
     bool IMenubarFocusableItem.IsDisabledForNavigation => Disabled;
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override void OnParametersSet()
     {
-        base.OnAfterRender(firstRender);
-
-        if (!firstRender)
-            return;
+        base.OnParametersSet();
 
         if (NavigationSub is not null)
             NavigationSub.RegisterItem(this);
@@ -75,19 +74,38 @@
 
     protected override async Task HandleKeyDown(KeyboardEventArgs e)
     {
+        _preventDefaultKeys = false;
+        _stopPropagation = false;
+
         if (e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
         {
             if (NavigationSub is not null)
+            {
                 await NavigationSub.HandleItemNavigationAsync(this, e.Key);
+                _preventDefaultKeys = true;
+            }
             else if (ParentMenubarMenu is not null)
+            {
                 await ParentMenubarMenu.HandleItemNavigationAsync(this, e.Key);
+                _preventDefaultKeys = true;
+            }
         }
         else if (NavigationSub is not null && ParentMenubar?.IsSubmenuCloseKey(e.Key) == true)
+        {
             await NavigationSub.FocusTriggerAsync();
+            _preventDefaultKeys = true;
+        }
         else if (NavigationSub is null && ParentMenubar is not null && ParentMenubarMenu is not null && e.Key is "ArrowRight" or "ArrowLeft")
+        {
             await ParentMenubar.HandleMenuTraversalAsync(ParentMenubarMenu, e.Key);
+            _preventDefaultKeys = true;
+        }
         else if (e.Key == "Escape" && ParentMenubarMenu is not null)
+        {
             await ParentMenubarMenu.FocusTriggerAsync();
+            _preventDefaultKeys = true;
+            _stopPropagation = true;
+        }
 
         await base.HandleKeyDown(e);
     }

@@ -1,5 +1,6 @@
 @using System.Globalization
 @using System.Linq
+@using Microsoft.AspNetCore.Components
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
@@ -30,7 +31,8 @@
 
                     @if (CaptionLayout == "dropdown")
                     {
-                        <div class="q-calendar-title flex h-8 w-full items-center justify-center gap-1.5 text-sm font-medium">
+                        <div id="@GetMonthCaptionId(month)"
+                             class="q-calendar-title flex h-8 w-full items-center justify-center gap-1.5 text-sm font-medium">
                             <div class="relative rounded-md border border-input shadow-xs has-focus:border-ring has-focus:ring-[3px] has-focus:ring-ring/50">
                                 <select class="absolute inset-0 bg-popover opacity-0"
                                         value="@month.Month"
@@ -63,7 +65,8 @@
                     }
                     else
                     {
-                        <div class="q-calendar-title flex h-8 w-full items-center justify-center text-sm font-medium select-none">@month.ToString("MMMM yyyy", ResolveCulture())</div>
+                        <div id="@GetMonthCaptionId(month)"
+                             class="q-calendar-title flex h-8 w-full items-center justify-center text-sm font-medium select-none">@month.ToString("MMMM yyyy", ResolveCulture())</div>
                     }
 
                     @if (monthIndex == Math.Max(NumberOfMonths, 1) - 1)
@@ -82,25 +85,31 @@
                     }
                 </div>
 
-                <div class="q-calendar-weekdays flex">
-                    @if (ShowWeekNumber)
-                    {
-                        <div class="q-calendar-week-number-header flex size-8 items-center justify-center text-center text-[0.8rem] text-muted-foreground select-none">Wk</div>
-                    }
+                <div role="grid"
+                     class="q-calendar-grid w-full border-collapse"
+                     aria-labelledby="@GetMonthCaptionId(month)"
+                     aria-multiselectable="@(IsMultipleMode ? "true" : "false")">
+                    <div role="row" class="q-calendar-weekdays flex">
+                        @if (ShowWeekNumber)
+                        {
+                            <div role="presentation" class="q-calendar-week-number-header flex size-8 items-center justify-center text-center text-[0.8rem] text-muted-foreground select-none">Wk</div>
+                        }
 
-                    @foreach (var dow in _dayNames)
-                    {
-                        <div class="q-calendar-weekday flex-1 rounded-md text-center text-[0.8rem] font-normal text-muted-foreground select-none">@dow</div>
-                    }
-                </div>
+                        @for (var dowIndex = 0; dowIndex < _dayNames.Length; dowIndex++)
+                        {
+                            var dow = _dayNames[dowIndex];
+                            <div role="columnheader"
+                                 class="q-calendar-weekday flex-1 rounded-md text-center text-[0.8rem] font-normal text-muted-foreground select-none"
+                                 aria-label="@GetFullWeekdayName(dowIndex)">@dow</div>
+                        }
+                    </div>
 
-                <div class="q-calendar-grid w-full border-collapse">
                     @foreach (var week in weeks)
                     {
-                        <div class="q-calendar-week mt-2 flex w-full">
+                        <div role="row" class="q-calendar-week mt-2 flex w-full">
                             @if (ShowWeekNumber)
                             {
-                                <div class="q-calendar-week-number flex size-8 items-center justify-center text-center text-[0.8rem] text-muted-foreground select-none">
+                                <div role="presentation" class="q-calendar-week-number flex size-8 items-center justify-center text-center text-[0.8rem] text-muted-foreground select-none">
                                     @GetWeekNumber(week[0].Date)
                                 </div>
                             }
@@ -110,30 +119,72 @@
                                 var dayContext = BuildDayContext(day);
                                 var cellCss = GetDayCellClass(dayContext, day);
                                 var buttonCss = GetDayButtonClass(dayContext, day);
+                                var focusDate = GetEffectiveFocusDate();
+                                var isTabStop = !day.Disabled && day.Date == focusDate;
 
-                                <div class="@cellCss"
+                                <div role="gridcell"
+                                     class="@cellCss"
                                      data-selected="@(GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle))"
                                      data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))"
                                      data-range-end="@(GetDataBoolean(dayContext.IsRangeEnd))"
                                      data-range-middle="@(GetDataBoolean(dayContext.IsRangeMiddle))">
-                                    <button type="button"
-                                            class="@buttonCss"
-                                            disabled="@day.Disabled"
-                                            data-day="@day.Date.ToString("yyyy-MM-dd")"
-                                            data-selected-single="@(GetDataBoolean(dayContext.IsSelected && !dayContext.IsRangeStart && !dayContext.IsRangeEnd && !dayContext.IsRangeMiddle))"
-                                            data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))"
-                                            data-range-end="@(GetDataBoolean(dayContext.IsRangeEnd))"
-                                            data-range-middle="@(GetDataBoolean(dayContext.IsRangeMiddle))"
-                                            @onclick="() => SelectDate(day.Date)">
-                                        @if (DayContent is not null)
-                                        {
-                                            @DayContent(dayContext)
-                                        }
-                                        else
-                                        {
-                                            @day.Date.Day
-                                        }
-                                    </button>
+                                    @if (isTabStop)
+                                    {
+                                        <button type="button"
+                                                class="@buttonCss"
+                                                disabled="@day.Disabled"
+                                                tabindex="0"
+                                                data-day="@day.Date.ToString("yyyy-MM-dd")"
+                                                data-selected-single="@(GetDataBoolean(dayContext.IsSelected && !dayContext.IsRangeStart && !dayContext.IsRangeEnd && !dayContext.IsRangeMiddle))"
+                                                data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))"
+                                                data-range-end="@(GetDataBoolean(dayContext.IsRangeEnd))"
+                                                data-range-middle="@(GetDataBoolean(dayContext.IsRangeMiddle))"
+                                                aria-label="@GetDayAriaLabel(day.Date)"
+                                                aria-disabled="@GetAriaDisabled(day.Disabled)"
+                                                aria-selected="@(GetAriaSelected(dayContext))"
+                                                aria-current="@GetAriaCurrent(dayContext)"
+                                                @ref="_rovingButtonRef"
+                                                @onclick="() => SelectDate(day.Date)"
+                                                @onkeydown="e => OnDayKeyDown(e, day.Date)"
+                                                @onkeydown:preventDefault="_dayKeyPreventDefault">
+                                            @if (DayContent is not null)
+                                            {
+                                                @DayContent(dayContext)
+                                            }
+                                            else
+                                            {
+                                                @day.Date.Day
+                                            }
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button"
+                                                class="@buttonCss"
+                                                disabled="@day.Disabled"
+                                                tabindex="-1"
+                                                data-day="@day.Date.ToString("yyyy-MM-dd")"
+                                                data-selected-single="@(GetDataBoolean(dayContext.IsSelected && !dayContext.IsRangeStart && !dayContext.IsRangeEnd && !dayContext.IsRangeMiddle))"
+                                                data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))"
+                                                data-range-end="@(GetDataBoolean(dayContext.IsRangeEnd))"
+                                                data-range-middle="@(GetDataBoolean(dayContext.IsRangeMiddle))"
+                                                aria-label="@GetDayAriaLabel(day.Date)"
+                                                aria-disabled="@GetAriaDisabled(day.Disabled)"
+                                                aria-selected="@(GetAriaSelected(dayContext))"
+                                                aria-current="@GetAriaCurrent(dayContext)"
+                                                @onclick="() => SelectDate(day.Date)"
+                                                @onkeydown="e => OnDayKeyDown(e, day.Date)"
+                                                @onkeydown:preventDefault="_dayKeyPreventDefault">
+                                            @if (DayContent is not null)
+                                            {
+                                                @DayContent(dayContext)
+                                            }
+                                            else
+                                            {
+                                                @day.Date.Day
+                                            }
+                                        </button>
+                                    }
                                 </div>
                             }
                         </div>
@@ -226,9 +277,14 @@
     [Parameter]
     public RenderFragment<CalendarDayContext>? DayContent { get; set; }
 
+    private readonly string _calendarInstanceId = Guid.NewGuid().ToString("N");
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
     private string[] _dayNames = [];
     private bool _initialized;
+    private DateOnly? _rovingFocusDate;
+    private bool _pendingKeyboardFocus;
+    private bool _dayKeyPreventDefault;
+    private ElementReference _rovingButtonRef;
     private bool IsRangeMode => Mode == CalendarSelectionMode.Range;
     private bool IsMultipleMode => Mode == CalendarSelectionMode.Multiple;
     private DateOnly? EffectiveSelectedDate => SelectedDate ?? DateOnlyValue;
@@ -276,6 +332,382 @@
         _dayNames = Enumerable.Range(0, 7).Select(i => names[((int)first + i) % 7]).ToArray();
     }
 
+    private string GetMonthCaptionId(DateOnly month)
+    {
+        return $"q-cal-{_calendarInstanceId}-{month.Year:D4}-{month.Month:D2}";
+    }
+
+    private string GetFullWeekdayName(int indexInRow)
+    {
+        var culture = ResolveCulture();
+        var first = culture.DateTimeFormat.FirstDayOfWeek;
+        var names = culture.DateTimeFormat.DayNames;
+        return names[((int)first + indexInRow) % 7];
+    }
+
+    private string GetDayAriaLabel(DateOnly date)
+    {
+        return date.ToString("D", ResolveCulture());
+    }
+
+    private static string? GetAriaCurrent(CalendarDayContext ctx)
+    {
+        return ctx.IsToday ? "date" : null;
+    }
+
+    private static string? GetAriaDisabled(bool disabled)
+    {
+        return disabled ? "true" : null;
+    }
+
+    private static string GetAriaSelected(CalendarDayContext ctx)
+    {
+        if (ctx.IsSelected || ctx.IsRangeStart || ctx.IsRangeEnd || ctx.IsRangeMiddle)
+            return "true";
+
+        return "false";
+    }
+
+    private DateOnly GetEffectiveFocusDate()
+    {
+        if (_rovingFocusDate.HasValue && IsDateInVisibleGrids(_rovingFocusDate.Value) && !IsDateDisabled(_rovingFocusDate.Value))
+            return _rovingFocusDate.Value;
+
+        var fallback = GetDefaultFocusDate() ?? GetFirstEnabledInVisibleGrids();
+        return fallback ?? DateOnly.FromDateTime(DateTime.Today);
+    }
+
+    private bool IsDateInVisibleGrids(DateOnly date)
+    {
+        for (var i = 0; i < Math.Max(NumberOfMonths, 1); i++)
+        {
+            var month = _displayMonth.AddMonths(i);
+            var weeks = BuildMonthWeeks(month);
+            if (weeks.Any(w => w.Any(c => c.Date == date)))
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool IsDateDisabled(DateOnly date)
+    {
+        if (Min.HasValue && date < Min.Value)
+            return true;
+
+        if (Max.HasValue && date > Max.Value)
+            return true;
+
+        if (DisabledDates?.Contains(date) == true)
+            return true;
+
+        for (var i = 0; i < Math.Max(NumberOfMonths, 1); i++)
+        {
+            var month = _displayMonth.AddMonths(i);
+            var weeks = BuildMonthWeeks(month);
+            foreach (var week in weeks)
+            {
+                foreach (var cell in week)
+                {
+                    if (cell.Date == date)
+                        return cell.Disabled;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private DateOnly? GetDefaultFocusDate()
+    {
+        if (!IsRangeMode && !IsMultipleMode && EffectiveSelectedDate.HasValue)
+        {
+            var d = EffectiveSelectedDate.Value;
+            if (IsDateInVisibleGrids(d) && !IsDateDisabled(d))
+                return d;
+        }
+
+        if (IsRangeMode && EffectiveSelectedRange?.From is { } from)
+        {
+            if (IsDateInVisibleGrids(from) && !IsDateDisabled(from))
+                return from;
+        }
+
+        if (IsMultipleMode && SelectedDates is { Length: > 0 })
+        {
+            foreach (var d in SelectedDates.OrderBy(x => x))
+            {
+                if (IsDateInVisibleGrids(d) && !IsDateDisabled(d))
+                    return d;
+            }
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        if (IsDateInVisibleGrids(today) && !IsDateDisabled(today))
+            return today;
+
+        return GetFirstEnabledInVisibleGrids();
+    }
+
+    private DateOnly? GetFirstEnabledInVisibleGrids()
+    {
+        for (var i = 0; i < Math.Max(NumberOfMonths, 1); i++)
+        {
+            var month = _displayMonth.AddMonths(i);
+            var weeks = BuildMonthWeeks(month);
+            foreach (var week in weeks)
+            {
+                foreach (var cell in week)
+                {
+                    if (!cell.Disabled)
+                        return cell.Date;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private async Task OnDayKeyDown(KeyboardEventArgs e, DateOnly date)
+    {
+        _dayKeyPreventDefault = false;
+
+        if (e.AltKey || e.CtrlKey || e.MetaKey || e.ShiftKey)
+            return;
+
+        var key = e.Key;
+
+        if (key is "Enter" or " ")
+        {
+            if (IsDateDisabled(date))
+                return;
+
+            _dayKeyPreventDefault = true;
+            await SelectDate(date);
+            return;
+        }
+
+        if (key == "Escape")
+            return;
+
+        if (key == "PageUp")
+        {
+            if (await ShiftMonthAndFocus(date, -1))
+                _dayKeyPreventDefault = true;
+
+            return;
+        }
+
+        if (key == "PageDown")
+        {
+            if (await ShiftMonthAndFocus(date, 1))
+                _dayKeyPreventDefault = true;
+
+            return;
+        }
+
+        DateOnly? next = key switch
+        {
+            "ArrowLeft" => MoveFocus(date, 0, -1),
+            "ArrowRight" => MoveFocus(date, 0, 1),
+            "ArrowUp" => MoveFocus(date, -1, 0),
+            "ArrowDown" => MoveFocus(date, 1, 0),
+            "Home" => MoveToWeekEndpoint(date, first: true),
+            "End" => MoveToWeekEndpoint(date, first: false),
+            _ => null
+        };
+
+        if (next is null)
+            return;
+
+        _dayKeyPreventDefault = true;
+        _rovingFocusDate = next;
+        _pendingKeyboardFocus = true;
+        InvalidateRender();
+        Refresh();
+    }
+
+    private DateOnly? MoveToWeekEndpoint(DateOnly from, bool first)
+    {
+        if (!TryFindMonthContaining(from, out var monthDisplay))
+            return null;
+
+        var weeks = BuildMonthWeeks(monthDisplay);
+        if (!TryFindWeekDayIndex(weeks, from, out var wi, out _))
+            return null;
+
+        if (first)
+        {
+            for (var di = 0; di <= 6; di++)
+            {
+                var c = weeks[wi][di];
+                if (!c.Disabled)
+                    return c.Date;
+            }
+
+            return null;
+        }
+
+        for (var di = 6; di >= 0; di--)
+        {
+            var c = weeks[wi][di];
+            if (!c.Disabled)
+                return c.Date;
+        }
+
+        return null;
+    }
+
+    private async Task<bool> ShiftMonthAndFocus(DateOnly from, int monthDelta)
+    {
+        var next = from.AddMonths(monthDelta);
+        if (Min.HasValue && next < Min.Value)
+            return false;
+
+        if (Max.HasValue && next > Max.Value)
+            return false;
+
+        _displayMonth = _displayMonth.AddMonths(monthDelta);
+        await DisplayMonthChanged.InvokeAsync(_displayMonth);
+
+        if (IsDateInVisibleGrids(next) && !IsDateDisabled(next))
+        {
+            _rovingFocusDate = next;
+            _pendingKeyboardFocus = true;
+            InvalidateRender();
+            Refresh();
+            return true;
+        }
+
+        _rovingFocusDate = GetFirstEnabledInVisibleGrids();
+        _pendingKeyboardFocus = _rovingFocusDate.HasValue;
+        InvalidateRender();
+        Refresh();
+        return true;
+    }
+
+    private DateOnly? MoveFocus(DateOnly from, int dRow, int dCol)
+    {
+        if (!TryFindMonthContaining(from, out var monthDisplay))
+            return null;
+
+        var weeks = BuildMonthWeeks(monthDisplay);
+        if (!TryFindWeekDayIndex(weeks, from, out var wi, out var di))
+            return null;
+
+        var nwi = wi;
+        var ndi = di;
+
+        if (dCol != 0)
+        {
+            ndi += dCol;
+            if (ndi < 0)
+            {
+                nwi--;
+                ndi += 7;
+            }
+            else if (ndi > 6)
+            {
+                nwi++;
+                ndi -= 7;
+            }
+        }
+
+        if (dRow != 0)
+            nwi += dRow;
+
+        if (nwi < 0 || nwi >= weeks.Count || ndi < 0 || ndi > 6)
+            return null;
+
+        return WalkEnabled(weeks, nwi, ndi, dRow, dCol);
+    }
+
+    private static DateOnly? WalkEnabled(List<List<Cell>> weeks, int wi, int di, int dRow, int dCol)
+    {
+        var max = 48;
+        while (max-- > 0)
+        {
+            if (wi < 0 || wi >= weeks.Count)
+                return null;
+
+            var c = weeks[wi][di];
+            if (!c.Disabled)
+                return c.Date;
+
+            if (dCol != 0)
+            {
+                di += Math.Sign(dCol);
+                if (di < 0)
+                {
+                    wi--;
+                    di += 7;
+                }
+                else if (di > 6)
+                {
+                    wi++;
+                    di -= 7;
+                }
+            }
+
+            if (dRow != 0)
+                wi += Math.Sign(dRow);
+        }
+
+        return null;
+    }
+
+    private bool TryFindMonthContaining(DateOnly date, out DateOnly monthDisplay)
+    {
+        for (var i = 0; i < Math.Max(NumberOfMonths, 1); i++)
+        {
+            var m = _displayMonth.AddMonths(i);
+            var weeks = BuildMonthWeeks(m);
+            if (weeks.Any(w => w.Any(c => c.Date == date)))
+            {
+                monthDisplay = m;
+                return true;
+            }
+        }
+
+        monthDisplay = default;
+        return false;
+    }
+
+    private static bool TryFindWeekDayIndex(List<List<Cell>> weeks, DateOnly date, out int wi, out int di)
+    {
+        for (wi = 0; wi < weeks.Count; wi++)
+        {
+            for (di = 0; di < weeks[wi].Count; di++)
+            {
+                if (weeks[wi][di].Date == date)
+                    return true;
+            }
+        }
+
+        wi = 0;
+        di = 0;
+        return false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!_pendingKeyboardFocus)
+            return;
+
+        _pendingKeyboardFocus = false;
+
+        try
+        {
+            await _rovingButtonRef.FocusAsync();
+        }
+        catch (InvalidOperationException)
+        {
+            // Element not yet in DOM or not focusable
+        }
+    }
+
     private record Cell(DateOnly Date, bool InMonth, bool Disabled);
 
     private List<List<Cell>> BuildMonthWeeks(DateOnly month)
@@ -321,6 +753,8 @@
     {
         if ((Min.HasValue && date < Min.Value) || (Max.HasValue && date > Max.Value) || (DisabledDates?.Contains(date) == true))
             return;
+
+        _rovingFocusDate = date;
 
         if (IsRangeMode)
         {
@@ -599,6 +1033,7 @@
         hc.Add(DisabledDates?.Length ?? 0);
         hc.Add(Modifiers?.Count ?? 0);
         hc.Add(ModifierClasses?.Count ?? 0);
+        hc.Add(_rovingFocusDate);
 
         if (SelectedDates is not null)
         {

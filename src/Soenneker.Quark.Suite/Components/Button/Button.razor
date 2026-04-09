@@ -20,6 +20,8 @@ else if (RenderAsLink)
        @onclick="HandleClick"
        @onclick:preventDefault="PreventLinkDefault"
        @onclick:stopPropagation="StopTriggerClickPropagation"
+       @onkeydown:preventDefault="_triggerKeyPreventDefault"
+       @onkeydown:stopPropagation="_triggerKeyStopPropagation"
        @attributes="BuildAttributes()">
         @if (Loading)
         {
@@ -40,6 +42,8 @@ else
     <button @ref="_elementRef"
             @onclick="HandleClick"
             @onclick:stopPropagation="StopTriggerClickPropagation"
+            @onkeydown:preventDefault="_triggerKeyPreventDefault"
+            @onkeydown:stopPropagation="_triggerKeyStopPropagation"
             @attributes="BuildAttributes()">
         @if (Loading)
         {
@@ -64,6 +68,8 @@ else
     private TriggerContext? TriggerContext { get; set; }
 
     private ElementReference _elementRef;
+    private bool _triggerKeyPreventDefault;
+    private bool _triggerKeyStopPropagation;
 
     private bool RenderAsLink => string.Equals(Type?.Value, "link", StringComparison.Ordinal) || To.HasContent();
 
@@ -377,7 +383,29 @@ else
 
     private Task HandleTriggerKeyDown(KeyboardEventArgs args)
     {
-        return TriggerContext?.OnKeyDown?.Invoke(args) ?? Task.CompletedTask;
+        _triggerKeyPreventDefault = false;
+        _triggerKeyStopPropagation = false;
+
+        if (TriggerContext?.OnKeyDown is null)
+            return Task.CompletedTask;
+
+        var task = TriggerContext.OnKeyDown(args);
+        if (task.IsCompletedSuccessfully)
+        {
+            var result = task.Result;
+            _triggerKeyPreventDefault = result.PreventDefault;
+            _triggerKeyStopPropagation = result.StopPropagation;
+            return Task.CompletedTask;
+        }
+
+        return ApplyTriggerKeyDownResultAsync(task);
+    }
+
+    private async Task ApplyTriggerKeyDownResultAsync(Task<TriggerKeyDownResult> task)
+    {
+        var result = await task.ConfigureAwait(false);
+        _triggerKeyPreventDefault = result.PreventDefault;
+        _triggerKeyStopPropagation = result.StopPropagation;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

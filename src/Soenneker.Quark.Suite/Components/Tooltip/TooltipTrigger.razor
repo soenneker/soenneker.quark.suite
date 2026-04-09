@@ -15,12 +15,17 @@ else
             @onfocusout="HandleFocusOut"
             @onclick="HandleClick"
             @onkeydown="HandleKeyDown"
+            @onkeydown:preventDefault="_keyPreventDefault"
+            @onkeydown:stopPropagation="_keyStopPropagation"
             @attributes="BuildAttributes()">
         @ChildContent
     </button>
 }
 
 @code {
+    private bool _keyPreventDefault;
+    private bool _keyStopPropagation;
+
     [CascadingParameter]
     private TooltipContext? Context { get; set; }
 
@@ -88,7 +93,7 @@ else
             OnMouseLeave = Context is null ? null : () => Context.Close(),
             OnFocusIn = Context is null ? null : () => Context.OpenImmediate(),
             OnFocusOut = Context is null ? null : () => Context.Close(),
-            OnKeyDown = Context is null ? null : e => HandleTriggerKeyDownCore(e, Context)
+            OnKeyDown = Context is null ? null : e => HandleTriggerKeyDownForSlot(e, Context)
         };
     }
 
@@ -131,17 +136,40 @@ else
         return Context?.Close() ?? Task.CompletedTask;
     }
 
-    private Task HandleKeyDown(KeyboardEventArgs e)
+    private async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        return Context is null ? Task.CompletedTask : HandleTriggerKeyDownCore(e, Context);
+        _keyPreventDefault = false;
+        _keyStopPropagation = false;
+
+        if (Context is null)
+            return;
+
+        if ((e.Key == "Escape" || e.Key == "Enter" || e.Key == " ") && Context.IsOpen)
+        {
+            _keyPreventDefault = true;
+
+            if (e.Key == "Escape")
+                _keyStopPropagation = true;
+
+            await Context.Close();
+        }
     }
 
-    private static Task HandleTriggerKeyDownCore(KeyboardEventArgs e, TooltipContext context)
+    private static Task<TriggerKeyDownResult> HandleTriggerKeyDownForSlot(KeyboardEventArgs e, TooltipContext context)
     {
         if ((e.Key == "Escape" || e.Key == "Enter" || e.Key == " ") && context.IsOpen)
-            return context.Close();
+        {
+            var result = new TriggerKeyDownResult
+            {
+                PreventDefault = true,
+                StopPropagation = e.Key == "Escape"
+            };
 
-        return Task.CompletedTask;
+            _ = context.Close();
+            return Task.FromResult(result);
+        }
+
+        return Task.FromResult(default(TriggerKeyDownResult));
     }
 
     private static async Task HandleTriggerClickCore(TooltipContext? context, TriggerContext? parentTriggerContext)

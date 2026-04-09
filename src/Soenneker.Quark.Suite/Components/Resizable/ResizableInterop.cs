@@ -59,6 +59,28 @@ public sealed class ResizableInterop : IResizableInterop
         }
     }
 
+    public async ValueTask AttachKeyboardGuard(ElementReference panelGroupRoot, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            IJSObjectReference module = await GetModule(linked);
+            await module.InvokeVoidAsync("attachResizableKeyboardGuard", linked, panelGroupRoot);
+        }
+    }
+
+    public async ValueTask DetachKeyboardGuard(ElementReference panelGroupRoot, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            IJSObjectReference module = await GetModule(linked);
+            await module.InvokeVoidAsync("detachResizableKeyboardGuard", linked, panelGroupRoot);
+        }
+    }
+
     public async ValueTask DisposeAsync()
     {
         await _cancellationScope.DisposeAsync();

@@ -1,14 +1,58 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using Microsoft.JSInterop
+
+@inject IOverlayInterop OverlayInterop
 
 <CascadingValue Name="TooltipProvider" Value="@this" IsFixed="true">
     @ChildContent
 </CascadingValue>
 
 @code {
+    private readonly List<Tooltip> _openTooltips = [];
+    private DotNetObjectReference<TooltipProvider>? _escapeRef;
+
     /// <summary>
     /// Gets or sets the delay in milliseconds before showing the tooltip.
     /// </summary>
     [Parameter]
     public int DelayDuration { get; set; }
+
+    internal void RegisterOpenTooltip(Tooltip tooltip)
+    {
+        if (!_openTooltips.Contains(tooltip))
+            _openTooltips.Add(tooltip);
+    }
+
+    internal void UnregisterOpenTooltip(Tooltip tooltip)
+    {
+        _openTooltips.Remove(tooltip);
+    }
+
+    [JSInvokable]
+    public async Task OnTooltipDocumentEscape()
+    {
+        var copy = _openTooltips.ToArray();
+        foreach (var tooltip in copy)
+            await tooltip.DismissFromDocumentEscapeAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!firstRender)
+            return;
+
+        _escapeRef = DotNetObjectReference.Create(this);
+        await OverlayInterop.RegisterTooltipEscapeAsync(_escapeRef);
+    }
+
+    protected override async Task OnDisposeAsync()
+    {
+        await OverlayInterop.UnregisterTooltipEscapeAsync();
+        _escapeRef?.Dispose();
+        _escapeRef = null;
+        await base.OnDisposeAsync();
+    }
 }

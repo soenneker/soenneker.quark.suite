@@ -30,27 +30,64 @@ public sealed class PopoverInterop : IPopoverInterop
     }
 
     public async ValueTask ObservePosition(string popoverId, ElementReference trigger, ElementReference content,
-        string side, string align, int sideOffset = 4, CancellationToken cancellationToken = default)
+        string side, string align, int sideOffset = 4, string positionMode = "popper", CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
         using (source)
         {
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("observePosition", linked, popoverId, trigger, content, null, side, align, sideOffset);
+            await module.InvokeVoidAsync("observePosition", linked, popoverId, trigger, content, null, side, align, sideOffset, positionMode);
         }
     }
 
     public async ValueTask ObservePosition(string popoverId, ElementReference trigger, ElementReference content,
         DotNetObjectReference<PopoverOutsideCloseProxy> callbackReference, string side, string align, int sideOffset = 4,
-        CancellationToken cancellationToken = default)
+        string positionMode = "popper", CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
         using (source)
         {
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("observePosition", linked, popoverId, trigger, content, callbackReference, side, align, sideOffset);
+            await module.InvokeVoidAsync("observePosition", linked, popoverId, trigger, content, callbackReference, side, align, sideOffset, positionMode);
+        }
+    }
+
+    public async ValueTask ObservePosition(string popoverId, ElementReference trigger, ElementReference content,
+        DotNetObjectReference<SelectOutsideCloseProxy> callbackReference, string side, string align, int sideOffset = 4,
+        string positionMode = "popper", CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("observePosition", linked, popoverId, trigger, content, callbackReference, side, align, sideOffset, positionMode);
+        }
+    }
+
+    public async ValueTask ObservePosition(string popoverId, ElementReference trigger, ElementReference content,
+        DotNetObjectReference<HoverCardOutsideCloseProxy> callbackReference, string side, string align, int sideOffset = 4,
+        string positionMode = "popper", CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("observePosition", linked, popoverId, trigger, content, callbackReference, side, align, sideOffset, positionMode);
+        }
+    }
+
+    public async ValueTask NudgePosition(string popoverId, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("nudgePosition", linked, popoverId);
         }
     }
 

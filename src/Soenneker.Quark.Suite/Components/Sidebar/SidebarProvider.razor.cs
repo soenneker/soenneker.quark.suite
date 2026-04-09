@@ -214,6 +214,7 @@ public partial class SidebarProvider
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(DefaultOpen);
         hc.Add(Open);
         hc.Add(OpenMobile);

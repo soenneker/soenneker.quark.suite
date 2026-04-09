@@ -18,11 +18,17 @@
 
     @if (ShowVerticalScrollBar && ShowHorizontalScrollBar)
     {
-        <div data-slot="scroll-area-corner" class="bg-border/40 absolute right-0 bottom-0 size-2.5"></div>
+        <div data-slot="scroll-area-corner" aria-hidden="true" class="bg-border/40 absolute right-0 bottom-0 size-2.5"></div>
     }
 </div>
 
 @code {
+    /// <summary>
+    /// Optional id(s) of visible label element(s) for the scrollable region (maps to <c>aria-labelledby</c> on the viewport). Use with <see cref="Element.AriaLabel"/> for a named region.
+    /// </summary>
+    [Parameter]
+    public string? AriaLabelledBy { get; set; }
+
     [Parameter]
     public bool ShowVerticalScrollBar { get; set; } = true;
 
@@ -32,6 +38,15 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+
+        // Focus and ARIA name the viewport (native overflow scroll), not this wrapper.
+        attributes.Remove("tabindex");
+
+        if (AriaLabel.HasContent() || AriaDescribedBy.HasContent() || AriaLabelledBy.HasContent())
+        {
+            attributes.Remove("aria-label");
+            attributes.Remove("aria-describedby");
+        }
 
         attributes["data-slot"] = "scroll-area";
 
@@ -47,8 +62,21 @@
         var attributes = new Dictionary<string, object>
         {
             ["data-slot"] = "scroll-area-viewport",
-            ["tabindex"] = 0
+            ["tabindex"] = TabIndex ?? 0
         };
+
+        var hasRegionName = AriaLabel.HasContent() || AriaLabelledBy.HasContent();
+        if (hasRegionName)
+            attributes["role"] = "region";
+
+        if (AriaLabel.HasContent())
+            attributes["aria-label"] = AriaLabel;
+
+        if (AriaLabelledBy.HasContent())
+            attributes["aria-labelledby"] = AriaLabelledBy;
+
+        if (AriaDescribedBy.HasContent())
+            attributes["aria-describedby"] = AriaDescribedBy;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -65,5 +93,6 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(ShowVerticalScrollBar);
         hc.Add(ShowHorizontalScrollBar);
+        hc.Add(AriaLabelledBy);
     }
 }

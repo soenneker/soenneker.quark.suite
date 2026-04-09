@@ -14,8 +14,9 @@ public static class PopoverRegistrar
     /// </summary>
     public static IServiceCollection AddQuarkPopoverAsScoped(this IServiceCollection services)
     {
-        services.AddModuleImportUtilAsScoped()
-                .TryAddScoped<IPopoverInterop, PopoverInterop>();
+        services.AddModuleImportUtilAsScoped();
+        services.TryAddScoped<IPopoverInterop, PopoverInterop>();
+        services.TryAddScoped<ISelectInterop, SelectInterop>();
         return services;
     }
 }

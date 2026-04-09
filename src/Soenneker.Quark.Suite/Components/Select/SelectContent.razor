@@ -1,19 +1,39 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IAsyncDisposable
+@using Microsoft.JSInterop
 
 @inject IPopoverInterop PopoverInterop
+@inject ISelectInterop SelectInterop
 
 @if (Context?.IsOpen() == true)
 {
-    <div @ref="_contentRef" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()" @onclick:stopPropagation="true">
-        <div class="@BuildViewportClass()">
+    <div @ref="_contentRef" @onkeydown="HandleKeyDown" @onkeydown:preventDefault="_keyPreventDefault" @onkeydown:stopPropagation="_keyStopPropagation" @attributes="BuildAttributes()" @onclick:stopPropagation="true">
+        @if (ShowScrollButtons)
+        {
+            <button type="button" @ref="_scrollUpRef" class="q-select-scroll-up z-10 flex w-full shrink-0 cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4" data-slot="select-scroll-up-button" data-state="hidden" hidden @onpointerdown="OnScrollUpPointerDown" @onpointerdown:preventDefault="true">
+                <svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="m18 15-6-6-6 6"></path>
+                </svg>
+            </button>
+        }
+        <div @ref="_viewportRef" data-slot="select-viewport" data-position="@ContentPosition" @attributes="BuildViewportAttributes()">
             @ChildContent
         </div>
+        @if (ShowScrollButtons)
+        {
+            <button type="button" @ref="_scrollDownRef" class="q-select-scroll-down z-10 flex w-full shrink-0 cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4" data-slot="select-scroll-down-button" data-state="hidden" hidden @onpointerdown="OnScrollDownPointerDown" @onpointerdown:preventDefault="true">
+                <svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="m6 9 6 6 6-6"></path>
+                </svg>
+            </button>
+        }
     </div>
 }
 
 @code {
+    private const double ScrollStepPixels = 48;
+
     [Parameter]
     public string Side { get; set; } = "bottom";
 
@@ -26,14 +46,36 @@
     [Parameter]
     public string ContentPosition { get; set; } = "item-aligned";
 
+    /// <summary>
+    /// When <c>true</c> (default), renders Radix-style scroll up/down controls outside the viewport.
+    /// </summary>
+    [Parameter]
+    public bool ShowScrollButtons { get; set; } = true;
+
     [CascadingParameter(Name = "ParentSelectContext")]
     private SelectContext? Context { get; set; }
 
     private ElementReference _contentRef;
+    private ElementReference _viewportRef;
+    private ElementReference _scrollUpRef;
+    private ElementReference _scrollDownRef;
     private bool _positionObserverActive;
+    private bool _scrollButtonsAttached;
+    private DotNetObjectReference<SelectOutsideCloseProxy>? _outsideRef;
+    private bool _keyPreventDefault;
+    private bool _keyStopPropagation;
+
     private bool UseFloatingPositioning =>
-        string.Equals(ContentPosition, "popper", StringComparison.OrdinalIgnoreCase) &&
         Context?.HasTriggerElement == true;
+
+    private bool IsPopperPosition =>
+        string.Equals(ContentPosition, "popper", StringComparison.OrdinalIgnoreCase);
+
+    private string ScrollAttachmentId =>
+        $"{Context?.ContentId ?? "select"}-scroll";
+
+    private string JsPositionMode =>
+        IsPopperPosition ? "popper" : "item-aligned";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -45,8 +87,65 @@
             return;
         }
 
-        await PopoverInterop.ObservePosition(Context.ContentId, Context.TriggerElement, _contentRef, Side, Align, SideOffset);
+        if (_outsideRef is null)
+            _outsideRef = DotNetObjectReference.Create(new SelectOutsideCloseProxy(() => Context.CloseAsync()));
+
+        await PopoverInterop.ObservePosition(Context.ContentId, Context.TriggerElement, _contentRef, _outsideRef, Side, Align, SideOffset, JsPositionMode);
         _positionObserverActive = true;
+
+        if (ShowScrollButtons && !_scrollButtonsAttached)
+        {
+            await SelectInterop.AttachScrollButtonsAsync(ScrollAttachmentId, _viewportRef, _scrollUpRef, _scrollDownRef);
+            _scrollButtonsAttached = true;
+        }
+        else if (!ShowScrollButtons && _scrollButtonsAttached)
+        {
+            await SelectInterop.DetachScrollButtonsAsync(ScrollAttachmentId);
+            _scrollButtonsAttached = false;
+        }
+    }
+
+    private IReadOnlyDictionary<string, object> BuildViewportAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-select-viewport");
+
+            if (!UseFloatingPositioning)
+            {
+                AppendClass(ref cls, "overflow-y-auto overflow-x-hidden p-1");
+                return;
+            }
+
+            AppendClass(ref cls, "overflow-y-auto overflow-x-hidden scroll-my-1 p-1");
+
+            if (IsPopperPosition)
+            {
+                AppendClass(ref cls, "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]");
+            }
+            else
+            {
+                AppendClass(ref cls, "min-h-0 w-full min-w-0 flex-1");
+            }
+        });
+
+        return attributes;
+    }
+
+    private async Task OnScrollUpPointerDown(PointerEventArgs _)
+    {
+        await SelectInterop.ScrollViewportByAsync(_viewportRef, -ScrollStepPixels);
+        if (Context is not null)
+            await PopoverInterop.NudgePosition(Context.ContentId);
+    }
+
+    private async Task OnScrollDownPointerDown(PointerEventArgs _)
+    {
+        await SelectInterop.ScrollViewportByAsync(_viewportRef, ScrollStepPixels);
+        if (Context is not null)
+            await PopoverInterop.NudgePosition(Context.ContentId);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -58,6 +157,7 @@
         attributes["data-side"] = Side;
         attributes["data-align"] = Align;
         attributes["data-position"] = ContentPosition;
+        attributes["data-align-trigger"] = IsPopperPosition ? "false" : "true";
         attributes["role"] = "listbox";
         attributes["tabindex"] = -1;
         attributes["aria-hidden"] = Context?.IsOpen() == true ? "false" : "true";
@@ -67,7 +167,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-select-content relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border bg-popover text-popover-foreground shadow-md");
+            AppendClass(ref cls, "q-select-content relative z-[110] flex min-w-[8rem] max-h-[min(24rem,var(--radix-select-content-available-height,var(--quark-available-height)))] flex-col overflow-hidden origin-[var(--radix-select-content-transform-origin)] rounded-md border bg-popover text-popover-foreground shadow-md");
             AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
 
             if (UseFloatingPositioning)
@@ -101,19 +201,38 @@
 
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Escape" && Context is not null)
-            await Context.CloseAsync();
-    }
+        _keyPreventDefault = false;
+        _keyStopPropagation = false;
 
-    private string BuildViewportClass()
-    {
-        return UseFloatingPositioning
-            ? "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] scroll-my-1 p-1"
-            : "p-1";
+        if (Context is null)
+            return;
+
+        if (e.Key == "Escape")
+        {
+            _keyPreventDefault = true;
+            _keyStopPropagation = true;
+            await Context.CloseAsync();
+            return;
+        }
+
+        if (!e.CtrlKey && !e.MetaKey && !e.AltKey && e.Key.Length == 1 && !char.IsControl(e.Key[0]))
+        {
+            if (await Context.TryTypeaheadAsync(e.Key))
+            {
+                _keyPreventDefault = true;
+                return;
+            }
+        }
     }
 
     private async ValueTask StopPositionObserver()
     {
+        if (_scrollButtonsAttached)
+        {
+            await SelectInterop.DetachScrollButtonsAsync(ScrollAttachmentId);
+            _scrollButtonsAttached = false;
+        }
+
         if (!_positionObserverActive || Context is null)
             return;
 
@@ -128,12 +247,14 @@
         hc.Add(SideOffset);
         hc.Add(Align);
         hc.Add(ContentPosition);
+        hc.Add(ShowScrollButtons);
         hc.Add(Context?.IsOpen() == true);
     }
 
     public override async ValueTask DisposeAsync()
     {
         await StopPositionObserver();
+        _outsideRef?.Dispose();
         await base.DisposeAsync();
     }
 }

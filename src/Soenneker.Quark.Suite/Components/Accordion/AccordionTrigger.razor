@@ -2,11 +2,13 @@
 @inherits Soenneker.Quark.TriggerElement
 @implements IAccordionTrigger
 @implements IDisposable
+@using Microsoft.AspNetCore.Components.Web
 
 <h3 @attributes="BuildHeaderAttributes()">
     <button @onclick="HandleTriggerClick"
             @onkeydown="HandleKeyDown"
             @onkeydown:preventDefault="_preventDefault"
+            @onfocus="HandleTriggerFocus"
             @ref="_elementRef"
             @attributes="BuildAttributes()">
         @ChildContent
@@ -29,6 +31,7 @@
 
     private ElementReference _elementRef;
     private bool _preventDefault;
+    private Accordion? _registeredAccordion;
 
     internal string Value => ParentAccordionItem?.ResolvedValue ?? string.Empty;
 
@@ -41,10 +44,24 @@
         ? "text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 rotate-180 transition-transform duration-200"
         : "text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 rotate-0 transition-transform duration-200";
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
-        base.OnInitialized();
-        ParentAccordion?.RegisterTrigger(this);
+        base.OnParametersSet();
+        SyncRegistrationWithParent();
+    }
+
+    private void SyncRegistrationWithParent()
+    {
+        if (!ReferenceEquals(_registeredAccordion, ParentAccordion))
+        {
+            if (_registeredAccordion is not null)
+                _registeredAccordion.UnregisterTrigger(this);
+
+            _registeredAccordion = ParentAccordion;
+
+            if (_registeredAccordion is not null)
+                _registeredAccordion.RegisterTrigger(this);
+        }
     }
 
     private async Task HandleTriggerClick(MouseEventArgs args)
@@ -56,14 +73,38 @@
         await base.HandleClick(args);
     }
 
-    protected override Task HandleKeyDown(KeyboardEventArgs e)
+    protected override async Task HandleKeyDown(KeyboardEventArgs e)
     {
+        _preventDefault = false;
+
+        if (e.Key == "Escape" && IsOpen && !IsDisabled && ParentAccordionItem is not null && ParentAccordion is not null)
+        {
+            if (!ParentAccordion.CanEscapeClose(ParentAccordionItem.ResolvedValue))
+            {
+                await base.HandleKeyDown(e);
+                return;
+            }
+
+            _preventDefault = true;
+            await ParentAccordionItem.Toggle();
+            await base.HandleKeyDown(e);
+            return;
+        }
+
         _preventDefault = ShouldRoveFocus(e.Key);
 
         if (!IsDisabled && ParentAccordion is not null && _preventDefault)
             ParentAccordion.HandleKeyNavigation(Value, e.Key);
 
-        return base.HandleKeyDown(e);
+        await base.HandleKeyDown(e);
+    }
+
+    private void HandleTriggerFocus(FocusEventArgs _)
+    {
+        if (IsDisabled)
+            return;
+
+        ParentAccordion?.NotifyTriggerFocused(Value);
     }
 
     private bool ShouldRoveFocus(string key)
@@ -117,6 +158,9 @@
         if (IsDisabled)
             attributes["disabled"] = true;
 
+        if (!TabIndex.HasValue && ParentAccordion is not null)
+            attributes["tabindex"] = ParentAccordion.GetTriggerTabIndex(Value);
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-accordion-trigger");
@@ -161,11 +205,15 @@
         hc.Add(ParentAccordion?.Collapsible);
         hc.Add(ParentAccordion?.Multiple);
         hc.Add(ParentAccordionItem?.ForceMount == true);
+        hc.Add(TabIndex);
+        hc.Add(ParentAccordion?.RovingTabStopValue);
     }
 
     public override void Dispose()
     {
-        ParentAccordion?.UnregisterTrigger(this);
+        if (_registeredAccordion is not null)
+            _registeredAccordion.UnregisterTrigger(this);
+
         base.Dispose();
     }
 }

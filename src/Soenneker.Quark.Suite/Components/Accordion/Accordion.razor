@@ -39,6 +39,8 @@
     private readonly HashSet<string> _internalValues = [];
     private readonly List<AccordionTrigger> _triggers = [];
     private string? _internalValue;
+    private string? _rovingTabStopValue;
+    private string? _pendingFocusTriggerValue;
 
     [CascadingParameter(Name = "DirectionProviderDir")]
     public string? DirectionProviderDir { get; set; }
@@ -74,10 +76,94 @@
             _openValues.Add(singleValue!);
     }
 
+    /// <summary>Whether Escape can close this item (Radix: Escape does nothing when the last panel must stay open).</summary>
+    internal bool CanEscapeClose(string value)
+    {
+        if (Disabled || !value.HasContent() || !IsItemOpen(value))
+            return false;
+
+        if (Multiple)
+        {
+            if (!Collapsible && _openValues.Count == 1)
+                return false;
+
+            return true;
+        }
+
+        return Collapsible;
+    }
+
+    internal async Task RequestCloseFromContentEscapeAsync(string value, bool restoreFocus)
+    {
+        if (!CanEscapeClose(value))
+            return;
+
+        if (restoreFocus)
+            _pendingFocusTriggerValue = value;
+
+        await ToggleItem(value);
+    }
+
+    internal int GetTriggerTabIndex(string value)
+    {
+        if (Disabled || !value.HasContent())
+            return -1;
+
+        var trigger = _triggers.Find(t => string.Equals(t.Value, value, StringComparison.Ordinal));
+        if (trigger is null || trigger.IsDisabled)
+            return -1;
+
+        if (_rovingTabStopValue is null)
+        {
+            var first = _triggers.Find(t => !t.IsDisabled);
+            return first is not null && string.Equals(first.Value, value, StringComparison.Ordinal) ? 0 : -1;
+        }
+
+        return string.Equals(_rovingTabStopValue, value, StringComparison.Ordinal) ? 0 : -1;
+    }
+
+    internal void NotifyTriggerFocused(string value)
+    {
+        if (Disabled || !value.HasContent())
+            return;
+
+        if (string.Equals(_rovingTabStopValue, value, StringComparison.Ordinal))
+            return;
+
+        _rovingTabStopValue = value;
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (_pendingFocusTriggerValue is null)
+            return;
+
+        var pending = _pendingFocusTriggerValue;
+        _pendingFocusTriggerValue = null;
+
+        var trigger = _triggers.Find(t => string.Equals(t.Value, pending, StringComparison.Ordinal));
+        if (trigger is null)
+            return;
+
+        try
+        {
+            await trigger.FocusAsync();
+        }
+        catch (InvalidOperationException)
+        {
+        }
+    }
+
     internal bool IsItemOpen(string value)
     {
         return _openValues.Contains(value);
     }
+
+    /// <summary>Used by triggers for <see cref="ComputeRenderKeyCore"/> when roving tabindex updates.</summary>
+    internal string? RovingTabStopValue => _rovingTabStopValue;
 
     internal async Task ToggleItem(string value)
     {
@@ -148,11 +234,33 @@
     {
         if (!_triggers.Contains(trigger))
             _triggers.Add(trigger);
+
+        EnsureRovingTabStop();
     }
 
     internal void UnregisterTrigger(AccordionTrigger trigger)
     {
         _triggers.Remove(trigger);
+
+        if (string.Equals(_rovingTabStopValue, trigger.Value, StringComparison.Ordinal))
+            _rovingTabStopValue = null;
+
+        EnsureRovingTabStop();
+    }
+
+    private void EnsureRovingTabStop()
+    {
+        if (Disabled || _triggers.Count == 0)
+            return;
+
+        if (_rovingTabStopValue is not null)
+        {
+            var current = _triggers.Find(t => string.Equals(t.Value, _rovingTabStopValue, StringComparison.Ordinal));
+            if (current is not null && !current.IsDisabled)
+                return;
+        }
+
+        _rovingTabStopValue = _triggers.Find(t => !t.IsDisabled)?.Value;
     }
 
     internal bool IsVerticalOrientation =>
@@ -258,6 +366,7 @@
         hc.Add(Value);
         hc.Add(_internalValue);
         hc.Add(Values?.Count);
+        hc.Add(_rovingTabStopValue);
 
         foreach (var openValue in _openValues.OrderBy(static x => x))
         {

@@ -138,6 +138,9 @@
 
     internal async Task HandleInputKeyDownAsync(string key)
     {
+        if (Disabled)
+            return;
+
         switch (key)
         {
             case "ArrowDown":
@@ -153,6 +156,9 @@
                 Refresh();
                 break;
             case "Enter":
+                if (!Open)
+                    break;
+
                 var activeItem = _items.FirstOrDefault(item => item.IsActiveItem && !item.Hidden && !item.Disabled);
                 if (activeItem is not null)
                     await Select(activeItem.Value);

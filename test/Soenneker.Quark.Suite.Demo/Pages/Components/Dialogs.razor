@@ -44,6 +44,184 @@
                     </form>
                 </Dialog>
             </DemoSection>
+
+            <DemoSection Title="Nested dialogs"
+                         Description="Escape closes the top layer first (inner), then the outer — same modal stack semantics as Radix."
+                         Code="@NestedDialogsCode"
+                         CodeLanguage="razor">
+                <Dialog>
+                    <DialogTrigger AsChild="true">
+                        <Button Variant="ButtonVariant.Outline">Open outer</Button>
+                    </DialogTrigger>
+                    <DialogContent Class="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Outer dialog</DialogTitle>
+                            <DialogDescription>
+                                Open the inner dialog, then press Escape: the inner layer closes first. Press Escape again to close the outer.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogBody>
+                            <Dialog>
+                                <DialogTrigger AsChild="true">
+                                    <Button Variant="ButtonVariant.Outline">Open inner</Button>
+                                </DialogTrigger>
+                                <DialogContent Class="sm:max-w-[320px]">
+                                    <DialogHeader>
+                                        <DialogTitle>Inner dialog</DialogTitle>
+                                        <DialogDescription>
+                                            This layer is on top of the stack until dismissed.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <DialogFooter>
+                                        <DialogClose AsChild="true">
+                                            <Button Variant="ButtonVariant.Outline">Close inner</Button>
+                                        </DialogClose>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+                        </DialogBody>
+                        <DialogFooter>
+                            <DialogClose AsChild="true">
+                                <Button Variant="ButtonVariant.Outline">Close outer</Button>
+                            </DialogClose>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </DemoSection>
+
+            <DemoSection Title="Popover inside dialog"
+                         Description="Escape dismisses the inner floating layer (popover) before the modal — matches Radix nested dismiss order."
+                         Code="@DialogWithPopoverCode"
+                         CodeLanguage="razor">
+                <Dialog>
+                    <DialogTrigger AsChild="true">
+                        <Button Variant="ButtonVariant.Outline">Open dialog with popover</Button>
+                    </DialogTrigger>
+                    <DialogContent Class="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Dialog and popover</DialogTitle>
+                            <DialogDescription>
+                                Open the popover, then press Escape: the popover closes first. Press Escape again to close the dialog.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogBody>
+                            <Popover>
+                                <PopoverTrigger AsChild="true">
+                                    <Button Variant="ButtonVariant.Outline">Open popover</Button>
+                                </PopoverTrigger>
+                                <PopoverContent Class="w-80">
+                                    <Paragraph TextSize="TextSize.Sm" Margin="Margin.Is0">
+                                        Floating layer inside the modal. Press Escape to dismiss this popover before the dialog.
+                                    </Paragraph>
+                                </PopoverContent>
+                            </Popover>
+                        </DialogBody>
+                        <DialogFooter>
+                            <DialogClose AsChild="true">
+                                <Button Variant="ButtonVariant.Outline">Close dialog</Button>
+                            </DialogClose>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </DemoSection>
+
+            <DemoSection Title="Date picker inside dialog"
+                         Description="Escape dismisses the open calendar panel before the modal — same nested dismiss order as other floating layers."
+                         Code="@DialogWithDatePickerCode"
+                         CodeLanguage="razor">
+                <Dialog>
+                    <DialogTrigger AsChild="true">
+                        <Button Variant="ButtonVariant.Outline">Open dialog with date picker</Button>
+                    </DialogTrigger>
+                    <DialogContent Class="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Dialog and date picker</DialogTitle>
+                            <DialogDescription>
+                                Open the calendar, then press Escape: the panel closes first. Press Escape again to close the dialog.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogBody>
+                            <Div class="grid gap-3">
+                                <Label>Event date</Label>
+                                <DatePicker @bind-SelectedDate="_dialogDatePickerDate" />
+                            </Div>
+                        </DialogBody>
+                        <DialogFooter>
+                            <DialogClose AsChild="true">
+                                <Button Variant="ButtonVariant.Outline">Close dialog</Button>
+                            </DialogClose>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </DemoSection>
+
+            <DemoSection Title="Hover card inside dialog"
+                         Description="Escape dismisses the hover card before the modal when the card is open (nested dismiss order, same as Radix)."
+                         Code="@DialogWithHoverCardCode"
+                         CodeLanguage="razor">
+                <Dialog>
+                    <DialogTrigger AsChild="true">
+                        <Button Variant="ButtonVariant.Outline">Open dialog with hover card</Button>
+                    </DialogTrigger>
+                    <DialogContent Class="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Dialog and hover card</DialogTitle>
+                            <DialogDescription>
+                                Hover or focus the trigger, then move focus into the card (Tab). Press Escape: the card closes first. Press Escape again to close the dialog.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogBody>
+                            <HoverCard OpenDelay="0" CloseDelay="0">
+                                <HoverCardTrigger>Hover or focus me</HoverCardTrigger>
+                                <HoverCardContent>
+                                    <Paragraph TextSize="TextSize.Sm" Margin="Margin.Is0">
+                                        Inner floating layer. Press Escape to dismiss this card before the dialog.
+                                    </Paragraph>
+                                </HoverCardContent>
+                            </HoverCard>
+                        </DialogBody>
+                        <DialogFooter>
+                            <DialogClose AsChild="true">
+                                <Button Variant="ButtonVariant.Outline">Close dialog</Button>
+                            </DialogClose>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </DemoSection>
+
+            <DemoSection Title="Tooltip inside dialog"
+                         Description="Escape dismisses an open tooltip before the modal — including hover-only tooltips (TooltipProvider coordinates document Escape with modal deferral)."
+                         Code="@DialogWithTooltipCode"
+                         CodeLanguage="razor">
+                <Dialog>
+                    <DialogTrigger AsChild="true">
+                        <Button Variant="ButtonVariant.Outline">Open dialog with tooltip</Button>
+                    </DialogTrigger>
+                    <DialogContent Class="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Dialog and tooltip</DialogTitle>
+                            <DialogDescription>
+                                Hover the trigger to show the tooltip, then press Escape: the tooltip closes first. Press Escape again to close the dialog.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogBody>
+                            <Tooltip DelayDuration="0">
+                                <TooltipTrigger>Hover me</TooltipTrigger>
+                                <TooltipContent>
+                                    <Paragraph TextSize="TextSize.Sm" Margin="Margin.Is0">
+                                        Tooltip layer. Escape dismisses this before the dialog.
+                                    </Paragraph>
+                                </TooltipContent>
+                            </Tooltip>
+                        </DialogBody>
+                        <DialogFooter>
+                            <DialogClose AsChild="true">
+                                <Button Variant="ButtonVariant.Outline">Close dialog</Button>
+                            </DialogClose>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
@@ -368,6 +546,147 @@
     private bool _dialogPushNotifications;
     private bool _dialogEmailNotifications = true;
     private bool _dialogTwoFactorEnabled;
+    private DateOnly? _dialogDatePickerDate;
+
+    private const string DialogWithHoverCardCode =
+@"<Dialog>
+    <DialogTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Open dialog with hover card</Button>
+    </DialogTrigger>
+    <DialogContent Class=""sm:max-w-[425px]"">
+        <DialogHeader>
+            <DialogTitle>Dialog and hover card</DialogTitle>
+            <DialogDescription>Hover or focus the trigger, Tab into the card, then Escape twice.</DialogDescription>
+        </DialogHeader>
+        <DialogBody>
+            <HoverCard OpenDelay=""0"" CloseDelay=""0"">
+                <HoverCardTrigger>Hover or focus me</HoverCardTrigger>
+                <HoverCardContent>
+                    <Paragraph TextSize=""TextSize.Sm"">Inner floating layer.</Paragraph>
+                </HoverCardContent>
+            </HoverCard>
+        </DialogBody>
+        <DialogFooter>
+            <DialogClose AsChild=""true"">
+                <Button Variant=""ButtonVariant.Outline"">Close dialog</Button>
+            </DialogClose>
+        </DialogFooter>
+    </DialogContent>
+</Dialog>";
+
+    private const string DialogWithTooltipCode =
+@"<Dialog>
+    <DialogTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Open dialog with tooltip</Button>
+    </DialogTrigger>
+    <DialogContent Class=""sm:max-w-[425px]"">
+        <DialogHeader>
+            <DialogTitle>Dialog and tooltip</DialogTitle>
+            <DialogDescription>Hover the trigger, then use Escape twice: tooltip first, then dialog.</DialogDescription>
+        </DialogHeader>
+        <DialogBody>
+            <Tooltip DelayDuration=""0"">
+                <TooltipTrigger>Hover me</TooltipTrigger>
+                <TooltipContent>
+                    <Paragraph TextSize=""TextSize.Sm"">Tooltip layer.</Paragraph>
+                </TooltipContent>
+            </Tooltip>
+        </DialogBody>
+        <DialogFooter>
+            <DialogClose AsChild=""true"">
+                <Button Variant=""ButtonVariant.Outline"">Close dialog</Button>
+            </DialogClose>
+        </DialogFooter>
+    </DialogContent>
+</Dialog>";
+
+    private const string DialogWithDatePickerCode =
+@"<Dialog>
+    <DialogTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Open dialog with date picker</Button>
+    </DialogTrigger>
+    <DialogContent Class=""sm:max-w-[425px]"">
+        <DialogHeader>
+            <DialogTitle>Dialog and date picker</DialogTitle>
+            <DialogDescription>Open the calendar, then use Escape twice: panel first, then dialog.</DialogDescription>
+        </DialogHeader>
+        <DialogBody>
+            <Div class=""grid gap-3"">
+                <Label>Event date</Label>
+                <DatePicker @bind-SelectedDate=""_dialogDatePickerDate"" />
+            </Div>
+        </DialogBody>
+        <DialogFooter>
+            <DialogClose AsChild=""true"">
+                <Button Variant=""ButtonVariant.Outline"">Close dialog</Button>
+            </DialogClose>
+        </DialogFooter>
+    </DialogContent>
+</Dialog>";
+
+    private const string DialogWithPopoverCode =
+@"<Dialog>
+    <DialogTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Open dialog with popover</Button>
+    </DialogTrigger>
+    <DialogContent Class=""sm:max-w-[425px]"">
+        <DialogHeader>
+            <DialogTitle>Dialog and popover</DialogTitle>
+            <DialogDescription>Open the popover, then use Escape twice: popover first, then dialog.</DialogDescription>
+        </DialogHeader>
+        <DialogBody>
+            <Popover>
+                <PopoverTrigger AsChild=""true"">
+                    <Button Variant=""ButtonVariant.Outline"">Open popover</Button>
+                </PopoverTrigger>
+                <PopoverContent Class=""w-80"">
+                    <Paragraph TextSize=""TextSize.Sm"">Inner floating layer.</Paragraph>
+                </PopoverContent>
+            </Popover>
+        </DialogBody>
+        <DialogFooter>
+            <DialogClose AsChild=""true"">
+                <Button Variant=""ButtonVariant.Outline"">Close dialog</Button>
+            </DialogClose>
+        </DialogFooter>
+    </DialogContent>
+</Dialog>";
+
+    private const string NestedDialogsCode =
+@"<Dialog>
+    <DialogTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Open outer</Button>
+    </DialogTrigger>
+    <DialogContent Class=""sm:max-w-[425px]"">
+        <DialogHeader>
+            <DialogTitle>Outer dialog</DialogTitle>
+            <DialogDescription>Open the inner dialog, then use Escape twice to close each layer.</DialogDescription>
+        </DialogHeader>
+        <DialogBody>
+            <Dialog>
+                <DialogTrigger AsChild=""true"">
+                    <Button Variant=""ButtonVariant.Outline"">Open inner</Button>
+                </DialogTrigger>
+                <DialogContent Class=""sm:max-w-[320px]"">
+                    <DialogHeader>
+                        <DialogTitle>Inner dialog</DialogTitle>
+                        <DialogDescription>Inner layer.</DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <DialogClose AsChild=""true"">
+                            <Button Variant=""ButtonVariant.Outline"">Close inner</Button>
+                        </DialogClose>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </DialogBody>
+        <DialogFooter>
+            <DialogClose AsChild=""true"">
+                <Button Variant=""ButtonVariant.Outline"">Close outer</Button>
+            </DialogClose>
+        </DialogFooter>
+    </DialogContent>
+</Dialog>";
 
     private const string BasicCode =
 @"<Dialog>

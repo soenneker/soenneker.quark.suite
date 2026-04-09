@@ -10,12 +10,15 @@
 }
 else
 {
-    <a @attributes="BuildAttributes()">
+    <a @attributes="BuildAttributes()" @ref="_anchorRef">
         @ChildContent
     </a>
 }
 
 @code {
+    private ElementReference _anchorRef;
+    private NavigationMenuItem? _registeredParentItem;
+
     [Parameter]
     public string? Href { get; set; }
 
@@ -27,6 +30,37 @@ else
 
     [Parameter]
     public bool AsChild { get; set; }
+
+    [CascadingParameter]
+    private NavigationMenuItem? ParentNavigationMenuItem { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        SyncRegistrationWithParent();
+    }
+
+    private void SyncRegistrationWithParent()
+    {
+        if (AsChild)
+            return;
+
+        if (!ReferenceEquals(_registeredParentItem, ParentNavigationMenuItem))
+        {
+            if (_registeredParentItem is not null)
+                _registeredParentItem.UnregisterLink(this);
+
+            _registeredParentItem = ParentNavigationMenuItem;
+
+            if (_registeredParentItem is not null)
+                _registeredParentItem.RegisterLink(this);
+        }
+    }
+
+    internal async Task FocusAsync()
+    {
+        await _anchorRef.FocusAsync();
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -58,6 +92,14 @@ else
     private IReadOnlyDictionary<string, object> BuildSlotAttributes()
     {
         return BuildAttributes();
+    }
+
+    public override void Dispose()
+    {
+        if (!AsChild && _registeredParentItem is not null)
+            _registeredParentItem.UnregisterLink(this);
+
+        base.Dispose();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

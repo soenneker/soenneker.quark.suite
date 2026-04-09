@@ -1,6 +1,5 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
-@implements IDisposable
 
 <div @attributes="BuildAttributes()" role="group" aria-roledescription="slide">
     @ChildContent
@@ -10,10 +9,10 @@
     [CascadingParameter(Name = "ParentCarousel")]
     private Carousel? ParentCarousel { get; set; }
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
-        base.OnInitialized();
-        ParentCarousel?.RegisterItem();
+        base.OnParametersSet();
+        ParentCarousel?.RegisterItem(this);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -33,11 +32,5 @@
             else
                 AppendClass(ref cls, "pt-4");
         });
-    }
-
-    public override void Dispose()
-    {
-        ParentCarousel?.UnregisterItem();
-        base.Dispose();
     }
 }

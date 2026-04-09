@@ -1,6 +1,9 @@
 @using System.Linq.Expressions
 @using Soenneker.Blazor.Extensions.EventCallback
 
+@inject IPopoverInterop PopoverInterop
+@inject ISelectInterop SelectInterop
+
 @namespace Soenneker.Quark
 @typeparam TValue
 @inherits FormControlElement
@@ -9,7 +12,7 @@
 
 <CascadingValue Name="ParentSelect" Value="this" IsFixed="false">
     <CascadingValue Name="ParentSelectContext" Value="_context" IsFixed="false">
-        <div @attributes="BuildAttributes()" @onfocusout="HandleFocusOut">
+        <div @attributes="BuildAttributes()">
             @if (Name.HasContent())
             {
                 <input type="hidden" name="@Name" value="@SelectedValueString" />
@@ -21,8 +24,12 @@
 </CascadingValue>
 
 @code {
+    private const int TypeaheadResetMilliseconds = 500;
+
     private readonly List<ISelectFocusableItem> _items = [];
     private ISelectFocusableItem? _activeItem;
+    private string _typeaheadBuffer = "";
+    private DateTime _typeaheadLastUtc;
 
     /// <summary>
     /// Gets or sets the selected value.
@@ -102,6 +109,9 @@
             OpenFirstAsync = OpenAndFocusFirstAsync,
             OpenLastAsync = OpenAndFocusLastAsync,
             CloseAsync = Close,
+            TryTypeaheadAsync = TryHandleTypeaheadAsync,
+            SelectActiveItemAsync = ActivateCurrentItemAsync,
+            NavigateFromTriggerAsync = NavigateFromTriggerAsync,
             FocusTriggerAsync = FocusTriggerAsync,
             ActiveItemId = () => _activeItem?.ItemId,
             TriggerId = TriggerId,
@@ -129,10 +139,82 @@
         await RefreshOffThread();
     }
 
-    private async Task HandleFocusOut(FocusEventArgs _)
+    internal async Task<bool> TryHandleTypeaheadAsync(string key)
     {
-        await Task.Delay(150);
-        await Close();
+        if (!_open || key.Length != 1)
+            return false;
+
+        var c = key[0];
+        if (char.IsControl(c))
+            return false;
+
+        var now = DateTime.UtcNow;
+        if ((now - _typeaheadLastUtc).TotalMilliseconds > TypeaheadResetMilliseconds)
+            _typeaheadBuffer = "";
+
+        _typeaheadBuffer += c;
+        _typeaheadLastUtc = now;
+
+        var enabledItems = _items.Where(i => !i.IsDisabledForNavigation).ToList();
+        var match = FindTypeaheadMatch(enabledItems, _typeaheadBuffer);
+
+        if (match is null && _typeaheadBuffer.Length > 1)
+        {
+            _typeaheadBuffer = key;
+            match = FindTypeaheadMatch(enabledItems, _typeaheadBuffer);
+        }
+
+        if (match is null)
+            return false;
+
+        SetActiveItem(match);
+        await match.FocusAsync();
+        await ScrollActiveItemIntoViewAsync();
+        return true;
+    }
+
+    private async Task ScrollActiveItemIntoViewAsync()
+    {
+        if (_activeItem is null)
+            return;
+
+        await SelectInterop.ScrollIntoViewNearestAsync(_activeItem.GetScrollAnchor());
+        await PopoverInterop.NudgePosition(ContentId);
+    }
+
+    private static ISelectFocusableItem? FindTypeaheadMatch(List<ISelectFocusableItem> enabledItems, string prefix)
+    {
+        if (prefix.Length == 0)
+            return null;
+
+        foreach (var item in enabledItems)
+        {
+            var text = item.SearchText ?? "";
+            if (text.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                return item;
+        }
+
+        return null;
+    }
+
+    private async Task ActivateCurrentItemAsync()
+    {
+        if (!_open || _activeItem is null)
+            return;
+
+        await _activeItem.InvokeSelectAsync();
+    }
+
+    private async Task NavigateFromTriggerAsync(string key)
+    {
+        if (!_open)
+            return;
+
+        EnsureActiveItem();
+        if (_activeItem is null)
+            return;
+
+        await HandleItemNavigationAsync(_activeItem, key);
     }
 
     internal void RegisterItem(string value, string? text)
@@ -197,7 +279,11 @@
         if (_open)
             EnsureActiveItem();
         else
+        {
+            _typeaheadBuffer = "";
             SetActiveItem(null);
+        }
+
         await RefreshOffThread();
     }
 
@@ -207,6 +293,7 @@
             return;
 
         _open = false;
+        _typeaheadBuffer = "";
         SetActiveItem(null);
         await RefreshOffThread();
     }
@@ -242,6 +329,7 @@
         var nextItem = enabledItems[nextIndex];
         SetActiveItem(nextItem);
         await nextItem.FocusAsync();
+        await ScrollActiveItemIntoViewAsync();
     }
 
     internal void SetActiveItem(ISelectFocusableItem? item)
@@ -281,7 +369,10 @@
 
         EnsureActiveItem();
         if (_activeItem is not null)
+        {
             await _activeItem.FocusAsync();
+            await ScrollActiveItemIntoViewAsync();
+        }
     }
 
     private async Task OpenAndFocusLastAsync()
@@ -307,6 +398,7 @@
         var lastItem = enabledItems[^1];
         SetActiveItem(lastItem);
         await lastItem.FocusAsync();
+        await ScrollActiveItemIntoViewAsync();
     }
 
     private async Task FocusTriggerAsync()

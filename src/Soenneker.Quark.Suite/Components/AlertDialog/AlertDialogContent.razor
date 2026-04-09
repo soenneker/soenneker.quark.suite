@@ -1,21 +1,25 @@
-@using Soenneker.Blazor.Extensions.EventCallback
-
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.InteractiveElement
 @implements IAlertDialogContent
-@implements IDisposable
 
 @if (ParentAlertDialog?.Visible == true)
 {
-    <div @onkeydown="HandleKeyDown" @onclick="HandleBackdropClick" @attributes="BuildContainerAttributes()">
-        @if (ParentAlertDialog.ShowBackdrop)
-        {
-            <div @attributes="BuildOverlayAttributes()"></div>
-        }
-        <div @onclick:stopPropagation="true" @ref="_contentRef" @attributes="BuildAttributes()">
+    @if (Portal)
+    {
+        <OverlayPortalPublisher Id="@_portalId" UsePortal="true">
+            <OverlayPortalShell CascadeOwnerName="@nameof(ParentAlertDialog)" Owner="ParentAlertDialog" LabelContext="Context">
+                <AlertDialogContentSurface Size="@Size">
+                    @ChildContent
+                </AlertDialogContentSurface>
+            </OverlayPortalShell>
+        </OverlayPortalPublisher>
+    }
+    else
+    {
+        <AlertDialogContentSurface Size="@Size">
             @ChildContent
-        </div>
-    </div>
+        </AlertDialogContentSurface>
+    }
 }
 
 @code {
@@ -25,157 +29,20 @@
     [CascadingParameter]
     private OverlayLabelContext? Context { get; set; }
 
-    private OverlayLabelContext? _subscribedContext;
-    private ElementReference _contentRef;
+    private readonly string _portalId = $"q-alert-dialog-portal-{Guid.NewGuid():N}";
 
-    /// <summary>
-    /// Gets or sets the size variant of the alert dialog content ("default" or "sm").
-    /// </summary>
     [Parameter]
     public string Size { get; set; } = "default";
 
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-
-        if (!ReferenceEquals(_subscribedContext, Context))
-        {
-            if (_subscribedContext is not null)
-                _subscribedContext.StateChanged -= OnContextStateChanged;
-
-            _subscribedContext = Context;
-
-            if (_subscribedContext is not null)
-                _subscribedContext.StateChanged += OnContextStateChanged;
-        }
-    }
-
-    private async void OnContextStateChanged()
-    {
-        await RefreshOffThread();
-    }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        var normalizedSize = Size.ToLowerInvariant() switch
-        {
-            "sm" => "sm",
-            _ => "default"
-        };
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-alert-dialog-content");
-            AppendClass(ref cls, "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 group/alert-dialog-content fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-lg");
-        });
-
-        attributes["role"] = "alertdialog";
-        attributes["aria-modal"] = ParentAlertDialog?.TrapFocus != false ? "true" : "false";
-        attributes["tabindex"] = -1;
-        attributes["data-slot"] = "alert-dialog-content";
-        attributes["data-size"] = normalizedSize;
-        attributes["data-state"] = ParentAlertDialog?.Visible == true ? "open" : "closed";
-
-        if (Context is not null)
-            attributes["id"] = Context.ContentId;
-
-        if (Context?.HasTitle == true)
-        {
-            attributes["aria-labelledby"] = Context.TitleId;
-            attributes.Remove("aria-label");
-        }
-
-        if (Context?.HasDescription == true)
-            attributes["aria-describedby"] = Context.DescriptionId;
-    }
-
-    private Dictionary<string, object> BuildContainerAttributes()
-    {
-        var attributes = new Dictionary<string, object>();
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-alert-dialog");
-            AppendClass(ref cls, "fixed inset-0 z-50");
-        });
-
-        attributes["tabindex"] = -1;
-        attributes["data-slot"] = "alert-dialog";
-        attributes["data-state"] = ParentAlertDialog?.Visible == true ? "open" : "closed";
-
-        if (ParentAlertDialog?.Static == true)
-            attributes["data-backdrop"] = "static";
-
-        return attributes;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (ParentAlertDialog?.Visible == true)
-            ParentAlertDialog.SetOverlayContentElement(_contentRef);
-
-        await base.OnAfterRenderAsync(firstRender);
-    }
-
-    private Dictionary<string, object> BuildOverlayAttributes()
-    {
-        var attributes = new Dictionary<string, object>();
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-alert-dialog-overlay");
-            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50");
-        });
-
-        attributes["data-state"] = ParentAlertDialog?.Visible == true ? "open" : "closed";
-        attributes["data-slot"] = "alert-dialog-overlay";
-        attributes["aria-hidden"] = "true";
-
-        return attributes;
-    }
-
-    protected override async Task HandleKeyDown(KeyboardEventArgs e)
-    {
-        if (ParentAlertDialog is null || ParentAlertDialog.Static || !ParentAlertDialog.CloseOnEscape)
-            return;
-
-        if (e.Key == "Escape")
-            await ParentAlertDialog.Hide();
-    }
-
-    private async Task HandleBackdropClick(MouseEventArgs _)
-    {
-        if (ParentAlertDialog is null || ParentAlertDialog.Static || !ParentAlertDialog.CloseOnBackdropClick)
-            return;
-
-        await ParentAlertDialog.OnBackdropClick.InvokeIfHasDelegate();
-        await ParentAlertDialog.Hide();
-    }
+    [Parameter]
+    public bool Portal { get; set; } = true;
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Size);
+        hc.Add(Portal);
         hc.Add(ParentAlertDialog?.Visible ?? false);
-        hc.Add(ParentAlertDialog?.ShowBackdrop ?? true);
-        hc.Add(ParentAlertDialog?.TrapFocus ?? true);
-        hc.Add(ParentAlertDialog?.CloseOnEscape ?? true);
-        hc.Add(ParentAlertDialog?.CloseOnBackdropClick ?? true);
-        hc.Add(ParentAlertDialog?.Static ?? false);
-        hc.Add(Context?.HasTitle);
-        hc.Add(Context?.HasDescription);
         hc.Add(Context?.ContentId);
-        hc.Add(Context?.TitleId);
-        hc.Add(Context?.DescriptionId);
-    }
-
-    public override void Dispose()
-    {
-        if (_subscribedContext is not null)
-            _subscribedContext.StateChanged -= OnContextStateChanged;
-
-        base.Dispose();
     }
 }

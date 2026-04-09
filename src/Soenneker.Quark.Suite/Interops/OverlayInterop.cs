@@ -30,14 +30,14 @@ public sealed class OverlayInterop : IOverlayInterop
     }
 
     public async ValueTask Activate(string overlayId, ElementReference container, bool trapFocus = true, bool lockScroll = true,
-        string? initialFocusSelector = null, CancellationToken cancellationToken = default)
+        string? initialFocusSelector = null, DotNetObjectReference<OverlayElement>? escapeInvoker = null, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
         using (source)
         {
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("activate", linked, overlayId, container, trapFocus, lockScroll, initialFocusSelector);
+            await module.InvokeVoidAsync("activate", linked, overlayId, container, trapFocus, lockScroll, initialFocusSelector, escapeInvoker);
         }
     }
 
@@ -49,6 +49,28 @@ public sealed class OverlayInterop : IOverlayInterop
         {
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("deactivate", linked, overlayId, unlockScroll);
+        }
+    }
+
+    public async ValueTask RegisterTooltipEscapeAsync(DotNetObjectReference<TooltipProvider> dotNetRef, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("registerTooltipEscape", linked, dotNetRef);
+        }
+    }
+
+    public async ValueTask UnregisterTooltipEscapeAsync(CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("unregisterTooltipEscape", linked);
         }
     }
 

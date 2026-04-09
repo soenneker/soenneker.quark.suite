@@ -1,0 +1,210 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.InteractiveElement
+@implements IDisposable
+
+<div @onclick="HandleBackdropClick" @attributes="BuildContainerAttributes()">
+    @if (ParentSheet?.ShowBackdrop == true)
+    {
+        <div @attributes="BuildOverlayAttributes()"></div>
+    }
+    <div @onclick:stopPropagation="true" @ref="_contentRef" @attributes="BuildAttributes()">
+        @ChildContent
+        @if (ShowCloseButton)
+        {
+            <SheetClose />
+        }
+    </div>
+</div>
+
+@code {
+    [CascadingParameter(Name = nameof(ParentSheet))]
+    public Sheet? ParentSheet { get; set; }
+
+    [CascadingParameter]
+    private OverlayLabelContext? Context { get; set; }
+
+    private OverlayLabelContext? _subscribedContext;
+    private ElementReference _contentRef;
+
+    [Parameter]
+    public string Side { get; set; } = "right";
+
+    [Parameter]
+    public bool ShowCloseButton { get; set; } = true;
+
+    [Parameter]
+    public string? ContainerClass { get; set; }
+
+    [Parameter]
+    public string? ContainerStyle { get; set; }
+
+    [Parameter]
+    public string? OverlayClass { get; set; }
+
+    [Parameter]
+    public string? OverlayStyle { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (!ReferenceEquals(_subscribedContext, Context))
+        {
+            if (_subscribedContext is not null)
+                _subscribedContext.StateChanged -= OnContextStateChanged;
+
+            _subscribedContext = Context;
+
+            if (_subscribedContext is not null)
+                _subscribedContext.StateChanged += OnContextStateChanged;
+        }
+    }
+
+    private async void OnContextStateChanged()
+    {
+        await RefreshOffThread();
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        var side = Side.ToLowerInvariant() switch
+        {
+            "left" => "left",
+            "top" => "top",
+            "bottom" => "bottom",
+            _ => "right"
+        };
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "q-sheet-content");
+            AppendClass(ref cls, "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500");
+            if (side == "right")
+                AppendClass(ref cls, "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 h-full w-3/4 border-l sm:max-w-sm");
+            else if (side == "left")
+                AppendClass(ref cls, "data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left inset-y-0 left-0 h-full w-3/4 border-r sm:max-w-sm");
+            else if (side == "top")
+                AppendClass(ref cls, "data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top inset-x-0 top-0 h-auto border-b");
+            else
+                AppendClass(ref cls, "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 h-auto border-t");
+        });
+
+        attributes["data-slot"] = "sheet-content";
+        attributes["data-state"] = ParentSheet?.Visible == true ? "open" : "closed";
+        attributes["data-side"] = side;
+        attributes["role"] = "dialog";
+        attributes["aria-modal"] = ParentSheet?.TrapFocus != false ? "true" : "false";
+        attributes["tabindex"] = -1;
+
+        if (Context is not null)
+            attributes["id"] = Context.ContentId;
+
+        if (Context?.HasTitle == true)
+        {
+            attributes["aria-labelledby"] = Context.TitleId;
+            attributes.Remove("aria-label");
+        }
+
+        if (Context?.HasDescription == true)
+            attributes["aria-describedby"] = Context.DescriptionId;
+    }
+
+    private Dictionary<string, object> BuildContainerAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+
+        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
+        {
+            AppendClass(ref cls, "q-sheet");
+            AppendClass(ref cls, "fixed inset-0 z-50");
+
+            if (!string.IsNullOrWhiteSpace(ContainerClass))
+                AppendClass(ref cls, ContainerClass!);
+
+            if (!string.IsNullOrWhiteSpace(ContainerStyle))
+                AppendStyleDecl(ref sty, ContainerStyle!);
+        });
+
+        attributes["tabindex"] = -1;
+        attributes["data-state"] = ParentSheet?.Visible == true ? "open" : "closed";
+        attributes["data-slot"] = "sheet";
+
+        if (ParentSheet?.Static == true)
+            attributes["data-backdrop"] = "static";
+
+        return attributes;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (ParentSheet?.Visible == true)
+            ParentSheet.SetOverlayContentElement(_contentRef);
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private Dictionary<string, object> BuildOverlayAttributes()
+    {
+        var attributes = new Dictionary<string, object>();
+
+        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
+        {
+            AppendClass(ref cls, "q-sheet-overlay");
+            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50");
+
+            if (!string.IsNullOrWhiteSpace(OverlayClass))
+                AppendClass(ref cls, OverlayClass!);
+
+            if (!string.IsNullOrWhiteSpace(OverlayStyle))
+                AppendStyleDecl(ref sty, OverlayStyle!);
+        });
+
+        attributes["data-state"] = ParentSheet?.Visible == true ? "open" : "closed";
+        attributes["data-slot"] = "sheet-overlay";
+        attributes["aria-hidden"] = "true";
+
+        return attributes;
+    }
+
+    private async Task HandleBackdropClick(MouseEventArgs _)
+    {
+        if (ParentSheet is null || ParentSheet.Static || !ParentSheet.CloseOnBackdropClick)
+            return;
+
+        await ParentSheet.OnBackdropClick.InvokeIfHasDelegate();
+        await ParentSheet.Hide();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Side);
+        hc.Add(ShowCloseButton);
+        hc.Add(ContainerClass);
+        hc.Add(ContainerStyle);
+        hc.Add(OverlayClass);
+        hc.Add(OverlayStyle);
+        hc.Add(ParentSheet?.Visible ?? false);
+        hc.Add(ParentSheet?.ShowBackdrop ?? true);
+        hc.Add(ParentSheet?.TrapFocus ?? true);
+        hc.Add(ParentSheet?.CloseOnBackdropClick ?? true);
+        hc.Add(ParentSheet?.Static ?? false);
+        hc.Add(Context?.HasTitle);
+        hc.Add(Context?.HasDescription);
+        hc.Add(Context?.ContentId);
+        hc.Add(Context?.TitleId);
+        hc.Add(Context?.DescriptionId);
+    }
+
+    public override void Dispose()
+    {
+        if (_subscribedContext is not null)
+            _subscribedContext.StateChanged -= OnContextStateChanged;
+
+        base.Dispose();
+    }
+}

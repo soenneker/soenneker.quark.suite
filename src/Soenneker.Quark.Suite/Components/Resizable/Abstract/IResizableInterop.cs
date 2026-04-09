@@ -26,4 +26,14 @@ public interface IResizableInterop : IAsyncDisposable
     /// Stops any active drag tracking.
     /// </summary>
     ValueTask StopDrag(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Installs capture-phase key handling so <c>preventDefault</c> runs only for resize arrow keys on separators (not Tab/other keys).
+    /// </summary>
+    ValueTask AttachKeyboardGuard(ElementReference panelGroupRoot, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Removes the keyboard guard installed by <see cref="AttachKeyboardGuard"/>.
+    /// </summary>
+    ValueTask DetachKeyboardGuard(ElementReference panelGroupRoot, CancellationToken cancellationToken = default);
 }

@@ -1,12 +1,15 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
-<button @attributes="BuildAttributes()" @onkeydown="HandleKeyDown" @ref="_elementRef">
+<button @attributes="BuildAttributes()" @onkeydown="HandleKeyDown" @onkeydown:preventDefault="_preventDefaultKeys" @ref="_elementRef">
     @ChildContent
 </button>
 
 @code {
     private ElementReference _elementRef;
+    private bool _preventDefaultKeys;
+    private Menubar? _registeredMenubar;
+    private MenubarMenu? _registeredMenubarMenu;
 
     [Parameter]
     public bool Open { get; set; }
@@ -17,14 +20,34 @@
     [CascadingParameter(Name = "ParentMenubarMenu")]
     private MenubarMenu? ParentMenubarMenu { get; set; }
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override void OnParametersSet()
     {
-        base.OnAfterRender(firstRender);
+        base.OnParametersSet();
+        SyncRegistrationWithParents();
+    }
 
-        if (firstRender)
+    private void SyncRegistrationWithParents()
+    {
+        if (!ReferenceEquals(_registeredMenubar, ParentMenubar))
         {
-            ParentMenubarMenu?.RegisterTrigger(this);
-            ParentMenubar?.RegisterTrigger(this);
+            if (_registeredMenubar is not null)
+                _registeredMenubar.UnregisterTrigger(this);
+
+            _registeredMenubar = ParentMenubar;
+
+            if (_registeredMenubar is not null)
+                _registeredMenubar.RegisterTrigger(this);
+        }
+
+        if (!ReferenceEquals(_registeredMenubarMenu, ParentMenubarMenu))
+        {
+            if (_registeredMenubarMenu is not null)
+                _registeredMenubarMenu.UnregisterTrigger(this);
+
+            _registeredMenubarMenu = ParentMenubarMenu;
+
+            if (_registeredMenubarMenu is not null)
+                _registeredMenubarMenu.RegisterTrigger(this);
         }
     }
 
@@ -59,14 +82,25 @@
 
     protected override async Task HandleKeyDown(KeyboardEventArgs e)
     {
+        _preventDefaultKeys = false;
+
         if (ParentMenubar is not null && e.Key is "ArrowRight" or "ArrowLeft" or "Home" or "End")
+        {
+            _preventDefaultKeys = true;
             await ParentMenubar.HandleTriggerNavigationAsync(this, e.Key);
+        }
         else if (ParentMenubarMenu is not null)
         {
             if (e.Key is "ArrowDown" or "Enter" or " ")
+            {
+                _preventDefaultKeys = true;
                 await ParentMenubarMenu.FocusFirstItemAsync();
+            }
             else if (e.Key == "ArrowUp")
+            {
+                _preventDefaultKeys = true;
                 await ParentMenubarMenu.FocusLastItemAsync();
+            }
         }
 
         await base.HandleKeyDown(e);
@@ -85,7 +119,12 @@
 
     public override void Dispose()
     {
-        ParentMenubar?.UnregisterTrigger(this);
+        if (_registeredMenubarMenu is not null)
+            _registeredMenubarMenu.UnregisterTrigger(this);
+
+        if (_registeredMenubar is not null)
+            _registeredMenubar.UnregisterTrigger(this);
+
         base.Dispose();
     }
 }

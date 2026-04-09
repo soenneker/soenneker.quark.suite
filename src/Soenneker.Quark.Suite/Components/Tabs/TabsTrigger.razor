@@ -11,6 +11,8 @@
 </button>
 
 @code {
+    private Tabs? _registeredTabs;
+
     [Parameter]
     public string? Value { get; set; }
 
@@ -25,12 +27,24 @@
 
     private bool IsActive => ParentTabs?.IsTabSelected(Value) == true;
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override void OnParametersSet()
     {
-        base.OnAfterRender(firstRender);
+        base.OnParametersSet();
+        SyncRegistrationWithParent();
+    }
 
-        if (firstRender && ParentTabs is not null)
-            ParentTabs.RegisterTrigger(this);
+    private void SyncRegistrationWithParent()
+    {
+        if (!ReferenceEquals(_registeredTabs, ParentTabs))
+        {
+            if (_registeredTabs is not null)
+                _registeredTabs.UnregisterTrigger(this);
+
+            _registeredTabs = ParentTabs;
+
+            if (_registeredTabs is not null)
+                _registeredTabs.RegisterTrigger(this);
+        }
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -121,7 +135,9 @@
 
     public override void Dispose()
     {
-        ParentTabs?.UnregisterTrigger(this);
+        if (_registeredTabs is not null)
+            _registeredTabs.UnregisterTrigger(this);
+
         base.Dispose();
     }
 

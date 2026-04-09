@@ -33,6 +33,8 @@
 
     protected override void OnInitialized()
     {
+        base.OnInitialized();
+
         _open = OpenChanged.HasDelegate ? Open : DefaultOpen;
         _context = new TooltipContext(() => _open, RequestOpenAsync, OpenImmediateAsync, CloseAsync);
     }
@@ -118,12 +120,23 @@
         if (_open == open)
             return;
 
+        var wasOpen = _open;
         _open = open;
+
+        if (wasOpen && !open)
+            Provider?.UnregisterOpenTooltip(this);
+        else if (!wasOpen && open)
+            Provider?.RegisterOpenTooltip(this);
 
         if (OpenChanged.HasDelegate)
             await OpenChanged.InvokeAsync(open);
 
         await RefreshOffThread();
+    }
+
+    internal async Task DismissFromDocumentEscapeAsync()
+    {
+        await CloseAsync();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -142,6 +155,9 @@
 
     public override void Dispose()
     {
+        if (_open)
+            Provider?.UnregisterOpenTooltip(this);
+
         _pendingOpenCts?.Cancel();
         _pendingOpenCts?.Dispose();
         _pendingOpenCts = null;

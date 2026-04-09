@@ -8,16 +8,18 @@
 
 @if (ResolvedVisible && ParentDropdown?.IsSubmenu != true)
 {
-    <div class="fixed inset-0 z-40" aria-hidden="true" @onclick="HandleBackdropClick"></div>
+    <div class="fixed inset-0 z-[109]" aria-hidden="true" @onclick="HandleBackdropClick"></div>
 }
 
-<div @ref="_contentRef" @attributes="BuildAttributes()" @onkeydown="HandleMenuKeyDown">
+<div @ref="_contentRef" @attributes="BuildAttributes()" @onkeydown="HandleMenuKeyDown" @onkeydown:preventDefault="_menuKeyPreventDefault" @onkeydown:stopPropagation="_menuKeyStopPropagation">
     @ChildContent
 </div>
 
 @code {
     private ElementReference _contentRef;
     private bool _positionObserverActive;
+    private bool _menuKeyPreventDefault;
+    private bool _menuKeyStopPropagation;
 
     /// <summary>
     /// Gets or sets whether the dropdown menu should be right-aligned.
@@ -69,7 +71,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-dropdown-menu");
-            AppendClass(ref cls, "z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-[8rem] origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md");
+            AppendClass(ref cls, "z-[110] max-h-(--radix-dropdown-menu-content-available-height) min-w-[8rem] origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md");
             AppendClass(ref cls, "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
             AppendClass(ref cls, "data-[state=closed]:hidden data-[state=open]:block");
 
@@ -123,11 +125,16 @@
 
     private async Task HandleMenuKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Escape" && ParentDropdown is not null)
-        {
-            await ParentDropdown.Hide();
-            await ParentDropdown.FocusTriggerAsync();
-        }
+        _menuKeyPreventDefault = false;
+        _menuKeyStopPropagation = false;
+
+        if (e.Key != "Escape" || ParentDropdown is null)
+            return;
+
+        _menuKeyPreventDefault = true;
+        _menuKeyStopPropagation = true;
+        await ParentDropdown.Hide();
+        await ParentDropdown.FocusTriggerAsync();
     }
 
     private async Task HandleBackdropClick()

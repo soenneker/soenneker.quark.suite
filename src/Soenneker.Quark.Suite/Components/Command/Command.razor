@@ -1,6 +1,8 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
+@inject ISelectInterop SelectInterop
+
 <CascadingValue Name="ParentCommand" Value="@this" IsFixed="true">
     <div @attributes="BuildAttributes()">
         @ChildContent
@@ -12,6 +14,7 @@
     private CommandItem? _activeItem;
     private string? _search;
     private readonly string _listId = $"command-list-{Guid.NewGuid():N}";
+    private bool _pendingScrollActiveItemIntoView;
 
     internal string? Search => _search;
 
@@ -68,6 +71,7 @@
     {
         _search = value;
         _activeItem = GetVisibleEntries().FirstOrDefault()?.Item;
+        _pendingScrollActiveItemIntoView = _activeItem is not null;
         await RefreshOffThread();
     }
 
@@ -107,8 +111,8 @@
 
         var nextEntry = visibleEntries[nextIndex];
         _activeItem = nextEntry.Item;
+        _pendingScrollActiveItemIntoView = true;
         await RefreshOffThread();
-        await nextEntry.FocusAsync();
     }
 
     internal async Task SelectActiveItemAsync()
@@ -135,6 +139,17 @@
             AppendClass(ref cls, "q-command");
             AppendClass(ref cls, "bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md");
         });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_pendingScrollActiveItemIntoView && _activeItem is not null)
+        {
+            _pendingScrollActiveItemIntoView = false;
+            await SelectInterop.ScrollIntoViewNearestAsync(_activeItem.ScrollTarget);
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

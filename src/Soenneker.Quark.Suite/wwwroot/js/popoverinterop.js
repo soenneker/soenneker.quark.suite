@@ -100,7 +100,57 @@ function computePosition(side, align, triggerRect, contentRect, viewportWidth, v
     };
 }
 
-function updatePosition(trigger, content, side, align, sideOffset) {
+function adjustItemAligned(trigger, content, resolvedSide, sideOffset) {
+    const viewport = content.querySelector('[data-slot="select-viewport"]');
+    if (!viewport) {
+        return;
+    }
+
+    const item =
+        viewport.querySelector("[data-highlighted]") ||
+        viewport.querySelector('[aria-selected="true"]') ||
+        viewport.querySelector('[data-slot="select-item"]');
+
+    if (!item) {
+        return;
+    }
+
+    const offset = Number.isFinite(sideOffset) ? sideOffset : 4;
+    const triggerRect = trigger.getBoundingClientRect();
+    const itemRect = item.getBoundingClientRect();
+    const normalizedSide = (resolvedSide || "bottom").toLowerCase();
+
+    let delta = 0;
+    if (normalizedSide === "bottom") {
+        const desiredItemTop = triggerRect.bottom + offset;
+        delta = itemRect.top - desiredItemTop;
+    } else if (normalizedSide === "top") {
+        const desiredItemBottom = triggerRect.top - offset;
+        delta = itemRect.bottom - desiredItemBottom;
+    } else {
+        return;
+    }
+
+    const parsedTop = parseFloat(content.style.top);
+    if (!Number.isFinite(parsedTop)) {
+        return;
+    }
+
+    content.style.top = `${Math.round(parsedTop - delta)}px`;
+
+    const contentRect = content.getBoundingClientRect();
+    const padding = viewportPadding;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const maxLeft = Math.max(padding, viewportWidth - contentRect.width - padding);
+    const maxTop = Math.max(padding, viewportHeight - contentRect.height - padding);
+    const nextTop = clamp(parseFloat(content.style.top), padding, maxTop);
+    const nextLeft = clamp(parseFloat(content.style.left), padding, maxLeft);
+    content.style.top = `${Math.round(nextTop)}px`;
+    content.style.left = `${Math.round(nextLeft)}px`;
+}
+
+function updatePosition(trigger, content, side, align, sideOffset, positionMode) {
     if (!document.body.contains(trigger) || !document.body.contains(content)) {
         return;
     }
@@ -121,20 +171,36 @@ function updatePosition(trigger, content, side, align, sideOffset) {
     content.style.left = `${Math.round(left)}px`;
     content.style.visibility = "visible";
     content.style.setProperty("--quark-trigger-width", `${Math.round(triggerRect.width)}px`);
+    content.style.setProperty("--radix-select-trigger-width", `${Math.round(triggerRect.width)}px`);
+    content.style.setProperty("--radix-select-trigger-height", `${Math.round(triggerRect.height)}px`);
     content.style.setProperty("--quark-available-height", `${Math.max(0, Math.floor(availableHeight))}px`);
+    content.style.setProperty("--radix-select-content-available-height", `${Math.max(0, Math.floor(availableHeight))}px`);
     content.dataset.side = resolvedSide;
     content.dataset.align = align || "center";
+
+    const mode = positionMode || "popper";
+    if (mode === "item-aligned") {
+        window.requestAnimationFrame(() => {
+            if (!document.body.contains(trigger) || !document.body.contains(content)) {
+                return;
+            }
+
+            adjustItemAligned(trigger, content, resolvedSide, sideOffset);
+        });
+    }
 }
 
-export function observePosition(popoverId, trigger, content, callbackReference, side, align, sideOffset) {
+export function observePosition(popoverId, trigger, content, callbackReference, side, align, sideOffset, positionMode) {
     if (!popoverId || !trigger || !content) {
         return;
     }
 
     stopObserving(popoverId);
 
+    const mode = positionMode || "popper";
+
     const update = () => {
-        updatePosition(trigger, content, side, align, sideOffset);
+        updatePosition(trigger, content, side, align, sideOffset, mode);
     };
 
     const scheduleUpdate = () => {
@@ -179,6 +245,16 @@ export function observePosition(popoverId, trigger, content, callbackReference, 
     });
 
     scheduleUpdate();
+}
+
+export function nudgePosition(popoverId) {
+    const observer = observers.get(popoverId);
+
+    if (!observer || !observer.scheduleUpdate) {
+        return;
+    }
+
+    observer.scheduleUpdate();
 }
 
 export function stopObserving(popoverId) {

@@ -1,7 +1,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<button @ref="_triggerRef" type="button" @onclick="OnTriggerClick" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
+<button @ref="_triggerRef" type="button" @onclick="OnTriggerClick" @onkeydown="HandleKeyDown" @onkeydown:preventDefault="_preventDefaultKeys" @attributes="BuildAttributes()">
     @ChildContent
     <svg class="pointer-events-none size-4 opacity-50 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="m6 9 6 6 6-6"></path>
@@ -13,6 +13,7 @@
     private SelectContext? Context { get; set; }
 
     private ElementReference _triggerRef;
+    private bool _preventDefaultKeys;
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
@@ -31,13 +32,56 @@
 
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
+        _preventDefaultKeys = false;
+
         if (Context?.IsDisabled() == true || Context is null)
             return;
 
+        if (Context.IsOpen() == true && !e.CtrlKey && !e.MetaKey && !e.AltKey && e.Key.Length == 1 && !char.IsControl(e.Key[0]))
+        {
+            if (await Context.TryTypeaheadAsync(e.Key))
+            {
+                _preventDefaultKeys = true;
+                return;
+            }
+        }
+
+        if (Context.IsOpen() == true)
+        {
+            if (e.Key is "Enter" or " ")
+            {
+                _preventDefaultKeys = true;
+                await Context.SelectActiveItemAsync();
+                return;
+            }
+
+            if (e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
+            {
+                _preventDefaultKeys = true;
+                await Context.NavigateFromTriggerAsync(e.Key);
+                return;
+            }
+
+            if (e.Key == "Escape")
+            {
+                _preventDefaultKeys = true;
+                await Context.CloseAsync();
+                return;
+            }
+
+            return;
+        }
+
         if (e.Key is "ArrowDown" or "Enter" or " ")
+        {
+            _preventDefaultKeys = true;
             await Context.OpenFirstAsync();
+        }
         else if (e.Key == "ArrowUp")
+        {
+            _preventDefaultKeys = true;
             await Context.OpenLastAsync();
+        }
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

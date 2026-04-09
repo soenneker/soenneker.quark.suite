@@ -7,14 +7,16 @@
 
 @if (Open)
 {
-    <div class="fixed inset-0 z-40" aria-hidden="true" @onclick="Close"></div>
-    <div @attributes="BuildContentAttributes()" @onclick:stopPropagation="true">
+    <div class="fixed inset-0 z-[109]" aria-hidden="true" @onclick="Close"></div>
+    <div @attributes="BuildContentAttributes()" @onclick:stopPropagation="true" @onkeydown="HandleContentKeyDown" @onkeydown:preventDefault="_contentKeyPreventDefault" @onkeydown:stopPropagation="_contentKeyStopPropagation">
         @_content
     </div>
 }
 
 @code {
     private readonly List<IContextMenuFocusableItem> _items = [];
+    private bool _contentKeyPreventDefault;
+    private bool _contentKeyStopPropagation;
 
     internal bool Open { get; set; }
     internal double X { get; set; }
@@ -88,12 +90,11 @@
         attrs["data-slot"] = "context-menu-content";
         attrs["role"] = "menu";
         attrs["tabindex"] = -1;
-        attrs["style"] = $"position: fixed; left: {X}px; top: {Y}px; z-index: 50;";
-        attrs["onkeydown"] = EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleContentKeyDown);
+        attrs["style"] = $"position: fixed; left: {X}px; top: {Y}px;";
         BuildClassAttribute(attrs, (ref cls) =>
         {
             AppendClass(ref cls, "q-context-menu-content");
-            AppendClass(ref cls, "z-50 max-h-(--radix-context-menu-content-available-height) min-w-[8rem] origin-(--radix-context-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md");
+            AppendClass(ref cls, "z-[110] max-h-(--radix-context-menu-content-available-height) min-w-[8rem] origin-(--radix-context-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md");
             AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
             AppendClass(ref cls, "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
         });
@@ -102,9 +103,15 @@
 
     private Task HandleContentKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Escape")
-            Close();
+        _contentKeyPreventDefault = false;
+        _contentKeyStopPropagation = false;
 
+        if (e.Key != "Escape")
+            return Task.CompletedTask;
+
+        _contentKeyPreventDefault = true;
+        _contentKeyStopPropagation = true;
+        Close();
         return Task.CompletedTask;
     }
 }

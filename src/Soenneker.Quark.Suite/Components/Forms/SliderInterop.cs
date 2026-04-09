@@ -82,6 +82,28 @@ public sealed class SliderInterop : ISliderInterop
         }
     }
 
+    public async ValueTask AttachKeyboardGuard(ElementReference sliderRoot, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            IJSObjectReference module = await GetModule(linked);
+            await module.InvokeVoidAsync("attachSliderKeyboardGuard", linked, sliderRoot);
+        }
+    }
+
+    public async ValueTask DetachKeyboardGuard(ElementReference sliderRoot, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            IJSObjectReference module = await GetModule(linked);
+            await module.InvokeVoidAsync("detachSliderKeyboardGuard", linked, sliderRoot);
+        }
+    }
+
     public async ValueTask DisposeAsync()
     {
         await _cancellationScope.DisposeAsync();

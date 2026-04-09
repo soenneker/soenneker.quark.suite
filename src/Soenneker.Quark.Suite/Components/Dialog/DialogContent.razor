@@ -1,25 +1,25 @@
-@using Soenneker.Blazor.Extensions.EventCallback
-
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.InteractiveElement
 @implements IDialogContent
-@implements IDisposable
 
 @if (ParentDialog?.Visible == true)
 {
-    <div @onkeydown="HandleKeyDown" @onclick="HandleBackdropClick" @attributes="BuildContainerAttributes()">
-        @if (ParentDialog.ShowBackdrop)
-        {
-            <div @attributes="BuildOverlayAttributes()"></div>
-        }
-        <div @onclick:stopPropagation="true" @ref="_contentRef" @attributes="BuildAttributes()">
+    @if (Portal)
+    {
+        <OverlayPortalPublisher Id="@_portalId" UsePortal="true">
+            <OverlayPortalShell CascadeOwnerName="@nameof(ParentDialog)" Owner="ParentDialog" LabelContext="Context">
+                <DialogContentSurface Centered="@Centered" ShowCloseButton="@ShowCloseButton">
+                    @ChildContent
+                </DialogContentSurface>
+            </OverlayPortalShell>
+        </OverlayPortalPublisher>
+    }
+    else
+    {
+        <DialogContentSurface Centered="@Centered" ShowCloseButton="@ShowCloseButton">
             @ChildContent
-            @if (ShowCloseButton)
-            {
-                <DialogCloseButton />
-            }
-        </div>
-    </div>
+        </DialogContentSurface>
+    }
 }
 
 @code {
@@ -29,8 +29,7 @@
     [CascadingParameter]
     private OverlayLabelContext? Context { get; set; }
 
-    private OverlayLabelContext? _subscribedContext;
-    private ElementReference _contentRef;
+    private readonly string _portalId = $"q-dialog-portal-{Guid.NewGuid():N}";
 
     [Parameter]
     public bool Centered { get; set; }
@@ -38,141 +37,19 @@
     [Parameter]
     public bool ShowCloseButton { get; set; } = true;
 
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-
-        if (!ReferenceEquals(_subscribedContext, Context))
-        {
-            if (_subscribedContext is not null)
-                _subscribedContext.StateChanged -= OnContextStateChanged;
-
-            _subscribedContext = Context;
-
-            if (_subscribedContext is not null)
-                _subscribedContext.StateChanged += OnContextStateChanged;
-        }
-    }
-
-    private async void OnContextStateChanged()
-    {
-        await RefreshOffThread();
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (ParentDialog?.Visible == true)
-            ParentDialog.SetOverlayContentElement(_contentRef);
-
-        await base.OnAfterRenderAsync(firstRender);
-    }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-dialog-content");
-            AppendClass(ref cls, "fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 outline-none");
-            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:max-w-lg");
-
-            if (ParentDialog?.Scrollable == true)
-                AppendClass(ref cls, "max-h-[90vh] overflow-y-auto");
-
-            if (Centered || ParentDialog?.Centered == true)
-                AppendClass(ref cls, "text-center");
-
-            if (ParentDialog?.DialogSize != null && ParentDialog.DialogSize.Value.HasContent())
-            {
-                var size = ParentDialog.DialogSize.Value.ToLowerInvariant();
-                if (size == "sm")
-                    AppendClass(ref cls, "sm:max-w-sm");
-                else if (size == "lg")
-                    AppendClass(ref cls, "sm:max-w-2xl");
-                else if (size == "xl")
-                    AppendClass(ref cls, "sm:max-w-4xl");
-            }
-        });
-
-        attributes["role"] = "dialog";
-        attributes["aria-modal"] = ParentDialog?.TrapFocus != false ? "true" : "false";
-        attributes["tabindex"] = -1;
-        attributes["data-slot"] = "dialog-content";
-        attributes["data-state"] = ParentDialog?.Visible == true ? "open" : "closed";
-
-        if (Context is not null)
-            attributes["id"] = Context.ContentId;
-
-        if (Context?.HasTitle == true)
-        {
-            attributes["aria-labelledby"] = Context.TitleId;
-            attributes.Remove("aria-label");
-        }
-
-        if (Context?.HasDescription == true)
-            attributes["aria-describedby"] = Context.DescriptionId;
-    }
-
-    private Dictionary<string, object> BuildContainerAttributes()
-    {
-        var attributes = new Dictionary<string, object>();
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-dialog fixed inset-0 z-50");
-        });
-
-        attributes["tabindex"] = -1;
-        attributes["data-slot"] = "dialog-container";
-        attributes["data-state"] = ParentDialog?.Visible == true ? "open" : "closed";
-
-        if (ParentDialog?.Static == true)
-            attributes["data-backdrop"] = "static";
-
-        return attributes;
-    }
-
-    private Dictionary<string, object> BuildOverlayAttributes()
-    {
-        var attributes = new Dictionary<string, object>();
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-dialog-overlay");
-            AppendClass(ref cls, "fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0");
-        });
-
-        attributes["data-slot"] = "dialog-overlay";
-        attributes["data-state"] = ParentDialog?.Visible == true ? "open" : "closed";
-        attributes["aria-hidden"] = "true";
-
-        return attributes;
-    }
-
-    protected override async Task HandleKeyDown(KeyboardEventArgs e)
-    {
-        if (ParentDialog is null || ParentDialog.Static || !ParentDialog.CloseOnEscape)
-            return;
-
-        if (e.Key == "Escape")
-            await ParentDialog.Hide();
-    }
-
-    private async Task HandleBackdropClick(MouseEventArgs _)
-    {
-        if (ParentDialog is null || ParentDialog.Static || !ParentDialog.CloseOnBackdropClick)
-            return;
-
-        await ParentDialog.OnBackdropClick.InvokeIfHasDelegate();
-        await ParentDialog.Hide();
-    }
+    /// <summary>
+    /// When <c>true</c> (default), dialog chrome renders in <see cref="QuarkOverlayPortalHost"/> (layout-level portal).
+    /// Set <c>false</c> to render inline (e.g. hosts without the portal host).
+    /// </summary>
+    [Parameter]
+    public bool Portal { get; set; } = true;
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(ShowCloseButton);
         hc.Add(Centered);
+        hc.Add(ShowCloseButton);
+        hc.Add(Portal);
         hc.Add(ParentDialog?.Visible ?? false);
         hc.Add(ParentDialog?.ShowBackdrop ?? true);
         hc.Add(ParentDialog?.Centered ?? false);
@@ -180,20 +57,11 @@
         hc.Add(ParentDialog?.DialogSize);
         hc.Add(ParentDialog?.Static ?? false);
         hc.Add(ParentDialog?.TrapFocus ?? true);
-        hc.Add(ParentDialog?.CloseOnEscape ?? true);
         hc.Add(ParentDialog?.CloseOnBackdropClick ?? true);
         hc.Add(Context?.HasTitle);
         hc.Add(Context?.HasDescription);
         hc.Add(Context?.ContentId);
         hc.Add(Context?.TitleId);
         hc.Add(Context?.DescriptionId);
-    }
-
-    public override void Dispose()
-    {
-        if (_subscribedContext is not null)
-            _subscribedContext.StateChanged -= OnContextStateChanged;
-
-        base.Dispose();
     }
 }

@@ -1,6 +1,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TriggerElement
 @implements ISheetTrigger
+@using Microsoft.AspNetCore.Components.Web
 
 @if (AsChild)
 {
@@ -10,12 +11,21 @@
 }
 else
 {
-    <button type="button" @onclick="HandleActivate" @ref="_elementRef" @attributes="BuildAttributes()">
+    <button type="button"
+            @onclick="HandleActivate"
+            @ref="_elementRef"
+            @onkeydown="HandleOverlayDismissKeyDown"
+            @onkeydown:preventDefault="_keyPreventDefault"
+            @onkeydown:stopPropagation="_keyStopPropagation"
+            @attributes="BuildAttributes()">
         @ChildContent
     </button>
 }
 
 @code {
+    private bool _keyPreventDefault;
+    private bool _keyStopPropagation;
+
     [CascadingParameter(Name = nameof(ParentSheet))]
     public Sheet? ParentSheet { get; set; }
 
@@ -36,6 +46,9 @@ else
         attributes["aria-haspopup"] = "dialog";
         attributes["aria-expanded"] = ParentSheet?.Visible == true ? "true" : "false";
 
+        if (Context is not null)
+            attributes["id"] = Context.TriggerId;
+
         if (Disabled)
             attributes["disabled"] = true;
 
@@ -54,10 +67,14 @@ else
     {
         return new TriggerContext
         {
+            TriggerId = Context?.TriggerId,
             IsOpen = ParentSheet?.Visible == true,
             DataState = ParentSheet?.Visible == true ? "open" : "closed",
             AriaHasPopup = "dialog",
             AriaControls = ParentSheet?.Visible == true ? Context?.ContentId : null,
+            OnKeyDown = ParentSheet is null || Context is null
+                ? null
+                : e => OverlayTriggerKeyDown.HandleDismissWhenOpen(e, ParentSheet.Visible, () => ParentSheet.Hide()),
             RegisterElement = elementReference => _elementRef = elementReference,
             Toggle = ParentSheet is null
                 ? null
@@ -80,6 +97,25 @@ else
             },
             Close = ParentSheet is null ? null : () => ParentSheet.Hide()
         };
+    }
+
+    private async Task HandleOverlayDismissKeyDown(KeyboardEventArgs e)
+    {
+        _keyPreventDefault = false;
+        _keyStopPropagation = false;
+
+        if (Disabled || ParentSheet is null || Context is null)
+            return;
+
+        if ((e.Key == "Escape" || e.Key == "Enter" || e.Key == " ") && ParentSheet.Visible)
+        {
+            _keyPreventDefault = true;
+
+            if (e.Key == "Escape")
+                _keyStopPropagation = true;
+
+            await ParentSheet.Hide();
+        }
     }
 
     private async Task HandleActivate(MouseEventArgs args)
@@ -105,5 +141,6 @@ else
         hc.Add(Disabled);
         hc.Add(ParentSheet?.Visible ?? false);
         hc.Add(Context?.ContentId);
+        hc.Add(Context?.TriggerId);
     }
 }

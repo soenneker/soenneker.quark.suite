@@ -1,5 +1,19 @@
 let activeDrag = null;
 
+/** Keys that should not scroll the page / move focus incorrectly when a slider thumb is focused (ARIA slider pattern). */
+const sliderThumbNavigationKeys = new Set([
+  'Home',
+  'End',
+  'PageUp',
+  'PageDown',
+  'ArrowLeft',
+  'ArrowRight',
+  'ArrowUp',
+  'ArrowDown',
+]);
+
+const sliderKeyboardGuards = new WeakMap();
+
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
@@ -60,6 +74,48 @@ export function stopDrag() {
 
 export function isDirectionRtl(trackElement) {
   return isRtl(trackElement);
+}
+
+/**
+ * Capture-phase keydown on the slider root: preventDefault only for thumb navigation keys
+ * so Tab/Escape/other keys are not swallowed (Blazor previously used blanket @onkeydown:preventDefault on thumbs).
+ */
+export function attachSliderKeyboardGuard(rootElement) {
+  if (!rootElement) {
+    return;
+  }
+
+  detachSliderKeyboardGuard(rootElement);
+
+  const handler = (ev) => {
+    if (!sliderThumbNavigationKeys.has(ev.key)) {
+      return;
+    }
+
+    const thumb = ev.target?.closest?.('[data-slot="slider-thumb"]');
+    if (!thumb || !rootElement.contains(thumb)) {
+      return;
+    }
+
+    ev.preventDefault();
+  };
+
+  rootElement.addEventListener('keydown', handler, true);
+  sliderKeyboardGuards.set(rootElement, handler);
+}
+
+export function detachSliderKeyboardGuard(rootElement) {
+  if (!rootElement) {
+    return;
+  }
+
+  const handler = sliderKeyboardGuards.get(rootElement);
+  if (!handler) {
+    return;
+  }
+
+  rootElement.removeEventListener('keydown', handler, true);
+  sliderKeyboardGuards.delete(rootElement);
 }
 
 export function startDrag(trackElement, pointerId, clientX, clientY, min, max, orientation, dotNetRef, thumbIndex) {

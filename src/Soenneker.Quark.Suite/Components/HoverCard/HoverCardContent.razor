@@ -1,11 +1,26 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@implements IAsyncDisposable
 
-<div @onmouseenter="HandleMouseEnter" @onmouseleave="HandleMouseLeave" @attributes="BuildAttributes()">
+@inject IPopoverInterop PopoverInterop
+@using Microsoft.JSInterop
+
+<div @ref="_contentRef"
+     @onmouseenter="HandleMouseEnter"
+     @onmouseleave="HandleMouseLeave"
+     @onfocusin="HandleFocusIn"
+     @onfocusout="HandleFocusOut"
+     @onkeydown="HandleKeyDown"
+     @onkeydown:preventDefault="_escapePreventDefault"
+     @onkeydown:stopPropagation="_escapeStopPropagation"
+     @attributes="BuildAttributes()">
     @ChildContent
 </div>
 
 @code {
+    private bool _escapePreventDefault;
+    private bool _escapeStopPropagation;
+
     [CascadingParameter]
     private HoverCardContext? Context { get; set; }
 
@@ -33,7 +48,67 @@
     [Parameter]
     public bool DisableAutoOpen { get; set; }
 
+    /// <summary>
+    /// When <c>true</c>, Escape closes the hover card (Radix/shadcn parity; required when nested in a modal so the inner layer dismisses first).
+    /// </summary>
+    [Parameter]
+    public bool CloseOnEscape { get; set; } = true;
+
+    /// <summary>
+    /// When <c>true</c>, skips viewport floating (popper) and keeps the legacy absolute placement under the trigger.
+    /// </summary>
+    [Parameter]
+    public bool DisableFloatingPosition { get; set; }
+
+    private ElementReference _contentRef;
+    private bool _positionObserverActive;
+    private DotNetObjectReference<HoverCardOutsideCloseProxy>? _outsideRef;
+    private HoverCardContext? _subscribedContext;
+
     private bool IsOpen => Context?.IsOpen ?? Open;
+
+    private bool UseFloatingPositioning => Context?.HasTriggerElement == true && !DisableFloatingPosition;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (!ReferenceEquals(_subscribedContext, Context))
+        {
+            if (_subscribedContext is not null)
+                _subscribedContext.StateChanged -= OnContextStateChanged;
+
+            _subscribedContext = Context;
+
+            if (_subscribedContext is not null)
+                _subscribedContext.StateChanged += OnContextStateChanged;
+        }
+    }
+
+    private async void OnContextStateChanged()
+    {
+        await RefreshOffThread();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender && Context is not null)
+            _outsideRef = DotNetObjectReference.Create(new HoverCardOutsideCloseProxy(Context));
+
+        if (!IsOpen || Context is null || !UseFloatingPositioning)
+        {
+            await StopPositionObserver();
+            return;
+        }
+
+        if (_outsideRef is null)
+            _outsideRef = DotNetObjectReference.Create(new HoverCardOutsideCloseProxy(Context));
+
+        await PopoverInterop.ObservePosition(Context.ContentId, Context.TriggerElement, _contentRef, _outsideRef, Side, Align, SideOffset);
+        _positionObserverActive = true;
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -48,31 +123,58 @@
         {
             attributes["id"] = Context.ContentId;
             attributes["tabindex"] = -1;
+            attributes["role"] = "dialog";
+            attributes["aria-modal"] = "false";
         }
+
+        attributes["aria-hidden"] = IsOpen ? "false" : "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-hover-card-content");
-            AppendClass(ref cls, "z-50 w-64 origin-(--radix-hover-card-content-transform-origin) rounded-lg bg-popover p-4 text-sm text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-hidden duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
-            AppendClass(ref cls, "absolute top-full mt-1");
+            AppendClass(ref cls, "z-[110] w-64 origin-(--radix-hover-card-content-transform-origin) rounded-lg bg-popover p-4 text-sm text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-hidden duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
             AppendClass(ref cls, "data-[state=closed]:hidden data-[state=open]:block");
-            AppendClass(ref cls, "data-[align=start]:left-0 rtl:data-[align=start]:left-auto rtl:data-[align=start]:right-0");
-            AppendClass(ref cls, "data-[align=center]:left-1/2 data-[align=center]:-translate-x-1/2 rtl:data-[align=center]:left-auto rtl:data-[align=center]:right-1/2 rtl:data-[align=center]:translate-x-1/2");
-            AppendClass(ref cls, "data-[align=end]:right-0 rtl:data-[align=end]:right-auto rtl:data-[align=end]:left-0");
 
-            if (Context is null && !DisableAutoOpen)
-                AppendClass(ref cls, "group-hover/hover-card:block group-focus-within/hover-card:block");
+            if (UseFloatingPositioning)
+            {
+                AppendClass(ref cls, "fixed");
+            }
+            else
+            {
+                AppendClass(ref cls, "absolute top-full mt-1");
+                AppendClass(ref cls, "data-[align=start]:left-0 rtl:data-[align=start]:left-auto rtl:data-[align=start]:right-0");
+                AppendClass(ref cls, "data-[align=center]:left-1/2 data-[align=center]:-translate-x-1/2 rtl:data-[align=center]:left-auto rtl:data-[align=center]:right-1/2 rtl:data-[align=center]:translate-x-1/2");
+                AppendClass(ref cls, "data-[align=end]:right-0 rtl:data-[align=end]:right-auto rtl:data-[align=end]:left-0");
+
+                if (Context is null && !DisableAutoOpen)
+                    AppendClass(ref cls, "group-hover/hover-card:block group-focus-within/hover-card:block");
+            }
         });
 
-        var offsetStyle = Side switch
+        if (UseFloatingPositioning)
         {
-            "top" => $"margin-bottom: {SideOffset}px;",
-            "left" => $"margin-right: {SideOffset}px;",
-            "right" => $"margin-left: {SideOffset}px;",
-            _ => $"margin-top: {SideOffset}px;"
-        };
-
-        BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, offsetStyle));
+            BuildStyleAttribute(attributes, (ref sty) =>
+            {
+                AppendStyleDecl(ref sty, "top: 0");
+                AppendStyleDecl(ref sty, "left: 0");
+                AppendStyleDecl(ref sty, "margin-top: 0");
+                AppendStyleDecl(ref sty, "visibility: hidden");
+            });
+        }
+        else
+        {
+            var offset = SideOffset >= 0 ? SideOffset : 0;
+
+            var offsetStyle = Side switch
+            {
+                "top" => $"margin-bottom: {offset}px;",
+                "left" => $"margin-right: {offset}px;",
+                "right" => $"margin-left: {offset}px;",
+                _ => $"margin-top: {offset}px;"
+            };
+
+            BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, offsetStyle));
+        }
     }
 
     private Task HandleMouseEnter(MouseEventArgs e)
@@ -85,6 +187,29 @@
         return Context?.Close() ?? Task.CompletedTask;
     }
 
+    private Task HandleFocusIn(FocusEventArgs _)
+    {
+        return Context?.OpenImmediate() ?? Task.CompletedTask;
+    }
+
+    private Task HandleFocusOut(FocusEventArgs _)
+    {
+        return Context?.Close() ?? Task.CompletedTask;
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        _escapePreventDefault = false;
+        _escapeStopPropagation = false;
+
+        if (!CloseOnEscape || e.Key != "Escape" || Context is null || !Context.IsOpen)
+            return;
+
+        _escapePreventDefault = true;
+        _escapeStopPropagation = true;
+        await Context.CloseImmediate();
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
@@ -93,5 +218,30 @@
         hc.Add(Align);
         hc.Add(SideOffset);
         hc.Add(DisableAutoOpen);
+        hc.Add(CloseOnEscape);
+        hc.Add(DisableFloatingPosition);
+        hc.Add(Context?.HasTriggerElement);
+    }
+
+    private async ValueTask StopPositionObserver()
+    {
+        if (!_positionObserverActive || Context is null)
+            return;
+
+        await PopoverInterop.StopObserving(Context.ContentId);
+        _positionObserverActive = false;
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        if (_subscribedContext is not null)
+        {
+            _subscribedContext.StateChanged -= OnContextStateChanged;
+            _subscribedContext = null;
+        }
+
+        await StopPositionObserver();
+        _outsideRef?.Dispose();
+        await base.DisposeAsync();
     }
 }

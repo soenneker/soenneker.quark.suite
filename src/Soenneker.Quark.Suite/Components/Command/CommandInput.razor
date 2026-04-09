@@ -5,7 +5,7 @@
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-4 shrink-0 opacity-50">
         <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
     </svg>
-    <input value="@Value" @oninput="HandleInput" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()" placeholder="@Placeholder" />
+    <input value="@Value" @oninput="HandleInput" @onkeydown="HandleKeyDown" @onkeydown:preventDefault="_preventDefaultKeys" @attributes="BuildAttributes()" placeholder="@Placeholder" />
 </div>
 
 @code {
@@ -14,6 +14,8 @@
 
     [CascadingParameter(Name = "ParentCommand")]
     private Command? ParentCommand { get; set; }
+
+    private bool _preventDefaultKeys;
 
     private async Task HandleInput(ChangeEventArgs e)
     {
@@ -27,6 +29,8 @@
 
     protected override async Task HandleKeyDown(KeyboardEventArgs e)
     {
+        _preventDefaultKeys = e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End" or "Enter";
+
         if (ParentCommand is not null && e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
             await ParentCommand.HandleInputNavigationAsync(e.Key);
         else if (ParentCommand is not null && e.Key == "Enter")
@@ -42,10 +46,11 @@
         attributes["data-slot"] = "command-input";
         attributes["type"] = "text";
         attributes["role"] = "combobox";
-        attributes["aria-expanded"] = "true";
+        attributes["aria-autocomplete"] = "list";
+        attributes["aria-expanded"] = ParentCommand is not null ? "true" : "false";
         attributes["aria-controls"] = ParentCommand?.ListId ?? "command-list";
 
-        if (ParentCommand?.ActiveItemId is not null)
+        if (ParentCommand?.ActiveItemId.HasContent() == true)
             attributes["aria-activedescendant"] = ParentCommand.ActiveItemId;
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -70,5 +75,6 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(ParentCommand?.ActiveItemId);
+        hc.Add(ParentCommand is not null);
     }
 }

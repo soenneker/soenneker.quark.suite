@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 
 namespace Soenneker.Quark;
 
@@ -19,10 +18,5 @@ internal sealed class CommandEntry
             return true;
 
         return Item.SearchText.Contains(search, StringComparison.OrdinalIgnoreCase);
-    }
-
-    public Task FocusAsync()
-    {
-        return Item.FocusAsync();
     }
 }

@@ -1,5 +1,6 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using System.Collections.Generic
 @using System.Linq
 
 <CascadingValue Name="ParentCarousel" Value="@this" IsFixed="true">
@@ -24,9 +25,12 @@
     internal event Action? StateChanged;
     private readonly CarouselApi _api = new();
     private Action<CarouselApi>? _lastSetApi;
+    private readonly List<CarouselItem> _items = [];
+    private int _lastPublishedCount = -1;
+    private int _lastPublishedIndex = -1;
 
     internal int CurrentIndex { get; private set; }
-    internal int ItemCount { get; private set; }
+    internal int ItemCount => _items.Count;
     internal bool CanScrollPrevious => ItemCount > 1 && (Loop || CurrentIndex > 0);
     internal bool CanScrollNext => ItemCount > 1 && (Loop || CurrentIndex < ItemCount - 1);
 
@@ -43,6 +47,7 @@
 
     protected override void OnParametersSet()
     {
+        _items.Clear();
         base.OnParametersSet();
 
         if (SetApi is not null && !ReferenceEquals(_lastSetApi, SetApi))
@@ -52,25 +57,37 @@
         }
     }
 
-    internal void RegisterItem()
+    /// <summary>
+    /// Called from each <see cref="CarouselItem"/> during <c>OnParametersSet</c> (after this component clears the list).
+    /// </summary>
+    internal int RegisterItem(CarouselItem item)
     {
-        ItemCount++;
-        NotifyStateChanged();
+        if (!_items.Contains(item))
+            _items.Add(item);
+
+        if (CurrentIndex >= _items.Count)
+            CurrentIndex = _items.Count - 1;
+
+        return _items.IndexOf(item);
     }
 
-    internal void UnregisterItem()
+    protected override void OnAfterRender(bool firstRender)
     {
-        if (ItemCount == 0)
-            return;
-
-        ItemCount--;
-
-        if (ItemCount == 0)
+        if (_items.Count == 0)
             CurrentIndex = 0;
-        else if (CurrentIndex >= ItemCount)
-            CurrentIndex = ItemCount - 1;
+        else if (CurrentIndex >= _items.Count)
+            CurrentIndex = _items.Count - 1;
 
-        NotifyStateChanged();
+        var count = _items.Count;
+        var index = CurrentIndex;
+        if (count != _lastPublishedCount || index != _lastPublishedIndex)
+        {
+            _lastPublishedCount = count;
+            _lastPublishedIndex = index;
+            NotifyStateChanged();
+        }
+
+        base.OnAfterRender(firstRender);
     }
 
     internal void Previous()
@@ -85,10 +102,36 @@
 
     private Task HandleKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "ArrowLeft")
-            Previous();
-        else if (e.Key == "ArrowRight")
-            Next();
+        if (e.Key == "Home")
+        {
+            GoTo(0);
+            return Task.CompletedTask;
+        }
+
+        if (e.Key == "End")
+        {
+            if (ItemCount > 0)
+                GoTo(ItemCount - 1);
+
+            return Task.CompletedTask;
+        }
+
+        var vertical = string.Equals(Orientation, "vertical", StringComparison.OrdinalIgnoreCase);
+
+        if (vertical)
+        {
+            if (e.Key == "ArrowUp")
+                Previous();
+            else if (e.Key == "ArrowDown")
+                Next();
+        }
+        else
+        {
+            if (e.Key == "ArrowLeft")
+                Previous();
+            else if (e.Key == "ArrowRight")
+                Next();
+        }
 
         return Task.CompletedTask;
     }
@@ -109,7 +152,6 @@
             return;
 
         CurrentIndex = nextIndex;
-        NotifyStateChanged();
     }
 
     private void NotifyStateChanged()
@@ -124,6 +166,12 @@
 
         attributes["data-slot"] = "carousel";
         attributes["data-orientation"] = Orientation;
+
+        if (!attributes.ContainsKey("tabindex"))
+            attributes["tabindex"] = TabIndex ?? 0;
+
+        if (!attributes.ContainsKey("aria-label"))
+            attributes["aria-label"] = AriaLabel ?? "Carousel";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

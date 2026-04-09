@@ -1,0 +1,45 @@
+@namespace Soenneker.Quark
+@implements IDisposable
+
+<div id="quark-overlay-portal-host"
+     class="q-overlay-portal-host pointer-events-none fixed inset-0 z-[100] isolate"
+     data-slot="overlay-portal-host"
+     aria-hidden="false">
+    @foreach (var entry in _ordered)
+    {
+        <div @key="entry.Id"
+             class="q-overlay-portal-layer fixed inset-0"
+             style="z-index: @(50 + entry.SortKey)">
+            @entry.Fragment
+        </div>
+    }
+</div>
+
+@code {
+    [Inject]
+    private IOverlayPortalService PortalService { get; set; } = null!;
+
+    private IReadOnlyList<OverlayPortalEntry> _ordered = [];
+
+    protected override void OnInitialized()
+    {
+        PortalService.Changed += OnPortalChanged;
+        _ordered = PortalService.GetOrderedEntries();
+    }
+
+    private void OnPortalChanged()
+    {
+        _ordered = PortalService.GetOrderedEntries();
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    protected override void OnParametersSet()
+    {
+        _ordered = PortalService.GetOrderedEntries();
+    }
+
+    public void Dispose()
+    {
+        PortalService.Changed -= OnPortalChanged;
+    }
+}

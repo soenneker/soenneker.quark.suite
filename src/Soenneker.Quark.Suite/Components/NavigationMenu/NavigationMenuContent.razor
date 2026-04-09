@@ -2,11 +2,14 @@
 @inherits Soenneker.Quark.Element
 @implements INavigationMenuContent
 
-<div @attributes="BuildAttributes()" @onmouseleave="HandleMouseLeave">
+<div @attributes="BuildAttributes()" @onmouseleave="HandleMouseLeave" @onkeydown="HandleKeyDown" @onkeydown:preventDefault="_preventDefaultKeys" @onkeydown:stopPropagation="_stopPropagation">
     @ChildContent
 </div>
 
 @code {
+    private bool _preventDefaultKeys;
+    private bool _stopPropagation;
+
     [Parameter]
     public bool Open { get; set; }
 
@@ -31,6 +34,9 @@
         attributes["data-slot"] = "navigation-menu-content";
         attributes["data-state"] = ResolvedOpen ? "open" : "closed";
         attributes["aria-hidden"] = ResolvedOpen ? "false" : "true";
+
+        if (ParentNavigationMenuItem is not null)
+            attributes["id"] = ParentNavigationMenuItem.ContentPanelId;
 
         if (Motion.HasContent())
             attributes["data-motion"] = Motion!;
@@ -63,6 +69,7 @@
         hc.Add(ResolvedOpen);
         hc.Add(DisableAutoOpen);
         hc.Add(Motion);
+        hc.Add(ParentNavigationMenuItem?.ContentPanelId);
     }
 
     private async Task HandleMouseLeave(MouseEventArgs _)
@@ -71,5 +78,21 @@
             return;
 
         await ParentNavigationMenu.CloseItemAsync(ParentNavigationMenuItem);
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        _preventDefaultKeys = false;
+        _stopPropagation = false;
+
+        if (e.Key != "Escape")
+            return;
+
+        if (!ResolvedOpen || ParentNavigationMenu is null || ParentNavigationMenuItem is null)
+            return;
+
+        _preventDefaultKeys = true;
+        _stopPropagation = true;
+        await ParentNavigationMenu.CloseItemAsync(ParentNavigationMenuItem, restoreFocusToTrigger: true);
     }
 }

@@ -1,6 +1,7 @@
 @typeparam TNode
 @namespace Soenneker.Quark
 
+@using System.Collections.Generic
 @using Soenneker.Blazor.Extensions.EventCallback
 @inherits Soenneker.Quark.Element
 
@@ -8,6 +9,7 @@
     <CascadingValue Name="ParentTreeViewState" Value="@_state" IsFixed="true">
         <div @attributes="BuildAttributes()">
             <_TreeViewNode TNode="TNode"
+                           Level="1"
                            NodeStates="@_rootNodeStates"
                            NodeContent="@NodeContent"
                            GetChildNodes="@GetChildNodes"
@@ -84,6 +86,13 @@
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
+        base.BuildAttributesCore(attributes);
+
+        attributes["role"] = "tree";
+
+        if (SelectionMode == TreeViewSelectionMode.Multiple)
+            attributes["aria-multiselectable"] = "true";
+
         BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "q-tree-view"));
     }
 
@@ -110,6 +119,8 @@
             await EnsureNodesLoaded();
             InvalidateRender();
         }
+
+        EnsureValidFocus();
 
         await base.OnParametersSetAsync();
     }
@@ -149,6 +160,130 @@
         _rootNodeStates = list;
     }
 
+    internal List<TreeViewNodeState<TNode>> GetVisibleNodesForKeyboard()
+    {
+        var list = new List<TreeViewNodeState<TNode>>();
+
+        foreach (var root in _rootNodeStates)
+            AppendVisible(root, list);
+
+        return list;
+    }
+
+    private static void AppendVisible(TreeViewNodeState<TNode> node, List<TreeViewNodeState<TNode>> list)
+    {
+        list.Add(node);
+
+        if (node.Expanded && node.HasChildren)
+        {
+            foreach (var child in node.Children)
+                AppendVisible(child, list);
+        }
+    }
+
+    internal TreeViewNodeState<TNode>? FindParent(TreeViewNodeState<TNode> needle)
+    {
+        foreach (var root in _rootNodeStates)
+        {
+            var found = FindParentRecursive(needle, root);
+            if (found is not null)
+                return found;
+        }
+
+        return null;
+    }
+
+    private static TreeViewNodeState<TNode>? FindParentRecursive(TreeViewNodeState<TNode> needle, TreeViewNodeState<TNode> candidate)
+    {
+        foreach (var child in candidate.Children)
+        {
+            if (ReferenceEquals(child, needle))
+                return candidate;
+
+            var deeper = FindParentRecursive(needle, child);
+            if (deeper is not null)
+                return deeper;
+        }
+
+        return null;
+    }
+
+    internal TreeViewNodeState<TNode>? FindStateByNode(TNode node)
+    {
+        foreach (var root in _rootNodeStates)
+        {
+            var found = FindStateByNodeRecursive(node, root);
+            if (found is not null)
+                return found;
+        }
+
+        return null;
+    }
+
+    private static TreeViewNodeState<TNode>? FindStateByNodeRecursive(TNode node, TreeViewNodeState<TNode> candidate)
+    {
+        if (EqualityComparer<TNode>.Default.Equals(candidate.Node, node))
+            return candidate;
+
+        foreach (var child in candidate.Children)
+        {
+            var found = FindStateByNodeRecursive(node, child);
+            if (found is not null)
+                return found;
+        }
+
+        return null;
+    }
+
+    internal bool IsNodeFocused(TreeViewNodeState<TNode> node)
+    {
+        return !Virtualize && _state.FocusedNodeKey == node.Key;
+    }
+
+    internal async Task SetKeyboardFocusAsync(TreeViewNodeState<TNode>? node)
+    {
+        if (node is null)
+        {
+            _state.FocusedNodeKey = null;
+        }
+        else if (!node.Disabled)
+        {
+            _state.FocusedNodeKey = node.Key;
+        }
+        else
+        {
+            return;
+        }
+
+        InvalidateRender();
+        await RefreshOffThread();
+    }
+
+    private void EnsureValidFocus()
+    {
+        if (Virtualize)
+            return;
+
+        var visible = GetVisibleNodesForKeyboard();
+
+        if (visible.Count == 0)
+        {
+            _state.FocusedNodeKey = null;
+            return;
+        }
+
+        if (_state.FocusedNodeKey is null)
+        {
+            _state.FocusedNodeKey = visible.FirstOrDefault(n => !n.Disabled)?.Key;
+            return;
+        }
+
+        var focused = visible.FirstOrDefault(n => n.Key == _state.FocusedNodeKey);
+
+        if (focused is null || focused.Disabled)
+            _state.FocusedNodeKey = visible.FirstOrDefault(n => !n.Disabled)?.Key;
+    }
+
     private bool DetermineIsDisabled(TNode node) => IsDisabled?.Invoke(node) ?? false;
 
     private async ValueTask<bool> DetermineHasChildren(TNode node)
@@ -172,6 +307,9 @@
 
         _state.SelectedNode = node;
 
+        var state = FindStateByNode(node);
+        _state.FocusedNodeKey = state?.Key;
+
         InvalidateRender();
 
         await SelectedNodeChanged.InvokeAsync(_state.SelectedNode);
@@ -190,6 +328,9 @@
             list.Remove(node);
         else
             list.Add(node);
+
+        var st = FindStateByNode(node);
+        _state.FocusedNodeKey = st?.Key;
 
         InvalidateRender();
 
@@ -222,6 +363,7 @@
 
         hc.Add(SelectedNode);
         hc.Add(SelectionMode);
+        hc.Add(_state.FocusedNodeKey);
 
         hc.Add(AutoExpandAll);
         hc.Add(Virtualize);

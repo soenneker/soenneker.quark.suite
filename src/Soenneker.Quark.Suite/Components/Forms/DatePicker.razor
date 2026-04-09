@@ -10,12 +10,12 @@
 
 @inject IDatePickerInterop DatePickerInterop
 
-<div OnElementRefReady="HandleContainerRefReady" @attributes="GetContainerAttributes()">
+<div OnElementRefReady="HandleContainerRefReady" @attributes="GetContainerAttributes()" @onkeydown="HandleContainerKeyDown" @onkeydown:preventDefault="_containerKeyPreventDefault" @onkeydown:stopPropagation="_containerKeyStopPropagation">
     <input @ref="_ref" type="text" value="@(SelectedDate.HasValue ? SelectedDate.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : "")" @attributes="BuildAttributes()" />
 
     @if (_open)
     {
-        <div class="fixed inset-0 z-[19990]" @onclick="ClosePanel"></div>
+        <div class="fixed inset-0 z-[109]" @onclick="ClosePanel"></div>
         <div @ref="_panelRef" @attributes="BuildPanelAttributes()" @onclick:stopPropagation="true">
             <Calendar SelectedDate="SelectedDate"
                       SelectedDateChanged="HandleCalendarChanged"
@@ -91,6 +91,8 @@
     private ElementReference _containerRef;
     private DotNetObjectReference<DatePickerOutsideCloseProxy>? _outsideRef;
     private bool _open;
+    private bool _containerKeyPreventDefault;
+    private bool _containerKeyStopPropagation;
     private bool _positionObserverActive;
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
     private readonly string _panelId = $"datepicker-panel-{Guid.NewGuid():N}";
@@ -257,11 +259,14 @@
 
     private Dictionary<string, object> BuildPanelAttributes()
     {
-        var attrs = new Dictionary<string, object>(2);
+        var attrs = new Dictionary<string, object>(4);
+        attrs["data-slot"] = "datepicker-content";
+        attrs["data-state"] = "open";
+
         BuildClassAttribute(attrs, (ref cls) =>
         {
             AppendClass(ref cls, "q-calendar-panel");
-            AppendClass(ref cls, "fixed left-0 top-0 z-[20000] w-auto rounded-md border bg-popover p-0 text-popover-foreground shadow-md");
+            AppendClass(ref cls, "fixed left-0 top-0 z-[110] w-auto rounded-md border bg-popover p-0 text-popover-foreground shadow-md");
         });
 
         BuildStyleAttribute(attrs, (ref sty) =>
@@ -270,6 +275,19 @@
         });
 
         return attrs;
+    }
+
+    private async Task HandleContainerKeyDown(KeyboardEventArgs e)
+    {
+        _containerKeyPreventDefault = false;
+        _containerKeyStopPropagation = false;
+
+        if (!_open || e.Key != "Escape")
+            return;
+
+        _containerKeyPreventDefault = true;
+        _containerKeyStopPropagation = true;
+        await ClosePanel();
     }
 
     private Task OpenPanel()
@@ -334,6 +352,7 @@
     {
         _outsideRef?.Dispose();
         await StopPositionObserver();
+        await base.OnDisposeAsync();
     }
 
     protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
@@ -353,6 +372,7 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(SelectedDate);
         hc.Add(Placeholder);
         hc.Add(Disabled);

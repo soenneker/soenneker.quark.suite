@@ -1,3 +1,6 @@
+@using System.Collections.Generic
+@using System.Linq
+@using Microsoft.AspNetCore.Components.Web
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 @using Soenneker.Blazor.Extensions.EventCallback
 @typeparam TNode
@@ -9,21 +12,30 @@
     {
         if (Virtualize)
         {
-            <Virtualize TItem="TreeViewNodeState<TNode>" Context="node" Items="@NodeStates">
-                @NodeFragment(node)
+            <Virtualize TItem="(TreeViewNodeState<TNode> Node, int Index)" Context="tuple" Items="@_indexedForVirtualize">
+                @NodeFragment(tuple.Node, tuple.Index + 1, _indexedForVirtualize!.Count)
             </Virtualize>
         }
         else
         {
+            var setSize = NodeStates.Count;
+            var i = 0;
+
             @foreach (var nodeState in NodeStates)
             {
-                @NodeFragment(nodeState)
+                i++;
+                @NodeFragment(nodeState, i, setSize)
             }
         }
     }
 </div>
 
 @code {
+    private List<(TreeViewNodeState<TNode> Node, int Index)>? _indexedForVirtualize;
+    private bool _preventRowKeyDefault;
+
+    [Parameter] public int Level { get; set; } = 1;
+
     [Parameter] public ICollection<TreeViewNodeState<TNode>>? NodeStates { get; set; }
     [Parameter] public RenderFragment<TNode>? NodeContent { get; set; }
 
@@ -55,6 +67,9 @@
     [Parameter] public bool ContextMenuPreventDefault { get; set; }
 
     [CascadingParameter(Name = nameof(ParentTreeView))] public TreeView<TNode>? ParentTreeView { get; set; }
+
+    [CascadingParameter(Name = nameof(ParentTreeViewState))]
+    public TreeViewState<TNode> ParentTreeViewState { get; set; } = null!;
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -88,6 +103,11 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        if (NodeStates is not null && Virtualize)
+            _indexedForVirtualize = NodeStates.Select((n, i) => (n, i)).ToList();
+        else
+            _indexedForVirtualize = null;
+
         // If parameters bring in expanded nodes that have not loaded children yet, load them.
         // Refresh once at the end if we actually loaded anything.
         var changed = false;
@@ -112,17 +132,32 @@
         }
     }
 
-    private RenderFragment NodeFragment(TreeViewNodeState<TNode> nodeState) => __builder =>
+    private RenderFragment NodeFragment(TreeViewNodeState<TNode> nodeState, int posInSet, int setSize) => __builder =>
     {
+        var selectedSingle = SelectionMode == TreeViewSelectionMode.Single && ParentTreeViewState.SelectedNode is not null &&
+                             EqualityComparer<TNode>.Default.Equals(ParentTreeViewState.SelectedNode, nodeState.Node);
+
+        var selectedMulti = SelectionMode == TreeViewSelectionMode.Multiple && ParentTreeViewState.SelectedNodes is not null &&
+                            ParentTreeViewState.SelectedNodes.Contains(nodeState.Node);
+
         <div class="q-tree-view-node-row"
              @key="nodeState.Key"
+             role="treeitem"
+             aria-level="@Level"
+             aria-posinset="@posInSet"
+             aria-setsize="@setSize"
+             aria-selected="@((selectedSingle || selectedMulti).ToString().ToLowerInvariant())"
+             aria-expanded="@(nodeState.HasChildren ? nodeState.Expanded.ToString().ToLowerInvariant() : null)"
+             tabindex="@(ParentTreeView is not null && !Virtualize && ParentTreeView.IsNodeFocused(nodeState) ? 0 : -1)"
+             @onkeydown="e => HandleRowKeyDown(nodeState, e)"
+             @onkeydown:preventDefault="_preventRowKeyDefault"
              @oncontextmenu="e => OnContextMenuHandler(nodeState, e)"
              @oncontextmenu:stopPropagation
              @oncontextmenu:preventDefault="@ContextMenuPreventDefault">
 
             @if (nodeState.HasChildren)
             {
-                <span class="q-tree-view-node-toggle" @onclick="() => ToggleNode(nodeState, true)">
+                <span class="q-tree-view-node-toggle" tabindex="-1" @onclick="() => ToggleNode(nodeState, true)">
                     @if (nodeState.Expanded)
                     {
                         <Icon Name="@CollapseIcon" Class="@CollapseIconClass" />
@@ -148,6 +183,7 @@
         @if (nodeState.Expanded && nodeState.HasChildren)
         {
             <_TreeViewNode TNode="TNode"
+                           Level="@(Level + 1)"
                            NodeStates="@nodeState.Children"
                            NodeContent="@NodeContent"
                            GetChildNodes="@GetChildNodes"
@@ -172,6 +208,116 @@
                            Virtualize="@Virtualize" />
         }
     };
+
+    private async Task HandleRowKeyDown(TreeViewNodeState<TNode> nodeState, KeyboardEventArgs e)
+    {
+        _preventRowKeyDefault = e.Key switch
+        {
+            "ArrowDown" or "ArrowUp" or "ArrowLeft" or "ArrowRight" or "Home" or "End" or "Enter" or " " => true,
+            _ => false
+        };
+
+        if (ParentTreeView is null || Virtualize || nodeState.Disabled)
+            return;
+
+        var visible = ParentTreeView.GetVisibleNodesForKeyboard();
+        var idx = visible.FindIndex(n => ReferenceEquals(n, nodeState));
+
+        if (idx < 0)
+            return;
+
+        switch (e.Key)
+        {
+            case "ArrowDown":
+            {
+                for (var i = idx + 1; i < visible.Count; i++)
+                {
+                    if (!visible[i].Disabled)
+                    {
+                        await ParentTreeView.SetKeyboardFocusAsync(visible[i]);
+                        return;
+                    }
+                }
+
+                break;
+            }
+            case "ArrowUp":
+            {
+                for (var i = idx - 1; i >= 0; i--)
+                {
+                    if (!visible[i].Disabled)
+                    {
+                        await ParentTreeView.SetKeyboardFocusAsync(visible[i]);
+                        return;
+                    }
+                }
+
+                break;
+            }
+            case "Home":
+            {
+                var first = visible.FirstOrDefault(n => !n.Disabled);
+                if (first is not null)
+                    await ParentTreeView.SetKeyboardFocusAsync(first);
+
+                break;
+            }
+            case "End":
+            {
+                TreeViewNodeState<TNode>? last = null;
+
+                for (var i = visible.Count - 1; i >= 0; i--)
+                {
+                    if (!visible[i].Disabled)
+                    {
+                        last = visible[i];
+                        break;
+                    }
+                }
+
+                if (last is not null)
+                    await ParentTreeView.SetKeyboardFocusAsync(last);
+
+                break;
+            }
+            case "ArrowRight":
+            {
+                if (nodeState.HasChildren && !nodeState.Expanded)
+                    await ToggleNode(nodeState, true);
+                else if (nodeState.Expanded && nodeState.Children.Count > 0)
+                {
+                    var firstChild = nodeState.Children.FirstOrDefault(c => !c.Disabled);
+                    if (firstChild is not null)
+                        await ParentTreeView.SetKeyboardFocusAsync(firstChild);
+                }
+
+                break;
+            }
+            case "ArrowLeft":
+            {
+                if (nodeState.HasChildren && nodeState.Expanded)
+                    await ToggleNode(nodeState, true);
+                else
+                {
+                    var parent = ParentTreeView.FindParent(nodeState);
+                    if (parent is not null)
+                        await ParentTreeView.SetKeyboardFocusAsync(parent);
+                }
+
+                break;
+            }
+            case "Enter":
+            case " ":
+            {
+                if (SelectionMode == TreeViewSelectionMode.Multiple)
+                    await ParentTreeView.ToggleCheckNode(nodeState.Node);
+                else
+                    await ParentTreeView.SelectNode(nodeState.Node);
+
+                break;
+            }
+        }
+    }
 
     private async Task ToggleNode(TreeViewNodeState<TNode> nodeState, bool refresh)
     {
@@ -255,6 +401,7 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         // Structural inputs
         hc.Add(NodeContent);
         hc.Add(SelectionMode);

@@ -38,7 +38,10 @@ internal sealed class TriggerContext
 
     public Func<Task>? OnFocusOut { get; init; }
 
-    public Func<KeyboardEventArgs, Task>? OnKeyDown { get; init; }
+    /// <summary>
+    /// Keyboard handling for composition with Button AsChild. Prefer returning a synchronously completed task so preventDefault applies in time.
+    /// </summary>
+    public Func<KeyboardEventArgs, Task<TriggerKeyDownResult>>? OnKeyDown { get; init; }
 
     public Action<ElementReference>? RegisterElement { get; init; }
 }

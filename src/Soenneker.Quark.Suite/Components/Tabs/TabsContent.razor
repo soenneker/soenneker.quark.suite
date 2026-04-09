@@ -30,9 +30,13 @@
         attributes["data-orientation"] = ParentTabs?.Vertical == true ? "vertical" : "horizontal";
         attributes["role"] = "tabpanel";
         attributes["tabindex"] = IsActive ? 0 : -1;
+        attributes["aria-hidden"] = IsActive ? "false" : "true";
 
         if (!IsActive)
+        {
             attributes["hidden"] = true;
+            attributes["inert"] = true;
+        }
 
         var contentId = ParentTabs?.GetContentId(Value);
         if (contentId is not null)

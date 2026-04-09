@@ -5,7 +5,7 @@
 
 @if (AsChild)
 {
-    <span @ref="_buttonRef" @onclick="OnClickHandler" @onkeydown="HandleToggleKeyDown" @attributes="BuildWrapperAttributes()">
+    <span @ref="_buttonRef" @onclick="OnClickHandler" @onkeydown="HandleToggleKeyDown" @onkeydown:preventDefault="_togglePreventDefault" @attributes="BuildWrapperAttributes()">
         <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
             @ChildContent
         </CascadingValue>
@@ -13,13 +13,14 @@
 }
 else
 {
-    <button @attributes="BuildAttributes()" type="button" @onclick="OnClickHandler" @onkeydown="HandleToggleKeyDown" @ref="_buttonRef">
+    <button @attributes="BuildAttributes()" type="button" @onclick="OnClickHandler" @onkeydown="HandleToggleKeyDown" @onkeydown:preventDefault="_togglePreventDefault" @ref="_buttonRef">
         @ChildContent
     </button>
 }
 
 @code {
     private ElementReference _buttonRef;
+    private bool _togglePreventDefault;
 
     /// <summary>
     /// Gets or sets whether this is a split button toggle.
@@ -39,15 +40,12 @@ else
     [CascadingParameter(Name = nameof(ParentDropdown))]
     public Dropdown? ParentDropdown { get; set; }
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        base.OnAfterRender(firstRender);
+        await base.OnAfterRenderAsync(firstRender);
 
-        if (firstRender)
-        {
-            ParentDropdown?.RegisterToggle(this);
-            ParentDropdown?.SetTriggerElement(_buttonRef);
-        }
+        ParentDropdown?.RegisterToggle(this);
+        ParentDropdown?.SetTriggerElement(_buttonRef);
     }
 
     private async Task OnClickHandler(MouseEventArgs e)
@@ -101,7 +99,7 @@ else
             Toggle = ParentDropdown is null ? null : () => ParentDropdown.Toggle(),
             Open = ParentDropdown is null ? null : () => ParentDropdown.OpenAndFocusFirstItemAsync(),
             Close = ParentDropdown is null ? null : () => ParentDropdown.Hide(),
-            OnKeyDown = HandleToggleKeyDown
+            OnKeyDown = HandleToggleKeyDownForTriggerContext
         };
     }
 
@@ -133,13 +131,33 @@ else
 
     private async Task HandleToggleKeyDown(KeyboardEventArgs e)
     {
+        await HandleToggleKeyDownForTriggerContext(e);
+    }
+
+    private Task<TriggerKeyDownResult> HandleToggleKeyDownForTriggerContext(KeyboardEventArgs e)
+    {
+        _togglePreventDefault = false;
+
         if (ParentDropdown is null || Disabled || ParentDropdown.Disabled)
-            return;
+            return Task.FromResult(default(TriggerKeyDownResult));
 
         if (e.Key is "ArrowDown" or "Enter" or " ")
-            await ParentDropdown.OpenAndFocusFirstItemAsync();
-        else if (e.Key == "Escape" && ParentDropdown.Visible)
-            await ParentDropdown.Hide();
+        {
+            _togglePreventDefault = true;
+            var r = new TriggerKeyDownResult { PreventDefault = true };
+            _ = ParentDropdown.OpenAndFocusFirstItemAsync();
+            return Task.FromResult(r);
+        }
+
+        if (e.Key == "Escape" && ParentDropdown.Visible)
+        {
+            _togglePreventDefault = true;
+            var r = new TriggerKeyDownResult { PreventDefault = true };
+            _ = ParentDropdown.Hide();
+            return Task.FromResult(r);
+        }
+
+        return Task.FromResult(default(TriggerKeyDownResult));
     }
 
     internal async Task FocusAsync()

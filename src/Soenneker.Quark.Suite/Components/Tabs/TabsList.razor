@@ -18,6 +18,11 @@
         attributes["aria-orientation"] = ParentTabs?.Vertical == true ? "vertical" : "horizontal";
         attributes["tabindex"] = -1;
 
+        if (ParentTabs?.TabListAriaLabelledBy.HasContent() == true)
+            attributes["aria-labelledby"] = ParentTabs.TabListAriaLabelledBy!;
+        else if (ParentTabs?.TabListAriaLabel.HasContent() == true)
+            attributes["aria-label"] = ParentTabs.TabListAriaLabel!;
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-tabs-list group/tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground");
@@ -39,5 +44,7 @@
         hc.Add(ParentTabs?.Vertical);
         hc.Add(ParentTabs?.Justified);
         hc.Add(ParentTabs?.TabsListVariant);
+        hc.Add(ParentTabs?.TabListAriaLabel);
+        hc.Add(ParentTabs?.TabListAriaLabelledBy);
     }
 }

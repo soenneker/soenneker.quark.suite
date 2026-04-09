@@ -37,4 +37,14 @@ public interface ISliderInterop : IAsyncDisposable
     /// Stops any active drag tracking.
     /// </summary>
     ValueTask StopDrag(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Installs capture-phase key handling so navigation keys call <c>preventDefault</c> only for slider thumbs (not Tab/Escape/etc.).
+    /// </summary>
+    ValueTask AttachKeyboardGuard(ElementReference sliderRoot, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Removes the keyboard guard installed by <see cref="AttachKeyboardGuard"/>.
+    /// </summary>
+    ValueTask DetachKeyboardGuard(ElementReference sliderRoot, CancellationToken cancellationToken = default);
 }

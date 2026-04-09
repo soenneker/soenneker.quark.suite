@@ -71,13 +71,20 @@
         }
     }
 
-    internal async Task CloseItemAsync(NavigationMenuItem item)
+    internal async Task CloseItemAsync(NavigationMenuItem item, bool restoreFocusToTrigger = false)
     {
         if (!ReferenceEquals(_openItem, item))
             return;
 
+        NavigationMenuEntry? entry = restoreFocusToTrigger
+            ? _entries.FirstOrDefault(e => ReferenceEquals(e.Item, item))
+            : null;
+
         _openItem = null;
         await RefreshOffThread();
+
+        if (restoreFocusToTrigger && entry?.Trigger is not null)
+            await entry.FocusTriggerAsync();
     }
 
     internal async Task ToggleItemAsync(NavigationMenuItem item)
@@ -88,13 +95,20 @@
             await OpenItemAsync(item);
     }
 
-    internal async Task CloseAllAsync()
+    internal async Task CloseAllAsync(bool restoreFocusToTrigger = false)
     {
         if (_openItem is null)
             return;
 
+        NavigationMenuEntry? entry = restoreFocusToTrigger
+            ? _entries.FirstOrDefault(e => ReferenceEquals(e.Item, _openItem))
+            : null;
+
         _openItem = null;
         await RefreshOffThread();
+
+        if (restoreFocusToTrigger && entry?.Trigger is not null)
+            await entry.FocusTriggerAsync();
     }
 
     private async Task HandleMouseLeave(MouseEventArgs _)

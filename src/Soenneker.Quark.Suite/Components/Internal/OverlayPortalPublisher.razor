@@ -1,0 +1,43 @@
+@namespace Soenneker.Quark
+@implements IDisposable
+
+@if (!UsePortal)
+{
+    @ChildContent
+}
+
+@code {
+    [Inject]
+    private IOverlayPortalService PortalService { get; set; } = null!;
+
+    /// <summary>
+    /// Stable id for this overlay instance (register/unregister).
+    /// </summary>
+    [Parameter, EditorRequired]
+    public string Id { get; set; } = default!;
+
+    /// <summary>
+    /// When <c>false</c>, children render in-place (no portal). Use when <see cref="QuarkOverlayPortalHost"/> is not in the layout.
+    /// </summary>
+    [Parameter]
+    public bool UsePortal { get; set; } = true;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (!UsePortal || ChildContent is null)
+        {
+            PortalService.Unregister(Id);
+            return;
+        }
+
+        PortalService.Register(Id, ChildContent);
+    }
+
+    public void Dispose()
+    {
+        PortalService.Unregister(Id);
+    }
+}

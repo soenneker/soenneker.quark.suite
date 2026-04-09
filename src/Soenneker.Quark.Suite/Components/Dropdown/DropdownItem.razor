@@ -5,19 +5,21 @@
 
 @if (IsLink)
 {
-    <a @attributes="BuildAttributes()" @onclick="OnClickHandler" @onkeydown="HandleMenuKeyDown" @ref="_elementRef">
+    <a @attributes="BuildAttributes()" @onclick="OnClickHandler" @onkeydown="HandleMenuKeyDown" @onkeydown:preventDefault="_preventDefaultKeys" @onkeydown:stopPropagation="_stopPropagation" @ref="_elementRef">
         @ChildContent
     </a>
 }
 else
 {
-    <button @attributes="BuildAttributes()" type="button" @onclick="OnClickHandler" @onkeydown="HandleMenuKeyDown" @ref="_elementRef">
+    <button @attributes="BuildAttributes()" type="button" @onclick="OnClickHandler" @onkeydown="HandleMenuKeyDown" @onkeydown:preventDefault="_preventDefaultKeys" @onkeydown:stopPropagation="_stopPropagation" @ref="_elementRef">
         @ChildContent
     </button>
 }
 
 @code {
     private ElementReference _elementRef;
+    private bool _preventDefaultKeys;
+    private bool _stopPropagation;
 
     [Parameter]
     public bool Inset { get; set; }
@@ -66,12 +68,9 @@ else
 
     bool IDropdownFocusableItem.IsDisabledForNavigation => Disabled;
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override void OnParametersSet()
     {
-        base.OnAfterRender(firstRender);
-
-        if (!firstRender)
-            return;
+        base.OnParametersSet();
 
         if (NavigationSub is not null)
             NavigationSub.RegisterItem(this);
@@ -148,18 +147,30 @@ else
 
     private async Task HandleMenuKeyDown(KeyboardEventArgs e)
     {
+        _preventDefaultKeys = false;
+        _stopPropagation = false;
+
         if (ParentDropdown is null)
             return;
 
         if (e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
         {
             if (NavigationSub is not null)
+            {
                 await NavigationSub.HandleItemNavigationAsync(this, e.Key);
+                _preventDefaultKeys = true;
+            }
             else
+            {
                 await ParentDropdown.HandleItemNavigationAsync(this, e.Key);
+                _preventDefaultKeys = true;
+            }
         }
         else if (e.Key == "ArrowLeft" && NavigationSub is not null)
+        {
             await NavigationSub.CloseAndFocusTriggerAsync();
+            _preventDefaultKeys = true;
+        }
         else if (e.Key == "Escape")
         {
             if (NavigationSub is not null)
@@ -169,6 +180,9 @@ else
                 await ParentDropdown.Hide();
                 await ParentDropdown.FocusTriggerAsync();
             }
+
+            _preventDefaultKeys = true;
+            _stopPropagation = true;
         }
     }
 

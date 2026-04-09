@@ -2,19 +2,30 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
+@using System.Collections.Generic
+
 <div class="q-tree-view-node-title">
     @if (SelectionMode == TreeViewSelectionMode.Multiple)
     {
         <div class="q-tree-view-node-check">
-            <Check TValue="bool" Checked="@Checked" CheckedChanged="@OnCheckedChanged" Disabled="@NodeState.Disabled" />
+            <Check TValue="bool"
+                   Checked="@Checked"
+                   CheckedChanged="@OnCheckedChanged"
+                   Disabled="@NodeState.Disabled"
+                   Attributes="@_multiSelectCheckAttributes" />
         </div>
     }
-    <span @attributes="BuildAttributes()" @onclick="ToggleClicked" style="@GetCurrentStyle()">
+    <span @attributes="BuildAttributes()" @onclick="ToggleClickedAsync" style="@GetCurrentStyle()">
         @ChildContent
     </span>
 </div>
 
 @code {
+    private readonly Dictionary<string, object> _multiSelectCheckTabIndex = new() { ["tabindex"] = "-1" };
+
+    private IReadOnlyDictionary<string, object>? _multiSelectCheckAttributes =>
+        SelectionMode == TreeViewSelectionMode.Multiple ? _multiSelectCheckTabIndex : null;
+
     /// <summary>
     /// Gets or sets the state of the tree view node.
     /// </summary>
@@ -85,16 +96,16 @@
     private bool Selected => SelectionMode == TreeViewSelectionMode.Single && ParentTreeViewState.SelectedNode is not null && EqualityComparer<TNode>.Default.Equals(ParentTreeViewState.SelectedNode, NodeState.Node);
     private bool Checked => SelectionMode == TreeViewSelectionMode.Multiple && ParentTreeViewState.SelectedNodes is not null && ParentTreeViewState.SelectedNodes.Contains(NodeState.Node);
 
-    private async Task ToggleClicked()
+    private async Task ToggleClickedAsync()
     {
         // Always handle expansion first (if ToggleOnNodeClick is enabled)
         await OnTitleClicked.InvokeAsync();
-        
-        // Then handle selection (only if not disabled and not multiple selection mode)
-        if (!NodeState.Disabled && SelectionMode != TreeViewSelectionMode.Multiple)
-        {
-            ParentTreeView?.SelectNode(NodeState.Node);
-        }
+
+        if (ParentTreeView is not null)
+            await ParentTreeView.SetKeyboardFocusAsync(NodeState);
+
+        if (ParentTreeView is not null && !NodeState.Disabled && SelectionMode != TreeViewSelectionMode.Multiple)
+            await ParentTreeView.SelectNode(NodeState.Node);
     }
 
     private Task OnCheckedChanged(bool value)
@@ -107,6 +118,7 @@
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(NodeState);
         hc.Add(SelectionMode);
         hc.Add(SelectedNodeStyling);

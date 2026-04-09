@@ -22,6 +22,9 @@ internal sealed class SelectContext
     public required Func<Task> OpenFirstAsync { get; init; }
     public required Func<Task> OpenLastAsync { get; init; }
     public required Func<Task> CloseAsync { get; init; }
+    public required Func<string, Task<bool>> TryTypeaheadAsync { get; init; }
+    public required Func<Task> SelectActiveItemAsync { get; init; }
+    public required Func<string, Task> NavigateFromTriggerAsync { get; init; }
     public required Func<Task> FocusTriggerAsync { get; init; }
     public required Func<string?> ActiveItemId { get; init; }
     public required string TriggerId { get; init; }

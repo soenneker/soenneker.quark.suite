@@ -13,6 +13,8 @@
 </button>
 
 @code {
+    private ToggleGroup? _registeredToggleGroup;
+
     [CascadingParameter(Name = "ParentToggleGroup")]
     private ToggleGroup? ParentToggleGroup { get; set; }
 
@@ -52,12 +54,24 @@
             _ => "h-9 px-3 min-w-0 shrink-0"
         };
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override void OnParametersSet()
     {
-        base.OnAfterRender(firstRender);
+        base.OnParametersSet();
+        SyncRegistrationWithParent();
+    }
 
-        if (firstRender)
-            ParentToggleGroup?.RegisterItem(this);
+    private void SyncRegistrationWithParent()
+    {
+        if (!ReferenceEquals(_registeredToggleGroup, ParentToggleGroup))
+        {
+            if (_registeredToggleGroup is not null)
+                _registeredToggleGroup.UnregisterItem(this);
+
+            _registeredToggleGroup = ParentToggleGroup;
+
+            if (_registeredToggleGroup is not null)
+                _registeredToggleGroup.RegisterItem(this);
+        }
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -113,18 +127,10 @@
 
     protected override async Task HandleKeyDown(KeyboardEventArgs args)
     {
-        bool vertical = ParentToggleGroup?.Orientation == ToggleGroupOrientation.Vertical;
+        _preventDefaultKeys = false;
 
-        _preventDefaultKeys = args.Key switch
-        {
-            "Home" or "End" => true,
-            "ArrowLeft" or "ArrowRight" when !vertical => true,
-            "ArrowUp" or "ArrowDown" when vertical => true,
-            _ => false
-        };
-
-        if (_preventDefaultKeys && ParentToggleGroup is not null)
-            await ParentToggleGroup.HandleItemKeyNavigationAsync(this, args.Key);
+        if (!IsDisabled && ParentToggleGroup is not null && await ParentToggleGroup.TryHandleItemKeyNavigationAsync(this, args.Key))
+            _preventDefaultKeys = true;
 
         await base.HandleKeyDown(args);
     }
@@ -153,7 +159,9 @@
 
     public override void Dispose()
     {
-        ParentToggleGroup?.UnregisterItem(this);
+        if (_registeredToggleGroup is not null)
+            _registeredToggleGroup.UnregisterItem(this);
+
         base.Dispose();
     }
 }

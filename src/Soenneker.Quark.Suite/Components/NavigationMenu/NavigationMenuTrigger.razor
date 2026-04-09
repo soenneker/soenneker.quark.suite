@@ -2,7 +2,7 @@
 @inherits Soenneker.Quark.FormControlElement
 @implements INavigationMenuTrigger
 
-<button @attributes="BuildAttributes()" @onclick="HandleTriggerClick" @onkeydown="HandleKeyDown" @onmouseenter="HandleMouseEnter" @ref="_buttonRef">
+<button @attributes="BuildAttributes()" @onclick="HandleTriggerClick" @onkeydown="HandleKeyDown" @onkeydown:preventDefault="_preventDefaultKeys" @onmouseenter="HandleMouseEnter" @ref="_buttonRef">
     @ChildContent
     @if (ShowChevron)
     {
@@ -13,6 +13,7 @@
 
 @code {
     private ElementReference _buttonRef;
+    private bool _preventDefaultKeys;
 
     [Parameter]
     public bool Open { get; set; }
@@ -28,11 +29,11 @@
 
     private bool ResolvedOpen => ParentNavigationMenuItem is not null ? ParentNavigationMenuItem.IsOpenResolved : Open;
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override void OnParametersSet()
     {
-        base.OnAfterRender(firstRender);
+        base.OnParametersSet();
 
-        if (firstRender && ParentNavigationMenu is not null && ParentNavigationMenuItem is not null)
+        if (ParentNavigationMenu is not null && ParentNavigationMenuItem is not null)
             ParentNavigationMenu.RegisterTrigger(ParentNavigationMenuItem, this);
     }
 
@@ -44,6 +45,11 @@
         attributes["data-slot"] = "navigation-menu-trigger";
         attributes["data-state"] = ResolvedOpen ? "open" : "closed";
         attributes["aria-expanded"] = ResolvedOpen ? "true" : "false";
+        attributes["aria-haspopup"] = "true";
+
+        if (ParentNavigationMenuItem is not null)
+            attributes["aria-controls"] = ParentNavigationMenuItem.ContentPanelId;
+
         attributes["tabindex"] = Disabled ? -1 : 0;
 
         if (Disabled)
@@ -93,12 +99,24 @@
             return;
         }
 
+        _preventDefaultKeys = false;
+
         if (e.Key is "ArrowRight" or "ArrowLeft" or "Home" or "End")
+        {
+            _preventDefaultKeys = true;
             await ParentNavigationMenu.HandleTriggerNavigationAsync(ParentNavigationMenuItem, e.Key);
+        }
         else if (e.Key is "Enter" or " " or "ArrowDown")
+        {
+            _preventDefaultKeys = true;
             await ParentNavigationMenu.OpenItemAsync(ParentNavigationMenuItem);
-        else if (e.Key == "Escape")
-            await ParentNavigationMenu.CloseAllAsync();
+            await ParentNavigationMenuItem.ScheduleFocusFirstLinkAsync();
+        }
+        else if (e.Key == "Escape" && ResolvedOpen)
+        {
+            _preventDefaultKeys = true;
+            await ParentNavigationMenu.CloseAllAsync(restoreFocusToTrigger: true);
+        }
 
         await base.HandleKeyDown(e);
     }

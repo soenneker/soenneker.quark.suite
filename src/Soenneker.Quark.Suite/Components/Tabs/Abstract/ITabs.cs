@@ -46,4 +46,14 @@ public interface ITabs : IElement
     /// Gets or sets the callback that is invoked When the selected tab changes.
     /// </summary>
     EventCallback<string> OnSelectedTabChanged { get; set; }
+
+    /// <summary>
+    /// Accessible name for the tab list (APG). Ignored if <see cref="TabListAriaLabelledBy"/> is set.
+    /// </summary>
+    string? TabListAriaLabel { get; set; }
+
+    /// <summary>
+    /// ID(s) of element(s) that label the tab list (e.g. a section heading). Takes precedence over <see cref="TabListAriaLabel"/>.
+    /// </summary>
+    string? TabListAriaLabelledBy { get; set; }
 }

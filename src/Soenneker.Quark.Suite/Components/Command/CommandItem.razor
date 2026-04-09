@@ -3,13 +3,24 @@
 
 @if (IsVisibleResolved)
 {
-    <div @onclick="HandleItemClick" @onkeydown="HandleKeyDown" @onmouseenter="HandleMouseEnter" @attributes="BuildAttributes()" role="option" @ref="_elementRef">
+    <div @onclick="HandleItemClick"
+         @onmousedown:preventDefault="true"
+         @onkeydown="HandleKeyDown"
+         @onkeydown:preventDefault="_preventDefaultKeys"
+         @onmouseenter="HandleMouseEnter"
+         @attributes="BuildAttributes()"
+         role="option"
+         @ref="_elementRef">
         @ChildContent
     </div>
 }
 
 @code {
     private ElementReference _elementRef;
+    private bool _preventDefaultKeys;
+    private CommandGroup? _registeredGroup;
+    private bool _isRegistered;
+    private Command? _registeredCommand;
 
     [Parameter]
     public EventCallback OnSelect { get; set; }
@@ -36,8 +47,38 @@
 
         if (!Id.HasContent())
             Id = $"command-item-{Guid.NewGuid():N}";
+    }
 
-        ParentCommand?.RegisterItem(this, ParentCommandGroup);
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        SyncRegistrationWithCommand();
+    }
+
+    private void SyncRegistrationWithCommand()
+    {
+        if (!ReferenceEquals(_registeredCommand, ParentCommand))
+        {
+            if (_registeredCommand is not null)
+                _registeredCommand.UnregisterItem(this);
+
+            _registeredCommand = ParentCommand;
+            _isRegistered = false;
+            _registeredGroup = null;
+        }
+
+        if (ParentCommand is null)
+            return;
+
+        if (_isRegistered && ReferenceEquals(_registeredGroup, ParentCommandGroup))
+            return;
+
+        if (_isRegistered)
+            ParentCommand.UnregisterItem(this);
+
+        ParentCommand.RegisterItem(this, ParentCommandGroup);
+        _registeredGroup = ParentCommandGroup;
+        _isRegistered = true;
     }
 
     private async Task HandleItemClick(MouseEventArgs _)
@@ -56,11 +97,26 @@
 
     protected override async Task HandleKeyDown(KeyboardEventArgs e)
     {
+        _preventDefaultKeys = false;
+
+        if (Disabled)
+        {
+            await base.HandleKeyDown(e);
+            return;
+        }
+
+        if (e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End" or "Enter" or " ")
+            _preventDefaultKeys = true;
+
         if (e.Key is "Enter" or " ")
             await SelectAsync();
         else if (ParentCommand is not null && e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
             await ParentCommand.HandleInputNavigationAsync(e.Key);
+
+        await base.HandleKeyDown(e);
     }
+
+    internal ElementReference ScrollTarget => _elementRef;
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -92,11 +148,7 @@
         hc.Add(IsVisibleResolved);
         hc.Add(ParentCommand?.IsItemActive(this));
         hc.Add(SearchValue);
-    }
-
-    internal async Task FocusAsync()
-    {
-        await _elementRef.FocusAsync();
+        hc.Add(ParentCommandGroup);
     }
 
     internal async Task SelectAsync()
@@ -107,7 +159,9 @@
 
     public override void Dispose()
     {
-        ParentCommand?.UnregisterItem(this);
+        if (_registeredCommand is not null)
+            _registeredCommand.UnregisterItem(this);
+
         base.Dispose();
     }
 }

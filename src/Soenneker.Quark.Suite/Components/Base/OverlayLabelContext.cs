@@ -2,7 +2,7 @@ using System;
 
 namespace Soenneker.Quark;
 
-internal sealed class OverlayLabelContext
+public sealed class OverlayLabelContext
 {
     private int _titleRegistrations;
     private int _descriptionRegistrations;
@@ -13,9 +13,12 @@ internal sealed class OverlayLabelContext
     {
         var id = Guid.NewGuid().ToString("N");
         ContentId = $"{scope}-{id}-content";
+        TriggerId = $"{scope}-{id}-trigger";
         TitleId = $"{scope}-{id}-title";
         DescriptionId = $"{scope}-{id}-description";
     }
+
+    public string TriggerId { get; }
 
     public string ContentId { get; }
 

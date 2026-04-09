@@ -29,6 +29,11 @@ public interface IRadioGroup : IElement
     bool Disabled { get; set; }
 
     /// <summary>
+    /// Optional id(s) of the element(s) that label this radiogroup (maps to <c>aria-labelledby</c>).
+    /// </summary>
+    string? AriaLabelledBy { get; set; }
+
+    /// <summary>
     /// Orientation: "horizontal" or "vertical".
     /// </summary>
     string Orientation { get; set; }

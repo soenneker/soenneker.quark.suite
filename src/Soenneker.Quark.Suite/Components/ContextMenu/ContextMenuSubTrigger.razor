@@ -2,13 +2,15 @@
 @inherits Soenneker.Quark.FormControlElement
 @implements IContextMenuFocusableItem
 
-<div @onmouseenter="HandleOpen" @onclick="HandleOpen" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()" @ref="_elementRef">
+<div @onmouseenter="HandleOpen" @onclick="HandleOpen" @onkeydown="HandleKeyDown" @onkeydown:preventDefault="_preventDefaultKeys" @onkeydown:stopPropagation="_stopPropagation" @attributes="BuildAttributes()" @ref="_elementRef">
     @ChildContent
     <Icon Name="LucideIcon.ChevronRight" Class="ml-auto size-4 rtl:ml-0 rtl:mr-auto rtl:rotate-180" />
 </div>
 
 @code {
     private ElementReference _elementRef;
+    private bool _preventDefaultKeys;
+    private bool _stopPropagation;
 
     [Parameter]
     public bool Inset { get; set; }
@@ -27,12 +29,9 @@
 
     bool IContextMenuFocusableItem.IsDisabledForNavigation => Disabled;
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override void OnParametersSet()
     {
-        base.OnAfterRender(firstRender);
-
-        if (!firstRender)
-            return;
+        base.OnParametersSet();
 
         if (ParentContextMenuSub is not null)
             ParentContextMenuSub.RegisterTrigger(this);
@@ -50,12 +49,21 @@
 
     protected override async Task HandleKeyDown(KeyboardEventArgs e)
     {
+        _preventDefaultKeys = false;
+        _stopPropagation = false;
+
         if (e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
         {
             if (NavigationSub is not null)
+            {
                 await NavigationSub.HandleItemNavigationAsync(this, e.Key);
+                _preventDefaultKeys = true;
+            }
             else if (ParentContextMenu is not null)
+            {
                 await ParentContextMenu.HandleItemNavigationAsync(this, e.Key);
+                _preventDefaultKeys = true;
+            }
 
             return;
         }
@@ -63,13 +71,20 @@
         if (e.Key is "ArrowRight" or "Enter" or " ")
         {
             if (ParentContextMenuSub is not null)
+            {
                 await ParentContextMenuSub.OpenAndFocusFirstItemAsync();
+                _preventDefaultKeys = true;
+            }
 
             return;
         }
 
         if (e.Key == "Escape" && ParentContextMenuSub is not null)
+        {
             await ParentContextMenuSub.CloseAndFocusTriggerAsync();
+            _preventDefaultKeys = true;
+            _stopPropagation = true;
+        }
 
         await base.HandleKeyDown(e);
     }

@@ -11,7 +11,7 @@
 </CascadingValue>
 
 @code {
-    private int _itemCounter;
+    private readonly List<TimelineItem> _items = [];
 
     [Parameter]
     public TimelineAlign Align { get; set; } = TimelineAlign.Center;
@@ -22,11 +22,21 @@
     [Parameter]
     public TimelineConnectorFit ConnectorFit { get; set; } = TimelineConnectorFit.Spaced;
 
-    internal int RegisterItem() => _itemCounter++;
+    /// <summary>
+    /// Called from each <see cref="TimelineItem"/> during <c>OnParametersSet</c> (after this component clears the list).
+    /// Returns the zero-based index among sibling items for alternate layout parity.
+    /// </summary>
+    internal int RegisterItem(TimelineItem item)
+    {
+        if (!_items.Contains(item))
+            _items.Add(item);
+
+        return _items.IndexOf(item);
+    }
 
     protected override void OnParametersSet()
     {
-        _itemCounter = 0;
+        _items.Clear();
         base.OnParametersSet();
     }
 

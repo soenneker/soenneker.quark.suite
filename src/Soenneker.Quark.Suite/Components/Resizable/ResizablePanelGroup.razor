@@ -22,6 +22,7 @@
     private double[]? _sizes;
     private bool _layoutDirty = true;
     private bool _isDragging;
+    private bool _keyboardGuardActive;
 
     [CascadingParameter(Name = "DirectionProviderDir")]
     private string? DirectionProviderDir { get; set; }
@@ -380,6 +381,12 @@
         if (firstRender)
             await ResizableInterop.Initialize();
 
+        if (!_keyboardGuardActive)
+        {
+            await ResizableInterop.AttachKeyboardGuard(ElementRef);
+            _keyboardGuardActive = true;
+        }
+
         await base.OnAfterRenderAsync(firstRender);
     }
 
@@ -399,6 +406,12 @@
 
     public override async ValueTask DisposeAsync()
     {
+        if (_keyboardGuardActive)
+        {
+            await ResizableInterop.DetachKeyboardGuard(ElementRef);
+            _keyboardGuardActive = false;
+        }
+
         await ResizableInterop.StopDrag();
         _dotNetRef?.Dispose();
         await base.DisposeAsync();

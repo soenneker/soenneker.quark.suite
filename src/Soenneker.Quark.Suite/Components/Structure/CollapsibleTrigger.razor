@@ -1,5 +1,6 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@using Microsoft.AspNetCore.Components.Web
 
 @if (AsChild)
 {
@@ -9,12 +10,21 @@
 }
 else
 {
-    <button type="button" @onclick="OnTriggerClick" @attributes="BuildAttributes()">
+    <button type="button"
+            @ref="_triggerRef"
+            @onclick="OnTriggerClick"
+            @onkeydown="HandleTriggerEscapeKeyDown"
+            @onkeydown:preventDefault="_escapePreventDefault"
+            @onkeydown:stopPropagation="_escapeStopPropagation"
+            @attributes="BuildAttributes()">
         @ChildContent
     </button>
 }
 
 @code {
+    private bool _escapePreventDefault;
+    private bool _escapeStopPropagation;
+
     [Parameter]
     public bool AsChild { get; set; }
 
@@ -27,6 +37,16 @@ else
     [CascadingParameter(Name = SlotAttributes.Name)]
     private IReadOnlyDictionary<string, object>? SlotAttributeOverrides { get; set; }
 
+    private ElementReference _triggerRef;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!AsChild && ParentCollapsible is not null)
+            ParentCollapsible.RegisterTriggerElement(_triggerRef);
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
     private TriggerContext GetTriggerContext()
     {
         return new TriggerContext
@@ -38,8 +58,28 @@ else
             AriaControls = ParentCollapsible?.ContentId,
             Toggle = ParentCollapsible is null ? null : () => ParentCollapsible.Toggle(),
             Open = ParentCollapsible is null ? null : () => ParentCollapsible.SetOpen(true),
-            Close = ParentCollapsible is null ? null : () => ParentCollapsible.SetOpen(false)
+            Close = ParentCollapsible is null ? null : () => ParentCollapsible.SetOpen(false),
+            RegisterElement = ParentCollapsible is null ? null : el => ParentCollapsible.RegisterTriggerElement(el),
+            OnKeyDown = ParentCollapsible is null || Disabled || ParentCollapsible.Disabled
+                ? null
+                : e => OverlayTriggerKeyDown.HandleEscapeCloseWhenOpen(e, ParentCollapsible.Open, () => ParentCollapsible.SetOpen(false))
         };
+    }
+
+    private async Task HandleTriggerEscapeKeyDown(KeyboardEventArgs e)
+    {
+        _escapePreventDefault = false;
+        _escapeStopPropagation = false;
+
+        if (Disabled || ParentCollapsible?.Disabled == true || ParentCollapsible is null || !ParentCollapsible.Open)
+            return;
+
+        if (e.Key != "Escape")
+            return;
+
+        _escapePreventDefault = true;
+        _escapeStopPropagation = true;
+        await ParentCollapsible.SetOpen(false);
     }
 
     private async Task OnTriggerClick(MouseEventArgs args)

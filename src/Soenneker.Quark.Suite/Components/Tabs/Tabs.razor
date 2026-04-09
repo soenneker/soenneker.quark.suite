@@ -82,6 +82,14 @@
     [Parameter]
     public TabsListVariant TabsListVariant { get; set; } = TabsListVariant.Default;
 
+    /// <summary>Accessible name for the tab list (APG). Ignored if <see cref="TabListAriaLabelledBy"/> is set.</summary>
+    [Parameter]
+    public string? TabListAriaLabel { get; set; }
+
+    /// <summary>ID(s) of element(s) that label the tab list. Takes precedence over <see cref="TabListAriaLabel"/>.</summary>
+    [Parameter]
+    public string? TabListAriaLabelledBy { get; set; }
+
     private readonly List<Tab> _tabs = [];
     private readonly List<TabsTrigger> _explicitTriggers = [];
 
@@ -324,6 +332,11 @@
             ["tabindex"] = -1
         };
 
+        if (TabListAriaLabelledBy.HasContent())
+            attrs["aria-labelledby"] = TabListAriaLabelledBy!;
+        else if (TabListAriaLabel.HasContent())
+            attrs["aria-label"] = TabListAriaLabel!;
+
         BuildClassAttribute(attrs, (ref cls) =>
         {
             AppendClass(ref cls, "q-tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground");
@@ -351,9 +364,13 @@
         attributes["data-orientation"] = Vertical ? "vertical" : "horizontal";
         attributes["role"] = "tabpanel";
         attributes["tabindex"] = isActive ? 0 : -1;
+        attributes["aria-hidden"] = isActive ? "false" : "true";
 
         if (!isActive)
+        {
             attributes["hidden"] = true;
+            attributes["inert"] = true;
+        }
 
         if (tab.Name.HasContent())
         {
@@ -401,6 +418,8 @@
         hc.Add(DirectionProviderDir);
         hc.Add(_manualRovingFocusValue);
         hc.Add(TabsListVariant);
+        hc.Add(TabListAriaLabel);
+        hc.Add(TabListAriaLabelledBy);
         if (SelectedTab is not null)
             hc.Add(SelectedTab);
         if (ResolvedSelectedTab is not null)
