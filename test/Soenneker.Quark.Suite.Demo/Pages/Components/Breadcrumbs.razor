@@ -9,7 +9,7 @@
                          Description="Collapsed breadcrumb trail with an overflow menu in the middle."
                          Code="@BasicCode"
                          CodeLanguage="razor">
-                <Breadcrumb Composed="true">
+                <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
                             <BreadcrumbLink AsChild="true">
@@ -20,48 +20,7 @@
                         <BreadcrumbItem>
                             <Dropdown>
                                 <DropdownToggle Class="flex items-center gap-1">
-                                    <BreadcrumbEllipsis Class="size-4" />
-                                    <Span Class="sr-only">Toggle menu</Span>
-                                </DropdownToggle>
-                                <DropdownMenu>
-                                    <DropdownItem>Documentation</DropdownItem>
-                                    <DropdownItem>Themes</DropdownItem>
-                                    <DropdownItem>GitHub</DropdownItem>
-                                </DropdownMenu>
-                            </Dropdown>
-                        </BreadcrumbItem>
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem>
-                            <BreadcrumbLink AsChild="true">
-                                <Anchor To="components">Components</Anchor>
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem>
-                            <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
-                        </BreadcrumbItem>
-                    </BreadcrumbList>
-                </Breadcrumb>
-            </DemoSection>
-        </Section>
-
-        <Section Space="Space.Y.Is4">
-        <DemoSection Title="Ellipsis"
-                         Description="Collapsed middle segment opens a menu from an ellipsis trigger."
-                         Code="@EllipsisCode"
-                         CodeLanguage="razor">
-                <Breadcrumb Composed="true">
-                    <BreadcrumbList>
-                        <BreadcrumbItem>
-                            <BreadcrumbLink AsChild="true">
-                                <Anchor To="">Home</Anchor>
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem>
-                            <Dropdown>
-                                <DropdownToggle Class="flex items-center gap-1">
-                                    <BreadcrumbEllipsis Class="size-4" />
+                                    <BreadcrumbEllipsis />
                                     <Span Class="sr-only">Toggle menu</Span>
                                 </DropdownToggle>
                                 <DropdownMenu>
@@ -88,10 +47,10 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Custom Separator"
-                         Description="Breadcrumb separators can render custom content instead of only plain text."
+                         Description="Breadcrumb separators can render custom content instead of only the default chevron."
                          Code="@CustomSeparatorCode"
                          CodeLanguage="razor">
-                <Breadcrumb Composed="true">
+                <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
                             <BreadcrumbLink AsChild="true">
@@ -115,10 +74,10 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Dropdown"
-                         Description="A breadcrumb item can host a dropdown when several sibling paths need to stay collapsed."
+                         Description="A breadcrumb item can host a dropdown when several sibling paths stay collapsed."
                          Code="@DropdownCode"
                          CodeLanguage="razor">
-                <Breadcrumb Composed="true">
+                <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
                             <BreadcrumbLink AsChild="true">
@@ -153,7 +112,7 @@
                          Description="Use BreadcrumbEllipsis when a long path should collapse in the middle."
                          Code="@CollapsedCode"
                          CodeLanguage="razor">
-                <Breadcrumb Composed="true">
+                <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
                             <BreadcrumbLink AsChild="true">
@@ -181,10 +140,10 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Link Component"
-                         Description="Breadcrumb items can pass breadcrumb-link styling into a child Quark link."
+                         Description="BreadcrumbLink can pass its styling into a child Quark link with AsChild."
                          Code="@LinkComponentCode"
                          CodeLanguage="razor">
-                <Breadcrumb Composed="true">
+                <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
                             <BreadcrumbLink AsChild="true">
@@ -208,12 +167,12 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
-                         Description="Breadcrumb separators and item flow now render correctly in right-to-left layouts."
+                         Description="Breadcrumb separators and item flow render correctly in right-to-left layouts."
                          Code="@RtlCode"
                          CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
                     <Div class="w-full text-right">
-                        <Breadcrumb Composed="true" Dir="rtl">
+                        <Breadcrumb Dir="rtl">
                             <BreadcrumbList>
                                 <BreadcrumbItem>
                                     <BreadcrumbLink AsChild="true">
@@ -236,60 +195,12 @@
                 </DirectionProvider>
             </DemoSection>
         </Section>
-
-        <Section Space="Space.Y.Is4">
-            <Div Space="Space.Y.Is2">
-                <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
-                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                    Text-based separators when you want a minimal trail without icon separators.
-                </Paragraph>
-            </Div>
-
-            <DemoSection Title="Text Divider"
-                         Description="Quark still supports a simple text divider for lightweight breadcrumb trails."
-                         Code="@TextDividerCode"
-                         CodeLanguage="razor">
-                <Breadcrumb DividerText="•">
-                    <BreadcrumbItem AsChild="true">
-                        <Anchor To="">Home</Anchor>
-                    </BreadcrumbItem>
-                    <BreadcrumbItem AsChild="true">
-                        <Anchor To="products">Products</Anchor>
-                    </BreadcrumbItem>
-                    <BreadcrumbItem Active="true">Phones</BreadcrumbItem>
-                </Breadcrumb>
-            </DemoSection>
-        </Section>
     </Div>
 </Div>
 
 @code {
-    private const string EllipsisCode =
-@"<Breadcrumb>
-    <BreadcrumbItem AsChild=""true"">
-        <Anchor To="""">Home</Anchor>
-    </BreadcrumbItem>
-    <BreadcrumbItem>
-        <Dropdown>
-            <DropdownToggle Class=""flex items-center gap-1 bg-transparent px-2 py-1 text-sm font-normal text-muted-foreground shadow-none hover:bg-accent hover:text-foreground"">
-                <BreadcrumbEllipsis />
-                <Span Class=""sr-only"">Toggle menu</Span>
-            </DropdownToggle>
-            <DropdownMenu>
-                <DropdownItem>Documentation</DropdownItem>
-                <DropdownItem>Themes</DropdownItem>
-                <DropdownItem>GitHub</DropdownItem>
-            </DropdownMenu>
-        </Dropdown>
-    </BreadcrumbItem>
-    <BreadcrumbItem AsChild=""true"">
-        <Anchor To=""components"">Components</Anchor>
-    </BreadcrumbItem>
-    <BreadcrumbItem Active=""true"">Breadcrumb</BreadcrumbItem>
-</Breadcrumb>";
-
     private const string BasicCode =
-@"<Breadcrumb Composed=""true"">
+@"<Breadcrumb>
     <BreadcrumbList>
         <BreadcrumbItem>
             <BreadcrumbLink AsChild=""true"">
@@ -300,7 +211,7 @@
         <BreadcrumbItem>
             <Dropdown>
                 <DropdownToggle Class=""flex items-center gap-1"">
-                    <BreadcrumbEllipsis Class=""size-4"" />
+                    <BreadcrumbEllipsis />
                     <Span Class=""sr-only"">Toggle menu</Span>
                 </DropdownToggle>
                 <DropdownMenu>
@@ -324,66 +235,105 @@
 </Breadcrumb>";
 
     private const string CustomSeparatorCode =
-@"<Breadcrumb SeparatorContent=""@DotSeparator"">
-    <BreadcrumbItem AsChild=""true"">
-        <Anchor To="""">Home</Anchor>
-    </BreadcrumbItem>
-    <BreadcrumbItem AsChild=""true"">
-        <Anchor To=""components"">Components</Anchor>
-    </BreadcrumbItem>
-    <BreadcrumbItem Active=""true"">Breadcrumb</BreadcrumbItem>
+@"<Breadcrumb>
+    <BreadcrumbList>
+        <BreadcrumbItem>
+            <BreadcrumbLink AsChild=""true"">
+                <Anchor To="""">Home</Anchor>
+            </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator>@DotSeparator</BreadcrumbSeparator>
+        <BreadcrumbItem>
+            <BreadcrumbLink AsChild=""true"">
+                <Anchor To=""components"">Components</Anchor>
+            </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator>@DotSeparator</BreadcrumbSeparator>
+        <BreadcrumbItem>
+            <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
+        </BreadcrumbItem>
+    </BreadcrumbList>
 </Breadcrumb>";
 
     private const string DropdownCode =
-@"<Breadcrumb SeparatorContent=""@DotSeparator"">
-    <BreadcrumbItem AsChild=""true"">
-        <Anchor To="""">Home</Anchor>
-    </BreadcrumbItem>
-    <BreadcrumbItem>
-        <Dropdown>
-            <DropdownToggle Class=""flex items-center gap-1 bg-transparent px-2 py-1 text-sm font-normal text-muted-foreground shadow-none hover:bg-accent hover:text-foreground"">
-                Components
-                <Icon Name=""LucideIcon.ChevronDown"" Class=""size-3.5"" />
-            </DropdownToggle>
-            <DropdownMenu>
-                <DropdownItem>Documentation</DropdownItem>
-                <DropdownItem>Themes</DropdownItem>
-                <DropdownItem>GitHub</DropdownItem>
-            </DropdownMenu>
-        </Dropdown>
-    </BreadcrumbItem>
-    <BreadcrumbItem Active=""true"">Breadcrumb</BreadcrumbItem>
+@"<Breadcrumb>
+    <BreadcrumbList>
+        <BreadcrumbItem>
+            <BreadcrumbLink AsChild=""true"">
+                <Anchor To="""">Home</Anchor>
+            </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator>@DotSeparator</BreadcrumbSeparator>
+        <BreadcrumbItem>
+            <Dropdown>
+                <DropdownToggle Class=""flex items-center gap-1 bg-transparent px-2 py-1 text-sm font-normal text-muted-foreground shadow-none hover:bg-accent hover:text-foreground"">
+                    Components
+                    <Icon Name=""LucideIcon.ChevronDown"" Class=""size-3.5"" />
+                </DropdownToggle>
+                <DropdownMenu>
+                    <DropdownItem>Documentation</DropdownItem>
+                    <DropdownItem>Themes</DropdownItem>
+                    <DropdownItem>GitHub</DropdownItem>
+                </DropdownMenu>
+            </Dropdown>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator>@DotSeparator</BreadcrumbSeparator>
+        <BreadcrumbItem>
+            <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
+        </BreadcrumbItem>
+    </BreadcrumbList>
 </Breadcrumb>";
 
     private const string CollapsedCode =
 @"<Breadcrumb>
-    <BreadcrumbItem AsChild=""true"">
-        <Anchor To="""">Home</Anchor>
-    </BreadcrumbItem>
-    <BreadcrumbItem>
-        <BreadcrumbEllipsis />
-    </BreadcrumbItem>
-    <BreadcrumbItem AsChild=""true"">
-        <Anchor To=""components"">Components</Anchor>
-    </BreadcrumbItem>
-    <BreadcrumbItem Active=""true"">Breadcrumb</BreadcrumbItem>
+    <BreadcrumbList>
+        <BreadcrumbItem>
+            <BreadcrumbLink AsChild=""true"">
+                <Anchor To="""">Home</Anchor>
+            </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+            <BreadcrumbEllipsis />
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+            <BreadcrumbLink AsChild=""true"">
+                <Anchor To=""components"">Components</Anchor>
+            </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+            <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
+        </BreadcrumbItem>
+    </BreadcrumbList>
 </Breadcrumb>";
 
     private const string LinkComponentCode =
 @"<Breadcrumb>
-    <BreadcrumbItem AsChild=""true"">
-        <Anchor To="""">Home</Anchor>
-    </BreadcrumbItem>
-    <BreadcrumbItem AsChild=""true"">
-        <Anchor To=""components"">Components</Anchor>
-    </BreadcrumbItem>
-    <BreadcrumbItem Active=""true"">Breadcrumb</BreadcrumbItem>
+    <BreadcrumbList>
+        <BreadcrumbItem>
+            <BreadcrumbLink AsChild=""true"">
+                <Anchor To="""">Home</Anchor>
+            </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+            <BreadcrumbLink AsChild=""true"">
+                <Anchor To=""components"">Components</Anchor>
+            </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+            <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
+        </BreadcrumbItem>
+    </BreadcrumbList>
 </Breadcrumb>";
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
     <Div class=""w-full text-right"">
-        <Breadcrumb Composed=""true"" Dir=""rtl"">
+        <Breadcrumb Dir=""rtl"">
             <BreadcrumbList>
                 <BreadcrumbItem>
                     <BreadcrumbLink AsChild=""true""><Anchor To="""">الرئيسية</Anchor></BreadcrumbLink>
@@ -400,17 +350,6 @@
         </Breadcrumb>
     </Div>
 </DirectionProvider>";
-
-    private const string TextDividerCode =
-@"<Breadcrumb DividerText=""•"">
-    <BreadcrumbItem AsChild=""true"">
-        <Anchor To="""">Home</Anchor>
-    </BreadcrumbItem>
-    <BreadcrumbItem AsChild=""true"">
-        <Anchor To=""products"">Products</Anchor>
-    </BreadcrumbItem>
-    <BreadcrumbItem Active=""true"">Phones</BreadcrumbItem>
-</Breadcrumb>";
 
     private RenderFragment DotSeparator => @<Icon Name="LucideIcon.Dot" />;
 }

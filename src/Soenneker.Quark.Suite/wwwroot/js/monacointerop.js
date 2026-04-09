@@ -1,14 +1,35 @@
 const editors = new WeakMap();
 let configured = false;
 
-function getEditor(container) {
-    const editor = editors.get(container);
+function getEditorState(container) {
+    const state = editors.get(container);
 
-    if (!editor) {
+    if (!state) {
         throw new Error('Editor not found for container');
     }
 
-    return editor;
+    return state;
+}
+
+function getEditor(container) {
+    return getEditorState(container).editor;
+}
+
+function disposeEditorState(state) {
+    if (state.contentChangeDisposable) {
+        state.contentChangeDisposable.dispose();
+        state.contentChangeDisposable = null;
+    }
+
+    if (state.editor) {
+        const model = state.editor.getModel();
+        state.editor.dispose();
+        state.editor = null;
+
+        if (state.ownsModel && model) {
+            model.dispose();
+        }
+    }
 }
 
 export function ensureConfigured(basePath) {
@@ -29,8 +50,18 @@ export function createEditor(container, optionsJson) {
     return new Promise((resolve, reject) => {
         require(['vs/editor/editor.main'], () => {
             try {
+                const existingState = editors.get(container);
+
+                if (existingState) {
+                    disposeEditorState(existingState);
+                }
+
                 const editor = monaco.editor.create(container, options);
-                editors.set(container, editor);
+                editors.set(container, {
+                    editor,
+                    contentChangeDisposable: null,
+                    ownsModel: !options.model
+                });
                 resolve();
             } catch (error) {
                 reject(error);
@@ -61,10 +92,10 @@ export function setTheme(theme) {
 }
 
 export function disposeEditor(container) {
-    const editor = editors.get(container);
+    const state = editors.get(container);
 
-    if (editor) {
-        editor.dispose();
+    if (state) {
+        disposeEditorState(state);
         editors.delete(container);
     }
 }
@@ -94,15 +125,20 @@ export function updateContentHeight(container, minLines, maxLines) {
     editor.layout();
 }
 
-export function addContentChangeListener(container, dotNetRef, minLines, maxLines) {
-    const editor = getEditor(container);
+export function addContentChangeListener(container, minLines, maxLines) {
+    const state = getEditorState(container);
+    const editor = state.editor;
     const model = editor.getModel();
 
     if (!model) return;
 
+    if (state.contentChangeDisposable) {
+        state.contentChangeDisposable.dispose();
+    }
+
     updateContentHeight(container, minLines, maxLines);
 
-    model.onDidChangeContent(() => {
+    state.contentChangeDisposable = model.onDidChangeContent(() => {
         updateContentHeight(container, minLines, maxLines);
     });
 }

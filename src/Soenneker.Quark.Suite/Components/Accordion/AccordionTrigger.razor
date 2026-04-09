@@ -12,7 +12,12 @@
         @ChildContent
         @if (ShowChevron)
         {
-            <Icon Name="LucideIcon.ChevronDown" Class="@ChevronClass" />
+            <Icon Name="LucideIcon.ChevronDown"
+                  data-slot="accordion-trigger-icon"
+                  Class="pointer-events-none ml-auto size-4 shrink-0 text-muted-foreground group-aria-expanded/accordion-trigger:hidden" />
+            <Icon Name="LucideIcon.ChevronUp"
+                  data-slot="accordion-trigger-icon"
+                  Class="pointer-events-none ml-auto hidden size-4 shrink-0 text-muted-foreground group-aria-expanded/accordion-trigger:inline" />
         }
     </button>
 </h3>
@@ -36,10 +41,6 @@
 
     internal bool IsDisabled =>
         Disabled || ParentAccordion?.Disabled == true || ParentAccordionItem?.Disabled == true;
-
-    private string ChevronClass => IsOpen
-        ? "text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 rotate-180 transition-transform duration-200"
-        : "text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 rotate-0 transition-transform duration-200";
 
     protected override void OnInitialized()
     {
@@ -120,7 +121,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-accordion-trigger");
-            AppendClass(ref cls, "focus-visible:ring-ring/50 flex w-full flex-1 items-center justify-between gap-4 py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50");
+            AppendClass(ref cls, "group/accordion-trigger focus-visible:ring-ring/50 relative flex w-full flex-1 items-start justify-between rounded-lg border border-transparent py-2.5 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:border-ring focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50");
         });
     }
 

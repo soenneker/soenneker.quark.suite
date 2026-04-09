@@ -251,7 +251,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         {
             await _initializer.Init(linked);
             IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("addContentChangeListener", linked, container, null, minLines, maxLines);
+            await module.InvokeVoidAsync("addContentChangeListener", linked, container, minLines, maxLines);
         }
     }
 

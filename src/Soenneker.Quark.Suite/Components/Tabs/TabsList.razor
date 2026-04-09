@@ -21,12 +21,14 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-tabs-list group/tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground");
-            AppendClass(ref cls, ParentTabs?.Vertical == true ? "h-fit flex-col" : "h-9");
+            AppendClass(ref cls, "group-data-[orientation=horizontal]/tabs:h-8 group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col");
+            if (ParentTabs?.TabsListVariant == TabsListVariant.Line)
+                AppendClass(ref cls, "data-[variant=line]:rounded-none");
 
             if (ParentTabs?.TabsListVariant == TabsListVariant.Default)
                 AppendClass(ref cls, "bg-muted");
             else
-                AppendClass(ref cls, "gap-1 rounded-none bg-transparent");
+                AppendClass(ref cls, "gap-1 bg-transparent");
 
             if (ParentTabs?.Justified == true)
                 AppendClass(ref cls, "w-full [&>[data-slot=tabs-trigger]]:flex-1");

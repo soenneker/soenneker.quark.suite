@@ -8,28 +8,9 @@
         {
             @ChildContent
         }
-        else if (Vertical)
-        {
-            <div class="grid grid-cols-[auto_1fr] gap-4">
-                <div role="tablist" class="group/tabs-list shrink-0" @attributes="BuildTabsListAttributes()">
-                    @ChildContent
-                </div>
-                <div class="min-w-0 flex-1">
-                    @foreach (var tab in _tabs)
-                    {
-                        <div @attributes="BuildTabContentAttributes(tab)">
-                            @if (string.Equals(tab.Name, ResolvedSelectedTab, StringComparison.Ordinal) || tab.ForceMount)
-                            {
-                                @tab.ChildContent
-                            }
-                        </div>
-                    }
-                </div>
-            </div>
-        }
         else
         {
-            <div role="tablist" class="group/tabs-list w-fit" @attributes="BuildTabsListAttributes()">
+            <div role="tablist" @attributes="BuildTabsListAttributes()">
                 @ChildContent
             </div>
             @foreach (var tab in _tabs)
@@ -91,9 +72,9 @@
     internal string? ResolvedSelectedTab => GetResolvedSelectedTab();
 
     internal const string TabsTriggerBaseClass =
-        "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all " +
+        "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-1.5 py-0.5 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all " +
         "group-data-[orientation=vertical]/tabs:w-full group-data-[orientation=vertical]/tabs:justify-start hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring " +
-        "disabled:pointer-events-none disabled:opacity-50 group-data-[variant=default]/tabs-list:data-[state=active]:shadow-sm group-data-[variant=line]/tabs-list:data-[state=active]:shadow-none dark:text-muted-foreground dark:hover:text-foreground " +
+        "disabled:pointer-events-none disabled:opacity-50 has-data-[icon=inline-end]:pr-1 has-data-[icon=inline-start]:pl-1 group-data-[variant=default]/tabs-list:data-[state=active]:shadow-sm group-data-[variant=line]/tabs-list:data-[state=active]:shadow-none dark:text-muted-foreground dark:hover:text-foreground " +
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 " +
         "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-[state=active]:bg-transparent dark:group-data-[variant=line]/tabs-list:data-[state=active]:border-transparent dark:group-data-[variant=line]/tabs-list:data-[state=active]:bg-transparent " +
         "data-[state=active]:bg-background data-[state=active]:text-foreground dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 dark:data-[state=active]:text-foreground " +
@@ -327,12 +308,14 @@
         BuildClassAttribute(attrs, (ref cls) =>
         {
             AppendClass(ref cls, "q-tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground");
-            AppendClass(ref cls, Vertical ? "h-fit flex-col" : "h-9");
+            AppendClass(ref cls, "group-data-[orientation=horizontal]/tabs:h-8 group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col");
+            if (TabsListVariant == TabsListVariant.Line)
+                AppendClass(ref cls, "data-[variant=line]:rounded-none");
 
             if (TabsListVariant == TabsListVariant.Default)
                 AppendClass(ref cls, "bg-muted");
             else
-                AppendClass(ref cls, "gap-1 rounded-none bg-transparent");
+                AppendClass(ref cls, "gap-1 bg-transparent");
 
             if (Justified)
                 AppendClass(ref cls, "w-full [&>[data-slot=tabs-trigger]]:flex-1");
@@ -363,7 +346,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-tabs-content flex-1 outline-none");
+            AppendClass(ref cls, "q-tabs-content flex-1 text-sm outline-none");
             if (Vertical)
                 AppendClass(ref cls, "min-w-0");
         });

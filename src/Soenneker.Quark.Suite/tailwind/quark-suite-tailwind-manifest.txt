@@ -2,6 +2,8 @@
 # Do not edit manually. Class names for Tailwind @source to scan.
 **:data-[slot=navigation-menu-link]:focus:outline-none
 **:data-[slot=navigation-menu-link]:focus:ring-0
+*:[img:first-child]:rounded-t-xl
+*:[img:last-child]:rounded-b-xl
 *:[span]:last:flex
 *:[span]:last:gap-2
 *:[span]:last:items-center
@@ -59,6 +61,7 @@
 -translate-x-1/2
 -translate-x-px
 -translate-y-1/2
+@container/card-header
 @container/field-group
 AM
 ArrowDown
@@ -318,6 +321,9 @@ View
 [&>svg]:translate-y-0.5
 [&>tr]:last:border-b-0
 [&>video]:object-cover
+[&_a]:hover:text-foreground
+[&_a]:underline
+[&_a]:underline-offset-3
 [&_img]:block
 [&_img]:max-h-72
 [&_img]:max-w-full
@@ -325,6 +331,7 @@ View
 [&_img]:object-contain
 [&_img]:object-cover
 [&_img]:size-full
+[&_p:not(:last-child)]:mb-4
 [&_p]:leading-relaxed
 [&_svg:not([class*='size-'])]:size-4
 [&_svg:not([class*='text-'])]:text-muted-foreground
@@ -336,8 +343,8 @@ View
 [--sidebar-menu-width:--spacing(56)]
 [-ms-overflow-style:none]
 [.border-b]:pb-3
+[.border-b]:pb-4
 [.border-t]:pt-3
-[.border-t]:pt-6
 [[data-side=left][data-collapsible=offcanvas]_&]:-right-2
 [[data-side=left][data-state=collapsed]_&]:cursor-e-resize
 [[data-side=right][data-collapsible=offcanvas]_&]:-left-2
@@ -359,6 +366,7 @@ accordion-content
 accordion-header
 accordion-item
 accordion-trigger
+accordion-trigger-icon
 active
 active:bg-sidebar-accent
 active:text-sidebar-accent-foreground
@@ -371,11 +379,16 @@ after:-translate-x-1/2
 after:-translate-y-1/2
 after:absolute
 after:bg-foreground
+after:border
+after:border-border
 after:h-1
+after:inset-0
 after:inset-x-0
 after:inset-y-0
 after:left-1/2
+after:mix-blend-darken
 after:opacity-0
+after:rounded-full
 after:top-1/2
 after:transition-opacity
 after:w-1
@@ -433,6 +446,7 @@ aria-modal
 aria-multiselectable
 aria-orientation
 aria-pressed
+aria-pressed:bg-muted
 aria-readonly
 aria-required
 aria-selected
@@ -451,6 +465,7 @@ attr
 attrs
 auto
 auto-cols-max
+auto-rows-min
 autocomplete
 autofocus
 autoplay
@@ -471,6 +486,7 @@ bg-background
 bg-background/70
 bg-background/90
 bg-black/50
+bg-blend-color
 bg-blue-500
 bg-border
 bg-border/40
@@ -540,7 +556,6 @@ breadcrumb-link
 breadcrumb-list
 breadcrumb-page
 breadcrumb-separator
-break-words
 but
 button
 button-group
@@ -559,6 +574,7 @@ card-description
 card-footer
 card-header
 card-img
+card-subtitle
 card-text
 card-title
 carousel
@@ -648,6 +664,7 @@ cursor-text
 d-block
 danger
 dark
+dark:after:mix-blend-lighten
 dark:aria-[invalid=true]:ring-destructive/40
 dark:aria-invalid:ring-destructive/40
 dark:bg-destructive/60
@@ -713,13 +730,6 @@ data-[orientation=horizontal]:flex-col
 data-[orientation=horizontal]:h-full
 data-[orientation=horizontal]:h-px
 data-[orientation=horizontal]:w-full
-data-[orientation=vertical]:data-[spacing=0]:data-[variant=outline]:border-l
-data-[orientation=vertical]:data-[spacing=0]:data-[variant=outline]:border-t-0
-data-[orientation=vertical]:data-[spacing=0]:data-[variant=outline]:first:border-t
-data-[orientation=vertical]:data-[spacing=0]:first:rounded-b-none
-data-[orientation=vertical]:data-[spacing=0]:first:rounded-t-md
-data-[orientation=vertical]:data-[spacing=0]:last:rounded-b-md
-data-[orientation=vertical]:data-[spacing=0]:last:rounded-t-none
 data-[orientation=vertical]:flex-col
 data-[orientation=vertical]:h-auto
 data-[orientation=vertical]:h-full
@@ -757,17 +767,12 @@ data-[size=default]:sm:max-w-lg
 data-[size=lg]:size-10
 data-[size=sm]:gap-3
 data-[size=sm]:h-8
+data-[size=sm]:has-data-[slot=card-footer]:pb-0
 data-[size=sm]:max-w-xs
 data-[size=sm]:py-1
 data-[size=sm]:py-3
+data-[size=sm]:rounded-[min(var(--radius-md),10px)]
 data-[size=sm]:size-6
-data-[spacing=0]:data-[variant=outline]:border-l-0
-data-[spacing=0]:data-[variant=outline]:first:border-l
-data-[spacing=0]:data-[variant=outline]:shadow-xs
-data-[spacing=0]:first:rounded-l-md
-data-[spacing=0]:last:rounded-r-md
-data-[spacing=0]:rounded-none
-data-[spacing=0]:shadow-none
 data-[state=checked]:bg-primary
 data-[state=checked]:border-primary
 data-[state=checked]:text-primary-foreground
@@ -787,8 +792,7 @@ data-[state=hidden]:hidden
 data-[state=indeterminate]:bg-primary
 data-[state=indeterminate]:border-primary
 data-[state=indeterminate]:text-primary-foreground
-data-[state=on]:bg-accent
-data-[state=on]:text-accent-foreground
+data-[state=on]:bg-muted
 data-[state=open]:animate-in
 data-[state=open]:bg-accent
 data-[state=open]:bg-accent/50
@@ -824,6 +828,7 @@ data-[variant=destructive]:focus:text-destructive
 data-[variant=destructive]:text-destructive
 data-[variant=label]:text-sm
 data-[variant=legend]:text-base
+data-[variant=line]:rounded-none
 data-active
 data-align
 data-backdrop
@@ -1015,7 +1020,9 @@ focus:ring-offset-2
 focus:ring-ring
 focus:ring-ring/50
 focus:text-accent-foreground
+focus:z-10
 font-bold
+font-heading
 font-medium
 font-mono
 font-normal
@@ -1059,6 +1066,8 @@ grid-rows-[0fr]
 grid-rows-[auto_1fr]
 group
 group-action
+group-aria-expanded/accordion-trigger:hidden
+group-aria-expanded/accordion-trigger:inline
 group-content
 group-data-[collapsible=icon]:-mt-8
 group-data-[collapsible=icon]:hidden
@@ -1085,6 +1094,17 @@ group-data-[disabled=true]/input-group:opacity-50
 group-data-[disabled=true]:opacity-50
 group-data-[disabled=true]:pointer-events-none
 group-data-[invalid=true]/form-item:text-destructive
+group-data-[orientation=horizontal]/tabs:h-8
+group-data-[orientation=horizontal]/toggle-group:group-data-[spacing=0]/toggle-group:first:rounded-l-lg
+group-data-[orientation=horizontal]/toggle-group:group-data-[spacing=0]/toggle-group:group-data-[variant=outline]/toggle-group:border-l-0
+group-data-[orientation=horizontal]/toggle-group:group-data-[spacing=0]/toggle-group:group-data-[variant=outline]/toggle-group:first:border-l
+group-data-[orientation=horizontal]/toggle-group:group-data-[spacing=0]/toggle-group:last:rounded-r-lg
+group-data-[orientation=vertical]/tabs:flex-col
+group-data-[orientation=vertical]/tabs:h-fit
+group-data-[orientation=vertical]/toggle-group:group-data-[spacing=0]/toggle-group:first:rounded-t-lg
+group-data-[orientation=vertical]/toggle-group:group-data-[spacing=0]/toggle-group:group-data-[variant=outline]/toggle-group:border-t-0
+group-data-[orientation=vertical]/toggle-group:group-data-[spacing=0]/toggle-group:group-data-[variant=outline]/toggle-group:first:border-t
+group-data-[orientation=vertical]/toggle-group:group-data-[spacing=0]/toggle-group:last:rounded-b-lg
 group-data-[shell=navigation]:gap-0.5
 group-data-[shell=navigation]:lg:mx-auto
 group-data-[shell=navigation]:lg:px-2
@@ -1107,9 +1127,15 @@ group-data-[size=sm]/alert-dialog-content:grid-cols-2
 group-data-[size=sm]/avatar:[&>svg]:hidden
 group-data-[size=sm]/avatar:size-2
 group-data-[size=sm]/avatar:text-xs
-group-data-[size=sm]/card:[.border-t]:pt-4
-group-data-[size=sm]/card:px-4
+group-data-[size=sm]/card:[.border-b]:pb-3
+group-data-[size=sm]/card:p-3
+group-data-[size=sm]/card:px-3
+group-data-[size=sm]/card:text-sm
 group-data-[size=sm]/switch:size-3
+group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pr-1.5
+group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:pl-1.5
+group-data-[spacing=0]/toggle-group:px-2
+group-data-[spacing=0]/toggle-group:rounded-none
 group-data-[state=open]:rotate-180
 group-data-[variant=floating]:border
 group-data-[variant=floating]:border-sidebar-border
@@ -1152,11 +1178,13 @@ group-hover/menubar-sub:block
 group-hover/navigation-menu-item:block
 group-hover/tooltip:block
 group-label
+group/accordion-trigger
 group/alert-dialog-content
 group/avatar
 group/avatar-group
 group/calendar
 group/card
+group/card-header
 group/day
 group/drawer-content
 group/field
@@ -1184,6 +1212,7 @@ group/select
 group/switch
 group/tabs
 group/tabs-list
+group/toggle
 group/toggle-group
 group/tooltip
 grow
@@ -1206,7 +1235,6 @@ h-9
 h-[1.15rem]
 h-[30px]
 h-auto
-h-fit
 h-full
 h-px
 h-svh
@@ -1235,6 +1263,7 @@ has-[>[role=checkbox]]:gap-3
 has-[>[role=radio]]:gap-3
 has-[>button]:ml-[-0.45rem]
 has-[>button]:mr-[-0.45rem]
+has-[>img:first-child]:pt-0
 has-[>kbd]:ml-[-0.35rem]
 has-[>kbd]:mr-[-0.35rem]
 has-[>svg]:p-0
@@ -1256,6 +1285,9 @@ has-[select:disabled]:opacity-50
 has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-md
 has-data-[slot=alert-dialog-media]:gap-x-6
 has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr]
+has-data-[slot=card-action]:grid-cols-[1fr_auto]
+has-data-[slot=card-description]:grid-rows-[auto_auto]
+has-data-[slot=card-footer]:pb-0
 has-data-[state=checked]:bg-primary/5
 has-data-[state=checked]:border-primary
 has-focus:border-ring
@@ -1287,7 +1319,6 @@ hover:ring-4
 hover:text-accent-foreground
 hover:text-foreground
 hover:text-foreground/80
-hover:text-muted-foreground
 hover:text-primary-foreground
 hover:text-sidebar-accent-foreground
 hover:underline
@@ -1367,7 +1398,6 @@ kbd-group
 key[0]
 label
 last
-last:border-b-0
 last:mt-0
 last:rounded-r-md
 lazy
@@ -1508,9 +1538,9 @@ min-h-9
 min-h-[10rem]
 min-height:
 min-w-0
-min-w-10
 min-w-20
 min-w-5
+min-w-7
 min-w-8
 min-w-9
 min-w-[120px]
@@ -1562,6 +1592,7 @@ node
 non-clickable
 none
 not
+not-last:border-b
 nth-last-2:-mt-1
 null
 number
@@ -1646,6 +1677,7 @@ parameter
 parameters
 password
 pattern
+pb-2.5
 pb-3
 pb-4
 peer
@@ -2210,8 +2242,6 @@ ring-offset-background
 ring-ring/50
 ring-sidebar-ring
 role
-rotate-0
-rotate-180
 rotate-45
 rotate-90
 round
@@ -2252,14 +2282,6 @@ rtl:data-[motion=to-end]:slide-out-to-left-52
 rtl:data-[motion=to-start]:slide-out-to-right-52
 rtl:data-[side=left]:slide-in-from-left-2
 rtl:data-[side=right]:slide-in-from-right-2
-rtl:data-[spacing=0]:data-[variant=outline]:border-l
-rtl:data-[spacing=0]:data-[variant=outline]:border-r-0
-rtl:data-[spacing=0]:data-[variant=outline]:first:border-l-0
-rtl:data-[spacing=0]:data-[variant=outline]:first:border-r
-rtl:data-[spacing=0]:first:rounded-l-none
-rtl:data-[spacing=0]:first:rounded-r-md
-rtl:data-[spacing=0]:last:rounded-l-md
-rtl:data-[spacing=0]:last:rounded-r-none
 rtl:data-[state=checked]:-translate-x-[calc(100%-2px)]
 rtl:has-[>[data-align=inline-end]]:[&>input]:pl-2
 rtl:has-[>[data-align=inline-end]]:[&>input]:pr-3
@@ -2398,7 +2420,6 @@ sm:block
 sm:flex
 sm:flex-row
 sm:gap-2
-sm:gap-2.5
 sm:gap-4
 sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2
 sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr]
@@ -2659,6 +2680,7 @@ white
 whitespace-nowrap
 width:
 with
+wrap-break-word
 xl
 xs
 xxl
