@@ -40,6 +40,7 @@
     private readonly List<AccordionTrigger> _triggers = [];
     private string? _internalValue;
     private string? _rovingTabStopValue;
+    private string? _pendingRovingTabStopValue;
     private string? _pendingFocusTriggerValue;
 
     [CascadingParameter(Name = "DirectionProviderDir")]
@@ -50,6 +51,10 @@
 
     protected override void OnParametersSet()
     {
+        _pendingRovingTabStopValue = _rovingTabStopValue;
+        _triggers.Clear();
+        _rovingTabStopValue = null;
+
         base.OnParametersSet();
 
         _openValues.Clear();
@@ -136,6 +141,8 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        FinalizeRovingTabStop();
+
         await base.OnAfterRenderAsync(firstRender);
 
         if (_pendingFocusTriggerValue is null)
@@ -155,6 +162,19 @@
         catch (InvalidOperationException)
         {
         }
+    }
+
+    private void FinalizeRovingTabStop()
+    {
+        if (_triggers.Count == 0)
+        {
+            _rovingTabStopValue = null;
+            _pendingRovingTabStopValue = null;
+            return;
+        }
+
+        EnsureRovingTabStop();
+        _pendingRovingTabStopValue = null;
     }
 
     internal bool IsItemOpen(string value)
@@ -232,18 +252,13 @@
 
     internal void RegisterTrigger(AccordionTrigger trigger)
     {
-        if (!_triggers.Contains(trigger))
-            _triggers.Add(trigger);
+        if (_triggers.Contains(trigger))
+            return;
 
-        EnsureRovingTabStop();
-    }
+        _triggers.Add(trigger);
 
-    internal void UnregisterTrigger(AccordionTrigger trigger)
-    {
-        _triggers.Remove(trigger);
-
-        if (string.Equals(_rovingTabStopValue, trigger.Value, StringComparison.Ordinal))
-            _rovingTabStopValue = null;
+        if (_pendingRovingTabStopValue.HasContent() && string.Equals(trigger.Value, _pendingRovingTabStopValue, StringComparison.Ordinal) && !trigger.IsDisabled)
+            _rovingTabStopValue = trigger.Value;
 
         EnsureRovingTabStop();
     }
@@ -377,5 +392,7 @@
         {
             hc.Add(internalOpenValue);
         }
+
+        hc.Add(_triggers.Count);
     }
 }

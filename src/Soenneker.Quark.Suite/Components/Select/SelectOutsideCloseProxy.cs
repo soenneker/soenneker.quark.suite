@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Bridges <c>popoverinterop.js</c> outside-interaction dismissal to select close (Radix-style pointer/focus-outside).
+/// Bridges <c>popoverinterop.js</c> outside-interaction dismissal to floating layers (e.g. select, combobox, dropdown menu, date picker) — Radix-style pointer/focus-outside.
 /// </summary>
 public sealed class SelectOutsideCloseProxy
 {

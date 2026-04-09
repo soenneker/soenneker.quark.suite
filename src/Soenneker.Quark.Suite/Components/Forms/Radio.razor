@@ -61,7 +61,6 @@
 
     private ElementReference _elementRef;
     private bool _preventDefault;
-    private RadioGroup? _registeredRadioGroup;
     private bool HasInlineLabel => ChildContent != null;
 
     /// <summary>
@@ -107,17 +106,7 @@
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-
-        if (!ReferenceEquals(_registeredRadioGroup, ParentRadioGroup))
-        {
-            if (_registeredRadioGroup is not null)
-                _registeredRadioGroup.UnregisterRadio(this);
-
-            _registeredRadioGroup = ParentRadioGroup;
-
-            if (_registeredRadioGroup is not null)
-                _registeredRadioGroup.RegisterRadio(this);
-        }
+        ParentRadioGroup?.RegisterRadio(this);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -372,9 +361,6 @@
 
     public override void Dispose()
     {
-        if (_registeredRadioGroup is not null)
-            _registeredRadioGroup.UnregisterRadio(this);
-
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
         base.Dispose();

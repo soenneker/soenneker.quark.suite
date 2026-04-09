@@ -14,15 +14,21 @@
     [CascadingParameter(Name = "DirectionProviderDir")]
     private string? DirectionProviderDir { get; set; }
 
-    internal void RegisterTrigger(MenubarTrigger trigger)
+    /// <summary>
+    /// Clears trigger order before children re-register in DOM order each render.
+    /// </summary>
+    protected override void OnParametersSet()
     {
-        if (!_triggers.Contains(trigger))
-            _triggers.Add(trigger);
+        _triggers.Clear();
+        base.OnParametersSet();
     }
 
-    internal void UnregisterTrigger(MenubarTrigger trigger)
+    internal void RegisterTrigger(MenubarTrigger trigger)
     {
-        _triggers.Remove(trigger);
+        if (_triggers.Contains(trigger))
+            return;
+
+        _triggers.Add(trigger);
     }
 
     internal async Task HandleTriggerNavigationAsync(MenubarTrigger currentTrigger, string key, bool openMenu = false)
@@ -128,5 +134,6 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(DirectionProviderDir);
+        hc.Add(_triggers.Count);
     }
 }

@@ -99,6 +99,16 @@
         attributes["aria-haspopup"] = "menu";
         attributes["aria-expanded"] = isOpen ? "true" : "false";
         attributes["tabindex"] = Disabled ? -1 : 0;
+
+        if (ParentContextMenuSub is not null)
+        {
+            if (!attributes.ContainsKey("id"))
+                attributes["id"] = ParentContextMenuSub.SubTriggerId;
+
+            if (!attributes.ContainsKey("aria-controls"))
+                attributes["aria-controls"] = ParentContextMenuSub.SubContentId;
+        }
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-context-menu-sub-trigger");
@@ -125,15 +135,5 @@
     internal async Task FocusAsync()
     {
         await _elementRef.FocusAsync();
-    }
-
-    public override void Dispose()
-    {
-        if (NavigationSub is not null)
-            NavigationSub.UnregisterItem(this);
-        else
-            ParentContextMenu?.UnregisterItem(this);
-
-        base.Dispose();
     }
 }

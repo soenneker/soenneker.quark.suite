@@ -14,6 +14,15 @@
     private StepsState? _parentStepsState;
 
     /// <summary>
+    /// Clears panel registration before children re-register in DOM order each render.
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        _stepPanels.Clear();
+        base.OnParametersSet();
+    }
+
+    /// <summary>
     /// Gets or sets the currently selected panel.
     /// </summary>
     [Parameter]
@@ -48,23 +57,15 @@
     }
 
     /// <summary>
-    /// Notifies that a step panel has been initialized.
+    /// Called from each <see cref="StepPanel"/> during <c>OnParametersSet</c> (after this component clears the list).
     /// </summary>
-    /// <param name="name">The name of the step panel.</param>
-    internal void NotifyStepPanelInitialized(string name)
+    internal void RegisterStepPanel(string name)
     {
+        if (!name.HasContent())
+            return;
+
         if (!_stepPanels.Contains(name))
             _stepPanels.Add(name);
-    }
-
-    /// <summary>
-    /// Notifies that a step panel has been removed.
-    /// </summary>
-    /// <param name="name">The name of the step panel.</param>
-    internal void NotifyStepPanelRemoved(string name)
-    {
-        if (_stepPanels.Contains(name))
-            _stepPanels.Remove(name);
     }
 
     /// <summary>
@@ -112,11 +113,6 @@
 
         InvalidateRender();
         await RefreshOffThread();
-    }
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

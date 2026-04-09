@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,6 +19,12 @@ public interface IDatePickerInterop
     /// Starts tracking a picker panel against its trigger and keeps the panel positioned in the viewport.
     /// </summary>
     ValueTask ObservePosition(string pickerId, ElementReference trigger, ElementReference content, string side, string align, int sideOffset = 4,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Same as <see cref="ObservePosition(string, ElementReference, ElementReference, string, string, int, CancellationToken)"/> but wires Radix-style outside pointer/focus dismissal via <see cref="SelectOutsideCloseProxy"/>.
+    /// </summary>
+    ValueTask ObservePosition(string pickerId, ElementReference trigger, ElementReference content, DotNetObjectReference<SelectOutsideCloseProxy> callbackReference, string side, string align, int sideOffset = 4,
         CancellationToken cancellationToken = default);
 
     /// <summary>

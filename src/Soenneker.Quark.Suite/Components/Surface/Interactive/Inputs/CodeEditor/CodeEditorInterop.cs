@@ -198,20 +198,40 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
     }
 
+    /// <inheritdoc />
+    public async ValueTask UpdateEditorOptions(ElementReference container, string optionsJson, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            await _initializer.Init(linked);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("updateOptions", linked, container, optionsJson);
+        }
+    }
+
     /// <summary>
     /// Disposes the editor instance in the specified container.
     /// </summary>
     /// <param name="container">The element reference to the editor container.</param>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A value task representing the dispose operation.</returns>
+    /// <remarks>
+    /// Uses <see cref="CancellationToken.None"/> instead of linking to <see cref="_cancellationScope"/> so disposal
+    /// still runs when the scope is cancelled during navigation teardown (otherwise Monaco instances leak).
+    /// </remarks>
     public async ValueTask DisposeEditor(ElementReference container, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
-
-        using (source)
+        try
         {
-            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("disposeEditor", linked, container);
+            await _initializer.Init(CancellationToken.None);
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, CancellationToken.None);
+            await module.InvokeVoidAsync("disposeEditor", CancellationToken.None, container);
+        }
+        catch
+        {
+            // Module/runtime may be unavailable during circuit teardown; best-effort disposal only.
         }
     }
 

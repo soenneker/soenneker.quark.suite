@@ -100,6 +100,15 @@
         attributes["aria-expanded"] = isOpen ? "true" : "false";
         attributes["tabindex"] = Disabled ? -1 : 0;
 
+        if (ParentDropdownSub is not null)
+        {
+            if (!attributes.ContainsKey("id"))
+                attributes["id"] = ParentDropdownSub.SubTriggerId;
+
+            if (!attributes.ContainsKey("aria-controls"))
+                attributes["aria-controls"] = ParentDropdownSub.SubContentId;
+        }
+
         if (Inset)
             attributes["data-inset"] = "true";
 
@@ -129,15 +138,5 @@
     internal async Task FocusAsync()
     {
         await _elementRef.FocusAsync();
-    }
-
-    public override void Dispose()
-    {
-        if (NavigationSub is not null)
-            NavigationSub.UnregisterItem(this);
-        else
-            ParentDropdown?.UnregisterItem(this);
-
-        base.Dispose();
     }
 }

@@ -29,8 +29,23 @@
     private readonly List<string> _stepPanels = [];
     private bool _navigationSubscribed;
 
+    /// <summary>
+    /// Clears step/panel registration before children re-register in DOM order each render.
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        _stepItems.Clear();
+        _stepPanels.Clear();
+        base.OnParametersSet();
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (_stepItems.Count > 0 && !string.IsNullOrEmpty(_state.SelectedStep) && !_stepItems.Contains(_state.SelectedStep))
+        {
+            await SetSelectedStepAsync(_stepItems[0], notifyChanged: true);
+        }
+
         if (firstRender)
         {
             await StepsInterop.Initialize();
@@ -98,34 +113,35 @@
     public RenderFragment? Items { get; set; }
 
     /// <summary>
-    /// Notifies that a step has been initialized.
+    /// Called from each <see cref="Step"/> during <c>OnParametersSet</c> (after this component clears the list).
     /// </summary>
-    /// <param name="name">The name of the step.</param>
-    internal void NotifyStepInitialized(string name)
+    internal void RegisterStep(string name)
     {
+        if (!name.HasContent())
+            return;
+
         if (!_stepItems.Contains(name))
-        {
             _stepItems.Add(name);
 
-            // Set initial selected step if not already set
-            if (string.IsNullOrEmpty(_state.SelectedStep))
-            {
-                var fragment = GetFragment();
-                var initial = fragment.HasContent() && _stepItems.Contains(fragment) ? fragment : name;
-                if (TryUpdateSelectedStepState(initial))
-                    Refresh();
-            }
+        if (string.IsNullOrEmpty(_state.SelectedStep))
+        {
+            var fragment = GetFragment();
+            var initial = fragment.HasContent() && _stepItems.Contains(fragment) ? fragment : name;
+            if (TryUpdateSelectedStepState(initial))
+                Refresh();
         }
     }
 
     /// <summary>
-    /// Notifies that a step has been removed.
+    /// Called from each <see cref="StepPanel"/> during <c>OnParametersSet</c> (after this component clears the list).
     /// </summary>
-    /// <param name="name">The name of the step.</param>
-    internal void NotifyStepRemoved(string name)
+    internal void RegisterStepPanel(string name)
     {
-        if (_stepItems.Contains(name))
-            _stepItems.Remove(name);
+        if (!name.HasContent())
+            return;
+
+        if (!_stepPanels.Contains(name))
+            _stepPanels.Add(name);
     }
 
     /// <summary>
@@ -179,26 +195,6 @@
     public int IndexOfStep(string name)
     {
         return _stepItems.IndexOf(name) + 1;
-    }
-
-    /// <summary>
-    /// Notifies that a step panel has been initialized.
-    /// </summary>
-    /// <param name="name">The name of the step panel.</param>
-    internal void NotifyStepPanelInitialized(string name)
-    {
-        if (!_stepPanels.Contains(name))
-            _stepPanels.Add(name);
-    }
-
-    /// <summary>
-    /// Notifies that a step panel has been removed.
-    /// </summary>
-    /// <param name="name">The name of the step panel.</param>
-    internal void NotifyStepPanelRemoved(string name)
-    {
-        if (_stepPanels.Contains(name))
-            _stepPanels.Remove(name);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -264,6 +260,7 @@
         hc.Add(SelectedStep);
         hc.Add(RenderMode);
         hc.Add(Items is not null);
+        hc.Add(_stepItems.Count);
     }
 
     private bool TryUpdateSelectedStepState(string value)

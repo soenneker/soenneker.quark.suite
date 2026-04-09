@@ -7,7 +7,7 @@
 
 @if (Open)
 {
-    <div class="fixed inset-0 z-[109]" aria-hidden="true" @onclick="Close"></div>
+    <div class="fixed inset-0 z-[109]" aria-hidden="true" @onclick="CloseAsync"></div>
     <div @attributes="BuildContentAttributes()" @onclick:stopPropagation="true" @onkeydown="HandleContentKeyDown" @onkeydown:preventDefault="_contentKeyPreventDefault" @onkeydown:stopPropagation="_contentKeyStopPropagation">
         @_content
     </div>
@@ -15,8 +15,14 @@
 
 @code {
     private readonly List<IContextMenuFocusableItem> _items = [];
+    private ElementReference _triggerElement;
+    private bool _hasTriggerElement;
     private bool _contentKeyPreventDefault;
     private bool _contentKeyStopPropagation;
+
+    internal string TriggerId { get; } = $"ctx-menu-trigger-{Guid.NewGuid():N}";
+
+    internal string MenuContentId { get; } = $"ctx-menu-panel-{Guid.NewGuid():N}";
 
     internal bool Open { get; set; }
     internal double X { get; set; }
@@ -38,25 +44,52 @@
             await firstItem.FocusAsync();
     }
 
-    internal void Close()
+    internal void RegisterTriggerElement(ElementReference elementReference)
     {
-        if (Open)
+        _triggerElement = elementReference;
+        _hasTriggerElement = true;
+    }
+
+    internal async Task FocusTriggerAsync()
+    {
+        if (!_hasTriggerElement)
+            return;
+
+        try
         {
-            Open = false;
-            InvalidateRender();
-            Refresh();
+            await _triggerElement.FocusAsync();
         }
+        catch
+        {
+        }
+    }
+
+    internal async Task CloseAsync()
+    {
+        if (!Open)
+            return;
+
+        Open = false;
+        InvalidateRender();
+        await RefreshOffThread();
+        await FocusTriggerAsync();
+    }
+
+    /// <summary>
+    /// Clears focusable item order before children re-register in DOM order each render.
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        _items.Clear();
+        base.OnParametersSet();
     }
 
     internal void RegisterItem(IContextMenuFocusableItem item)
     {
-        if (!_items.Contains(item))
-            _items.Add(item);
-    }
+        if (_items.Contains(item))
+            return;
 
-    internal void UnregisterItem(IContextMenuFocusableItem item)
-    {
-        _items.Remove(item);
+        _items.Add(item);
     }
 
     internal async Task HandleItemNavigationAsync(IContextMenuFocusableItem currentItem, string key)
@@ -88,8 +121,15 @@
         attrs["data-state"] = Open ? "open" : "closed";
         attrs["data-side"] = "bottom";
         attrs["data-slot"] = "context-menu-content";
+        attrs["id"] = MenuContentId;
         attrs["role"] = "menu";
+        attrs["aria-orientation"] = "vertical";
+        attrs["aria-hidden"] = "false";
         attrs["tabindex"] = -1;
+
+        if (!attrs.ContainsKey("aria-labelledby"))
+            attrs["aria-labelledby"] = TriggerId;
+
         attrs["style"] = $"position: fixed; left: {X}px; top: {Y}px;";
         BuildClassAttribute(attrs, (ref cls) =>
         {
@@ -101,17 +141,16 @@
         return attrs;
     }
 
-    private Task HandleContentKeyDown(KeyboardEventArgs e)
+    private async Task HandleContentKeyDown(KeyboardEventArgs e)
     {
         _contentKeyPreventDefault = false;
         _contentKeyStopPropagation = false;
 
         if (e.Key != "Escape")
-            return Task.CompletedTask;
+            return;
 
         _contentKeyPreventDefault = true;
         _contentKeyStopPropagation = true;
-        Close();
-        return Task.CompletedTask;
+        await CloseAsync();
     }
 }

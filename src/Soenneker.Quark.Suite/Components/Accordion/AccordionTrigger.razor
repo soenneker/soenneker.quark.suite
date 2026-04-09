@@ -1,7 +1,6 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TriggerElement
 @implements IAccordionTrigger
-@implements IDisposable
 @using Microsoft.AspNetCore.Components.Web
 
 <h3 @attributes="BuildHeaderAttributes()">
@@ -31,7 +30,6 @@
 
     private ElementReference _elementRef;
     private bool _preventDefault;
-    private Accordion? _registeredAccordion;
 
     internal string Value => ParentAccordionItem?.ResolvedValue ?? string.Empty;
 
@@ -47,21 +45,7 @@
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-        SyncRegistrationWithParent();
-    }
-
-    private void SyncRegistrationWithParent()
-    {
-        if (!ReferenceEquals(_registeredAccordion, ParentAccordion))
-        {
-            if (_registeredAccordion is not null)
-                _registeredAccordion.UnregisterTrigger(this);
-
-            _registeredAccordion = ParentAccordion;
-
-            if (_registeredAccordion is not null)
-                _registeredAccordion.RegisterTrigger(this);
-        }
+        ParentAccordion?.RegisterTrigger(this);
     }
 
     private async Task HandleTriggerClick(MouseEventArgs args)
@@ -207,13 +191,5 @@
         hc.Add(ParentAccordionItem?.ForceMount == true);
         hc.Add(TabIndex);
         hc.Add(ParentAccordion?.RovingTabStopValue);
-    }
-
-    public override void Dispose()
-    {
-        if (_registeredAccordion is not null)
-            _registeredAccordion.UnregisterTrigger(this);
-
-        base.Dispose();
     }
 }

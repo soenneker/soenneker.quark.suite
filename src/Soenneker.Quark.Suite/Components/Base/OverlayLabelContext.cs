@@ -33,22 +33,28 @@ public sealed class OverlayLabelContext
     public IDisposable RegisterTitle()
     {
         _titleRegistrations++;
-        StateChanged?.Invoke();
+        if (_titleRegistrations == 1)
+            StateChanged?.Invoke();
+
         return new Registration(() =>
         {
             _titleRegistrations--;
-            StateChanged?.Invoke();
+            if (_titleRegistrations == 0)
+                StateChanged?.Invoke();
         });
     }
 
     public IDisposable RegisterDescription()
     {
         _descriptionRegistrations++;
-        StateChanged?.Invoke();
+        if (_descriptionRegistrations == 1)
+            StateChanged?.Invoke();
+
         return new Registration(() =>
         {
             _descriptionRegistrations--;
-            StateChanged?.Invoke();
+            if (_descriptionRegistrations == 0)
+                StateChanged?.Invoke();
         });
     }
 

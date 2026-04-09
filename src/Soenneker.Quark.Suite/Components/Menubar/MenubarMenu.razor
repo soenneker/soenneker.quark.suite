@@ -11,26 +11,31 @@
     private readonly List<IMenubarFocusableItem> _items = [];
     private MenubarTrigger? _trigger;
 
-    internal void RegisterItem(IMenubarFocusableItem item)
+    internal string TriggerId { get; } = $"menubar-trigger-{Guid.NewGuid():N}";
+
+    internal string MenuContentId { get; } = $"menubar-menu-{Guid.NewGuid():N}";
+
+    /// <summary>
+    /// Clears focusable item order and trigger ref before children re-register in DOM order each render.
+    /// </summary>
+    protected override void OnParametersSet()
     {
-        if (!_items.Contains(item))
-            _items.Add(item);
+        _items.Clear();
+        _trigger = null;
+        base.OnParametersSet();
     }
 
-    internal void UnregisterItem(IMenubarFocusableItem item)
+    internal void RegisterItem(IMenubarFocusableItem item)
     {
-        _items.Remove(item);
+        if (_items.Contains(item))
+            return;
+
+        _items.Add(item);
     }
 
     internal void RegisterTrigger(MenubarTrigger trigger)
     {
         _trigger = trigger;
-    }
-
-    internal void UnregisterTrigger(MenubarTrigger trigger)
-    {
-        if (ReferenceEquals(_trigger, trigger))
-            _trigger = null;
     }
 
     internal MenubarTrigger? Trigger => _trigger;
@@ -89,5 +94,11 @@
             AppendClass(ref cls, "q-menubar-menu");
             AppendClass(ref cls, "group/menubar-menu relative");
         });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(_items.Count);
     }
 }

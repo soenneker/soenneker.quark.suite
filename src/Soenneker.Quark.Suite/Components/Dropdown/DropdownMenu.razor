@@ -1,3 +1,4 @@
+@using Microsoft.JSInterop
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.OverlayElement
@@ -18,6 +19,7 @@
 @code {
     private ElementReference _contentRef;
     private bool _positionObserverActive;
+    private DotNetObjectReference<SelectOutsideCloseProxy>? _outsideRef;
     private bool _menuKeyPreventDefault;
     private bool _menuKeyStopPropagation;
 
@@ -57,7 +59,19 @@
             return;
         }
 
-        await PopoverInterop.ObservePosition(ParentDropdown.MenuId, ParentDropdown.TriggerElement, _contentRef, GetFloatingSide(), GetFloatingAlign(), 4);
+        if (_outsideRef is null)
+        {
+            _outsideRef = DotNetObjectReference.Create(new SelectOutsideCloseProxy(async () =>
+            {
+                if (ParentDropdown is null)
+                    return;
+
+                await ParentDropdown.Hide();
+                await ParentDropdown.FocusTriggerAsync();
+            }));
+        }
+
+        await PopoverInterop.ObservePosition(ParentDropdown.MenuId, ParentDropdown.TriggerElement, _contentRef, _outsideRef, GetFloatingSide(), GetFloatingAlign(), 4);
         _positionObserverActive = true;
     }
 
@@ -68,6 +82,8 @@
         attributes["data-state"] = ResolvedVisible ? "open" : "closed";
         attributes["role"] = "menu";
         attributes["tabindex"] = -1;
+        attributes["aria-orientation"] = "vertical";
+        attributes["aria-hidden"] = ResolvedVisible ? "false" : "true";
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-dropdown-menu");
@@ -100,7 +116,12 @@
         });
 
         if (ParentDropdown is not null)
+        {
             attributes["id"] = ParentDropdown.MenuId;
+
+            if (!attributes.ContainsKey("aria-labelledby"))
+                attributes["aria-labelledby"] = ParentDropdown.ResolvedMenuTriggerElementId;
+        }
 
         if (UseFloatingPositioning)
         {
@@ -139,8 +160,11 @@
 
     private async Task HandleBackdropClick()
     {
-        if (ParentDropdown is not null)
-            await ParentDropdown.Hide();
+        if (ParentDropdown is null)
+            return;
+
+        await ParentDropdown.Hide();
+        await ParentDropdown.FocusTriggerAsync();
     }
 
     private string GetFloatingSide()
@@ -165,6 +189,7 @@
     public override async ValueTask DisposeAsync()
     {
         await StopPositionObserver();
+        _outsideRef?.Dispose();
         await base.DisposeAsync();
     }
 }

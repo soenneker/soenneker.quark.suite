@@ -24,8 +24,6 @@
 </button>
 
 @code {
-    private Tabs? _registeredTabs;
-
     [Parameter]
     public string? Name { get; set; }
 
@@ -56,29 +54,7 @@
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-        SyncRegistrationWithParent();
-    }
-
-    private void SyncRegistrationWithParent()
-    {
-        if (!ReferenceEquals(_registeredTabs, ParentTabs))
-        {
-            if (_registeredTabs is not null)
-                _registeredTabs.UnregisterTab(this);
-
-            _registeredTabs = ParentTabs;
-
-            if (_registeredTabs is not null)
-                _registeredTabs.RegisterTab(this);
-        }
-    }
-
-    public override void Dispose()
-    {
-        if (_registeredTabs is not null)
-            _registeredTabs.UnregisterTab(this);
-
-        base.Dispose();
+        ParentTabs?.RegisterTab(this);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

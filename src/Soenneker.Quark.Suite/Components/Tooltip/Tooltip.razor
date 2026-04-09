@@ -45,6 +45,9 @@
             _open = Open;
 
         base.OnParametersSet();
+
+        if (_open)
+            Provider?.RegisterOpenTooltip(this);
     }
 
     private int EffectiveDelayDuration => DelayDuration ?? Provider?.DelayDuration ?? 0;
@@ -120,13 +123,7 @@
         if (_open == open)
             return;
 
-        var wasOpen = _open;
         _open = open;
-
-        if (wasOpen && !open)
-            Provider?.UnregisterOpenTooltip(this);
-        else if (!wasOpen && open)
-            Provider?.RegisterOpenTooltip(this);
 
         if (OpenChanged.HasDelegate)
             await OpenChanged.InvokeAsync(open);
@@ -155,9 +152,6 @@
 
     public override void Dispose()
     {
-        if (_open)
-            Provider?.UnregisterOpenTooltip(this);
-
         _pendingOpenCts?.Cancel();
         _pendingOpenCts?.Dispose();
         _pendingOpenCts = null;

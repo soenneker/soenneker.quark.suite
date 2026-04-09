@@ -1,12 +1,13 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IAsyncDisposable
+@using Microsoft.JSInterop
 
 @inject IPopoverInterop PopoverInterop
 
 @if (ParentCombobox?.Open == true)
 {
-    <div @ref="_contentRef" @attributes="BuildAttributes()" @onclick:stopPropagation="true">
+    <div @ref="_contentRef" @onkeydown="HandleKeyDown" @onkeydown:preventDefault="_escapePrevent" @attributes="BuildAttributes()" @onclick:stopPropagation="true">
         @ChildContent
     </div>
 }
@@ -29,6 +30,8 @@
 
     private ElementReference _contentRef;
     private bool _positionObserverActive;
+    private DotNetObjectReference<SelectOutsideCloseProxy>? _outsideRef;
+    private bool _escapePrevent;
 
     private bool UseFloatingPositioning => ParentCombobox?.HasTriggerElement == true;
 
@@ -42,8 +45,32 @@
             return;
         }
 
-        await PopoverInterop.ObservePosition(ParentCombobox.ContentId, ParentCombobox.TriggerElement, _contentRef, Side, Align, SideOffset);
+        if (_outsideRef is null)
+        {
+            _outsideRef = DotNetObjectReference.Create(new SelectOutsideCloseProxy(async () =>
+            {
+                if (ParentCombobox is null)
+                    return;
+
+                await ParentCombobox.SetOpen(false);
+                await ParentCombobox.FocusTriggerAsync();
+            }));
+        }
+
+        await PopoverInterop.ObservePosition(ParentCombobox.ContentId, ParentCombobox.TriggerElement, _contentRef, _outsideRef, Side, Align, SideOffset);
         _positionObserverActive = true;
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        _escapePrevent = false;
+
+        if (e.Key != "Escape" || ParentCombobox is null)
+            return;
+
+        _escapePrevent = true;
+        await ParentCombobox.SetOpen(false);
+        await ParentCombobox.FocusTriggerAsync();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -63,6 +90,9 @@
 
         if (ParentCombobox is not null)
             attributes["id"] = ParentCombobox.ContentId;
+
+        if (!attributes.ContainsKey("aria-label"))
+            attributes["aria-label"] = "Suggestions";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -126,6 +156,7 @@
     public override async ValueTask DisposeAsync()
     {
         await StopPositionObserver();
+        _outsideRef?.Dispose();
         await base.DisposeAsync();
     }
 }

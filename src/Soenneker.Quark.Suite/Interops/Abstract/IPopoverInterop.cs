@@ -32,7 +32,7 @@ public interface IPopoverInterop : IAsyncDisposable
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Same as <see cref="ObservePosition(string, ElementReference, ElementReference, DotNetObjectReference{PopoverOutsideCloseProxy}, string, string, int, string, CancellationToken)"/> but for select content dismissal.
+    /// Same as <see cref="ObservePosition(string, ElementReference, ElementReference, DotNetObjectReference{PopoverOutsideCloseProxy}, string, string, int, string, CancellationToken)"/> but for select, combobox, or dropdown menu content dismissal.
     /// </summary>
     ValueTask ObservePosition(string popoverId, ElementReference trigger, ElementReference content, DotNetObjectReference<SelectOutsideCloseProxy> callbackReference,
         string side, string align, int sideOffset = 4,

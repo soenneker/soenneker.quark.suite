@@ -44,6 +44,19 @@ public sealed class DatePickerInterop : IDatePickerInterop, IAsyncDisposable
         }
     }
 
+    /// <inheritdoc />
+    public async ValueTask ObservePosition(string pickerId, ElementReference trigger, ElementReference content, DotNetObjectReference<SelectOutsideCloseProxy> callbackReference, string side, string align, int sideOffset = 4,
+        CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("observePosition", linked, pickerId, trigger, content, callbackReference, side, align, sideOffset, "popper");
+        }
+    }
+
     public async ValueTask StopObserving(string pickerId, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);

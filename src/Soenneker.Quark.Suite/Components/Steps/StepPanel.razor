@@ -71,29 +71,18 @@
         });
     }
 
-    
-
-    protected override void OnInitialized()
-    {
-        ParentSteps?.NotifyStepPanelInitialized(Name);
-        ParentStepContent?.NotifyStepPanelInitialized(Name);
-        base.OnInitialized();
-    }
-
     protected override void OnParametersSet()
     {
         if (Active)
             _lazyLoaded = RenderMode.Equals(StepsRenderMode.LazyLoad);
 
         base.OnParametersSet();
-    }
 
-    public override void Dispose()
-    {
-        ParentSteps?.NotifyStepPanelRemoved(Name);
-        ParentStepContent?.NotifyStepPanelRemoved(Name);
+        if (!Name.HasContent())
+            return;
 
-        base.Dispose();
+        ParentSteps?.RegisterStepPanel(Name);
+        ParentStepContent?.RegisterStepPanel(Name);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

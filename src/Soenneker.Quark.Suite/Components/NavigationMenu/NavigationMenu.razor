@@ -15,6 +15,7 @@
 @code {
     private readonly List<NavigationMenuEntry> _entries = [];
     private NavigationMenuItem? _openItem;
+    private string? _pendingOpenContentPanelId;
 
     [Parameter]
     public bool Viewport { get; set; }
@@ -22,27 +23,45 @@
     [CascadingParameter(Name = "DirectionProviderDir")]
     private string? DirectionProviderDir { get; set; }
 
+    /// <summary>
+    /// Clears item order before children re-register in DOM order each render.
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        _pendingOpenContentPanelId = _openItem?.ContentPanelId;
+        _entries.Clear();
+        _openItem = null;
+        base.OnParametersSet();
+    }
+
     internal void RegisterItem(NavigationMenuItem item)
     {
         if (_entries.Any(entry => ReferenceEquals(entry.Item, item)))
             return;
 
         _entries.Add(new NavigationMenuEntry { Item = item });
-        Refresh();
+
+        if (_pendingOpenContentPanelId.HasContent() && string.Equals(item.ContentPanelId, _pendingOpenContentPanelId, StringComparison.Ordinal) && !item.Disabled)
+            _openItem = item;
     }
 
-    internal void UnregisterItem(NavigationMenuItem item)
+    private void FinalizeOpenItem()
     {
-        var entry = _entries.FirstOrDefault(candidate => ReferenceEquals(candidate.Item, item));
-        if (entry is null)
-            return;
-
-        _entries.Remove(entry);
-
-        if (ReferenceEquals(_openItem, item))
+        if (_entries.Count == 0)
+        {
             _openItem = null;
+            _pendingOpenContentPanelId = null;
+            return;
+        }
 
-        Refresh();
+        if (_openItem is null && _pendingOpenContentPanelId.HasContent())
+        {
+            var match = _entries.FirstOrDefault(e => string.Equals(e.Item.ContentPanelId, _pendingOpenContentPanelId, StringComparison.Ordinal) && !e.IsDisabled);
+            if (match is not null)
+                _openItem = match.Item;
+        }
+
+        _pendingOpenContentPanelId = null;
     }
 
     internal void RegisterTrigger(NavigationMenuItem item, NavigationMenuTrigger trigger)
@@ -160,6 +179,12 @@
         return false;
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        FinalizeOpenItem();
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -181,5 +206,6 @@
         hc.Add(Viewport);
         hc.Add(_openItem?.Id);
         hc.Add(DirectionProviderDir);
+        hc.Add(_entries.Count);
     }
 }

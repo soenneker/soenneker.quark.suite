@@ -124,17 +124,12 @@
         }
     }
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
-        ParentSteps?.NotifyStepInitialized(Name ?? string.Empty);
-        base.OnInitialized();
-    }
+        base.OnParametersSet();
 
-    public override void Dispose()
-    {
-        ParentSteps?.NotifyStepRemoved(Name ?? string.Empty);
-
-        base.Dispose();
+        if (Name.HasContent())
+            ParentSteps?.RegisterStep(Name);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

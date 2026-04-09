@@ -11,6 +11,20 @@
     private readonly List<IContextMenuFocusableItem> _items = [];
     private ContextMenuSubTrigger? _trigger;
 
+    internal string SubTriggerId { get; } = $"ctx-menu-sub-trigger-{Guid.NewGuid():N}";
+
+    internal string SubContentId { get; } = $"ctx-menu-sub-panel-{Guid.NewGuid():N}";
+
+    /// <summary>
+    /// Clears focusable item order and trigger ref before children re-register in DOM order each render.
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        _items.Clear();
+        _trigger = null;
+        base.OnParametersSet();
+    }
+
     internal bool Open { get; private set; }
 
     internal void OpenSubmenu()
@@ -52,13 +66,10 @@
 
     internal void RegisterItem(IContextMenuFocusableItem item)
     {
-        if (!_items.Contains(item))
-            _items.Add(item);
-    }
+        if (_items.Contains(item))
+            return;
 
-    internal void UnregisterItem(IContextMenuFocusableItem item)
-    {
-        _items.Remove(item);
+        _items.Add(item);
     }
 
     internal void RegisterTrigger(ContextMenuSubTrigger trigger)
@@ -104,5 +115,6 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Open);
+        hc.Add(_items.Count);
     }
 }

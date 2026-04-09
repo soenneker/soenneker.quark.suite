@@ -156,6 +156,7 @@ const openFloatingLayerSelector = [
     '[data-slot="popover-content"][data-state="open"]',
     '[data-slot="select-content"][data-state="open"]',
     '[data-slot="dropdown-menu-content"][data-state="open"]',
+    '[data-slot="dropdown-menu-sub-content"][data-state="open"]',
     '[data-slot="combobox-content"][data-state="open"]',
     '[data-slot="hover-card-content"][data-state="open"]',
     '[data-slot="context-menu-content"][data-state="open"]',
@@ -163,8 +164,13 @@ const openFloatingLayerSelector = [
     '[data-slot="menubar-content"][data-state="open"]',
     '[data-slot="menubar-sub-content"][data-state="open"]',
     '[data-slot="navigation-menu-viewport"][data-state="open"]',
+    '[data-slot="navigation-menu-content"][data-state="open"]',
     '[data-slot="datepicker-content"][data-state="open"]',
-    '[data-slot="tooltip-content"][data-state="open"]'
+    '[data-slot="tooltip-content"][data-state="open"]',
+    '[data-slot="dialog-content"][data-state="open"]',
+    '[data-slot="alert-dialog-content"][data-state="open"]',
+    '[data-slot="sheet-content"][data-state="open"]',
+    '[data-slot="drawer-content"][data-state="open"]'
 ].join(',');
 
 function hasOpenFloatingDescendant(modalRoot) {

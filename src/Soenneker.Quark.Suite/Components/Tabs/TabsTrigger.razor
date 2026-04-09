@@ -11,8 +11,6 @@
 </button>
 
 @code {
-    private Tabs? _registeredTabs;
-
     [Parameter]
     public string? Value { get; set; }
 
@@ -30,21 +28,7 @@
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-        SyncRegistrationWithParent();
-    }
-
-    private void SyncRegistrationWithParent()
-    {
-        if (!ReferenceEquals(_registeredTabs, ParentTabs))
-        {
-            if (_registeredTabs is not null)
-                _registeredTabs.UnregisterTrigger(this);
-
-            _registeredTabs = ParentTabs;
-
-            if (_registeredTabs is not null)
-                _registeredTabs.RegisterTrigger(this);
-        }
+        ParentTabs?.RegisterTrigger(this);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -131,14 +115,6 @@
     internal async Task FocusAsync()
     {
         await _buttonRef.FocusAsync();
-    }
-
-    public override void Dispose()
-    {
-        if (_registeredTabs is not null)
-            _registeredTabs.UnregisterTrigger(this);
-
-        base.Dispose();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

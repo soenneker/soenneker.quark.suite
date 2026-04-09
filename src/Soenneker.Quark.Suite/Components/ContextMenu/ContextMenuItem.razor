@@ -46,7 +46,9 @@
             return;
 
         await Clicked.InvokeIfHasDelegate(e);
-        ParentContextMenu?.Close();
+
+        if (ParentContextMenu is not null)
+            await ParentContextMenu.CloseAsync();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -120,7 +122,7 @@
             if (NavigationSub is not null)
                 await NavigationSub.CloseAndFocusTriggerAsync();
             else
-                ParentContextMenu.Close();
+                await ParentContextMenu.CloseAsync();
 
             _preventDefaultKeys = true;
             _stopPropagation = true;
@@ -130,15 +132,5 @@
     async Task IContextMenuFocusableItem.FocusAsync()
     {
         await _elementRef.FocusAsync();
-    }
-
-    public override void Dispose()
-    {
-        if (NavigationSub is not null)
-            NavigationSub.UnregisterItem(this);
-        else
-            ParentContextMenu?.UnregisterItem(this);
-
-        base.Dispose();
     }
 }

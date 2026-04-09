@@ -33,6 +33,14 @@
         attributes["aria-hidden"] = Open ? "false" : "true";
         attributes["tabindex"] = -1;
 
+        if (ParentMenubarMenu is not null)
+        {
+            attributes["id"] = ParentMenubarMenu.MenuContentId;
+
+            if (!attributes.ContainsKey("aria-labelledby"))
+                attributes["aria-labelledby"] = ParentMenubarMenu.TriggerId;
+        }
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-menubar-content");

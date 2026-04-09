@@ -18,9 +18,6 @@
 @code {
     private ElementReference _elementRef;
     private bool _preventDefaultKeys;
-    private CommandGroup? _registeredGroup;
-    private bool _isRegistered;
-    private Command? _registeredCommand;
 
     [Parameter]
     public EventCallback OnSelect { get; set; }
@@ -52,33 +49,7 @@
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-        SyncRegistrationWithCommand();
-    }
-
-    private void SyncRegistrationWithCommand()
-    {
-        if (!ReferenceEquals(_registeredCommand, ParentCommand))
-        {
-            if (_registeredCommand is not null)
-                _registeredCommand.UnregisterItem(this);
-
-            _registeredCommand = ParentCommand;
-            _isRegistered = false;
-            _registeredGroup = null;
-        }
-
-        if (ParentCommand is null)
-            return;
-
-        if (_isRegistered && ReferenceEquals(_registeredGroup, ParentCommandGroup))
-            return;
-
-        if (_isRegistered)
-            ParentCommand.UnregisterItem(this);
-
-        ParentCommand.RegisterItem(this, ParentCommandGroup);
-        _registeredGroup = ParentCommandGroup;
-        _isRegistered = true;
+        ParentCommand?.RegisterItem(this, ParentCommandGroup);
     }
 
     private async Task HandleItemClick(MouseEventArgs _)
@@ -155,13 +126,5 @@
     {
         if (!Disabled && OnSelect.HasDelegate)
             await OnSelect.InvokeAsync();
-    }
-
-    public override void Dispose()
-    {
-        if (_registeredCommand is not null)
-            _registeredCommand.UnregisterItem(this);
-
-        base.Dispose();
     }
 }

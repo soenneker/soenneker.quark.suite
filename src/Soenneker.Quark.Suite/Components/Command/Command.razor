@@ -15,6 +15,7 @@
     private string? _search;
     private readonly string _listId = $"command-list-{Guid.NewGuid():N}";
     private bool _pendingScrollActiveItemIntoView;
+    private string? _pendingActiveItemId;
 
     internal string? Search => _search;
 
@@ -24,6 +25,17 @@
 
     internal string ListId => _listId;
 
+    /// <summary>
+    /// Clears item order before children re-register in DOM order each render.
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        _pendingActiveItemId = _activeItem?.Id;
+        _entries.Clear();
+        _activeItem = null;
+        base.OnParametersSet();
+    }
+
     internal void RegisterItem(CommandItem item, CommandGroup? group)
     {
         if (_entries.Any(entry => ReferenceEquals(entry.Item, item)))
@@ -31,24 +43,26 @@
 
         _entries.Add(new CommandEntry { Item = item, Group = group });
 
-        if (_activeItem is null && item.IsVisibleResolved && !item.Disabled)
+        if (_pendingActiveItemId.HasContent() && string.Equals(item.Id, _pendingActiveItemId, StringComparison.Ordinal) && item.IsVisibleResolved && !item.Disabled)
             _activeItem = item;
-
-        Refresh();
+        else if (!_pendingActiveItemId.HasContent() && _activeItem is null && item.IsVisibleResolved && !item.Disabled)
+            _activeItem = item;
     }
 
-    internal void UnregisterItem(CommandItem item)
+    private void FinalizeActiveItem()
     {
-        var entry = _entries.FirstOrDefault(candidate => ReferenceEquals(candidate.Item, item));
-        if (entry is null)
+        var visibleEntries = GetVisibleEntries();
+        if (visibleEntries.Count == 0)
+        {
+            _activeItem = null;
+            _pendingActiveItemId = null;
             return;
+        }
 
-        _entries.Remove(entry);
+        if (_activeItem is null)
+            _activeItem = visibleEntries[0].Item;
 
-        if (ReferenceEquals(_activeItem, item))
-            _activeItem = GetVisibleEntries().FirstOrDefault()?.Item;
-
-        Refresh();
+        _pendingActiveItemId = null;
     }
 
     internal bool IsItemActive(CommandItem item)
@@ -143,6 +157,8 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        FinalizeActiveItem();
+
         if (_pendingScrollActiveItemIntoView && _activeItem is not null)
         {
             _pendingScrollActiveItemIntoView = false;
@@ -157,5 +173,6 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(_search);
         hc.Add(_activeItem?.Id);
+        hc.Add(_entries.Count);
     }
 }

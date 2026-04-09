@@ -21,8 +21,26 @@
     private DotNetObjectReference<ResizablePanelGroup>? _dotNetRef;
     private double[]? _sizes;
     private bool _layoutDirty = true;
+    /// <summary>When true, <see cref="EnsureLayoutState"/> recomputes from panel weights instead of reconciling snapshots (e.g. min/max/default changed).</summary>
+    private bool _forceDefaultLayout;
+    private ResizablePanel[]? _panelsSnapshotForReconcile;
+    private double[]? _sizesSnapshotForReconcile;
     private bool _isDragging;
     private bool _keyboardGuardActive;
+
+    /// <summary>
+    /// Clears panel/handle lists before children re-register in DOM order each render. Snapshots previous sizes to preserve user drag state.
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        _panelsSnapshotForReconcile = _panels.Count > 0 ? _panels.ToArray() : null;
+        _sizesSnapshotForReconcile = _sizes is { Length: > 0 } ? (double[])_sizes.Clone() : null;
+
+        _panels.Clear();
+        _handles.Clear();
+        _layoutDirty = true;
+        base.OnParametersSet();
+    }
 
     [CascadingParameter(Name = "DirectionProviderDir")]
     private string? DirectionProviderDir { get; set; }
@@ -59,21 +77,10 @@
         if (!_panels.Contains(panel))
         {
             _panels.Add(panel);
-            _layoutDirty = true;
             UpdatePanelIndexes();
         }
 
         return _panels.IndexOf(panel);
-    }
-
-    internal void UnregisterPanel(ResizablePanel panel)
-    {
-        if (_panels.Remove(panel))
-        {
-            _layoutDirty = true;
-            UpdatePanelIndexes();
-            Refresh();
-        }
     }
 
     internal int RegisterHandle(ResizableHandle handle)
@@ -87,18 +94,10 @@
         return _handles.IndexOf(handle);
     }
 
-    internal void UnregisterHandle(ResizableHandle handle)
-    {
-        if (_handles.Remove(handle))
-        {
-            UpdateHandleIndexes();
-            Refresh();
-        }
-    }
-
     internal void NotifyPanelConfigurationChanged()
     {
         _layoutDirty = true;
+        _forceDefaultLayout = true;
 
         if (!_isDragging)
             Refresh();
@@ -221,8 +220,17 @@
         {
             _sizes = Array.Empty<double>();
             _layoutDirty = false;
+            _forceDefaultLayout = false;
             return;
         }
+
+        if (!_forceDefaultLayout && TryReconcileSizesFromSnapshot())
+        {
+            _layoutDirty = false;
+            return;
+        }
+
+        _forceDefaultLayout = false;
 
         double totalWeight = _panels.Sum(panel => Math.Max(1, panel.DefaultSize));
         var nextSizes = new double[_panels.Count];
@@ -236,6 +244,47 @@
         NormalizeSizes(nextSizes);
         _sizes = nextSizes;
         _layoutDirty = false;
+    }
+
+    /// <summary>
+    /// Maps previous percentages onto the current panel list by <see cref="ResizablePanel"/> instance (handles reorder without losing drag-adjusted sizes).
+    /// </summary>
+    private bool TryReconcileSizesFromSnapshot()
+    {
+        if (_panelsSnapshotForReconcile is null || _sizesSnapshotForReconcile is null)
+            return false;
+
+        if (_panelsSnapshotForReconcile.Length != _sizesSnapshotForReconcile.Length)
+            return false;
+
+        if (_panels.Count != _panelsSnapshotForReconcile.Length)
+            return false;
+
+        var next = new double[_panels.Count];
+
+        for (int i = 0; i < _panels.Count; i++)
+        {
+            var panel = _panels[i];
+            var oldIndex = -1;
+
+            for (var j = 0; j < _panelsSnapshotForReconcile.Length; j++)
+            {
+                if (ReferenceEquals(_panelsSnapshotForReconcile[j], panel))
+                {
+                    oldIndex = j;
+                    break;
+                }
+            }
+
+            if (oldIndex < 0)
+                return false;
+
+            next[i] = _sizesSnapshotForReconcile[oldIndex];
+        }
+
+        NormalizeSizes(next);
+        _sizes = next;
+        return true;
     }
 
     private void AdjustHandleToPercentage(int handleIndex, double percentage, double containerSize)
@@ -394,6 +443,8 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(OrientationValue);
+        hc.Add(_panels.Count);
+        hc.Add(_handles.Count);
 
         if (_sizes is not null)
         {

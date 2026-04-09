@@ -1,13 +1,21 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @oncontextmenu="HandleContextMenu" @oncontextmenu:preventDefault @attributes="BuildAttributes()">
+<div @ref="_triggerRef" @oncontextmenu="HandleContextMenu" @oncontextmenu:preventDefault @attributes="BuildAttributes()">
     @ChildContent
 </div>
 
 @code {
+    private ElementReference _triggerRef;
+
     [CascadingParameter(Name = "ParentContextMenu")]
     private ContextMenu? ParentContextMenu { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        ParentContextMenu?.RegisterTriggerElement(_triggerRef);
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -15,11 +23,30 @@
 
         attributes["data-slot"] = "context-menu-trigger";
 
+        if (ParentContextMenu is not null)
+        {
+            if (!attributes.ContainsKey("id"))
+                attributes["id"] = ParentContextMenu.TriggerId;
+
+            attributes["aria-haspopup"] = "menu";
+            attributes["aria-expanded"] = ParentContextMenu.Open ? "true" : "false";
+            attributes["aria-controls"] = ParentContextMenu.MenuContentId;
+
+            if (!attributes.ContainsKey("tabindex"))
+                attributes["tabindex"] = -1;
+        }
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-context-menu-trigger");
             AppendClass(ref cls, "cursor-context-menu");
         });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ParentContextMenu?.Open ?? false);
     }
 
     private async Task HandleContextMenu(MouseEventArgs e)

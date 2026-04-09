@@ -14,6 +14,15 @@
     private ElementReference _triggerElement;
     private bool _hasTriggerElement;
 
+    /// <summary>
+    /// Clears item registration before children re-register in DOM order each render.
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        _items.Clear();
+        base.OnParametersSet();
+    }
+
     [Parameter]
     public EventCallback<string?> ValueChanged { get; set; }
 
@@ -61,6 +70,20 @@
         _hasTriggerElement = true;
     }
 
+    internal async Task FocusTriggerAsync()
+    {
+        if (!_hasTriggerElement)
+            return;
+
+        try
+        {
+            await _triggerElement.FocusAsync();
+        }
+        catch
+        {
+        }
+    }
+
     internal async Task Select(string? v)
     {
         if (Multiple)
@@ -78,6 +101,7 @@
         await OpenChanged.InvokeAsync(false);
         InvalidateRender();
         Refresh();
+        await FocusTriggerAsync();
     }
 
     internal bool IsSelected(string? value)
@@ -112,19 +136,15 @@
         Refresh();
     }
 
+    /// <summary>
+    /// Called from each <see cref="ComboboxItem"/> during <c>OnParametersSet</c> (after this component clears the list).
+    /// </summary>
     internal void RegisterItem(ComboboxItem item)
     {
         if (!_items.Contains(item))
-        {
             _items.Add(item);
-            EnsureActiveItem();
-        }
-    }
 
-    internal void UnregisterItem(ComboboxItem item)
-    {
-        if (_items.Remove(item) && item.IsActiveItem)
-            EnsureActiveItem();
+        EnsureActiveItem();
     }
 
     internal void SetActiveItem(ComboboxItem item)
@@ -286,7 +306,14 @@
 
     private async Task HandleFocusOut(FocusEventArgs _)
     {
+        if (!Open)
+            return;
+
         await Task.Delay(150);
+
+        if (!Open)
+            return;
+
         await SetOpen(false);
     }
 
@@ -315,6 +342,7 @@
         hc.Add(Disabled);
         hc.Add(AutoHighlight);
         hc.Add(Multiple);
+        hc.Add(_items.Count);
 
         if (Values is not null)
         {

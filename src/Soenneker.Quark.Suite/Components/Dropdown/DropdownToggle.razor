@@ -40,11 +40,17 @@ else
     [CascadingParameter(Name = nameof(ParentDropdown))]
     public Dropdown? ParentDropdown { get; set; }
 
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        ParentDropdown?.RegisterToggle(this);
+        ParentDropdown?.SetToggleIdFromParameter(Id);
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        ParentDropdown?.RegisterToggle(this);
         ParentDropdown?.SetTriggerElement(_buttonRef);
     }
 
@@ -80,7 +86,12 @@ else
         attributes["aria-expanded"] = ParentDropdown?.Visible == true ? "true" : "false";
 
         if (ParentDropdown is not null)
+        {
             attributes["aria-controls"] = ParentDropdown.MenuId;
+
+            if (!attributes.ContainsKey("id"))
+                attributes["id"] = ParentDropdown.ResolvedMenuTriggerElementId;
+        }
 
         if (Disabled || ParentDropdown?.Disabled == true)
         {
@@ -92,6 +103,7 @@ else
     {
         return new TriggerContext
         {
+            TriggerId = ParentDropdown?.ResolvedMenuTriggerElementId,
             IsOpen = ParentDropdown?.Visible == true,
             DataState = ParentDropdown?.Visible == true ? "open" : "closed",
             AriaHasPopup = "menu",
@@ -108,6 +120,14 @@ else
         var attributes = new Dictionary<string, object>();
         attributes["data-slot"] = "dropdown-menu-trigger-wrapper";
         attributes["data-state"] = ParentDropdown?.Visible == true ? "open" : "closed";
+
+        if (ParentDropdown is not null)
+        {
+            attributes["id"] = ParentDropdown.ResolvedMenuTriggerElementId;
+            attributes["aria-haspopup"] = "menu";
+            attributes["aria-expanded"] = ParentDropdown.Visible ? "true" : "false";
+            attributes["aria-controls"] = ParentDropdown.MenuId;
+        }
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -127,6 +147,7 @@ else
         hc.Add(AsChild);
         hc.Add(ParentDropdown?.Visible == true);
         hc.Add(ParentDropdown?.Disabled == true);
+        hc.Add(Id);
     }
 
     private async Task HandleToggleKeyDown(KeyboardEventArgs e)

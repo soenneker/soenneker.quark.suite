@@ -8,8 +8,6 @@
 @code {
     private ElementReference _elementRef;
     private bool _preventDefaultKeys;
-    private Menubar? _registeredMenubar;
-    private MenubarMenu? _registeredMenubarMenu;
 
     [Parameter]
     public bool Open { get; set; }
@@ -23,32 +21,8 @@
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-        SyncRegistrationWithParents();
-    }
-
-    private void SyncRegistrationWithParents()
-    {
-        if (!ReferenceEquals(_registeredMenubar, ParentMenubar))
-        {
-            if (_registeredMenubar is not null)
-                _registeredMenubar.UnregisterTrigger(this);
-
-            _registeredMenubar = ParentMenubar;
-
-            if (_registeredMenubar is not null)
-                _registeredMenubar.RegisterTrigger(this);
-        }
-
-        if (!ReferenceEquals(_registeredMenubarMenu, ParentMenubarMenu))
-        {
-            if (_registeredMenubarMenu is not null)
-                _registeredMenubarMenu.UnregisterTrigger(this);
-
-            _registeredMenubarMenu = ParentMenubarMenu;
-
-            if (_registeredMenubarMenu is not null)
-                _registeredMenubarMenu.RegisterTrigger(this);
-        }
+        ParentMenubar?.RegisterTrigger(this);
+        ParentMenubarMenu?.RegisterTrigger(this);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -62,6 +36,15 @@
         attributes["aria-haspopup"] = "menu";
         attributes["aria-expanded"] = Open ? "true" : "false";
         attributes["tabindex"] = Disabled ? -1 : 0;
+
+        if (ParentMenubarMenu is not null)
+        {
+            if (!attributes.ContainsKey("id"))
+                attributes["id"] = ParentMenubarMenu.TriggerId;
+
+            if (!attributes.ContainsKey("aria-controls"))
+                attributes["aria-controls"] = ParentMenubarMenu.MenuContentId;
+        }
 
         if (Disabled)
             attributes["disabled"] = true;
@@ -115,16 +98,5 @@
     {
         if (ParentMenubarMenu is not null)
             await ParentMenubarMenu.FocusFirstItemAsync();
-    }
-
-    public override void Dispose()
-    {
-        if (_registeredMenubarMenu is not null)
-            _registeredMenubarMenu.UnregisterTrigger(this);
-
-        if (_registeredMenubar is not null)
-            _registeredMenubar.UnregisterTrigger(this);
-
-        base.Dispose();
     }
 }

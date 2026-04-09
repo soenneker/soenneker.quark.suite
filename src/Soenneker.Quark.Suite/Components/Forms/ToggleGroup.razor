@@ -10,6 +10,7 @@
 @code {
     private readonly List<ToggleGroupItem> _items = [];
     private ToggleGroupItem? _focusedItem;
+    private string? _pendingFocusedValue;
 
     [CascadingParameter(Name = "DirectionProviderDir")]
     private string? DirectionProviderDir { get; set; }
@@ -69,24 +70,43 @@
             _ => ""
         };
 
-    internal void RegisterItem(ToggleGroupItem item)
+    /// <summary>
+    /// Clears item order before children re-register in DOM order each render.
+    /// </summary>
+    protected override void OnParametersSet()
     {
-        if (!_items.Contains(item))
-        {
-            _items.Add(item);
-            _ = RefreshOffThread();
-        }
+        _pendingFocusedValue = _focusedItem?.Value;
+        _items.Clear();
+        _focusedItem = null;
+        base.OnParametersSet();
     }
 
-    internal void UnregisterItem(ToggleGroupItem item)
+    internal void RegisterItem(ToggleGroupItem item)
     {
-        if (!_items.Remove(item))
+        if (_items.Contains(item))
             return;
 
-        if (ReferenceEquals(_focusedItem, item))
-            _focusedItem = null;
+        _items.Add(item);
 
-        _ = RefreshOffThread();
+        if (_pendingFocusedValue.HasContent() && string.Equals(item.Value, _pendingFocusedValue, StringComparison.Ordinal) && !item.IsDisabledInGroup)
+            _focusedItem = item;
+    }
+
+    private void FinalizeFocusedItem()
+    {
+        if (_items.Count == 0)
+        {
+            _focusedItem = null;
+            _pendingFocusedValue = null;
+            return;
+        }
+
+        if (_focusedItem is null && _pendingFocusedValue.HasContent())
+        {
+            _focusedItem = _items.FirstOrDefault(i => string.Equals(i.Value, _pendingFocusedValue, StringComparison.Ordinal) && !i.IsDisabledInGroup);
+        }
+
+        _pendingFocusedValue = null;
     }
 
     internal bool IsItemTabStop(ToggleGroupItem item)
@@ -175,6 +195,12 @@
         return true;
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        FinalizeFocusedItem();
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -254,5 +280,6 @@
         hc.Add(_focusedItem?.Value);
         if (Values != null)
             foreach (var x in Values) hc.Add(x);
+        hc.Add(_items.Count);
     }
 }

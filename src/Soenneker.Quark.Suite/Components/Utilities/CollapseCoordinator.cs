@@ -2,36 +2,39 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Soenneker.Extensions.String;
-using Soenneker.Asyncs.Locks;
 
 namespace Soenneker.Quark;
 
 /// <inheritdoc cref="ICollapseCoordinator"/>
 public sealed class CollapseCoordinator : ICollapseCoordinator
 {
-    private readonly AsyncLock _lock = new();
+    private readonly object _gate = new();
     private readonly HashSet<Collapse> _collapses = [];
 
-    public async ValueTask Register(Collapse collapse)
+    public ValueTask Register(Collapse collapse)
     {
-        if (collapse == null)
-            return;
+        if (collapse is null)
+            return ValueTask.CompletedTask;
 
-        using (await _lock.Lock())
+        lock (_gate)
         {
             _collapses.Add(collapse);
         }
+
+        return ValueTask.CompletedTask;
     }
 
-    public async ValueTask Unregister(Collapse collapse)
+    public ValueTask Unregister(Collapse collapse)
     {
-        if (collapse == null)
-            return;
+        if (collapse is null)
+            return ValueTask.CompletedTask;
 
-        using (await _lock.Lock())
+        lock (_gate)
         {
             _collapses.Remove(collapse);
         }
+
+        return ValueTask.CompletedTask;
     }
 
     public async ValueTask ToggleTargets(string? targetExpression)
@@ -40,7 +43,7 @@ public sealed class CollapseCoordinator : ICollapseCoordinator
             return;
 
         Collapse[] snapshot;
-        using (await _lock.Lock())
+        lock (_gate)
         {
             snapshot = [.. _collapses];
         }

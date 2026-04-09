@@ -7,11 +7,11 @@
     [CascadingParameter(Name = "ParentContextMenu")]
     private ContextMenu? ParentContextMenu { get; set; }
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
-        base.OnInitialized();
+        base.OnParametersSet();
 
-        if (ParentContextMenu != null)
-            ParentContextMenu.RegisterContent(ChildContent!);
+        if (ParentContextMenu is not null && ChildContent is not null)
+            ParentContextMenu.RegisterContent(ChildContent);
     }
 }

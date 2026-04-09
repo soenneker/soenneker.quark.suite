@@ -20,6 +20,19 @@
         attributes["data-slot"] = "context-menu-sub-content";
         attributes["data-state"] = ParentContextMenuSub?.Open == true ? "open" : "closed";
         attributes["data-side"] = "right";
+        attributes["role"] = "menu";
+        attributes["aria-orientation"] = "vertical";
+        attributes["tabindex"] = -1;
+        attributes["aria-hidden"] = "false";
+
+        if (ParentContextMenuSub is not null)
+        {
+            attributes["id"] = ParentContextMenuSub.SubContentId;
+
+            if (!attributes.ContainsKey("aria-labelledby"))
+                attributes["aria-labelledby"] = ParentContextMenuSub.SubTriggerId;
+        }
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-context-menu-sub-content");

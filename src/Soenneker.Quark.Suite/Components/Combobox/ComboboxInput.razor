@@ -94,6 +94,11 @@
         attributes["type"] = "text";
         attributes["data-slot"] = "input-group-control";
         attributes["data-combobox-slot"] = "combobox-input";
+        ApplyFieldControlAttributes(attributes, false);
+
+        if (!attributes.ContainsKey("id") && ParentCombobox is not null)
+            attributes["id"] = ParentCombobox.InputId;
+
         attributes["role"] = "combobox";
         attributes["autocomplete"] = "off";
         attributes["aria-autocomplete"] = "list";
@@ -103,10 +108,7 @@
             attributes["aria-activedescendant"] = ParentCombobox.ActiveItemId;
 
         if (ParentCombobox is not null)
-        {
-            attributes["id"] = ParentCombobox.InputId;
             attributes["aria-controls"] = ParentCombobox.ContentId;
-        }
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

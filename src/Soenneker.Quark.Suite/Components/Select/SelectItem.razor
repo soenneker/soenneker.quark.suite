@@ -28,7 +28,6 @@
     private bool _isActive;
     private bool _preventDefaultKeys;
     private bool _stopPropagation;
-    private Select<TValue>? _registeredSelect;
 
     /// <summary>
     /// Gets or sets the value of the select item.
@@ -63,16 +62,7 @@
     {
         base.OnParametersSet();
 
-        if (!ReferenceEquals(_registeredSelect, ParentSelect))
-        {
-            if (_registeredSelect is not null)
-                _registeredSelect.UnregisterFocusableItem(this);
-
-            _registeredSelect = ParentSelect;
-
-            if (_registeredSelect is not null)
-                _registeredSelect.RegisterFocusableItem(this);
-        }
+        ParentSelect?.RegisterFocusableItem(this);
 
         var itemKey = ItemValue?.ToString();
         if (itemKey.HasContent() && ParentSelect is not null)
@@ -197,11 +187,4 @@
         return _elementRef;
     }
 
-    public override void Dispose()
-    {
-        if (_registeredSelect is not null)
-            _registeredSelect.UnregisterFocusableItem(this);
-
-        base.Dispose();
-    }
 }

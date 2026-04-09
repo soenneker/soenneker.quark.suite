@@ -70,6 +70,17 @@
     [Parameter]
     public EventCallback OnDismiss { get; set; }
 
+    /// <summary>
+    /// Resets slot flags before children re-assert presence (DOM-order / conditional composition parity).
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        _hasMessage = false;
+        _hasDescription = false;
+        _hasAction = false;
+        base.OnParametersSet();
+    }
+
     protected override void OnInitialized()
     {
         base.OnInitialized();

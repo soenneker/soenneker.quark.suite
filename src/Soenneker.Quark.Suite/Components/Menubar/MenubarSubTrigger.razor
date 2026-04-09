@@ -61,6 +61,15 @@
         attributes["aria-expanded"] = Open ? "true" : "false";
         attributes["tabindex"] = Disabled ? -1 : 0;
 
+        if (ParentMenubarSub is not null)
+        {
+            if (!attributes.ContainsKey("id"))
+                attributes["id"] = ParentMenubarSub.SubTriggerId;
+
+            if (!attributes.ContainsKey("aria-controls"))
+                attributes["aria-controls"] = ParentMenubarSub.SubContentId;
+        }
+
         if (Disabled)
         {
             attributes["data-disabled"] = "true";
@@ -138,15 +147,5 @@
     internal async Task FocusAsync()
     {
         await _elementRef.FocusAsync();
-    }
-
-    public override void Dispose()
-    {
-        if (NavigationSub is not null)
-            NavigationSub.UnregisterItem(this);
-        else
-            ParentMenubarMenu?.UnregisterItem(this);
-
-        base.Dispose();
     }
 }

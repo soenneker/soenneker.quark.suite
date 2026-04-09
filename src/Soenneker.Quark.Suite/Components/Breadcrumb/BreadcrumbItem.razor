@@ -64,7 +64,6 @@ else
     [CascadingParameter(Name = "ParentBreadcrumb")]
     private Breadcrumb? ParentBreadcrumb { get; set; }
 
-    private Breadcrumb? _registeredParentBreadcrumb;
     private int _index;
 
     private bool ShowSeparator => _index > 0;
@@ -84,22 +83,10 @@ else
     [Parameter]
     public bool AsChild { get; set; }
 
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-
-        RegisterWithParent();
-    }
-
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-
-        if (!ReferenceEquals(_registeredParentBreadcrumb, ParentBreadcrumb))
-        {
-            _registeredParentBreadcrumb?.UnregisterItem(this);
-            RegisterWithParent();
-        }
+        RegisterWithParent();
     }
 
     private void RegisterWithParent()
@@ -107,17 +94,7 @@ else
         if (ParentBreadcrumb is null)
             return;
 
-        _registeredParentBreadcrumb = ParentBreadcrumb;
         _index = ParentBreadcrumb.RegisterItem(this);
-    }
-
-    internal void SetIndex(int index)
-    {
-        if (_index == index)
-            return;
-
-        _index = index;
-        _ = InvokeAsync(StateHasChanged);
     }
 
     private Dictionary<string, object> BuildListItemAttributes()
@@ -203,9 +180,4 @@ else
         hc.Add(ParentBreadcrumb?.SeparatorContent);
     }
 
-    public override void Dispose()
-    {
-        _registeredParentBreadcrumb?.UnregisterItem(this);
-        base.Dispose();
-    }
 }

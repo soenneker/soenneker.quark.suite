@@ -45,6 +45,14 @@ public interface ICodeEditorInterop : IAsyncDisposable
     ValueTask SetTheme(string theme, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Updates Monaco editor options (e.g. readOnly, wordWrap, minimap) without recreating the editor.
+    /// </summary>
+    /// <param name="container">Container element hosting the editor.</param>
+    /// <param name="optionsJson">JSON object passed to Monaco <c>editor.updateOptions</c>.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    ValueTask UpdateEditorOptions(ElementReference container, string optionsJson, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Disposes the editor instance associated with the container.
     /// </summary>
     ValueTask DisposeEditor(ElementReference container, CancellationToken cancellationToken = default);

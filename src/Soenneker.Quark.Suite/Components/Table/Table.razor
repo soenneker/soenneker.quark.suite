@@ -97,6 +97,15 @@
     private readonly TableContinuationTokenPaging _continuationTokenPaging = new();
     private readonly List<Th> _registeredColumns = [];
 
+    /// <summary>
+    /// Clears column registration before child <see cref="Th"/> components re-register in DOM order each render.
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        _registeredColumns.Clear();
+        base.OnParametersSet();
+    }
+
     private string _searchTerm = string.Empty;
     private string? _continuationToken;
 
@@ -166,7 +175,11 @@
                     _isLoading = true; // ensure loader visible on first render
                     await RefreshOffThread();
 
-                    _ = OnInteractionInternal();
+                    // Defer until after child <Th> components run OnParametersSet and re-register columns (list is cleared in sync OnParametersSet).
+                    await InvokeAsync(async () =>
+                    {
+                        await OnInteractionInternal();
+                    });
                 }
 
                 _dataLoaded = true;
@@ -200,7 +213,10 @@
 
                 if (OnInteraction.HasDelegate)
                 {
-                    await OnInteractionInternal();
+                    await InvokeAsync(async () =>
+                    {
+                        await OnInteractionInternal();
+                    });
                 }
             }
 
@@ -212,6 +228,30 @@
         }
 
         await base.OnParametersSetAsync();
+    }
+
+    /// <summary>
+    /// After render, drop sort keys that point past the current <see cref="Th"/> count and refresh data when needed.
+    /// </summary>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!OnInteraction.HasDelegate || !_hasLoadedOnce)
+            return;
+
+        var columnCount = _registeredColumns.Count;
+        var removed = _currentOrders.RemoveAll(o => o.Column < 0 || o.Column >= columnCount);
+        if (removed == 0)
+            return;
+
+        if (Options.Debug)
+            Logger.LogDebug("Pruned {Removed} sort order(s); valid column index range is [0,{ColumnCount})", removed, columnCount);
+
+        await InvokeAsync(async () =>
+        {
+            await OnInteractionInternal();
+        });
     }
 
     public async ValueTask HandleGoToPage(int page)
@@ -353,12 +393,10 @@
 
     public int RegisterColumn(Th columnHeader)
     {
-        _registeredColumns.Add(columnHeader);
-        var columnIndex = _registeredColumns.Count - 1;
+        if (!_registeredColumns.Contains(columnHeader))
+            _registeredColumns.Add(columnHeader);
 
-        _ = RefreshOffThread(); // fire-and-forget is ok here
-
-        return columnIndex;
+        return _registeredColumns.IndexOf(columnHeader);
     }
 
     private Th? GetColumn(int columnIndex)

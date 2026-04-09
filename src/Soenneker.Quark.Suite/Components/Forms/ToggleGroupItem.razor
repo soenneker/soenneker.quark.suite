@@ -13,8 +13,6 @@
 </button>
 
 @code {
-    private ToggleGroup? _registeredToggleGroup;
-
     [CascadingParameter(Name = "ParentToggleGroup")]
     private ToggleGroup? ParentToggleGroup { get; set; }
 
@@ -57,21 +55,7 @@
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-        SyncRegistrationWithParent();
-    }
-
-    private void SyncRegistrationWithParent()
-    {
-        if (!ReferenceEquals(_registeredToggleGroup, ParentToggleGroup))
-        {
-            if (_registeredToggleGroup is not null)
-                _registeredToggleGroup.UnregisterItem(this);
-
-            _registeredToggleGroup = ParentToggleGroup;
-
-            if (_registeredToggleGroup is not null)
-                _registeredToggleGroup.RegisterItem(this);
-        }
+        ParentToggleGroup?.RegisterItem(this);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -155,13 +139,5 @@
         hc.Add(Size);
         hc.Add(ParentToggleGroup?.IsPressed(Value));
         hc.Add(ParentToggleGroup?.IsItemTabStop(this));
-    }
-
-    public override void Dispose()
-    {
-        if (_registeredToggleGroup is not null)
-            _registeredToggleGroup.UnregisterItem(this);
-
-        base.Dispose();
     }
 }

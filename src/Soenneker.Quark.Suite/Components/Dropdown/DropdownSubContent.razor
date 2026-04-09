@@ -20,6 +20,19 @@
         attributes["data-slot"] = "dropdown-menu-sub-content";
         attributes["data-state"] = ParentDropdownSub?.Open == true ? "open" : "closed";
         attributes["data-side"] = "right";
+        attributes["role"] = "menu";
+        attributes["aria-orientation"] = "vertical";
+        attributes["tabindex"] = -1;
+        attributes["aria-hidden"] = "false";
+
+        if (ParentDropdownSub is not null)
+        {
+            attributes["id"] = ParentDropdownSub.SubContentId;
+
+            if (!attributes.ContainsKey("aria-labelledby"))
+                attributes["aria-labelledby"] = ParentDropdownSub.SubTriggerId;
+        }
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-dropdown-sub-content");

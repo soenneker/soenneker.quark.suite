@@ -17,7 +17,6 @@
     [CascadingParameter(Name = "ParentResizablePanelGroup")]
     private ResizablePanelGroup? ParentPanelGroup { get; set; }
 
-    private ResizablePanelGroup? _registeredParentPanelGroup;
     private int _index;
 
     /// <summary>
@@ -29,30 +28,12 @@
     private bool IsVertical => ParentPanelGroup?.IsVertical == true;
     private string SeparatorOrientation => ParentPanelGroup?.GetSeparatorOrientation() ?? "vertical";
 
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-        RegisterWithParent();
-    }
-
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
 
-        if (!ReferenceEquals(_registeredParentPanelGroup, ParentPanelGroup))
-        {
-            _registeredParentPanelGroup?.UnregisterHandle(this);
-            RegisterWithParent();
-        }
-    }
-
-    private void RegisterWithParent()
-    {
-        if (ParentPanelGroup is null)
-            return;
-
-        _registeredParentPanelGroup = ParentPanelGroup;
-        _index = ParentPanelGroup.RegisterHandle(this);
+        if (ParentPanelGroup is not null)
+            _index = ParentPanelGroup.RegisterHandle(this);
     }
 
     internal void SetIndex(int index)
@@ -113,9 +94,4 @@
         hc.Add(SeparatorOrientation);
     }
 
-    public override void Dispose()
-    {
-        _registeredParentPanelGroup?.UnregisterHandle(this);
-        base.Dispose();
-    }
 }

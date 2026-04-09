@@ -57,22 +57,28 @@ internal sealed class FieldContext
     public IDisposable RegisterDescription()
     {
         _descriptionRegistrations++;
-        StateChanged?.Invoke();
+        if (_descriptionRegistrations == 1)
+            StateChanged?.Invoke();
+
         return new Registration(() =>
         {
             _descriptionRegistrations--;
-            StateChanged?.Invoke();
+            if (_descriptionRegistrations == 0)
+                StateChanged?.Invoke();
         });
     }
 
     public IDisposable RegisterError()
     {
         _errorRegistrations++;
-        StateChanged?.Invoke();
+        if (_errorRegistrations == 1)
+            StateChanged?.Invoke();
+
         return new Registration(() =>
         {
             _errorRegistrations--;
-            StateChanged?.Invoke();
+            if (_errorRegistrations == 0)
+                StateChanged?.Invoke();
         });
     }
 

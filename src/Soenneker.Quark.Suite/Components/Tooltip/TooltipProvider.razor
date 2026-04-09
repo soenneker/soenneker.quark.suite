@@ -18,15 +18,21 @@
     [Parameter]
     public int DelayDuration { get; set; }
 
-    internal void RegisterOpenTooltip(Tooltip tooltip)
+    /// <summary>
+    /// Clears the open-tooltip list before each <see cref="Tooltip"/> with <c>_open</c> re-registers in tree order.
+    /// </summary>
+    protected override void OnParametersSet()
     {
-        if (!_openTooltips.Contains(tooltip))
-            _openTooltips.Add(tooltip);
+        _openTooltips.Clear();
+        base.OnParametersSet();
     }
 
-    internal void UnregisterOpenTooltip(Tooltip tooltip)
+    internal void RegisterOpenTooltip(Tooltip tooltip)
     {
-        _openTooltips.Remove(tooltip);
+        if (_openTooltips.Contains(tooltip))
+            return;
+
+        _openTooltips.Add(tooltip);
     }
 
     [JSInvokable]
@@ -54,5 +60,12 @@
         _escapeRef?.Dispose();
         _escapeRef = null;
         await base.OnDisposeAsync();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(DelayDuration);
+        hc.Add(_openTooltips.Count);
     }
 }

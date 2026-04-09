@@ -90,6 +90,16 @@
     private string? SelectedValueString => GetValueString(SelectedValue);
     private bool IsInvalidState => ParentValidation?.Status == ValidationStatus.Error;
 
+    /// <summary>
+    /// Clears focusable item order and value→label map before children re-register in DOM order each render.
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        _items.Clear();
+        _registeredItems.Clear();
+        base.OnParametersSet();
+    }
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -108,7 +118,7 @@
             ToggleAsync = ToggleOpen,
             OpenFirstAsync = OpenAndFocusFirstAsync,
             OpenLastAsync = OpenAndFocusLastAsync,
-            CloseAsync = Close,
+            CloseAsync = CloseFromKeyboardAsync,
             TryTypeaheadAsync = TryHandleTypeaheadAsync,
             SelectActiveItemAsync = ActivateCurrentItemAsync,
             NavigateFromTriggerAsync = NavigateFromTriggerAsync,
@@ -222,19 +232,15 @@
         _registeredItems[value] = text;
     }
 
+    /// <summary>
+    /// Called from each <see cref="SelectItem{TValue}"/> during <c>OnParametersSet</c> (after this component clears the lists).
+    /// </summary>
     internal void RegisterFocusableItem(ISelectFocusableItem item)
     {
-        if (_items.Contains(item))
-            return;
+        if (!_items.Contains(item))
+            _items.Add(item);
 
-        _items.Add(item);
         EnsureActiveItem();
-    }
-
-    internal void UnregisterFocusableItem(ISelectFocusableItem item)
-    {
-        if (_items.Remove(item) && ReferenceEquals(_activeItem, item))
-            EnsureActiveItem();
     }
 
     internal bool IsSelected(TValue? value)
@@ -261,7 +267,7 @@
             await ParentValidation.NotifyInputChanged(SelectedValue);
         }
 
-        await Close();
+        await CloseFromKeyboardAsync();
 
         if (valueChanged)
         {
@@ -300,6 +306,9 @@
 
     internal async Task CloseFromKeyboardAsync()
     {
+        if (!_open)
+            return;
+
         await Close();
         await FocusTriggerAsync();
     }
@@ -510,5 +519,6 @@
         hc.Add(DefaultItemText);
         hc.Add(DefaultItemValue);
         hc.Add(_open);
+        hc.Add(_items.Count);
     }
 }

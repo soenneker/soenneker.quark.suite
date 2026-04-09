@@ -36,7 +36,15 @@
         attributes["aria-hidden"] = ResolvedOpen ? "false" : "true";
 
         if (ParentNavigationMenuItem is not null)
+        {
             attributes["id"] = ParentNavigationMenuItem.ContentPanelId;
+
+            if (!attributes.ContainsKey("aria-labelledby"))
+                attributes["aria-labelledby"] = ParentNavigationMenuItem.TriggerId;
+
+            if (!attributes.ContainsKey("role"))
+                attributes["role"] = "region";
+        }
 
         if (Motion.HasContent())
             attributes["data-motion"] = Motion!;

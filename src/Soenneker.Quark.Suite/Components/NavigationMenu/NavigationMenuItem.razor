@@ -11,7 +11,6 @@
 @code {
     private readonly List<NavigationMenuLink> _links = [];
     private bool _pendingFocusFirstLink;
-    private NavigationMenu? _registeredNavigationMenu;
 
     [Parameter]
     public bool Open { get; set; }
@@ -23,15 +22,14 @@
 
     internal string ContentPanelId { get; } = $"nav-menu-panel-{Guid.NewGuid():N}";
 
+    internal string TriggerId { get; } = $"nav-menu-trigger-{Guid.NewGuid():N}";
+
     internal void RegisterLink(NavigationMenuLink link)
     {
-        if (!_links.Contains(link))
-            _links.Add(link);
-    }
+        if (_links.Contains(link))
+            return;
 
-    internal void UnregisterLink(NavigationMenuLink link)
-    {
-        _links.Remove(link);
+        _links.Add(link);
     }
 
     internal async Task ScheduleFocusFirstLinkAsync()
@@ -42,22 +40,9 @@
 
     protected override void OnParametersSet()
     {
+        _links.Clear();
         base.OnParametersSet();
-        SyncRegistrationWithParent();
-    }
-
-    private void SyncRegistrationWithParent()
-    {
-        if (!ReferenceEquals(_registeredNavigationMenu, ParentNavigationMenu))
-        {
-            if (_registeredNavigationMenu is not null)
-                _registeredNavigationMenu.UnregisterItem(this);
-
-            _registeredNavigationMenu = ParentNavigationMenu;
-
-            if (_registeredNavigationMenu is not null)
-                _registeredNavigationMenu.RegisterItem(this);
-        }
+        ParentNavigationMenu?.RegisterItem(this);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -100,13 +85,6 @@
         hc.Add(Open);
         hc.Add(IsOpenResolved);
         hc.Add(Disabled);
-    }
-
-    public override void Dispose()
-    {
-        if (_registeredNavigationMenu is not null)
-            _registeredNavigationMenu.UnregisterItem(this);
-
-        base.Dispose();
+        hc.Add(_links.Count);
     }
 }

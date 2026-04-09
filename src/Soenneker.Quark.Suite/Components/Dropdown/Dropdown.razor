@@ -15,6 +15,7 @@
     private DropdownToggle? _toggle;
     private ElementReference _triggerElement;
     private bool _hasTriggerElement;
+    private string? _toggleIdFromParameter;
 
     [Parameter]
     public bool Disabled { get; set; }
@@ -51,6 +52,14 @@
 
     internal string MenuId => DropdownMenuTargetId.HasContent() ? DropdownMenuTargetId! : $"{Id}_menu";
 
+    /// <summary>DOM id of the menu trigger for <c>aria-labelledby</c> on the menu panel (explicit toggle <c>Id</c> wins over the default <c>{{Id}}_trigger</c>).</summary>
+    internal string ResolvedMenuTriggerElementId => _toggleIdFromParameter.HasContent() ? _toggleIdFromParameter! : $"{Id}_trigger";
+
+    internal void SetToggleIdFromParameter(string? toggleComponentId)
+    {
+        _toggleIdFromParameter = toggleComponentId.HasContent() ? toggleComponentId : null;
+    }
+
     internal bool HasTriggerElement => _hasTriggerElement;
 
     internal ElementReference TriggerElement => _triggerElement;
@@ -85,15 +94,23 @@
         await VisibleChanged.InvokeIfHasDelegate(false);
     }
 
-    internal void RegisterItem(IDropdownFocusableItem item)
+    /// <summary>
+    /// Clears focusable item list and toggle ref before children re-register in DOM order each render.
+    /// </summary>
+    protected override void OnParametersSet()
     {
-        if (!_items.Contains(item))
-            _items.Add(item);
+        _items.Clear();
+        _toggle = null;
+        _toggleIdFromParameter = null;
+        base.OnParametersSet();
     }
 
-    internal void UnregisterItem(IDropdownFocusableItem item)
+    internal void RegisterItem(IDropdownFocusableItem item)
     {
-        _items.Remove(item);
+        if (_items.Contains(item))
+            return;
+
+        _items.Add(item);
     }
 
     internal void RegisterToggle(DropdownToggle toggle)
@@ -176,5 +193,7 @@
         hc.Add(IsSubmenu);
         hc.Add(IsGroup);
         hc.Add(DropdownMenuTargetId);
+        hc.Add(_toggleIdFromParameter);
+        hc.Add(_items.Count);
     }
 }

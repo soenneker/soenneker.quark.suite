@@ -1,4 +1,6 @@
 const editors = new WeakMap();
+/** Containers whose editor was disposed before require() finished — skip late create (nav away race). */
+const disposeBeforeCreate = new WeakSet();
 let configured = false;
 
 function getEditor(container) {
@@ -29,6 +31,19 @@ export function createEditor(container, optionsJson) {
     return new Promise((resolve, reject) => {
         require(['vs/editor/editor.main'], () => {
             try {
+                if (disposeBeforeCreate.has(container)) {
+                    disposeBeforeCreate.delete(container);
+                    resolve();
+                    return;
+                }
+
+                const existing = editors.get(container);
+
+                if (existing) {
+                    existing.dispose();
+                    editors.delete(container);
+                }
+
                 const editor = monaco.editor.create(container, options);
                 editors.set(container, editor);
                 resolve();
@@ -60,12 +75,27 @@ export function setTheme(theme) {
     monaco.editor.setTheme(theme);
 }
 
+/** Applies Monaco editor options without recreating the editor (readOnly, wordWrap, minimap, etc.). */
+export function updateOptions(container, optionsJson) {
+    const editor = editors.get(container);
+
+    if (!editor) {
+        return;
+    }
+
+    const options = optionsJson ? JSON.parse(optionsJson) : {};
+    editor.updateOptions(options);
+}
+
 export function disposeEditor(container) {
     const editor = editors.get(container);
 
     if (editor) {
         editor.dispose();
         editors.delete(container);
+    }
+    else {
+        disposeBeforeCreate.add(container);
     }
 }
 

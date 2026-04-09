@@ -59,8 +59,12 @@
     /// </summary>
     public string EffectiveName => _name ??= Name ?? $"radiogroup_{Guid.NewGuid():N}";
 
+    /// <summary>
+    /// Clears radio order before children re-register in DOM order each render.
+    /// </summary>
     protected override void OnParametersSet()
     {
+        _radios.Clear();
         base.OnParametersSet();
     }
 
@@ -87,13 +91,10 @@
 
     internal void RegisterRadio(Radio radio)
     {
-        if (!_radios.Contains(radio))
-            _radios.Add(radio);
-    }
+        if (_radios.Contains(radio))
+            return;
 
-    internal void UnregisterRadio(Radio radio)
-    {
-        _radios.Remove(radio);
+        _radios.Add(radio);
     }
 
     internal bool IsTabStop(Radio radio)
@@ -225,6 +226,7 @@
         hc.Add(AriaLabel);
         hc.Add(AriaLabelledBy);
         hc.Add(DirectionProviderDir);
+        hc.Add(_radios.Count);
     }
 
     public override void Dispose()

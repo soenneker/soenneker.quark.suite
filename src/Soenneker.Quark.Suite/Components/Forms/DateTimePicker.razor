@@ -130,7 +130,7 @@
     private ElementReference _ref;
     private ElementReference _panelRef;
     private ElementReference _containerRef;
-    private DotNetObjectReference<DateTimePickerOutsideCloseProxy>? _outsideRef;
+    private DotNetObjectReference<SelectOutsideCloseProxy>? _outsideRef;
     private bool _open;
     private bool _containerKeyPreventDefault;
     private bool _containerKeyStopPropagation;
@@ -231,7 +231,7 @@
 
         if (firstRender)
         {
-            _outsideRef = DotNetObjectReference.Create(new DateTimePickerOutsideCloseProxy(this));
+            _outsideRef = DotNetObjectReference.Create(new SelectOutsideCloseProxy(() => ClosePanel()));
 
             InitializeDayNames();
             if (SelectedDateTime.HasValue)
@@ -253,9 +253,9 @@
 
         await base.OnAfterRenderAsync(firstRender);
 
-        if (_open)
+        if (_open && _outsideRef is not null)
         {
-            await DatePickerInterop.ObservePosition(_panelId, _ref, _panelRef, "bottom", "start");
+            await DatePickerInterop.ObservePosition(_panelId, _ref, _panelRef, _outsideRef, "bottom", "start");
             _positionObserverActive = true;
         }
         else
@@ -270,6 +270,10 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "input";
+        ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-date-time-picker");
@@ -298,8 +302,10 @@
         if (Required)
             attributes["required"] = true;
 
-        if (ParentValidation?.Status == ValidationStatus.Error)
-            attributes["aria-invalid"] = "true";
+        attributes["aria-haspopup"] = "dialog";
+        attributes["aria-expanded"] = _open ? "true" : "false";
+        if (_open)
+            attributes["aria-controls"] = _panelId;
 
         // min/max intentionally omitted for text input (handled in panel)
 
@@ -330,6 +336,9 @@
     private Dictionary<string, object> BuildPanelAttributes()
     {
         var attrs = new Dictionary<string, object>(4);
+        attrs["id"] = _panelId;
+        attrs["role"] = "dialog";
+        attrs["aria-modal"] = "false";
         attrs["data-slot"] = "datepicker-content";
         attrs["data-state"] = "open";
 
@@ -561,5 +570,6 @@
         hc.Add(Min);
         hc.Add(Max);
         AddIf(ref hc, Size);
+        hc.Add(_open);
     }
 }

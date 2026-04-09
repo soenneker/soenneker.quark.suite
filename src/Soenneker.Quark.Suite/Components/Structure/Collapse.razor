@@ -34,8 +34,12 @@
 
         if (Id.IsNullOrEmpty())
             Id = $"collapse_{Guid.NewGuid():N}";
+    }
 
-        await CollapseCoordinator.Register(this);
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        _ = CollapseCoordinator.Register(this);
     }
 
     public async Task Toggle()

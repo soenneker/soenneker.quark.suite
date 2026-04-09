@@ -17,7 +17,6 @@ else
 
 @code {
     private ElementReference _anchorRef;
-    private NavigationMenuItem? _registeredParentItem;
 
     [Parameter]
     public string? Href { get; set; }
@@ -37,24 +36,9 @@ else
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-        SyncRegistrationWithParent();
-    }
 
-    private void SyncRegistrationWithParent()
-    {
-        if (AsChild)
-            return;
-
-        if (!ReferenceEquals(_registeredParentItem, ParentNavigationMenuItem))
-        {
-            if (_registeredParentItem is not null)
-                _registeredParentItem.UnregisterLink(this);
-
-            _registeredParentItem = ParentNavigationMenuItem;
-
-            if (_registeredParentItem is not null)
-                _registeredParentItem.RegisterLink(this);
-        }
+        if (!AsChild)
+            ParentNavigationMenuItem?.RegisterLink(this);
     }
 
     internal async Task FocusAsync()
@@ -92,14 +76,6 @@ else
     private IReadOnlyDictionary<string, object> BuildSlotAttributes()
     {
         return BuildAttributes();
-    }
-
-    public override void Dispose()
-    {
-        if (!AsChild && _registeredParentItem is not null)
-            _registeredParentItem.UnregisterLink(this);
-
-        base.Dispose();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

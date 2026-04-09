@@ -12,8 +12,6 @@
 </div>
 
 @code {
-    private Combobox? _registeredCombobox;
-
     [CascadingParameter(Name = "ParentCombobox")]
     private Combobox? ParentCombobox { get; set; }
 
@@ -32,21 +30,7 @@
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-        SyncRegistrationWithParent();
-    }
-
-    private void SyncRegistrationWithParent()
-    {
-        if (!ReferenceEquals(_registeredCombobox, ParentCombobox))
-        {
-            if (_registeredCombobox is not null)
-                _registeredCombobox.UnregisterItem(this);
-
-            _registeredCombobox = ParentCombobox;
-
-            if (_registeredCombobox is not null)
-                _registeredCombobox.RegisterItem(this);
-        }
+        ParentCombobox?.RegisterItem(this);
     }
 
     private async Task HandleItemClick(MouseEventArgs _)
@@ -108,13 +92,5 @@
             IsActiveItem = active;
             Refresh();
         }
-    }
-
-    public override void Dispose()
-    {
-        if (_registeredCombobox is not null)
-            _registeredCombobox.UnregisterItem(this);
-
-        base.Dispose();
     }
 }
