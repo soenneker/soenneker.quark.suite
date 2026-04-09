@@ -1,28 +1,19 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TypographyElement
-@implements IAlertMessage
+@implements IAlertTitle
 
 <div @attributes="BuildAttributes()">
     @ChildContent
 </div>
 
 @code {
-    [CascadingParameter(Name = nameof(ParentAlert))]
-    protected Alert? ParentAlert { get; set; }
-
-    protected override void OnInitialized()
-    {
-        ParentAlert?.NotifyHasMessage();
-        base.OnInitialized();
-    }
-
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "alert-title";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-alert-message");
+            AppendClass(ref cls, "q-alert-title");
             AppendClass(ref cls, "col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight");
         });
     }

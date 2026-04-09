@@ -1,8 +1,6 @@
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Represents an action region within an alert.
+/// Represents an action region inside an alert.
 /// </summary>
-public interface IAlertAction : IElement
-{
-}
+public interface IAlertAction : IElement;

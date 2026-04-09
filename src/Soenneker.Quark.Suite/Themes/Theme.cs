@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Soenneker.Quark;
@@ -602,9 +603,24 @@ public sealed class Theme
 
     // Alert sub-components
     /// <summary>
-    /// Gets or sets the alert message component styling options.
+    /// Gets or sets the alert action component styling options.
     /// </summary>
-    public AlertMessageOptions? AlertMessages { get; set; }
+    public AlertActionOptions? AlertActions { get; set; }
+
+    /// <summary>
+    /// Gets or sets the alert title component styling options.
+    /// </summary>
+    public AlertTitleOptions? AlertTitles { get; set; }
+
+    /// <summary>
+    /// Legacy alias for <see cref="AlertTitles"/>.
+    /// </summary>
+    [Obsolete("Use AlertTitles instead.")]
+    public AlertMessageOptions? AlertMessages
+    {
+        get => AlertTitles as AlertMessageOptions;
+        set => AlertTitles = value;
+    }
 
     /// <summary>
     /// Gets or sets the alert description component styling options.
@@ -967,8 +983,10 @@ public sealed class Theme
             yield return CardHeaders;
         if (CardFooters != null)
             yield return CardFooters;
-        if (AlertMessages != null)
-            yield return AlertMessages;
+        if (AlertActions != null)
+            yield return AlertActions;
+        if (AlertTitles != null)
+            yield return AlertTitles;
         if (AlertDescriptions != null)
             yield return AlertDescriptions;
         if (Callouts != null)

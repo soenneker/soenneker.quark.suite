@@ -48,9 +48,6 @@
         attributes["data-orientation"] = ParentAccordion?.Orientation?.Value ?? AccordionOrientation.Vertical.Value;
         attributes["data-state"] = IsOpen ? "open" : "closed";
 
-        if (IsOpen)
-            attributes["data-open"] = "true";
-
         var effectiveDisabled = Disabled || ParentAccordion?.Disabled == true;
         if (effectiveDisabled)
             attributes["data-disabled"] = "true";
@@ -58,9 +55,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-accordion-item");
-            AppendClass(ref cls, "not-last:border-b");
-            if (effectiveDisabled)
-                AppendClass(ref cls, "opacity-50");
+            AppendClass(ref cls, "border-b last:border-b-0");
         });
     }
 

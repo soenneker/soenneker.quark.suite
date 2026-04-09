@@ -1,11 +1,6 @@
 
 namespace Soenneker.Quark;
 
-public sealed class AlertMessageOptions : ComponentOptions
+public sealed class AlertMessageOptions : AlertTitleOptions
 {
-    public AlertMessageOptions()
-    {
-        Selector = ".q-alert-message";
-    }
 }
-

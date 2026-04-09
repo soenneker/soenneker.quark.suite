@@ -14,6 +14,11 @@ public interface IAccordion : IElement
     bool Multiple { get; set; }
 
     /// <summary>
+    /// Gets or sets whether an open item can be collapsed by activating its trigger again.
+    /// </summary>
+    bool Collapsible { get; set; }
+
+    /// <summary>
     /// When true, the entire accordion is non-interactive (Radix <c>disabled</c> on root).
     /// </summary>
     bool Disabled { get; set; }

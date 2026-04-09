@@ -7,23 +7,15 @@
 </div>
 
 @code {
-    [CascadingParameter(Name = nameof(ParentAlert))]
-    protected Alert? ParentAlert { get; set; }
-
-    protected override void OnInitialized()
-    {
-        ParentAlert?.NotifyHasAction();
-        base.OnInitialized();
-    }
-
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "alert-action";
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-alert-action");
-            AppendClass(ref cls, "absolute right-4 top-4");
+            AppendClass(ref cls, "absolute top-4 right-4");
         });
     }
 }

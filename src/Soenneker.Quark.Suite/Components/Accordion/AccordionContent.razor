@@ -1,14 +1,15 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IAccordionContent
+@implements IAsyncDisposable
+
+@inject IAccordionInterop AccordionInterop
 
 @if (ContentMounted)
 {
-    <div @attributes="BuildAttributes()">
-        <div @attributes="BuildInnerAttributes()">
-            <div @attributes="BuildContentAttributes()">
-                @ChildContent
-            </div>
+    <div @ref="_contentRef" @attributes="BuildAttributes()">
+        <div @ref="_innerContentRef" @attributes="BuildContentAttributes()">
+            @ChildContent
         </div>
     </div>
 }
@@ -17,9 +18,48 @@
     [CascadingParameter(Name = nameof(ParentAccordionItem))]
     public AccordionItem? ParentAccordionItem { get; set; }
 
+    private ElementReference _contentRef;
+    private ElementReference _innerContentRef;
+    private bool _observingHeight;
+
     private bool IsOpen => ParentAccordionItem?.IsOpen == true;
 
     private bool ContentMounted => (ParentAccordionItem?.ForceMount ?? true) || IsOpen;
+
+    protected override IReadOnlyDictionary<string, object> BuildAttributes()
+    {
+        if (!Class.HasContent())
+            return base.BuildAttributes();
+
+        var className = Class;
+
+        try
+        {
+            Class = null;
+            return base.BuildAttributes();
+        }
+        finally
+        {
+            Class = className;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+            await AccordionInterop.Initialize();
+
+        if (!ContentMounted)
+        {
+            await StopObservingHeight();
+            return;
+        }
+
+        await AccordionInterop.ObserveContentHeight(_contentRef, _innerContentRef);
+        _observingHeight = true;
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -46,21 +86,11 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-accordion-content");
-            AppendClass(ref cls, "grid overflow-hidden grid-rows-[0fr] transition-[grid-template-rows] duration-200 ease-out");
-            AppendClass(ref cls, "data-[state=open]:grid-rows-[1fr]");
-        });
-    }
-
-    private Dictionary<string, object> BuildInnerAttributes()
-    {
-        var attributes = new Dictionary<string, object>();
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "min-h-0 overflow-hidden");
+            AppendClass(ref cls, "overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down");
+            AppendClass(ref cls, "data-[state=closed]:h-0");
         });
 
-        return attributes;
+        AppendStyleDeclAttr(attributes, "--radix-accordion-content-height: 0px");
     }
 
     private Dictionary<string, object> BuildContentAttributes()
@@ -69,10 +99,21 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "pt-0 pb-2.5 text-sm [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4");
+            AppendClass(ref cls, "pt-0 pb-4");
+            if (Class.HasContent())
+                AppendClass(ref cls, Class!);
         });
 
         return attributes;
+    }
+
+    private async ValueTask StopObservingHeight()
+    {
+        if (!_observingHeight)
+            return;
+
+        await AccordionInterop.StopObservingContentHeight(_contentRef);
+        _observingHeight = false;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -83,5 +124,11 @@
         hc.Add(ParentAccordionItem?.ParentAccordion?.Orientation);
         hc.Add(ParentAccordionItem?.ParentAccordion?.Disabled == true);
         hc.Add(ParentAccordionItem?.Disabled == true);
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        await StopObservingHeight();
+        await base.DisposeAsync();
     }
 }

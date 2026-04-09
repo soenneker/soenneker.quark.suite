@@ -11,37 +11,134 @@
                      SidebarWidth="calc(var(--spacing) * 72)"
                      SidebarWidthMobile="100vw"
                      style="--header-height: 4.5rem;">
-        <Header ShowSidebarTrigger="@ShowSidebarTrigger">
-            <BrandContent>
-                <HeaderBrand To=""
-                             AriaLabel="Quark Suite home"
-                             ImageSource="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png"
-                             ImageAlt="Soenneker Quark Suite"
-                             Title="Soenneker Quark Suite"
-                             Subtitle="Blazor components for .NET" />
-            </BrandContent>
-            <NavigationContent>
-                <NavigationLinks Items="DocsNavigation.TopLinks"
-                                 Mode="NavigationLinksMode.Header"
-                                 IsActive="IsTopNavActive" />
-            </NavigationContent>
-            <ActionsContent>
-                <HeaderActionLink To="https://github.com/soenneker/soenneker.quark.suite"
-                                  Target="Target.Blank"
-                                  Rel="noreferrer"
-                                  Label="GitHub"
-                                  AriaLabel="View Soenneker Quark Suite on GitHub">
-                    <IconContent>
-                        <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            <path d="M12 .5C5.65.5.5 5.65.5 12A11.5 11.5 0 0 0 8.36 22.9c.57.1.78-.25.78-.56 0-.28-.01-1.2-.02-2.18-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.72.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.76 2.68 1.25 3.34.96.1-.74.4-1.25.73-1.53-2.55-.29-5.23-1.27-5.23-5.68 0-1.26.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.17 1.18a10.97 10.97 0 0 1 5.77 0c2.2-1.5 3.17-1.18 3.17-1.18.62 1.58.23 2.75.11 3.04.73.8 1.18 1.82 1.18 3.08 0 4.42-2.69 5.39-5.25 5.67.41.35.78 1.04.78 2.1 0 1.52-.01 2.75-.01 3.12 0 .31.21.67.79.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
-                        </svg>
-                    </IconContent>
-                </HeaderActionLink>
-                <ThemeToggleButton IsDark="ThemeService.IsDark"
-                                   AriaLabel="Toggle dark mode"
-                                   OnClick="ToggleTheme" />
-            </ActionsContent>
-        </Header>
+        @if (IsLandingPage)
+        {
+            <Div Class="sticky top-0 z-50 w-full bg-background">
+                <Div Class="container-wrapper px-4 sm:px-6">
+                    <Div Class="container mx-auto flex max-w-[90rem] items-center gap-2" Style="height: var(--header-height);">
+                        <Div Class="flex items-center gap-2">
+                            <Div Class="flex items-center gap-2 lg:hidden">
+                                <SidebarTrigger Class="inline-flex size-8 items-center justify-center rounded-md transition-colors hover:bg-accent hover:text-accent-foreground"
+                                                aria-label="Toggle menu">
+                                    <Div Class="relative flex h-4 w-4 items-center justify-center">
+                                        <Span Class="absolute left-0 top-1 block h-0.5 w-4 bg-foreground"></Span>
+                                        <Span Class="absolute left-0 top-2.5 block h-0.5 w-4 bg-foreground"></Span>
+                                    </Div>
+                                </SidebarTrigger>
+                                <Span Class="flex h-8 items-center text-lg leading-none font-medium">Menu</Span>
+                            </Div>
+
+                            <Anchor To=""
+                                    Class="inline-flex items-center gap-2 rounded-md px-1 py-1 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
+                                <img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png"
+                                     alt="Quark Suite"
+                                     class="size-5 rounded-sm object-cover" />
+                                <Span class="hidden sm:inline-flex">Quark Suite</Span>
+                            </Anchor>
+                        </Div>
+
+                        <nav class="hidden items-center gap-0 lg:flex">
+                            <Anchor To="" Class="@LandingNavLinkClass(true)">Docs</Anchor>
+                            <Anchor To="components" Class="@LandingNavLinkClass()">Components</Anchor>
+                            <Anchor To="https://ui.shadcn.com/blocks" Target="Target.Blank" Class="@LandingNavLinkClass()">Blocks</Anchor>
+                            <Anchor To="https://ui.shadcn.com/charts/area" Target="Target.Blank" Class="@LandingNavLinkClass()">Charts</Anchor>
+                            <Anchor To="https://ui.shadcn.com/docs/directory" Target="Target.Blank" Class="@LandingNavLinkClass()">Directory</Anchor>
+                            <Anchor To="https://ui.shadcn.com/create" Target="Target.Blank" Class="@LandingNavLinkClass()">Create</Anchor>
+                        </nav>
+
+                        <Div Class="ml-auto flex items-center gap-2 md:flex-1 md:justify-end">
+                            <Button Variant="ButtonVariant.Outline"
+                                    Class="hidden h-8 w-full justify-start rounded-lg pl-3 font-normal shadow-none hover:bg-muted/50 md:inline-flex md:w-48 lg:w-40 xl:w-64">
+                                <Span Class="hidden xl:inline-flex">Search documentation...</Span>
+                                <Span Class="inline-flex xl:hidden">Search...</Span>
+                            </Button>
+
+                            <Div Class="ml-2 hidden h-4 w-px bg-border lg:block"></Div>
+
+                            <Anchor To="https://github.com/soenneker/soenneker.quark.suite"
+                                    Target="Target.Blank"
+                                    Rel="noreferrer"
+                                    Class="inline-flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-md px-3 text-sm font-medium text-foreground transition-all hover:bg-accent hover:text-accent-foreground">
+                                <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                    <path d="M12 .5C5.65.5.5 5.65.5 12A11.5 11.5 0 0 0 8.36 22.9c.57.1.78-.25.78-.56 0-.28-.01-1.2-.02-2.18-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.72.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.76 2.68 1.25 3.34.96.1-.74.4-1.25.73-1.53-2.55-.29-5.23-1.27-5.23-5.68 0-1.26.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.17 1.18a10.97 10.97 0 0 1 5.77 0c2.2-1.5 3.17-1.18 3.17-1.18.62 1.58.23 2.75.11 3.04.73.8 1.18 1.82 1.18 3.08 0 4.42-2.69 5.39-5.25 5.67.41.35.78 1.04.78 2.1 0 1.52-.01 2.75-.01 3.12 0 .31.21.67.79.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+                                </svg>
+                                <Span Class="w-fit text-xs text-muted-foreground tabular-nums">111k</Span>
+                            </Anchor>
+
+                            <Div Class="hidden h-4 w-px bg-border 3xl:block"></Div>
+
+                            <Button Variant="ButtonVariant.Ghost"
+                                    Size="ButtonSize.IconSm"
+                                    Class="hidden 3xl:inline-flex"
+                                    aria-label="Toggle layout">
+                                <Icon Name="LucideIcon.GalleryHorizontal" />
+                            </Button>
+
+                            <Div Class="h-4 w-px bg-border"></Div>
+
+                            <Button Variant="ButtonVariant.Ghost"
+                                    Size="ButtonSize.IconSm"
+                                    aria-label="Toggle theme"
+                                    OnClick="ToggleTheme">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                     class="size-4.5">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path>
+                                    <path d="M12 3l0 18"></path>
+                                    <path d="M12 9l4.65 -4.65"></path>
+                                    <path d="M12 14.3l7.37 -7.37"></path>
+                                    <path d="M12 19.6l8.85 -8.85"></path>
+                                </svg>
+                            </Button>
+
+                            <Div Class="flex items-center gap-2">
+                                <Anchor To="https://github.com/soenneker/soenneker.quark.suite"
+                                        Target="Target.Blank"
+                                        Class="inline-flex h-[31px] shrink-0 items-center justify-center gap-1 rounded-lg bg-primary px-2.5 text-[0.8rem] font-medium text-primary-foreground transition-all hover:bg-primary/90">
+                                    <Icon Name="LucideIcon.Plus" Class="size-3.5" />
+                                    New
+                                </Anchor>
+                            </Div>
+                        </Div>
+                    </Div>
+                </Div>
+            </Div>
+        }
+        else
+        {
+            <Header ShowSidebarTrigger="@ShowSidebarTrigger">
+                <BrandContent>
+                    <HeaderBrand To=""
+                                 AriaLabel="Quark Suite home"
+                                 ImageSource="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png"
+                                 ImageAlt="Soenneker Quark Suite"
+                                 Title="Soenneker Quark Suite"
+                                 Subtitle="Blazor components for .NET" />
+                </BrandContent>
+                <NavigationContent>
+                    <NavigationLinks Items="DocsNavigation.TopLinks"
+                                     Mode="NavigationLinksMode.Header"
+                                     IsActive="IsTopNavActive" />
+                </NavigationContent>
+                <ActionsContent>
+                    <HeaderActionLink To="https://github.com/soenneker/soenneker.quark.suite"
+                                      Target="Target.Blank"
+                                      Rel="noreferrer"
+                                      Label="GitHub"
+                                      AriaLabel="View Soenneker Quark Suite on GitHub">
+                        <IconContent>
+                            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path d="M12 .5C5.65.5.5 5.65.5 12A11.5 11.5 0 0 0 8.36 22.9c.57.1.78-.25.78-.56 0-.28-.01-1.2-.02-2.18-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.72.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.76 2.68 1.25 3.34.96.1-.74.4-1.25.73-1.53-2.55-.29-5.23-1.27-5.23-5.68 0-1.26.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.17 1.18a10.97 10.97 0 0 1 5.77 0c2.2-1.5 3.17-1.18 3.17-1.18.62 1.58.23 2.75.11 3.04.73.8 1.18 1.82 1.18 3.08 0 4.42-2.69 5.39-5.25 5.67.41.35.78 1.04.78 2.1 0 1.52-.01 2.75-.01 3.12 0 .31.21.67.79.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+                            </svg>
+                        </IconContent>
+                    </HeaderActionLink>
+                    <ThemeToggleButton IsDark="ThemeService.IsDark"
+                                       AriaLabel="Toggle dark mode"
+                                       OnClick="ToggleTheme" />
+                </ActionsContent>
+            </Header>
+        }
 
         @if (ShowDesktopNavigationSidebar)
         {
@@ -107,7 +204,7 @@
         }
         else
         {
-            <Div class="min-h-0 flex-1 overflow-hidden">
+            <Div class="flex min-h-0 flex-1 flex-col overflow-hidden">
                 @if (ShowSidebarTrigger)
                 {
                     <Div class="lg:hidden">
@@ -179,6 +276,7 @@
     }
 
     private bool ShowDesktopNavigationSidebar => CurrentPath != "/";
+    private bool IsLandingPage => CurrentPath == "/";
     private bool ShowSidebarTrigger => true;
 
     private string? CurrentPageTitle
@@ -208,6 +306,14 @@
     private string MainClass => ShowDesktopNavigationSidebar
         ? "min-w-0 flex-1 px-4 py-6 md:px-6 lg:px-8 lg:py-8"
         : "min-w-0 flex-1";
+
+    private static string LandingNavLinkClass(bool active = false)
+    {
+        const string baseClass = "inline-flex h-8 shrink-0 items-center justify-center rounded-md px-2.5 text-sm font-medium whitespace-nowrap transition-all";
+        return active
+            ? $"{baseClass} text-foreground"
+            : $"{baseClass} text-muted-foreground hover:bg-accent hover:text-accent-foreground";
+    }
 
     private bool IsTopNavActive(NavigationItem item)
     {

@@ -1,3 +1,4 @@
+using System;
 using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Quark;
@@ -17,22 +18,13 @@ public sealed partial class AlertVariant
     public static readonly AlertVariant Default = new("default");
 
     /// <summary>
-    /// Success alert style with green accent. Successful operations or positive status.
+    /// Destructive alert style with red accent. Errors, critical warnings, or destructive actions.
     /// </summary>
-    public static readonly AlertVariant Success = new("success");
+    public static readonly AlertVariant Destructive = new("destructive");
 
     /// <summary>
-    /// Info alert style with blue accent. Informational or educational messages.
+    /// Legacy alias for <see cref="Destructive"/>.
     /// </summary>
-    public static readonly AlertVariant Info = new("info");
-
-    /// <summary>
-    /// Warning alert style with amber/orange accent. Caution or potential issues.
-    /// </summary>
-    public static readonly AlertVariant Warning = new("warning");
-
-    /// <summary>
-    /// Danger alert style with red accent. Errors, critical warnings, or destructive actions.
-    /// </summary>
-    public static readonly AlertVariant Danger = new("danger");
+    [Obsolete("Use AlertVariant.Destructive instead.")]
+    public static readonly AlertVariant Danger = Destructive;
 }
