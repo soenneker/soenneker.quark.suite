@@ -1,16 +1,25 @@
 @namespace Soenneker.Quark
+@using Soenneker.Bradix
 @inherits Soenneker.Quark.Element
 @implements IAccordion
 
-<CascadingValue Name="ParentAccordion" Value="this">
-    <div @attributes="BuildAttributes()">
-        @ChildContent
-    </div>
-</CascadingValue>
+<BradixAccordion Type="@Type"
+                 Collapsible="@Collapsible"
+                 Disabled="@Disabled"
+                 Orientation="@Orientation"
+                 Value="@Value"
+                 DefaultValue="@DefaultValue"
+                 ValueChanged="@ValueChanged"
+                 Values="@Values"
+                 DefaultValues="@DefaultValues"
+                 ValuesChanged="@ValuesChanged"
+                 AdditionalAttributes="@RootAttributes">
+    @ChildContent
+</BradixAccordion>
 
 @code {
     [Parameter]
-    public bool Multiple { get; set; }
+    public BradixSelectionMode Type { get; set; }
 
     [Parameter]
     public bool Collapsible { get; set; }
@@ -21,10 +30,13 @@
 
     /// <summary>Radix/shadcn: <c>vertical</c> (ArrowUp/ArrowDown) or <c>horizontal</c> (ArrowLeft/ArrowRight, mirrored in RTL).</summary>
     [Parameter]
-    public AccordionOrientation Orientation { get; set; } = AccordionOrientation.Vertical;
+    public BradixOrientation Orientation { get; set; } = BradixOrientation.Vertical;
 
     [Parameter]
     public string? Value { get; set; }
+
+    [Parameter]
+    public string? DefaultValue { get; set; }
 
     [Parameter]
     public EventCallback<string?> ValueChanged { get; set; }
@@ -33,240 +45,57 @@
     public IReadOnlyCollection<string>? Values { get; set; }
 
     [Parameter]
+    public IReadOnlyCollection<string>? DefaultValues { get; set; }
+
+    [Parameter]
     public EventCallback<IReadOnlyCollection<string>> ValuesChanged { get; set; }
 
-    private readonly HashSet<string> _openValues = [];
-    private readonly HashSet<string> _internalValues = [];
-    private readonly List<AccordionTrigger> _triggers = [];
-    private string? _internalValue;
-
-    [CascadingParameter(Name = "DirectionProviderDir")]
-    public string? DirectionProviderDir { get; set; }
-
-    private bool IsSingleControlled => ValueChanged.HasDelegate || Value is not null;
-    private bool IsMultipleControlled => ValuesChanged.HasDelegate || Values is not null;
-
-    protected override void OnParametersSet()
+    private IReadOnlyDictionary<string, object> RootAttributes
     {
-        base.OnParametersSet();
-
-        _openValues.Clear();
-
-        if (Multiple)
+        get
         {
-            var values = IsMultipleControlled ? Values : _internalValues;
-
-            if (values is not null)
+            Dictionary<string, object> attributes = new(BuildAttributes())
             {
-                foreach (var value in values)
-                {
-                    if (value.HasContent())
-                        _openValues.Add(value);
-                }
-            }
+                ["data-slot"] = "accordion",
+                ["data-multiple"] = Type == BradixSelectionMode.Multiple ? "true" : "false"
+            };
 
-            return;
-        }
-
-        var singleValue = IsSingleControlled ? Value : _internalValue;
-
-        if (singleValue.HasContent())
-            _openValues.Add(singleValue!);
-    }
-
-    internal bool IsItemOpen(string value)
-    {
-        return _openValues.Contains(value);
-    }
-
-    internal async Task ToggleItem(string value)
-    {
-        if (!value.HasContent() || Disabled)
-            return;
-
-        if (Multiple)
-        {
-            var nextValues = new HashSet<string>(_openValues, StringComparer.Ordinal);
-
-            if (nextValues.Contains(value))
+            BuildClassAttribute(attributes, (ref cls) =>
             {
-                if (!Collapsible && nextValues.Count == 1)
-                    return;
+                AppendClass(ref cls, "q-accordion");
+                AppendClass(ref cls, "flex w-full flex-col");
+            });
 
-                nextValues.Remove(value);
-            }
-            else
-            {
-                nextValues.Add(value);
-            }
-
-            _openValues.Clear();
-
-            foreach (var openValue in nextValues)
-            {
-                _openValues.Add(openValue);
-            }
-
-            if (!IsMultipleControlled)
-            {
-                _internalValues.Clear();
-
-                foreach (var openValue in nextValues)
-                {
-                    _internalValues.Add(openValue);
-                }
-            }
-
-            if (ValuesChanged.HasDelegate)
-                await ValuesChanged.InvokeAsync(nextValues.ToArray());
+            return attributes;
         }
-        else
-        {
-            var isOpen = _openValues.Contains(value);
-
-            if (isOpen && !Collapsible)
-                return;
-
-            var nextValue = isOpen ? null : value;
-
-            _openValues.Clear();
-
-            if (nextValue.HasContent())
-                _openValues.Add(nextValue!);
-
-            if (!IsSingleControlled)
-                _internalValue = nextValue;
-
-            if (ValueChanged.HasDelegate)
-                await ValueChanged.InvokeAsync(nextValue);
-        }
-
-        await InvokeAsync(StateHasChanged);
-    }
-
-    internal void RegisterTrigger(AccordionTrigger trigger)
-    {
-        if (!_triggers.Contains(trigger))
-            _triggers.Add(trigger);
-    }
-
-    internal void UnregisterTrigger(AccordionTrigger trigger)
-    {
-        _triggers.Remove(trigger);
-    }
-
-    internal bool IsVerticalOrientation =>
-        string.Equals(Orientation?.Value, AccordionOrientation.Vertical.Value, StringComparison.Ordinal);
-
-    internal void HandleKeyNavigation(string currentValue, string key)
-    {
-        if (Disabled || _triggers.Count == 0)
-            return;
-
-        var currentIndex = _triggers.FindIndex(trigger => string.Equals(trigger.Value, currentValue, StringComparison.Ordinal));
-
-        if (currentIndex < 0)
-            return;
-
-        var isRtl = string.Equals(DirectionProviderDir, "rtl", StringComparison.Ordinal);
-        var vertical = IsVerticalOrientation;
-
-        var nextIndex = key switch
-        {
-            "Home" => GetFirstEnabledTriggerIndex(),
-            "End" => GetLastEnabledTriggerIndex(),
-            "ArrowDown" when vertical => GetNextEnabledTriggerIndex(currentIndex),
-            "ArrowUp" when vertical => GetPreviousEnabledTriggerIndex(currentIndex),
-            "ArrowRight" when !vertical => isRtl ? GetPreviousEnabledTriggerIndex(currentIndex) : GetNextEnabledTriggerIndex(currentIndex),
-            "ArrowLeft" when !vertical => isRtl ? GetNextEnabledTriggerIndex(currentIndex) : GetPreviousEnabledTriggerIndex(currentIndex),
-            _ => -1
-        };
-
-        if (nextIndex >= 0 && nextIndex != currentIndex)
-            _ = _triggers[nextIndex].FocusAsync();
-    }
-
-    private int GetNextEnabledTriggerIndex(int currentIndex)
-    {
-        for (var i = currentIndex + 1; i < _triggers.Count; i++)
-        {
-            if (!_triggers[i].IsDisabled)
-                return i;
-        }
-
-        return GetFirstEnabledTriggerIndex();
-    }
-
-    private int GetPreviousEnabledTriggerIndex(int currentIndex)
-    {
-        for (var i = currentIndex - 1; i >= 0; i--)
-        {
-            if (!_triggers[i].IsDisabled)
-                return i;
-        }
-
-        return GetLastEnabledTriggerIndex();
-    }
-
-    private int GetFirstEnabledTriggerIndex()
-    {
-        for (var i = 0; i < _triggers.Count; i++)
-        {
-            if (!_triggers[i].IsDisabled)
-                return i;
-        }
-
-        return -1;
-    }
-
-    private int GetLastEnabledTriggerIndex()
-    {
-        for (var i = _triggers.Count - 1; i >= 0; i--)
-        {
-            if (!_triggers[i].IsDisabled)
-                return i;
-        }
-
-        return -1;
-    }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        attributes["data-slot"] = "accordion";
-        attributes["data-orientation"] = Orientation?.Value ?? AccordionOrientation.Vertical.Value;
-        attributes["data-multiple"] = Multiple ? "true" : "false";
-
-        if (Disabled)
-            attributes["data-disabled"] = "true";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-accordion");
-        });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Multiple);
+        hc.Add(Type);
         hc.Add(Collapsible);
         hc.Add(Disabled);
         hc.Add(Orientation);
-        hc.Add(DirectionProviderDir);
         hc.Add(Value);
-        hc.Add(_internalValue);
+        hc.Add(DefaultValue);
         hc.Add(Values?.Count);
+        hc.Add(DefaultValues?.Count);
 
-        foreach (var openValue in _openValues.OrderBy(static x => x))
+        if (Values is not null)
         {
-            hc.Add(openValue);
+            foreach (string item in Values)
+            {
+                hc.Add(item);
+            }
         }
 
-        foreach (var internalOpenValue in _internalValues.OrderBy(static x => x))
+        if (DefaultValues is not null)
         {
-            hc.Add(internalOpenValue);
+            foreach (string item in DefaultValues)
+            {
+                hc.Add(item);
+            }
         }
     }
 }

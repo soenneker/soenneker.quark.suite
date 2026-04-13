@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
+using Soenneker.Bradix;
 using Soenneker.Quark.Registrars;
 
 namespace Soenneker.Quark;
@@ -25,8 +26,8 @@ public static class QuarkSuiteRegistrar
             services.AddDefaultQuarkOptionsAsScoped();
 
         services.AddResourceLoaderAsScoped()
+                .AddBradixSuiteAsScoped()
                 .AddScoped<ICollapseCoordinator, CollapseCoordinator>()
-                .AddQuarkAccordionAsScoped()
                 .AddQuarkOverlayAsScoped()
                 .AddQuarkPopoverAsScoped()
                 .AddQuarkValidationAsScoped()

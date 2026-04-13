@@ -12,7 +12,7 @@ namespace Soenneker.Quark;
 
 ///<inheritdoc cref="IComponent"/>
 ///<remarks>Do not use the <c>new</c> keyword to shadow inherited <see cref="ParameterAttribute"/> members. Blazor treats those names as duplicate parameters and fails at runtime.</remarks>
-public abstract class Component : RenderComponentBase, IComponent
+public abstract class Component : RenderComponent, IComponent
 {
     [Inject]
     protected ILogger<Component> Logger { get; set; } = null!;

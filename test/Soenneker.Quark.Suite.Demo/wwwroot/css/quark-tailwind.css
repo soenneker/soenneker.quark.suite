@@ -106,6 +106,7 @@
     --radius-xs: 0.125rem;
     --radius-md: calc(var(--radius) - 2px);
     --radius-2xl: 1rem;
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
     --animate-spin: spin 1s linear infinite;
     --animate-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -2416,6 +2417,9 @@
   .pb-2 {
     padding-bottom: calc(var(--spacing) * 2);
   }
+  .pb-2\.5 {
+    padding-bottom: calc(var(--spacing) * 2.5);
+  }
   .pb-3 {
     padding-bottom: calc(var(--spacing) * 3);
   }
@@ -2892,6 +2896,11 @@
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
+  .transition-\[height\] {
+    transition-property: height;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
   .transition-\[left\,right\,width\] {
     transition-property: left,right,width;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
@@ -2959,6 +2968,10 @@
   .ease-linear {
     --tw-ease: linear;
     transition-timing-function: linear;
+  }
+  .ease-out {
+    --tw-ease: var(--ease-out);
+    transition-timing-function: var(--ease-out);
   }
   .fade-in-0 {
     --tw-enter-opacity: calc(0/100);
@@ -3126,6 +3139,11 @@
   .group-has-\[\>input\]\/input-group\:pb-2 {
     &:is(:where(.group\/input-group):has(>input) *) {
       padding-bottom: calc(var(--spacing) * 2);
+    }
+  }
+  .group-aria-expanded\/accordion-trigger\:rotate-180 {
+    &:is(:where(.group\/accordion-trigger)[aria-expanded="true"] *) {
+      rotate: 180deg;
     }
   }
   .group-data-\[collapsible\=icon\]\:-mt-8 {
@@ -5224,11 +5242,6 @@
       height: calc(var(--spacing) * 0);
     }
   }
-  .data-\[state\=closed\]\:animate-accordion-up {
-    &[data-state="closed"] {
-      animation: accordion-up var(--tw-animation-duration,var(--tw-duration,.2s))var(--tw-ease,ease-out)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
-    }
-  }
   .data-\[state\=closed\]\:animate-out {
     &[data-state="closed"] {
       animation: exit var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
@@ -5345,9 +5358,9 @@
       display: block;
     }
   }
-  .data-\[state\=open\]\:animate-accordion-down {
+  .data-\[state\=open\]\:h-\(--radix-accordion-content-height\) {
     &[data-state="open"] {
-      animation: accordion-down var(--tw-animation-duration,var(--tw-duration,.2s))var(--tw-ease,ease-out)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
+      height: var(--radix-accordion-content-height);
     }
   }
   .data-\[state\=open\]\:animate-in {
@@ -5567,6 +5580,11 @@
   .nth-last-2\:-mt-1 {
     &:nth-last-child(2) {
       margin-top: calc(var(--spacing) * -1);
+    }
+  }
+  .motion-reduce\:transition-none {
+    @media (prefers-reduced-motion: reduce) {
+      transition-property: none;
     }
   }
   .sm\:block {
@@ -6890,6 +6908,25 @@
       }
     }
   }
+  .\[\&_a\]\:underline {
+    & a {
+      text-decoration-line: underline;
+    }
+  }
+  .\[\&_a\]\:underline-offset-3 {
+    & a {
+      text-underline-offset: 3px;
+    }
+  }
+  .\[\&_a\]\:hover\:text-foreground {
+    & a {
+      &:hover {
+        @media (hover: hover) {
+          color: var(--foreground);
+        }
+      }
+    }
+  }
   .\[\&_img\]\:mx-auto {
     & img {
       margin-inline: auto;
@@ -6930,6 +6967,11 @@
     & p {
       --tw-leading: var(--leading-relaxed);
       line-height: var(--leading-relaxed);
+    }
+  }
+  .\[\&_p\:not\(\:last-child\)\]\:mb-4 {
+    & p:not(:last-child) {
+      margin-bottom: calc(var(--spacing) * 4);
     }
   }
   .\[\&_svg\]\:pointer-events-none {
@@ -7417,11 +7459,6 @@
   .\[\&\>video\]\:object-cover {
     &>video {
       object-fit: cover;
-    }
-  }
-  .\[\&\[data-state\=open\]\>svg\]\:rotate-180 {
-    &[data-state=open]>svg {
-      rotate: 180deg;
     }
   }
   .\[\[data-side\=left\]\[data-collapsible\=offcanvas\]_\&\]\:-right-2 {
@@ -8002,22 +8039,6 @@
     opacity: var(--tw-exit-opacity,1);
     transform: translate3d(var(--tw-exit-translate-x,0),var(--tw-exit-translate-y,0),0)scale3d(var(--tw-exit-scale,1),var(--tw-exit-scale,1),var(--tw-exit-scale,1))rotate(var(--tw-exit-rotate,0));
     filter: blur(var(--tw-exit-blur,0));
-  }
-}
-@keyframes accordion-down {
-  from {
-    height: 0;
-  }
-  to {
-    height: var(--radix-accordion-content-height,var(--bits-accordion-content-height,var(--reka-accordion-content-height,var(--kb-accordion-content-height,var(--ngp-accordion-content-height,auto)))));
-  }
-}
-@keyframes accordion-up {
-  from {
-    height: var(--radix-accordion-content-height,var(--bits-accordion-content-height,var(--reka-accordion-content-height,var(--kb-accordion-content-height,var(--ngp-accordion-content-height,auto)))));
-  }
-  to {
-    height: 0;
   }
 }
 @layer properties {

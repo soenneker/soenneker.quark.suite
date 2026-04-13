@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Soenneker.Bradix;
 using System.Collections.Generic;
 
 namespace Soenneker.Quark;
@@ -11,7 +12,7 @@ public interface IAccordion : IElement
     /// <summary>
     /// Gets or sets whether multiple items can be open simultaneously.
     /// </summary>
-    bool Multiple { get; set; }
+    BradixSelectionMode Type { get; set; }
 
     /// <summary>
     /// Gets or sets whether an open item can be collapsed by activating its trigger again.
@@ -26,12 +27,17 @@ public interface IAccordion : IElement
     /// <summary>
     /// Layout orientation (Radix: vertical uses ArrowUp/ArrowDown; horizontal uses ArrowLeft/ArrowRight with RTL mirroring).
     /// </summary>
-    AccordionOrientation Orientation { get; set; }
+    BradixOrientation Orientation { get; set; }
 
     /// <summary>
     /// Gets or sets the currently open item value for single mode.
     /// </summary>
     string? Value { get; set; }
+
+    /// <summary>
+    /// Gets or sets the initially open item value for uncontrolled single mode.
+    /// </summary>
+    string? DefaultValue { get; set; }
 
     /// <summary>
     /// Gets or sets the callback invoked when <see cref="Value"/> changes.
@@ -42,6 +48,11 @@ public interface IAccordion : IElement
     /// Gets or sets the currently open item values for multiple mode.
     /// </summary>
     IReadOnlyCollection<string>? Values { get; set; }
+
+    /// <summary>
+    /// Gets or sets the initially open item values for uncontrolled multiple mode.
+    /// </summary>
+    IReadOnlyCollection<string>? DefaultValues { get; set; }
 
     /// <summary>
     /// Gets or sets the callback invoked when <see cref="Values"/> changes.

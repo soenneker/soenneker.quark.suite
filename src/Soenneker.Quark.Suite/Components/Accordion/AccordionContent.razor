@@ -1,42 +1,65 @@
 @namespace Soenneker.Quark
+@using Soenneker.Bradix
 @inherits Soenneker.Quark.Element
 @implements IAccordionContent
-@implements IAsyncDisposable
 
-@inject IAccordionInterop AccordionInterop
-
-@if (ContentMounted)
-{
-    <div @ref="_contentRef" @attributes="BuildAttributes()">
-        <div @ref="_innerContentRef" @attributes="BuildContentAttributes()">
-            @ChildContent
-        </div>
+<BradixAccordionContent ForceMount="@ResolvedForceMount"
+                        AdditionalAttributes="@OuterAttributes">
+    <div @attributes="InnerAttributes">
+        @ChildContent
     </div>
-}
+</BradixAccordionContent>
 
 @code {
     [CascadingParameter(Name = nameof(ParentAccordionItem))]
     public AccordionItem? ParentAccordionItem { get; set; }
 
-    private ElementReference _contentRef;
-    private ElementReference _innerContentRef;
-    private bool _observingHeight;
+    private bool ResolvedForceMount => ParentAccordionItem?.ForceMount ?? true;
 
-    private bool IsOpen => ParentAccordionItem?.IsOpen == true;
+    private IReadOnlyDictionary<string, object> OuterAttributes => BuildOuterAttributes();
 
-    private bool ContentMounted => (ParentAccordionItem?.ForceMount ?? true) || IsOpen;
-
-    protected override IReadOnlyDictionary<string, object> BuildAttributes()
+    private IReadOnlyDictionary<string, object> InnerAttributes
     {
-        if (!Class.HasContent())
-            return base.BuildAttributes();
+        get
+        {
+            Dictionary<string, object> attributes = [];
 
-        var className = Class;
+            BuildClassAttribute(attributes, (ref cls) =>
+            {
+                AppendClass(ref cls, "pt-0 pb-2.5");
+                AppendClass(ref cls, "[&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4");
+
+                if (Class.HasContent())
+                    AppendClass(ref cls, Class!);
+            });
+
+            return attributes;
+        }
+    }
+
+    private IReadOnlyDictionary<string, object> BuildOuterAttributes()
+    {
+        string? className = Class;
 
         try
         {
             Class = null;
-            return base.BuildAttributes();
+
+            Dictionary<string, object> attributes = new(BuildAttributes())
+            {
+                ["data-slot"] = "accordion-content"
+            };
+
+            BuildClassAttribute(attributes, (ref cls) =>
+            {
+                AppendClass(ref cls, "q-accordion-content");
+                AppendClass(ref cls, "overflow-hidden text-sm transition-[height] duration-200 ease-out motion-reduce:transition-none");
+                AppendClass(ref cls, "data-[state=closed]:h-0 data-[state=open]:h-(--radix-accordion-content-height)");
+            });
+
+            AppendStyleDeclAttr(attributes, "--radix-accordion-content-height: 0px;");
+
+            return attributes;
         }
         finally
         {
@@ -44,91 +67,9 @@
         }
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await base.OnAfterRenderAsync(firstRender);
-
-        if (firstRender)
-            await AccordionInterop.Initialize();
-
-        if (!ContentMounted)
-        {
-            await StopObservingHeight();
-            return;
-        }
-
-        await AccordionInterop.ObserveContentHeight(_contentRef, _innerContentRef);
-        _observingHeight = true;
-    }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        attributes["data-slot"] = "accordion-content";
-        attributes["data-orientation"] = ParentAccordionItem?.ParentAccordion?.Orientation?.Value ?? AccordionOrientation.Vertical.Value;
-        attributes["data-state"] = IsOpen ? "open" : "closed";
-        attributes["role"] = "region";
-        attributes["aria-hidden"] = IsOpen ? "false" : "true";
-
-        if (!IsOpen)
-            attributes["inert"] = true;
-
-        if (ParentAccordionItem is not null)
-        {
-            attributes["id"] = ParentAccordionItem.ContentId;
-            attributes["aria-labelledby"] = ParentAccordionItem.TriggerId;
-
-            if (ParentAccordionItem.Disabled || ParentAccordionItem.ParentAccordion?.Disabled == true)
-                attributes["data-disabled"] = "true";
-        }
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-accordion-content");
-            AppendClass(ref cls, "overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down");
-            AppendClass(ref cls, "data-[state=closed]:h-0");
-        });
-
-        AppendStyleDeclAttr(attributes, "--radix-accordion-content-height: 0px");
-    }
-
-    private Dictionary<string, object> BuildContentAttributes()
-    {
-        var attributes = new Dictionary<string, object>();
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "pt-0 pb-4");
-            if (Class.HasContent())
-                AppendClass(ref cls, Class!);
-        });
-
-        return attributes;
-    }
-
-    private async ValueTask StopObservingHeight()
-    {
-        if (!_observingHeight)
-            return;
-
-        await AccordionInterop.StopObservingContentHeight(_contentRef);
-        _observingHeight = false;
-    }
-
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(IsOpen);
         hc.Add(ParentAccordionItem?.ForceMount == true);
-        hc.Add(ParentAccordionItem?.ParentAccordion?.Orientation);
-        hc.Add(ParentAccordionItem?.ParentAccordion?.Disabled == true);
-        hc.Add(ParentAccordionItem?.Disabled == true);
-    }
-
-    public override async ValueTask DisposeAsync()
-    {
-        await StopObservingHeight();
-        await base.DisposeAsync();
     }
 }

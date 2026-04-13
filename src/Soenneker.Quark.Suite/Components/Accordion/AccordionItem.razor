@@ -1,11 +1,14 @@
 @namespace Soenneker.Quark
+@using Soenneker.Bradix
 @inherits Soenneker.Quark.Element
 @implements IAccordionItem
 
 <CascadingValue Name="ParentAccordionItem" Value="this">
-    <div @attributes="BuildAttributes()">
+    <BradixAccordionItem Value="@ResolvedValue"
+                         Disabled="@Disabled"
+                         AdditionalAttributes="@ItemAttributes">
         @ChildContent
-    </div>
+    </BradixAccordionItem>
 </CascadingValue>
 
 @code {
@@ -19,44 +22,27 @@
     [Parameter]
     public bool ForceMount { get; set; } = true;
 
-    [CascadingParameter(Name = nameof(ParentAccordion))]
-    public Accordion? ParentAccordion { get; set; }
-
     private string? _generatedValue;
 
     internal string ResolvedValue => Value.HasContent() ? Value! : _generatedValue ??= $"accordion-item-{Guid.NewGuid():N}";
 
-    internal string TriggerId => $"{ResolvedValue}-trigger";
-
-    internal string ContentId => $"{ResolvedValue}-content";
-
-    internal bool IsOpen => ParentAccordion?.IsItemOpen(ResolvedValue) == true;
-
-    internal async Task Toggle()
+    private IReadOnlyDictionary<string, object> ItemAttributes
     {
-        if (ParentAccordion is null || ParentAccordion.Disabled || Disabled)
-            return;
-
-        await ParentAccordion.ToggleItem(ResolvedValue);
-    }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        attributes["data-slot"] = "accordion-item";
-        attributes["data-orientation"] = ParentAccordion?.Orientation?.Value ?? AccordionOrientation.Vertical.Value;
-        attributes["data-state"] = IsOpen ? "open" : "closed";
-
-        var effectiveDisabled = Disabled || ParentAccordion?.Disabled == true;
-        if (effectiveDisabled)
-            attributes["data-disabled"] = "true";
-
-        BuildClassAttribute(attributes, (ref cls) =>
+        get
         {
-            AppendClass(ref cls, "q-accordion-item");
-            AppendClass(ref cls, "border-b last:border-b-0");
-        });
+            Dictionary<string, object> attributes = new(BuildAttributes())
+            {
+                ["data-slot"] = "accordion-item"
+            };
+
+            BuildClassAttribute(attributes, (ref cls) =>
+            {
+                AppendClass(ref cls, "q-accordion-item");
+                AppendClass(ref cls, "border-b last:border-b-0");
+            });
+
+            return attributes;
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -65,7 +51,5 @@
         hc.Add(Value);
         hc.Add(Disabled);
         hc.Add(ForceMount);
-        hc.Add(ParentAccordion?.Disabled == true);
-        hc.Add(IsOpen);
     }
 }

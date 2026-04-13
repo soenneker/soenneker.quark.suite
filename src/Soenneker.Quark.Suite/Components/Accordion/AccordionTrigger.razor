@@ -1,23 +1,20 @@
 @namespace Soenneker.Quark
+@using Soenneker.Bradix
 @inherits Soenneker.Quark.TriggerElement
 @implements IAccordionTrigger
-@implements IDisposable
 
-<h3 @attributes="BuildHeaderAttributes()">
-    <button @onclick="HandleTriggerClick"
-            @onkeydown="HandleKeyDown"
-            @onkeydown:preventDefault="_preventDefault"
-            @ref="_elementRef"
-            @attributes="BuildAttributes()">
+<BradixAccordionHeader AdditionalAttributes="@HeaderAttributes">
+    <BradixAccordionTrigger OnKeyDown="HandleTriggerKeyDown"
+                            AdditionalAttributes="@TriggerAttributes">
         @ChildContent
         @if (ShowChevron)
         {
             <Icon Name="LucideIcon.ChevronDown"
                   data-slot="accordion-trigger-icon"
-                  Class="pointer-events-none size-4 shrink-0 translate-y-0.5 text-muted-foreground transition-transform duration-200" />
+                  Class="pointer-events-none ms-auto size-4 shrink-0 text-muted-foreground transition-transform duration-200 ease-out motion-reduce:transition-none group-aria-expanded/accordion-trigger:rotate-180" />
         }
-    </button>
-</h3>
+    </BradixAccordionTrigger>
+</BradixAccordionHeader>
 
 @code {
     [Parameter]
@@ -26,145 +23,72 @@
     [CascadingParameter(Name = nameof(ParentAccordionItem))]
     public AccordionItem? ParentAccordionItem { get; set; }
 
-    [CascadingParameter(Name = nameof(ParentAccordion))]
-    public Accordion? ParentAccordion { get; set; }
-
-    private ElementReference _elementRef;
-    private bool _preventDefault;
-
-    internal string Value => ParentAccordionItem?.ResolvedValue ?? string.Empty;
-
-    private bool IsOpen => ParentAccordionItem?.IsOpen == true;
-
-    internal bool IsDisabled =>
-        Disabled || ParentAccordion?.Disabled == true || ParentAccordionItem?.Disabled == true;
-
-    protected override void OnInitialized()
+    private IReadOnlyDictionary<string, object> HeaderAttributes
     {
-        base.OnInitialized();
-        ParentAccordion?.RegisterTrigger(this);
-    }
-
-    private async Task HandleTriggerClick(MouseEventArgs args)
-    {
-        if (ParentAccordionItem is null || IsDisabled)
-            return;
-
-        await ParentAccordionItem.Toggle();
-        await base.HandleClick(args);
-    }
-
-    protected override Task HandleKeyDown(KeyboardEventArgs e)
-    {
-        _preventDefault = ShouldRoveFocus(e.Key);
-
-        if (!IsDisabled && ParentAccordion is not null && _preventDefault)
-            ParentAccordion.HandleKeyNavigation(Value, e.Key);
-
-        return base.HandleKeyDown(e);
-    }
-
-    private bool ShouldRoveFocus(string key)
-    {
-        if (ParentAccordion is null)
-            return false;
-
-        if (key is "Home" or "End")
-            return true;
-
-        return ParentAccordion.IsVerticalOrientation
-            ? key is "ArrowDown" or "ArrowUp"
-            : key is "ArrowLeft" or "ArrowRight";
-    }
-
-    internal async Task FocusAsync()
-    {
-        try
+        get
         {
-            await _elementRef.FocusAsync();
-        }
-        catch
-        {
-        }
-    }
+            Dictionary<string, object> attributes = new()
+            {
+                ["data-slot"] = "accordion-header"
+            };
 
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
+            if (OnClick.HasDelegate)
+                attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, HandleHeaderClick);
 
-        attributes["type"] = "button";
-        attributes["data-slot"] = "accordion-trigger";
-        attributes["data-state"] = IsOpen ? "open" : "closed";
-        attributes["aria-expanded"] = IsOpen ? "true" : "false";
-
-        if (ParentAccordionItem is not null)
-        {
-            attributes["id"] = ParentAccordionItem.TriggerId;
-            if (ParentAccordionItem.ForceMount || IsOpen)
-                attributes["aria-controls"] = ParentAccordionItem.ContentId;
-        }
-
-        if (ParentAccordion is not null)
-        {
-            attributes["data-orientation"] = ParentAccordion.Orientation?.Value ?? AccordionOrientation.Vertical.Value;
-
-            if (!ParentAccordion.Multiple && !ParentAccordion.Collapsible && IsOpen)
-                attributes["aria-disabled"] = "true";
-        }
-
-        if (IsDisabled)
-            attributes["disabled"] = true;
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-accordion-trigger");
-            AppendClass(ref cls, "flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50");
-            AppendClass(ref cls, "[&[data-state=open]>svg]:rotate-180");
-        });
-    }
-
-    private Dictionary<string, object> BuildHeaderAttributes()
-    {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "accordion-header"
-        };
-
-        if (ParentAccordion is not null)
-            attributes["data-orientation"] = ParentAccordion.Orientation?.Value ?? AccordionOrientation.Vertical.Value;
-
-        if (ParentAccordionItem is not null)
-        {
-            attributes["data-state"] = ParentAccordionItem.IsOpen ? "open" : "closed";
-
-            if (ParentAccordionItem.Disabled || ParentAccordion?.Disabled == true)
+            if (Disabled)
                 attributes["data-disabled"] = "true";
+
+            BuildClassAttribute(attributes, (ref cls) =>
+            {
+                AppendClass(ref cls, "q-accordion-header flex");
+            });
+
+            return attributes;
         }
+    }
 
-        BuildClassAttribute(attributes, (ref cls) =>
+    private IReadOnlyDictionary<string, object> TriggerAttributes
+    {
+        get
         {
-            AppendClass(ref cls, "q-accordion-header flex");
-        });
+            Dictionary<string, object> attributes = new(BuildAttributes())
+            {
+                ["data-slot"] = "accordion-trigger"
+            };
 
-        return attributes;
+            attributes.Remove("onkeydown");
+
+            if (Disabled)
+            {
+                attributes["disabled"] = true;
+                attributes["data-disabled"] = "true";
+            }
+
+            BuildClassAttribute(attributes, (ref cls) =>
+            {
+                AppendClass(ref cls, "q-accordion-trigger");
+                AppendClass(ref cls, "group/accordion-trigger relative flex flex-1 items-start rounded-lg border border-transparent py-2.5 text-start text-sm font-medium transition-all outline-none hover:underline focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50");
+            });
+
+            return attributes;
+        }
+    }
+
+    private Task HandleHeaderClick(MouseEventArgs args)
+    {
+        return base.HandleClick(args);
+    }
+
+    private Task HandleTriggerKeyDown(KeyboardEventArgs args)
+    {
+        return base.HandleKeyDown(args);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(ShowChevron);
-        hc.Add(IsOpen);
-        hc.Add(IsDisabled);
-        hc.Add(ParentAccordion?.Orientation);
-        hc.Add(ParentAccordion?.Disabled);
-        hc.Add(ParentAccordion?.Collapsible);
-        hc.Add(ParentAccordion?.Multiple);
+        hc.Add(Disabled);
         hc.Add(ParentAccordionItem?.ForceMount == true);
-    }
-
-    public override void Dispose()
-    {
-        ParentAccordion?.UnregisterTrigger(this);
-        base.Dispose();
     }
 }

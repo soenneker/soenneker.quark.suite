@@ -12,7 +12,7 @@ namespace Soenneker.Quark;
 /// Minimal suite-level render base that owns render invalidation, render-key computation,
 /// attribute caching, attribute merging, and helper utilities.
 /// </summary>
-public abstract class RenderComponentBase : CoreComponent
+public abstract class RenderComponent : CoreComponent
 {
     private bool _shouldRender = true;
     private int _lastRenderKey;
@@ -533,15 +533,6 @@ public abstract class RenderComponentBase : CoreComponent
             cls.Dispose();
             sty.Dispose();
         }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected static void SetOrRemove(Dictionary<string, object> attrs, string name, bool condition, object trueValue)
-    {
-        if (condition)
-            attrs[name] = trueValue;
-        else
-            attrs.Remove(name);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
