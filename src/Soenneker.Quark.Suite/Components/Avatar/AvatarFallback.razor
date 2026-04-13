@@ -1,16 +1,14 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-@if (ParentAvatar?.ShowFallback ?? true)
-{
-    <div @attributes="BuildAttributes()">
-        @ChildContent
-    </div>
-}
+<BradixAvatarFallback AdditionalAttributes="@FallbackAttributes">
+    @ChildContent
+</BradixAvatarFallback>
 
 @code {
-    [CascadingParameter(Name = nameof(ParentAvatar))]
-    protected Avatar? ParentAvatar { get; set; }
+    private IReadOnlyDictionary<string, object> FallbackAttributes => BuildAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {

@@ -1,13 +1,16 @@
-@using System.Threading
+@using Soenneker.Bradix
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<CascadingValue Value="_context" IsFixed="true">
-    <div @attributes="BuildAttributes()">
-        @ChildContent
-    </div>
-</CascadingValue>
+<BradixHoverCard Open="@Open"
+                 DefaultOpen="@DefaultOpen"
+                 OpenChanged="@OpenChanged"
+                 OpenDelay="@OpenDelay"
+                 CloseDelay="@CloseDelay"
+                 AdditionalAttributes="@RootAttributes">
+    @ChildContent
+</BradixHoverCard>
 
 @code {
     [Parameter]
@@ -25,93 +28,13 @@
     [Parameter]
     public int CloseDelay { get; set; } = 300;
 
-    private bool _open;
-    private HoverCardContext _context = null!;
-    private CancellationTokenSource? _pendingTransitionCts;
-
-    protected override void OnInitialized()
-    {
-        _open = OpenChanged.HasDelegate ? Open : DefaultOpen;
-        _context = new HoverCardContext(() => _open, RequestOpenAsync, RequestCloseAsync);
-    }
-
-    protected override void OnParametersSet()
-    {
-        if (OpenChanged.HasDelegate)
-            _open = Open;
-
-        base.OnParametersSet();
-    }
-
-    private async Task RequestOpenAsync()
-    {
-        await ScheduleOpenStateAsync(true, OpenDelay);
-    }
-
-    private async Task RequestCloseAsync()
-    {
-        await ScheduleOpenStateAsync(false, CloseDelay);
-    }
-
-    private async Task ScheduleOpenStateAsync(bool open, int delay)
-    {
-        _pendingTransitionCts?.Cancel();
-        _pendingTransitionCts?.Dispose();
-        _pendingTransitionCts = null;
-
-        if (_open == open)
-            return;
-
-        if (delay <= 0)
-        {
-            await SetOpenAsync(open);
-            return;
-        }
-
-        var cts = new CancellationTokenSource();
-        _pendingTransitionCts = cts;
-
-        try
-        {
-            await Task.Delay(delay, cts.Token);
-            await SetOpenAsync(open);
-        }
-        catch (OperationCanceledException)
-        {
-        }
-        finally
-        {
-            if (ReferenceEquals(_pendingTransitionCts, cts))
-            {
-                _pendingTransitionCts.Dispose();
-                _pendingTransitionCts = null;
-            }
-            else
-            {
-                cts.Dispose();
-            }
-        }
-    }
-
-    private async Task SetOpenAsync(bool open)
-    {
-        if (_open == open)
-            return;
-
-        _open = open;
-
-        if (OpenChanged.HasDelegate)
-            await OpenChanged.InvokeAsync(open);
-
-        await RefreshOffThread();
-    }
+    private IReadOnlyDictionary<string, object> RootAttributes => BuildAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "hover-card";
-        attributes["data-state"] = _open ? "open" : "closed";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -120,18 +43,10 @@
         });
     }
 
-    public override void Dispose()
-    {
-        _pendingTransitionCts?.Cancel();
-        _pendingTransitionCts?.Dispose();
-        _pendingTransitionCts = null;
-        base.Dispose();
-    }
-
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(_open);
+        hc.Add(Open);
         hc.Add(OpenDelay);
         hc.Add(CloseDelay);
     }

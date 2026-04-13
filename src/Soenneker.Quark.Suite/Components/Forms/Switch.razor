@@ -1,4 +1,5 @@
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Bradix
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.ToggleElement
@@ -10,9 +11,16 @@
     @if (HasInlineLabel)
     {
         <label for="@ControlId" class="inline-flex cursor-pointer items-center gap-2">
-            <button @onclick="HandleToggleClick" @attributes="BuildControlAttributes()">
-                <span @attributes="BuildThumbAttributes()"></span>
-            </button>
+            <BradixSwitch Checked="@Checked"
+                          Required="@Required"
+                          Disabled="@Disabled"
+                          Name="@Name"
+                          Value="@ResolvedSwitchValue"
+                          CheckedChanged="HandleCheckedChanged"
+                          OnClick="HandleBradixClick"
+                          AdditionalAttributes="@BuildControlAttributes()">
+                <BradixSwitchThumb AdditionalAttributes="@BuildThumbAttributes()"/>
+            </BradixSwitch>
             @if (ChildContent != null)
             {
                 <span @attributes="BuildLabelAttributes()">@ChildContent</span>
@@ -25,9 +33,16 @@
     }
     else
     {
-        <button @onclick="HandleToggleClick" @attributes="BuildControlAttributes()">
-            <span @attributes="BuildThumbAttributes()"></span>
-        </button>
+        <BradixSwitch Checked="@Checked"
+                      Required="@Required"
+                      Disabled="@Disabled"
+                      Name="@Name"
+                      Value="@ResolvedSwitchValue"
+                      CheckedChanged="HandleCheckedChanged"
+                      OnClick="HandleBradixClick"
+                      AdditionalAttributes="@BuildControlAttributes()">
+            <BradixSwitchThumb AdditionalAttributes="@BuildThumbAttributes()"/>
+        </BradixSwitch>
     }
 </div>
 
@@ -50,6 +65,7 @@
 
     private bool HasInlineLabel => ChildContent != null || Label.HasContent();
     private string ControlId => CurrentFieldContext?.ControlId ?? Id!;
+    private string ResolvedSwitchValue => Value.HasContent() ? Value! : "on";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -107,24 +123,8 @@
         var sm = IsSmSize();
 
         attributes["id"] = ControlId;
-        attributes["type"] = "button";
-        attributes["role"] = "switch";
-        attributes["aria-checked"] = Checked ? "true" : "false";
         attributes["data-slot"] = "switch";
         attributes["data-size"] = sm ? "sm" : "default";
-        attributes["data-state"] = Checked ? "checked" : "unchecked";
-
-        if (Name.HasContent())
-            attributes["name"] = Name!;
-
-        if (Value.HasContent())
-            attributes["value"] = Value!;
-
-        if (Disabled)
-        {
-            attributes["disabled"] = true;
-            attributes["data-disabled"] = "true";
-        }
 
         if (Attributes is not null)
         {
@@ -132,7 +132,13 @@
             {
                 if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) ||
                     attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("type", StringComparison.OrdinalIgnoreCase))
+                    attribute.Key.Equals("type", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("onclick", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("name", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("value", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("role", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("aria-checked", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("disabled", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
@@ -184,20 +190,10 @@
         return attributes;
     }
 
-    protected override async Task HandleClick(MouseEventArgs args)
+    private async Task HandleCheckedChanged(bool next)
     {
-        if (Disabled)
-            return;
-
-        var next = !Checked;
-
-        if (next != Checked)
-        {
-            Checked = next;
-            await CheckedChanged.InvokeAsync(next);
-            InvalidateRender();
-            Refresh();
-        }
+        Checked = next;
+        await CheckedChanged.InvokeAsync(next);
 
         if (ParentValidation is not null)
         {
@@ -206,13 +202,11 @@
         }
 
         await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = next });
-        await base.HandleClick(args);
+        InvalidateRender();
+        Refresh();
     }
 
-    private Task HandleToggleClick(MouseEventArgs args)
-    {
-        return HandleClick(args);
-    }
+    private Task HandleBradixClick(MouseEventArgs args) => base.HandleClick(args);
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

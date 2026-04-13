@@ -1,28 +1,33 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.ToggleElement
 @implements Soenneker.Quark.IValidationInput
-@using Soenneker.Blazor.Extensions.EventCallback
 @implements ICheck
 
 <div @attributes="BuildWrapperAttributes()">
     @if (HasInlineLabel)
     {
         <label @attributes="BuildLabelAttributes()">
-            <button @onclick="HandleToggleClick" @attributes="BuildControlAttributes()">
-                @if (Checked || Indeterminate)
-                {
-                    <span data-slot="checkbox-indicator" class="grid place-content-center text-current transition-none">
-                        @if (Indeterminate)
-                        {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M5 12h14"/></svg>
-                        }
-                        else
-                        {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M20 6 9 17 4 12"/></svg>
-                        }
-                    </span>
-                }
-            </button>
+            <BradixCheckbox Checked="@CurrentCheckedState"
+                            Required="@Required"
+                            Disabled="@Disabled"
+                            Name="@Name"
+                            Value="@ResolvedCheckboxValue"
+                            CheckedChanged="HandleCheckedStateChanged"
+                            AdditionalAttributes="@BuildControlAttributes()">
+                <BradixCheckboxIndicator AdditionalAttributes="@BuildIndicatorAttributes()">
+                    @if (Indeterminate)
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M5 12h14"/></svg>
+                    }
+                    else
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M20 6 9 17 4 12"/></svg>
+                    }
+                </BradixCheckboxIndicator>
+            </BradixCheckbox>
             @if (ChildContent is not null)
             {
                 @ChildContent
@@ -35,21 +40,24 @@
     }
     else
     {
-        <button @onclick="HandleToggleClick" @attributes="BuildControlAttributes()">
-            @if (Checked || Indeterminate)
-            {
-                <span data-slot="checkbox-indicator" class="grid place-content-center text-current transition-none">
-                    @if (Indeterminate)
-                    {
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M5 12h14"/></svg>
-                    }
-                    else
-                    {
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M20 6 9 17 4 12"/></svg>
-                    }
-                </span>
-            }
-        </button>
+        <BradixCheckbox Checked="@CurrentCheckedState"
+                        Required="@Required"
+                        Disabled="@Disabled"
+                        Name="@Name"
+                        Value="@ResolvedCheckboxValue"
+                        CheckedChanged="HandleCheckedStateChanged"
+                        AdditionalAttributes="@BuildControlAttributes()">
+            <BradixCheckboxIndicator AdditionalAttributes="@BuildIndicatorAttributes()">
+                @if (Indeterminate)
+                {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M5 12h14"/></svg>
+                }
+                else
+                {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M20 6 9 17 4 12"/></svg>
+                }
+            </BradixCheckboxIndicator>
+        </BradixCheckbox>
     }
 </div>
 
@@ -89,9 +97,13 @@
     public object? ValidationValue => Checked;
 
     private bool HasInlineLabel => ChildContent is not null || Label.HasContent();
-    private string AriaCheckedValue => Indeterminate ? "mixed" : Checked ? "true" : "false";
-    private string DataState => Indeterminate ? "indeterminate" : Checked ? "checked" : "unchecked";
     private string ControlId => CurrentFieldContext?.ControlId ?? Id!;
+    private string ResolvedCheckboxValue => Value.HasContent() ? Value! : "on";
+    private BradixCheckboxCheckedState CurrentCheckedState => Indeterminate
+        ? BradixCheckboxCheckedState.Indeterminate
+        : Checked
+            ? BradixCheckboxCheckedState.Checked
+            : BradixCheckboxCheckedState.Unchecked;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -155,22 +167,11 @@
         var attributes = new Dictionary<string, object>
         {
             ["id"] = ControlId,
-            ["type"] = "button",
-            ["role"] = "checkbox",
-            ["aria-checked"] = AriaCheckedValue,
-            ["data-slot"] = "checkbox",
-            ["data-state"] = DataState
+            ["data-slot"] = "checkbox"
         };
-
-        if (Name.HasContent())
-            attributes["name"] = Name!;
-
-        if (Value.HasContent())
-            attributes["value"] = Value!;
 
         if (Disabled)
         {
-            attributes["disabled"] = true;
             attributes["data-disabled"] = "true";
         }
 
@@ -188,7 +189,14 @@
             {
                 if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) ||
                     attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase) ||
-                    attribute.Key.Equals("type", StringComparison.OrdinalIgnoreCase))
+                    attribute.Key.Equals("type", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("role", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("aria-checked", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("data-state", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("disabled", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("name", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("value", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("onclick", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
@@ -226,6 +234,15 @@
         return attributes;
     }
 
+    private static IReadOnlyDictionary<string, object> BuildIndicatorAttributes()
+    {
+        return new Dictionary<string, object>
+        {
+            ["data-slot"] = "checkbox-indicator",
+            ["class"] = "grid place-content-center text-current transition-none"
+        };
+    }
+
     private string? GetValidationClass()
     {
         return ParentValidation?.Status == ValidationStatus.Error
@@ -251,14 +268,11 @@
         };
     }
 
-    protected override async Task HandleClick(MouseEventArgs args)
+    private async Task HandleCheckedStateChanged(BradixCheckboxCheckedState state)
     {
-        if (Disabled)
-            return;
-
-        var next = !Checked;
+        bool next = state == BradixCheckboxCheckedState.Checked;
         Checked = next;
-        Indeterminate = false;
+        Indeterminate = state == BradixCheckboxCheckedState.Indeterminate;
         await CheckedChanged.InvokeAsync(next);
         InvalidateRender();
         Refresh();
@@ -270,12 +284,7 @@
         }
 
         await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = next });
-        await base.HandleClick(args);
-    }
-
-    private Task HandleToggleClick(MouseEventArgs args)
-    {
-        return HandleClick(args);
+        await base.HandleClick(new MouseEventArgs());
     }
 
     public override void Dispose()

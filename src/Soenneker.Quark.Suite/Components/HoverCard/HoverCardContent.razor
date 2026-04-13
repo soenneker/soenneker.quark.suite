@@ -1,13 +1,18 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @onmouseenter="HandleMouseEnter" @onmouseleave="HandleMouseLeave" @attributes="BuildAttributes()">
+<BradixHoverCardContent Side="@ResolvedSide"
+                        Align="@ResolvedAlign"
+                        SideOffset="@SideOffset"
+                        AdditionalAttributes="@ContentAttributes">
     @ChildContent
-</div>
+</BradixHoverCardContent>
 
 @code {
     [CascadingParameter]
-    private HoverCardContext? Context { get; set; }
+    private BradixHoverCard? HoverCard { get; set; }
 
     [Parameter]
     public bool Open { get; set; }
@@ -33,7 +38,34 @@
     [Parameter]
     public bool DisableAutoOpen { get; set; }
 
-    private bool IsOpen => Context?.IsOpen ?? Open;
+    private bool IsOpen => HoverCard?.CurrentOpen ?? Open;
+    private BradixSide ResolvedSide => Side switch
+    {
+        "top" => BradixSide.Top,
+        "right" => BradixSide.Right,
+        "left" => BradixSide.Left,
+        _ => BradixSide.Bottom
+    };
+    private BradixAlignment ResolvedAlign => Align switch
+    {
+        "start" => BradixAlignment.Start,
+        "end" => BradixAlignment.End,
+        _ => BradixAlignment.Center
+    };
+    private IReadOnlyDictionary<string, object> ContentAttributes => BuildContentAttributes();
+
+    private IReadOnlyDictionary<string, object> BuildContentAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("id");
+        attributes.Remove("tabindex");
+        attributes.Remove("data-state");
+        attributes.Remove("data-side");
+        attributes.Remove("data-align");
+        attributes.Remove("onmouseenter");
+        attributes.Remove("onmouseleave");
+        return attributes;
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -44,45 +76,12 @@
         attributes["data-side"] = Side;
         attributes["data-align"] = Align;
 
-        if (Context is not null)
-        {
-            attributes["id"] = Context.ContentId;
-            attributes["tabindex"] = -1;
-        }
-
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-hover-card-content");
             AppendClass(ref cls, "z-50 w-64 origin-(--radix-hover-card-content-transform-origin) rounded-lg bg-popover p-4 text-sm text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-hidden duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
-            AppendClass(ref cls, "absolute top-full mt-1");
             AppendClass(ref cls, "data-[state=closed]:hidden data-[state=open]:block");
-            AppendClass(ref cls, "data-[align=start]:left-0 rtl:data-[align=start]:left-auto rtl:data-[align=start]:right-0");
-            AppendClass(ref cls, "data-[align=center]:left-1/2 data-[align=center]:-translate-x-1/2 rtl:data-[align=center]:left-auto rtl:data-[align=center]:right-1/2 rtl:data-[align=center]:translate-x-1/2");
-            AppendClass(ref cls, "data-[align=end]:right-0 rtl:data-[align=end]:right-auto rtl:data-[align=end]:left-0");
-
-            if (Context is null && !DisableAutoOpen)
-                AppendClass(ref cls, "group-hover/hover-card:block group-focus-within/hover-card:block");
         });
-
-        var offsetStyle = Side switch
-        {
-            "top" => $"margin-bottom: {SideOffset}px;",
-            "left" => $"margin-right: {SideOffset}px;",
-            "right" => $"margin-left: {SideOffset}px;",
-            _ => $"margin-top: {SideOffset}px;"
-        };
-
-        BuildStyleAttribute(attributes, (ref sty) => AppendStyleDecl(ref sty, offsetStyle));
-    }
-
-    private Task HandleMouseEnter(MouseEventArgs e)
-    {
-        return Context?.Open() ?? Task.CompletedTask;
-    }
-
-    private Task HandleMouseLeave(MouseEventArgs e)
-    {
-        return Context?.Close() ?? Task.CompletedTask;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

@@ -1,3 +1,5 @@
+@using Soenneker.Bradix
+@using System.Globalization
 @using System.Linq.Expressions
 @using Soenneker.Blazor.Extensions.EventCallback
 
@@ -8,22 +10,21 @@
 @implements ISelect<TValue>
 
 <CascadingValue Name="ParentSelect" Value="this" IsFixed="false">
-    <CascadingValue Name="ParentSelectContext" Value="_context" IsFixed="false">
-        <div @attributes="BuildAttributes()" @onfocusout="HandleFocusOut">
-            @if (Name.HasContent())
-            {
-                <input type="hidden" name="@Name" value="@SelectedValueString" />
-            }
-
-            @ChildContent
+    <CascadingValue Name="ParentSelectContext" Value="_context" IsFixed="true">
+        <div @attributes="BuildAttributes()">
+            <BradixSelect Value="@SelectedValueString"
+                          Name="@Name"
+                          Disabled="@Disabled"
+                          Required="@Required"
+                          ValueChanged="HandleBradixValueChanged"
+                          OpenChanged="HandleBradixOpenChanged">
+                @ChildContent
+            </BradixSelect>
         </div>
     </CascadingValue>
 </CascadingValue>
 
 @code {
-    private readonly List<ISelectFocusableItem> _items = [];
-    private ISelectFocusableItem? _activeItem;
-
     /// <summary>
     /// Gets or sets the selected value.
     /// </summary>
@@ -73,13 +74,9 @@
     /// Gets the value used for validation.
     /// </summary>
     public object? ValidationValue => SelectedValue;
-    private readonly Dictionary<string, string?> _registeredItems = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, TValue?> _registeredItemValues = new(StringComparer.Ordinal);
     private bool _open;
-    private readonly string _selectId = $"select-{Guid.NewGuid():N}";
     private SelectContext _context = null!;
-
-    private string TriggerId => $"{_selectId}-trigger";
-    private string ContentId => $"{_selectId}-content";
     private string? SelectedValueString => GetValueString(SelectedValue);
     private bool IsInvalidState => ParentValidation?.Status == ValidationStatus.Error;
 
@@ -89,23 +86,11 @@
 
         _context = new SelectContext
         {
-            IsOpen = () => _open,
-            HasValue = HasValue,
-            DisplayText = GetDisplayText,
             Size = GetSizeValue,
-            IsDisabled = () => Disabled,
             IsInvalid = () => IsInvalidState || CurrentFieldContext?.IsInvalid == true,
-            IsRequired = () => Required,
-            EffectiveTriggerId = () => CurrentFieldContext?.ControlId ?? TriggerId,
+            EffectiveTriggerId = () => CurrentFieldContext?.ControlId ?? string.Empty,
             AriaDescribedBy = () => BuildSelectAriaDescribedBy(),
-            ToggleAsync = ToggleOpen,
-            OpenFirstAsync = OpenAndFocusFirstAsync,
-            OpenLastAsync = OpenAndFocusLastAsync,
-            CloseAsync = Close,
-            FocusTriggerAsync = FocusTriggerAsync,
-            ActiveItemId = () => _activeItem?.ItemId,
-            TriggerId = TriggerId,
-            ContentId = ContentId
+            DefaultItemText = () => DefaultItemText
         };
     }
 
@@ -129,210 +114,58 @@
         await RefreshOffThread();
     }
 
-    private async Task HandleFocusOut(FocusEventArgs _)
+    internal void RegisterItemValue(string value, TValue? itemValue)
     {
-        await Task.Delay(150);
-        await Close();
-    }
-
-    internal void RegisterItem(string value, string? text)
-    {
-        _registeredItems[value] = text;
-    }
-
-    internal void RegisterFocusableItem(ISelectFocusableItem item)
-    {
-        if (_items.Contains(item))
+        if (string.IsNullOrWhiteSpace(value))
             return;
 
-        _items.Add(item);
-        EnsureActiveItem();
+        _registeredItemValues[value] = itemValue;
     }
 
-    internal void UnregisterFocusableItem(ISelectFocusableItem item)
+    internal void UnregisterItemValue(string value)
     {
-        if (_items.Remove(item) && ReferenceEquals(_activeItem, item))
-            EnsureActiveItem();
+        if (string.IsNullOrWhiteSpace(value))
+            return;
+
+        _registeredItemValues.Remove(value);
     }
 
-    internal bool IsSelected(TValue? value)
+    private async Task HandleBradixValueChanged(string? value)
     {
-        return EqualityComparer<TValue>.Default.Equals(SelectedValue, value);
-    }
+        TValue? nextValue = ResolveSelectedValue(value);
+        bool valueChanged = !EqualityComparer<TValue>.Default.Equals(SelectedValue, nextValue);
 
-    internal async Task SelectItem(TValue? value, string? text)
-    {
-        var valueChanged = !EqualityComparer<TValue>.Default.Equals(SelectedValue, value);
-        SelectedValue = value;
+        SelectedValue = nextValue;
 
-        if (text.HasContent() && value is not null)
-            _registeredItems[GetValueString(value)!] = text;
+        if (valueChanged && SelectedValueChanged.HasDelegate)
+            await SelectedValueChanged.InvokeAsync(nextValue);
 
-        if (valueChanged)
-            await SelectedValueChanged.InvokeAsync(SelectedValue);
-
-        await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = GetValueString(SelectedValue) });
+        await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = value });
 
         if (ParentValidation is not null)
         {
             ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(SelectedValue);
-        }
-
-        await Close();
-
-        if (valueChanged)
-        {
-            InvalidateRender();
-            Refresh();
+            await ParentValidation.NotifyInputChanged(nextValue);
         }
     }
 
-    private async Task ToggleOpen()
+    private Task HandleBradixOpenChanged(bool open)
     {
-        if (Disabled)
-            return;
-
-        _open = !_open;
-        if (_open)
-            EnsureActiveItem();
-        else
-            SetActiveItem(null);
-        await RefreshOffThread();
+        _open = open;
+        return Task.CompletedTask;
     }
 
-    private async Task Close()
+    private TValue? ResolveSelectedValue(string? value)
     {
-        if (!_open)
-            return;
+        if (string.IsNullOrEmpty(value))
+            return DefaultItemValue;
 
-        _open = false;
-        SetActiveItem(null);
-        await RefreshOffThread();
-    }
+        if (_registeredItemValues.TryGetValue(value, out TValue? registeredValue))
+            return registeredValue;
 
-    internal async Task CloseFromKeyboardAsync()
-    {
-        await Close();
-        await FocusTriggerAsync();
-    }
-
-    internal async Task HandleItemNavigationAsync(ISelectFocusableItem currentItem, string key)
-    {
-        var enabledItems = _items.Where(i => !i.IsDisabledForNavigation).ToList();
-        if (enabledItems.Count == 0)
-            return;
-
-        var currentIndex = enabledItems.FindIndex(item => ReferenceEquals(item, currentItem));
-        if (currentIndex < 0)
-            return;
-
-        var nextIndex = key switch
-        {
-            "Home" => 0,
-            "End" => enabledItems.Count - 1,
-            "ArrowDown" => (currentIndex + 1) % enabledItems.Count,
-            "ArrowUp" => (currentIndex - 1 + enabledItems.Count) % enabledItems.Count,
-            _ => -1
-        };
-
-        if (nextIndex < 0)
-            return;
-
-        var nextItem = enabledItems[nextIndex];
-        SetActiveItem(nextItem);
-        await nextItem.FocusAsync();
-    }
-
-    internal void SetActiveItem(ISelectFocusableItem? item)
-    {
-        if (ReferenceEquals(_activeItem, item))
-            return;
-
-        _activeItem?.SetActive(false);
-        _activeItem = item;
-        _activeItem?.SetActive(true);
-        Refresh();
-    }
-
-    private void EnsureActiveItem()
-    {
-        var enabledItems = _items.Where(i => !i.IsDisabledForNavigation).ToList();
-        if (enabledItems.Count == 0)
-        {
-            SetActiveItem(null);
-            return;
-        }
-
-        if (_activeItem is not null && enabledItems.Contains(_activeItem))
-            return;
-
-        var selectedItem = enabledItems.FirstOrDefault(item => string.Equals(item.Value, SelectedValueString, StringComparison.Ordinal));
-        SetActiveItem(selectedItem ?? enabledItems[0]);
-    }
-
-    private async Task OpenAndFocusFirstAsync()
-    {
-        if (!_open)
-        {
-            _open = true;
-            await RefreshOffThread();
-        }
-
-        EnsureActiveItem();
-        if (_activeItem is not null)
-            await _activeItem.FocusAsync();
-    }
-
-    private async Task OpenAndFocusLastAsync()
-    {
-        var enabledItems = _items.Where(i => !i.IsDisabledForNavigation).ToList();
-        if (enabledItems.Count == 0)
-        {
-            if (!_open)
-            {
-                _open = true;
-                await RefreshOffThread();
-            }
-
-            return;
-        }
-
-        if (!_open)
-        {
-            _open = true;
-            await RefreshOffThread();
-        }
-
-        var lastItem = enabledItems[^1];
-        SetActiveItem(lastItem);
-        await lastItem.FocusAsync();
-    }
-
-    private async Task FocusTriggerAsync()
-    {
-        if (_context.HasTriggerElement)
-            await _context.TriggerElement.FocusAsync();
-    }
-
-    private bool HasValue()
-    {
-        return SelectedValue is not null && !string.IsNullOrEmpty(GetValueString(SelectedValue));
-    }
-
-    private string? GetDisplayText()
-    {
-        if (SelectedValue is not null)
-        {
-            var key = GetValueString(SelectedValue);
-            if (key.HasContent() && _registeredItems.TryGetValue(key!, out var label) && label.HasContent())
-                return label;
-        }
-
-        if (DefaultItemText.HasContent())
-            return DefaultItemText;
-
-        return Placeholder;
+        return BindConverter.TryConvertTo(value, CultureInfo.CurrentCulture, out TValue? convertedValue)
+            ? convertedValue
+            : DefaultItemValue;
     }
 
     private static string? GetValueString(TValue? value)

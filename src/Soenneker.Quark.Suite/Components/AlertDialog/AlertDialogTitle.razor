@@ -1,30 +1,18 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TypographyElement
 @implements IAlertDialogTitle
-@implements IDisposable
 
-<div @attributes="BuildAttributes()">
+<BradixAlertDialogTitle Id="@Context?.TitleId" AdditionalAttributes="@TitleAttributes">
     @ChildContent
-</div>
+</BradixAlertDialogTitle>
 
 @code {
     [CascadingParameter]
     private OverlayLabelContext? Context { get; set; }
 
-    private OverlayLabelContext? _registeredContext;
-    private IDisposable? _titleRegistration;
-
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-
-        if (ReferenceEquals(_registeredContext, Context))
-            return;
-
-        _titleRegistration?.Dispose();
-        _registeredContext = Context;
-        _titleRegistration = Context?.RegisterTitle();
-    }
+    private IReadOnlyDictionary<string, object> TitleAttributes => BuildAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -36,20 +24,11 @@
             AppendClass(ref cls, "text-lg font-semibold sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2");
         });
         attributes["data-slot"] = "alert-dialog-title";
-
-        if (!attributes.ContainsKey("id") && Context is not null)
-            attributes["id"] = Context.TitleId;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Context?.TitleId);
-    }
-
-    public override void Dispose()
-    {
-        _titleRegistration?.Dispose();
-        base.Dispose();
     }
 }

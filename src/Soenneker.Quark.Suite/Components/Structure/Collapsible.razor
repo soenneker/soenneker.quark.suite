@@ -1,12 +1,13 @@
 @namespace Soenneker.Quark
+@using Soenneker.Bradix
 @inherits Soenneker.Quark.Element
-@using Soenneker.Blazor.Extensions.EventCallback
 
-<CascadingValue Name="ParentCollapsible" Value="this">
-    <div @attributes="BuildAttributes()">
-        @ChildContent
-    </div>
-</CascadingValue>
+<BradixCollapsible Open="@Open"
+                   Disabled="@Disabled"
+                   OpenChanged="HandleOpenChanged"
+                   AdditionalAttributes="@RootAttributes">
+    @ChildContent
+</BradixCollapsible>
 
 @code {
     [Parameter]
@@ -17,30 +18,26 @@
 
     [Parameter]
     public bool Disabled { get; set; }
+    private IReadOnlyDictionary<string, object> RootAttributes => BuildRootAttributes();
 
-    private string? _generatedId;
-
-    internal string ResolvedId => Id.HasContent() ? Id! : _generatedId ??= $"collapsible-{Guid.NewGuid():N}";
-    internal string TriggerId => $"{ResolvedId}-trigger";
-    internal string ContentId => $"{ResolvedId}-content";
-
-    internal async Task Toggle()
+    private Task HandleOpenChanged(bool open)
     {
-        if (Disabled)
-            return;
-
-        await SetOpen(!Open);
-    }
-
-    internal async Task SetOpen(bool open)
-    {
-        if (Disabled || Open == open)
-            return;
-
         Open = open;
         InvalidateRender();
         Refresh();
-        await OpenChanged.InvokeIfHasDelegate(Open);
+        return OpenChanged.InvokeAsync(open);
+    }
+
+    private IReadOnlyDictionary<string, object> BuildRootAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+
+        attributes.Remove("id");
+        attributes.Remove("disabled");
+        attributes.Remove("data-disabled");
+        attributes.Remove("data-state");
+
+        return attributes;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -48,10 +45,6 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "collapsible";
-        attributes["data-state"] = Open ? "open" : "closed";
-
-        if (Disabled)
-            attributes["data-disabled"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

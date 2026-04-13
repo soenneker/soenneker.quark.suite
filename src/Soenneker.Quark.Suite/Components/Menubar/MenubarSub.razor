@@ -1,67 +1,14 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<CascadingValue Name="ParentMenubarSub" Value="@this" IsFixed="true">
-    <div @attributes="BuildAttributes()">
-        @ChildContent
-    </div>
-</CascadingValue>
+<BradixMenubarSub AdditionalAttributes="@SubAttributes">
+    @ChildContent
+</BradixMenubarSub>
 
 @code {
-    private readonly List<IMenubarFocusableItem> _items = [];
-    private MenubarSubTrigger? _trigger;
-
-    internal void RegisterItem(IMenubarFocusableItem item)
-    {
-        if (!_items.Contains(item))
-            _items.Add(item);
-    }
-
-    internal void UnregisterItem(IMenubarFocusableItem item)
-    {
-        _items.Remove(item);
-    }
-
-    internal void RegisterTrigger(MenubarSubTrigger trigger)
-    {
-        _trigger = trigger;
-    }
-
-    internal async Task FocusFirstItemAsync()
-    {
-        var firstItem = _items.FirstOrDefault(i => !i.IsDisabledForNavigation);
-        if (firstItem is not null)
-            await firstItem.FocusAsync();
-    }
-
-    internal async Task HandleItemNavigationAsync(IMenubarFocusableItem currentItem, string key)
-    {
-        var enabledItems = _items.Where(i => !i.IsDisabledForNavigation).ToList();
-        if (enabledItems.Count == 0)
-            return;
-
-        var currentIndex = enabledItems.FindIndex(i => ReferenceEquals(i, currentItem));
-        if (currentIndex < 0)
-            return;
-
-        var nextIndex = key switch
-        {
-            "Home" => 0,
-            "End" => enabledItems.Count - 1,
-            "ArrowDown" => (currentIndex + 1) % enabledItems.Count,
-            "ArrowUp" => (currentIndex - 1 + enabledItems.Count) % enabledItems.Count,
-            _ => -1
-        };
-
-        if (nextIndex >= 0)
-            await enabledItems[nextIndex].FocusAsync();
-    }
-
-    internal async Task FocusTriggerAsync()
-    {
-        if (_trigger is not null)
-            await _trigger.FocusAsync();
-    }
+    private IReadOnlyDictionary<string, object> SubAttributes => BuildAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {

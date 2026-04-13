@@ -1,16 +1,11 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TypographyElement
 
-<span @attributes="BuildAttributes()">
-    @if (ChildContent is not null)
-    {
-        @ChildContent
-    }
-    else
-    {
-        @(DisplayText ?? Placeholder)
-    }
-</span>
+<BradixSelectValue Placeholder="@PlaceholderContent" AdditionalAttributes="@ValueAttributes">
+    @ChildContent
+</BradixSelectValue>
 
 @code {
     [Parameter]
@@ -19,8 +14,13 @@
     [CascadingParameter(Name = "ParentSelectContext")]
     private SelectContext? Context { get; set; }
 
-    private string? DisplayText => Context?.DisplayText();
-    private bool HasValue => Context?.HasValue() == true;
+    private string? ResolvedPlaceholder => Context?.DefaultItemText() ?? Placeholder;
+
+    private RenderFragment? PlaceholderContent => ResolvedPlaceholder is null
+        ? null
+        : builder => builder.AddContent(0, ResolvedPlaceholder);
+
+    private IReadOnlyDictionary<string, object> ValueAttributes => BuildAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -28,22 +28,16 @@
 
         attributes["data-slot"] = "select-value";
 
-        if (!HasValue)
-            attributes["data-placeholder"] = "true";
-
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-select-value line-clamp-1 text-left");
-            if (!HasValue)
-                AppendClass(ref cls, "text-muted-foreground");
         });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(DisplayText);
         hc.Add(Placeholder);
-        hc.Add(HasValue);
+        hc.Add(Context?.DefaultItemText());
     }
 }

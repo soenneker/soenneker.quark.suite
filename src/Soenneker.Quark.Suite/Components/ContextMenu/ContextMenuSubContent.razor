@@ -1,24 +1,19 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-@if (ParentContextMenuSub?.Open == true)
-{
-    <CascadingValue Name="ContextMenuNavigationSub" Value="ParentContextMenuSub" IsFixed="true">
-        <div @attributes="BuildAttributes()">
-            @ChildContent
-        </div>
-    </CascadingValue>
-}
+<BradixContextMenuSubContent AdditionalAttributes="@ContentAttributes">
+    @ChildContent
+</BradixContextMenuSubContent>
 
 @code {
-    [CascadingParameter(Name = "ParentContextMenuSub")]
-    private ContextMenuSub? ParentContextMenuSub { get; set; }
+    private IReadOnlyDictionary<string, object> ContentAttributes => BuildAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "context-menu-sub-content";
-        attributes["data-state"] = ParentContextMenuSub?.Open == true ? "open" : "closed";
         attributes["data-side"] = "right";
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -31,9 +26,4 @@
         });
     }
 
-    protected override void ComputeRenderKeyCore(ref HashCode hc)
-    {
-        base.ComputeRenderKeyCore(ref hc);
-        hc.Add(ParentContextMenuSub?.Open ?? false);
-    }
 }

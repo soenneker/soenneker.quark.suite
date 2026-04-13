@@ -1,67 +1,33 @@
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Bradix
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.ToggleElement
-@implements IContextMenuFocusableItem
 
-<div @onclick="OnClickHandler" @onkeydown="HandleMenuKeyDown" @attributes="BuildAttributes()" @ref="_elementRef">
+<BradixContextMenuCheckboxItem Checked="@ResolvedCheckedState"
+                               CheckedChanged="HandleCheckedStateChanged"
+                               Disabled="@Disabled"
+                               AdditionalAttributes="@CheckboxAttributes">
     <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center rtl:left-auto rtl:right-2">
-        @if (Checked)
-        {
+        <BradixMenuItemIndicator>
             <Icon Name="LucideIcon.Check" Class="size-4" />
-        }
+        </BradixMenuItemIndicator>
     </span>
     @ChildContent
-</div>
+</BradixContextMenuCheckboxItem>
 
 @code {
-    private ElementReference _elementRef;
+    private BradixCheckboxCheckedState ResolvedCheckedState =>
+        Checked ? BradixCheckboxCheckedState.Checked : BradixCheckboxCheckedState.Unchecked;
 
-    [CascadingParameter(Name = "ParentContextMenu")]
-    private ContextMenu? ParentContextMenu { get; set; }
-
-    [CascadingParameter(Name = "ContextMenuNavigationSub")]
-    private ContextMenuSub? NavigationSub { get; set; }
-
-    bool IContextMenuFocusableItem.IsDisabledForNavigation => Disabled;
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        base.OnAfterRender(firstRender);
-
-        if (!firstRender)
-            return;
-
-        if (NavigationSub is not null)
-            NavigationSub.RegisterItem(this);
-        else
-            ParentContextMenu?.RegisterItem(this);
-    }
-
-
-    private async Task OnClickHandler()
-    {
-        if (Disabled)
-            return;
-
-        var next = !Checked;
-        Checked = next;
-        await CheckedChanged.InvokeIfHasDelegate(next);
-    }
+    private IReadOnlyDictionary<string, object> CheckboxAttributes => BuildCheckboxAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "context-menu-checkbox-item";
         attributes["data-state"] = Checked ? "checked" : "unchecked";
-        attributes["role"] = "menuitemcheckbox";
         attributes["aria-checked"] = Checked ? "true" : "false";
-        attributes["tabindex"] = -1;
-        if (Disabled)
-        {
-            attributes["data-disabled"] = "true";
-            attributes["aria-disabled"] = "true";
-        }
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -72,6 +38,16 @@
         });
     }
 
+    private IReadOnlyDictionary<string, object> BuildCheckboxAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("role");
+        attributes.Remove("tabindex");
+        attributes.Remove("data-disabled");
+        attributes.Remove("aria-disabled");
+        return attributes;
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
@@ -79,43 +55,10 @@
         hc.Add(Disabled);
     }
 
-    private async Task HandleMenuKeyDown(KeyboardEventArgs e)
+    private async Task HandleCheckedStateChanged(BradixCheckboxCheckedState state)
     {
-        if (ParentContextMenu is null)
-            return;
-
-        if (e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
-        {
-            if (NavigationSub is not null)
-                await NavigationSub.HandleItemNavigationAsync(this, e.Key);
-            else
-                await ParentContextMenu.HandleItemNavigationAsync(this, e.Key);
-        }
-        else if (e.Key is "Enter" or " ")
-            await OnClickHandler();
-        else if (e.Key == "ArrowLeft" && NavigationSub is not null)
-            await NavigationSub.CloseAndFocusTriggerAsync();
-        else if (e.Key == "Escape")
-        {
-            if (NavigationSub is not null)
-                await NavigationSub.CloseAndFocusTriggerAsync();
-            else
-                ParentContextMenu.Close();
-        }
-    }
-
-    async Task IContextMenuFocusableItem.FocusAsync()
-    {
-        await _elementRef.FocusAsync();
-    }
-
-    public override void Dispose()
-    {
-        if (NavigationSub is not null)
-            NavigationSub.UnregisterItem(this);
-        else
-            ParentContextMenu?.UnregisterItem(this);
-
-        base.Dispose();
+        bool next = state == BradixCheckboxCheckedState.Checked;
+        Checked = next;
+        await CheckedChanged.InvokeIfHasDelegate(next);
     }
 }

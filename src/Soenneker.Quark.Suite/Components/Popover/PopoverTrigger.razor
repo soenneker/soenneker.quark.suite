@@ -1,3 +1,5 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
@@ -9,42 +11,39 @@
 }
 else
 {
-    <button @ref="_triggerRef" @onclick="HandleTriggerClick" @attributes="BuildAttributes()">
+    <BradixPopoverTrigger Id="@Context?.TriggerId"
+                          Disabled="@Disabled"
+                          OnClick="HandleTriggerClick"
+                          AdditionalAttributes="@TriggerAttributes">
         @ChildContent
-    </button>
+    </BradixPopoverTrigger>
 }
 
 @code {
     [CascadingParameter]
     private PopoverContext? Context { get; set; }
 
+    [CascadingParameter]
+    private BradixPopover? BradixPopover { get; set; }
+
     [Parameter]
     public bool AsChild { get; set; }
 
-    private ElementReference _triggerRef;
-
-    protected override Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!AsChild)
-            Context?.SetTriggerElement(_triggerRef);
-
-        return base.OnAfterRenderAsync(firstRender);
-    }
+    private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        attributes["type"] = "button";
         attributes["data-slot"] = "popover-trigger";
 
-        if (Context is not null)
+        if (BradixPopover is not null)
         {
-            attributes["id"] = Context.TriggerId;
-            attributes["data-state"] = Context.IsOpen ? "open" : "closed";
+            attributes["id"] = Context?.TriggerId ?? BradixPopover.DefaultTriggerId;
+            attributes["data-state"] = BradixPopover.CurrentOpen ? "open" : "closed";
             attributes["aria-haspopup"] = "dialog";
-            attributes["aria-expanded"] = Context.IsOpen ? "true" : "false";
-            attributes["aria-controls"] = Context.ContentId;
+            attributes["aria-expanded"] = BradixPopover.CurrentOpen ? "true" : "false";
+            attributes["aria-controls"] = Context?.ContentId ?? BradixPopover.ContentId;
         }
 
         if (Disabled)
@@ -60,44 +59,53 @@ else
         });
     }
 
+    private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+
+        attributes.Remove("type");
+        attributes.Remove("id");
+        attributes.Remove("data-state");
+        attributes.Remove("aria-haspopup");
+        attributes.Remove("aria-expanded");
+        attributes.Remove("aria-controls");
+        attributes.Remove("disabled");
+        attributes.Remove("onclick");
+
+        return attributes;
+    }
+
     private TriggerContext GetTriggerContext()
     {
         return new TriggerContext
         {
-            TriggerId = Context?.TriggerId,
-            IsOpen = Context?.IsOpen == true,
-            DataState = Context?.IsOpen == true ? "open" : "closed",
+            TriggerId = Context?.TriggerId ?? BradixPopover?.DefaultTriggerId,
+            ParentDisabled = Disabled,
+            IsOpen = BradixPopover?.CurrentOpen == true,
+            DataState = BradixPopover?.CurrentOpen == true ? "open" : "closed",
             AriaHasPopup = "dialog",
-            AriaControls = Context?.ContentId,
-            Toggle = Context is null ? null : () => Context.Toggle(),
-            Open = Context is null ? null : () => Context.Open(),
-            Close = Context is null ? null : () => Context.Close(),
-            RegisterElement = Context is null
+            AriaControls = Context?.ContentId ?? BradixPopover?.ContentId,
+            Toggle = BradixPopover is null || Disabled ? null : () => BradixPopover.ToggleOpen(),
+            Open = BradixPopover is null || Disabled ? null : () => BradixPopover.SetOpen(true),
+            Close = BradixPopover is null ? null : () => BradixPopover.SetOpen(false),
+            RegisterElement = BradixPopover is null || Context is null
                 ? null
-                : elementReference =>
-                {
-                    _triggerRef = elementReference;
-                    Context.SetTriggerElement(elementReference);
-                }
+                : elementReference => BradixPopover.RegisterTrigger(elementReference, Context.TriggerId)
         };
     }
 
-    private async Task HandleTriggerClick(MouseEventArgs e)
+    private Task HandleTriggerClick(MouseEventArgs e)
     {
-        if (Disabled)
-            return;
-
-        if (Context is not null)
-            await Context.Toggle();
-
-        await HandleClick(e);
+        return base.HandleClick(e);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Disabled);
-        hc.Add(Context?.IsOpen);
+        hc.Add(BradixPopover?.CurrentOpen);
         hc.Add(AsChild);
+        hc.Add(Context?.TriggerId);
+        hc.Add(Context?.ContentId);
     }
 }

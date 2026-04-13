@@ -1,17 +1,16 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements INavigationMenuViewport
 
 <div @attributes="BuildWrapperAttributes()">
-    <div @attributes="BuildAttributes()">
+    <BradixNavigationMenuViewport AdditionalAttributes="@ViewportAttributes">
         @ChildContent
-    </div>
+    </BradixNavigationMenuViewport>
 </div>
 
 @code {
-    [CascadingParameter(Name = "ParentNavigationMenu")]
-    private NavigationMenu? ParentNavigationMenu { get; set; }
-
     private static Dictionary<string, object> BuildWrapperAttributes()
     {
         var attributes = new Dictionary<string, object>(1);
@@ -24,12 +23,21 @@
         return attributes;
     }
 
+    private IReadOnlyDictionary<string, object> ViewportAttributes => BuildViewportAttributes();
+
+    private IReadOnlyDictionary<string, object> BuildViewportAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("data-state");
+        attributes.Remove("data-orientation");
+        return attributes;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "navigation-menu-viewport";
-        attributes["data-state"] = ParentNavigationMenu?.HasOpenItem == true ? "open" : "closed";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

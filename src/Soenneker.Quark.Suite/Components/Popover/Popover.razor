@@ -1,11 +1,18 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<CascadingValue Value="_context" IsFixed="true">
-    <div @attributes="BuildAttributes()">
-        @ChildContent
-    </div>
-</CascadingValue>
+<div @attributes="BuildAttributes()">
+    <BradixPopover Open="@(OpenChanged.HasDelegate ? Open : (bool?)null)"
+                   DefaultOpen="@DefaultOpen"
+                   OpenChanged="HandleOpenChanged"
+                   Modal="@Modal">
+        <CascadingValue Value="_context" IsFixed="true">
+            @ChildContent
+        </CascadingValue>
+    </BradixPopover>
+</div>
 
 @code {
     [Parameter]
@@ -21,36 +28,26 @@
     [Parameter]
     public bool Modal { get; set; }
 
-    private bool _open;
     private PopoverContext _context = null!;
 
     protected override void OnInitialized()
     {
-        _open = OpenChanged.HasDelegate ? Open : DefaultOpen;
-        _context = new PopoverContext(() => _open, SetOpenAsync);
+        _context = new PopoverContext
+        {
+            Modal = Modal
+        };
     }
 
     protected override void OnParametersSet()
     {
-        if (OpenChanged.HasDelegate)
-            _open = Open;
-
         _context.Modal = Modal;
-
         base.OnParametersSet();
     }
 
-    private async Task SetOpenAsync(bool open)
+    private async Task HandleOpenChanged(bool open)
     {
-        if (_open == open)
-            return;
-
-        _open = open;
-
         if (OpenChanged.HasDelegate)
             await OpenChanged.InvokeAsync(open);
-
-        await RefreshOffThread();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -58,7 +55,6 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "popover";
-        attributes["data-state"] = _open ? "open" : "closed";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -70,7 +66,8 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(_open);
+        hc.Add(Open);
+        hc.Add(DefaultOpen);
         hc.Add(Modal);
     }
 }

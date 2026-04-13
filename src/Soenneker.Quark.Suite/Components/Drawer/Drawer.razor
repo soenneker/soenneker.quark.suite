@@ -1,13 +1,18 @@
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Bradix
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.OverlayElement
 
-<CascadingValue Name="ParentDrawer" Value="@this">
-    <CascadingValue Value="_context" IsFixed="false">
-        @ChildContent
+<BradixDialog Open="@Visible"
+              OpenChanged="HandleOpenChanged"
+              Modal="@TrapFocus">
+    <CascadingValue Name="ParentDrawer" Value="@this">
+        <CascadingValue Value="_context" IsFixed="true">
+            @ChildContent
+        </CascadingValue>
     </CascadingValue>
-</CascadingValue>
+</BradixDialog>
 
 @code {
     /// <summary>
@@ -29,13 +34,7 @@
     /// </summary>
     public async Task Show()
     {
-        if (Visible)
-            return;
-
-        Visible = true;
-        await VisibleChanged.InvokeAsync(Visible);
-        await OnShow.InvokeIfHasDelegate();
-        await RefreshOffThread();
+        await SetVisibleAsync(true);
     }
 
     /// <summary>
@@ -43,12 +42,29 @@
     /// </summary>
     public async Task Hide()
     {
-        if (!Visible)
+        await SetVisibleAsync(false);
+    }
+
+    private Task HandleOpenChanged(bool open)
+    {
+        return SetVisibleAsync(open);
+    }
+
+    private async Task SetVisibleAsync(bool visible)
+    {
+        if (Visible == visible)
             return;
 
-        Visible = false;
-        await VisibleChanged.InvokeAsync(Visible);
-        await OnHide.InvokeIfHasDelegate();
+        Visible = visible;
+
+        if (VisibleChanged.HasDelegate)
+            await VisibleChanged.InvokeAsync(Visible);
+
+        if (visible)
+            await OnShow.InvokeIfHasDelegate();
+        else
+            await OnHide.InvokeIfHasDelegate();
+
         await RefreshOffThread();
     }
 

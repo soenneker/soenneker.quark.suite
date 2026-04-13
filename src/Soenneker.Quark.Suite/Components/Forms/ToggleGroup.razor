@@ -1,19 +1,21 @@
 ﻿@namespace Soenneker.Quark
+@using Soenneker.Bradix
 @inherits Soenneker.Quark.FormControlElement
 
 <CascadingValue Name="ParentToggleGroup" Value="@this" IsFixed="true">
-    <div @attributes="BuildAttributes()">
+    <BradixToggleGroup Type="@ResolvedType"
+                       Disabled="@Disabled"
+                       Value="@Value"
+                       Values="@Values"
+                       Orientation="@ResolvedOrientation"
+                       ValueChanged="HandleSingleValueChanged"
+                       ValuesChanged="HandleMultipleValuesChanged"
+                       AdditionalAttributes="@GroupAttributes">
         @ChildContent
-    </div>
+    </BradixToggleGroup>
 </CascadingValue>
 
 @code {
-    private readonly List<ToggleGroupItem> _items = [];
-    private ToggleGroupItem? _focusedItem;
-
-    [CascadingParameter(Name = "DirectionProviderDir")]
-    private string? DirectionProviderDir { get; set; }
-
     /// <summary>
     /// Gets or sets the type of toggle group: single (one at a time) or multiple (allow multiple pressed).
     /// </summary>
@@ -69,165 +71,71 @@
             _ => ""
         };
 
-    internal void RegisterItem(ToggleGroupItem item)
+    private BradixSelectionMode ResolvedType => Type == ToggleGroupType.Multiple
+        ? BradixSelectionMode.Multiple
+        : BradixSelectionMode.Single;
+
+    private BradixOrientation ResolvedOrientation => Orientation == ToggleGroupOrientation.Vertical
+        ? BradixOrientation.Vertical
+        : BradixOrientation.Horizontal;
+
+    private IReadOnlyDictionary<string, object> GroupAttributes
     {
-        if (!_items.Contains(item))
+        get
         {
-            _items.Add(item);
-            _ = RefreshOffThread();
-        }
-    }
+            Dictionary<string, object> attributes = new(BuildAttributes());
 
-    internal void UnregisterItem(ToggleGroupItem item)
-    {
-        if (_items.Remove(item))
-            _ = RefreshOffThread();
-    }
+            attributes.Remove("disabled");
+            attributes.Remove("value");
+            attributes.Remove("name");
+            attributes.Remove("readonly");
+            attributes.Remove("placeholder");
+            attributes.Remove("required");
+            attributes.Remove("autofocus");
+            attributes.Remove("role");
+            attributes.Remove("aria-orientation");
 
-    internal bool IsItemTabStop(ToggleGroupItem item)
-    {
-        if (item.IsDisabledInGroup)
-            return false;
+            attributes["data-slot"] = "toggle-group";
+            attributes["data-type"] = Type?.Value ?? ToggleGroupType.Single.Value;
+            attributes["data-variant"] = Variant?.Value ?? ToggleVariant.Default.Value;
+            attributes["data-size"] = Size?.Value ?? ToggleSize.Default.Value;
+            attributes["data-orientation"] = Orientation?.Value ?? ToggleGroupOrientation.Horizontal.Value;
+            attributes["data-spacing"] = Spacing.ToString();
 
-        var enabledItems = _items.Where(i => !i.IsDisabledInGroup).ToList();
-        if (enabledItems.Count == 0)
-            return false;
-
-        if (_focusedItem is not null && enabledItems.Contains(_focusedItem))
-            return ReferenceEquals(_focusedItem, item);
-
-        var selectedItem = enabledItems.FirstOrDefault(i => i.IsPressedInGroup);
-        if (selectedItem is not null)
-            return ReferenceEquals(selectedItem, item);
-
-        return ReferenceEquals(enabledItems[0], item);
-    }
-
-    internal void NotifyItemFocused(ToggleGroupItem item)
-    {
-        if (!ReferenceEquals(_focusedItem, item))
-        {
-            _focusedItem = item;
-            Refresh();
-        }
-    }
-
-    private bool IsHorizontalRtl()
-    {
-        if (Orientation == ToggleGroupOrientation.Vertical)
-            return false;
-
-        if (string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (Attributes is not null &&
-            Attributes.TryGetValue("dir", out var dirValue) &&
-            string.Equals(dirValue?.ToString(), "rtl", StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    internal async Task HandleItemKeyNavigationAsync(ToggleGroupItem currentItem, string key)
-    {
-        if (_items.Count == 0)
-            return;
-
-        var enabledItems = _items.Where(i => !i.IsDisabledInGroup).ToList();
-        if (enabledItems.Count == 0)
-            return;
-
-        var currentIndex = enabledItems.FindIndex(i => ReferenceEquals(i, currentItem));
-        if (currentIndex < 0)
-            return;
-
-        bool vertical = Orientation == ToggleGroupOrientation.Vertical;
-
-        var nextIndex = key switch
-        {
-            "Home" => 0,
-            "End" => enabledItems.Count - 1,
-            "ArrowRight" when !vertical && IsHorizontalRtl() => (currentIndex - 1 + enabledItems.Count) % enabledItems.Count,
-            "ArrowLeft" when !vertical && IsHorizontalRtl() => (currentIndex + 1) % enabledItems.Count,
-            "ArrowRight" when !vertical => (currentIndex + 1) % enabledItems.Count,
-            "ArrowLeft" when !vertical => (currentIndex - 1 + enabledItems.Count) % enabledItems.Count,
-            "ArrowDown" when vertical => (currentIndex + 1) % enabledItems.Count,
-            "ArrowUp" when vertical => (currentIndex - 1 + enabledItems.Count) % enabledItems.Count,
-            _ => -1
-        };
-
-        if (nextIndex < 0)
-            return;
-
-        _focusedItem = enabledItems[nextIndex];
-        await enabledItems[nextIndex].FocusAsync();
-    }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        attributes["data-slot"] = "toggle-group";
-        attributes["data-type"] = Type?.Value ?? ToggleGroupType.Single.Value;
-        attributes["data-variant"] = Variant?.Value ?? ToggleVariant.Default.Value;
-        attributes["data-size"] = Size?.Value ?? ToggleSize.Default.Value;
-        attributes["data-orientation"] = Orientation?.Value ?? ToggleGroupOrientation.Horizontal.Value;
-        attributes["data-spacing"] = Spacing.ToString();
-        attributes["role"] = "group";
-        attributes["aria-orientation"] = Orientation?.Value ?? ToggleGroupOrientation.Horizontal.Value;
-
-        if (Disabled)
-            attributes["aria-disabled"] = "true";
-
-        if (Spacing > 0)
-            attributes["style"] = $"--toggle-gap: {Spacing}px";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-toggle-group");
-            AppendClass(ref cls, "group/toggle-group flex w-fit flex-row items-center rounded-lg");
-            AppendClass(ref cls, "data-[size=sm]:rounded-[min(var(--radius-md),10px)]");
-            AppendClass(ref cls, "data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-stretch");
             if (Spacing > 0)
-                AppendClass(ref cls, "gap-[var(--toggle-gap,0.5rem)]");
-            else
-                AppendClass(ref cls, "gap-0");
-        });
+                AppendStyleDeclAttr(attributes, $"--toggle-gap: {Spacing}px;");
+
+            BuildClassAttribute(attributes, (ref cls) =>
+            {
+                AppendClass(ref cls, "q-toggle-group");
+                AppendClass(ref cls, "group/toggle-group flex w-fit flex-row items-center rounded-lg");
+                AppendClass(ref cls, "data-[size=sm]:rounded-[min(var(--radius-md),10px)]");
+                AppendClass(ref cls, "data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-stretch");
+                if (Spacing > 0)
+                    AppendClass(ref cls, "gap-[var(--toggle-gap,0.5rem)]");
+                else
+                    AppendClass(ref cls, "gap-0");
+            });
+
+            return attributes;
+        }
     }
 
-    internal async Task SelectValue(string? v)
+    private async Task HandleSingleValueChanged(string? value)
     {
-        if (Type == ToggleGroupType.Single)
-        {
-            var next = string.Equals(Value, v, StringComparison.Ordinal) ? null : v;
-            Value = next;
-            await ValueChanged.InvokeAsync(next);
-        }
-        else
-        {
-            var list = Values?.ToList() ?? new List<string>();
-            if (v != null)
-            {
-                if (list.Contains(v))
-                    list.Remove(v);
-                else
-                    list.Add(v);
-            }
-            Values = list.ToArray();
-            await ValueChangedMultiple.InvokeAsync(Values);
-        }
+        string? normalized = value.HasContent() ? value : null;
+        Value = normalized;
+        await ValueChanged.InvokeAsync(normalized);
         InvalidateRender();
         Refresh();
     }
 
-    internal bool IsPressed(string? v)
+    private async Task HandleMultipleValuesChanged(IReadOnlyCollection<string> values)
     {
-        if (string.IsNullOrEmpty(v)) return false;
-        if (Type == ToggleGroupType.Single)
-            return Value == v;
-        return Values?.Contains(v) ?? false;
+        Values = values.ToArray();
+        await ValueChangedMultiple.InvokeAsync(Values);
+        InvalidateRender();
+        Refresh();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -239,8 +147,6 @@
         hc.Add(Size);
         hc.Add(Orientation);
         hc.Add(Spacing);
-        hc.Add(DirectionProviderDir);
-        hc.Add(_focusedItem?.Value);
         if (Values != null)
             foreach (var x in Values) hc.Add(x);
     }

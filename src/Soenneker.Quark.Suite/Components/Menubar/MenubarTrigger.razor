@@ -1,12 +1,17 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
-<button @attributes="BuildAttributes()" @onkeydown="HandleKeyDown" @ref="_elementRef">
+<BradixMenubarTrigger Disabled="@Disabled"
+                      OnElementReferenceCaptured="HandleElementCaptured"
+                      AdditionalAttributes="@TriggerAttributes">
     @ChildContent
-</button>
+</BradixMenubarTrigger>
 
 @code {
     private ElementReference _elementRef;
+    private bool _registered;
 
     [Parameter]
     public bool Open { get; set; }
@@ -17,31 +22,27 @@
     [CascadingParameter(Name = "ParentMenubarMenu")]
     private MenubarMenu? ParentMenubarMenu { get; set; }
 
-    protected override void OnAfterRender(bool firstRender)
-    {
-        base.OnAfterRender(firstRender);
+    private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
 
-        if (firstRender)
+    private Task HandleElementCaptured(ElementReference elementReference)
+    {
+        _elementRef = elementReference;
+
+        if (!_registered)
         {
             ParentMenubarMenu?.RegisterTrigger(this);
             ParentMenubar?.RegisterTrigger(this);
+            _registered = true;
         }
+
+        return Task.CompletedTask;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        attributes["type"] = "button";
         attributes["data-slot"] = "menubar-trigger";
-        attributes["data-state"] = Open ? "open" : "closed";
-        attributes["role"] = "menuitem";
-        attributes["aria-haspopup"] = "menu";
-        attributes["aria-expanded"] = Open ? "true" : "false";
-        attributes["tabindex"] = Disabled ? -1 : 0;
-
-        if (Disabled)
-            attributes["disabled"] = true;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -50,26 +51,24 @@
         });
     }
 
+    private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("type");
+        attributes.Remove("role");
+        attributes.Remove("aria-haspopup");
+        attributes.Remove("aria-expanded");
+        attributes.Remove("tabindex");
+        attributes.Remove("disabled");
+        attributes.Remove("id");
+        return attributes;
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Open);
         hc.Add(Disabled);
-    }
-
-    protected override async Task HandleKeyDown(KeyboardEventArgs e)
-    {
-        if (ParentMenubar is not null && e.Key is "ArrowRight" or "ArrowLeft" or "Home" or "End")
-            await ParentMenubar.HandleTriggerNavigationAsync(this, e.Key);
-        else if (ParentMenubarMenu is not null)
-        {
-            if (e.Key is "ArrowDown" or "Enter" or " ")
-                await ParentMenubarMenu.FocusFirstItemAsync();
-            else if (e.Key == "ArrowUp")
-                await ParentMenubarMenu.FocusLastItemAsync();
-        }
-
-        await base.HandleKeyDown(e);
     }
 
     internal async Task FocusAsync()

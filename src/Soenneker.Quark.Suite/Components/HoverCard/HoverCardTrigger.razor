@@ -1,3 +1,5 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
@@ -9,19 +11,14 @@
 }
 else
 {
-    <button @onmouseenter="HandleMouseEnter"
-            @onmouseleave="HandleMouseLeave"
-            @onfocusin="HandleFocusIn"
-            @onfocusout="HandleFocusOut"
-            @onclick="HandleClick"
-            @attributes="BuildAttributes()">
+    <BradixHoverCardTrigger AdditionalAttributes="@TriggerAttributes">
         @ChildContent
-    </button>
+    </BradixHoverCardTrigger>
 }
 
 @code {
     [CascadingParameter]
-    private HoverCardContext? Context { get; set; }
+    private BradixHoverCard? HoverCard { get; set; }
 
     [CascadingParameter(Name = "TriggerContext")]
     private TriggerContext? ParentTriggerContext { get; set; }
@@ -29,20 +26,34 @@ else
     [Parameter]
     public bool AsChild { get; set; }
 
+    private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
+
+    private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("type");
+        attributes.Remove("data-state");
+        attributes.Remove("id");
+        attributes.Remove("aria-describedby");
+        attributes.Remove("aria-haspopup");
+        attributes.Remove("aria-expanded");
+        attributes.Remove("aria-controls");
+        attributes.Remove("onmouseenter");
+        attributes.Remove("onmouseleave");
+        attributes.Remove("onfocusin");
+        attributes.Remove("onfocusout");
+        attributes.Remove("onclick");
+        return attributes;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        attributes["type"] = "button";
         attributes["data-slot"] = "hover-card-trigger";
-
-        if (Context is not null)
-            attributes["data-state"] = Context.IsOpen ? "open" : "closed";
 
         if (ParentTriggerContext?.TriggerId is not null)
             attributes["id"] = ParentTriggerContext.TriggerId;
-        else if (Context?.TriggerId is not null)
-            attributes["id"] = Context.TriggerId;
 
         var describedBy = BuildAriaDescribedBy();
         if (describedBy is not null)
@@ -71,25 +82,25 @@ else
     {
         return new TriggerContext
         {
-            TriggerId = ParentTriggerContext?.TriggerId ?? Context?.TriggerId,
-            IsOpen = ParentTriggerContext?.AriaControls is not null ? ParentTriggerContext.IsOpen : Context?.IsOpen == true,
-            DataState = Context?.IsOpen == true ? "open" : "closed",
+            TriggerId = ParentTriggerContext?.TriggerId,
+            IsOpen = ParentTriggerContext?.AriaControls is not null ? ParentTriggerContext.IsOpen : HoverCard?.CurrentOpen == true,
+            DataState = HoverCard?.CurrentOpen == true ? "open" : "closed",
             AriaHasPopup = ParentTriggerContext?.AriaHasPopup,
             AriaControls = ParentTriggerContext?.AriaControls,
             AriaDescribedBy = BuildAriaDescribedBy(),
             Toggle = ParentTriggerContext?.Toggle,
-            Open = Context is null ? null : () => Context.Open(),
-            Close = Context is null ? null : () => Context.Close(),
-            OnMouseEnter = Context is null ? null : () => Context.Open(),
-            OnMouseLeave = Context is null ? null : () => Context.Close(),
-            OnFocusIn = Context is null ? null : () => Context.Open(),
-            OnFocusOut = Context is null ? null : () => Context.Close()
+            Open = HoverCard is null ? null : () => HoverCard.HandleTriggerEnter(),
+            Close = HoverCard is null ? null : () => HoverCard.Dismiss(),
+            OnMouseEnter = HoverCard is null ? null : () => HoverCard.HandleTriggerEnter(),
+            OnMouseLeave = HoverCard is null ? null : () => HoverCard.HandleTriggerLeave(),
+            OnFocusIn = HoverCard is null ? null : () => HoverCard.HandleTriggerFocus(),
+            OnFocusOut = HoverCard is null ? null : () => HoverCard.HandleTriggerBlur()
         };
     }
 
     private string? BuildAriaDescribedBy()
     {
-        var hoverCardId = Context?.IsOpen == true ? Context.ContentId : null;
+        var hoverCardId = HoverCard?.CurrentOpen == true ? HoverCard.ContentId : null;
         var parentDescribedBy = ParentTriggerContext?.AriaDescribedBy;
 
         if (parentDescribedBy is null)
@@ -106,31 +117,11 @@ else
         return ParentTriggerContext?.Toggle?.Invoke() ?? Task.CompletedTask;
     }
 
-    private Task HandleMouseEnter(MouseEventArgs e)
-    {
-        return Context?.Open() ?? Task.CompletedTask;
-    }
-
-    private Task HandleMouseLeave(MouseEventArgs e)
-    {
-        return Context?.Close() ?? Task.CompletedTask;
-    }
-
-    private Task HandleFocusIn(FocusEventArgs e)
-    {
-        return Context?.Open() ?? Task.CompletedTask;
-    }
-
-    private Task HandleFocusOut(FocusEventArgs e)
-    {
-        return Context?.Close() ?? Task.CompletedTask;
-    }
-
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Context?.IsOpen);
-        hc.Add(Context?.ContentId);
+        hc.Add(HoverCard?.CurrentOpen);
+        hc.Add(HoverCard?.ContentId);
         hc.Add(AsChild);
         hc.Add(ParentTriggerContext?.TriggerId);
         hc.Add(ParentTriggerContext?.AriaHasPopup);

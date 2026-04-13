@@ -1,9 +1,12 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()" style="@GetAspectRatioStyle()">
+<BradixAspectRatio Ratio="@ResolvedRatio"
+                   AdditionalAttributes="@AspectRatioAttributes">
     @ChildContent
-</div>
+</BradixAspectRatio>
 
 @code {
     /// <summary>
@@ -13,12 +16,13 @@
     [Parameter]
     public double Ratio { get; set; } = 16.0 / 9.0;
 
-    private string GetAspectRatioStyle()
+    private double ResolvedRatio => Ratio > 0 ? Ratio : 16.0 / 9.0;
+
+    private IReadOnlyDictionary<string, object> AspectRatioAttributes => BuildAspectRatioAttributes();
+
+    private IReadOnlyDictionary<string, object> BuildAspectRatioAttributes()
     {
-        var existing = Style;
-        var ratio = Ratio > 0 ? Ratio : 16.0 / 9.0;
-        var aspectStyle = $"aspect-ratio: {ratio:F2};";
-        return string.IsNullOrWhiteSpace(existing) ? aspectStyle : $"{existing}; {aspectStyle}";
+        return BuildAttributes();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

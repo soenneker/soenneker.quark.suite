@@ -1,3 +1,5 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TriggerElement
 @implements ISheetTrigger
@@ -10,9 +12,11 @@
 }
 else
 {
-    <button type="button" @onclick="HandleActivate" @ref="_elementRef" @attributes="BuildAttributes()">
+    <BradixDialogTrigger Disabled="@Disabled"
+                         OnClick="HandleActivate"
+                         AdditionalAttributes="@TriggerAttributes">
         @ChildContent
-    </button>
+    </BradixDialogTrigger>
 }
 
 @code {
@@ -22,10 +26,15 @@ else
     [CascadingParameter]
     private OverlayLabelContext? Context { get; set; }
 
+    [CascadingParameter]
+    private BradixDialog? BradixDialog { get; set; }
+
     [Parameter]
     public bool AsChild { get; set; }
 
     private ElementReference _elementRef;
+
+    private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -39,7 +48,7 @@ else
         if (Disabled)
             attributes["disabled"] = true;
 
-        if (Context is not null && ParentSheet?.Visible == true)
+        if (Context is not null)
             attributes["aria-controls"] = Context.ContentId;
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -50,15 +59,39 @@ else
         });
     }
 
+    private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+
+        attributes.Remove("type");
+        attributes.Remove("id");
+        attributes.Remove("data-state");
+        attributes.Remove("aria-haspopup");
+        attributes.Remove("aria-expanded");
+        attributes.Remove("aria-controls");
+        attributes.Remove("disabled");
+        attributes.Remove("onclick");
+
+        return attributes;
+    }
+
     private TriggerContext GetTriggerContext()
     {
         return new TriggerContext
         {
+            TriggerId = Context?.ContentId is not null ? $"{Context.ContentId}-trigger" : null,
+            ParentDisabled = Disabled,
             IsOpen = ParentSheet?.Visible == true,
             DataState = ParentSheet?.Visible == true ? "open" : "closed",
             AriaHasPopup = "dialog",
-            AriaControls = ParentSheet?.Visible == true ? Context?.ContentId : null,
-            RegisterElement = elementReference => _elementRef = elementReference,
+            AriaControls = Context?.ContentId,
+            RegisterElement = elementReference =>
+            {
+                _elementRef = elementReference;
+
+                if (BradixDialog is not null)
+                    BradixDialog.RegisterTrigger(elementReference, Context?.ContentId is not null ? $"{Context.ContentId}-trigger" : null);
+            },
             Toggle = ParentSheet is null
                 ? null
                 : async () =>
@@ -69,33 +102,20 @@ else
                     }
                     else
                     {
-                        ParentSheet.SetRestoreFocusTarget(_elementRef);
                         await ParentSheet.Show();
                     }
                 },
             Open = ParentSheet is null ? null : async () =>
             {
-                ParentSheet.SetRestoreFocusTarget(_elementRef);
                 await ParentSheet.Show();
             },
             Close = ParentSheet is null ? null : () => ParentSheet.Hide()
         };
     }
 
-    private async Task HandleActivate(MouseEventArgs args)
+    private Task HandleActivate(MouseEventArgs args)
     {
-        if (!Disabled && ParentSheet is not null)
-        {
-            if (ParentSheet.Visible)
-                await ParentSheet.Hide();
-            else
-            {
-                ParentSheet.SetRestoreFocusTarget(_elementRef);
-                await ParentSheet.Show();
-            }
-        }
-
-        await base.HandleClick(args);
+        return base.HandleClick(args);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

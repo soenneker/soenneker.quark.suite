@@ -1,14 +1,14 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 
 @inherits Soenneker.Quark.Element
 @implements ITab
 
-<button @onclick="HandleClick"
-        @onfocus="HandleFocusAsync"
-        @onkeydown="HandleKeyDown"
-        @onkeydown:preventDefault="_preventDefaultKeys"
-        @ref="_buttonRef"
-        @attributes="BuildAttributes()">
+<BradixTabsTrigger Value="@ResolvedValue"
+                   Disabled="@Disabled"
+                   OnMouseDown="HandleBradixMouseDown"
+                   AdditionalAttributes="@TriggerAttributes">
     @if (Icon is not null)
     {
         <span data-icon="inline-start">
@@ -23,7 +23,7 @@
     {
         @ChildContent
     }
-</button>
+</BradixTabsTrigger>
 
 @code {
     [Parameter]
@@ -48,10 +48,8 @@
     [CascadingParameter(Name = nameof(ParentTabs))]
     public Tabs? ParentTabs { get; set; }
 
-    private ElementReference _buttonRef;
-    private bool _preventDefaultKeys;
-
-    private bool IsActive => string.Equals(ParentTabs?.ResolvedSelectedTab, Name, StringComparison.Ordinal);
+    private string ResolvedValue => Name ?? string.Empty;
+    private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -70,27 +68,7 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        attributes["type"] = "button";
         attributes["data-slot"] = "tabs-trigger";
-        attributes["data-state"] = IsActive ? "active" : "inactive";
-        attributes["role"] = "tab";
-
-        if (Name.HasContent())
-            attributes["id"] = $"tab-trigger-{Name}";
-
-        var targetId = Target ?? (Name.HasContent() ? $"tab-content-{Name}" : null);
-        if (targetId is not null)
-            attributes["aria-controls"] = targetId;
-
-        attributes["aria-selected"] = IsActive ? "true" : "false";
-        attributes["tabindex"] = ParentTabs?.GetTriggerTabIndex(Name, IsActive) ?? (IsActive ? 0 : -1);
-
-        if (Disabled)
-        {
-            attributes["data-disabled"] = "true";
-            attributes["aria-disabled"] = "true";
-            attributes["disabled"] = true;
-        }
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -99,57 +77,32 @@
         });
     }
 
-    protected override async Task HandleClick(MouseEventArgs args)
+    private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
     {
-        if (!Disabled && ParentTabs != null && Name.HasContent())
-            await ParentTabs.SelectTab(Name!);
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("type");
+        attributes.Remove("role");
+        attributes.Remove("id");
+        attributes.Remove("aria-controls");
+        attributes.Remove("aria-selected");
+        attributes.Remove("tabindex");
+        attributes.Remove("data-state");
+        attributes.Remove("disabled");
+        attributes.Remove("data-disabled");
+        attributes.Remove("aria-disabled");
+        attributes.Remove("onfocus");
+        attributes.Remove("onkeydown");
+        attributes.Remove("onmousedown");
 
-        await base.HandleClick(args);
+        if (Target.HasContent())
+            attributes["data-target"] = Target!;
+
+        return attributes;
     }
 
-    private async Task HandleFocusAsync(FocusEventArgs args)
+    private Task HandleBradixMouseDown(MouseEventArgs args)
     {
-        if (ParentTabs is null || !Name.HasContent())
-            return;
-
-        ParentTabs.NotifyManualRovingFocus(Name!);
-
-        if (Disabled)
-            return;
-
-        if (!ParentTabs.IsAutomaticActivation)
-            return;
-
-        if (!IsActive)
-            await ParentTabs.SelectTab(Name!);
-    }
-
-    private async Task HandleKeyDown(KeyboardEventArgs args)
-    {
-        if (args.Key is " " or "Enter")
-        {
-            if (!Disabled && ParentTabs is not null && Name.HasContent())
-                await ParentTabs.SelectTab(Name!);
-
-            _preventDefaultKeys = true;
-            return;
-        }
-
-        _preventDefaultKeys = args.Key switch
-        {
-            "Home" or "End" => true,
-            "ArrowLeft" or "ArrowRight" when ParentTabs?.Vertical != true => true,
-            "ArrowUp" or "ArrowDown" when ParentTabs?.Vertical == true => true,
-            _ => false
-        };
-
-        if (_preventDefaultKeys && ParentTabs is not null)
-            await ParentTabs.HandleKeyNavigationAsync(this, args.Key);
-    }
-
-    internal async Task FocusAsync()
-    {
-        await _buttonRef.FocusAsync();
+        return base.HandleClick(args);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -161,7 +114,6 @@
         hc.Add(Disabled);
         if (ParentTabs?.ResolvedSelectedTab is not null)
             hc.Add(ParentTabs.ResolvedSelectedTab);
-        hc.Add(ParentTabs?.ActivationMode);
         hc.Add(ForceMount);
     }
 }

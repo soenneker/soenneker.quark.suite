@@ -1,4 +1,5 @@
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Bradix
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.ToggleElement
@@ -6,7 +7,42 @@
 @implements IRadio
 @implements IDisposable
 <div @attributes="BuildWrapperAttributes()">
-    @if (HasInlineLabel)
+    @if (ParentRadioGroup is not null)
+    {
+        @if (HasInlineLabel)
+        {
+            <label @attributes="BuildLabelAttributes()">
+                <BradixRadioGroupItem Id="@ControlId"
+                                      Value="@ResolvedGroupedValue"
+                                      InputValue="@ResolvedGroupedValue"
+                                      Disabled="@Disabled"
+                                      OnClick="HandleGroupedClick"
+                                      OnFocus="HandleGroupedFocus"
+                                      OnKeyDown="HandleGroupedKeyDown"
+                                      AdditionalAttributes="@BuildGroupedItemAttributes()">
+                    <BradixRadioGroupIndicator AdditionalAttributes="@BuildGroupedIndicatorAttributes()" />
+                </BradixRadioGroupItem>
+                @if (ChildContent != null)
+                {
+                    @ChildContent
+                }
+            </label>
+        }
+        else
+        {
+            <BradixRadioGroupItem Id="@ControlId"
+                                  Value="@ResolvedGroupedValue"
+                                  InputValue="@ResolvedGroupedValue"
+                                  Disabled="@Disabled"
+                                  OnClick="HandleGroupedClick"
+                                  OnFocus="HandleGroupedFocus"
+                                  OnKeyDown="HandleGroupedKeyDown"
+                                  AdditionalAttributes="@BuildGroupedItemAttributes()">
+                <BradixRadioGroupIndicator AdditionalAttributes="@BuildGroupedIndicatorAttributes()" />
+            </BradixRadioGroupItem>
+        }
+    }
+    else if (HasInlineLabel)
     {
         <label @attributes="BuildLabelAttributes()">
             <input
@@ -61,13 +97,15 @@
 
     private ElementReference _elementRef;
     private bool _preventDefault;
+    private bool _hasObservedGroupedCheckedState;
+    private bool _lastGroupedCheckedState;
     private bool HasInlineLabel => ChildContent != null;
 
     /// <summary>
     /// When inside RadioGroup, reflects group value; otherwise uses Checked.
     /// </summary>
     private bool EffectiveChecked => ParentRadioGroup != null
-        ? string.Equals(ParentRadioGroup.Value, Value, StringComparison.Ordinal)
+        ? string.Equals(ParentRadioGroup.Value, ResolvedGroupedValue, StringComparison.Ordinal)
         : Checked;
 
     /// <summary>
@@ -76,6 +114,7 @@
     private bool EffectiveDisabled => ParentRadioGroup?.Disabled == true || Disabled;
 
     private string ControlId => ParentRadioGroup is null && CurrentFieldContext is not null ? CurrentFieldContext.ControlId : Id!;
+    private string ResolvedGroupedValue => Value ?? ControlId;
 
     /// <summary>
     /// Gets or sets the size of the radio.
@@ -99,13 +138,6 @@
     {
         if (Id.IsNullOrEmpty())
             Id = $"radio_{Guid.NewGuid():N}";
-
-        ParentRadioGroup?.RegisterRadio(this);
-    }
-
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -117,6 +149,30 @@
 
             if (ParentRadioGroup is null && CheckedExpression is not null)
                 await ParentValidation.InitializeInputExpression(CheckedExpression);
+        }
+
+        if (ParentRadioGroup is not null)
+        {
+            if (!_hasObservedGroupedCheckedState)
+            {
+                _lastGroupedCheckedState = EffectiveChecked;
+                _hasObservedGroupedCheckedState = true;
+            }
+            else if (_lastGroupedCheckedState != EffectiveChecked)
+            {
+                _lastGroupedCheckedState = EffectiveChecked;
+
+                if (EffectiveChecked)
+                {
+                    await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = true });
+
+                    if (ParentValidation is not null)
+                    {
+                        ParentValidation.MarkTouched();
+                        await ParentValidation.NotifyInputChanged(ParentRadioGroup.Value, overrideNewValue: true);
+                    }
+                }
+            }
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -164,6 +220,21 @@
         return base.HandleClick(e);
     }
 
+    private Task HandleGroupedClick(MouseEventArgs e)
+    {
+        return base.HandleClick(e);
+    }
+
+    private Task HandleGroupedFocus(FocusEventArgs e)
+    {
+        return base.HandleFocus(e);
+    }
+
+    private Task HandleGroupedKeyDown(KeyboardEventArgs e)
+    {
+        return base.HandleKeyDown(e);
+    }
+
     private async Task HandleChange(ChangeEventArgs e)
     {
         if (EffectiveDisabled)
@@ -199,10 +270,8 @@
 
     protected override Task HandleKeyDown(KeyboardEventArgs e)
     {
-        _preventDefault = e.Key is "Home" or "End" or "ArrowLeft" or "ArrowRight" or "ArrowUp" or "ArrowDown";
-
-        if (!EffectiveDisabled && ParentRadioGroup is not null && _preventDefault)
-            ParentRadioGroup.HandleKeyNavigation(this, e.Key);
+        _preventDefault = ParentRadioGroup is null &&
+                          e.Key is "Home" or "End" or "ArrowLeft" or "ArrowRight" or "ArrowUp" or "ArrowDown";
 
         return base.HandleKeyDown(e);
     }
@@ -234,7 +303,7 @@
             ["value"] = Value ?? string.Empty,
             ["checked"] = EffectiveChecked,
             ["data-state"] = EffectiveChecked ? "checked" : "unchecked",
-            ["tabindex"] = ParentRadioGroup?.IsTabStop(this) == false ? -1 : 0
+            ["tabindex"] = 0
         };
 
         if (Required)
@@ -303,6 +372,49 @@
         return attributes;
     }
 
+    private Dictionary<string, object> BuildGroupedItemAttributes()
+    {
+        var attributes = new Dictionary<string, object>(BuildIndicatorAttributes());
+
+        attributes.Remove("data-checked");
+        attributes.Remove("data-unchecked");
+
+        if (Attributes is not null)
+        {
+            foreach (KeyValuePair<string, object> attribute in Attributes)
+            {
+                if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("id", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("name", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("value", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("checked", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("disabled", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("type", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("onclick", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("onchange", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("onkeydown", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("onfocus", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                attributes[attribute.Key] = attribute.Value;
+            }
+        }
+
+        return attributes;
+    }
+
+    private static IReadOnlyDictionary<string, object> BuildGroupedIndicatorAttributes()
+    {
+        return new Dictionary<string, object>
+        {
+            ["data-slot"] = "radio-group-indicator",
+            ["class"] = "absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-foreground"
+        };
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -327,38 +439,8 @@
         hc.Add(Inline);
     }
 
-    internal bool IsCheckedInGroup()
-    {
-        return EffectiveChecked;
-    }
-
-    internal async Task SelectFromGroupNavigationAsync()
-    {
-        if (EffectiveDisabled)
-            return;
-
-        await ParentRadioGroup!.SetValueAsync(Value);
-
-        await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = true });
-
-        if (ParentValidation is not null)
-        {
-            ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(ParentRadioGroup.Value, overrideNewValue: true);
-        }
-
-        try
-        {
-            await _elementRef.FocusAsync();
-        }
-        catch
-        {
-        }
-    }
-
     public override void Dispose()
     {
-        ParentRadioGroup?.UnregisterRadio(this);
         if (ParentValidation is not null)
             ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
         base.Dispose();

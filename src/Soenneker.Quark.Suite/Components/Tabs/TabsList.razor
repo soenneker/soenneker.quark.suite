@@ -1,13 +1,26 @@
 @namespace Soenneker.Quark
+@using Soenneker.Bradix
 @inherits Soenneker.Quark.Element
 
-<div role="tablist" @attributes="BuildAttributes()">
+<BradixTabsList Loop="@(ParentTabs?.Loop ?? true)"
+                AdditionalAttributes="@ListAttributes">
     @ChildContent
-</div>
+</BradixTabsList>
 
 @code {
     [CascadingParameter(Name = nameof(ParentTabs))]
     private Tabs? ParentTabs { get; set; }
+
+    private IReadOnlyDictionary<string, object> ListAttributes => BuildListAttributes();
+
+    private IReadOnlyDictionary<string, object> BuildListAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("role");
+        attributes.Remove("aria-orientation");
+        attributes.Remove("tabindex");
+        return attributes;
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {

@@ -1,8 +1,13 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TypographyElement
 @implements ILabel
 
-<label @attributes="BuildAttributes()">@ChildContent</label>
+<BradixLabel For="@For"
+             AdditionalAttributes="@LabelAttributes">
+    @ChildContent
+</BradixLabel>
 
 @code {
     [CascadingParameter(Name = SlotAttributes.Name)]
@@ -14,6 +19,14 @@
     [Parameter]
     public string? For { get; set; }
 
+    private IReadOnlyDictionary<string, object> LabelAttributes => BuildLabelAttributes();
+
+    private IReadOnlyDictionary<string, object> BuildLabelAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("for");
+        return attributes;
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -25,9 +38,6 @@
             AppendClass(ref cls, "q-label");
             AppendClass(ref cls, "flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50");
         });
-
-        if (For.HasContent())
-            attributes["for"] = For;
 
         SlotAttributes.MergeInto(attributes, SlotAttributeOverrides);
     }

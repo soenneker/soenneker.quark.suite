@@ -1,20 +1,21 @@
 using Microsoft.JSInterop;
+using System;
 using System.Threading.Tasks;
 
 namespace Soenneker.Quark;
 
 public sealed class PopoverOutsideCloseProxy
 {
-    private readonly PopoverContext _context;
+    private readonly Func<Task> _close;
 
-    internal PopoverOutsideCloseProxy(PopoverContext context)
+    internal PopoverOutsideCloseProxy(Func<Task> close)
     {
-        _context = context;
+        _close = close;
     }
 
     [JSInvokable]
     public Task Close()
     {
-        return _context.Close();
+        return _close();
     }
 }

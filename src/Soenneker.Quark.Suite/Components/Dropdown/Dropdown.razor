@@ -1,21 +1,22 @@
 
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.OverlayElement
 @using Soenneker.Blazor.Extensions.EventCallback
 @implements IDropdown
 
-<CascadingValue Name="ParentDropdown" Value="this" IsFixed="true">
-    <div @attributes="BuildAttributes()">
-        @ChildContent
-    </div>
-</CascadingValue>
+<BradixDropdownMenu Open="@Visible"
+                    OpenChanged="HandleOpenChanged"
+                    ContentIdOverride="@DropdownMenuTargetId">
+    <CascadingValue Name="ParentDropdown" Value="this" IsFixed="true">
+        <div @attributes="BuildAttributes()">
+            @ChildContent
+        </div>
+    </CascadingValue>
+</BradixDropdownMenu>
 
 @code {
-    private readonly List<IDropdownFocusableItem> _items = [];
-    private DropdownToggle? _toggle;
-    private ElementReference _triggerElement;
-    private bool _hasTriggerElement;
-
     [Parameter]
     public bool Disabled { get; set; }
 
@@ -49,12 +50,6 @@
     [Parameter]
     public string? DropdownMenuTargetId { get; set; }
 
-    internal string MenuId => DropdownMenuTargetId.HasContent() ? DropdownMenuTargetId! : $"{Id}_menu";
-
-    internal bool HasTriggerElement => _hasTriggerElement;
-
-    internal ElementReference TriggerElement => _triggerElement;
-
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -63,87 +58,21 @@
             Id = $"dropdown_{Guid.NewGuid():N}";
     }
 
-    internal async Task Toggle()
+    private Task HandleOpenChanged(bool open)
     {
-        if (Disabled)
+        return SetVisibleAsync(open);
+    }
+
+    private async Task SetVisibleAsync(bool visible)
+    {
+        if (Visible == visible)
             return;
 
-        Visible = !Visible;
+        Visible = visible;
         InvalidateRender();
         Refresh();
-        await VisibleChanged.InvokeIfHasDelegate(Visible);
-    }
 
-    internal async Task Hide()
-    {
-        if (!Visible)
-            return;
-
-        Visible = false;
-        InvalidateRender();
-        Refresh();
-        await VisibleChanged.InvokeIfHasDelegate(false);
-    }
-
-    internal void RegisterItem(IDropdownFocusableItem item)
-    {
-        if (!_items.Contains(item))
-            _items.Add(item);
-    }
-
-    internal void UnregisterItem(IDropdownFocusableItem item)
-    {
-        _items.Remove(item);
-    }
-
-    internal void RegisterToggle(DropdownToggle toggle)
-    {
-        _toggle = toggle;
-    }
-
-    internal void SetTriggerElement(ElementReference elementReference)
-    {
-        _triggerElement = elementReference;
-        _hasTriggerElement = true;
-    }
-
-    internal async Task OpenAndFocusFirstItemAsync()
-    {
-        if (!Visible)
-            await Toggle();
-
-        var firstItem = _items.FirstOrDefault(i => !i.IsDisabledForNavigation);
-        if (firstItem is not null)
-            await firstItem.FocusAsync();
-    }
-
-    internal async Task FocusTriggerAsync()
-    {
-        if (_toggle is not null)
-            await _toggle.FocusAsync();
-    }
-
-    internal async Task HandleItemNavigationAsync(IDropdownFocusableItem currentItem, string key)
-    {
-        var enabledItems = _items.Where(i => !i.IsDisabledForNavigation).ToList();
-        if (enabledItems.Count == 0)
-            return;
-
-        var currentIndex = enabledItems.FindIndex(i => ReferenceEquals(i, currentItem));
-        if (currentIndex < 0)
-            return;
-
-        var nextIndex = key switch
-        {
-            "Home" => 0,
-            "End" => enabledItems.Count - 1,
-            "ArrowDown" => (currentIndex + 1) % enabledItems.Count,
-            "ArrowUp" => (currentIndex - 1 + enabledItems.Count) % enabledItems.Count,
-            _ => -1
-        };
-
-        if (nextIndex >= 0)
-            await enabledItems[nextIndex].FocusAsync();
+        await VisibleChanged.InvokeIfHasDelegate(visible);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

@@ -1,14 +1,17 @@
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Bradix
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.OverlayElement
 @implements IDialog
 
-<CascadingValue Name="ParentDialog" Value="@this">
-    <CascadingValue Value="_context" IsFixed="false">
+<BradixDialog Open="@Visible"
+              OpenChanged="HandleOpenChanged"
+              Modal="@TrapFocus">
+    <CascadingValue Name="ParentDialog" Value="@this">
         @ChildContent
     </CascadingValue>
-</CascadingValue>
+</BradixDialog>
 
 @code {
     /// <summary>
@@ -41,21 +44,12 @@
     [Parameter]
     public EventCallback OnBackdropClick { get; set; }
 
-    private readonly OverlayLabelContext _context = new("dialog");
-
     /// <summary>
     /// Shows the dialog.
     /// </summary>
     public async Task Show()
     {
-        if (!Visible)
-        {
-            Visible = true;
-
-            await VisibleChanged.InvokeAsync(Visible);
-            await OnShow.InvokeIfHasDelegate();
-            await RefreshOffThread();
-        }
+        await SetVisibleAsync(true);
     }
 
     /// <summary>
@@ -63,14 +57,30 @@
     /// </summary>
     public async Task Hide()
     {
-        if (Visible)
-        {
-            Visible = false;
+        await SetVisibleAsync(false);
+    }
 
+    private Task HandleOpenChanged(bool open)
+    {
+        return SetVisibleAsync(open);
+    }
+
+    private async Task SetVisibleAsync(bool visible)
+    {
+        if (Visible == visible)
+            return;
+
+        Visible = visible;
+
+        if (VisibleChanged.HasDelegate)
             await VisibleChanged.InvokeAsync(Visible);
+
+        if (visible)
+            await OnShow.InvokeIfHasDelegate();
+        else
             await OnHide.InvokeIfHasDelegate();
-            await RefreshOffThread();
-        }
+
+        await RefreshOffThread();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -81,11 +91,6 @@
         hc.Add(DialogSize);
         hc.Add(Static);
         hc.Add(Visible);
-        hc.Add(_context.ContentId);
-        hc.Add(_context.HasTitle);
-        hc.Add(_context.HasDescription);
-        hc.Add(_context.TitleId);
-        hc.Add(_context.DescriptionId);
     }
 
 }

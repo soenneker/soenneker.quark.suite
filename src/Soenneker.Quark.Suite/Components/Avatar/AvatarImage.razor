@@ -1,22 +1,27 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.MediaElement
 
-@if (ParentAvatar?.ShowImage ?? Src.HasContent())
-{
-    <img @attributes="BuildAttributes()" />
-}
+<BradixAvatarImage Src="@Src"
+                   Alt="@ResolvedAlt"
+                   AdditionalAttributes="@ImageAttributes" />
 
 @code {
-    [CascadingParameter(Name = nameof(ParentAvatar))]
-    protected Avatar? ParentAvatar { get; set; }
-
     [Parameter]
     public string? Src { get; set; }
 
-    protected override void OnParametersSet()
+    private string ResolvedAlt => Alt ?? string.Empty;
+    private IReadOnlyDictionary<string, object> ImageAttributes => BuildImageAttributes();
+
+    private IReadOnlyDictionary<string, object> BuildImageAttributes()
     {
-        ParentAvatar?.RegisterImage(Src);
-        base.OnParametersSet();
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("src");
+        attributes.Remove("alt");
+        attributes.Remove("onload");
+        attributes.Remove("onerror");
+        return attributes;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -25,24 +30,11 @@
 
         attributes["data-slot"] = "avatar-image";
 
-        if (Src.HasContent())
-            attributes["src"] = Src!;
-
-        if (Alt.HasContent())
-            attributes["alt"] = Alt!;
-
-        attributes["onload"] = EventCallback.Factory.Create<ProgressEventArgs>(this, HandleLoad);
-        attributes["onerror"] = EventCallback.Factory.Create<ErrorEventArgs>(this, HandleError);
-
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-avatar-image");
             AppendClass(ref cls, "absolute inset-0 aspect-square size-full rounded-full object-cover transition-opacity");
-
-            if (ParentAvatar?.IsImageVisible ?? false)
-                AppendClass(ref cls, "opacity-100");
-            else
-                AppendClass(ref cls, "opacity-0");
+            AppendClass(ref cls, "opacity-100");
         });
     }
 
@@ -51,15 +43,5 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Src);
         hc.Add(Alt);
-    }
-
-    private Task HandleLoad(ProgressEventArgs _)
-    {
-        return ParentAvatar?.NotifyImageLoaded() ?? Task.CompletedTask;
-    }
-
-    private Task HandleError(ErrorEventArgs _)
-    {
-        return ParentAvatar?.NotifyImageFailed() ?? Task.CompletedTask;
     }
 }

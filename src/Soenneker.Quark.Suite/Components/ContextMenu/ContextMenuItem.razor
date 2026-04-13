@@ -1,16 +1,16 @@
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Bradix
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
-@implements IContextMenuFocusableItem
 
-<div @onclick="OnClickHandler" @onkeydown="HandleMenuKeyDown" @attributes="BuildAttributes()" @ref="_elementRef">
+<BradixContextMenuItem Disabled="@Disabled"
+                       OnSelect="HandleSelect"
+                       AdditionalAttributes="@ItemAttributes">
     @ChildContent
-</div>
+</BradixContextMenuItem>
 
 @code {
-    private ElementReference _elementRef;
-
     [Parameter]
     public bool Inset { get; set; }
 
@@ -20,35 +20,7 @@
     [Parameter]
     public EventCallback<MouseEventArgs> Clicked { get; set; }
 
-    [CascadingParameter(Name = "ParentContextMenu")]
-    private ContextMenu? ParentContextMenu { get; set; }
-
-    [CascadingParameter(Name = "ContextMenuNavigationSub")]
-    private ContextMenuSub? NavigationSub { get; set; }
-
-    bool IContextMenuFocusableItem.IsDisabledForNavigation => Disabled;
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        base.OnAfterRender(firstRender);
-
-        if (!firstRender)
-            return;
-
-        if (NavigationSub is not null)
-            NavigationSub.RegisterItem(this);
-        else
-            ParentContextMenu?.RegisterItem(this);
-    }
-
-    private async Task OnClickHandler(MouseEventArgs e)
-    {
-        if (Disabled)
-            return;
-
-        await Clicked.InvokeIfHasDelegate(e);
-        ParentContextMenu?.Close();
-    }
+    private IReadOnlyDictionary<string, object> ItemAttributes => BuildItemAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -57,15 +29,8 @@
         var variant = Variant.Equals("destructive", StringComparison.OrdinalIgnoreCase) ? "destructive" : "default";
         attributes["data-slot"] = "context-menu-item";
         attributes["data-variant"] = variant;
-        attributes["role"] = "menuitem";
-        attributes["tabindex"] = -1;
         if (Inset)
             attributes["data-inset"] = "true";
-        if (Disabled)
-        {
-            attributes["data-disabled"] = "true";
-            attributes["aria-disabled"] = "true";
-        }
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -77,6 +42,16 @@
         });
     }
 
+    private IReadOnlyDictionary<string, object> BuildItemAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("role");
+        attributes.Remove("tabindex");
+        attributes.Remove("data-disabled");
+        attributes.Remove("aria-disabled");
+        return attributes;
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
@@ -85,43 +60,8 @@
         hc.Add(Variant);
     }
 
-    private async Task HandleMenuKeyDown(KeyboardEventArgs e)
+    private Task HandleSelect()
     {
-        if (ParentContextMenu is null)
-            return;
-
-        if (e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
-        {
-            if (NavigationSub is not null)
-                await NavigationSub.HandleItemNavigationAsync(this, e.Key);
-            else
-                await ParentContextMenu.HandleItemNavigationAsync(this, e.Key);
-        }
-        else if (e.Key is "Enter" or " ")
-            await OnClickHandler(new MouseEventArgs());
-        else if (e.Key == "ArrowLeft" && NavigationSub is not null)
-            await NavigationSub.CloseAndFocusTriggerAsync();
-        else if (e.Key == "Escape")
-        {
-            if (NavigationSub is not null)
-                await NavigationSub.CloseAndFocusTriggerAsync();
-            else
-                ParentContextMenu.Close();
-        }
-    }
-
-    async Task IContextMenuFocusableItem.FocusAsync()
-    {
-        await _elementRef.FocusAsync();
-    }
-
-    public override void Dispose()
-    {
-        if (NavigationSub is not null)
-            NavigationSub.UnregisterItem(this);
-        else
-            ParentContextMenu?.UnregisterItem(this);
-
-        base.Dispose();
+        return Clicked.InvokeIfHasDelegate(new MouseEventArgs());
     }
 }

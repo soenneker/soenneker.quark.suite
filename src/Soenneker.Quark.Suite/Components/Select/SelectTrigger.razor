@@ -1,44 +1,22 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<button @ref="_triggerRef" type="button" @onclick="OnTriggerClick" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()">
+<BradixSelectTrigger AdditionalAttributes="@TriggerAttributes">
     @ChildContent
-    <svg class="pointer-events-none size-4 opacity-50 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="m6 9 6 6 6-6"></path>
-    </svg>
-</button>
+    <BradixSelectIcon Class="pointer-events-none size-4 opacity-50 shrink-0">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6 9 6 6 6-6"></path>
+        </svg>
+    </BradixSelectIcon>
+</BradixSelectTrigger>
 
 @code {
     [CascadingParameter(Name = "ParentSelectContext")]
     private SelectContext? Context { get; set; }
 
-    private ElementReference _triggerRef;
-
-    protected override Task OnAfterRenderAsync(bool firstRender)
-    {
-        Context?.SetTriggerElement(_triggerRef);
-        return base.OnAfterRenderAsync(firstRender);
-    }
-
-    private async Task OnTriggerClick(MouseEventArgs args)
-    {
-        if (Context?.IsDisabled() == true)
-            return;
-
-        if (Context is not null)
-            await Context.ToggleAsync();
-    }
-
-    private async Task HandleKeyDown(KeyboardEventArgs e)
-    {
-        if (Context?.IsDisabled() == true || Context is null)
-            return;
-
-        if (e.Key is "ArrowDown" or "Enter" or " ")
-            await Context.OpenFirstAsync();
-        else if (e.Key == "ArrowUp")
-            await Context.OpenLastAsync();
-    }
+    private IReadOnlyDictionary<string, object> TriggerAttributes => BuildAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -46,18 +24,9 @@
 
         attributes["data-slot"] = "select-trigger";
         attributes["data-size"] = Context?.Size() ?? "default";
-        attributes["data-state"] = Context?.IsOpen() == true ? "open" : "closed";
-        if (Context is not null)
-            attributes["id"] = Context.EffectiveTriggerId();
-        attributes["role"] = "combobox";
-        attributes["aria-haspopup"] = "listbox";
-        attributes["aria-autocomplete"] = "none";
-        if (Context is not null && Context.IsOpen() == true)
-            attributes["aria-controls"] = Context.ContentId;
-        attributes["aria-expanded"] = Context?.IsOpen() == true ? "true" : "false";
 
-        if (Context?.IsRequired() == true)
-            attributes["aria-required"] = "true";
+        if (!attributes.ContainsKey("id") && Context is not null && Context.EffectiveTriggerId().HasContent())
+            attributes["id"] = Context.EffectiveTriggerId();
 
         if (Context?.IsInvalid() == true)
             attributes["aria-invalid"] = "true";
@@ -65,16 +34,6 @@
         var describedBy = Context?.AriaDescribedBy();
         if (describedBy.HasContent())
             attributes["aria-describedby"] = describedBy!;
-
-        if (!Context?.HasValue() ?? true)
-            attributes["data-placeholder"] = "true";
-
-        var activeItemId = Context?.ActiveItemId();
-        if (activeItemId.HasContent())
-            attributes["aria-activedescendant"] = activeItemId!;
-
-        if (Context?.IsDisabled() == true)
-            attributes["disabled"] = true;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -90,12 +49,8 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Context?.IsOpen() == true);
-        hc.Add(Context?.IsDisabled() == true);
         hc.Add(Context?.IsInvalid() == true);
-        hc.Add(Context?.IsRequired() == true);
         hc.Add(Context?.EffectiveTriggerId());
         hc.Add(Context?.AriaDescribedBy());
-        hc.Add(Context?.ActiveItemId());
     }
 }

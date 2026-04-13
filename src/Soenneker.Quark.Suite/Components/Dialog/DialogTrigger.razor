@@ -1,3 +1,5 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TriggerElement
 
@@ -9,9 +11,11 @@
 }
 else
 {
-    <button type="button" @ref="_elementRef" @onclick="HandleActivate" @attributes="BuildAttributes()">
+    <BradixDialogTrigger Disabled="@Disabled"
+                         OnClick="HandleActivate"
+                         AdditionalAttributes="@TriggerAttributes">
         @ChildContent
-    </button>
+    </BradixDialogTrigger>
 }
 
 @code {
@@ -19,27 +23,27 @@ else
     public Dialog? ParentDialog { get; set; }
 
     [CascadingParameter]
-    private OverlayLabelContext? Context { get; set; }
+    private BradixDialog? BradixDialog { get; set; }
 
     [Parameter]
     public bool AsChild { get; set; }
 
-    private ElementReference _elementRef;
+    private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "dialog-trigger";
-        attributes["data-state"] = ParentDialog?.Visible == true ? "open" : "closed";
+        attributes["data-state"] = BradixDialog?.CurrentOpen == true ? "open" : "closed";
         attributes["aria-haspopup"] = "dialog";
-        attributes["aria-expanded"] = ParentDialog?.Visible == true ? "true" : "false";
+        attributes["aria-expanded"] = BradixDialog?.CurrentOpen == true ? "true" : "false";
 
         if (Disabled)
             attributes["disabled"] = true;
 
-        if (Context is not null && ParentDialog?.Visible == true)
-            attributes["aria-controls"] = Context.ContentId;
+        if (BradixDialog is not null)
+            attributes["aria-controls"] = BradixDialog.ContentId;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -49,52 +53,48 @@ else
         });
     }
 
+    private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+
+        attributes.Remove("type");
+        attributes.Remove("id");
+        attributes.Remove("data-state");
+        attributes.Remove("aria-haspopup");
+        attributes.Remove("aria-expanded");
+        attributes.Remove("aria-controls");
+        attributes.Remove("disabled");
+        attributes.Remove("onclick");
+
+        return attributes;
+    }
+
     private TriggerContext GetTriggerContext()
     {
         return new TriggerContext
         {
-            IsOpen = ParentDialog?.Visible == true,
-            DataState = ParentDialog?.Visible == true ? "open" : "closed",
+            TriggerId = BradixDialog?.ResolvedTriggerId.HasContent() == true ? BradixDialog.ResolvedTriggerId : BradixDialog?.DefaultTriggerId,
+            ParentDisabled = Disabled,
+            IsOpen = BradixDialog?.CurrentOpen == true,
+            DataState = BradixDialog?.CurrentOpen == true ? "open" : "closed",
             AriaHasPopup = "dialog",
-            AriaControls = ParentDialog?.Visible == true ? Context?.ContentId : null,
-            RegisterElement = elementReference => _elementRef = elementReference,
-            Toggle = ParentDialog is null
-                ? null
-                : async () =>
-                {
-                    if (ParentDialog.Visible)
-                    {
-                        await ParentDialog.Hide();
-                    }
-                    else
-                    {
-                        ParentDialog.SetRestoreFocusTarget(_elementRef);
-                        await ParentDialog.Show();
-                    }
-                },
-            Open = ParentDialog is null ? null : async () =>
+            AriaControls = BradixDialog?.ContentId,
+            RegisterElement = elementReference =>
             {
-                ParentDialog.SetRestoreFocusTarget(_elementRef);
-                await ParentDialog.Show();
+                if (BradixDialog is not null)
+                    BradixDialog.RegisterTrigger(elementReference, BradixDialog.DefaultTriggerId);
             },
-            Close = ParentDialog is null ? null : () => ParentDialog.Hide()
+            Toggle = BradixDialog is null
+                ? null
+                : () => BradixDialog.ToggleOpen(),
+            Open = BradixDialog is null ? null : () => BradixDialog.SetOpen(true),
+            Close = BradixDialog is null ? null : () => BradixDialog.SetOpen(false)
         };
     }
 
-    private async Task HandleActivate(MouseEventArgs args)
+    private Task HandleActivate(MouseEventArgs args)
     {
-        if (!Disabled && ParentDialog is not null)
-        {
-            if (ParentDialog.Visible)
-                await ParentDialog.Hide();
-            else
-            {
-                ParentDialog.SetRestoreFocusTarget(_elementRef);
-                await ParentDialog.Show();
-            }
-        }
-
-        await base.HandleClick(args);
+        return base.HandleClick(args);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -102,7 +102,7 @@ else
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(AsChild);
         hc.Add(Disabled);
-        hc.Add(ParentDialog?.Visible ?? false);
-        hc.Add(Context?.ContentId);
+        hc.Add(BradixDialog?.CurrentOpen ?? false);
+        hc.Add(BradixDialog?.ContentId);
     }
 }

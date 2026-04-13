@@ -1,26 +1,26 @@
-﻿@namespace Soenneker.Quark
+﻿@using Soenneker.Bradix
+
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 @implements INavigationMenuItem
 
 <CascadingValue Value="@this" IsFixed="true">
-    <li @attributes="BuildAttributes()">
+    <BradixNavigationMenuItem AdditionalAttributes="@ItemAttributes">
         @ChildContent
-    </li>
+    </BradixNavigationMenuItem>
 </CascadingValue>
 
 @code {
     [Parameter]
     public bool Open { get; set; }
 
-    [CascadingParameter(Name = "ParentNavigationMenu")]
-    private NavigationMenu? ParentNavigationMenu { get; set; }
+    private IReadOnlyDictionary<string, object> ItemAttributes => BuildItemAttributes();
 
-    internal bool IsOpenResolved => ParentNavigationMenu?.IsItemOpen(this) ?? Open;
-
-    protected override void OnInitialized()
+    private IReadOnlyDictionary<string, object> BuildItemAttributes()
     {
-        base.OnInitialized();
-        ParentNavigationMenu?.RegisterItem(this);
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("data-state");
+        return attributes;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -28,7 +28,6 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "navigation-menu-item";
-        attributes["data-state"] = IsOpenResolved ? "open" : "closed";
 
         if (Disabled)
             attributes["aria-disabled"] = "true";
@@ -47,13 +46,6 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Open);
-        hc.Add(IsOpenResolved);
         hc.Add(Disabled);
-    }
-
-    public override void Dispose()
-    {
-        ParentNavigationMenu?.UnregisterItem(this);
-        base.Dispose();
     }
 }

@@ -1,3 +1,5 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 @using Soenneker.Blazor.Extensions.EventCallback
@@ -5,22 +7,20 @@
 
 @if (AsChild)
 {
-    <span @ref="_buttonRef" @onclick="OnClickHandler" @onkeydown="HandleToggleKeyDown" @attributes="BuildWrapperAttributes()">
-        <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
-            @ChildContent
-        </CascadingValue>
-    </span>
+    <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
+        @ChildContent
+    </CascadingValue>
 }
 else
 {
-    <button @attributes="BuildAttributes()" type="button" @onclick="OnClickHandler" @onkeydown="HandleToggleKeyDown" @ref="_buttonRef">
+    <BradixDropdownMenuTrigger Disabled="@(Disabled || ParentDropdown?.Disabled == true)"
+                               OnClick="HandleTriggerClick"
+                               AdditionalAttributes="@TriggerAttributes">
         @ChildContent
-    </button>
+    </BradixDropdownMenuTrigger>
 }
 
 @code {
-    private ElementReference _buttonRef;
-
     /// <summary>
     /// Gets or sets whether this is a split button toggle.
     /// </summary>
@@ -39,33 +39,21 @@ else
     [CascadingParameter(Name = nameof(ParentDropdown))]
     public Dropdown? ParentDropdown { get; set; }
 
-    protected override void OnAfterRender(bool firstRender)
-    {
-        base.OnAfterRender(firstRender);
+    [CascadingParameter]
+    private BradixDropdownMenu? DropdownMenu { get; set; }
 
-        if (firstRender)
-        {
-            ParentDropdown?.RegisterToggle(this);
-            ParentDropdown?.SetTriggerElement(_buttonRef);
-        }
-    }
+    [CascadingParameter]
+    private BradixMenu? Menu { get; set; }
 
-    private async Task OnClickHandler(MouseEventArgs e)
-    {
-        if (Disabled || ParentDropdown?.Disabled == true)
-            return;
+    private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
 
-        if (ParentDropdown is not null)
-            await ParentDropdown.Toggle();
-
-        await Clicked.InvokeIfHasDelegate(e);
-    }
+    private Task HandleTriggerClick(MouseEventArgs e) => Clicked.InvokeIfHasDelegate(e);
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "dropdown-menu-trigger";
-        attributes["data-state"] = ParentDropdown?.Visible == true ? "open" : "closed";
+        attributes["data-state"] = DropdownMenu?.CurrentOpen == true ? "open" : "closed";
         attributes["aria-haspopup"] = "menu";
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -79,10 +67,10 @@ else
                 AppendClass(ref cls, "pointer-events-none opacity-50");
         });
 
-        attributes["aria-expanded"] = ParentDropdown?.Visible == true ? "true" : "false";
+        attributes["aria-expanded"] = DropdownMenu?.CurrentOpen == true ? "true" : "false";
 
-        if (ParentDropdown is not null)
-            attributes["aria-controls"] = ParentDropdown.MenuId;
+        if (DropdownMenu is not null)
+            attributes["aria-controls"] = DropdownMenu.ContentId;
 
         if (Disabled || ParentDropdown?.Disabled == true)
         {
@@ -94,29 +82,37 @@ else
     {
         return new TriggerContext
         {
-            IsOpen = ParentDropdown?.Visible == true,
-            DataState = ParentDropdown?.Visible == true ? "open" : "closed",
+            ParentDisabled = Disabled || ParentDropdown?.Disabled == true,
+            IsOpen = DropdownMenu?.CurrentOpen == true,
+            DataState = DropdownMenu?.CurrentOpen == true ? "open" : "closed",
             AriaHasPopup = "menu",
-            AriaControls = ParentDropdown?.MenuId,
-            Toggle = ParentDropdown is null ? null : () => ParentDropdown.Toggle(),
-            Open = ParentDropdown is null ? null : () => ParentDropdown.OpenAndFocusFirstItemAsync(),
-            Close = ParentDropdown is null ? null : () => ParentDropdown.Hide(),
+            AriaControls = DropdownMenu?.ContentId,
+            RegisterElement = elementReference => { Menu?.RegisterTrigger(elementReference); },
+            Toggle = DropdownMenu is null ? null : async () =>
+            {
+                Menu?.SetFocusFirstItemOnOpen(false);
+                await DropdownMenu.ToggleOpen();
+            },
+            Open = DropdownMenu is null ? null : async () =>
+            {
+                Menu?.SetFocusFirstItemOnOpen(true);
+                await DropdownMenu.SetOpen(true);
+            },
+            Close = DropdownMenu is null ? null : () => DropdownMenu.SetOpen(false),
             OnKeyDown = HandleToggleKeyDown
         };
     }
 
-    private Dictionary<string, object> BuildWrapperAttributes()
+    private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
     {
-        var attributes = new Dictionary<string, object>();
-        attributes["data-slot"] = "dropdown-menu-trigger-wrapper";
-        attributes["data-state"] = ParentDropdown?.Visible == true ? "open" : "closed";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-dropdown-toggle-wrapper inline-flex");
-            if (Disabled || ParentDropdown?.Disabled == true)
-                AppendClass(ref cls, "pointer-events-none opacity-50");
-        });
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("type");
+        attributes.Remove("id");
+        attributes.Remove("data-state");
+        attributes.Remove("aria-haspopup");
+        attributes.Remove("aria-expanded");
+        attributes.Remove("aria-controls");
+        attributes.Remove("disabled");
 
         return attributes;
     }
@@ -127,23 +123,21 @@ else
         hc.Add(Disabled);
         hc.Add(IsSplit);
         hc.Add(AsChild);
-        hc.Add(ParentDropdown?.Visible == true);
+        hc.Add(DropdownMenu?.CurrentOpen == true);
         hc.Add(ParentDropdown?.Disabled == true);
     }
 
     private async Task HandleToggleKeyDown(KeyboardEventArgs e)
     {
-        if (ParentDropdown is null || Disabled || ParentDropdown.Disabled)
+        if (DropdownMenu is null || ParentDropdown is null || Disabled || ParentDropdown.Disabled)
             return;
 
         if (e.Key is "ArrowDown" or "Enter" or " ")
-            await ParentDropdown.OpenAndFocusFirstItemAsync();
-        else if (e.Key == "Escape" && ParentDropdown.Visible)
-            await ParentDropdown.Hide();
-    }
-
-    internal async Task FocusAsync()
-    {
-        await _buttonRef.FocusAsync();
+        {
+            Menu?.SetFocusFirstItemOnOpen(true);
+            await DropdownMenu.SetOpen(true);
+        }
+        else if (e.Key == "Escape" && DropdownMenu.CurrentOpen)
+            await DropdownMenu.SetOpen(false);
     }
 }

@@ -1,13 +1,15 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @oncontextmenu="HandleContextMenu" @oncontextmenu:preventDefault @attributes="BuildAttributes()">
+<BradixContextMenuTrigger Disabled="false"
+                          AdditionalAttributes="@TriggerAttributes">
     @ChildContent
-</div>
+</BradixContextMenuTrigger>
 
 @code {
-    [CascadingParameter(Name = "ParentContextMenu")]
-    private ContextMenu? ParentContextMenu { get; set; }
+    private IReadOnlyDictionary<string, object> TriggerAttributes => BuildAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -22,11 +24,4 @@
         });
     }
 
-    private async Task HandleContextMenu(MouseEventArgs e)
-    {
-        if (ParentContextMenu != null)
-        {
-            await ParentContextMenu.ShowAsync(e.ClientX, e.ClientY);
-        }
-    }
 }

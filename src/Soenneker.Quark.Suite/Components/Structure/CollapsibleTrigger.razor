@@ -1,4 +1,5 @@
 @namespace Soenneker.Quark
+@using Soenneker.Bradix
 @inherits Soenneker.Quark.Element
 
 @if (AsChild)
@@ -9,9 +10,11 @@
 }
 else
 {
-    <button type="button" @onclick="OnTriggerClick" @attributes="BuildAttributes()">
+    <BradixCollapsibleTrigger Disabled="@Disabled"
+                              OnClick="HandleTriggerClick"
+                              AdditionalAttributes="@TriggerAttributes">
         @ChildContent
-    </button>
+    </BradixCollapsibleTrigger>
 }
 
 @code {
@@ -21,8 +24,8 @@ else
     [Parameter]
     public bool Disabled { get; set; }
 
-    [CascadingParameter(Name = nameof(ParentCollapsible))]
-    public Collapsible? ParentCollapsible { get; set; }
+    [CascadingParameter]
+    private BradixCollapsible? Collapsible { get; set; }
 
     [CascadingParameter(Name = SlotAttributes.Name)]
     private IReadOnlyDictionary<string, object>? SlotAttributeOverrides { get; set; }
@@ -31,24 +34,37 @@ else
     {
         return new TriggerContext
         {
-            TriggerId = ParentCollapsible?.TriggerId,
-            ParentDisabled = ParentCollapsible?.Disabled == true,
-            IsOpen = ParentCollapsible?.Open == true,
-            DataState = ParentCollapsible?.Open == true ? "open" : "closed",
-            AriaControls = ParentCollapsible?.ContentId,
-            Toggle = ParentCollapsible is null ? null : () => ParentCollapsible.Toggle(),
-            Open = ParentCollapsible is null ? null : () => ParentCollapsible.SetOpen(true),
-            Close = ParentCollapsible is null ? null : () => ParentCollapsible.SetOpen(false)
+            TriggerId = Collapsible?.TriggerId,
+            ParentDisabled = Collapsible?.Disabled == true,
+            IsOpen = Collapsible?.IsOpen == true,
+            DataState = Collapsible?.IsOpen == true ? "open" : "closed",
+            AriaControls = Collapsible?.ContentId,
+            Toggle = Collapsible is null ? null : () => Collapsible.Toggle(),
+            Open = Collapsible is null ? null : () => Collapsible.SetOpen(true),
+            Close = Collapsible is null ? null : () => Collapsible.SetOpen(false)
         };
     }
 
-    private async Task OnTriggerClick(MouseEventArgs args)
-    {
-        if (Disabled || ParentCollapsible?.Disabled == true)
-            return;
+    private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
 
-        if (ParentCollapsible is not null)
-            await ParentCollapsible.Toggle();
+    private Task HandleTriggerClick(MouseEventArgs args)
+    {
+        return base.HandleClick(args);
+    }
+
+    private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+
+        attributes.Remove("type");
+        attributes.Remove("disabled");
+        attributes.Remove("id");
+        attributes.Remove("aria-expanded");
+        attributes.Remove("aria-controls");
+        attributes.Remove("data-state");
+        attributes.Remove("onclick");
+
+        return attributes;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -56,29 +72,29 @@ else
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "collapsible-trigger";
-        attributes["data-state"] = ParentCollapsible?.Open == true ? "open" : "closed";
-        attributes["aria-expanded"] = ParentCollapsible?.Open == true ? "true" : "false";
-        if (ParentCollapsible is not null)
+        attributes["data-state"] = Collapsible?.IsOpen == true ? "open" : "closed";
+        attributes["aria-expanded"] = Collapsible?.IsOpen == true ? "true" : "false";
+        if (Collapsible is not null)
         {
-            attributes["id"] = ParentCollapsible.TriggerId;
-            attributes["aria-controls"] = ParentCollapsible.ContentId;
+            attributes["id"] = Collapsible.TriggerId;
+            attributes["aria-controls"] = Collapsible.ContentId;
         }
 
-        if (Disabled || ParentCollapsible?.Disabled == true)
+        if (Disabled || Collapsible?.Disabled == true)
         {
             attributes["data-disabled"] = "true";
-            attributes["disabled"] = true;
         }
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-collapsible-trigger flex w-full items-center justify-between gap-2 rounded-md text-sm font-medium transition-colors");
             AppendClass(ref cls, "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50");
-            if (Disabled || ParentCollapsible?.Disabled == true)
+            if (Disabled || Collapsible?.Disabled == true)
                 AppendClass(ref cls, "pointer-events-none opacity-50");
         });
 
-        SlotAttributes.MergeInto(attributes, SlotAttributeOverrides);
+        if (AsChild)
+            SlotAttributes.MergeInto(attributes, SlotAttributeOverrides);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -86,9 +102,9 @@ else
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Disabled);
         hc.Add(AsChild);
-        hc.Add(ParentCollapsible?.Open == true);
-        hc.Add(ParentCollapsible?.Disabled == true);
-        hc.Add(ParentCollapsible?.TriggerId);
+        hc.Add(Collapsible?.IsOpen == true);
+        hc.Add(Collapsible?.Disabled == true);
+        hc.Add(Collapsible?.TriggerId);
         hc.Add(SlotAttributeOverrides?.Count ?? 0);
     }
 }

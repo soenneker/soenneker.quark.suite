@@ -1,15 +1,19 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Name="ParentMenubar" Value="@this" IsFixed="true">
-    <div @attributes="BuildAttributes()">
+    <BradixMenubar AdditionalAttributes="@MenubarAttributes">
         @ChildContent
-    </div>
+    </BradixMenubar>
 </CascadingValue>
 
 @code {
     private readonly string _menubarId = $"menubar-{Guid.NewGuid():N}";
     private readonly List<MenubarTrigger> _triggers = [];
+    private IReadOnlyDictionary<string, object> MenubarAttributes => BuildMenubarAttributes();
+
 
     [CascadingParameter(Name = "DirectionProviderDir")]
     private string? DirectionProviderDir { get; set; }
@@ -122,6 +126,16 @@
             AppendClass(ref cls, "q-menubar");
             AppendClass(ref cls, "bg-background flex h-9 items-center gap-1 rounded-md border p-1 shadow-xs");
         });
+    }
+
+    private IReadOnlyDictionary<string, object> BuildMenubarAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("id");
+        attributes.Remove("role");
+        attributes.Remove("aria-orientation");
+        attributes.Remove("dir");
+        return attributes;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

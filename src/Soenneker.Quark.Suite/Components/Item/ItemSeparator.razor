@@ -1,10 +1,23 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IItemSeparator
 
-<div @attributes="BuildAttributes()"></div>
+<BradixSeparator Orientation="@BradixOrientation.Horizontal"
+                 Decorative="true"
+                 AdditionalAttributes="@SeparatorAttributes" />
 
 @code {
+    private IReadOnlyDictionary<string, object> SeparatorAttributes => BuildSeparatorAttributes();
+
+    private IReadOnlyDictionary<string, object> BuildSeparatorAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("data-orientation");
+        return attributes;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);

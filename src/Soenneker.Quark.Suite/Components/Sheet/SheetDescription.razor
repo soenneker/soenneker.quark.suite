@@ -1,30 +1,18 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements ISheetDescription
-@implements IDisposable
 
-<p @attributes="BuildAttributes()">
+<BradixDialogDescription Id="@Context?.DescriptionId" AdditionalAttributes="@DescriptionAttributes">
     @ChildContent
-</p>
+</BradixDialogDescription>
 
 @code {
     [CascadingParameter]
     private OverlayLabelContext? Context { get; set; }
 
-    private OverlayLabelContext? _registeredContext;
-    private IDisposable? _descriptionRegistration;
-
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-
-        if (ReferenceEquals(_registeredContext, Context))
-            return;
-
-        _descriptionRegistration?.Dispose();
-        _registeredContext = Context;
-        _descriptionRegistration = Context?.RegisterDescription();
-    }
+    private IReadOnlyDictionary<string, object> DescriptionAttributes => BuildAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -38,20 +26,11 @@
         });
 
         attributes["data-slot"] = "sheet-description";
-
-        if (!attributes.ContainsKey("id") && Context is not null)
-            attributes["id"] = Context.DescriptionId;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Context?.DescriptionId);
-    }
-
-    public override void Dispose()
-    {
-        _descriptionRegistration?.Dispose();
-        base.Dispose();
     }
 }

@@ -1,22 +1,25 @@
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Bradix
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.InteractiveElement
-@implements IDisposable
 
-@if (ParentDrawer?.Visible == true)
-{
-    <div @onkeydown="HandleKeyDown" @onclick="HandleBackdropClick" @attributes="BuildContainerAttributes()">
-        @if (ParentDrawer.ShowBackdrop)
-        {
-            <div @attributes="BuildOverlayAttributes()"></div>
-        }
-        <div @onclick:stopPropagation="true" @ref="_contentRef" @attributes="BuildAttributes()">
-            <div class="bg-muted mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full group-data-[direction=bottom]/drawer-content:block"></div>
-            @ChildContent
-        </div>
-    </div>
-}
+<BradixDialogPortal>
+    @if (ParentDrawer?.ShowBackdrop == true)
+    {
+        <BradixDialogOverlay AdditionalAttributes="@OverlayAttributes" />
+    }
+
+    <BradixDialogContent Id="@Context?.ContentId"
+                         CloseOnEscapeKeyDown="@(ParentDrawer?.CloseOnEscape ?? true)"
+                         CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction"
+                         CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction"
+                         OnPointerDownOutside="HandleBackdropPointerDownOutside"
+                         AdditionalAttributes="@ContentAttributes">
+        <div class="bg-muted mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full group-data-[direction=bottom]/drawer-content:block"></div>
+        @ChildContent
+    </BradixDialogContent>
+</BradixDialogPortal>
 
 @code {
     [CascadingParameter(Name = "ParentDrawer")]
@@ -25,27 +28,8 @@
     [CascadingParameter]
     private OverlayLabelContext? Context { get; set; }
 
-    private OverlayLabelContext? _subscribedContext;
-    private ElementReference _contentRef;
-
     [Parameter]
     public string Direction { get; set; } = "bottom";
-
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-
-        if (!ReferenceEquals(_subscribedContext, Context))
-        {
-            if (_subscribedContext is not null)
-                _subscribedContext.StateChanged -= OnContextStateChanged;
-
-            _subscribedContext = Context;
-
-            if (_subscribedContext is not null)
-                _subscribedContext.StateChanged += OnContextStateChanged;
-        }
-    }
 
     private string Side => Direction.ToLowerInvariant() switch
     {
@@ -55,33 +39,21 @@
         _ => "bottom"
     };
 
-    private async void OnContextStateChanged()
-    {
-        await RefreshOffThread();
-    }
+    private bool ShouldCloseOnOutsideInteraction =>
+        ParentDrawer is not null &&
+        !ParentDrawer.Static &&
+        ParentDrawer.CloseOnBackdropClick;
+
+    private IReadOnlyDictionary<string, object> ContentAttributes => BuildAttributes();
+
+    private IReadOnlyDictionary<string, object> OverlayAttributes => BuildOverlayAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "drawer-content";
-        attributes["data-state"] = ParentDrawer?.Visible == true ? "open" : "closed";
         attributes["data-direction"] = Side;
-        attributes["role"] = "dialog";
-        attributes["aria-modal"] = ParentDrawer?.TrapFocus != false ? "true" : "false";
-        attributes["tabindex"] = -1;
-
-        if (Context is not null)
-            attributes["id"] = Context.ContentId;
-
-        if (Context?.HasTitle == true)
-        {
-            attributes["aria-labelledby"] = Context.TitleId;
-            attributes.Remove("aria-label");
-        }
-
-        if (Context?.HasDescription == true)
-            attributes["aria-describedby"] = Context.DescriptionId;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -98,32 +70,6 @@
         });
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (ParentDrawer?.Visible == true)
-            ParentDrawer.SetOverlayContentElement(_contentRef);
-
-        await base.OnAfterRenderAsync(firstRender);
-    }
-
-    private Dictionary<string, object> BuildContainerAttributes()
-    {
-        var attrs = new Dictionary<string, object>();
-        BuildClassAttribute(attrs, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-drawer");
-            AppendClass(ref cls, "fixed inset-0 z-50");
-        });
-        attrs["tabindex"] = -1;
-        attrs["data-state"] = ParentDrawer?.Visible == true ? "open" : "closed";
-        attrs["data-slot"] = "drawer";
-
-        if (ParentDrawer?.Static == true)
-            attrs["data-backdrop"] = "static";
-
-        return attrs;
-    }
-
     private Dictionary<string, object> BuildOverlayAttributes()
     {
         var attrs = new Dictionary<string, object>();
@@ -138,22 +84,9 @@
         return attrs;
     }
 
-    protected override async Task HandleKeyDown(KeyboardEventArgs e)
+    private Task HandleBackdropPointerDownOutside()
     {
-        if (ParentDrawer is null || ParentDrawer.Static || !ParentDrawer.CloseOnEscape)
-            return;
-
-        if (e.Key == "Escape")
-            await ParentDrawer.Hide();
-    }
-
-    private async Task HandleBackdropClick(MouseEventArgs _)
-    {
-        if (ParentDrawer is null || ParentDrawer.Static || !ParentDrawer.CloseOnBackdropClick)
-            return;
-
-        await ParentDrawer.OnBackdropClick.InvokeIfHasDelegate();
-        await ParentDrawer.Hide();
+        return ParentDrawer?.OnBackdropClick.InvokeIfHasDelegate() ?? Task.CompletedTask;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -166,18 +99,6 @@
         hc.Add(ParentDrawer?.CloseOnEscape ?? true);
         hc.Add(ParentDrawer?.CloseOnBackdropClick ?? true);
         hc.Add(ParentDrawer?.Static ?? false);
-        hc.Add(Context?.HasTitle);
-        hc.Add(Context?.HasDescription);
         hc.Add(Context?.ContentId);
-        hc.Add(Context?.TitleId);
-        hc.Add(Context?.DescriptionId);
-    }
-
-    public override void Dispose()
-    {
-        if (_subscribedContext is not null)
-            _subscribedContext.StateChanged -= OnContextStateChanged;
-
-        base.Dispose();
     }
 }

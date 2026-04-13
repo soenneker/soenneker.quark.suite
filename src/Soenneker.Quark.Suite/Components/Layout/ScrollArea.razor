@@ -1,10 +1,12 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()">
-    <div @attributes="BuildViewportAttributes()">
+<BradixScrollArea AdditionalAttributes="@RootAttributes">
+    <BradixScrollAreaViewport AdditionalAttributes="@ViewportAttributes">
         @ChildContent
-    </div>
+    </BradixScrollAreaViewport>
 
     @if (ShowVerticalScrollBar)
     {
@@ -18,9 +20,9 @@
 
     @if (ShowVerticalScrollBar && ShowHorizontalScrollBar)
     {
-        <div data-slot="scroll-area-corner" class="bg-border/40 absolute right-0 bottom-0 size-2.5"></div>
+        <BradixScrollAreaCorner AdditionalAttributes="@CornerAttributes" />
     }
-</div>
+</BradixScrollArea>
 
 @code {
     [Parameter]
@@ -28,6 +30,10 @@
 
     [Parameter]
     public bool ShowHorizontalScrollBar { get; set; }
+
+    private IReadOnlyDictionary<string, object> RootAttributes => BuildAttributes();
+    private IReadOnlyDictionary<string, object> ViewportAttributes => BuildViewportAttributes();
+    private IReadOnlyDictionary<string, object> CornerAttributes => BuildCornerAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -42,12 +48,11 @@
         });
     }
 
-    private Dictionary<string, object> BuildViewportAttributes()
+    private IReadOnlyDictionary<string, object> BuildViewportAttributes()
     {
         var attributes = new Dictionary<string, object>
         {
             ["data-slot"] = "scroll-area-viewport",
-            ["tabindex"] = 0
         };
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -58,6 +63,15 @@
         });
 
         return attributes;
+    }
+
+    private IReadOnlyDictionary<string, object> BuildCornerAttributes()
+    {
+        return new Dictionary<string, object>
+        {
+            ["data-slot"] = "scroll-area-corner",
+            ["class"] = "bg-border/40 size-2.5"
+        };
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

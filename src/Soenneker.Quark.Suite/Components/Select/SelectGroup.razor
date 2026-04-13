@@ -1,33 +1,31 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 @implements ISelectGroup
 
-<div @attributes="BuildAttributes()">
+<BradixSelectGroup AdditionalAttributes="@GroupAttributes">
     @if (Label.HasContent())
     {
-        <SelectLabel Id="@_groupLabelId">@Label</SelectLabel>
+        <SelectLabel>@Label</SelectLabel>
     }
 
     @ChildContent
-</div>
+</BradixSelectGroup>
 
 @code {
-    private readonly string _groupLabelId = $"select-group-label-{Guid.NewGuid():N}";
-
     /// <summary>
     /// Gets or sets the label for the select group.
     /// </summary>
     [Parameter]
     public string? Label { get; set; }
 
+    private IReadOnlyDictionary<string, object> GroupAttributes => BuildAttributes();
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "select-group";
-        attributes["role"] = "group";
-
-        if (Label.HasContent())
-            attributes["aria-labelledby"] = _groupLabelId;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

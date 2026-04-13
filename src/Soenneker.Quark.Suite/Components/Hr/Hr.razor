@@ -1,8 +1,12 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Component
 @implements IHr
 
-<div role="@(Decorative ? "none" : "separator")" @attributes="BuildAttributes()"></div>
+<BradixSeparator Orientation="@ResolvedOrientation"
+                 Decorative="@Decorative"
+                 AdditionalAttributes="@SeparatorAttributes" />
 
 @code {
     /// <summary>Orientation: horizontal (default) or vertical. Matches shadcn Separator.</summary>
@@ -13,14 +17,25 @@
     [Parameter]
     public bool Decorative { get; set; } = true;
 
+    private BradixOrientation ResolvedOrientation =>
+        Orientation == SeparatorOrientation.Vertical ? BradixOrientation.Vertical : BradixOrientation.Horizontal;
+
+    private IReadOnlyDictionary<string, object> SeparatorAttributes => BuildSeparatorAttributes();
+
+    private IReadOnlyDictionary<string, object> BuildSeparatorAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("role");
+        attributes.Remove("aria-orientation");
+        attributes.Remove("data-orientation");
+        return attributes;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         var orientation = Orientation?.Value ?? SeparatorOrientation.Horizontal.Value;
         attributes["data-slot"] = "separator";
         attributes["data-orientation"] = orientation;
-        // Radix: aria-orientation only when semantic and vertical (horizontal omits it).
-        if (!Decorative && string.Equals(orientation, SeparatorOrientation.Vertical.Value, StringComparison.Ordinal))
-            attributes["aria-orientation"] = orientation;
         // shadcn Separator - new-york-v4 ui/separator.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {

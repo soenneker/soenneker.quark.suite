@@ -1,39 +1,39 @@
 @namespace Soenneker.Quark
+@using Soenneker.Bradix
 @inherits Soenneker.Quark.Element
 
-@if (ParentCollapsible is not null)
+@if (Collapsible is not null)
 {
-    <div @attributes="BuildAttributes()">
-        @if (ParentCollapsible.Open)
-        {
-            @ChildContent
-        }
-    </div>
+    <BradixCollapsibleContent AriaLabelledBy="@Collapsible.TriggerId"
+                              AdditionalAttributes="@ContentAttributes">
+        @ChildContent
+    </BradixCollapsibleContent>
 }
 
 @code {
-    [CascadingParameter(Name = nameof(ParentCollapsible))]
-    public Collapsible? ParentCollapsible { get; set; }
+    [CascadingParameter]
+    private BradixCollapsible? Collapsible { get; set; }
+
+    private IReadOnlyDictionary<string, object> ContentAttributes => BuildContentAttributes();
+
+    private IReadOnlyDictionary<string, object> BuildContentAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+
+        attributes.Remove("id");
+        attributes.Remove("role");
+        attributes.Remove("aria-labelledby");
+        attributes.Remove("hidden");
+        attributes.Remove("data-state");
+
+        return attributes;
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        var open = ParentCollapsible?.Open == true;
         attributes["data-slot"] = "collapsible-content";
-        attributes["data-state"] = open ? "open" : "closed";
-
-        if (ParentCollapsible is not null)
-        {
-            attributes["id"] = ParentCollapsible.ContentId;
-            attributes["role"] = "region";
-            attributes["aria-labelledby"] = ParentCollapsible.TriggerId;
-            if (ParentCollapsible.Disabled)
-                attributes["data-disabled"] = "true";
-        }
-
-        if (!open)
-            attributes["hidden"] = true;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -44,8 +44,8 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(ParentCollapsible?.Open == true);
-        hc.Add(ParentCollapsible?.Disabled == true);
-        hc.Add(ParentCollapsible?.TriggerId);
+        hc.Add(Collapsible?.IsOpen == true);
+        hc.Add(Collapsible?.Disabled == true);
+        hc.Add(Collapsible?.ContentId);
     }
 }

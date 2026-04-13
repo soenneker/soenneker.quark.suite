@@ -1,3 +1,5 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements INavigationMenuLink
@@ -10,9 +12,10 @@
 }
 else
 {
-    <a @attributes="BuildAttributes()">
+    <BradixNavigationMenuLink Active="@Active"
+                              AdditionalAttributes="@LinkAttributes">
         @ChildContent
-    </a>
+    </BradixNavigationMenuLink>
 }
 
 @code {
@@ -27,6 +30,16 @@ else
 
     [Parameter]
     public bool AsChild { get; set; }
+
+    private IReadOnlyDictionary<string, object> LinkAttributes => BuildLinkAttributes();
+
+    private IReadOnlyDictionary<string, object> BuildLinkAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("data-active");
+        attributes.Remove("aria-current");
+        return attributes;
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -48,6 +61,7 @@ else
         {
             AppendClass(ref cls, "q-navigation-menu-link");
             AppendClass(ref cls, "data-[active=true]:focus:bg-accent data-[active=true]:hover:bg-accent data-[active=true]:bg-accent/50 data-[active=true]:text-accent-foreground");
+            AppendClass(ref cls, "data-[active]:focus:bg-accent data-[active]:hover:bg-accent data-[active]:bg-accent/50 data-[active]:text-accent-foreground");
             AppendClass(ref cls, "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground");
             AppendClass(ref cls, "focus-visible:ring-ring/50 [&_svg:not([class*='text-'])]:text-muted-foreground");
             AppendClass(ref cls, "flex flex-col gap-1 rounded-sm p-2 text-sm transition-all outline-none focus-visible:ring-[3px] focus-visible:outline-1");

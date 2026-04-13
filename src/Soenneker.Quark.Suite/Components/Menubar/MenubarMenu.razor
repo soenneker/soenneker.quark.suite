@@ -1,15 +1,19 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Name="ParentMenubarMenu" Value="@this" IsFixed="true">
-    <div @attributes="BuildAttributes()">
+    <BradixMenubarMenu AdditionalAttributes="@MenuAttributes">
         @ChildContent
-    </div>
+    </BradixMenubarMenu>
 </CascadingValue>
 
 @code {
     private readonly List<IMenubarFocusableItem> _items = [];
     private MenubarTrigger? _trigger;
+
+    private IReadOnlyDictionary<string, object> MenuAttributes => BuildAttributes();
 
     internal void RegisterItem(IMenubarFocusableItem item)
     {

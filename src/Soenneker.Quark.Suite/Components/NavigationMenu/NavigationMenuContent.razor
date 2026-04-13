@@ -1,10 +1,12 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements INavigationMenuContent
 
-<div @attributes="BuildAttributes()" @onmouseleave="HandleMouseLeave">
+<BradixNavigationMenuContent AdditionalAttributes="@ContentAttributes">
     @ChildContent
-</div>
+</BradixNavigationMenuContent>
 
 @code {
     [Parameter]
@@ -16,24 +18,23 @@
     [Parameter]
     public string? Motion { get; set; }
 
-    [CascadingParameter(Name = "ParentNavigationMenu")]
-    private NavigationMenu? ParentNavigationMenu { get; set; }
+    private IReadOnlyDictionary<string, object> ContentAttributes => BuildContentAttributes();
 
-    [CascadingParameter]
-    private NavigationMenuItem? ParentNavigationMenuItem { get; set; }
-
-    private bool ResolvedOpen => ParentNavigationMenuItem is not null ? ParentNavigationMenuItem.IsOpenResolved : Open;
+    private IReadOnlyDictionary<string, object> BuildContentAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("data-state");
+        attributes.Remove("aria-hidden");
+        if (Motion.HasContent())
+            attributes["data-motion"] = Motion!;
+        return attributes;
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "navigation-menu-content";
-        attributes["data-state"] = ResolvedOpen ? "open" : "closed";
-        attributes["aria-hidden"] = ResolvedOpen ? "false" : "true";
-
-        if (Motion.HasContent())
-            attributes["data-motion"] = Motion!;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -50,9 +51,6 @@
             AppendClass(ref cls, "group-data-[viewport=false]/navigation-menu:overflow-hidden group-data-[viewport=false]/navigation-menu:rounded-md group-data-[viewport=false]/navigation-menu:border group-data-[viewport=false]/navigation-menu:shadow");
             AppendClass(ref cls, "group-data-[viewport=false]/navigation-menu:duration-200");
             AppendClass(ref cls, "**:data-[slot=navigation-menu-link]:focus:ring-0 **:data-[slot=navigation-menu-link]:focus:outline-none");
-
-            if (!DisableAutoOpen)
-                AppendClass(ref cls, "group-hover/navigation-menu-item:block group-focus-within/navigation-menu-item:block");
         });
     }
 
@@ -60,16 +58,7 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Open);
-        hc.Add(ResolvedOpen);
         hc.Add(DisableAutoOpen);
         hc.Add(Motion);
-    }
-
-    private async Task HandleMouseLeave(MouseEventArgs _)
-    {
-        if (DisableAutoOpen || ParentNavigationMenu is null || ParentNavigationMenuItem is null)
-            return;
-
-        await ParentNavigationMenu.CloseItemAsync(ParentNavigationMenuItem);
     }
 }

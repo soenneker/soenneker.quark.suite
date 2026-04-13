@@ -1,20 +1,17 @@
-@using System.Threading
+@using Soenneker.Bradix
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<CascadingValue Value="_context" IsFixed="true">
-    <CascadingValue Name="ParentTooltip" Value="@this" IsFixed="true">
-        <div @attributes="BuildAttributes()">
-            @ChildContent
-        </div>
-    </CascadingValue>
-</CascadingValue>
+<BradixTooltip Open="@(OpenChanged.HasDelegate ? Open : (bool?)null)"
+               DefaultOpen="@DefaultOpen"
+               OpenChanged="@OpenChanged"
+               DelayDuration="@DelayDuration"
+               AdditionalAttributes="@RootAttributes">
+    @ChildContent
+</BradixTooltip>
 
 @code {
-    [CascadingParameter(Name = "TooltipProvider")]
-    private TooltipProvider? Provider { get; set; }
-
     [Parameter]
     public bool Open { get; set; }
 
@@ -26,112 +23,13 @@
 
     [Parameter]
     public int? DelayDuration { get; set; }
-
-    private bool _open;
-    private TooltipContext _context = null!;
-    private CancellationTokenSource? _pendingOpenCts;
-
-    protected override void OnInitialized()
-    {
-        _open = OpenChanged.HasDelegate ? Open : DefaultOpen;
-        _context = new TooltipContext(() => _open, RequestOpenAsync, OpenImmediateAsync, CloseAsync);
-    }
-
-    protected override void OnParametersSet()
-    {
-        if (OpenChanged.HasDelegate)
-            _open = Open;
-
-        base.OnParametersSet();
-    }
-
-    private int EffectiveDelayDuration => DelayDuration ?? Provider?.DelayDuration ?? 0;
-
-    private async Task RequestOpenAsync()
-    {
-        _pendingOpenCts?.Cancel();
-        _pendingOpenCts?.Dispose();
-        _pendingOpenCts = null;
-
-        if (_open)
-            return;
-
-        var delay = EffectiveDelayDuration;
-
-        if (delay <= 0)
-        {
-            await SetOpenAsync(true);
-            return;
-        }
-
-        var cts = new CancellationTokenSource();
-        _pendingOpenCts = cts;
-
-        try
-        {
-            await Task.Delay(delay, cts.Token);
-            await SetOpenAsync(true);
-        }
-        catch (OperationCanceledException)
-        {
-        }
-        finally
-        {
-            if (ReferenceEquals(_pendingOpenCts, cts))
-            {
-                _pendingOpenCts.Dispose();
-                _pendingOpenCts = null;
-            }
-            else
-            {
-                cts.Dispose();
-            }
-        }
-    }
-
-    private async Task CloseAsync()
-    {
-        _pendingOpenCts?.Cancel();
-        _pendingOpenCts?.Dispose();
-        _pendingOpenCts = null;
-
-        if (!_open)
-            return;
-
-        await SetOpenAsync(false);
-    }
-
-    private async Task OpenImmediateAsync()
-    {
-        _pendingOpenCts?.Cancel();
-        _pendingOpenCts?.Dispose();
-        _pendingOpenCts = null;
-
-        if (_open)
-            return;
-
-        await SetOpenAsync(true);
-    }
-
-    private async Task SetOpenAsync(bool open)
-    {
-        if (_open == open)
-            return;
-
-        _open = open;
-
-        if (OpenChanged.HasDelegate)
-            await OpenChanged.InvokeAsync(open);
-
-        await RefreshOffThread();
-    }
+    private IReadOnlyDictionary<string, object> RootAttributes => BuildAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "tooltip";
-        attributes["data-state"] = _open ? "open" : "closed";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -140,18 +38,11 @@
         });
     }
 
-    public override void Dispose()
-    {
-        _pendingOpenCts?.Cancel();
-        _pendingOpenCts?.Dispose();
-        _pendingOpenCts = null;
-        base.Dispose();
-    }
-
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(_open);
-        hc.Add(EffectiveDelayDuration);
+        hc.Add(Open);
+        hc.Add(DefaultOpen);
+        hc.Add(DelayDuration);
     }
 }

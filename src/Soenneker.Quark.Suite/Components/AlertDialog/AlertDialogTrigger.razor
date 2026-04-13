@@ -1,3 +1,5 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TriggerElement
 @implements IAlertDialogTrigger
@@ -10,9 +12,11 @@
 }
 else
 {
-    <button type="button" @onclick="HandleActivate" @ref="_elementRef" @attributes="BuildAttributes()">
+    <BradixDialogTrigger Disabled="@Disabled"
+                         OnClick="HandleActivate"
+                         AdditionalAttributes="@TriggerAttributes">
         @ChildContent
-    </button>
+    </BradixDialogTrigger>
 }
 
 @code {
@@ -22,10 +26,15 @@ else
     [CascadingParameter]
     private OverlayLabelContext? Context { get; set; }
 
+    [CascadingParameter]
+    private BradixDialog? BradixDialog { get; set; }
+
     [Parameter]
     public bool AsChild { get; set; }
 
     private ElementReference _elementRef;
+
+    private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -39,7 +48,7 @@ else
         if (Disabled)
             attributes["disabled"] = true;
 
-        if (Context is not null && ParentAlertDialog?.Visible == true)
+        if (Context is not null)
             attributes["aria-controls"] = Context.ContentId;
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -50,26 +59,44 @@ else
         });
     }
 
-    private async Task HandleActivate(MouseEventArgs args)
+    private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
     {
-        if (!Disabled && ParentAlertDialog != null)
-        {
-            ParentAlertDialog.SetRestoreFocusTarget(_elementRef);
-            await ParentAlertDialog.Show();
-        }
+        Dictionary<string, object> attributes = new(BuildAttributes());
 
-        await base.HandleClick(args);
+        attributes.Remove("type");
+        attributes.Remove("id");
+        attributes.Remove("data-state");
+        attributes.Remove("aria-haspopup");
+        attributes.Remove("aria-expanded");
+        attributes.Remove("aria-controls");
+        attributes.Remove("disabled");
+        attributes.Remove("onclick");
+
+        return attributes;
+    }
+
+    private Task HandleActivate(MouseEventArgs args)
+    {
+        return base.HandleClick(args);
     }
 
     private TriggerContext GetTriggerContext()
     {
         return new TriggerContext
         {
+            TriggerId = Context?.ContentId is not null ? $"{Context.ContentId}-trigger" : null,
+            ParentDisabled = Disabled,
             IsOpen = ParentAlertDialog?.Visible == true,
             DataState = ParentAlertDialog?.Visible == true ? "open" : "closed",
             AriaHasPopup = "alertdialog",
-            AriaControls = ParentAlertDialog?.Visible == true ? Context?.ContentId : null,
-            RegisterElement = elementReference => _elementRef = elementReference,
+            AriaControls = Context?.ContentId,
+            RegisterElement = elementReference =>
+            {
+                _elementRef = elementReference;
+
+                if (BradixDialog is not null)
+                    BradixDialog.RegisterTrigger(elementReference, Context?.ContentId is not null ? $"{Context.ContentId}-trigger" : null);
+            },
             Toggle = ParentAlertDialog is null
                 ? null
                 : async () =>
@@ -77,16 +104,12 @@ else
                     if (ParentAlertDialog.Visible)
                         await ParentAlertDialog.Hide();
                     else
-                    {
-                        ParentAlertDialog.SetRestoreFocusTarget(_elementRef);
                         await ParentAlertDialog.Show();
-                    }
                 },
             Open = ParentAlertDialog is null
                 ? null
                 : async () =>
                 {
-                    ParentAlertDialog.SetRestoreFocusTarget(_elementRef);
                     await ParentAlertDialog.Show();
                 },
             Close = ParentAlertDialog is null ? null : () => ParentAlertDialog.Hide()

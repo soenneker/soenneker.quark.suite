@@ -1,16 +1,12 @@
-﻿@using Soenneker.Blazor.Extensions.EventCallback
-
-@namespace Soenneker.Quark
+﻿@namespace Soenneker.Quark
+@using Soenneker.Bradix
 @inherits Soenneker.Quark.FormControlElement
 
-<button @onclick="HandleClick"
-        @onkeydown="HandleKeyDown"
-        @onkeydown:preventDefault="_preventDefaultKeys"
-        @onfocus="HandleFocus"
-        @ref="_buttonRef"
-        @attributes="BuildAttributes()">
+<BradixToggleGroupItem Value="@ResolvedValue"
+                       Disabled="@Disabled"
+                       AdditionalAttributes="@ItemAttributes">
     @ChildContent
-</button>
+</BradixToggleGroupItem>
 
 @code {
     [CascadingParameter(Name = "ParentToggleGroup")]
@@ -28,14 +24,7 @@
     [Parameter]
     public ToggleSize? Size { get; set; }
 
-    private ElementReference _buttonRef;
-    private bool _preventDefaultKeys;
-
-    private bool Pressed => ParentToggleGroup?.IsPressed(Value) ?? false;
-
-    private bool IsDisabled => Disabled || ParentToggleGroup?.Disabled == true;
-    internal bool IsDisabledInGroup => IsDisabled;
-    internal bool IsPressedInGroup => Pressed;
+    private string ResolvedValue => Value ?? string.Empty;
 
     private static string GetVariantClass(ToggleVariant? variant)
         => (variant?.Value ?? ToggleVariant.DefaultValue) switch
@@ -52,95 +41,50 @@
             _ => "h-8 min-w-8 shrink-0 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2"
         };
 
-    protected override void OnAfterRender(bool firstRender)
+    private IReadOnlyDictionary<string, object> ItemAttributes
     {
-        base.OnAfterRender(firstRender);
-
-        if (firstRender)
-            ParentToggleGroup?.RegisterItem(this);
-    }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        var variant = Variant ?? ParentToggleGroup?.Variant ?? ToggleVariant.Default;
-        var size = Size ?? ParentToggleGroup?.Size ?? ToggleSize.Default;
-
-        attributes["type"] = "button";
-        attributes["data-slot"] = "toggle-group-item";
-        attributes["data-value"] = Value ?? "";
-        attributes["aria-pressed"] = Pressed ? "true" : "false";
-        attributes["data-state"] = Pressed ? "on" : "off";
-        attributes["data-variant"] = variant?.Value ?? ToggleVariant.Default.Value;
-        attributes["data-size"] = size?.Value ?? ToggleSize.Default.Value;
-        attributes["data-spacing"] = ParentToggleGroup?.Spacing.ToString() ?? "0";
-        attributes["data-orientation"] = ParentToggleGroup?.Orientation?.Value ?? ToggleGroupOrientation.Horizontal.Value;
-        attributes["tabindex"] = ParentToggleGroup?.IsItemTabStop(this) == true ? 0 : -1;
-        if (IsDisabled)
-            attributes["disabled"] = true;
-
-        BuildClassAttribute(attributes, (ref cls) =>
+        get
         {
-            AppendClass(ref cls, "q-toggle-group-item");
-            AppendClass(ref cls, "group/toggle inline-flex items-center justify-center gap-1 rounded-lg text-sm font-medium whitespace-nowrap transition-all outline-none");
-            AppendClass(ref cls, "hover:bg-muted hover:text-foreground focus:z-10 focus-visible:z-10 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50");
-            AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40");
-            AppendClass(ref cls, "aria-pressed:bg-muted data-[state=on]:bg-muted [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-            AppendClass(ref cls, GetVariantClass(variant));
-            AppendClass(ref cls, GetSizeClass(size));
-            AppendClass(ref cls, "group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2");
-            AppendClass(ref cls, "group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pr-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:pl-1.5");
-            AppendClass(ref cls, "group-data-[orientation=horizontal]/toggle-group:group-data-[spacing=0]/toggle-group:first:rounded-l-lg group-data-[orientation=horizontal]/toggle-group:group-data-[spacing=0]/toggle-group:last:rounded-r-lg");
-            AppendClass(ref cls, "group-data-[orientation=vertical]/toggle-group:group-data-[spacing=0]/toggle-group:first:rounded-t-lg group-data-[orientation=vertical]/toggle-group:group-data-[spacing=0]/toggle-group:last:rounded-b-lg");
-            AppendClass(ref cls, "group-data-[orientation=horizontal]/toggle-group:group-data-[spacing=0]/toggle-group:group-data-[variant=outline]/toggle-group:border-l-0 group-data-[orientation=horizontal]/toggle-group:group-data-[spacing=0]/toggle-group:group-data-[variant=outline]/toggle-group:first:border-l");
-            AppendClass(ref cls, "group-data-[orientation=vertical]/toggle-group:group-data-[spacing=0]/toggle-group:group-data-[variant=outline]/toggle-group:border-t-0 group-data-[orientation=vertical]/toggle-group:group-data-[spacing=0]/toggle-group:group-data-[variant=outline]/toggle-group:first:border-t");
-            AppendClass(ref cls, "data-[orientation=vertical]:w-full");
-        });
-    }
+            ToggleVariant variant = Variant ?? ParentToggleGroup?.Variant ?? ToggleVariant.Default;
+            ToggleSize size = Size ?? ParentToggleGroup?.Size ?? ToggleSize.Default;
+            Dictionary<string, object> attributes = new(BuildAttributes());
 
-    protected override async Task HandleClick(MouseEventArgs e)
-    {
-        if (IsDisabled || ParentToggleGroup == null)
-            return;
+            attributes.Remove("disabled");
+            attributes.Remove("value");
+            attributes.Remove("type");
+            attributes.Remove("aria-pressed");
+            attributes.Remove("data-state");
+            attributes.Remove("tabindex");
+            attributes.Remove("onclick");
+            attributes.Remove("onkeydown");
+            attributes.Remove("onfocus");
 
-        ParentToggleGroup.NotifyItemFocused(this);
-        await ParentToggleGroup.SelectValue(Value);
-        await OnClick.InvokeIfHasDelegate(e);
-    }
+            attributes["data-slot"] = "toggle-group-item";
+            attributes["data-value"] = ResolvedValue;
+            attributes["data-variant"] = variant?.Value ?? ToggleVariant.Default.Value;
+            attributes["data-size"] = size?.Value ?? ToggleSize.Default.Value;
+            attributes["data-spacing"] = ParentToggleGroup?.Spacing.ToString() ?? "0";
+            attributes["data-orientation"] = ParentToggleGroup?.Orientation?.Value ?? ToggleGroupOrientation.Horizontal.Value;
 
-    protected override Task HandleFocus(FocusEventArgs e)
-    {
-        ParentToggleGroup?.NotifyItemFocused(this);
-        return base.HandleFocus(e);
-    }
+            BuildClassAttribute(attributes, (ref cls) =>
+            {
+                AppendClass(ref cls, "q-toggle-group-item");
+                AppendClass(ref cls, "group/toggle inline-flex items-center justify-center gap-1 rounded-lg text-sm font-medium whitespace-nowrap transition-all outline-none");
+                AppendClass(ref cls, "hover:bg-muted hover:text-foreground focus:z-10 focus-visible:z-10 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50");
+                AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40");
+                AppendClass(ref cls, "aria-pressed:bg-muted data-[state=on]:bg-muted [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
+                AppendClass(ref cls, GetVariantClass(variant));
+                AppendClass(ref cls, GetSizeClass(size));
+                AppendClass(ref cls, "group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2");
+                AppendClass(ref cls, "group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pr-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:pl-1.5");
+                AppendClass(ref cls, "group-data-[orientation=horizontal]/toggle-group:group-data-[spacing=0]/toggle-group:first:rounded-l-lg group-data-[orientation=horizontal]/toggle-group:group-data-[spacing=0]/toggle-group:last:rounded-r-lg");
+                AppendClass(ref cls, "group-data-[orientation=vertical]/toggle-group:group-data-[spacing=0]/toggle-group:first:rounded-t-lg group-data-[orientation=vertical]/toggle-group:group-data-[spacing=0]/toggle-group:last:rounded-b-lg");
+                AppendClass(ref cls, "group-data-[orientation=horizontal]/toggle-group:group-data-[spacing=0]/toggle-group:group-data-[variant=outline]/toggle-group:border-l-0 group-data-[orientation=horizontal]/toggle-group:group-data-[spacing=0]/toggle-group:group-data-[variant=outline]/toggle-group:first:border-l");
+                AppendClass(ref cls, "group-data-[orientation=vertical]/toggle-group:group-data-[spacing=0]/toggle-group:group-data-[variant=outline]/toggle-group:border-t-0 group-data-[orientation=vertical]/toggle-group:group-data-[spacing=0]/toggle-group:group-data-[variant=outline]/toggle-group:first:border-t");
+                AppendClass(ref cls, "data-[orientation=vertical]:w-full");
+            });
 
-    protected override async Task HandleKeyDown(KeyboardEventArgs args)
-    {
-        bool vertical = ParentToggleGroup?.Orientation == ToggleGroupOrientation.Vertical;
-
-        _preventDefaultKeys = args.Key switch
-        {
-            "Home" or "End" => true,
-            "ArrowLeft" or "ArrowRight" when !vertical => true,
-            "ArrowUp" or "ArrowDown" when vertical => true,
-            _ => false
-        };
-
-        if (_preventDefaultKeys && ParentToggleGroup is not null)
-            await ParentToggleGroup.HandleItemKeyNavigationAsync(this, args.Key);
-
-        await base.HandleKeyDown(args);
-    }
-
-    internal async Task FocusAsync()
-    {
-        try
-        {
-            await _buttonRef.FocusAsync();
-        }
-        catch
-        {
+            return attributes;
         }
     }
 
@@ -148,16 +92,11 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Value);
-        hc.Add(IsDisabled);
         hc.Add(Variant);
         hc.Add(Size);
-        hc.Add(ParentToggleGroup?.IsPressed(Value));
-        hc.Add(ParentToggleGroup?.IsItemTabStop(this));
-    }
-
-    public override void Dispose()
-    {
-        ParentToggleGroup?.UnregisterItem(this);
-        base.Dispose();
+        hc.Add(ParentToggleGroup?.Variant);
+        hc.Add(ParentToggleGroup?.Size);
+        hc.Add(ParentToggleGroup?.Spacing);
+        hc.Add(ParentToggleGroup?.Orientation);
     }
 }

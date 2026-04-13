@@ -1,12 +1,12 @@
 @namespace Soenneker.Quark
+@using Soenneker.Bradix
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()">
-    @if (IsActive || ForceMount)
-    {
-        @ChildContent
-    }
-</div>
+<BradixTabsContent Value="@ResolvedValue"
+                   ForceMount="@ForceMount"
+                   AdditionalAttributes="@ContentAttributes">
+    @ChildContent
+</BradixTabsContent>
 
 @code {
     [Parameter]
@@ -19,28 +19,28 @@
     [CascadingParameter(Name = nameof(ParentTabs))]
     private Tabs? ParentTabs { get; set; }
 
-    private bool IsActive => ParentTabs?.IsTabSelected(Value) == true;
+    private string ResolvedValue => Value ?? string.Empty;
+
+    private IReadOnlyDictionary<string, object> ContentAttributes => BuildContentAttributes();
+
+    private IReadOnlyDictionary<string, object> BuildContentAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("role");
+        attributes.Remove("tabindex");
+        attributes.Remove("hidden");
+        attributes.Remove("id");
+        attributes.Remove("aria-labelledby");
+        attributes.Remove("data-state");
+        attributes.Remove("data-orientation");
+        return attributes;
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "tabs-content";
-        attributes["data-state"] = IsActive ? "active" : "inactive";
-        attributes["data-orientation"] = ParentTabs?.Vertical == true ? "vertical" : "horizontal";
-        attributes["role"] = "tabpanel";
-        attributes["tabindex"] = IsActive ? 0 : -1;
-
-        if (!IsActive)
-            attributes["hidden"] = true;
-
-        var contentId = ParentTabs?.GetContentId(Value);
-        if (contentId is not null)
-            attributes["id"] = contentId;
-
-        var triggerId = ParentTabs?.GetTriggerId(Value);
-        if (triggerId is not null)
-            attributes["aria-labelledby"] = triggerId;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -54,9 +54,7 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Value);
-        hc.Add(IsActive);
         hc.Add(ParentTabs?.Vertical);
-        hc.Add(ParentTabs?.ActivationMode);
         hc.Add(ForceMount);
     }
 }

@@ -1,12 +1,19 @@
+@using Soenneker.Bradix
 @using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.ToggleElement
 @implements IToggle
 
-<button @onclick="HandleClick" @attributes="BuildAttributes()">
+<BradixToggle Pressed="@Pressed"
+              Disabled="@Disabled"
+              PressedChanged="HandlePressedChanged"
+              OnClick="HandleBradixClick"
+              OnFocus="HandleBradixFocus"
+              OnKeyDown="HandleBradixKeyDown"
+              AdditionalAttributes="@ToggleAttributes">
     @ChildContent
-</button>
+</BradixToggle>
 
 @code {
     /// <summary>
@@ -48,46 +55,60 @@
             _ => "h-8 min-w-8 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2"
         };
 
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    private IReadOnlyDictionary<string, object> ToggleAttributes
     {
-        base.BuildAttributesCore(attributes);
-
-        attributes["type"] = "button";
-        attributes["data-slot"] = "toggle";
-        attributes["aria-pressed"] = Pressed ? "true" : "false";
-        attributes["data-state"] = Pressed ? "on" : "off";
-        attributes["data-variant"] = Variant?.Value ?? ToggleVariant.Default.Value;
-
-        if (Disabled)
-            attributes["disabled"] = true;
-
-        BuildClassAttribute(attributes, (ref cls) =>
+        get
         {
-            AppendClass(ref cls, "q-toggle");
-            AppendClass(ref cls, "group/toggle inline-flex items-center justify-center gap-1 rounded-lg text-sm font-medium whitespace-nowrap transition-all outline-none");
-            AppendClass(ref cls, "hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50");
-            AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40");
-            AppendClass(ref cls, "aria-pressed:bg-muted data-[state=on]:bg-muted [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-            AppendClass(ref cls, GetVariantClass(Variant));
-            AppendClass(ref cls, GetSizeClass(Size));
-        });
+            Dictionary<string, object> attributes = new(BuildAttributes());
+
+            attributes.Remove("disabled");
+            attributes.Remove("aria-pressed");
+            attributes.Remove("data-state");
+            attributes.Remove("type");
+            attributes.Remove("onclick");
+            attributes.Remove("onfocus");
+            attributes.Remove("onkeydown");
+
+            attributes["data-slot"] = "toggle";
+            attributes["data-variant"] = Variant?.Value ?? ToggleVariant.Default.Value;
+
+            BuildClassAttribute(attributes, (ref cls) =>
+            {
+                AppendClass(ref cls, "q-toggle");
+                AppendClass(ref cls, "group/toggle inline-flex items-center justify-center gap-1 rounded-lg text-sm font-medium whitespace-nowrap transition-all outline-none");
+                AppendClass(ref cls, "hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50");
+                AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40");
+                AppendClass(ref cls, "aria-pressed:bg-muted data-[state=on]:bg-muted [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
+                AppendClass(ref cls, GetVariantClass(Variant));
+                AppendClass(ref cls, GetSizeClass(Size));
+            });
+
+            return attributes;
+        }
     }
 
-    protected override async Task HandleClick(MouseEventArgs e)
+    private async Task HandlePressedChanged(bool pressed)
     {
-        if (Disabled)
-            return;
-
-        var next = !Pressed;
-        if (next == Pressed)
-            return;
-
-        Pressed = next;
-        await PressedChanged.InvokeAsync(next);
-        await OnClick.InvokeIfHasDelegate(e);
+        Pressed = pressed;
+        await PressedChanged.InvokeAsync(pressed);
 
         InvalidateRender();
         Refresh();
+    }
+
+    private Task HandleBradixClick(MouseEventArgs e)
+    {
+        return base.HandleClick(e);
+    }
+
+    private Task HandleBradixFocus(FocusEventArgs e)
+    {
+        return base.HandleFocus(e);
+    }
+
+    private Task HandleBradixKeyDown(KeyboardEventArgs e)
+    {
+        return base.HandleKeyDown(e);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

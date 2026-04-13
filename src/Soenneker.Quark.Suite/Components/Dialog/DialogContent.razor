@@ -1,36 +1,36 @@
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Bradix
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.InteractiveElement
 @implements IDialogContent
-@implements IDisposable
 
-@if (ParentDialog?.Visible == true)
-{
-    <div @onkeydown="HandleKeyDown" @onclick="HandleBackdropClick" @attributes="BuildContainerAttributes()">
-        @if (ParentDialog.ShowBackdrop)
+<BradixDialogPortal>
+    @if (ParentDialog?.ShowBackdrop == true)
+    {
+        <BradixDialogOverlay AdditionalAttributes="@OverlayAttributes" />
+    }
+
+    <BradixDialogContent Id="@BradixDialog?.ContentId"
+                         CloseOnEscapeKeyDown="@(ParentDialog?.CloseOnEscape ?? true)"
+                         CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction"
+                         CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction"
+                         OnPointerDownOutside="HandleBackdropPointerDownOutside"
+                         AdditionalAttributes="@ContentAttributes">
+        @ChildContent
+        @if (ShowCloseButton)
         {
-            <div @attributes="BuildOverlayAttributes()"></div>
+            <DialogCloseButton />
         }
-        <div @onclick:stopPropagation="true" @ref="_contentRef" @attributes="BuildAttributes()">
-            @ChildContent
-            @if (ShowCloseButton)
-            {
-                <DialogCloseButton />
-            }
-        </div>
-    </div>
-}
+    </BradixDialogContent>
+</BradixDialogPortal>
 
 @code {
     [CascadingParameter(Name = nameof(ParentDialog))]
     public Dialog? ParentDialog { get; set; }
 
     [CascadingParameter]
-    private OverlayLabelContext? Context { get; set; }
-
-    private OverlayLabelContext? _subscribedContext;
-    private ElementReference _contentRef;
+    private BradixDialog? BradixDialog { get; set; }
 
     [Parameter]
     public bool Centered { get; set; }
@@ -38,33 +38,18 @@
     [Parameter]
     public bool ShowCloseButton { get; set; } = true;
 
-    protected override void OnParametersSet()
+    private bool ShouldCloseOnOutsideInteraction =>
+        ParentDialog is not null &&
+        !ParentDialog.Static &&
+        ParentDialog.CloseOnBackdropClick;
+
+    private IReadOnlyDictionary<string, object> ContentAttributes => BuildAttributes();
+
+    private IReadOnlyDictionary<string, object> OverlayAttributes => BuildOverlayAttributes();
+
+    private Task HandleBackdropPointerDownOutside()
     {
-        base.OnParametersSet();
-
-        if (!ReferenceEquals(_subscribedContext, Context))
-        {
-            if (_subscribedContext is not null)
-                _subscribedContext.StateChanged -= OnContextStateChanged;
-
-            _subscribedContext = Context;
-
-            if (_subscribedContext is not null)
-                _subscribedContext.StateChanged += OnContextStateChanged;
-        }
-    }
-
-    private async void OnContextStateChanged()
-    {
-        await RefreshOffThread();
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (ParentDialog?.Visible == true)
-            ParentDialog.SetOverlayContentElement(_contentRef);
-
-        await base.OnAfterRenderAsync(firstRender);
+        return ParentDialog?.OnBackdropClick.InvokeIfHasDelegate() ?? Task.CompletedTask;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -95,42 +80,7 @@
             }
         });
 
-        attributes["role"] = "dialog";
-        attributes["aria-modal"] = ParentDialog?.TrapFocus != false ? "true" : "false";
-        attributes["tabindex"] = -1;
         attributes["data-slot"] = "dialog-content";
-        attributes["data-state"] = ParentDialog?.Visible == true ? "open" : "closed";
-
-        if (Context is not null)
-            attributes["id"] = Context.ContentId;
-
-        if (Context?.HasTitle == true)
-        {
-            attributes["aria-labelledby"] = Context.TitleId;
-            attributes.Remove("aria-label");
-        }
-
-        if (Context?.HasDescription == true)
-            attributes["aria-describedby"] = Context.DescriptionId;
-    }
-
-    private Dictionary<string, object> BuildContainerAttributes()
-    {
-        var attributes = new Dictionary<string, object>();
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-dialog fixed inset-0 z-50");
-        });
-
-        attributes["tabindex"] = -1;
-        attributes["data-slot"] = "dialog-container";
-        attributes["data-state"] = ParentDialog?.Visible == true ? "open" : "closed";
-
-        if (ParentDialog?.Static == true)
-            attributes["data-backdrop"] = "static";
-
-        return attributes;
     }
 
     private Dictionary<string, object> BuildOverlayAttributes()
@@ -144,28 +94,10 @@
         });
 
         attributes["data-slot"] = "dialog-overlay";
-        attributes["data-state"] = ParentDialog?.Visible == true ? "open" : "closed";
+        attributes["data-state"] = BradixDialog?.CurrentOpen == true ? "open" : "closed";
         attributes["aria-hidden"] = "true";
 
         return attributes;
-    }
-
-    protected override async Task HandleKeyDown(KeyboardEventArgs e)
-    {
-        if (ParentDialog is null || ParentDialog.Static || !ParentDialog.CloseOnEscape)
-            return;
-
-        if (e.Key == "Escape")
-            await ParentDialog.Hide();
-    }
-
-    private async Task HandleBackdropClick(MouseEventArgs _)
-    {
-        if (ParentDialog is null || ParentDialog.Static || !ParentDialog.CloseOnBackdropClick)
-            return;
-
-        await ParentDialog.OnBackdropClick.InvokeIfHasDelegate();
-        await ParentDialog.Hide();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -173,7 +105,7 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(ShowCloseButton);
         hc.Add(Centered);
-        hc.Add(ParentDialog?.Visible ?? false);
+        hc.Add(BradixDialog?.CurrentOpen ?? false);
         hc.Add(ParentDialog?.ShowBackdrop ?? true);
         hc.Add(ParentDialog?.Centered ?? false);
         hc.Add(ParentDialog?.Scrollable ?? false);
@@ -182,18 +114,6 @@
         hc.Add(ParentDialog?.TrapFocus ?? true);
         hc.Add(ParentDialog?.CloseOnEscape ?? true);
         hc.Add(ParentDialog?.CloseOnBackdropClick ?? true);
-        hc.Add(Context?.HasTitle);
-        hc.Add(Context?.HasDescription);
-        hc.Add(Context?.ContentId);
-        hc.Add(Context?.TitleId);
-        hc.Add(Context?.DescriptionId);
-    }
-
-    public override void Dispose()
-    {
-        if (_subscribedContext is not null)
-            _subscribedContext.StateChanged -= OnContextStateChanged;
-
-        base.Dispose();
+        hc.Add(BradixDialog?.ContentId);
     }
 }

@@ -1,18 +1,16 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TypographyElement
 @implements IDialogTitle
-@implements IDisposable
 
-<h2 @attributes="BuildAttributes()">
+<BradixDialogTitle Id="@BradixDialog?.TitleId" AdditionalAttributes="@TitleAttributes">
     @ChildContent
-</h2>
+</BradixDialogTitle>
 
 @code {
     [CascadingParameter]
-    private OverlayLabelContext? Context { get; set; }
-
-    private OverlayLabelContext? _registeredContext;
-    private IDisposable? _titleRegistration;
+    private BradixDialog? BradixDialog { get; set; }
 
     /// <summary>
     /// Backward-compatibility parameter; shadcn title styles are fixed.
@@ -20,17 +18,7 @@
     [Parameter]
     public CssValue<ScaleBuilder>? Scale { get; set; } = Quark.Scale.Is5;
 
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-
-        if (ReferenceEquals(_registeredContext, Context))
-            return;
-
-        _titleRegistration?.Dispose();
-        _registeredContext = Context;
-        _titleRegistration = Context?.RegisterTitle();
-    }
+    private IReadOnlyDictionary<string, object> TitleAttributes => BuildAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -41,21 +29,12 @@
             AppendClass(ref cls, "q-dialog-title");
             AppendClass(ref cls, "text-lg leading-none font-semibold");
         });
-
-        if (!attributes.ContainsKey("id") && Context is not null)
-            attributes["id"] = Context.TitleId;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
         AddIf(ref hc, Scale);
-        hc.Add(Context?.TitleId);
-    }
-
-    public override void Dispose()
-    {
-        _titleRegistration?.Dispose();
-        base.Dispose();
+        hc.Add(BradixDialog?.TitleId);
     }
 }

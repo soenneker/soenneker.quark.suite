@@ -39,6 +39,7 @@
         <PackageIcon>icon.png</PackageIcon>
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
         <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackGeneratedTailwindManifest</TargetsForTfmSpecificContentInPackage>
+        <_LocalBradixProject>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\..\..\Bradix\soenneker.bradix.suite\src\Soenneker.Bradix.Suite\Soenneker.Bradix.Suite.csproj'))</_LocalBradixProject>
         <PackageReleaseNotes Condition="'$(PACKAGE_RELEASE_NOTES)' != ''">
             $(PACKAGE_RELEASE_NOTES)
         </PackageReleaseNotes>
@@ -65,7 +66,7 @@
     <ItemGroup>
         <PackageReference Include="Soenneker.Asyncs.Initializers" Version="4.0.45" />
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="4.0.445" />
-        <PackageReference Include="Soenneker.Bradix.Suite" Version="4.0.30" />
+        <PackageReference Include="Soenneker.Bradix.Suite" Version="4.0.31" Condition="!Exists('$(_LocalBradixProject)')" />
         <PackageReference Include="Soenneker.Lucide.Enums.Icons" Version="4.0.94" />
         <PackageReference Include="Soenneker.Lucide.Icons" Version="4.0.111" />
         <PackageReference Include="Soenneker.Quark.Builders" Version="4.0.4" />
@@ -85,5 +86,9 @@
         <PackageReference Include="Soenneker.DataTables.Dtos.Column" Version="4.0.19" />
         <PackageReference Include="Soenneker.Utils.Debounce" Version="4.0.46" />
         <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2510" />
+    </ItemGroup>
+
+    <ItemGroup Condition="Exists('$(_LocalBradixProject)')">
+        <ProjectReference Include="$(_LocalBradixProject)" />
     </ItemGroup>
 </Project>

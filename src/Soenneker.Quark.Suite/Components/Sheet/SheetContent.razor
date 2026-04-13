@@ -1,26 +1,29 @@
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Bradix
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.InteractiveElement
 @implements ISheetContent
-@implements IDisposable
 
-@if (ParentSheet?.Visible == true)
-{
-    <div @onkeydown="HandleKeyDown" @onclick="HandleBackdropClick" @attributes="BuildContainerAttributes()">
-        @if (ParentSheet.ShowBackdrop)
+<BradixDialogPortal>
+    @if (ParentSheet?.ShowBackdrop == true)
+    {
+        <BradixDialogOverlay AdditionalAttributes="@OverlayAttributes" />
+    }
+
+    <BradixDialogContent Id="@Context?.ContentId"
+                         CloseOnEscapeKeyDown="@(ParentSheet?.CloseOnEscape ?? true)"
+                         CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction"
+                         CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction"
+                         OnPointerDownOutside="HandleBackdropPointerDownOutside"
+                         AdditionalAttributes="@ContentAttributes">
+        @ChildContent
+        @if (ShowCloseButton)
         {
-            <div @attributes="BuildOverlayAttributes()"></div>
+            <SheetClose />
         }
-        <div @onclick:stopPropagation="true" @ref="_contentRef" @attributes="BuildAttributes()">
-            @ChildContent
-            @if (ShowCloseButton)
-            {
-                <SheetClose />
-            }
-        </div>
-    </div>
-}
+    </BradixDialogContent>
+</BradixDialogPortal>
 
 @code {
     [CascadingParameter(Name = nameof(ParentSheet))]
@@ -28,9 +31,6 @@
 
     [CascadingParameter]
     private OverlayLabelContext? Context { get; set; }
-
-    private OverlayLabelContext? _subscribedContext;
-    private ElementReference _contentRef;
 
     /// <summary>
     /// Gets or sets which side the sheet slides from ("top", "right", "bottom", "left").
@@ -56,26 +56,14 @@
     [Parameter]
     public string? OverlayStyle { get; set; }
 
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
+    private bool ShouldCloseOnOutsideInteraction =>
+        ParentSheet is not null &&
+        !ParentSheet.Static &&
+        ParentSheet.CloseOnBackdropClick;
 
-        if (!ReferenceEquals(_subscribedContext, Context))
-        {
-            if (_subscribedContext is not null)
-                _subscribedContext.StateChanged -= OnContextStateChanged;
+    private IReadOnlyDictionary<string, object> ContentAttributes => BuildAttributes();
 
-            _subscribedContext = Context;
-
-            if (_subscribedContext is not null)
-                _subscribedContext.StateChanged += OnContextStateChanged;
-        }
-    }
-
-    private async void OnContextStateChanged()
-    {
-        await RefreshOffThread();
-    }
+    private IReadOnlyDictionary<string, object> OverlayAttributes => BuildOverlayAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -104,57 +92,7 @@
         });
 
         attributes["data-slot"] = "sheet-content";
-        attributes["data-state"] = ParentSheet?.Visible == true ? "open" : "closed";
         attributes["data-side"] = side;
-        attributes["role"] = "dialog";
-        attributes["aria-modal"] = ParentSheet?.TrapFocus != false ? "true" : "false";
-        attributes["tabindex"] = -1;
-
-        if (Context is not null)
-            attributes["id"] = Context.ContentId;
-
-        if (Context?.HasTitle == true)
-        {
-            attributes["aria-labelledby"] = Context.TitleId;
-            attributes.Remove("aria-label");
-        }
-
-        if (Context?.HasDescription == true)
-            attributes["aria-describedby"] = Context.DescriptionId;
-    }
-
-    private Dictionary<string, object> BuildContainerAttributes()
-    {
-        var attributes = new Dictionary<string, object>();
-
-        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
-        {
-            AppendClass(ref cls, "q-sheet");
-            AppendClass(ref cls, "fixed inset-0 z-50");
-
-            if (!string.IsNullOrWhiteSpace(ContainerClass))
-                AppendClass(ref cls, ContainerClass!);
-
-            if (!string.IsNullOrWhiteSpace(ContainerStyle))
-                AppendStyleDecl(ref sty, ContainerStyle!);
-        });
-
-        attributes["tabindex"] = -1;
-        attributes["data-state"] = ParentSheet?.Visible == true ? "open" : "closed";
-        attributes["data-slot"] = "sheet";
-
-        if (ParentSheet?.Static == true)
-            attributes["data-backdrop"] = "static";
-
-        return attributes;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (ParentSheet?.Visible == true)
-            ParentSheet.SetOverlayContentElement(_contentRef);
-
-        await base.OnAfterRenderAsync(firstRender);
     }
 
     private Dictionary<string, object> BuildOverlayAttributes()
@@ -180,22 +118,9 @@
         return attributes;
     }
 
-    protected override async Task HandleKeyDown(KeyboardEventArgs e)
+    private Task HandleBackdropPointerDownOutside()
     {
-        if (ParentSheet is null || ParentSheet.Static || !ParentSheet.CloseOnEscape)
-            return;
-
-        if (e.Key == "Escape")
-            await ParentSheet.Hide();
-    }
-
-    private async Task HandleBackdropClick(MouseEventArgs _)
-    {
-        if (ParentSheet is null || ParentSheet.Static || !ParentSheet.CloseOnBackdropClick)
-            return;
-
-        await ParentSheet.OnBackdropClick.InvokeIfHasDelegate();
-        await ParentSheet.Hide();
+        return ParentSheet?.OnBackdropClick.InvokeIfHasDelegate() ?? Task.CompletedTask;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -213,18 +138,6 @@
         hc.Add(ParentSheet?.CloseOnEscape ?? true);
         hc.Add(ParentSheet?.CloseOnBackdropClick ?? true);
         hc.Add(ParentSheet?.Static ?? false);
-        hc.Add(Context?.HasTitle);
-        hc.Add(Context?.HasDescription);
         hc.Add(Context?.ContentId);
-        hc.Add(Context?.TitleId);
-        hc.Add(Context?.DescriptionId);
-    }
-
-    public override void Dispose()
-    {
-        if (_subscribedContext is not null)
-            _subscribedContext.StateChanged -= OnContextStateChanged;
-
-        base.Dispose();
     }
 }

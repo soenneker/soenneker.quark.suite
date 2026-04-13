@@ -1,25 +1,23 @@
 @namespace Soenneker.Quark
+@using Soenneker.Bradix
 @inherits Soenneker.Quark.FormControlElement
 @implements IRadioGroup
 @implements IDisposable
 
 <CascadingValue Name="ParentRadioGroup" Value="@this" IsFixed="true">
-    <div @attributes="BuildAttributes()"
-         role="radiogroup"
-         aria-label="@AriaLabel"
-         aria-orientation="@OrientationValue"
-         aria-disabled="@(Disabled ? "true" : "false")">
+    <BradixRadioGroup Name="@EffectiveName"
+                      Required="@Required"
+                      Disabled="@Disabled"
+                      Value="@Value"
+                      Orientation="@ResolvedOrientation"
+                      ValueChanged="HandleValueChanged"
+                      AdditionalAttributes="@GroupAttributes">
         @ChildContent
-    </div>
+    </BradixRadioGroup>
 </CascadingValue>
 
 @code {
     private string? _name;
-    private readonly List<Radio> _radios = [];
-
-    [CascadingParameter(Name = "DirectionProviderDir")]
-    private string? DirectionProviderDir { get; set; }
-
     /// <summary>
     /// Callback when the selected value changes.
     /// </summary>
@@ -34,33 +32,14 @@
 
     private string OrientationValue => Orientation?.ToLowerInvariantFast() == "horizontal" ? "horizontal" : "vertical";
 
-    private bool IsHorizontalRtl()
-    {
-        if (OrientationValue != "horizontal")
-            return false;
-
-        if (string.Equals(DirectionProviderDir, "rtl", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (Attributes is not null &&
-            Attributes.TryGetValue("dir", out var dirValue) &&
-            string.Equals(dirValue?.ToString(), "rtl", StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
-        return false;
-    }
+    private BradixOrientation ResolvedOrientation => OrientationValue == "horizontal"
+        ? BradixOrientation.Horizontal
+        : BradixOrientation.Vertical;
 
     /// <summary>
     /// Gets the effective name for the group (generated if not set).
     /// </summary>
     public string EffectiveName => _name ??= Name ?? $"radiogroup_{Guid.NewGuid():N}";
-
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-    }
 
     protected override void OnInitialized()
     {
@@ -78,93 +57,44 @@
         if (Value == value) return;
         Value = value;
         await ValueChanged.InvokeAsync(Value);
-        await RefreshOffThread();
+        InvalidateRender();
+        Refresh();
     }
 
-    internal void RegisterRadio(Radio radio)
+    private IReadOnlyDictionary<string, object> GroupAttributes
     {
-        if (!_radios.Contains(radio))
-            _radios.Add(radio);
-    }
-
-    internal void UnregisterRadio(Radio radio)
-    {
-        _radios.Remove(radio);
-    }
-
-    internal bool IsTabStop(Radio radio)
-    {
-        if (radio.Disabled)
-            return false;
-
-        var checkedRadio = _radios.FirstOrDefault(r => !r.Disabled && r.IsCheckedInGroup());
-        if (checkedRadio is not null)
-            return ReferenceEquals(checkedRadio, radio);
-
-        var firstEnabled = _radios.FirstOrDefault(r => !r.Disabled);
-        return ReferenceEquals(firstEnabled, radio);
-    }
-
-    internal void HandleKeyNavigation(Radio currentRadio, string key)
-    {
-        if (_radios.Count == 0)
-            return;
-
-        var enabledRadios = _radios.Where(r => !r.Disabled).ToList();
-        if (enabledRadios.Count == 0)
-            return;
-
-        var currentIndex = enabledRadios.FindIndex(r => ReferenceEquals(r, currentRadio));
-        if (currentIndex < 0)
-            return;
-
-        var nextIndex = key switch
+        get
         {
-            "ArrowRight" when IsHorizontalRtl() => (currentIndex - 1 + enabledRadios.Count) % enabledRadios.Count,
-            "ArrowLeft" when IsHorizontalRtl() => (currentIndex + 1) % enabledRadios.Count,
-            "ArrowRight" or "ArrowDown" => (currentIndex + 1) % enabledRadios.Count,
-            "ArrowLeft" or "ArrowUp" => (currentIndex - 1 + enabledRadios.Count) % enabledRadios.Count,
-            "Home" => 0,
-            "End" => enabledRadios.Count - 1,
-            _ => -1
-        };
+            Dictionary<string, object> attributes = new(BuildAttributes());
 
-        if (nextIndex < 0)
-            return;
+            attributes.Remove("disabled");
+            attributes.Remove("name");
+            attributes.Remove("value");
+            attributes.Remove("readonly");
+            attributes.Remove("placeholder");
+            attributes.Remove("required");
+            attributes.Remove("autofocus");
+            attributes.Remove("role");
+            attributes.Remove("aria-orientation");
 
-        var target = enabledRadios[nextIndex];
-        _ = target.SelectFromGroupNavigationAsync();
+            attributes["data-slot"] = "radio-group";
+            ApplyFieldControlAttributes(attributes);
+
+            BuildClassAttribute(attributes, (ref cls) =>
+            {
+                AppendClass(ref cls, "q-radio-group");
+                AppendClass(ref cls, "grid gap-3");
+                if (OrientationValue == "horizontal")
+                    AppendClass(ref cls, "grid-flow-col auto-cols-max");
+            });
+
+            return attributes;
+        }
     }
 
-    protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
+    private Task HandleValueChanged(string? value)
     {
-        base.BuildOwnedAttributes(attributes);
-
-        attributes.Remove("name");
-        attributes.Remove("value");
-        attributes.Remove("readonly");
-        attributes.Remove("placeholder");
-        attributes.Remove("required");
-        attributes.Remove("autofocus");
-
-        if (Required)
-            attributes["aria-required"] = "true";
-    }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        attributes["data-slot"] = "radio-group";
-        ApplyFieldControlAttributes(attributes);
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-radio-group");
-            AppendClass(ref cls, "grid gap-3");
-            if (OrientationValue == "horizontal")
-                AppendClass(ref cls, "grid-flow-col auto-cols-max");
-        });
+        return SetValueAsync(value);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -175,10 +105,5 @@
         hc.Add(Disabled);
         hc.Add(Orientation);
         hc.Add(AriaLabel);
-    }
-
-    public override void Dispose()
-    {
-        base.Dispose();
     }
 }

@@ -1,24 +1,20 @@
 
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.OverlayElement
 @implements IDropdownMenu
-@implements IAsyncDisposable
 
-@inject IPopoverInterop PopoverInterop
-
-@if (ResolvedVisible && ParentDropdown?.IsSubmenu != true)
-{
-    <div class="fixed inset-0 z-40" aria-hidden="true" @onclick="HandleBackdropClick"></div>
-}
-
-<div @ref="_contentRef" @attributes="BuildAttributes()" @onkeydown="HandleMenuKeyDown">
-    @ChildContent
-</div>
+<BradixDropdownMenuPortal>
+    <BradixDropdownMenuContent Side="@ResolvedSide"
+                               Align="@ResolvedAlign"
+                               SideOffset="4"
+                               AdditionalAttributes="@ContentAttributes">
+        @ChildContent
+    </BradixDropdownMenuContent>
+</BradixDropdownMenuPortal>
 
 @code {
-    private ElementReference _contentRef;
-    private bool _positionObserverActive;
-
     /// <summary>
     /// Gets or sets whether the dropdown menu should be right-aligned.
     /// </summary>
@@ -34,130 +30,59 @@
     [CascadingParameter(Name = nameof(ParentDropdown))]
     public Dropdown? ParentDropdown { get; set; }
 
-    private bool ResolvedVisible => ParentDropdown?.Visible ?? Visible;
-
     private bool ResolvedRightAligned => ParentDropdown?.RightAligned ?? RightAligned;
 
     private Direction ResolvedDirection => ParentDropdown?.Direction ?? Direction;
 
-    private bool UseFloatingPositioning =>
-        ParentDropdown?.HasTriggerElement == true &&
-        ParentDropdown?.IsSubmenu != true &&
-        ResolvedDirection is null or { Value: not Direction.EndValue and not Direction.StartValue };
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private BradixSide ResolvedSide => ResolvedDirection?.Value switch
     {
-        await base.OnAfterRenderAsync(firstRender);
+        Direction.UpValue => BradixSide.Top,
+        Direction.EndValue => BradixSide.Right,
+        Direction.StartValue => BradixSide.Left,
+        _ => BradixSide.Bottom
+    };
 
-        if (!ResolvedVisible || ParentDropdown is null || !UseFloatingPositioning)
-        {
-            await StopPositionObserver();
-            return;
-        }
+    private BradixAlignment ResolvedAlign => ResolvedRightAligned ? BradixAlignment.End : BradixAlignment.Start;
 
-        await PopoverInterop.ObservePosition(ParentDropdown.MenuId, ParentDropdown.TriggerElement, _contentRef, GetFloatingSide(), GetFloatingAlign(), 4);
-        _positionObserverActive = true;
-    }
+    private IReadOnlyDictionary<string, object> ContentAttributes => BuildContentAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "dropdown-menu-content";
-        attributes["data-state"] = ResolvedVisible ? "open" : "closed";
-        attributes["role"] = "menu";
-        attributes["tabindex"] = -1;
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-dropdown-menu");
             AppendClass(ref cls, "z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-[8rem] origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md");
             AppendClass(ref cls, "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
-            AppendClass(ref cls, "data-[state=closed]:hidden data-[state=open]:block");
-
-            if (UseFloatingPositioning)
-            {
-                AppendClass(ref cls, "fixed");
-            }
-            else
-            {
-                AppendClass(ref cls, "absolute");
-
-                if (ResolvedRightAligned)
-                    AppendClass(ref cls, "right-0 rtl:right-auto rtl:left-0");
-            }
 
             var directionClass = ResolvedDirection?.Value switch
             {
-                Direction.UpValue when !UseFloatingPositioning => "bottom-full mb-1 data-[state=open]:slide-in-from-bottom-2",
-                Direction.EndValue => "left-full ml-1 rtl:left-auto rtl:right-full rtl:ml-0 rtl:mr-1 data-[state=open]:slide-in-from-right-2 rtl:data-[state=open]:slide-in-from-left-2",
-                Direction.StartValue => "right-full mr-1 rtl:right-auto rtl:left-full rtl:mr-0 rtl:ml-1 data-[state=open]:slide-in-from-left-2 rtl:data-[state=open]:slide-in-from-right-2",
-                _ when !UseFloatingPositioning => "top-full mt-1 data-[state=open]:slide-in-from-top-2",
-                _ => null
+                Direction.UpValue => "data-[state=open]:slide-in-from-bottom-2",
+                Direction.EndValue => "data-[state=open]:slide-in-from-left-2 rtl:data-[state=open]:slide-in-from-right-2",
+                Direction.StartValue => "data-[state=open]:slide-in-from-right-2 rtl:data-[state=open]:slide-in-from-left-2",
+                _ => "data-[state=open]:slide-in-from-top-2",
             };
             if (directionClass != null)
                 AppendClass(ref cls, directionClass);
         });
+    }
 
-        if (ParentDropdown is not null)
-            attributes["id"] = ParentDropdown.MenuId;
+    private IReadOnlyDictionary<string, object> BuildContentAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
 
-        if (UseFloatingPositioning)
-        {
-            BuildStyleAttribute(attributes, (ref sty) =>
-            {
-                AppendStyleDecl(ref sty, "top: 0");
-                AppendStyleDecl(ref sty, "left: 0");
-                AppendStyleDecl(ref sty, "visibility: hidden");
-                AppendStyleDecl(ref sty, "min-width: var(--quark-trigger-width)");
-                AppendStyleDecl(ref sty, "max-height: min(24rem, var(--quark-available-height))");
-            });
-        }
+        attributes.Remove("id");
+        attributes.Remove("data-state");
+        attributes.Remove("role");
+        attributes.Remove("tabindex");
+        return attributes;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(ResolvedVisible);
         hc.Add(ResolvedRightAligned);
         hc.Add(ResolvedDirection);
-    }
-
-    private async Task HandleMenuKeyDown(KeyboardEventArgs e)
-    {
-        if (e.Key == "Escape" && ParentDropdown is not null)
-        {
-            await ParentDropdown.Hide();
-            await ParentDropdown.FocusTriggerAsync();
-        }
-    }
-
-    private async Task HandleBackdropClick()
-    {
-        if (ParentDropdown is not null)
-            await ParentDropdown.Hide();
-    }
-
-    private string GetFloatingSide()
-    {
-        return ResolvedDirection?.Value == Direction.UpValue ? "top" : "bottom";
-    }
-
-    private string GetFloatingAlign()
-    {
-        return ResolvedRightAligned ? "end" : "start";
-    }
-
-    private async ValueTask StopPositionObserver()
-    {
-        if (!_positionObserverActive || ParentDropdown is null)
-            return;
-
-        await PopoverInterop.StopObserving(ParentDropdown.MenuId);
-        _positionObserverActive = false;
-    }
-
-    public override async ValueTask DisposeAsync()
-    {
-        await StopPositionObserver();
-        await base.DisposeAsync();
     }
 }

@@ -1,21 +1,29 @@
-﻿@namespace Soenneker.Quark
+﻿@using Soenneker.Bradix
+
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.OverlayElement
 @implements INavigationMenuIndicator
 
-<div @attributes="BuildAttributes()">
+<BradixNavigationMenuIndicator ForceMount="@Visible"
+                              AdditionalAttributes="@IndicatorAttributes">
     <div class="bg-border relative top-[60%] h-2 w-2 rotate-45 rounded-tl-sm shadow-md"></div>
-</div>
+</BradixNavigationMenuIndicator>
 
 @code {
-    [CascadingParameter(Name = "ParentNavigationMenu")]
-    private NavigationMenu? ParentNavigationMenu { get; set; }
+    private IReadOnlyDictionary<string, object> IndicatorAttributes => BuildIndicatorAttributes();
+
+    private IReadOnlyDictionary<string, object> BuildIndicatorAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("data-state");
+        return attributes;
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "navigation-menu-indicator";
-        attributes["data-state"] = Visible || ParentNavigationMenu?.HasOpenItem == true ? "visible" : "hidden";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -29,6 +37,5 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Visible);
-        hc.Add(ParentNavigationMenu?.HasOpenItem);
     }
 }

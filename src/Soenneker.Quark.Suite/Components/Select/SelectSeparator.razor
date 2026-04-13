@@ -1,16 +1,18 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()"></div>
+<BradixSelectSeparator AdditionalAttributes="@SeparatorAttributes" />
 
 @code {
+    private IReadOnlyDictionary<string, object> SeparatorAttributes => BuildAttributes();
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "select-separator";
-        attributes["role"] = "separator";
-        attributes["aria-hidden"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

@@ -1,13 +1,24 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
+@using Soenneker.Bradix
 @using System.Text
 @using System.Text.RegularExpressions
 
-<CascadingValue Name="ParentInputOtp" Value="@this" IsFixed="true">
-    <div @attributes="BuildAttributes()">
-        @ChildContent
-    </div>
-</CascadingValue>
+<BradixOneTimePasswordField Value="@OtpValue"
+                            ValueChanged="HandleValueChanged"
+                            AutoComplete="@AutoComplete"
+                            AutoFocus="@AutoFocus"
+                            Disabled="@Disabled"
+                            InputMode="@InputMode"
+                            Name="@Name"
+                            Pattern="@Pattern"
+                            ReadOnly="@ReadOnly"
+                            Required="@Required"
+                            SanitizeValue="Sanitize"
+                            ValidationType="none"
+                            AdditionalAttributes="@RootAttributes">
+    @ChildContent
+</BradixOneTimePasswordField>
 
 @code {
 
@@ -49,37 +60,7 @@
 
     internal string? InputId => Id;
 
-    internal async Task SetValue(string v)
-    {
-        v = Sanitize(v);
-
-        if (v.Length > Length)
-            v = v[..Length];
-
-        OtpValue = v;
-        await OtpValueChanged.InvokeAsync(OtpValue);
-        InvalidateRender();
-        Refresh();
-    }
-
-    internal char? GetSlot(int index)
-    {
-        if (index < 0 || index >= Length)
-            return null;
-
-        var value = OtpValue ?? "";
-        return index < value.Length ? value[index] : (char?) null;
-    }
-
-    internal int ActiveIndex => Math.Min((OtpValue ?? "").Length, Length - 1);
-
-    internal string GetEffectiveInputMode()
-    {
-        if (!string.IsNullOrWhiteSpace(InputMode))
-            return InputMode!;
-
-        return "text";
-    }
+    private IReadOnlyDictionary<string, object> RootAttributes => BuildRootAttributes();
 
     private string Sanitize(string? value)
     {
@@ -98,6 +79,29 @@
         }
 
         return builder.ToString();
+    }
+
+    private async Task HandleValueChanged(string value)
+    {
+        string sanitized = Sanitize(value);
+
+        if (sanitized.Length > Length)
+            sanitized = sanitized[..Length];
+
+        OtpValue = sanitized;
+        await OtpValueChanged.InvokeAsync(sanitized);
+        InvalidateRender();
+        Refresh();
+    }
+
+    private IReadOnlyDictionary<string, object> BuildRootAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("id");
+        attributes.Remove("role");
+        attributes.Remove("dir");
+        attributes.Remove("data-orientation");
+        return attributes;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

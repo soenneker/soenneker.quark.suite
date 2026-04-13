@@ -1,76 +1,42 @@
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Bradix
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.ToggleElement
-@implements IDropdownFocusableItem
 
-<div @onclick="OnClickHandler" @onkeydown="HandleMenuKeyDown" @attributes="BuildAttributes()" @ref="_elementRef">
+<BradixDropdownMenuCheckboxItem Checked="@ResolvedCheckedState"
+                                CheckedChanged="HandleCheckedStateChanged"
+                                CloseOnSelect="@AutoClose"
+                                Disabled="@Disabled"
+                                AdditionalAttributes="@CheckboxAttributes">
     <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center rtl:left-auto rtl:right-2">
-        @if (Checked)
-        {
+        <BradixDropdownMenuItemIndicator>
             <Icon Name="LucideIcon.Check" Class="size-4" />
-        }
+        </BradixDropdownMenuItemIndicator>
     </span>
     @ChildContent
-</div>
+</BradixDropdownMenuCheckboxItem>
 
 @code {
-    private ElementReference _elementRef;
-
     [Parameter]
     public bool AutoClose { get; set; }
 
     [Parameter]
     public bool Inset { get; set; }
 
-    [CascadingParameter(Name = nameof(ParentDropdown))]
-    public Dropdown? ParentDropdown { get; set; }
+    private BradixCheckboxCheckedState ResolvedCheckedState =>
+        Checked ? BradixCheckboxCheckedState.Checked : BradixCheckboxCheckedState.Unchecked;
 
-    [CascadingParameter(Name = "DropdownNavigationSub")]
-    private DropdownSub? NavigationSub { get; set; }
-
-    bool IDropdownFocusableItem.IsDisabledForNavigation => Disabled;
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        base.OnAfterRender(firstRender);
-
-        if (!firstRender)
-            return;
-
-        if (NavigationSub is not null)
-            NavigationSub.RegisterItem(this);
-        else
-            ParentDropdown?.RegisterItem(this);
-    }
-
-    private async Task OnClickHandler()
-    {
-        if (Disabled)
-            return;
-
-        var next = !Checked;
-        Checked = next;
-        await CheckedChanged.InvokeIfHasDelegate(next);
-
-        if (AutoClose && ParentDropdown is not null)
-            await ParentDropdown.Hide();
-    }
+    private IReadOnlyDictionary<string, object> CheckboxAttributes => BuildCheckboxAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "dropdown-menu-checkbox-item";
         attributes["data-state"] = Checked ? "checked" : "unchecked";
-        attributes["role"] = "menuitemcheckbox";
-        attributes["aria-checked"] = Checked ? "true" : "false";
-        attributes["tabindex"] = -1;
 
         if (Inset)
             attributes["data-inset"] = "true";
-
-        if (Disabled)
-            attributes["data-disabled"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -82,6 +48,16 @@
         });
     }
 
+    private IReadOnlyDictionary<string, object> BuildCheckboxAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("role");
+        attributes.Remove("aria-checked");
+        attributes.Remove("tabindex");
+        attributes.Remove("data-disabled");
+        return attributes;
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
@@ -91,46 +67,10 @@
         hc.Add(Inset);
     }
 
-    private async Task HandleMenuKeyDown(KeyboardEventArgs e)
+    private async Task HandleCheckedStateChanged(BradixCheckboxCheckedState state)
     {
-        if (ParentDropdown is null)
-            return;
-
-        if (e.Key is "ArrowDown" or "ArrowUp" or "Home" or "End")
-        {
-            if (NavigationSub is not null)
-                await NavigationSub.HandleItemNavigationAsync(this, e.Key);
-            else
-                await ParentDropdown.HandleItemNavigationAsync(this, e.Key);
-        }
-        else if (e.Key is "Enter" or " ")
-            await OnClickHandler();
-        else if (e.Key == "ArrowLeft" && NavigationSub is not null)
-            await NavigationSub.CloseAndFocusTriggerAsync();
-        else if (e.Key == "Escape")
-        {
-            if (NavigationSub is not null)
-                await NavigationSub.CloseAndFocusTriggerAsync();
-            else
-            {
-                await ParentDropdown.Hide();
-                await ParentDropdown.FocusTriggerAsync();
-            }
-        }
-    }
-
-    async Task IDropdownFocusableItem.FocusAsync()
-    {
-        await _elementRef.FocusAsync();
-    }
-
-    public override void Dispose()
-    {
-        if (NavigationSub is not null)
-            NavigationSub.UnregisterItem(this);
-        else
-            ParentDropdown?.UnregisterItem(this);
-
-        base.Dispose();
+        bool next = state == BradixCheckboxCheckedState.Checked;
+        Checked = next;
+        await CheckedChanged.InvokeIfHasDelegate(next);
     }
 }

@@ -1,29 +1,35 @@
 @namespace Soenneker.Quark
+@using Soenneker.Bradix
 @inherits Soenneker.Quark.Element
 @implements ITabs
 
 <CascadingValue Name="ParentTabs" Value="this">
-    <div @attributes="BuildAttributes()">
+    <BradixTabs Value="@SelectedTab"
+                Orientation="@ResolvedOrientation"
+                Dir="@ResolvedDir"
+                ActivationMode="@ResolvedActivationMode"
+                ValueChanged="HandleBradixValueChanged"
+                AdditionalAttributes="@ComposedRootAttributes">
         @if (Composed)
         {
             @ChildContent
         }
         else
         {
-            <div role="tablist" @attributes="BuildTabsListAttributes()">
+            <BradixTabsList Loop="@Loop"
+                            AdditionalAttributes="@TabsListAttributes">
                 @ChildContent
-            </div>
+            </BradixTabsList>
             @foreach (var tab in _tabs)
             {
-                <div @attributes="BuildTabContentAttributes(tab)">
-                    @if (string.Equals(tab.Name, ResolvedSelectedTab, StringComparison.Ordinal) || tab.ForceMount)
-                    {
-                        @tab.ChildContent
-                    }
-                </div>
+                <BradixTabsContent Value="@tab.Name"
+                                   ForceMount="@tab.ForceMount"
+                                   AdditionalAttributes="@BuildTabContentAttributes(tab)">
+                    @tab.ChildContent
+                </BradixTabsContent>
             }
         }
-    </div>
+    </BradixTabs>
 </CascadingValue>
 
 @code {
@@ -64,12 +70,15 @@
     public TabsListVariant TabsListVariant { get; set; } = TabsListVariant.Default;
 
     private readonly List<Tab> _tabs = [];
-    private readonly List<TabsTrigger> _explicitTriggers = [];
-
-    /// <summary>Manual activation: which trigger has keyboard roving focus (Radix roving tabindex).</summary>
-    private string? _manualRovingFocusValue;
 
     internal string? ResolvedSelectedTab => GetResolvedSelectedTab();
+    internal string? ResolvedDir => Dir.HasContent() ? Dir : DirectionProviderDir;
+    private BradixOrientation ResolvedOrientation => Vertical ? BradixOrientation.Vertical : BradixOrientation.Horizontal;
+    private BradixTabsActivationMode ResolvedActivationMode => ActivationMode == TabsActivationMode.Manual
+        ? BradixTabsActivationMode.Manual
+        : BradixTabsActivationMode.Automatic;
+    private IReadOnlyDictionary<string, object> ComposedRootAttributes => BuildComposedRootAttributes();
+    private IReadOnlyDictionary<string, object> TabsListAttributes => BuildTabsListAttributes();
 
     internal const string TabsTriggerBaseClass =
         "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-1.5 py-0.5 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all " +
@@ -95,41 +104,14 @@
         _ = RefreshOffThread();
     }
 
-    internal void RegisterTrigger(TabsTrigger trigger)
-    {
-        if (_explicitTriggers.Contains(trigger))
-            return;
-
-        _explicitTriggers.Add(trigger);
-        _ = RefreshOffThread();
-    }
-
-    internal void UnregisterTrigger(TabsTrigger trigger)
-    {
-        _explicitTriggers.Remove(trigger);
-        _ = RefreshOffThread();
-    }
-
     private string? GetResolvedSelectedTab()
     {
         if (SelectedTab.HasContent())
         {
-            if (Composed)
-            {
-                var matchingTrigger = _explicitTriggers.FirstOrDefault(t => !t.Disabled && string.Equals(t.Value, SelectedTab, StringComparison.Ordinal));
-                if (matchingTrigger is not null)
-                    return matchingTrigger.Value;
-
-                return SelectedTab;
-            }
-
             var matchingTab = _tabs.FirstOrDefault(t => !t.Disabled && string.Equals(t.Name, SelectedTab, StringComparison.Ordinal));
             if (matchingTab is not null)
                 return matchingTab.Name;
         }
-
-        if (Composed)
-            return _explicitTriggers.FirstOrDefault(t => !t.Disabled && t.Value.HasContent())?.Value;
 
         return _tabs.FirstOrDefault(t => !t.Disabled && t.Name.HasContent())?.Name;
     }
@@ -152,126 +134,12 @@
         return false;
     }
 
-    internal bool IsAutomaticActivation =>
-        string.Equals(ActivationMode?.Value, TabsActivationMode.Automatic.Value, StringComparison.Ordinal);
-
-    internal void NotifyManualRovingFocus(string? value)
-    {
-        if (IsAutomaticActivation || !value.HasContent())
-            return;
-
-        if (string.Equals(_manualRovingFocusValue, value, StringComparison.Ordinal))
-            return;
-
-        _manualRovingFocusValue = value;
-        _ = InvokeAsync(StateHasChanged);
-    }
-
-    /// <summary>Radix: in manual mode, tabindex 0 follows roving focus; otherwise selected tab.</summary>
-    internal int GetTriggerTabIndex(string? value, bool isSelected)
-    {
-        if (!value.HasContent())
-            return -1;
-
-        if (IsAutomaticActivation)
-            return isSelected ? 0 : -1;
-
-        if (_manualRovingFocusValue.HasContent())
-            return string.Equals(_manualRovingFocusValue, value, StringComparison.Ordinal) ? 0 : -1;
-
-        return isSelected ? 0 : -1;
-    }
-
-    internal async Task HandleKeyNavigationAsync(Tab currentTab, string key)
-    {
-        if (_tabs.Count == 0)
-            return;
-
-        var enabledTabs = _tabs.Where(t => !t.Disabled && t.Name.HasContent()).ToList();
-        if (enabledTabs.Count == 0)
-            return;
-
-        var currentIndex = enabledTabs.FindIndex(t => ReferenceEquals(t, currentTab));
-        if (currentIndex < 0)
-            return;
-
-        var nextIndex = ResolveNextIndex(enabledTabs.Count, currentIndex, key);
-        if (nextIndex < 0)
-            return;
-
-        var targetTab = enabledTabs[nextIndex];
-        if (!targetTab.Name.HasContent())
-            return;
-
-        // Radix: arrow keys only move roving focus; automatic mode selects via trigger @onfocus.
-        await targetTab.FocusAsync();
-    }
-
-    internal async Task HandleExplicitKeyNavigationAsync(TabsTrigger currentTrigger, string key)
-    {
-        if (_explicitTriggers.Count == 0)
-            return;
-
-        var enabledTriggers = _explicitTriggers.Where(t => !t.Disabled && t.Value.HasContent()).ToList();
-        if (enabledTriggers.Count == 0)
-            return;
-
-        var currentIndex = enabledTriggers.FindIndex(t => ReferenceEquals(t, currentTrigger));
-        if (currentIndex < 0)
-            return;
-
-        var nextIndex = ResolveNextIndex(enabledTriggers.Count, currentIndex, key);
-        if (nextIndex < 0)
-            return;
-
-        var targetTrigger = enabledTriggers[nextIndex];
-        if (!targetTrigger.Value.HasContent())
-            return;
-
-        await targetTrigger.FocusAsync();
-    }
-
-    private int ResolveNextIndex(int count, int currentIndex, string key)
-    {
-        return key switch
-        {
-            "Home" => 0,
-            "End" => count - 1,
-            "ArrowRight" when !Vertical && IsHorizontalRtl() => MoveTabIndexPrev(currentIndex, count),
-            "ArrowLeft" when !Vertical && IsHorizontalRtl() => MoveTabIndexNext(currentIndex, count),
-            "ArrowRight" when !Vertical => MoveTabIndexNext(currentIndex, count),
-            "ArrowLeft" when !Vertical => MoveTabIndexPrev(currentIndex, count),
-            "ArrowDown" when Vertical => MoveTabIndexNext(currentIndex, count),
-            "ArrowUp" when Vertical => MoveTabIndexPrev(currentIndex, count),
-            _ => -1
-        };
-    }
-
-    private int MoveTabIndexNext(int currentIndex, int count)
-    {
-        if (currentIndex >= count - 1)
-            return Loop ? 0 : -1;
-
-        return currentIndex + 1;
-    }
-
-    private int MoveTabIndexPrev(int currentIndex, int count)
-    {
-        if (currentIndex <= 0)
-            return Loop ? count - 1 : -1;
-
-        return currentIndex - 1;
-    }
-
     public async Task SelectTab(string tabName)
     {
         if (SelectedTab == tabName)
             return;
 
         SelectedTab = tabName;
-
-        if (!IsAutomaticActivation && tabName.HasContent())
-            _manualRovingFocusValue = tabName;
 
         if (OnSelectedTabChanged.HasDelegate)
             await OnSelectedTabChanged.InvokeAsync(tabName);
@@ -300,9 +168,7 @@
         var attrs = new Dictionary<string, object>
         {
             ["data-slot"] = "tabs-list",
-            ["data-variant"] = TabsListVariant?.Value ?? Soenneker.Quark.TabsListVariant.Default.Value,
-            ["aria-orientation"] = Vertical ? "vertical" : "horizontal",
-            ["tabindex"] = -1
+            ["data-variant"] = TabsListVariant?.Value ?? Soenneker.Quark.TabsListVariant.Default.Value
         };
 
         BuildClassAttribute(attrs, (ref cls) =>
@@ -324,25 +190,33 @@
         return attrs;
     }
 
+    private IReadOnlyDictionary<string, object> BuildComposedRootAttributes()
+    {
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("data-orientation");
+        attributes.Remove("dir");
+        return attributes;
+    }
+
+    private async Task HandleBradixValueChanged(string? value)
+    {
+        if (string.Equals(SelectedTab, value, StringComparison.Ordinal))
+            return;
+
+        SelectedTab = value;
+
+        if (value is not null && OnSelectedTabChanged.HasDelegate)
+            await OnSelectedTabChanged.InvokeAsync(value);
+
+        InvalidateRender();
+        Refresh();
+    }
+
     private Dictionary<string, object> BuildTabContentAttributes(Tab tab)
     {
         var attributes = new Dictionary<string, object>();
-        var isActive = string.Equals(tab.Name, ResolvedSelectedTab, StringComparison.Ordinal);
 
         attributes["data-slot"] = "tabs-content";
-        attributes["data-state"] = isActive ? "active" : "inactive";
-        attributes["data-orientation"] = Vertical ? "vertical" : "horizontal";
-        attributes["role"] = "tabpanel";
-        attributes["tabindex"] = isActive ? 0 : -1;
-
-        if (!isActive)
-            attributes["hidden"] = true;
-
-        if (tab.Name.HasContent())
-        {
-            attributes["id"] = $"tab-content-{tab.Name}";
-            attributes["aria-labelledby"] = $"tab-trigger-{tab.Name}";
-        }
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -360,9 +234,8 @@
         attributes["data-slot"] = "tabs";
         attributes["data-orientation"] = Vertical ? "vertical" : "horizontal";
 
-        var resolvedDir = Dir.HasContent() ? Dir : DirectionProviderDir;
-        if (resolvedDir.HasContent())
-            attributes["dir"] = resolvedDir!;
+        if (ResolvedDir.HasContent())
+            attributes["dir"] = ResolvedDir!;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -382,7 +255,6 @@
         hc.Add(Loop);
         hc.Add(Dir);
         hc.Add(DirectionProviderDir);
-        hc.Add(_manualRovingFocusValue);
         hc.Add(TabsListVariant);
         if (SelectedTab is not null)
             hc.Add(SelectedTab);
