@@ -4,7 +4,8 @@
 @implements IAccordionTrigger
 
 <BradixAccordionHeader AdditionalAttributes="@HeaderAttributes">
-    <BradixAccordionTrigger OnKeyDown="HandleTriggerKeyDown"
+    <BradixAccordionTrigger OnClick="@OnClick"
+                            OnKeyDown="@OnKeyDown"
                             AdditionalAttributes="@TriggerAttributes">
         @ChildContent
         @if (ShowChevron)
@@ -31,9 +32,6 @@
             {
                 ["data-slot"] = "accordion-header"
             };
-
-            if (OnClick.HasDelegate)
-                attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, HandleHeaderClick);
 
             if (Disabled)
                 attributes["data-disabled"] = "true";
@@ -72,16 +70,6 @@
 
             return attributes;
         }
-    }
-
-    private Task HandleHeaderClick(MouseEventArgs args)
-    {
-        return base.HandleClick(args);
-    }
-
-    private Task HandleTriggerKeyDown(KeyboardEventArgs args)
-    {
-        return base.HandleKeyDown(args);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

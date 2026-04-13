@@ -1,4 +1,6 @@
 using System;
+using Soenneker.Blazor.Utils.Ids;
+
 namespace Soenneker.Quark;
 
 internal sealed class PopoverContext
@@ -10,11 +12,11 @@ internal sealed class PopoverContext
 
     public PopoverContext()
     {
-        var id = Guid.NewGuid().ToString("N");
-        TriggerId = $"popover-trigger-{id}";
-        ContentId = $"popover-content-{id}";
-        TitleId = $"popover-title-{id}";
-        DescriptionId = $"popover-description-{id}";
+        var baseId = BlazorIdGenerator.New("quark-popover");
+        TriggerId = BlazorIdGenerator.Child(baseId, "trigger");
+        ContentId = BlazorIdGenerator.Child(baseId, "content");
+        TitleId = BlazorIdGenerator.Child(baseId, "title");
+        DescriptionId = BlazorIdGenerator.Child(baseId, "description");
     }
 
     public string TriggerId { get; }

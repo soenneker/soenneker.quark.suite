@@ -1,5 +1,6 @@
 @namespace Soenneker.Quark
 @using Soenneker.Bradix
+@using Soenneker.Blazor.Utils.Ids
 @inherits Soenneker.Quark.Element
 @implements ITabs
 
@@ -70,6 +71,8 @@
     public TabsListVariant TabsListVariant { get; set; } = TabsListVariant.Default;
 
     private readonly List<Tab> _tabs = [];
+
+    private readonly string _instanceId = BlazorIdGenerator.New("quark-tabs");
 
     internal string? ResolvedSelectedTab => GetResolvedSelectedTab();
     internal string? ResolvedDir => Dir.HasContent() ? Dir : DirectionProviderDir;
@@ -155,12 +158,12 @@
 
     internal string? GetTriggerId(string? value)
     {
-        return value.HasContent() ? $"tab-trigger-{value}" : null;
+        return value.HasContent() ? BlazorIdGenerator.Child(_instanceId, $"trigger-{value}") : null;
     }
 
     internal string? GetContentId(string? value)
     {
-        return value.HasContent() ? $"tab-content-{value}" : null;
+        return value.HasContent() ? BlazorIdGenerator.Child(_instanceId, $"content-{value}") : null;
     }
 
     private Dictionary<string, object> BuildTabsListAttributes()

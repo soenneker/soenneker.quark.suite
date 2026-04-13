@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Soenneker.Blazor.Utils.Ids;
 
 namespace Soenneker.Quark;
 
@@ -8,7 +9,7 @@ public sealed class SonnerToast
 {
     public string ToasterId { get; set; } = string.Empty;
 
-    public string Id { get; set; } = Guid.NewGuid().ToString("N");
+    public string Id { get; set; } = BlazorIdGenerator.New("quark-sonner-toast");
 
     public string? Title { get; set; }
 

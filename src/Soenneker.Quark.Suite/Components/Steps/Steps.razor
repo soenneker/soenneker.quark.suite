@@ -2,6 +2,7 @@
 @inherits Soenneker.Quark.Element
 @using Microsoft.AspNetCore.Components.Routing
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Blazor.Utils.Ids
 @implements ISteps
 @inject IStepsInterop StepsInterop
 @inject NavigationManager Navigation
@@ -24,10 +25,20 @@
 </CascadingValue>
 
 @code {
+    private readonly string _rootId = BlazorIdGenerator.New("quark-steps");
     private StepsState _state = new();
+
     private readonly List<string> _stepItems = [];
     private readonly List<string> _stepPanels = [];
     private bool _navigationSubscribed;
+
+    protected override void OnInitialized()
+    {
+        if (string.IsNullOrEmpty(_state.RootId))
+            _state = _state with { RootId = _rootId };
+
+        base.OnInitialized();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

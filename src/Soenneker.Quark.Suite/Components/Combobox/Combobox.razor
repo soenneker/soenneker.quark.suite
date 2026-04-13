@@ -1,4 +1,5 @@
 @namespace Soenneker.Quark
+@using Soenneker.Blazor.Utils.Ids
 @inherits Soenneker.Quark.FormControlElement
 @implements IAsyncDisposable
 
@@ -9,7 +10,7 @@
 </CascadingValue>
 
 @code {
-    private readonly string _comboboxId = $"combobox-{Guid.NewGuid():N}";
+    private readonly string _comboboxId = BlazorIdGenerator.New("quark-combobox");
     private readonly List<ComboboxItem> _items = [];
     private ElementReference _triggerElement;
     private bool _hasTriggerElement;
@@ -41,9 +42,9 @@
     [Parameter]
     public bool AutoHighlight { get; set; }
 
-    internal string InputId => $"{_comboboxId}-input";
+    internal string InputId => BlazorIdGenerator.Child(_comboboxId, "input");
 
-    internal string ContentId => $"{_comboboxId}-listbox";
+    internal string ContentId => BlazorIdGenerator.Child(_comboboxId, "listbox");
 
     internal string? ActiveItemId => _items.FirstOrDefault(item => item.IsActiveItem)?.ItemId;
 

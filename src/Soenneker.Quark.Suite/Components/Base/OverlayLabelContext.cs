@@ -1,4 +1,5 @@
 using System;
+using Soenneker.Blazor.Utils.Ids;
 
 namespace Soenneker.Quark;
 
@@ -11,10 +12,10 @@ internal sealed class OverlayLabelContext
 
     public OverlayLabelContext(string scope)
     {
-        var id = Guid.NewGuid().ToString("N");
-        ContentId = $"{scope}-{id}-content";
-        TitleId = $"{scope}-{id}-title";
-        DescriptionId = $"{scope}-{id}-description";
+        var baseId = BlazorIdGenerator.New(scope);
+        ContentId = BlazorIdGenerator.Child(baseId, "content");
+        TitleId = BlazorIdGenerator.Child(baseId, "title");
+        DescriptionId = BlazorIdGenerator.Child(baseId, "description");
     }
 
     public string ContentId { get; }

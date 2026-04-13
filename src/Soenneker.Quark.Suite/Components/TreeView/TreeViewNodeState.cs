@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Soenneker.Blazor.Utils.Ids;
 
 namespace Soenneker.Quark;
 
@@ -17,7 +18,7 @@ public sealed class TreeViewNodeState<TNode>
     /// <param name="disabled">Whether the node is disabled.</param>
     public TreeViewNodeState(TNode node, bool hasChildren, bool expanded, bool disabled)
     {
-        Key = System.Guid.NewGuid().ToString();
+        Key = BlazorIdGenerator.New("quark-tree-node");
         Node = node;
         HasChildren = hasChildren;
         Expanded = expanded;

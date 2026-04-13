@@ -1,4 +1,5 @@
 @namespace Soenneker.Quark
+@using Soenneker.Blazor.Utils.Ids
 @inherits Soenneker.Quark.Element
 @implements IStepPanel
 
@@ -53,12 +54,16 @@
 
     private StepsRenderMode RenderMode => _parentStepsState?.RenderMode ?? StepsRenderMode.Default;
 
+    private string? _fallbackRoot;
+
+    private string RootId => ParentStepsState?.RootId is { Length: > 0 } id ? id : (_fallbackRoot ??= BlazorIdGenerator.New("quark-steps"));
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["role"] = "tabpanel";
-        attributes["id"] = $"step-panel-{Name}";
-        attributes["aria-labelledby"] = $"step-tab-{Name}";
+        attributes["id"] = BlazorIdGenerator.Child(RootId, $"panel-{Name}");
+        attributes["aria-labelledby"] = BlazorIdGenerator.Child(RootId, $"tab-{Name}");
 
         if (!Active)
             attributes["tabindex"] = -1;

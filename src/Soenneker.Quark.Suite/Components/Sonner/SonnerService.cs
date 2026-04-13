@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Soenneker.Asyncs.Locks;
+using Soenneker.Blazor.Utils.Ids;
 using Soenneker.Extensions.String;
 
 namespace Soenneker.Quark;
@@ -267,8 +268,7 @@ public sealed class SonnerService : ISonnerService
         var options = new SonnerToastOptions();
         configure?.Invoke(options);
 
-        var id = options.Id ?? Guid.NewGuid()
-                               .ToString("N");
+        var id = options.Id ?? BlazorIdGenerator.New("quark-sonner-toast");
 
         SonnerToast? previous = null;
 

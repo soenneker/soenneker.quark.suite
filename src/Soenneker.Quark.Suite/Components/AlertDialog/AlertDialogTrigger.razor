@@ -1,4 +1,5 @@
 @using Soenneker.Bradix
+@using Soenneker.Blazor.Utils.Ids
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TriggerElement
@@ -13,7 +14,7 @@
 else
 {
     <BradixDialogTrigger Disabled="@Disabled"
-                         OnClick="HandleActivate"
+                         OnClick="@OnClick"
                          AdditionalAttributes="@TriggerAttributes">
         @ChildContent
     </BradixDialogTrigger>
@@ -75,16 +76,14 @@ else
         return attributes;
     }
 
-    private Task HandleActivate(MouseEventArgs args)
-    {
-        return base.HandleClick(args);
-    }
+    private static string? GetOverlayTriggerId(OverlayLabelContext? context) =>
+        context?.ContentId is { } contentId ? BlazorIdGenerator.Child(contentId, "trigger") : null;
 
     private TriggerContext GetTriggerContext()
     {
         return new TriggerContext
         {
-            TriggerId = Context?.ContentId is not null ? $"{Context.ContentId}-trigger" : null,
+            TriggerId = GetOverlayTriggerId(Context),
             ParentDisabled = Disabled,
             IsOpen = ParentAlertDialog?.Visible == true,
             DataState = ParentAlertDialog?.Visible == true ? "open" : "closed",
@@ -95,7 +94,7 @@ else
                 _elementRef = elementReference;
 
                 if (BradixDialog is not null)
-                    BradixDialog.RegisterTrigger(elementReference, Context?.ContentId is not null ? $"{Context.ContentId}-trigger" : null);
+                    BradixDialog.RegisterTrigger(elementReference, GetOverlayTriggerId(Context));
             },
             Toggle = ParentAlertDialog is null
                 ? null

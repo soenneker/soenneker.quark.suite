@@ -2,6 +2,7 @@
 
 @inherits Soenneker.Quark.Element
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Blazor.Utils.Ids
 @implements ICollapse
 @inject ICollapseCoordinator CollapseCoordinator
 
@@ -33,7 +34,7 @@
         await base.OnInitializedAsync();
 
         if (Id.IsNullOrEmpty())
-            Id = $"collapse_{Guid.NewGuid():N}";
+            Id = BlazorIdGenerator.New("quark-collapse");
 
         await CollapseCoordinator.Register(this);
     }

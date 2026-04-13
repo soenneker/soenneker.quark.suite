@@ -2,6 +2,7 @@
 @using System.Linq.Expressions
 @using Microsoft.JSInterop
 @using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Blazor.Utils.Ids
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
@@ -503,7 +504,7 @@
 		}
 		else if (Id is not null)
 		{
-			attributes["id"] = $"{Id}-{index}";
+			attributes["id"] = BlazorIdGenerator.Child(Id, index.ToString(CultureInfo.InvariantCulture));
 		}
 
 		if (Attributes is not null && index == 0)
@@ -566,9 +567,9 @@
 			attributes["disabled"] = true;
 
 		if (index == 0 && Id is not null)
-			attributes["id"] = $"{Id}-value";
+			attributes["id"] = BlazorIdGenerator.Child(Id, "value");
 		else if (Id is not null)
-			attributes["id"] = $"{Id}-value-{index}";
+			attributes["id"] = BlazorIdGenerator.Child(BlazorIdGenerator.Child(Id, "value"), index.ToString(CultureInfo.InvariantCulture));
 
 		return attributes;
 	}

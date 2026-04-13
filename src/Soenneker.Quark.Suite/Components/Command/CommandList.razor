@@ -1,4 +1,5 @@
 @namespace Soenneker.Quark
+@using Soenneker.Blazor.Utils.Ids
 @inherits Soenneker.Quark.Element
 
 <div @attributes="BuildAttributes()">
@@ -6,6 +7,8 @@
 </div>
 
 @code {
+    private static readonly string _orphanListId = BlazorIdGenerator.New("quark-command-list");
+
     [CascadingParameter(Name = "ParentCommand")]
     private Command? ParentCommand { get; set; }
 
@@ -14,7 +17,7 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "command-list";
-        attributes["id"] = ParentCommand?.ListId ?? "command-list";
+        attributes["id"] = ParentCommand?.ListId ?? _orphanListId;
         attributes["role"] = "listbox";
 
         BuildClassAttribute(attributes, (ref cls) =>

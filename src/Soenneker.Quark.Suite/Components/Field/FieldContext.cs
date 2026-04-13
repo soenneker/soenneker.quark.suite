@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Soenneker.Blazor.Utils.Ids;
 
 namespace Soenneker.Quark;
 
@@ -15,10 +16,10 @@ internal sealed class FieldContext
 
     public FieldContext()
     {
-        var id = Guid.NewGuid().ToString("N");
-        ControlId = $"field-{id}-control";
-        DescriptionId = $"field-{id}-description";
-        ErrorId = $"field-{id}-error";
+        var baseId = BlazorIdGenerator.New("quark-field");
+        ControlId = BlazorIdGenerator.Child(baseId, "control");
+        DescriptionId = BlazorIdGenerator.Child(baseId, "description");
+        ErrorId = BlazorIdGenerator.Child(baseId, "error");
     }
 
     public string ControlId { get; }

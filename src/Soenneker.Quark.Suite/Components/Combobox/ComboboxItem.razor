@@ -1,4 +1,5 @@
 @namespace Soenneker.Quark
+@using Soenneker.Blazor.Utils.Ids
 @inherits Soenneker.Quark.FormControlElement
 
 <div @onclick="HandleItemClick" @onmouseenter="HandleMouseEnter" @attributes="BuildAttributes()" role="option">
@@ -17,14 +18,14 @@
 
     private bool IsSelected => ParentCombobox?.IsSelected(Value) == true;
     internal bool IsActiveItem { get; private set; }
-    internal string ItemId => $"combobox-item-{Id}";
+    internal string ItemId => BlazorIdGenerator.Child(Id!, "option");
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
 
         if (Id.IsNullOrEmpty())
-            Id = Guid.NewGuid().ToString("N");
+            Id = BlazorIdGenerator.New("quark-combobox-item");
     }
 
     protected override void OnAfterRender(bool firstRender)

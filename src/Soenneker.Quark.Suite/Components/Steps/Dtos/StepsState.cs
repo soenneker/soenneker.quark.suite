@@ -6,6 +6,11 @@ namespace Soenneker.Quark;
 public sealed record StepsState
 {
     /// <summary>
+    /// Stable DOM id root for this steps instance (tab / panel relationships).
+    /// </summary>
+    public string RootId { get; init; } = string.Empty;
+
+    /// <summary>
     /// Gets the name of the selected step item.
     /// </summary>
     public string SelectedStep { get; init; } = string.Empty;

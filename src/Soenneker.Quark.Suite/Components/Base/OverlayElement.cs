@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Utils.Ids;
 
 namespace Soenneker.Quark;
 
@@ -43,7 +44,7 @@ public abstract class OverlayElement : InteractiveElement
     [Parameter]
     public string? InitialFocusSelector { get; set; }
 
-    private readonly string _overlayId = $"overlay-{Guid.NewGuid():N}";
+    private readonly string _overlayId = BlazorIdGenerator.New("quark-overlay");
     private bool _renderedVisible;
     private ElementReference _restoreFocusTarget;
     private bool _hasRestoreFocusTarget;

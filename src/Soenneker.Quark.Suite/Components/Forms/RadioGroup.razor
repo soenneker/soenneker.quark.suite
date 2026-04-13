@@ -1,4 +1,5 @@
 @namespace Soenneker.Quark
+@using Soenneker.Blazor.Utils.Ids
 @using Soenneker.Bradix
 @inherits Soenneker.Quark.FormControlElement
 @implements IRadioGroup
@@ -39,14 +40,14 @@
     /// <summary>
     /// Gets the effective name for the group (generated if not set).
     /// </summary>
-    public string EffectiveName => _name ??= Name ?? $"radiogroup_{Guid.NewGuid():N}";
+    public string EffectiveName => _name ??= Name ?? BlazorIdGenerator.New("quark-radiogroup");
 
     protected override void OnInitialized()
     {
         if (Name.HasContent())
             _name = Name;
         else
-            _name = $"radiogroup_{Guid.NewGuid():N}";
+            _name = BlazorIdGenerator.New("quark-radiogroup");
     }
 
     /// <summary>
