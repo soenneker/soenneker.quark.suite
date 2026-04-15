@@ -2,6 +2,7 @@
 @inherits Soenneker.Quark.Element
 @implements IAsyncDisposable
 
+@using Microsoft.JSInterop
 @inject IPopoverInterop PopoverInterop
 
 @if (ParentCombobox?.Open == true)
@@ -28,6 +29,7 @@
     public int AlignOffset { get; set; }
 
     private ElementReference _contentRef;
+    private DotNetObjectReference<PopoverOutsideCloseProxy>? _outsideRef;
     private bool _positionObserverActive;
 
     private bool UseFloatingPositioning => ParentCombobox?.HasTriggerElement == true;
@@ -36,13 +38,17 @@
     {
         await base.OnAfterRenderAsync(firstRender);
 
+        if (firstRender)
+            _outsideRef = DotNetObjectReference.Create(new PopoverOutsideCloseProxy(CloseAsync));
+
         if (ParentCombobox?.Open != true || ParentCombobox is null || !UseFloatingPositioning)
         {
             await StopPositionObserver();
             return;
         }
 
-        await PopoverInterop.ObservePosition(ParentCombobox.ContentId, ParentCombobox.TriggerElement, _contentRef, Side, Align, SideOffset);
+        if (_outsideRef is not null)
+            await PopoverInterop.ObservePosition(ParentCombobox.ContentId, ParentCombobox.TriggerElement, _contentRef, _outsideRef, Side, Align, SideOffset);
         _positionObserverActive = true;
     }
 
@@ -123,8 +129,14 @@
         _positionObserverActive = false;
     }
 
+    private Task CloseAsync()
+    {
+        return ParentCombobox?.SetOpen(false) ?? Task.CompletedTask;
+    }
+
     public override async ValueTask DisposeAsync()
     {
+        _outsideRef?.Dispose();
         await StopPositionObserver();
         await base.DisposeAsync();
     }

@@ -3,8 +3,8 @@
 @inherits Soenneker.Quark.FormControlElement
 @implements IAsyncDisposable
 
-<CascadingValue Name="ParentCombobox" Value="@this" IsFixed="true">
-    <div @attributes="BuildAttributes()" @onfocusout="HandleFocusOut">
+<CascadingValue Name="ParentCombobox" Value="@this">
+    <div @attributes="BuildAttributes()">
         @ChildContent
     </div>
 </CascadingValue>
@@ -277,12 +277,6 @@
     {
         foreach (var item in _items)
             item.SetActive(string.Equals(item.Value, value, StringComparison.Ordinal));
-    }
-
-    private async Task HandleFocusOut(FocusEventArgs _)
-    {
-        await Task.Delay(150);
-        await SetOpen(false);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
