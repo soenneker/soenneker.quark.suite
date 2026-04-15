@@ -1,5 +1,21 @@
 const editors = new WeakMap();
+const activeEditors = new Set();
 let configured = false;
+let domObserver = null;
+
+function removeEditorState(state) {
+    if (!state) {
+        return;
+    }
+
+    activeEditors.delete(state);
+
+    if (state.container) {
+        editors.delete(state.container);
+    }
+
+    state.container = null;
+}
 
 function getEditorState(container) {
     const state = editors.get(container);
@@ -16,6 +32,10 @@ function getEditor(container) {
 }
 
 function disposeEditorState(state) {
+    if (!state) {
+        return;
+    }
+
     if (state.contentChangeDisposable) {
         state.contentChangeDisposable.dispose();
         state.contentChangeDisposable = null;
@@ -30,6 +50,30 @@ function disposeEditorState(state) {
             model.dispose();
         }
     }
+}
+
+function cleanupDetachedEditors() {
+    for (const state of activeEditors) {
+        if (!state.container || !state.container.isConnected) {
+            disposeEditorState(state);
+            removeEditorState(state);
+        }
+    }
+}
+
+function ensureDomObserver() {
+    if (domObserver || typeof MutationObserver === 'undefined' || !document?.body) {
+        return;
+    }
+
+    domObserver = new MutationObserver(() => {
+        cleanupDetachedEditors();
+    });
+
+    domObserver.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
 }
 
 export function ensureConfigured(basePath) {
@@ -50,18 +94,31 @@ export function createEditor(container, optionsJson) {
     return new Promise((resolve, reject) => {
         require(['vs/editor/editor.main'], () => {
             try {
+                cleanupDetachedEditors();
+
+                if (!container || !container.isConnected) {
+                    resolve();
+                    return;
+                }
+
                 const existingState = editors.get(container);
 
                 if (existingState) {
                     disposeEditorState(existingState);
+                    removeEditorState(existingState);
                 }
 
                 const editor = monaco.editor.create(container, options);
-                editors.set(container, {
+                const state = {
+                    container,
                     editor,
                     contentChangeDisposable: null,
                     ownsModel: !options.model
-                });
+                };
+
+                editors.set(container, state);
+                activeEditors.add(state);
+                ensureDomObserver();
                 resolve();
             } catch (error) {
                 reject(error);
@@ -96,17 +153,17 @@ export function disposeEditor(container) {
 
     if (state) {
         disposeEditorState(state);
-        editors.delete(container);
+        removeEditorState(state);
     }
 }
 
 // Re-measures the editor after the container becomes visible or changes size (e.g. parent was display:none).
 export function layoutEditor(container) {
-    const editor = editors.get(container);
+    const state = editors.get(container);
 
-    if (!editor) return;
+    if (!state?.editor) return;
 
-    editor.layout();
+    state.editor.layout();
 }
 
 export function updateContentHeight(container, minLines, maxLines) {
