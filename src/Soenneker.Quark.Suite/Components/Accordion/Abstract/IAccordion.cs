@@ -10,6 +10,11 @@ namespace Soenneker.Quark;
 public interface IAccordion : IElement
 {
     /// <summary>
+    /// Convenience flag that resolves the accordion to Radix multiple mode when set.
+    /// </summary>
+    bool Multiple { get; set; }
+
+    /// <summary>
     /// Gets or sets whether multiple items can be open simultaneously.
     /// </summary>
     BradixSelectionMode Type { get; set; }

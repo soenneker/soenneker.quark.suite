@@ -3,7 +3,7 @@
 @inherits Soenneker.Quark.Element
 @implements IAccordion
 
-<BradixAccordion Type="@Type"
+<BradixAccordion Type="@ResolvedType"
                  Collapsible="@Collapsible"
                  Disabled="@Disabled"
                  Orientation="@Orientation"
@@ -18,6 +18,9 @@
 </BradixAccordion>
 
 @code {
+    [Parameter]
+    public bool Multiple { get; set; }
+
     [Parameter]
     public BradixSelectionMode Type { get; set; }
 
@@ -50,6 +53,8 @@
     [Parameter]
     public EventCallback<IReadOnlyCollection<string>> ValuesChanged { get; set; }
 
+    private BradixSelectionMode ResolvedType => Type ?? (Multiple ? BradixSelectionMode.Multiple : BradixSelectionMode.Single);
+
     private IReadOnlyDictionary<string, object> RootAttributes
     {
         get
@@ -57,7 +62,7 @@
             Dictionary<string, object> attributes = new(BuildAttributes())
             {
                 ["data-slot"] = "accordion",
-                ["data-multiple"] = Type == BradixSelectionMode.Multiple ? "true" : "false"
+                ["data-multiple"] = ResolvedType == BradixSelectionMode.Multiple ? "true" : "false"
             };
 
             BuildClassAttribute(attributes, (ref cls) =>
@@ -74,6 +79,7 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Type);
+        hc.Add(Multiple);
         hc.Add(Collapsible);
         hc.Add(Disabled);
         hc.Add(Orientation);

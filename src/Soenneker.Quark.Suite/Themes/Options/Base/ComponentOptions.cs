@@ -503,14 +503,35 @@ public class ComponentOptions
         if (fallbackProperty.IsNullOrEmpty())
             return null;
 
-        if (!value.IsCssStyle)
-            return null;
-
         var rawValue = value.ToString();
         if (!rawValue.HasContent())
             return null;
 
+        if (!value.IsCssStyle)
+            return TryConvertClassOnlyDeclarations<TBuilder>(rawValue, fallbackProperty);
+
         return [$"{fallbackProperty}: {rawValue.Trim()}"];
+    }
+
+    private static IEnumerable<string>? TryConvertClassOnlyDeclarations<TBuilder>(string rawValue, string fallbackProperty)
+        where TBuilder : class, ICssBuilder
+    {
+        if (typeof(TBuilder) != typeof(TextDecorationBuilder))
+            return null;
+
+        if (!fallbackProperty.Equals("text-decoration", System.StringComparison.Ordinal))
+            return null;
+
+        string? resolved = rawValue.Trim() switch
+        {
+            "no-underline" => "none",
+            "underline" => "underline",
+            "line-through" => "line-through",
+            "overline" => "overline",
+            _ => null
+        };
+
+        return resolved is null ? null : [$"{fallbackProperty}: {resolved}"];
     }
 
     private static IEnumerable<string> SplitDeclarations(string value)
