@@ -12,15 +12,15 @@ internal static class SlotAttributes
         if (slotAttributes is null || slotAttributes.Count == 0)
             return;
 
-        foreach (KeyValuePair<string, object> pair in slotAttributes)
+        foreach (var pair in slotAttributes)
         {
             if (pair.Key.Equals("class", StringComparison.OrdinalIgnoreCase))
             {
-                string? slotClass = pair.Value?.ToString();
+                var slotClass = pair.Value?.ToString();
                 if (!string.IsNullOrWhiteSpace(slotClass))
                 {
-                    attributes.TryGetValue("class", out object? existingClassObj);
-                    string? existingClass = existingClassObj?.ToString();
+                    attributes.TryGetValue("class", out var existingClassObj);
+                    var existingClass = existingClassObj?.ToString();
                     attributes["class"] = string.IsNullOrWhiteSpace(existingClass) ? slotClass : $"{slotClass} {existingClass}";
                 }
 
@@ -29,11 +29,11 @@ internal static class SlotAttributes
 
             if (pair.Key.Equals("style", StringComparison.OrdinalIgnoreCase))
             {
-                string? slotStyle = pair.Value?.ToString();
+                var slotStyle = pair.Value?.ToString();
                 if (!string.IsNullOrWhiteSpace(slotStyle))
                 {
-                    attributes.TryGetValue("style", out object? existingStyleObj);
-                    string? existingStyle = existingStyleObj?.ToString();
+                    attributes.TryGetValue("style", out var existingStyleObj);
+                    var existingStyle = existingStyleObj?.ToString();
                     attributes["style"] = string.IsNullOrWhiteSpace(existingStyle) ? slotStyle : $"{slotStyle}; {existingStyle}";
                 }
 

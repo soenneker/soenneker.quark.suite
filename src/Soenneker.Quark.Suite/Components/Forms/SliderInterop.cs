@@ -43,7 +43,7 @@ public sealed class SliderInterop : ISliderInterop
 
         using (source)
         {
-            IJSObjectReference module = await GetModule(linked);
+            var module = await GetModule(linked);
             return await module.InvokeAsync<double>("getValueFromPointer", linked, track, clientX, clientY, min, max, orientation);
         }
     }
@@ -55,7 +55,7 @@ public sealed class SliderInterop : ISliderInterop
 
         using (source)
         {
-            IJSObjectReference module = await GetModule(linked);
+            var module = await GetModule(linked);
             return await module.InvokeAsync<double>("startDrag", linked, track, pointerId, clientX, clientY, min, max, orientation, callbackReference, thumbIndex);
         }
     }
@@ -66,7 +66,7 @@ public sealed class SliderInterop : ISliderInterop
 
         using (source)
         {
-            IJSObjectReference module = await GetModule(linked);
+            var module = await GetModule(linked);
             return await module.InvokeAsync<bool>("isDirectionRtl", linked, track);
         }
     }
@@ -77,7 +77,7 @@ public sealed class SliderInterop : ISliderInterop
 
         using (source)
         {
-            IJSObjectReference module = await GetModule(linked);
+            var module = await GetModule(linked);
             await module.InvokeVoidAsync("stopDrag", linked);
         }
     }

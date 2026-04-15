@@ -36,7 +36,7 @@ public sealed class PopoverInterop : IPopoverInterop
 
         using (source)
         {
-            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("observePosition", linked, popoverId, trigger, content, null, side, align, sideOffset);
         }
     }
@@ -49,7 +49,7 @@ public sealed class PopoverInterop : IPopoverInterop
 
         using (source)
         {
-            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("observePosition", linked, popoverId, trigger, content, callbackReference, side, align, sideOffset);
         }
     }
@@ -60,7 +60,7 @@ public sealed class PopoverInterop : IPopoverInterop
 
         using (source)
         {
-            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("stopObserving", linked, popoverId);
         }
     }

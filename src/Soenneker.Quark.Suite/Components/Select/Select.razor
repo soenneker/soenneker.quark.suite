@@ -132,8 +132,8 @@
 
     private async Task HandleBradixValueChanged(string? value)
     {
-        TValue? nextValue = ResolveSelectedValue(value);
-        bool valueChanged = !EqualityComparer<TValue>.Default.Equals(SelectedValue, nextValue);
+        var nextValue = ResolveSelectedValue(value);
+        var valueChanged = !EqualityComparer<TValue>.Default.Equals(SelectedValue, nextValue);
 
         SelectedValue = nextValue;
 
@@ -160,7 +160,7 @@
         if (string.IsNullOrEmpty(value))
             return DefaultItemValue;
 
-        if (_registeredItemValues.TryGetValue(value, out TValue? registeredValue))
+        if (_registeredItemValues.TryGetValue(value, out var registeredValue))
             return registeredValue;
 
         return BindConverter.TryConvertTo(value, CultureInfo.CurrentCulture, out TValue? convertedValue)

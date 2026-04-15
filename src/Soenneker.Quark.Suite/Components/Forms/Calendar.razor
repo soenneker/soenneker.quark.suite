@@ -422,8 +422,8 @@
 
     private IEnumerable<int> GetSelectableYears()
     {
-        int minYear = Min?.Year ?? (_displayMonth.Year - 10);
-        int maxYear = Max?.Year ?? (_displayMonth.Year + 10);
+        var minYear = Min?.Year ?? (_displayMonth.Year - 10);
+        var maxYear = Max?.Year ?? (_displayMonth.Year + 10);
 
         return Enumerable.Range(minYear, maxYear - minYear + 1);
     }
@@ -487,7 +487,7 @@
 
         foreach (var modifier in modifiers)
         {
-            if (ModifierClasses.TryGetValue(modifier, out string? classes) && !classes.IsNullOrEmpty())
+            if (ModifierClasses.TryGetValue(modifier, out var classes) && !classes.IsNullOrEmpty())
                 css += $" {classes}";
         }
 
@@ -602,7 +602,7 @@
 
         if (SelectedDates is not null)
         {
-            foreach (DateOnly selectedDate in SelectedDates)
+            foreach (var selectedDate in SelectedDates)
             {
                 hc.Add(selectedDate);
             }

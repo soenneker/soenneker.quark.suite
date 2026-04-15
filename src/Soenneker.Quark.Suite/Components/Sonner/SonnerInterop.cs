@@ -50,7 +50,7 @@ public sealed class SonnerInterop : ISonnerInterop
         using (source)
         {
             await _initializer.Init(linked);
-            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             return await module.InvokeAsync<Dictionary<string, double>>("measureToastHeights", linked, section);
         }
     }

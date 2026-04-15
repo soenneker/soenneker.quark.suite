@@ -11,7 +11,7 @@
 @inject ISliderInterop SliderInterop
 
 @{
-	double[] resolvedValues = GetResolvedValues();
+	var resolvedValues = GetResolvedValues();
 }
 
 <div @ref="ElementRef" @attributes="BuildWrapperAttributes()">
@@ -21,9 +21,9 @@
 	     @onpointerdown:preventDefault="true">
 		<div @attributes="BuildRangeAttributes(resolvedValues)"></div>
 	</div>
-	@for (int index = 0; index < resolvedValues.Length; index++)
+	@for (var index = 0; index < resolvedValues.Length; index++)
 	{
-		int thumbIndex = index;
+		var thumbIndex = index;
 		<button @attributes="BuildThumbAttributes(thumbIndex, resolvedValues[thumbIndex])"
 		        @onfocus="@(() => HandleThumbFocus(thumbIndex))"
 		        @onblur="@(() => HandleThumbBlur(thumbIndex))"
@@ -33,7 +33,7 @@
 		        @onpointerdown:stopPropagation="true">
 		</button>
 	}
-	@for (int index = 0; index < resolvedValues.Length; index++)
+	@for (var index = 0; index < resolvedValues.Length; index++)
 	{
 		<input @attributes="BuildHiddenInputAttributes(index, resolvedValues[index])" />
 	}
@@ -121,7 +121,7 @@
 		if (Attributes is not null &&
 			Attributes.TryGetValue("dir", out var dirValue))
 		{
-			string? direction = dirValue?.ToString();
+			var direction = dirValue?.ToString();
 
 			if (string.Equals(direction, "rtl", StringComparison.OrdinalIgnoreCase))
 				return true;
@@ -140,7 +140,7 @@
 
 		string? token = null;
 		_ = Size?.TryGetThemeToken(out token);
-		string? sizeValue = token ?? Size?.ToString();
+		var sizeValue = token ?? Size?.ToString();
 
 		return sizeValue?.ToLowerInvariant() switch
 		{
@@ -179,10 +179,10 @@
 		if (source.Count == 0)
 			return allowMultiple && Max > Min ? [NormalizeValue(Min), NormalizeValue(Max)] : [NormalizeValue(Min)];
 
-		int length = allowMultiple ? source.Count : 1;
+		var length = allowMultiple ? source.Count : 1;
 		var normalized = new double[length];
 
-		for (int i = 0; i < length; i++)
+		for (var i = 0; i < length; i++)
 		{
 			normalized[i] = NormalizeValue(source[i]);
 		}
@@ -193,13 +193,13 @@
 
 	private double NormalizeValue(double value)
 	{
-		double clamped = Math.Clamp(value, Min, Max);
+		var clamped = Math.Clamp(value, Min, Max);
 
 		if (Step <= 0)
 			return clamped;
 
-		double steps = Math.Round((clamped - Min) / Step, MidpointRounding.AwayFromZero);
-		double snapped = Min + (steps * Step);
+		var steps = Math.Round((clamped - Min) / Step, MidpointRounding.AwayFromZero);
+		var snapped = Min + (steps * Step);
 
 		return Math.Clamp(snapped, Min, Max);
 	}
@@ -214,12 +214,12 @@
 
 	private int FindNearestThumbIndex(IReadOnlyList<double> values, double pointerValue)
 	{
-		int nearestIndex = 0;
-		double nearestDistance = double.MaxValue;
+		var nearestIndex = 0;
+		var nearestDistance = double.MaxValue;
 
-		for (int i = 0; i < values.Count; i++)
+		for (var i = 0; i < values.Count; i++)
 		{
-			double distance = Math.Abs(values[i] - pointerValue);
+			var distance = Math.Abs(values[i] - pointerValue);
 
 			if (distance < nearestDistance)
 			{
@@ -233,9 +233,9 @@
 
 	private double ConstrainThumbValue(IReadOnlyList<double> values, int index, double nextValue)
 	{
-		double normalized = NormalizeValue(nextValue);
-		double minLimit = index > 0 ? values[index - 1] : Min;
-		double maxLimit = index < values.Count - 1 ? values[index + 1] : Max;
+		var normalized = NormalizeValue(nextValue);
+		var minLimit = index > 0 ? values[index - 1] : Min;
+		var maxLimit = index < values.Count - 1 ? values[index + 1] : Max;
 
 		return Math.Clamp(normalized, minLimit, maxLimit);
 	}
@@ -245,7 +245,7 @@
 		if (left.Count != right.Count)
 			return false;
 
-		for (int i = 0; i < left.Count; i++)
+		for (var i = 0; i < left.Count; i++)
 		{
 			if (!left[i].Equals(right[i]))
 				return false;
@@ -267,24 +267,24 @@
 		if (Step > 0)
 			return isLargeStep ? Step * 10d : Step;
 
-		double range = Max - Min;
-		double fallback = range > 0 ? range / 100d : 1d;
+		var range = Max - Min;
+		var fallback = range > 0 ? range / 100d : 1d;
 		return isLargeStep ? fallback * 10d : fallback;
 	}
 
 	private async Task<double> UpdateValueAsync(int index, double nextValue, bool notifyInput, bool notifyChange, bool markTouched)
 	{
-		double[] currentValues = GetResolvedValues();
+		var currentValues = GetResolvedValues();
 
 		if (index < 0 || index >= currentValues.Length)
 			return Min;
 
-		double constrainedValue = ConstrainThumbValue(currentValues, index, nextValue);
-		bool valueChanged = false;
+		var constrainedValue = ConstrainThumbValue(currentValues, index, nextValue);
+		var valueChanged = false;
 
 		if (UsesValuesApi)
 		{
-			double[] updatedValues = (double[]) currentValues.Clone();
+			var updatedValues = (double[]) currentValues.Clone();
 			updatedValues[index] = constrainedValue;
 
 			if (!AreValuesEqual(currentValues, updatedValues))
@@ -335,7 +335,7 @@
 	{
 		EnsureDotNetReference();
 
-		double initialValue = await SliderInterop.StartDrag(_trackRef, e.PointerId, e.ClientX, e.ClientY, Min, Max, OrientationValue, _dotNetRef!, index);
+		var initialValue = await SliderInterop.StartDrag(_trackRef, e.PointerId, e.ClientX, e.ClientY, Min, Max, OrientationValue, _dotNetRef!, index);
 		await UpdateValueAsync(index, initialValue, notifyInput: true, notifyChange: false, markTouched: false);
 	}
 
@@ -346,7 +346,7 @@
 
 		string? token = null;
 		_ = Size?.TryGetThemeToken(out token);
-		string? sizeValue = token ?? Size?.ToString();
+		var sizeValue = token ?? Size?.ToString();
 
 		return sizeValue?.ToLowerInvariant() switch
 		{
@@ -363,7 +363,7 @@
 
 		string? token = null;
 		_ = Size?.TryGetThemeToken(out token);
-		string? sizeValue = token ?? Size?.ToString();
+		var sizeValue = token ?? Size?.ToString();
 
 		return sizeValue?.ToLowerInvariant() switch
 		{
@@ -394,7 +394,7 @@
 			if (Disabled || ReadOnly)
 				AppendClass(ref cls, "cursor-not-allowed");
 
-			string? sizeClass = GetSizeClass();
+			var sizeClass = GetSizeClass();
 
 			if (sizeClass is not null)
 				AppendClass(ref cls, sizeClass);
@@ -428,9 +428,9 @@
 
 	private Dictionary<string, object> BuildRangeAttributes(IReadOnlyList<double> values)
 	{
-		double startPercent = values.Count > 1 ? ValueToPercent(values[0]) : 0d;
-		double endPercent = ValueToPercent(values[^1]);
-		double sizePercent = Math.Max(0d, endPercent - startPercent);
+		var startPercent = values.Count > 1 ? ValueToPercent(values[0]) : 0d;
+		var endPercent = ValueToPercent(values[^1]);
+		var sizePercent = Math.Max(0d, endPercent - startPercent);
 
 		var attributes = new Dictionary<string, object>
 		{
@@ -463,9 +463,9 @@
 
 	private Dictionary<string, object> BuildThumbAttributes(int index, double value)
 	{
-		double percent = ValueToPercent(value);
-		string percentText = percent.ToString("F2", CultureInfo.InvariantCulture) + "%";
-		bool isActive = _focusedThumbIndex == index || _draggingThumbIndex == index;
+		var percent = ValueToPercent(value);
+		var percentText = percent.ToString("F2", CultureInfo.InvariantCulture) + "%";
+		var isActive = _focusedThumbIndex == index || _draggingThumbIndex == index;
 
 		var attributes = new Dictionary<string, object>
 		{
@@ -509,7 +509,7 @@
 
 		if (Attributes is not null && index == 0)
 		{
-			foreach (KeyValuePair<string, object> attribute in Attributes)
+			foreach (var attribute in Attributes)
 			{
 				if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) ||
 				    attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase) ||
@@ -600,7 +600,7 @@
 		if (!IsInteractive)
 			return;
 
-		double currentValue = GetResolvedValues()[index];
+		var currentValue = GetResolvedValues()[index];
 		double nextValue;
 
 		switch (e.Key)
@@ -646,8 +646,8 @@
 		if (!IsInteractive)
 			return;
 
-		double pointerValue = await GetPointerValueAsync(e);
-		int index = FindNearestThumbIndex(GetResolvedValues(), pointerValue);
+		var pointerValue = await GetPointerValueAsync(e);
+		var index = FindNearestThumbIndex(GetResolvedValues(), pointerValue);
 
 		_focusedThumbIndex = index;
 		_draggingThumbIndex = index;
@@ -740,7 +740,7 @@
 
 	protected override void OnParametersSet()
 	{
-		double[] values = GetResolvedValues();
+		var values = GetResolvedValues();
 
 		if (_focusedThumbIndex >= values.Length)
 			_focusedThumbIndex = values.Length - 1;
@@ -759,10 +759,10 @@
 		hc.Add(Step);
 		hc.Add(OrientationValue);
 
-		double[] values = GetResolvedValues();
+		var values = GetResolvedValues();
 		hc.Add(values.Length);
 
-		for (int i = 0; i < values.Length; i++)
+		for (var i = 0; i < values.Length; i++)
 		{
 			hc.Add(values[i]);
 		}

@@ -36,7 +36,7 @@ public sealed class OverlayInterop : IOverlayInterop
 
         using (source)
         {
-            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("activate", linked, overlayId, container, trapFocus, lockScroll, initialFocusSelector);
         }
     }
@@ -47,7 +47,7 @@ public sealed class OverlayInterop : IOverlayInterop
 
         using (source)
         {
-            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("deactivate", linked, overlayId, unlockScroll);
         }
     }

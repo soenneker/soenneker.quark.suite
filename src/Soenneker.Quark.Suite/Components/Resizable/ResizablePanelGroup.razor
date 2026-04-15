@@ -1,6 +1,5 @@
 @using System.Globalization
 @using System.Linq
-@using Microsoft.AspNetCore.Components.Web
 @using Microsoft.JSInterop
 
 @namespace Soenneker.Quark
@@ -107,7 +106,7 @@
     {
         EnsureLayoutState();
 
-        double size = index >= 0 && _sizes is { Length: > 0 } && index < _sizes.Length ? _sizes[index] : 0d;
+        var size = index >= 0 && _sizes is { Length: > 0 } && index < _sizes.Length ? _sizes[index] : 0d;
         var styles = new List<string>
         {
             $"flex: 0 0 {size.ToString("0.###", CultureInfo.InvariantCulture)}%"
@@ -165,7 +164,7 @@
 
     internal async Task HandleHandleKeyDownAsync(int handleIndex, KeyboardEventArgs e)
     {
-        double delta = e.ShiftKey ? 10d : 5d;
+        var delta = e.ShiftKey ? 10d : 5d;
         double signedDelta;
 
         if (IsVertical)
@@ -226,7 +225,7 @@
         double totalWeight = _panels.Sum(panel => Math.Max(1, panel.DefaultSize));
         var nextSizes = new double[_panels.Count];
 
-        for (int i = 0; i < _panels.Count; i++)
+        for (var i = 0; i < _panels.Count; i++)
         {
             double weight = Math.Max(1, _panels[i].DefaultSize);
             nextSizes[i] = (weight / totalWeight) * 100d;
@@ -244,15 +243,15 @@
         if (_sizes is null || handleIndex < 0 || handleIndex >= _sizes.Length - 1)
             return;
 
-        double offset = 0d;
+        var offset = 0d;
 
-        for (int i = 0; i < handleIndex; i++)
+        for (var i = 0; i < handleIndex; i++)
         {
             offset += _sizes[i];
         }
 
-        double pairTotal = _sizes[handleIndex] + _sizes[handleIndex + 1];
-        double nextPrimary = percentage - offset;
+        var pairTotal = _sizes[handleIndex] + _sizes[handleIndex + 1];
+        var nextPrimary = percentage - offset;
         ApplyPairSizes(handleIndex, pairTotal, nextPrimary, containerSize);
     }
 
@@ -263,8 +262,8 @@
         if (_sizes is null || handleIndex < 0 || handleIndex >= _sizes.Length - 1)
             return;
 
-        double pairTotal = _sizes[handleIndex] + _sizes[handleIndex + 1];
-        double nextPrimary = _sizes[handleIndex] + deltaPercent;
+        var pairTotal = _sizes[handleIndex] + _sizes[handleIndex + 1];
+        var nextPrimary = _sizes[handleIndex] + deltaPercent;
         ApplyPairSizes(handleIndex, pairTotal, nextPrimary, containerSize);
     }
 
@@ -273,9 +272,9 @@
         if (_sizes is null)
             return;
 
-        (double minPrimary, double maxPrimary) = GetAllowedRange(handleIndex, pairTotal, containerSize);
-        double primarySize = Math.Clamp(requestedPrimarySize, minPrimary, maxPrimary);
-        double secondarySize = pairTotal - primarySize;
+        (var minPrimary, var maxPrimary) = GetAllowedRange(handleIndex, pairTotal, containerSize);
+        var primarySize = Math.Clamp(requestedPrimarySize, minPrimary, maxPrimary);
+        var secondarySize = pairTotal - primarySize;
 
         _sizes[handleIndex] = primarySize;
         _sizes[handleIndex + 1] = secondarySize;
@@ -284,16 +283,16 @@
 
     private (double minPrimary, double maxPrimary) GetAllowedRange(int handleIndex, double pairTotal, double containerSize)
     {
-        ResizablePanel primary = _panels[handleIndex];
-        ResizablePanel secondary = _panels[handleIndex + 1];
+        var primary = _panels[handleIndex];
+        var secondary = _panels[handleIndex + 1];
 
-        double primaryMin = GetMinPercent(primary.MinSize, containerSize);
-        double secondaryMin = GetMinPercent(secondary.MinSize, containerSize);
-        double primaryMax = GetMaxPercent(primary.MaxSize, containerSize);
-        double secondaryMax = GetMaxPercent(secondary.MaxSize, containerSize);
+        var primaryMin = GetMinPercent(primary.MinSize, containerSize);
+        var secondaryMin = GetMinPercent(secondary.MinSize, containerSize);
+        var primaryMax = GetMaxPercent(primary.MaxSize, containerSize);
+        var secondaryMax = GetMaxPercent(secondary.MaxSize, containerSize);
 
-        double lowerBound = Math.Max(primaryMin, pairTotal - secondaryMax);
-        double upperBound = Math.Min(primaryMax, pairTotal - secondaryMin);
+        var lowerBound = Math.Max(primaryMin, pairTotal - secondaryMax);
+        var upperBound = Math.Min(primaryMax, pairTotal - secondaryMin);
 
         if (upperBound < lowerBound)
             return (lowerBound, lowerBound);
@@ -322,13 +321,13 @@
         if (sizes.Count == 0)
             return;
 
-        double total = sizes.Sum();
+        var total = sizes.Sum();
 
         if (total <= 0)
         {
-            double equal = 100d / sizes.Count;
+            var equal = 100d / sizes.Count;
 
-            for (int i = 0; i < sizes.Count; i++)
+            for (var i = 0; i < sizes.Count; i++)
             {
                 sizes[i] = equal;
             }
@@ -336,7 +335,7 @@
             return;
         }
 
-        for (int i = 0; i < sizes.Count; i++)
+        for (var i = 0; i < sizes.Count; i++)
         {
             sizes[i] = (sizes[i] / total) * 100d;
         }
@@ -344,7 +343,7 @@
 
     private void UpdatePanelIndexes()
     {
-        for (int i = 0; i < _panels.Count; i++)
+        for (var i = 0; i < _panels.Count; i++)
         {
             _panels[i].SetIndex(i);
         }
@@ -352,7 +351,7 @@
 
     private void UpdateHandleIndexes()
     {
-        for (int i = 0; i < _handles.Count; i++)
+        for (var i = 0; i < _handles.Count; i++)
         {
             _handles[i].SetIndex(i);
         }
@@ -390,7 +389,7 @@
 
         if (_sizes is not null)
         {
-            foreach (double size in _sizes)
+            foreach (var size in _sizes)
             {
                 hc.Add(size);
             }

@@ -32,7 +32,7 @@ public sealed class SortableInterop : ISortableInterop
     private async ValueTask InitializeResources(CancellationToken token)
     {
         await _resourceLoader.LoadScript(_cdnScriptUrl, integrity: _cdnScriptIntegrity, cancellationToken: token);
-        IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
+        var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
         await module.InvokeVoidAsync("ensureAvailable", token);
     }
 
@@ -54,7 +54,7 @@ public sealed class SortableInterop : ISortableInterop
         using (source)
         {
             await _initializer.Init(linked);
-            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("initializeList", linked, element, disabled, sort, animation, itemSelector, handleSelector,
                 filterSelector, group, callbackReference);
         }
@@ -67,7 +67,7 @@ public sealed class SortableInterop : ISortableInterop
         using (source)
         {
             await _initializer.Init(linked);
-            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("destroy", linked, element);
         }
     }

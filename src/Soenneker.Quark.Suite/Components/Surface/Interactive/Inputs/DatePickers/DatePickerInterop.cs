@@ -39,7 +39,7 @@ public sealed class DatePickerInterop : IDatePickerInterop, IAsyncDisposable
 
         using (source)
         {
-            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("observePosition", linked, pickerId, trigger, content, side, align, sideOffset);
         }
     }
@@ -50,7 +50,7 @@ public sealed class DatePickerInterop : IDatePickerInterop, IAsyncDisposable
 
         using (source)
         {
-            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             await module.InvokeVoidAsync("stopObserving", linked, pickerId);
         }
     }

@@ -163,8 +163,8 @@
             return null;
 
         string? token = null;
-        bool isTheme = Size?.TryGetThemeToken(out token) == true;
-        string? sizeValue = token ?? Size?.ToString();
+        var isTheme = Size?.TryGetThemeToken(out token) == true;
+        var sizeValue = token ?? Size?.ToString();
 
         if (isTheme && sizeValue is not null)
             return sizeValue.ToLowerInvariant() switch { "sm" or "xs" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
@@ -262,7 +262,7 @@
 
         if (Attributes is not null)
         {
-            foreach (KeyValuePair<string, object> pair in Attributes)
+            foreach (var pair in Attributes)
             {
                 if (pair.Key.Equals("onfocus", StringComparison.OrdinalIgnoreCase) ||
                     pair.Key.Equals("onblur", StringComparison.OrdinalIgnoreCase) ||
@@ -289,12 +289,12 @@
             return true;
 
         var culture = GetCultureInfo();
-        string normalized = input.Trim();
+        var normalized = input.Trim();
 
         if (!string.IsNullOrWhiteSpace(EffectiveSymbol))
             normalized = normalized.Replace(EffectiveSymbol, "", StringComparison.Ordinal);
 
-        string? currencySymbol = culture.NumberFormat.CurrencySymbol;
+        var currencySymbol = culture.NumberFormat.CurrencySymbol;
         if (!string.IsNullOrWhiteSpace(currencySymbol))
             normalized = normalized.Replace(currencySymbol, "", StringComparison.Ordinal);
 
@@ -302,11 +302,11 @@
         normalized = normalized.Replace(culture.NumberFormat.NumberGroupSeparator, "", StringComparison.Ordinal);
         normalized = normalized.Replace(" ", "", StringComparison.Ordinal);
 
-        string currencyDecimalSeparator = culture.NumberFormat.CurrencyDecimalSeparator;
+        var currencyDecimalSeparator = culture.NumberFormat.CurrencyDecimalSeparator;
         if (!string.Equals(currencyDecimalSeparator, ".", StringComparison.Ordinal))
             normalized = normalized.Replace(currencyDecimalSeparator, ".", StringComparison.Ordinal);
 
-        string numberDecimalSeparator = culture.NumberFormat.NumberDecimalSeparator;
+        var numberDecimalSeparator = culture.NumberFormat.NumberDecimalSeparator;
         if (!string.Equals(numberDecimalSeparator, ".", StringComparison.Ordinal) &&
             !string.Equals(numberDecimalSeparator, currencyDecimalSeparator, StringComparison.Ordinal))
         {
@@ -319,7 +319,7 @@
         if (!AllowNegative && normalized.Contains('-', StringComparison.Ordinal))
             return false;
 
-        if (!decimal.TryParse(normalized, NumberStyles.Number | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out decimal parsed))
+        if (!decimal.TryParse(normalized, NumberStyles.Number | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var parsed))
             return false;
 
         result = Clamp(parsed);
@@ -328,7 +328,7 @@
 
     private decimal Clamp(decimal value)
     {
-        decimal rounded = Math.Round(value, Math.Max(0, DecimalPlaces), MidpointRounding.AwayFromZero);
+        var rounded = Math.Round(value, Math.Max(0, DecimalPlaces), MidpointRounding.AwayFromZero);
 
         if (!AllowNegative && rounded < 0)
             rounded = 0;
@@ -347,7 +347,7 @@
         if (!value.HasValue)
             return string.Empty;
 
-        string format = UseThousandsSeparator ? "N" : "F";
+        var format = UseThousandsSeparator ? "N" : "F";
         return value.Value.ToString($"{format}{Math.Max(0, DecimalPlaces)}", GetCultureInfo());
     }
 

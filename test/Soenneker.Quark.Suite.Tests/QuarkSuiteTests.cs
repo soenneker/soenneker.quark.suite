@@ -1,7 +1,6 @@
 using Soenneker.Tests.FixturedUnit;
 using AwesomeAssertions;
 using Xunit;
-using System.Reflection;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -21,7 +20,7 @@ public sealed class QuarkSuiteTests : FixturedUnitTest
     [Fact]
     public void Accordion_contract_exposes_collapsible()
     {
-        PropertyInfo? property = typeof(IAccordion).GetProperty(nameof(IAccordion.Collapsible));
+        var property = typeof(IAccordion).GetProperty(nameof(IAccordion.Collapsible));
 
         property.Should().NotBeNull();
         property!.PropertyType.Should().Be(typeof(bool));

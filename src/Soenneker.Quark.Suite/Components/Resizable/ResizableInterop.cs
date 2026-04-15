@@ -43,7 +43,7 @@ public sealed class ResizableInterop : IResizableInterop
 
         using (source)
         {
-            IJSObjectReference module = await GetModule(linked);
+            var module = await GetModule(linked);
             await module.InvokeVoidAsync("startDrag", linked, group, pointerId, clientX, clientY, orientation, callbackReference, handleIndex);
         }
     }
@@ -54,7 +54,7 @@ public sealed class ResizableInterop : IResizableInterop
 
         using (source)
         {
-            IJSObjectReference module = await GetModule(linked);
+            var module = await GetModule(linked);
             await module.InvokeVoidAsync("stopDrag", linked);
         }
     }

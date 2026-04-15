@@ -13,7 +13,7 @@ public static class ThemeTailwindCssGenerator
         if (theme is null)
             return string.Empty;
 
-        ThemeTokens tokens = theme.Tokens ?? new ThemeTokens();
+        var tokens = theme.Tokens ?? new ThemeTokens();
 
         var builder = new StringBuilder(1024);
 
@@ -122,7 +122,7 @@ public static class ThemeTailwindCssGenerator
         if (values is null || values.Count == 0)
             return;
 
-        foreach ((string key, string value) in values)
+        foreach ((var key, var value) in values)
         {
             AppendVariable(builder, key, value);
         }

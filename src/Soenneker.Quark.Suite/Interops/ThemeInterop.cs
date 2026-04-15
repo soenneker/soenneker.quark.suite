@@ -26,7 +26,7 @@ public sealed class ThemeInterop : IThemeInterop
 
         using (source)
         {
-            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             return await module.InvokeAsync<bool>("initialize", linked);
         }
     }
@@ -37,7 +37,7 @@ public sealed class ThemeInterop : IThemeInterop
 
         using (source)
         {
-            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             return await module.InvokeAsync<bool>("toggle", linked);
         }
     }
@@ -48,7 +48,7 @@ public sealed class ThemeInterop : IThemeInterop
 
         using (source)
         {
-            IJSObjectReference module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             return await module.InvokeAsync<bool>("resolveIsDark", linked);
         }
     }
