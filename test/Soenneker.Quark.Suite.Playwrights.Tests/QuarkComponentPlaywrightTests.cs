@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
+using Soenneker.Playwrights.TestEnvironment.Options;
 using Soenneker.Playwrights.Tests.Unit;
 using Xunit;
 
@@ -19,7 +20,7 @@ public sealed class QuarkComponentPlaywrightTests : PlaywrightUnitTest
     public async ValueTask Landing_page_loads()
     {
         Logger.LogInformation("Initially loaded");
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(new PlaywrightSessionOptions {ReuseBrowserContextAcrossSessions = true, ReusePageAcrossSessions = true}, cancellationToken: CancellationToken);
         var page = session.Page;
         ILocator main = page.GetByRole(AriaRole.Main).First;
 
@@ -38,7 +39,7 @@ public sealed class QuarkComponentPlaywrightTests : PlaywrightUnitTest
     {
         Logger.LogInformation("Loading {ComponentName} demo route {Route}", componentName, route);
 
-        await using var session = await CreateSession();
+        await using var session = await CreateSession(new PlaywrightSessionOptions { ReuseBrowserContextAcrossSessions = true, ReusePageAcrossSessions = true }, cancellationToken: CancellationToken);
         var page = session.Page;
         ILocator main = page.GetByRole(AriaRole.Main).First;
 

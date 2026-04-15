@@ -93,6 +93,37 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(guardedDialog).Not.ToBeVisibleAsync();
     }
 
+    [Fact]
+    public async ValueTask Dialog_demo_supports_select_nested_inside_modal_dialog()
+    {
+        await using BrowserSession session = await CreateSession();
+        IPage page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}dialogs",
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Chat Settings", Exact = true }),
+            expectedTitle: "Dialog - Quark Suite");
+
+        ILocator trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Chat Settings", Exact = true });
+        await trigger.ClickAsync();
+
+        ILocator dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Chat Settings", Exact = true });
+        await Assertions.Expect(dialog).ToBeVisibleAsync();
+
+        ILocator selectTrigger = dialog.GetByRole(AriaRole.Combobox, new LocatorGetByRoleOptions { Name = "Theme", Exact = true });
+        await selectTrigger.ClickAsync();
+
+        ILocator listbox = page.GetByRole(AriaRole.Listbox);
+        await Assertions.Expect(selectTrigger).ToHaveAttributeAsync("aria-expanded", "true");
+        await Assertions.Expect(listbox).ToBeVisibleAsync();
+
+        ILocator dark = listbox.GetByRole(AriaRole.Option, new LocatorGetByRoleOptions { Name = "Dark", Exact = true });
+        await dark.ClickAsync();
+
+        await Assertions.Expect(dialog).ToBeVisibleAsync();
+        await Assertions.Expect(selectTrigger).ToContainTextAsync("Dark");
+    }
+
     private static Task<bool> FocusIsWithinAsync(ILocator dialog)
     {
         return dialog.EvaluateAsync<bool>("element => element.contains(document.activeElement)");

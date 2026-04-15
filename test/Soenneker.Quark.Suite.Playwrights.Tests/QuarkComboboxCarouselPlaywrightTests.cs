@@ -27,6 +27,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
 
         ILocator section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Input combobox" }).First;
         ILocator input = section.GetByPlaceholder("Select framework...");
+        await input.ClickAsync();
         await input.FillAsync("nuxt");
 
         string? listboxId = await input.GetAttributeAsync("aria-controls");
@@ -37,10 +38,11 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(input).ToHaveValueAsync("nuxt");
         await Assertions.Expect(input).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(listbox).ToHaveAttributeAsync("data-state", "open");
+        await Assertions.Expect(listbox).ToHaveAttributeAsync("role", "listbox");
         await Assertions.Expect(nuxt).ToBeVisibleAsync();
         await Assertions.Expect(listbox.Locator("[data-slot='combobox-item']").Filter(new LocatorFilterOptions { HasText = "Next.js" })).ToHaveCountAsync(0);
 
-        await input.PressAsync("Enter");
+        await nuxt.ClickAsync();
 
         await Assertions.Expect(input).ToHaveValueAsync("Nuxt.js");
         await Assertions.Expect(input).ToHaveAttributeAsync("aria-expanded", "false");
@@ -121,12 +123,14 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
 
         await Assertions.Expect(dialog).ToBeVisibleAsync();
 
+        await input.ClickAsync();
         await input.FillAsync("remix");
         string? listboxId = await input.GetAttributeAsync("aria-controls");
         Assert.False(string.IsNullOrWhiteSpace(listboxId));
         ILocator listbox = page.Locator($"#{listboxId}");
         ILocator remix = listbox.Locator("[data-slot='combobox-item']").Filter(new LocatorFilterOptions { HasText = "Remix" }).First;
         await Assertions.Expect(listbox).ToHaveAttributeAsync("data-state", "open");
+        await Assertions.Expect(listbox).ToHaveAttributeAsync("role", "listbox");
         await Assertions.Expect(remix).ToBeVisibleAsync();
         await remix.ClickAsync();
 
