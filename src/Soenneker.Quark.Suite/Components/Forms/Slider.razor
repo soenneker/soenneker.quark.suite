@@ -1,6 +1,7 @@
 @using System.Globalization
 @using System.Linq.Expressions
 @using Microsoft.JSInterop
+@using Soenneker.Bradix
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Blazor.Utils.Ids
 
@@ -8,17 +9,14 @@
 @inherits Soenneker.Quark.FormControlElement
 @implements ISlider
 
-@inject ISliderInterop SliderInterop
+@inject IBradixSuiteInterop Interop
 
 @{
 	var resolvedValues = GetResolvedValues();
 }
 
 <div @ref="ElementRef" @attributes="BuildWrapperAttributes()">
-	<div @ref="_trackRef"
-	     @attributes="BuildTrackAttributes()"
-	     @onpointerdown="HandleTrackPointerDown"
-	     @onpointerdown:preventDefault="true">
+	<div @attributes="BuildTrackAttributes()">
 		<div @attributes="BuildRangeAttributes(resolvedValues)"></div>
 	</div>
 	@for (var index = 0; index < resolvedValues.Length; index++)
@@ -28,9 +26,7 @@
 		        @onfocus="@(() => HandleThumbFocus(thumbIndex))"
 		        @onblur="@(() => HandleThumbBlur(thumbIndex))"
 		        @onkeydown="@(e => HandleThumbKeyDown(thumbIndex, e))"
-		        @onkeydown:preventDefault="true"
-		        @onpointerdown="@(e => HandleThumbPointerDown(thumbIndex, e))"
-		        @onpointerdown:stopPropagation="true">
+		        @onkeydown:preventDefault="true">
 		</button>
 	}
 	@for (var index = 0; index < resolvedValues.Length; index++)
@@ -95,8 +91,8 @@
 	private string? DirectionProviderDir { get; set; }
 
 	private readonly string _hiddenInputClass = "sr-only";
-	private ElementReference _trackRef;
-	private DotNetObjectReference<Slider>? _dotNetRef;
+	private DotNetObjectReference<object>? _sliderBridgeRef;
+	private double[] _valuesBeforeSlideStart = [];
 	private int _focusedThumbIndex = -1;
 	private int _draggingThumbIndex = -1;
 	private bool _isRtl;
@@ -321,22 +317,51 @@
 		return constrainedValue;
 	}
 
-	private async Task<double> GetPointerValueAsync(PointerEventArgs e)
+	private double GetValueFromFractions(double xFraction, double yFraction)
 	{
-		return await SliderInterop.GetValueFromPointer(_trackRef, e.ClientX, e.ClientY, Min, Max, OrientationValue);
+		var range = Max - Min;
+
+		if (range <= 0)
+			return Min;
+
+		if (IsVertical)
+			return Max - (Math.Clamp(yFraction, 0d, 1d) * range);
+
+		var clampedX = Math.Clamp(xFraction, 0d, 1d);
+		return ResolveIsRtl()
+			? Max - (clampedX * range)
+			: Min + (clampedX * range);
 	}
 
-	private void EnsureDotNetReference()
+	private async Task RestoreValuesAsync()
 	{
-		_dotNetRef ??= DotNetObjectReference.Create(this);
-	}
+		if (_valuesBeforeSlideStart.Length == 0)
+			return;
 
-	private async Task StartDragAsync(int index, PointerEventArgs e)
-	{
-		EnsureDotNetReference();
+		if (UsesValuesApi)
+		{
+			var restoredValues = (double[]) _valuesBeforeSlideStart.Clone();
+			Values = restoredValues;
+			await ValuesChanged.InvokeIfHasDelegate(restoredValues);
 
-		var initialValue = await SliderInterop.StartDrag(_trackRef, e.PointerId, e.ClientX, e.ClientY, Min, Max, OrientationValue, _dotNetRef!, index);
-		await UpdateValueAsync(index, initialValue, notifyInput: true, notifyChange: false, markTouched: false);
+			if (ParentValidation is not null)
+				await ParentValidation.NotifyInputChanged(ValidationValue);
+		}
+		else
+		{
+			var restoredValue = _valuesBeforeSlideStart[0];
+
+			if (!SliderValue.Equals(restoredValue))
+			{
+				SliderValue = restoredValue;
+				await SliderValueChanged.InvokeAsync(SliderValue);
+			}
+
+			if (ParentValidation is not null)
+				await ParentValidation.NotifyInputChanged(ValidationValue);
+		}
+
+		Refresh();
 	}
 
 	private string GetTrackThicknessClass()
@@ -641,50 +666,46 @@
 		await UpdateValueAsync(index, nextValue, notifyInput: true, notifyChange: true, markTouched: true);
 	}
 
-	private async Task HandleTrackPointerDown(PointerEventArgs e)
+	[JSInvokable]
+	public async Task HandlePointerStart(double xFraction, double yFraction, int thumbIndex)
 	{
 		if (!IsInteractive)
 			return;
 
-		var pointerValue = await GetPointerValueAsync(e);
-		var index = FindNearestThumbIndex(GetResolvedValues(), pointerValue);
+		_valuesBeforeSlideStart = GetResolvedValues();
 
-		_focusedThumbIndex = index;
+		var currentValues = GetResolvedValues();
+		var index = thumbIndex >= 0
+			? thumbIndex
+			: FindNearestThumbIndex(currentValues, GetValueFromFractions(xFraction, yFraction));
+
 		_draggingThumbIndex = index;
+		_focusedThumbIndex = index;
 		Refresh();
 
-		await UpdateValueAsync(index, pointerValue, notifyInput: true, notifyChange: false, markTouched: false);
-		await StartDragAsync(index, e);
-	}
-
-	private async Task HandleThumbPointerDown(int index, PointerEventArgs e)
-	{
-		if (!IsInteractive)
-			return;
-
-		_focusedThumbIndex = index;
-		_draggingThumbIndex = index;
-		Refresh();
-
-		await StartDragAsync(index, e);
+		if (thumbIndex < 0)
+			await UpdateValueAsync(index, GetValueFromFractions(xFraction, yFraction), notifyInput: true, notifyChange: false, markTouched: false);
 	}
 
 	[JSInvokable]
-	public async Task HandlePointerDragMove(int index, double value)
+	public async Task HandlePointerMove(double xFraction, double yFraction)
 	{
-		if (index < 0)
+		if (!IsInteractive || _draggingThumbIndex < 0)
 			return;
 
-		_draggingThumbIndex = index;
-		_focusedThumbIndex = index;
-		await UpdateValueAsync(index, value, notifyInput: true, notifyChange: false, markTouched: false);
+		_focusedThumbIndex = _draggingThumbIndex;
+		await UpdateValueAsync(_draggingThumbIndex, GetValueFromFractions(xFraction, yFraction), notifyInput: true, notifyChange: false, markTouched: false);
 	}
 
 	[JSInvokable]
-	public async Task HandlePointerDragEnd(int index, double value)
+	public async Task HandlePointerEnd()
 	{
-		if (index < 0)
+		if (_draggingThumbIndex < 0)
 			return;
+
+		var index = _draggingThumbIndex;
+		var currentValues = GetResolvedValues();
+		var value = index < currentValues.Length ? currentValues[index] : Min;
 
 		await UpdateValueAsync(index, value, notifyInput: false, notifyChange: true, markTouched: true);
 		_draggingThumbIndex = -1;
@@ -692,11 +713,23 @@
 		Refresh();
 	}
 
+	[JSInvokable]
+	public async Task HandlePointerCancel()
+	{
+		if (_draggingThumbIndex < 0)
+			return;
+
+		await RestoreValuesAsync();
+		_draggingThumbIndex = -1;
+		Refresh();
+	}
+
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
 		{
-			await SliderInterop.Initialize();
+			_sliderBridgeRef = DotNetObjectReference.Create<object>(this);
+			await Interop.RegisterSliderPointerBridge(ElementRef, _sliderBridgeRef);
 
 			if (ParentValidation is not null)
 			{
@@ -726,7 +759,7 @@
 		}
 		else
 		{
-			resolvedIsRtl = await SliderInterop.IsDirectionRtl(_trackRef);
+			resolvedIsRtl = await Interop.IsDirectionRtl(ElementRef);
 		}
 
 		if (_isRtl != resolvedIsRtl)
@@ -783,7 +816,11 @@
 
 	protected override async ValueTask OnDisposeAsync()
 	{
-		await SliderInterop.StopDrag();
-		_dotNetRef?.Dispose();
+		if (_sliderBridgeRef is not null)
+		{
+			await Interop.UnregisterSliderPointerBridge(ElementRef);
+			_sliderBridgeRef.Dispose();
+			_sliderBridgeRef = null;
+		}
 	}
 }

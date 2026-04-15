@@ -29,15 +29,18 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
         ILocator input = section.GetByPlaceholder("Select framework...");
         await input.FillAsync("nuxt");
 
-        ILocator listbox = page.Locator("[role='listbox'][data-state='open']").Last;
-        ILocator nuxt = listbox.GetByRole(AriaRole.Option, new LocatorGetByRoleOptions { Name = "Nuxt.js", Exact = true });
+        string? listboxId = await input.GetAttributeAsync("aria-controls");
+        Assert.False(string.IsNullOrWhiteSpace(listboxId));
+        ILocator listbox = page.Locator($"#{listboxId}");
+        ILocator nuxt = listbox.Locator("[data-slot='combobox-item']").Filter(new LocatorFilterOptions { HasText = "Nuxt.js" }).First;
 
         await Assertions.Expect(input).ToHaveValueAsync("nuxt");
         await Assertions.Expect(input).ToHaveAttributeAsync("aria-expanded", "true");
+        await Assertions.Expect(listbox).ToHaveAttributeAsync("data-state", "open");
         await Assertions.Expect(nuxt).ToBeVisibleAsync();
-        await Assertions.Expect(listbox.GetByRole(AriaRole.Option, new LocatorGetByRoleOptions { Name = "Next.js", Exact = true })).ToHaveCountAsync(0);
+        await Assertions.Expect(listbox.Locator("[data-slot='combobox-item']").Filter(new LocatorFilterOptions { HasText = "Next.js" })).ToHaveCountAsync(0);
 
-        await nuxt.ClickAsync();
+        await input.PressAsync("Enter");
 
         await Assertions.Expect(input).ToHaveValueAsync("Nuxt.js");
         await Assertions.Expect(input).ToHaveAttributeAsync("aria-expanded", "false");
@@ -56,10 +59,15 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
             expectedTitle: "Combobox - Quark Suite");
 
         ILocator input = page.GetByPlaceholder("Add frameworks...").First;
+        await input.ClickAsync();
         await input.FillAsync("astro");
 
-        ILocator listbox = page.Locator("[role='listbox'][data-state='open']").First;
-        await listbox.GetByRole(AriaRole.Option, new LocatorGetByRoleOptions { Name = "Astro", Exact = true }).ClickAsync();
+        string? listboxId = await input.GetAttributeAsync("aria-controls");
+        Assert.False(string.IsNullOrWhiteSpace(listboxId));
+        ILocator listbox = page.Locator($"#{listboxId}");
+        ILocator astro = listbox.Locator("[data-slot='combobox-item']").Filter(new LocatorFilterOptions { HasText = "Astro" }).First;
+        await Assertions.Expect(astro).ToBeVisibleAsync();
+        await input.PressAsync("Enter");
 
         ILocator selectedFrameworks = page.GetByText("Selected frameworks:", new PageGetByTextOptions { Exact = false }).First;
         await Assertions.Expect(selectedFrameworks).ToContainTextAsync("Next.js, Astro");
@@ -114,9 +122,13 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(dialog).ToBeVisibleAsync();
 
         await input.FillAsync("remix");
-        ILocator listbox = page.Locator("[role='listbox'][data-state='open']").Last;
-        await Assertions.Expect(listbox.GetByRole(AriaRole.Option, new LocatorGetByRoleOptions { Name = "Remix", Exact = true })).ToHaveAttributeAsync("data-highlighted", "");
-        await input.PressAsync("Enter");
+        string? listboxId = await input.GetAttributeAsync("aria-controls");
+        Assert.False(string.IsNullOrWhiteSpace(listboxId));
+        ILocator listbox = page.Locator($"#{listboxId}");
+        ILocator remix = listbox.Locator("[data-slot='combobox-item']").Filter(new LocatorFilterOptions { HasText = "Remix" }).First;
+        await Assertions.Expect(listbox).ToHaveAttributeAsync("data-state", "open");
+        await Assertions.Expect(remix).ToBeVisibleAsync();
+        await remix.ClickAsync();
 
         await Assertions.Expect(dialog).ToBeVisibleAsync();
         await Assertions.Expect(input).ToHaveValueAsync("Remix");

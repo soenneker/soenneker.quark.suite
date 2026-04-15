@@ -4,6 +4,7 @@
 <input value="@GetDisplayValue()"
        @oninput="HandleInput"
        @onfocus="HandleFocus"
+       @onclick="HandleClickOpen"
        @onkeydown="HandleKeyDown"
        @onkeydown:preventDefault="_preventDefaultKeys"
        @attributes="BuildAttributes()" />
@@ -35,6 +36,12 @@
             await ParentCombobox.SetOpen(true);
 
         await base.HandleFocus(e);
+    }
+
+    private async Task HandleClickOpen(MouseEventArgs _)
+    {
+        if (ParentCombobox != null && !ParentCombobox.Disabled && !ParentCombobox.Open)
+            await ParentCombobox.SetOpen(true);
     }
 
     protected override async Task HandleKeyDown(KeyboardEventArgs e)

@@ -1,6 +1,5 @@
 @using System.Globalization
 @using System.Linq.Expressions
-@using Microsoft.JSInterop
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Blazor.Utils.Ids
 
@@ -9,15 +8,18 @@
 @implements Soenneker.Quark.IValidationInput
 @implements IDateTimePicker
 
-@inject IDatePickerInterop DatePickerInterop
+<Popover Open="@_open"
+         OpenChanged="HandleOpenChanged">
+    <div @attributes="GetContainerAttributes()">
+        <PopoverAnchor>
+            <input @ref="_ref" type="text" value="@(SelectedDateTime.HasValue ? FormatDisplay(SelectedDateTime.Value) : "")" @attributes="BuildAttributes()" />
+        </PopoverAnchor>
 
-<div OnElementRefReady="HandleContainerRefReady" @attributes="GetContainerAttributes()">
-    <input @ref="_ref" type="text" value="@(SelectedDateTime.HasValue ? FormatDisplay(SelectedDateTime.Value) : "")" @attributes="BuildAttributes()" />
-
-    @if (_open)
-    {
-        <div class="fixed inset-0 z-[19990]" @onclick="ClosePanel"></div>
-        <div @ref="_panelRef" @attributes="BuildPanelAttributes()" @onclick:stopPropagation="true">
+        <PopoverContent Id="@_panelId"
+                        Side="bottom"
+                        Align="start"
+                        Class="@PanelClass"
+                        @attributes="PanelAttributes">
             <div class="mb-2 flex items-center justify-between">
                 <button type="button" class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-input bg-background text-sm shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50" @onclick="PrevMonth">‹</button>
                 <div class="text-sm font-medium">@_displayMonth.ToString("MMMM yyyy", CultureInfo.CurrentUICulture)</div>
@@ -66,9 +68,9 @@
                 </div>
                 <button type="button" class="ml-1 inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-3 text-xs font-medium shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50" title="Click to toggle" @onclick="ToggleAmPm">@(_isAm ? "AM" : "PM")</button>
             </div>
-        </div>
-    }
-</div>
+        </PopoverContent>
+    </div>
+</Popover>
 
 @code {
 
@@ -129,11 +131,7 @@
     public object? ValidationValue => SelectedDateTime;
 
     private ElementReference _ref;
-    private ElementReference _panelRef;
-    private ElementReference _containerRef;
-    private DotNetObjectReference<DateTimePickerOutsideCloseProxy>? _outsideRef;
     private bool _open;
-    private bool _positionObserverActive;
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
     private string[] _dayNames = [];
     private DateOnly? _pendingDate;
@@ -142,6 +140,13 @@
     private bool _isAm;
     private const int _minuteStep = 1;
     private readonly string _panelId = BlazorIdGenerator.New("quark-datetimepicker-panel");
+
+    private string PanelClass => "quark-calendar-panel q-calendar-panel min-w-[18rem] rounded-md border bg-popover p-3 text-popover-foreground shadow-md";
+
+    private IReadOnlyDictionary<string, object> PanelAttributes => new Dictionary<string, object>
+    {
+        ["data-slot"] = "date-time-picker-panel"
+    };
 
     private static DateTime? Parse(ChangeEventArgs e)
     {
@@ -230,8 +235,6 @@
 
         if (firstRender)
         {
-            _outsideRef = DotNetObjectReference.Create(new DateTimePickerOutsideCloseProxy(this));
-
             InitializeDayNames();
             if (SelectedDateTime.HasValue)
             {
@@ -251,16 +254,6 @@
         }
 
         await base.OnAfterRenderAsync(firstRender);
-
-        if (_open)
-        {
-            await DatePickerInterop.ObservePosition(_panelId, _ref, _panelRef, "bottom", "start");
-            _positionObserverActive = true;
-        }
-        else
-        {
-            await StopPositionObserver();
-        }
     }
 
     private static string FormatDisplay(DateTime dt) => dt.ToString("yyyy-MM-dd hh:mm tt", CultureInfo.InvariantCulture);
@@ -300,6 +293,9 @@
         if (ParentValidation?.Status == ValidationStatus.Error)
             attributes["aria-invalid"] = "true";
 
+        attributes["aria-expanded"] = _open ? "true" : "false";
+        attributes["aria-controls"] = _panelId;
+
         // min/max intentionally omitted for text input (handled in panel)
 
         attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, OpenPanel);
@@ -310,12 +306,6 @@
         attributes["onchange"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleChange);
     }
 
-    private Task HandleContainerRefReady(ElementReference el)
-    {
-        _containerRef = el;
-        return Task.CompletedTask;
-    }
-
     private static Dictionary<string, object> GetContainerAttributes()
     {
         var attrs = new Dictionary<string, object>(2);
@@ -323,24 +313,6 @@
         {
             AppendClass(ref cls, "relative w-full quark-date-container q-date-container");
         });
-        return attrs;
-    }
-
-    private static Dictionary<string, object> BuildPanelAttributes()
-    {
-        var attrs = new Dictionary<string, object>(2);
-
-        BuildClassAttribute(attrs, (ref cls) =>
-        {
-            AppendClass(ref cls, "quark-calendar-panel q-calendar-panel");
-            AppendClass(ref cls, "fixed left-0 top-0 z-[20000] min-w-[18rem] rounded-md border bg-popover p-3 text-popover-foreground shadow-md");
-        });
-
-        BuildStyleAttribute(attrs, (ref sty) =>
-        {
-            AppendStyleDecl(ref sty, "visibility: hidden");
-        });
-
         return attrs;
     }
 
@@ -395,6 +367,14 @@
     {
         if (!_open)
             _open = true;
+        InvalidateRender();
+        Refresh();
+        return Task.CompletedTask;
+    }
+
+    private Task HandleOpenChanged(bool open)
+    {
+        _open = open;
         InvalidateRender();
         Refresh();
         return Task.CompletedTask;
@@ -501,21 +481,6 @@
         InvalidateRender();
         Refresh();
         return Task.CompletedTask;
-    }
-
-    private async Task StopPositionObserver()
-    {
-        if (!_positionObserverActive)
-            return;
-
-        await DatePickerInterop.StopObserving(_panelId);
-        _positionObserverActive = false;
-    }
-
-    protected override async ValueTask OnDisposeAsync()
-    {
-        _outsideRef?.Dispose();
-        await StopPositionObserver();
     }
 
     protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)

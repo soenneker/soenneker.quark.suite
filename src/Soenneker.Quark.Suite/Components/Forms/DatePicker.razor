@@ -1,6 +1,5 @@
 @using System.Globalization
 @using System.Linq.Expressions
-@using Microsoft.JSInterop
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Blazor.Utils.Ids
 
@@ -9,15 +8,18 @@
 @implements Soenneker.Quark.IValidationInput
 @implements IDatePicker
 
-@inject IDatePickerInterop DatePickerInterop
+<Popover Open="@_open"
+         OpenChanged="HandleOpenChanged">
+    <div @attributes="GetContainerAttributes()">
+        <PopoverAnchor>
+            <input @ref="_ref" type="text" value="@(SelectedDate.HasValue ? SelectedDate.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : "")" @attributes="BuildAttributes()" />
+        </PopoverAnchor>
 
-<div OnElementRefReady="HandleContainerRefReady" @attributes="GetContainerAttributes()">
-    <input @ref="_ref" type="text" value="@(SelectedDate.HasValue ? SelectedDate.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : "")" @attributes="BuildAttributes()" />
-
-    @if (_open)
-    {
-        <div class="fixed inset-0 z-[19990]" @onclick="ClosePanel"></div>
-        <div @ref="_panelRef" @attributes="BuildPanelAttributes()" @onclick:stopPropagation="true">
+        <PopoverContent Id="@_panelId"
+                        Side="bottom"
+                        Align="start"
+                        Class="@PanelClass"
+                        @attributes="PanelAttributes">
             <Calendar SelectedDate="SelectedDate"
                       SelectedDateChanged="HandleCalendarChanged"
                       DisplayMonth="_displayMonth"
@@ -25,9 +27,9 @@
                       Min="Min"
                       Max="Max"
                       Class="border-0 shadow-none p-0 min-w-0" />
-        </div>
-    }
-</div>
+        </PopoverContent>
+    </div>
+</Popover>
 
 @code {
 
@@ -88,13 +90,16 @@
     public object? ValidationValue => SelectedDate;
 
     private ElementReference _ref;
-    private ElementReference _panelRef;
-    private ElementReference _containerRef;
-    private DotNetObjectReference<DatePickerOutsideCloseProxy>? _outsideRef;
     private bool _open;
-    private bool _positionObserverActive;
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
     private readonly string _panelId = BlazorIdGenerator.New("quark-datepicker-panel");
+
+    private string PanelClass => "q-calendar-panel w-auto rounded-md border bg-popover p-0 text-popover-foreground shadow-md";
+
+    private IReadOnlyDictionary<string, object> PanelAttributes => new Dictionary<string, object>
+    {
+        ["data-slot"] = "date-picker-panel"
+    };
 
     private static DateOnly? Parse(ChangeEventArgs e)
     {
@@ -178,21 +183,10 @@
 
         if (firstRender)
         {
-            _outsideRef = DotNetObjectReference.Create(new DatePickerOutsideCloseProxy(this));
             if (SelectedDate.HasValue)
                 _displayMonth = new DateOnly(SelectedDate.Value.Year, SelectedDate.Value.Month, 1);
             else
                 _displayMonth = new DateOnly(DateOnly.FromDateTime(DateTime.Today).Year, DateOnly.FromDateTime(DateTime.Today).Month, 1);
-        }
-
-        if (_open)
-        {
-            await DatePickerInterop.ObservePosition(_panelId, _ref, _panelRef, "bottom", "start");
-            _positionObserverActive = true;
-        }
-        else
-        {
-            await StopPositionObserver();
         }
     }
 
@@ -230,6 +224,9 @@
         if (ParentValidation?.Status == ValidationStatus.Error)
             attributes["aria-invalid"] = "true";
 
+        attributes["aria-expanded"] = _open ? "true" : "false";
+        attributes["aria-controls"] = _panelId;
+
         // min/max intentionally omitted for text input (handled in panel)
 
         attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, OpenPanel);
@@ -238,12 +235,6 @@
         attributes["autocomplete"] = "off";
         attributes["oninput"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleInput);
         attributes["onchange"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleChange);
-    }
-
-    private Task HandleContainerRefReady(ElementReference el)
-    {
-        _containerRef = el;
-        return Task.CompletedTask;
     }
 
     private Dictionary<string, object> GetContainerAttributes()
@@ -256,27 +247,18 @@
         return attrs;
     }
 
-    private Dictionary<string, object> BuildPanelAttributes()
-    {
-        var attrs = new Dictionary<string, object>(2);
-        BuildClassAttribute(attrs, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-calendar-panel");
-            AppendClass(ref cls, "fixed left-0 top-0 z-[20000] w-auto rounded-md border bg-popover p-0 text-popover-foreground shadow-md");
-        });
-
-        BuildStyleAttribute(attrs, (ref sty) =>
-        {
-            AppendStyleDecl(ref sty, "visibility: hidden");
-        });
-
-        return attrs;
-    }
-
     private Task OpenPanel()
     {
         if (!_open)
             _open = true;
+        InvalidateRender();
+        Refresh();
+        return Task.CompletedTask;
+    }
+
+    private Task HandleOpenChanged(bool open)
+    {
+        _open = open;
         InvalidateRender();
         Refresh();
         return Task.CompletedTask;
@@ -320,21 +302,6 @@
         InvalidateRender();
         Refresh();
         return Task.CompletedTask;
-    }
-
-    private async Task StopPositionObserver()
-    {
-        if (!_positionObserverActive)
-            return;
-
-        await DatePickerInterop.StopObserving(_panelId);
-        _positionObserverActive = false;
-    }
-
-    protected override async ValueTask OnDisposeAsync()
-    {
-        _outsideRef?.Dispose();
-        await StopPositionObserver();
     }
 
     protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)

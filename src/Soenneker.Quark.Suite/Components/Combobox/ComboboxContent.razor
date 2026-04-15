@@ -1,16 +1,15 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
-@implements IAsyncDisposable
 
-@using Microsoft.JSInterop
-@inject IPopoverInterop PopoverInterop
-
-@if (ParentCombobox?.Open == true)
-{
-    <div @ref="_contentRef" @attributes="BuildAttributes()" @onclick:stopPropagation="true">
-        @ChildContent
-    </div>
-}
+<PopoverContent Side="@Side"
+                SideOffset="@SideOffset"
+                Align="@Align"
+                Id="@ResolvedContentId"
+                Class="@ContentClass"
+                Style="@ContentStyle"
+                @attributes="ContentAttributes">
+    @ChildContent
+</PopoverContent>
 
 @code {
     [CascadingParameter(Name = "ParentCombobox")]
@@ -28,85 +27,32 @@
     [Parameter]
     public int AlignOffset { get; set; }
 
-    private ElementReference _contentRef;
-    private DotNetObjectReference<PopoverOutsideCloseProxy>? _outsideRef;
-    private bool _positionObserverActive;
+    private string? ResolvedContentId => ParentCombobox?.ContentId;
 
-    private bool UseFloatingPositioning => ParentCombobox?.HasTriggerElement == true;
+    private string ContentClass =>
+        "q-combobox-content z-50 max-h-96 min-w-[8rem] overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2";
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private string ContentStyle =>
+        "min-width: var(--radix-popper-anchor-width); max-height: min(24rem, var(--radix-popper-available-height));" +
+        (AlignOffset == 0 ? string.Empty : $" margin-left: {AlignOffset}px;");
+
+    private IReadOnlyDictionary<string, object> ContentAttributes
     {
-        await base.OnAfterRenderAsync(firstRender);
-
-        if (firstRender)
-            _outsideRef = DotNetObjectReference.Create(new PopoverOutsideCloseProxy(CloseAsync));
-
-        if (ParentCombobox?.Open != true || ParentCombobox is null || !UseFloatingPositioning)
+        get
         {
-            await StopPositionObserver();
-            return;
-        }
-
-        if (_outsideRef is not null)
-            await PopoverInterop.ObservePosition(ParentCombobox.ContentId, ParentCombobox.TriggerElement, _contentRef, _outsideRef, Side, Align, SideOffset);
-        _positionObserverActive = true;
-    }
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-        attributes["data-slot"] = "combobox-content";
-        attributes["data-state"] = ParentCombobox?.Open == true ? "open" : "closed";
-        attributes["data-side"] = Side;
-        attributes["data-align"] = Align;
-        attributes["role"] = "listbox";
-        attributes["tabindex"] = -1;
-        attributes["aria-hidden"] = ParentCombobox?.Open == true ? "false" : "true";
-
-        if (ParentCombobox?.Multiple == true)
-            attributes["aria-multiselectable"] = "true";
-
-        if (ParentCombobox is not null)
-            attributes["id"] = ParentCombobox.ContentId;
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-combobox-content");
-            AppendClass(ref cls, "z-50 max-h-96 min-w-[8rem] overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md");
-            AppendClass(ref cls, "animate-in fade-in-0 zoom-in-95");
-            AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2");
-
-            if (UseFloatingPositioning)
+            var attributes = new Dictionary<string, object>
             {
-                AppendClass(ref cls, "fixed");
-            }
-            else
-            {
-                AppendClass(ref cls, "absolute mt-1");
-            }
-        });
+                ["data-slot"] = "combobox-content",
+                ["data-state"] = ParentCombobox?.Open == true ? "open" : "closed",
+                ["role"] = "listbox",
+                ["tabindex"] = -1,
+                ["aria-hidden"] = ParentCombobox?.Open == true ? "false" : "true"
+            };
 
-        if (UseFloatingPositioning)
-        {
-            BuildStyleAttribute(attributes, (ref sty) =>
-            {
-                AppendStyleDecl(ref sty, "top: 0");
-                AppendStyleDecl(ref sty, "left: 0");
-                AppendStyleDecl(ref sty, "visibility: hidden");
-                AppendStyleDecl(ref sty, "min-width: var(--quark-trigger-width)");
-                AppendStyleDecl(ref sty, "max-height: min(24rem, var(--quark-available-height))");
+            if (ParentCombobox?.Multiple == true)
+                attributes["aria-multiselectable"] = "true";
 
-                if (AlignOffset != 0)
-                    AppendStyleDecl(ref sty, $"margin-left: {AlignOffset}px");
-            });
-        }
-        else
-        {
-            var inlineStart = AlignOffset == 0 ? "0" : $"{AlignOffset}px";
-            attributes["style"] = Side == "bottom"
-                ? $"top: calc(100% + {SideOffset}px); left: {inlineStart};"
-                : $"bottom: calc(100% + {SideOffset}px); left: {inlineStart};";
+            return attributes;
         }
     }
 
@@ -120,24 +66,4 @@
         hc.Add(ParentCombobox?.Open ?? false);
     }
 
-    private async ValueTask StopPositionObserver()
-    {
-        if (!_positionObserverActive || ParentCombobox is null)
-            return;
-
-        await PopoverInterop.StopObserving(ParentCombobox.ContentId);
-        _positionObserverActive = false;
-    }
-
-    private Task CloseAsync()
-    {
-        return ParentCombobox?.SetOpen(false) ?? Task.CompletedTask;
-    }
-
-    public override async ValueTask DisposeAsync()
-    {
-        _outsideRef?.Dispose();
-        await StopPositionObserver();
-        await base.DisposeAsync();
-    }
 }

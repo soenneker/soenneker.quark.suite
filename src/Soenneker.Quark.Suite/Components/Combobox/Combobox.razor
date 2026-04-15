@@ -4,9 +4,12 @@
 @implements IAsyncDisposable
 
 <CascadingValue Name="ParentCombobox" Value="@this">
-    <div @attributes="BuildAttributes()">
-        @ChildContent
-    </div>
+    <Popover Open="@Open"
+             OpenChanged="HandlePopoverOpenChanged">
+        <div @attributes="BuildAttributes()">
+            @ChildContent
+        </div>
+    </Popover>
 </CascadingValue>
 
 @code {
@@ -55,6 +58,12 @@
     internal ElementReference TriggerElement => _triggerElement;
 
     internal IReadOnlyList<string> SelectedValues => Values ?? [];
+
+    private Task HandlePopoverOpenChanged(bool open)
+    {
+        Open = open;
+        return OpenChanged.InvokeAsync(open);
+    }
 
     internal void SetTriggerElement(ElementReference elementReference)
     {

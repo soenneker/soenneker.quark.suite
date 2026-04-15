@@ -1,21 +1,24 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 
-<div @ref="_wrapperRef" @attributes="BuildWrapperAttributes()">
-    @if (ChildContent is not null)
-    {
-        @ChildContent
-    }
-    <input value="@GetDisplayValue()"
-           @oninput="HandleInput"
-           @onfocus="HandleFocus"
-           @onkeydown="HandleKeyDown"
-           @onkeydown:preventDefault="_preventDefaultKeys"
-           @attributes="BuildAttributes()" />
-    <button type="button" @onclick="ToggleOpen" @attributes="BuildButtonAttributes()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-    </button>
-</div>
+<PopoverAnchor>
+    <div @ref="_wrapperRef" @attributes="BuildWrapperAttributes()">
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+        <input value="@GetDisplayValue()"
+               @oninput="HandleInput"
+               @onfocus="HandleFocus"
+               @onclick="HandleClickOpen"
+               @onkeydown="HandleKeyDown"
+               @onkeydown:preventDefault="_preventDefaultKeys"
+               @attributes="BuildAttributes()" />
+        <button type="button" @onclick="ToggleOpen" @attributes="BuildButtonAttributes()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+    </div>
+</PopoverAnchor>
 
 @code {
     [CascadingParameter(Name = "ParentCombobox")]
@@ -55,6 +58,12 @@
             await ParentCombobox.SetOpen(true);
 
         await base.HandleFocus(e);
+    }
+
+    private async Task HandleClickOpen(MouseEventArgs _)
+    {
+        if (ParentCombobox != null && !ParentCombobox.Disabled && !ParentCombobox.Open)
+            await ParentCombobox.SetOpen(true);
     }
 
     private async Task ToggleOpen(MouseEventArgs _)
