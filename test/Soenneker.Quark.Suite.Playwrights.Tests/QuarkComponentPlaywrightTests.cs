@@ -21,13 +21,14 @@ public sealed class QuarkComponentPlaywrightTests : PlaywrightUnitTest
         Logger.LogInformation("Initially loaded");
         await using var session = await CreateSession();
         var page = session.Page;
+        ILocator main = page.GetByRole(AriaRole.Main).First;
 
         await page.GotoAndWaitForReady(
             BaseUrl,
-            static p => p.Locator("main"),
+            static p => p.GetByRole(AriaRole.Main).First,
             expectedTitle: "The Foundation for your Design System - Quark Suite");
 
-        await Assertions.Expect(page.Locator("main")).ToBeVisibleAsync();
+        await Assertions.Expect(main).ToBeVisibleAsync();
         await Assertions.Expect(page).ToHaveTitleAsync("The Foundation for your Design System - Quark Suite");
     }
 
@@ -39,13 +40,14 @@ public sealed class QuarkComponentPlaywrightTests : PlaywrightUnitTest
 
         await using var session = await CreateSession();
         var page = session.Page;
+        ILocator main = page.GetByRole(AriaRole.Main).First;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}{route.TrimStart('/')}",
-            static p => p.Locator("main"),
+            static p => p.GetByRole(AriaRole.Main).First,
             expectedTitle: expectedTitle);
 
-        await Assertions.Expect(page.Locator("main")).ToBeVisibleAsync();
+        await Assertions.Expect(main).ToBeVisibleAsync();
         await Assertions.Expect(page).ToHaveTitleAsync(expectedTitle);
     }
 }

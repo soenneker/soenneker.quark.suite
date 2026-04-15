@@ -45,7 +45,7 @@ internal static class QuarkComponentSpecs
         yield return new object[] { "GridItem", "/grids", "Grid - Quark Suite" };
         yield return new object[] { "H5", "/code-editor", "Code Editor - Quark Suite" };
         yield return new object[] { "Header", "/header", "Header - Quark Suite" };
-        yield return new object[] { "Heading", "/headings-basic", "" };
+        yield return new object[] { "Heading", "/headings-basic", "Heading - Quark Suite" };
         yield return new object[] { "HoverCard", "/hover-cards", "Hover Cards - Quark Suite" };
         yield return new object[] { "IFrame", "/iframes", "IFrames - Quark Suite" };
         yield return new object[] { "InputOtp", "/input-otp", "Input OTP - Quark Suite" };
