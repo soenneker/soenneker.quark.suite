@@ -76,6 +76,117 @@ public sealed class QuarkFormsPlaywrightTests : PlaywrightUnitTest
     }
 
     [Fact]
+    public async ValueTask Toggle_group_demo_vertical_keyboard_navigation_and_disabled_items_behave_correctly()
+    {
+        await using BrowserSession session = await CreateSession();
+        IPage page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}toggle-groups",
+            static p => p.GetByRole(AriaRole.Radio, new PageGetByRoleOptions { Name = "Align top", Exact = true }),
+            expectedTitle: "Toggle Group - Quark Suite");
+
+        ILocator verticalSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use a vertical orientation when grouped actions need to fit into narrow side rails or inspector panels." }).First;
+        ILocator verticalGroup = verticalSection.GetByRole(AriaRole.Radiogroup).First;
+        ILocator top = verticalGroup.Locator("button[role='radio'][data-value='top']").First;
+        ILocator middle = verticalGroup.Locator("button[role='radio'][data-value='middle']").First;
+        ILocator bottom = verticalGroup.Locator("button[role='radio'][data-value='bottom']").First;
+
+        await top.FocusAsync();
+        await page.Keyboard.PressAsync("ArrowDown");
+        await Assertions.Expect(middle).ToBeFocusedAsync();
+
+        await page.Keyboard.PressAsync("ArrowDown");
+        await Assertions.Expect(bottom).ToBeFocusedAsync();
+        await Assertions.Expect(bottom).ToHaveAttributeAsync("tabindex", "0");
+        await Assertions.Expect(middle).ToHaveAttributeAsync("tabindex", "-1");
+
+        ILocator disabledSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Disable the entire group or individual items when a formatting choice is unavailable." }).First;
+        ILocator disabledGroups = disabledSection.GetByRole(AriaRole.Radiogroup);
+        ILocator disabledGroup = disabledGroups.Nth(0);
+        ILocator disabledItemGroup = disabledGroups.Nth(1);
+        ILocator disabledGroupLeft = disabledGroup.Locator("button[role='radio'][data-value='left']").First;
+        ILocator disabledGroupRight = disabledGroup.Locator("button[role='radio'][data-value='right']").First;
+        ILocator disabledItemCenter = disabledItemGroup.Locator("button[role='radio'][data-value='center']").First;
+        ILocator disabledItemRight = disabledItemGroup.Locator("button[role='radio'][data-value='right']").First;
+
+        await Assertions.Expect(disabledGroupRight).ToHaveAttributeAsync("disabled", "");
+        await disabledGroupRight.ClickAsync(new LocatorClickOptions { Force = true });
+        await Assertions.Expect(disabledGroupLeft).ToHaveAttributeAsync("aria-checked", "true");
+        await Assertions.Expect(disabledGroupRight).ToHaveAttributeAsync("aria-checked", "false");
+
+        await Assertions.Expect(disabledItemCenter).ToHaveAttributeAsync("disabled", "");
+        await Assertions.Expect(disabledItemCenter).ToHaveAttributeAsync("aria-checked", "true");
+        await disabledItemCenter.ClickAsync(new LocatorClickOptions { Force = true });
+        await Assertions.Expect(disabledItemCenter).ToHaveAttributeAsync("aria-checked", "true");
+
+        await disabledItemRight.ClickAsync();
+        await Assertions.Expect(disabledItemRight).ToHaveAttributeAsync("aria-checked", "true");
+        await Assertions.Expect(disabledItemCenter).ToHaveAttributeAsync("aria-checked", "false");
+    }
+
+    [Fact]
+    public async ValueTask Radio_group_demo_disabled_item_stays_unchecked_while_enabled_option_changes()
+    {
+        await using BrowserSession session = await CreateSession();
+        IPage page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}radiogroups",
+            static p => p.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Disabled radio options", Exact = true }),
+            expectedTitle: "Radio Group - Quark Suite");
+
+        ILocator disabledGroup = page.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Disabled radio options", Exact = true });
+        ILocator disabledOption = disabledGroup.GetByRole(AriaRole.Radio).Nth(0);
+        ILocator option2 = disabledGroup.GetByRole(AriaRole.Radio).Nth(1);
+        ILocator option3 = disabledGroup.GetByRole(AriaRole.Radio).Nth(2);
+
+        await Assertions.Expect(disabledOption).ToHaveAttributeAsync("disabled", "");
+        await Assertions.Expect(option2).ToHaveAttributeAsync("aria-checked", "true");
+
+        await disabledOption.ClickAsync(new LocatorClickOptions { Force = true });
+
+        await Assertions.Expect(disabledOption).ToHaveAttributeAsync("aria-checked", "false");
+        await Assertions.Expect(option2).ToHaveAttributeAsync("aria-checked", "true");
+
+        await option3.ClickAsync();
+
+        await Assertions.Expect(option3).ToHaveAttributeAsync("aria-checked", "true");
+        await Assertions.Expect(option2).ToHaveAttributeAsync("aria-checked", "false");
+    }
+
+    [Fact]
+    public async ValueTask Radio_group_form_demo_requires_selection_and_submits_selected_value()
+    {
+        await using BrowserSession session = await CreateSession();
+        IPage page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}radiogroups",
+            static p => p.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Notification type", Exact = true }),
+            expectedTitle: "Radio Group - Quark Suite");
+
+        ILocator formSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Form-style radio group with validation and submitted value preview." }).First;
+        ILocator submit = formSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Submit", Exact = true });
+        ILocator form = formSection.Locator("form");
+
+        await submit.ClickAsync();
+        await Assertions.Expect(form).ToContainTextAsync("You need to select a notification type.");
+
+        ILocator notificationGroup = page.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Notification type", Exact = true });
+        ILocator nothingRadio = notificationGroup.GetByRole(AriaRole.Radio).Nth(2);
+
+        await nothingRadio.ClickAsync();
+
+        await Assertions.Expect(form).Not.ToContainTextAsync("You need to select a notification type.");
+        await Assertions.Expect(nothingRadio).ToHaveAttributeAsync("aria-checked", "true");
+
+        await submit.ClickAsync();
+
+        await Assertions.Expect(formSection.Locator("pre")).ToContainTextAsync("\"type\": \"none\"");
+    }
+
+    [Fact]
     public async ValueTask Select_demo_updates_selection_and_closes_listbox()
     {
         await using BrowserSession session = await CreateSession();

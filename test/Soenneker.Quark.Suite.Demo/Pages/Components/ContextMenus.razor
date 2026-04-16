@@ -10,7 +10,9 @@
                          Code="@BasicCode"
                          CodeLanguage="razor">
                 <ContextMenu>
-                    <ContextMenuTrigger Class="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">
+                    <ContextMenuTrigger Id="context-menu-demo-trigger"
+                                        data-testid="context-menu-demo-trigger"
+                                        Class="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">
                         Right click here
                     </ContextMenuTrigger>
                     <ContextMenuContent>
@@ -75,7 +77,9 @@
                          Code="@SubmenuCode"
                          CodeLanguage="razor">
                 <ContextMenu>
-                    <ContextMenuTrigger Class="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">
+                    <ContextMenuTrigger Id="context-menu-submenu-trigger"
+                                        data-testid="context-menu-submenu-trigger"
+                                        Class="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">
                         Right click for more tools
                     </ContextMenuTrigger>
                     <ContextMenuContent>
@@ -111,7 +115,9 @@
                          Code="@CheckboxCode"
                          CodeLanguage="razor">
                 <ContextMenu>
-                    <ContextMenuTrigger Class="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">
+                    <ContextMenuTrigger Id="context-menu-checkbox-trigger"
+                                        data-testid="context-menu-checkbox-trigger"
+                                        Class="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">
                         Right click for view options
                     </ContextMenuTrigger>
                     <ContextMenuContent>
@@ -139,7 +145,9 @@
                          Code="@RadioCode"
                          CodeLanguage="razor">
                 <ContextMenu>
-                    <ContextMenuTrigger Class="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">
+                    <ContextMenuTrigger Id="context-menu-radio-trigger"
+                                        data-testid="context-menu-radio-trigger"
+                                        Class="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">
                         Right click for layout choices
                     </ContextMenuTrigger>
                     <ContextMenuContent>
@@ -170,7 +178,9 @@
                 <DirectionProvider Dir="rtl">
                     <Div class="text-right">
                         <ContextMenu>
-                            <ContextMenuTrigger Class="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">
+                            <ContextMenuTrigger Id="context-menu-rtl-trigger"
+                                                data-testid="context-menu-rtl-trigger"
+                                                Class="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">
                                 انقر بزر الماوس الأيمن لعرض الإجراءات
                             </ContextMenuTrigger>
                             <ContextMenuContent>
@@ -184,6 +194,52 @@
                         </ContextMenu>
                     </Div>
                 </DirectionProvider>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Context Menu In Dialog"
+                         Description="A context menu opened from inside modal dialog content should still be exposed and interactive."
+                         Code="@DialogCode"
+                         CodeLanguage="razor">
+                <Div Class="flex min-h-48 items-center justify-center">
+                    <Dialog>
+                        <DialogTrigger AsChild="true">
+                            <Button Variant="ButtonVariant.Outline">Open context menu dialog</Button>
+                        </DialogTrigger>
+
+                        <DialogContent Class="sm:max-w-md">
+                            <DialogHeader>
+                                <DialogTitle>Context menu dialog</DialogTitle>
+                                <DialogDescription>
+                                    Right click the nested surface to reveal context menu actions inside the dialog.
+                                </DialogDescription>
+                            </DialogHeader>
+
+                            <Div Class="flex justify-center">
+                                <ContextMenu>
+                                    <ContextMenuTrigger Id="context-menu-dialog-trigger"
+                                                        data-testid="context-menu-dialog-trigger"
+                                                        Class="flex h-[150px] w-[260px] items-center justify-center rounded-md border border-dashed text-sm">
+                                        Right click dialog surface
+                                    </ContextMenuTrigger>
+                                    <ContextMenuContent>
+                                        <Div Class="w-48">
+                                            <ContextMenuItem>Pin panel</ContextMenuItem>
+                                            <ContextMenuSub>
+                                                <ContextMenuSubTrigger>More actions</ContextMenuSubTrigger>
+                                                <ContextMenuSubContent Class="w-44">
+                                                    <ContextMenuItem>Duplicate view</ContextMenuItem>
+                                                    <ContextMenuItem>Developer Tools</ContextMenuItem>
+                                                </ContextMenuSubContent>
+                                            </ContextMenuSub>
+                                        </Div>
+                                    </ContextMenuContent>
+                                </ContextMenu>
+                            </Div>
+                        </DialogContent>
+                    </Dialog>
+                </Div>
             </DemoSection>
         </Section>
     </Div>
@@ -320,4 +376,38 @@
         </ContextMenuContent>
     </ContextMenu>
 </DirectionProvider>";
+
+    private const string DialogCode =
+@"<Dialog>
+    <DialogTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Open context menu dialog</Button>
+    </DialogTrigger>
+    <DialogContent Class=""sm:max-w-md"">
+        <DialogHeader>
+            <DialogTitle>Context menu dialog</DialogTitle>
+            <DialogDescription>
+                Right click the nested surface to reveal context menu actions inside the dialog.
+            </DialogDescription>
+        </DialogHeader>
+        <Div Class=""flex justify-center"">
+            <ContextMenu>
+                <ContextMenuTrigger Class=""flex h-[150px] w-[260px] items-center justify-center rounded-md border border-dashed text-sm"">
+                    Right click dialog surface
+                </ContextMenuTrigger>
+                <ContextMenuContent>
+                    <Div Class=""w-48"">
+                        <ContextMenuItem>Pin panel</ContextMenuItem>
+                        <ContextMenuSub>
+                            <ContextMenuSubTrigger>More actions</ContextMenuSubTrigger>
+                            <ContextMenuSubContent Class=""w-44"">
+                                <ContextMenuItem>Duplicate view</ContextMenuItem>
+                                <ContextMenuItem>Developer Tools</ContextMenuItem>
+                            </ContextMenuSubContent>
+                        </ContextMenuSub>
+                    </Div>
+                </ContextMenuContent>
+            </ContextMenu>
+        </Div>
+    </DialogContent>
+</Dialog>";
 }

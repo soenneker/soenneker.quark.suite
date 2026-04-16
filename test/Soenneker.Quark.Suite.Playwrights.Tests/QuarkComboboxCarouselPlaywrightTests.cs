@@ -60,7 +60,8 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
             static p => p.GetByPlaceholder("Add frameworks...").First,
             expectedTitle: "Combobox - Quark Suite");
 
-        ILocator input = page.GetByPlaceholder("Add frameworks...").First;
+        ILocator section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use chips plus an inline search input to select and remove multiple values from the same combobox." }).First;
+        ILocator input = section.GetByPlaceholder("Add frameworks...");
         await input.ClickAsync();
         await input.FillAsync("astro");
 
@@ -68,13 +69,15 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
         Assert.False(string.IsNullOrWhiteSpace(listboxId));
         ILocator listbox = page.Locator($"#{listboxId}");
         ILocator astro = listbox.Locator("[data-slot='combobox-item']").Filter(new LocatorFilterOptions { HasText = "Astro" }).First;
+        await Assertions.Expect(listbox).ToHaveAttributeAsync("data-state", "open");
+        await Assertions.Expect(listbox).ToHaveAttributeAsync("role", "listbox");
         await Assertions.Expect(astro).ToBeVisibleAsync();
-        await input.PressAsync("Enter");
+        await astro.ClickAsync();
 
-        ILocator selectedFrameworks = page.GetByText("Selected frameworks:", new PageGetByTextOptions { Exact = false }).First;
+        ILocator selectedFrameworks = section.GetByText("Selected frameworks:", new LocatorGetByTextOptions { Exact = false }).First;
         await Assertions.Expect(selectedFrameworks).ToContainTextAsync("Next.js, Astro");
 
-        ILocator astroChip = page.Locator("[data-slot='combobox-chip'][data-value='Astro']").First;
+        ILocator astroChip = section.Locator("[data-slot='combobox-chip'][data-value='Astro']").First;
         await Assertions.Expect(astroChip).ToBeVisibleAsync();
 
         await astroChip.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Remove selection", Exact = true }).ClickAsync();

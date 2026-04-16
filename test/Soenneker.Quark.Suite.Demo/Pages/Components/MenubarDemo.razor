@@ -121,12 +121,12 @@
                 <Div Class="rounded-xl border border-border p-4 overflow-x-auto">
                     <Menubar Class="w-max">
                         <MenubarMenu>
-                            <MenubarTrigger>Profiles</MenubarTrigger>
+                            <MenubarTrigger data-testid="menubar-radio-trigger">Profiles</MenubarTrigger>
                             <MenubarContent>
                                 <MenubarRadioGroup>
-                                    <MenubarRadioItem>Andy</MenubarRadioItem>
-                                    <MenubarRadioItem Selected="true">Benoit</MenubarRadioItem>
-                                    <MenubarRadioItem>Luis</MenubarRadioItem>
+                                    <MenubarRadioItem Selected="@IsAndyProfileSelected" SelectedChanged="@(selected => OnProfileSelected("andy", selected))">Andy</MenubarRadioItem>
+                                    <MenubarRadioItem Selected="@IsBenoitProfileSelected" SelectedChanged="@(selected => OnProfileSelected("benoit", selected))">Benoit</MenubarRadioItem>
+                                    <MenubarRadioItem Selected="@IsLuisProfileSelected" SelectedChanged="@(selected => OnProfileSelected("luis", selected))">Luis</MenubarRadioItem>
                                 </MenubarRadioGroup>
                             </MenubarContent>
                         </MenubarMenu>
@@ -143,10 +143,10 @@
                 <Div Class="rounded-xl border border-border p-4 overflow-x-auto">
                     <Menubar Class="w-max">
                         <MenubarMenu>
-                            <MenubarTrigger>View</MenubarTrigger>
+                            <MenubarTrigger data-testid="menubar-checkbox-trigger">View</MenubarTrigger>
                             <MenubarContent>
-                                <MenubarCheckboxItem>Always Show Bookmarks Bar</MenubarCheckboxItem>
-                                <MenubarCheckboxItem Checked="true">Always Show Full URLs</MenubarCheckboxItem>
+                                <MenubarCheckboxItem @bind-Checked="_showBookmarksBar">Always Show Bookmarks Bar</MenubarCheckboxItem>
+                                <MenubarCheckboxItem @bind-Checked="_showFullUrls">Always Show Full URLs</MenubarCheckboxItem>
                                 <MenubarSeparator />
                                 <MenubarItem Inset="true">Reload</MenubarItem>
                             </MenubarContent>
@@ -252,6 +252,19 @@
 </Div>
 
 @code {
+    private string _selectedProfile = "benoit";
+    private bool _showBookmarksBar;
+    private bool _showFullUrls = true;
+    private bool IsAndyProfileSelected => _selectedProfile == "andy";
+    private bool IsBenoitProfileSelected => _selectedProfile == "benoit";
+    private bool IsLuisProfileSelected => _selectedProfile == "luis";
+
+    private void OnProfileSelected(string profile, bool selected)
+    {
+        if (selected)
+            _selectedProfile = profile;
+    }
+
     private const string BasicCode =
 @"<Menubar>
     <MenubarMenu>

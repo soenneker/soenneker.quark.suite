@@ -128,6 +128,40 @@
                     </Div>
                 </DemoSection>
             </Section>
+
+            <Section Space="Space.Y.Is4">
+                <DemoSection Title="Tooltip In Dialog"
+                             Description="A tooltip opened from within modal dialog content should still be exposed and positioned correctly."
+                             Code="@DialogCode"
+                             CodeLanguage="razor">
+                    <Div Class="flex min-h-40 items-center justify-center">
+                        <Dialog>
+                            <DialogTrigger AsChild="true">
+                                <Button Variant="ButtonVariant.Outline">Open tooltip dialog</Button>
+                            </DialogTrigger>
+                            <DialogContent Class="sm:max-w-md">
+                                <DialogHeader>
+                                    <DialogTitle>Tooltip dialog</DialogTitle>
+                                    <DialogDescription>
+                                        Hover the nested trigger to reveal tooltip content inside the dialog.
+                                    </DialogDescription>
+                                </DialogHeader>
+
+                                <Div Class="flex justify-center">
+                                    <Tooltip>
+                                        <TooltipTrigger AsChild="true">
+                                            <Button Variant="ButtonVariant.Outline" AriaLabel="Show nested tooltip">Hover for tooltip</Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <Paragraph>Nested tooltip</Paragraph>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </Div>
+                            </DialogContent>
+                        </Dialog>
+                    </Div>
+                </DemoSection>
+            </Section>
         </Div>
     </TooltipProvider>
 </Div>
@@ -210,4 +244,29 @@
         </TooltipContent>
     </Tooltip>
 </DirectionProvider>";
+
+    private const string DialogCode =
+@"<Dialog>
+    <DialogTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Open tooltip dialog</Button>
+    </DialogTrigger>
+    <DialogContent Class=""sm:max-w-md"">
+        <DialogHeader>
+            <DialogTitle>Tooltip dialog</DialogTitle>
+            <DialogDescription>
+                Hover the nested trigger to reveal tooltip content inside the dialog.
+            </DialogDescription>
+        </DialogHeader>
+        <Div Class=""flex justify-center"">
+            <Tooltip>
+                <TooltipTrigger AsChild=""true"">
+                    <Button Variant=""ButtonVariant.Outline"" AriaLabel=""Show nested tooltip"">Hover for tooltip</Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <Paragraph>Nested tooltip</Paragraph>
+                </TooltipContent>
+            </Tooltip>
+        </Div>
+    </DialogContent>
+</Dialog>";
 }

@@ -73,9 +73,11 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
         await trigger.ClickAsync();
 
         ILocator dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Edit profile", Exact = true });
+        ILocator overlay = page.Locator("[data-slot='dialog-overlay'][data-state='open']").First;
         await Assertions.Expect(dialog).ToBeVisibleAsync();
+        await Assertions.Expect(overlay).ToBeVisibleAsync();
 
-        await ClickJustOutsideActiveDialogAsync(page, dialog);
+        await ClickBackdropAsync(page, dialog, overlay);
 
         await Assertions.Expect(dialog).Not.ToBeVisibleAsync();
 
@@ -83,9 +85,11 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
         await guardedTrigger.ClickAsync();
 
         ILocator guardedDialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Delete environment", Exact = true });
+        ILocator guardedOverlay = page.Locator("[data-slot='dialog-overlay'][data-state='open']").First;
         await Assertions.Expect(guardedDialog).ToBeVisibleAsync();
+        await Assertions.Expect(guardedOverlay).ToBeVisibleAsync();
 
-        await ClickJustOutsideActiveDialogAsync(page, guardedDialog);
+        await ClickBackdropAsync(page, guardedDialog, guardedOverlay);
 
         await Assertions.Expect(guardedDialog).ToBeVisibleAsync();
 
@@ -129,12 +133,27 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
         return dialog.EvaluateAsync<bool>("element => element.contains(document.activeElement)");
     }
 
-    private static async Task ClickJustOutsideActiveDialogAsync(IPage page, ILocator dialog)
+    private static async Task ClickBackdropAsync(IPage page, ILocator dialog, ILocator overlay)
     {
-        var box = await dialog.BoundingBoxAsync();
-        Assert.NotNull(box);
-        float x = box.X > 40 ? box.X - 20 : box.X + box.Width + 20;
-        float y = box.Y > 40 ? box.Y - 20 : box.Y + 20;
+        var dialogBox = await dialog.BoundingBoxAsync();
+        var overlayBox = await overlay.BoundingBoxAsync();
+
+        Assert.NotNull(dialogBox);
+        Assert.NotNull(overlayBox);
+
+        float x = overlayBox.X + 24;
+        float y = overlayBox.Y + 24;
+
+        bool topLeftHitsDialog = x >= dialogBox.X && x <= dialogBox.X + dialogBox.Width &&
+                                 y >= dialogBox.Y && y <= dialogBox.Y + dialogBox.Height;
+
+        if (topLeftHitsDialog)
+        {
+            x = overlayBox.X + overlayBox.Width - 24;
+            y = overlayBox.Y + overlayBox.Height - 24;
+        }
+
         await page.Mouse.ClickAsync(x, y);
     }
+
 }

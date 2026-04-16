@@ -107,6 +107,45 @@
                 </DirectionProvider>
             </DemoSection>
         </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Hover Card In Dialog"
+                         Description="A hover card opened from within modal dialog content should remain exposed and accessible."
+                         Code="@DialogCode"
+                         CodeLanguage="razor">
+                <Div Class="flex min-h-48 items-center justify-center">
+                    <Dialog>
+                        <DialogTrigger AsChild="true">
+                            <Button Variant="ButtonVariant.Outline">Open hover card dialog</Button>
+                        </DialogTrigger>
+
+                        <DialogContent Class="sm:max-w-md">
+                            <DialogHeader>
+                                <DialogTitle>Hover card dialog</DialogTitle>
+                                <DialogDescription>
+                                    Hover the nested trigger to expose hover card content inside the dialog.
+                                </DialogDescription>
+                            </DialogHeader>
+
+                            <Div Class="flex justify-center">
+                                <HoverCard OpenDelay="150" CloseDelay="150">
+                                    <HoverCardTrigger AsChild="true">
+                                        <Button Variant="ButtonVariant.Outline" AriaLabel="Show nested hover card">Hover for preview</Button>
+                                    </HoverCardTrigger>
+
+                                    <HoverCardContent Class="w-80">
+                                        <Div Space="Space.Y.Is1">
+                                            <Paragraph class="text-sm font-semibold">Nested preview</Paragraph>
+                                            <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Hover card content inside dialog</Paragraph>
+                                        </Div>
+                                    </HoverCardContent>
+                                </HoverCard>
+                            </Div>
+                        </DialogContent>
+                    </Dialog>
+                </Div>
+            </DemoSection>
+        </Section>
     </Div>
 </Div>
 
@@ -179,4 +218,32 @@
         </HoverCardContent>
     </HoverCard>
 </DirectionProvider>";
+
+    private const string DialogCode =
+@"<Dialog>
+    <DialogTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Open hover card dialog</Button>
+    </DialogTrigger>
+    <DialogContent Class=""sm:max-w-md"">
+        <DialogHeader>
+            <DialogTitle>Hover card dialog</DialogTitle>
+            <DialogDescription>
+                Hover the nested trigger to expose hover card content inside the dialog.
+            </DialogDescription>
+        </DialogHeader>
+        <Div Class=""flex justify-center"">
+            <HoverCard OpenDelay=""150"" CloseDelay=""150"">
+                <HoverCardTrigger AsChild=""true"">
+                    <Button Variant=""ButtonVariant.Outline"" AriaLabel=""Show nested hover card"">Hover for preview</Button>
+                </HoverCardTrigger>
+                <HoverCardContent Class=""w-80"">
+                    <Div Space=""Space.Y.Is1"">
+                        <Paragraph class=""text-sm font-semibold"">Nested preview</Paragraph>
+                        <Paragraph TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"">Hover card content inside dialog</Paragraph>
+                    </Div>
+                </HoverCardContent>
+            </HoverCard>
+        </Div>
+    </DialogContent>
+</Dialog>";
 }
