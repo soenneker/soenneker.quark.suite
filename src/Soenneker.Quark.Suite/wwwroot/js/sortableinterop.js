@@ -6,7 +6,7 @@ export function ensureAvailable() {
   }
 }
 
-export function initializeList(element, disabled, sort, animation, itemSelector, handleSelector, filterSelector, group, dotNetRef) {
+export function initializeList(element, disabled, sort, animation, forceFallback, itemSelector, handleSelector, filterSelector, group, dotNetRef) {
   if (!element) {
     return;
   }
@@ -14,12 +14,13 @@ export function initializeList(element, disabled, sort, animation, itemSelector,
   ensureAvailable();
   destroy(element);
 
-  const options = {
-    animation: animation ?? 150,
-    disabled: !!disabled,
-    sort: sort !== false,
-    draggable: itemSelector || "[data-sortable-item]",
-    onEnd: (evt) => {
+    const options = {
+        animation: animation ?? 150,
+        disabled: !!disabled,
+        sort: sort !== false,
+        forceFallback: forceFallback !== false,
+        draggable: itemSelector || "[data-sortable-item]",
+        onEnd: (evt) => {
       dotNetRef.invokeMethodAsync("HandleReorder", {
         oldIndex: evt.oldIndex ?? -1,
         newIndex: evt.newIndex ?? -1,
@@ -45,6 +46,7 @@ export function initializeList(element, disabled, sort, animation, itemSelector,
   }
 
   const instance = new window.Sortable(element, options);
+  element.__quarkSortable = instance;
   sortableInstances.set(element, instance);
 }
 
@@ -60,5 +62,6 @@ export function destroy(element) {
   }
 
   instance.destroy();
+  delete element.__quarkSortable;
   sortableInstances.delete(element);
 }

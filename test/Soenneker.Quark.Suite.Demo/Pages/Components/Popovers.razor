@@ -118,6 +118,23 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Custom Role"
+                         Description="Popover content can expose a non-dialog role when the surface behaves like a picker or listbox."
+                         Code="@CustomRoleCode"
+                         CodeLanguage="razor">
+                <Popover>
+                    <PopoverTrigger AsChild="true">
+                        <Button Variant="ButtonVariant.Outline">Open custom listbox</Button>
+                    </PopoverTrigger>
+                    <PopoverContent Class="w-56" role="listbox" aria-label="Framework choices">
+                        <Div role="option" aria-selected="false">Remix</Div>
+                        <Div role="option" aria-selected="true">Astro</Div>
+                    </PopoverContent>
+                </Popover>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
                          Description="Popover respects right-to-left direction when wrapped in `DirectionProvider`."
                          Code="@RtlCode"
@@ -184,9 +201,12 @@
                          Code="@ControlledCode"
                          CodeLanguage="razor">
                 <Div Class="flex flex-wrap items-start gap-3">
-                    <Button Variant="ButtonVariant.Outline" OnClick="TogglePopover">
+                    <Button Id="popover-controlled-toggle" Variant="ButtonVariant.Outline" OnClick="TogglePopoverAsync">
                         Toggle popover
                     </Button>
+                    <Span Id="popover-controlled-state" data-slot="controlled-open-state" Class="self-center text-sm text-muted-foreground">
+                        Open: @(_open ? "true" : "false")
+                    </Span>
                     <Popover Open="_open" OpenChanged="OnOpenChanged">
                         <PopoverTrigger AsChild="true">
                             <Button Variant="ButtonVariant.Outline">Edit dimensions</Button>
@@ -229,7 +249,7 @@
 @code {
     private bool _open;
 
-    private Task TogglePopover()
+    private Task TogglePopoverAsync(MouseEventArgs _)
     {
         _open = !_open;
         return Task.CompletedTask;
@@ -288,6 +308,17 @@
                 <Input Id=""form-height"" Value=""25px"" />
             </Field>
         </FieldGroup>
+    </PopoverContent>
+</Popover>";
+
+    private const string CustomRoleCode =
+@"<Popover DefaultOpen=""true"">
+    <PopoverTrigger AsChild=""true"">
+        <Button Variant=""ButtonVariant.Outline"">Open custom listbox</Button>
+    </PopoverTrigger>
+    <PopoverContent Class=""w-56"" role=""listbox"" aria-label=""Framework choices"">
+        <Div role=""option"" aria-selected=""false"">Remix</Div>
+        <Div role=""option"" aria-selected=""true"">Astro</Div>
     </PopoverContent>
 </Popover>";
 

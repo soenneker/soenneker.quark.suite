@@ -14,6 +14,7 @@ public sealed class QuarkPlaywrightFixture : PlaywrightFixture
             ProjectRelativePath = Path.Combine("test", "Soenneker.Quark.Suite.Demo", "Soenneker.Quark.Suite.Demo.csproj"),
             ApplicationName = "Quark demo",
             Restore = false,
+            BuildConfiguration = "Release",
             ReuseBrowserContextAcrossSessions = false,
             ReusePageAcrossSessions = false
         };

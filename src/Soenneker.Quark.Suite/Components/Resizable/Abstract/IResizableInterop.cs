@@ -17,6 +17,17 @@ public interface IResizableInterop : IAsyncDisposable
     ValueTask Initialize(CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Registers a handle element for synchronous browser-side drag activation.
+    /// </summary>
+    ValueTask RegisterHandle(ElementReference handle, ElementReference group, string orientation,
+        DotNetObjectReference<ResizablePanelGroup> callbackReference, int handleIndex, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Unregisters a previously-registered handle element.
+    /// </summary>
+    ValueTask UnregisterHandle(ElementReference handle, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Starts document-level drag tracking for the supplied handle.
     /// </summary>
     ValueTask StartDrag(ElementReference group, long pointerId, double clientX, double clientY, string orientation,

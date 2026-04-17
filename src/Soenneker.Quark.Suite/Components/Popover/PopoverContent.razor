@@ -2,8 +2,6 @@
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
-@implements IAsyncDisposable
-
 <BradixPopoverPortal>
     <BradixPopoverContent Id="@ResolvedContentId"
                           Side="@ResolvedSide"
@@ -40,8 +38,7 @@
     [Parameter]
     public int SideOffset { get; set; } = 4;
 
-    private PopoverContext? _subscribedContext;
-    private string? ResolvedContentId => Context?.ContentId ?? BradixPopover?.ContentId;
+    private string? ResolvedContentId => string.IsNullOrWhiteSpace(Id) ? BradixPopover?.ContentId : Id;
 
     private BradixSide ResolvedSide =>
         Side.ToLowerInvariant() switch
@@ -60,27 +57,19 @@
             _ => BradixAlignment.Center
         };
 
-    private IReadOnlyDictionary<string, object> ContentAttributes => BuildAttributes();
+    private IReadOnlyDictionary<string, object> ContentAttributes => BuildContentAttributes();
 
-    protected override void OnParametersSet()
+    private IReadOnlyDictionary<string, object> BuildContentAttributes()
     {
-        base.OnParametersSet();
-
-        if (!ReferenceEquals(_subscribedContext, Context))
-        {
-            if (_subscribedContext is not null)
-                _subscribedContext.StateChanged -= OnContextStateChanged;
-
-            _subscribedContext = Context;
-
-            if (_subscribedContext is not null)
-                _subscribedContext.StateChanged += OnContextStateChanged;
-        }
-    }
-
-    private async void OnContextStateChanged()
-    {
-        await RefreshOffThread();
+        Dictionary<string, object> attributes = new(BuildAttributes());
+        attributes.Remove("id");
+        attributes.Remove("aria-hidden");
+        attributes.Remove("data-state");
+        attributes.Remove("data-side");
+        attributes.Remove("data-align");
+        attributes.Remove("onmouseenter");
+        attributes.Remove("onmouseleave");
+        return attributes;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -93,13 +82,10 @@
 
         if (Context is not null)
         {
-            if (Context.HasTitle)
-            {
+            if (!attributes.ContainsKey("aria-labelledby") && !attributes.ContainsKey("aria-label"))
                 attributes["aria-labelledby"] = Context.TitleId;
-                attributes.Remove("aria-label");
-            }
 
-            if (Context.HasDescription)
+            if (!attributes.ContainsKey("aria-describedby"))
                 attributes["aria-describedby"] = Context.DescriptionId;
         }
 
@@ -121,19 +107,8 @@
         hc.Add(CloseOnEscape);
         hc.Add(Context?.Modal ?? false);
         hc.Add(BradixPopover?.CurrentOpen);
-        hc.Add(Context?.HasTitle);
-        hc.Add(Context?.HasDescription);
+        hc.Add(ResolvedContentId);
         hc.Add(Context?.TitleId);
         hc.Add(Context?.DescriptionId);
-    }
-
-    public override async ValueTask DisposeAsync()
-    {
-        if (_subscribedContext is not null)
-        {
-            _subscribedContext.StateChanged -= OnContextStateChanged;
-            _subscribedContext = null;
-        }
-        await base.DisposeAsync();
     }
 }

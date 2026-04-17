@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
@@ -36,6 +37,7 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(dialog).ToHaveAttributeAsync("aria-modal", "true");
         await Assertions.Expect(dialog).ToHaveAttributeAsync("data-state", "open");
         await Assertions.Expect(overlay).ToHaveAttributeAsync("data-state", "open");
+        Assert.True(await WaitForDialogTabBoundaryAsync(dialog, first: true));
 
         bool renderedOutsideMain = await page.EvaluateAsync<bool>(
             "() => {" +
@@ -46,11 +48,11 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
 
         Assert.True(renderedOutsideMain);
 
-        for (var i = 0; i < 6; i++)
-        {
-            await page.Keyboard.PressAsync("Tab");
-            Assert.True(await FocusIsWithinAsync(dialog));
-        }
+        await page.Keyboard.PressAsync("Shift+Tab");
+        Assert.True(await WaitForDialogTabBoundaryAsync(dialog, first: false));
+
+        await page.Keyboard.PressAsync("Tab");
+        Assert.True(await WaitForDialogTabBoundaryAsync(dialog, first: true));
 
         await page.Keyboard.PressAsync("Escape");
 
@@ -77,7 +79,7 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(dialog).ToBeVisibleAsync();
         await Assertions.Expect(overlay).ToBeVisibleAsync();
 
-        await ClickBackdropAsync(page, dialog, overlay);
+        await ClickBackdropAsync(page, dialog);
 
         await Assertions.Expect(dialog).Not.ToBeVisibleAsync();
 
@@ -89,7 +91,7 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(guardedDialog).ToBeVisibleAsync();
         await Assertions.Expect(guardedOverlay).ToBeVisibleAsync();
 
-        await ClickBackdropAsync(page, guardedDialog, guardedOverlay);
+        await ClickBackdropAsync(page, guardedDialog);
 
         await Assertions.Expect(guardedDialog).ToBeVisibleAsync();
 
@@ -133,27 +135,113 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
         return dialog.EvaluateAsync<bool>("element => element.contains(document.activeElement)");
     }
 
-    private static async Task ClickBackdropAsync(IPage page, ILocator dialog, ILocator overlay)
+    private static async Task<bool> WaitForFocusWithinAsync(ILocator dialog, int attempts = 10)
     {
-        var dialogBox = await dialog.BoundingBoxAsync();
-        var overlayBox = await overlay.BoundingBoxAsync();
-
-        Assert.NotNull(dialogBox);
-        Assert.NotNull(overlayBox);
-
-        float x = overlayBox.X + 24;
-        float y = overlayBox.Y + 24;
-
-        bool topLeftHitsDialog = x >= dialogBox.X && x <= dialogBox.X + dialogBox.Width &&
-                                 y >= dialogBox.Y && y <= dialogBox.Y + dialogBox.Height;
-
-        if (topLeftHitsDialog)
+        for (var i = 0; i < attempts; i++)
         {
-            x = overlayBox.X + overlayBox.Width - 24;
-            y = overlayBox.Y + overlayBox.Height - 24;
+            if (await FocusIsWithinAsync(dialog))
+                return true;
+
+            await Task.Delay(25);
         }
 
-        await page.Mouse.ClickAsync(x, y);
+        return false;
+    }
+
+    private static Task<bool> ActiveElementMatchesDialogTabBoundaryAsync(ILocator dialog, bool first)
+    {
+        return dialog.EvaluateAsync<bool>(
+            @"(element, isFirst) => {
+                const selector = [
+                    'button:not([disabled])',
+                    '[href]',
+                    'input:not([disabled]):not([type=""hidden""])',
+                    'select:not([disabled])',
+                    'textarea:not([disabled])',
+                    '[tabindex]:not([tabindex=""-1""])'
+                ].join(',');
+
+                const tabbables = Array.from(element.querySelectorAll(selector)).filter(node => {
+                    if (!(node instanceof HTMLElement)) {
+                        return false;
+                    }
+
+                    if (node.getAttribute('aria-hidden') === 'true') {
+                        return false;
+                    }
+
+                    const style = window.getComputedStyle(node);
+                    if (style.display === 'none' || style.visibility === 'hidden') {
+                        return false;
+                    }
+
+                    return node.getClientRects().length > 0;
+                });
+
+                if (tabbables.length === 0) {
+                    return false;
+                }
+
+                const boundary = isFirst ? tabbables[0] : tabbables[tabbables.length - 1];
+                return document.activeElement === boundary;
+            }",
+            first);
+    }
+
+    private static async Task<bool> WaitForDialogTabBoundaryAsync(ILocator dialog, bool first, int attempts = 12)
+    {
+        for (var i = 0; i < attempts; i++)
+        {
+            if (await ActiveElementMatchesDialogTabBoundaryAsync(dialog, first))
+                return true;
+
+            await Task.Delay(25);
+        }
+
+        return false;
+    }
+
+    private static async Task<string> ClickBackdropAsync(IPage page, ILocator dialog)
+    {
+        string rectJson = await dialog.EvaluateAsync<string>(
+            "element => {" +
+            "const rect = element.getBoundingClientRect();" +
+            "return JSON.stringify({ x: rect.x, y: rect.y, width: rect.width, height: rect.height });" +
+            "}");
+
+        using JsonDocument document = JsonDocument.Parse(rectJson);
+        JsonElement rect = document.RootElement;
+
+        float x = rect.GetProperty("x").GetSingle();
+        float y = rect.GetProperty("y").GetSingle();
+        float width = rect.GetProperty("width").GetSingle();
+
+        int viewportWidth = page.ViewportSize?.Width ?? 1280;
+
+        float clickX = x > 40 ? x - 20 : x + width + 20;
+        if (clickX < 8)
+            clickX = 8;
+        else if (clickX > viewportWidth - 8)
+            clickX = viewportWidth - 8;
+
+        float clickY = y > 40 ? y - 20 : y + 20;
+        if (clickY < 8)
+            clickY = 8;
+
+        string pointJson = JsonSerializer.Serialize(new { x = clickX, y = clickY });
+        string targetDebug = await page.EvaluateAsync<string>(
+            "(json) => {" +
+            "const point = JSON.parse(json);" +
+            "const element = document.elementFromPoint(point.x, point.y);" +
+            "if (!element) return 'null';" +
+            "const id = element.id ?? '';" +
+            "const slot = element.getAttribute('data-slot') ?? '';" +
+            "return `${element.tagName.toLowerCase()}#${id}[data-slot=${slot}] class=${element.className}`;" +
+            "}",
+            pointJson);
+
+        await page.Mouse.ClickAsync(clickX, clickY, new MouseClickOptions { Button = MouseButton.Left });
+        return $"rect={rectJson}; click=({clickX}, {clickY}); target={targetDebug}";
     }
 
 }

@@ -244,6 +244,14 @@
                          Description="Collapsible items let you keep the summary readable while preserving detailed implementation notes."
                          Code="@TimelineExpandableCode"
                          CodeLanguage="razor">
+                <Div class="mb-4 flex items-center justify-between gap-3 rounded-md border border-dashed px-4 py-3">
+                    <Paragraph Margin="Margin.Is0" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                        Parent render count: @_timelineRenderCount
+                    </Paragraph>
+                    <Button Id="timeline-rerender" Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="TriggerTimelineRerender">
+                        Re-render timeline
+                    </Button>
+                </Div>
                 <Timeline Align="TimelineAlign.Left">
                     <TimelineItem IsCollapsible="true" DefaultOpen="true">
                         <IconContent>
@@ -301,6 +309,8 @@
 </Div>
 
 @code {
+    private int _timelineRenderCount;
+
     private const string TimelineDeploymentCode =
 @"<Timeline Align=""TimelineAlign.Center"">
     <TimelineItem Title=""Step"" Time=""8:45 AM"" Description=""Details..."" Status=""TimelineStatus.InProgress"" />
@@ -327,4 +337,10 @@
         <DetailContent>...</DetailContent>
     </TimelineItem>
 </Timeline>";
+
+    private Task TriggerTimelineRerender()
+    {
+        _timelineRenderCount++;
+        return Task.CompletedTask;
+    }
 }

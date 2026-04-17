@@ -5,6 +5,7 @@
 @using System.Text.RegularExpressions
 
 <BradixOneTimePasswordField Value="@OtpValue"
+                            DefaultValue="@DefaultOtpValue"
                             ValueChanged="HandleValueChanged"
                             AutoComplete="@AutoComplete"
                             AutoFocus="@AutoFocus"
@@ -26,7 +27,13 @@
     /// Gets or sets the OTP value.
     /// </summary>
     [Parameter]
-    public string OtpValue { get; set; } = "";
+    public string? OtpValue { get; set; }
+
+    /// <summary>
+    /// Gets or sets the initial OTP value for uncontrolled usage.
+    /// </summary>
+    [Parameter]
+    public string? DefaultOtpValue { get; set; }
 
     /// <summary>
     /// Gets or sets the callback when the OTP value changes.
@@ -88,10 +95,14 @@
         if (sanitized.Length > Length)
             sanitized = sanitized[..Length];
 
-        OtpValue = sanitized;
+        if (OtpValue is not null)
+        {
+            OtpValue = sanitized;
+            InvalidateRender();
+            Refresh();
+        }
+
         await OtpValueChanged.InvokeAsync(sanitized);
-        InvalidateRender();
-        Refresh();
     }
 
     private IReadOnlyDictionary<string, object> BuildRootAttributes()
@@ -127,6 +138,7 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(OtpValue);
+        hc.Add(DefaultOtpValue);
         hc.Add(Length);
         hc.Add(Pattern);
         hc.Add(InputMode);

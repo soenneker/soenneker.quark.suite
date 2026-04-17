@@ -3,6 +3,7 @@
 @inherits Soenneker.Quark.Element
 
 <BradixCollapsible Open="@Open"
+                   DefaultOpen="@DefaultOpen"
                    Disabled="@Disabled"
                    OpenChanged="HandleOpenChanged"
                    AdditionalAttributes="@RootAttributes">
@@ -11,7 +12,10 @@
 
 @code {
     [Parameter]
-    public bool Open { get; set; }
+    public bool? Open { get; set; }
+
+    [Parameter]
+    public bool DefaultOpen { get; set; }
 
     [Parameter]
     public EventCallback<bool> OpenChanged { get; set; }
@@ -22,9 +26,13 @@
 
     private Task HandleOpenChanged(bool open)
     {
-        Open = open;
-        InvalidateRender();
-        Refresh();
+        if (Open.HasValue)
+        {
+            Open = open;
+            InvalidateRender();
+            Refresh();
+        }
+
         return OpenChanged.InvokeAsync(open);
     }
 
@@ -56,6 +64,7 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Open);
+        hc.Add(DefaultOpen);
         hc.Add(Disabled);
     }
 }

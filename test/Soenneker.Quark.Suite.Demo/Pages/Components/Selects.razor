@@ -123,6 +123,34 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Native Form"
+                         Description="Required select participates in native form submission through the hidden select bridge."
+                         Code="@NativeFormCode"
+                         CodeLanguage="razor">
+                <form class="w-2/3 space-y-6" data-testid="select-native-form" @onsubmit="HandleNativeFormSubmit" @onsubmit:preventDefault="true">
+                    <Field>
+                        <FieldLabel>Framework</FieldLabel>
+                        <Select TValue="string"
+                                Name="framework"
+                                Required="true"
+                                @bind-SelectedValue="_nativeFormValue">
+                            <SelectTrigger>
+                                <SelectValue Placeholder="Select a framework" />
+                            </SelectTrigger>
+                            <SelectContent ContentPosition="popper">
+                                <SelectItem TValue="string" ItemValue="@("astro")" Text="Astro" />
+                                <SelectItem TValue="string" ItemValue="@("next")" Text="Next.js" />
+                                <SelectItem TValue="string" ItemValue="@("sveltekit")" Text="SvelteKit" />
+                            </SelectContent>
+                        </Select>
+                    </Field>
+                    <Button Type="ButtonType.Submit">Submit native form</Button>
+                    <pre class="rounded-lg bg-neutral-950 p-4 text-sm text-white" data-testid="select-native-form-result">@_nativeFormSubmission</pre>
+                </form>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <Div Space="Space.Y.Is2">
                 <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
                 <Paragraph TextColor="TextColor.MutedForeground">
@@ -185,8 +213,9 @@
                         <SelectSeparator />
                         <SelectGroup>
                             <SelectLabel>Vegetables</SelectLabel>
-                            <SelectItem TValue="string" ItemValue="@("carrot")" Text="Carrot" />
+                            <SelectItem TValue="string" ItemValue="@("carrot")" Text="Carrot" Disabled="true" />
                             <SelectItem TValue="string" ItemValue="@("broccoli")" Text="Broccoli" />
+                            <SelectItem TValue="string" ItemValue="@("courgette")" Text="Courgette" />
                             <SelectItem TValue="string" ItemValue="@("spinach")" Text="Spinach" />
                         </SelectGroup>
                     </SelectContent>
@@ -304,9 +333,11 @@
     private string? _selectedTimezone;
     private string? _selectedRtlFruit;
     private string? _selectedDepartment;
+    private string? _nativeFormValue;
     private readonly SelectFormModel _formModel = new();
     private bool _showFormError;
     private string? _formMessage;
+    private string _nativeFormSubmission = "No submission yet.";
 
     private const string DemoCode =
 @"<Select TValue=""string"" @bind-SelectedValue=""_selectedFruit"">
@@ -373,6 +404,24 @@
     <Button Type=""ButtonType.Submit"">Submit</Button>
 </EditForm>";
 
+    private const string NativeFormCode =
+@"<form class=""w-2/3 space-y-6"" @onsubmit=""HandleNativeFormSubmit"">
+    <Field>
+        <FieldLabel>Framework</FieldLabel>
+        <Select TValue=""string"" Name=""framework"" Required=""true"" @bind-SelectedValue=""_nativeFormValue"">
+            <SelectTrigger>
+                <SelectValue Placeholder=""Select a framework"" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem TValue=""string"" ItemValue=""@(""astro"")"" Text=""Astro"" />
+                <SelectItem TValue=""string"" ItemValue=""@(""next"")"" Text=""Next.js"" />
+                <SelectItem TValue=""string"" ItemValue=""@(""sveltekit"")"" Text=""SvelteKit"" />
+            </SelectContent>
+        </Select>
+    </Field>
+    <Button Type=""ButtonType.Submit"">Submit native form</Button>
+</form>";
+
     private const string AlignItemCode =
 @"<Div class=""grid gap-4 md:grid-cols-2"">
     <Select TValue=""string"" @bind-SelectedValue=""_selectedAlignedFruit"">
@@ -416,8 +465,9 @@
         <SelectSeparator />
         <SelectGroup>
             <SelectLabel>Vegetables</SelectLabel>
-            <SelectItem TValue=""string"" ItemValue=""@(""carrot"")"" Text=""Carrot"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""carrot"")"" Text=""Carrot"" Disabled=""true"" />
             <SelectItem TValue=""string"" ItemValue=""@(""broccoli"")"" Text=""Broccoli"" />
+            <SelectItem TValue=""string"" ItemValue=""@(""courgette"")"" Text=""Courgette"" />
             <SelectItem TValue=""string"" ItemValue=""@(""spinach"")"" Text=""Spinach"" />
         </SelectGroup>
     </SelectContent>
@@ -509,5 +559,10 @@
                           "email": "{{_formModel.Email}}"
                         }
                         """;
+    }
+
+    private void HandleNativeFormSubmit()
+    {
+        _nativeFormSubmission = $"framework={_nativeFormValue}";
     }
 }

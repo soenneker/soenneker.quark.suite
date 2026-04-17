@@ -24,6 +24,9 @@ public abstract class CancellableElement : CancellableComponent, ICancellableEle
     public string? AriaLabel { get; set; }
 
     [Parameter]
+    public string? AriaLabelledBy { get; set; }
+
+    [Parameter]
     public string? AriaDescribedBy { get; set; }
 
     private RenderFragment? _lastChildContentRef;
@@ -42,6 +45,9 @@ public abstract class CancellableElement : CancellableComponent, ICancellableEle
         if (AriaLabel is not null)
             attrs["aria-label"] = AriaLabel;
 
+        if (AriaLabelledBy is not null)
+            attrs["aria-labelledby"] = AriaLabelledBy;
+
         if (AriaDescribedBy is not null)
             attrs["aria-describedby"] = AriaDescribedBy;
     }
@@ -54,6 +60,7 @@ public abstract class CancellableElement : CancellableComponent, ICancellableEle
         hc.Add(TabIndex);
         hc.Add(Role);
         hc.Add(AriaLabel);
+        hc.Add(AriaLabelledBy);
         hc.Add(AriaDescribedBy);
     }
 

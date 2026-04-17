@@ -109,4 +109,70 @@ public sealed class QuarkDatePickerPlaywrightTests : PlaywrightUnitTest
 
         await Assertions.Expect(page.Locator(".q-calendar-panel")).ToHaveCountAsync(0);
     }
+
+    [Fact]
+    public async ValueTask Reusable_date_picker_reopens_on_the_month_of_a_typed_value()
+    {
+        await using BrowserSession session = await CreateSession();
+        IPage page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}datepickers",
+            static p => p.GetByText("DatePicker component", new PageGetByTextOptions { Exact = true }),
+            expectedTitle: "Date Pickers - Quark Suite");
+
+        ILocator section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "DatePicker component" }).First;
+        ILocator input = section.GetByTestId("component-date-picker");
+        ILocator valueChip = section.GetByText("Selected:", new LocatorGetByTextOptions { Exact = false }).First;
+
+        await section.ScrollIntoViewIfNeededAsync();
+        await input.FillAsync("2032-12-24");
+        await input.PressAsync("Tab");
+
+        await Assertions.Expect(valueChip).ToContainTextAsync("2032-12-24");
+
+        await input.ClickAsync();
+
+        ILocator calendar = page.Locator("[data-slot='calendar']").Last;
+        await Assertions.Expect(calendar).ToBeVisibleAsync();
+        await Assertions.Expect(calendar.GetByText("December 2032", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
+        await Assertions.Expect(calendar.Locator("[data-day='2032-12-24'][data-selected-single='true']")).ToBeVisibleAsync();
+    }
+
+    [Fact]
+    public async ValueTask Reusable_date_picker_tracks_external_value_changes_and_clear_actions()
+    {
+        await using BrowserSession session = await CreateSession();
+        IPage page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}datepickers",
+            static p => p.GetByText("DatePicker component", new PageGetByTextOptions { Exact = true }),
+            expectedTitle: "Date Pickers - Quark Suite");
+
+        ILocator section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "DatePicker component" }).First;
+        ILocator input = section.GetByTestId("component-date-picker");
+        ILocator launchButton = section.GetByTestId("component-date-launch");
+        ILocator clearButton = section.GetByTestId("component-date-clear");
+        ILocator valueChip = section.GetByText("Selected:", new LocatorGetByTextOptions { Exact = false }).First;
+
+        await section.ScrollIntoViewIfNeededAsync();
+        await launchButton.ClickAsync();
+
+        await Assertions.Expect(input).ToHaveValueAsync("2030-01-15");
+        await Assertions.Expect(valueChip).ToContainTextAsync("2030-01-15");
+
+        await input.ClickAsync();
+
+        ILocator calendar = page.Locator("[data-slot='calendar']").Last;
+        await Assertions.Expect(calendar).ToBeVisibleAsync();
+        await Assertions.Expect(calendar.GetByText("January 2030", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
+        await Assertions.Expect(calendar.Locator("[data-day='2030-01-15'][data-selected-single='true']")).ToBeVisibleAsync();
+
+        await clearButton.ClickAsync();
+
+        await Assertions.Expect(input).ToHaveValueAsync(string.Empty);
+        await Assertions.Expect(valueChip).ToContainTextAsync("Selected:");
+        await Assertions.Expect(valueChip).Not.ToContainTextAsync("2030-01-15");
+    }
 }

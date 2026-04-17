@@ -97,6 +97,7 @@
         attributes["role"] = "tab";
         attributes["id"] = StepId;
         attributes["aria-selected"] = Active ? "true" : "false";
+        attributes["aria-disabled"] = Disabled ? "true" : "false";
         attributes["tabindex"] = Active ? 0 : -1;
         if (PanelId is not null)
             attributes["aria-controls"] = PanelId;
@@ -116,7 +117,7 @@
 
     private string? GetHref()
     {
-        return Name.HasContent() ? $"#{Name}" : null;
+        return IsClickable && Name.HasContent() ? $"#{Name}" : null;
     }
 
     private async Task HandleStepClick(MouseEventArgs args)

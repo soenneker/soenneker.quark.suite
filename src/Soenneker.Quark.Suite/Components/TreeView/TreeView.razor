@@ -2,6 +2,7 @@
 @namespace Soenneker.Quark
 
 @using Soenneker.Blazor.Extensions.EventCallback
+@using System.Linq
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Name="ParentTreeView" Value="@this" IsFixed="true">
@@ -38,6 +39,7 @@
 @code {
     private readonly TreeViewState<TNode> _state = new() { SelectedNodes = new List<TNode>() };
     private List<TreeViewNodeState<TNode>> _rootNodeStates = [];
+    private readonly Dictionary<TNode, Task<IReadOnlyList<TNode>>> _childNodeLoadTasks = new(EqualityComparer<TNode>.Default);
 
     private int _nodesKey;
     private int _expandedKey;
@@ -99,7 +101,8 @@
         var expandedKey = HashSeq(ExpandedNodes);
         var selectedKey = HashSeq(SelectedNodes);
 
-        var rebuild = nodesKey != _nodesKey || expandedKey != _expandedKey;
+        var rebuild = nodesKey != _nodesKey;
+        var expandedChanged = expandedKey != _expandedKey;
 
         _nodesKey = nodesKey;
         _expandedKey = expandedKey;
@@ -108,6 +111,11 @@
         if (rebuild)
         {
             await EnsureNodesLoaded();
+            InvalidateRender();
+        }
+        else if (expandedChanged)
+        {
+            SyncExpandedState(_rootNodeStates, ExpandedNodes);
             InvalidateRender();
         }
 
@@ -198,6 +206,31 @@
         await RefreshOffThread();
     }
 
+    internal async ValueTask<IReadOnlyList<TNode>> LoadChildrenDeduped(TNode node, Func<TNode, Task<IEnumerable<TNode>>> loader)
+    {
+        if (_childNodeLoadTasks.TryGetValue(node, out Task<IReadOnlyList<TNode>>? existing))
+            return await existing;
+
+        Task<IReadOnlyList<TNode>> task = LoadChildrenCore(node, loader);
+        _childNodeLoadTasks[node] = task;
+
+        try
+        {
+            return await task;
+        }
+        finally
+        {
+            if (_childNodeLoadTasks.TryGetValue(node, out Task<IReadOnlyList<TNode>>? current) && ReferenceEquals(current, task))
+                _childNodeLoadTasks.Remove(node);
+        }
+    }
+
+    private static async Task<IReadOnlyList<TNode>> LoadChildrenCore(TNode node, Func<TNode, Task<IEnumerable<TNode>>> loader)
+    {
+        IEnumerable<TNode>? children = await loader(node);
+        return children?.ToList() ?? [];
+    }
+
     private static int HashSeq(IEnumerable<TNode>? seq)
     {
         if (seq is null)
@@ -212,6 +245,17 @@
             hc.Add(n);
 
         return hc.ToHashCode();
+    }
+
+    private static void SyncExpandedState(ICollection<TreeViewNodeState<TNode>> nodeStates, IList<TNode> expandedNodes)
+    {
+        foreach (TreeViewNodeState<TNode> nodeState in nodeStates)
+        {
+            nodeState.Expanded = expandedNodes.Contains(nodeState.Node);
+
+            if (nodeState.Children.Count > 0)
+                SyncExpandedState(nodeState.Children, expandedNodes);
+        }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

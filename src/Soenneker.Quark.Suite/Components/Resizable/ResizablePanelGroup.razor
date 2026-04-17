@@ -8,7 +8,7 @@
 
 @inject IResizableInterop ResizableInterop
 
-<CascadingValue Name="ParentResizablePanelGroup" Value="@this" IsFixed="true">
+<CascadingValue Name="ParentResizablePanelGroup" Value="@this">
     <div @ref="ElementRef" @attributes="BuildAttributes()">
         @ChildContent
     </div>
@@ -33,6 +33,13 @@
 
     internal string OrientationValue => string.Equals(Orientation, "vertical", StringComparison.OrdinalIgnoreCase) ? "vertical" : "horizontal";
     internal bool IsVertical => OrientationValue == "vertical";
+    internal ElementReference GroupElementRef => ElementRef;
+
+    internal DotNetObjectReference<ResizablePanelGroup> GetOrCreateDotNetRef()
+    {
+        _dotNetRef ??= DotNetObjectReference.Create(this);
+        return _dotNetRef;
+    }
 
     private bool IsHorizontalRtl()
     {
@@ -151,15 +158,25 @@
         return Math.Round(_sizes[handleIndex], 2, MidpointRounding.AwayFromZero);
     }
 
-    internal async Task StartHandleDragAsync(int handleIndex, PointerEventArgs e)
+    internal Task StartHandleDragAsync(int handleIndex, PointerEventArgs e)
     {
-        if (handleIndex < 0 || handleIndex >= _panels.Count - 1)
+        return StartHandleDragAsync(handleIndex, e.ClientX, e.ClientY, (long)e.PointerId);
+    }
+
+    internal Task StartHandleDragAsync(int handleIndex, MouseEventArgs e)
+    {
+        return StartHandleDragAsync(handleIndex, e.ClientX, e.ClientY, 0);
+    }
+
+    private async Task StartHandleDragAsync(int handleIndex, double clientX, double clientY, long pointerId)
+    {
+        if (_isDragging || handleIndex < 0 || handleIndex >= _panels.Count - 1)
             return;
 
         _dotNetRef ??= DotNetObjectReference.Create(this);
         _isDragging = true;
 
-        await ResizableInterop.StartDrag(ElementRef, (long)e.PointerId, e.ClientX, e.ClientY, OrientationValue, _dotNetRef, handleIndex);
+        await ResizableInterop.StartDrag(ElementRef, pointerId, clientX, clientY, OrientationValue, _dotNetRef, handleIndex);
     }
 
     internal async Task HandleHandleKeyDownAsync(int handleIndex, KeyboardEventArgs e)
@@ -196,18 +213,20 @@
     }
 
     [JSInvokable]
-    public async Task HandlePointerDragMove(int handleIndex, double percentage, double containerSize)
+    public Task HandlePointerDragMove(int handleIndex, double percentage, double containerSize)
     {
         AdjustHandleToPercentage(handleIndex, percentage, containerSize);
-        await InvokeAsync(StateHasChanged);
+        Refresh();
+        return Task.CompletedTask;
     }
 
     [JSInvokable]
-    public async Task HandlePointerDragEnd(int handleIndex, double percentage, double containerSize)
+    public Task HandlePointerDragEnd(int handleIndex, double percentage, double containerSize)
     {
         AdjustHandleToPercentage(handleIndex, percentage, containerSize);
         _isDragging = false;
-        await InvokeAsync(StateHasChanged);
+        Refresh();
+        return Task.CompletedTask;
     }
 
     private void EnsureLayoutState()
@@ -279,6 +298,7 @@
         _sizes[handleIndex] = primarySize;
         _sizes[handleIndex + 1] = secondarySize;
         NormalizeSizes(_sizes);
+        RefreshLayoutDependents();
     }
 
     private (double minPrimary, double maxPrimary) GetAllowedRange(int handleIndex, double pairTotal, double containerSize)
@@ -354,6 +374,19 @@
         for (var i = 0; i < _handles.Count; i++)
         {
             _handles[i].SetIndex(i);
+        }
+    }
+
+    private void RefreshLayoutDependents()
+    {
+        foreach (ResizablePanel panel in _panels)
+        {
+            panel.Refresh();
+        }
+
+        foreach (ResizableHandle handle in _handles)
+        {
+            handle.Refresh();
         }
     }
 

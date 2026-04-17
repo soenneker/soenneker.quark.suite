@@ -11,7 +11,7 @@
 }
 else
 {
-    <BradixPopoverTrigger Id="@Context?.TriggerId"
+    <BradixPopoverTrigger Id="@BradixPopover?.DefaultTriggerId"
                           Disabled="@Disabled"
                           OnClick="@OnClick"
                           AdditionalAttributes="@TriggerAttributes">
@@ -39,11 +39,11 @@ else
 
         if (BradixPopover is not null)
         {
-            attributes["id"] = Context?.TriggerId ?? BradixPopover.DefaultTriggerId;
+            attributes["id"] = BradixPopover.DefaultTriggerId;
             attributes["data-state"] = BradixPopover.CurrentOpen ? "open" : "closed";
             attributes["aria-haspopup"] = "dialog";
             attributes["aria-expanded"] = BradixPopover.CurrentOpen ? "true" : "false";
-            attributes["aria-controls"] = Context?.ContentId ?? BradixPopover.ContentId;
+            attributes["aria-controls"] = BradixPopover.ContentId;
         }
 
         if (Disabled)
@@ -79,18 +79,18 @@ else
     {
         return new TriggerContext
         {
-            TriggerId = Context?.TriggerId ?? BradixPopover?.DefaultTriggerId,
+            TriggerId = BradixPopover?.DefaultTriggerId,
             ParentDisabled = Disabled,
             IsOpen = BradixPopover?.CurrentOpen == true,
             DataState = BradixPopover?.CurrentOpen == true ? "open" : "closed",
             AriaHasPopup = "dialog",
-            AriaControls = Context?.ContentId ?? BradixPopover?.ContentId,
+            AriaControls = BradixPopover?.ContentId,
             Toggle = BradixPopover is null || Disabled ? null : () => BradixPopover.ToggleOpen(),
             Open = BradixPopover is null || Disabled ? null : () => BradixPopover.SetOpen(true),
             Close = BradixPopover is null ? null : () => BradixPopover.SetOpen(false),
-            RegisterElement = BradixPopover is null || Context is null
+            RegisterElement = BradixPopover is null
                 ? null
-                : elementReference => BradixPopover.RegisterTrigger(elementReference, Context.TriggerId)
+                : elementReference => BradixPopover.RegisterTrigger(elementReference, BradixPopover.DefaultTriggerId)
         };
     }
 
@@ -100,7 +100,7 @@ else
         hc.Add(Disabled);
         hc.Add(BradixPopover?.CurrentOpen);
         hc.Add(AsChild);
-        hc.Add(Context?.TriggerId);
-        hc.Add(Context?.ContentId);
+        hc.Add(BradixPopover?.DefaultTriggerId);
+        hc.Add(BradixPopover?.ContentId);
     }
 }

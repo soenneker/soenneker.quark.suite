@@ -1,0 +1,81 @@
+using System;
+using System.Globalization;
+using System.Threading.Tasks;
+using Microsoft.Playwright;
+using Soenneker.Playwrights.Extensions.TestPages;
+using Soenneker.Playwrights.Session;
+using Soenneker.Playwrights.Tests.Unit;
+using Xunit;
+
+namespace Soenneker.Quark.Suite.Playwrights.Tests;
+
+[Collection("Collection")]
+public sealed class QuarkSheetPlaywrightTests : PlaywrightUnitTest
+{
+    public QuarkSheetPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    {
+    }
+
+[Fact]
+    public async ValueTask Sheet_demo_uses_portal_and_closes_on_outside_click()
+    {
+        await using BrowserSession session = await CreateSession();
+        IPage page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}sheets",
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open", Exact = true }).First,
+            expectedTitle: "Sheet - Quark Suite");
+
+        ILocator trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open", Exact = true }).First;
+        await trigger.ClickAsync();
+
+        ILocator dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Edit profile", Exact = true }).First;
+        ILocator content = page.Locator("[data-slot='sheet-content'][data-state='open']").First;
+
+        await Assertions.Expect(dialog).ToBeVisibleAsync();
+        await Assertions.Expect(content).ToHaveAttributeAsync("data-side", "right");
+
+        await page.WaitForFunctionAsync(
+            "() => {" +
+            "const content = document.querySelector('[data-slot=\"sheet-content\"][data-state=\"open\"]');" +
+            "const main = document.querySelector('main');" +
+            "return !!content && document.body.contains(content) && !!main && !main.contains(content);" +
+            "}");
+
+        await ClickJustOutsideAsync(page, dialog);
+
+        await Assertions.Expect(dialog).Not.ToBeVisibleAsync();
+        await Assertions.Expect(trigger).ToBeFocusedAsync();
+    }
+
+[Fact]
+    public async ValueTask Sheet_scrollable_demo_respects_bound_visibility_and_close_button_dismiss()
+    {
+        await using BrowserSession session = await CreateSession();
+        IPage page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}sheets",
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open activity drawer", Exact = true }),
+            expectedTitle: "Sheet - Quark Suite");
+
+        await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open activity drawer", Exact = true }).ClickAsync();
+
+        ILocator dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Recent activity", Exact = true });
+        await Assertions.Expect(dialog).ToBeVisibleAsync();
+        await Assertions.Expect(dialog.GetByText("Review a longer stream of events without leaving the current page.", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
+
+        await dialog.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Close", Exact = true }).ClickAsync();
+
+        await Assertions.Expect(dialog).ToHaveAttributeAsync("data-state", "closed");
+    }
+    private static async Task ClickJustOutsideAsync(IPage page, ILocator locator)
+    {
+        var box = await locator.BoundingBoxAsync();
+        Assert.NotNull(box);
+        float x = box.X > 40 ? box.X - 20 : box.X + box.Width + 20;
+        float y = box.Y > 40 ? box.Y - 20 : box.Y + 20;
+        await page.Mouse.ClickAsync(x, y);
+    }
+}

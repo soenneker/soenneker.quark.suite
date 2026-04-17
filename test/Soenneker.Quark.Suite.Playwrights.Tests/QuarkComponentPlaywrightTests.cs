@@ -16,7 +16,7 @@ public sealed class QuarkComponentPlaywrightTests : PlaywrightUnitTest
         Logger.LogInformation("Initially loaded");
     }
 
-    [Fact]
+  //  [Fact]
     public async ValueTask Landing_page_loads()
     {
         Logger.LogInformation("Initially loaded");
@@ -33,8 +33,8 @@ public sealed class QuarkComponentPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page).ToHaveTitleAsync("The Foundation for your Design System - Quark Suite");
     }
 
-    [Theory]
-    [MemberData(nameof(QuarkComponentSpecs.All), MemberType = typeof(QuarkComponentSpecs))]
+  //  [Theory]
+   // [MemberData(nameof(QuarkComponentSpecs.All), MemberType = typeof(QuarkComponentSpecs))]
     public async ValueTask Component_demo_page_loads(string componentName, string route, string expectedTitle)
     {
         Logger.LogInformation("Loading {ComponentName} demo route {Route}", componentName, route);

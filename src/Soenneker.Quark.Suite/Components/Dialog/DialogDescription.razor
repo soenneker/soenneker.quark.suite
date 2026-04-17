@@ -3,13 +3,13 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TypographyElement
 
-<BradixDialogDescription Id="@BradixDialog?.DescriptionId" AdditionalAttributes="@DescriptionAttributes">
+<BradixDialogDescription Id="@Context?.DescriptionId" AdditionalAttributes="@DescriptionAttributes">
     @ChildContent
 </BradixDialogDescription>
 
 @code {
     [CascadingParameter]
-    private BradixDialog? BradixDialog { get; set; }
+    private OverlayLabelContext? Context { get; set; }
 
     private IReadOnlyDictionary<string, object> DescriptionAttributes => BuildAttributes();
 
@@ -28,6 +28,6 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(BradixDialog?.DescriptionId);
+        hc.Add(Context?.DescriptionId);
     }
 }

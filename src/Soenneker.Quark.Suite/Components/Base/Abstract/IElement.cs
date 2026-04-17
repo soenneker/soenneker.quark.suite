@@ -9,5 +9,6 @@ public interface IElement : IComponent, ICoreElement
     int? TabIndex { get; set; }
     string? Role { get; set; }
     string? AriaLabel { get; set; }
+    string? AriaLabelledBy { get; set; }
     string? AriaDescribedBy { get; set; }
 }

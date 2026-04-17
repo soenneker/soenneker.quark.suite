@@ -4,13 +4,17 @@
 
 @if (Collapsible is not null)
 {
-    <BradixCollapsibleContent AriaLabelledBy="@Collapsible.TriggerId"
+    <BradixCollapsibleContent ForceMount="@ForceMount"
+                              AriaLabelledBy="@Collapsible.TriggerId"
                               AdditionalAttributes="@ContentAttributes">
         @ChildContent
     </BradixCollapsibleContent>
 }
 
 @code {
+    [Parameter]
+    public bool ForceMount { get; set; }
+
     [CascadingParameter]
     private BradixCollapsible? Collapsible { get; set; }
 
@@ -44,6 +48,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ForceMount);
         hc.Add(Collapsible?.IsOpen == true);
         hc.Add(Collapsible?.Disabled == true);
         hc.Add(Collapsible?.ContentId);

@@ -1,14 +1,17 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()"
-     @onpointerdown="HandlePointerDown"
-     @onpointerdown:preventDefault="true"
+@implements IAsyncDisposable
+
+@inject IResizableInterop ResizableInterop
+
+<div @ref="ElementRef"
+     @attributes="BuildAttributes()"
      @onkeydown="HandleKeyDown"
      @onkeydown:preventDefault="true">
     @if (WithHandle)
     {
-        <div class="bg-border z-10 flex h-4 w-3 items-center justify-center rounded-xs border">
+        <div class="bg-border pointer-events-none z-10 flex h-4 w-3 items-center justify-center rounded-xs border">
             <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 5v14M16 5v14"/></svg>
         </div>
     }
@@ -65,20 +68,22 @@
         _ = InvokeAsync(StateHasChanged);
     }
 
-    private async Task HandlePointerDown(PointerEventArgs e)
-    {
-        if (ParentPanelGroup is null)
-            return;
-
-        await ParentPanelGroup.StartHandleDragAsync(_index, e);
-    }
-
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
         if (ParentPanelGroup is null)
             return;
 
         await ParentPanelGroup.HandleHandleKeyDownAsync(_index, e);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (ParentPanelGroup is not null)
+        {
+            await ResizableInterop.RegisterHandle(ElementRef, ParentPanelGroup.GroupElementRef, ParentPanelGroup.OrientationValue, ParentPanelGroup.GetOrCreateDotNetRef(), _index);
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -96,12 +101,28 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-resizable-handle");
-            AppendClass(ref cls, "bg-border relative flex shrink-0 items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1");
+            AppendClass(ref cls, "relative z-10 flex shrink-0 self-stretch items-center justify-center bg-transparent ring-offset-background touch-none pointer-events-auto select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring");
 
             if (IsVertical)
-                AppendClass(ref cls, "h-px w-full cursor-row-resize after:absolute after:inset-x-0 after:top-1/2 after:h-1 after:-translate-y-1/2 [&>div]:rotate-90");
+                AppendClass(ref cls, "h-4 min-h-4 w-full basis-4 cursor-row-resize after:absolute after:inset-x-0 after:top-1/2 after:h-px after:-translate-y-1/2 after:bg-border [&>div]:rotate-90");
             else
-                AppendClass(ref cls, "h-full w-px cursor-col-resize after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2");
+                AppendClass(ref cls, "w-4 min-w-4 basis-4 cursor-col-resize after:absolute after:inset-y-0 after:left-1/2 after:w-px after:-translate-x-1/2 after:bg-border");
+        });
+
+        BuildStyleAttribute(attributes, (ref sty) =>
+        {
+            if (IsVertical)
+            {
+                AppendStyleDecl(ref sty, "flex: 0 0 16px");
+                AppendStyleDecl(ref sty, "min-height: 16px");
+            }
+            else
+            {
+                AppendStyleDecl(ref sty, "flex: 0 0 16px");
+                AppendStyleDecl(ref sty, "align-self: stretch");
+                AppendStyleDecl(ref sty, "width: 16px");
+                AppendStyleDecl(ref sty, "min-width: 16px");
+            }
         });
     }
 
@@ -112,11 +133,18 @@
         hc.Add(IsVertical);
         hc.Add(_index);
         hc.Add(SeparatorOrientation);
+        hc.Add(ParentPanelGroup?.GetHandleValue(_index));
     }
 
     public override void Dispose()
     {
         _registeredParentPanelGroup?.UnregisterHandle(this);
         base.Dispose();
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        await ResizableInterop.UnregisterHandle(ElementRef);
+        await base.DisposeAsync();
     }
 }

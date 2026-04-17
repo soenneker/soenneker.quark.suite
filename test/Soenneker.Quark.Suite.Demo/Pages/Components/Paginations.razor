@@ -110,7 +110,7 @@
                          Code="@RtlCode"
                          CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
-                    <Div class="w-full text-right">
+                    <Div Id="pagination-rtl-demo" class="w-full text-right">
                         <Pagination>
                             <PaginationContent>
                                 <PaginationItem>
@@ -140,27 +140,30 @@
                          Description="@($"Click to change page; current page {_currentPage} of 5.")"
                          Code="@InteractiveCode"
                          CodeLanguage="razor">
-                <Pagination>
-                    <PaginationContent>
-                        <PaginationItem>
-                            <PaginationPrevious Disabled="@(_currentPage == 1)" OnClick="@(() => GoToPage(_currentPage - 1))" />
-                        </PaginationItem>
-                        @for (var i = 1; i <= 5; i++)
-                        {
+                <Div Id="pagination-interactive-demo">
+                    <Pagination>
+                        <PaginationContent>
                             <PaginationItem>
-                                <PaginationLink Active="@(_currentPage == i)" OnClick="@(() => GoToPage(i))">@i</PaginationLink>
+                                <PaginationPrevious Id="pagination-interactive-previous" Disabled="@(_currentPage == 1)" OnClick="@(() => GoToPage(_currentPage - 1))" />
                             </PaginationItem>
-                        }
-                        <PaginationItem>
-                            <PaginationNext Disabled="@(_currentPage == 5)" OnClick="@(() => GoToPage(_currentPage + 1))" />
-                        </PaginationItem>
-                    </PaginationContent>
-                </Pagination>
-                <Div Class="mt-4 flex flex-wrap items-center gap-2">
-                    <Paragraph TextColor="TextColor.MutedForeground" Margin="Margin.Is0">Current page: <Strong>@_currentPage</Strong> of 5</Paragraph>
-                    <Button Size="ButtonSize.Sm" OnClick="@(() => GoToPage(1))">Go to First</Button>
-                    <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="@(() => GoToPage(5))">Go to Last</Button>
-                    <Button Variant="ButtonVariant.Secondary" Size="ButtonSize.Sm" OnClick="@GoToRandomPage">Random Page</Button>
+                            @for (var i = 1; i <= 5; i++)
+                            {
+                                var pageNumber = i;
+                                <PaginationItem>
+                                    <PaginationLink Id="@($"pagination-interactive-page-{pageNumber}")" Active="@(_currentPage == pageNumber)" OnClick="@(() => GoToPage(pageNumber))">@pageNumber</PaginationLink>
+                                </PaginationItem>
+                            }
+                            <PaginationItem>
+                                <PaginationNext Id="pagination-interactive-next" Disabled="@(_currentPage == 5)" OnClick="@(() => GoToPage(_currentPage + 1))" />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
+                    <Div Class="mt-4 flex flex-wrap items-center gap-2">
+                        <Paragraph Id="pagination-interactive-state" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">Current page: <Strong>@_currentPage</Strong> of 5</Paragraph>
+                        <Button Id="pagination-interactive-first" Size="ButtonSize.Sm" OnClick="@(() => GoToPage(1))">Go to First</Button>
+                        <Button Id="pagination-interactive-last" Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="@(() => GoToPage(5))">Go to Last</Button>
+                        <Button Id="pagination-interactive-random" Variant="ButtonVariant.Secondary" Size="ButtonSize.Sm" OnClick="@GoToRandomPage">Random Page</Button>
+                    </Div>
                 </Div>
             </DemoSection>
         </Section>

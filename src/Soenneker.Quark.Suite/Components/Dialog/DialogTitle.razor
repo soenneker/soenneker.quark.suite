@@ -4,13 +4,13 @@
 @inherits Soenneker.Quark.TypographyElement
 @implements IDialogTitle
 
-<BradixDialogTitle Id="@BradixDialog?.TitleId" AdditionalAttributes="@TitleAttributes">
+<BradixDialogTitle Id="@Context?.TitleId" AdditionalAttributes="@TitleAttributes">
     @ChildContent
 </BradixDialogTitle>
 
 @code {
     [CascadingParameter]
-    private BradixDialog? BradixDialog { get; set; }
+    private OverlayLabelContext? Context { get; set; }
 
     /// <summary>
     /// Backward-compatibility parameter; shadcn title styles are fixed.
@@ -35,6 +35,6 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         AddIf(ref hc, Scale);
-        hc.Add(BradixDialog?.TitleId);
+        hc.Add(Context?.TitleId);
     }
 }

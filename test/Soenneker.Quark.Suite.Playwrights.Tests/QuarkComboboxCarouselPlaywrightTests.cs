@@ -50,6 +50,40 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
     }
 
     [Fact]
+    public async ValueTask Combobox_demo_positions_the_listbox_beneath_the_trigger_when_opened()
+    {
+        await using BrowserSession session = await CreateSession();
+        IPage page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}comboboxes",
+            static p => p.GetByRole(AriaRole.Main).First);
+
+        ILocator trigger = page.GetByRole(AriaRole.Combobox).First;
+        await Assertions.Expect(trigger).ToBeVisibleAsync();
+        await trigger.ClickAsync();
+
+        string? listboxId = await trigger.GetAttributeAsync("aria-controls");
+        Assert.False(string.IsNullOrWhiteSpace(listboxId));
+
+        ILocator listbox = page.Locator($"#{listboxId}");
+        await Assertions.Expect(listbox).ToBeVisibleAsync();
+        await page.WaitForFunctionAsync(
+            "element => { const box = element.getBoundingClientRect(); return box.y > 0 && box.width >= 180; }",
+            await listbox.ElementHandleAsync());
+
+        LocatorBoundingBoxResult? triggerBox = await trigger.BoundingBoxAsync();
+        LocatorBoundingBoxResult? listboxBox = await listbox.BoundingBoxAsync();
+
+        Assert.NotNull(triggerBox);
+        Assert.NotNull(listboxBox);
+        Assert.True(listboxBox.Y > 0, $"Expected listbox top ({listboxBox.Y}) to remain inside the viewport.");
+        Assert.True(System.Math.Abs(listboxBox.X - triggerBox.X) <= 220,
+            $"Expected listbox X ({listboxBox.X}) to stay anchored near the trigger X ({triggerBox.X}).");
+        Assert.True(listboxBox.Width >= 180, $"Expected listbox width to be measurable, but was {listboxBox.Width}.");
+    }
+
+    [Fact]
     public async ValueTask Combobox_multiple_demo_adds_and_removes_chip_selection()
     {
         await using BrowserSession session = await CreateSession();

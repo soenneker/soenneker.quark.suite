@@ -14,7 +14,7 @@
     [CascadingParameter(Name = nameof(ParentAccordionItem))]
     public AccordionItem? ParentAccordionItem { get; set; }
 
-    private bool ResolvedForceMount => ParentAccordionItem?.ForceMount ?? true;
+    private bool ResolvedForceMount => ParentAccordionItem?.ForceMount ?? false;
 
     private IReadOnlyDictionary<string, object> OuterAttributes => BuildOuterAttributes();
 
@@ -26,7 +26,7 @@
 
             BuildClassAttribute(attributes, (ref cls) =>
             {
-                AppendClass(ref cls, "pt-0 pb-2.5");
+                AppendClass(ref cls, "w-full min-w-0 overflow-hidden pt-0 pb-2.5");
                 AppendClass(ref cls, "[&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4");
 
                 if (Class.HasContent())
@@ -53,11 +53,9 @@
             BuildClassAttribute(attributes, (ref cls) =>
             {
                 AppendClass(ref cls, "q-accordion-content");
-                AppendClass(ref cls, "overflow-hidden text-sm transition-[height] duration-200 ease-out motion-reduce:transition-none");
-                AppendClass(ref cls, "data-[state=closed]:h-0 data-[state=open]:h-(--radix-accordion-content-height)");
+                AppendClass(ref cls, "grid w-full min-w-0 text-sm transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none");
+                AppendClass(ref cls, "data-[state=closed]:grid-rows-[0fr] data-[state=open]:grid-rows-[1fr]");
             });
-
-            AppendStyleDeclAttr(attributes, "--radix-accordion-content-height: 0px;");
 
             return attributes;
         }

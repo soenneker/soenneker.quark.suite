@@ -173,6 +173,30 @@ CodeLanguage="razor">
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="DatePicker component"
+                         Description="Exercise the reusable `DatePicker` input directly, including typed values and externally controlled state updates."
+                         Code="@(@"<DatePicker SelectedDate=""_componentDate"" SelectedDateChanged=""OnComponentDateChanged"" />
+<Button OnClick=""SetComponentDateToLaunch"">Set launch date</Button>
+<Button OnClick=""ClearComponentDate"">Clear</Button>")"
+                         CodeLanguage="razor">
+                <Div Class="flex min-h-[20rem] w-full max-w-sm flex-col items-center justify-center gap-4 text-center">
+                    <Label Form="true">Reusable date picker</Label>
+                    <DatePicker SelectedDate="_componentDate"
+                                SelectedDateChanged="OnComponentDateChanged"
+                                Placeholder="yyyy-mm-dd"
+                                data-testid="component-date-picker" />
+                    <Div Class="flex flex-wrap justify-center gap-2">
+                        <Button Variant="ButtonVariant.Outline" OnClick="SetComponentDateToLaunch" data-testid="component-date-launch">Set launch date</Button>
+                        <Button Variant="ButtonVariant.Outline" OnClick="ClearComponentDate" data-testid="component-date-clear">Clear</Button>
+                    </Div>
+                    <Div Class="value-chip" Margin="Margin.Is0">
+                        <Span Class="dot"></Span><Span>Selected: @_componentDate?.ToString("yyyy-MM-dd")</Span>
+                    </Div>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Date and time"
                          Description="DateTimePicker adds time selection when the exact moment matters."
                          Code="@(@"<Label Form=""true"">Pick a date and time</Label>
@@ -213,6 +237,7 @@ CodeLanguage="razor">
     private DateOnly? _deliveryDate = new(1995, 7, 14);
     private DateOnly? _typedDate = DateOnly.FromDateTime(DateTime.Today.AddDays(7));
     private DateOnly? _dropdownPickerDate = DateOnly.FromDateTime(DateTime.Today.AddDays(21));
+    private DateOnly? _componentDate = new(2024, 4, 18);
     private bool _dropdownPickerOpen;
     private bool _birthdayCalendarOpen;
     private CalendarDateRange? _rangeDate = new(new DateOnly(2022, 1, 20), new DateOnly(2022, 2, 9));
@@ -268,6 +293,24 @@ CodeLanguage="razor">
     private Task OnTypedDateChanged(DateOnly? value)
     {
         _typedDate = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnComponentDateChanged(DateOnly? value)
+    {
+        _componentDate = value;
+        return Task.CompletedTask;
+    }
+
+    private Task SetComponentDateToLaunch()
+    {
+        _componentDate = new DateOnly(2030, 1, 15);
+        return Task.CompletedTask;
+    }
+
+    private Task ClearComponentDate()
+    {
+        _componentDate = null;
         return Task.CompletedTask;
     }
 

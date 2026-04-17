@@ -7,6 +7,7 @@
                        Disabled="@Disabled"
                        Value="@Value"
                        Values="@Values"
+                       Dir="@ResolvedDirection"
                        Orientation="@ResolvedOrientation"
                        ValueChanged="HandleSingleValueChanged"
                        ValuesChanged="HandleMultipleValuesChanged"
@@ -16,6 +17,9 @@
 </CascadingValue>
 
 @code {
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? CascadedDirection { get; set; }
+
     /// <summary>
     /// Gets or sets the type of toggle group: single (one at a time) or multiple (allow multiple pressed).
     /// </summary>
@@ -64,6 +68,9 @@
     [Parameter]
     public int Spacing { get; set; }
 
+    [Parameter]
+    public string? Dir { get; set; }
+
     private static string GetVariantClass(ToggleVariant? variant)
         => (variant?.Value ?? ToggleVariant.DefaultValue) switch
         {
@@ -78,6 +85,8 @@
     private BradixOrientation ResolvedOrientation => Orientation == ToggleGroupOrientation.Vertical
         ? BradixOrientation.Vertical
         : BradixOrientation.Horizontal;
+
+    private string? ResolvedDirection => string.IsNullOrWhiteSpace(Dir) ? CascadedDirection : Dir;
 
     private IReadOnlyDictionary<string, object> GroupAttributes
     {
@@ -147,6 +156,8 @@
         hc.Add(Size);
         hc.Add(Orientation);
         hc.Add(Spacing);
+        hc.Add(Dir);
+        hc.Add(CascadedDirection);
         if (Values != null)
             foreach (var x in Values) hc.Add(x);
     }

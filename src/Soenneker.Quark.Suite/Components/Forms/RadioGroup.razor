@@ -10,6 +10,7 @@
                       Required="@Required"
                       Disabled="@Disabled"
                       Value="@Value"
+                      Dir="@ResolvedDirection"
                       Orientation="@ResolvedOrientation"
                       ValueChanged="HandleValueChanged"
                       AdditionalAttributes="@GroupAttributes">
@@ -19,6 +20,9 @@
 
 @code {
     private string? _name;
+
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? CascadedDirection { get; set; }
     /// <summary>
     /// Callback when the selected value changes.
     /// </summary>
@@ -31,11 +35,16 @@
     [Parameter]
     public string Orientation { get; set; } = "vertical";
 
+    [Parameter]
+    public string? Dir { get; set; }
+
     private string OrientationValue => Orientation?.ToLowerInvariantFast() == "horizontal" ? "horizontal" : "vertical";
 
     private BradixOrientation ResolvedOrientation => OrientationValue == "horizontal"
         ? BradixOrientation.Horizontal
         : BradixOrientation.Vertical;
+
+    private string? ResolvedDirection => string.IsNullOrWhiteSpace(Dir) ? CascadedDirection : Dir;
 
     /// <summary>
     /// Gets the effective name for the group (generated if not set).
@@ -105,6 +114,8 @@
         hc.Add(Name);
         hc.Add(Disabled);
         hc.Add(Orientation);
+        hc.Add(Dir);
+        hc.Add(CascadedDirection);
         hc.Add(AriaLabel);
     }
 }

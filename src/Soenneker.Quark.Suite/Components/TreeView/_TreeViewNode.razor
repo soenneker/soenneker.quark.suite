@@ -114,63 +114,64 @@
 
     private RenderFragment NodeFragment(TreeViewNodeState<TNode> nodeState) => __builder =>
     {
-        <div class="q-tree-view-node-row"
-             @key="nodeState.Key"
-             @oncontextmenu="e => OnContextMenuHandler(nodeState, e)"
-             @oncontextmenu:stopPropagation
-             @oncontextmenu:preventDefault="@ContextMenuPreventDefault">
+        <div @key="nodeState.Node">
+            <div class="q-tree-view-node-row"
+                 @oncontextmenu="e => OnContextMenuHandler(nodeState, e)"
+                 @oncontextmenu:stopPropagation
+                 @oncontextmenu:preventDefault="@ContextMenuPreventDefault">
 
-            @if (nodeState.HasChildren)
+                @if (nodeState.HasChildren)
+                {
+                    <span class="q-tree-view-node-toggle" @onclick="() => ToggleNode(nodeState, true)">
+                        @if (nodeState.Expanded)
+                        {
+                            <Icon Name="@CollapseIcon" Class="@CollapseIconClass" />
+                        }
+                        else
+                        {
+                            <Icon Name="@ExpandIcon" Class="@ExpandIconClass" />
+                        }
+                    </span>
+                }
+
+                <_TreeViewNodeContent TNode="TNode"
+                                      NodeState="@nodeState"
+                                      NodeStyling="@NodeStyling"
+                                      SelectionMode="@SelectionMode"
+                                      SelectedNodeStyling="@SelectedNodeStyling"
+                                      DisabledNodeStyling="@DisabledNodeStyling"
+                                      OnTitleClicked="@(() => OnTitleClicked(nodeState))">
+                    @NodeContent!(nodeState.Node)
+                </_TreeViewNodeContent>
+            </div>
+
+            @if (nodeState.Expanded && nodeState.HasChildren)
             {
-                <span class="q-tree-view-node-toggle" @onclick="() => ToggleNode(nodeState, true)">
-                    @if (nodeState.Expanded)
-                    {
-                        <Icon Name="@CollapseIcon" Class="@CollapseIconClass" />
-                    }
-                    else
-                    {
-                        <Icon Name="@ExpandIcon" Class="@ExpandIconClass" />
-                    }
-                </span>
+                <_TreeViewNode TNode="TNode"
+                               NodeStates="@nodeState.Children"
+                               NodeContent="@NodeContent"
+                               GetChildNodes="@GetChildNodes"
+                               GetChildNodesAsync="@GetChildNodesAsync"
+                               ExpandedNodes="@ExpandedNodes"
+                               ExpandedNodesChanged="@ExpandedNodesChanged"
+                               AutoExpandAll="@AutoExpandAll"
+                               HasChildNodes="@HasChildNodes"
+                               IsDisabled="@IsDisabled"
+                               HasChildNodesAsync="@HasChildNodesAsync"
+                               NodeStyling="@NodeStyling"
+                               SelectedNodeStyling="@SelectedNodeStyling"
+                               DisabledNodeStyling="@DisabledNodeStyling"
+                               ExpandName="@ExpandIcon"
+                               ExpandIconClass="@ExpandIconClass"
+                               CollapseName="@CollapseIcon"
+                               CollapseIconClass="@CollapseIconClass"
+                               SelectionMode="@SelectionMode"
+                               ToggleOnNodeClick="@ToggleOnNodeClick"
+                               ContextMenu="@ContextMenu"
+                               ContextMenuPreventDefault="@ContextMenuPreventDefault"
+                               Virtualize="@Virtualize" />
             }
-
-            <_TreeViewNodeContent TNode="TNode"
-                                  NodeState="@nodeState"
-                                  NodeStyling="@NodeStyling"
-                                  SelectionMode="@SelectionMode"
-                                  SelectedNodeStyling="@SelectedNodeStyling"
-                                  DisabledNodeStyling="@DisabledNodeStyling"
-                                  OnTitleClicked="@(() => OnTitleClicked(nodeState))">
-                @NodeContent!(nodeState.Node)
-            </_TreeViewNodeContent>
         </div>
-
-        @if (nodeState.Expanded && nodeState.HasChildren)
-        {
-            <_TreeViewNode TNode="TNode"
-                           NodeStates="@nodeState.Children"
-                           NodeContent="@NodeContent"
-                           GetChildNodes="@GetChildNodes"
-                           GetChildNodesAsync="@GetChildNodesAsync"
-                           ExpandedNodes="@ExpandedNodes"
-                           ExpandedNodesChanged="@ExpandedNodesChanged"
-                           AutoExpandAll="@AutoExpandAll"
-                           HasChildNodes="@HasChildNodes"
-                           IsDisabled="@IsDisabled"
-                           HasChildNodesAsync="@HasChildNodesAsync"
-                           NodeStyling="@NodeStyling"
-                           SelectedNodeStyling="@SelectedNodeStyling"
-                           DisabledNodeStyling="@DisabledNodeStyling"
-                           ExpandName="@ExpandIcon"
-                           ExpandIconClass="@ExpandIconClass"
-                           CollapseName="@CollapseIcon"
-                           CollapseIconClass="@CollapseIconClass"
-                           SelectionMode="@SelectionMode"
-                           ToggleOnNodeClick="@ToggleOnNodeClick"
-                           ContextMenu="@ContextMenu"
-                           ContextMenuPreventDefault="@ContextMenuPreventDefault"
-                           Virtualize="@Virtualize" />
-        }
     };
 
     private async Task ToggleNode(TreeViewNodeState<TNode> nodeState, bool refresh)
@@ -202,25 +203,47 @@
 
     private async Task LoadChildNodes(TreeViewNodeState<TNode> nodeState)
     {
-        IEnumerable<TNode>? children = null;
-
-        if (GetChildNodesAsync is not null)
-            children = await GetChildNodesAsync(nodeState.Node);
-        else if (GetChildNodes is not null)
-            children = GetChildNodes(nodeState.Node);
-
-        nodeState.Children.Clear();
-
-        if (children is null)
+        if (nodeState.ChildrenLoaded || nodeState.LoadingChildren)
             return;
 
-        foreach (var child in children)
-        {
-            var hasChildren = await DetermineHasChildren(child);
-            var expanded = ExpandedNodes.Contains(child);
-            var disabled = DetermineIsDisabled(child);
+        nodeState.LoadingChildren = true;
 
-            nodeState.Children.Add(new TreeViewNodeState<TNode>(child, hasChildren, expanded, disabled));
+        IEnumerable<TNode>? children = null;
+
+        try
+        {
+            if (GetChildNodesAsync is not null)
+            {
+                if (ParentTreeView is not null)
+                    children = await ParentTreeView.LoadChildrenDeduped(nodeState.Node, GetChildNodesAsync);
+                else
+                    children = await GetChildNodesAsync(nodeState.Node);
+            }
+            else if (GetChildNodes is not null)
+                children = GetChildNodes(nodeState.Node);
+
+            nodeState.Children.Clear();
+
+            if (children is null)
+            {
+                nodeState.ChildrenLoaded = true;
+                return;
+            }
+
+            foreach (var child in children)
+            {
+                var hasChildren = await DetermineHasChildren(child);
+                var expanded = ExpandedNodes.Contains(child);
+                var disabled = DetermineIsDisabled(child);
+
+                nodeState.Children.Add(new TreeViewNodeState<TNode>(child, hasChildren, expanded, disabled));
+            }
+
+            nodeState.ChildrenLoaded = true;
+        }
+        finally
+        {
+            nodeState.LoadingChildren = false;
         }
     }
 
@@ -290,7 +313,10 @@
             var sample = 0;
             foreach (var ns in NodeStates)
             {
-                hc.Add(ns.Key);
+                hc.Add(ns.Node);
+                hc.Add(ns.Expanded);
+                hc.Add(ns.Disabled);
+                hc.Add(ns.Children.Count);
                 if (++sample == 3)
                     break;
             }

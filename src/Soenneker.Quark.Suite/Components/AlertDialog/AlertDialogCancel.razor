@@ -1,38 +1,37 @@
+@using System.Runtime.CompilerServices
+@using Soenneker.Bradix
 @using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IAlertDialogCancel
 
-<Button Type="@ButtonType.Button" Variant="@Variant" Size="@Size" OnClick="HandleCancelClick" @attributes="BuildAttributes()">
+<BradixDialogClose AriaLabel="@((string?)null)"
+                   OnClick="HandleCancelClick"
+                   AdditionalAttributes="@BuildAttributes()">
     @ChildContent
-</Button>
+</BradixDialogClose>
 
 @code {
+    private const string _buttonBase =
+        "inline-flex shrink-0 items-center justify-center gap-2 text-sm font-medium whitespace-nowrap transition-all outline-none " +
+        "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 " +
+        "disabled:pointer-events-none disabled:opacity-50 " +
+        "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 " +
+        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4";
+
     [CascadingParameter(Name = nameof(ParentAlertDialog))]
     public AlertDialog? ParentAlertDialog { get; set; }
 
-    /// <summary>
-    /// Gets or sets whether the parent alert dialog should automatically close when clicked.
-    /// </summary>
     [Parameter]
     public bool AutoClose { get; set; } = true;
 
-    /// <summary>
-    /// Gets or sets the callback invoked when cancel is clicked.
-    /// </summary>
     [Parameter]
     public EventCallback OnCancel { get; set; }
 
-    /// <summary>
-    /// Gets or sets the visual style variant of the cancel button.
-    /// </summary>
     [Parameter]
     public ButtonVariant Variant { get; set; } = ButtonVariant.Outline;
 
-    /// <summary>
-    /// Gets or sets the size of the cancel button.
-    /// </summary>
     [Parameter]
     public ButtonSize Size { get; set; } = ButtonSize.Default;
 
@@ -41,10 +40,19 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "alert-dialog-cancel";
+        attributes["data-bradix-alert-dialog-cancel"] = "true";
+        attributes["data-variant"] = Variant?.Value ?? ButtonVariant.Default.Value;
+        attributes["data-size"] = GetSizeDataAttr(Size);
+        attributes["autofocus"] = true;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-alert-dialog-cancel");
+            AppendClass(ref cls, "q-button");
+            AppendClass(ref cls, _buttonBase);
+            AppendClass(ref cls, GetShadcnSizeClass(Size));
+            AppendClass(ref cls, GetRadiusClass(Size));
+            AppendClass(ref cls, GetShadcnVariantClass(Variant));
         });
     }
 
@@ -52,9 +60,63 @@
     {
         await OnCancel.InvokeIfHasDelegate();
 
-        if (AutoClose && ParentAlertDialog != null)
+        if (AutoClose && ParentAlertDialog is not null)
             await ParentAlertDialog.Hide();
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string GetShadcnVariantClass(ButtonVariant? variant)
+        => (variant?.Value ?? ButtonVariant.DefaultValue) switch
+        {
+            ButtonVariant.DestructiveValue => "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40",
+            ButtonVariant.OutlineValue => "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+            ButtonVariant.SecondaryValue => "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+            ButtonVariant.GhostValue => "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+            ButtonVariant.LinkValue => "text-primary underline-offset-4 hover:underline",
+            _ => "bg-primary text-primary-foreground hover:bg-primary/90",
+        };
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string GetShadcnSizeClass(ButtonSize? size)
+        => (size?.Value ?? ButtonSize.DefaultValue) switch
+        {
+            ButtonSize.XsValue => "h-6 gap-1 px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
+            ButtonSize.SmValue => "h-8 gap-1.5 px-3 has-[>svg]:px-2.5",
+            ButtonSize.LgValue => "h-10 px-6 has-[>svg]:px-4",
+            ButtonSize.IconValue => "size-9",
+            ButtonSize.IconXsValue => "size-6 [&_svg:not([class*='size-'])]:size-3",
+            ButtonSize.IconSmValue => "size-8",
+            ButtonSize.IconLgValue => "size-10",
+            _ => "h-9 px-4 py-2 has-[>svg]:px-3",
+        };
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string GetSizeDataAttr(ButtonSize? size)
+        => (size?.Value ?? ButtonSize.DefaultValue) switch
+        {
+            ButtonSize.XsValue => "xs",
+            ButtonSize.SmValue => "sm",
+            ButtonSize.LgValue => "lg",
+            ButtonSize.IconValue => "icon",
+            ButtonSize.IconXsValue => "icon-xs",
+            ButtonSize.IconSmValue => "icon-sm",
+            ButtonSize.IconLgValue => "icon-lg",
+            _ => "default"
+        };
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string GetRadiusClass(ButtonSize size)
+        => (size.Value ?? ButtonSize.DefaultValue) switch
+        {
+            ButtonSize.XsValue => "rounded-md",
+            ButtonSize.SmValue => "rounded-md",
+            ButtonSize.LgValue => "rounded-md",
+            ButtonSize.IconValue => "rounded-md",
+            ButtonSize.IconXsValue => "rounded-md",
+            ButtonSize.IconSmValue => "rounded-md",
+            ButtonSize.IconLgValue => "rounded-md",
+            _ => "rounded-md"
+        };
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

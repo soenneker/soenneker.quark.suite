@@ -101,9 +101,12 @@
             </Div>
 
             <!-- Async Data Loading Example -->
-            <Div Margin="Margin.Is4.FromEnd">
+            <Div Id="treeview-async-demo" Margin="Margin.Is4.FromEnd">
                     <H3>Async Data Loading</H3>
-                    <Paragraph>TreeView with asynchronous data loading simulation.</Paragraph>
+                    <Paragraph>
+                        TreeView with asynchronous data loading simulation. Selected node:
+                        <Strong>@(_selectedAsyncNode?.Title ?? "None")</Strong>
+                    </Paragraph>
 
                     <Card>
                         <CardBody>
@@ -113,6 +116,8 @@
                                       GetChildNodesAsync="@GetChildrenAsync"
                                       HasChildNodesAsync="@HasChildrenAsync"
                                       SelectionMode="TreeViewSelectionMode.Single"
+                                      SelectedNode="@_selectedAsyncNode"
+                                      SelectedNodeChanged="@OnSelectedAsyncNodeChanged"
                                       ExpandedNodes="@AsyncExpandedNodes"
                                       ExpandedNodesChanged="@OnAsyncExpandedNodesChanged"/>
                         </CardBody>
@@ -250,12 +255,13 @@
     // Async Example
     private readonly ObservableCollection<AsyncDemoNode> _asyncNodes =
     [
-        new AsyncDemoNode("Server 1"),
-        new AsyncDemoNode("Server 2"),
-        new AsyncDemoNode("Server 3")
+        new AsyncDemoNode("Server 1", canLoadChildren: true),
+        new AsyncDemoNode("Server 2", canLoadChildren: true),
+        new AsyncDemoNode("Server 3", canLoadChildren: true)
     ];
 
     private IList<AsyncDemoNode> AsyncExpandedNodes { get; set; } = new List<AsyncDemoNode>();
+    private AsyncDemoNode? _selectedAsyncNode;
 
     // Disabled Example
     private readonly ObservableCollection<DemoNode> _disabledNodes =
@@ -320,6 +326,12 @@
         return Task.CompletedTask;
     }
 
+    private Task OnSelectedAsyncNodeChanged(AsyncDemoNode? node)
+    {
+        _selectedAsyncNode = node;
+        return Task.CompletedTask;
+    }
+
     private Task OnDisabledExpandedNodesChanged(IList<DemoNode> nodes)
     {
         DisabledExpandedNodes = nodes;
@@ -340,6 +352,13 @@
     {
         // Simulate async loading
         await Task.Delay(500);
+
+        if (node.CanLoadChildren && !node.ChildrenLoaded)
+        {
+            node.ChildrenLoaded = true;
+            PopulateAsyncChildren(node);
+        }
+
         return node.Children;
     }
 
@@ -347,7 +366,7 @@
     {
         // Simulate async check
         await Task.Delay(100);
-        return node.Children.Count > 0;
+        return node.CanLoadChildren || node.Children.Count > 0;
     }
 
     private bool IsNodeDisabled(DemoNode node) => node.IsDisabled;
@@ -409,6 +428,39 @@
         }
     }
 
+    private static void PopulateAsyncChildren(AsyncDemoNode node)
+    {
+        if (node.Children.Count > 0)
+            return;
+
+        if (node.Title == "Server 1")
+        {
+            node.Children.Add(new AsyncDemoNode("API", canLoadChildren: true));
+            node.Children.Add(new AsyncDemoNode("Worker"));
+            return;
+        }
+
+        if (node.Title == "Server 2")
+        {
+            node.Children.Add(new AsyncDemoNode("Database"));
+            node.Children.Add(new AsyncDemoNode("Cache"));
+            return;
+        }
+
+        if (node.Title == "Server 3")
+        {
+            node.Children.Add(new AsyncDemoNode("Logs"));
+            node.Children.Add(new AsyncDemoNode("Metrics"));
+            return;
+        }
+
+        if (node.Title == "API")
+        {
+            node.Children.Add(new AsyncDemoNode("Routes"));
+            node.Children.Add(new AsyncDemoNode("Controllers"));
+        }
+    }
+
     // Data Models
     public sealed class DemoNode
     {
@@ -429,14 +481,17 @@
 
     public sealed class AsyncDemoNode
     {
-        public AsyncDemoNode(string title, List<AsyncDemoNode>? children = null)
+        public AsyncDemoNode(string title, List<AsyncDemoNode>? children = null, bool canLoadChildren = false)
         {
             Title = title;
             Children = children ?? [];
+            CanLoadChildren = canLoadChildren;
         }
 
         public string Title { get; }
         public List<AsyncDemoNode> Children { get; }
+        public bool CanLoadChildren { get; }
+        public bool ChildrenLoaded { get; set; }
         public override string ToString() => Title;
     }
 

@@ -3,7 +3,8 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<BradixScrollArea AdditionalAttributes="@RootAttributes">
+<BradixScrollArea Dir="@ResolvedDir"
+                  AdditionalAttributes="@RootAttributes">
     <BradixScrollAreaViewport AdditionalAttributes="@ViewportAttributes">
         @ChildContent
     </BradixScrollAreaViewport>
@@ -31,6 +32,24 @@
     [Parameter]
     public bool ShowHorizontalScrollBar { get; set; }
 
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
+
+    private string? ResolvedDir
+    {
+        get
+        {
+            if (Attributes is not null &&
+                Attributes.TryGetValue("dir", out var dirValue) &&
+                !string.IsNullOrWhiteSpace(dirValue?.ToString()))
+            {
+                return dirValue.ToString();
+            }
+
+            return DirectionProviderDir;
+        }
+    }
+
     private IReadOnlyDictionary<string, object> RootAttributes => BuildAttributes();
     private IReadOnlyDictionary<string, object> ViewportAttributes => BuildViewportAttributes();
     private IReadOnlyDictionary<string, object> CornerAttributes => BuildCornerAttributes();
@@ -39,6 +58,7 @@
     {
         base.BuildAttributesCore(attributes);
 
+        attributes.Remove("dir");
         attributes["data-slot"] = "scroll-area";
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -79,5 +99,7 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(ShowVerticalScrollBar);
         hc.Add(ShowHorizontalScrollBar);
+        hc.Add(DirectionProviderDir);
+        hc.Add(ResolvedDir);
     }
 }

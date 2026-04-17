@@ -24,6 +24,9 @@ public abstract class Element : Component, IElement
     public string? AriaLabel { get; set; }
 
     [Parameter]
+    public string? AriaLabelledBy { get; set; }
+
+    [Parameter]
     public string? AriaDescribedBy { get; set; }
 
     private RenderFragment? _lastChildContentRef;
@@ -42,6 +45,9 @@ public abstract class Element : Component, IElement
         if (AriaLabel is not null)
             attrs["aria-label"] = AriaLabel;
 
+        if (AriaLabelledBy is not null)
+            attrs["aria-labelledby"] = AriaLabelledBy;
+
         if (AriaDescribedBy is not null)
             attrs["aria-describedby"] = AriaDescribedBy;
     }
@@ -54,6 +60,7 @@ public abstract class Element : Component, IElement
         hc.Add(TabIndex);
         hc.Add(Role);
         hc.Add(AriaLabel);
+        hc.Add(AriaLabelledBy);
         hc.Add(AriaDescribedBy);
     }
 

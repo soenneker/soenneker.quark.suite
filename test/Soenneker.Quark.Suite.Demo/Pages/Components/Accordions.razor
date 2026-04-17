@@ -8,28 +8,30 @@
                      Description="Official shadcn accordion demo."
                      Code="@DemoCode"
                      CodeLanguage="razor">
-            <Accordion Collapsible="true"
-                       DefaultValue="shipping"
-                       Class="max-w-sm">
-                <AccordionItem Value="shipping">
-                    <AccordionTrigger>What are your shipping options?</AccordionTrigger>
-                    <AccordionContent>
-                        We offer standard (5-7 days), express (2-3 days), and overnight shipping. Free shipping on international orders.
-                    </AccordionContent>
-                </AccordionItem>
-                <AccordionItem Value="returns">
-                    <AccordionTrigger>What is your return policy?</AccordionTrigger>
-                    <AccordionContent>
-                        Returns accepted within 30 days. Items must be unused and in original packaging. Refunds processed within 5-7 business days.
-                    </AccordionContent>
-                </AccordionItem>
-                <AccordionItem Value="support">
-                    <AccordionTrigger>How can I contact customer support?</AccordionTrigger>
-                    <AccordionContent>
-                        Reach us via email, live chat, or phone. We respond within 24 hours during business days.
-                    </AccordionContent>
-                </AccordionItem>
-            </Accordion>
+            <Div Class="w-full max-w-sm">
+                <Accordion Collapsible="true"
+                           DefaultValue="shipping"
+                           Class="w-full">
+                    <AccordionItem Value="shipping">
+                        <AccordionTrigger>What are your shipping options?</AccordionTrigger>
+                        <AccordionContent>
+                            We offer standard (5-7 days), express (2-3 days), and overnight shipping. Free shipping on international orders.
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem Value="returns">
+                        <AccordionTrigger>What is your return policy?</AccordionTrigger>
+                        <AccordionContent>
+                            Returns accepted within 30 days. Items must be unused and in original packaging. Refunds processed within 5-7 business days.
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem Value="support">
+                        <AccordionTrigger>How can I contact customer support?</AccordionTrigger>
+                        <AccordionContent>
+                            Reach us via email, live chat, or phone. We respond within 24 hours during business days.
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+            </Div>
         </DemoSection>
     </Section>
 
@@ -38,9 +40,10 @@
                      Description="A basic accordion that shows one item at a time. The first item is open by default."
                      Code="@BasicCode"
                      CodeLanguage="razor">
+            <Div Class="w-full max-w-sm">
             <Accordion Collapsible="true"
                        DefaultValue="item-1"
-                       Class="max-w-sm">
+                       Class="w-full">
                 <AccordionItem Value="item-1">
                     <AccordionTrigger>How do I reset my password?</AccordionTrigger>
                     <AccordionContent>
@@ -60,6 +63,7 @@
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
+            </Div>
         </DemoSection>
     </Section>
 
@@ -68,9 +72,10 @@
                      Description="Use type=&quot;multiple&quot; to allow multiple items to be open at the same time."
                      Code="@MultipleCode"
                      CodeLanguage="razor">
+            <Div Class="w-full max-w-sm">
             <Accordion Multiple="true"
                        DefaultValues="@MultipleDefaultValues"
-                       Class="max-w-sm">
+                       Class="w-full">
                 <AccordionItem Value="notifications">
                     <AccordionTrigger>Notification Settings</AccordionTrigger>
                     <AccordionContent>
@@ -90,6 +95,7 @@
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
+            </Div>
         </DemoSection>
     </Section>
 
@@ -98,8 +104,9 @@
                      Description="Disable individual items with the Disabled prop on AccordionItem."
                      Code="@DisabledCode"
                      CodeLanguage="razor">
+            <Div Class="w-full max-w-sm">
             <Accordion Collapsible="true"
-                       Class="max-w-sm">
+                       Class="w-full">
                 <AccordionItem Value="item-1">
                     <AccordionTrigger>Can I access my account history?</AccordionTrigger>
                     <AccordionContent>
@@ -119,6 +126,7 @@
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
+            </Div>
         </DemoSection>
     </Section>
 
@@ -127,9 +135,10 @@
                      Description="Add border to the Accordion and border-b last:border-b-0 to each AccordionItem."
                      Code="@BordersCode"
                      CodeLanguage="razor">
+            <Div Class="w-full max-w-sm">
             <Accordion Collapsible="true"
                        DefaultValue="billing"
-                       Class="max-w-sm rounded-lg border">
+                       Class="w-full rounded-lg border">
                 <AccordionItem Value="billing" Class="border-b px-4 last:border-b-0">
                     <AccordionTrigger>How does billing work?</AccordionTrigger>
                     <AccordionContent>
@@ -149,6 +158,7 @@
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
+            </Div>
         </DemoSection>
     </Section>
 
@@ -222,6 +232,24 @@
                     </Accordion>
                 </Div>
             </DirectionProvider>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Force Mount"
+                     Description="Keep closed panel content mounted in the DOM when animations or measurement need a stable subtree."
+                     Code="@ForceMountCode"
+                     CodeLanguage="razor">
+            <Accordion Collapsible="true"
+                       Class="max-w-sm"
+                       data-testid="accordion-force-mount-demo">
+                <AccordionItem Value="item-1" ForceMount="true">
+                    <AccordionTrigger>Keep details mounted for animation</AccordionTrigger>
+                    <AccordionContent Class="accordion-force-mount-content">
+                        Force mounted accordion details remain in the DOM while closed.
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
         </DemoSection>
     </Section>
 </Div>
@@ -409,5 +437,17 @@
         </Accordion>
     </Div>
 </DirectionProvider>
+""";
+
+    private const string ForceMountCode =
+"""
+<Accordion Collapsible="true" Class="max-w-sm">
+    <AccordionItem Value="item-1" ForceMount="true">
+        <AccordionTrigger>Keep details mounted for animation</AccordionTrigger>
+        <AccordionContent Class="accordion-force-mount-content">
+            Force mounted accordion details remain in the DOM while closed.
+        </AccordionContent>
+    </AccordionItem>
+</Accordion>
 """;
 }

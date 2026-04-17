@@ -107,7 +107,7 @@
                          Description="Use two-way binding to reflect pressed state in the label."
                          Code="@StatefulBookmarkCode"
                          CodeLanguage="razor">
-                    <Toggle @bind-Pressed="_bookmarkPressed"
+                <Toggle @bind-Pressed="_bookmarkPressed"
                         aria-label="Toggle bookmark"
                         Variant="ToggleVariant.Outline"
                         Size="ToggleSize.Small"
@@ -117,11 +117,36 @@
                 </Toggle>
             </DemoSection>
         </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Controlled state"
+                         Description="External controls can drive the same pressed state without drifting out of sync."
+                         Code="@ControlledCode"
+                         CodeLanguage="razor">
+                <Div data-testid="toggle-controlled-demo" Space="Space.Y.Is3">
+                    <Div Class="flex flex-wrap gap-2">
+                        <Button Id="toggle-controlled-on" Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="@(() => _controlledPressed = true)">Set on</Button>
+                        <Button Id="toggle-controlled-off" Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="@(() => _controlledPressed = false)">Set off</Button>
+                    </Div>
+                    <Toggle @bind-Pressed="_controlledPressed"
+                            Id="toggle-controlled"
+                            aria-label="Toggle notifications"
+                            Variant="ToggleVariant.Outline">
+                        <span data-icon="inline-start"><Icon Name="LucideIcon.Bell" /></span>
+                        Notifications
+                    </Toggle>
+                    <Paragraph Id="toggle-controlled-state" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                        Pressed: @_controlledPressed.ToString().ToLowerInvariant()
+                    </Paragraph>
+                </Div>
+            </DemoSection>
+        </Section>
     </Div>
 </Div>
 
 @code {
     private bool _bookmarkPressed;
+    private bool _controlledPressed = true;
 
     private const string BasicCode =
 @"<Toggle aria-label=""Toggle bookmark""
@@ -192,4 +217,21 @@
     <span data-icon=""inline-start""><Icon Name=""LucideIcon.Bookmark"" /></span>
     @(_bookmarkPressed ? ""Saved"" : ""Bookmark"")
 </Toggle>";
+
+    private const string ControlledCode =
+@"<Div Space=""Space.Y.Is3"">
+    <Div Class=""flex flex-wrap gap-2"">
+        <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Small"" OnClick=""@(() => _controlledPressed = true)"">Set on</Button>
+        <Button Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Small"" OnClick=""@(() => _controlledPressed = false)"">Set off</Button>
+    </Div>
+    <Toggle @bind-Pressed=""_controlledPressed""
+            aria-label=""Toggle notifications""
+            Variant=""ToggleVariant.Outline"">
+        <span data-icon=""inline-start""><Icon Name=""LucideIcon.Bell"" /></span>
+        Notifications
+    </Toggle>
+    <Paragraph TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"">
+        Pressed: @_controlledPressed.ToString().ToLowerInvariant()
+    </Paragraph>
+</Div>";
 }

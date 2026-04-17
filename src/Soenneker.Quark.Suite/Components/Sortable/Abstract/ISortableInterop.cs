@@ -13,7 +13,7 @@ public interface ISortableInterop : IAsyncDisposable
 {
     ValueTask Initialize(CancellationToken cancellationToken = default);
 
-    ValueTask InitializeList(ElementReference element, bool disabled, bool sort, int animation, string itemSelector, string? handleSelector,
+    ValueTask InitializeList(ElementReference element, bool disabled, bool sort, int animation, bool forceFallback, string itemSelector, string? handleSelector,
         string? filterSelector, string? group, DotNetObjectReference<SortableList> callbackReference, CancellationToken cancellationToken = default);
 
     ValueTask Destroy(ElementReference element, CancellationToken cancellationToken = default);

@@ -19,8 +19,7 @@ public sealed class SortableInterop : ISortableInterop
     private readonly CancellationScope _cancellationScope = new();
 
     private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/sortableinterop.js";
-    private const string _cdnScriptUrl = "https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js";
-    private const string _cdnScriptIntegrity = "sha256-v0JBvHP+9/EcWaKDpp/oBRzdMcbY/1orm6IZ54Mfz3Y=";
+    private const string _sortableScriptPath = "./_content/Soenneker.Quark.Suite/js/vendor/sortable.min.js";
 
     public SortableInterop(IModuleImportUtil moduleImportUtil, IResourceLoader resourceLoader)
     {
@@ -31,7 +30,7 @@ public sealed class SortableInterop : ISortableInterop
 
     private async ValueTask InitializeResources(CancellationToken token)
     {
-        await _resourceLoader.LoadScript(_cdnScriptUrl, integrity: _cdnScriptIntegrity, cancellationToken: token);
+        await _resourceLoader.LoadScript(_sortableScriptPath, cancellationToken: token);
         var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
         await module.InvokeVoidAsync("ensureAvailable", token);
     }
@@ -46,8 +45,9 @@ public sealed class SortableInterop : ISortableInterop
         }
     }
 
-    public async ValueTask InitializeList(ElementReference element, bool disabled, bool sort, int animation, string itemSelector, string? handleSelector,
-        string? filterSelector, string? group, DotNetObjectReference<SortableList> callbackReference, CancellationToken cancellationToken = default)
+    public async ValueTask InitializeList(ElementReference element, bool disabled, bool sort, int animation, bool forceFallback, string itemSelector,
+        string? handleSelector, string? filterSelector, string? group, DotNetObjectReference<SortableList> callbackReference,
+        CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
@@ -55,7 +55,7 @@ public sealed class SortableInterop : ISortableInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("initializeList", linked, element, disabled, sort, animation, itemSelector, handleSelector,
+            await module.InvokeVoidAsync("initializeList", linked, element, disabled, sort, animation, forceFallback, itemSelector, handleSelector,
                 filterSelector, group, callbackReference);
         }
     }

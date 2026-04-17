@@ -27,7 +27,7 @@
                                 </Button>
                             </Div>
 
-                            <InputOtp Id="otp-verification" OtpValue="_formOtpValue" OtpValueChanged="OnFormOtpChanged" Length="6" Pattern="@DigitsOnlyPattern" InputMode="numeric" Required="true">
+                            <InputOtp Id="otp-verification" OtpValue="@_formOtpValue" OtpValueChanged="OnFormOtpChanged" Length="6" Pattern="@DigitsOnlyPattern" InputMode="numeric" Required="true">
                                 <InputOtpInput />
                                 <InputOtpGroup Class="*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl">
                                     <InputOtpSlot Index="0" />
@@ -65,7 +65,7 @@
                          CodeLanguage="razor">
                 <Field>
                     <FieldLabel For="simple-otp">Simple</FieldLabel>
-                    <InputOtp Id="simple-otp" OtpValue="_simpleValue" OtpValueChanged="OnSimpleChanged" Length="6">
+                    <InputOtp Id="simple-otp" OtpValue="@_simpleValue" OtpValueChanged="OnSimpleChanged" Length="6">
                         <InputOtpInput />
                         <InputOtpGroup>
                             <InputOtpSlot Index="0" />
@@ -90,7 +90,7 @@
                          CodeLanguage="razor">
                 <Field>
                     <FieldLabel For="digits-only-otp">Digits Only</FieldLabel>
-                    <InputOtp Id="digits-only-otp" OtpValue="_digitsOnlyValue" OtpValueChanged="OnDigitsOnlyChanged" Length="6" Pattern="@DigitsOnlyPattern" InputMode="numeric">
+                    <InputOtp Id="digits-only-otp" OtpValue="@_digitsOnlyValue" OtpValueChanged="OnDigitsOnlyChanged" Length="6" Pattern="@DigitsOnlyPattern" InputMode="numeric">
                         <InputOtpInput />
                         <InputOtpGroup>
                             <InputOtpSlot Index="0" />
@@ -112,7 +112,7 @@
                          CodeLanguage="razor">
                 <Field>
                     <FieldLabel For="separator-otp">With Separator</FieldLabel>
-                    <InputOtp Id="separator-otp" OtpValue="_separatorValue" OtpValueChanged="OnSeparatorChanged" Length="6" Pattern="@DigitsOnlyPattern" InputMode="numeric">
+                    <InputOtp Id="separator-otp" OtpValue="@_separatorValue" OtpValueChanged="OnSeparatorChanged" Length="6" Pattern="@DigitsOnlyPattern" InputMode="numeric">
                         <InputOtpInput />
                         <InputOtpGroup>
                             <InputOtpSlot Index="0" />
@@ -141,7 +141,7 @@
                 <Field>
                     <FieldLabel For="alphanumeric-otp">Alphanumeric</FieldLabel>
                     <FieldDescription>Accepts both letters and numbers.</FieldDescription>
-                    <InputOtp Id="alphanumeric-otp" OtpValue="_alphaNumericValue" OtpValueChanged="OnAlphaNumericChanged" Length="6" Pattern="@AlphaNumericPattern" InputMode="text">
+                    <InputOtp Id="alphanumeric-otp" OtpValue="@_alphaNumericValue" OtpValueChanged="OnAlphaNumericChanged" Length="6" Pattern="@AlphaNumericPattern" InputMode="text">
                         <InputOtpInput />
                         <InputOtpGroup>
                             <InputOtpSlot Index="0" />
@@ -192,7 +192,7 @@
                 <Field>
                     <FieldLabel For="four-digit-otp">4 Digits</FieldLabel>
                     <FieldDescription>Common pattern for PIN codes.</FieldDescription>
-                    <InputOtp Id="four-digit-otp" OtpValue="_pinValue" OtpValueChanged="OnPinChanged" Length="4" Pattern="@DigitsOnlyPattern" InputMode="numeric">
+                    <InputOtp Id="four-digit-otp" OtpValue="@_pinValue" OtpValueChanged="OnPinChanged" Length="4" Pattern="@DigitsOnlyPattern" InputMode="numeric">
                         <InputOtpInput />
                         <InputOtpGroup>
                             <InputOtpSlot Index="0" />
@@ -213,7 +213,7 @@
                 <Field IsInvalid="true">
                     <FieldLabel For="invalid-otp">Invalid State</FieldLabel>
                     <FieldDescription>Example showing the invalid error state.</FieldDescription>
-                    <InputOtp Id="invalid-otp" OtpValue="_invalidValue" OtpValueChanged="OnInvalidChanged" Length="6" Pattern="@DigitsOnlyPattern" InputMode="numeric">
+                    <InputOtp Id="invalid-otp" OtpValue="@_invalidValue" OtpValueChanged="OnInvalidChanged" Length="6" Pattern="@DigitsOnlyPattern" InputMode="numeric">
                         <InputOtpInput />
                         <InputOtpGroup>
                             <InputOtpSlot Index="0" aria-invalid="true" />
@@ -243,12 +243,35 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Default Value"
+                         Description="Uncontrolled OTP values should survive normal edits and restore their original default when the surrounding form resets."
+                         Code="@DefaultValueCode"
+                         CodeLanguage="razor">
+                <form id="quark-otp-reset-form">
+                    <Div Space="Space.Y.Is3">
+                        <InputOtp DefaultOtpValue="2468" Name="otp-reset" Length="4" Pattern="@DigitsOnlyPattern" InputMode="numeric">
+                            <InputOtpInput />
+                            <InputOtpGroup>
+                                <InputOtpSlot Index="0" />
+                                <InputOtpSlot Index="1" />
+                                <InputOtpSlot Index="2" />
+                                <InputOtpSlot Index="3" />
+                            </InputOtpGroup>
+                        </InputOtp>
+
+                        <Button Type="ButtonType.Reset" Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">Reset OTP</Button>
+                    </Div>
+                </form>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Controlled"
                          Description="@($"Current controlled value: {_controlledValue}")"
                          Code="@ControlledCode"
                          CodeLanguage="razor">
                 <Div Space="Space.Y.Is3">
-                    <InputOtp OtpValue="_controlledValue" OtpValueChanged="OnControlledChanged" Length="6" Pattern="@DigitsOnlyPattern" InputMode="numeric">
+                    <InputOtp OtpValue="@_controlledValue" OtpValueChanged="OnControlledChanged" Length="6" Pattern="@DigitsOnlyPattern" InputMode="numeric">
                         <InputOtpInput />
                         <InputOtpGroup>
                             <InputOtpSlot Index="0" />
@@ -521,7 +544,7 @@
 </Field>";
 
     private const string ControlledCode =
-@"<InputOtp OtpValue=""controlledValue"" OtpValueChanged=""OnControlledChanged"" Length=""6"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"">
+@"<InputOtp OtpValue=""@controlledValue"" OtpValueChanged=""OnControlledChanged"" Length=""6"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"">
     <InputOtpInput />
     <InputOtpGroup>
         <InputOtpSlot Index=""0"" />
@@ -535,4 +558,19 @@
         <InputOtpSlot Index=""5"" />
     </InputOtpGroup>
 </InputOtp>";
+
+    private const string DefaultValueCode =
+@"<form>
+    <InputOtp DefaultOtpValue=""2468"" Name=""otp-reset"" Length=""4"" Pattern=""@DigitsOnlyPattern"" InputMode=""numeric"">
+        <InputOtpInput />
+        <InputOtpGroup>
+            <InputOtpSlot Index=""0"" />
+            <InputOtpSlot Index=""1"" />
+            <InputOtpSlot Index=""2"" />
+            <InputOtpSlot Index=""3"" />
+        </InputOtpGroup>
+    </InputOtp>
+
+    <Button Type=""ButtonType.Reset"" Variant=""ButtonVariant.Outline"" Size=""ButtonSize.Sm"">Reset OTP</Button>
+</form>";
 }

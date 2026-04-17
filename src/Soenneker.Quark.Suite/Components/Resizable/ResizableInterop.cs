@@ -32,7 +32,31 @@ public sealed class ResizableInterop : IResizableInterop
 
         using (source)
         {
-            await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidAsync("initialize", linked);
+        }
+    }
+
+    public async ValueTask RegisterHandle(ElementReference handle, ElementReference group, string orientation,
+        DotNetObjectReference<ResizablePanelGroup> callbackReference, int handleIndex, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            var module = await GetModule(linked);
+            await module.InvokeVoidAsync("registerHandle", linked, handle, group, orientation, callbackReference, handleIndex);
+        }
+    }
+
+    public async ValueTask UnregisterHandle(ElementReference handle, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+
+        using (source)
+        {
+            var module = await GetModule(linked);
+            await module.InvokeVoidAsync("unregisterHandle", linked, handle);
         }
     }
 

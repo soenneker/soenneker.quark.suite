@@ -9,7 +9,9 @@
               OpenChanged="HandleOpenChanged"
               Modal="@TrapFocus">
     <CascadingValue Name="ParentDialog" Value="@this">
-        @ChildContent
+        <CascadingValue Value="_context" IsFixed="true">
+            @ChildContent
+        </CascadingValue>
     </CascadingValue>
 </BradixDialog>
 
@@ -43,6 +45,8 @@
     /// </summary>
     [Parameter]
     public EventCallback OnBackdropClick { get; set; }
+
+    private readonly OverlayLabelContext _context = new("dialog");
 
     /// <summary>
     /// Shows the dialog.
@@ -91,6 +95,11 @@
         hc.Add(DialogSize);
         hc.Add(Static);
         hc.Add(Visible);
+        hc.Add(_context.ContentId);
+        hc.Add(_context.HasTitle);
+        hc.Add(_context.HasDescription);
+        hc.Add(_context.TitleId);
+        hc.Add(_context.DescriptionId);
     }
 
 }

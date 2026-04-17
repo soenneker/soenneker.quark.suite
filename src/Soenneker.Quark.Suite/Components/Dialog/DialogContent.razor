@@ -11,7 +11,7 @@
         <BradixDialogOverlay AdditionalAttributes="@OverlayAttributes" />
     }
 
-    <BradixDialogContent Id="@BradixDialog?.ContentId"
+    <BradixDialogContent Id="@Context?.ContentId"
                          CloseOnEscapeKeyDown="@(ParentDialog?.CloseOnEscape ?? true)"
                          CloseOnPointerDownOutside="@ShouldCloseOnOutsideInteraction"
                          CloseOnFocusOutside="@ShouldCloseOnOutsideInteraction"
@@ -30,7 +30,7 @@
     public Dialog? ParentDialog { get; set; }
 
     [CascadingParameter]
-    private BradixDialog? BradixDialog { get; set; }
+    private OverlayLabelContext? Context { get; set; }
 
     [Parameter]
     public bool Centered { get; set; }
@@ -50,6 +50,15 @@
     private Task HandleBackdropPointerDownOutside()
     {
         return ParentDialog?.OnBackdropClick.InvokeIfHasDelegate() ?? Task.CompletedTask;
+    }
+
+    private async Task HandleOverlayClick()
+    {
+        if (!ShouldCloseOnOutsideInteraction || ParentDialog is null)
+            return;
+
+        await ParentDialog.OnBackdropClick.InvokeIfHasDelegate();
+        await ParentDialog.Hide();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -94,8 +103,11 @@
         });
 
         attributes["data-slot"] = "dialog-overlay";
-        attributes["data-state"] = BradixDialog?.CurrentOpen == true ? "open" : "closed";
+        attributes["data-state"] = ParentDialog?.Visible == true ? "open" : "closed";
         attributes["aria-hidden"] = "true";
+
+        if (ShouldCloseOnOutsideInteraction)
+            attributes["onclick"] = EventCallback.Factory.Create(this, HandleOverlayClick);
 
         return attributes;
     }
@@ -105,7 +117,7 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(ShowCloseButton);
         hc.Add(Centered);
-        hc.Add(BradixDialog?.CurrentOpen ?? false);
+        hc.Add(ParentDialog?.Visible ?? false);
         hc.Add(ParentDialog?.ShowBackdrop ?? true);
         hc.Add(ParentDialog?.Centered ?? false);
         hc.Add(ParentDialog?.Scrollable ?? false);
@@ -114,6 +126,6 @@
         hc.Add(ParentDialog?.TrapFocus ?? true);
         hc.Add(ParentDialog?.CloseOnEscape ?? true);
         hc.Add(ParentDialog?.CloseOnBackdropClick ?? true);
-        hc.Add(BradixDialog?.ContentId);
+        hc.Add(Context?.ContentId);
     }
 }

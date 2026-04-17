@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
@@ -47,7 +48,8 @@ public sealed class QuarkAccordionPlaywrightTests : PlaywrightUnitTest
         await enabledTrigger.PressAsync("ArrowDown");
         await ExpectActiveElementAsync(page, trailingTrigger);
 
-        await disabledTrigger.ClickAsync(new LocatorClickOptions { Force = true });
+        await disabledTrigger.ScrollIntoViewIfNeededAsync();
+        await disabledTrigger.EvaluateAsync("element => element.click()");
         await Assertions.Expect(disabledTrigger).ToHaveAttributeAsync("aria-expanded", "false");
         await Assertions.Expect(page.GetByText("Upgrade your plan to access this content.", new PageGetByTextOptions { Exact = true })).Not.ToBeVisibleAsync();
     }
@@ -72,6 +74,146 @@ public sealed class QuarkAccordionPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(secondTrigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(page.GetByText("Manage how you receive notifications. You can enable email alerts for updates or push notifications for mobile devices.", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
         await Assertions.Expect(page.GetByText("Control your privacy settings and security preferences. Enable two-factor authentication, manage connected devices, review active sessions, and configure data sharing preferences. You can also download your data or delete your account.", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
+    }
+
+    [Fact]
+    public async ValueTask Accordion_basic_demo_only_keeps_one_item_open_and_allows_collapse()
+    {
+        await using BrowserSession session = await CreateSession();
+        IPage page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}accordions",
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "How do I reset my password?", Exact = true }),
+            expectedTitle: "Accordion - Quark Suite");
+
+        ILocator basicSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A basic accordion that shows one item at a time. The first item is open by default." }).First;
+        ILocator firstTrigger = basicSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "How do I reset my password?", Exact = true });
+        ILocator secondTrigger = basicSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Can I change my subscription plan?", Exact = true });
+        string? firstPanelId = await firstTrigger.GetAttributeAsync("aria-controls");
+        string? secondPanelId = await secondTrigger.GetAttributeAsync("aria-controls");
+
+        Assert.False(string.IsNullOrWhiteSpace(firstPanelId));
+        Assert.False(string.IsNullOrWhiteSpace(secondPanelId));
+
+        ILocator firstContent = page.Locator($"#{firstPanelId}");
+        ILocator secondContent = page.Locator($"#{secondPanelId}");
+
+        await Assertions.Expect(firstTrigger).ToHaveAttributeAsync("aria-expanded", "true");
+        await Assertions.Expect(firstContent).ToBeVisibleAsync();
+
+        await secondTrigger.ClickAsync();
+
+        await Assertions.Expect(firstTrigger).ToHaveAttributeAsync("aria-expanded", "false");
+        await Assertions.Expect(secondTrigger).ToHaveAttributeAsync("aria-expanded", "true");
+        await Assertions.Expect(firstContent).Not.ToBeVisibleAsync();
+        await Assertions.Expect(secondContent).ToBeVisibleAsync();
+
+        await secondTrigger.ClickAsync();
+
+        await Assertions.Expect(secondTrigger).ToHaveAttributeAsync("aria-expanded", "false");
+        await Assertions.Expect(secondContent).Not.ToBeVisibleAsync();
+        await Assertions.Expect(firstContent).ToHaveCountAsync(0);
+        await Assertions.Expect(secondContent).ToHaveCountAsync(0);
+    }
+
+    [Fact]
+    public async ValueTask Accordion_demo_preserves_container_width_when_switching_open_items()
+    {
+        await using BrowserSession session = await CreateSession();
+        IPage page = session.Page;
+        await page.SetViewportSizeAsync(1400, 1000);
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}accordions",
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "What are your shipping options?", Exact = true }),
+            expectedTitle: "Accordion - Quark Suite");
+
+        ILocator demoSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Official shadcn accordion demo." }).First;
+        ILocator accordion = demoSection.Locator("[data-slot='accordion']").First;
+        ILocator accordionContainer = accordion.Locator("xpath=..").First;
+        ILocator shippingTrigger = demoSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "What are your shipping options?", Exact = true });
+        ILocator returnsTrigger = demoSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "What is your return policy?", Exact = true });
+
+        string? shippingPanelId = await shippingTrigger.GetAttributeAsync("aria-controls");
+        Assert.False(string.IsNullOrWhiteSpace(shippingPanelId));
+
+        ILocator shippingContent = page.Locator($"#{shippingPanelId}");
+        LocatorBoundingBoxResult? initialBox = await accordionContainer.BoundingBoxAsync();
+        Assert.NotNull(initialBox);
+        Assert.InRange(initialBox.Width, 300, 420);
+
+        LocatorBoundingBoxResult? shippingContentBox = await shippingContent.BoundingBoxAsync();
+        Assert.NotNull(shippingContentBox);
+        Assert.True(shippingContentBox.Height >= 40, $"Expected the initially open accordion panel to render full content height, but measured {shippingContentBox.Height}.");
+
+        await returnsTrigger.ClickAsync();
+
+        LocatorBoundingBoxResult? afterSwitchBox = await accordionContainer.BoundingBoxAsync();
+        Assert.NotNull(afterSwitchBox);
+        Assert.InRange(Math.Abs(afterSwitchBox.Width - initialBox.Width), 0, 2);
+
+        string? returnsPanelId = await returnsTrigger.GetAttributeAsync("aria-controls");
+        Assert.False(string.IsNullOrWhiteSpace(returnsPanelId));
+
+        ILocator returnsContent = page.Locator($"#{returnsPanelId}");
+        LocatorBoundingBoxResult? returnsContentBox = await returnsContent.BoundingBoxAsync();
+        Assert.NotNull(returnsContentBox);
+        Assert.True(returnsContentBox.Height >= 40, $"Expected the newly opened accordion panel to render full content height, but measured {returnsContentBox.Height}.");
+    }
+
+    [Fact]
+    public async ValueTask Accordion_rtl_demo_preserves_single_open_state_and_rtl_keyboard_navigation()
+    {
+        await using BrowserSession session = await CreateSession();
+        IPage page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}accordions",
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "كيف يمكنني إعادة تعيين كلمة المرور؟", Exact = true }),
+            expectedTitle: "Accordion - Quark Suite");
+
+        ILocator rtlSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Official shadcn RTL example." }).First;
+        ILocator firstTrigger = rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "كيف يمكنني إعادة تعيين كلمة المرور؟", Exact = true });
+        ILocator secondTrigger = rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "هل يمكنني تغيير خطة الاشتراك الخاصة بي؟", Exact = true });
+        ILocator thirdTrigger = rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "ما هي طرق الدفع التي تقبلونها؟", Exact = true });
+
+        await firstTrigger.PressAsync("ArrowDown");
+        await ExpectActiveElementAsync(page, secondTrigger);
+
+        await secondTrigger.PressAsync("End");
+        await ExpectActiveElementAsync(page, thirdTrigger);
+
+        await secondTrigger.ClickAsync();
+
+        await Assertions.Expect(firstTrigger).ToHaveAttributeAsync("aria-expanded", "false");
+        await Assertions.Expect(secondTrigger).ToHaveAttributeAsync("aria-expanded", "true");
+    }
+
+    [Fact]
+    public async ValueTask Accordion_force_mount_demo_keeps_closed_content_mounted_with_closed_state_metadata()
+    {
+        await using BrowserSession session = await CreateSession();
+        IPage page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}accordions",
+            static p => p.Locator("[data-testid='accordion-force-mount-demo']"),
+            expectedTitle: "Accordion - Quark Suite");
+
+        ILocator demo = page.Locator("[data-testid='accordion-force-mount-demo']");
+        ILocator trigger = demo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Keep details mounted for animation", Exact = true });
+        ILocator contentInner = demo.Locator(".accordion-force-mount-content").First;
+        ILocator content = contentInner.Locator("xpath=..");
+
+        await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
+        await Assertions.Expect(content).ToHaveAttributeAsync("data-state", "closed");
+        await Assertions.Expect(contentInner).ToContainTextAsync("Force mounted accordion details remain in the DOM while closed.");
+
+        await trigger.ClickAsync();
+
+        await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");
+        await Assertions.Expect(content).ToHaveAttributeAsync("data-state", "open");
     }
 
     private static async Task ExpectActiveElementAsync(IPage page, ILocator locator)

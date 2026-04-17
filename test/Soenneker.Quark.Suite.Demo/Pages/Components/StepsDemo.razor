@@ -70,6 +70,53 @@ CodeLanguage="razor">
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Disabled steps"
+                         Description="Disabled steps stay inert and keep the current panel selected."
+                         Code="@(@"<Steps @bind-SelectedStep=""_currentDisabledStep"">
+    <Step Name=""details""><StepMarker><Span>1</Span></StepMarker><StepCaption>Details</StepCaption></Step>
+    <Step Name=""billing"" Disabled=""true""><StepMarker><Span>2</Span></StepMarker><StepCaption>Billing</StepCaption></Step>
+    <Step Name=""confirm""><StepMarker><Span>3</Span></StepMarker><StepCaption>Confirm</StepCaption></Step>
+    <StepContent>
+        <StepPanel Name=""details"">Details panel</StepPanel>
+        <StepPanel Name=""billing"">Billing panel</StepPanel>
+        <StepPanel Name=""confirm"">Confirm panel</StepPanel>
+    </StepContent>
+</Steps>")"
+                         CodeLanguage="razor">
+                <Div id="steps-disabled-demo" class="space-y-4">
+                    <Steps @bind-SelectedStep="_currentDisabledStep">
+                        <Step Name="details">
+                            <StepMarker><Span>1</Span></StepMarker>
+                            <StepCaption><Div Class="step-title">Details</Div></StepCaption>
+                        </Step>
+                        <Step Name="billing" Disabled="true">
+                            <StepMarker><Span>2</Span></StepMarker>
+                            <StepCaption><Div Class="step-title">Billing</Div></StepCaption>
+                        </Step>
+                        <Step Name="confirm">
+                            <StepMarker><Span>3</Span></StepMarker>
+                            <StepCaption><Div Class="step-title">Confirm</Div></StepCaption>
+                        </Step>
+
+                        <StepContent>
+                            <StepPanel Name="details">
+                                <Paragraph>Details panel</Paragraph>
+                            </StepPanel>
+                            <StepPanel Name="billing">
+                                <Paragraph>Billing panel</Paragraph>
+                            </StepPanel>
+                            <StepPanel Name="confirm">
+                                <Paragraph>Confirm panel</Paragraph>
+                            </StepPanel>
+                        </StepContent>
+                    </Steps>
+
+                    <Text id="steps-disabled-current" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">Current Step: @_currentDisabledStep</Text>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <DemoSection Title="Steps with validation" Description="Personal → Contact → Review with form fields." Code="@(@"<Steps @ref=""_validationStepsRef"" @bind-SelectedStep=""_currentValidationStep"">
     <Step Name=""personal""><StepMarker><Span>1</Span></StepMarker><StepCaption>Personal</StepCaption></Step>
     <Step Name=""contact""><StepMarker><Span>2</Span></StepMarker><StepCaption>Contact</StepCaption></Step>
@@ -407,6 +454,7 @@ CodeLanguage="razor">
     private Steps? _navigationStepsRef;
 
     private string _currentStep = "step1";
+    private string _currentDisabledStep = "details";
     private string _currentValidationStep = "personal";
     private string _currentStyledStep = "design";
     private string _currentNavigationStep = "account";

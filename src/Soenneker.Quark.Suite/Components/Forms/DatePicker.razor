@@ -92,6 +92,7 @@
     private ElementReference _ref;
     private bool _open;
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
+    private DateOnly? _lastSyncedSelectedDate;
     private readonly string _panelId = BlazorIdGenerator.New("quark-datepicker-panel");
 
     private string PanelClass => "q-calendar-panel w-auto rounded-md border bg-popover p-0 text-popover-foreground shadow-md";
@@ -118,6 +119,7 @@
         var next = Parse(e);
         var valueChanged = SelectedDate != next;
         SelectedDate = next;
+        SyncDisplayMonthToSelection(next);
         if (valueChanged)
             await SelectedDateChanged.InvokeIfHasDelegate(SelectedDate);
         await OnInput.InvokeIfHasDelegate(e);
@@ -137,6 +139,7 @@
         var next = Parse(e);
         var valueChanged = SelectedDate != next;
         SelectedDate = next;
+        SyncDisplayMonthToSelection(next);
         if (valueChanged)
             await SelectedDateChanged.InvokeIfHasDelegate(SelectedDate);
         await OnChange.InvokeIfHasDelegate(e);
@@ -188,6 +191,14 @@
             else
                 _displayMonth = new DateOnly(DateOnly.FromDateTime(DateTime.Today).Year, DateOnly.FromDateTime(DateTime.Today).Month, 1);
         }
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (SelectedDate != _lastSyncedSelectedDate)
+            SyncDisplayMonthToSelection(SelectedDate);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -282,6 +293,7 @@
         if (SelectedDate != date)
         {
             SelectedDate = date;
+            SyncDisplayMonthToSelection(date);
             await SelectedDateChanged.InvokeAsync(SelectedDate);
         }
         
@@ -302,6 +314,16 @@
         InvalidateRender();
         Refresh();
         return Task.CompletedTask;
+    }
+
+    private void SyncDisplayMonthToSelection(DateOnly? selectedDate)
+    {
+        _lastSyncedSelectedDate = selectedDate;
+
+        if (!selectedDate.HasValue)
+            return;
+
+        _displayMonth = new DateOnly(selectedDate.Value.Year, selectedDate.Value.Month, 1);
     }
 
     protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)

@@ -1,0 +1,86 @@
+using System;
+using System.Globalization;
+using System.Threading.Tasks;
+using Microsoft.Playwright;
+using Soenneker.Playwrights.Extensions.TestPages;
+using Soenneker.Playwrights.Session;
+using Soenneker.Playwrights.Tests.Unit;
+using Xunit;
+
+namespace Soenneker.Quark.Suite.Playwrights.Tests;
+
+[Collection("Collection")]
+public sealed class QuarkDrawerPlaywrightTests : PlaywrightUnitTest
+{
+    public QuarkDrawerPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    {
+    }
+
+[Fact]
+    public async ValueTask Drawer_demo_updates_goal_state_and_cancel_restores_trigger_focus()
+    {
+        await using BrowserSession session = await CreateSession();
+        IPage page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}drawers",
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open Drawer", Exact = true }),
+            expectedTitle: "Drawer - Quark Suite");
+
+        ILocator trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open Drawer", Exact = true });
+        await trigger.ClickAsync();
+
+        ILocator dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Move Goal", Exact = true });
+        ILocator content = page.Locator("[data-slot='drawer-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "Calories/day" }).First;
+        await Assertions.Expect(dialog).ToBeVisibleAsync();
+        await Assertions.Expect(content).ToHaveAttributeAsync("data-direction", "bottom");
+        await Assertions.Expect(content).ToContainTextAsync("350");
+
+        await dialog.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Increase", Exact = true }).ClickAsync();
+        await Assertions.Expect(content).ToContainTextAsync("360");
+
+        await dialog.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Decrease", Exact = true }).ClickAsync();
+        await Assertions.Expect(content).ToContainTextAsync("350");
+
+        await dialog.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Cancel", Exact = true }).ClickAsync();
+
+        await Assertions.Expect(dialog).Not.ToBeVisibleAsync();
+        await Assertions.Expect(trigger).ToBeFocusedAsync();
+    }
+
+[Fact]
+    public async ValueTask Drawer_sides_and_rtl_examples_emit_expected_direction_attributes_and_close_from_cancel()
+    {
+        await using BrowserSession session = await CreateSession();
+        IPage page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}drawers",
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "top", Exact = true }),
+            expectedTitle: "Drawer - Quark Suite");
+
+        ILocator sidesSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Drawers can open from any edge via `Direction`." }).First;
+        foreach (string side in new[] { "top", "right", "bottom", "left" })
+        {
+            ILocator sideTrigger = sidesSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = side, Exact = true });
+            await sideTrigger.ClickAsync();
+
+            ILocator content = page.Locator("[data-slot='drawer-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "Set your daily activity goal." }).First;
+            await Assertions.Expect(content).ToHaveAttributeAsync("data-direction", side);
+
+            await content.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Cancel", Exact = true }).ClickAsync();
+            await Assertions.Expect(content).ToBeHiddenAsync();
+        }
+
+        ILocator rtlSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Drawer chrome and slide direction in RTL layouts." }).First;
+        ILocator rtlTrigger = rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "افتح الدرج", Exact = true });
+        await rtlTrigger.ClickAsync();
+
+        ILocator rtlContent = page.Locator("[data-slot='drawer-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "تعديل الملف الشخصي" }).First;
+        await Assertions.Expect(rtlContent).ToHaveAttributeAsync("data-direction", "left");
+        await Assertions.Expect(rtlContent).ToContainTextAsync("حدّث معلوماتك ثم احفظ التغييرات.");
+
+        await rtlContent.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "إلغاء", Exact = true }).ClickAsync();
+        await Assertions.Expect(rtlContent).ToBeHiddenAsync();
+    }
+}

@@ -218,12 +218,12 @@
                          Code="@ErrorFallbackCode"
                          CodeLanguage="razor">
                 <Div Class="flex flex-wrap items-center gap-4">
-                    <Avatar>
+                    <Avatar Id="avatar-error-example">
                         <AvatarImage Src="https://example.invalid/quark-avatar.png" Alt="Broken avatar example" />
                         <AvatarFallback>QE</AvatarFallback>
                     </Avatar>
-                    <Avatar>
-                        <AvatarImage Src="https://github.com/maxleiter.png" Alt="Loaded avatar example" />
+                    <Avatar Id="avatar-loaded-example">
+                        <AvatarImage Src="@LoadedAvatarSrc" Alt="Loaded avatar example" />
                         <AvatarFallback>QL</AvatarFallback>
                     </Avatar>
                 </Div>
@@ -233,6 +233,14 @@
 </Div>
 
 @code {
+    private const string LoadedAvatarSvg =
+@"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'>
+  <rect width='128' height='128' rx='64' fill='#1d4ed8'/>
+  <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='white' font-family='Arial' font-size='44'>QL</text>
+</svg>";
+
+    private static readonly string LoadedAvatarSrc = $"data:image/svg+xml;utf8,{Uri.EscapeDataString(LoadedAvatarSvg)}";
+
     private const string BasicCode =
 @"<Div Class=""flex flex-row flex-wrap items-center gap-12"">
     <Avatar>
@@ -382,12 +390,12 @@
 
     private const string ErrorFallbackCode =
 @"<Div Class=""flex flex-wrap items-center gap-4"">
-    <Avatar>
+    <Avatar Id=""avatar-error-example"">
         <AvatarImage Src=""https://example.invalid/quark-avatar.png"" Alt=""Broken avatar example"" />
         <AvatarFallback>QE</AvatarFallback>
     </Avatar>
-    <Avatar>
-        <AvatarImage Src=""https://github.com/maxleiter.png"" Alt=""Loaded avatar example"" />
+    <Avatar Id=""avatar-loaded-example"">
+        <AvatarImage Src=""@LoadedAvatarSrc"" Alt=""Loaded avatar example"" />
         <AvatarFallback>QL</AvatarFallback>
     </Avatar>
 </Div>";

@@ -2,17 +2,79 @@
 @inherits Soenneker.Quark.TypographyElement
 @implements ISpan
 
-<span @attributes="BuildAttributes()">@ChildContent</span>
+<span @ref="ElementRef"
+      @onclick="HandleClick"
+      @onmouseenter="HandleMouseEnter"
+      @onmouseleave="HandleMouseLeave"
+      @onfocusin="HandleFocusIn"
+      @onfocusout="HandleFocusOut"
+      @onkeydown="HandleKeyDown"
+      @attributes="BuildAttributes()">@ChildContent</span>
 
 @code {
+    [CascadingParameter(Name = "TriggerContext")]
+    private TriggerContext? TriggerContext { get; set; }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+
+        if (TriggerContext?.TriggerId is not null)
+            attributes["id"] = TriggerContext.TriggerId;
+
+        if (TriggerContext?.DataState is not null)
+            attributes["data-state"] = TriggerContext.DataState;
+
+        if (TriggerContext?.AriaHasPopup is not null)
+            attributes["aria-haspopup"] = TriggerContext.AriaHasPopup;
+
+        if (TriggerContext?.AriaControls is not null)
+        {
+            attributes["aria-expanded"] = TriggerContext.IsOpen ? "true" : "false";
+            attributes["aria-controls"] = TriggerContext.AriaControls;
+        }
+
+        if (TriggerContext?.AriaDescribedBy is not null && !attributes.ContainsKey("aria-describedby"))
+            attributes["aria-describedby"] = TriggerContext.AriaDescribedBy;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-span");
             AppendClass(ref cls, "text-foreground");
         });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        TriggerContext?.RegisterElement?.Invoke(ElementRef);
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(TriggerContext?.TriggerId);
+        hc.Add(TriggerContext?.DataState);
+        hc.Add(TriggerContext?.AriaHasPopup);
+        hc.Add(TriggerContext?.AriaControls);
+        hc.Add(TriggerContext?.AriaDescribedBy);
+        hc.Add(TriggerContext?.IsOpen);
+    }
+
+    private Task HandleMouseEnter(MouseEventArgs e) => TriggerContext?.OnMouseEnter?.Invoke() ?? Task.CompletedTask;
+    private Task HandleMouseLeave(MouseEventArgs e) => TriggerContext?.OnMouseLeave?.Invoke() ?? Task.CompletedTask;
+    private Task HandleFocusIn(FocusEventArgs e) => TriggerContext?.OnFocusIn?.Invoke() ?? Task.CompletedTask;
+    private Task HandleFocusOut(FocusEventArgs e) => TriggerContext?.OnFocusOut?.Invoke() ?? Task.CompletedTask;
+    private Task HandleKeyDown(KeyboardEventArgs e) => TriggerContext?.OnKeyDown?.Invoke(e) ?? Task.CompletedTask;
+
+    protected override async Task HandleClick(MouseEventArgs e)
+    {
+        await base.HandleClick(e);
+
+        if (TriggerContext?.OnClick is not null)
+            await TriggerContext.OnClick();
+
+        if (TriggerContext?.Toggle is not null)
+            await TriggerContext.Toggle();
     }
 }
