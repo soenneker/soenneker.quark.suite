@@ -30,6 +30,14 @@ internal sealed class TriggerContext
 
     public Func<Task>? Close { get; init; }
 
+    public Func<Task>? OnPointerMove { get; init; }
+
+    public Func<Task>? OnPointerLeave { get; init; }
+
+    public Func<Task>? OnPointerDown { get; init; }
+
+    public Func<Task>? OnPointerUp { get; init; }
+
     public Func<Task>? OnMouseEnter { get; init; }
 
     public Func<Task>? OnMouseLeave { get; init; }

@@ -1,12 +1,11 @@
 @using Soenneker.Bradix
-
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
 <div @attributes="BuildAttributes()">
     <BradixPopover Open="@(OpenChanged.HasDelegate ? Open : (bool?)null)"
                    DefaultOpen="@DefaultOpen"
-                   OpenChanged="HandleOpenChanged"
+                   OpenChanged="@OpenChanged"
                    Modal="@Modal">
         <CascadingValue Value="_context" IsFixed="true">
             @ChildContent
@@ -42,12 +41,6 @@
     {
         _context.Modal = Modal;
         base.OnParametersSet();
-    }
-
-    private async Task HandleOpenChanged(bool open)
-    {
-        if (OpenChanged.HasDelegate)
-            await OpenChanged.InvokeAsync(open);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

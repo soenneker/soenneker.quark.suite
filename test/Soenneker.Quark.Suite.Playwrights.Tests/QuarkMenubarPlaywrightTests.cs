@@ -49,15 +49,16 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}menubar",
-            static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "View", Exact = true }).First,
+            static p => p.Locator("[data-testid='quark-menubar-main-demo']"),
             expectedTitle: "Menubar - Quark Suite");
 
-        ILocator viewTrigger = page.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "View", Exact = true }).First;
+        ILocator demo = page.Locator("[data-testid='quark-menubar-main-demo']");
+        ILocator viewTrigger = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "View", Exact = true });
         await viewTrigger.ClickAsync();
 
         await Assertions.Expect(page.Locator("[role='menu']:visible").First).ToContainTextAsync("Always Show Bookmarks Bar");
 
-        await page.Locator("main").ClickAsync(new LocatorClickOptions { Position = new Position { X = 10, Y = 10 } });
+        await page.Locator("h1").First.ClickAsync();
 
         await Assertions.Expect(viewTrigger).ToHaveAttributeAsync("aria-expanded", "false");
         await Assertions.Expect(page.Locator("[role='menu']:visible")).ToHaveCountAsync(0);
@@ -184,6 +185,7 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
             expectedTitle: "Menubar - Quark Suite");
 
         ILocator profilesTrigger = page.Locator("[data-testid='menubar-radio-trigger']");
+        ILocator selectedProfile = page.Locator("[data-testid='menubar-radio-value']");
         await Assertions.Expect(profilesTrigger).ToBeVisibleAsync();
 
         await profilesTrigger.ClickAsync();
@@ -197,10 +199,16 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
 
         await Assertions.Expect(benoit).ToHaveAttributeAsync("aria-checked", "true");
         await Assertions.Expect(luis).ToHaveAttributeAsync("aria-checked", "false");
+        await Assertions.Expect(selectedProfile).ToHaveTextAsync("benoit");
 
         await luis.ClickAsync();
+        await Assertions.Expect(selectedProfile).ToHaveTextAsync("luis");
+        await Assertions.Expect(profilesTrigger).ToHaveAttributeAsync("aria-expanded", "true");
+        await Assertions.Expect(luis).ToHaveAttributeAsync("aria-checked", "true");
+        await Assertions.Expect(benoit).ToHaveAttributeAsync("aria-checked", "false");
 
-        await Assertions.Expect(page.Locator("[role='menuitemradio']:visible")).ToHaveCountAsync(0);
+        await profilesTrigger.ClickAsync();
+        await Assertions.Expect(profilesTrigger).ToHaveAttributeAsync("aria-expanded", "false");
 
         await profilesTrigger.ClickAsync();
         await Assertions.Expect(profilesTrigger).ToHaveAttributeAsync("aria-expanded", "true");
@@ -225,8 +233,11 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(fullUrls).ToHaveAttributeAsync("aria-checked", "true");
 
         await bookmarks.ClickAsync();
+        await Assertions.Expect(bookmarks).ToHaveAttributeAsync("aria-checked", "true");
+        await Assertions.Expect(fullUrls).ToHaveAttributeAsync("aria-checked", "true");
 
-        await Assertions.Expect(page.Locator("[role='menuitemcheckbox']:visible")).ToHaveCountAsync(0);
+        await viewTrigger.ClickAsync();
+        await Assertions.Expect(viewTrigger).ToHaveAttributeAsync("aria-expanded", "false");
 
         await viewTrigger.ClickAsync();
         await Assertions.Expect(viewTrigger).ToHaveAttributeAsync("aria-expanded", "true");

@@ -306,6 +306,18 @@ else
         if (TriggerContext?.OnMouseLeave is not null)
             attributes["onmouseleave"] = EventCallback.Factory.Create<MouseEventArgs>(this, HandleTriggerMouseLeave);
 
+        if (TriggerContext?.OnPointerMove is not null)
+            attributes["onpointermove"] = EventCallback.Factory.Create<PointerEventArgs>(this, HandleTriggerPointerMove);
+
+        if (TriggerContext?.OnPointerLeave is not null)
+            attributes["onpointerleave"] = EventCallback.Factory.Create<PointerEventArgs>(this, HandleTriggerPointerLeave);
+
+        if (TriggerContext?.OnPointerDown is not null)
+            attributes["onpointerdown"] = EventCallback.Factory.Create<PointerEventArgs>(this, HandleTriggerPointerDown);
+
+        if (TriggerContext?.OnPointerUp is not null)
+            attributes["onpointerup"] = EventCallback.Factory.Create<PointerEventArgs>(this, HandleTriggerPointerUp);
+
         if (TriggerContext?.OnFocusIn is not null)
             attributes["onfocusin"] = EventCallback.Factory.Create<FocusEventArgs>(this, HandleTriggerFocusIn);
 
@@ -360,9 +372,29 @@ else
         return TriggerContext?.OnMouseEnter?.Invoke() ?? Task.CompletedTask;
     }
 
+    private Task HandleTriggerPointerMove(PointerEventArgs args)
+    {
+        return TriggerContext?.OnPointerMove?.Invoke() ?? Task.CompletedTask;
+    }
+
     private Task HandleTriggerMouseLeave(MouseEventArgs args)
     {
         return TriggerContext?.OnMouseLeave?.Invoke() ?? Task.CompletedTask;
+    }
+
+    private Task HandleTriggerPointerLeave(PointerEventArgs args)
+    {
+        return TriggerContext?.OnPointerLeave?.Invoke() ?? Task.CompletedTask;
+    }
+
+    private Task HandleTriggerPointerDown(PointerEventArgs args)
+    {
+        return TriggerContext?.OnPointerDown?.Invoke() ?? Task.CompletedTask;
+    }
+
+    private Task HandleTriggerPointerUp(PointerEventArgs args)
+    {
+        return TriggerContext?.OnPointerUp?.Invoke() ?? Task.CompletedTask;
     }
 
     private Task HandleTriggerFocusIn(FocusEventArgs args)
@@ -408,6 +440,7 @@ else
         hc.Add(Name);
         hc.Add(Variant);
         hc.Add(CollapseTarget);
+        hc.Add(TriggerContext);
         hc.Add(TriggerContext?.TriggerId);
         hc.Add(TriggerContext?.AriaControls);
         hc.Add(TriggerContext?.AriaDescribedBy);

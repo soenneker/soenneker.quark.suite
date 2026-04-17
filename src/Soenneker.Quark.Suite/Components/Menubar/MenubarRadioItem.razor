@@ -1,27 +1,32 @@
-﻿@using Soenneker.Bradix
+@using Soenneker.Bradix
 
 @namespace Soenneker.Quark
-@inherits Soenneker.Quark.ToggleElement
+@inherits Soenneker.Quark.Element
 
-<BradixMenuItem Role="menuitemradio"
-                Disabled="@Disabled"
-                OnSelect="HandleSelect"
-                AdditionalAttributes="@RadioItemAttributes">
+<BradixMenubarRadioItem Value="@Value"
+                        Disabled="@Disabled"
+                        CloseOnSelect="@CloseOnSelect"
+                        AdditionalAttributes="@RadioItemAttributes">
     <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center rtl:left-auto rtl:right-2">
-        @if (Selected)
-        {
+        <BradixMenubarItemIndicator>
             <span class="size-2 rounded-full bg-current"></span>
-        }
+        </BradixMenubarItemIndicator>
     </span>
     @ChildContent
-</BradixMenuItem>
+</BradixMenubarRadioItem>
 
 @code {
-    [Parameter]
-    public bool Selected { get; set; }
+    [Parameter, EditorRequired]
+    public string Value { get; set; } = null!;
 
     [Parameter]
-    public EventCallback<bool> SelectedChanged { get; set; }
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public bool Inset { get; set; }
+
+    [Parameter]
+    public bool CloseOnSelect { get; set; }
 
     private IReadOnlyDictionary<string, object> RadioItemAttributes => BuildRadioItemAttributes();
 
@@ -30,21 +35,20 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "menubar-radio-item";
-        attributes["data-state"] = Selected ? "checked" : "unchecked";
-        attributes["aria-checked"] = Selected ? "true" : "false";
+
+        if (Inset)
+            attributes["data-inset"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-menubar-radio-item");
-            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-xs py-1.5 pr-2 pl-8 rtl:pr-8 rtl:pl-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
+            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-xs py-1.5 pr-2 pl-8 rtl:pr-8 rtl:pl-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 rtl:data-[inset]:pl-2 rtl:data-[inset]:pr-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
         });
     }
 
     private IReadOnlyDictionary<string, object> BuildRadioItemAttributes()
     {
         Dictionary<string, object> attributes = new(BuildAttributes());
-        attributes.Remove("role");
-        attributes.Remove("tabindex");
         attributes.Remove("data-disabled");
         attributes.Remove("aria-disabled");
         return attributes;
@@ -53,16 +57,9 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Selected);
+        hc.Add(Value);
         hc.Add(Disabled);
-    }
-
-    private async Task HandleSelect()
-    {
-        if (Disabled || Selected)
-            return;
-
-        Selected = true;
-        await SelectedChanged.InvokeAsync(true);
+        hc.Add(Inset);
+        hc.Add(CloseOnSelect);
     }
 }

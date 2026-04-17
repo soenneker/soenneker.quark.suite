@@ -5,9 +5,22 @@
 
 @if (AsChild)
 {
-    <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
-        @ChildContent
-    </CascadingValue>
+    <BradixDismissableLayerBranch>
+        @if (BradixPopover?.HasCustomAnchor == true)
+        {
+            <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
+                @ChildContent
+            </CascadingValue>
+        }
+        else
+        {
+            <BradixPopperAnchor>
+                <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
+                    @ChildContent
+                </CascadingValue>
+            </BradixPopperAnchor>
+        }
+    </BradixDismissableLayerBranch>
 }
 else
 {

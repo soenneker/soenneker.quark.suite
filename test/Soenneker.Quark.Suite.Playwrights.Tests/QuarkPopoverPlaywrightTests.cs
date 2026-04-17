@@ -17,6 +17,35 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
     }
 
 [Fact]
+    public async ValueTask Popover_smoke_aschild_trigger_closes_default_open_popover_without_runtime_error()
+    {
+        await using BrowserSession session = await CreateSession();
+        IPage page = session.Page;
+        bool sawRuntimeError = false;
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error" && message.Text.Contains("StackOverflowException", StringComparison.Ordinal))
+                sawRuntimeError = true;
+        };
+
+        page.PageError += (_, _) => sawRuntimeError = true;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}popover-smoke",
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open popover", Exact = true }),
+            expectedTitle: "Popover Smoke - Quark Suite");
+
+        ILocator trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open popover", Exact = true });
+        await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");
+
+        await trigger.ClickAsync();
+
+        await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
+        Assert.False(sawRuntimeError);
+    }
+
+[Fact]
     public async ValueTask Popover_demo_preserves_explicit_content_role_over_dialog_default()
     {
         await using BrowserSession session = await CreateSession();
@@ -143,7 +172,7 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
         ILocator main = page.Locator("main");
         var mainBox = await main.BoundingBoxAsync();
         Assert.NotNull(mainBox);
-        await page.Mouse.ClickAsync(mainBox.X + 10, mainBox.Y + 10);
+        await page.Mouse.ClickAsync(mainBox.X + mainBox.Width - 10, mainBox.Y + mainBox.Height - 10);
 
         await Assertions.Expect(content).Not.ToBeVisibleAsync();
     }
@@ -158,14 +187,15 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
             $"{BaseUrl}popovers",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Toggle popover", Exact = true }));
 
-        ILocator section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Controlled Open State" }).First;
         ILocator toggle = page.Locator("#popover-controlled-toggle");
-        ILocator trigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Edit dimensions", Exact = true });
         ILocator openState = page.Locator("#popover-controlled-state");
 
         await toggle.ClickAsync();
 
         ILocator content = page.Locator("[data-slot='popover-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "Update the values below and save them back to the current layer." });
+        string? contentId = await content.GetAttributeAsync("id");
+        Assert.False(string.IsNullOrWhiteSpace(contentId));
+        ILocator trigger = page.Locator($"button[aria-controls='{contentId}']");
         await Assertions.Expect(openState).ToContainTextAsync("Open: true");
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(content).ToBeVisibleAsync();
@@ -175,29 +205,15 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
         Assert.NotNull(mainBox);
         await page.Mouse.ClickAsync(mainBox.X + mainBox.Width - 10, mainBox.Y + mainBox.Height - 10);
 
-        await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
+        await Assertions.Expect(openState).ToContainTextAsync("Open: false");
         await Assertions.Expect(content).Not.ToBeVisibleAsync();
 
         await trigger.ClickAsync();
 
+        await Assertions.Expect(openState).ToContainTextAsync("Open: true");
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(content).ToBeVisibleAsync();
     }
-    private static async Task ClickJustOutsideAsync(IPage page, ILocator locator)
-    {
-        var box = await locator.BoundingBoxAsync();
-        Assert.NotNull(box);
-        var viewport = page.ViewportSize;
-        float leftSpace = box.X;
-        float rightSpace = (viewport?.Width ?? 0) - (box.X + box.Width);
-        float topSpace = box.Y;
-        float bottomSpace = (viewport?.Height ?? 0) - (box.Y + box.Height);
-
-        float x = rightSpace >= leftSpace ? box.X + box.Width + 20 : box.X - 20;
-        float y = bottomSpace >= topSpace ? box.Y + box.Height + 20 : box.Y - 20;
-        await page.Mouse.ClickAsync(x, y);
-    }
-
     private sealed class PopoverRoleProbe
     {
         public string? role { get; set; }

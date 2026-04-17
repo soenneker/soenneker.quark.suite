@@ -1,7 +1,9 @@
 @using Soenneker.Bradix
+@using Microsoft.JSInterop
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@inject IBradixSuiteInterop Interop
 
 @if (AsChild)
 {
@@ -17,6 +19,12 @@ else
 }
 
 @code {
+    private bool _hasPointerMoveOpened;
+    private bool _pointerDown;
+    private ElementReference _triggerElement;
+    private DotNetObjectReference<TooltipTrigger>? _dotNetReference;
+    private bool _triggerRegistered;
+
     [CascadingParameter]
     private BradixTooltip? Tooltip { get; set; }
 
@@ -28,6 +36,30 @@ else
 
     private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!_triggerRegistered &&
+            Tooltip is not null &&
+            _triggerElement.Context is not null)
+        {
+            _dotNetReference ??= DotNetObjectReference.Create(this);
+            await Interop.RegisterTooltipTrigger(_triggerElement, _dotNetReference);
+            _triggerRegistered = true;
+        }
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        if (_triggerRegistered)
+            await Interop.UnregisterTooltipTrigger(_triggerElement);
+
+        _dotNetReference?.Dispose();
+
+        await base.DisposeAsync();
+    }
+
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
     {
         Dictionary<string, object> attributes = new(BuildAttributes());
@@ -38,6 +70,10 @@ else
         attributes.Remove("aria-haspopup");
         attributes.Remove("aria-expanded");
         attributes.Remove("aria-controls");
+        attributes.Remove("onpointermove");
+        attributes.Remove("onpointerleave");
+        attributes.Remove("onpointerdown");
+        attributes.Remove("onpointerup");
         attributes.Remove("onmouseenter");
         attributes.Remove("onmouseleave");
         attributes.Remove("onfocusin");
@@ -92,17 +128,25 @@ else
             AriaControls = ParentTriggerContext?.AriaControls,
             AriaDescribedBy = BuildAriaDescribedBy(),
             Toggle = ParentTriggerContext?.Toggle,
-            OnClick = Tooltip is null ? null : () => Tooltip.Close(),
+            OnClick = HandleTriggerClick,
+            OnPointerMove = HandleTriggerPointerMove,
+            OnPointerLeave = HandleTriggerPointerLeave,
+            OnPointerDown = HandleTriggerPointerDown,
+            OnPointerUp = HandleTriggerPointerUp,
             Open = Tooltip is null ? null : () => Tooltip.HandleTriggerEnter(),
             Close = Tooltip is null ? null : () => Tooltip.Close(),
-            OnMouseEnter = Tooltip is null ? null : () => Tooltip.HandleTriggerEnter(),
-            OnMouseLeave = Tooltip is null ? null : () => Tooltip.HandleTriggerLeave(),
-            OnFocusIn = Tooltip is null ? null : () => Tooltip.HandleTriggerFocus(false),
+            OnMouseEnter = HandleTriggerMouseEnter,
+            OnMouseLeave = HandleTriggerMouseLeave,
+            OnFocusIn = HandleTriggerFocusIn,
             OnFocusOut = Tooltip is null ? null : () => Tooltip.HandleTriggerBlur(),
             OnKeyDown = Tooltip is null ? null : e => HandleTriggerKeyDownCore(e, Tooltip),
             RegisterElement = Tooltip is null
                 ? null
-                : elementReference => Tooltip.RegisterTrigger(elementReference)
+                : elementReference =>
+                {
+                    _triggerElement = elementReference;
+                    Tooltip.RegisterTrigger(elementReference);
+                }
         };
     }
 
@@ -130,6 +174,70 @@ else
         return Tooltip is null ? Task.CompletedTask : HandleTriggerKeyDownCore(e, Tooltip);
     }
 
+    private Task HandleTriggerPointerMove()
+    {
+        if (Tooltip is null || _hasPointerMoveOpened || ShouldBlockOpenFromPointerTransit())
+            return Task.CompletedTask;
+
+        _hasPointerMoveOpened = true;
+        return Tooltip.HandleTriggerEnter();
+    }
+
+    private Task HandleTriggerMouseEnter()
+    {
+        return HandleTriggerMouseMove();
+    }
+
+    private Task HandleTriggerMouseMove()
+    {
+        if (Tooltip is null || _hasPointerMoveOpened || ShouldBlockOpenFromPointerTransit())
+            return Task.CompletedTask;
+
+        _hasPointerMoveOpened = true;
+        return Tooltip.HandleTriggerEnter();
+    }
+
+    private bool ShouldBlockOpenFromPointerTransit()
+    {
+        return Tooltip is not null &&
+               !Tooltip.EffectiveDisableHoverableContent &&
+               Tooltip.IsPointerInTransit;
+    }
+
+    private Task HandleTriggerMouseLeave()
+    {
+        _hasPointerMoveOpened = false;
+
+        return Tooltip?.HandleTriggerLeave() ?? Task.CompletedTask;
+    }
+
+    private Task HandleTriggerPointerLeave()
+    {
+        _hasPointerMoveOpened = false;
+
+        return Tooltip?.HandleTriggerLeave() ?? Task.CompletedTask;
+    }
+
+    private Task HandleTriggerPointerDown()
+    {
+        _pointerDown = true;
+
+        return Tooltip?.Close() ?? Task.CompletedTask;
+    }
+
+    private Task HandleTriggerPointerUp()
+    {
+        _pointerDown = false;
+        return Task.CompletedTask;
+    }
+
+    private Task HandleTriggerFocusIn()
+    {
+        return Tooltip is null
+            ? Task.CompletedTask
+            : Tooltip.HandleTriggerFocus(_pointerDown);
+    }
+
     private static Task HandleTriggerKeyDownCore(KeyboardEventArgs e, BradixTooltip tooltip)
     {
         if ((e.Key == "Escape" || e.Key == "Enter" || e.Key == " ") && tooltip.CurrentOpen)
@@ -147,12 +255,27 @@ else
             await parentTriggerContext.Toggle();
     }
 
+    private Task HandleTriggerClick()
+    {
+        _pointerDown = false;
+        return Tooltip?.HandleTriggerClick() ?? Task.CompletedTask;
+    }
+
+    [JSInvokable]
+    public Task HandleDocumentPointerUp()
+    {
+        _pointerDown = false;
+        return Task.CompletedTask;
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Tooltip);
         hc.Add(Tooltip?.CurrentOpen);
         hc.Add(Tooltip?.ContentId);
         hc.Add(AsChild);
+        hc.Add(ParentTriggerContext);
         hc.Add(ParentTriggerContext?.TriggerId);
         hc.Add(ParentTriggerContext?.AriaHasPopup);
         hc.Add(ParentTriggerContext?.AriaControls);

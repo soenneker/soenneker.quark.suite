@@ -3,11 +3,38 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<BradixMenubarRadioGroup AdditionalAttributes="@GroupAttributes">
+<BradixMenubarRadioGroup Value="@CurrentValue"
+                         DefaultValue="@DefaultValue"
+                         Disabled="@Disabled"
+                         ValueChanged="HandleValueChanged"
+                         AdditionalAttributes="@GroupAttributes">
     @ChildContent
 </BradixMenubarRadioGroup>
 
 @code {
+    private string? _currentValue;
+
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public string? DefaultValue { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    private string? CurrentValue => _currentValue;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        _currentValue = Value ?? DefaultValue;
+    }
+
     private IReadOnlyDictionary<string, object> GroupAttributes => BuildAttributes();
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -20,5 +47,25 @@
         {
             AppendClass(ref cls, "q-menubar-radio-group");
         });
+    }
+
+    private async Task HandleValueChanged(string? value)
+    {
+        _currentValue = value;
+
+        if (ValueChanged.HasDelegate)
+            await ValueChanged.InvokeAsync(value);
+
+        InvalidateRender();
+        Refresh();
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(CurrentValue);
+        hc.Add(Value);
+        hc.Add(DefaultValue);
+        hc.Add(Disabled);
     }
 }

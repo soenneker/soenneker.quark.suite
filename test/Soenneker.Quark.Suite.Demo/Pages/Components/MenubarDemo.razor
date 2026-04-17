@@ -90,10 +90,10 @@
                         <MenubarMenu>
                             <MenubarTrigger>Profiles</MenubarTrigger>
                             <MenubarContent>
-                                <MenubarRadioGroup>
-                                    <MenubarRadioItem>Andy</MenubarRadioItem>
-                                    <MenubarRadioItem Selected="true">Benoit</MenubarRadioItem>
-                                    <MenubarRadioItem>Luis</MenubarRadioItem>
+                                <MenubarRadioGroup Value="@_mainSelectedProfile" ValueChanged="HandleMainProfileChanged">
+                                    <MenubarRadioItem Value="andy">Andy</MenubarRadioItem>
+                                    <MenubarRadioItem Value="benoit">Benoit</MenubarRadioItem>
+                                    <MenubarRadioItem Value="luis">Luis</MenubarRadioItem>
                                 </MenubarRadioGroup>
                                 <MenubarSeparator />
                                 <MenubarItem Inset="true">Edit...</MenubarItem>
@@ -123,14 +123,15 @@
                         <MenubarMenu>
                             <MenubarTrigger data-testid="menubar-radio-trigger">Profiles</MenubarTrigger>
                             <MenubarContent>
-                                <MenubarRadioGroup>
-                                    <MenubarRadioItem Selected="@IsAndyProfileSelected" SelectedChanged="@(selected => OnProfileSelected("andy", selected))">Andy</MenubarRadioItem>
-                                    <MenubarRadioItem Selected="@IsBenoitProfileSelected" SelectedChanged="@(selected => OnProfileSelected("benoit", selected))">Benoit</MenubarRadioItem>
-                                    <MenubarRadioItem Selected="@IsLuisProfileSelected" SelectedChanged="@(selected => OnProfileSelected("luis", selected))">Luis</MenubarRadioItem>
+                                <MenubarRadioGroup Value="@_selectedProfile" ValueChanged="HandleProfileChanged">
+                                    <MenubarRadioItem Value="andy">Andy</MenubarRadioItem>
+                                    <MenubarRadioItem Value="benoit">Benoit</MenubarRadioItem>
+                                    <MenubarRadioItem Value="luis">Luis</MenubarRadioItem>
                                 </MenubarRadioGroup>
                             </MenubarContent>
                         </MenubarMenu>
                     </Menubar>
+                    <div data-testid="menubar-radio-value" hidden>@_selectedProfile</div>
                 </Div>
             </DemoSection>
         </Section>
@@ -152,6 +153,8 @@
                             </MenubarContent>
                         </MenubarMenu>
                     </Menubar>
+                    <div data-testid="menubar-checkbox-bookmarks" hidden="@(!_showBookmarksBar)">@_showBookmarksBar.ToString().ToLowerInvariant()</div>
+                    <div data-testid="menubar-checkbox-urls" hidden="@(!_showFullUrls)">@_showFullUrls.ToString().ToLowerInvariant()</div>
                 </Div>
             </DemoSection>
         </Section>
@@ -258,17 +261,21 @@
 </Div>
 
 @code {
+    private string _mainSelectedProfile = "benoit";
     private string _selectedProfile = "benoit";
     private bool _showBookmarksBar;
     private bool _showFullUrls = true;
-    private bool IsAndyProfileSelected => _selectedProfile == "andy";
-    private bool IsBenoitProfileSelected => _selectedProfile == "benoit";
-    private bool IsLuisProfileSelected => _selectedProfile == "luis";
 
-    private void OnProfileSelected(string profile, bool selected)
+    private Task HandleMainProfileChanged(string? profile)
     {
-        if (selected)
-            _selectedProfile = profile;
+        _mainSelectedProfile = profile ?? _mainSelectedProfile;
+        return Task.CompletedTask;
+    }
+
+    private Task HandleProfileChanged(string? profile)
+    {
+        _selectedProfile = profile ?? _selectedProfile;
+        return Task.CompletedTask;
     }
 
     private const string BasicCode =
@@ -327,10 +334,10 @@
     <MenubarMenu>
         <MenubarTrigger>Profiles</MenubarTrigger>
         <MenubarContent>
-            <MenubarRadioGroup>
-                <MenubarRadioItem>Andy</MenubarRadioItem>
-                <MenubarRadioItem Selected=""true"">Benoit</MenubarRadioItem>
-                <MenubarRadioItem>Luis</MenubarRadioItem>
+            <MenubarRadioGroup Value=""benoit"">
+                <MenubarRadioItem Value=""andy"">Andy</MenubarRadioItem>
+                <MenubarRadioItem Value=""benoit"">Benoit</MenubarRadioItem>
+                <MenubarRadioItem Value=""luis"">Luis</MenubarRadioItem>
             </MenubarRadioGroup>
         </MenubarContent>
     </MenubarMenu>
@@ -341,10 +348,10 @@
     <MenubarMenu>
         <MenubarTrigger>Profiles</MenubarTrigger>
         <MenubarContent>
-            <MenubarRadioGroup>
-                <MenubarRadioItem>Andy</MenubarRadioItem>
-                <MenubarRadioItem Selected=""true"">Benoit</MenubarRadioItem>
-                <MenubarRadioItem>Luis</MenubarRadioItem>
+            <MenubarRadioGroup Value=""benoit"">
+                <MenubarRadioItem Value=""andy"">Andy</MenubarRadioItem>
+                <MenubarRadioItem Value=""benoit"">Benoit</MenubarRadioItem>
+                <MenubarRadioItem Value=""luis"">Luis</MenubarRadioItem>
             </MenubarRadioGroup>
         </MenubarContent>
     </MenubarMenu>

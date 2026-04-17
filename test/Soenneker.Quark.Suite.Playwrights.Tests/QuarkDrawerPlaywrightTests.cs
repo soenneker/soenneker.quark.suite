@@ -65,7 +65,7 @@ public sealed class QuarkDrawerPlaywrightTests : PlaywrightUnitTest
             ILocator sideTrigger = sidesSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = side, Exact = true });
             await sideTrigger.ClickAsync();
 
-            ILocator content = page.Locator("[data-slot='drawer-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "Set your daily activity goal." }).First;
+            ILocator content = page.Locator("[data-slot='drawer-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "Set your daily activity goal." }).Last;
             await Assertions.Expect(content).ToHaveAttributeAsync("data-direction", side);
 
             await content.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Cancel", Exact = true }).ClickAsync();
@@ -76,7 +76,7 @@ public sealed class QuarkDrawerPlaywrightTests : PlaywrightUnitTest
         ILocator rtlTrigger = rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "افتح الدرج", Exact = true });
         await rtlTrigger.ClickAsync();
 
-        ILocator rtlContent = page.Locator("[data-slot='drawer-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "تعديل الملف الشخصي" }).First;
+        ILocator rtlContent = page.Locator("[data-slot='drawer-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "تعديل الملف الشخصي" }).Last;
         await Assertions.Expect(rtlContent).ToHaveAttributeAsync("data-direction", "left");
         await Assertions.Expect(rtlContent).ToContainTextAsync("حدّث معلوماتك ثم احفظ التغييرات.");
 

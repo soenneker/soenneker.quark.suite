@@ -6,6 +6,7 @@
 <BradixMenubarCheckboxItem Checked="@ResolvedCheckedState"
                            CheckedChanged="HandleCheckedStateChanged"
                            Disabled="@Disabled"
+                           CloseOnSelect="@CloseOnSelect"
                            AdditionalAttributes="@CheckboxAttributes">
     <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center rtl:left-auto rtl:right-2">
         <BradixMenuItemIndicator>
@@ -16,6 +17,9 @@
 </BradixMenubarCheckboxItem>
 
 @code {
+    [Parameter]
+    public bool CloseOnSelect { get; set; }
+
     private BradixCheckboxCheckedState ResolvedCheckedState =>
         Checked ? BradixCheckboxCheckedState.Checked : BradixCheckboxCheckedState.Unchecked;
 
@@ -51,6 +55,7 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Checked);
         hc.Add(Disabled);
+        hc.Add(CloseOnSelect);
     }
 
     private async Task HandleCheckedStateChanged(BradixCheckboxCheckedState state)

@@ -5,7 +5,9 @@
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Name="ParentMenubar" Value="@this" IsFixed="true">
-    <BradixMenubar AdditionalAttributes="@MenubarAttributes">
+    <BradixMenubar Value="@_openMenuValue"
+                   ValueChanged="HandleValueChanged"
+                   AdditionalAttributes="@MenubarAttributes">
         @ChildContent
     </BradixMenubar>
 </CascadingValue>
@@ -13,6 +15,7 @@
 @code {
     private readonly string _menubarId = BlazorIdGenerator.New("quark-menubar");
     private readonly List<MenubarTrigger> _triggers = [];
+    private string? _openMenuValue;
     private IReadOnlyDictionary<string, object> MenubarAttributes => BuildMenubarAttributes();
 
 
@@ -65,6 +68,15 @@
     {
         if (currentMenu.Trigger is not null)
             await HandleTriggerNavigationAsync(currentMenu.Trigger, key, openMenu: true);
+    }
+
+    internal Task CloseCurrentMenuAsync()
+    {
+        if (_openMenuValue is null)
+            return Task.CompletedTask;
+
+        _openMenuValue = null;
+        return InvokeAsync(StateHasChanged);
     }
 
     internal bool IsSubmenuOpenKey(string key)
@@ -139,9 +151,18 @@
         return attributes;
     }
 
+    private Task HandleValueChanged(string? value)
+    {
+        _openMenuValue = value;
+        InvalidateRender();
+        Refresh();
+        return Task.CompletedTask;
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(DirectionProviderDir);
+        hc.Add(_openMenuValue);
     }
 }

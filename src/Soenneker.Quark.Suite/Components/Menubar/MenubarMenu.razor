@@ -1,15 +1,18 @@
 @using Soenneker.Bradix
+@using Soenneker.Blazor.Utils.Ids
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Name="ParentMenubarMenu" Value="@this" IsFixed="true">
-    <BradixMenubarMenu AdditionalAttributes="@MenuAttributes">
+    <BradixMenubarMenu Value="@_menuValue"
+                       AdditionalAttributes="@MenuAttributes">
         @ChildContent
     </BradixMenubarMenu>
 </CascadingValue>
 
 @code {
+    private readonly string _menuValue = BlazorIdGenerator.New("quark-menubar-menu");
     private readonly List<IMenubarFocusableItem> _items = [];
     private MenubarTrigger? _trigger;
 
