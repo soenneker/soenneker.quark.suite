@@ -8,7 +8,7 @@
 
 @code {
 	[Parameter]
-	public CssValue<ContainerBuilder>? ContainerType { get; set; }
+	public string? ContainerType { get; set; }
 
     // Default to the common shadcn-style centered content wrapper.
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -23,18 +23,15 @@
 
     private string GetContainerClass()
     {
-        if (ContainerType is { IsEmpty: false })
-        {
-            var containerClass = ContainerType.Value.ToString();
-            if (containerClass.HasContent())
-                return containerClass;
-        }
+        if (ContainerType.HasContent())
+            return ContainerType!;
         
         return "mx-auto w-full max-w-7xl px-4 md:px-6 lg:px-8";
     }
 
 	protected override void ComputeRenderKeyCore(ref HashCode hc)
 	{
-		AddIf(ref hc, ContainerType);
+		base.ComputeRenderKeyCore(ref hc);
+		hc.Add(ContainerType);
 	}
 }

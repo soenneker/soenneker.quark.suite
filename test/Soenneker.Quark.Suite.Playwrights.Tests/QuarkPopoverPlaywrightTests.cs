@@ -169,10 +169,7 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
         ILocator title = content.GetByText("Dimensions", new LocatorGetByTextOptions { Exact = true });
         await Assertions.Expect(title).ToBeVisibleAsync();
 
-        ILocator main = page.Locator("main");
-        var mainBox = await main.BoundingBoxAsync();
-        Assert.NotNull(mainBox);
-        await page.Mouse.ClickAsync(mainBox.X + mainBox.Width - 10, mainBox.Y + mainBox.Height - 10);
+        await page.Locator("h1").First.ClickAsync();
 
         await Assertions.Expect(content).Not.ToBeVisibleAsync();
     }
@@ -200,10 +197,7 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(content).ToBeVisibleAsync();
 
-        ILocator main = page.Locator("main");
-        var mainBox = await main.BoundingBoxAsync();
-        Assert.NotNull(mainBox);
-        await page.Mouse.ClickAsync(mainBox.X + mainBox.Width - 10, mainBox.Y + mainBox.Height - 10);
+        await page.Locator("h1").First.ClickAsync();
 
         await Assertions.Expect(openState).ToContainTextAsync("Open: false");
         await Assertions.Expect(content).Not.ToBeVisibleAsync();

@@ -41,9 +41,9 @@ public sealed class ColorBuilderShadcnTests
     }
 
     [Fact]
-    public void BackgroundColor_token_maps_to_bg_blue_500()
+    public void BackgroundColor_token_maps_to_raw_blue_500_suffix()
     {
-        Assert.Equal("bg-blue-500", BackgroundColor.Token("blue-500").ToClass());
+        Assert.Equal("blue-500", BackgroundColor.Token("blue-500").ToClass());
     }
 
     [Fact]

@@ -34,9 +34,9 @@ else
     private static string GetSizeClass(ItemSize? size)
         => (size?.Value ?? ItemSize.DefaultValue) switch
         {
-            ItemSize.ExtraSmallValue => "py-2 px-3 gap-2",
-            ItemSize.SmallValue => "py-3 px-4 gap-2.5",
-            _ => "p-4 gap-4"
+            ItemSize.ExtraSmallValue => "gap-2 p-3",
+            ItemSize.SmallValue => "gap-2.5 px-4 py-3",
+            _ => "gap-4 p-4"
         };
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -54,8 +54,7 @@ else
         // shadcn/ui item base - exact copy from new-york-v4 ui/item.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-item");
-            AppendClass(ref cls, "group/item flex items-center border border-transparent text-sm rounded-md transition-colors [a]:hover:bg-accent/50 [a]:transition-colors duration-100 flex-wrap outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]");
+            AppendClass(ref cls, "group/item flex flex-wrap items-center rounded-md border border-transparent text-sm transition-colors duration-100 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors [a]:hover:bg-accent/50");
             AppendClass(ref cls, GetVariantClass(Variant));
             AppendClass(ref cls, GetSizeClass(Size));
         });

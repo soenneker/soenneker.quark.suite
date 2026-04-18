@@ -44,6 +44,14 @@
         return attributes;
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextSize ??= global::Soenneker.Quark.TextSize.Sm;
+        FontWeight ??= global::Soenneker.Quark.FontWeight.Medium;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -52,11 +60,10 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-field-label");
-            AppendClass(ref cls, "group/field-label peer/field-label flex w-fit items-center gap-2 text-sm leading-snug font-medium select-none");
-            AppendClass(ref cls, "group-data-[disabled=true]/field:pointer-events-none group-data-[disabled=true]/field:opacity-50");
-            AppendClass(ref cls, "has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col has-[>[data-slot=field]]:rounded-md has-[>[data-slot=field]]:border [&>*]:data-[slot=field]:p-4");
+            AppendClass(ref cls, "items-center select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50");
+            AppendClass(ref cls, "group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50");
             AppendClass(ref cls, "has-data-[state=checked]:border-primary has-data-[state=checked]:bg-primary/5 dark:has-data-[state=checked]:bg-primary/10");
+            AppendClass(ref cls, "has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col has-[>[data-slot=field]]:rounded-md has-[>[data-slot=field]]:border [&>*]:data-[slot=field]:p-4");
         });
     }
 

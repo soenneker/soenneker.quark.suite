@@ -30,5 +30,5 @@ public interface IToggle : IElement
     /// <summary>
     /// Gets or sets the size.
     /// </summary>
-    ToggleSize Size { get; set; }
+    CssValue<ToggleSizeBuilder>? Size { get; set; }
 }

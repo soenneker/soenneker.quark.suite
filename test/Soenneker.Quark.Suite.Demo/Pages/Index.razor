@@ -1,14 +1,15 @@
 @page "/"
+@layout LandingLayout
 
-<PageTitle>The Foundation for your Design System - Quark Suite</PageTitle>
+<PageTitle>The Foundation for your Design System - shadcn/ui</PageTitle>
 
-<Div Class="flex min-h-0 flex-1 flex-col">
+<Div Display="Display.Flex" Flex="Flex.Display.Fill.Column">
     <Section>
         <Div Class="container-wrapper">
-            <Div Class="container mx-auto flex max-w-[90rem] flex-col items-center gap-2 px-6 py-8 text-center md:py-16 lg:py-20 xl:gap-4">
+            <Div Class="container flex flex-col items-center gap-2 px-6 py-8 text-center md:py-16 lg:py-20 xl:gap-4">
                 <Badge AsChild Variant="BadgeVariant.Secondary" Class="bg-muted">
-                    <Anchor To="https://github.com/soenneker/soenneker.quark.suite" Target="Target.Blank">
-                        Introducing Quark v3
+                    <Anchor To="sera">
+                        Introducing Sera
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                              class="size-3">
@@ -17,69 +18,31 @@
                         </svg>
                     </Anchor>
                 </Badge>
-                <H1 Class="leading-tighter max-w-4xl text-balance text-3xl font-semibold tracking-tight text-primary lg:leading-[1.1] xl:text-5xl xl:tracking-tighter">
+                <H1 Class="leading-tighter max-w-4xl text-balance text-3xl font-semibold tracking-tight text-primary lg:leading-[1.1] lg:font-semibold xl:text-5xl xl:tracking-tighter">
                     The Foundation for your Design System
                 </H1>
                 <Paragraph Class="max-w-4xl text-base text-balance text-foreground sm:text-lg">
                     A set of beautifully designed components that you can customize, extend, and build on. Start here then make it your own. Open Source. Open Code.
                 </Paragraph>
-                <Div Class="flex w-full items-center justify-center gap-2 pt-2 **:data-[slot=button]:shadow-none">
-                    <Anchor To="https://github.com/soenneker/soenneker.quark.suite"
-                            Target="Target.Blank"
-                            Class="inline-flex h-[31px] shrink-0 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 text-sm font-medium whitespace-nowrap text-primary-foreground outline-none transition-all hover:bg-primary/90">
-                        New Project
-                    </Anchor>
-                    <Anchor To="components"
-                            Class="inline-flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium whitespace-nowrap text-foreground outline-none transition-all hover:bg-accent hover:text-accent-foreground">
-                        View Components
-                    </Anchor>
+                <Div Display="Display.Flex"
+                     Width="Width.IsFull"
+                     AlignUtility="Align.ItemsCenter.JustifyCenter"
+                     Gap="Gap.Is2"
+                     Padding="Padding.Is2.FromTop"
+                     Class="**:data-[slot=button]:shadow-none">
+                    <Button AsChild="true" Size="ButtonSize.Sm">
+                        <Anchor To="create">New Project</Anchor>
+                    </Button>
+                    <Button AsChild="true" Variant="ButtonVariant.Ghost" Size="ButtonSize.Sm">
+                        <Anchor To="docs/components">View Components</Anchor>
+                    </Button>
                 </Div>
             </Div>
         </Div>
     </Section>
 
-    <Div Class="container-wrapper hidden scroll-mt-24 border-t border-border/50 md:flex">
-        <Div Class="container mx-auto flex max-w-[90rem] items-center justify-between gap-4 py-4">
-            <Div Class="flex min-w-0 flex-1 items-center overflow-hidden">
-                <Div Class="no-scrollbar flex items-center">
-                    <Anchor Class="flex h-7 shrink-0 items-center justify-center gap-2 px-4 text-center text-base font-medium text-primary"
-                            To="https://ui.shadcn.com/" Target="Target.Blank">Examples</Anchor>
-                    <Anchor Class="flex h-7 shrink-0 items-center justify-center gap-2 px-4 text-center text-base font-medium text-muted-foreground transition-colors hover:text-primary"
-                            To="https://ui.shadcn.com/examples/dashboard" Target="Target.Blank">Dashboard</Anchor>
-                    <Anchor Class="flex h-7 shrink-0 items-center justify-center gap-2 px-4 text-center text-base font-medium text-muted-foreground transition-colors hover:text-primary"
-                            To="https://ui.shadcn.com/examples/tasks" Target="Target.Blank">Tasks</Anchor>
-                    <Anchor Class="flex h-7 shrink-0 items-center justify-center gap-2 px-4 text-center text-base font-medium text-muted-foreground transition-colors hover:text-primary"
-                            To="https://ui.shadcn.com/examples/playground" Target="Target.Blank">Playground</Anchor>
-                    <Anchor Class="flex h-7 shrink-0 items-center justify-center gap-2 px-4 text-center text-base font-medium text-muted-foreground transition-colors hover:text-primary"
-                            To="https://ui.shadcn.com/examples/authentication" Target="Target.Blank">Authentication</Anchor>
-                    <Anchor Class="flex h-7 shrink-0 items-center justify-center gap-2 px-4 text-center text-base font-medium text-muted-foreground transition-colors hover:text-primary"
-                            To="https://ui.shadcn.com/examples/rtl" Target="Target.Blank">
-                        RTL
-                        <Span Class="flex size-2 rounded-full bg-blue-500" title="New"></Span>
-                    </Anchor>
-                </Div>
-            </Div>
-            <Div Class="hidden items-center gap-2 md:flex">
-                <Label Class="sr-only" For="landing-theme-select">Theme</Label>
-                <Select TValue="string" @bind-SelectedValue="themeValue" Class="w-36">
-                    <SelectTrigger Id="landing-theme-select">
-                        <SelectValue Placeholder="Theme" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem TValue="string" ItemValue="@("neutral")" Text="Neutral" />
-                        <SelectItem TValue="string" ItemValue="@("slate")" Text="Slate" />
-                        <SelectItem TValue="string" ItemValue="@("zinc")" Text="Zinc" />
-                    </SelectContent>
-                </Select>
-                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm" aria-label="Copy code">
-                    <Icon Name="LucideIcon.Copy" />
-                </Button>
-            </Div>
-        </Div>
-    </Div>
-
-    <Div Class="container-wrapper section-soft flex-1 pb-6">
-        <Div Class="container mx-auto max-w-[90rem] overflow-hidden px-4 sm:px-6">
+    <Div Class="container-wrapper flex-1 pb-6">
+        <Div Class="container" Overflow="Overflow.Hidden">
             <Section Class="-mx-4 mb-4 w-[160vw] overflow-hidden rounded-lg border border-border/50 md:hidden md:w-[150vw]">
                 <Image Alt="Dashboard"
                        Class="block w-full dark:hidden"
@@ -97,61 +60,65 @@
                        SrcSet="@DashboardDarkSrcSet" />
             </Section>
 
-            <Section Class="hidden md:block">
-                <Div Class="mx-auto grid w-full grid-cols-1 gap-8 py-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6 2xl:gap-8">
-                    <Div Class="flex min-w-0 w-full flex-col gap-6 *:min-w-0 *:w-full *:max-w-full">
-                        <Div Class="w-full rounded-xl border p-6">
+            <Section Class="hidden theme-container md:block">
+                <Grid Margin="Margin.Auto.OnX"
+                      Gap='Gap.Token("6").OnMd.Token("8").OnXl.Token("6").On2xl.Token("8")'
+                      Padding='Padding.Token("1")'
+                      Class="theme-container md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    <Div Display="Display.Flex" Flex="Flex.Display.Column" MinWidth="MinWidth.Is0" Width="Width.IsFull" Gap='Gap.Token("6")'>
+                        <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsMd" Rounded="Rounded.Xl" Border="Border.Is1" Padding="Padding.Is6">
                             <form>
                                 <FieldGroup>
                                     <FieldSet>
                                         <FieldLegend>Payment Method</FieldLegend>
-                                        <FieldDescription>All transactions are secure and encrypted.</FieldDescription>
+                                        <FieldDescription>All transactions are secure and encrypted</FieldDescription>
+
                                         <FieldGroup>
-                                            <Field>
-                                                <FieldLabel For="idx-card-name">Name on Card</FieldLabel>
-                                                <Input Id="idx-card-name" Placeholder="John Doe" Required="true" />
-                                            </Field>
-                                            <Div Class="grid grid-cols-3 gap-4">
-                                                <Field Class="col-span-2">
-                                                    <FieldLabel For="idx-card-number">Card Number</FieldLabel>
-                                                    <Input Id="idx-card-number" Placeholder="1234 5678 9012 3456" Required="true" />
-                                                    <FieldDescription>Enter your 16-digit number.</FieldDescription>
-                                                </Field>
-                                                <Field>
-                                                    <FieldLabel For="idx-cvv">CVV</FieldLabel>
-                                                    <Input Id="idx-cvv" Placeholder="123" Required="true" />
-                                                </Field>
-                                            </Div>
-                                            <Div Class="grid grid-cols-2 gap-4">
-                                                <Field>
-                                                    <FieldLabel For="idx-exp-month">Month</FieldLabel>
-                                                    <Select TValue="string" SelectedValue="@("")">
-                                                        <SelectTrigger Id="idx-exp-month">
-                                                            <SelectValue Placeholder="MM" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            @foreach (var month in Months)
-                                                            {
-                                                                <SelectItem TValue="string" ItemValue="@month" Text="@month" />
-                                                            }
-                                                        </SelectContent>
-                                                    </Select>
-                                                </Field>
-                                                <Field>
-                                                    <FieldLabel For="idx-exp-year">Year</FieldLabel>
-                                                    <Select TValue="string" SelectedValue="@("")">
-                                                        <SelectTrigger Id="idx-exp-year">
-                                                            <SelectValue Placeholder="YYYY" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            @foreach (var year in Years)
-                                                            {
-                                                                <SelectItem TValue="string" ItemValue="@year" Text="@year" />
-                                                            }
-                                                        </SelectContent>
-                                                    </Select>
-                                                </Field>
-                                            </Div>
+                                    <Field>
+                                        <FieldLabel For="idx-card-name">Name on Card</FieldLabel>
+                                        <Input Id="idx-card-name" Placeholder="John Doe" Required="true" />
+                                    </Field>
+                                    <Grid Columns="Columns.Is3" Gap="Gap.Is4">
+                                        <Field Class="col-span-2">
+                                            <FieldLabel For="idx-card-number">Card Number</FieldLabel>
+                                            <Input Id="idx-card-number" Placeholder="1234 5678 9012 3456" Required="true" />
+                                            <FieldDescription>Enter your 16-digit number.</FieldDescription>
+                                        </Field>
+                                        <Field>
+                                            <FieldLabel For="idx-cvv">CVV</FieldLabel>
+                                            <Input Id="idx-cvv" Placeholder="123" Required="true" />
+                                        </Field>
+                                    </Grid>
+                                    <Grid Columns="Columns.Is2" Gap="Gap.Is4">
+                                        <Field>
+                                            <FieldLabel For="idx-exp-month">Month</FieldLabel>
+                                            <Select TValue="string" SelectedValue="@("")">
+                                                <SelectTrigger Id="idx-exp-month">
+                                                    <SelectValue Placeholder="MM" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    @foreach (var month in Months)
+                                                    {
+                                                        <SelectItem TValue="string" ItemValue="@month" Text="@month" />
+                                                    }
+                                                </SelectContent>
+                                            </Select>
+                                        </Field>
+                                        <Field>
+                                            <FieldLabel For="idx-exp-year">Year</FieldLabel>
+                                            <Select TValue="string" SelectedValue="@("")">
+                                                <SelectTrigger Id="idx-exp-year">
+                                                    <SelectValue Placeholder="YYYY" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    @foreach (var year in Years)
+                                                    {
+                                                        <SelectItem TValue="string" ItemValue="@year" Text="@year" />
+                                                    }
+                                                </SelectContent>
+                                            </Select>
+                                        </Field>
+                                    </Grid>
                                         </FieldGroup>
                                     </FieldSet>
 
@@ -159,7 +126,8 @@
 
                                     <FieldSet>
                                         <FieldLegend>Billing Address</FieldLegend>
-                                        <FieldDescription>The billing address associated with your payment method.</FieldDescription>
+                                        <FieldDescription>The billing address associated with your payment method</FieldDescription>
+
                                         <FieldGroup>
                                             <Field Horizontal="true">
                                                 <Check Id="idx-same-address" Checked="true" />
@@ -167,6 +135,8 @@
                                             </Field>
                                         </FieldGroup>
                                     </FieldSet>
+
+                                    <FieldSeparator />
 
                                     <FieldSet>
                                         <FieldGroup>
@@ -186,19 +156,22 @@
                         </Div>
                     </Div>
 
-                    <Div Class="flex min-w-0 w-full flex-col gap-6 *:min-w-0 *:w-full *:max-w-full">
-                        <Empty Class="flex-none border border-dashed py-10">
+                    <Div Display="Display.Flex" Flex="Flex.Display.Column" MinWidth="MinWidth.Is0" Width="Width.IsFull" Gap='Gap.Token("6")'>
+                        <Empty>
                             <EmptyHeader>
                                 <EmptyMedia>
                                     <AvatarGroup Class="grayscale">
                                         <Avatar>
-                                            <AvatarFallback>CN</AvatarFallback>
+                                            <AvatarImage Src="https://github.com/shadcn.png" Alt="@("@shadcn")" />
+                                            <AvatarFallback>TM</AvatarFallback>
                                         </Avatar>
                                         <Avatar>
-                                            <AvatarFallback>LR</AvatarFallback>
+                                            <AvatarImage Src="https://github.com/maxleiter.png" Alt="@("@maxleiter")" />
+                                            <AvatarFallback>TM</AvatarFallback>
                                         </Avatar>
                                         <Avatar>
-                                            <AvatarFallback>ER</AvatarFallback>
+                                            <AvatarImage Src="https://github.com/evilrabbit.png" Alt="@("@evilrabbit")" />
+                                            <AvatarFallback>TM</AvatarFallback>
                                         </Avatar>
                                     </AvatarGroup>
                                 </EmptyMedia>
@@ -213,44 +186,40 @@
                             </EmptyContent>
                         </Empty>
 
-                        <Div Class="flex flex-wrap items-center gap-2">
+                        <Div Display="Display.Flex" Flex="Flex.Wrap" AlignUtility="Align.ItemsCenter" Gap="Gap.Is2">
                             <Badge Class="inline-flex items-center gap-1.5">
-                                <Icon Name="LucideIcon.LoaderCircle" Class="size-3 animate-spin" />
+                                <Icon Name="LucideIcon.LoaderCircle" BoxSize="Size.Is3" Animation="Animation.Spin" />
                                 Syncing
                             </Badge>
                             <Badge Variant="BadgeVariant.Secondary" Class="inline-flex items-center gap-1.5">
-                                <Icon Name="LucideIcon.LoaderCircle" Class="size-3 animate-spin" />
+                                <Icon Name="LucideIcon.LoaderCircle" BoxSize="Size.Is3" Animation="Animation.Spin" />
                                 Updating
                             </Badge>
                             <Badge Variant="BadgeVariant.Outline" Class="inline-flex items-center gap-1.5">
-                                <Icon Name="LucideIcon.LoaderCircle" Class="size-3 animate-spin" />
+                                <Icon Name="LucideIcon.LoaderCircle" BoxSize="Size.Is3" Animation="Animation.Spin" />
                                 Loading
                             </Badge>
                         </Div>
 
-                        <ButtonGroup AriaLabel="Compose message">
-                            <ButtonGroup>
-                                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" aria-label="Add">
-                                    <Icon Name="LucideIcon.Plus" />
-                                </Button>
-                            </ButtonGroup>
-                            <ButtonGroup Class="min-w-[16rem] flex-1">
-                                <InputGroup Class="w-full">
-                                    <InputGroupInput Placeholder="Send a message..." />
-                                    <InputGroupAddon Align="InputGroupAddonAlign.InlineEnd">
-                                        <InputGroupButton Variant="ButtonVariant.Ghost" Size="ButtonSize.IconXs" aria-label="Voice mode">
-                                            <Icon Name="LucideIcon.AudioLines" />
-                                        </InputGroupButton>
-                                    </InputGroupAddon>
-                                </InputGroup>
-                            </ButtonGroup>
-                        </ButtonGroup>
+                        <Div Display="Display.Flex" AlignUtility="Align.ItemsCenter" Gap="Gap.Is2">
+                            <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Icon" aria-label="Add">
+                                <Icon Name="LucideIcon.Plus" />
+                            </Button>
+                            <InputGroup Class="flex-1">
+                                <InputGroupInput Placeholder="Send a message..." />
+                                <InputGroupAddon Align="InputGroupAddonAlign.InlineEnd">
+                                    <InputGroupButton Variant="ButtonVariant.Ghost" Size="ButtonSize.IconXs" aria-label="Voice mode">
+                                        <Icon Name="LucideIcon.AudioLines" />
+                                    </InputGroupButton>
+                                </InputGroupAddon>
+                            </InputGroup>
+                        </Div>
 
-                        <Div Class="w-full">
+                        <Div Width="Width.IsFull">
                             <Field>
                                 <FieldLabel>Price Range</FieldLabel>
                                 <FieldDescription>
-                                    Set your budget range ($<Span Class="font-medium tabular-nums">@PriceRangeMin</Span> - <Span Class="font-medium tabular-nums">@PriceRangeMax</Span>).
+                                    Set your budget range ($<Span FontWeight="FontWeight.Medium" Class="tabular-nums">@PriceRangeMin</Span> - <Span FontWeight="FontWeight.Medium" Class="tabular-nums">@PriceRangeMax</Span>).
                                 </FieldDescription>
                                 <Slider Values="@priceRange"
                                         ValuesChanged="HandlePriceRangeChanged"
@@ -262,7 +231,7 @@
                             </Field>
                         </Div>
 
-                        <Div Class="grid gap-6">
+                        <Div Display="Display.Flex" Flex="Flex.Display.Column" Gap='Gap.Token("6")'>
                             <InputGroup>
                                 <InputGroupInput Placeholder="Search..." />
                                 <InputGroupAddon Align="InputGroupAddonAlign.InlineStart">
@@ -285,33 +254,39 @@
                                 </InputGroupAddon>
                             </InputGroup>
 
-                            <InputGroup>
-                                <InputGroupTextarea Rows="4" Placeholder="Ask, Search or Chat..." />
-                                <InputGroupAddon Align="InputGroupAddonAlign.BlockEnd" Class="w-full justify-start gap-1 px-2.5 pb-2">
-                                    <InputGroupButton Variant="ButtonVariant.Outline" Size="ButtonSize.IconXs" aria-label="Add">
+                            <Div Rounded="Rounded.Xl" Border="Border.Is1" BackgroundColor="BackgroundColor.Background" Padding="Padding.Is3" BoxShadow="BoxShadow.Small">
+                                <TextArea Rows="4"
+                                          Placeholder="Ask, Search or Chat..."
+                                          Class="min-h-24 resize-none border-0! bg-transparent px-0 py-0 shadow-none! focus-visible:ring-0!" />
+                                <Div Display="Display.Flex"
+                                     AlignUtility="Align.ItemsCenter"
+                                     Gap='Gap.Token("1.5")'
+                                     Margin="Margin.Is3.FromTop"
+                                     Padding="Padding.Is3.FromTop"
+                                     Border="Border.Is1.FromTop">
+                                    <Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconXs" aria-label="Add">
                                         <Icon Name="LucideIcon.Plus" />
-                                    </InputGroupButton>
+                                    </Button>
                                     <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.Xs">Auto</Button>
                                     <Span Class="ml-auto text-sm text-muted-foreground">52% used</Span>
-                                    <Div Class="h-4 w-px bg-border"></Div>
-                                    <InputGroupButton Variant="ButtonVariant.Default" Size="ButtonSize.IconXs" aria-label="Send">
+                                    <Button Variant="ButtonVariant.Default" Size="ButtonSize.IconXs" Rounded="Rounded.Full" aria-label="Send">
                                         <Icon Name="LucideIcon.ArrowUp" />
-                                    </InputGroupButton>
-                                </InputGroupAddon>
-                            </InputGroup>
+                                    </Button>
+                                </Div>
+                            </Div>
 
                             <InputGroup>
                                 <InputGroupInput Placeholder="@("@shadcn")" />
                                 <InputGroupAddon Align="InputGroupAddonAlign.InlineEnd">
                                     <Span Class="flex size-4 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                                        <Icon Name="LucideIcon.Check" Class="size-3" />
+                                        <Icon Name="LucideIcon.Check" BoxSize="Size.Is3" />
                                     </Span>
                                 </InputGroupAddon>
                             </InputGroup>
                         </Div>
                     </Div>
 
-                    <Div Class="flex min-w-0 w-full flex-col gap-6 *:min-w-0 *:w-full *:max-w-full">
+                    <Div Display="Display.Flex" Flex="Flex.Display.Column" MinWidth="MinWidth.Is0" Width="Width.IsFull" Gap='Gap.Token("6")'>
                         <InputGroup Class="[--radius:9999px]">
                             <InputGroupAddon Align="InputGroupAddonAlign.InlineStart">
                                 <InputGroupButton Variant="ButtonVariant.Secondary" Size="ButtonSize.IconXs" aria-label="Info">
@@ -327,13 +302,13 @@
                             </InputGroupAddon>
                         </InputGroup>
 
-                        <Div Class="flex flex-col gap-6">
+                        <Div Display="Display.Flex" Flex="Flex.Display.Column" Gap='Gap.Token("6")'>
                             <Item Variant="ItemVariant.Outline">
-                                <ItemContent>
+                                <ItemContent Class="min-w-0">
                                     <ItemTitle>Two-factor authentication</ItemTitle>
                                     <ItemDescription>Verify via email or phone number.</ItemDescription>
                                 </ItemContent>
-                                <ItemActions>
+                                <ItemActions Class="shrink-0">
                                     <Button Size="ButtonSize.Sm">Enable</Button>
                                 </ItemActions>
                             </Item>
@@ -341,13 +316,13 @@
                             <Item Variant="ItemVariant.Outline" AsChild="true">
                                 <Anchor To="#">
                                     <ItemMedia Variant="ItemMediaVariant.Icon">
-                                        <Icon Name="LucideIcon.BadgeCheck" Class="size-5" />
+                                        <Icon Name="LucideIcon.BadgeCheck" BoxSize="Size.Is5"/>
                                     </ItemMedia>
                                     <ItemContent>
                                         <ItemTitle>Your profile has been verified.</ItemTitle>
                                     </ItemContent>
                                     <ItemActions>
-                                        <Icon Name="LucideIcon.ChevronRight" Class="size-4" />
+                                        <Icon Name="LucideIcon.ChevronRight" BoxSize="Size.Is4" />
                                     </ItemActions>
                                 </Anchor>
                             </Item>
@@ -361,7 +336,8 @@
                             <FieldGroup>
                                 <RadioGroup Name="landing-compute" Value="@computeEnvironment" ValueChanged="HandleComputeEnvironmentChanged" AriaLabel="Compute environment">
                                     <FieldLabel For="landing-kubernetes">
-                                        <Field Horizontal="true" Class="rounded-lg border p-2.5">
+                                        <Field Horizontal="true"
+                                               Class="rounded-xl border p-3.5 transition-colors has-[[role=radio][data-state=checked]]:border-foreground has-[[role=radio][data-state=checked]]:bg-accent/30">
                                             <FieldContent>
                                                 <FieldTitle>Kubernetes</FieldTitle>
                                                 <FieldDescription>Run GPU workloads on a K8s configured cluster. This is the default.</FieldDescription>
@@ -370,7 +346,8 @@
                                         </Field>
                                     </FieldLabel>
                                     <FieldLabel For="landing-vm">
-                                        <Field Horizontal="true" Class="rounded-lg border p-2.5">
+                                        <Field Horizontal="true"
+                                               Class="rounded-xl border p-3.5 transition-colors has-[[role=radio][data-state=checked]]:border-foreground has-[[role=radio][data-state=checked]]:bg-accent/30">
                                             <FieldContent>
                                                 <FieldTitle>Virtual Machine</FieldTitle>
                                                 <FieldDescription>Access a VM configured cluster to run workloads. (Coming soon)</FieldDescription>
@@ -411,80 +388,105 @@
                         </FieldSet>
                     </Div>
 
-                    <Div Class="order-first flex min-w-0 w-full flex-col gap-6 *:min-w-0 *:w-full *:max-w-full lg:hidden xl:order-last xl:flex">
-                        <InputGroup Class="rounded-xl">
-                            <InputGroupAddon Align="InputGroupAddonAlign.BlockStart" Class="w-full justify-start px-2.5 pt-3">
-                                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" Class="shadow-none">
+                    <Div Display="Display.None.OnLg.Flex.OnXl"
+                         Flex="Flex.Display.Column"
+                         MinWidth="MinWidth.Is0"
+                         Width="Width.IsFull"
+                         Gap='Gap.Token("6")'
+                         Class="order-first xl:order-last">
+                        <Div Rounded='Rounded.Token("2xl")' Border="Border.Is1" BackgroundColor="BackgroundColor.Background" Padding="Padding.Is3" BoxShadow="BoxShadow.Small">
+                            <Div Margin="Margin.Is3.FromBottom">
+                                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" Class="rounded-full shadow-none">
                                     <Icon Name="LucideIcon.AtSign" />
                                     Add context
                                 </Button>
-                            </InputGroupAddon>
-                            <InputGroupTextarea Rows="4" Placeholder="Ask, search, or make anything..." />
-                            <InputGroupAddon Align="InputGroupAddonAlign.BlockEnd" Class="w-full justify-start gap-1 px-2.5 pb-2">
-                                <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.IconSm" Class="rounded-full" aria-label="Attach file">
+                            </Div>
+                            <TextArea Rows="4"
+                                      Placeholder="Ask, search, or make anything..."
+                                      Class="min-h-28 resize-none border-0! bg-transparent px-0 py-0 shadow-none! focus-visible:ring-0!" />
+                            <Div Display="Display.Flex"
+                                 AlignUtility="Align.ItemsCenter"
+                                 Gap="Gap.Is2"
+                                 Margin="Margin.Is3.FromTop"
+                                 Padding="Padding.Is3.FromTop"
+                                 Border="Border.Is1.FromTop">
+                                <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.IconSm" Rounded="Rounded.Full" aria-label="Attach file">
                                     <Icon Name="LucideIcon.Paperclip" />
                                 </Button>
-                                <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.Sm" Class="rounded-full">Auto</Button>
-                                <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.Sm" Class="rounded-full">
+                                <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.Sm" Class="rounded-full px-3">Auto</Button>
+                                <Button Variant="ButtonVariant.Ghost" Size="ButtonSize.Sm" Class="rounded-full px-3">
                                     <Icon Name="LucideIcon.Globe" />
                                     All Sources
                                 </Button>
                                 <Button Variant="ButtonVariant.Default" Size="ButtonSize.IconSm" Class="ml-auto rounded-full" aria-label="Send">
                                     <Icon Name="LucideIcon.ArrowUp" />
                                 </Button>
-                            </InputGroupAddon>
-                        </InputGroup>
+                            </Div>
+                        </Div>
 
-                        <ButtonGroup AriaLabel="Inbox actions" Class="flex-wrap">
-                            <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">Archive</Button>
-                            <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">Report</Button>
-                            <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">Snooze</Button>
-                        </ButtonGroup>
+                        <Div Display="Display.Flex" AlignUtility="Align.ItemsCenter.JustifyBetween" Gap="Gap.Is3">
+                            <ButtonGroup AriaLabel="Inbox actions">
+                                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm" aria-label="Back">
+                                    <Icon Name="LucideIcon.ArrowLeft" />
+                                </Button>
+                                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">Archive</Button>
+                                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">Report</Button>
+                                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">Snooze</Button>
+                                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm" aria-label="More">
+                                    <Icon Name="LucideIcon.Ellipsis" />
+                                </Button>
+                            </ButtonGroup>
+                        </Div>
 
-                        <Card Class="w-full overflow-hidden">
-                            <CardHeader Class="pb-2">
-                                <CardTitle Class="text-base">Workspace</CardTitle>
-                                <CardDescription>Account and security</CardDescription>
+                        <Div Rounded="Rounded.Xl" Border="Border.Is1" BackgroundColor='BackgroundColor.Token("accent/20")' Padding="Padding.Is4.OnX.Is3.OnY">
+                            <Field Horizontal="true" Class="gap-3">
+                                <Check Id="idx-terms" @bind-Checked="termsAccepted" />
+                                <FieldLabel For="idx-terms" FontWeight="FontWeight.Normal">I agree to the terms and conditions</FieldLabel>
+                            </Field>
+                        </Div>
+
+                        <Div Display="Display.Flex" AlignUtility="Align.ItemsCenter.JustifyBetween" Gap="Gap.Is4">
+                            <ButtonGroup AriaLabel="Pagination">
+                                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm">1</Button>
+                                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm">2</Button>
+                                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm">3</Button>
+                            </ButtonGroup>
+                            <ButtonGroup AriaLabel="Pagination arrows">
+                                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm" aria-label="Previous">
+                                    <Icon Name="LucideIcon.ArrowLeft" />
+                                </Button>
+                                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm" aria-label="Next">
+                                    <Icon Name="LucideIcon.ArrowRight" />
+                                </Button>
+                            </ButtonGroup>
+                            <Select TValue="string" SelectedValue="@("copilot")" Width='Width.Token("32")'>
+                                <SelectTrigger>
+                                    <SelectValue Placeholder="Assistant" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem TValue="string" ItemValue="@("copilot")" Text="Copilot" />
+                                    <SelectItem TValue="string" ItemValue="@("quark")" Text="Quark" />
+                                </SelectContent>
+                            </Select>
+                        </Div>
+
+                        <Card Class="gap-0 py-0">
+                            <CardHeader Class="border-b py-6">
+                                <CardTitle>How did you hear about us?</CardTitle>
+                                <CardDescription>Select the option that best describes how you found Quark.</CardDescription>
                             </CardHeader>
-                            <CardContent>
-                                <Tabs Composed="true" SelectedTab="account" Class="w-full">
-                                    <TabsList Class="w-full justify-start">
-                                        <TabsTrigger Value="account">Account</TabsTrigger>
-                                        <TabsTrigger Value="security">Security</TabsTrigger>
-                                    </TabsList>
-                                    <TabsContent Value="account">
-                                        <Div Class="mt-3 space-y-3">
-                                            <Div Class="space-y-1.5">
-                                                <Label For="idx-tab-name">Name</Label>
-                                                <Input Id="idx-tab-name" Value="Ada Lovelace" />
-                                            </Div>
-                                            <Div Class="space-y-1.5">
-                                                <Label For="idx-tab-role">Role</Label>
-                                                <Input Id="idx-tab-role" Value="Engineer" />
-                                            </Div>
-                                        </Div>
-                                    </TabsContent>
-                                    <TabsContent Value="security">
-                                        <Div Class="mt-3 space-y-3">
-                                            <Div Class="space-y-1.5">
-                                                <Label For="idx-tab-pw">Password</Label>
-                                                <Input Id="idx-tab-pw" Type="password" Placeholder="********" />
-                                            </Div>
-                                            <Button Size="ButtonSize.Sm" Variant="ButtonVariant.Outline">Rotate keys</Button>
-                                        </Div>
-                                    </TabsContent>
-                                </Tabs>
+                            <CardContent Class="py-6">
+                                <Div Display="Display.Flex" Flex="Flex.Wrap" Gap="Gap.Is3">
+                                    <Button Variant="ButtonVariant.Outline" Class="rounded-full bg-accent shadow-none">
+                                        <Icon Name="LucideIcon.Check" BoxSize="Size.Is4" />
+                                        Social Media
+                                    </Button>
+                                    <Button Variant="ButtonVariant.Outline" Rounded="Rounded.Full">Search Engine</Button>
+                                    <Button Variant="ButtonVariant.Outline" Rounded="Rounded.Full">Referral</Button>
+                                    <Button Variant="ButtonVariant.Outline" Rounded="Rounded.Full">Other</Button>
+                                </Div>
                             </CardContent>
                         </Card>
-
-                        <FieldSet Class="rounded-xl border p-4">
-                            <FieldGroup>
-                                <Field Horizontal="true">
-                                    <Check Id="idx-terms" @bind-Checked="termsAccepted" />
-                                    <FieldLabel For="idx-terms" FontWeight="FontWeight.Normal">I agree to the terms and conditions</FieldLabel>
-                                </Field>
-                            </FieldGroup>
-                        </FieldSet>
 
                         <Empty Class="w-full border border-dashed py-6 sm:py-8">
                             <EmptyHeader>
@@ -499,14 +501,13 @@
                             </EmptyContent>
                         </Empty>
                     </Div>
-                </Div>
+                </Grid>
             </Section>
         </Div>
     </Div>
 </Div>
 
 @code {
-    private string themeValue = "neutral";
     private double[] priceRange = [200, 800];
     private string computeEnvironment = "kubernetes";
     private int gpuCount = 8;

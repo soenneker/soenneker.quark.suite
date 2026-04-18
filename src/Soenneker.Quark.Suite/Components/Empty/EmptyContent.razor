@@ -5,6 +5,13 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextSize ??= global::Soenneker.Quark.TextSize.Sm;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -14,8 +21,7 @@
         // shadcn/ui empty-content base - exact copy from new-york-v4 ui/empty.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-empty-content");
-            AppendClass(ref cls, "flex w-full max-w-sm min-w-0 flex-col items-center gap-4 text-sm text-balance");
+            AppendClass(ref cls, "flex w-full max-w-sm min-w-0 flex-col items-center gap-2.5 text-balance");
         });
     }
 }

@@ -66,8 +66,6 @@ public interface IComponent : ICoreComponent
     CssValue<RingBuilder>? Ring { get; set; }
     CssValue<RingColorBuilder>? RingColor { get; set; }
     CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
-    CssValue<BackgroundOpacityBuilder>? BackgroundOpacity { get; set; }
-    CssValue<BorderOpacityBuilder>? BorderOpacity { get; set; }
     CssValue<AnimationBuilder>? Animation { get; set; }
     CssValue<TransitionBuilder>? Transition { get; set; }
 

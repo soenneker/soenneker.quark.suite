@@ -7,9 +7,11 @@
 
 @if (AsChild)
 {
-    <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
-        @ChildContent
-    </CascadingValue>
+    <BradixPopperAnchor>
+        <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
+            @ChildContent
+        </CascadingValue>
+    </BradixPopperAnchor>
 }
 else
 {
@@ -40,14 +42,7 @@ else
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (!_triggerRegistered &&
-            Tooltip is not null &&
-            _triggerElement.Context is not null)
-        {
-            _dotNetReference ??= DotNetObjectReference.Create(this);
-            await Interop.RegisterTooltipTrigger(_triggerElement, _dotNetReference);
-            _triggerRegistered = true;
-        }
+        await EnsureTriggerRegisteredAsync();
     }
 
     public override async ValueTask DisposeAsync()
@@ -75,6 +70,7 @@ else
         attributes.Remove("onpointerdown");
         attributes.Remove("onpointerup");
         attributes.Remove("onmouseenter");
+        attributes.Remove("onmousemove");
         attributes.Remove("onmouseleave");
         attributes.Remove("onfocusin");
         attributes.Remove("onfocusout");
@@ -136,18 +132,32 @@ else
             Open = Tooltip is null ? null : () => Tooltip.HandleTriggerEnter(),
             Close = Tooltip is null ? null : () => Tooltip.Close(),
             OnMouseEnter = HandleTriggerMouseEnter,
+            OnMouseMove = HandleTriggerMouseMove,
             OnMouseLeave = HandleTriggerMouseLeave,
             OnFocusIn = HandleTriggerFocusIn,
             OnFocusOut = Tooltip is null ? null : () => Tooltip.HandleTriggerBlur(),
             OnKeyDown = Tooltip is null ? null : e => HandleTriggerKeyDownCore(e, Tooltip),
             RegisterElement = Tooltip is null
                 ? null
-                : elementReference =>
-                {
-                    _triggerElement = elementReference;
-                    Tooltip.RegisterTrigger(elementReference);
-                }
+                : elementReference => _ = InvokeAsync(() => HandleTriggerElementRegisteredAsync(elementReference))
         };
+    }
+
+    private async Task HandleTriggerElementRegisteredAsync(ElementReference elementReference)
+    {
+        _triggerElement = elementReference;
+        Tooltip?.RegisterTrigger(elementReference);
+        await EnsureTriggerRegisteredAsync();
+    }
+
+    private async Task EnsureTriggerRegisteredAsync()
+    {
+        if (_triggerRegistered || Tooltip is null || _triggerElement.Context is null)
+            return;
+
+        _dotNetReference ??= DotNetObjectReference.Create(this);
+        await Interop.RegisterTooltipTrigger(_triggerElement, _dotNetReference);
+        _triggerRegistered = true;
     }
 
     private string? BuildAriaDescribedBy()
@@ -201,7 +211,7 @@ else
     {
         return Tooltip is not null &&
                !Tooltip.EffectiveDisableHoverableContent &&
-               Tooltip.IsPointerInTransit;
+               Tooltip.ShouldBlockTriggerHoverOpen;
     }
 
     private Task HandleTriggerMouseLeave()
@@ -275,7 +285,6 @@ else
         hc.Add(Tooltip?.CurrentOpen);
         hc.Add(Tooltip?.ContentId);
         hc.Add(AsChild);
-        hc.Add(ParentTriggerContext);
         hc.Add(ParentTriggerContext?.TriggerId);
         hc.Add(ParentTriggerContext?.AriaHasPopup);
         hc.Add(ParentTriggerContext?.AriaControls);

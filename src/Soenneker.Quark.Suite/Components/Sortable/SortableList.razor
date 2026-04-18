@@ -16,6 +16,7 @@
     private readonly string _listId = BlazorIdGenerator.New("quark-sortable");
     private DotNetObjectReference<SortableList>? _dotNetRef;
     private string? _initializationError;
+    private string? _lastInitializationKey;
 
     [Parameter]
     public bool Disabled { get; set; }
@@ -102,9 +103,14 @@
             await SortableInterop.Initialize();
 
             _dotNetRef ??= DotNetObjectReference.Create(this);
+            string initializationKey = $"{Disabled}|{Sort}|{AnimationMs}|{ForceFallback}|{ItemSelector}|{ResolveHandleSelector()}|{FilterSelector}|{Group}";
 
-            await SortableInterop.InitializeList(ElementRef, Disabled, Sort, AnimationMs, ForceFallback, ItemSelector, ResolveHandleSelector(), FilterSelector,
-                Group, _dotNetRef);
+            if (firstRender || !string.Equals(_lastInitializationKey, initializationKey, StringComparison.Ordinal))
+            {
+                await SortableInterop.InitializeList(ElementRef, Disabled, Sort, AnimationMs, ForceFallback, ItemSelector, ResolveHandleSelector(), FilterSelector,
+                    Group, _dotNetRef);
+                _lastInitializationKey = initializationKey;
+            }
 
             if (_initializationError is not null)
             {

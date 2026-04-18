@@ -22,4 +22,6 @@ public sealed partial class ToggleSize
     /// Large size.
     /// </summary>
     public static readonly ToggleSize Large = new("large");
+
+    public static implicit operator CssValue<ToggleSizeBuilder>(ToggleSize size) => size.Value;
 }

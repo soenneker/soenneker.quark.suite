@@ -54,7 +54,7 @@
     /// Gets or sets size.
     /// </summary>
     [Parameter]
-    public ToggleSize Size { get; set; } = ToggleSize.Default;
+    public CssValue<ToggleSizeBuilder>? Size { get; set; } = "default";
 
     /// <summary>
     /// Gets or sets the layout direction for toggle group items.
@@ -70,13 +70,6 @@
 
     [Parameter]
     public string? Dir { get; set; }
-
-    private static string GetVariantClass(ToggleVariant? variant)
-        => (variant?.Value ?? ToggleVariant.DefaultValue) switch
-        {
-            ToggleVariant.OutlineValue => "data-[variant=outline]:shadow-xs",
-            _ => ""
-        };
 
     private BradixSelectionMode ResolvedType => Type == ToggleGroupType.Multiple
         ? BradixSelectionMode.Multiple
@@ -107,7 +100,7 @@
             attributes["data-slot"] = "toggle-group";
             attributes["data-type"] = Type?.Value ?? ToggleGroupType.Single.Value;
             attributes["data-variant"] = Variant?.Value ?? ToggleVariant.Default.Value;
-            attributes["data-size"] = Size?.Value ?? ToggleSize.Default.Value;
+            attributes["data-size"] = GetToggleSizeDataAttribute(Size);
             attributes["data-orientation"] = Orientation?.Value ?? ToggleGroupOrientation.Horizontal.Value;
             attributes["data-spacing"] = Spacing.ToString();
 
@@ -120,6 +113,7 @@
                 AppendClass(ref cls, "group/toggle-group flex w-fit flex-row items-center rounded-lg");
                 AppendClass(ref cls, "data-[size=sm]:rounded-[min(var(--radius-md),10px)]");
                 AppendClass(ref cls, "data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-stretch");
+                AppendClass(ref cls, ToggleStyleUtil.GetGroupVariantClass(Variant?.Value));
                 if (Spacing > 0)
                     AppendClass(ref cls, "gap-[var(--toggle-gap,0.5rem)]");
                 else
@@ -160,5 +154,13 @@
         hc.Add(CascadedDirection);
         if (Values != null)
             foreach (var x in Values) hc.Add(x);
+    }
+
+    private static string GetToggleSizeDataAttribute(CssValue<ToggleSizeBuilder>? size)
+    {
+        if (size?.TryGetThemeToken(out var token) == true && token is not null)
+            return token;
+
+        return ToggleSize.Default.Value;
     }
 }

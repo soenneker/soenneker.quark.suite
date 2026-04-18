@@ -39,6 +39,7 @@ else
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "pagination-link";
         attributes["data-active"] = Active ? "true" : "false";
+        attributes["data-size"] = ButtonStyleUtil.GetSizeDataAttribute(Size?.Value);
         if (Active)
             attributes["aria-current"] = "page";
 
@@ -48,12 +49,12 @@ else
             AppendClass(ref cls, "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap outline-none transition-all");
             AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-            AppendClass(ref cls, Size == ButtonSize.Default ? "h-9 px-4 py-2 has-[>svg]:px-3" : "size-9");
+            AppendClass(ref cls, ButtonStyleUtil.GetSizeClass(Size?.Value));
 
             if (Active)
-                AppendClass(ref cls, "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50");
+                AppendClass(ref cls, ButtonStyleUtil.GetVariantClass(ButtonVariant.OutlineValue));
             else
-                AppendClass(ref cls, "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50");
+                AppendClass(ref cls, ButtonStyleUtil.GetVariantClass(ButtonVariant.GhostValue));
 
             if (Disabled)
                 AppendClass(ref cls, "opacity-50 pointer-events-none");

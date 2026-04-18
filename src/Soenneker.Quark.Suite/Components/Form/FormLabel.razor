@@ -22,6 +22,14 @@
     [CascadingParameter]
     private FieldContext? FieldContext { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextSize ??= global::Soenneker.Quark.TextSize.Sm;
+        FontWeight ??= global::Soenneker.Quark.FontWeight.Medium;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -30,8 +38,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-form-label");
-            AppendClass(ref cls, "group/form-label peer/form-label flex w-fit items-center gap-2 text-sm leading-snug font-medium select-none");
+            AppendClass(ref cls, "group/form-label peer/form-label flex w-fit items-center gap-2 leading-snug select-none");
             AppendClass(ref cls, "group-data-[disabled=true]/form-item:pointer-events-none group-data-[disabled=true]/form-item:opacity-50");
             AppendClass(ref cls, "group-data-[invalid=true]/form-item:text-destructive");
         });

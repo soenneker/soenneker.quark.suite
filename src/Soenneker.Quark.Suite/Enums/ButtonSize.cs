@@ -16,4 +16,6 @@ public sealed partial class ButtonSize
     public static readonly ButtonSize IconXs = new("icon-xs");
     public static readonly ButtonSize IconSm = new("icon-sm");
     public static readonly ButtonSize IconLg = new("icon-lg");
+
+    public static implicit operator CssValue<ButtonSizeBuilder>(ButtonSize size) => size.Value;
 }

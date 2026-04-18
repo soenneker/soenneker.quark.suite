@@ -223,8 +223,12 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await viewTrigger.ClickAsync();
         await Assertions.Expect(viewTrigger).ToHaveAttributeAsync("aria-expanded", "true");
 
-        ILocator bookmarks = page.Locator("[role='menuitemcheckbox']:visible").Filter(new LocatorFilterOptions { HasText = "Always Show Bookmarks Bar" }).First;
-        ILocator fullUrls = page.Locator("[role='menuitemcheckbox']:visible").Filter(new LocatorFilterOptions { HasText = "Always Show Full URLs" }).First;
+        string? checkboxMenuId = await viewTrigger.GetAttributeAsync("aria-controls");
+        Assert.False(string.IsNullOrWhiteSpace(checkboxMenuId));
+
+        ILocator checkboxMenu = page.Locator($"#{checkboxMenuId}");
+        ILocator bookmarks = checkboxMenu.GetByRole(AriaRole.Menuitemcheckbox, new LocatorGetByRoleOptions { Name = "Always Show Bookmarks Bar", Exact = true });
+        ILocator fullUrls = checkboxMenu.GetByRole(AriaRole.Menuitemcheckbox, new LocatorGetByRoleOptions { Name = "Always Show Full URLs", Exact = true });
 
         await Assertions.Expect(bookmarks).ToBeVisibleAsync();
         await Assertions.Expect(fullUrls).ToBeVisibleAsync();

@@ -71,6 +71,14 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (
         }
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextSize ??= global::Soenneker.Quark.TextSize.Sm;
+        FontWeight ??= global::Soenneker.Quark.FontWeight.Normal;
+    }
+
     private async void OnStatusChanged(ValidationsStatusChangedEventArgs args)
     {
         _status = args.Status;
@@ -98,8 +106,7 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-form-message");
-            AppendClass(ref cls, "text-sm font-normal text-destructive");
+            AppendClass(ref cls, "text-destructive");
         });
     }
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using Soenneker.Extensions.String;
 using Soenneker.Quark.Utils;
 using Soenneker.Utils.PooledStringBuilders;
@@ -14,6 +15,32 @@ namespace Soenneker.Quark;
 /// </summary>
 public abstract class RenderComponent : CoreComponent
 {
+    private static readonly HashSet<string> _semanticColorTokens = new(StringComparer.Ordinal)
+    {
+        "primary",
+        "primary-foreground",
+        "secondary",
+        "secondary-foreground",
+        "destructive",
+        "destructive-foreground",
+        "muted",
+        "muted-foreground",
+        "accent",
+        "accent-foreground",
+        "popover",
+        "popover-foreground",
+        "card",
+        "card-foreground",
+        "background",
+        "foreground",
+        "border",
+        "input",
+        "ring",
+        "white",
+        "black",
+        "transparent"
+    };
+
     private bool _shouldRender = true;
     private int _lastRenderKey;
     private Dictionary<string, object>? _cachedAttrs;
@@ -62,6 +89,8 @@ public abstract class RenderComponent : CoreComponent
 
     protected override void OnParametersSet()
     {
+        ApplyDefaultParameters();
+
         if (AlwaysRender)
         {
             _shouldRender = true;
@@ -76,6 +105,8 @@ public abstract class RenderComponent : CoreComponent
 
     protected virtual IReadOnlyDictionary<string, object> BuildAttributes()
     {
+        ApplyDefaultParameters();
+
         var currentKey = _lastRenderKey;
 
         if (!AlwaysRender && _cachedAttrs is not null && _cachedAttrsKey == currentKey)
@@ -99,9 +130,6 @@ public abstract class RenderComponent : CoreComponent
 
             BuildAttributesCore(attrs);
 
-            if (attrs.TryGetValue("class", out var classObj) && classObj is string classStr && classStr.Length > 0)
-                attrs["class"] = ClassNames.Combine(classStr);
-
             _cachedAttrs = attrs;
             _cachedAttrsKey = currentKey;
 
@@ -121,6 +149,15 @@ public abstract class RenderComponent : CoreComponent
     }
 
     protected virtual void BuildOwnedClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
+    {
+    }
+
+    /// <summary>
+    /// Applies default parameter values before render-key computation and attribute emission.
+    /// Components should set inherited builder-backed defaults here instead of hard-coding
+    /// competing utility classes in their emitted class contracts.
+    /// </summary>
+    protected virtual void ApplyDefaultParameters()
     {
     }
 
@@ -281,7 +318,13 @@ public abstract class RenderComponent : CoreComponent
 
         if (classText.Length != 0)
         {
-            AppendClass(ref clsB, classText);
+            if (IsDimensionUtilityClass(classText.AsSpan()))
+            {
+                AppendClass(ref clsB, classText);
+                return;
+            }
+
+            AppendStyleDecl(ref styB, propertyName, classText);
             return;
         }
 
@@ -306,7 +349,13 @@ public abstract class RenderComponent : CoreComponent
 
         if (classText.Length != 0)
         {
-            AppendClass(ref clsB, classText);
+            if (IsDimensionUtilityClass(classText.AsSpan()))
+            {
+                AppendClass(ref clsB, classText);
+                return;
+            }
+
+            AppendStyleDecl(ref styB, propertyName, classText);
             return;
         }
 
@@ -331,7 +380,13 @@ public abstract class RenderComponent : CoreComponent
 
         if (classText.Length != 0)
         {
-            AppendClass(ref clsB, classText);
+            if (IsDimensionUtilityClass(classText.AsSpan()))
+            {
+                AppendClass(ref clsB, classText);
+                return;
+            }
+
+            AppendStyleDecl(ref styB, propertyName, classText);
             return;
         }
 
@@ -356,7 +411,13 @@ public abstract class RenderComponent : CoreComponent
 
         if (classText.Length != 0)
         {
-            AppendClass(ref clsB, classText);
+            if (IsDimensionUtilityClass(classText.AsSpan()))
+            {
+                AppendClass(ref clsB, classText);
+                return;
+            }
+
+            AppendStyleDecl(ref styB, propertyName, classText);
             return;
         }
 
@@ -418,31 +479,11 @@ public abstract class RenderComponent : CoreComponent
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void AppendClassAttribute(Dictionary<string, object> attrs, params string?[] classes)
     {
-        var cls = new PooledStringBuilder(64);
+        attrs.TryGetValue("class", out var existing);
+        var merged = TailwindMerge.Merge(existing?.ToString(), string.Join(' ', classes ?? Array.Empty<string?>()));
 
-        try
-        {
-            if (attrs.TryGetValue("class", out var existing))
-            {
-                var existingStr = existing.ToString();
-
-                if (!existingStr.IsNullOrWhiteSpace())
-                    cls.Append(existingStr);
-            }
-
-            foreach (var c in classes)
-            {
-                if (!c.IsNullOrWhiteSpace())
-                    AppendClass(ref cls, c!);
-            }
-
-            if (cls.Length > 0)
-                attrs["class"] = cls.ToString();
-        }
-        finally
-        {
-            cls.Dispose();
-        }
+        if (merged.Length > 0)
+            attrs["class"] = merged;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -454,16 +495,12 @@ public abstract class RenderComponent : CoreComponent
         {
             builder(ref cls);
 
-            if (attrs.TryGetValue("class", out var existing))
-            {
-                var existingStr = existing.ToString();
+            attrs.TryGetValue("class", out var existing);
 
-                if (existingStr.HasContent())
-                    AppendClass(ref cls, existingStr);
-            }
+            var merged = TailwindMerge.Merge(cls.ToString(), existing?.ToString());
 
-            if (cls.Length > 0)
-                attrs["class"] = cls.ToString();
+            if (merged.Length > 0)
+                attrs["class"] = merged;
         }
         finally
         {
@@ -517,7 +554,11 @@ public abstract class RenderComponent : CoreComponent
             builder(ref cls, ref sty);
 
             if (existingClassLen != 0)
-                AppendClass(ref cls, existingClassStr!);
+            {
+                var merged = TailwindMerge.Merge(cls.ToString(), existingClassStr);
+                cls.Clear();
+                cls.Append(merged);
+            }
 
             if (existingStyleLen != 0)
                 AppendStyleDecl(ref sty, existingStyleStr!);
@@ -561,14 +602,30 @@ public abstract class RenderComponent : CoreComponent
         attrs["style"] = fullDecl;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsDimensionUtilityClass(ReadOnlySpan<char> token)
+    {
+        if (token.Length == 0)
+            return false;
+
+        return token.StartsWith("w-".AsSpan(), StringComparison.Ordinal)
+               || token.StartsWith("min-w-".AsSpan(), StringComparison.Ordinal)
+               || token.StartsWith("max-w-".AsSpan(), StringComparison.Ordinal)
+               || token.StartsWith("h-".AsSpan(), StringComparison.Ordinal)
+               || token.StartsWith("min-h-".AsSpan(), StringComparison.Ordinal)
+               || token.StartsWith("max-h-".AsSpan(), StringComparison.Ordinal)
+               || token.StartsWith("size-".AsSpan(), StringComparison.Ordinal)
+               || token.StartsWith("aspect-".AsSpan(), StringComparison.Ordinal);
+    }
+
     protected virtual void ApplyBorderColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<BorderColorBuilder>? value)
     {
-        AddCss(ref sty, ref cls, value);
+        AddColorCss(ref sty, ref cls, value, "border", "border-color");
     }
 
     protected virtual void ApplyTextColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<TextColorBuilder>? value)
     {
-        AddCss(ref sty, ref cls, value);
+        AddColorCss(ref sty, ref cls, value, "text", "color");
     }
 
     protected virtual void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<BackgroundColorBuilder>? value)
@@ -577,7 +634,26 @@ public abstract class RenderComponent : CoreComponent
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void AddColorCss(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<BackgroundColorBuilder>? v, ReadOnlySpan<char> classPrefix, ReadOnlySpan<char> cssProperty)
+    protected static void AddCss(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<RingColorBuilder>? v)
+    {
+        AddColorCss(ref styB, ref clsB, v, "ring", "ring-color");
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected static void AddCss(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<AccentColorBuilder>? v)
+    {
+        AddColorCss(ref styB, ref clsB, v, "accent", "accent-color");
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected static void AddCss(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<CaretColorBuilder>? v)
+    {
+        AddColorCss(ref styB, ref clsB, v, "caret", "caret-color");
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void AddColorCss<TBuilder>(ref PooledStringBuilder styB, ref PooledStringBuilder clsB, CssValue<TBuilder>? v, ReadOnlySpan<char> classPrefix, ReadOnlySpan<char> cssProperty)
+        where TBuilder : class, ICssBuilder
     {
         if (v is not { IsEmpty: false })
             return;
@@ -599,7 +675,88 @@ public abstract class RenderComponent : CoreComponent
             return;
         }
 
+        if (TryNormalizeColorUtility(result, classPrefix, out var utility))
+        {
+            AppendClass(ref clsB, utility);
+            return;
+        }
+
         AppendClass(ref clsB, result);
+    }
+
+    private static bool TryNormalizeColorUtility(string value, ReadOnlySpan<char> classPrefix, out string utility)
+    {
+        utility = string.Empty;
+
+        if (value.IsNullOrWhiteSpace())
+            return false;
+
+        var trimmed = value.Trim();
+
+        if (trimmed.Contains(' ') || trimmed.Contains(':'))
+            return false;
+
+        var expectedPrefix = $"{classPrefix}-";
+
+        if (trimmed.StartsWith(expectedPrefix, StringComparison.Ordinal))
+        {
+            utility = trimmed;
+            return true;
+        }
+
+        if (!IsColorToken(trimmed))
+            return false;
+
+        utility = expectedPrefix + trimmed;
+        return true;
+    }
+
+    private static bool IsColorToken(string token)
+    {
+        if (token.Length == 0)
+            return false;
+
+        if (_semanticColorTokens.Contains(token))
+            return true;
+
+        var slashIndex = token.IndexOf('/');
+
+        if (slashIndex > 0)
+        {
+            var baseToken = token[..slashIndex];
+            var modifier = token[(slashIndex + 1)..];
+
+            return IsColorToken(baseToken) && IsOpacityModifier(modifier);
+        }
+
+        return IsPaletteToken(token) || IsArbitraryToken(token);
+    }
+
+    private static bool IsPaletteToken(string token)
+    {
+        return Regex.IsMatch(token,
+            "^(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950)$",
+            RegexOptions.CultureInvariant);
+    }
+
+    private static bool IsArbitraryToken(string token)
+    {
+        return token.Length >= 2
+               && ((token[0] == '[' && token[^1] == ']')
+                   || (token[0] == '(' && token[^1] == ')'));
+    }
+
+    private static bool IsOpacityModifier(string modifier)
+    {
+        if (modifier.Length == 0)
+            return false;
+
+        if (modifier.Length >= 2 && modifier[0] == '[' && modifier[^1] == ']')
+            return true;
+
+        return Regex.IsMatch(modifier,
+            "^(?:0|5|10|15|20|25|30|35|40|45|50|55|60|65|70|75|80|85|90|95|100)$",
+            RegexOptions.CultureInvariant);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

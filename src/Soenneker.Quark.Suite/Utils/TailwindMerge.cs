@@ -225,6 +225,9 @@ public static class TailwindMerge
         {
             var c = token[i];
 
+            if (char.IsWhiteSpace(c) || char.IsControl(c))
+                return false;
+
             if (char.IsLetterOrDigit(c))
                 continue;
 
@@ -248,10 +251,16 @@ public static class TailwindMerge
                 case '=':
                 case ',':
                 case '*':
+                case '>':
+                case '<':
+                case '~':
+                case '\'':
+                case '"':
+                case '|':
+                case '^':
+                case '$':
                     continue;
             }
-
-            return false;
         }
 
         return true;

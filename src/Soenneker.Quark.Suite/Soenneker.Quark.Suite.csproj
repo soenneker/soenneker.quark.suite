@@ -40,6 +40,7 @@
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
         <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackGeneratedTailwindManifest</TargetsForTfmSpecificContentInPackage>
         <_LocalBradixProject>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\..\..\Bradix\soenneker.bradix.suite\src\Soenneker.Bradix.Suite\Soenneker.Bradix.Suite.csproj'))</_LocalBradixProject>
+        <_LocalQuarkBuildersProject>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\..\soenneker.quark.builders\src\Soenneker.Quark.Builders\Soenneker.Quark.Builders.csproj'))</_LocalQuarkBuildersProject>
         <PackageReleaseNotes Condition="'$(PACKAGE_RELEASE_NOTES)' != ''">
             $(PACKAGE_RELEASE_NOTES)
         </PackageReleaseNotes>
@@ -68,14 +69,14 @@
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="4.0.446" />
         <PackageReference Include="Soenneker.Lucide.Enums.Icons" Version="4.0.94" />
         <PackageReference Include="Soenneker.Lucide.Icons" Version="4.0.111" />
-        <PackageReference Include="Soenneker.Quark.Builders" Version="4.0.5" />
+        <PackageReference Include="Soenneker.Quark.Builders" Version="4.0.5" Condition="!Exists('$(_LocalQuarkBuildersProject)')" />
         <PackageReference Include="Soenneker.Quark.Components.Core.Cancellable" Version="4.0.66" />
         <PackageReference Include="Soenneker.Quark.Gen.Lucide" Version="4.0.100">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Soenneker.Quark.Gen.Lucide.Abstractions" Version="4.0.11" />
-        <PackageReference Include="Soenneker.Quark.Gen.Tailwind.Manifest.Suite" Version="4.0.10">
+        <PackageReference Include="Soenneker.Quark.Gen.Tailwind.Manifest.Suite" Version="4.0.11">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -90,6 +91,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\Bradix\soenneker.bradix.suite\src\Soenneker.Bradix.Suite\Soenneker.Bradix.Suite.csproj" />
+      <ProjectReference Include="$(_LocalQuarkBuildersProject)" Condition="Exists('$(_LocalQuarkBuildersProject)')" />
     </ItemGroup>
 
 </Project>

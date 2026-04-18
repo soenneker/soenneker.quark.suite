@@ -31,6 +31,14 @@
         }
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextSize ??= global::Soenneker.Quark.TextSize.Sm;
+        FontWeight ??= global::Soenneker.Quark.FontWeight.Normal;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -39,8 +47,7 @@
             attributes["id"] = FieldContext.DescriptionId;
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-field-description");
-            AppendClass(ref cls, "text-sm leading-normal font-normal text-muted-foreground");
+            AppendClass(ref cls, "leading-normal text-muted-foreground");
             AppendClass(ref cls, "group-has-[[data-orientation=horizontal]]/field:text-balance");
             AppendClass(ref cls, "last:mt-0 nth-last-2:-mt-1 [[data-variant=legend]+&]:-mt-1.5");
             AppendClass(ref cls, "[&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary");

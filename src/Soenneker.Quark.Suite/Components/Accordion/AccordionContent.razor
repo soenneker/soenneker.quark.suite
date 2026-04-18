@@ -22,7 +22,10 @@
     {
         get
         {
-            Dictionary<string, object> attributes = [];
+            Dictionary<string, object> attributes = new()
+            {
+                ["data-slot"] = "accordion-content-inner"
+            };
 
             BuildClassAttribute(attributes, (ref cls) =>
             {
@@ -53,8 +56,10 @@
             BuildClassAttribute(attributes, (ref cls) =>
             {
                 AppendClass(ref cls, "q-accordion-content");
-                AppendClass(ref cls, "grid w-full min-w-0 text-sm transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none");
-                AppendClass(ref cls, "data-[state=closed]:grid-rows-[0fr] data-[state=open]:grid-rows-[1fr]");
+                AppendClass(ref cls, "w-full min-w-0 overflow-hidden text-sm transition-[max-height] duration-200 ease-out motion-reduce:transition-none");
+                AppendClass(ref cls, "data-[state=closed]:max-h-0 data-[state=open]:max-h-[var(--radix-accordion-content-height)]");
+                AppendClass(ref cls, "[&_[data-slot=accordion-content-inner]]:transition-opacity [&_[data-slot=accordion-content-inner]]:duration-200 [&_[data-slot=accordion-content-inner]]:ease-out");
+                AppendClass(ref cls, "data-[state=closed]:[&_[data-slot=accordion-content-inner]]:opacity-0 data-[state=open]:[&_[data-slot=accordion-content-inner]]:opacity-100");
             });
 
             return attributes;

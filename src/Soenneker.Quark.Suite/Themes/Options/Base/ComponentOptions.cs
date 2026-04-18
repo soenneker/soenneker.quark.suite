@@ -378,21 +378,6 @@ public class ComponentOptions
     /// </summary>
     public CssValue<FontVariantNumericBuilder>? FontVariantNumeric { get; set; }
 
-    /// <summary>
-    /// Gets or sets the CSS background-opacity configuration.
-    /// </summary>
-    public CssValue<BackgroundOpacityBuilder>? BackgroundOpacity { get; set; }
-
-    /// <summary>
-    /// Gets or sets the CSS border-opacity configuration.
-    /// </summary>
-    public CssValue<BorderOpacityBuilder>? BorderOpacity { get; set; }
-
-    /// <summary>
-    /// Gets or sets the CSS text-opacity configuration.
-    /// </summary>
-    public CssValue<TextOpacityBuilder>? TextOpacity { get; set; }
-
     private void CollectCssRules(List<ComponentCssRule> buffer, string baseSelector)
     {
         AddRules(buffer, baseSelector, Display, "display");
@@ -465,9 +450,6 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Truncate, null);
         AddRules(buffer, baseSelector, LineClamp, null);
         AddRules(buffer, baseSelector, FontVariantNumeric, "font-variant-numeric");
-        AddRules(buffer, baseSelector, BackgroundOpacity, null);
-        AddRules(buffer, baseSelector, BorderOpacity, null);
-        AddRules(buffer, baseSelector, TextOpacity, null);
     }
 
     private static void AddRules<TBuilder>(List<ComponentCssRule> buffer, string baseSelector, CssValue<TBuilder>? value, string? fallbackProperty = null)

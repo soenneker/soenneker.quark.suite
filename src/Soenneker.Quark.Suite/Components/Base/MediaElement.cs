@@ -60,6 +60,24 @@ public abstract class MediaElement : Element
         AddCss(ref sty, ref cls, FillRule);
     }
 
+    protected override bool ShouldSuppressBuilderCoveredToken(string token)
+    {
+        if (base.ShouldSuppressBuilderCoveredToken(token))
+            return true;
+
+        if (token.Contains('[') || token.Contains(']') || token.Contains('/'))
+            return false;
+
+        var utility = token;
+        var colonIdx = utility.LastIndexOf(':');
+
+        if (colonIdx >= 0 && colonIdx < utility.Length - 1)
+            utility = utility[(colonIdx + 1)..];
+
+        return ObjectFit is { IsEmpty: false } &&
+               utility is "object-contain" or "object-cover" or "object-fill" or "object-none" or "object-scale-down";
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);

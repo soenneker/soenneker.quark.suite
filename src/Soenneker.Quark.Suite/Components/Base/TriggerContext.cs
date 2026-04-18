@@ -40,6 +40,8 @@ internal sealed class TriggerContext
 
     public Func<Task>? OnMouseEnter { get; init; }
 
+    public Func<Task>? OnMouseMove { get; init; }
+
     public Func<Task>? OnMouseLeave { get; init; }
 
     public Func<Task>? OnFocusIn { get; init; }

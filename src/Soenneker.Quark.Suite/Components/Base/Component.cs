@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using Soenneker.Blazor.Extensions.EventCallback;
 using Soenneker.Extensions.String;
+using Soenneker.Quark.Utils;
 using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
@@ -195,13 +196,7 @@ public abstract class Component : RenderComponent, IComponent
     public CssValue<RingColorBuilder>? RingColor { get; set; }
 
     [Parameter]
-    public CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
-
-    [Parameter]
-    public CssValue<BackgroundOpacityBuilder>? BackgroundOpacity { get; set; }
-
-    [Parameter]
-    public CssValue<BorderOpacityBuilder>? BorderOpacity { get; set; }
+    public virtual CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
 
     [Parameter]
     public CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
@@ -304,8 +299,6 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, Ring);
         AddCss(ref sty, ref cls, RingColor);
         AddCss(ref sty, ref cls, BoxShadow);
-        AddCss(ref sty, ref cls, BackgroundOpacity);
-        AddCss(ref sty, ref cls, BorderOpacity);
         AddCss(ref sty, ref cls, BackdropFilter);
         AddCss(ref sty, ref cls, Filter);
         AddCss(ref sty, ref cls, Resize);
@@ -344,6 +337,89 @@ public abstract class Component : RenderComponent, IComponent
     {
         base.ApplyTextColor(ref sty, ref cls, value);
     }
+
+    protected new void BuildClassAttribute(Dictionary<string, object> attrs, BuildClassAction builder)
+    {
+        var cls = new PooledStringBuilder(64);
+
+        try
+        {
+            builder(ref cls);
+
+            attrs.TryGetValue("class", out var existing);
+
+            var merged = TailwindMerge.Merge(SanitizeBuilderCoveredClassDefaults(cls.ToString()), existing?.ToString());
+
+            if (merged.Length > 0)
+                attrs["class"] = merged;
+        }
+        finally
+        {
+            cls.Dispose();
+        }
+    }
+
+    protected virtual bool ShouldSuppressBuilderCoveredToken(string token)
+    {
+        if (token.IsNullOrEmpty() || token.Contains('[') || token.Contains(']') || token.Contains('/'))
+            return false;
+
+        var utility = token;
+        var colonIdx = utility.LastIndexOf(':');
+
+        if (colonIdx >= 0 && colonIdx < utility.Length - 1)
+            utility = utility[(colonIdx + 1)..];
+
+        if (Rounded is { IsEmpty: false } && IsRoundedUtility(utility))
+            return true;
+
+        if (TextSize is { IsEmpty: false } && IsTextSizeUtility(utility))
+            return true;
+
+        if (FontWeight is { IsEmpty: false } && IsFontWeightUtility(utility))
+            return true;
+
+        if (BoxShadow is { IsEmpty: false } && IsShadowUtility(utility))
+            return true;
+
+        return false;
+    }
+
+    private string SanitizeBuilderCoveredClassDefaults(string classes)
+    {
+        if (classes.IsNullOrEmpty())
+            return string.Empty;
+
+        using var sb = new PooledStringBuilder(classes.Length);
+        var tokens = classes.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        for (var i = 0; i < tokens.Length; i++)
+        {
+            var token = tokens[i];
+
+            if (ShouldSuppressBuilderCoveredToken(token))
+                continue;
+
+            if (sb.Length > 0)
+                sb.Append(' ');
+
+            sb.Append(token);
+        }
+
+        return sb.ToString();
+    }
+
+    private static bool IsRoundedUtility(string token)
+        => token is "rounded" or "rounded-none" or "rounded-sm" or "rounded-md" or "rounded-lg" or "rounded-xl" or "rounded-2xl" or "rounded-3xl" or "rounded-full";
+
+    private static bool IsTextSizeUtility(string token)
+        => token is "text-xs" or "text-sm" or "text-base" or "text-lg" or "text-xl" or "text-2xl" or "text-3xl" or "text-4xl";
+
+    private static bool IsFontWeightUtility(string token)
+        => token is "font-extralight" or "font-light" or "font-normal" or "font-medium" or "font-semibold" or "font-bold" or "font-extrabold";
+
+    private static bool IsShadowUtility(string token)
+        => token is "shadow-none" or "shadow-xs" or "shadow-sm" or "shadow" or "shadow-lg";
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
@@ -409,8 +485,6 @@ public abstract class Component : RenderComponent, IComponent
         AddIf(ref hc, Ring);
         AddIf(ref hc, RingColor);
         AddIf(ref hc, BoxShadow);
-        AddIf(ref hc, BackgroundOpacity);
-        AddIf(ref hc, BorderOpacity);
         AddIf(ref hc, BackdropFilter);
         AddIf(ref hc, Filter);
         AddIf(ref hc, Resize);

@@ -368,7 +368,7 @@
 	private string GetTrackThicknessClass()
 	{
 		if (Size == Quark.Size.Default)
-			return IsVertical ? "w-1.5" : "h-1.5";
+			return IsVertical ? "w-1" : "h-1";
 
 		string? token = null;
 		_ = Size?.TryGetThemeToken(out token);
@@ -378,14 +378,14 @@
 		{
 			"sm" or "xs" => IsVertical ? "w-1" : "h-1",
 			"lg" => IsVertical ? "w-2" : "h-2",
-			_ => IsVertical ? "w-1.5" : "h-1.5"
+			_ => IsVertical ? "w-1" : "h-1"
 		};
 	}
 
 	private string GetThumbSizeClass()
 	{
 		if (Size == Quark.Size.Default)
-			return "size-4";
+			return "size-3";
 
 		string? token = null;
 		_ = Size?.TryGetThemeToken(out token);
@@ -395,7 +395,7 @@
 		{
 			"sm" or "xs" => "size-3",
 			"lg" => "size-5",
-			_ => "size-4"
+			_ => "size-3"
 		};
 	}
 
@@ -415,7 +415,7 @@
 		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
 		{
 			BuildOwnedClassAndStyle(ref sty, ref cls);
-			AppendClass(ref cls, "q-slider relative flex w-full touch-none items-center select-none data-[disabled]:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col");
+			AppendClass(ref cls, "q-slider relative flex w-full touch-none items-center select-none data-[disabled]:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-40 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col");
 
 			if (Disabled || ReadOnly)
 				AppendClass(ref cls, "cursor-not-allowed");
@@ -556,11 +556,11 @@
 
 		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
 		{
-			AppendClass(ref cls, "absolute block shrink-0 rounded-full border border-primary bg-background shadow-sm ring-ring/50 transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50");
+			AppendClass(ref cls, "absolute block shrink-0 rounded-full border border-ring bg-white ring-ring/50 transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 disabled:pointer-events-none disabled:opacity-50");
 			AppendClass(ref cls, GetThumbSizeClass());
 
 			if (isActive)
-				AppendClass(ref cls, "ring-4");
+				AppendClass(ref cls, "ring-3");
 
 			if (IsVertical)
 			{

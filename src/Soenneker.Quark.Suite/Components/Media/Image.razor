@@ -114,27 +114,11 @@
     {
         base.BuildAttributesCore(attributes);
 
-        if (!Class.HasContent())
+        var fluidClass = GetFluidClass();
+
+        if (fluidClass != null)
         {
-            BuildClassAttribute(attributes, (ref cls) =>
-            {
-                AppendClass(ref cls, "q-image");
-                AppendClass(ref cls, "rounded-md border border-border object-cover");
-                
-                var fluidClass = GetFluidClass();
-                if (fluidClass != null)
-                    AppendClass(ref cls, fluidClass);
-            });
-        }
-        else
-        {
-            var currentClass = attributes.GetValueOrDefault("class")?.ToString() ?? "";
-            var fluidClass = GetFluidClass();
-            
-            if (fluidClass != null && !currentClass.Contains(fluidClass))
-            {
-                BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, fluidClass));
-            }
+            BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, fluidClass));
         }
 
         // Add image-specific attributes

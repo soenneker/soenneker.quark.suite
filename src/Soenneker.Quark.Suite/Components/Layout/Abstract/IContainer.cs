@@ -1,12 +1,12 @@
 namespace Soenneker.Quark;
 
 /// <summary>
-/// Represents a Bootstrap container component for responsive fixed-width layouts.
+/// Represents a container component for responsive content layouts.
 /// </summary>
 public interface IContainer : IElement
 {
     /// <summary>
-    /// Gets or sets the container type configuration.
+    /// Gets or sets the container classes.
     /// </summary>
-    CssValue<ContainerBuilder>? ContainerType { get; set; }
+    string? ContainerType { get; set; }
 }

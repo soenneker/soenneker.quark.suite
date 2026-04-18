@@ -5,6 +5,14 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextSize ??= global::Soenneker.Quark.TextSize.Sm;
+        LineHeight ??= global::Soenneker.Quark.LineHeight.Large;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -13,8 +21,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-empty-description");
-            AppendClass(ref cls, "text-muted-foreground [&>a:hover]:text-primary text-sm/relaxed [&>a]:underline [&>a]:underline-offset-4");
+            AppendClass(ref cls, "text-muted-foreground [&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4");
         });
     }
 }

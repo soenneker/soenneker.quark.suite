@@ -5,8 +5,7 @@
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Name="ParentMenubar" Value="@this" IsFixed="true">
-    <BradixMenubar Value="@_openMenuValue"
-                   ValueChanged="HandleValueChanged"
+    <BradixMenubar ValueChanged="HandleValueChanged"
                    AdditionalAttributes="@MenubarAttributes">
         @ChildContent
     </BradixMenubar>
@@ -154,8 +153,6 @@
     private Task HandleValueChanged(string? value)
     {
         _openMenuValue = value;
-        InvalidateRender();
-        Refresh();
         return Task.CompletedTask;
     }
 
@@ -163,6 +160,5 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(DirectionProviderDir);
-        hc.Add(_openMenuValue);
     }
 }
