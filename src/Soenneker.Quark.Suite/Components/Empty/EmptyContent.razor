@@ -9,7 +9,15 @@
     {
         base.ApplyDefaultParameters();
 
-        TextSize ??= global::Soenneker.Quark.TextSize.Sm;
+        Display ??= Quark.Display.Flex;
+        Width ??= Quark.Width.IsFull;
+        MaxWidth ??= Quark.MaxWidth.IsSm;
+        MinWidth ??= Quark.MinWidth.Is0;
+        Flex ??= Quark.Flex.Display.Column;
+        AlignUtility ??= Quark.Align.ItemsCenter;
+        Gap ??= Quark.Gap.Token("2.5");
+        TextSize ??= Quark.TextSize.Sm;
+        TextWrap ??= Quark.TextWrap.Balance;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -21,7 +29,6 @@
         // shadcn/ui empty-content base - exact copy from new-york-v4 ui/empty.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "flex w-full max-w-sm min-w-0 flex-col items-center gap-2.5 text-balance");
         });
     }
 }

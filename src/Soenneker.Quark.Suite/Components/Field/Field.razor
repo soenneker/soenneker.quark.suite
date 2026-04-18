@@ -46,6 +46,15 @@
         base.OnParametersSet();
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        Width ??= Quark.Width.IsFull;
+        Gap ??= Quark.Gap.Is2;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -65,7 +74,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-field");
-            AppendClass(ref cls, "group/field flex w-full gap-2 data-[invalid=true]:text-destructive");
+            AppendClass(ref cls, "group/field data-[invalid=true]:text-destructive");
             if (Horizontal)
             {
                 AppendClass(ref cls, "flex-row items-center");

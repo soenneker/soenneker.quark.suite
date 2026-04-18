@@ -8,13 +8,23 @@
 
 @code {
     // shadcn table toolbar left - new-york-v4
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        MinWidth ??= Quark.MinWidth.Is0;
+        Flex ??= Quark.Flex.Is1;
+        Gap ??= Quark.Gap.Is2;
+        AlignUtility ??= Quark.Align.ItemsCenter;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-table-left");
-            AppendClass(ref cls, "flex min-w-0 flex-1 items-center gap-2");
         });
     }
 }

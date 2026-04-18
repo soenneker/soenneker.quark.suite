@@ -5,13 +5,21 @@
 <h5 @attributes="BuildAttributes()">@ChildContent</h5>
 
 @code{
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextSize ??= Quark.TextSize.Lg;
+        FontWeight ??= Quark.FontWeight.Medium;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
-            AppendClass(ref cls, "q-h5 text-lg font-medium");
+            AppendClass(ref cls, "q-h5");
         });
     }
 }

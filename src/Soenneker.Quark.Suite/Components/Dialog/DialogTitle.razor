@@ -20,6 +20,15 @@
 
     private IReadOnlyDictionary<string, object> TitleAttributes => BuildAttributes();
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextSize ??= Quark.TextSize.Lg;
+        this.Leading ??= Quark.Leading.None;
+        FontWeight ??= Quark.FontWeight.Semibold;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -27,7 +36,6 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-dialog-title");
-            AppendClass(ref cls, "text-lg leading-none font-semibold");
         });
     }
 

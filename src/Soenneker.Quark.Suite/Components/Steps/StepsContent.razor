@@ -36,7 +36,7 @@
                 return;
 
             _parentStepsState = value;
-            
+
             // Sync with the parent Steps component's selected step
             if (_parentStepsState != null && _parentStepsState.SelectedStep != _state.SelectedPanel)
             {
@@ -78,6 +78,13 @@
         return SetSelectedPanelAsync(name, notifyChanged: true);
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Margin = Quark.Margin.Is3.FromTop;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -86,7 +93,6 @@
         {
             AppendClass(ref cls, "q-steps-content");
             AppendClass(ref cls, "tab-content");
-            AppendClass(ref cls, "mt-3");
         });
     }
 

@@ -7,14 +7,21 @@
 </div>
 
 @code {
+	protected override void ApplyDefaultParameters()
+	{
+		base.ApplyDefaultParameters();
+
+		Padding ??= Quark.Padding.Is4.OnX;
+	}
+
 	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
 	{
 		base.BuildAttributesCore(attributes);
 		attributes["data-slot"] = "card-content";
 		BuildClassAttribute(attributes, (ref cls) =>
 		{
-			AppendClass(ref cls, "q-card-body q-card-content");
-			AppendClass(ref cls, "px-4 group-data-[size=sm]/card:px-3");
+			AppendClass(ref cls, "q-cardbody");
+			AppendClass(ref cls, "group-data-[size=sm]/card:px-3");
 		});
 	}
 }

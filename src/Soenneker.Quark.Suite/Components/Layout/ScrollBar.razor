@@ -21,6 +21,15 @@
     private IReadOnlyDictionary<string, object> ScrollbarAttributes => BuildScrollbarAttributes();
     private IReadOnlyDictionary<string, object> ThumbAttributes => BuildThumbAttributes();
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        UserSelect ??= Quark.UserSelect.None;
+        Transition ??= Quark.Transition.Colors;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -33,7 +42,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-scroll-bar");
-            AppendClass(ref cls, "flex touch-none select-none p-px transition-colors");
+            AppendClass(ref cls, "touch-none p-px");
             if (isVertical)
                 AppendClass(ref cls, "absolute top-0 right-0 h-full w-2.5 border-l border-l-transparent");
             else

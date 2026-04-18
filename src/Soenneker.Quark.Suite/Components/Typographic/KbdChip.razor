@@ -5,6 +5,19 @@
 <kbd @attributes="BuildAttributes()">@ChildContent</kbd>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.InlineFlex;
+        Rounded ??= Quark.Rounded.Default;
+        Border ??= Quark.Border.Is1;
+        TextSize ??= Quark.TextSize.Xs;
+        FontFamily ??= Quark.FontFamily.Mono;
+        BackgroundColor ??= Quark.BackgroundColor.Muted;
+        TextColor ??= Quark.TextColor.Foreground;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -12,7 +25,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-kbd-chip");
-            AppendClass(ref cls, "inline-flex items-center rounded border px-1.5 py-0.5 text-xs font-mono bg-muted text-foreground");
+            AppendClass(ref cls, "items-center px-1.5 py-0.5");
         });
     }
 

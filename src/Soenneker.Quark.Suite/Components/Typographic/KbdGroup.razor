@@ -4,6 +4,14 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.InlineFlex;
+        Gap ??= Quark.Gap.Token("1.5");
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -12,7 +20,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-kbd-group inline-flex items-center gap-1.5");
+            AppendClass(ref cls, "q-kbd-group items-center");
         });
     }
 }

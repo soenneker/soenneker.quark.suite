@@ -9,6 +9,14 @@
                  AdditionalAttributes="@SeparatorAttributes" />
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Margin ??= Quark.Margin.Is0.OnY;
+        Width ??= Quark.Width.IsFull;
+    }
+
     private IReadOnlyDictionary<string, object> SeparatorAttributes => BuildSeparatorAttributes();
 
     private IReadOnlyDictionary<string, object> BuildSeparatorAttributes()
@@ -26,7 +34,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-item-separator");
-            AppendClass(ref cls, "my-0 bg-border shrink-0 h-px w-full");
+            AppendClass(ref cls, "bg-border shrink-0 h-px");
         });
     }
 }

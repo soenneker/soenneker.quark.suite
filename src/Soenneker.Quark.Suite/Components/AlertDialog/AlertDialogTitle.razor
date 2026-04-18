@@ -14,6 +14,14 @@
 
     private IReadOnlyDictionary<string, object> TitleAttributes => BuildAttributes();
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextSize ??= Quark.TextSize.Lg;
+        FontWeight ??= Quark.FontWeight.Semibold;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -21,7 +29,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-alert-dialog-title");
-            AppendClass(ref cls, "text-lg font-semibold sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2");
+            AppendClass(ref cls, "sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2");
         });
         attributes["data-slot"] = "alert-dialog-title";
     }

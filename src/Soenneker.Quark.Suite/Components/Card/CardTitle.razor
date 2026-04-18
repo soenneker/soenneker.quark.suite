@@ -7,6 +7,14 @@
 </div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Leading ??= Quark.Leading.None;
+        FontWeight ??= Quark.FontWeight.Semibold;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -14,7 +22,6 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-card-title");
-            AppendClass(ref cls, "leading-none font-semibold");
         });
     }
 }

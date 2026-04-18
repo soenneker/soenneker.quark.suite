@@ -7,6 +7,18 @@
 </div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Margin ??= Quark.Margin.Is2.FromBottom;
+        Display ??= Quark.Display.InlineFlex;
+        BoxSize ??= Quark.Size.Token("16");
+        AlignUtility ??= Quark.Align.ItemsCenter.JustifyCenter;
+        Rounded ??= Quark.Rounded.Md;
+        BackgroundColor ??= Quark.BackgroundColor.Muted;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -16,7 +28,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-alert-dialog-media");
-            AppendClass(ref cls, "mb-2 inline-flex size-16 items-center justify-center rounded-md bg-muted sm:group-data-[size=default]/alert-dialog-content:row-span-2 *:[svg:not([class*='size-'])]:size-8");
+            AppendClass(ref cls, "sm:group-data-[size=default]/alert-dialog-content:row-span-2 *:[svg:not([class*='size-'])]:size-8");
         });
     }
 }

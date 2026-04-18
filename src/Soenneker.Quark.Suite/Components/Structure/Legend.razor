@@ -7,6 +7,14 @@
 </legend>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Margin ??= Quark.Margin.Is3.FromBottom;
+        FontWeight ??= Quark.FontWeight.Medium;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -17,10 +25,8 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-legend");
-            AppendClass(ref cls, "mb-3 font-medium");
             AppendClass(ref cls, "data-[variant=legend]:text-base");
             AppendClass(ref cls, "data-[variant=label]:text-sm");
         });
     }
 }
-

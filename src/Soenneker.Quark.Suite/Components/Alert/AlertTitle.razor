@@ -7,6 +7,16 @@
 </div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        LineClamp ??= Quark.LineClamp.One;
+        MinHeight ??= Quark.Height.Token("4");
+        FontWeight ??= Quark.FontWeight.Medium;
+        this.Tracking ??= Quark.Tracking.Tight;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -14,7 +24,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-alert-title");
-            AppendClass(ref cls, "col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight");
+            AppendClass(ref cls, "col-start-2");
         });
     }
 }

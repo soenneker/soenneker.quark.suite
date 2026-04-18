@@ -5,13 +5,22 @@
 <h3 @attributes="BuildAttributes()">@ChildContent</h3>
 
 @code{
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextSize ??= Quark.TextSize.TwoXl;
+        FontWeight ??= Quark.FontWeight.Semibold;
+        this.Tracking ??= Quark.Tracking.Tight;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
-            AppendClass(ref cls, "q-h3 text-2xl font-semibold tracking-tight");
+            AppendClass(ref cls, "q-h3");
         });
     }
 }

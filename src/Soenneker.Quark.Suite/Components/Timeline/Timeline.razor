@@ -30,6 +30,14 @@
         base.OnParametersSet();
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Relative;
+        Flex ??= Quark.Flex.Display.Column;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -40,7 +48,6 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-timeline");
-            AppendClass(ref cls, "relative flex flex-col");
             AppendClass(ref cls, Size?.Value switch
             {
                 TimelineSize.SmallValue => "gap-2",

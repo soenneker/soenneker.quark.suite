@@ -5,6 +5,18 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        Width ??= Quark.Width.IsFit;
+        Gap ??= Quark.Gap.Is2;
+        TextSize ??= Quark.TextSize.Sm;
+        this.Leading ??= Quark.Leading.Snug;
+        FontWeight ??= Quark.FontWeight.Medium;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -12,7 +24,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-item-title");
-            AppendClass(ref cls, "flex w-fit items-center gap-2 text-sm leading-snug font-medium");
+            AppendClass(ref cls, "items-center");
         });
     }
 }

@@ -9,6 +9,14 @@
     [Parameter]
     public bool Disabled { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Flex ??= Quark.Flex.Display.Column;
+        Gap ??= Quark.Gap.Is4;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -20,7 +28,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-field-set flex flex-col gap-4");
+            AppendClass(ref cls, "q-field-set");
             AppendClass(ref cls, "group/field-set");
             AppendClass(ref cls, "has-[>[data-slot=checkbox-group]]:gap-3 has-[>[data-slot=radio-group]]:gap-3");
         });

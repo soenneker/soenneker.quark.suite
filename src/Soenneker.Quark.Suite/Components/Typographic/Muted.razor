@@ -4,6 +4,13 @@
 <span @attributes="BuildAttributes()">@ChildContent</span>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextColor ??= Quark.TextColor.MutedForeground;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -11,8 +18,6 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-muted");
-            AppendClass(ref cls, "text-muted-foreground");
         });
     }
 }
-

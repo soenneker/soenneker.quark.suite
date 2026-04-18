@@ -10,6 +10,15 @@
     [CascadingParameter(Name = "ParentCommand")]
     private Command? ParentCommand { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Padding ??= Quark.Padding.Is6.OnY;
+        TextAlignment ??= Quark.TextAlignment.Center;
+        TextSize ??= Quark.TextSize.Sm;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -18,7 +27,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-command-empty py-6 text-center text-sm");
+            AppendClass(ref cls, "q-command-empty");
         });
     }
 

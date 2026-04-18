@@ -5,6 +5,16 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Flex ??= Quark.Flex.Display.Column;
+        Gap ??= Quark.Gap.Is2;
+        MaxWidth ??= Quark.MaxWidth.IsSm;
+        AlignUtility ??= Quark.Align.ItemsCenter;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -15,7 +25,6 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-empty-header");
-            AppendClass(ref cls, "flex max-w-sm flex-col items-center gap-2");
         });
     }
 }

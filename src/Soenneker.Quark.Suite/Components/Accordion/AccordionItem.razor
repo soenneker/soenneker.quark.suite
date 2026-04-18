@@ -27,6 +27,14 @@
 
     internal string ResolvedValue => Value.HasContent() ? Value! : _generatedValue ??= BlazorIdGenerator.New("quark-accordion-item");
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Width ??= Quark.Width.IsFull;
+        Border ??= Quark.Border.Is1.FromBottom;
+    }
+
     private IReadOnlyDictionary<string, object> ItemAttributes
     {
         get
@@ -39,7 +47,7 @@
             BuildClassAttribute(attributes, (ref cls) =>
             {
                 AppendClass(ref cls, "q-accordion-item");
-                AppendClass(ref cls, "w-full border-b last:border-b-0");
+                AppendClass(ref cls, "last:border-b-0");
             });
 
             return attributes;

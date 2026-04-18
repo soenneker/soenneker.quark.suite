@@ -18,6 +18,15 @@
 
     protected virtual bool IsHorizontal => FieldHorizontal;
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Flex ??= Quark.Flex.Display.Fill.Column;
+        Gap ??= Quark.Gap.Token("1.5");
+        LineHeight ??= Quark.LineHeight.Snug;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -27,7 +36,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-field-body");
-            AppendClass(ref cls, "group/field-content flex flex-1 flex-col gap-1.5 leading-snug");
+            AppendClass(ref cls, "group/field-content");
             if (IsHorizontal)
             {
                 AppendClass(ref cls, "min-w-0");

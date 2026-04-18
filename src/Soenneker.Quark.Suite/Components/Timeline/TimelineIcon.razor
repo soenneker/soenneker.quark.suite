@@ -82,6 +82,15 @@
             _ => "flex items-center justify-center rounded-full bg-primary text-primary-foreground"
         };
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Relative;
+        Rounded ??= Quark.Rounded.Full;
+        BoxShadow ??= Quark.BoxShadow.Sm;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -89,7 +98,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-timeline-icon relative rounded-full shadow-sm");
+            AppendClass(ref cls, "q-timeline-icon");
             if (!IsConnected)
                 AppendClass(ref cls, "ring-8 ring-background");
 

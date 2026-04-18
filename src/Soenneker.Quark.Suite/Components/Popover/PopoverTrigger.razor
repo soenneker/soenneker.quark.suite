@@ -44,6 +44,19 @@ else
 
     private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.InlineFlex;
+        MaxWidth ??= Quark.MaxWidth.IsFull;
+        AlignUtility ??= Quark.Align.ItemsCenter.JustifyCenter;
+        Gap ??= Quark.Gap.Is2;
+        Rounded ??= Quark.Rounded.Md;
+        TextSize ??= Quark.TextSize.Sm;
+        FontWeight ??= Quark.FontWeight.Medium;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -65,7 +78,7 @@ else
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-popover-trigger");
-            AppendClass(ref cls, "inline-flex max-w-full items-center justify-center gap-2 rounded-md text-sm font-medium transition-[color,box-shadow]");
+            AppendClass(ref cls, "transition-[color,box-shadow]");
             AppendClass(ref cls, "focus-visible:ring-ring/50 outline-none focus-visible:ring-[3px]");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
             AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");

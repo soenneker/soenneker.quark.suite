@@ -9,6 +9,15 @@
     [CascadingParameter(Name = "ParentPagination")]
     private Pagination? ParentPagination { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        Gap ??= Quark.Gap.Is1;
+        AlignUtility ??= Quark.Align.ItemsCenter;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -18,7 +27,6 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-pagination-content");
-            AppendClass(ref cls, "flex items-center gap-1");
 
             var sizeClass = ParentPagination?.GetSizeClass();
             if (sizeClass is not null)

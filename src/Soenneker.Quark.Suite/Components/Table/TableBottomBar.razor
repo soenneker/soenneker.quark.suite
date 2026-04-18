@@ -12,6 +12,19 @@
     [Parameter]
     public string LayoutClass { get; set; } = string.Empty;
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        AlignUtility ??= Quark.Align.ItemsCenter.JustifyBetween;
+        Gap ??= Quark.Gap.Is3;
+        Rounded ??= Quark.Rounded.Md;
+        Border ??= Quark.Border.Is1;
+        BackgroundColor ??= Quark.BackgroundColor.Card;
+        Padding ??= Quark.Padding.Is2.OnY.Is3.OnX;
+    }
+
     // shadcn table footer bar - new-york-v4 ui/table.tsx
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -19,7 +32,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-table-bottom-bar");
-            AppendClass(ref cls, "flex flex-wrap items-center justify-between gap-3 rounded-md border bg-card px-3 py-2");
+            AppendClass(ref cls, "flex-wrap");
             
             if (LayoutClass.HasContent())
                 AppendClass(ref cls, LayoutClass);

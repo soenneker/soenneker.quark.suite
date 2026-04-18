@@ -11,6 +11,19 @@
 @code {
     public override CssValue<BoxShadowBuilder>? BoxShadow { get; set; } = Quark.BoxShadow.Sm;
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Flex ??= Quark.Flex.Display.Column;
+        Gap ??= Quark.Gap.Token("6");
+        Rounded ??= Quark.Rounded.Xl;
+        Border ??= Quark.Border.Is1;
+        BackgroundColor ??= Quark.BackgroundColor.Card;
+        TextColor ??= Quark.TextColor.CardForeground;
+        Padding ??= Quark.Padding.Is6.OnY;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -18,7 +31,6 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-card");
-            AppendClass(ref cls, "flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground shadow-sm");
         });
     }
 }

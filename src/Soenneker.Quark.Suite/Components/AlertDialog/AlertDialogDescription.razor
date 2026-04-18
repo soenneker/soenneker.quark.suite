@@ -14,6 +14,14 @@
 
     private IReadOnlyDictionary<string, object> DescriptionAttributes => BuildAttributes();
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextSize ??= Quark.TextSize.Sm;
+        TextColor ??= Quark.TextColor.MutedForeground;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -21,7 +29,6 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-alert-dialog-description");
-            AppendClass(ref cls, "text-sm text-muted-foreground");
         });
         attributes["data-slot"] = "alert-dialog-description";
     }

@@ -33,6 +33,7 @@ public interface IComponent : ICoreComponent
     CssValue<TextBreakBuilder>? TextBreak { get; set; }
     CssValue<TextOverflowBuilder>? TextOverflow { get; set; }
     CssValue<TruncateBuilder>? Truncate { get; set; }
+    CssValue<LineClampBuilder>? LineClamp { get; set; }
     CssValue<FontVariantNumericBuilder>? FontVariantNumeric { get; set; }
     CssValue<MarginBuilder>? Margin { get; set; }
     CssValue<PaddingBuilder>? Padding { get; set; }
@@ -49,6 +50,7 @@ public interface IComponent : ICoreComponent
     CssValue<OverflowBuilder>? Overflow { get; set; }
     CssValue<OverflowBuilder>? OverflowX { get; set; }
     CssValue<OverflowBuilder>? OverflowY { get; set; }
+    CssValue<OverscrollBuilder>? Overscroll { get; set; }
     CssValue<FlexBuilder>? Flex { get; set; }
     CssValue<GapBuilder>? Gap { get; set; }
     CssValue<SpaceBuilder>? Space { get; set; }
@@ -59,6 +61,7 @@ public interface IComponent : ICoreComponent
     CssValue<PointerEventsBuilder>? PointerEvents { get; set; }
     CssValue<UserSelectBuilder>? UserSelect { get; set; }
     CssValue<CursorBuilder>? Cursor { get; set; }
+    CssValue<ScreenReaderBuilder>? ScreenReader { get; set; }
     CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
     CssValue<BorderBuilder>? Border { get; set; }
     CssValue<BorderColorBuilder>? BorderColor { get; set; }
@@ -66,6 +69,10 @@ public interface IComponent : ICoreComponent
     CssValue<RingBuilder>? Ring { get; set; }
     CssValue<RingColorBuilder>? RingColor { get; set; }
     CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
+    CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
+    CssValue<FilterBuilder>? Filter { get; set; }
+    CssValue<ResizeBuilder>? Resize { get; set; }
+    CssValue<TransformBuilder>? Transform { get; set; }
     CssValue<AnimationBuilder>? Animation { get; set; }
     CssValue<TransitionBuilder>? Transition { get; set; }
 

@@ -5,6 +5,19 @@
 <code @attributes="BuildAttributes()">@ChildContent</code>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.InlineFlex;
+        Rounded ??= Quark.Rounded.Default;
+        Border ??= Quark.Border.Is1;
+        TextSize ??= Quark.TextSize.Xs;
+        FontFamily ??= Quark.FontFamily.Mono;
+        BackgroundColor ??= Quark.BackgroundColor.Muted;
+        TextColor ??= Quark.TextColor.MutedForeground;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -12,7 +25,7 @@
         BuildClassAttribute(attributes, (ref cls) => 
         {
             AppendClass(ref cls, "q-code-chip");
-            AppendClass(ref cls, "inline-flex items-center rounded border px-2 py-0.5 text-xs font-mono bg-muted text-muted-foreground");
+            AppendClass(ref cls, "items-center px-2 py-0.5");
         });
     }
 }

@@ -50,17 +50,29 @@
         await RefreshOffThread();
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Relative;
+        Width ??= Quark.Width.IsFull;
+        Rounded ??= Quark.Rounded.Lg;
+        Border ??= Quark.Border.Is1;
+        Padding ??= Quark.Padding.Is4;
+        TextColor ??= Quark.TextColor.Foreground;
+    }
+
     // shadcn alert destructive variant - new-york-v4 ui/alert.tsx + form error block
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
+        base.BuildAttributesCore(attributes);
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-validation-errors");
-            AppendClass(ref cls, "relative w-full rounded-lg border p-4 text-foreground border-destructive/30 bg-destructive/10 text-destructive");
+            AppendClass(ref cls, "border-destructive/30 bg-destructive/10 text-destructive");
         });
     }
-
-    
 
     public override void Dispose()
     {

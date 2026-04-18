@@ -76,8 +76,7 @@ else
     private bool StopTriggerClickPropagation => TriggerContext?.Toggle is not null;
 
     private const string _buttonBase =
-        "group/button inline-flex shrink-0 items-center justify-center rounded-lg border text-sm font-medium whitespace-nowrap " +
-        "transition-all outline-none select-none " +
+        "group/button shrink-0 outline-none " +
         "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 " +
         "active:not-aria-[haspopup]:translate-y-px " +
         "disabled:pointer-events-none disabled:opacity-50 " +
@@ -156,6 +155,24 @@ else
     /// </summary>
     [Parameter]
     public string? CollapseTarget { get; set; }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.InlineFlex;
+        AlignUtility ??= Quark.Align.ItemsCenter.JustifyCenter;
+        Rounded ??= Quark.Rounded.Lg;
+        Border ??= Quark.Border.Is1;
+        TextSize ??= Quark.TextSize.Sm;
+        FontWeight ??= Quark.FontWeight.Medium;
+        Whitespace ??= Quark.Whitespace.Nowrap;
+        Transition ??= Quark.Transition.All;
+        UserSelect ??= Quark.UserSelect.None;
+
+        if (Block)
+            Width ??= Quark.Width.IsFull;
+    }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {

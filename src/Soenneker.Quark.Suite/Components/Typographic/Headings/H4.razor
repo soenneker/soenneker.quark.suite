@@ -5,13 +5,21 @@
 <h4 @attributes="BuildAttributes()">@ChildContent</h4>
 
 @code{
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextSize ??= Quark.TextSize.Xl;
+        FontWeight ??= Quark.FontWeight.Semibold;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
-            AppendClass(ref cls, "q-h4 text-xl font-semibold");
+            AppendClass(ref cls, "q-h4");
         });
     }
 }

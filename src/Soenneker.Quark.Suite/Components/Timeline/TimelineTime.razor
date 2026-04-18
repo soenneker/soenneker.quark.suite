@@ -6,6 +6,16 @@
 </time>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextSize ??= Quark.TextSize.Sm;
+        FontWeight ??= Quark.FontWeight.Medium;
+        TextColor ??= Quark.TextColor.MutedForeground;
+        LetterSpacing ??= Quark.LetterSpacing.Tight;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -14,7 +24,6 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-timeline-time");
-            AppendClass(ref cls, "text-sm font-medium tracking-tight text-muted-foreground");
         });
     }
 }

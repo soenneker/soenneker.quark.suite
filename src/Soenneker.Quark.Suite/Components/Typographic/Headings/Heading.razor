@@ -37,6 +37,43 @@ else
     [Parameter]
     public CssValue<ScaleBuilder>? Scale { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        var headingLevel = GetHeadingLevel(Scale);
+
+        switch (headingLevel)
+        {
+            case 1:
+                TextSize ??= Quark.TextSize.FourXl;
+                FontWeight ??= Quark.FontWeight.Bold;
+                this.Tracking ??= Quark.Tracking.Tight;
+                break;
+            case 2:
+                TextSize ??= Quark.TextSize.ThreeXl;
+                FontWeight ??= Quark.FontWeight.Bold;
+                this.Tracking ??= Quark.Tracking.Tight;
+                break;
+            case 3:
+                TextSize ??= Quark.TextSize.TwoXl;
+                FontWeight ??= Quark.FontWeight.Semibold;
+                this.Tracking ??= Quark.Tracking.Tight;
+                break;
+            case 4:
+                TextSize ??= Quark.TextSize.Xl;
+                FontWeight ??= Quark.FontWeight.Semibold;
+                break;
+            case 5:
+                TextSize ??= Quark.TextSize.Lg;
+                FontWeight ??= Quark.FontWeight.Medium;
+                break;
+            default:
+                TextSize ??= Quark.TextSize.Base;
+                FontWeight ??= Quark.FontWeight.Medium;
+                break;
+        }
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -45,8 +82,6 @@ else
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
             AppendClass(ref cls, "q-heading");
-            var headingLevel = GetHeadingLevel(Scale);
-            AppendClass(ref cls, GetHeadingSizeClass(headingLevel));
             AddCss(ref sty, ref cls, Scale);
         });
     }
@@ -71,20 +106,6 @@ else
 
         return fallback;
     }
-
-    private static string GetHeadingSizeClass(int level)
-    {
-        return level switch
-        {
-            1 => "text-4xl font-bold tracking-tight",
-            2 => "text-3xl font-bold tracking-tight",
-            3 => "text-2xl font-semibold tracking-tight",
-            4 => "text-xl font-semibold",
-            5 => "text-lg font-medium",
-            _ => "text-base font-medium" // 6 or fallback
-        };
-    }
-
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         AddIf(ref hc, Scale);

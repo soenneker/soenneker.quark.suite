@@ -6,6 +6,16 @@
 </h3>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        FontWeight ??= Quark.FontWeight.Semibold;
+        LineHeight ??= Quark.LineHeight.None;
+        LetterSpacing ??= Quark.LetterSpacing.Tight;
+        TextColor ??= Quark.TextColor.Foreground;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -14,7 +24,6 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-timeline-title");
-            AppendClass(ref cls, "font-semibold leading-none tracking-tight text-foreground");
         });
     }
 }

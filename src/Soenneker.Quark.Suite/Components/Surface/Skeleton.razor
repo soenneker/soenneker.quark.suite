@@ -6,6 +6,15 @@
 <div @attributes="BuildAttributes()"></div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Rounded ??= Quark.Rounded.Md;
+        BackgroundColor ??= Quark.BackgroundColor.Muted;
+        Animation ??= Quark.Animation.Pulse;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -14,7 +23,6 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-skeleton");
-            AppendClass(ref cls, "animate-pulse rounded-md bg-muted");
         });
     }
 }

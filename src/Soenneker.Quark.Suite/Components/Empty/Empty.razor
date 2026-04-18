@@ -5,6 +5,23 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        Width ??= Quark.Width.IsFull;
+        MinWidth ??= Quark.MinWidth.Is0;
+        Flex ??= Quark.Flex.Display.Column;
+        AlignUtility ??= Quark.Align.ItemsCenter.JustifyCenter;
+        Gap ??= Quark.Gap.Is4;
+        Rounded ??= Quark.Rounded.Xl;
+        Border ??= Quark.Border.Is1;
+        Padding ??= Quark.Padding.Token("10").OnY.Is6.OnX;
+        TextAlignment ??= Quark.TextAlignment.Center;
+        TextWrap ??= Quark.TextWrap.Balance;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -15,7 +32,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-empty");
-            AppendClass(ref cls, "flex w-full min-w-0 flex-col items-center justify-center gap-4 rounded-xl border border-dashed p-6 py-10 text-center text-balance flex-none");
+            AppendClass(ref cls, "border-dashed flex-none");
         });
     }
 }

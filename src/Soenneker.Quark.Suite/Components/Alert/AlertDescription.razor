@@ -7,6 +7,16 @@
 </div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextColor ??= Quark.TextColor.MutedForeground;
+        Display ??= Quark.Display.Grid;
+        Gap ??= Quark.Gap.Is1;
+        TextSize ??= Quark.TextSize.Sm;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -14,7 +24,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-alert-description");
-            AppendClass(ref cls, "text-muted-foreground col-start-2 grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed");
+            AppendClass(ref cls, "col-start-2 justify-items-start [&_p]:leading-relaxed");
         });
     }
 }

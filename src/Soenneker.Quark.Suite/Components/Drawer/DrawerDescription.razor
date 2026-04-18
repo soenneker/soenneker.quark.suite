@@ -13,6 +13,14 @@
 
     private IReadOnlyDictionary<string, object> DescriptionAttributes => BuildAttributes();
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextColor ??= Quark.TextColor.MutedForeground;
+        TextSize ??= Quark.TextSize.Sm;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -22,7 +30,6 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-drawer-description");
-            AppendClass(ref cls, "text-muted-foreground text-sm");
         });
     }
 

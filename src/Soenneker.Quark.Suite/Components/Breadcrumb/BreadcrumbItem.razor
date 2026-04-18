@@ -84,6 +84,15 @@ else
     [Parameter]
     public bool AsChild { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.InlineFlex;
+        AlignUtility ??= Quark.Align.ItemsCenter;
+        Gap ??= Quark.Gap.Token("1.5");
+    }
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -129,7 +138,6 @@ else
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-breadcrumb-item");
-            AppendClass(ref cls, "inline-flex items-center gap-1.5");
         });
 
         return attributes;
@@ -148,7 +156,7 @@ else
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-breadcrumb-separator");
-            AppendClass(ref cls, "inline-flex items-center text-muted-foreground");
+            AppendClass(ref cls, "text-muted-foreground");
             AppendClass(ref cls, "[&>svg]:size-3.5");
         });
 

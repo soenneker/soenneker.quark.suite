@@ -17,6 +17,18 @@
     [Parameter]
     public bool Vertical { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        Width ??= Quark.Width.IsFit;
+        AlignUtility ??= Quark.Align.ItemsStretch;
+
+        if (Vertical)
+            Flex ??= Quark.Flex.Display.Column;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -32,7 +44,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-button-group group/button-group flex w-fit items-stretch");
+            AppendClass(ref cls, "q-button-group group/button-group");
             AppendClass(ref cls, "*:focus-visible:relative *:focus-visible:z-10 has-[>[data-slot=button-group]]:gap-2");
             AppendClass(ref cls, "has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-lg");
             AppendClass(ref cls, "[&>[data-slot=dropdown-menu]]:inline-flex [&>[data-slot=dropdown-menu]>[data-slot=dropdown-menu-trigger]]:h-full");
@@ -42,7 +54,6 @@
             if (Vertical)
             {
                 AppendClass(ref cls,
-                    "flex-col " +
                     "[&>[data-slot=input]]:rounded-none " +
                     "[&>[data-slot=input]:first-child]:rounded-t-lg " +
                     "[&>[data-slot=input]:last-child]:rounded-b-lg " +

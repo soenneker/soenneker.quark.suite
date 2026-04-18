@@ -5,6 +5,15 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        Flex ??= Quark.Flex.Display.Column;
+        Gap ??= Quark.Gap.Is1;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -12,7 +21,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-item-content");
-            AppendClass(ref cls, "flex flex-1 flex-col gap-1 [&+[data-slot=item-content]]:flex-none");
+            AppendClass(ref cls, "flex-1 [&+[data-slot=item-content]]:flex-none");
         });
     }
 }

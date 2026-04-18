@@ -14,6 +14,15 @@
     [Parameter]
     public string? Form { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        Flex ??= Quark.Flex.Display.Column;
+        Gap ??= Quark.Gap.Is4;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -23,7 +32,6 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-fieldset");
-            AppendClass(ref cls, "flex flex-col gap-4");
             AppendClass(ref cls, "has-[>[data-slot=checkbox-group]]:gap-3 has-[>[data-slot=radio-group]]:gap-3");
             AppendClass(ref cls, "has-[>[role=checkbox]]:gap-3 has-[>[role=radio]]:gap-3");
         });

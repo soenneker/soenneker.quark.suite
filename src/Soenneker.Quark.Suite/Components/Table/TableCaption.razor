@@ -6,6 +6,15 @@
 </caption>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextColor ??= Quark.TextColor.MutedForeground;
+        TextSize ??= Quark.TextSize.Sm;
+        Margin ??= Quark.Margin.Is4.FromTop;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         attributes["data-slot"] = "table-caption";
@@ -13,7 +22,6 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-table-caption");
-            AppendClass(ref cls, "text-muted-foreground mt-4 text-sm");
         });
     }
 }

@@ -5,6 +5,18 @@
 <p @attributes="BuildAttributes()">@ChildContent</p>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextColor ??= Quark.TextColor.MutedForeground;
+        LineClamp ??= Quark.LineClamp.Two;
+        TextSize ??= Quark.TextSize.Sm;
+        Leading ??= Quark.Leading.Normal;
+        FontWeight ??= Quark.FontWeight.Normal;
+        Wrap ??= Quark.TextWrap.Balance;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -12,7 +24,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-item-description");
-            AppendClass(ref cls, "text-muted-foreground line-clamp-2 text-sm leading-normal font-normal text-balance [&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4");
+            AppendClass(ref cls, "[&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4");
         });
     }
 }

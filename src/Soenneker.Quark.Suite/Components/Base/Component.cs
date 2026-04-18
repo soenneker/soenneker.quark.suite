@@ -187,7 +187,7 @@ public abstract class Component : RenderComponent, IComponent
     public CssValue<BorderColorBuilder>? BorderColor { get; set; }
 
     [Parameter]
-    public CssValue<RoundedBuilder>? Rounded { get; set; }
+    public virtual CssValue<RoundedBuilder>? Rounded { get; set; }
 
     [Parameter]
     public CssValue<RingBuilder>? Ring { get; set; }
@@ -348,7 +348,7 @@ public abstract class Component : RenderComponent, IComponent
 
             attrs.TryGetValue("class", out var existing);
 
-            var merged = TailwindMerge.Merge(SanitizeBuilderCoveredClassDefaults(cls.ToString()), existing?.ToString());
+            var merged = TailwindMerge.Merge(cls.ToString(), existing?.ToString());
 
             if (merged.Length > 0)
                 attrs["class"] = merged;
@@ -358,68 +358,6 @@ public abstract class Component : RenderComponent, IComponent
             cls.Dispose();
         }
     }
-
-    protected virtual bool ShouldSuppressBuilderCoveredToken(string token)
-    {
-        if (token.IsNullOrEmpty() || token.Contains('[') || token.Contains(']') || token.Contains('/'))
-            return false;
-
-        var utility = token;
-        var colonIdx = utility.LastIndexOf(':');
-
-        if (colonIdx >= 0 && colonIdx < utility.Length - 1)
-            utility = utility[(colonIdx + 1)..];
-
-        if (Rounded is { IsEmpty: false } && IsRoundedUtility(utility))
-            return true;
-
-        if (TextSize is { IsEmpty: false } && IsTextSizeUtility(utility))
-            return true;
-
-        if (FontWeight is { IsEmpty: false } && IsFontWeightUtility(utility))
-            return true;
-
-        if (BoxShadow is { IsEmpty: false } && IsShadowUtility(utility))
-            return true;
-
-        return false;
-    }
-
-    private string SanitizeBuilderCoveredClassDefaults(string classes)
-    {
-        if (classes.IsNullOrEmpty())
-            return string.Empty;
-
-        using var sb = new PooledStringBuilder(classes.Length);
-        var tokens = classes.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-        for (var i = 0; i < tokens.Length; i++)
-        {
-            var token = tokens[i];
-
-            if (ShouldSuppressBuilderCoveredToken(token))
-                continue;
-
-            if (sb.Length > 0)
-                sb.Append(' ');
-
-            sb.Append(token);
-        }
-
-        return sb.ToString();
-    }
-
-    private static bool IsRoundedUtility(string token)
-        => token is "rounded" or "rounded-none" or "rounded-sm" or "rounded-md" or "rounded-lg" or "rounded-xl" or "rounded-2xl" or "rounded-3xl" or "rounded-full";
-
-    private static bool IsTextSizeUtility(string token)
-        => token is "text-xs" or "text-sm" or "text-base" or "text-lg" or "text-xl" or "text-2xl" or "text-3xl" or "text-4xl";
-
-    private static bool IsFontWeightUtility(string token)
-        => token is "font-extralight" or "font-light" or "font-normal" or "font-medium" or "font-semibold" or "font-bold" or "font-extrabold";
-
-    private static bool IsShadowUtility(string token)
-        => token is "shadow-none" or "shadow-xs" or "shadow-sm" or "shadow" or "shadow-lg";
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {

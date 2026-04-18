@@ -8,6 +8,14 @@
 </div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Width ??= Quark.Width.IsFull;
+        TextSize ??= Quark.TextSize.Sm;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         attributes["data-slot"] = "table";
@@ -16,7 +24,7 @@
         {
             AppendClass(ref cls, "q-table");
             // shadcn Table - new-york-v4 ui/table.tsx
-            AppendClass(ref cls, "w-full caption-bottom text-sm");
+            AppendClass(ref cls, "caption-bottom");
         });
     }
 

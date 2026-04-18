@@ -37,10 +37,19 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (
 	public bool ShowErrorMessages { get; set; } = true;
 
 	private bool _visible;
-	private ValidationStatus _status = ValidationStatus.None;
-	private IReadOnlyCollection<string>? _messages;
+    private ValidationStatus _status = ValidationStatus.None;
+    private IReadOnlyCollection<string>? _messages;
     private IDisposable? _registration;
     private FieldContext? _registeredFieldContext;
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextSize ??= Quark.TextSize.Sm;
+        FontWeight ??= Quark.FontWeight.Normal;
+        TextColor ??= Quark.TextColor.Destructive;
+    }
 
 	protected override void OnInitialized()
 	{
@@ -81,6 +90,8 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
+        base.BuildAttributesCore(attributes);
+
         attributes["data-slot"] = "field-error";
 
         if (FieldContext is not null && !attributes.ContainsKey("id"))
@@ -91,7 +102,6 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "q-validation-error");
-            AppendClass(ref cls, "text-sm font-normal text-destructive");
         });
     }
 

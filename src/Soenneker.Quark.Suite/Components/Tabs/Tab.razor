@@ -65,6 +65,17 @@
         base.Dispose();
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Relative;
+        Display ??= Quark.Display.InlineFlex;
+        Rounded ??= Quark.Rounded.Md;
+        TextSize ??= Quark.TextSize.Sm;
+        FontWeight ??= Quark.FontWeight.Medium;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -72,7 +83,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-tab q-tabs-trigger");
+            AppendClass(ref cls, "q-tab");
             AppendClass(ref cls, Tabs.TabsTriggerBaseClass);
         });
     }

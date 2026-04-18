@@ -38,6 +38,26 @@
     [Parameter]
     public bool ShowDefaultIcon { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Grid;
+        AlignUtility ??= Quark.Align.ItemsStart;
+        Position ??= Quark.Position.Relative;
+        Width ??= Quark.Width.IsFull;
+        Rounded ??= Quark.Rounded.Lg;
+        Border ??= Quark.Border.Is1;
+        Padding ??= Quark.Padding.Is3.OnY.Is4.OnX;
+        TextSize ??= Quark.TextSize.Sm;
+
+        if (Variant == AlertVariant.Default)
+        {
+            BackgroundColor ??= Quark.BackgroundColor.Card;
+            TextColor ??= Quark.TextColor.CardForeground;
+        }
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -48,14 +68,12 @@
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
             AppendClass(ref cls, "q-alert");
-            AppendClass(ref cls, "relative grid w-full grid-cols-[0_1fr] items-start gap-y-0.5 rounded-lg border px-4 py-3 text-sm has-[svg]:grid-cols-[calc(var(--spacing)*4)_1fr] has-[svg]:gap-x-3 [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current");
+            AppendClass(ref cls, "grid grid-cols-[0_1fr] items-start gap-y-0.5 has-[svg]:grid-cols-[calc(var(--spacing)*4)_1fr] has-[svg]:gap-x-3 [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current");
 
             if (IsDestructiveVariant())
                 AppendClass(ref cls, "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90");
             else if (Variant != AlertVariant.Default)
                 AppendClass(ref cls, AlertVariantClasses.GetVariantClasses(Variant, AccentBorder));
-            else
-                AppendClass(ref cls, "bg-card text-card-foreground");
 
             ApplyAlertBackgroundColor(ref sty, ref cls);
         });
@@ -63,6 +81,14 @@
 
     protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
+    }
+
+    protected override void ApplyTextColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<TextColorBuilder>? value)
+    {
+        if (Variant != AlertVariant.Default)
+            return;
+
+        base.ApplyTextColor(ref sty, ref cls, value);
     }
 
     protected virtual void ApplyAlertBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
