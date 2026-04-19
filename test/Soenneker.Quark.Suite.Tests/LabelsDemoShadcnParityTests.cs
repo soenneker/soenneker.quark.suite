@@ -15,5 +15,13 @@ public sealed partial class RenderedShadcnParityTests
         cut.FindAll("[data-slot='preview']")
             .Select(node => node.FirstElementChild!.GetAttribute("class")!)
             .Should().Contain(cls => cls.Contains("h-[44rem]"));
+
+        cut.Find("[id='terms']").Should().NotBeNull();
+        cut.Find("label[for='terms']").TextContent.Should().Be("Accept terms and conditions");
+
+        var rtlPreview = cut.FindAll("[data-slot='preview']").Single(node => node.GetAttribute("dir") == "rtl");
+        rtlPreview.GetAttribute("data-lang").Should().Be("ar");
+        rtlPreview.QuerySelector("[id='terms-rtl']").Should().NotBeNull();
+        rtlPreview.QuerySelector("label[for='terms-rtl']")!.TextContent.Should().Be("قبول الشروط والأحكام");
     }
 }

@@ -211,15 +211,8 @@
     /// <returns>The size class name, or null if no size class should be applied.</returns>
     public virtual string? GetSizeClass()
     {
-        var sizeValue = Size?.ToString()?.ToLowerInvariant();
-
-        return sizeValue switch
-        {
-            null or "" or "default" => null,
-            "sm" => "h-7 rounded-lg text-xs",
-            "lg" => "h-10 rounded-lg text-base",
-            _ => null
-        };
+        var sizeClass = Size?.ToString();
+        return string.IsNullOrWhiteSpace(sizeClass) ? null : sizeClass;
     }
 
     /// <summary>

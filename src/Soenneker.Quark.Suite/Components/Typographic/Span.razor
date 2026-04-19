@@ -19,7 +19,6 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        attributes["data-slot"] = "span";
 
         if (TriggerContext?.TriggerId is not null)
             attributes["id"] = TriggerContext.TriggerId;
@@ -38,11 +37,6 @@
 
         if (TriggerContext?.AriaDescribedBy is not null && !attributes.ContainsKey("aria-describedby"))
             attributes["aria-describedby"] = TriggerContext.AriaDescribedBy;
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "text-foreground");
-        });
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

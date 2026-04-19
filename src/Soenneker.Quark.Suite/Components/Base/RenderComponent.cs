@@ -122,7 +122,12 @@ public abstract class RenderComponent : CoreComponent
             MergeAdditionalAttributes(attrs, ref sty, ref cls);
 
             if (cls.Length > 0)
-                attrs["class"] = cls.ToString();
+            {
+                string normalizedClass = NormalizeClassTokens(cls.ToString());
+
+                if (normalizedClass.Length > 0)
+                    attrs["class"] = normalizedClass;
+            }
 
             if (sty.Length > 0)
                 attrs["style"] = sty.ToString();
@@ -452,7 +457,7 @@ public abstract class RenderComponent : CoreComponent
         if (existing.IsNullOrEmpty())
             return toAdd;
 
-        return $"{existing} {toAdd}";
+        return NormalizeClassTokens($"{existing} {toAdd}");
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -560,7 +565,14 @@ public abstract class RenderComponent : CoreComponent
                 AppendStyleDecl(ref sty, existingStyleStr!);
 
             if (cls.Length > 0)
-                attrs["class"] = existingClassObj is string && cls.Length == existingClassLen ? existingClassObj : cls.ToString();
+            {
+                string normalizedClass = NormalizeClassTokens(cls.ToString());
+
+                if (normalizedClass.Length > 0)
+                    attrs["class"] = existingClassObj is string && normalizedClass.Length == existingClassLen
+                        ? existingClassObj
+                        : normalizedClass;
+            }
 
             if (sty.Length > 0)
                 attrs["style"] = existingStyleObj is string && sty.Length == existingStyleLen ? existingStyleObj : sty.ToString();
@@ -596,6 +608,40 @@ public abstract class RenderComponent : CoreComponent
         }
 
         attrs["style"] = fullDecl;
+    }
+
+    private static string NormalizeClassTokens(string? value)
+    {
+        if (value.IsNullOrWhiteSpace())
+            return string.Empty;
+
+        string[] tokens = value.Split([' ', '\t', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        if (tokens.Length <= 1)
+            return tokens.Length == 0 ? string.Empty : tokens[0];
+
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var result = new PooledStringBuilder(value.Length);
+
+        try
+        {
+            foreach (string token in tokens)
+            {
+                if (!seen.Add(token))
+                    continue;
+
+                if (result.Length > 0)
+                    result.Append(' ');
+
+                result.Append(token);
+            }
+
+            return result.ToString();
+        }
+        finally
+        {
+            result.Dispose();
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

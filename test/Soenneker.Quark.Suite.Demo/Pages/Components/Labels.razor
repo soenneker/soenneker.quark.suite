@@ -6,14 +6,12 @@
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Demo"
-                         Description="Pair a label with a checkbox using matching ids."
+                         Description="Official shadcn checkbox and label pairing."
                          Code="@BasicCode"
                          CodeLanguage="razor">
-                <Div>
-                    <Div Class="flex items-center space-x-2">
-                        <Check Id="label-terms" />
-                        <Label For="label-terms">Accept terms and conditions</Label>
-                    </Div>
+                <Div Class="flex gap-2">
+                    <Check Id="terms" />
+                    <Label For="terms">Accept terms and conditions</Label>
                 </Div>
             </DemoSection>
         </Section>
@@ -59,15 +57,16 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="RTL"
-                         Description="Labels and inputs follow DirectionProvider."
+                         Description="Official shadcn RTL example."
+                         PreviewDir="rtl"
+                         PreviewLang="ar"
                          Code="@RtlCode"
                          CodeLanguage="razor">
                 <DirectionProvider Dir="rtl">
-                    <Field Class="max-w-xs text-right">
-                        <FieldLabel For="label-rtl-email">البريد الإلكتروني</FieldLabel>
-                        <Input Id="label-rtl-email" Type="email" Placeholder="بريد@مثال.كوم" />
-                        <FieldDescription>لن نشارك بريدك مع أحد.</FieldDescription>
-                    </Field>
+                    <Div Class="flex gap-2">
+                        <Check Id="terms-rtl" />
+                        <Label For="terms-rtl">قبول الشروط والأحكام</Label>
+                    </Div>
                 </DirectionProvider>
             </DemoSection>
         </Section>
@@ -79,20 +78,13 @@
                          CodeLanguage="razor">
                 <Div Space="Space.Y.Is4">
                     <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2">
-                        <input type="checkbox" id="label-remember-me" class="h-4 w-4 rounded border-input" />
-                        <Label For="label-remember-me" Class="cursor-pointer">Remember me</Label>
+                        <Check Id="label-remember-me">Remember me</Check>
                     </Div>
                     <Div>
                         <Label Form="true" Class="mb-2 block">Choose an option:</Label>
                         <Div Class="flex gap-4">
-                            <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2">
-                                <input type="radio" name="label-option" id="label-option1" value="option1" class="h-4 w-4" />
-                                <Label For="label-option1" Class="cursor-pointer">Option 1</Label>
-                            </Div>
-                            <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2">
-                                <input type="radio" name="label-option" id="label-option2" value="option2" class="h-4 w-4" />
-                                <Label For="label-option2" Class="cursor-pointer">Option 2</Label>
-                            </Div>
+                            <Radio Name="label-option" Value="option1">Option 1</Radio>
+                            <Radio Name="label-option" Value="option2">Option 2</Radio>
                         </Div>
                     </Div>
                 </Div>
@@ -118,11 +110,9 @@
 
 @code {
     private const string BasicCode =
-@"<Div>
-    <Div Class=""flex items-center space-x-2"">
-        <Check Id=""label-terms"" />
-        <Label For=""label-terms"">Accept terms and conditions</Label>
-    </Div>
+@"<Div Class=""flex gap-2"">
+    <Check Id=""terms"" />
+    <Label For=""terms"">Accept terms and conditions</Label>
 </Div>";
 
     private const string LabelInFieldCode =
@@ -146,30 +136,22 @@
 
     private const string RtlCode =
 @"<DirectionProvider Dir=""rtl"">
-    <Field Class=""max-w-xs text-right"">
-        <FieldLabel For=""label-rtl-email"">البريد الإلكتروني</FieldLabel>
-        <Input Id=""label-rtl-email"" Type=""email"" Placeholder=""بريد@مثال.كوم"" />
-        <FieldDescription>لن نشارك بريدك مع أحد.</FieldDescription>
-    </Field>
+    <Div Class=""flex gap-2"">
+        <Check Id=""terms-rtl"" />
+        <Label For=""terms-rtl"">قبول الشروط والأحكام</Label>
+    </Div>
 </DirectionProvider>";
 
     private const string CheckboxRadioCode =
 @"<Div Class=""space-y-4"">
     <Div Class=""flex items-center gap-2"">
-        <input type=""checkbox"" id=""label-remember-me"" class=""h-4 w-4 rounded border-input"" />
-        <Label For=""label-remember-me"" Class=""cursor-pointer"">Remember me</Label>
+        <Check Id=""label-remember-me"">Remember me</Check>
     </Div>
     <Div>
         <Label Form=""true"" Class=""mb-2 block"">Choose an option:</Label>
         <Div Class=""flex gap-4"">
-            <Div Class=""flex items-center gap-2"">
-                <input type=""radio"" name=""label-option"" id=""label-option1"" value=""option1"" class=""h-4 w-4"" />
-                <Label For=""label-option1"" Class=""cursor-pointer"">Option 1</Label>
-            </Div>
-            <Div Class=""flex items-center gap-2"">
-                <input type=""radio"" name=""label-option"" id=""label-option2"" value=""option2"" class=""h-4 w-4"" />
-                <Label For=""label-option2"" Class=""cursor-pointer"">Option 2</Label>
-            </Div>
+            <Radio Name=""label-option"" Value=""option1"">Option 1</Radio>
+            <Radio Name=""label-option"" Value=""option2"">Option 2</Radio>
         </Div>
     </Div>
 </Div>";

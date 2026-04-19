@@ -418,8 +418,35 @@
 		attributes["data-orientation"] = OrientationValue;
 		attributes["data-js-ready"] = _sliderBridgeRegistered ? "true" : "false";
 
+		if (CurrentFieldContext is not null && !attributes.ContainsKey("id"))
+			attributes["id"] = CurrentFieldContext.ControlId;
+		else if (Id is not null)
+			attributes["id"] = Id;
+
+		if (!string.IsNullOrWhiteSpace(AriaLabel))
+			attributes["aria-label"] = AriaLabel!;
+
+		if (!string.IsNullOrWhiteSpace(AriaLabelledBy))
+			attributes["aria-labelledby"] = AriaLabelledBy!;
+
+		var describedBy = CurrentFieldContext?.BuildDescribedBy(attributes.TryGetValue("aria-describedby", out var existingDescribedBy)
+			? existingDescribedBy?.ToString()
+			: null, ParentValidation?.Status == ValidationStatus.Error);
+
+		if (!string.IsNullOrWhiteSpace(describedBy))
+			attributes["aria-describedby"] = describedBy;
+
+		if (ParentValidation?.Status == ValidationStatus.Error || CurrentFieldContext?.IsInvalid == true)
+			attributes["aria-invalid"] = "true";
+
 		if (Disabled)
+		{
 			attributes["data-disabled"] = "true";
+			attributes["aria-disabled"] = "true";
+		}
+
+		if (ReadOnly)
+			attributes["aria-readonly"] = "true";
 
 		return attributes;
 	}
@@ -515,14 +542,7 @@
 		if (AutoFocus && index == 0)
 			attributes["autofocus"] = true;
 
-		if (index == 0)
-		{
-			if (Id is not null)
-				attributes["id"] = Id;
-
-			ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
-		}
-		else if (Id is not null)
+		if (index > 0 && Id is not null)
 		{
 			attributes["id"] = BlazorIdGenerator.Child(Id, index.ToString(CultureInfo.InvariantCulture));
 		}
@@ -574,7 +594,15 @@
 	private string? ResolveThumbLabel(int index, int totalValues)
 	{
 		if (!string.IsNullOrWhiteSpace(AriaLabel) || !string.IsNullOrWhiteSpace(AriaLabelledBy))
-			return index == 0 ? AriaLabel : null;
+		{
+			if (totalValues == 2)
+				return index == 0 ? "Minimum" : "Maximum";
+
+			if (totalValues > 2)
+				return $"Value {index + 1} of {totalValues}";
+
+			return null;
+		}
 
 		if (totalValues > 2)
 			return $"Value {index + 1} of {totalValues}";

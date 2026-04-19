@@ -21,8 +21,9 @@ public static class ClassNames
         if (inputs == null || inputs.Length == 0) return string.Empty;
 
         var classes = new List<string>();
+        var seen = new HashSet<string>(StringComparer.Ordinal);
         foreach (var input in inputs)
-            ProcessInput(input, classes);
+            ProcessInput(input, classes, seen);
 
         if (classes.Count == 0) 
             return string.Empty;
@@ -36,7 +37,7 @@ public static class ClassNames
     public static string? When(bool condition, string className) =>
         condition ? className : null;
 
-    private static void ProcessInput(object? input, List<string> classes)
+    private static void ProcessInput(object? input, List<string> classes, HashSet<string> seen)
     {
         if (input == null) return;
         if (input is string str)
@@ -44,7 +45,11 @@ public static class ClassNames
             if (!string.IsNullOrWhiteSpace(str))
             {
                 var parts = str.Split(WhitespaceSeparators, StringSplitOptions.RemoveEmptyEntries);
-                classes.AddRange(parts);
+                foreach (string part in parts)
+                {
+                    if (seen.Add(part))
+                        classes.Add(part);
+                }
             }
             return;
         }
@@ -52,11 +57,11 @@ public static class ClassNames
         if (input is IEnumerable enumerable and not string)
         {
             foreach (var item in enumerable)
-                ProcessInput(item, classes);
+                ProcessInput(item, classes, seen);
             return;
         }
         var strValue = input.ToString();
-        if (!string.IsNullOrWhiteSpace(strValue))
+        if (!string.IsNullOrWhiteSpace(strValue) && seen.Add(strValue!))
             classes.Add(strValue!);
     }
 }

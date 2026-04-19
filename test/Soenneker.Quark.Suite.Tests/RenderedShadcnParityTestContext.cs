@@ -42,6 +42,8 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         module.SetupVoid("unregisterMenubarDocumentDismiss", _ => true).SetVoidResult();
         module.SetupVoid("registerNavigationMenuTriggerInteraction", _ => true).SetVoidResult();
         module.SetupVoid("unregisterNavigationMenuTriggerInteraction", _ => true).SetVoidResult();
+        module.SetupVoid("registerRadioGroupItemKeys", _ => true).SetVoidResult();
+        module.SetupVoid("unregisterRadioGroupItemKeys", _ => true).SetVoidResult();
         module.SetupVoid("registerSliderPointerBridge", _ => true).SetVoidResult();
         module.SetupVoid("unregisterSliderPointerBridge", _ => true).SetVoidResult();
         module.SetupVoid("syncInputValue", _ => true).SetVoidResult();
@@ -89,6 +91,8 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         JSInterop.SetupVoid("unregisterMenubarDocumentDismiss", _ => true).SetVoidResult();
         JSInterop.SetupVoid("registerNavigationMenuTriggerInteraction", _ => true).SetVoidResult();
         JSInterop.SetupVoid("unregisterNavigationMenuTriggerInteraction", _ => true).SetVoidResult();
+        JSInterop.SetupVoid("registerRadioGroupItemKeys", _ => true).SetVoidResult();
+        JSInterop.SetupVoid("unregisterRadioGroupItemKeys", _ => true).SetVoidResult();
         JSInterop.SetupVoid("registerSliderPointerBridge", _ => true).SetVoidResult();
         JSInterop.SetupVoid("unregisterSliderPointerBridge", _ => true).SetVoidResult();
         JSInterop.SetupVoid("syncInputValue", _ => true).SetVoidResult();
@@ -137,6 +141,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddScoped<IResizableInterop, FakeResizableInterop>();
         Services.AddScoped<IOverlayInterop, FakeOverlayInterop>();
         Services.AddScoped<IThemeInterop, FakeThemeInterop>();
+        Services.AddScoped<global::Soenneker.Quark.Suite.Demo.Services.ThemeService>();
         Services.AddScoped<ICodeEditorInterop, FakeCodeEditorInterop>();
         Services.AddScoped<ITablesInterop, FakeTablesInterop>();
         Services.AddScoped<ISonnerService, SonnerService>();

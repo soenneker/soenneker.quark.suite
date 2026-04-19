@@ -171,7 +171,7 @@
                          Description="Bounds work well for birth dates and other historical-only selections."
                          Code="@(@"<Calendar SelectedDate=""_birthday"" SelectedDateChanged=""OnBirthdayChanged"" Min=""_birthdayMin"" Max=""_birthdayMax"" />")"
                          CodeLanguage="razor">
-                <Div Display="Display.Flex" Flex="Flex.Column" ItemsAlign="Items.Start" Gap="Gap.Is4">
+                <Div Display="Display.Flex" Flex=@("flex-col") ItemsAlign="Items.Start" Gap="Gap.Is4">
                     <Calendar SelectedDate="_birthday"
                               SelectedDateChanged="OnBirthdayChanged"
                               Min="_birthdayMin"
@@ -188,7 +188,7 @@
                          Description="Disable outside days when the current month should stay visually focused."
                          Code="@(@"<Calendar SelectedDate=""_focusedMonthDate"" SelectedDateChanged=""OnFocusedMonthDateChanged"" ShowOutsideDays=""false"" />")"
                          CodeLanguage="razor">
-                <Div Display="Display.Flex" Flex="Flex.Column" ItemsAlign="Items.Start" Gap="Gap.Is4">
+                <Div Display="Display.Flex" Flex=@("flex-col") ItemsAlign="Items.Start" Gap="Gap.Is4">
                     <Calendar SelectedDate="_focusedMonthDate"
                               SelectedDateChanged="OnFocusedMonthDateChanged"
                               ShowOutsideDays="false" />
@@ -325,13 +325,13 @@
         return date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday;
     }
 
-    private RenderFragment<CalendarDayContext> RenderPricingDay => context => @<div class="flex flex-col items-center leading-none">
-        <span>@context.Date.Day</span>
+    private RenderFragment<CalendarDayContext> RenderPricingDay => context => @<Div Display="Display.Flex" Flex=@("flex-col") ItemsAlign="Items.Center" Leading="Leading.None">
+        <Span>@context.Date.Day</Span>
         @if (context.InMonth)
         {
-            <span class="text-[10px] opacity-70">@(IsWeekend(context.Date) ? "$120" : "$100")</span>
+            <Span TextSize='TextSize.Token("[10px]")' Class="opacity-70">@(IsWeekend(context.Date) ? "$120" : "$100")</Span>
         }
-    </div>;
+    </Div>;
 
     private const string DropdownCaptionCode =
 @"<Card Class=""mx-auto w-fit p-0"">

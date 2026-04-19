@@ -199,18 +199,8 @@
 
     private string? GetSizeClass()
     {
-        var sizeValue = Size?.ToString()?.ToLowerInvariant();
-        return sizeValue switch
-        {
-            null or "" or "default" => null,
-            "xs" => "h-3 w-3",
-            "sm" => "h-3.5 w-3.5",
-            "md" => "h-4 w-4",
-            "lg" => "h-5 w-5",
-            "xl" => "h-7 w-7",
-            "xxl" => "h-8 w-8",
-            _ => sizeValue.HasContent() ? "h-4 w-4" : null
-        };
+        var sizeClass = Size?.ToString();
+        return string.IsNullOrWhiteSpace(sizeClass) ? null : sizeClass;
     }
 
     private Task HandleInputClick(MouseEventArgs e)

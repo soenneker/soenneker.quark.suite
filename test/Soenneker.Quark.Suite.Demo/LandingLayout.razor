@@ -2,9 +2,14 @@
 @inject Services.ThemeService ThemeService
 
 <CascadingValue Value="ThemeService">
-    <Div Position="Position.Relative" MinHeight="@("100svh")" Display="Display.Flex" Flex="Flex.Display.Column" BackgroundColor="BackgroundColor.Background" Class="z-10">
+    <Div data-slot="layout"
+         Position="Position.Relative"
+         Display="Display.Flex"
+         Flex=@("flex flex-col")
+         BackgroundColor="BackgroundColor.Background"
+         Class="group/layout z-10 min-h-svh">
         <header class="sticky top-0 z-50 w-full bg-background">
-            <Div Padding="Padding.Is6.OnX" Class="container-wrapper">
+            <Div Class="container-wrapper px-6">
                 <Div Display="Display.Flex" ItemsAlign="Items.Center" Class="h-(--header-height)">
                     <Button Variant="ButtonVariant.Ghost"
                             Height="Height.Is8"
@@ -12,13 +17,13 @@
                             Gap='Gap.Token("2.5")'
                             Padding="Padding.Is0"
                             Class="lg:hidden touch-manipulation hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 active:bg-transparent dark:hover:bg-transparent">
-                        <Div Position="Position.Relative" Display="Display.Flex" Height="Height.Is8" Width='Width.Token("4")' ItemsAlign="Items.Center" Justify="Justify.Center">
-                            <Div Position="Position.Relative" BoxSize="Size.Is4">
+                        <div class="relative flex h-8 w-4 items-center justify-center">
+                            <div class="relative size-4">
                                 <Span Class="absolute left-0 top-1 block h-0.5 w-4 bg-foreground transition-all duration-100"></Span>
                                 <Span Class="absolute left-0 top-2.5 block h-0.5 w-4 bg-foreground transition-all duration-100"></Span>
-                            </Div>
+                            </div>
                             <Span ScreenReader="ScreenReader.Only">Toggle Menu</Span>
-                        </Div>
+                        </div>
                         <Span Display="Display.Flex" Height="Height.Is8" ItemsAlign="Items.Center" TextSize="TextSize.Lg" Leading="Leading.None" FontWeight="FontWeight.Medium">Menu</Span>
                     </Button>
 
@@ -55,7 +60,7 @@
                     </nav>
 
                     <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2" Margin="Margin.Auto.FromStart" Class="md:flex-1 md:justify-end">
-                        <Div Class="hidden w-full flex-1 md:flex md:w-auto md:flex-none">
+                        <Div Width="Width.IsFull" Flex=@("flex-1") Class="hidden md:flex md:w-auto md:flex-none">
                             <Button Variant="ButtonVariant.Outline"
                                     Width="Width.IsFull"
                                     Justify="Justify.Start"
@@ -101,9 +106,9 @@
             </Div>
         </header>
 
-        <main class="flex min-h-0 flex-1 flex-col">
+        <Main Display="Display.Flex" Flex=@("flex-1") Class="min-h-0 flex-col">
             @Body
-        </main>
+        </Main>
     </Div>
 
     <Sonner Theme="@(ThemeService.IsDark ? "dark" : "light")" />

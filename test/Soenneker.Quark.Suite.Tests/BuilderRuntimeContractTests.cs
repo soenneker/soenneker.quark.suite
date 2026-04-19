@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components.Rendering;
@@ -80,6 +81,35 @@ public sealed class BuilderRuntimeContractTests : BunitContext
         classes.Should().Contain("overflow-y-auto");
         classes.Should().Contain("px-2");
         classes.Should().Contain("py-1.5");
+    }
+
+    [Fact]
+    public void Class_merging_deduplicates_identical_tokens()
+    {
+        CssValue<FlexBuilder> flex = "flex flex-col";
+
+        var cut = Render<TestRenderBox>(parameters => parameters
+            .Add(p => p.Display, Display.Flex)
+            .Add(p => p.Flex, flex)
+            .Add(p => p.Class, "flex flex flex-col"));
+
+        var box = cut.Find("[data-slot='test-box']");
+        string[] tokens = box.GetAttribute("class")!
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        tokens.Count(token => token == "flex").Should().Be(1);
+        tokens.Count(token => token == "flex-col").Should().Be(1);
+    }
+
+    [Fact]
+    public void Section_has_no_default_padding_class()
+    {
+        var cut = Render<Section>();
+
+        var section = cut.Find("section");
+        string? classes = section.GetAttribute("class");
+
+        classes.Should().BeNullOrEmpty();
     }
 
     private sealed class TestRenderBox : Element
