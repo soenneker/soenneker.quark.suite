@@ -24,6 +24,19 @@
 
     private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        AlignUtility ??= Quark.Align.ItemsCenter;
+        Rounded ??= Quark.Rounded.Sm;
+        Padding ??= Quark.Padding.Token("1.5").OnX;
+        TextSize ??= Quark.TextSize.Sm;
+        FontWeight ??= Quark.FontWeight.Medium;
+        UserSelect ??= Quark.UserSelect.None;
+    }
+
     private Task HandleElementCaptured(ElementReference elementReference)
     {
         _elementRef = elementReference;
@@ -46,8 +59,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-menubar-trigger");
-            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground flex items-center rounded-sm px-2 py-1 text-sm font-medium outline-hidden select-none");
+            AppendClass(ref cls, "py-[2px] outline-hidden hover:bg-muted aria-expanded:bg-muted");
         });
     }
 

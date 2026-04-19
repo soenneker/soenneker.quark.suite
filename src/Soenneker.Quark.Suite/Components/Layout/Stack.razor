@@ -13,14 +13,19 @@
     [Parameter]
     public bool Inline { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Inline ? Quark.Display.InlineFlex : Quark.Display.Flex;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-stack");
-            AppendClass(ref cls, Inline ? "inline-flex" : "flex");
             AppendClass(ref cls, Orientation == StackOrientation.Horizontal ? "flex-row" : "flex-col");
         });
     }

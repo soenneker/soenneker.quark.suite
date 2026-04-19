@@ -22,6 +22,8 @@
     {
         base.BuildAttributesCore(attributes);
 
+        ApplyDefaultParameters();
+
         attributes["data-slot"] = "menubar-sub-trigger";
         attributes["data-inset"] = Inset ? "true" : "false";
 
@@ -30,11 +32,22 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-menubar-sub-trigger");
-            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-none select-none data-[inset]:pl-8 rtl:data-[inset]:pl-2 rtl:data-[inset]:pr-8");
+            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground cursor-default py-1.5 outline-none data-[inset]:pl-8 rtl:data-[inset]:pl-2 rtl:data-[inset]:pr-8");
             if (Disabled)
                 AppendClass(ref cls, "pointer-events-none opacity-50");
         });
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        AlignUtility ??= Quark.Align.ItemsCenter;
+        Rounded ??= Quark.Rounded.Sm;
+        Padding ??= Quark.Padding.Is2.OnX;
+        TextSize ??= Quark.TextSize.Sm;
+        UserSelect ??= Quark.UserSelect.None;
     }
 
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()

@@ -18,6 +18,19 @@
 
     private IReadOnlyDictionary<string, object> TriggerAttributes => BuildAttributes();
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        AlignUtility ??= Quark.Align.ItemsCenter;
+        Gap ??= Quark.Gap.Is2;
+        Rounded ??= Quark.Rounded.Sm;
+        Padding ??= Quark.Padding.Is2.OnX;
+        TextSize ??= Quark.TextSize.Sm;
+        UserSelect ??= Quark.UserSelect.None;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -30,8 +43,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-dropdown-sub-trigger");
-            AppendClass(ref cls, "flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none");
+            AppendClass(ref cls, "cursor-default py-1.5 outline-hidden");
             AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground data-[inset]:pl-8 rtl:data-[inset]:pl-2 rtl:data-[inset]:pr-8 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground");
         });

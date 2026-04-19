@@ -12,9 +12,8 @@
         base.ApplyDefaultParameters();
 
         TextColor ??= Quark.TextColor.MutedForeground;
-        Display ??= Quark.Display.Grid;
-        Gap ??= Quark.Gap.Is1;
         TextSize ??= Quark.TextSize.Sm;
+        TextWrap ??= Quark.TextWrap.Balance;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -23,8 +22,10 @@
         attributes["data-slot"] = "alert-description";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-alert-description");
-            AppendClass(ref cls, "col-start-2 justify-items-start [&_p]:leading-relaxed");
+            AppendClass(ref cls, "md:text-pretty");
+            AppendClass(ref cls, "[&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4");
         });
+
+        AppendToClassAttr(attributes, "text-muted-foreground");
     }
 }

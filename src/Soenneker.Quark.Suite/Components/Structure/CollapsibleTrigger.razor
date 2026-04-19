@@ -47,6 +47,20 @@ else
 
     private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        Width ??= Quark.Width.IsFull;
+        AlignUtility ??= Quark.Align.ItemsCenter.JustifyBetween;
+        Gap ??= Quark.Gap.Is2;
+        Rounded ??= Quark.Rounded.Md;
+        TextSize ??= Quark.TextSize.Sm;
+        FontWeight ??= Quark.FontWeight.Medium;
+        Transition ??= Quark.Transition.Colors;
+    }
+
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
     {
         Dictionary<string, object> attributes = new(BuildAttributes());
@@ -82,7 +96,6 @@ else
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-collapsible-trigger flex w-full items-center justify-between gap-2 rounded-md text-sm font-medium transition-colors");
             AppendClass(ref cls, "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50");
             if (Disabled || Collapsible?.Disabled == true)
                 AppendClass(ref cls, "pointer-events-none opacity-50");

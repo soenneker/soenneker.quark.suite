@@ -6,6 +6,18 @@
 </div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Relative;
+        Display ??= Quark.Display.Flex;
+        Width ??= Quark.Width.IsFull;
+        MinWidth ??= Quark.MinWidth.Is0;
+        Flex ??= Quark.Flex.Display.Column;
+        Padding ??= Quark.Padding.Is2;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -14,8 +26,6 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-sidebar-group");
-            AppendClass(ref cls, "relative flex w-full min-w-0 flex-col p-2");
         });
     }
 }

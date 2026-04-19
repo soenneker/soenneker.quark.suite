@@ -4,6 +4,22 @@
 <input @attributes="BuildAttributes()" />
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Height ??= Quark.Height.Is8;
+        Width ??= Quark.Width.IsFull;
+        MinWidth ??= Quark.MinWidth.Is0;
+        Rounded ??= Quark.Rounded.Md;
+        Border ??= Quark.Border.Is1;
+        BorderColor ??= Quark.BorderColor.Input;
+        BackgroundColor ??= Quark.BackgroundColor.Background;
+        Padding ??= Quark.Padding.Is3.OnX.Is1.OnY;
+        TextSize ??= Quark.TextSize.Sm;
+        BoxShadow ??= Quark.BoxShadow.None;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -12,8 +28,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-sidebar-input");
-            AppendClass(ref cls, "h-8 w-full min-w-0 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-none outline-none");
+            AppendClass(ref cls, "outline-none");
             AppendClass(ref cls, "placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50");
             AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50");
         });

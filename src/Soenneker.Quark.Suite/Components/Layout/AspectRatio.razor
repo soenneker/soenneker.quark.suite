@@ -25,6 +25,15 @@
         return BuildAttributes();
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Relative;
+        Width ??= Quark.Width.IsFull;
+        Overflow ??= Quark.Overflow.Hidden;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -33,8 +42,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-aspect-ratio");
-            AppendClass(ref cls, "relative w-full overflow-hidden [&>img]:object-cover [&>video]:object-cover [&>iframe]:object-cover");
+            AppendClass(ref cls, "[&>img]:object-cover [&>video]:object-cover [&>iframe]:object-cover");
         });
     }
 

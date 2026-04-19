@@ -6,6 +6,20 @@
 </div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Absolute;
+        Display ??= Quark.Display.Flex;
+        AlignUtility ??= Quark.Align.ItemsCenter.JustifyCenter;
+        Rounded ??= Quark.Rounded.Md;
+        Padding ??= Quark.Padding.Is1.OnX;
+        TextSize ??= Quark.TextSize.Xs;
+        FontWeight ??= Quark.FontWeight.Medium;
+        UserSelect ??= Quark.UserSelect.None;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -14,8 +28,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-sidebar-menu-badge");
-            AppendClass(ref cls, "text-sidebar-foreground pointer-events-none absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium tabular-nums select-none");
+            AppendClass(ref cls, "text-sidebar-foreground pointer-events-none right-1 h-5 min-w-5 tabular-nums");
             AppendClass(ref cls, "peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground");
             AppendClass(ref cls, "peer-data-[size=sm]/menu-button:top-1 peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5");
             AppendClass(ref cls, "group-data-[collapsible=icon]:hidden");

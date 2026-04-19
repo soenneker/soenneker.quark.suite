@@ -16,15 +16,19 @@
     [Parameter]
     public bool Inline { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Inline ? Quark.Display.InlineGrid : Quark.Display.Grid;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-grid");
-            AppendClass(ref cls, Inline ? "inline-grid" : "grid");
-
             if (Columns is { IsEmpty: false })
                 AppendClass(ref cls, Columns.Value.ToString());
 
@@ -37,8 +41,8 @@
     {
         base.ComputeRenderKeyCore(ref hc);
 
-        hc.Add(Columns);
-        hc.Add(Rows);
+        AddIf(ref hc, Columns);
+        AddIf(ref hc, Rows);
         hc.Add(Inline);
     }
 }

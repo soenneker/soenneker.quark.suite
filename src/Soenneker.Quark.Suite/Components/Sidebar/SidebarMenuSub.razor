@@ -6,6 +6,16 @@
 </ul>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        MinWidth ??= Quark.MinWidth.Is0;
+        Flex ??= Quark.Flex.Display.Column;
+        Gap ??= Quark.Gap.Is1;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -14,8 +24,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-sidebar-menu-sub");
-            AppendClass(ref cls, "border-sidebar-border mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l px-2.5 py-0.5");
+            AppendClass(ref cls, "border-sidebar-border mx-3.5 translate-x-px border-l px-2.5 py-0.5");
             AppendClass(ref cls, "group-data-[collapsible=icon]:hidden");
         });
     }

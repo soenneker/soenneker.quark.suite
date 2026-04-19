@@ -13,6 +13,16 @@
 
     private IReadOnlyDictionary<string, object> LabelAttributes => BuildAttributes();
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Padding ??= Quark.Padding.Is2.OnX.Token("1.5").OnY;
+        TextSize ??= Quark.TextSize.Sm;
+        FontWeight ??= Quark.FontWeight.Medium;
+        TextColor ??= Quark.TextColor.Foreground;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -21,8 +31,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-context-menu-label");
-            AppendClass(ref cls, "px-2 py-1.5 text-sm font-medium text-foreground data-[inset]:pl-8 rtl:data-[inset]:pl-2 rtl:data-[inset]:pr-8");
+            AppendClass(ref cls, "py-1.5 data-[inset]:pl-8 rtl:data-[inset]:pl-2 rtl:data-[inset]:pr-8");
         });
     }
 

@@ -21,6 +21,18 @@ else
     [Parameter]
     public bool AsChild { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Absolute;
+        Display ??= Quark.Display.Flex;
+        AlignUtility ??= Quark.Align.ItemsCenter.JustifyCenter;
+        Rounded ??= Quark.Rounded.Md;
+        Padding ??= Quark.Padding.Is0;
+        Transition ??= Quark.Transition.Transform;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -32,8 +44,7 @@ else
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-sidebar-menu-action");
-            AppendClass(ref cls, "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground peer-hover/menu-button:text-sidebar-accent-foreground absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-hidden transition-transform focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0");
+            AppendClass(ref cls, "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground peer-hover/menu-button:text-sidebar-accent-foreground top-1.5 right-1 aspect-square w-5 outline-hidden focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0");
             AppendClass(ref cls, "after:absolute after:-inset-2 md:after:hidden");
             AppendClass(ref cls, "peer-data-[size=sm]/menu-button:top-1 peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5");
             AppendClass(ref cls, "group-data-[collapsible=icon]:hidden");

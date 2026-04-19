@@ -6,7 +6,7 @@
     @if (ShowRemove)
     {
         <button type="button" @onclick="HandleRemoveClick" @onmousedown:preventDefault="true" class="inline-flex items-center justify-center rounded-sm p-0.5 hover:bg-black/10 dark:hover:bg-white/10" tabindex="-1" aria-label="Remove selection">
-            <Icon Name="LucideIcon.X" Class="size-3" />
+            <Icon Name="LucideIcon.X" Class="pointer-events-none size-3" />
         </button>
     }
 </span>
@@ -38,11 +38,11 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-combobox-chip");
-            AppendClass(ref cls, "inline-flex items-center gap-1 rounded-sm bg-muted px-2 py-1 text-sm text-foreground");
+            AppendClass(ref cls, "flex h-[calc(--spacing(5.25))] w-fit items-center justify-center gap-1 rounded-sm bg-muted px-1.5 text-xs font-medium whitespace-nowrap text-foreground");
+            AppendClass(ref cls, "has-data-[slot=combobox-chip-remove]:pr-0");
 
             if (ParentCombobox?.Disabled == true)
-                AppendClass(ref cls, "pointer-events-none opacity-50");
+                AppendClass(ref cls, "has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-disabled:opacity-50");
         });
     }
 

@@ -28,6 +28,20 @@ else
 
     private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.InlineFlex;
+        AlignUtility ??= Quark.Align.ItemsCenter.JustifyCenter;
+        Rounded ??= Quark.Rounded.Lg;
+        TextSize ??= Quark.TextSize.Sm;
+        FontWeight ??= Quark.FontWeight.Medium;
+        Whitespace ??= Quark.Whitespace.Nowrap;
+        Transition ??= Quark.Transition.All;
+        UserSelect ??= Quark.UserSelect.None;
+    }
+
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
     {
         Dictionary<string, object> attributes = new(BuildAttributes());
@@ -70,9 +84,12 @@ else
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-hover-card-trigger");
-            AppendClass(ref cls, "inline-flex max-w-full items-center justify-center gap-2 rounded-md text-sm font-medium transition-[color,box-shadow]");
-            AppendClass(ref cls, "focus-visible:ring-ring/50 outline-none focus-visible:ring-[3px]");
+            AppendClass(ref cls, "group/button shrink-0 bg-clip-padding outline-none");
+            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50");
+            AppendClass(ref cls, "active:not-aria-[haspopup]:translate-y-px");
+            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
+            AppendClass(ref cls, "border border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50");
+            AppendClass(ref cls, "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
             AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
         });

@@ -10,13 +10,22 @@
     {
         base.BuildAttributesCore(attributes);
 
+        ApplyDefaultParameters();
+
         attributes["data-slot"] = "drawer-header";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-drawer-header");
-            AppendClass(ref cls, "flex flex-col gap-0.5 p-4");
+            AppendClass(ref cls, "flex-col gap-0.5");
             AppendClass(ref cls, "group-data-[direction=bottom]/drawer-content:text-center group-data-[direction=top]/drawer-content:text-center md:gap-1.5 md:text-left");
         });
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        Padding ??= Quark.Padding.Is4;
     }
 }

@@ -10,23 +10,28 @@
 	[Parameter]
 	public string? ContainerType { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Margin ??= Quark.Margin.Auto.OnX;
+        Width ??= Quark.Width.IsFull;
+        MaxWidth ??= Quark.MaxWidth.Is7xl;
+        Padding ??= Quark.Padding.Is4.OnX.OnMd.Is6.OnX.OnLg.Is8.OnX;
+    }
+
     // Default to the common shadcn-style centered content wrapper.
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "q-container");
-            AppendClass(ref cls, GetContainerClass());
-        });
-    }
 
-    private string GetContainerClass()
-    {
         if (ContainerType.HasContent())
-            return ContainerType!;
-        
-        return "mx-auto w-full max-w-7xl px-4 md:px-6 lg:px-8";
+        {
+            BuildClassAttribute(attributes, (ref cls) =>
+            {
+                AppendClass(ref cls, ContainerType!);
+            });
+        }
     }
 
 	protected override void ComputeRenderKeyCore(ref HashCode hc)

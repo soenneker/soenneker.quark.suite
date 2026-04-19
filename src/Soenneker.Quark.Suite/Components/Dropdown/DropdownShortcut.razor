@@ -6,14 +6,21 @@
 </span>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextSize ??= Quark.TextSize.Xs;
+        TextColor ??= Quark.TextColor.MutedForeground;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "dropdown-menu-shortcut";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-dropdown-shortcut");
-            AppendClass(ref cls, "ml-auto text-xs tracking-widest text-muted-foreground");
+            AppendClass(ref cls, "ml-auto tracking-widest");
         });
     }
 }

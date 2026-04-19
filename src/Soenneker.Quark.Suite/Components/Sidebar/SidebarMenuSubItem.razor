@@ -6,6 +6,13 @@
 </li>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Relative;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -14,8 +21,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-sidebar-menu-sub-item");
-            AppendClass(ref cls, "group/menu-sub-item relative");
+            AppendClass(ref cls, "group/menu-sub-item");
         });
     }
 }

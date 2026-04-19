@@ -66,6 +66,14 @@ public partial class SidebarProvider
     [Parameter]
     public string SidebarWidthMobile { get; set; } = "18rem";
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        Width ??= Quark.Width.IsFull;
+    }
+
     protected override void OnInitialized()
     {
         _openInternal = DefaultOpen;
@@ -204,8 +212,7 @@ public partial class SidebarProvider
 
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
-            AppendClass(ref cls, "q-sidebar-wrapper");
-            AppendClass(ref cls, "group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar");
+            AppendClass(ref cls, "group/sidebar-wrapper min-h-svh has-data-[variant=inset]:bg-sidebar");
             AppendStyleDecl(ref sty, $"--sidebar-width: {SidebarWidth}");
             AppendStyleDecl(ref sty, $"--sidebar-width-icon: {SidebarWidthIcon}");
             AppendStyleDecl(ref sty, $"--sidebar-width-mobile: {SidebarWidthMobile}");

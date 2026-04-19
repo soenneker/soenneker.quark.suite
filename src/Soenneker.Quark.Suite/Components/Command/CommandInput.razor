@@ -2,10 +2,14 @@
 @inherits Soenneker.Quark.FormControlElement
 
 <div @attributes="BuildWrapperAttributes()">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-4 shrink-0 opacity-50">
-        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-    </svg>
-    <input value="@Value" @oninput="HandleInput" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()" placeholder="@Placeholder" />
+    <div data-slot="input-group" role="group" class="group/input-group relative flex h-8 w-full min-w-0 items-center rounded-lg border border-input/30 bg-input/30 transition-colors outline-none shadow-none! dark:bg-input/30">
+        <input value="@Value" @oninput="HandleInput" @onkeydown="HandleKeyDown" @attributes="BuildAttributes()" placeholder="@Placeholder" />
+        <div role="group" data-slot="input-group-addon" data-align="inline-start" class="order-first flex h-auto cursor-text items-center justify-center gap-2 py-1.5 pl-2 text-sm font-medium text-muted-foreground select-none [&>svg:not([class*='size-'])]:size-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-4 shrink-0 opacity-50">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+        </div>
+    </div>
 </div>
 
 @code {
@@ -50,8 +54,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-command-input");
-            AppendClass(ref cls, "flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50");
+            AppendClass(ref cls, "w-full bg-transparent text-sm outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50");
         });
     }
 
@@ -61,7 +64,7 @@
         attrs["data-slot"] = "command-input-wrapper";
         BuildClassAttribute(attrs, (ref cls) =>
         {
-            AppendClass(ref cls, "flex h-9 items-center gap-2 border-b px-3");
+            AppendClass(ref cls, "p-1 pb-0");
         });
         return attrs;
     }

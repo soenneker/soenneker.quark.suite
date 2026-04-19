@@ -8,6 +8,16 @@
 @code {
     private IReadOnlyDictionary<string, object> LabelAttributes => BuildAttributes();
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Padding ??= Quark.Padding.Is2.OnX.Token("1.5").OnY;
+        TextSize ??= Quark.TextSize.Xs;
+        FontWeight ??= Quark.FontWeight.Medium;
+        TextColor ??= Quark.TextColor.MutedForeground;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -16,7 +26,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-select-label px-2 py-1.5 text-xs text-muted-foreground");
+            AppendClass(ref cls, "py-1.5");
         });
     }
 }

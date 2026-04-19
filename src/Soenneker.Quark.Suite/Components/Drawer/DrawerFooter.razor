@@ -10,12 +10,22 @@
     {
         base.BuildAttributesCore(attributes);
 
+        ApplyDefaultParameters();
+
         attributes["data-slot"] = "drawer-footer";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-drawer-footer");
-            AppendClass(ref cls, "mt-auto flex flex-col gap-2 p-4");
+            AppendClass(ref cls, "mt-auto flex-col");
         });
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        Gap ??= Quark.Gap.Is2;
+        Padding ??= Quark.Padding.Is4;
     }
 }

@@ -12,7 +12,10 @@
         {
             <Icon Name="LucideIcon.ChevronDown"
                   data-slot="accordion-trigger-icon"
-                  Class="pointer-events-none ms-auto size-4 shrink-0 text-muted-foreground transition-transform duration-200 ease-out motion-reduce:transition-none group-aria-expanded/accordion-trigger:rotate-180" />
+                  Class="pointer-events-none shrink-0 group-aria-expanded/accordion-trigger:hidden" />
+            <Icon Name="LucideIcon.ChevronUp"
+                  data-slot="accordion-trigger-icon"
+                  Class="pointer-events-none hidden shrink-0 group-aria-expanded/accordion-trigger:inline" />
         }
     </BradixAccordionTrigger>
 </BradixAccordionHeader>
@@ -34,8 +37,6 @@
         AlignUtility ??= Quark.Align.ItemsStart.JustifyBetween;
         Gap ??= Quark.Gap.Is4;
         Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Is1;
-        TextAlignment ??= Quark.TextAlignment.Start;
         TextSize ??= Quark.TextSize.Sm;
         FontWeight ??= Quark.FontWeight.Medium;
         Transition ??= Quark.Transition.All;
@@ -53,11 +54,6 @@
 
             if (Disabled)
                 attributes["data-disabled"] = "true";
-
-            BuildClassAttribute(attributes, (ref cls) =>
-            {
-                AppendClass(ref cls, "q-accordion-header flex w-full");
-            });
 
             return attributes;
         }
@@ -82,8 +78,7 @@
 
             BuildClassAttribute(attributes, (ref cls) =>
             {
-                AppendClass(ref cls, "q-accordion-trigger");
-                AppendClass(ref cls, "group/accordion-trigger flex-1 border-transparent outline-none hover:underline focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:after:border-ring disabled:pointer-events-none disabled:opacity-50");
+                AppendClass(ref cls, "group/accordion-trigger relative flex flex-1 items-start justify-between border border-transparent py-2.5 text-left outline-none hover:underline focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:after:border-ring disabled:pointer-events-none disabled:opacity-50 **:data-[slot=accordion-trigger-icon]:ms-auto **:data-[slot=accordion-trigger-icon]:size-4 **:data-[slot=accordion-trigger-icon]:text-muted-foreground");
             });
 
             return attributes;
