@@ -13,7 +13,7 @@ public sealed class StepsOptions : ComponentOptions
     /// </summary>
     public StepsOptions()
     {
-        Selector = ".q-steps";
+        Selector = "[data-slot='steps']";
     }
 
     /// <summary>
@@ -92,7 +92,7 @@ public sealed class StepsOptions : ComponentOptions
 
         if (Active != null)
         {
-            CollectStepStateRules(buffer, ".steps a.active", Active);
+            CollectStepStateRules(buffer, "[data-slot='step-link'][data-active='true']", Active);
         }
         else
         {
@@ -101,7 +101,7 @@ public sealed class StepsOptions : ComponentOptions
 
         if (NonActive != null)
         {
-            CollectStepStateRules(buffer, ".steps a:not(.active)", NonActive);
+            CollectStepStateRules(buffer, "[data-slot='step-link']:not([data-active='true'])", NonActive);
         }
 
         CollectOtherRules(buffer);
@@ -114,22 +114,23 @@ public sealed class StepsOptions : ComponentOptions
         if (MarkerActiveBg.HasContent())
         {
             buffer.Add(new ComponentCssRule(".steps a.active .step-marker", $"background-color: {MarkerActiveBg} !important"));
+            buffer.Add(new ComponentCssRule("[data-slot='step-link'][data-active='true'] [data-slot='step-marker']", $"background-color: {MarkerActiveBg} !important"));
         }
 
         if (MarkerActiveBorder.HasContent())
         {
-            buffer.Add(new ComponentCssRule(".steps a.active .step-marker", $"border-color: {MarkerActiveBorder} !important"));
+            buffer.Add(new ComponentCssRule("[data-slot='step-link'][data-active='true'] [data-slot='step-marker']", $"border-color: {MarkerActiveBorder} !important"));
         }
 
         if (MarkerActiveColor.HasContent())
         {
-            buffer.Add(new ComponentCssRule(".steps a.active .step-marker", $"color: {MarkerActiveColor} !important"));
+            buffer.Add(new ComponentCssRule("[data-slot='step-link'][data-active='true'] [data-slot='step-marker']", $"color: {MarkerActiveColor} !important"));
         }
 
         if (TextActive.HasContent())
         {
-            buffer.Add(new ComponentCssRule(".steps a.active", $"color: {TextActive} !important"));
-            buffer.Add(new ComponentCssRule(".steps a.active .step-description, .steps a.active .step-title", $"color: {TextActive} !important"));
+            buffer.Add(new ComponentCssRule("[data-slot='step-link'][data-active='true']", $"color: {TextActive} !important"));
+            buffer.Add(new ComponentCssRule("[data-slot='step-link'][data-active='true'] [data-slot='step-caption'], [data-slot='step-link'][data-active='true'] .step-title", $"color: {TextActive} !important"));
         }
     }
 
@@ -137,56 +138,56 @@ public sealed class StepsOptions : ComponentOptions
     {
         if (ConnectorColor.HasContent())
         {
-            buffer.Add(new ComponentCssRule(".steps li.step-item:not(:last-of-type)::after", $"background-color: {ConnectorColor} !important"));
+            buffer.Add(new ComponentCssRule("[data-slot='step']:not(:last-of-type)::after", $"background-color: {ConnectorColor} !important"));
         }
 
         if (Success.HasContent())
         {
-            buffer.Add(new ComponentCssRule(".steps a.text-success", $"background-color: color-mix(in srgb, {Success} 10%, transparent) !important"));
-            buffer.Add(new ComponentCssRule(".steps a.text-success", $"border-color: color-mix(in srgb, {Success} 35%, transparent) !important"));
-            buffer.Add(new ComponentCssRule(".steps a.text-success", $"color: {Success} !important"));
-            buffer.Add(new ComponentCssRule(".steps a.text-success .step-marker", $"background-color: {Success} !important"));
-            buffer.Add(new ComponentCssRule(".steps a.text-success .step-marker", $"border-color: {Success} !important"));
+            buffer.Add(new ComponentCssRule("[data-slot='step-link'][data-completed='true']", $"background-color: color-mix(in srgb, {Success} 10%, transparent) !important"));
+            buffer.Add(new ComponentCssRule("[data-slot='step-link'][data-completed='true']", $"border-color: color-mix(in srgb, {Success} 35%, transparent) !important"));
+            buffer.Add(new ComponentCssRule("[data-slot='step-link'][data-completed='true']", $"color: {Success} !important"));
+            buffer.Add(new ComponentCssRule("[data-slot='step-link'][data-completed='true'] [data-slot='step-marker']", $"background-color: {Success} !important"));
+            buffer.Add(new ComponentCssRule("[data-slot='step-link'][data-completed='true'] [data-slot='step-marker']", $"border-color: {Success} !important"));
         }
 
         if (MarkerSuccessColor.HasContent())
         {
-            buffer.Add(new ComponentCssRule(".steps a.text-success .step-marker", $"color: {MarkerSuccessColor} !important"));
+            buffer.Add(new ComponentCssRule("[data-slot='step-link'][data-completed='true'] [data-slot='step-marker']", $"color: {MarkerSuccessColor} !important"));
         }
 
         if (DisabledBg.HasContent())
         {
-            buffer.Add(new ComponentCssRule(".steps a.disabled", $"background-color: {DisabledBg} !important"));
+            buffer.Add(new ComponentCssRule("[data-slot='step-link'][data-disabled='true']", $"background-color: {DisabledBg} !important"));
         }
 
         if (DisabledColor.HasContent())
         {
-            buffer.Add(new ComponentCssRule(".steps a.disabled", $"color: {DisabledColor} !important"));
+            buffer.Add(new ComponentCssRule("[data-slot='step-link'][data-disabled='true']", $"color: {DisabledColor} !important"));
         }
 
         if (ContentBg.HasContent())
         {
-            buffer.Add(new ComponentCssRule(".tab-content", $"background-color: {ContentBg} !important"));
+            buffer.Add(new ComponentCssRule("[data-slot='steps-content']", $"background-color: {ContentBg} !important"));
         }
 
         if (ContentBorder.HasContent())
         {
-            buffer.Add(new ComponentCssRule(".tab-content", $"border-color: {ContentBorder} !important"));
+            buffer.Add(new ComponentCssRule("[data-slot='steps-content']", $"border-color: {ContentBorder} !important"));
         }
 
         if (ContentRounded.HasContent())
         {
-            buffer.Add(new ComponentCssRule(".tab-content", $"border-radius: {ContentRounded} !important"));
+            buffer.Add(new ComponentCssRule("[data-slot='steps-content']", $"border-radius: {ContentRounded} !important"));
         }
 
         if (ContentShadow.HasContent())
         {
-            buffer.Add(new ComponentCssRule(".tab-content", $"box-shadow: {ContentShadow} !important"));
+            buffer.Add(new ComponentCssRule("[data-slot='steps-content']", $"box-shadow: {ContentShadow} !important"));
         }
 
         if (FocusOutline.HasContent())
         {
-            buffer.Add(new ComponentCssRule(".steps a:focus", $"outline: 2px solid {FocusOutline} !important"));
+            buffer.Add(new ComponentCssRule("[data-slot='step-link']:focus", $"outline: 2px solid {FocusOutline} !important"));
         }
     }
 
@@ -194,23 +195,23 @@ public sealed class StepsOptions : ComponentOptions
     {
         if (options.MarkerBackgroundColor.HasContent())
         {
-            buffer.Add(new ComponentCssRule($"{selector} .step-marker", $"background-color: {options.MarkerBackgroundColor} !important"));
+            buffer.Add(new ComponentCssRule($"{selector} [data-slot='step-marker']", $"background-color: {options.MarkerBackgroundColor} !important"));
         }
 
         if (options.MarkerBorderColor.HasContent())
         {
-            buffer.Add(new ComponentCssRule($"{selector} .step-marker", $"border-color: {options.MarkerBorderColor} !important"));
+            buffer.Add(new ComponentCssRule($"{selector} [data-slot='step-marker']", $"border-color: {options.MarkerBorderColor} !important"));
         }
 
         if (options.MarkerTextColor.HasContent())
         {
-            buffer.Add(new ComponentCssRule($"{selector} .step-marker", $"color: {options.MarkerTextColor} !important"));
+            buffer.Add(new ComponentCssRule($"{selector} [data-slot='step-marker']", $"color: {options.MarkerTextColor} !important"));
         }
 
         if (options.TextColor.HasContent())
         {
             buffer.Add(new ComponentCssRule(selector, $"color: {options.TextColor} !important"));
-            buffer.Add(new ComponentCssRule($"{selector} .step-description, {selector} .step-title", $"color: {options.TextColor} !important"));
+            buffer.Add(new ComponentCssRule($"{selector} [data-slot='step-caption'], {selector} .step-title", $"color: {options.TextColor} !important"));
         }
 
         if (options.BackgroundColor.HasContent())
@@ -219,4 +220,3 @@ public sealed class StepsOptions : ComponentOptions
         }
     }
 }
-

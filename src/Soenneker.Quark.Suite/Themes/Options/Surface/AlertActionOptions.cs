@@ -4,6 +4,6 @@ public sealed class AlertActionOptions : ComponentOptions
 {
     public AlertActionOptions()
     {
-        Selector = ".q-alert-action";
+        Selector = "[data-slot='alert-action']";
     }
 }

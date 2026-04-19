@@ -5,7 +5,6 @@ public sealed class TreeViewNodeOptions : ComponentOptions
 {
     public TreeViewNodeOptions()
     {
-        Selector = ".q-tree-view-node";
+        Selector = "[data-slot='tree-view-node']";
     }
 }
-

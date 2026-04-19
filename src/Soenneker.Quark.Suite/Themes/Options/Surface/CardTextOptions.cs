@@ -5,7 +5,6 @@ public sealed class CardTextOptions : ComponentOptions
 {
     public CardTextOptions()
     {
-        Selector = ".q-card-text";
+        Selector = "[data-slot='card-text']";
     }
 }
-

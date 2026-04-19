@@ -4,6 +4,6 @@ public sealed class ButtonOptions : ComponentOptions
 {
     public ButtonOptions()
     {
-        Selector = ".q-button";
+        Selector = "[data-slot='button']";
     }
 }

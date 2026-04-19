@@ -5,7 +5,6 @@ public sealed class VideoOptions : ComponentOptions
 {
     public VideoOptions()
     {
-        Selector = ".q-video";
+        Selector = "[data-slot='video']";
     }
 }
-

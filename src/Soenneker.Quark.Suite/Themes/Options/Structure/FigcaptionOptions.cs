@@ -5,7 +5,6 @@ public sealed class FigcaptionOptions : ComponentOptions
 {
     public FigcaptionOptions()
     {
-        Selector = ".q-figcaption";
+        Selector = "[data-slot='figcaption']";
     }
 }
-

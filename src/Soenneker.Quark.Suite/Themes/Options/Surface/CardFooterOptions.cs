@@ -5,7 +5,6 @@ public sealed class CardFooterOptions : ComponentOptions
 {
     public CardFooterOptions()
     {
-        Selector = ".q-card-footer";
+        Selector = "[data-slot='card-footer']";
     }
 }
-

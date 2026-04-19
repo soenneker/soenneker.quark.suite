@@ -11,6 +11,6 @@ public sealed class ValidationSuccessOptions : ComponentOptions
     /// </summary>
     public ValidationSuccessOptions()
     {
-        Selector = ".q-validation-success";
+        Selector = "[data-slot='validation-success']";
     }
 }

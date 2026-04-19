@@ -5,7 +5,6 @@ public sealed class ArticleOptions : ComponentOptions
 {
     public ArticleOptions()
     {
-        Selector = ".q-article";
+        Selector = "[data-slot='article']";
     }
 }
-

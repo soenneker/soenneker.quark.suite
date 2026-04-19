@@ -5,7 +5,6 @@ public sealed class MainOptions : ComponentOptions
 {
     public MainOptions()
     {
-        Selector = ".q-main";
+        Selector = "[data-slot='main']";
     }
 }
-

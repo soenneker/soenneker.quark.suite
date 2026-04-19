@@ -5,7 +5,6 @@ public sealed class CardBodyOptions : ComponentOptions
 {
     public CardBodyOptions()
     {
-        Selector = ".q-card-body";
+        Selector = "[data-slot='card-content']";
     }
 }
-

@@ -5,7 +5,6 @@ public sealed class SelectOptions : ComponentOptions
 {
     public SelectOptions()
     {
-        Selector = ".q-select";
+        Selector = "[data-slot='select']";
     }
 }
-

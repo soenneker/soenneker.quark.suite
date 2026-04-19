@@ -4,6 +4,6 @@ public sealed class StepsContentOptions : ComponentOptions
 {
     public StepsContentOptions()
     {
-        Selector = ".q-steps-content";
+        Selector = "[data-slot='steps-content']";
     }
 }

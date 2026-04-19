@@ -11,6 +11,6 @@ public sealed class SmallOptions : ComponentOptions
     /// </summary>
     public SmallOptions()
     {
-        Selector = ".q-small";
+        Selector = "[data-slot='small']";
     }
 }

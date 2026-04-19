@@ -5,7 +5,6 @@ public sealed class DialogBodyOptions : ComponentOptions
 {
     public DialogBodyOptions()
     {
-        Selector = ".q-dialog-body";
+        Selector = "[data-slot='dialog-body']";
     }
 }
-

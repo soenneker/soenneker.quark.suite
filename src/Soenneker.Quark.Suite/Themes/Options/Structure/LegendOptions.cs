@@ -5,7 +5,6 @@ public sealed class LegendOptions : ComponentOptions
 {
     public LegendOptions()
     {
-        Selector = ".q-legend";
+        Selector = "[data-slot='field-legend']";
     }
 }
-

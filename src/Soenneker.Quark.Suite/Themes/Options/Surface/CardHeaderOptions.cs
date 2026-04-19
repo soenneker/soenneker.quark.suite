@@ -5,7 +5,6 @@ public sealed class CardHeaderOptions : ComponentOptions
 {
     public CardHeaderOptions()
     {
-        Selector = ".q-card-header";
+        Selector = "[data-slot='card-header']";
     }
 }
-

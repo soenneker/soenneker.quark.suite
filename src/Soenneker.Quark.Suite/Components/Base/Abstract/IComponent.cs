@@ -13,12 +13,13 @@ public interface IComponent : ICoreComponent
     string? Style { get; set; }
     string? Title { get; set; }
     bool Hidden { get; set; }
+    CssValue<InsetBuilder>? Inset { get; set; }
 
     CssValue<DisplayBuilder>? Display { get; set; }
     CssValue<VisibilityBuilder>? Visibility { get; set; }
     CssValue<FloatBuilder>? Float { get; set; }
     CssValue<VerticalAlignBuilder>? VerticalAlign { get; set; }
-    CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
+    CssValue<TextAlignBuilder>? TextAlign { get; set; }
     CssValue<TextColorBuilder>? TextColor { get; set; }
     CssValue<TextSizeBuilder>? TextSize { get; set; }
     CssValue<TextDecorationBuilder>? TextDecoration { get; set; }
@@ -55,7 +56,12 @@ public interface IComponent : ICoreComponent
     CssValue<GapBuilder>? Gap { get; set; }
     CssValue<SpaceBuilder>? Space { get; set; }
     CssValue<DivideBuilder>? Divide { get; set; }
-    CssValue<AlignBuilder>? AlignUtility { get; set; }
+    CssValue<ContentAlignBuilder>? ContentAlign { get; set; }
+    CssValue<ItemsBuilder>? ItemsAlign { get; set; }
+    CssValue<JustifyBuilder>? Justify { get; set; }
+    CssValue<SelfBuilder>? SelfAlign { get; set; }
+    CssValue<JustifyItemsAlignBuilder>? JustifyItemsAlign { get; set; }
+    CssValue<JustifySelfAlignBuilder>? JustifySelfAlign { get; set; }
     CssValue<OpacityBuilder>? Opacity { get; set; }
     CssValue<ZIndexBuilder>? ZIndex { get; set; }
     CssValue<PointerEventsBuilder>? PointerEvents { get; set; }

@@ -5,6 +5,6 @@ public sealed class TdOptions : ComponentOptions
 {
     public TdOptions()
     {
-        Selector = ".q-table-td";
+        Selector = "[data-slot='table-cell']";
     }
 }

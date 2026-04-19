@@ -82,17 +82,14 @@
     {
         base.ApplyDefaultParameters();
 
-        Margin = Quark.Margin.Is3.FromTop;
+        Display ??= Quark.Display.Block;
+        Margin ??= Quark.Margin.Is3.FromTop;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "tab-content");
-        });
+        attributes["data-slot"] = "steps-content";
     }
 
     protected override Task OnParametersSetAsync()

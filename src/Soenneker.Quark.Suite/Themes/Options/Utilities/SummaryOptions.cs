@@ -11,7 +11,6 @@ public sealed class SummaryOptions : ComponentOptions
     /// </summary>
     public SummaryOptions()
     {
-        Selector = ".q-summary";
+        Selector = "[data-slot='summary']";
     }
 }
-

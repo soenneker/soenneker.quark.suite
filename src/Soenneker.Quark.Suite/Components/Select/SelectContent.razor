@@ -23,7 +23,7 @@
     public int SideOffset { get; set; } = 6;
 
     [Parameter]
-    public string Align { get; set; } = "center";
+    public string PlacementAlign { get; set; } = "center";
 
     [Parameter]
     public string ContentPosition { get; set; } = "item-aligned";
@@ -43,7 +43,7 @@
         };
 
     private BradixAlignment ResolvedAlign =>
-        Align.ToLowerInvariant() switch
+        PlacementAlign.ToLowerInvariant() switch
         {
             "start" => BradixAlignment.Start,
             "end" => BradixAlignment.End,
@@ -63,7 +63,7 @@
 
         attributes["data-slot"] = "select-content";
         attributes["data-side"] = Side;
-        attributes["data-align"] = Align;
+        attributes["data-align"] = PlacementAlign;
         attributes["data-position"] = ContentPosition;
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -79,7 +79,7 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Side);
         hc.Add(SideOffset);
-        hc.Add(Align);
+        hc.Add(PlacementAlign);
         hc.Add(ContentPosition);
     }
 }

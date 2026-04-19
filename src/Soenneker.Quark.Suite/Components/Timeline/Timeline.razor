@@ -14,7 +14,7 @@
     private int _itemCounter;
 
     [Parameter]
-    public TimelineAlign Align { get; set; } = TimelineAlign.Center;
+    public TimelineAlign TimelineAlignment { get; set; } = TimelineAlign.Center;
 
     [Parameter]
     public TimelineSize Size { get; set; } = TimelineSize.Medium;
@@ -36,30 +36,26 @@
 
         Position ??= Quark.Position.Relative;
         Flex ??= Quark.Flex.Display.Column;
+        Gap ??= Size?.Value switch
+        {
+            TimelineSize.SmallValue => Quark.Gap.Is2,
+            TimelineSize.LargeValue => Quark.Gap.Token("6"),
+            _ => Quark.Gap.Is4
+        };
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "timeline";
-        attributes["data-align"] = Align?.Value ?? TimelineAlign.Center.Value;
+        attributes["data-align"] = TimelineAlignment?.Value ?? TimelineAlign.Center.Value;
         attributes["aria-label"] = AriaLabel ?? "Timeline";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, Size?.Value switch
-            {
-                TimelineSize.SmallValue => "gap-2",
-                TimelineSize.LargeValue => "gap-6",
-                _ => "gap-4"
-            });
-        });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Align);
+        hc.Add(TimelineAlignment);
         hc.Add(Size);
         hc.Add(ConnectorFit);
     }

@@ -12,7 +12,7 @@
 
 @code {
     [Parameter]
-    public bool Inset { get; set; }
+    public bool Indented { get; set; }
 
     [Parameter]
     public string Variant { get; set; } = "default";
@@ -28,7 +28,7 @@
 
         Position ??= Quark.Position.Relative;
         Display ??= Quark.Display.Flex;
-        AlignUtility ??= Quark.Align.ItemsCenter;
+        ItemsAlign ??= Quark.Items.Center;
         Gap ??= Quark.Gap.Is2;
         Rounded ??= Quark.Rounded.Sm;
         Padding ??= Quark.Padding.Is2.OnX;
@@ -43,7 +43,7 @@
         var variant = Variant.Equals("destructive", StringComparison.OrdinalIgnoreCase) ? "destructive" : "default";
         attributes["data-slot"] = "context-menu-item";
         attributes["data-variant"] = variant;
-        if (Inset)
+        if (Indented)
             attributes["data-inset"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -69,7 +69,7 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Disabled);
-        hc.Add(Inset);
+        hc.Add(Indented);
         hc.Add(Variant);
     }
 

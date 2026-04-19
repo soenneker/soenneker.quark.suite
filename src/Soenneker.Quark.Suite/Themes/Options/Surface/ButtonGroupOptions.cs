@@ -4,6 +4,6 @@ public sealed class ButtonGroupOptions : ComponentOptions
 {
     public ButtonGroupOptions()
     {
-        Selector = ".q-button-group";
+        Selector = "[data-slot='button-group']";
     }
 }

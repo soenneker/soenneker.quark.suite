@@ -11,7 +11,6 @@ public sealed class CollapseOptions : ComponentOptions
     /// </summary>
     public CollapseOptions()
     {
-        Selector = ".q-collapse";
+        Selector = "[data-slot='collapse']";
     }
 }
-

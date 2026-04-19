@@ -44,7 +44,7 @@ public class ComponentsCssGeneratorTests
         var result = ComponentsCssGenerator.Generate(theme);
 
         // Assert
-        result.Should().Be(".q-div {\n  text-decoration: underline;\n}");
+        result.Should().Be("[data-slot='div'] {\n  text-decoration: underline;\n}");
     }
 
     [Fact]

@@ -5,6 +5,6 @@ public sealed class CardDescriptionOptions : ComponentOptions
 {
     public CardDescriptionOptions()
     {
-        Selector = ".q-card-description";
+        Selector = "[data-slot='card-description']";
     }
 }

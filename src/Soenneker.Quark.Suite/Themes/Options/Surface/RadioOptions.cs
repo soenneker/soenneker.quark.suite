@@ -5,6 +5,6 @@ public sealed class RadioOptions : ComponentOptions
 {
     public RadioOptions()
     {
-        Selector = ".q-radio";
+        Selector = "[data-slot='radio-group-item']";
     }
 }

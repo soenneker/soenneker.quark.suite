@@ -11,7 +11,6 @@ public sealed class H6Options : ComponentOptions
     /// </summary>
     public H6Options()
     {
-        Selector = ".q-h6";
+        Selector = "[data-slot='h6']";
     }
 }
-

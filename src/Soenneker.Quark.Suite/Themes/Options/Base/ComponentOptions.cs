@@ -69,6 +69,11 @@ public class ComponentOptions
     public CssValue<PaddingBuilder>? Padding { get; set; }
 
     /// <summary>
+    /// Gets or sets inset utility classes.
+    /// </summary>
+    public CssValue<InsetBuilder>? Inset { get; set; }
+
+    /// <summary>
     /// Gets or sets the CSS position configuration.
     /// </summary>
     public CssValue<PositionBuilder>? Position { get; set; }
@@ -151,7 +156,7 @@ public class ComponentOptions
     /// <summary>
     /// Gets or sets the CSS text alignment configuration.
     /// </summary>
-    public CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
+    public CssValue<TextAlignBuilder>? TextAlign { get; set; }
 
     /// <summary>
     /// Gets or sets the CSS text color configuration.
@@ -209,9 +214,34 @@ public class ComponentOptions
     public CssValue<LetterSpacingBuilder>? LetterSpacing { get; set; }
 
     /// <summary>
-    /// Gets or sets alignment utility classes (justify/items/content/self/justify-items/justify-self).
+    /// Gets or sets content alignment utility classes (content-*).
     /// </summary>
-    public CssValue<AlignBuilder>? AlignUtility { get; set; }
+    public CssValue<ContentAlignBuilder>? ContentAlign { get; set; }
+
+    /// <summary>
+    /// Gets or sets items alignment utility classes (items-*).
+    /// </summary>
+    public CssValue<ItemsBuilder>? ItemsAlign { get; set; }
+
+    /// <summary>
+    /// Gets or sets justify alignment utility classes (justify-*).
+    /// </summary>
+    public CssValue<JustifyBuilder>? Justify { get; set; }
+
+    /// <summary>
+    /// Gets or sets self alignment utility classes (self-*).
+    /// </summary>
+    public CssValue<SelfBuilder>? SelfAlign { get; set; }
+
+    /// <summary>
+    /// Gets or sets justify-items alignment utility classes (justify-items-*).
+    /// </summary>
+    public CssValue<JustifyItemsAlignBuilder>? JustifyItemsAlign { get; set; }
+
+    /// <summary>
+    /// Gets or sets justify-self alignment utility classes (justify-self-*).
+    /// </summary>
+    public CssValue<JustifySelfAlignBuilder>? JustifySelfAlign { get; set; }
 
     /// <summary>
     /// Gets or sets the CSS border configuration.
@@ -388,6 +418,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, BoxShadow, "box-shadow");
         AddRules(buffer, baseSelector, Margin, "margin");
         AddRules(buffer, baseSelector, Padding, "padding");
+        AddRules(buffer, baseSelector, Inset, null);
         AddRules(buffer, baseSelector, Position, "position");
         AddRules(buffer, baseSelector, PositionOffset, null);
         AddRules(buffer, baseSelector, ScrollMargin, null);
@@ -404,7 +435,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, OverflowY, "overflow-y");
         AddRules(buffer, baseSelector, Overscroll, null);
         AddRules(buffer, baseSelector, ObjectFit, "object-fit");
-        AddRules(buffer, baseSelector, TextAlignment, "text-align");
+        AddRules(buffer, baseSelector, TextAlign, "text-align");
         AddRules(buffer, baseSelector, TextColor, "color");
         AddRules(buffer, baseSelector, TextDecoration, "text-decoration");
         AddRules(buffer, baseSelector, Flex, "flex");
@@ -416,7 +447,12 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Stroke, null);
         AddRules(buffer, baseSelector, Gradient, null);
         AddRules(buffer, baseSelector, LetterSpacing, null);
-        AddRules(buffer, baseSelector, AlignUtility, null);
+        AddRules(buffer, baseSelector, ContentAlign, null);
+        AddRules(buffer, baseSelector, ItemsAlign, null);
+        AddRules(buffer, baseSelector, Justify, null);
+        AddRules(buffer, baseSelector, SelfAlign, null);
+        AddRules(buffer, baseSelector, JustifyItemsAlign, null);
+        AddRules(buffer, baseSelector, JustifySelfAlign, null);
         AddRules(buffer, baseSelector, Border, "border");
         AddRules(buffer, baseSelector, Opacity, "opacity");
         AddRules(buffer, baseSelector, ZIndex, "z-index");

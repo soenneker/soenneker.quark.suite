@@ -5,7 +5,6 @@ public sealed class DialogHeaderOptions : ComponentOptions
 {
     public DialogHeaderOptions()
     {
-        Selector = ".q-dialog-header";
+        Selector = "[data-slot='dialog-header']";
     }
 }
-

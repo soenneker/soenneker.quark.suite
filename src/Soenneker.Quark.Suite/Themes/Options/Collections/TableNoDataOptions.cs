@@ -5,6 +5,6 @@ public sealed class TableNoDataOptions : ComponentOptions
 {
     public TableNoDataOptions()
     {
-        Selector = ".q-table-no-data";
+        Selector = "[data-slot='table-empty']";
     }
 }

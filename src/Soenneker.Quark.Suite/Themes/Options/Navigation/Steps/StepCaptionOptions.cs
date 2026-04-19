@@ -5,7 +5,6 @@ public sealed class StepCaptionOptions : ComponentOptions
 {
     public StepCaptionOptions()
     {
-        Selector = ".q-step-caption";
+        Selector = "[data-slot='step-caption']";
     }
 }
-

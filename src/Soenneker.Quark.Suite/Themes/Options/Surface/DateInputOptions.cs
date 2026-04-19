@@ -5,6 +5,6 @@ public sealed class DateInputOptions : ComponentOptions
 {
     public DateInputOptions()
     {
-        Selector = ".q-date-input";
+        Selector = "[data-slot='input']";
     }
 }

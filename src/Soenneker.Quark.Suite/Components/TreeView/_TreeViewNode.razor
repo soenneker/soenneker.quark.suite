@@ -26,6 +26,7 @@
 @code {
     [Parameter] public ICollection<TreeViewNodeState<TNode>>? NodeStates { get; set; }
     [Parameter] public RenderFragment<TNode>? NodeContent { get; set; }
+    [Parameter] public bool Nested { get; set; }
 
     [Parameter] public IList<TNode> ExpandedNodes { get; set; } = new List<TNode>();
     [Parameter] public EventCallback<IList<TNode>> ExpandedNodesChanged { get; set; }
@@ -56,9 +57,21 @@
 
     [CascadingParameter(Name = nameof(ParentTreeView))] public TreeView<TNode>? ParentTreeView { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Block;
+
+        if (Nested)
+            Padding ??= Quark.Padding.Token("5").FromLeft;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "q-tree-view-node"));
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "tree-view-node";
     }
 
     protected override async Task OnInitializedAsync()
@@ -115,14 +128,15 @@
     private RenderFragment NodeFragment(TreeViewNodeState<TNode> nodeState) => __builder =>
     {
         <div @key="nodeState.Node">
-            <div class="q-tree-view-node-row"
+            <div data-slot="tree-view-row"
+                 class="flex items-center gap-1"
                  @oncontextmenu="e => OnContextMenuHandler(nodeState, e)"
                  @oncontextmenu:stopPropagation
                  @oncontextmenu:preventDefault="@ContextMenuPreventDefault">
 
                 @if (nodeState.HasChildren)
                 {
-                    <span class="q-tree-view-node-toggle" @onclick="() => ToggleNode(nodeState, true)">
+                    <span data-slot="tree-view-toggle" class="cursor-pointer select-none" @onclick="() => ToggleNode(nodeState, true)">
                         @if (nodeState.Expanded)
                         {
                             <Icon Name="@CollapseIcon" Class="@CollapseIconClass" />
@@ -165,6 +179,7 @@
                                ExpandIconClass="@ExpandIconClass"
                                CollapseName="@CollapseIcon"
                                CollapseIconClass="@CollapseIconClass"
+                               Nested="true"
                                SelectionMode="@SelectionMode"
                                ToggleOnNodeClick="@ToggleOnNodeClick"
                                ContextMenu="@ContextMenu"

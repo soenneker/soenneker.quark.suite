@@ -5,6 +5,6 @@ public sealed class CardActionOptions : ComponentOptions
 {
     public CardActionOptions()
     {
-        Selector = ".q-card-action";
+        Selector = "[data-slot='card-action']";
     }
 }

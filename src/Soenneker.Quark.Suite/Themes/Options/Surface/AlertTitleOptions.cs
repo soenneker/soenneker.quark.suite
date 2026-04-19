@@ -4,6 +4,6 @@ public class AlertTitleOptions : ComponentOptions
 {
     public AlertTitleOptions()
     {
-        Selector = ".q-alert-title";
+        Selector = "[data-slot='alert-title']";
     }
 }

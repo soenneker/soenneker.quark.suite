@@ -5,6 +5,6 @@ public sealed class PaginationOptions : ComponentOptions
 {
     public PaginationOptions()
     {
-        Selector = ".q-pagination";
+        Selector = "[data-slot='pagination']";
     }
 }

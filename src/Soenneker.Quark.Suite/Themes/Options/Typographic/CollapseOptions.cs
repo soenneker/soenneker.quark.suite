@@ -4,6 +4,6 @@ public sealed class CollapseOptions : ComponentOptions
 {
     public CollapseOptions()
     {
-        Selector = ".q-collapse";
+        Selector = "[data-slot='collapse']";
     }
 }

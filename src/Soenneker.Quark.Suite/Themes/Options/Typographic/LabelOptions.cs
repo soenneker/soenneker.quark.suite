@@ -11,6 +11,6 @@ public sealed class LabelOptions : ComponentOptions
     /// </summary>
     public LabelOptions()
     {
-        Selector = ".q-label";
+        Selector = "[data-slot='label']";
     }
 }

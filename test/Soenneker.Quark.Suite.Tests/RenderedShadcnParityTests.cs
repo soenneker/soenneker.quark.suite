@@ -6,6 +6,7 @@ using Soenneker.Blazor.MockJsRuntime.Registrars;
 using Soenneker.Bradix;
 using Soenneker.Quark.Gen.Lucide.Abstractions;
 using Soenneker.Quark;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -70,6 +71,8 @@ public sealed class RenderedShadcnParityTests : BunitContext
         Services.AddDefaultQuarkOptionsAsScoped();
         Services.AddScoped<ILucideIconSvgProvider, FakeLucideIconSvgProvider>();
         Services.AddScoped<ICollapseCoordinator, CollapseCoordinator>();
+        Services.AddScoped<IScoreInterop, FakeScoreInterop>();
+        Services.AddScoped<ITreeViewInterop, FakeTreeViewInterop>();
     }
 
     private sealed class FakeLucideIconSvgProvider : ILucideIconSvgProvider
@@ -78,6 +81,20 @@ public sealed class RenderedShadcnParityTests : BunitContext
         {
             return "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"></svg>";
         }
+    }
+
+    private sealed class FakeScoreInterop : IScoreInterop
+    {
+        public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    }
+
+    private sealed class FakeTreeViewInterop : ITreeViewInterop
+    {
+        public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 
     [Fact]
@@ -1850,5 +1867,56 @@ public sealed class RenderedShadcnParityTests : BunitContext
         ellipsisClasses.Should().Contain("items-center");
         ellipsisClasses.Should().Contain("justify-center");
         ellipsisClasses.Should().NotContain("q-pagination-ellipsis");
+    }
+
+    [Fact]
+    public void TreeView_slots_use_data_slot_hooks_instead_of_legacy_q_classes()
+    {
+        var cut = Render<TreeView<string>>(parameters => parameters
+            .Add(p => p.Nodes, new[] { "Root" })
+            .Add(p => p.NodeContent, (RenderFragment<string>)(node => builder => builder.AddContent(0, node))));
+
+        var tree = cut.Find("[data-slot='tree-view']");
+        var node = cut.Find("[data-slot='tree-view-node']");
+        var row = cut.Find("[data-slot='tree-view-row']");
+        var content = cut.Find("[data-slot='tree-view-node-content']");
+        var title = cut.Find("[data-slot='tree-view-node-title']");
+
+        tree.GetAttribute("class")!.Should().Contain("block");
+        node.GetAttribute("class")!.Should().Contain("block");
+        row.GetAttribute("class")!.Should().Contain("flex");
+        row.GetAttribute("class")!.Should().Contain("items-center");
+        row.GetAttribute("class")!.Should().Contain("gap-1");
+        content.GetAttribute("class")!.Should().Contain("cursor-pointer");
+        title.GetAttribute("class")!.Should().Contain("inline-flex");
+        cut.Markup.Should().NotContain("q-tree-view");
+        cut.Markup.Should().NotContain("q-tree-view-node");
+        cut.Markup.Should().NotContain("q-tree-view-node-content");
+    }
+
+    [Fact]
+    public void Score_slots_use_data_slot_hooks_instead_of_legacy_q_classes()
+    {
+        var cut = Render<Score>(parameters => parameters
+            .Add(p => p.Value, 42)
+            .Add(p => p.Text, "Quality"));
+
+        var score = cut.Find("[data-slot='score']");
+        var circle = cut.Find("[data-slot='score-circle']");
+        var center = cut.Find("[data-slot='score-center']");
+        var value = cut.Find("[data-slot='score-value']");
+        var text = cut.Find("[data-slot='score-text']");
+
+        score.GetAttribute("class")!.Should().Contain("flex");
+        score.GetAttribute("class")!.Should().Contain("flex-col");
+        score.GetAttribute("class")!.Should().Contain("items-center");
+        score.GetAttribute("class")!.Should().Contain("gap-2");
+        circle.OuterHtml.Should().Contain("data-slot=\"score-circle\"");
+        center.OuterHtml.Should().Contain("data-slot=\"score-center\"");
+        value.TextContent.Should().Be("42");
+        text.TextContent.Should().Be("Quality");
+        cut.Markup.Should().NotContain("q-score");
+        cut.Markup.Should().NotContain("q-score-circle");
+        cut.Markup.Should().NotContain("q-score-value");
     }
 }

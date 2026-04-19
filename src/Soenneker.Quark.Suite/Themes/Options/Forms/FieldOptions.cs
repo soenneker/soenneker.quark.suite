@@ -11,6 +11,6 @@ public sealed class FieldOptions : ComponentOptions
     /// </summary>
     public FieldOptions()
     {
-        Selector = ".q-field";
+        Selector = "[data-slot='field']";
     }
 }

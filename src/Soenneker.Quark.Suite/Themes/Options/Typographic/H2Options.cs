@@ -11,7 +11,6 @@ public sealed class H2Options : ComponentOptions
     /// </summary>
     public H2Options()
     {
-        Selector = ".q-h2";
+        Selector = "[data-slot='h2']";
     }
 }
-

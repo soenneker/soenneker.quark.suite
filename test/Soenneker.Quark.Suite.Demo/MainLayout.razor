@@ -6,29 +6,42 @@
 @implements IDisposable
 
 <CascadingValue Value="ThemeService">
-    <SidebarProvider Class="flex h-svh min-h-svh flex-col overflow-hidden bg-background text-foreground"
+    <SidebarProvider Class="h-svh min-h-svh flex flex-col overflow-hidden bg-background text-foreground"
                      SidebarWidth="calc(var(--spacing) * 72)"
                      SidebarWidthMobile="100vw"
                      style="--header-height: 4.5rem;">
         @if (IsLandingPage)
         {
-            <Div Class="sticky top-0 z-50 w-full bg-background">
-                <Div Class="container-wrapper px-4 sm:px-6">
-                    <Div Class="container mx-auto flex max-w-7xl items-center gap-3" Style="height: var(--header-height);">
-                        <Div Display="Display.Flex" Align="Align.Center" Gap="Gap.Is2">
-                            <Div Class="flex items-center gap-2 lg:hidden">
-                                <SidebarTrigger Class="inline-flex size-8 items-center justify-center rounded-md transition-colors hover:bg-accent hover:text-accent-foreground"
+            <Div Position="Position.Sticky" Inset="Inset.Is0.FromTop" Width="Width.IsFull" BackgroundColor="BackgroundColor.Background" Class="z-50">
+                <Div Padding='Padding.Is4.OnX.OnSm.Is6.OnX' Class="container-wrapper">
+                    <Div MaxWidth="MaxWidth.Is7xl" Margin="Margin.Auto.OnX" Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is3" Class="container" Style="height: var(--header-height);">
+                        <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2">
+                            <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2" Class="lg:hidden">
+                                <SidebarTrigger BoxSize="Size.Is8"
+                                                ItemsAlign="Items.Center" Justify="Justify.Center"
+                                                Rounded="Rounded.Md"
+                                                Transition="Transition.Colors"
+                                                Class="hover:bg-accent hover:text-accent-foreground"
                                                 aria-label="Toggle menu">
-                                    <Div Class="relative flex h-4 w-4 items-center justify-center">
+                                    <Div Position="Position.Relative" Display="Display.Flex" BoxSize="Size.Is4" ItemsAlign="Items.Center" Justify="Justify.Center">
                                         <Span Class="absolute left-0 top-1 block h-0.5 w-4 bg-foreground"></Span>
                                         <Span Class="absolute left-0 top-2.5 block h-0.5 w-4 bg-foreground"></Span>
                                     </Div>
                                 </SidebarTrigger>
-                                <Span Class="flex h-8 items-center text-lg leading-none font-medium">Menu</Span>
+                                <Span Display="Display.Flex" Height="Height.Is8" ItemsAlign="Items.Center" TextSize="TextSize.Lg" Leading="Leading.None" FontWeight="FontWeight.Medium">Menu</Span>
                             </Div>
 
                             <Anchor To=""
-                                    Class="inline-flex items-center gap-2 rounded-md px-1 py-1 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
+                                    Display="Display.InlineFlex"
+                                    ItemsAlign="Items.Center"
+                                    Gap="Gap.Is2"
+                                    Rounded="Rounded.Md"
+                                    Padding="Padding.Is1"
+                                    TextSize="TextSize.Sm"
+                                    FontWeight="FontWeight.Medium"
+                                    TextColor="TextColor.Foreground"
+                                    Transition="Transition.Colors"
+                                    Class="hover:bg-accent hover:text-accent-foreground">
                                 <img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png"
                                      alt="Quark Suite"
                                      class="size-5 rounded-sm object-cover" />
@@ -40,11 +53,22 @@
                             <Anchor To="components" Class="@LandingNavLinkClass()">Components</Anchor>
                         </nav>
 
-                        <Div Class="ml-auto flex items-center gap-2">
+                        <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2" Margin="Margin.Auto.FromStart">
                             <Anchor To="https://github.com/soenneker/soenneker.quark.suite"
                                     Target="Target.Blank"
                                     Rel="noreferrer"
-                                    Class="inline-flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-md px-3 text-sm font-medium text-foreground transition-all hover:bg-accent hover:text-accent-foreground">
+                                    Display="Display.InlineFlex"
+                                    Height="Height.Is8"
+                                    Shrink="Shrink.Is0"
+                                    ItemsAlign="Items.Center" Justify="Justify.Center"
+                                    Gap='Gap.Token("1.5")'
+                                    Rounded="Rounded.Md"
+                                    Padding="Padding.Is3.OnX"
+                                    TextSize="TextSize.Sm"
+                                    FontWeight="FontWeight.Medium"
+                                    TextColor="TextColor.Foreground"
+                                    Transition="Transition.All"
+                                    Class="hover:bg-accent hover:text-accent-foreground">
                                 <Icon Name="LucideIcon.Star" BoxSize="Size.Is4" />
                                 <Span Class="w-fit text-xs text-muted-foreground tabular-nums">1</Span>
                             </Anchor>
@@ -108,8 +132,8 @@
 
         @if (ShowDesktopNavigationSidebar)
         {
-            <Div class="container-wrapper min-h-0 flex-1 overflow-hidden" Padding="Padding.Is2.OnX">
-                <Div class="flex h-full min-h-0">
+            <Div Flex="Flex.Grow.Is1" Overflow="Overflow.Hidden" Padding="Padding.Is2.OnX" Class="container-wrapper min-h-0">
+                <Div Display="Display.Flex" Height="Height.IsFull" Class="min-h-0">
                     <Sidebar Collapsible="SidebarCollapsible.None"
                              Shell="SidebarShell.Navigation"
                              MobileMode="SidebarMobileMode.FullScreen"
@@ -155,25 +179,29 @@
                     </Sidebar>
 
                     <div @ref="_scrollContainerRef" class="h-full min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
-                        <Main class="@MainClass">
+                        <Main Margin="Margin.Auto.OnX"
+                              MinWidth="MinWidth.Is0"
+                              Width="Width.IsFull"
+                              Flex="Flex.Grow.Is1"
+                              Class="@MainClass">
                             @if (CurrentPageTitle is not null)
                             {
-                                <Div class="mb-8 space-y-2">
-                                    <h1 class="text-4xl font-bold tracking-tight">@CurrentPageTitle</h1>
+                                <Div Margin="Margin.Is8.FromBottom" Gap="Gap.Is2" Display="Display.Flex" Flex="Flex.Display.Column">
+                                    <H1 TextSize="TextSize.FourXl" FontWeight="FontWeight.Bold" Tracking="Tracking.Tight">@CurrentPageTitle</H1>
                                 </Div>
-                            }
-                            @Body
-                        </Main>
+                        }
+                        @Body
+                    </Main>
                     </div>
                 </Div>
             </Div>
         }
         else
         {
-            <Div class="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <Div Display="Display.Flex" Flex="Flex.Display.Column.Fill" Overflow="Overflow.Hidden" Class="min-h-0">
                 @if (ShowSidebarTrigger)
                 {
-                    <Div class="lg:hidden">
+                    <Div Class="lg:hidden">
                         <Sidebar Collapsible="SidebarCollapsible.None"
                                  Shell="SidebarShell.Navigation"
                                  MobileMode="SidebarMobileMode.FullScreen"
@@ -204,11 +232,15 @@
                 }
 
                 <div @ref="_scrollContainerRef" class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
-                    <Main class="@MainClass">
+                    <Main Margin="Margin.Auto.OnX"
+                          MinWidth="MinWidth.Is0"
+                          Width="Width.IsFull"
+                          Flex="Flex.Grow.Is1"
+                          Class="@MainClass">
                         @if (CurrentPageTitle is not null)
                         {
-                            <Div class="mb-8 space-y-2">
-                                <h1 class="text-4xl font-bold tracking-tight">@CurrentPageTitle</h1>
+                            <Div Margin="Margin.Is8.FromBottom" Gap="Gap.Is2" Display="Display.Flex" Flex="Flex.Display.Column">
+                                <H1 TextSize="TextSize.FourXl" FontWeight="FontWeight.Bold" Tracking="Tracking.Tight">@CurrentPageTitle</H1>
                             </Div>
                         }
                         @Body
@@ -274,8 +306,8 @@
     }
 
     private string MainClass => ShowDesktopNavigationSidebar
-        ? "mx-auto min-w-0 w-full max-w-6xl flex-1 px-4 py-6 md:px-6 lg:px-8 lg:py-8"
-        : "min-w-0 flex-1";
+        ? "max-w-6xl px-4 py-6 md:px-6 lg:px-8 lg:py-8"
+        : string.Empty;
 
     private static string LandingNavLinkClass(bool active = false)
     {

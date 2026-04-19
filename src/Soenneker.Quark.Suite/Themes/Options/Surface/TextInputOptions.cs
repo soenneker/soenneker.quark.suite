@@ -5,6 +5,6 @@ public sealed class TextInputOptions : ComponentOptions
 {
     public TextInputOptions()
     {
-        Selector = ".q-text-input";
+        Selector = "[data-slot='input']";
     }
 }

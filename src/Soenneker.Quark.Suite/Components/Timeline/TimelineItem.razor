@@ -4,12 +4,12 @@
 
 <li @attributes="BuildAttributes()">
     <div class="@ContentGridClass">
-        @if (Align == TimelineAlign.Left)
+        @if (TimelineAlignment == TimelineAlign.Left)
         {
             @IconColumn
             <div class="@ContentWrapperClass">@ContentBody</div>
         }
-        else if (Align == TimelineAlign.Right)
+        else if (TimelineAlignment == TimelineAlign.Right)
         {
             <div class="@ContentWrapperEndClass" data-timeline-end>@ContentBody</div>
             @IconColumn
@@ -86,11 +86,11 @@
     [Parameter]
     public string? Description { get; set; }
 
-    private TimelineAlign Align => ParentTimeline?.Align ?? TimelineAlign.Center;
+    private TimelineAlign TimelineAlignment => ParentTimeline?.TimelineAlignment ?? TimelineAlign.Center;
 
     private TimelineSize Size => ParentTimeline?.Size ?? TimelineSize.Medium;
 
-    private bool IsReversed => Align == TimelineAlign.Alternate && _itemIndex % 2 != 0;
+    private bool IsReversed => TimelineAlignment == TimelineAlign.Alternate && _itemIndex % 2 != 0;
 
     private bool UseShorthand => ChildContent == null && Title.HasContent();
 
@@ -104,11 +104,14 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "timeline-item";
+    }
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "relative w-full");
-        });
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Relative;
+        Width ??= Quark.Width.IsFull;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
@@ -135,7 +138,7 @@
         hc.Add(_itemIndex);
     }
 
-    private string ContentGridClass => Align?.Value switch
+    private string ContentGridClass => TimelineAlignment?.Value switch
     {
         TimelineAlign.LeftValue => $"grid grid-cols-[auto_1fr] gap-4 items-start{(Status == TimelineStatus.InProgress ? " aria-current-step" : null)}",
         TimelineAlign.RightValue => $"grid grid-cols-[1fr_auto] gap-4 items-start{(Status == TimelineStatus.InProgress ? " aria-current-step" : null)}",

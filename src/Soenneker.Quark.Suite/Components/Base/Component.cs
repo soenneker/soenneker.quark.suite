@@ -34,6 +34,9 @@ public abstract class Component : RenderComponent, IComponent
     public bool Hidden { get; set; }
 
     [Parameter]
+    public CssValue<InsetBuilder>? Inset { get; set; }
+
+    [Parameter]
     public CssValue<DisplayBuilder>? Display { get; set; }
 
     [Parameter]
@@ -46,7 +49,7 @@ public abstract class Component : RenderComponent, IComponent
     public CssValue<VerticalAlignBuilder>? VerticalAlign { get; set; }
 
     [Parameter]
-    public CssValue<TextAlignmentBuilder>? TextAlignment { get; set; }
+    public CssValue<TextAlignBuilder>? TextAlign { get; set; }
 
     [Parameter]
     public CssValue<TextColorBuilder>? TextColor { get; set; }
@@ -157,7 +160,22 @@ public abstract class Component : RenderComponent, IComponent
     public CssValue<DivideBuilder>? Divide { get; set; }
 
     [Parameter]
-    public CssValue<AlignBuilder>? AlignUtility { get; set; }
+    public CssValue<ContentAlignBuilder>? ContentAlign { get; set; }
+
+    [Parameter]
+    public CssValue<ItemsBuilder>? ItemsAlign { get; set; }
+
+    [Parameter]
+    public CssValue<JustifyBuilder>? Justify { get; set; }
+
+    [Parameter]
+    public CssValue<SelfBuilder>? SelfAlign { get; set; }
+
+    [Parameter]
+    public CssValue<JustifyItemsAlignBuilder>? JustifyItemsAlign { get; set; }
+
+    [Parameter]
+    public CssValue<JustifySelfAlignBuilder>? JustifySelfAlign { get; set; }
 
     [Parameter]
     public CssValue<OpacityBuilder>? Opacity { get; set; }
@@ -235,6 +253,7 @@ public abstract class Component : RenderComponent, IComponent
 
         if (Hidden)
             attrs["hidden"] = true;
+
     }
 
     protected override void BuildOwnedClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
@@ -248,7 +267,7 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, Visibility);
         AddCss(ref sty, ref cls, Float);
         AddCss(ref sty, ref cls, VerticalAlign);
-        AddCss(ref sty, ref cls, TextAlignment);
+        AddCss(ref sty, ref cls, TextAlign);
         ApplyTextColor(ref sty, ref cls, TextColor);
         AddCss(ref sty, ref cls, TextSize);
         AddCss(ref sty, ref cls, TextDecoration);
@@ -267,6 +286,7 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, FontVariantNumeric);
         AddCss(ref sty, ref cls, Margin);
         AddCss(ref sty, ref cls, Padding);
+        AddCss(ref sty, ref cls, Inset);
         AddCss(ref sty, ref cls, Position);
         AddCss(ref sty, ref cls, PositionOffset);
         AddCss(ref sty, ref cls, ScrollMargin);
@@ -285,7 +305,12 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, Gap);
         AddCss(ref sty, ref cls, Space);
         AddCss(ref sty, ref cls, Divide);
-        AddCss(ref sty, ref cls, AlignUtility);
+        AddCss(ref sty, ref cls, ContentAlign);
+        AddCss(ref sty, ref cls, ItemsAlign);
+        AddCss(ref sty, ref cls, Justify);
+        AddCss(ref sty, ref cls, SelfAlign);
+        AddCss(ref sty, ref cls, JustifyItemsAlign);
+        AddCss(ref sty, ref cls, JustifySelfAlign);
         AddCss(ref sty, ref cls, Opacity);
         AddCss(ref sty, ref cls, ZIndex);
         AddCss(ref sty, ref cls, PointerEvents);
@@ -367,12 +392,11 @@ public abstract class Component : RenderComponent, IComponent
         hc.Add(Style);
         hc.Add(Title);
         hc.Add(Hidden);
-
         AddIf(ref hc, Display);
         AddIf(ref hc, Visibility);
         AddIf(ref hc, Float);
         AddIf(ref hc, VerticalAlign);
-        AddIf(ref hc, TextAlignment);
+        AddIf(ref hc, TextAlign);
         AddIf(ref hc, TextColor);
         AddIf(ref hc, TextSize);
         AddIf(ref hc, TextDecoration);
@@ -391,6 +415,7 @@ public abstract class Component : RenderComponent, IComponent
         AddIf(ref hc, FontVariantNumeric);
         AddIf(ref hc, Margin);
         AddIf(ref hc, Padding);
+        AddIf(ref hc, Inset);
         AddIf(ref hc, Position);
         AddIf(ref hc, PositionOffset);
         AddIf(ref hc, ScrollMargin);
@@ -409,7 +434,12 @@ public abstract class Component : RenderComponent, IComponent
         AddIf(ref hc, Gap);
         AddIf(ref hc, Space);
         AddIf(ref hc, Divide);
-        AddIf(ref hc, AlignUtility);
+        AddIf(ref hc, ContentAlign);
+        AddIf(ref hc, ItemsAlign);
+        AddIf(ref hc, Justify);
+        AddIf(ref hc, SelfAlign);
+        AddIf(ref hc, JustifyItemsAlign);
+        AddIf(ref hc, JustifySelfAlign);
         AddIf(ref hc, Opacity);
         AddIf(ref hc, ZIndex);
         AddIf(ref hc, PointerEvents);

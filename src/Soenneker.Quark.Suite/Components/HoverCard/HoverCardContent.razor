@@ -29,7 +29,7 @@
     /// Gets or sets horizontal alignment: start, center, or end.
     /// </summary>
     [Parameter]
-    public string Align { get; set; } = "center";
+    public string PlacementAlign { get; set; } = "center";
 
     /// <summary>
     /// Gets or sets offset in pixels from the trigger.
@@ -48,7 +48,7 @@
         "left" => BradixSide.Left,
         _ => BradixSide.Bottom
     };
-    private BradixAlignment ResolvedAlign => Align switch
+    private BradixAlignment ResolvedAlign => PlacementAlign switch
     {
         "start" => BradixAlignment.Start,
         "end" => BradixAlignment.End,
@@ -76,7 +76,7 @@
         attributes["data-slot"] = "hover-card-content";
         attributes["data-state"] = IsOpen ? "open" : "closed";
         attributes["data-side"] = Side;
-        attributes["data-align"] = Align;
+        attributes["data-align"] = PlacementAlign;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -90,7 +90,7 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(IsOpen);
         hc.Add(Side);
-        hc.Add(Align);
+        hc.Add(PlacementAlign);
         hc.Add(SideOffset);
         hc.Add(DisableAutoOpen);
     }

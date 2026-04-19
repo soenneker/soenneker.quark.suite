@@ -11,7 +11,6 @@ public sealed class DetailsOptions : ComponentOptions
     /// </summary>
     public DetailsOptions()
     {
-        Selector = ".q-details";
+        Selector = "[data-slot='details']";
     }
 }
-

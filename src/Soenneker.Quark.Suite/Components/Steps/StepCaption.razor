@@ -7,12 +7,17 @@
 </div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Block;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "step-description");
-        });
+
+        attributes["data-slot"] = "step-caption";
     }
 }

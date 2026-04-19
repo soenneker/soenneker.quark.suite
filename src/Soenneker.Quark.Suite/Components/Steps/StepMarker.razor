@@ -7,11 +7,26 @@
 </div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Relative;
+        Display ??= Quark.Display.Flex;
+        ItemsAlign ??= Quark.Items.Center;
+        Rounded ??= Quark.Rounded.Full;
+        FontWeight ??= Quark.FontWeight.Semibold;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "step-marker";
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "step-marker");
+            AppendClass(ref cls, "justify-center");
         });
     }
 }

@@ -5,6 +5,6 @@ public sealed class IconOptions : ComponentOptions
 {
     public IconOptions()
     {
-        Selector = ".q-icon, .q-lucide";
+        Selector = "[data-slot='icon']";
     }
 }

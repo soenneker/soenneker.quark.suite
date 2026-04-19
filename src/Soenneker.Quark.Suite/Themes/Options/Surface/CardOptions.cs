@@ -5,6 +5,6 @@ public sealed class CardOptions : ComponentOptions
 {
     public CardOptions()
     {
-        Selector = ".q-card";
+        Selector = "[data-slot='card']";
     }
 }

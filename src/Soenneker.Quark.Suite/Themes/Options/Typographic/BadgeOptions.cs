@@ -11,6 +11,6 @@ public sealed class BadgeOptions : ComponentOptions
     /// </summary>
     public BadgeOptions()
     {
-        Selector = ".q-badge";
+        Selector = "[data-slot='badge']";
     }
 }

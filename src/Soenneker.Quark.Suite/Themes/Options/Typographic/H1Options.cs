@@ -11,7 +11,6 @@ public sealed class H1Options : ComponentOptions
     /// </summary>
     public H1Options()
     {
-        Selector = ".q-h1";
+        Selector = "[data-slot='h1']";
     }
 }
-

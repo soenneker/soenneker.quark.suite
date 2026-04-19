@@ -68,31 +68,31 @@
 
     private int CalculatedIndex => Index ?? ParentSteps?.IndexOfStep(Name ?? string.Empty) ?? 1;
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Relative;
+        Display ??= Quark.Display.Flex;
+        ItemsAlign ??= Quark.Items.Start;
+        Flex ??= Quark.Flex.Is1;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "step-item");
-        });
+        attributes["data-slot"] = "step";
     }
 
     private Dictionary<string, object> BuildAnchorAttributes()
     {
         var attributes = new Dictionary<string, object>();
         
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            if (Active)
-                AppendClass(ref cls, "active");
-            if (Completed && !Active)
-                AppendClass(ref cls, "text-success");
-            if (Disabled)
-                AppendClass(ref cls, "disabled");
-            if (!IsClickable)
-                AppendClass(ref cls, "non-clickable");
-        });
-
+        attributes["data-slot"] = "step-link";
+        attributes["data-active"] = Active ? "true" : "false";
+        attributes["data-completed"] = Completed && !Active ? "true" : "false";
+        attributes["data-disabled"] = Disabled ? "true" : "false";
+        attributes["data-clickable"] = IsClickable ? "true" : "false";
         attributes["role"] = "tab";
         attributes["id"] = StepId;
         attributes["aria-selected"] = Active ? "true" : "false";

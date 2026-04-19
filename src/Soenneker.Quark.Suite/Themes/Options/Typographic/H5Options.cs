@@ -11,7 +11,6 @@ public sealed class H5Options : ComponentOptions
     /// </summary>
     public H5Options()
     {
-        Selector = ".q-h5";
+        Selector = "[data-slot='h5']";
     }
 }
-

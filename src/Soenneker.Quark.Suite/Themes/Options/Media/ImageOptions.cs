@@ -5,6 +5,6 @@ public sealed class ImageOptions : ComponentOptions
 {
     public ImageOptions()
     {
-        Selector = ".q-image";
+        Selector = "[data-slot='image']";
     }
 }

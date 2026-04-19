@@ -5,6 +5,6 @@ public sealed class ProgressOptions : ComponentOptions
 {
     public ProgressOptions()
     {
-        Selector = ".q-progress";
+        Selector = "[data-slot='progress']";
     }
 }

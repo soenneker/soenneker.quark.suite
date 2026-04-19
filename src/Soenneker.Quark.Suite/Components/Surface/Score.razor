@@ -6,18 +6,18 @@
 @inject IScoreInterop ScoreInterop
 
 <div @attributes="BuildAttributes()" role="progressbar" aria-valuenow="@_normalizedValue" aria-valuemin="0" aria-valuemax="100">
-    <div class="q-score-circle">
-        <div class="q-score-center">
-            <div class="q-score-value">@_normalizedValue</div>
+    <div data-slot="score-circle">
+        <div data-slot="score-center">
+            <div data-slot="score-value">@_normalizedValue</div>
         </div>
     </div>
     @if (ChildContent != null)
     {
-        <div class="q-score-text">@ChildContent</div>
+        <div data-slot="score-text">@ChildContent</div>
     }
     else if (Text.HasContent())
     {
-        <div class="q-score-text">@Text</div>
+        <div data-slot="score-text">@Text</div>
     }
 </div>
 
@@ -46,6 +46,15 @@
     [Parameter] public string? Text { get; set; }
     [Parameter] public int Size { get; set; } = 88;
     [Parameter] public int Thickness { get; set; } = 8;
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Flex ??= Quark.Flex.Display.Column;
+        ItemsAlign ??= Quark.Items.Center;
+        Gap ??= Quark.Gap.Is2;
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -102,15 +111,16 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "score";
+
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
-            AppendClass(ref cls, "q-score");
-
             // Use cached strings so this method stays cheap.
-            AppendStyleDecl(ref sty, "--q-score-angle: ", _angleCss);
-            AppendStyleDecl(ref sty, "--q-score-color: ", _colorCss);
-            AppendStyleDecl(ref sty, "--q-score-size: ", _sizeCss);
-            AppendStyleDecl(ref sty, "--q-score-thickness: ", _thicknessCss);
+            AppendStyleDecl(ref sty, "--score-angle: ", _angleCss);
+            AppendStyleDecl(ref sty, "--score-color: ", _colorCss);
+            AppendStyleDecl(ref sty, "--score-size: ", _sizeCss);
+            AppendStyleDecl(ref sty, "--score-thickness: ", _thicknessCss);
         });
     }
 

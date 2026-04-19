@@ -10,6 +10,6 @@ public sealed class FieldsetOptions : ComponentOptions
     /// </summary>
     public FieldsetOptions()
     {
-        Selector = ".q-fieldset";
+        Selector = "[data-slot='field-set']";
     }
 }

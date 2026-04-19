@@ -7,9 +7,9 @@
 @inject IStepsInterop StepsInterop
 @inject NavigationManager Navigation
 
-<CascadingValue Name="ParentStepsState" Value="_state">
+    <CascadingValue Name="ParentStepsState" Value="_state">
     <CascadingValue Name="ParentSteps" Value="this">
-        <div Class="steps-container">
+        <div data-slot="steps-container" class="flex w-full flex-col gap-4">
             <ul @attributes="BuildAttributes()">
                 @if (Items != null)
                 {
@@ -75,6 +75,19 @@
     /// </summary>
     [Parameter]
     public StepsRenderMode RenderMode { get; set; } = StepsRenderMode.Default;
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        Flex ??= Quark.Flex.Wrap;
+        ItemsAlign ??= Quark.Items.Start;
+        Margin ??= Quark.Margin.Is0;
+        Padding ??= Quark.Padding.Is0;
+        Width ??= Quark.Width.IsFull;
+        Position ??= Quark.Position.Relative;
+    }
 
     protected override Task OnParametersSetAsync()
     {
@@ -215,15 +228,18 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "steps";
         attributes["role"] = "tablist";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "steps");
+            AppendClass(ref cls, "justify-between");
+            AppendClass(ref cls, "list-none");
+            AppendClass(ref cls, "gap-y-6");
 
             if (RenderMode == StepsRenderMode.LazyLoad)
-                AppendClass(ref cls, "steps-lazy-load");
+                attributes["data-render-mode"] = "lazy-load";
             else if (RenderMode == StepsRenderMode.LazyReload)
-                AppendClass(ref cls, "steps-lazy-reload");
+                attributes["data-render-mode"] = "lazy-reload";
         });
     }
 

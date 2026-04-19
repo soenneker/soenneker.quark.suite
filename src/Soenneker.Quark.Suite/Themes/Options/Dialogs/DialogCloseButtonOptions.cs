@@ -5,7 +5,6 @@ public sealed class DialogCloseButtonOptions : ComponentOptions
 {
     public DialogCloseButtonOptions()
     {
-        Selector = ".q-dialog-close-button";
+        Selector = "[data-slot='dialog-close']";
     }
 }
-

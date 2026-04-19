@@ -11,7 +11,6 @@ public sealed class FormTextOptions : ComponentOptions
     /// </summary>
     public FormTextOptions()
     {
-        Selector = ".q-form-text";
+        Selector = "[data-slot='form-text']";
     }
 }
-

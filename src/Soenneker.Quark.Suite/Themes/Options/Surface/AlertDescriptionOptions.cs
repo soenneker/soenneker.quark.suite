@@ -5,7 +5,6 @@ public sealed class AlertDescriptionOptions : ComponentOptions
 {
     public AlertDescriptionOptions()
     {
-        Selector = ".q-alert-description";
+        Selector = "[data-slot='alert-description']";
     }
 }
-

@@ -28,6 +28,15 @@
     private bool _visible;
     private ValidationStatus _status = ValidationStatus.None;
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Block;
+        Margin ??= Quark.Margin.Is1.FromTop.Is0.FromBottom;
+        TextSize ??= Quark.TextSize.Sm;
+    }
+
     protected override void OnInitialized()
     {
         if (ParentValidations is not null)
@@ -53,11 +62,9 @@
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "d-block");
-            AppendClass(ref cls, "mb-0");
-        });
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "validation-success";
     }
 
     

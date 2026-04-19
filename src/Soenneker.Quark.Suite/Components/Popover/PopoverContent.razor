@@ -30,7 +30,7 @@
     public string Side { get; set; } = "bottom";
 
     [Parameter]
-    public string Align { get; set; } = "center";
+    public string PlacementAlign { get; set; } = "center";
 
     [Parameter]
     public bool DisableAutoOpen { get; set; }
@@ -50,7 +50,7 @@
         };
 
     private BradixAlignment ResolvedAlign =>
-        Align.ToLowerInvariant() switch
+        PlacementAlign.ToLowerInvariant() switch
         {
             "start" => BradixAlignment.Start,
             "end" => BradixAlignment.End,
@@ -78,7 +78,7 @@
 
         attributes["data-slot"] = "popover-content";
         attributes["data-side"] = Side;
-        attributes["data-align"] = Align;
+        attributes["data-align"] = PlacementAlign;
 
         if (Context is not null)
         {
@@ -100,7 +100,7 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Open);
         hc.Add(Side);
-        hc.Add(Align);
+        hc.Add(PlacementAlign);
         hc.Add(SideOffset);
         hc.Add(DisableAutoOpen);
         hc.Add(CloseOnEscape);

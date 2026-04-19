@@ -5,7 +5,6 @@ public sealed class FigureOptions : ComponentOptions
 {
     public FigureOptions()
     {
-        Selector = ".q-figure";
+        Selector = "[data-slot='figure']";
     }
 }
-

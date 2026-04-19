@@ -11,6 +11,6 @@ public sealed class SpanOptions : ComponentOptions
     /// </summary>
     public SpanOptions()
     {
-        Selector = ".q-span";
+        Selector = "[data-slot='span']";
     }
 }

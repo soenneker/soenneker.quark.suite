@@ -11,7 +11,7 @@
 
 @code {
     [Parameter]
-    public bool Inset { get; set; }
+    public bool Indented { get; set; }
 
     [Parameter]
     public bool Open { get; set; }
@@ -23,7 +23,7 @@
         base.ApplyDefaultParameters();
 
         Display ??= Quark.Display.Flex;
-        AlignUtility ??= Quark.Align.ItemsCenter;
+        ItemsAlign ??= Quark.Items.Center;
         Gap ??= Quark.Gap.Is2;
         Rounded ??= Quark.Rounded.Sm;
         Padding ??= Quark.Padding.Is2.OnX;
@@ -38,7 +38,7 @@
         attributes["data-slot"] = "dropdown-menu-sub-trigger";
         attributes["data-state"] = isOpen ? "open" : "closed";
 
-        if (Inset)
+        if (Indented)
             attributes["data-inset"] = "true";
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -52,7 +52,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Inset);
+        hc.Add(Indented);
         hc.Add(Open);
     }
 }

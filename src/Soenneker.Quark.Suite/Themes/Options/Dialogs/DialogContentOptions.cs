@@ -5,7 +5,6 @@ public sealed class DialogContentOptions : ComponentOptions
 {
     public DialogContentOptions()
     {
-        Selector = ".q-dialog-content";
+        Selector = "[data-slot='dialog-content']";
     }
 }
-

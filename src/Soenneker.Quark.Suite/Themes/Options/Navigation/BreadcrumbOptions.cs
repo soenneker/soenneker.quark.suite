@@ -5,6 +5,6 @@ public sealed class BreadcrumbOptions : ComponentOptions
 {
     public BreadcrumbOptions()
     {
-        Selector = ".q-breadcrumb";
+        Selector = "[data-slot='breadcrumb']";
     }
 }

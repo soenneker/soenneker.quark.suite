@@ -88,11 +88,11 @@ public sealed class QuarkTreeViewPlaywrightTests : PlaywrightUnitTest
         ILocator multipleSection = page.Locator("div").Filter(new LocatorFilterOptions { HasText = "TreeView with multiple selection mode. Selected nodes:" }).First;
         await multipleSection.GetByText("Project Structure", new LocatorGetByTextOptions { Exact = true }).ClickAsync();
 
-        ILocator srcCheckbox = multipleSection.Locator(".q-tree-view-node-row")
+        ILocator srcCheckbox = multipleSection.Locator("[data-slot='tree-view-row']")
                                               .Filter(new LocatorFilterOptions { HasText = "src" })
                                               .GetByRole(AriaRole.Checkbox)
                                               .First;
-        ILocator docsCheckbox = multipleSection.Locator(".q-tree-view-node-row")
+        ILocator docsCheckbox = multipleSection.Locator("[data-slot='tree-view-row']")
                                                .Filter(new LocatorFilterOptions { HasText = "docs" })
                                                .GetByRole(AriaRole.Checkbox)
                                                .First;
@@ -111,7 +111,7 @@ public sealed class QuarkTreeViewPlaywrightTests : PlaywrightUnitTest
         ILocator featureBDisabled = disabledSection.GetByText("Feature B (Disabled)", new LocatorGetByTextOptions { Exact = true });
         await featureC.ClickAsync();
 
-        ILocator disabledNode = disabledSection.Locator(".q-tree-view-node-content").Filter(new LocatorFilterOptions { HasText = "Feature B (Disabled)" }).First;
+        ILocator disabledNode = disabledSection.Locator("[data-slot='tree-view-node-content']").Filter(new LocatorFilterOptions { HasText = "Feature B (Disabled)" }).First;
         string? disabledStyle = await disabledNode.GetAttributeAsync("style");
 
         await featureBDisabled.ClickAsync(new LocatorClickOptions { Force = true });

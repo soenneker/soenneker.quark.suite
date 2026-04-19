@@ -5,6 +5,6 @@ public sealed class SeparatorOptions : ComponentOptions
 {
     public SeparatorOptions()
     {
-        Selector = ".q-separator";
+        Selector = "[data-slot='separator']";
     }
 }

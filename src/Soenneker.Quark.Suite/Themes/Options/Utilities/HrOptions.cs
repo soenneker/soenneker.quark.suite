@@ -11,7 +11,6 @@ public sealed class HrOptions : ComponentOptions
     /// </summary>
     public HrOptions()
     {
-        Selector = ".q-hr";
+        Selector = "[data-slot='separator']";
     }
 }
-

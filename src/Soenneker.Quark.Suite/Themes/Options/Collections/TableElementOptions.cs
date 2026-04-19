@@ -5,6 +5,6 @@ public sealed class TableElementOptions : ComponentOptions
 {
     public TableElementOptions()
     {
-        Selector = ".q-table";
+        Selector = "[data-slot='table']";
     }
 }

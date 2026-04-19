@@ -11,7 +11,6 @@ public sealed class BlockquoteOptions : ComponentOptions
     /// </summary>
     public BlockquoteOptions()
     {
-        Selector = ".q-blockquote";
+        Selector = "[data-slot='blockquote']";
     }
 }
-

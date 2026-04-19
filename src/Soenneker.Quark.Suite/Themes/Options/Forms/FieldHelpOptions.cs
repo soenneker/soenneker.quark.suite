@@ -11,7 +11,6 @@ public sealed class FieldHelpOptions : ComponentOptions
     /// </summary>
     public FieldHelpOptions()
     {
-        Selector = ".q-field-help";
+        Selector = "[data-slot='field-description']";
     }
 }
-

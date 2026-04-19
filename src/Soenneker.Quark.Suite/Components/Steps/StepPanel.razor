@@ -58,9 +58,17 @@
 
     private string RootId => ParentStepsState?.RootId is { Length: > 0 } id ? id : (_fallbackRoot ??= BlazorIdGenerator.New("quark-steps"));
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Block;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "step-panel";
         attributes["role"] = "tabpanel";
         attributes["id"] = BlazorIdGenerator.Child(RootId, $"panel-{Name}");
         attributes["aria-labelledby"] = BlazorIdGenerator.Child(RootId, $"tab-{Name}");

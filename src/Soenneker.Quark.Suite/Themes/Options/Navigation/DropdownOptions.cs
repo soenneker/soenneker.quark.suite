@@ -5,6 +5,6 @@ public sealed class DropdownOptions : ComponentOptions
 {
     public DropdownOptions()
     {
-        Selector = ".q-dropdown";
+        Selector = "[data-slot='dropdown-menu']";
     }
 }

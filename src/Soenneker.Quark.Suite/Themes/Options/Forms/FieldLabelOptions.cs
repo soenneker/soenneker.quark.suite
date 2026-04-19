@@ -10,6 +10,6 @@ public sealed class FieldLabelOptions : ComponentOptions
     /// </summary>
     public FieldLabelOptions()
     {
-        Selector = ".q-field-label";
+        Selector = "[data-slot='field-label']";
     }
 }

@@ -9,7 +9,7 @@
 
 @code {
     [Parameter]
-    public bool Inset { get; set; }
+    public bool Indented { get; set; }
 
     private IReadOnlyDictionary<string, object> LabelAttributes => BuildAttributes();
 
@@ -27,7 +27,7 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "context-menu-label";
-        attributes["data-inset"] = Inset ? "true" : "false";
+        attributes["data-inset"] = Indented ? "true" : "false";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
@@ -38,6 +38,6 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Inset);
+        hc.Add(Indented);
     }
 }

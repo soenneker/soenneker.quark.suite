@@ -11,6 +11,6 @@ public sealed class ValidationErrorsOptions : ComponentOptions
     /// </summary>
     public ValidationErrorsOptions()
     {
-        Selector = ".q-validation-errors";
+        Selector = "[data-slot='validation-errors']";
     }
 }

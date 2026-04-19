@@ -2,10 +2,10 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div class="q-tree-view-node-title">
+<div data-slot="tree-view-node-title" class="inline-flex items-center gap-1">
     @if (SelectionMode == TreeViewSelectionMode.Multiple)
     {
-        <div class="q-tree-view-node-check">
+        <div data-slot="tree-view-node-check">
             <Check TValue="bool" Checked="@Checked" CheckedChanged="@OnCheckedChanged" Disabled="@NodeState.Disabled" />
         </div>
     }
@@ -47,17 +47,23 @@
     private readonly NodeStyling _disabledNodeStyling = new() { Background = Quark.BackgroundColor.Muted, TextColor = Quark.TextColor.MutedForeground };
     private readonly NodeStyling _nodeStyling = new();
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Cursor ??= Quark.Cursor.Pointer;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "tree-view-node-content";
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "q-tree-view-node-content");
-            AppendClass(ref cls, "cursor-pointer");
-
-            if (Selected)
-                AppendClass(ref cls, "q-tree-view-node-selected");
-            else if (NodeState?.Disabled ?? false)
-                AppendClass(ref cls, "q-tree-view-node-disabled");
+            if (NodeState?.Disabled ?? false)
+                AppendClass(ref cls, "pointer-events-none opacity-60");
         });
     }
 

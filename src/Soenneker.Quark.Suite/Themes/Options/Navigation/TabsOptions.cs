@@ -5,7 +5,6 @@ public sealed class TabsOptions : ComponentOptions
 {
     public TabsOptions()
     {
-        Selector = ".q-tabs";
+        Selector = "[data-slot='tabs']";
     }
 }
-

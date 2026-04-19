@@ -5,6 +5,6 @@ public sealed class DivOptions : ComponentOptions
 {
     public DivOptions()
     {
-        Selector = ".q-div";
+        Selector = "[data-slot='div']";
     }
 }

@@ -84,9 +84,18 @@
     [Parameter] public EventCallback<TreeViewNodeMouseEventArgs<TNode>> NodeContextMenu { get; set; }
     [Parameter] public bool NodeContextMenuPreventDefault { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Block;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "q-tree-view"));
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "tree-view";
     }
 
     protected override async Task OnParametersSetAsync()

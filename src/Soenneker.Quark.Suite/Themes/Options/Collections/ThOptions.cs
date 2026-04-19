@@ -5,7 +5,6 @@ public sealed class ThOptions : ComponentOptions
 {
     public ThOptions()
     {
-        Selector = ".q-table-th";
+        Selector = "[data-slot='table-head']";
     }
 }
-

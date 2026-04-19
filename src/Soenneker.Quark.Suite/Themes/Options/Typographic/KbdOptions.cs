@@ -11,7 +11,6 @@ public sealed class KbdOptions : ComponentOptions
     /// </summary>
     public KbdOptions()
     {
-        Selector = ".q-kbd";
+        Selector = "[data-slot='kbd']";
     }
 }
-
