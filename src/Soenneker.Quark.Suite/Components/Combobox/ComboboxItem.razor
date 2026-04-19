@@ -20,6 +20,20 @@
     internal bool IsActiveItem { get; private set; }
     internal string ItemId => BlazorIdGenerator.Child(Id!, "option");
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Relative;
+        Display ??= Quark.Display.Flex;
+        Cursor ??= Quark.Cursor.Default;
+        UserSelect ??= Quark.UserSelect.None;
+        ItemsAlign ??= Items.Center;
+        Rounded ??= Quark.Rounded.Sm;
+        Padding ??= Quark.Padding.Is2.OnX.Token("1.5").OnY;
+        TextSize ??= Quark.TextSize.Sm;
+    }
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -70,7 +84,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none");
+            AppendClass(ref cls, "outline-none");
             AppendClass(ref cls, "data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground");
             AppendClass(ref cls, "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground");
             AppendClass(ref cls, "hover:bg-accent hover:text-accent-foreground");

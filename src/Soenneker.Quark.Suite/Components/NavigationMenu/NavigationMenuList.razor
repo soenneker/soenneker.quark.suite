@@ -11,6 +11,16 @@
 @code {
     private IReadOnlyDictionary<string, object> ListAttributes => BuildAttributes();
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        ItemsAlign ??= Items.Center;
+        Justify ??= Quark.Justify.Center;
+        Gap ??= Quark.Gap.Is0;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -19,7 +29,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group flex flex-1 list-none items-center justify-center gap-0");
+            AppendClass(ref cls, "group flex-1 list-none");
         });
     }
 }

@@ -45,6 +45,16 @@
         return attributes;
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Relative;
+        Display ??= Quark.Display.Flex;
+        ItemsAlign ??= Items.Center;
+        Justify ??= Quark.Justify.Center;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -54,7 +64,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/navigation-menu relative flex max-w-max flex-1 items-center justify-center");
+            AppendClass(ref cls, "group/navigation-menu max-w-max flex-1");
         });
     }
 

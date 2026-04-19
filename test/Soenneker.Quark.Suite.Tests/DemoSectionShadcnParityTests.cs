@@ -1,0 +1,43 @@
+using AwesomeAssertions;
+using Bunit;
+using Microsoft.AspNetCore.Components;
+using Xunit;
+
+namespace Soenneker.Quark.Suite.Tests;
+
+public sealed partial class RenderedShadcnParityTests
+{
+    [Fact]
+    public void DemoSection_preview_shell_matches_shadcn_docs_structure_more_closely()
+    {
+        var cut = Render<Soenneker.Quark.Components.DemoSection>(parameters => parameters
+            .Add(p => p.Title, "Demo")
+            .Add(p => p.Description, "Description")
+            .Add(p => p.ChildContent, (RenderFragment)(builder => builder.AddMarkupContent(0, "<div>Preview</div>"))));
+
+        var previewCard = cut.Find("[data-slot='component-preview']");
+        var preview = cut.Find("[data-slot='preview']");
+        var previewInner = preview.FirstElementChild!;
+        var contentInner = previewInner.QuerySelector(".w-full");
+        string previewCardClasses = previewCard.GetAttribute("class")!;
+        string previewClasses = previewInner.GetAttribute("class")!;
+
+        previewCardClasses.Should().Contain("group");
+        previewCardClasses.Should().Contain("relative");
+        previewCardClasses.Should().Contain("mb-12");
+        previewCardClasses.Should().Contain("overflow-hidden");
+        previewCardClasses.Should().Contain("rounded-xl");
+        previewCardClasses.Should().Contain("border");
+
+        preview.GetAttribute("dir").Should().Be("ltr");
+        previewInner.GetAttribute("data-align").Should().Be("center");
+        previewInner.GetAttribute("data-chromeless").Should().Be("false");
+        previewClasses.Should().Contain("preview");
+        previewClasses.Should().Contain("h-72");
+        previewClasses.Should().Contain("w-full");
+        previewClasses.Should().Contain("justify-center");
+        previewClasses.Should().Contain("p-10");
+        previewClasses.Should().Contain("data-[align=start]:items-start");
+        contentInner.Should().NotBeNull();
+    }
+}

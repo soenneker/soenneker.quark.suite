@@ -11,9 +11,24 @@
 <Popover Open="@_open"
          OpenChanged="HandleOpenChanged">
     <div @attributes="GetContainerAttributes()">
-        <PopoverAnchor>
-            <input @ref="_ref" type="text" value="@(SelectedDate.HasValue ? SelectedDate.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : "")" @attributes="BuildAttributes()" />
-        </PopoverAnchor>
+        <input type="hidden" @attributes="BuildHiddenInputAttributes()" />
+
+        <PopoverTrigger AsChild="true">
+            <Button Variant="ButtonVariant.Outline"
+                    Disabled="Disabled"
+                    Class="@GetTriggerClass()"
+                    @attributes="BuildTriggerAttributes()">
+                @if (SelectedDate.HasValue)
+                {
+                    <span>@FormatDisplay(SelectedDate.Value)</span>
+                }
+                else
+                {
+                    <span>@GetPlaceholderText()</span>
+                }
+                <Icon Name="LucideIcon.ChevronDown" />
+            </Button>
+        </PopoverTrigger>
 
         <PopoverContent Id="@_panelId"
                         Side="bottom"
@@ -89,81 +104,107 @@
     /// </summary>
     public object? ValidationValue => SelectedDate;
 
-    private ElementReference _ref;
     private bool _open;
     private DateOnly _displayMonth = DateOnly.FromDateTime(DateTime.Today);
     private DateOnly? _lastSyncedSelectedDate;
     private readonly string _panelId = BlazorIdGenerator.New("quark-datepicker-panel");
 
-    private string PanelClass => "w-auto rounded-lg border bg-popover p-0 text-popover-foreground shadow-md";
+    private string PanelClass => "w-auto p-0";
 
     private IReadOnlyDictionary<string, object> PanelAttributes => new Dictionary<string, object>
     {
         ["data-slot"] = "date-picker-panel"
     };
 
-    private static DateOnly? Parse(ChangeEventArgs e)
+    private string TriggerId => CurrentFieldContext?.ControlId ?? Id ?? _panelId;
+
+    private static string FormatDisplay(DateOnly value)
     {
-        if (e?.Value == null)
-            return null;
-
-        var text = e.Value.ToString();
-        if (DateOnly.TryParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
-            return result;
-
-        return null;
+        return string.Create(CultureInfo.InvariantCulture, $"{value:MMM} {value.Day}{GetOrdinalSuffix(value.Day)}, {value:yyyy}");
     }
 
-    private async Task HandleInput(ChangeEventArgs e)
+    private static string GetOrdinalSuffix(int day)
     {
-        var next = Parse(e);
-        var valueChanged = SelectedDate != next;
-        SelectedDate = next;
-        SyncDisplayMonthToSelection(next);
-        if (valueChanged)
-            await SelectedDateChanged.InvokeIfHasDelegate(SelectedDate);
-        await OnInput.InvokeIfHasDelegate(e);
+        int remainder = day % 100;
 
-        if (ParentValidation is not null)
-            await ParentValidation.NotifyInputChanged(SelectedDate);
+        if (remainder is >= 11 and <= 13)
+            return "th";
 
-        if (valueChanged)
+        return (day % 10) switch
         {
-            InvalidateRender();
-            Refresh();
-        }
+            1 => "st",
+            2 => "nd",
+            3 => "rd",
+            _ => "th"
+        };
     }
 
-    private async Task HandleChange(ChangeEventArgs e)
+    private string GetPlaceholderText()
     {
-        var next = Parse(e);
-        var valueChanged = SelectedDate != next;
-        SelectedDate = next;
-        SyncDisplayMonthToSelection(next);
-        if (valueChanged)
-            await SelectedDateChanged.InvokeIfHasDelegate(SelectedDate);
-        await OnChange.InvokeIfHasDelegate(e);
+        return Placeholder.HasContent() ? Placeholder! : "Pick a date";
+    }
 
-        if (ParentValidation is not null)
-            await ParentValidation.NotifyInputChanged(SelectedDate);
+    private string GetSerializedValue()
+    {
+        return SelectedDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? string.Empty;
+    }
 
-        if (valueChanged)
+    private string GetTriggerClass()
+    {
+        var baseClass = "w-[212px] justify-between text-left font-normal data-[empty=true]:text-muted-foreground";
+        return Class.HasContent() ? AppendToClass(Class, baseClass) : baseClass;
+    }
+
+    private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
+    {
+        var attributes = new Dictionary<string, object>
         {
-            InvalidateRender();
-            Refresh();
+            ["id"] = TriggerId,
+            ["data-empty"] = SelectedDate.HasValue ? "false" : "true"
+        };
+
+        if (Attributes is not null)
+        {
+            foreach (var attribute in Attributes)
+            {
+                if (attribute.Key.Equals("class", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("style", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("value", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("name", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("placeholder", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("readonly", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("required", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("autocomplete", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("oninput", StringComparison.OrdinalIgnoreCase) ||
+                    attribute.Key.Equals("onchange", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                attributes[attribute.Key] = attribute.Value;
+            }
         }
+
+        ApplyFieldControlAttributes(attributes, ParentValidation?.Status == ValidationStatus.Error);
+        return attributes;
     }
 
-    private string? GetSizeClass()
+    private IReadOnlyDictionary<string, object> BuildHiddenInputAttributes()
     {
-        var sizeValue = Size?.ToString()?.ToLowerInvariant();
-        return sizeValue switch { null or "" or "default" => null, "sm" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
-    }
+        var attributes = new Dictionary<string, object>
+        {
+            ["aria-hidden"] = "true",
+            ["tabindex"] = "-1",
+            ["value"] = GetSerializedValue()
+        };
 
+        if (Name.HasContent())
+            attributes["name"] = Name!;
 
-    private string? GetValidationClass()
-    {
-        return null;
+        if (Disabled)
+            attributes["disabled"] = true;
+
+        return attributes;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -173,11 +214,8 @@
             await ParentValidation.InitializeInput(this);
 
             if (SelectedDateExpression is not null)
-            {
                 await ParentValidation.InitializeInputExpression(SelectedDateExpression);
-            }
         }
-
 
         await base.OnAfterRenderAsync(firstRender);
 
@@ -198,69 +236,14 @@
             SyncDisplayMonthToSelection(SelectedDate);
     }
 
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "border-input placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 dark:hover:bg-input/50 h-9 w-full min-w-0 rounded-lg border bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50");
-            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]");
-            AppendClass(ref cls, "aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-destructive/20 dark:aria-[invalid=true]:ring-destructive/40");
-            
-            var sizeClass = GetSizeClass();
-            if (sizeClass != null)
-                AppendClass(ref cls, sizeClass);
-                
-            var validationClass = GetValidationClass();
-            if (validationClass != null)
-                AppendClass(ref cls, validationClass);
-        });
-
-        if (Placeholder.HasContent())
-            attributes["placeholder"] = Placeholder!;
-
-        if (Disabled)
-            attributes["disabled"] = true;
-
-        if (ReadOnly)
-            attributes["readonly"] = true;
-
-        if (Required)
-            attributes["required"] = true;
-
-        if (ParentValidation?.Status == ValidationStatus.Error)
-            attributes["aria-invalid"] = "true";
-
-        attributes["aria-expanded"] = _open ? "true" : "false";
-        attributes["aria-controls"] = _panelId;
-
-        // min/max intentionally omitted for text input (handled in panel)
-
-        attributes["onclick"] = EventCallback.Factory.Create<MouseEventArgs>(this, OpenPanel);
-        attributes["onfocus"] = EventCallback.Factory.Create<FocusEventArgs>(this, OpenPanel);
-
-        attributes["autocomplete"] = "off";
-        attributes["oninput"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleInput);
-        attributes["onchange"] = EventCallback.Factory.Create<ChangeEventArgs>(this, HandleChange);
-    }
-
     private Dictionary<string, object> GetContainerAttributes()
     {
         var attrs = new Dictionary<string, object>(2);
         BuildClassAttribute(attrs, (ref cls) =>
         {
-            AppendClass(ref cls, "relative w-full");
+            AppendClass(ref cls, "relative w-fit");
         });
         return attrs;
-    }
-
-    private Task OpenPanel()
-    {
-        if (!_open)
-            _open = true;
-        InvalidateRender();
-        Refresh();
-        return Task.CompletedTask;
     }
 
     private Task HandleOpenChanged(bool open)
@@ -275,7 +258,23 @@
     {
         if (_open)
             _open = false;
+
         await RefreshOffThread();
+    }
+
+    private async Task NotifyValueChanged(bool valueChanged)
+    {
+        var serializedValue = GetSerializedValue();
+        var args = new ChangeEventArgs { Value = serializedValue };
+
+        if (valueChanged)
+            await SelectedDateChanged.InvokeIfHasDelegate(SelectedDate);
+
+        await OnInput.InvokeIfHasDelegate(args);
+        await OnChange.InvokeIfHasDelegate(args);
+
+        if (ParentValidation is not null)
+            await ParentValidation.NotifyInputChanged(SelectedDate);
     }
 
     private async Task HandleCalendarChanged(DateOnly? date)
@@ -286,19 +285,14 @@
         if ((Min.HasValue && date.Value < Min.Value) || (Max.HasValue && date.Value > Max.Value))
             return;
 
-        if (SelectedDate != date)
-        {
-            SelectedDate = date;
-            SyncDisplayMonthToSelection(date);
-            await SelectedDateChanged.InvokeAsync(SelectedDate);
-        }
-        
+        var valueChanged = SelectedDate != date;
+        SelectedDate = date;
+        SyncDisplayMonthToSelection(date);
+
         if (ParentValidation is not null)
-        {
             ParentValidation.MarkTouched();
-            await ParentValidation.NotifyInputChanged(SelectedDate);
-        }
-        
+
+        await NotifyValueChanged(valueChanged);
         await ClosePanel();
     }
 
@@ -322,21 +316,6 @@
         _displayMonth = new DateOnly(selectedDate.Value.Year, selectedDate.Value.Month, 1);
     }
 
-    protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
-    {
-        if (BackgroundColor is { IsEmpty: false })
-        {
-            string? token = null;
-            var isTheme = BackgroundColor.Value.TryGetThemeToken(out token);
-
-            var result = BackgroundColor.Value.ToString();
-            if (!result.HasContent()) return;
-
-            if (BackgroundColor.Value.IsCssStyle)
-                AppendStyleDecl(ref sty, $"background-color: {result}");
-        }
-    }
-
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         hc.Add(SelectedDate);
@@ -346,6 +325,8 @@
         hc.Add(Required);
         hc.Add(Min);
         hc.Add(Max);
+        hc.Add(_open);
+        hc.Add(_panelId);
         AddIf(ref hc, Size);
     }
 }

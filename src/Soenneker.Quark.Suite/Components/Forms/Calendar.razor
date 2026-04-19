@@ -16,10 +16,10 @@
                     @if (monthIndex == 0)
                     {
                         <Button Variant="ButtonVariant.Ghost"
-                                Size="ButtonSize.IconSm"
-                                Class="absolute left-0 size-8 p-0 select-none"
+                                Size="ButtonSize.Icon"
+                                Class="absolute left-0 size-(--cell-size) p-0 select-none aria-disabled:opacity-50 rdp-button_previous"
                                 OnClick="PrevMonth"
-                                aria-label="Previous month">
+                                aria-label="Go to the Previous Month">
                             <Icon Name="LucideIcon.ChevronLeft" Class="size-4" />
                         </Button>
                     }
@@ -31,22 +31,25 @@
                     @if (CaptionLayout == "dropdown")
                     {
                         <div class="flex h-(--cell-size) w-full items-center justify-center gap-1.5 text-sm font-medium rdp-dropdowns">
-                            <div class="relative rounded-(--cell-radius) rdp-dropdown_root">
-                                <select class="absolute inset-0 bg-popover opacity-0"
+                            <div class="cn-calendar-dropdown-root relative rounded-(--cell-radius) rdp-dropdown_root">
+                                <select class="absolute inset-0 bg-popover opacity-0 rdp-dropdown rdp-months_dropdown"
+                                        aria-label="Choose the Month"
                                         value="@month.Month"
                                         @onchange="OnMonthChanged">
                                     @foreach (var optionMonth in Enumerable.Range(1, 12))
                                     {
-                                        <option value="@optionMonth">@GetMonthLabel(optionMonth)</option>
+                                        <option value="@optionMonth">@GetMonthDropdownLabel(optionMonth)</option>
                                     }
                                 </select>
-                                <div class="font-medium select-none cn-calendar-caption-label flex items-center gap-1 rounded-(--cell-radius) text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label">
-                                    <span>@GetMonthLabel(month.Month)</span>
+                                <div class="font-medium select-none cn-calendar-caption-label flex items-center gap-1 rounded-(--cell-radius) text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label"
+                                     aria-hidden="true">
+                                    <span>@GetMonthDropdownLabel(month.Month)</span>
                                     <Icon Name="LucideIcon.ChevronDown" Class="size-4 rdp-chevron" />
                                 </div>
                             </div>
-                            <div class="relative rounded-(--cell-radius) rdp-dropdown_root">
-                                <select class="absolute inset-0 bg-popover opacity-0"
+                            <div class="cn-calendar-dropdown-root relative rounded-(--cell-radius) rdp-dropdown_root">
+                                <select class="absolute inset-0 bg-popover opacity-0 rdp-dropdown rdp-years_dropdown"
+                                        aria-label="Choose the Year"
                                         value="@month.Year"
                                         @onchange="OnYearChanged">
                                     @foreach (var year in GetSelectableYears())
@@ -54,7 +57,8 @@
                                         <option value="@year">@year</option>
                                     }
                                 </select>
-                                <div class="font-medium select-none cn-calendar-caption-label flex items-center gap-1 rounded-(--cell-radius) text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label">
+                                <div class="font-medium select-none cn-calendar-caption-label flex items-center gap-1 rounded-(--cell-radius) text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label"
+                                     aria-hidden="true">
                                     <span>@month.Year</span>
                                     <Icon Name="LucideIcon.ChevronDown" Class="size-4 rdp-chevron" />
                                 </div>
@@ -63,16 +67,16 @@
                     }
                     else
                     {
-                        <div class="flex h-(--cell-size) w-full items-center justify-center text-sm font-medium select-none rdp-caption_label">@month.ToString("MMMM yyyy", ResolveCulture())</div>
+                        <div class="font-medium select-none cn-calendar-caption text-sm rdp-caption_label">@month.ToString("MMMM yyyy", ResolveCulture())</div>
                     }
 
                     @if (monthIndex == Math.Max(NumberOfMonths, 1) - 1)
                     {
                         <Button Variant="ButtonVariant.Ghost"
-                                Size="ButtonSize.IconSm"
-                                Class="absolute right-0 size-8 p-0 select-none"
+                                Size="ButtonSize.Icon"
+                                Class="absolute right-0 size-(--cell-size) p-0 select-none aria-disabled:opacity-50 rdp-button_next"
                                 OnClick="NextMonth"
-                                aria-label="Next month">
+                                aria-label="Go to the Next Month">
                             <Icon Name="LucideIcon.ChevronRight" Class="size-4" />
                         </Button>
                     }
@@ -433,6 +437,11 @@
         return ResolveCulture().DateTimeFormat.GetMonthName(month);
     }
 
+    private string GetMonthDropdownLabel(int month)
+    {
+        return ResolveCulture().DateTimeFormat.GetAbbreviatedMonthName(month);
+    }
+
     private CultureInfo ResolveCulture()
     {
         if (CultureName.IsNullOrEmpty())
@@ -569,6 +578,11 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "calendar";
+        attributes["data-mode"] = ReferenceEquals(Mode, CalendarSelectionMode.Multiple)
+            ? "multiple"
+            : ReferenceEquals(Mode, CalendarSelectionMode.Range)
+                ? "range"
+                : "single";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {

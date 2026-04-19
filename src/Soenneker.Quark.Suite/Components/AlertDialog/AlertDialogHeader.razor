@@ -7,6 +7,15 @@
 </div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Grid;
+        Gap ??= Quark.Gap.Token("1.5");
+        TextAlign ??= Quark.TextAlign.Center;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -14,7 +23,7 @@
         // shadcn AlertDialogHeader - new-york-v4 ui/alert-dialog.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "grid grid-rows-[auto_1fr] place-items-center gap-1.5 text-center has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr] has-data-[slot=alert-dialog-media]:gap-x-6 sm:group-data-[size=default]/alert-dialog-content:place-items-start sm:group-data-[size=default]/alert-dialog-content:text-left sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr]");
+            AppendClass(ref cls, "grid-rows-[auto_1fr] place-items-center has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr] has-data-[slot=alert-dialog-media]:gap-x-4 sm:group-data-[size=default]/alert-dialog-content:place-items-start sm:group-data-[size=default]/alert-dialog-content:text-left sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr]");
         });
         attributes["data-slot"] = "alert-dialog-header";
     }

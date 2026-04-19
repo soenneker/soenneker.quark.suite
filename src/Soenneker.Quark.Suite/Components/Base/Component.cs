@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using Soenneker.Blazor.Extensions.EventCallback;
 using Soenneker.Extensions.String;
-using Soenneker.Quark.Utils;
 using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;

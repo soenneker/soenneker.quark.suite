@@ -7,9 +7,9 @@
                         Disabled="@Disabled"
                         CloseOnSelect="@CloseOnSelect"
                         AdditionalAttributes="@RadioItemAttributes">
-    <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center rtl:left-auto rtl:right-2">
+    <span class="pointer-events-none absolute left-1.5 flex size-4 items-center justify-center [&_svg:not([class*='size-'])]:size-4">
         <BradixMenubarItemIndicator>
-            <span class="size-2 rounded-full bg-current"></span>
+            <Icon Name="LucideIcon.Check" />
         </BradixMenubarItemIndicator>
     </span>
     @ChildContent
@@ -34,8 +34,6 @@
     {
         base.BuildAttributesCore(attributes);
 
-        ApplyDefaultParameters();
-
         attributes["data-slot"] = "menubar-radio-item";
 
         if (Indented)
@@ -43,7 +41,8 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground cursor-default py-1.5 pr-2 pl-8 rtl:pr-8 rtl:pl-2 outline-hidden data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 rtl:data-[inset]:pl-2 rtl:data-[inset]:pr-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
+            AppendClass(ref cls, "outline-hidden");
+            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:pl-7 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
         });
     }
 
@@ -54,10 +53,12 @@
         Position ??= Quark.Position.Relative;
         Display ??= Quark.Display.Flex;
         ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is2;
-        Rounded ??= Quark.Rounded.Sm;
+        Gap ??= Quark.Gap.Is1.Token("1.5");
+        Rounded ??= Quark.Rounded.Md;
+        Padding ??= Quark.Padding.Is2.OnY.FromLeft.Token("7").FromRight.Token("1.5");
         TextSize ??= Quark.TextSize.Sm;
         UserSelect ??= Quark.UserSelect.None;
+        Cursor ??= Quark.Cursor.Default;
     }
 
     private IReadOnlyDictionary<string, object> BuildRadioItemAttributes()

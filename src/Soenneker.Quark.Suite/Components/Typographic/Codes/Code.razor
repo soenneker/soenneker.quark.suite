@@ -29,6 +29,20 @@
     [Parameter]
     public string? Theme { get; set; } = "default";
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        if (!Inline)
+            return;
+
+        BackgroundColor ??= Quark.BackgroundColor.Muted;
+        Rounded ??= Quark.Rounded.Md;
+        FontFamily ??= Quark.FontFamily.Mono;
+        TextSize ??= Quark.TextSize.Sm;
+        FontWeight ??= Quark.FontWeight.Semibold;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -44,9 +58,7 @@
             {
                 if (Inline)
                 {
-                    AppendClass(ref cls, "px-1");
-                    AppendClass(ref cls, "py-0");
-                    AppendClass(ref cls, "rounded");
+                    AppendClass(ref cls, "relative px-[0.3rem] py-[0.2rem]");
                 }
             });
         }

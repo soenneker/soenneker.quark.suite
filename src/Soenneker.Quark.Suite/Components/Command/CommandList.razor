@@ -12,6 +12,15 @@
     [CascadingParameter(Name = "ParentCommand")]
     private Command? ParentCommand { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        MaxHeight ??= Quark.Height.Token("72");
+        OverflowX ??= Quark.Overflow.X.Hidden;
+        OverflowY ??= Quark.Overflow.Y.Auto;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -22,7 +31,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "no-scrollbar max-h-72 scroll-py-1 overflow-x-hidden overflow-y-auto outline-none");
+            AppendClass(ref cls, "no-scrollbar scroll-py-1 outline-none");
         });
     }
 

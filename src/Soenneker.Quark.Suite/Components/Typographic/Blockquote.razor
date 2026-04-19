@@ -11,10 +11,22 @@
     [Parameter]
     public string? Cite { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        FontStyle ??= Quark.FontStyle.Italic;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "blockquote";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "mt-6 border-l-2 pl-6");
+        });
 
         if (Cite.HasContent())
             attributes["cite"] = Cite;

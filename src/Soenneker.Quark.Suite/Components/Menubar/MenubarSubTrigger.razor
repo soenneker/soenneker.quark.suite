@@ -6,7 +6,7 @@
 <BradixMenubarSubTrigger Disabled="@Disabled"
                          AdditionalAttributes="@TriggerAttributes">
     @ChildContent
-    <Icon Name="LucideIcon.ChevronRight" Class="ml-auto h-4 w-4 rtl:ml-0 rtl:mr-auto rtl:rotate-180" />
+    <Icon Name="LucideIcon.ChevronRight" Class="cn-rtl-flip ml-auto size-4" />
 </BradixMenubarSubTrigger>
 
 @code {
@@ -22,8 +22,6 @@
     {
         base.BuildAttributesCore(attributes);
 
-        ApplyDefaultParameters();
-
         attributes["data-slot"] = "menubar-sub-trigger";
         attributes["data-inset"] = Indented ? "true" : "false";
 
@@ -32,7 +30,8 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground cursor-default py-1.5 outline-none data-[inset]:pl-8 rtl:data-[inset]:pl-2 rtl:data-[inset]:pr-8");
+            AppendClass(ref cls, "outline-none focus:bg-accent focus:text-accent-foreground data-[inset]:pl-7 data-open:bg-accent data-open:text-accent-foreground");
+            AppendClass(ref cls, "[&_svg:not([class*='size-'])]:size-4");
             if (Disabled)
                 AppendClass(ref cls, "pointer-events-none opacity-50");
         });
@@ -44,10 +43,12 @@
 
         Display ??= Quark.Display.Flex;
         ItemsAlign ??= Items.Center;
-        Rounded ??= Quark.Rounded.Sm;
-        Padding ??= Quark.Padding.Is2.OnX;
+        Gap ??= Quark.Gap.Is1.Token("1.5");
+        Rounded ??= Quark.Rounded.Md;
+        Padding ??= Quark.Padding.Is2.OnX.Token("1.5").OnY;
         TextSize ??= Quark.TextSize.Sm;
         UserSelect ??= Quark.UserSelect.None;
+        Cursor ??= Quark.Cursor.Default;
     }
 
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()

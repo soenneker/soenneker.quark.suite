@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Soenneker.Quark.Utils;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Combines CSS class names without conflict resolution.

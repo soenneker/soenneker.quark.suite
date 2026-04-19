@@ -5,10 +5,23 @@
 <h1 @attributes="BuildAttributes()">@ChildContent</h1>
 
 @code{
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextSize ??= Quark.TextSize.FourXl;
+        FontWeight ??= Quark.FontWeight.Extrabold;
+        LetterSpacing ??= Quark.LetterSpacing.Tight;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "h1";
 
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "scroll-m-20 text-balance lg:text-5xl");
+        });
     }
 }

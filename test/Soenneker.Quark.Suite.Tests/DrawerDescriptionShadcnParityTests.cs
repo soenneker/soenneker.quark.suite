@@ -1,0 +1,20 @@
+using AwesomeAssertions;
+using Bunit;
+using Soenneker.Quark;
+using Xunit;
+
+namespace Soenneker.Quark.Suite.Tests;
+
+public sealed partial class RenderedShadcnParityTests
+{
+    [Fact]
+    public void DrawerDescription_matches_shadcn_default_component_contract()
+    {
+        var cut = Render<DrawerDescription>(parameters => parameters.Add(p => p.ChildContent, "Make changes to your profile here."));
+
+        string classes = cut.Find("[data-slot='drawer-description']").GetAttribute("class")!;
+
+        classes.Should().Contain("text-muted-foreground");
+        classes.Should().Contain("text-sm");
+    }
+}

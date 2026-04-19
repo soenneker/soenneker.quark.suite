@@ -8,32 +8,9 @@
 @implements ISwitch
 @implements IDisposable
 
-<div @attributes="BuildWrapperAttributes()">
-    @if (HasInlineLabel)
-    {
-        <label for="@ControlId" class="inline-flex cursor-pointer items-center gap-2">
-            <BradixSwitch Checked="@Checked"
-                          Required="@Required"
-                          Disabled="@Disabled"
-                          Name="@Name"
-                          Value="@ResolvedSwitchValue"
-                          CheckedChanged="HandleCheckedChanged"
-                          OnClick="@OnClick"
-                          AdditionalAttributes="@BuildControlAttributes()">
-                <BradixSwitchThumb AdditionalAttributes="@BuildThumbAttributes()"/>
-            </BradixSwitch>
-            @if (ChildContent != null)
-            {
-                <span @attributes="BuildLabelAttributes()">@ChildContent</span>
-            }
-            else if (Label.HasContent())
-            {
-                <span @attributes="BuildLabelAttributes()">@Label</span>
-            }
-        </label>
-    }
-    else
-    {
+@if (HasInlineLabel)
+{
+    <label for="@ControlId" class="inline-flex cursor-pointer items-center gap-2">
         <BradixSwitch Checked="@Checked"
                       Required="@Required"
                       Disabled="@Disabled"
@@ -42,10 +19,31 @@
                       CheckedChanged="HandleCheckedChanged"
                       OnClick="@OnClick"
                       AdditionalAttributes="@BuildControlAttributes()">
-            <BradixSwitchThumb AdditionalAttributes="@BuildThumbAttributes()"/>
+            <BradixSwitchThumb AdditionalAttributes="@BuildThumbAttributes()" />
         </BradixSwitch>
-    }
-</div>
+        @if (ChildContent != null)
+        {
+            <span @attributes="BuildLabelAttributes()">@ChildContent</span>
+        }
+        else if (Label.HasContent())
+        {
+            <span @attributes="BuildLabelAttributes()">@Label</span>
+        }
+    </label>
+}
+else
+{
+    <BradixSwitch Checked="@Checked"
+                  Required="@Required"
+                  Disabled="@Disabled"
+                  Name="@Name"
+                  Value="@ResolvedSwitchValue"
+                  CheckedChanged="HandleCheckedChanged"
+                  OnClick="@OnClick"
+                  AdditionalAttributes="@BuildControlAttributes()">
+        <BradixSwitchThumb AdditionalAttributes="@BuildThumbAttributes()" />
+    </BradixSwitch>
+}
 
 @code {
     public override string? Id { get; set; } = BlazorIdGenerator.New("quark-switch");
@@ -96,20 +94,6 @@
         return s == "sm";
     }
 
-    protected Dictionary<string, object> BuildWrapperAttributes()
-    {
-        var attributes = new Dictionary<string, object>();
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "flex items-center gap-2");
-        });
-
-        if (Style.HasContent())
-            attributes["style"] = Style;
-
-        return attributes;
-    }
-
     private Dictionary<string, object> BuildLabelAttributes()
     {
         var attributes = new Dictionary<string, object>();
@@ -151,10 +135,13 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "peer group/switch inline-flex shrink-0 items-center rounded-full border border-transparent shadow-xs transition-all outline-none");
-            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50");
-            AppendClass(ref cls, "data-[state=checked]:bg-primary data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80");
-            AppendClass(ref cls, sm ? "h-3.5 w-6" : "h-[1.15rem] w-8");
+            AppendClass(ref cls, "peer group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent transition-all outline-none");
+            AppendClass(ref cls, "after:absolute after:-inset-x-3 after:-inset-y-2");
+            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50");
+            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
+            AppendClass(ref cls, "data-[size=default]:h-[18.4px] data-[size=default]:w-[32px] data-[size=sm]:h-[14px] data-[size=sm]:w-[24px]");
+            AppendClass(ref cls, "data-checked:bg-primary data-unchecked:bg-input dark:data-unchecked:bg-input/80");
+            AppendClass(ref cls, "data-disabled:cursor-not-allowed data-disabled:opacity-50");
 
             var validationClass = GetValidationClass();
             if (validationClass is not null)
@@ -167,7 +154,7 @@
     private string? GetValidationClass()
     {
         return ParentValidation?.Status == ValidationStatus.Error
-            ? "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40"
+            ? "aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40"
             : null;
     }
 
@@ -183,7 +170,8 @@
         {
             AppendClass(ref cls, "pointer-events-none block rounded-full bg-background ring-0 transition-transform");
             AppendClass(ref cls, "group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3");
-            AppendClass(ref cls, "data-[state=checked]:translate-x-[calc(100%-2px)] rtl:data-[state=checked]:-translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0");
+            AppendClass(ref cls, "group-data-[size=default]/switch:data-checked:translate-x-[calc(100%-2px)] group-data-[size=sm]/switch:data-checked:translate-x-[calc(100%-2px)]");
+            AppendClass(ref cls, "group-data-[size=default]/switch:data-unchecked:translate-x-0 group-data-[size=sm]/switch:data-unchecked:translate-x-0");
             AppendClass(ref cls, "dark:data-[state=checked]:bg-primary-foreground dark:data-[state=unchecked]:bg-foreground");
         });
 

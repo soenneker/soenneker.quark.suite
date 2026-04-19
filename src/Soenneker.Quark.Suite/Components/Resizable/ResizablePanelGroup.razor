@@ -38,13 +38,6 @@
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
-
-        Display ??= Quark.Display.Flex;
-        Height ??= Quark.Height.IsFull;
-        Width ??= Quark.Width.IsFull;
-
-        if (IsVertical)
-            Flex ??= Quark.Flex.Display.Column;
     }
 
     internal DotNetObjectReference<ResizablePanelGroup> GetOrCreateDotNetRef()
@@ -407,10 +400,10 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "resizable-panel-group";
-        attributes["data-orientation"] = OrientationValue;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
+            AppendClass(ref cls, "flex h-full w-full aria-[orientation=vertical]:flex-col");
         });
     }
 

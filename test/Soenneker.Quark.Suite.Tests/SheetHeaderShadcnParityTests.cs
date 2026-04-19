@@ -1,0 +1,23 @@
+using AwesomeAssertions;
+using Bunit;
+using Soenneker.Quark;
+using Xunit;
+
+namespace Soenneker.Quark.Suite.Tests;
+
+public sealed partial class RenderedShadcnParityTests
+{
+    [Fact]
+    public void SheetHeader_matches_shadcn_default_component_contract()
+    {
+        var header = Render<SheetHeader>(parameters => parameters
+            .Add(p => p.ChildContent, "Header"));
+
+        string headerClasses = header.Find("[data-slot='sheet-header']").GetAttribute("class")!;
+
+        headerClasses.Should().Contain("flex");
+        headerClasses.Should().Contain("flex-col");
+        headerClasses.Should().Contain("gap-0.5");
+        headerClasses.Should().Contain("p-4");
+    }
+}

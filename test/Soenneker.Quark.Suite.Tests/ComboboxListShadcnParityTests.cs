@@ -1,0 +1,23 @@
+using AwesomeAssertions;
+using Bunit;
+using Microsoft.AspNetCore.Components;
+using Soenneker.Quark;
+using Xunit;
+
+namespace Soenneker.Quark.Suite.Tests;
+
+public sealed partial class RenderedShadcnParityTests
+{
+    [Fact]
+    public void ComboboxList_matches_shadcn_default_component_contract()
+    {
+        var cut = Render<ComboboxList>(parameters => parameters
+            .Add(p => p.ChildContent, (RenderFragment)(builder => builder.AddContent(0, "Items"))));
+
+        string classes = cut.Find("[data-slot='combobox-list']").GetAttribute("class")!;
+
+        classes.Should().Contain("flex");
+        classes.Should().Contain("flex-col");
+        classes.Should().NotContain("q-combobox-list");
+    }
+}

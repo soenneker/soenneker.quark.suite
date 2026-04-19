@@ -7,6 +7,8 @@ namespace Soenneker.Quark;
 
 internal sealed class TriggerContext
 {
+    public string? DataSlot { get; init; }
+
     public string? TriggerId { get; init; }
 
     /// <summary>When true, the parent primitive (e.g. Collapsible) is disabled; the trigger should not be interactive.</summary>

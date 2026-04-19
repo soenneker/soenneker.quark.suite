@@ -13,6 +13,14 @@
 
     private Carousel? _subscribedCarousel;
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Absolute;
+        Rounded ??= Quark.Rounded.Full;
+    }
+
     private async Task HandleNextClick(MouseEventArgs e)
     {
         ParentCarousel?.Next();
@@ -45,7 +53,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "absolute touch-manipulation rounded-full");
+            AppendClass(ref cls, "touch-manipulation");
             if (horizontal)
                 AppendClass(ref cls, "top-1/2 -right-12 -translate-y-1/2");
             else

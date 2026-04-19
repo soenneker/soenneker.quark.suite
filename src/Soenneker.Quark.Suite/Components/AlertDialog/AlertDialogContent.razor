@@ -30,6 +30,22 @@
     [Parameter]
     public string Size { get; set; } = "default";
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Fixed;
+        PositionOffset ??= Quark.PositionOffset.Top50.Start50.TranslateMiddle;
+        Display ??= Quark.Display.Grid;
+        Width ??= Quark.Width.IsFull;
+        Gap ??= Quark.Gap.Is4;
+        Rounded ??= Quark.Rounded.Xl;
+        BackgroundColor ??= Quark.BackgroundColor.Popover;
+        Padding ??= Quark.Padding.Is4;
+        TextColor ??= Quark.TextColor.PopoverForeground;
+        Ring ??= Quark.Ring.One;
+    }
+
     private IReadOnlyDictionary<string, object> ContentAttributes => BuildAttributes();
 
     private IReadOnlyDictionary<string, object> OverlayAttributes => BuildOverlayAttributes();
@@ -46,7 +62,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 group/alert-dialog-content fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 outline-none data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-lg");
+            AppendClass(ref cls, "group/alert-dialog-content z-50 ring-foreground/10 duration-100 outline-none data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95");
         });
 
         attributes["data-slot"] = "alert-dialog-content";
@@ -59,7 +75,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50");
+            AppendClass(ref cls, "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0");
         });
 
         attributes["data-state"] = ParentAlertDialog?.Visible == true ? "open" : "closed";

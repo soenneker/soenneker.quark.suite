@@ -41,6 +41,20 @@ else
         return attributes;
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.InlineFlex;
+        ItemsAlign ??= Items.Center;
+        Justify ??= Quark.Justify.Center;
+        Gap ??= Quark.Gap.Is2;
+        Rounded ??= Quark.Rounded.Lg;
+        Padding ??= Quark.Padding.Is2.Token("2.5").OnX.Token("1.5").OnY;
+        TextSize ??= Quark.TextSize.Sm;
+        FontWeight ??= Quark.FontWeight.Medium;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -59,9 +73,9 @@ else
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "gap-2 p-2 in-data-[slot=navigation-menu-content]:rounded-md");
+            AppendClass(ref cls, "in-data-[slot=navigation-menu-content]:rounded-md");
             AppendClass(ref cls, "data-active:bg-muted/50 data-active:hover:bg-muted data-active:focus:bg-muted");
-            AppendClass(ref cls, "group/navigation-menu-trigger inline-flex h-9 w-max items-center justify-center rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all outline-none");
+            AppendClass(ref cls, "group/navigation-menu-trigger h-9 w-max transition-all outline-none");
             AppendClass(ref cls, "hover:bg-muted focus:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-1");
             AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
             AppendClass(ref cls, "data-popup-open:bg-muted/50 data-popup-open:hover:bg-muted");

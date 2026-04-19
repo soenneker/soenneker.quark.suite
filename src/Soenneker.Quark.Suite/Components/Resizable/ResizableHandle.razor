@@ -11,9 +11,7 @@
      @onkeydown:preventDefault="true">
     @if (WithHandle)
     {
-        <div class="bg-border pointer-events-none z-10 flex h-4 w-3 items-center justify-center rounded-xs border">
-            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 5v14M16 5v14"/></svg>
-        </div>
+        <div class="z-10 flex h-6 w-1 shrink-0 rounded-lg bg-border"></div>
     }
 </div>
 
@@ -100,28 +98,17 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "relative z-10 flex shrink-0 self-stretch items-center justify-center bg-transparent ring-offset-background touch-none pointer-events-auto select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring");
-
-            if (IsVertical)
-                AppendClass(ref cls, "h-4 min-h-4 w-full basis-4 cursor-row-resize after:absolute after:inset-x-0 after:top-1/2 after:h-px after:-translate-y-1/2 after:bg-border [&>div]:rotate-90");
-            else
-                AppendClass(ref cls, "w-4 min-w-4 basis-4 cursor-col-resize after:absolute after:inset-y-0 after:left-1/2 after:w-px after:-translate-x-1/2 after:bg-border");
+            AppendClass(ref cls, "relative flex w-px items-center justify-center bg-border ring-offset-background after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden");
+            AppendClass(ref cls, "aria-[orientation=horizontal]:h-px aria-[orientation=horizontal]:w-full");
+            AppendClass(ref cls, "aria-[orientation=horizontal]:after:left-0 aria-[orientation=horizontal]:after:h-1 aria-[orientation=horizontal]:after:w-full aria-[orientation=horizontal]:after:translate-x-0 aria-[orientation=horizontal]:after:-translate-y-1/2");
+            AppendClass(ref cls, "[&[aria-orientation=horizontal]>div]:rotate-90");
         });
 
         BuildStyleAttribute(attributes, (ref sty) =>
         {
-            if (IsVertical)
-            {
-                AppendStyleDecl(ref sty, "flex: 0 0 16px");
-                AppendStyleDecl(ref sty, "min-height: 16px");
-            }
-            else
-            {
-                AppendStyleDecl(ref sty, "flex: 0 0 16px");
-                AppendStyleDecl(ref sty, "align-self: stretch");
-                AppendStyleDecl(ref sty, "width: 16px");
-                AppendStyleDecl(ref sty, "min-width: 16px");
-            }
+            AppendStyleDecl(ref sty, "flex-basis:auto");
+            AppendStyleDecl(ref sty, "flex-grow:0");
+            AppendStyleDecl(ref sty, "flex-shrink:0");
         });
     }
 

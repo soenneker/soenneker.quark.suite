@@ -23,6 +23,13 @@
         return attributes;
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Relative;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -34,8 +41,6 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "relative");
-
             if (Disabled)
                 AppendClass(ref cls, "pointer-events-none opacity-50");
         });

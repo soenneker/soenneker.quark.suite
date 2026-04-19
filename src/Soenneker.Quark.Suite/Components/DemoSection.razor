@@ -16,12 +16,12 @@
         }
     </div>
 
-    <div data-slot="component-preview" class="group relative isolate mt-4 mb-10 flex flex-col rounded-xl border border-border bg-background [&_[data-slot=header]]:relative [&_[data-slot=header]]:top-auto">
-        <div data-slot="preview" dir="ltr" class="overflow-visible">
-            <div data-align="center"
-                 data-chromeless="false"
-                 class="preview relative z-0 flex min-h-[10rem] w-full items-center justify-center overflow-visible p-6 sm:min-h-[12rem] sm:p-8 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0">
-                <div class="mx-auto flex w-full max-w-full flex-col items-center justify-center [&_img]:mx-auto [&_img]:block [&_img]:max-h-72 [&_img]:max-w-full [&_img]:object-contain">
+    <div data-slot="component-preview" class="group relative mt-4 mb-12 flex flex-col overflow-hidden rounded-xl border [&_[data-slot=header]]:relative [&_[data-slot=header]]:top-auto">
+        <div data-slot="preview" dir="@PreviewDir" data-lang="@PreviewLang">
+            <div data-align="@PreviewAlign"
+                 data-chromeless="@_previewChromeless"
+                 class="@ResolvedPreviewClass">
+                <div class="@ResolvedPreviewInnerClass">
                     @ChildContent
                 </div>
             </div>
@@ -54,7 +54,7 @@
                     {
                         <button data-slot="copy-button"
                                 type="button"
-                                class="absolute top-3 right-3 z-10 inline-flex size-7 items-center justify-center rounded-md border border-border bg-background text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+                                class="absolute top-3 right-2 z-10 inline-flex size-7 shrink-0 items-center justify-center gap-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 border border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
                                 title="@_copyButtonLabel"
                                 @onclick="CopyCodeAsync">
                             <span class="sr-only">@_copyButtonLabel</span>
@@ -120,20 +120,45 @@
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
+    [Parameter]
+    public string PreviewAlign { get; set; } = "center";
+
+    [Parameter]
+    public string PreviewDir { get; set; } = "ltr";
+
+    [Parameter]
+    public string? PreviewLang { get; set; }
+
+    [Parameter]
+    public bool PreviewChromeless { get; set; }
+
+    [Parameter]
+    public string? PreviewClass { get; set; }
+
+    [Parameter]
+    public string? PreviewInnerClass { get; set; }
+
     [Inject]
     private IJSRuntime JSRuntime { get; set; } = null!;
 
     private bool _showCode;
     private string _copyButtonLabel = "Copy";
     private string _showCodeCss => ShouldShowCollapsedCodeOverlay ? "false" : "true";
+    private string _previewChromeless => PreviewChromeless ? "true" : "false";
     private bool ShouldShowViewCodeButton => GetCodeLineCount() > 0;
     private bool ShouldShowCollapsedCodeOverlay => ShouldShowViewCodeButton && !_showCode;
     private int CodeEditorMinLines => ShouldShowCollapsedCodeOverlay ? 3 : 1;
     private int? CodeEditorMaxLines => ShouldShowCollapsedCodeOverlay ? 3 : null;
+    private string ResolvedPreviewClass => string.IsNullOrWhiteSpace(PreviewClass)
+        ? "preview relative flex h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0"
+        : PreviewClass;
+    private string ResolvedPreviewInnerClass => string.IsNullOrWhiteSpace(PreviewInnerClass)
+        ? "w-full [&_img]:mx-auto [&_img]:block [&_img]:max-h-72 [&_img]:max-w-full [&_img]:object-contain"
+        : PreviewInnerClass;
 
     private string GetCodeSectionClass()
     {
-        const string baseClass = "relative overflow-hidden border-t border-border";
+        const string baseClass = "relative overflow-hidden border-t border-border **:data-[slot=copy-button]:right-4 **:data-[slot=copy-button]:hidden data-[mobile-code-visible=true]:**:data-[slot=copy-button]:flex [&_pre]:max-h-72";
 
         if (ShouldShowCollapsedCodeOverlay)
             return $"{baseClass} hidden md:block";

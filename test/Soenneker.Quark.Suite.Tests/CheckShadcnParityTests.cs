@@ -1,0 +1,79 @@
+using AwesomeAssertions;
+using Bunit;
+using Microsoft.AspNetCore.Components;
+using Soenneker.Quark;
+using Xunit;
+
+namespace Soenneker.Quark.Suite.Tests;
+
+public sealed partial class RenderedShadcnParityTests
+{
+    [Fact]
+    public void Check_matches_shadcn_checkbox_component_contract()
+    {
+        var cut = Render<Check>(parameters => parameters
+            .Add(p => p.Id, "terms-checkbox-basic")
+            .Add(p => p.Checked, true)
+            .AddChildContent("Accept terms and conditions"));
+
+        var checkbox = cut.Find("[data-slot='checkbox']");
+        var label = cut.Find("label");
+        var indicator = cut.Find("[data-slot='checkbox-indicator']");
+
+        string checkboxClasses = checkbox.GetAttribute("class")!;
+        string labelClasses = label.GetAttribute("class")!;
+        string indicatorClasses = indicator.GetAttribute("class")!;
+
+        checkboxClasses.Should().Contain("peer");
+        checkboxClasses.Should().Contain("relative");
+        checkboxClasses.Should().Contain("flex");
+        checkboxClasses.Should().Contain("size-4");
+        checkboxClasses.Should().Contain("shrink-0");
+        checkboxClasses.Should().Contain("items-center");
+        checkboxClasses.Should().Contain("justify-center");
+        checkboxClasses.Should().Contain("rounded-[4px]");
+        checkboxClasses.Should().Contain("border");
+        checkboxClasses.Should().Contain("border-input");
+        checkboxClasses.Should().Contain("transition-colors");
+        checkboxClasses.Should().Contain("outline-none");
+        checkboxClasses.Should().Contain("group-has-disabled/field:opacity-50");
+        checkboxClasses.Should().Contain("after:absolute");
+        checkboxClasses.Should().Contain("after:-inset-x-3");
+        checkboxClasses.Should().Contain("after:-inset-y-2");
+        checkboxClasses.Should().Contain("focus-visible:border-ring");
+        checkboxClasses.Should().Contain("focus-visible:ring-3");
+        checkboxClasses.Should().Contain("focus-visible:ring-ring/50");
+        checkboxClasses.Should().Contain("disabled:cursor-not-allowed");
+        checkboxClasses.Should().Contain("disabled:opacity-50");
+        checkboxClasses.Should().Contain("aria-invalid:border-destructive");
+        checkboxClasses.Should().Contain("aria-invalid:ring-3");
+        checkboxClasses.Should().Contain("aria-invalid:ring-destructive/20");
+        checkboxClasses.Should().Contain("aria-invalid:aria-checked:border-primary");
+        checkboxClasses.Should().Contain("dark:bg-input/30");
+        checkboxClasses.Should().Contain("dark:aria-invalid:border-destructive/50");
+        checkboxClasses.Should().Contain("dark:aria-invalid:ring-destructive/40");
+        checkboxClasses.Should().Contain("data-checked:border-primary");
+        checkboxClasses.Should().Contain("data-checked:bg-primary");
+        checkboxClasses.Should().Contain("data-checked:text-primary-foreground");
+        checkboxClasses.Should().Contain("dark:data-checked:bg-primary");
+        checkboxClasses.Should().NotContain("shadow-xs");
+        checkboxClasses.Should().NotContain("transition-shadow");
+
+        labelClasses.Should().Contain("flex");
+        labelClasses.Should().Contain("items-center");
+        labelClasses.Should().Contain("gap-2");
+        labelClasses.Should().Contain("text-sm");
+        labelClasses.Should().Contain("font-medium");
+        labelClasses.Should().Contain("leading-none");
+        labelClasses.Should().Contain("select-none");
+        labelClasses.Should().Contain("group-data-[disabled=true]:pointer-events-none");
+        labelClasses.Should().Contain("group-data-[disabled=true]:opacity-50");
+        labelClasses.Should().Contain("peer-disabled:cursor-not-allowed");
+        labelClasses.Should().Contain("peer-disabled:opacity-50");
+
+        indicatorClasses.Should().Contain("flex");
+        indicatorClasses.Should().Contain("items-center");
+        indicatorClasses.Should().Contain("justify-center");
+        indicatorClasses.Should().Contain("text-current");
+    }
+}

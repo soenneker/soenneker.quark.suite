@@ -33,6 +33,19 @@
         return attributes;
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        BackgroundColor ??= Quark.BackgroundColor.Popover;
+        TextColor ??= Quark.TextColor.PopoverForeground;
+        Position ??= Quark.Position.Relative;
+        Width ??= Quark.Width.IsFull;
+        Rounded ??= Quark.Rounded.Md;
+        Border ??= Quark.Border.Default;
+        Margin ??= Quark.Margin.Token("1.5").FromTop;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -41,9 +54,9 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "origin-top-center bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out");
+            AppendClass(ref cls, "origin-top-center data-[state=open]:animate-in data-[state=closed]:animate-out");
             AppendClass(ref cls, "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90");
-            AppendClass(ref cls, "relative mt-1.5 h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-visible rounded-md border shadow md:w-[var(--radix-navigation-menu-viewport-width)]");
+            AppendClass(ref cls, "h-[var(--radix-navigation-menu-viewport-height)] overflow-visible shadow md:w-[var(--radix-navigation-menu-viewport-width)]");
         });
     }
 }

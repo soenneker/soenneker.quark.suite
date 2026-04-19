@@ -61,11 +61,12 @@
         Position ??= Quark.Position.Relative;
         Display ??= Quark.Display.Flex;
         ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Is2;
-        Rounded ??= Quark.Rounded.Sm;
-        Padding ??= Quark.Padding.Is2.OnX;
+        Gap ??= Quark.Gap.Is1.Token("1.5");
+        Rounded ??= Quark.Rounded.Md;
+        Padding ??= Quark.Padding.Is2.OnX.Token("1.5").OnY;
         TextSize ??= Quark.TextSize.Sm;
         UserSelect ??= Quark.UserSelect.None;
+        Cursor ??= Quark.Cursor.Default;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -79,10 +80,10 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "cursor-default py-1.5 outline-hidden focus:bg-accent focus:text-accent-foreground");
-            AppendClass(ref cls, "data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 rtl:data-[inset]:pl-2 rtl:data-[inset]:pr-8");
+            AppendClass(ref cls, "outline-hidden focus:bg-accent focus:text-accent-foreground");
+            AppendClass(ref cls, "not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 data-inset:pl-7");
             AppendClass(ref cls, "data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20");
-            AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground data-[variant=destructive]:*:[svg]:text-destructive!");
+            AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg]:text-destructive");
         });
 
         if (Active)

@@ -1,0 +1,22 @@
+using AwesomeAssertions;
+using Bunit;
+using Soenneker.Quark;
+using Xunit;
+
+namespace Soenneker.Quark.Suite.Tests;
+
+public sealed partial class RenderedShadcnParityTests
+{
+    [Fact]
+    public void Td_matches_shadcn_base_classes()
+    {
+        var td = Render<Td>(parameters => parameters.Add(p => p.ChildContent, "Cell"));
+
+        string tdClasses = td.Find("[data-slot='table-cell']").GetAttribute("class")!;
+
+        tdClasses.Should().Contain("p-2");
+        tdClasses.Should().Contain("align-middle");
+        tdClasses.Should().Contain("whitespace-nowrap");
+        tdClasses.Should().NotContain("q-table-td");
+    }
+}

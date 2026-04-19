@@ -14,6 +14,15 @@
 
     private IReadOnlyDictionary<string, object> TitleAttributes => BuildAttributes();
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextSize ??= Quark.TextSize.Base;
+        FontWeight ??= Quark.FontWeight.Medium;
+        TextColor ??= Quark.TextColor.Foreground;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -21,7 +30,7 @@
         // shadcn SheetTitle - new-york-v4 ui/sheet.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "text-foreground font-semibold");
+            AppendClass(ref cls, "cn-font-heading");
         });
 
         attributes["data-slot"] = "sheet-title";

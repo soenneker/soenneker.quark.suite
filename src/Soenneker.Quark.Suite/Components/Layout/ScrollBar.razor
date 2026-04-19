@@ -26,6 +26,7 @@
         base.ApplyDefaultParameters();
 
         Display ??= Quark.Display.Flex;
+        Padding ??= Quark.Padding.Token("px");
         UserSelect ??= Quark.UserSelect.None;
         Transition ??= Quark.Transition.Colors;
     }
@@ -37,15 +38,9 @@
         attributes["data-slot"] = "scroll-area-scrollbar";
         attributes["data-orientation"] = Orientation;
 
-        var isVertical = Orientation != "horizontal";
-
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "touch-none p-px");
-            if (isVertical)
-                AppendClass(ref cls, "absolute top-0 right-0 h-full w-2.5 border-l border-l-transparent");
-            else
-                AppendClass(ref cls, "absolute right-0 bottom-0 h-2.5 w-full flex-col border-t border-t-transparent");
+            AppendClass(ref cls, "touch-none data-horizontal:h-2.5 data-horizontal:flex-col data-horizontal:border-t data-horizontal:border-t-transparent data-vertical:h-full data-vertical:w-2.5 data-vertical:border-l data-vertical:border-l-transparent");
         });
     }
 
@@ -61,7 +56,8 @@
     {
         return new Dictionary<string, object>
         {
-            ["class"] = "bg-border relative flex-1 rounded-full"
+            ["data-slot"] = "scroll-area-thumb",
+            ["class"] = "relative flex-1 rounded-full bg-border"
         };
     }
 

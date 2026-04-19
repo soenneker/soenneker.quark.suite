@@ -30,6 +30,13 @@
     internal bool CanScrollPrevious => ItemCount > 1 && (Loop || CurrentIndex > 0);
     internal bool CanScrollNext => ItemCount > 1 && (Loop || CurrentIndex < ItemCount - 1);
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Relative;
+    }
+
     protected override void OnInitialized()
     {
         _api.SelectedIndexAccessor = () => CurrentIndex;
@@ -124,11 +131,6 @@
 
         attributes["data-slot"] = "carousel";
         attributes["data-orientation"] = Orientation;
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "relative");
-        });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

@@ -5,8 +5,6 @@
                 SideOffset="@SideOffset"
                 Align="@PlacementAlign"
                 Id="@ResolvedContentId"
-                Class="@ContentClass"
-                Style="@ContentStyle"
                 @attributes="ContentAttributes">
     @ChildContent
 </PopoverContent>
@@ -29,18 +27,11 @@
 
     private string? ResolvedContentId => ParentCombobox?.ContentId;
 
-    private string ContentClass =>
-        "z-50 max-h-96 min-w-[8rem] overflow-auto rounded-lg border bg-popover p-1 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2";
-
-    private string ContentStyle =>
-        "min-width: var(--radix-popper-anchor-width); max-height: min(24rem, var(--radix-popper-available-height));" +
-        (AlignOffset == 0 ? string.Empty : $" margin-left: {AlignOffset}px;");
-
     private IReadOnlyDictionary<string, object> ContentAttributes
     {
         get
         {
-            var attributes = new Dictionary<string, object>
+            Dictionary<string, object> attributes = new(BuildAttributes())
             {
                 ["data-slot"] = "combobox-content",
                 ["data-state"] = ParentCombobox?.Open == true ? "open" : "closed",
@@ -49,11 +40,39 @@
                 ["aria-hidden"] = ParentCombobox?.Open == true ? "false" : "true"
             };
 
+            attributes["style"] =
+                "min-width: var(--radix-popper-anchor-width); max-height: min(24rem, var(--radix-popper-available-height));" +
+                (AlignOffset == 0 ? string.Empty : $" margin-left: {AlignOffset}px;");
+
             if (ParentCombobox?.Multiple == true)
                 attributes["aria-multiselectable"] = "true";
 
             return attributes;
         }
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        MaxHeight ??= Quark.Height.Token("96");
+        Overflow ??= Quark.Overflow.Auto;
+        Rounded ??= Quark.Rounded.Lg;
+        Border ??= Quark.Border.Default;
+        BackgroundColor ??= Quark.BackgroundColor.Popover;
+        Padding ??= Quark.Padding.Is1;
+        TextColor ??= Quark.TextColor.PopoverForeground;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "z-50 min-w-[8rem] shadow-md");
+            AppendClass(ref cls, "animate-in fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2");
+        });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

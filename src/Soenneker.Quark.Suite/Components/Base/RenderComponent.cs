@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using Soenneker.Extensions.String;
-using Soenneker.Quark.Utils;
 using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
@@ -345,11 +344,11 @@ public abstract class RenderComponent : CoreComponent
         if (v is not { IsEmpty: false })
             return;
 
-        var classText = v.Value.ToString();
+        var classText = NormalizeHeightUtilityForProperty(v.Value.ToString(), propertyName);
 
         if (classText.Length != 0)
         {
-            if (IsDimensionUtilityClass(classText.AsSpan()))
+            if (IsHeightUtilityClassForProperty(classText.AsSpan(), propertyName))
             {
                 AppendClass(ref clsB, classText);
                 return;
@@ -597,6 +596,46 @@ public abstract class RenderComponent : CoreComponent
         }
 
         attrs["style"] = fullDecl;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string NormalizeHeightUtilityForProperty(string classText, ReadOnlySpan<char> propertyName)
+    {
+        if (classText.Length == 0)
+            return classText;
+
+        if (propertyName.SequenceEqual("min-height".AsSpan()))
+        {
+            if (classText.StartsWith("h-", StringComparison.Ordinal))
+                return "min-" + classText;
+        }
+        else if (propertyName.SequenceEqual("max-height".AsSpan()))
+        {
+            if (classText.StartsWith("h-", StringComparison.Ordinal))
+                return "max-" + classText;
+        }
+
+        return classText;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsHeightUtilityClassForProperty(ReadOnlySpan<char> token, ReadOnlySpan<char> propertyName)
+    {
+        if (token.Length == 0)
+            return false;
+
+        if (propertyName.SequenceEqual("height".AsSpan()))
+            return token.StartsWith("h-".AsSpan(), StringComparison.Ordinal)
+                   || token.StartsWith("size-".AsSpan(), StringComparison.Ordinal)
+                   || token.StartsWith("aspect-".AsSpan(), StringComparison.Ordinal);
+
+        if (propertyName.SequenceEqual("min-height".AsSpan()))
+            return token.StartsWith("min-h-".AsSpan(), StringComparison.Ordinal);
+
+        if (propertyName.SequenceEqual("max-height".AsSpan()))
+            return token.StartsWith("max-h-".AsSpan(), StringComparison.Ordinal);
+
+        return false;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
