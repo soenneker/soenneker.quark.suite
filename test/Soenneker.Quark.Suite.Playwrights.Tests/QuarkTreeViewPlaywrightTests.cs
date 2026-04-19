@@ -117,6 +117,6 @@ public sealed class QuarkTreeViewPlaywrightTests : PlaywrightUnitTest
         await featureBDisabled.ClickAsync(new LocatorClickOptions { Force = true });
 
         await Assertions.Expect(disabledSection.GetByText("Sub-feature 1", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
-        Assert.DoesNotContain("background-color: var(--primary)", disabledStyle ?? string.Empty, System.StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("background-color: var(--primary)", disabledStyle ?? string.Empty, StringComparison.OrdinalIgnoreCase);
     }
 }

@@ -142,6 +142,49 @@ else
 
         if (Block)
             Width ??= Quark.Width.IsFull;
+
+        Border ??= Quark.Border.Default;
+        TextSize ??= Quark.TextSize.Sm;
+
+        if (ReferenceEquals(Variant, ButtonVariant.Destructive))
+        {
+            BorderColor ??= Quark.BorderColor.Transparent;
+            BackgroundColor ??= Quark.BackgroundColor.Utility("bg-destructive/10");
+            TextColor ??= Quark.TextColor.Destructive;
+            return;
+        }
+
+        if (ReferenceEquals(Variant, ButtonVariant.Outline))
+        {
+            BorderColor ??= Quark.BorderColor.Border;
+            BackgroundColor ??= Quark.BackgroundColor.Background;
+            return;
+        }
+
+        if (ReferenceEquals(Variant, ButtonVariant.Secondary))
+        {
+            BorderColor ??= Quark.BorderColor.Transparent;
+            BackgroundColor ??= Quark.BackgroundColor.Secondary;
+            TextColor ??= Quark.TextColor.SecondaryForeground;
+            return;
+        }
+
+        if (ReferenceEquals(Variant, ButtonVariant.Ghost))
+        {
+            BorderColor ??= Quark.BorderColor.Transparent;
+            return;
+        }
+
+        if (ReferenceEquals(Variant, ButtonVariant.Link))
+        {
+            BorderColor ??= Quark.BorderColor.Transparent;
+            TextColor ??= Quark.TextColor.Primary;
+            return;
+        }
+
+        BorderColor ??= Quark.BorderColor.Transparent;
+        BackgroundColor ??= Quark.BackgroundColor.Primary;
+        TextColor ??= Quark.TextColor.PrimaryForeground;
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
@@ -177,7 +220,7 @@ else
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/button inline-flex shrink-0 items-center justify-center rounded-lg border bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none");
+            AppendClass(ref cls, "group/button inline-flex shrink-0 items-center justify-center rounded-lg bg-clip-padding font-medium whitespace-nowrap transition-all outline-none select-none");
             AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50");
             AppendClass(ref cls, "active:not-aria-[haspopup]:translate-y-px");
             AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
@@ -390,16 +433,36 @@ else
         hc.Add(TriggerContext?.ParentDisabled == true);
     }
 
+    internal static string GetButtonVariantClass(ButtonVariant? variant)
+    {
+        if (ReferenceEquals(variant, ButtonVariant.Destructive))
+            return "hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40";
+
+        if (ReferenceEquals(variant, ButtonVariant.Outline))
+            return "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50";
+
+        if (ReferenceEquals(variant, ButtonVariant.Secondary))
+            return "hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground";
+
+        if (ReferenceEquals(variant, ButtonVariant.Ghost))
+            return "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50";
+
+        if (ReferenceEquals(variant, ButtonVariant.Link))
+            return "underline-offset-4 hover:underline";
+
+        return "[a]:hover:bg-primary/80";
+    }
+
     internal static string GetButtonVariantClass(string? variant)
     {
         return variant switch
         {
-            "destructive" => "border border-transparent bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
-            "outline" => "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
-            "secondary" => "border border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
-            "ghost" => "border border-transparent hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
-            "link" => "border border-transparent text-primary underline-offset-4 hover:underline",
-            _ => "border border-transparent bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+            ButtonVariant.DestructiveValue => GetButtonVariantClass(ButtonVariant.Destructive),
+            ButtonVariant.OutlineValue => GetButtonVariantClass(ButtonVariant.Outline),
+            ButtonVariant.SecondaryValue => GetButtonVariantClass(ButtonVariant.Secondary),
+            ButtonVariant.GhostValue => GetButtonVariantClass(ButtonVariant.Ghost),
+            ButtonVariant.LinkValue => GetButtonVariantClass(ButtonVariant.Link),
+            _ => GetButtonVariantClass(ButtonVariant.Default)
         };
     }
 

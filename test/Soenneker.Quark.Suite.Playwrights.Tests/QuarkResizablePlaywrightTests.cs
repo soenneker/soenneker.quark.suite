@@ -158,7 +158,7 @@ public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
         Assert.NotNull(style);
 
         const string marker = "flex: 0 0 ";
-        int start = style!.IndexOf(marker, System.StringComparison.Ordinal);
+        int start = style!.IndexOf(marker, StringComparison.Ordinal);
         Assert.True(start >= 0);
 
         start += marker.Length;

@@ -62,13 +62,54 @@
         base.ApplyDefaultParameters();
 
         Display ??= Quark.Display.InlineFlex;
-        ItemsAlign ??= Quark.Items.Center;
+        ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
+        Border ??= Quark.Border.Default;
         Rounded ??= Quark.Rounded.Lg;
         TextSize ??= Quark.TextSize.Sm;
         FontWeight ??= Quark.FontWeight.Medium;
         Whitespace ??= Quark.Whitespace.Nowrap;
         Transition ??= Quark.Transition.All;
+
+        if (ReferenceEquals(Variant, ButtonVariant.Destructive))
+        {
+            BorderColor ??= Quark.BorderColor.Transparent;
+            BackgroundColor ??= Quark.BackgroundColor.Utility("bg-destructive/10");
+            TextColor ??= Quark.TextColor.Destructive;
+            return;
+        }
+
+        if (ReferenceEquals(Variant, ButtonVariant.Outline))
+        {
+            BorderColor ??= Quark.BorderColor.Border;
+            BackgroundColor ??= Quark.BackgroundColor.Background;
+            return;
+        }
+
+        if (ReferenceEquals(Variant, ButtonVariant.Secondary))
+        {
+            BorderColor ??= Quark.BorderColor.Transparent;
+            BackgroundColor ??= Quark.BackgroundColor.Secondary;
+            TextColor ??= Quark.TextColor.SecondaryForeground;
+            return;
+        }
+
+        if (ReferenceEquals(Variant, ButtonVariant.Ghost))
+        {
+            BorderColor ??= Quark.BorderColor.Transparent;
+            return;
+        }
+
+        if (ReferenceEquals(Variant, ButtonVariant.Link))
+        {
+            BorderColor ??= Quark.BorderColor.Transparent;
+            TextColor ??= Quark.TextColor.Primary;
+            return;
+        }
+
+        BorderColor ??= Quark.BorderColor.Transparent;
+        BackgroundColor ??= Quark.BackgroundColor.Primary;
+        TextColor ??= Quark.TextColor.PrimaryForeground;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
