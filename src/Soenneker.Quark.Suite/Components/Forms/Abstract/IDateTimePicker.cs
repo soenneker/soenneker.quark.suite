@@ -37,7 +37,7 @@ public interface IDateTimePicker : IElement
     /// <summary>
     /// Gets or sets the size of the input.
     /// </summary>
-    CssValue<SizeBuilder>? Size { get; set; }
+    CssValue<InputSizeBuilder>? Size { get; set; }
 
     /// <summary>
     /// Gets or sets the callback invoked When the value changes.

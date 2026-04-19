@@ -27,7 +27,7 @@ public interface ISwitch : IComponent
     /// <summary>
     /// Gets or sets the size of the switch.
     /// </summary>
-    CssValue<SizeBuilder>? Size { get; set; }
+    CssValue<SwitchSizeBuilder>? Size { get; set; }
 
     /// <summary>
     /// Gets or sets the callback invoked When the checked state changes.

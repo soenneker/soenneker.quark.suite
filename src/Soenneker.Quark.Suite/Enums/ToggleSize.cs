@@ -16,12 +16,12 @@ public sealed partial class ToggleSize
     /// <summary>
     /// Small size.
     /// </summary>
-    public static readonly ToggleSize Small = new("small");
+    public static readonly ToggleSize Sm = new("sm");
 
     /// <summary>
     /// Large size.
     /// </summary>
-    public static readonly ToggleSize Large = new("large");
+    public static readonly ToggleSize Lg = new("lg");
 
     public static implicit operator CssValue<ToggleSizeBuilder>(ToggleSize size) => size.Value;
 }

@@ -64,7 +64,7 @@
 	public EventCallback<double> SliderValueChanged { get; set; }
 
 	[Parameter]
-	public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
+	public CssValue<SliderSizeBuilder>? Size { get; set; } = SliderSizes.Default;
 
 	[Parameter]
 	public bool PlainText { get; set; }
@@ -132,16 +132,12 @@
 
 	public string? GetSizeClass()
 	{
-		if (Size == Quark.Size.Default)
-			return null;
-
-		string? token = null;
-		_ = Size?.TryGetThemeToken(out token);
-		var sizeValue = token ?? Size?.ToString();
+		var sizeValue = Size?.ToString();
 
 		return sizeValue?.ToLowerInvariant() switch
 		{
-			"sm" or "xs" => "h-6",
+			"default" => null,
+			"sm" => "h-6",
 			"lg" => "h-10",
 			_ => null
 		};
@@ -367,16 +363,12 @@
 
 	private string GetTrackThicknessClass()
 	{
-		if (Size == Quark.Size.Default)
-			return IsVertical ? "w-1" : "h-1";
-
-		string? token = null;
-		_ = Size?.TryGetThemeToken(out token);
-		var sizeValue = token ?? Size?.ToString();
+		var sizeValue = Size?.ToString();
 
 		return sizeValue?.ToLowerInvariant() switch
 		{
-			"sm" or "xs" => IsVertical ? "w-1" : "h-1",
+			null or "" or "default" => IsVertical ? "w-1" : "h-1",
+			"sm" => IsVertical ? "w-1" : "h-1",
 			"lg" => IsVertical ? "w-2" : "h-2",
 			_ => IsVertical ? "w-1" : "h-1"
 		};
@@ -384,16 +376,12 @@
 
 	private string GetThumbSizeClass()
 	{
-		if (Size == Quark.Size.Default)
-			return "size-3";
-
-		string? token = null;
-		_ = Size?.TryGetThemeToken(out token);
-		var sizeValue = token ?? Size?.ToString();
+		var sizeValue = Size?.ToString();
 
 		return sizeValue?.ToLowerInvariant() switch
 		{
-			"sm" or "xs" => "size-3",
+			null or "" or "default" => "size-3",
+			"sm" => "size-3",
 			"lg" => "size-5",
 			_ => "size-3"
 		};

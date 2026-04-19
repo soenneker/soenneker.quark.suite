@@ -69,7 +69,7 @@
     public bool Indeterminate { get; set; }
 
     [Parameter]
-    public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
+    public CssValue<CheckSizeBuilder>? Size { get; set; } = CheckSizes.Default;
 
     [Parameter]
     public bool Switch { get; set; }
@@ -250,12 +250,10 @@
 
     private string? GetSizeClass()
     {
-        if (Size == Quark.Size.Default)
-            return null;
-
         var sizeValue = Size?.ToString()?.ToLowerInvariant();
         return sizeValue switch
         {
+            null or "" or "default" => null,
             "xs" => "h-3 w-3",
             "sm" => "h-3.5 w-3.5",
             "md" => "h-4 w-4",

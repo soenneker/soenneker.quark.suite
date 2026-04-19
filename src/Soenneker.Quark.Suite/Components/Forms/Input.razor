@@ -36,7 +36,7 @@
     /// Gets or sets the size of the input.
     /// </summary>
     [Parameter]
-    public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
+    public CssValue<InputSizeBuilder>? Size { get; set; } = InputSizes.Default;
 
     /// <summary>
     /// Gets or sets whether the input should be rendered as plain text.
@@ -211,14 +211,15 @@
     /// <returns>The size class name, or null if no size class should be applied.</returns>
     public virtual string? GetSizeClass()
     {
-        if (Size == Quark.Size.Default) return null;
+        var sizeValue = Size?.ToString()?.ToLowerInvariant();
 
-        string? token = null;
-        var isTheme = Size?.TryGetThemeToken(out token) == true;
-        if (isTheme && token is not null)
-            return token.ToLowerInvariant() switch { "sm" => "h-7 rounded-lg text-xs", "lg" => "h-10 rounded-lg text-base", _ => null };
-        var sizeVal = Size?.ToString();
-        return sizeVal?.ToLowerInvariant() switch { "sm" => "h-7 rounded-lg text-xs", "lg" => "h-10 rounded-lg text-base", _ => null };
+        return sizeValue switch
+        {
+            null or "" or "default" => null,
+            "sm" => "h-7 rounded-lg text-xs",
+            "lg" => "h-10 rounded-lg text-base",
+            _ => null
+        };
     }
 
     /// <summary>

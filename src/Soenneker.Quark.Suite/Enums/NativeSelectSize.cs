@@ -16,5 +16,5 @@ public sealed partial class NativeSelectSize
     /// <summary>
     /// Small height.
     /// </summary>
-    public static readonly NativeSelectSize Small = new("small");
+    public static readonly NativeSelectSize Sm = new("sm");
 }

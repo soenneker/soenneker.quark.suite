@@ -61,7 +61,7 @@ public interface IMemoInput : IComponent
     /// <summary>
     /// Gets or sets the size of the textarea.
     /// </summary>
-    CssValue<SizeBuilder>? Size { get; set; }
+    CssValue<InputSizeBuilder>? Size { get; set; }
 
     /// <summary>
     /// Gets or sets the callback invoked When the value changes.

@@ -53,7 +53,7 @@
     /// Gets or sets the size of the select.
     /// </summary>
     [Parameter]
-    public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
+    public CssValue<SelectSizeBuilder>? Size { get; set; } = SelectSizes.Default;
 
     /// <summary>
     /// Gets or sets the default item text.
@@ -175,11 +175,6 @@
 
     private string GetSizeValue()
     {
-        string? themeToken = null;
-
-        if (Size?.TryGetThemeToken(out themeToken) == true && themeToken.HasContent())
-            return string.Equals(themeToken, "sm", StringComparison.OrdinalIgnoreCase) ? "sm" : "default";
-
         var sizeValue = Size?.ToString();
 
         return string.Equals(sizeValue, "sm", StringComparison.OrdinalIgnoreCase)

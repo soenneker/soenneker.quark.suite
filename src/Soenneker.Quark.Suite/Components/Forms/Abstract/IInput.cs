@@ -30,7 +30,7 @@ public interface IInput : IComponent
     /// <summary>
     /// Gets or sets the size of the input.
     /// </summary>
-    CssValue<SizeBuilder>? Size { get; set; }
+    CssValue<InputSizeBuilder>? Size { get; set; }
 
     /// <summary>
     /// Gets or sets whether the input should be rendered as plain text.

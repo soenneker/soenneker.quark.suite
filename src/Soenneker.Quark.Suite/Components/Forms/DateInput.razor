@@ -107,7 +107,7 @@
 	/// Gets or sets the size of the input.
 	/// </summary>
 	[Parameter]
-	public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
+	public CssValue<InputSizeBuilder>? Size { get; set; } = InputSizes.Default;
 
 	/// <summary>
 	/// Gets or sets whether the input should be displayed as plain text.
@@ -165,14 +165,8 @@
 
 	public string? GetSizeClass()
 	{
-		if (Size == Quark.Size.Default)
-			return null;
-
-		string? token = null;
-		var isTheme = Size?.TryGetThemeToken(out token) == true;
-		var sizeVal = token ?? Size?.ToString();
-		if (string.IsNullOrEmpty(sizeVal)) return null;
-		return sizeVal.ToLowerInvariant() switch { "sm" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
+		var sizeValue = Size?.ToString()?.ToLowerInvariant();
+		return sizeValue switch { null or "" or "default" => null, "sm" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
 	}
 
     private string InputModeValue => InputMode?.Value ?? DateInputMode.Date.Value;

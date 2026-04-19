@@ -8,7 +8,7 @@ public interface IPagination : IElement
     /// <summary>
     /// Gets or sets the size of the pagination.
     /// </summary>
-    CssValue<SizeBuilder>? Size { get; set; }
+    CssValue<PaginationSizeBuilder>? Size { get; set; }
 
     /// <summary>
     /// Gets or sets whether the pagination should be displayed vertically.

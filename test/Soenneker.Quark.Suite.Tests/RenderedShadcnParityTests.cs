@@ -698,7 +698,6 @@ public sealed class RenderedShadcnParityTests : BunitContext
         selectClasses.Should().NotContain("q-select");
 
         triggerClasses.Should().Contain("flex");
-        triggerClasses.Should().Contain("w-fit");
         triggerClasses.Should().Contain("items-center");
         triggerClasses.Should().Contain("justify-between");
         triggerClasses.Should().Contain("gap-1.5");

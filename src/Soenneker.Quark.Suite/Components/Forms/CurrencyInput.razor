@@ -89,7 +89,7 @@
     public string? CultureName { get; set; }
 
     [Parameter]
-    public CssValue<SizeBuilder>? Size { get; set; } = Quark.Size.Default;
+    public CssValue<InputSizeBuilder>? Size { get; set; } = InputSizes.Default;
 
     [Parameter]
     public bool PlainText { get; set; }
@@ -159,17 +159,8 @@
 
     public string? GetSizeClass()
     {
-        if (Size == Quark.Size.Default)
-            return null;
-
-        string? token = null;
-        var isTheme = Size?.TryGetThemeToken(out token) == true;
-        var sizeValue = token ?? Size?.ToString();
-
-        if (isTheme && sizeValue is not null)
-            return sizeValue.ToLowerInvariant() switch { "sm" or "xs" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
-
-        return sizeValue?.ToLowerInvariant() switch { "sm" or "xs" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
+        var sizeValue = Size?.ToString()?.ToLowerInvariant();
+        return sizeValue switch { null or "" or "default" => null, "sm" => "h-9 text-xs", "lg" => "h-11 text-base", _ => null };
     }
 
     protected override void OnParametersSet()

@@ -43,7 +43,7 @@ public interface ISelect<TValue> : IElement
     /// <summary>
     /// Gets or sets the size of the select.
     /// </summary>
-    CssValue<SizeBuilder>? Size { get; set; }
+    CssValue<SelectSizeBuilder>? Size { get; set; }
 
     /// <summary>
     /// Gets or sets the placeholder text displayed When no option is selected.
