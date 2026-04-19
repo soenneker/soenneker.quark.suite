@@ -372,11 +372,10 @@ public abstract class Component : RenderComponent, IComponent
             builder(ref cls);
 
             attrs.TryGetValue("class", out var existing);
+            var combined = AppendToClass(cls.ToString(), existing?.ToString() ?? string.Empty);
 
-            var merged = TailwindMerge.Merge(cls.ToString(), existing?.ToString());
-
-            if (merged.Length > 0)
-                attrs["class"] = merged;
+            if (combined.Length > 0)
+                attrs["class"] = combined;
         }
         finally
         {

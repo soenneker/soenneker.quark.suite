@@ -479,11 +479,13 @@ public abstract class RenderComponent : CoreComponent
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static void AppendClassAttribute(Dictionary<string, object> attrs, params string?[] classes)
     {
-        attrs.TryGetValue("class", out var existing);
-        var merged = TailwindMerge.Merge(existing?.ToString(), string.Join(' ', classes ?? Array.Empty<string?>()));
+        attrs.TryGetValue("class", out var existingObj);
+        var existing = existingObj?.ToString();
+        var appended = string.Join(' ', classes ?? Array.Empty<string?>());
+        var cls = AppendToClass(existing, appended);
 
-        if (merged.Length > 0)
-            attrs["class"] = merged;
+        if (cls.Length > 0)
+            attrs["class"] = cls;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -496,11 +498,10 @@ public abstract class RenderComponent : CoreComponent
             builder(ref cls);
 
             attrs.TryGetValue("class", out var existing);
+            var combined = AppendToClass(cls.ToString(), existing?.ToString() ?? string.Empty);
 
-            var merged = TailwindMerge.Merge(cls.ToString(), existing?.ToString());
-
-            if (merged.Length > 0)
-                attrs["class"] = merged;
+            if (combined.Length > 0)
+                attrs["class"] = combined;
         }
         finally
         {
@@ -554,11 +555,7 @@ public abstract class RenderComponent : CoreComponent
             builder(ref cls, ref sty);
 
             if (existingClassLen != 0)
-            {
-                var merged = TailwindMerge.Merge(cls.ToString(), existingClassStr);
-                cls.Clear();
-                cls.Append(merged);
-            }
+                AppendClass(ref cls, existingClassStr!);
 
             if (existingStyleLen != 0)
                 AppendStyleDecl(ref sty, existingStyleStr!);

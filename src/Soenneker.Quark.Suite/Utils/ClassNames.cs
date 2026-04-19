@@ -5,17 +5,17 @@ using System.Collections.Generic;
 namespace Soenneker.Quark.Utils;
 
 /// <summary>
-/// Combines CSS class names with Tailwind conflict resolution.
+/// Combines CSS class names without conflict resolution.
 /// </summary>
 public static class ClassNames
 {
     private static readonly char[] WhitespaceSeparators = [' ', '\t', '\n', '\r'];
 
     /// <summary>
-    /// Combines multiple class names and resolves Tailwind CSS conflicts. Later inputs win on conflict.
+    /// Combines multiple class names while preserving the original token order.
     /// </summary>
     /// <param name="inputs">Strings, nulls, booleans (ignored), or IEnumerables. Conditional: (condition &amp;&amp; "class") works.</param>
-    /// <returns>Merged class string with Tailwind conflicts resolved.</returns>
+    /// <returns>Combined class string with original token order preserved.</returns>
     public static string Combine(params object?[] inputs)
     {
         if (inputs == null || inputs.Length == 0) return string.Empty;
@@ -27,7 +27,7 @@ public static class ClassNames
         if (classes.Count == 0) 
             return string.Empty;
         
-        return TailwindMerge.Merge(classes.ToArray());
+        return string.Join(' ', classes);
     }
 
     /// <summary>

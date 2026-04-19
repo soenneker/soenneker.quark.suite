@@ -5,6 +5,7 @@
 <kbd @attributes="BuildAttributes()">@ChildContent</kbd>
 
 @code {
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -16,17 +17,14 @@
         FontFamily ??= Quark.FontFamily.Mono;
         BackgroundColor ??= Quark.BackgroundColor.Muted;
         TextColor ??= Quark.TextColor.Foreground;
+        ItemsAlign ??= Quark.Items.Center;
+        Padding ??= Quark.Padding.Token("1.5").OnX.Token("0.5").OnY;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "kbd-chip";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "items-center px-1.5 py-0.5");
-        });
     }
 
 }

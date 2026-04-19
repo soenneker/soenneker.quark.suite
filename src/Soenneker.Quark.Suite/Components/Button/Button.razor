@@ -14,12 +14,7 @@
 }
 else if (RenderAsLink)
 {
-    <a href="@To"
-       @ref="_elementRef"
-       @onclick="HandleClick"
-       @onclick:preventDefault="PreventLinkDefault"
-       @onclick:stopPropagation="StopTriggerClickPropagation"
-       @attributes="BuildAttributes()">
+    <a href="@To" @ref="_elementRef" @onclick="HandleClick" @onclick:preventDefault="PreventLinkDefault" @onclick:stopPropagation="StopTriggerClickPropagation" @attributes="BuildAttributes()">
         @if (Loading)
         {
             <span class="animate-spin size-4 mr-2 inline-block rounded-full border-2 border-current border-t-transparent" role="status" aria-hidden="true"></span>
@@ -36,10 +31,7 @@ else if (RenderAsLink)
 }
 else
 {
-    <button @ref="_elementRef"
-            @onclick="HandleClick"
-            @onclick:stopPropagation="StopTriggerClickPropagation"
-            @attributes="BuildAttributes()">
+    <button @ref="_elementRef" @onclick="HandleClick" @onclick:stopPropagation="StopTriggerClickPropagation" @attributes="BuildAttributes()">
         @if (Loading)
         {
             <span class="animate-spin size-4 mr-2 inline-block rounded-full border-2 border-current border-t-transparent" role="status" aria-hidden="true"></span>
@@ -56,6 +48,7 @@ else
 }
 
 @code {
+
     [CascadingParameter]
     public IButtonGroup? ButtonGroup { get; set; }
 
@@ -67,28 +60,15 @@ else
     private bool RenderAsLink => string.Equals(Type?.Value, "link", StringComparison.Ordinal) || To.HasContent();
 
     private bool PreventLinkDefault =>
-        Disabled ||
-        Loading ||
-        CollapseTarget.HasContent() ||
-        TriggerContext?.Toggle is not null ||
-        (To.HasContent() && !To!.StartsWith("#", StringComparison.Ordinal));
+        Disabled || Loading || CollapseTarget.HasContent() || TriggerContext?.Toggle is not null || (To.HasContent() && !To!.StartsWith("#", StringComparison.Ordinal));
 
     private bool StopTriggerClickPropagation => TriggerContext?.Toggle is not null;
-
-    private const string _buttonBase =
-        "group/button shrink-0 outline-none select-none bg-clip-padding " +
-        "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 " +
-        "active:not-aria-[haspopup]:translate-y-px " +
-        "disabled:pointer-events-none disabled:opacity-50 " +
-        "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 " +
-        "dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 " +
-        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4";
 
     /// <summary>
     /// Gets or sets the size of the button (shadcn: default, xs, sm, lg, icon, icon-xs, icon-sm, icon-lg).
     /// </summary>
     [Parameter]
-    public CssValue<ButtonSizeBuilder>? Size { get; set; } = "default";
+    public CssValue<ButtonSizeBuilder>? Size { get; set; } = ButtonSize.Default;
 
     /// <summary>
     /// Gets or sets whether the button should span the full width of its container.
@@ -160,17 +140,6 @@ else
     {
         base.ApplyDefaultParameters();
 
-        Display ??= Quark.Display.InlineFlex;
-        ItemsAlign ??= Quark.Items.Center;
-        Justify ??= Quark.Justify.Center;
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Is1;
-        FontWeight ??= Quark.FontWeight.Medium;
-        Whitespace ??= Quark.Whitespace.Nowrap;
-        Transition ??= Quark.Transition.All;
-        UserSelect ??= Quark.UserSelect.None;
-        TextSize ??= Quark.TextSize.Sm;
-
         if (Block)
             Width ??= Quark.Width.IsFull;
     }
@@ -208,8 +177,13 @@ else
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, _buttonBase);
-            AppendClass(ref cls, ButtonStyleUtil.GetVariantClass(Variant?.Value));
+            AppendClass(ref cls, "group/button inline-flex shrink-0 items-center justify-center rounded-lg border bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none");
+            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50");
+            AppendClass(ref cls, "active:not-aria-[haspopup]:translate-y-px");
+            AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
+            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
+            AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
+            AppendClass(ref cls, GetButtonVariantClass(Variant?.Value));
             AppendClass(ref cls, GetButtonSizeClass(effectiveSize));
 
             if (Block)
@@ -263,9 +237,12 @@ else
                 attributes["disabled"] = true;
         }
 
-        if (Value.HasContent()) attributes["value"] = Value!;
-        if (Name.HasContent()) attributes["name"] = Name!;
-        if (Form.HasContent()) attributes["form"] = Form!;
+        if (Value.HasContent())
+            attributes["value"] = Value!;
+        if (Name.HasContent())
+            attributes["name"] = Name!;
+        if (Form.HasContent())
+            attributes["form"] = Form!;
     }
 
     protected override void BuildOwnedAttributes(Dictionary<string, object> attributes)
@@ -333,10 +310,7 @@ else
 
         if (CollapseTarget.HasContent())
             await CollapseCoordinator.ToggleTargets(CollapseTarget);
-        else if (Attributes is not null
-                 && Attributes.TryGetValue("data-toggle", out var dataToggleObj)
-                 && string.Equals(dataToggleObj?.ToString(), "collapse", StringComparison.OrdinalIgnoreCase)
-                 && Attributes.TryGetValue("data-target", out var dataTargetObj))
+        else if (Attributes is not null && Attributes.TryGetValue("data-toggle", out var dataToggleObj) && string.Equals(dataToggleObj?.ToString(), "collapse", StringComparison.OrdinalIgnoreCase) && Attributes.TryGetValue("data-target", out var dataTargetObj))
             await CollapseCoordinator.ToggleTargets(dataTargetObj?.ToString());
 
         await base.HandleClick(args);
@@ -416,16 +390,29 @@ else
         hc.Add(TriggerContext?.ParentDisabled == true);
     }
 
-    private static string GetButtonSizeClass(CssValue<ButtonSizeBuilder>? size)
+    internal static string GetButtonVariantClass(string? variant)
+    {
+        return variant switch
+        {
+            "destructive" => "border border-transparent bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+            "outline" => "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+            "secondary" => "border border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+            "ghost" => "border border-transparent hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
+            "link" => "border border-transparent text-primary underline-offset-4 hover:underline",
+            _ => "border border-transparent bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+        };
+    }
+
+    internal static string GetButtonSizeClass(CssValue<ButtonSizeBuilder>? size)
     {
         if (size?.TryGetThemeToken(out var token) == true && !string.IsNullOrWhiteSpace(token))
-            return ButtonStyleUtil.GetSizeClass(token);
+            return ResolveButtonSizeClass(token);
 
         var raw = size?.ToString();
 
         if (!string.IsNullOrWhiteSpace(raw))
         {
-            var mapped = ButtonStyleUtil.GetSizeClass(raw);
+            var mapped = ResolveButtonSizeClass(raw);
 
             if (!string.IsNullOrWhiteSpace(mapped))
                 return mapped;
@@ -434,19 +421,61 @@ else
                 return raw;
         }
 
-        return ButtonStyleUtil.GetSizeClass(ButtonSize.Default.Value);
+        return ResolveButtonSizeClass(ButtonSize.Default.Value);
     }
 
-    private static string GetButtonSizeDataAttribute(CssValue<ButtonSizeBuilder>? size)
+    internal static string ResolveButtonSizeClass(string? size)
+    {
+        return size switch
+        {
+            "xs" => "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
+            "sm" => "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+            "lg" => "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+            "icon" => "size-8",
+            "icon-xs" => "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",
+            "icon-sm" => "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg",
+            "icon-lg" => "size-9",
+            _ => "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2"
+        };
+    }
+
+    internal static string GetInputGroupButtonSizeClass(string? size)
+    {
+        return size switch
+        {
+            "sm" => "h-8 gap-1.5 px-2.5",
+            "icon-xs" => "size-6 rounded-[calc(var(--radius)-5px)] p-0 [&>svg:not([class*='size-'])]:size-3",
+            "icon-sm" => "size-8 p-0",
+            _ => "h-6 gap-1 rounded-[calc(var(--radius)-5px)] px-2 [&>svg:not([class*='size-'])]:size-3.5"
+        };
+    }
+
+    internal static string GetButtonSizeDataAttribute(CssValue<ButtonSizeBuilder>? size)
     {
         if (size?.TryGetThemeToken(out var token) == true && !string.IsNullOrWhiteSpace(token))
-            return ButtonStyleUtil.GetSizeDataAttribute(token);
+            return ResolveButtonSizeDataAttribute(token);
 
         var raw = size?.ToString();
 
         if (!string.IsNullOrWhiteSpace(raw))
-            return ButtonStyleUtil.GetSizeDataAttribute(raw);
+            return ResolveButtonSizeDataAttribute(raw);
 
-        return ButtonStyleUtil.GetSizeDataAttribute(ButtonSize.Default.Value);
+        return ResolveButtonSizeDataAttribute(ButtonSize.Default.Value);
     }
+
+    internal static string ResolveButtonSizeDataAttribute(string? size)
+    {
+        return size switch
+        {
+            "xs" => "xs",
+            "sm" => "sm",
+            "lg" => "lg",
+            "icon" => "icon",
+            "icon-xs" => "icon-xs",
+            "icon-sm" => "icon-sm",
+            "icon-lg" => "icon-lg",
+            _ => "default"
+        };
+    }
+
 }

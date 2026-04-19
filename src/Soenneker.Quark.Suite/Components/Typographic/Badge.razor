@@ -36,7 +36,7 @@ else
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, _shadcnBadgeBase);
-            AppendClass(ref cls, BadgeStyleUtil.GetVariantClass(Variant?.Value));
+            AppendClass(ref cls, GetBadgeVariantClass(Variant?.Value));
         });
     }
 
@@ -57,5 +57,16 @@ else
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Variant);
         hc.Add(AsChild);
+    }
+
+    private static string GetBadgeVariantClass(string? variant)
+    {
+        return variant switch
+        {
+            "secondary" => "bg-secondary text-secondary-foreground [a]:hover:bg-secondary/80",
+            "destructive" => "bg-destructive text-white [a]:hover:bg-destructive/80 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40",
+            "outline" => "text-foreground [a]:hover:bg-accent [a]:hover:text-accent-foreground",
+            _ => "bg-primary text-primary-foreground [a]:hover:bg-primary/80"
+        };
     }
 }

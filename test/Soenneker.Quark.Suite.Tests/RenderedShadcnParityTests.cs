@@ -613,6 +613,43 @@ public sealed class RenderedShadcnParityTests : BunitContext
     }
 
     [Fact]
+    public void Button_default_matches_shadcn_base_classes_exactly()
+    {
+        var cut = Render<Button>(parameters => parameters
+            .Add(p => p.ChildContent, "Button"));
+
+        string classes = cut.Find("[data-slot='button']").GetAttribute("class")!;
+
+        classes.Should().Contain("group/button");
+        classes.Should().Contain("inline-flex");
+        classes.Should().Contain("rounded-lg");
+        classes.Should().Contain("border");
+        classes.Should().Contain("bg-primary");
+        classes.Should().Contain("text-primary-foreground");
+        classes.Should().Contain("h-8");
+        classes.Should().Contain("gap-1.5");
+        classes.Should().Contain("px-2.5");
+        classes.Should().Contain("[a]:hover:bg-primary/80");
+        classes.Should().NotContain("border-1");
+    }
+
+    [Fact]
+    public void Button_outline_icon_matches_shadcn_base_classes_exactly()
+    {
+        var cut = Render<Button>(parameters => parameters
+            .Add(p => p.Variant, ButtonVariant.Outline)
+            .Add(p => p.Size, ButtonSize.Icon)
+            .AddUnmatched("aria-label", "Submit")
+            .Add(p => p.ChildContent, "Icon"));
+
+        string classes = cut.Find("[data-slot='button']").GetAttribute("class")!;
+
+        classes.Should().Be("group/button inline-flex shrink-0 items-center justify-center rounded-lg border bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 size-8");
+        classes.Should().NotContain("border-1");
+        classes.Should().NotContain("inline-flex text-sm font-medium");
+    }
+
+    [Fact]
     public void Badge_matches_shadcn_base_classes()
     {
         var cut = Render<Badge>(parameters => parameters

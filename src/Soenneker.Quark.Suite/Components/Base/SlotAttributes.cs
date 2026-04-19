@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Soenneker.Quark.Utils;
-
 namespace Soenneker.Quark;
 
 internal static class SlotAttributes
@@ -22,7 +20,7 @@ internal static class SlotAttributes
                 {
                     attributes.TryGetValue("class", out var existingClassObj);
                     var existingClass = existingClassObj?.ToString();
-                    attributes["class"] = TailwindMerge.Merge(slotClass, existingClass);
+                    attributes["class"] = string.IsNullOrWhiteSpace(existingClass) ? slotClass : $"{slotClass} {existingClass}";
                 }
 
                 continue;
