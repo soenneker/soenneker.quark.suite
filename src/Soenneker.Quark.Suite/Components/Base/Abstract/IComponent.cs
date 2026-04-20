@@ -9,6 +9,7 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IComponent : ICoreComponent
 {
+    bool Container { get; set; }
     string? Class { get; set; }
     string? Style { get; set; }
     string? Title { get; set; }
@@ -22,13 +23,13 @@ public interface IComponent : ICoreComponent
     CssValue<TextAlignBuilder>? TextAlign { get; set; }
     CssValue<TextColorBuilder>? TextColor { get; set; }
     CssValue<TextSizeBuilder>? TextSize { get; set; }
-    CssValue<TextDecorationBuilder>? TextDecoration { get; set; }
+    CssValue<DecorationLineBuilder>? DecorationLine { get; set; }
     CssValue<TextTransformBuilder>? TextTransform { get; set; }
     CssValue<FontFamilyBuilder>? FontFamily { get; set; }
     CssValue<FontWeightBuilder>? FontWeight { get; set; }
     CssValue<FontStyleBuilder>? FontStyle { get; set; }
-    CssValue<LineHeightBuilder>? LineHeight { get; set; }
-    CssValue<LetterSpacingBuilder>? LetterSpacing { get; set; }
+    CssValue<LeadingBuilder>? Leading { get; set; }
+    CssValue<TrackingBuilder>? Tracking { get; set; }
     CssValue<WhitespaceBuilder>? Whitespace { get; set; }
     CssValue<TextWrapBuilder>? TextWrap { get; set; }
     CssValue<TextBreakBuilder>? TextBreak { get; set; }
@@ -39,7 +40,6 @@ public interface IComponent : ICoreComponent
     CssValue<MarginBuilder>? Margin { get; set; }
     CssValue<PaddingBuilder>? Padding { get; set; }
     CssValue<PositionBuilder>? Position { get; set; }
-    CssValue<PositionOffsetBuilder>? PositionOffset { get; set; }
     CssValue<ScrollMarginBuilder>? ScrollMargin { get; set; }
     CssValue<SizeBuilder>? BoxSize { get; set; }
     CssValue<WidthBuilder>? Width { get; set; }

@@ -1,6 +1,5 @@
 using AwesomeAssertions;
 using Bunit;
-using Soenneker.Quark;
 using Xunit;
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -42,8 +41,30 @@ public sealed partial class RenderedShadcnParityTests
         sliderThumbClasses.Should().Contain("rounded-full");
         sliderThumbClasses.Should().Contain("border");
         sliderThumbClasses.Should().Contain("border-ring");
+        sliderThumbClasses.Should().Contain("bg-white");
+        sliderThumbClasses.Should().Contain("focus-visible:ring-3");
         sliderThumbClasses.Should().NotContain("q-slider");
         slider.Find("[data-slot='slider-thumb']").HasAttribute("aria-label").Should().BeFalse();
+    }
+
+    [Fact]
+    public void Slider_thumb_is_wrapped_in_absolute_positioning_container()
+    {
+        var slider = Render<Slider>(parameters => parameters
+            .Add(p => p.Values, new[] { 200d, 800d })
+            .Add(p => p.Min, 0d)
+            .Add(p => p.Max, 1000d)
+            .Add(p => p.AriaLabel, "Price Range"));
+
+        var thumb = slider.Find("[data-slot='slider-thumb']");
+        var wrapper = thumb.ParentElement;
+
+        wrapper.Should().NotBeNull();
+        wrapper!.TagName.Should().Be("SPAN");
+        wrapper.GetAttribute("style").Should().Contain("position: absolute");
+        wrapper.GetAttribute("style").Should().Contain("left: calc(20.00% + 3.6px)");
+        wrapper.GetAttribute("style").Should().Contain("transform: var(--radix-slider-thumb-transform)");
+        thumb.GetAttribute("style").Should().BeNull();
     }
 
     [Fact]
@@ -61,5 +82,27 @@ public sealed partial class RenderedShadcnParityTests
         thumbs[0].GetAttribute("aria-label")!.Should().Be("Minimum");
         thumbs[1].GetAttribute("aria-label")!.Should().Be("Maximum");
         slider.Find("[data-slot='slider']").GetAttribute("aria-label")!.Should().Be("Price Range");
+    }
+
+    [Fact]
+    public void Slider_matches_shadcn_range_geometry_and_root_attributes()
+    {
+        var slider = Render<Slider>(parameters => parameters
+            .Add(p => p.Values, new[] { 200d, 800d })
+            .Add(p => p.Min, 0d)
+            .Add(p => p.Max, 1000d)
+            .Add(p => p.AriaLabel, "Price Range"));
+
+        var root = slider.Find("[data-slot='slider']");
+        var range = slider.Find("[data-slot='slider-range']");
+
+        root.GetAttribute("dir")!.Should().Be("ltr");
+        root.GetAttribute("aria-disabled")!.Should().Be("false");
+        root.GetAttribute("style")!.Should().Contain("--radix-slider-thumb-transform: translateX(-50%)");
+        root.HasAttribute("data-js-ready").Should().BeFalse();
+
+        range.GetAttribute("style")!.Should().Contain("left: 20.00%");
+        range.GetAttribute("style")!.Should().Contain("right: 20.00%");
+        range.GetAttribute("style")!.Should().NotContain("width:");
     }
 }

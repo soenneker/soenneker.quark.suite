@@ -7,30 +7,11 @@
 @implements Soenneker.Quark.IValidationInput
 @implements IRadio
 @implements IDisposable
-<div @attributes="BuildWrapperAttributes()">
-    @if (ParentRadioGroup is not null)
+@if (ParentRadioGroup is not null)
+{
+    @if (HasInlineLabel)
     {
-        @if (HasInlineLabel)
-        {
-            <label @attributes="BuildLabelAttributes()">
-                <BradixRadioGroupItem Id="@ControlId"
-                                      Value="@ResolvedGroupedValue"
-                                      InputValue="@ResolvedGroupedValue"
-                                      Disabled="@Disabled"
-                                      OnClick="HandleGroupedClick"
-                                      OnFocus="HandleGroupedFocus"
-                                      OnKeyDown="HandleGroupedKeyDown"
-                                      AdditionalAttributes="@BuildGroupedItemAttributes()">
-                    <BradixRadioGroupIndicator AdditionalAttributes="@BuildGroupedIndicatorAttributes()" />
-                </BradixRadioGroupItem>
-                @if (ChildContent != null)
-                {
-                    @ChildContent
-                }
-            </label>
-        }
-        else
-        {
+        <label @attributes="BuildLabelAttributes()">
             <BradixRadioGroupItem Id="@ControlId"
                                   Value="@ResolvedGroupedValue"
                                   InputValue="@ResolvedGroupedValue"
@@ -41,11 +22,53 @@
                                   AdditionalAttributes="@BuildGroupedItemAttributes()">
                 <BradixRadioGroupIndicator AdditionalAttributes="@BuildGroupedIndicatorAttributes()" />
             </BradixRadioGroupItem>
-        }
+            @if (ChildContent != null)
+            {
+                @ChildContent
+            }
+        </label>
     }
-    else if (HasInlineLabel)
+    else
     {
-        <label @attributes="BuildLabelAttributes()">
+        <BradixRadioGroupItem Id="@ControlId"
+                              Value="@ResolvedGroupedValue"
+                              InputValue="@ResolvedGroupedValue"
+                              Disabled="@Disabled"
+                              OnClick="HandleGroupedClick"
+                              OnFocus="HandleGroupedFocus"
+                              OnKeyDown="HandleGroupedKeyDown"
+                              AdditionalAttributes="@BuildGroupedItemAttributes()">
+            <BradixRadioGroupIndicator AdditionalAttributes="@BuildGroupedIndicatorAttributes()" />
+        </BradixRadioGroupItem>
+    }
+}
+else
+{
+    <div @attributes="BuildWrapperAttributes()">
+        @if (HasInlineLabel)
+        {
+            <label @attributes="BuildLabelAttributes()">
+                <input
+                    @attributes="BuildInputAttributes()"
+                    @onclick="HandleInputClick"
+                    @onchange="HandleChange"
+                    @onkeydown="HandleKeyDown"
+                    @onkeydown:preventDefault="_preventDefault"
+                    @ref="_elementRef" />
+                <span @attributes="BuildIndicatorAttributes()">
+                    @if (EffectiveChecked)
+                    {
+                        <span data-slot="radio-group-indicator" class="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-foreground"></span>
+                    }
+                </span>
+                @if (ChildContent != null)
+                {
+                    @ChildContent
+                }
+            </label>
+        }
+        else
+        {
             <input
                 @attributes="BuildInputAttributes()"
                 @onclick="HandleInputClick"
@@ -59,29 +82,9 @@
                     <span data-slot="radio-group-indicator" class="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-foreground"></span>
                 }
             </span>
-            @if (ChildContent != null)
-            {
-                @ChildContent
-            }
-        </label>
-    }
-    else
-    {
-        <input
-            @attributes="BuildInputAttributes()"
-            @onclick="HandleInputClick"
-            @onchange="HandleChange"
-            @onkeydown="HandleKeyDown"
-            @onkeydown:preventDefault="_preventDefault"
-            @ref="_elementRef" />
-        <span @attributes="BuildIndicatorAttributes()">
-            @if (EffectiveChecked)
-            {
-                <span data-slot="radio-group-indicator" class="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-foreground"></span>
-            }
-        </span>
-    }
-</div>
+        }
+    </div>
+}
 
 @code {
     /// <summary>
@@ -265,7 +268,7 @@
     }
 
     private const string _shadcnRadioItemBase =
-        "group/radio-group-item peer relative flex aspect-square shrink-0 items-center justify-center rounded-full border border-input outline-none after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary";
+        "group/radio-group-item peer relative flex aspect-square shrink-0 rounded-full border border-input outline-none after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary";
 
     private Dictionary<string, object> BuildLabelAttributes()
     {
@@ -358,9 +361,6 @@
     private Dictionary<string, object> BuildGroupedItemAttributes()
     {
         var attributes = new Dictionary<string, object>(BuildIndicatorAttributes());
-
-        attributes.Remove("data-checked");
-        attributes.Remove("data-unchecked");
 
         if (Attributes is not null)
         {

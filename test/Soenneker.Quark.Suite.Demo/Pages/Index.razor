@@ -6,7 +6,7 @@
 <Div Display="Display.Flex" Flex=@("flex flex-col") Class="flex-1">
 <Section Class="border-grid">
     <Div Class="container-wrapper">
-        <Div Class="container flex flex-col items-center gap-2 px-6 py-8 text-center md:py-16 lg:py-20 xl:gap-4">
+        <Div Container="true" Class="flex flex-col items-center gap-2 px-6 py-8 text-center md:py-16 lg:py-20 xl:gap-4">
             <Badge AsChild Variant="BadgeVariant.Secondary" Class="bg-muted">
                 <Anchor To="sera">
                     Introducing Sera
@@ -35,7 +35,7 @@
 </Section>
 
 <Div Flex=@("flex-1") Class="container-wrapper pb-6">
-<Div Overflow="Overflow.Hidden" Class="container">
+<Div Container="true" Overflow="Overflow.Hidden">
 <Section Overflow="Overflow.Hidden" Rounded="Rounded.Lg" Border="Border.Is1" BorderColor='BorderColor.Token("border/50")' Class="-mx-4 w-[160vw] md:hidden md:w-[150vw]">
     <Image Alt="Dashboard" Display="Display.Block" Width="Width.IsFull" Height="875" Decoding="async" Src="@DashboardLightUrl" SrcSet="@DashboardLightSrcSet" Class="dark:hidden"/>
     <Image Alt="Dashboard" Width="Width.IsFull" Height="875" Decoding="async" Src="@DashboardDarkUrl" SrcSet="@DashboardDarkSrcSet" Class="hidden dark:block"/>
@@ -56,7 +56,7 @@
                             <FieldLabel For="idx-card-name">Name on Card</FieldLabel>
                             <Input Id="idx-card-name" Placeholder="John Doe" Required="true"/>
                         </Field>
-                        <Grid Columns="Columns.Is3" Gap="Gap.Is4">
+                        <Grid Columns="GridCols.Is3" Gap="Gap.Is4">
                             <Field Class="col-span-2">
                                 <FieldLabel For="idx-card-number">Card Number</FieldLabel>
                                 <Input Id="idx-card-number" Placeholder="1234 5678 9012 3456" Required="true"/>
@@ -67,7 +67,7 @@
                                 <Input Id="idx-cvv" Placeholder="123" Required="true"/>
                             </Field>
                         </Grid>
-                        <Grid Columns="Columns.Is2" Gap="Gap.Is4">
+                        <Grid Columns="GridCols.Is2" Gap="Gap.Is4">
                             <Field>
                                 <FieldLabel For="idx-exp-month">Month</FieldLabel>
                                 <Select TValue="string" SelectedValue="@("")">
@@ -303,7 +303,7 @@
         <FieldGroup>
             <RadioGroup Name="landing-compute" Value="@computeEnvironment" ValueChanged="HandleComputeEnvironmentChanged" AriaLabel="Compute environment">
                 <FieldLabel For="landing-kubernetes">
-                    <Field Horizontal="true" Rounded="Rounded.Xl" Border="Border.Is1" Padding='Padding.Token("3.5")' Transition="Transition.Colors" Class="has-[[role=radio][data-state=checked]]:border-foreground has-[[role=radio][data-state=checked]]:bg-accent/30">
+                    <Field Horizontal="true">
                         <FieldContent>
                             <FieldTitle>Kubernetes</FieldTitle>
                             <FieldDescription>Run GPU workloads on a K8s configured cluster. This is the default.</FieldDescription>
@@ -312,7 +312,7 @@
                     </Field>
                 </FieldLabel>
                 <FieldLabel For="landing-vm">
-                    <Field Horizontal="true" Rounded="Rounded.Xl" Border="Border.Is1" Padding='Padding.Token("3.5")' Transition="Transition.Colors" Class="has-[[role=radio][data-state=checked]]:border-foreground has-[[role=radio][data-state=checked]]:bg-accent/30">
+                    <Field Horizontal="true">
                         <FieldContent>
                             <FieldTitle>Virtual Machine</FieldTitle>
                             <FieldDescription>Access a VM configured cluster to run workloads. (Coming soon)</FieldDescription>
@@ -400,46 +400,91 @@
         </Field>
     </Div>
 
-    <Div Display="Display.Flex" ItemsAlign="Items.Center" Justify="Justify.Between" Gap="Gap.Is4">
-        <ButtonGroup AriaLabel="Pagination">
-            <Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm">1</Button>
-            <Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm">2</Button>
-            <Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm">3</Button>
+    <Div Display="Display.Flex" Justify="Justify.Between" Gap="Gap.Is4">
+        <ButtonGroup>
+            <ButtonGroup AriaLabel="Pagination">
+                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">1</Button>
+                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">2</Button>
+                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">3</Button>
+            </ButtonGroup>
+            <ButtonGroup AriaLabel="Pagination arrows">
+                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm" aria-label="Previous">
+                    <Icon Name="LucideIcon.ArrowLeft"/>
+                </Button>
+                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm" aria-label="Next">
+                    <Icon Name="LucideIcon.ArrowRight"/>
+                </Button>
+            </ButtonGroup>
         </ButtonGroup>
-        <ButtonGroup AriaLabel="Pagination arrows">
-            <Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm" aria-label="Previous">
-                <Icon Name="LucideIcon.ArrowLeft"/>
+        <ButtonGroup>
+            <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">
+                <Icon Name="LucideIcon.Bot"/>
+                Copilot
             </Button>
-            <Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm" aria-label="Next">
-                <Icon Name="LucideIcon.ArrowRight"/>
+            <Button Variant="ButtonVariant.Outline" Size="ButtonSize.IconSm" aria-label="Open Popover">
+                <Icon Name="LucideIcon.ChevronDown"/>
             </Button>
         </ButtonGroup>
-        <Select TValue="string" SelectedValue="@("copilot")" Width='Width.Token("32")'>
-            <SelectTrigger>
-                <SelectValue Placeholder="Assistant"/>
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem TValue="string" ItemValue="@("copilot")" Text="Copilot"/>
-                <SelectItem TValue="string" ItemValue="@("quark")" Text="Quark"/>
-            </SelectContent>
-        </Select>
     </Div>
 
-    <Card Gap="Gap.Is0" Padding="Padding.Is0.OnY">
-        <CardHeader Border="Border.Is1.FromBottom" Padding="Padding.Is6.OnY">
-            <CardTitle>How did you hear about us?</CardTitle>
-            <CardDescription>Select the option that best describes how you heard about us.</CardDescription>
-        </CardHeader>
-        <CardContent Padding="Padding.Is6.OnY">
-            <Div Display="Display.Flex" Flex=@("flex-wrap") Gap="Gap.Is3">
-                <Button Variant="ButtonVariant.Outline" Rounded="Rounded.Full" BackgroundColor="BackgroundColor.Accent" BoxShadow="BoxShadow.None">
-                    <Icon Name="LucideIcon.Check" BoxSize="Size.Is4"/>
-                    Social Media
-                </Button>
-                <Button Variant="ButtonVariant.Outline" Rounded="Rounded.Full">Search Engine</Button>
-                <Button Variant="ButtonVariant.Outline" Rounded="Rounded.Full">Referral</Button>
-                <Button Variant="ButtonVariant.Outline" Rounded="Rounded.Full">Other</Button>
-            </Div>
+    <Card Gap="Gap.Is4"
+          Padding="Padding.Is4.OnY"
+          Overflow="Overflow.Hidden"
+          Border='Border.Token("ring-1 ring-foreground/10")'
+          BoxShadow="BoxShadow.None">
+        <CardContent Padding="Padding.Is4.OnX">
+            <form>
+                <FieldGroup>
+                    <FieldSet>
+                        <FieldLegend>How did you hear about us?</FieldLegend>
+                        <FieldDescription Class="line-clamp-1">Select the option that best describes how you heard about us.</FieldDescription>
+                        <div data-slot="field-group" class="group/field-group @@container/field-group flex w-full flex-row flex-wrap gap-2 [--radius:9999rem]">
+                            <label data-slot="field-label" class="items-center text-sm font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50 has-data-checked:border-primary/30 has-data-checked:bg-primary/5 has-[>[data-slot=field]]:rounded-lg has-[>[data-slot=field]]:border *:data-[slot=field]:p-2.5 dark:has-data-checked:border-primary/20 dark:has-data-checked:bg-primary/10 has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col w-fit!"
+                                   for="landing-social-media">
+                                <div role="group" data-slot="field" data-orientation="horizontal" class="group/field flex w-full data-[invalid=true]:text-destructive flex-row items-center has-[>[data-slot=field-content]]:items-start *:data-[slot=field-label]:flex-auto has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px gap-1.5 overflow-hidden px-3! py-1.5! transition-all duration-100 ease-linear group-has-data-[state=checked]/field-label:px-2!">
+                                    <button type="button" role="checkbox" aria-checked="true" data-state="checked" value="social-media" data-slot="checkbox" class="peer relative flex size-4 shrink-0 items-center justify-center border border-input outline-none group-has-disabled/field:opacity-50 after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary -ml-6 -translate-x-1 rounded-full transition-all duration-100 ease-linear data-[state=checked]:ml-0 data-[state=checked]:translate-x-0"
+                                            id="landing-social-media">
+                                        <span data-state="checked" data-slot="checkbox-indicator" class="grid place-content-center text-current transition-none" style="pointer-events: none;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5">
+                                                <path d="M20 6 9 17l-5-5"></path>
+                                            </svg>
+                                        </span>
+                                    </button>
+                                    <input aria-hidden="true" tabindex="-1" type="checkbox" value="social-media" checked style="position: absolute; pointer-events: none; opacity: 0; margin: 0; transform: translateX(-100%); width: 16px; height: 16px;">
+                                    <div data-slot="field-label" class="flex w-fit items-center gap-2 text-sm font-medium group-data-[disabled=true]/field:opacity-50">Social Media</div>
+                                </div>
+                            </label>
+                            <label data-slot="field-label" class="items-center text-sm font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50 has-data-checked:border-primary/30 has-data-checked:bg-primary/5 has-[>[data-slot=field]]:rounded-lg has-[>[data-slot=field]]:border *:data-[slot=field]:p-2.5 dark:has-data-checked:border-primary/20 dark:has-data-checked:bg-primary/10 has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col w-fit!"
+                                   for="landing-search-engine">
+                                <div role="group" data-slot="field" data-orientation="horizontal" class="group/field flex w-full data-[invalid=true]:text-destructive flex-row items-center has-[>[data-slot=field-content]]:items-start *:data-[slot=field-label]:flex-auto has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px gap-1.5 overflow-hidden px-3! py-1.5! transition-all duration-100 ease-linear group-has-data-[state=checked]/field-label:px-2!">
+                                    <button type="button" role="checkbox" aria-checked="false" data-state="unchecked" value="search-engine" data-slot="checkbox" class="peer relative flex size-4 shrink-0 items-center justify-center border border-input outline-none group-has-disabled/field:opacity-50 after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary -ml-6 -translate-x-1 rounded-full transition-all duration-100 ease-linear data-[state=checked]:ml-0 data-[state=checked]:translate-x-0"
+                                            id="landing-search-engine"></button>
+                                    <input aria-hidden="true" tabindex="-1" type="checkbox" value="search-engine" style="position: absolute; pointer-events: none; opacity: 0; margin: 0; transform: translateX(-100%); width: 16px; height: 16px;">
+                                    <div data-slot="field-label" class="flex w-fit items-center gap-2 text-sm font-medium group-data-[disabled=true]/field:opacity-50">Search Engine</div>
+                                </div>
+                            </label>
+                            <label data-slot="field-label" class="items-center text-sm font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50 has-data-checked:border-primary/30 has-data-checked:bg-primary/5 has-[>[data-slot=field]]:rounded-lg has-[>[data-slot=field]]:border *:data-[slot=field]:p-2.5 dark:has-data-checked:border-primary/20 dark:has-data-checked:bg-primary/10 has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col w-fit!"
+                                   for="landing-referral">
+                                <div role="group" data-slot="field" data-orientation="horizontal" class="group/field flex w-full data-[invalid=true]:text-destructive flex-row items-center has-[>[data-slot=field-content]]:items-start *:data-[slot=field-label]:flex-auto has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px gap-1.5 overflow-hidden px-3! py-1.5! transition-all duration-100 ease-linear group-has-data-[state=checked]/field-label:px-2!">
+                                    <button type="button" role="checkbox" aria-checked="false" data-state="unchecked" value="referral" data-slot="checkbox" class="peer relative flex size-4 shrink-0 items-center justify-center border border-input outline-none group-has-disabled/field:opacity-50 after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary -ml-6 -translate-x-1 rounded-full transition-all duration-100 ease-linear data-[state=checked]:ml-0 data-[state=checked]:translate-x-0"
+                                            id="landing-referral"></button>
+                                    <input aria-hidden="true" tabindex="-1" type="checkbox" value="referral" style="position: absolute; pointer-events: none; opacity: 0; margin: 0; transform: translateX(-100%); width: 16px; height: 16px;">
+                                    <div data-slot="field-label" class="flex w-fit items-center gap-2 text-sm font-medium group-data-[disabled=true]/field:opacity-50">Referral</div>
+                                </div>
+                            </label>
+                            <label data-slot="field-label" class="items-center text-sm font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50 has-data-checked:border-primary/30 has-data-checked:bg-primary/5 has-[>[data-slot=field]]:rounded-lg has-[>[data-slot=field]]:border *:data-[slot=field]:p-2.5 dark:has-data-checked:border-primary/20 dark:has-data-checked:bg-primary/10 has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col w-fit!"
+                                   for="landing-other">
+                                <div role="group" data-slot="field" data-orientation="horizontal" class="group/field flex w-full data-[invalid=true]:text-destructive flex-row items-center has-[>[data-slot=field-content]]:items-start *:data-[slot=field-label]:flex-auto has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px gap-1.5 overflow-hidden px-3! py-1.5! transition-all duration-100 ease-linear group-has-data-[state=checked]/field-label:px-2!">
+                                    <button type="button" role="checkbox" aria-checked="false" data-state="unchecked" value="other" data-slot="checkbox" class="peer relative flex size-4 shrink-0 items-center justify-center border border-input outline-none group-has-disabled/field:opacity-50 after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary -ml-6 -translate-x-1 rounded-full transition-all duration-100 ease-linear data-[state=checked]:ml-0 data-[state=checked]:translate-x-0"
+                                            id="landing-other"></button>
+                                    <input aria-hidden="true" tabindex="-1" type="checkbox" value="other" style="position: absolute; pointer-events: none; opacity: 0; margin: 0; transform: translateX(-100%); width: 16px; height: 16px;">
+                                    <div data-slot="field-label" class="flex w-fit items-center gap-2 text-sm font-medium group-data-[disabled=true]/field:opacity-50">Other</div>
+                                </div>
+                            </label>
+                        </div>
+                    </FieldSet>
+                </FieldGroup>
+            </form>
         </CardContent>
     </Card>
 

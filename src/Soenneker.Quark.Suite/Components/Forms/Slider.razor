@@ -22,12 +22,14 @@
 	@for (var index = 0; index < resolvedValues.Length; index++)
 	{
 		var thumbIndex = index;
-		<button @attributes="BuildThumbAttributes(thumbIndex, resolvedValues[thumbIndex])"
-		        @onfocus="@(() => HandleThumbFocus(thumbIndex))"
-		        @onblur="@(() => HandleThumbBlur(thumbIndex))"
-		        @onkeydown="@(e => HandleThumbKeyDown(thumbIndex, e))"
-		        @onkeydown:preventDefault="true">
-		</button>
+		<span @attributes="BuildThumbWrapperAttributes(thumbIndex, resolvedValues[thumbIndex])">
+			<span @attributes="BuildThumbAttributes(thumbIndex, resolvedValues[thumbIndex])"
+			      @onfocus="@(() => HandleThumbFocus(thumbIndex))"
+			      @onblur="@(() => HandleThumbBlur(thumbIndex))"
+			      @onkeydown="@(e => HandleThumbKeyDown(thumbIndex, e))"
+			      @onkeydown:preventDefault="true">
+			</span>
+		</span>
 	}
 	@for (var index = 0; index < resolvedValues.Length; index++)
 	{
@@ -96,7 +98,6 @@
 	private int _focusedThumbIndex = -1;
 	private int _draggingThumbIndex = -1;
 	private bool _isRtl;
-	private bool _sliderBridgeRegistered;
 
 	private bool UsesValuesApi => Values is not null || ValuesChanged.HasDelegate || ValuesExpression is not null;
 	private bool IsVertical => string.Equals(Orientation, "vertical", StringComparison.OrdinalIgnoreCase);
@@ -382,7 +383,7 @@
 		{
 			null or "" or "default" => "size-3",
 			"sm" => "size-3",
-			"lg" => "size-5",
+			"lg" => "size-4",
 			_ => "size-3"
 		};
 	}
@@ -405,18 +406,19 @@
 			BuildOwnedClassAndStyle(ref sty, ref cls);
 			AppendClass(ref cls, "relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col");
 
-			if (Disabled || ReadOnly)
-				AppendClass(ref cls, "cursor-not-allowed");
-
 			var sizeClass = GetSizeClass();
 
 			if (sizeClass is not null)
 				AppendClass(ref cls, sizeClass);
+
+			if (!IsVertical)
+				AppendStyleDecl(ref sty, "--radix-slider-thumb-transform: translateX(-50%)");
 		});
 
 		attributes["data-slot"] = "slider";
 		attributes["data-orientation"] = OrientationValue;
-		attributes["data-js-ready"] = _sliderBridgeRegistered ? "true" : "false";
+		attributes["dir"] = ResolveIsRtl() ? "rtl" : "ltr";
+		attributes["aria-disabled"] = Disabled ? "true" : "false";
 
 		if (CurrentFieldContext is not null && !attributes.ContainsKey("id"))
 			attributes["id"] = CurrentFieldContext.ControlId;
@@ -468,6 +470,36 @@
 		return attributes;
 	}
 
+	private Dictionary<string, object> BuildThumbWrapperAttributes(int index, double value)
+	{
+		var percent = ValueToPercent(value);
+		var percentText = percent.ToString("F2", CultureInfo.InvariantCulture) + "%";
+
+		var attributes = new Dictionary<string, object>();
+
+		BuildStyleAttribute(attributes, (ref Soenneker.Utils.PooledStringBuilders.PooledStringBuilder sty) =>
+		{
+			if (IsVertical)
+			{
+				AppendStyleDecl(ref sty, "transform: translateY(50%)");
+				AppendStyleDecl(ref sty, "position: absolute");
+				AppendStyleDecl(ref sty, $"bottom: calc({percentText} - 3.6px)");
+			}
+			else
+			{
+				AppendStyleDecl(ref sty, "transform: var(--radix-slider-thumb-transform)");
+				AppendStyleDecl(ref sty, "position: absolute");
+
+				if (IsHorizontalRtl)
+					AppendStyleDecl(ref sty, $"right: calc({percentText} - 3.6px)");
+				else
+					AppendStyleDecl(ref sty, $"left: calc({percentText} + 3.6px)");
+			}
+		});
+
+		return attributes;
+	}
+
 	private Dictionary<string, object> BuildRangeAttributes(IReadOnlyList<double> values)
 	{
 		var startPercent = values.Count > 1 ? ValueToPercent(values[0]) : 0d;
@@ -487,7 +519,7 @@
 			if (IsVertical)
 			{
 				AppendStyleDecl(ref sty, $"bottom: {startPercent.ToString("F2", CultureInfo.InvariantCulture)}%");
-				AppendStyleDecl(ref sty, $"height: {sizePercent.ToString("F2", CultureInfo.InvariantCulture)}%");
+				AppendStyleDecl(ref sty, $"top: {Math.Max(0d, 100d - endPercent).ToString("F2", CultureInfo.InvariantCulture)}%");
 			}
 			else
 			{
@@ -496,7 +528,10 @@
 				else
 					AppendStyleDecl(ref sty, $"left: {startPercent.ToString("F2", CultureInfo.InvariantCulture)}%");
 
-				AppendStyleDecl(ref sty, $"width: {sizePercent.ToString("F2", CultureInfo.InvariantCulture)}%");
+				if (IsHorizontalRtl)
+					AppendStyleDecl(ref sty, $"left: {Math.Max(0d, 100d - endPercent).ToString("F2", CultureInfo.InvariantCulture)}%");
+				else
+					AppendStyleDecl(ref sty, $"right: {Math.Max(0d, 100d - endPercent).ToString("F2", CultureInfo.InvariantCulture)}%");
 			}
 		});
 
@@ -505,15 +540,12 @@
 
 	private Dictionary<string, object> BuildThumbAttributes(int index, double value)
 	{
-		var percent = ValueToPercent(value);
-		var percentText = percent.ToString("F2", CultureInfo.InvariantCulture) + "%";
 		var isActive = _focusedThumbIndex == index || _draggingThumbIndex == index;
 		var resolvedValues = GetResolvedValues();
 		var thumbLabel = ResolveThumbLabel(index, resolvedValues.Length);
 
 		var attributes = new Dictionary<string, object>
 		{
-			["type"] = "button",
 			["data-slot"] = "slider-thumb",
 			["data-orientation"] = OrientationValue,
 			["role"] = "slider",
@@ -521,7 +553,8 @@
 			["aria-valuemin"] = Min.ToString(CultureInfo.InvariantCulture),
 			["aria-valuemax"] = Max.ToString(CultureInfo.InvariantCulture),
 			["aria-valuenow"] = value.ToString(CultureInfo.InvariantCulture),
-			["aria-orientation"] = OrientationValue
+			["aria-orientation"] = OrientationValue,
+			["data-radix-collection-item"] = ""
 		};
 
 		if (thumbLabel is not null)
@@ -569,23 +602,6 @@
 
 			if (isActive)
 				AppendClass(ref cls, "ring-3");
-
-			if (IsVertical)
-			{
-				AppendStyleDecl(ref sty, "left: 50%");
-				AppendStyleDecl(ref sty, $"bottom: {percentText}");
-				AppendStyleDecl(ref sty, "transform: translate(-50%, 50%)");
-			}
-			else
-			{
-				if (IsHorizontalRtl)
-					AppendStyleDecl(ref sty, $"right: {percentText}");
-				else
-					AppendStyleDecl(ref sty, $"left: {percentText}");
-
-				AppendStyleDecl(ref sty, "top: 50%");
-				AppendStyleDecl(ref sty, IsHorizontalRtl ? "transform: translate(50%, -50%)" : "transform: translate(-50%, -50%)");
-			}
 		});
 
 		return attributes;
@@ -767,7 +783,6 @@
 		{
 			_sliderBridgeRef = DotNetObjectReference.Create<object>(this);
 			await Interop.RegisterSliderPointerBridge(ElementRef, _sliderBridgeRef);
-			_sliderBridgeRegistered = true;
 			await InvokeAsync(StateHasChanged);
 
 			if (ParentValidation is not null)

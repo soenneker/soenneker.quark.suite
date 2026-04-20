@@ -21,6 +21,9 @@ public abstract class Component : RenderComponent, IComponent
     protected QuarkOptions QuarkOptions { get; set; } = null!;
 
     [Parameter]
+    public bool Container { get; set; }
+
+    [Parameter]
     public string? Class { get; set; }
 
     [Parameter]
@@ -57,7 +60,7 @@ public abstract class Component : RenderComponent, IComponent
     public CssValue<TextSizeBuilder>? TextSize { get; set; }
 
     [Parameter]
-    public CssValue<TextDecorationBuilder>? TextDecoration { get; set; }
+    public CssValue<DecorationLineBuilder>? DecorationLine { get; set; }
 
     [Parameter]
     public CssValue<TextTransformBuilder>? TextTransform { get; set; }
@@ -72,10 +75,10 @@ public abstract class Component : RenderComponent, IComponent
     public CssValue<FontStyleBuilder>? FontStyle { get; set; }
 
     [Parameter]
-    public CssValue<LineHeightBuilder>? LineHeight { get; set; }
+    public CssValue<LeadingBuilder>? Leading { get; set; }
 
     [Parameter]
-    public CssValue<LetterSpacingBuilder>? LetterSpacing { get; set; }
+    public CssValue<TrackingBuilder>? Tracking { get; set; }
 
     [Parameter]
     public CssValue<WhitespaceBuilder>? Whitespace { get; set; }
@@ -106,9 +109,6 @@ public abstract class Component : RenderComponent, IComponent
 
     [Parameter]
     public CssValue<PositionBuilder>? Position { get; set; }
-
-    [Parameter]
-    public CssValue<PositionOffsetBuilder>? PositionOffset { get; set; }
 
     [Parameter]
     public CssValue<ScrollMarginBuilder>? ScrollMargin { get; set; }
@@ -269,13 +269,13 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, TextAlign);
         ApplyTextColor(ref sty, ref cls, TextColor);
         AddCss(ref sty, ref cls, TextSize);
-        AddCss(ref sty, ref cls, TextDecoration);
+        AddCss(ref sty, ref cls, DecorationLine);
         AddCss(ref sty, ref cls, TextTransform);
         AddCss(ref sty, ref cls, FontFamily);
         AddCss(ref sty, ref cls, FontWeight);
         AddCss(ref sty, ref cls, FontStyle);
-        AddCss(ref sty, ref cls, LineHeight);
-        AddCss(ref sty, ref cls, LetterSpacing);
+        AddCss(ref sty, ref cls, Leading);
+        AddCss(ref sty, ref cls, Tracking);
         AddCss(ref sty, ref cls, Whitespace);
         AddCss(ref sty, ref cls, TextWrap);
         AddCss(ref sty, ref cls, TextBreak);
@@ -287,7 +287,6 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, Padding);
         AddCss(ref sty, ref cls, Inset);
         AddCss(ref sty, ref cls, Position);
-        AddCss(ref sty, ref cls, PositionOffset);
         AddCss(ref sty, ref cls, ScrollMargin);
         AddCss(ref sty, ref cls, BoxSize);
         AddCss(ref sty, ref cls, Width, "width");
@@ -329,6 +328,9 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, Transform);
         AddCss(ref sty, ref cls, Animation);
         AddCss(ref sty, ref cls, Transition);
+
+        if (Container)
+            AppendClass(ref cls, "container");
 
         if (Class.HasContent())
             AppendClass(ref cls, Class!);
@@ -386,6 +388,7 @@ public abstract class Component : RenderComponent, IComponent
     {
         base.ComputeRenderKeyCore(ref hc);
 
+        hc.Add(Container);
         hc.Add(Class);
         hc.Add(Style);
         hc.Add(Title);
@@ -397,13 +400,13 @@ public abstract class Component : RenderComponent, IComponent
         AddIf(ref hc, TextAlign);
         AddIf(ref hc, TextColor);
         AddIf(ref hc, TextSize);
-        AddIf(ref hc, TextDecoration);
+        AddIf(ref hc, DecorationLine);
         AddIf(ref hc, TextTransform);
         AddIf(ref hc, FontFamily);
         AddIf(ref hc, FontWeight);
         AddIf(ref hc, FontStyle);
-        AddIf(ref hc, LineHeight);
-        AddIf(ref hc, LetterSpacing);
+        AddIf(ref hc, Leading);
+        AddIf(ref hc, Tracking);
         AddIf(ref hc, Whitespace);
         AddIf(ref hc, TextWrap);
         AddIf(ref hc, TextBreak);
@@ -415,7 +418,6 @@ public abstract class Component : RenderComponent, IComponent
         AddIf(ref hc, Padding);
         AddIf(ref hc, Inset);
         AddIf(ref hc, Position);
-        AddIf(ref hc, PositionOffset);
         AddIf(ref hc, ScrollMargin);
         AddIf(ref hc, BoxSize);
         AddIf(ref hc, Width);

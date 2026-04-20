@@ -18,4 +18,7 @@ internal static class TailwindContentStub
     // Ring: widths/colors/inset commonly used by the ring builder.
     private const string Ring = "ring ring-0 ring-1 ring-2 ring-4 ring-8 ring-inset ring-primary ring-secondary ring-destructive ring-muted ring-accent ring-white ring-black";
 
+    // State variants that are difficult for the build-time scanner to discover reliably.
+    private const string StateVariants = "data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary";
+
 }

@@ -1,7 +1,6 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
-using Soenneker.Quark;
 using Xunit;
 
 namespace Soenneker.Quark.Suite.Tests;

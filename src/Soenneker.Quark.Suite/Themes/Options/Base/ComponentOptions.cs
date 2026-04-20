@@ -79,11 +79,6 @@ public class ComponentOptions
     public CssValue<PositionBuilder>? Position { get; set; }
 
     /// <summary>
-    /// Gets or sets the CSS position offset configuration.
-    /// </summary>
-    public CssValue<PositionOffsetBuilder>? PositionOffset { get; set; }
-
-    /// <summary>
     /// Gets or sets the CSS scroll-margin configuration.
     /// </summary>
     public CssValue<ScrollMarginBuilder>? ScrollMargin { get; set; }
@@ -164,11 +159,6 @@ public class ComponentOptions
     public CssValue<TextColorBuilder>? TextColor { get; set; }
 
     /// <summary>
-    /// Gets or sets the CSS text decoration configuration.
-    /// </summary>
-    public CssValue<TextDecorationBuilder>? TextDecoration { get; set; }
-
-    /// <summary>
     /// Gets or sets the CSS flex configuration.
     /// </summary>
     public CssValue<FlexBuilder>? Flex { get; set; }
@@ -209,9 +199,14 @@ public class ComponentOptions
     public CssValue<GradientBuilder>? Gradient { get; set; }
 
     /// <summary>
+    /// Gets or sets text decoration line utility classes (underline, overline, line-through, no-underline).
+    /// </summary>
+    public CssValue<DecorationLineBuilder>? DecorationLine { get; set; }
+
+    /// <summary>
     /// Gets or sets letter-spacing utility classes (tracking-*).
     /// </summary>
-    public CssValue<LetterSpacingBuilder>? LetterSpacing { get; set; }
+    public CssValue<TrackingBuilder>? Tracking { get; set; }
 
     /// <summary>
     /// Gets or sets content alignment utility classes (content-*).
@@ -289,9 +284,9 @@ public class ComponentOptions
     public CssValue<FontStyleBuilder>? FontStyle { get; set; }
 
     /// <summary>
-    /// Gets or sets the CSS line-height configuration.
+    /// Gets or sets line-height utility classes (leading-*).
     /// </summary>
-    public CssValue<LineHeightBuilder>? LineHeight { get; set; }
+    public CssValue<LeadingBuilder>? Leading { get; set; }
 
     /// <summary>
     /// Gets or sets the CSS whitespace configuration.
@@ -420,7 +415,6 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Padding, "padding");
         AddRules(buffer, baseSelector, Inset, null);
         AddRules(buffer, baseSelector, Position, "position");
-        AddRules(buffer, baseSelector, PositionOffset, null);
         AddRules(buffer, baseSelector, ScrollMargin, null);
         AddRules(buffer, baseSelector, BoxSize, null);
         AddRules(buffer, baseSelector, TextSize, "font-size");
@@ -437,7 +431,6 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, ObjectFit, "object-fit");
         AddRules(buffer, baseSelector, TextAlign, "text-align");
         AddRules(buffer, baseSelector, TextColor, "color");
-        AddRules(buffer, baseSelector, TextDecoration, "text-decoration");
         AddRules(buffer, baseSelector, Flex, "flex");
         AddRules(buffer, baseSelector, Gap, "gap");
         AddRules(buffer, baseSelector, Space, null);
@@ -446,7 +439,8 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Fill, null);
         AddRules(buffer, baseSelector, Stroke, null);
         AddRules(buffer, baseSelector, Gradient, null);
-        AddRules(buffer, baseSelector, LetterSpacing, null);
+        AddRules(buffer, baseSelector, DecorationLine, "text-decoration");
+        AddRules(buffer, baseSelector, Tracking, null);
         AddRules(buffer, baseSelector, ContentAlign, null);
         AddRules(buffer, baseSelector, ItemsAlign, null);
         AddRules(buffer, baseSelector, Justify, null);
@@ -462,7 +456,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, FontFamily, "font-family");
         AddRules(buffer, baseSelector, FontWeight, "font-weight");
         AddRules(buffer, baseSelector, FontStyle, "font-style");
-        AddRules(buffer, baseSelector, LineHeight, "line-height");
+        AddRules(buffer, baseSelector, Leading, "line-height");
         AddRules(buffer, baseSelector, Whitespace, "white-space");
         AddRules(buffer, baseSelector, TextWrap, "text-wrap");
         AddRules(buffer, baseSelector, TextBreak, "word-break");
@@ -534,7 +528,7 @@ public class ComponentOptions
     private static IEnumerable<string>? TryConvertClassOnlyDeclarations<TBuilder>(string rawValue, string fallbackProperty)
         where TBuilder : class, ICssBuilder
     {
-        if (typeof(TBuilder) != typeof(TextDecorationBuilder))
+        if (typeof(TBuilder) != typeof(DecorationLineBuilder))
             return null;
 
         if (!fallbackProperty.Equals("text-decoration", System.StringComparison.Ordinal))

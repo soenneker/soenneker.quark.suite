@@ -36,7 +36,7 @@ public class ComponentsCssGeneratorTests
         {
             Divs = new DivOptions
             {
-                TextDecoration = TextDecoration.Underline
+                DecorationLine = DecorationLine.Underline
             }
         };
 
@@ -56,7 +56,7 @@ public class ComponentsCssGeneratorTests
             Anchors = new AnchorOptions
             {
                 Selector = "a",
-                TextDecoration = TextDecoration.Underline
+                DecorationLine = DecorationLine.Underline
             }
         };
 

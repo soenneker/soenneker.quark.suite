@@ -1,6 +1,5 @@
 using AwesomeAssertions;
 using Bunit;
-using Soenneker.Quark;
 using Xunit;
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -21,10 +20,10 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().Contain("border");
         classes.Should().Contain("border-input");
         classes.Should().Contain("aria-invalid:ring-3");
-        classes.Should().Contain("data-checked:border-primary");
-        classes.Should().Contain("data-checked:bg-primary");
-        classes.Should().Contain("data-checked:text-primary-foreground");
-        classes.Should().Contain("dark:data-checked:bg-primary");
+        classes.Should().Contain("data-[state=checked]:border-primary");
+        classes.Should().Contain("data-[state=checked]:bg-primary");
+        classes.Should().Contain("data-[state=checked]:text-primary-foreground");
+        classes.Should().Contain("dark:data-[state=checked]:bg-primary");
         classes.Should().NotContain("shadow-xs");
         classes.Should().NotContain(" transition-[color,box-shadow] ");
     }

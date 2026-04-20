@@ -8,12 +8,12 @@ public interface IGrid : IElement
     /// <summary>
     /// Gets or sets the grid column classes to apply.
     /// </summary>
-    CssValue<ColumnBuilder>? Columns { get; set; }
+    CssValue<GridColsBuilder>? Columns { get; set; }
 
     /// <summary>
     /// Gets or sets the grid row classes to apply.
     /// </summary>
-    CssValue<RowBuilder>? Rows { get; set; }
+    CssValue<GridRowsBuilder>? Rows { get; set; }
 
     /// <summary>
     /// Gets or sets whether the grid should render as inline-grid.
