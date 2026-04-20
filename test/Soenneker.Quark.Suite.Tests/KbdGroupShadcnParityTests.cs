@@ -22,7 +22,7 @@ public sealed partial class RenderedShadcnParityTests
                 builder.CloseComponent();
             })));
 
-        string classes = cut.Find("[data-slot='kbd-group']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='kbd-group']").GetAttribute("class")!;
 
         classes.Should().Contain("inline-flex");
         classes.Should().Contain("items-center");

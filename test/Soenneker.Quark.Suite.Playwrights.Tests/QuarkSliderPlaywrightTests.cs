@@ -26,7 +26,7 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
             expectedTitle: "Sliders - Quark Suite");
 
         var demoSection = page.Locator("[data-slot='preview'] [data-testid='slider-demo-primary']").First;
-        var demoRoot = demoSection.Locator("[data-slot='slider']").First;
+        var demoRoot = demoSection.Locator("[data-js-ready='true']").First;
         var demoSlider = demoSection.Locator("[role='slider']:visible").First;
         await Assertions.Expect(demoSlider).ToHaveAttributeAsync("aria-valuenow", "50");
         var demoRootBox = await demoRoot.EvaluateAsync<SliderRect>(
@@ -51,7 +51,7 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page.GetByText("Single thumb with min, max, and step. Current: 80.", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
 
         var stepSection = page.Locator("[data-slot='preview'] [data-testid='slider-demo-step']").First;
-        var stepRoot = stepSection.Locator("[data-slot='slider']").First;
+        var stepRoot = stepSection.Locator("[data-js-ready='true']").First;
         var stepSlider = stepSection.Locator("[role='slider']:visible").First;
         await Assertions.Expect(stepSlider).ToHaveAttributeAsync("aria-valuenow", "30");
         var stepRootBox = await stepRoot.EvaluateAsync<SliderRect>(

@@ -29,11 +29,11 @@ public sealed partial class RenderedShadcnParityTests
                 builder.CloseComponent();
             })));
 
-        string accordionClasses = cut.Find("[data-slot='accordion']").GetAttribute("class")!;
-        string itemClasses = cut.Find("[data-slot='accordion-item']").GetAttribute("class")!;
-        string triggerClasses = cut.Find("[data-slot='accordion-trigger']").GetAttribute("class")!;
-        string contentClasses = cut.Find("[data-slot='accordion-content']").GetAttribute("class")!;
-        string innerClasses = cut.Find("[data-slot='accordion-content-inner']").GetAttribute("class")!;
+        var accordionClasses = cut.Find("[data-slot='accordion']").GetAttribute("class")!;
+        var itemClasses = cut.Find("[data-slot='accordion-item']").GetAttribute("class")!;
+        var triggerClasses = cut.Find("[data-slot='accordion-trigger']").GetAttribute("class")!;
+        var contentClasses = cut.Find("[data-slot='accordion-content']").GetAttribute("class")!;
+        var innerClasses = cut.Find("[data-slot='accordion-content-inner']").GetAttribute("class")!;
 
         accordionClasses.Should().Contain("flex");
         accordionClasses.Should().Contain("w-full");
