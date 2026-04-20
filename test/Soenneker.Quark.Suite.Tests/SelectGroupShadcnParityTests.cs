@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var group = Render<SelectGroup>(parameters => parameters.Add(p => p.ChildContent, "Items"));
 
-        string groupClasses = group.Find("[data-slot='select-group']").GetAttribute("class")!;
+        var groupClasses = group.Find("[data-slot='select-group']").GetAttribute("class")!;
 
         groupClasses.Should().Contain("p-1");
         groupClasses.Should().NotContain("q-select-group");

@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var cut = Render<ComboboxSeparator>();
 
-        string classes = cut.Find("[data-slot='combobox-separator']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='combobox-separator']").GetAttribute("class")!;
 
         classes.Should().Contain("bg-border");
         classes.Should().Contain("-mx-1");

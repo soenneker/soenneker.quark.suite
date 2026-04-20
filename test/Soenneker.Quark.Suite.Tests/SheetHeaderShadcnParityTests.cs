@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var header = Render<SheetHeader>(parameters => parameters
             .Add(p => p.ChildContent, "Header"));
 
-        string headerClasses = header.Find("[data-slot='sheet-header']").GetAttribute("class")!;
+        var headerClasses = header.Find("[data-slot='sheet-header']").GetAttribute("class")!;
 
         headerClasses.Should().Contain("flex");
         headerClasses.Should().Contain("flex-col");

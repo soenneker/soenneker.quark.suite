@@ -17,19 +17,19 @@ public sealed class QuarkStepsPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Steps_disabled_demo_keeps_disabled_step_inert_and_preserves_current_panel()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}stepsdemo",
             static p => p.Locator("#steps-disabled-demo"),
             expectedTitle: "Steps - Quark Suite");
 
-        ILocator demo = page.Locator("#steps-disabled-demo");
-        ILocator current = demo.Locator("#steps-disabled-current");
-        ILocator detailsTab = demo.Locator("[role='tab']").Filter(new LocatorFilterOptions { HasText = "Details" }).First;
-        ILocator billingTab = demo.Locator("[role='tab']").Filter(new LocatorFilterOptions { HasText = "Billing" }).First;
-        ILocator confirmTab = demo.Locator("[role='tab']").Filter(new LocatorFilterOptions { HasText = "Confirm" }).First;
+        var demo = page.Locator("#steps-disabled-demo");
+        var current = demo.Locator("#steps-disabled-current");
+        var detailsTab = demo.Locator("[role='tab']").Filter(new LocatorFilterOptions { HasText = "Details" }).First;
+        var billingTab = demo.Locator("[role='tab']").Filter(new LocatorFilterOptions { HasText = "Billing" }).First;
+        var confirmTab = demo.Locator("[role='tab']").Filter(new LocatorFilterOptions { HasText = "Confirm" }).First;
 
         await Assertions.Expect(current).ToContainTextAsync("details");
         await Assertions.Expect(detailsTab).ToHaveAttributeAsync("aria-selected", "true");

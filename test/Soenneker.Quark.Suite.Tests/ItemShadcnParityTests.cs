@@ -17,8 +17,8 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.Size, ItemSize.ExtraSmall)
             .Add(p => p.ChildContent, "Item"));
 
-        string itemClasses = item.Find("[data-slot='item']").GetAttribute("class")!;
-        string itemXsClasses = itemXs.Find("[data-slot='item']").GetAttribute("class")!;
+        var itemClasses = item.Find("[data-slot='item']").GetAttribute("class")!;
+        var itemXsClasses = itemXs.Find("[data-slot='item']").GetAttribute("class")!;
 
         itemClasses.Should().Contain("group/item");
         itemClasses.Should().Contain("duration-100");

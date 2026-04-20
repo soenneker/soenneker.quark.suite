@@ -17,23 +17,23 @@ public sealed class QuarkInputGroupPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Input_group_demo_renders_as_a_single_border_without_nested_input_border()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}input-groups",
             static p => p.GetByPlaceholder("Search...").First,
             expectedTitle: "Input Group - Quark Suite");
 
-        ILocator group = page.Locator("[data-slot='input-group']").First;
-        ILocator input = group.GetByPlaceholder("Search...");
-        ILocator addon = group.Locator("[data-slot='input-group-addon']").First;
+        var group = page.Locator("[data-slot='input-group']").First;
+        var input = group.GetByPlaceholder("Search...");
+        var addon = group.Locator("[data-slot='input-group-addon']").First;
 
         await Assertions.Expect(group).ToBeVisibleAsync();
         await Assertions.Expect(input).ToBeVisibleAsync();
         await Assertions.Expect(addon).ToBeVisibleAsync();
 
-        InputGroupBorderProbe? borderProbe = await group.EvaluateAsync<InputGroupBorderProbe>(
+        var borderProbe = await group.EvaluateAsync<InputGroupBorderProbe>(
             @"element => {
                 const input = element.querySelector('[data-slot=""input-group-control""]');
                 const addon = element.querySelector('[data-slot=""input-group-addon""]');

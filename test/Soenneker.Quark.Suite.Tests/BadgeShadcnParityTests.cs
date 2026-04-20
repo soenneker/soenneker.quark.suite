@@ -13,7 +13,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.Variant, BadgeVariant.Secondary)
             .Add(p => p.ChildContent, "Featured"));
 
-        string classes = cut.Find("[data-slot='badge']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='badge']").GetAttribute("class")!;
 
         classes.Should().Contain("group/badge");
         classes.Should().Contain("inline-flex");

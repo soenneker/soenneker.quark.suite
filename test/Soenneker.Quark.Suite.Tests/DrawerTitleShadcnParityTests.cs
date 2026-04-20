@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var cut = Render<DrawerTitle>(parameters => parameters.Add(p => p.ChildContent, "Edit profile"));
 
-        string classes = cut.Find("[data-slot='drawer-title']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='drawer-title']").GetAttribute("class")!;
 
         classes.Should().Contain("font-semibold");
         classes.Should().Contain("leading-none");

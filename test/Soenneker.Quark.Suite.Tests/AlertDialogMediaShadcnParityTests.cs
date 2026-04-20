@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<AlertDialogMedia>(parameters => parameters
             .Add(p => p.ChildContent, "Icon"));
 
-        string classes = cut.Find("[data-slot='alert-dialog-media']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='alert-dialog-media']").GetAttribute("class")!;
 
         classes.Should().Contain("mb-2");
         classes.Should().Contain("inline-flex");

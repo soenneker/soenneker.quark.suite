@@ -17,18 +17,18 @@ public sealed class QuarkHeaderPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Header_sidebar_shell_demo_preserves_sidebar_and_inset_layout()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}header",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "The header can sit above a sidebar provider and expose the standard sidebar trigger without each layout restyling it." }).First,
             expectedTitle: "Header - Quark Suite");
 
-        ILocator section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "The header can sit above a sidebar provider and expose the standard sidebar trigger without each layout restyling it." }).First;
-        ILocator header = section.Locator("[data-slot='header']").First;
-        ILocator sidebar = section.Locator("[data-slot='sidebar']").First;
-        ILocator inset = section.Locator("[data-slot='sidebar-inset']").First;
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "The header can sit above a sidebar provider and expose the standard sidebar trigger without each layout restyling it." }).First;
+        var header = section.Locator("[data-slot='header']").First;
+        var sidebar = section.Locator("[data-slot='sidebar']").First;
+        var inset = section.Locator("[data-slot='sidebar-inset']").First;
 
         await Assertions.Expect(header).ToBeVisibleAsync();
         await Assertions.Expect(sidebar).ToBeVisibleAsync();
@@ -36,9 +36,9 @@ public sealed class QuarkHeaderPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(sidebar).ToContainTextAsync("Dashboard");
         await Assertions.Expect(inset).ToContainTextAsync("Use the trigger in the header to toggle the sidebar.");
 
-        LocatorBoundingBoxResult? headerBox = await header.BoundingBoxAsync();
-        LocatorBoundingBoxResult? sidebarBox = await sidebar.BoundingBoxAsync();
-        LocatorBoundingBoxResult? insetBox = await inset.BoundingBoxAsync();
+        var headerBox = await header.BoundingBoxAsync();
+        var sidebarBox = await sidebar.BoundingBoxAsync();
+        var insetBox = await inset.BoundingBoxAsync();
 
         Assert.NotNull(headerBox);
         Assert.NotNull(sidebarBox);

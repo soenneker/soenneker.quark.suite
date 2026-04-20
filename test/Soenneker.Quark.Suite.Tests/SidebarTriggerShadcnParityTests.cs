@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var cut = Render<SidebarTrigger>();
 
-        string classes = cut.Find("[data-slot='sidebar-trigger']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='sidebar-trigger']").GetAttribute("class")!;
 
         classes.Should().Contain("inline-flex");
         classes.Should().Contain("rounded-md");

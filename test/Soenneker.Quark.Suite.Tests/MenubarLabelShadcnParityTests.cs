@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var label = Render<MenubarLabel>(parameters => parameters.Add(p => p.ChildContent, "My Account"));
 
-        string labelClasses = label.Find("[data-slot='menubar-label']").GetAttribute("class")!;
+        var labelClasses = label.Find("[data-slot='menubar-label']").GetAttribute("class")!;
 
         labelClasses.Should().Contain("px-2");
         labelClasses.Should().Contain("py-1.5");

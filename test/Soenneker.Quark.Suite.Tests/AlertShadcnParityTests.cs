@@ -13,7 +13,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.ShowDefaultIcon, true)
             .Add(p => p.ChildContent, "Alert"));
 
-        string alertClasses = alert.Find("[data-slot='alert']").GetAttribute("class")!;
+        var alertClasses = alert.Find("[data-slot='alert']").GetAttribute("class")!;
 
         alertClasses.Should().Contain("group/alert");
         alertClasses.Should().Contain("relative");

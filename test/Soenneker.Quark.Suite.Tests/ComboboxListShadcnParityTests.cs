@@ -13,7 +13,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<ComboboxList>(parameters => parameters
             .Add(p => p.ChildContent, (RenderFragment)(builder => builder.AddContent(0, "Items"))));
 
-        string classes = cut.Find("[data-slot='combobox-list']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='combobox-list']").GetAttribute("class")!;
 
         classes.Should().Contain("flex");
         classes.Should().Contain("flex-col");

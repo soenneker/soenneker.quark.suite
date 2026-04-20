@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<Spinner>();
 
         var spinner = cut.Find("svg[role='status']");
-        string classes = spinner.GetAttribute("class")!;
+        var classes = spinner.GetAttribute("class")!;
 
         spinner.GetAttribute("aria-label").Should().Be("Loading");
         classes.Should().Contain("size-4");

@@ -40,10 +40,10 @@ public sealed partial class RenderedShadcnParityTests
                 builder.CloseComponent();
             })));
 
-        string tabsClasses = cut.Find("[data-slot='tabs']").GetAttribute("class")!;
-        string listClasses = cut.Find("[data-slot='tabs-list']").GetAttribute("class")!;
-        string triggerClasses = cut.Find("[data-slot='tabs-trigger']").GetAttribute("class")!;
-        string contentClasses = cut.Find("[data-slot='tabs-content']").GetAttribute("class")!;
+        var tabsClasses = cut.Find("[data-slot='tabs']").GetAttribute("class")!;
+        var listClasses = cut.Find("[data-slot='tabs-list']").GetAttribute("class")!;
+        var triggerClasses = cut.Find("[data-slot='tabs-trigger']").GetAttribute("class")!;
+        var contentClasses = cut.Find("[data-slot='tabs-content']").GetAttribute("class")!;
 
         tabsClasses.Should().Contain("group/tabs");
         tabsClasses.Should().Contain("flex");

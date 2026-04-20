@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<InputGroupAddon>(parameters => parameters
             .Add(p => p.ChildContent, "https://"));
 
-        string classes = cut.Find("[data-slot='input-group-addon']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='input-group-addon']").GetAttribute("class")!;
 
         classes.Should().Contain("flex");
         classes.Should().Contain("h-auto");

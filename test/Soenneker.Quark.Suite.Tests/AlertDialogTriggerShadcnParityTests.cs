@@ -13,7 +13,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<AlertDialogTrigger>(parameters => parameters
             .Add(p => p.ChildContent, "Open"));
 
-        string classes = cut.Find("[data-slot='alert-dialog-trigger']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='alert-dialog-trigger']").GetAttribute("class")!;
 
         classes.Should().Contain("group/button");
         classes.Should().Contain("inline-flex");

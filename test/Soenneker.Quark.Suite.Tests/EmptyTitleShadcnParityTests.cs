@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<EmptyTitle>(parameters => parameters
             .Add(p => p.ChildContent, "Title"));
 
-        string classes = cut.Find("[data-slot='empty-title']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='empty-title']").GetAttribute("class")!;
 
         classes.Should().Contain("cn-font-heading");
         classes.Should().Contain("text-sm");

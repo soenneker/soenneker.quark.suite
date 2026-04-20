@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var badge = Render<AvatarBadge>(parameters => parameters
             .Add(p => p.ChildContent, string.Empty));
 
-        string badgeClasses = badge.Find("[data-slot='avatar-badge']").GetAttribute("class")!;
+        var badgeClasses = badge.Find("[data-slot='avatar-badge']").GetAttribute("class")!;
 
         badgeClasses.Should().Contain("absolute");
         badgeClasses.Should().Contain("right-0");

@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var divider = Render<DropdownDivider>();
 
-        string dividerClasses = divider.Find("[data-slot='dropdown-menu-separator']").GetAttribute("class")!;
+        var dividerClasses = divider.Find("[data-slot='dropdown-menu-separator']").GetAttribute("class")!;
 
         dividerClasses.Should().Contain("-mx-1");
         dividerClasses.Should().Contain("my-1");

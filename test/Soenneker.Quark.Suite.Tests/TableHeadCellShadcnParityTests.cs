@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var th = Render<Th>(parameters => parameters.Add(p => p.ChildContent, "Header"));
 
-        string thClasses = th.Find("[data-slot='table-head']").GetAttribute("class")!;
+        var thClasses = th.Find("[data-slot='table-head']").GetAttribute("class")!;
 
         thClasses.Should().Contain("h-10");
         thClasses.Should().Contain("px-2");

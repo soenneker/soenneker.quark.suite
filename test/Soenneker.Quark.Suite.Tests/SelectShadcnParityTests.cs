@@ -23,9 +23,9 @@ public sealed partial class RenderedShadcnParityTests
                 builder.CloseComponent();
             })));
 
-        string selectClasses = triggerCut.Find("[data-slot='select']").GetAttribute("class")!;
-        string triggerClasses = triggerCut.Find("[data-slot='select-trigger']").GetAttribute("class")!;
-        string? valueClasses = triggerCut.Find("[data-slot='select-value']").GetAttribute("class");
+        var selectClasses = triggerCut.Find("[data-slot='select']").GetAttribute("class")!;
+        var triggerClasses = triggerCut.Find("[data-slot='select-trigger']").GetAttribute("class")!;
+        var valueClasses = triggerCut.Find("[data-slot='select-value']").GetAttribute("class");
 
         selectClasses.Should().Contain("group/select");
         selectClasses.Should().Contain("relative");

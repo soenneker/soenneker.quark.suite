@@ -16,26 +16,26 @@ public sealed class DemoMarkupAuditTests
     [Fact]
     public void Demo_component_pages_do_not_use_disallowed_raw_markup_primitives()
     {
-        string demoPagesRoot = Path.Combine(GetSuiteRoot(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components");
+        var demoPagesRoot = Path.Combine(GetSuiteRoot(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components");
 
-        string[] offenders = Directory.GetFiles(demoPagesRoot, "*.razor", SearchOption.AllDirectories)
-            .Where(file =>
-            {
-                string contents = File.ReadAllText(file);
-                return _disallowedRawTagRegex.IsMatch(contents);
-            })
-            .Select(static file => Path.GetFileName(file)!)
-            .OrderBy(static file => file, StringComparer.Ordinal)
-            .ToArray();
+        var offenders = Directory.GetFiles(demoPagesRoot, "*.razor", SearchOption.AllDirectories)
+                                 .Where(file =>
+                                 {
+                                     var contents = File.ReadAllText(file);
+                                     return _disallowedRawTagRegex.IsMatch(contents);
+                                 })
+                                 .Select(static file => Path.GetFileName(file)!)
+                                 .OrderBy(static file => file, StringComparer.Ordinal)
+                                 .ToArray();
 
         offenders.Should().BeEmpty();
     }
 
     private static string GetSuiteRoot()
     {
-        string directory = AppContext.BaseDirectory;
+        var directory = AppContext.BaseDirectory;
 
-        for (int i = 0; i < 6; i++)
+        for (var i = 0; i < 6; i++)
         {
             directory = Directory.GetParent(directory)!.FullName;
         }

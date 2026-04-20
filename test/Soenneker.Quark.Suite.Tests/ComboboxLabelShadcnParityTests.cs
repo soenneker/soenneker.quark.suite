@@ -13,7 +13,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<ComboboxLabel>(parameters => parameters
             .Add(p => p.ChildContent, (RenderFragment)(builder => builder.AddContent(0, "Suggestions"))));
 
-        string classes = cut.Find("[data-slot='combobox-label']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='combobox-label']").GetAttribute("class")!;
 
         classes.Should().Contain("px-2");
         classes.Should().Contain("py-1.5");

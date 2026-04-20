@@ -13,10 +13,10 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.SliderValue, 75d)
             .Add(p => p.AriaLabel, "Volume"));
 
-        string sliderClasses = slider.Find("[data-slot='slider']").GetAttribute("class")!;
-        string sliderTrackClasses = slider.Find("[data-slot='slider-track']").GetAttribute("class")!;
-        string sliderRangeClasses = slider.Find("[data-slot='slider-range']").GetAttribute("class")!;
-        string sliderThumbClasses = slider.Find("[data-slot='slider-thumb']").GetAttribute("class")!;
+        var sliderClasses = slider.Find("[data-slot='slider']").GetAttribute("class")!;
+        var sliderTrackClasses = slider.Find("[data-slot='slider-track']").GetAttribute("class")!;
+        var sliderRangeClasses = slider.Find("[data-slot='slider-range']").GetAttribute("class")!;
+        var sliderThumbClasses = slider.Find("[data-slot='slider-thumb']").GetAttribute("class")!;
 
         sliderClasses.Should().Contain("relative");
         sliderClasses.Should().Contain("flex");
@@ -99,7 +99,7 @@ public sealed partial class RenderedShadcnParityTests
         root.GetAttribute("dir")!.Should().Be("ltr");
         root.GetAttribute("aria-disabled")!.Should().Be("false");
         root.GetAttribute("style")!.Should().Contain("--radix-slider-thumb-transform: translateX(-50%)");
-        root.HasAttribute("data-js-ready").Should().BeFalse();
+        root.GetAttribute("data-js-ready")!.Should().Be("false");
 
         range.GetAttribute("style")!.Should().Contain("left: 20.00%");
         range.GetAttribute("style")!.Should().Contain("right: 20.00%");

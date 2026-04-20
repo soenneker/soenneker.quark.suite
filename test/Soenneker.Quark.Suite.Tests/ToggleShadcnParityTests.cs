@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var toggle = Render<Toggle>(parameters => parameters.Add(p => p.ChildContent, "Italic"));
 
-        string toggleClasses = toggle.Find("[data-slot='toggle']").GetAttribute("class")!;
+        var toggleClasses = toggle.Find("[data-slot='toggle']").GetAttribute("class")!;
 
         toggleClasses.Should().Contain("group/toggle");
         toggleClasses.Should().Contain("rounded-lg");

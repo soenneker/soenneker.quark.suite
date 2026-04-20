@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var cut = Render<DrawerClose>();
 
-        string buttonClasses = cut.Find("[data-slot='drawer-close']").GetAttribute("class")!;
+        var buttonClasses = cut.Find("[data-slot='drawer-close']").GetAttribute("class")!;
 
         buttonClasses.Should().NotContain("q-button");
         buttonClasses.Should().Contain("size-8");

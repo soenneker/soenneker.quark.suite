@@ -13,7 +13,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.ChildContent, "Hover"));
 
         var triggerElement = trigger.Find("[data-slot='tooltip-trigger']");
-        string triggerClasses = triggerElement.GetAttribute("class") ?? string.Empty;
+        var triggerClasses = triggerElement.GetAttribute("class") ?? string.Empty;
 
         triggerElement.HasAttribute("data-slot").Should().BeTrue();
         triggerClasses.Should().NotContain("transition-[color,box-shadow]");

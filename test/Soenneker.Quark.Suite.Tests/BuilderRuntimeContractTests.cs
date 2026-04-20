@@ -55,9 +55,9 @@ public sealed class BuilderRuntimeContractTests : BunitContext
             .Add(p => p.MaxHeight, Height.Token("72")));
 
         var box = cut.Find("[data-slot='test-box']");
-        string classes = box.GetAttribute("class")!;
-        string? style = box.GetAttribute("style");
-        string[] classTokens = classes.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var classes = box.GetAttribute("class")!;
+        var style = box.GetAttribute("style");
+        var classTokens = classes.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         classTokens.Should().Contain("max-h-72");
         classTokens.Should().NotContain("h-72");
@@ -74,7 +74,7 @@ public sealed class BuilderRuntimeContractTests : BunitContext
             .Add(p => p.Padding, Padding.Is2.OnX.Token("1.5").OnY));
 
         var box = cut.Find("[data-slot='test-box']");
-        string classes = box.GetAttribute("class")!;
+        var classes = box.GetAttribute("class")!;
 
         classes.Should().Contain("cursor-default");
         classes.Should().Contain("overflow-x-hidden");
@@ -94,8 +94,8 @@ public sealed class BuilderRuntimeContractTests : BunitContext
             .Add(p => p.Class, "flex flex flex-col"));
 
         var box = cut.Find("[data-slot='test-box']");
-        string[] tokens = box.GetAttribute("class")!
-            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var tokens = box.GetAttribute("class")!
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         tokens.Count(token => token == "flex").Should().Be(1);
         tokens.Count(token => token == "flex-col").Should().Be(1);
@@ -107,7 +107,7 @@ public sealed class BuilderRuntimeContractTests : BunitContext
         var cut = Render<Section>();
 
         var section = cut.Find("section");
-        string? classes = section.GetAttribute("class");
+        var classes = section.GetAttribute("class");
 
         classes.Should().BeNullOrEmpty();
     }

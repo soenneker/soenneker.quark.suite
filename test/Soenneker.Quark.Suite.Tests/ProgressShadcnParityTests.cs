@@ -14,8 +14,8 @@ public sealed partial class RenderedShadcnParityTests
 
         var root = cut.Find("[data-slot='progress']");
         var indicator = cut.Find("[data-slot='progress-indicator']");
-        string rootClasses = root.GetAttribute("class")!;
-        string indicatorClasses = indicator.GetAttribute("class")!;
+        var rootClasses = root.GetAttribute("class")!;
+        var indicatorClasses = indicator.GetAttribute("class")!;
 
         rootClasses.Should().Contain("relative");
         rootClasses.Should().Contain("flex");

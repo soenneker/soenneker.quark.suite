@@ -18,18 +18,18 @@ public sealed class QuarkTreeViewPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Treeview_async_demo_loads_children_on_expand_and_updates_selection()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}treeview",
             static p => p.Locator("#treeview-async-demo"),
             expectedTitle: "TreeView - Quark Suite");
 
-        ILocator asyncSection = page.Locator("#treeview-async-demo");
-        ILocator server1 = asyncSection.GetByText("Server 1", new LocatorGetByTextOptions { Exact = true });
-        ILocator api = asyncSection.GetByText("API", new LocatorGetByTextOptions { Exact = true });
-        ILocator routes = asyncSection.GetByText("Routes", new LocatorGetByTextOptions { Exact = true });
+        var asyncSection = page.Locator("#treeview-async-demo");
+        var server1 = asyncSection.GetByText("Server 1", new LocatorGetByTextOptions { Exact = true });
+        var api = asyncSection.GetByText("API", new LocatorGetByTextOptions { Exact = true });
+        var routes = asyncSection.GetByText("Routes", new LocatorGetByTextOptions { Exact = true });
 
         await Assertions.Expect(asyncSection).ToContainTextAsync("Selected node: None");
         await Assertions.Expect(api).ToHaveCountAsync(0);
@@ -48,18 +48,18 @@ public sealed class QuarkTreeViewPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Treeview_single_selection_expands_parent_and_updates_selected_summary()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}treeview",
             static p => p.GetByText("Basic TreeView", new PageGetByTextOptions { Exact = true }),
             expectedTitle: "TreeView - Quark Suite");
 
-        ILocator singleSection = page.Locator("div").Filter(new LocatorFilterOptions { HasText = "TreeView with single selection mode. Selected node:" }).First;
-        ILocator fileSystem = singleSection.GetByText("File System", new LocatorGetByTextOptions { Exact = true });
-        ILocator cDrive = singleSection.GetByText("C:\\", new LocatorGetByTextOptions { Exact = true });
-        ILocator programFiles = singleSection.GetByText("Program Files", new LocatorGetByTextOptions { Exact = true });
+        var singleSection = page.Locator("div").Filter(new LocatorFilterOptions { HasText = "TreeView with single selection mode. Selected node:" }).First;
+        var fileSystem = singleSection.GetByText("File System", new LocatorGetByTextOptions { Exact = true });
+        var cDrive = singleSection.GetByText("C:\\", new LocatorGetByTextOptions { Exact = true });
+        var programFiles = singleSection.GetByText("Program Files", new LocatorGetByTextOptions { Exact = true });
 
         await Assertions.Expect(singleSection).ToContainTextAsync("Selected node: None");
         await Assertions.Expect(cDrive).Not.ToBeVisibleAsync();
@@ -76,25 +76,25 @@ public sealed class QuarkTreeViewPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Treeview_multiple_selection_and_disabled_nodes_behave_correctly()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}treeview",
             static p => p.GetByText("Multiple Selection", new PageGetByTextOptions { Exact = true }),
             expectedTitle: "TreeView - Quark Suite");
 
-        ILocator multipleSection = page.Locator("div").Filter(new LocatorFilterOptions { HasText = "TreeView with multiple selection mode. Selected nodes:" }).First;
+        var multipleSection = page.Locator("div").Filter(new LocatorFilterOptions { HasText = "TreeView with multiple selection mode. Selected nodes:" }).First;
         await multipleSection.GetByText("Project Structure", new LocatorGetByTextOptions { Exact = true }).ClickAsync();
 
-        ILocator srcCheckbox = multipleSection.Locator("[data-slot='tree-view-row']")
-                                              .Filter(new LocatorFilterOptions { HasText = "src" })
-                                              .GetByRole(AriaRole.Checkbox)
-                                              .First;
-        ILocator docsCheckbox = multipleSection.Locator("[data-slot='tree-view-row']")
-                                               .Filter(new LocatorFilterOptions { HasText = "docs" })
-                                               .GetByRole(AriaRole.Checkbox)
-                                               .First;
+        var srcCheckbox = multipleSection.Locator("[data-slot='tree-view-row']")
+                                         .Filter(new LocatorFilterOptions { HasText = "src" })
+                                         .GetByRole(AriaRole.Checkbox)
+                                         .First;
+        var docsCheckbox = multipleSection.Locator("[data-slot='tree-view-row']")
+                                          .Filter(new LocatorFilterOptions { HasText = "docs" })
+                                          .GetByRole(AriaRole.Checkbox)
+                                          .First;
 
         await srcCheckbox.ClickAsync();
         await docsCheckbox.ClickAsync();
@@ -103,15 +103,15 @@ public sealed class QuarkTreeViewPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(srcCheckbox).ToHaveAttributeAsync("aria-checked", "true");
         await Assertions.Expect(docsCheckbox).ToHaveAttributeAsync("aria-checked", "true");
 
-        ILocator disabledSection = page.Locator("div").Filter(new LocatorFilterOptions { HasText = "TreeView with some nodes disabled." }).First;
+        var disabledSection = page.Locator("div").Filter(new LocatorFilterOptions { HasText = "TreeView with some nodes disabled." }).First;
         await disabledSection.GetByText("Available Features", new LocatorGetByTextOptions { Exact = true }).ClickAsync();
 
-        ILocator featureC = disabledSection.GetByText("Feature C", new LocatorGetByTextOptions { Exact = true });
-        ILocator featureBDisabled = disabledSection.GetByText("Feature B (Disabled)", new LocatorGetByTextOptions { Exact = true });
+        var featureC = disabledSection.GetByText("Feature C", new LocatorGetByTextOptions { Exact = true });
+        var featureBDisabled = disabledSection.GetByText("Feature B (Disabled)", new LocatorGetByTextOptions { Exact = true });
         await featureC.ClickAsync();
 
-        ILocator disabledNode = disabledSection.Locator("[data-slot='tree-view-node-content']").Filter(new LocatorFilterOptions { HasText = "Feature B (Disabled)" }).First;
-        string? disabledStyle = await disabledNode.GetAttributeAsync("style");
+        var disabledNode = disabledSection.Locator("[data-slot='tree-view-node-content']").Filter(new LocatorFilterOptions { HasText = "Feature B (Disabled)" }).First;
+        var disabledStyle = await disabledNode.GetAttributeAsync("style");
 
         await featureBDisabled.ClickAsync(new LocatorClickOptions { Force = true });
 

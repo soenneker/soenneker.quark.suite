@@ -17,18 +17,18 @@ public sealed class QuarkCheckboxPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Check_demo_indeterminate_parent_and_children_stay_in_sync()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}checks",
             static p => p.Locator("#select-all"),
             expectedTitle: "Checkbox Component - Quark Suite");
 
-        ILocator parent = page.Locator("#select-all");
-        ILocator read = page.Locator("#item-read");
-        ILocator write = page.Locator("#item-write");
-        ILocator execute = page.Locator("#item-execute");
+        var parent = page.Locator("#select-all");
+        var read = page.Locator("#item-read");
+        var write = page.Locator("#item-write");
+        var execute = page.Locator("#item-execute");
 
         await Assertions.Expect(parent).ToHaveAttributeAsync("aria-checked", "mixed");
         await Assertions.Expect(read).ToHaveAttributeAsync("aria-checked", "true");
@@ -53,18 +53,18 @@ public sealed class QuarkCheckboxPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Checkbox_indeterminate_demo_select_all_and_child_updates_state()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}checks",
             static p => p.GetByRole(AriaRole.Checkbox, new PageGetByRoleOptions { Name = "Select all", Exact = true }),
             expectedTitle: "Checkbox Component - Quark Suite");
 
-        ILocator selectAll = page.Locator("#select-all");
-        ILocator read = page.Locator("#item-read");
-        ILocator write = page.Locator("#item-write");
-        ILocator execute = page.Locator("#item-execute");
+        var selectAll = page.Locator("#select-all");
+        var read = page.Locator("#item-read");
+        var write = page.Locator("#item-write");
+        var execute = page.Locator("#item-execute");
 
         await Assertions.Expect(selectAll).ToHaveAttributeAsync("aria-checked", "mixed");
 
@@ -84,20 +84,20 @@ public sealed class QuarkCheckboxPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Check_table_demo_select_all_and_row_selection_update_header_state()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}checks",
             static p => p.Locator("#select-all-checkbox"),
             expectedTitle: "Checkbox Component - Quark Suite");
 
-        ILocator header = page.Locator("#select-all-checkbox");
-        ILocator row1 = page.Locator("#row-1-checkbox");
-        ILocator row2 = page.Locator("#row-2-checkbox");
-        ILocator row4 = page.Locator("#row-4-checkbox");
-        ILocator row1Tr = row1.Locator("xpath=ancestor::tr");
-        ILocator row2Tr = row2.Locator("xpath=ancestor::tr");
+        var header = page.Locator("#select-all-checkbox");
+        var row1 = page.Locator("#row-1-checkbox");
+        var row2 = page.Locator("#row-2-checkbox");
+        var row4 = page.Locator("#row-4-checkbox");
+        var row1Tr = row1.Locator("xpath=ancestor::tr");
+        var row2Tr = row2.Locator("xpath=ancestor::tr");
 
         await Assertions.Expect(header).ToHaveAttributeAsync("aria-checked", "mixed");
         await Assertions.Expect(row1).ToHaveAttributeAsync("aria-checked", "true");
@@ -121,18 +121,18 @@ public sealed class QuarkCheckboxPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Checkbox_form_multiple_requires_one_selection_and_submits_checked_items()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}checks",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Submit", Exact = true }).First,
             expectedTitle: "Checkbox Component - Quark Suite");
 
-        ILocator section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Form Multiple" }).First;
-        ILocator recents = section.Locator("[role='checkbox']").Nth(0);
-        ILocator home = section.Locator("[role='checkbox']").Nth(1);
-        ILocator submit = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Submit", Exact = true });
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Form Multiple" }).First;
+        var recents = section.Locator("[role='checkbox']").Nth(0);
+        var home = section.Locator("[role='checkbox']").Nth(1);
+        var submit = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Submit", Exact = true });
 
         await recents.ClickAsync();
         await home.ClickAsync();
@@ -140,11 +140,11 @@ public sealed class QuarkCheckboxPlaywrightTests : PlaywrightUnitTest
 
         await Assertions.Expect(section.GetByText("You have to select at least one item.", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
 
-        ILocator downloads = section.Locator("[role='checkbox']").Nth(4);
+        var downloads = section.Locator("[role='checkbox']").Nth(4);
         await downloads.ClickAsync();
         await submit.ClickAsync();
 
-        ILocator json = section.Locator("pre").First;
+        var json = section.Locator("pre").First;
         await Assertions.Expect(json).ToContainTextAsync("\"downloads\"");
         await Assertions.Expect(section.GetByText("You have to select at least one item.", new LocatorGetByTextOptions { Exact = true })).ToHaveCountAsync(0);
     }

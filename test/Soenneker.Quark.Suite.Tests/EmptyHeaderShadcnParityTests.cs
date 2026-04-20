@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<EmptyHeader>(parameters => parameters
             .Add(p => p.ChildContent, "Header"));
 
-        string classes = cut.Find("[data-slot='empty-header']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='empty-header']").GetAttribute("class")!;
 
         classes.Should().Contain("flex");
         classes.Should().Contain("max-w-sm");

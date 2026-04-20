@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var item = Render<BreadcrumbItem>(parameters => parameters
             .Add(p => p.ChildContent, "Home"));
 
-        string itemClasses = item.Find("[data-slot='breadcrumb-item']").GetAttribute("class")!;
+        var itemClasses = item.Find("[data-slot='breadcrumb-item']").GetAttribute("class")!;
 
         itemClasses.Should().Contain("inline-flex");
         itemClasses.Should().Contain("items-center");

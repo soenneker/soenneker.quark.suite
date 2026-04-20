@@ -46,15 +46,15 @@ public sealed partial class RenderedShadcnParityTests
                 builder.CloseComponent();
             })));
 
-        string commandClasses = cut.Find("[data-slot='command']").GetAttribute("class")!;
-        string wrapperClasses = cut.Find("[data-slot='command-input-wrapper']").GetAttribute("class")!;
-        string inputGroupClasses = cut.Find("[data-slot='input-group']").GetAttribute("class")!;
-        string inputClasses = cut.Find("[data-slot='command-input']").GetAttribute("class")!;
-        string listClasses = cut.Find("[data-slot='command-list']").GetAttribute("class")!;
-        string groupClasses = cut.Find("[data-slot='command-group']").GetAttribute("class")!;
-        string itemClasses = cut.Find("[data-slot='command-item']").GetAttribute("class")!;
-        string shortcutClasses = cut.Find("[data-slot='command-shortcut']").GetAttribute("class")!;
-        string separatorClasses = cut.Find("[data-slot='command-separator']").GetAttribute("class")!;
+        var commandClasses = cut.Find("[data-slot='command']").GetAttribute("class")!;
+        var wrapperClasses = cut.Find("[data-slot='command-input-wrapper']").GetAttribute("class")!;
+        var inputGroupClasses = cut.Find("[data-slot='input-group']").GetAttribute("class")!;
+        var inputClasses = cut.Find("[data-slot='command-input']").GetAttribute("class")!;
+        var listClasses = cut.Find("[data-slot='command-list']").GetAttribute("class")!;
+        var groupClasses = cut.Find("[data-slot='command-group']").GetAttribute("class")!;
+        var itemClasses = cut.Find("[data-slot='command-item']").GetAttribute("class")!;
+        var shortcutClasses = cut.Find("[data-slot='command-shortcut']").GetAttribute("class")!;
+        var separatorClasses = cut.Find("[data-slot='command-separator']").GetAttribute("class")!;
 
         commandClasses.Should().Contain("flex");
         commandClasses.Should().Contain("size-full");

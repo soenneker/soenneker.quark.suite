@@ -29,11 +29,11 @@ public sealed partial class RenderedShadcnParityTests
                 builder.CloseComponent();
             })));
 
-        string rootClasses = cut.Find("[data-slot='carousel']").GetAttribute("class")!;
-        string contentClasses = cut.Find("[data-slot='carousel-content']").GetAttribute("class")!;
-        string itemClasses = cut.Find("[data-slot='carousel-item']").GetAttribute("class")!;
-        string previousClasses = cut.Find("[data-slot='carousel-previous']").GetAttribute("class")!;
-        string nextClasses = cut.Find("[data-slot='carousel-next']").GetAttribute("class")!;
+        var rootClasses = cut.Find("[data-slot='carousel']").GetAttribute("class")!;
+        var contentClasses = cut.Find("[data-slot='carousel-content']").GetAttribute("class")!;
+        var itemClasses = cut.Find("[data-slot='carousel-item']").GetAttribute("class")!;
+        var previousClasses = cut.Find("[data-slot='carousel-previous']").GetAttribute("class")!;
+        var nextClasses = cut.Find("[data-slot='carousel-next']").GetAttribute("class")!;
 
         rootClasses.Should().Contain("relative");
         rootClasses.Should().NotContain("q-carousel");

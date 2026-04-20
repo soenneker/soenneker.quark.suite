@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<AlertDescription>(parameters => parameters
             .Add(p => p.ChildContent, "Body"));
 
-        string classes = cut.Find("[data-slot='alert-description']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='alert-description']").GetAttribute("class")!;
 
         classes.Should().Contain("text-sm");
         classes.Should().Contain("text-balance");

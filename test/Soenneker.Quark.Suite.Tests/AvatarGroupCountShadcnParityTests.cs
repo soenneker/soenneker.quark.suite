@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var count = Render<AvatarGroupCount>(parameters => parameters
             .Add(p => p.ChildContent, "+3"));
 
-        string countClasses = count.Find("[data-slot='avatar-group-count']").GetAttribute("class")!;
+        var countClasses = count.Find("[data-slot='avatar-group-count']").GetAttribute("class")!;
 
         countClasses.Should().Contain("relative");
         countClasses.Should().Contain("flex");

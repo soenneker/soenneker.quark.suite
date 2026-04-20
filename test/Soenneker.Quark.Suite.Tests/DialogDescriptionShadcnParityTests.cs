@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<DialogDescription>(parameters => parameters
             .Add(p => p.ChildContent, "Description"));
 
-        string classes = cut.Find("[data-slot='dialog-description']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='dialog-description']").GetAttribute("class")!;
 
         classes.Should().Contain("text-sm");
         classes.Should().Contain("text-muted-foreground");

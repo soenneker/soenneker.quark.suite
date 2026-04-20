@@ -20,7 +20,7 @@ public sealed partial class RenderedShadcnParityTests
                 builder.CloseElement();
             })));
 
-        string classes = cut.Find("[data-slot='aspect-ratio']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='aspect-ratio']").GetAttribute("class")!;
 
         classes.Should().Contain("relative");
         classes.Should().Contain("w-full");

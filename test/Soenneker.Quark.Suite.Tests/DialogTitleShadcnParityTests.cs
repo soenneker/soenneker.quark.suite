@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var title = Render<DialogTitle>(parameters => parameters
             .Add(p => p.ChildContent, "Title"));
 
-        string titleClasses = title.Find("[data-slot='dialog-title']").GetAttribute("class")!;
+        var titleClasses = title.Find("[data-slot='dialog-title']").GetAttribute("class")!;
 
         titleClasses.Should().Contain("cn-font-heading");
         titleClasses.Should().Contain("text-base");

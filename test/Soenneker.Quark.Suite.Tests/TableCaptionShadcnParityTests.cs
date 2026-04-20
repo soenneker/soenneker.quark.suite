@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var caption = Render<TableCaption>(parameters => parameters.Add(p => p.ChildContent, "Caption"));
 
-        string captionClasses = caption.Find("[data-slot='table-caption']").GetAttribute("class")!;
+        var captionClasses = caption.Find("[data-slot='table-caption']").GetAttribute("class")!;
 
         captionClasses.Should().Contain("mt-4");
         captionClasses.Should().Contain("text-sm");

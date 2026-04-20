@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var thead = Render<Thead>(parameters => parameters.Add(p => p.ChildContent, "Head"));
 
-        string theadClasses = thead.Find("[data-slot='table-header']").GetAttribute("class")!;
+        var theadClasses = thead.Find("[data-slot='table-header']").GetAttribute("class")!;
 
         theadClasses.Should().Contain("[&_tr]:border-b");
         theadClasses.Should().NotContain("q-table-thead");

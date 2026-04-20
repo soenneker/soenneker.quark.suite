@@ -13,7 +13,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var table = new Table();
 
-        FieldInfo backingField = typeof(Table).GetField("<HasLoadedOnce>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var backingField = typeof(Table).GetField("<HasLoadedOnce>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!;
         backingField.SetValue(table, true);
 
         var cut = Render<CascadingValue<ITable>>(parameters => parameters
@@ -21,7 +21,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.Value, table)
             .AddChildContent<TableNoData>());
 
-        string classes = cut.Find("[data-slot='table-empty']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='table-empty']").GetAttribute("class")!;
 
         classes.Should().Contain("rounded-lg");
         classes.Should().Contain("border");

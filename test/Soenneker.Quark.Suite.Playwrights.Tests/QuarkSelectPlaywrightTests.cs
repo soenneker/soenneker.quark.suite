@@ -17,15 +17,15 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Select_form_demo_requires_selection_before_submit()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}selects",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Submit", Exact = true }),
             expectedTitle: "Select Component - Quark Suite");
 
-        ILocator submit = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Submit", Exact = true });
+        var submit = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Submit", Exact = true });
         await submit.ClickAsync();
 
         await Assertions.Expect(page.GetByText("Please select an email to display.", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
@@ -34,18 +34,18 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Select_demo_portals_content_and_dismisses_on_outside_click()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}selects",
             static p => p.GetByRole(AriaRole.Combobox).First,
             expectedTitle: "Select Component - Quark Suite");
 
-        ILocator trigger = page.GetByRole(AriaRole.Combobox).First;
+        var trigger = page.GetByRole(AriaRole.Combobox).First;
         await trigger.ClickAsync();
 
-        ILocator listbox = page.Locator("[role='listbox']:visible").First;
+        var listbox = page.Locator("[role='listbox']:visible").First;
         await Assertions.Expect(listbox).ToBeVisibleAsync();
         await Assertions.Expect(trigger).ToHaveAttributeAsync("data-state", "open");
 
@@ -56,7 +56,7 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
             "return !!listbox && document.body.contains(listbox) && !!main && !main.contains(listbox);" +
             "}");
 
-        bool renderedOutsideMain = await page.EvaluateAsync<bool>(
+        var renderedOutsideMain = await page.EvaluateAsync<bool>(
             "() => {" +
             "const listbox = document.querySelector('[role=\"listbox\"][data-state=\"open\"]');" +
             "const main = document.querySelector('main');" +
@@ -74,20 +74,20 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Select_demo_home_and_end_keys_move_focus_to_first_and_last_enabled_options()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}selects",
             static p => p.GetByRole(AriaRole.Combobox).First,
             expectedTitle: "Select Component - Quark Suite");
 
-        ILocator trigger = page.GetByRole(AriaRole.Combobox).First;
+        var trigger = page.GetByRole(AriaRole.Combobox).First;
         await trigger.ClickAsync();
 
-        ILocator listbox = page.Locator("[role='listbox']:visible").First;
-        ILocator apple = page.GetByRole(AriaRole.Option, new PageGetByRoleOptions { Name = "Apple", Exact = true });
-        ILocator pineapple = page.GetByRole(AriaRole.Option, new PageGetByRoleOptions { Name = "Pineapple", Exact = true });
+        var listbox = page.Locator("[role='listbox']:visible").First;
+        var apple = page.GetByRole(AriaRole.Option, new PageGetByRoleOptions { Name = "Apple", Exact = true });
+        var pineapple = page.GetByRole(AriaRole.Option, new PageGetByRoleOptions { Name = "Pineapple", Exact = true });
 
         await Assertions.Expect(apple).ToHaveAttributeAsync("data-highlighted", string.Empty);
 
@@ -105,35 +105,35 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Select_native_form_demo_requires_selection_and_submits_selected_value()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}selects",
             static p => p.GetByTestId("select-native-form-result"),
             expectedTitle: "Select Component - Quark Suite");
 
-        ILocator form = page.GetByTestId("select-native-form");
-        ILocator result = page.GetByTestId("select-native-form-result");
-        ILocator hiddenSelect = page.Locator("select[name='framework']");
+        var form = page.GetByTestId("select-native-form");
+        var result = page.GetByTestId("select-native-form-result");
+        var hiddenSelect = page.Locator("select[name='framework']");
 
         await Assertions.Expect(result).ToContainTextAsync("No submission yet.");
         await Assertions.Expect(hiddenSelect).ToHaveAttributeAsync("required", string.Empty);
-        bool isInitiallyValid = await hiddenSelect.EvaluateAsync<bool>("element => element.checkValidity()");
+        var isInitiallyValid = await hiddenSelect.EvaluateAsync<bool>("element => element.checkValidity()");
         Assert.False(isInitiallyValid);
 
-        ILocator trigger = form.GetByRole(AriaRole.Combobox).First;
+        var trigger = form.GetByRole(AriaRole.Combobox).First;
         await trigger.ClickAsync();
-        ILocator listbox = page.Locator("[role='listbox']:visible").First;
+        var listbox = page.Locator("[role='listbox']:visible").First;
         await Assertions.Expect(listbox).ToBeVisibleAsync();
-        ILocator astroOption = listbox.GetByRole(AriaRole.Option, new LocatorGetByRoleOptions { Name = "Astro", Exact = true });
+        var astroOption = listbox.GetByRole(AriaRole.Option, new LocatorGetByRoleOptions { Name = "Astro", Exact = true });
         await astroOption.FocusAsync();
         await Assertions.Expect(astroOption).ToBeFocusedAsync();
         await page.Keyboard.PressAsync("Enter");
 
         await Assertions.Expect(trigger).ToContainTextAsync("Astro");
         await Assertions.Expect(hiddenSelect).ToHaveValueAsync("astro");
-        bool isValidAfterSelection = await hiddenSelect.EvaluateAsync<bool>("element => element.checkValidity()");
+        var isValidAfterSelection = await hiddenSelect.EvaluateAsync<bool>("element => element.checkValidity()");
         Assert.True(isValidAfterSelection);
 
         await form.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Submit native form", Exact = true }).ClickAsync();
@@ -143,21 +143,21 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Select_demo_updates_selection_and_closes_listbox()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}selects",
             static p => p.GetByRole(AriaRole.Combobox).First,
             expectedTitle: "Select Component - Quark Suite");
 
-        ILocator trigger = page.GetByRole(AriaRole.Combobox).First;
+        var trigger = page.GetByRole(AriaRole.Combobox).First;
 
         await Assertions.Expect(trigger).ToContainTextAsync("Select a fruit");
 
         await trigger.ClickAsync();
 
-        ILocator listbox = page.Locator("[role='listbox']").First;
+        var listbox = page.Locator("[role='listbox']").First;
         await Assertions.Expect(listbox).ToBeVisibleAsync();
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");
 
@@ -171,21 +171,21 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Select_demo_reopen_marks_selected_option_as_checked()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}selects",
             static p => p.GetByRole(AriaRole.Combobox).First,
             expectedTitle: "Select Component - Quark Suite");
 
-        ILocator trigger = page.GetByRole(AriaRole.Combobox).First;
+        var trigger = page.GetByRole(AriaRole.Combobox).First;
 
         await trigger.ClickAsync();
         await page.GetByRole(AriaRole.Option, new PageGetByRoleOptions { Name = "Banana", Exact = true }).ClickAsync();
         await trigger.ClickAsync();
 
-        ILocator selectedOption = page.GetByRole(AriaRole.Option, new PageGetByRoleOptions { Name = "Banana", Exact = true });
+        var selectedOption = page.GetByRole(AriaRole.Option, new PageGetByRoleOptions { Name = "Banana", Exact = true });
 
         await Assertions.Expect(selectedOption).ToHaveAttributeAsync("data-state", "checked");
         await Assertions.Expect(selectedOption).ToHaveAttributeAsync("aria-selected", "true");
@@ -194,23 +194,23 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Select_demo_typeahead_moves_focus_to_matching_enabled_option()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}selects",
             static p => p.GetByRole(AriaRole.Combobox).First,
             expectedTitle: "Select Component - Quark Suite");
 
-        ILocator trigger = page.GetByRole(AriaRole.Combobox).First;
+        var trigger = page.GetByRole(AriaRole.Combobox).First;
         await trigger.ClickAsync();
 
-        string? contentId = await trigger.GetAttributeAsync("aria-controls");
+        var contentId = await trigger.GetAttributeAsync("aria-controls");
         Assert.False(string.IsNullOrWhiteSpace(contentId));
 
-        ILocator content = page.Locator($"#{contentId}");
-        ILocator apple = content.Locator("[role='option']").Filter(new LocatorFilterOptions { HasText = "Apple" }).First;
-        ILocator highlightedGrapes = content.Locator("[role='option'][data-highlighted]").Filter(new LocatorFilterOptions { HasText = "Grapes" });
+        var content = page.Locator($"#{contentId}");
+        var apple = content.Locator("[role='option']").Filter(new LocatorFilterOptions { HasText = "Apple" }).First;
+        var highlightedGrapes = content.Locator("[role='option'][data-highlighted]").Filter(new LocatorFilterOptions { HasText = "Grapes" });
 
         await Assertions.Expect(apple).ToBeFocusedAsync();
         await page.Keyboard.PressAsync("g");
@@ -221,25 +221,25 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Select_demo_typeahead_skips_disabled_matching_option()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}selects",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Separate options with labels and a separator." }).First,
             expectedTitle: "Select Component - Quark Suite");
 
-        ILocator section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Separate options with labels and a separator." }).First;
-        ILocator trigger = section.GetByRole(AriaRole.Combobox).First;
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Separate options with labels and a separator." }).First;
+        var trigger = section.GetByRole(AriaRole.Combobox).First;
         await trigger.ClickAsync();
 
-        string? contentId = await trigger.GetAttributeAsync("aria-controls");
+        var contentId = await trigger.GetAttributeAsync("aria-controls");
         Assert.False(string.IsNullOrWhiteSpace(contentId));
 
-        ILocator content = page.Locator($"#{contentId}");
-        ILocator apple = content.Locator("[role='option']").Filter(new LocatorFilterOptions { HasText = "Apple" }).First;
-        ILocator carrot = content.Locator("[role='option']:visible").Filter(new LocatorFilterOptions { HasText = "Carrot" }).First;
-        ILocator highlightedCourgette = content.Locator("[role='option'][data-highlighted]").Filter(new LocatorFilterOptions { HasText = "Courgette" });
+        var content = page.Locator($"#{contentId}");
+        var apple = content.Locator("[role='option']").Filter(new LocatorFilterOptions { HasText = "Apple" }).First;
+        var carrot = content.Locator("[role='option']:visible").Filter(new LocatorFilterOptions { HasText = "Carrot" }).First;
+        var highlightedCourgette = content.Locator("[role='option'][data-highlighted]").Filter(new LocatorFilterOptions { HasText = "Courgette" });
 
         await Assertions.Expect(carrot).ToHaveAttributeAsync("aria-disabled", "true");
         await Assertions.Expect(apple).ToBeFocusedAsync();
@@ -254,8 +254,8 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
     {
         var box = await locator.BoundingBoxAsync();
         Assert.NotNull(box);
-        float x = box.X > 40 ? box.X - 20 : box.X + box.Width + 20;
-        float y = box.Y > 40 ? box.Y - 20 : box.Y + 20;
+        var x = box.X > 40 ? box.X - 20 : box.X + box.Width + 20;
+        var y = box.Y > 40 ? box.Y - 20 : box.Y + 20;
         await page.Mouse.ClickAsync(x, y);
     }
 }

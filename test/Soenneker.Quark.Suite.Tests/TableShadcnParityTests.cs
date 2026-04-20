@@ -11,8 +11,8 @@ public sealed partial class RenderedShadcnParityTests
     {
         var table = Render<TableElement>(parameters => parameters.Add(p => p.ChildContent, "Rows"));
 
-        string tableContainerClasses = table.Find("[data-slot='table-container']").GetAttribute("class")!;
-        string tableClasses = table.Find("[data-slot='table']").GetAttribute("class")!;
+        var tableContainerClasses = table.Find("[data-slot='table-container']").GetAttribute("class")!;
+        var tableClasses = table.Find("[data-slot='table']").GetAttribute("class")!;
 
         tableContainerClasses.Should().Contain("relative");
         tableContainerClasses.Should().Contain("w-full");

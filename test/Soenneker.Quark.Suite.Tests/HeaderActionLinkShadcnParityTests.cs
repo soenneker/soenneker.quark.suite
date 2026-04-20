@@ -14,7 +14,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.Label, "GitHub")
             .Add(p => p.AriaLabel, "View GitHub"));
 
-        string classes = cut.Find("a").GetAttribute("class")!;
+        var classes = cut.Find("a").GetAttribute("class")!;
 
         classes.Should().Contain("border");
         classes.Should().Contain("border-transparent");

@@ -13,7 +13,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.Mode, NavigationLinksMode.Header)
             .Add(p => p.Items, [new NavigationItem("Docs", "/docs")]));
 
-        string classes = cut.Find("a").GetAttribute("class")!;
+        var classes = cut.Find("a").GetAttribute("class")!;
 
         classes.Should().Contain("inline-flex");
         classes.Should().Contain("shrink-0");

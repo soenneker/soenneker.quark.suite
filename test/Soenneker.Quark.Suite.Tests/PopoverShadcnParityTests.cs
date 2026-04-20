@@ -31,11 +31,11 @@ public sealed partial class RenderedShadcnParityTests
                 builder.CloseComponent();
             })));
 
-        string popoverClasses = cut.Find("[data-slot='popover']").GetAttribute("class")!;
-        string triggerClasses = cut.Find("[data-slot='popover-trigger']").GetAttribute("class")!;
-        string headerClasses = cut.Find("[data-slot='popover-header']").GetAttribute("class")!;
-        string titleClasses = cut.Find("[data-slot='popover-title']").GetAttribute("class")!;
-        string descriptionClasses = cut.Find("[data-slot='popover-description']").GetAttribute("class")!;
+        var popoverClasses = cut.Find("[data-slot='popover']").GetAttribute("class")!;
+        var triggerClasses = cut.Find("[data-slot='popover-trigger']").GetAttribute("class")!;
+        var headerClasses = cut.Find("[data-slot='popover-header']").GetAttribute("class")!;
+        var titleClasses = cut.Find("[data-slot='popover-title']").GetAttribute("class")!;
+        var descriptionClasses = cut.Find("[data-slot='popover-description']").GetAttribute("class")!;
 
         popoverClasses.Should().Contain("relative");
 

@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var cut = Render<SidebarInput>();
 
-        string classes = cut.Find("[data-slot='sidebar-input']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='sidebar-input']").GetAttribute("class")!;
 
         classes.Should().Contain("h-8");
         classes.Should().Contain("rounded-md");

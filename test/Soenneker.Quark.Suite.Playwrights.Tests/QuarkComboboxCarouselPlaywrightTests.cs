@@ -17,23 +17,23 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
     [Fact]
     public async ValueTask Combobox_input_demo_filters_and_selects_framework()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}comboboxes",
             static p => p.GetByPlaceholder("Select framework...").First,
             expectedTitle: "Combobox - Quark Suite");
 
-        ILocator section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Input combobox" }).First;
-        ILocator input = section.GetByPlaceholder("Select framework...");
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Input combobox" }).First;
+        var input = section.GetByPlaceholder("Select framework...");
         await input.ClickAsync();
         await input.FillAsync("nuxt");
 
-        string? listboxId = await input.GetAttributeAsync("aria-controls");
+        var listboxId = await input.GetAttributeAsync("aria-controls");
         Assert.False(string.IsNullOrWhiteSpace(listboxId));
-        ILocator listbox = page.Locator($"#{listboxId}");
-        ILocator nuxt = listbox.Locator("[data-slot='combobox-item']").Filter(new LocatorFilterOptions { HasText = "Nuxt.js" }).First;
+        var listbox = page.Locator($"#{listboxId}");
+        var nuxt = listbox.Locator("[data-slot='combobox-item']").Filter(new LocatorFilterOptions { HasText = "Nuxt.js" }).First;
 
         await Assertions.Expect(input).ToHaveValueAsync("nuxt");
         await Assertions.Expect(input).ToHaveAttributeAsync("aria-expanded", "true");
@@ -52,28 +52,28 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
     [Fact]
     public async ValueTask Combobox_demo_positions_the_listbox_beneath_the_trigger_when_opened()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}comboboxes",
             static p => p.GetByRole(AriaRole.Main).First);
 
-        ILocator trigger = page.GetByRole(AriaRole.Combobox).First;
+        var trigger = page.GetByRole(AriaRole.Combobox).First;
         await Assertions.Expect(trigger).ToBeVisibleAsync();
         await trigger.ClickAsync();
 
-        string? listboxId = await trigger.GetAttributeAsync("aria-controls");
+        var listboxId = await trigger.GetAttributeAsync("aria-controls");
         Assert.False(string.IsNullOrWhiteSpace(listboxId));
 
-        ILocator listbox = page.Locator($"#{listboxId}");
+        var listbox = page.Locator($"#{listboxId}");
         await Assertions.Expect(listbox).ToBeVisibleAsync();
         await page.WaitForFunctionAsync(
             "element => { const box = element.getBoundingClientRect(); return box.y > 0 && box.width >= 180; }",
             await listbox.ElementHandleAsync());
 
-        LocatorBoundingBoxResult? triggerBox = await trigger.BoundingBoxAsync();
-        LocatorBoundingBoxResult? listboxBox = await listbox.BoundingBoxAsync();
+        var triggerBox = await trigger.BoundingBoxAsync();
+        var listboxBox = await listbox.BoundingBoxAsync();
 
         Assert.NotNull(triggerBox);
         Assert.NotNull(listboxBox);
@@ -86,32 +86,32 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
     [Fact]
     public async ValueTask Combobox_multiple_demo_adds_and_removes_chip_selection()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}comboboxes",
             static p => p.GetByPlaceholder("Add frameworks...").First,
             expectedTitle: "Combobox - Quark Suite");
 
-        ILocator section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use chips plus an inline search input to select and remove multiple values from the same combobox." }).First;
-        ILocator input = section.GetByPlaceholder("Add frameworks...");
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use chips plus an inline search input to select and remove multiple values from the same combobox." }).First;
+        var input = section.GetByPlaceholder("Add frameworks...");
         await input.ClickAsync();
         await input.FillAsync("astro");
 
-        string? listboxId = await input.GetAttributeAsync("aria-controls");
+        var listboxId = await input.GetAttributeAsync("aria-controls");
         Assert.False(string.IsNullOrWhiteSpace(listboxId));
-        ILocator listbox = page.Locator($"#{listboxId}");
-        ILocator astro = listbox.Locator("[data-slot='combobox-item']").Filter(new LocatorFilterOptions { HasText = "Astro" }).First;
+        var listbox = page.Locator($"#{listboxId}");
+        var astro = listbox.Locator("[data-slot='combobox-item']").Filter(new LocatorFilterOptions { HasText = "Astro" }).First;
         await Assertions.Expect(listbox).ToHaveAttributeAsync("data-state", "open");
         await Assertions.Expect(listbox).ToHaveAttributeAsync("role", "listbox");
         await Assertions.Expect(astro).ToBeVisibleAsync();
         await astro.ClickAsync();
 
-        ILocator selectedFrameworks = section.GetByText("Selected frameworks:", new LocatorGetByTextOptions { Exact = false }).First;
+        var selectedFrameworks = section.GetByText("Selected frameworks:", new LocatorGetByTextOptions { Exact = false }).First;
         await Assertions.Expect(selectedFrameworks).ToContainTextAsync("Next.js, Astro");
 
-        ILocator astroChip = section.Locator("[data-slot='combobox-chip'][data-value='Astro']").First;
+        var astroChip = section.Locator("[data-slot='combobox-chip'][data-value='Astro']").First;
         await Assertions.Expect(astroChip).ToBeVisibleAsync();
 
         await astroChip.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Remove selection", Exact = true }).ClickAsync();
@@ -123,17 +123,17 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
     [Fact]
     public async ValueTask Combobox_disabled_demo_does_not_open_results()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}comboboxes",
             static p => p.GetByPlaceholder("Unavailable"),
             expectedTitle: "Combobox - Quark Suite");
 
-        ILocator section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Disabled comboboxes keep the same visual treatment without opening the menu." }).First;
-        ILocator disabledInput = section.GetByPlaceholder("Unavailable");
-        ILocator disabledTrigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open combobox", Exact = true }).Last;
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Disabled comboboxes keep the same visual treatment without opening the menu." }).First;
+        var disabledInput = section.GetByPlaceholder("Unavailable");
+        var disabledTrigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open combobox", Exact = true }).Last;
 
         await disabledInput.ClickAsync(new LocatorClickOptions { Force = true });
 
@@ -145,8 +145,8 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
     [Fact]
     public async ValueTask Combobox_in_dialog_filters_and_selects_without_closing_dialog()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}comboboxes",
@@ -155,17 +155,17 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
 
         await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open dialog", Exact = true }).ClickAsync();
 
-        ILocator dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Select framework", Exact = true });
-        ILocator input = dialog.GetByPlaceholder("Select framework...");
+        var dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Select framework", Exact = true });
+        var input = dialog.GetByPlaceholder("Select framework...");
 
         await Assertions.Expect(dialog).ToBeVisibleAsync();
 
         await input.ClickAsync();
         await input.FillAsync("remix");
-        string? listboxId = await input.GetAttributeAsync("aria-controls");
+        var listboxId = await input.GetAttributeAsync("aria-controls");
         Assert.False(string.IsNullOrWhiteSpace(listboxId));
-        ILocator listbox = page.Locator($"#{listboxId}");
-        ILocator remix = listbox.Locator("[data-slot='combobox-item']").Filter(new LocatorFilterOptions { HasText = "Remix" }).First;
+        var listbox = page.Locator($"#{listboxId}");
+        var remix = listbox.Locator("[data-slot='combobox-item']").Filter(new LocatorFilterOptions { HasText = "Remix" }).First;
         await Assertions.Expect(listbox).ToHaveAttributeAsync("data-state", "open");
         await Assertions.Expect(listbox).ToHaveAttributeAsync("role", "listbox");
         await Assertions.Expect(remix).ToBeVisibleAsync();
@@ -178,18 +178,18 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
     [Fact]
     public async ValueTask Carousel_demo_advances_and_disables_navigation_at_bounds()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}carousels",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Next slide", Exact = true }).First,
             expectedTitle: "Carousel - Quark Suite");
 
-        ILocator demo = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "The default numbered-card carousel." }).First;
-        ILocator previous = demo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Previous slide", Exact = true });
-        ILocator next = demo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Next slide", Exact = true });
-        ILocator track = demo.Locator("[data-slot='carousel-content'] > div").First;
+        var demo = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "The default numbered-card carousel." }).First;
+        var previous = demo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Previous slide", Exact = true });
+        var next = demo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Next slide", Exact = true });
+        var track = demo.Locator("[data-slot='carousel-content'] > div").First;
 
         await Assertions.Expect(previous).ToBeDisabledAsync();
         await Assertions.Expect(track).ToHaveAttributeAsync("style", "transform: translateX(-0%); transition: transform 300ms ease-in-out");
@@ -208,23 +208,23 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
     [Fact]
     public async ValueTask Carousel_loop_demo_wraps_from_last_slide_back_to_first()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}carousels",
             static p => p.GetByText("Slide 1 of 5", new PageGetByTextOptions { Exact = true }),
             expectedTitle: "Carousel - Quark Suite");
 
-        ILocator apiSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "The API callback now lets the page subscribe to selection changes." }).First;
-        ILocator apiNext = apiSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Next slide", Exact = true });
+        var apiSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "The API callback now lets the page subscribe to selection changes." }).First;
+        var apiNext = apiSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Next slide", Exact = true });
 
         await apiNext.ClickAsync();
         await Assertions.Expect(apiSection).ToContainTextAsync("Slide 2 of 5");
 
-        ILocator loopSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Quark exposes the most visible carousel option directly with `Loop=true`" }).First;
-        ILocator loopTrack = loopSection.Locator("[data-slot='carousel-content'] > div").First;
-        ILocator loopNext = loopSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Next slide", Exact = true });
+        var loopSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Quark exposes the most visible carousel option directly with `Loop=true`" }).First;
+        var loopTrack = loopSection.Locator("[data-slot='carousel-content'] > div").First;
+        var loopNext = loopSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Next slide", Exact = true });
 
         for (var i = 0; i < 4; i++)
             await loopNext.ClickAsync();

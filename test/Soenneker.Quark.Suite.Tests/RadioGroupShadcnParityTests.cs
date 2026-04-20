@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var radioGroup = Render<RadioGroup>(parameters => parameters.Add(p => p.ChildContent, "Choice"));
 
-        string radioGroupClasses = radioGroup.Find("[data-slot='radio-group']").GetAttribute("class")!;
+        var radioGroupClasses = radioGroup.Find("[data-slot='radio-group']").GetAttribute("class")!;
 
         radioGroupClasses.Should().Contain("grid");
         radioGroupClasses.Should().Contain("gap-2");

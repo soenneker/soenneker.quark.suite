@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var action = Render<AlertAction>(parameters => parameters
             .Add(p => p.ChildContent, "Undo"));
 
-        string actionClasses = action.Find("[data-slot='alert-action']").GetAttribute("class")!;
+        var actionClasses = action.Find("[data-slot='alert-action']").GetAttribute("class")!;
 
         actionClasses.Should().Contain("absolute");
         actionClasses.Should().Contain("top-4");

@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var fallback = Render<AvatarFallback>(parameters => parameters
             .Add(p => p.ChildContent, "AB"));
 
-        string fallbackClasses = fallback.Find("[data-slot='avatar-fallback']").GetAttribute("class")!;
+        var fallbackClasses = fallback.Find("[data-slot='avatar-fallback']").GetAttribute("class")!;
 
         fallbackClasses.Should().Contain("absolute");
         fallbackClasses.Should().Contain("inset-0");

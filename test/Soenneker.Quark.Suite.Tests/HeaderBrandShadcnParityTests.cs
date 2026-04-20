@@ -13,7 +13,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.Title, "Soenneker Quark Suite")
             .Add(p => p.Subtitle, "Blazor components for .NET"));
 
-        string classes = cut.Find("a").GetAttribute("class")!;
+        var classes = cut.Find("a").GetAttribute("class")!;
 
         classes.Should().Contain("rounded-lg");
         classes.Should().Contain("transition-all");

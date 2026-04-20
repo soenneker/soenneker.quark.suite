@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var shortcut = Render<MenubarShortcut>(parameters => parameters.Add(p => p.ChildContent, "⌘K"));
 
-        string shortcutClasses = shortcut.Find("[data-slot='menubar-shortcut']").GetAttribute("class")!;
+        var shortcutClasses = shortcut.Find("[data-slot='menubar-shortcut']").GetAttribute("class")!;
 
         shortcutClasses.Should().Contain("ml-auto");
         shortcutClasses.Should().Contain("text-xs");

@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var cut = Render<DrawerHeader>(parameters => parameters.Add(p => p.ChildContent, "Header"));
 
-        string classes = cut.Find("[data-slot='drawer-header']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='drawer-header']").GetAttribute("class")!;
 
         classes.Should().Contain("flex");
         classes.Should().Contain("flex-col");

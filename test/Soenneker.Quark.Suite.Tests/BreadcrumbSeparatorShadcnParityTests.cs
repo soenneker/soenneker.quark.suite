@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var separator = Render<BreadcrumbSeparator>();
 
-        string separatorClasses = separator.Find("[data-slot='breadcrumb-separator']").GetAttribute("class")!;
+        var separatorClasses = separator.Find("[data-slot='breadcrumb-separator']").GetAttribute("class")!;
 
         separatorClasses.Should().Contain("[&>svg]:size-3.5");
         separatorClasses.Should().NotContain("q-breadcrumb-separator");

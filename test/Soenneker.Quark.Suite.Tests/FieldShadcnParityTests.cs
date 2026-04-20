@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<FieldSeparator>(parameters => parameters
             .AddChildContent("Appearance Settings"));
 
-        string classes = cut.Find("[data-slot='field-separator']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='field-separator']").GetAttribute("class")!;
 
         classes.Should().Contain("relative");
         classes.Should().Contain("h-5");
@@ -28,7 +28,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.For, "email")
             .Add(p => p.ChildContent, "Email"));
 
-        string classes = cut.Find("[data-slot='field-label']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='field-label']").GetAttribute("class")!;
 
         classes.Should().Contain("items-center");
         classes.Should().Contain("group/field-label");
@@ -47,7 +47,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<FieldTitle>(parameters => parameters
             .AddChildContent("Price Range"));
 
-        string classes = cut.Find("[data-slot='field-label']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='field-label']").GetAttribute("class")!;
 
         classes.Should().Contain("flex");
         classes.Should().Contain("w-fit");
@@ -64,7 +64,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<FieldDescription>(parameters => parameters
             .AddChildContent("Set your budget range."));
 
-        string classes = cut.Find("[data-slot='field-description']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='field-description']").GetAttribute("class")!;
 
         classes.Should().Contain("text-left");
         classes.Should().Contain("text-sm");

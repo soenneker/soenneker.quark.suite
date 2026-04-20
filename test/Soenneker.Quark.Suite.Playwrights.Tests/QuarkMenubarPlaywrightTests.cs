@@ -17,17 +17,17 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Menubar_demo_end_key_moves_focus_to_last_top_level_trigger()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}menubar",
             static p => p.Locator("[data-testid='quark-menubar-main-demo']"),
             expectedTitle: "Menubar - Quark Suite");
 
-        ILocator demo = page.Locator("[data-testid='quark-menubar-main-demo']");
-        ILocator file = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "File", Exact = true });
-        ILocator profiles = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Profiles", Exact = true });
+        var demo = page.Locator("[data-testid='quark-menubar-main-demo']");
+        var file = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "File", Exact = true });
+        var profiles = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Profiles", Exact = true });
 
         await file.FocusAsync();
         await file.PressAsync("End");
@@ -42,16 +42,16 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Menubar_demo_closes_from_single_outside_click()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}menubar",
             static p => p.Locator("[data-testid='quark-menubar-main-demo']"),
             expectedTitle: "Menubar - Quark Suite");
 
-        ILocator demo = page.Locator("[data-testid='quark-menubar-main-demo']");
-        ILocator viewTrigger = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "View", Exact = true });
+        var demo = page.Locator("[data-testid='quark-menubar-main-demo']");
+        var viewTrigger = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "View", Exact = true });
         await viewTrigger.ClickAsync();
 
         await Assertions.Expect(page.Locator("[role='menu']:visible").First).ToContainTextAsync("Always Show Bookmarks Bar");
@@ -65,17 +65,17 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Menubar_rtl_demo_inverts_horizontal_arrow_navigation()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}menubar",
             static p => p.Locator("[data-testid='quark-menubar-rtl-demo']"),
             expectedTitle: "Menubar - Quark Suite");
 
-        ILocator demo = page.Locator("[data-testid='quark-menubar-rtl-demo']");
-        ILocator file = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "ملف", Exact = true });
-        ILocator view = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "عرض", Exact = true });
+        var demo = page.Locator("[data-testid='quark-menubar-rtl-demo']");
+        var file = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "ملف", Exact = true });
+        var view = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "عرض", Exact = true });
 
         await file.FocusAsync();
         await file.PressAsync("ArrowRight");
@@ -89,43 +89,43 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Menubar_demo_escape_closes_submenu_before_parent_menu()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}menubar",
             static p => p.Locator("[data-testid='quark-menubar-main-demo']").First,
             expectedTitle: "Menubar - Quark Suite");
 
-        ILocator demo = page.Locator("[data-testid='quark-menubar-main-demo']").First;
-        ILocator fileTrigger = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "File", Exact = true });
+        var demo = page.Locator("[data-testid='quark-menubar-main-demo']").First;
+        var fileTrigger = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "File", Exact = true });
 
         await fileTrigger.ClickAsync();
 
-        string? menuId = await fileTrigger.GetAttributeAsync("aria-controls");
+        var menuId = await fileTrigger.GetAttributeAsync("aria-controls");
         Assert.False(string.IsNullOrWhiteSpace(menuId));
 
-        ILocator menu = page.Locator($"#{menuId}");
+        var menu = page.Locator($"#{menuId}");
         await Assertions.Expect(menu).ToContainTextAsync("New Tab");
-        ILocator submenuTrigger = menu.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Share", Exact = true });
+        var submenuTrigger = menu.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Share", Exact = true });
         await submenuTrigger.ClickAsync();
 
-        string? submenuId = await submenuTrigger.GetAttributeAsync("aria-controls");
+        var submenuId = await submenuTrigger.GetAttributeAsync("aria-controls");
         Assert.False(string.IsNullOrWhiteSpace(submenuId));
 
-        ILocator submenu = page.Locator($"#{submenuId}");
+        var submenu = page.Locator($"#{submenuId}");
         await Assertions.Expect(submenu).ToContainTextAsync("Email link");
         await Assertions.Expect(submenu).ToContainTextAsync("Messages");
 
-        ILocator emailLink = submenu.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Email link", Exact = true });
+        var emailLink = submenu.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Email link", Exact = true });
         await emailLink.FocusAsync();
         await emailLink.PressAsync("Escape");
 
         await Assertions.Expect(submenu).Not.ToBeVisibleAsync();
-        ILocator reopenedMenu = page.Locator("[role='menu']:visible").Filter(new LocatorFilterOptions { HasText = "New Tab" }).First;
+        var reopenedMenu = page.Locator("[role='menu']:visible").Filter(new LocatorFilterOptions { HasText = "New Tab" }).First;
         await Assertions.Expect(reopenedMenu).ToBeVisibleAsync();
 
-        ILocator reopenedSubmenuTrigger = reopenedMenu.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Share", Exact = true });
+        var reopenedSubmenuTrigger = reopenedMenu.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Share", Exact = true });
         await Assertions.Expect(reopenedSubmenuTrigger).ToBeFocusedAsync();
 
         await reopenedSubmenuTrigger.PressAsync("Escape");
@@ -137,18 +137,18 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Menubar_demo_roves_focus_across_top_level_triggers_and_opens_adjacent_menu_with_arrow_keys()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}menubar",
             static p => p.Locator("[data-testid='quark-menubar-main-demo']"),
             expectedTitle: "Menubar - Quark Suite");
 
-        ILocator demo = page.Locator("[data-testid='quark-menubar-main-demo']");
-        ILocator file = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "File", Exact = true });
-        ILocator edit = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Edit", Exact = true });
-        ILocator view = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "View", Exact = true });
+        var demo = page.Locator("[data-testid='quark-menubar-main-demo']");
+        var file = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "File", Exact = true });
+        var edit = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Edit", Exact = true });
+        var view = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "View", Exact = true });
 
         await file.FocusAsync();
         await file.PressAsync("ArrowRight");
@@ -174,23 +174,23 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Menubar_demo_persists_radio_and_checkbox_item_state_across_reopen()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}menubar",
             static p => p.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "Profiles", Exact = true }).First,
             expectedTitle: "Menubar - Quark Suite");
 
-        ILocator profilesTrigger = page.Locator("[data-testid='menubar-radio-trigger']");
-        ILocator selectedProfile = page.Locator("[data-testid='menubar-radio-value']");
+        var profilesTrigger = page.Locator("[data-testid='menubar-radio-trigger']");
+        var selectedProfile = page.Locator("[data-testid='menubar-radio-value']");
         await Assertions.Expect(profilesTrigger).ToBeVisibleAsync();
 
         await profilesTrigger.ClickAsync();
         await Assertions.Expect(profilesTrigger).ToHaveAttributeAsync("aria-expanded", "true");
 
-        ILocator benoit = page.Locator("[role='menuitemradio']:visible").Filter(new LocatorFilterOptions { HasText = "Benoit" }).First;
-        ILocator luis = page.Locator("[role='menuitemradio']:visible").Filter(new LocatorFilterOptions { HasText = "Luis" }).First;
+        var benoit = page.Locator("[role='menuitemradio']:visible").Filter(new LocatorFilterOptions { HasText = "Benoit" }).First;
+        var luis = page.Locator("[role='menuitemradio']:visible").Filter(new LocatorFilterOptions { HasText = "Luis" }).First;
 
         await Assertions.Expect(benoit).ToBeVisibleAsync();
         await Assertions.Expect(luis).ToBeVisibleAsync();
@@ -215,18 +215,18 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(luis).ToHaveAttributeAsync("aria-checked", "true");
         await Assertions.Expect(benoit).ToHaveAttributeAsync("aria-checked", "false");
 
-        ILocator viewTrigger = page.Locator("[data-testid='menubar-checkbox-trigger']");
+        var viewTrigger = page.Locator("[data-testid='menubar-checkbox-trigger']");
         await Assertions.Expect(viewTrigger).ToBeVisibleAsync();
 
         await viewTrigger.ClickAsync();
         await Assertions.Expect(viewTrigger).ToHaveAttributeAsync("aria-expanded", "true");
 
-        string? checkboxMenuId = await viewTrigger.GetAttributeAsync("aria-controls");
+        var checkboxMenuId = await viewTrigger.GetAttributeAsync("aria-controls");
         Assert.False(string.IsNullOrWhiteSpace(checkboxMenuId));
 
-        ILocator checkboxMenu = page.Locator($"#{checkboxMenuId}");
-        ILocator bookmarks = checkboxMenu.GetByRole(AriaRole.Menuitemcheckbox, new LocatorGetByRoleOptions { Name = "Always Show Bookmarks Bar", Exact = true });
-        ILocator fullUrls = checkboxMenu.GetByRole(AriaRole.Menuitemcheckbox, new LocatorGetByRoleOptions { Name = "Always Show Full URLs", Exact = true });
+        var checkboxMenu = page.Locator($"#{checkboxMenuId}");
+        var bookmarks = checkboxMenu.GetByRole(AriaRole.Menuitemcheckbox, new LocatorGetByRoleOptions { Name = "Always Show Bookmarks Bar", Exact = true });
+        var fullUrls = checkboxMenu.GetByRole(AriaRole.Menuitemcheckbox, new LocatorGetByRoleOptions { Name = "Always Show Full URLs", Exact = true });
 
         await Assertions.Expect(bookmarks).ToBeVisibleAsync();
         await Assertions.Expect(fullUrls).ToBeVisibleAsync();

@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<AlertTitle>(parameters => parameters
             .Add(p => p.ChildContent, "Alert"));
 
-        string classes = cut.Find("[data-slot='alert-title']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='alert-title']").GetAttribute("class")!;
 
         classes.Should().Contain("font-medium");
         classes.Should().Contain("group-has-[>svg]/alert:col-start-2");

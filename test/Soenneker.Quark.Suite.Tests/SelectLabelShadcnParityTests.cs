@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var label = Render<SelectLabel>(parameters => parameters.Add(p => p.ChildContent, "Fruits"));
 
-        string labelClasses = label.Find("[data-slot='select-label']").GetAttribute("class")!;
+        var labelClasses = label.Find("[data-slot='select-label']").GetAttribute("class")!;
 
         labelClasses.Should().Contain("px-2");
         labelClasses.Should().Contain("py-1.5");

@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var cut = Render<SidebarSeparator>();
 
-        string classes = cut.Find("[data-slot='sidebar-separator']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='sidebar-separator']").GetAttribute("class")!;
 
         classes.Should().Contain("bg-sidebar-border");
         classes.Should().Contain("h-px");

@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var cut = Render<BreadcrumbEllipsis>();
 
-        string classes = cut.Find("[data-slot='breadcrumb-ellipsis']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='breadcrumb-ellipsis']").GetAttribute("class")!;
 
         classes.Should().Contain("flex");
         classes.Should().Contain("size-9");

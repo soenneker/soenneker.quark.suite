@@ -14,7 +14,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.Active, true)
             .Add(p => p.ChildContent, "Dashboard"));
 
-        string classes = cut.Find("[data-slot='sidebar-menu-button']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='sidebar-menu-button']").GetAttribute("class")!;
 
         classes.Should().Contain("peer/menu-button");
         classes.Should().Contain("w-fit");

@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<Empty>(parameters => parameters
             .Add(p => p.ChildContent, "Empty"));
 
-        string classes = cut.Find("[data-slot='empty']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='empty']").GetAttribute("class")!;
 
         classes.Should().Contain("flex");
         classes.Should().Contain("flex-1");

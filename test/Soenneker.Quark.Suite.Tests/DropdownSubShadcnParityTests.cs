@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var sub = Render<DropdownSub>(parameters => parameters.Add(p => p.ChildContent, "Sub"));
 
-        string subClasses = sub.Find("[data-slot='dropdown-menu-sub']").GetAttribute("class")!;
+        var subClasses = sub.Find("[data-slot='dropdown-menu-sub']").GetAttribute("class")!;
 
         subClasses.Should().Contain("relative");
         subClasses.Should().NotContain("q-dropdown-sub");

@@ -29,7 +29,7 @@ public sealed partial class RenderedShadcnParityTests
                 builder.CloseComponent();
             })));
 
-        string classes = cut.Find("[data-slot='accordion-trigger']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='accordion-trigger']").GetAttribute("class")!;
 
         classes.Should().Contain("text-start");
         classes.Should().NotContain("text-left");

@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var group = Render<AvatarGroup>(parameters => parameters
             .Add(p => p.ChildContent, "Group"));
 
-        string groupClasses = group.Find("[data-slot='avatar-group']").GetAttribute("class")!;
+        var groupClasses = group.Find("[data-slot='avatar-group']").GetAttribute("class")!;
 
         groupClasses.Should().Contain("group/avatar-group");
         groupClasses.Should().Contain("flex");

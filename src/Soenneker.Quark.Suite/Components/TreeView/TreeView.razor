@@ -217,10 +217,10 @@
 
     internal async ValueTask<IReadOnlyList<TNode>> LoadChildrenDeduped(TNode node, Func<TNode, Task<IEnumerable<TNode>>> loader)
     {
-        if (_childNodeLoadTasks.TryGetValue(node, out Task<IReadOnlyList<TNode>>? existing))
+        if (_childNodeLoadTasks.TryGetValue(node, out var existing))
             return await existing;
 
-        Task<IReadOnlyList<TNode>> task = LoadChildrenCore(node, loader);
+        var task = LoadChildrenCore(node, loader);
         _childNodeLoadTasks[node] = task;
 
         try
@@ -229,14 +229,14 @@
         }
         finally
         {
-            if (_childNodeLoadTasks.TryGetValue(node, out Task<IReadOnlyList<TNode>>? current) && ReferenceEquals(current, task))
+            if (_childNodeLoadTasks.TryGetValue(node, out var current) && ReferenceEquals(current, task))
                 _childNodeLoadTasks.Remove(node);
         }
     }
 
     private static async Task<IReadOnlyList<TNode>> LoadChildrenCore(TNode node, Func<TNode, Task<IEnumerable<TNode>>> loader)
     {
-        IEnumerable<TNode>? children = await loader(node);
+        var children = await loader(node);
         return children?.ToList() ?? [];
     }
 
@@ -258,7 +258,7 @@
 
     private static void SyncExpandedState(ICollection<TreeViewNodeState<TNode>> nodeStates, IList<TNode> expandedNodes)
     {
-        foreach (TreeViewNodeState<TNode> nodeState in nodeStates)
+        foreach (var nodeState in nodeStates)
         {
             nodeState.Expanded = expandedNodes.Contains(nodeState.Node);
 

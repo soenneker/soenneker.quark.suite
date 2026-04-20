@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var inputGroup = Render<InputGroup>(parameters => parameters
             .AddChildContent("<input data-slot=\"input-group-control\" />"));
 
-        string groupClasses = inputGroup.Find("[data-slot='input-group']").GetAttribute("class")!;
+        var groupClasses = inputGroup.Find("[data-slot='input-group']").GetAttribute("class")!;
 
         groupClasses.Should().Contain("group/input-group");
         groupClasses.Should().Contain("relative");

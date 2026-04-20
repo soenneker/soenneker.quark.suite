@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var td = Render<Td>(parameters => parameters.Add(p => p.ChildContent, "Cell"));
 
-        string tdClasses = td.Find("[data-slot='table-cell']").GetAttribute("class")!;
+        var tdClasses = td.Find("[data-slot='table-cell']").GetAttribute("class")!;
 
         tdClasses.Should().Contain("p-2");
         tdClasses.Should().Contain("align-middle");

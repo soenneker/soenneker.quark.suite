@@ -37,9 +37,9 @@ public sealed partial class RenderedShadcnParityTests
         var content = cut.Find("[data-slot='sheet-content']");
         var close = cut.Find("[data-slot='sheet-close']");
 
-        string overlayClasses = overlay.GetAttribute("class")!;
-        string contentClasses = content.GetAttribute("class")!;
-        string closeClasses = close.GetAttribute("class")!;
+        var overlayClasses = overlay.GetAttribute("class")!;
+        var contentClasses = content.GetAttribute("class")!;
+        var closeClasses = close.GetAttribute("class")!;
 
         overlayClasses.Should().Contain("fixed");
         overlayClasses.Should().Contain("inset-0");

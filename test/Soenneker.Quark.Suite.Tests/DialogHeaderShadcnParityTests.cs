@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var header = Render<DialogHeader>(parameters => parameters
             .Add(p => p.ChildContent, "Header"));
 
-        string headerClasses = header.Find("[data-slot='dialog-header']").GetAttribute("class")!;
+        var headerClasses = header.Find("[data-slot='dialog-header']").GetAttribute("class")!;
 
         headerClasses.Should().Contain("flex");
         headerClasses.Should().Contain("flex-col");

@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<Hr>(parameters => parameters
             .Add(p => p.Orientation, SeparatorOrientation.Horizontal));
 
-        string classes = cut.Find("[data-slot='separator']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='separator']").GetAttribute("class")!;
 
         classes.Should().Contain("bg-border");
         classes.Should().Contain("shrink-0");

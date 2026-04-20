@@ -42,8 +42,8 @@ public sealed partial class RenderedShadcnParityTests
                 builder.CloseComponent();
             })));
 
-        string overlayClasses = cut.Find("[data-slot='drawer-overlay']").GetAttribute("class")!;
-        string contentClasses = cut.Find("[data-slot='drawer-content']").GetAttribute("class")!;
+        var overlayClasses = cut.Find("[data-slot='drawer-overlay']").GetAttribute("class")!;
+        var contentClasses = cut.Find("[data-slot='drawer-content']").GetAttribute("class")!;
 
         overlayClasses.Should().Contain("fixed");
         overlayClasses.Should().Contain("inset-0");

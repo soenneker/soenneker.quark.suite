@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var page = Render<BreadcrumbPage>(parameters => parameters
             .Add(p => p.ChildContent, "Current"));
 
-        string pageClasses = page.Find("[data-slot='breadcrumb-page']").GetAttribute("class")!;
+        var pageClasses = page.Find("[data-slot='breadcrumb-page']").GetAttribute("class")!;
 
         pageClasses.Should().Contain("font-normal");
         pageClasses.Should().Contain("text-foreground");

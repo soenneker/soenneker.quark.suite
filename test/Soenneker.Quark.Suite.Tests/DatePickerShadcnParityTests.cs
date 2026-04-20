@@ -14,7 +14,7 @@ public sealed partial class RenderedShadcnParityTests
         var trigger = cut.Find("button[data-slot='popover-trigger']");
         var hiddenInput = cut.Find("input[type='hidden']");
 
-        string triggerClasses = trigger.GetAttribute("class")!;
+        var triggerClasses = trigger.GetAttribute("class")!;
 
         triggerClasses.Should().Contain("group/button");
         triggerClasses.Should().Contain("inline-flex");
@@ -68,7 +68,7 @@ public sealed partial class RenderedShadcnParityTests
         trigger.Click();
 
         var panel = cut.Find("[data-slot='popover-content']");
-        string panelClasses = panel.GetAttribute("class")!;
+        var panelClasses = panel.GetAttribute("class")!;
 
         panelClasses.Should().Contain("bg-popover");
         panelClasses.Should().Contain("text-popover-foreground");

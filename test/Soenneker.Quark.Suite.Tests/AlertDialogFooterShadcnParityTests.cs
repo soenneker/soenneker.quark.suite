@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<AlertDialogFooter>(parameters => parameters
             .Add(p => p.ChildContent, "Footer"));
 
-        string classes = cut.Find("[data-slot='alert-dialog-footer']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='alert-dialog-footer']").GetAttribute("class")!;
 
         classes.Should().Contain("-mx-4");
         classes.Should().Contain("-mb-4");

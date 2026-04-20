@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var cut = Render<DrawerTrigger>(parameters => parameters.Add(p => p.ChildContent, "Open Drawer"));
 
-        string classes = cut.Find("[data-slot='drawer-trigger']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='drawer-trigger']").GetAttribute("class")!;
 
         classes.Should().Contain("group/button");
         classes.Should().Contain("inline-flex");

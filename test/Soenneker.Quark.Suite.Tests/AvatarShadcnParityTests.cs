@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var avatar = Render<Avatar>(parameters => parameters
             .Add(p => p.ChildContent, "Avatar"));
 
-        string avatarClasses = avatar.Find("[data-slot='avatar']").GetAttribute("class")!;
+        var avatarClasses = avatar.Find("[data-slot='avatar']").GetAttribute("class")!;
 
         avatarClasses.Should().Contain("group/avatar");
         avatarClasses.Should().Contain("relative");

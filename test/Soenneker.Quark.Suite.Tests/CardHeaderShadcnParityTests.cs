@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var header = Render<CardHeader>(parameters => parameters
             .Add(p => p.ChildContent, "Header"));
 
-        string headerClasses = header.Find("[data-slot='card-header']").GetAttribute("class")!;
+        var headerClasses = header.Find("[data-slot='card-header']").GetAttribute("class")!;
 
         headerClasses.Should().Contain("group/card-header");
         headerClasses.Should().Contain("@container/card-header");

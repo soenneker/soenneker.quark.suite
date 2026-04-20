@@ -13,7 +13,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.To, "/")
             .Add(p => p.ChildContent, "Home"));
 
-        string linkClasses = link.Find("[data-slot='breadcrumb-link']").GetAttribute("class")!;
+        var linkClasses = link.Find("[data-slot='breadcrumb-link']").GetAttribute("class")!;
 
         linkClasses.Should().Contain("transition-colors");
         linkClasses.Should().Contain("hover:text-foreground");

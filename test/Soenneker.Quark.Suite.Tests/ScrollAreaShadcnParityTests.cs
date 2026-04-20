@@ -15,8 +15,8 @@ public sealed partial class RenderedShadcnParityTests
         var root = area.Find("[data-slot='scroll-area']");
         var viewport = area.Find("[data-slot='scroll-area-viewport']");
 
-        string rootClasses = root.GetAttribute("class")!;
-        string viewportClasses = viewport.GetAttribute("class")!;
+        var rootClasses = root.GetAttribute("class")!;
+        var viewportClasses = viewport.GetAttribute("class")!;
 
         rootClasses.Should().Contain("relative");
 

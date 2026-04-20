@@ -18,9 +18,9 @@ public sealed partial class RenderedShadcnParityTests
         var label = cut.Find("label");
         var indicator = cut.Find("[data-slot='checkbox-indicator']");
 
-        string checkboxClasses = checkbox.GetAttribute("class")!;
-        string labelClasses = label.GetAttribute("class")!;
-        string indicatorClasses = indicator.GetAttribute("class")!;
+        var checkboxClasses = checkbox.GetAttribute("class")!;
+        var labelClasses = label.GetAttribute("class")!;
+        var indicatorClasses = indicator.GetAttribute("class")!;
 
         checkboxClasses.Should().Contain("peer");
         checkboxClasses.Should().Contain("relative");

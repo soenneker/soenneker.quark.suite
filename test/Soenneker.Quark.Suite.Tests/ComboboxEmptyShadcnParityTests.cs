@@ -13,7 +13,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<ComboboxEmpty>(parameters => parameters
             .Add(p => p.ChildContent, (RenderFragment)(builder => builder.AddContent(0, "No results found."))));
 
-        string classes = cut.Find("[data-slot='combobox-empty']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='combobox-empty']").GetAttribute("class")!;
 
         classes.Should().Contain("py-6");
         classes.Should().Contain("text-center");

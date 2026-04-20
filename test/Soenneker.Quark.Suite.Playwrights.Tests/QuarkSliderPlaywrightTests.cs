@@ -17,17 +17,17 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Slider_demo_horizontal_track_click_updates_value_and_step_demo_snaps_to_increment()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}sliders",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Single thumb with min, max, and step." }).GetByRole(AriaRole.Slider).First,
             expectedTitle: "Sliders - Quark Suite");
 
-        ILocator demoSection = page.Locator("[data-slot='preview'] [data-testid='slider-demo-primary']").First;
-        ILocator demoRoot = demoSection.Locator("[data-slot='slider']").First;
-        ILocator demoSlider = demoSection.Locator("[role='slider']:visible").First;
+        var demoSection = page.Locator("[data-slot='preview'] [data-testid='slider-demo-primary']").First;
+        var demoRoot = demoSection.Locator("[data-slot='slider']").First;
+        var demoSlider = demoSection.Locator("[role='slider']:visible").First;
         await Assertions.Expect(demoSlider).ToHaveAttributeAsync("aria-valuenow", "50");
         var demoRootBox = await demoRoot.EvaluateAsync<SliderRect>(
             @"element => {
@@ -50,9 +50,9 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(demoSlider).ToHaveAttributeAsync("aria-valuenow", "80");
         await Assertions.Expect(page.GetByText("Single thumb with min, max, and step. Current: 80.", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
 
-        ILocator stepSection = page.Locator("[data-slot='preview'] [data-testid='slider-demo-step']").First;
-        ILocator stepRoot = stepSection.Locator("[data-slot='slider']").First;
-        ILocator stepSlider = stepSection.Locator("[role='slider']:visible").First;
+        var stepSection = page.Locator("[data-slot='preview'] [data-testid='slider-demo-step']").First;
+        var stepRoot = stepSection.Locator("[data-slot='slider']").First;
+        var stepSlider = stepSection.Locator("[role='slider']:visible").First;
         await Assertions.Expect(stepSlider).ToHaveAttributeAsync("aria-valuenow", "30");
         var stepRootBox = await stepRoot.EvaluateAsync<SliderRect>(
             @"element => {
@@ -79,16 +79,16 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Slider_demo_home_and_end_keys_jump_to_minimum_and_maximum_values()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}sliders",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Single thumb with min, max, and step." }).GetByRole(AriaRole.Slider).First,
             expectedTitle: "Sliders - Quark Suite");
 
-        ILocator demoSection = page.Locator("section:visible").Filter(new LocatorFilterOptions { HasText = "Single thumb with min, max, and step." }).First;
-        ILocator slider = demoSection.GetByRole(AriaRole.Slider).First;
+        var demoSection = page.Locator("section:visible").Filter(new LocatorFilterOptions { HasText = "Single thumb with min, max, and step." }).First;
+        var slider = demoSection.GetByRole(AriaRole.Slider).First;
 
         await Assertions.Expect(slider).ToHaveAttributeAsync("aria-valuenow", "50");
 
@@ -107,17 +107,17 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Slider_range_and_multiple_thumb_demos_expose_named_thumbs_and_update_section_state()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}sliders",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Two-thumb range." }).GetByRole(AriaRole.Slider, new LocatorGetByRoleOptions { Name = "Minimum", Exact = true }),
             expectedTitle: "Sliders - Quark Suite");
 
-        ILocator rangeSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Two-thumb range." }).First;
-        ILocator minimum = rangeSection.GetByRole(AriaRole.Slider, new LocatorGetByRoleOptions { Name = "Minimum", Exact = true });
-        ILocator maximum = rangeSection.GetByRole(AriaRole.Slider, new LocatorGetByRoleOptions { Name = "Maximum", Exact = true });
+        var rangeSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Two-thumb range." }).First;
+        var minimum = rangeSection.GetByRole(AriaRole.Slider, new LocatorGetByRoleOptions { Name = "Minimum", Exact = true });
+        var maximum = rangeSection.GetByRole(AriaRole.Slider, new LocatorGetByRoleOptions { Name = "Maximum", Exact = true });
 
         await Assertions.Expect(minimum).ToHaveAttributeAsync("aria-valuenow", "25");
         await Assertions.Expect(maximum).ToHaveAttributeAsync("aria-valuenow", "50");
@@ -131,10 +131,10 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(maximum).ToHaveAttributeAsync("aria-valuenow", "55");
         await Assertions.Expect(rangeSection).ToContainTextAsync("Current: 30 – 55.");
 
-        ILocator multipleSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Several thumbs on one track." }).First;
-        ILocator first = multipleSection.GetByRole(AriaRole.Slider, new LocatorGetByRoleOptions { Name = "Value 1 of 3", Exact = true });
-        ILocator second = multipleSection.GetByRole(AriaRole.Slider, new LocatorGetByRoleOptions { Name = "Value 2 of 3", Exact = true });
-        ILocator third = multipleSection.GetByRole(AriaRole.Slider, new LocatorGetByRoleOptions { Name = "Value 3 of 3", Exact = true });
+        var multipleSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Several thumbs on one track." }).First;
+        var first = multipleSection.GetByRole(AriaRole.Slider, new LocatorGetByRoleOptions { Name = "Value 1 of 3", Exact = true });
+        var second = multipleSection.GetByRole(AriaRole.Slider, new LocatorGetByRoleOptions { Name = "Value 2 of 3", Exact = true });
+        var third = multipleSection.GetByRole(AriaRole.Slider, new LocatorGetByRoleOptions { Name = "Value 3 of 3", Exact = true });
 
         await Assertions.Expect(first).ToHaveAttributeAsync("aria-valuenow", "10");
         await Assertions.Expect(second).ToHaveAttributeAsync("aria-valuenow", "20");
@@ -150,16 +150,16 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Slider_demo_thumb_interaction_updates_value_and_disabled_slider_does_not_move()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}sliders",
             static p => p.GetByRole(AriaRole.Slider).First,
             expectedTitle: "Sliders - Quark Suite");
 
-        ILocator demoSection = page.Locator("section:visible").Filter(new LocatorFilterOptions { HasText = "Single thumb with min, max, and step." }).First;
-        ILocator demoSlider = demoSection.GetByRole(AriaRole.Slider).First;
+        var demoSection = page.Locator("section:visible").Filter(new LocatorFilterOptions { HasText = "Single thumb with min, max, and step." }).First;
+        var demoSlider = demoSection.GetByRole(AriaRole.Slider).First;
         await Assertions.Expect(demoSlider).ToHaveAttributeAsync("aria-valuenow", "50");
         await demoSlider.FocusAsync();
         for (var i = 0; i < 5; i++)
@@ -167,8 +167,8 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(demoSlider).ToHaveAttributeAsync("aria-valuenow", "55");
         await Assertions.Expect(demoSection).ToContainTextAsync("Current: 55.");
 
-        ILocator disabledSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Set Disabled to prevent interaction." }).First;
-        ILocator disabledSlider = disabledSection.GetByRole(AriaRole.Slider).First;
+        var disabledSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Set Disabled to prevent interaction." }).First;
+        var disabledSlider = disabledSection.GetByRole(AriaRole.Slider).First;
 
         await Assertions.Expect(disabledSlider).ToHaveAttributeAsync("aria-valuenow", "50");
         await disabledSlider.FocusAsync();
@@ -179,16 +179,16 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Slider_vertical_demo_and_rtl_demo_follow_radix_orientation_and_direction_behavior()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}sliders",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Vertical sliders." }).GetByRole(AriaRole.Slider).First,
             expectedTitle: "Sliders - Quark Suite");
 
-        ILocator verticalSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Vertical sliders." }).First;
-        ILocator leftSlider = verticalSection.GetByRole(AriaRole.Slider).Nth(0);
+        var verticalSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Vertical sliders." }).First;
+        var leftSlider = verticalSection.GetByRole(AriaRole.Slider).Nth(0);
 
         await Assertions.Expect(leftSlider).ToHaveAttributeAsync("aria-valuenow", "50");
         await Assertions.Expect(leftSlider).ToHaveAttributeAsync("aria-orientation", "vertical");
@@ -205,8 +205,8 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(leftSlider).ToHaveAttributeAsync("aria-valuenow", "50");
         await Assertions.Expect(verticalSection).ToContainTextAsync("Left: 50");
 
-        ILocator rtlSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Slider direction follows DirectionProvider." }).First;
-        ILocator rtlSlider = rtlSection.GetByRole(AriaRole.Slider).First;
+        var rtlSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Slider direction follows DirectionProvider." }).First;
+        var rtlSlider = rtlSection.GetByRole(AriaRole.Slider).First;
 
         await Assertions.Expect(rtlSlider).ToHaveAttributeAsync("aria-valuenow", "75");
 

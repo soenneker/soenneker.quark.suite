@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var cut = Render<ContextMenuTrigger>(parameters => parameters.Add(p => p.ChildContent, "Open"));
 
-        string? classes = cut.Find("[data-slot='context-menu-trigger']").GetAttribute("class");
+        var classes = cut.Find("[data-slot='context-menu-trigger']").GetAttribute("class");
 
         (classes ?? string.Empty).Should().NotContain("q-context-menu-trigger");
         (classes ?? string.Empty).Should().NotContain("cursor-context-menu");

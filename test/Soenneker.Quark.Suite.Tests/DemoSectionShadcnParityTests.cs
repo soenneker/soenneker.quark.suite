@@ -19,8 +19,8 @@ public sealed partial class RenderedShadcnParityTests
         var preview = cut.Find("[data-slot='preview']");
         var previewInner = preview.FirstElementChild!;
         var contentInner = previewInner.QuerySelector(".w-full");
-        string previewCardClasses = previewCard.GetAttribute("class")!;
-        string previewClasses = previewInner.GetAttribute("class")!;
+        var previewCardClasses = previewCard.GetAttribute("class")!;
+        var previewClasses = previewInner.GetAttribute("class")!;
 
         previewCardClasses.Should().Contain("group");
         previewCardClasses.Should().Contain("relative");

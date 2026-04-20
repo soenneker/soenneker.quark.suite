@@ -45,7 +45,7 @@ public static class ClassNames
             if (!string.IsNullOrWhiteSpace(str))
             {
                 var parts = str.Split(WhitespaceSeparators, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string part in parts)
+                foreach (var part in parts)
                 {
                     if (seen.Add(part))
                         classes.Add(part);

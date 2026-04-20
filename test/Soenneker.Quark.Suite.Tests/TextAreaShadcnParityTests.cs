@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var textarea = Render<TextArea>(parameters => parameters.Add(p => p.Placeholder, "Type your message here."));
 
-        string textareaClasses = textarea.Find("[data-slot='textarea']").GetAttribute("class")!;
+        var textareaClasses = textarea.Find("[data-slot='textarea']").GetAttribute("class")!;
 
         textareaClasses.Should().Contain("min-h-16");
         textareaClasses.Should().Contain("rounded-lg");

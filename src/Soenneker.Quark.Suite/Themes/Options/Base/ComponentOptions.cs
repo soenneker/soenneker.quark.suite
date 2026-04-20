@@ -534,7 +534,7 @@ public class ComponentOptions
         if (!fallbackProperty.Equals("text-decoration", System.StringComparison.Ordinal))
             return null;
 
-        string? resolved = rawValue.Trim() switch
+        var resolved = rawValue.Trim() switch
         {
             "no-underline" => "none",
             "underline" => "underline",

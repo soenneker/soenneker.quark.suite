@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<SidebarMenuAction>(parameters => parameters
             .Add(p => p.ChildContent, "+"));
 
-        string classes = cut.Find("[data-slot='sidebar-menu-action']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='sidebar-menu-action']").GetAttribute("class")!;
 
         classes.Should().Contain("absolute");
         classes.Should().Contain("top-1.5");

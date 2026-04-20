@@ -17,16 +17,16 @@ public sealed class QuarkInputOtpPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Input_otp_digits_only_demo_distributes_pasted_digits_and_filters_non_numeric_characters()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}input-otp",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Digits Only" }).Locator("[data-slot='input-otp-slot']").First,
             expectedTitle: "Input OTP - Quark Suite");
 
-        ILocator section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Digits Only" }).First;
-        ILocator slots = section.Locator("[data-slot='input-otp-slot']");
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Digits Only" }).First;
+        var slots = section.Locator("[data-slot='input-otp-slot']");
 
         await slots.First.ClickAsync();
         await page.Keyboard.InsertTextAsync("12A34B");
@@ -42,16 +42,16 @@ public sealed class QuarkInputOtpPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Input_otp_seeded_examples_render_initial_bound_values()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}input-otp",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "With Separator" }).Locator("[data-slot='input-otp-slot']").First,
             expectedTitle: "Input OTP - Quark Suite");
 
-        ILocator separator = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "With Separator" }).First;
-        ILocator separatorSlots = separator.Locator("[data-slot='input-otp-slot']");
+        var separator = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "With Separator" }).First;
+        var separatorSlots = separator.Locator("[data-slot='input-otp-slot']");
 
         await Assertions.Expect(separatorSlots.Nth(0)).ToHaveValueAsync("1");
         await Assertions.Expect(separatorSlots.Nth(1)).ToHaveValueAsync("2");
@@ -60,8 +60,8 @@ public sealed class QuarkInputOtpPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(separatorSlots.Nth(4)).ToHaveValueAsync("5");
         await Assertions.Expect(separatorSlots.Nth(5)).ToHaveValueAsync("6");
 
-        ILocator alphaNumeric = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Alphanumeric" }).First;
-        ILocator alphaSlots = alphaNumeric.Locator("[data-slot='input-otp-slot']");
+        var alphaNumeric = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Alphanumeric" }).First;
+        var alphaSlots = alphaNumeric.Locator("[data-slot='input-otp-slot']");
 
         await Assertions.Expect(alphaSlots.Nth(0)).ToHaveValueAsync("A");
         await Assertions.Expect(alphaSlots.Nth(1)).ToHaveValueAsync("9");
@@ -71,16 +71,16 @@ public sealed class QuarkInputOtpPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Input_otp_disabled_demo_preserves_existing_value_and_blocks_edits()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}input-otp",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Disabled" }).Locator("[data-slot='input-otp-slot']").First,
             expectedTitle: "Input OTP - Quark Suite");
 
-        ILocator section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Disabled" }).First;
-        ILocator slots = section.Locator("[data-slot='input-otp-slot']");
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Disabled" }).First;
+        var slots = section.Locator("[data-slot='input-otp-slot']");
 
         await Assertions.Expect(slots.Nth(0)).ToHaveValueAsync("1");
         await Assertions.Expect(slots.Nth(1)).ToHaveValueAsync("2");
@@ -105,19 +105,19 @@ public sealed class QuarkInputOtpPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Input_otp_controlled_demo_buttons_keep_slots_in_sync()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}input-otp",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { Has = p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Fill sample", Exact = true }) }).Locator("[data-slot='input-otp-slot']").First,
             expectedTitle: "Input OTP - Quark Suite");
 
-        ILocator section = page.Locator("section").Filter(new LocatorFilterOptions
+        var section = page.Locator("section").Filter(new LocatorFilterOptions
         {
             Has = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Fill sample", Exact = true })
         }).First;
-        ILocator slots = section.Locator("[data-slot='input-otp-slot']");
+        var slots = section.Locator("[data-slot='input-otp-slot']");
 
         await Assertions.Expect(slots.Nth(0)).ToHaveValueAsync("1");
         await Assertions.Expect(slots.Nth(1)).ToHaveValueAsync("2");
@@ -145,18 +145,18 @@ public sealed class QuarkInputOtpPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Input_otp_seeded_demo_home_and_end_keys_move_focus_to_first_and_last_filled_slots()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}input-otp",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "With Separator" }).Locator("[data-slot='input-otp-slot']").First,
             expectedTitle: "Input OTP - Quark Suite");
 
-        ILocator section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "With Separator" }).First;
-        ILocator slots = section.Locator("[data-slot='input-otp-slot']");
-        ILocator first = slots.Nth(0);
-        ILocator last = slots.Nth(5);
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "With Separator" }).First;
+        var slots = section.Locator("[data-slot='input-otp-slot']");
+        var first = slots.Nth(0);
+        var last = slots.Nth(5);
 
         await first.ClickAsync();
         await first.PressAsync("End");
@@ -169,16 +169,16 @@ public sealed class QuarkInputOtpPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Input_otp_default_value_demo_restores_uncontrolled_digits_on_form_reset()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}input-otp",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { Has = p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Reset OTP", Exact = true }) }).Locator("[data-slot='input-otp-slot']").First,
             expectedTitle: "Input OTP - Quark Suite");
 
-        ILocator section = page.Locator("section").Filter(new LocatorFilterOptions { Has = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Reset OTP", Exact = true }) }).First;
-        ILocator slots = section.Locator("[data-slot='input-otp-slot']");
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { Has = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Reset OTP", Exact = true }) }).First;
+        var slots = section.Locator("[data-slot='input-otp-slot']");
 
         await Assertions.Expect(slots.Nth(0)).ToHaveValueAsync("2");
         await Assertions.Expect(slots.Nth(1)).ToHaveValueAsync("4");

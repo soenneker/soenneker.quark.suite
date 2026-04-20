@@ -123,7 +123,7 @@ public abstract class RenderComponent : CoreComponent
 
             if (cls.Length > 0)
             {
-                string normalizedClass = NormalizeClassTokens(cls.ToString());
+                var normalizedClass = NormalizeClassTokens(cls.ToString());
 
                 if (normalizedClass.Length > 0)
                     attrs["class"] = normalizedClass;
@@ -566,7 +566,7 @@ public abstract class RenderComponent : CoreComponent
 
             if (cls.Length > 0)
             {
-                string normalizedClass = NormalizeClassTokens(cls.ToString());
+                var normalizedClass = NormalizeClassTokens(cls.ToString());
 
                 if (normalizedClass.Length > 0)
                     attrs["class"] = existingClassObj is string && normalizedClass.Length == existingClassLen
@@ -615,7 +615,7 @@ public abstract class RenderComponent : CoreComponent
         if (value.IsNullOrWhiteSpace())
             return string.Empty;
 
-        string[] tokens = value.Split([' ', '\t', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var tokens = value.Split([' ', '\t', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         if (tokens.Length <= 1)
             return tokens.Length == 0 ? string.Empty : tokens[0];
@@ -625,7 +625,7 @@ public abstract class RenderComponent : CoreComponent
 
         try
         {
-            foreach (string token in tokens)
+            foreach (var token in tokens)
             {
                 if (!seen.Add(token))
                     continue;

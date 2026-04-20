@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var footer = Render<SheetFooter>(parameters => parameters
             .Add(p => p.ChildContent, "Footer"));
 
-        string footerClasses = footer.Find("[data-slot='sheet-footer']").GetAttribute("class")!;
+        var footerClasses = footer.Find("[data-slot='sheet-footer']").GetAttribute("class")!;
 
         footerClasses.Should().Contain("mt-auto");
         footerClasses.Should().Contain("flex");

@@ -17,28 +17,28 @@ public sealed class QuarkAspectRatioPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Aspect_ratio_examples_preserve_landscape_square_and_portrait_frames()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}aspect-ratios",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Portrait ratios work well for mobile previews and editorial imagery." }).First,
             expectedTitle: "Aspect Ratio - Quark Suite");
 
-        ILocator landscapeFrame = page.Locator("#aspect-ratio-landscape-demo [data-radix-aspect-ratio-wrapper]");
-        ILocator squareFrame = page.Locator("#aspect-ratio-square-demo [data-radix-aspect-ratio-wrapper]");
-        ILocator portraitFrame = page.Locator("#aspect-ratio-portrait-demo [data-radix-aspect-ratio-wrapper]");
-        ILocator landscapeHost = page.Locator("#aspect-ratio-landscape-demo");
-        ILocator squareHost = page.Locator("#aspect-ratio-square-demo");
-        ILocator portraitHost = page.Locator("#aspect-ratio-portrait-demo");
+        var landscapeFrame = page.Locator("#aspect-ratio-landscape-demo [data-radix-aspect-ratio-wrapper]");
+        var squareFrame = page.Locator("#aspect-ratio-square-demo [data-radix-aspect-ratio-wrapper]");
+        var portraitFrame = page.Locator("#aspect-ratio-portrait-demo [data-radix-aspect-ratio-wrapper]");
+        var landscapeHost = page.Locator("#aspect-ratio-landscape-demo");
+        var squareHost = page.Locator("#aspect-ratio-square-demo");
+        var portraitHost = page.Locator("#aspect-ratio-portrait-demo");
 
         await Assertions.Expect(landscapeFrame).ToHaveAttributeAsync("style", new System.Text.RegularExpressions.Regex(@"padding-bottom:\s*56\.25"));
         await Assertions.Expect(squareFrame).ToHaveAttributeAsync("style", new System.Text.RegularExpressions.Regex(@"padding-bottom:\s*100(\.0+)?%"));
         await Assertions.Expect(portraitFrame).ToHaveAttributeAsync("style", new System.Text.RegularExpressions.Regex(@"padding-bottom:\s*177\.777"));
 
-        LocatorBoundingBoxResult? landscapeBox = await landscapeHost.BoundingBoxAsync();
-        LocatorBoundingBoxResult? squareBox = await squareHost.BoundingBoxAsync();
-        LocatorBoundingBoxResult? portraitBox = await portraitHost.BoundingBoxAsync();
+        var landscapeBox = await landscapeHost.BoundingBoxAsync();
+        var squareBox = await squareHost.BoundingBoxAsync();
+        var portraitBox = await portraitHost.BoundingBoxAsync();
 
         Assert.NotNull(landscapeBox);
         Assert.NotNull(squareBox);

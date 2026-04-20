@@ -60,10 +60,10 @@ public sealed partial class RenderedShadcnParityTests
                 builder.CloseComponent();
             })));
 
-        string sidebarClasses = sidebar.Find("[data-slot='sidebar']").GetAttribute("class")!;
-        string gapClasses = sidebar.Find("[data-slot='sidebar-gap']").GetAttribute("class")!;
-        string containerClasses = sidebar.Find("[data-slot='sidebar-container']").GetAttribute("class")!;
-        string innerClasses = sidebar.Find("[data-slot='sidebar-inner']").GetAttribute("class")!;
+        var sidebarClasses = sidebar.Find("[data-slot='sidebar']").GetAttribute("class")!;
+        var gapClasses = sidebar.Find("[data-slot='sidebar-gap']").GetAttribute("class")!;
+        var containerClasses = sidebar.Find("[data-slot='sidebar-container']").GetAttribute("class")!;
+        var innerClasses = sidebar.Find("[data-slot='sidebar-inner']").GetAttribute("class")!;
 
         sidebarClasses.Should().Contain("group");
         sidebarClasses.Should().Contain("peer");

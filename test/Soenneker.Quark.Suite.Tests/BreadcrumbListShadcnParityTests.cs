@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<BreadcrumbList>(parameters => parameters
             .Add(p => p.ChildContent, "Trail"));
 
-        string classes = cut.Find("[data-slot='breadcrumb-list']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='breadcrumb-list']").GetAttribute("class")!;
 
         classes.Should().Contain("flex");
         classes.Should().Contain("flex-wrap");

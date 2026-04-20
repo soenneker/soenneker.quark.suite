@@ -37,12 +37,12 @@ public sealed partial class RenderedShadcnParityTests
                 builder.CloseComponent();
             })));
 
-        string paginationClasses = pagination.Find("[data-slot='pagination']").GetAttribute("class")!;
-        string contentClasses = pagination.Find("[data-slot='pagination-content']").GetAttribute("class")!;
-        string itemClasses = pagination.Find("[data-slot='pagination-item']").GetAttribute("class")!;
-        string linkClasses = pagination.Find("[data-slot='pagination-link']").GetAttribute("class")!;
-        string ellipsisClasses = pagination.Find("[data-slot='pagination-ellipsis']").GetAttribute("class")!;
-        string? ariaCurrent = pagination.Find("[data-slot='pagination-link']").GetAttribute("aria-current");
+        var paginationClasses = pagination.Find("[data-slot='pagination']").GetAttribute("class")!;
+        var contentClasses = pagination.Find("[data-slot='pagination-content']").GetAttribute("class")!;
+        var itemClasses = pagination.Find("[data-slot='pagination-item']").GetAttribute("class")!;
+        var linkClasses = pagination.Find("[data-slot='pagination-link']").GetAttribute("class")!;
+        var ellipsisClasses = pagination.Find("[data-slot='pagination-ellipsis']").GetAttribute("class")!;
+        var ariaCurrent = pagination.Find("[data-slot='pagination-link']").GetAttribute("aria-current");
 
         paginationClasses.Should().Contain("mx-auto");
         paginationClasses.Should().Contain("flex");

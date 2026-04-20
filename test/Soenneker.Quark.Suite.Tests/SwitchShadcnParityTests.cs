@@ -13,8 +13,8 @@ public sealed partial class RenderedShadcnParityTests
 
         var root = cut.Find("[data-slot='switch']");
         var thumb = cut.Find("[data-slot='switch-thumb']");
-        string rootClasses = root.GetAttribute("class")!;
-        string thumbClasses = thumb.GetAttribute("class")!;
+        var rootClasses = root.GetAttribute("class")!;
+        var thumbClasses = thumb.GetAttribute("class")!;
 
         cut.Markup.TrimStart().Should().StartWith("<button");
 

@@ -17,22 +17,22 @@ public sealed class QuarkHoverCardPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Hover_card_demo_hides_profile_details_after_pointer_leaves_trigger_and_content()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}hover-cards",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "nextjs", Exact = true }),
             expectedTitle: "Hover Cards - Quark Suite");
 
-        ILocator trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "nextjs", Exact = true });
-        ILocator details = page.GetByText("The React framework for production applications.", new PageGetByTextOptions { Exact = true });
+        var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "nextjs", Exact = true });
+        var details = page.GetByText("The React framework for production applications.", new PageGetByTextOptions { Exact = true });
 
         await trigger.HoverAsync();
         await Assertions.Expect(details).ToBeVisibleAsync();
 
-        ILocator sideSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Change side and alignment to match where the preview should appear." }).First;
-        ILocator topStartTrigger = sideSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Top start", Exact = true });
+        var sideSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Change side and alignment to match where the preview should appear." }).First;
+        var topStartTrigger = sideSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Top start", Exact = true });
         await topStartTrigger.HoverAsync();
 
         await Assertions.Expect(details).Not.ToBeVisibleAsync();
@@ -41,8 +41,8 @@ public sealed class QuarkHoverCardPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Hover_card_demo_shows_profile_details_on_hover()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}hover-cards",
@@ -58,24 +58,24 @@ public sealed class QuarkHoverCardPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Hover_card_demo_supports_nested_hover_card_inside_modal_dialog()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}hover-cards",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open hover card dialog", Exact = true }),
             expectedTitle: "Hover Cards - Quark Suite");
 
-        ILocator dialogTrigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open hover card dialog", Exact = true });
+        var dialogTrigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open hover card dialog", Exact = true });
         await dialogTrigger.ClickAsync();
 
-        ILocator dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Hover card dialog", Exact = true });
+        var dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Hover card dialog", Exact = true });
         await Assertions.Expect(dialog).ToBeVisibleAsync();
 
-        ILocator hoverCardTrigger = dialog.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Show nested hover card", Exact = true });
+        var hoverCardTrigger = dialog.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Show nested hover card", Exact = true });
         await hoverCardTrigger.HoverAsync();
 
-        ILocator hoverCard = page.GetByText("Hover card content inside dialog", new PageGetByTextOptions { Exact = true });
+        var hoverCard = page.GetByText("Hover card content inside dialog", new PageGetByTextOptions { Exact = true });
         await Assertions.Expect(hoverCard).ToBeVisibleAsync();
         await Assertions.Expect(dialog).ToBeVisibleAsync();
     }

@@ -17,23 +17,23 @@ public sealed class QuarkPaginationPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Pagination_interactive_demo_updates_current_page_and_disabled_button_state()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}paginations",
             static p => p.Locator("#pagination-interactive-demo"),
             expectedTitle: "Paginations - Quark Suite");
 
-        ILocator demo = page.Locator("#pagination-interactive-demo");
-        ILocator state = demo.Locator("#pagination-interactive-state");
-        ILocator previous = demo.Locator("#pagination-interactive-previous");
-        ILocator next = demo.Locator("#pagination-interactive-next");
-        ILocator page1 = demo.Locator("#pagination-interactive-page-1");
-        ILocator page3 = demo.Locator("#pagination-interactive-page-3");
-        ILocator page5 = demo.Locator("#pagination-interactive-page-5");
-        ILocator goToLast = demo.Locator("#pagination-interactive-last");
-        ILocator goToFirst = demo.Locator("#pagination-interactive-first");
+        var demo = page.Locator("#pagination-interactive-demo");
+        var state = demo.Locator("#pagination-interactive-state");
+        var previous = demo.Locator("#pagination-interactive-previous");
+        var next = demo.Locator("#pagination-interactive-next");
+        var page1 = demo.Locator("#pagination-interactive-page-1");
+        var page3 = demo.Locator("#pagination-interactive-page-3");
+        var page5 = demo.Locator("#pagination-interactive-page-5");
+        var goToLast = demo.Locator("#pagination-interactive-last");
+        var goToFirst = demo.Locator("#pagination-interactive-first");
 
         await Assertions.Expect(state).ToContainTextAsync("Current page: 1 of 5");
         await Assertions.Expect(previous).ToBeDisabledAsync();

@@ -31,8 +31,8 @@ public sealed partial class RenderedShadcnParityTests
         var handleGrip = handle.FirstElementChild;
         var panels = cut.FindAll("[data-slot='resizable-panel']");
 
-        string groupClasses = group.GetAttribute("class")!;
-        string handleClasses = handle.GetAttribute("class")!;
+        var groupClasses = group.GetAttribute("class")!;
+        var handleClasses = handle.GetAttribute("class")!;
 
         groupClasses.Should().Contain("flex");
         groupClasses.Should().Contain("h-full");

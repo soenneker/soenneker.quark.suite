@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<ThemeToggleButton>(parameters => parameters
             .Add(p => p.AriaLabel, "Toggle dark mode"));
 
-        string classes = cut.Find("[data-slot='button']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='button']").GetAttribute("class")!;
 
         classes.Should().Contain("group/button");
         classes.Should().Contain("size-8");

@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var separator = Render<MenubarSeparator>();
 
-        string separatorClasses = separator.Find("[data-slot='menubar-separator']").GetAttribute("class")!;
+        var separatorClasses = separator.Find("[data-slot='menubar-separator']").GetAttribute("class")!;
 
         separatorClasses.Should().Contain("-mx-1");
         separatorClasses.Should().Contain("my-1");

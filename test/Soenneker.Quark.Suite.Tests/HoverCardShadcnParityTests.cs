@@ -26,8 +26,8 @@ public sealed partial class RenderedShadcnParityTests
         var trigger = cut.Find("[data-slot='hover-card-trigger']");
         var content = cut.Find("[data-slot='hover-card-content']");
 
-        string triggerClasses = trigger.GetAttribute("class")!;
-        string contentClasses = content.GetAttribute("class")!;
+        var triggerClasses = trigger.GetAttribute("class")!;
+        var contentClasses = content.GetAttribute("class")!;
 
         triggerClasses.Should().Contain("group/button");
         triggerClasses.Should().Contain("inline-flex");

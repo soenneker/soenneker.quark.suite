@@ -18,10 +18,10 @@ public sealed partial class RenderedShadcnParityTests
                 builder.CloseComponent();
             })));
 
-        string comboboxClasses = cut.Find("[data-slot='combobox']").GetAttribute("class")!;
-        string inputGroupClasses = cut.Find("[data-slot='input-group']").GetAttribute("class")!;
-        string inputClasses = cut.Find("[data-combobox-slot='combobox-input']").GetAttribute("class")!;
-        string triggerClasses = cut.Find("[data-slot='combobox-trigger']").GetAttribute("class")!;
+        var comboboxClasses = cut.Find("[data-slot='combobox']").GetAttribute("class")!;
+        var inputGroupClasses = cut.Find("[data-slot='input-group']").GetAttribute("class")!;
+        var inputClasses = cut.Find("[data-combobox-slot='combobox-input']").GetAttribute("class")!;
+        var triggerClasses = cut.Find("[data-slot='combobox-trigger']").GetAttribute("class")!;
 
         comboboxClasses.Should().Contain("relative");
         comboboxClasses.Should().NotContain("q-combobox");

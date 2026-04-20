@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var description = Render<ItemDescription>(parameters => parameters
             .Add(p => p.ChildContent, "Description"));
 
-        string descriptionClasses = description.Find("[data-slot='item-description']").GetAttribute("class")!;
+        var descriptionClasses = description.Find("[data-slot='item-description']").GetAttribute("class")!;
 
         descriptionClasses.Should().Contain("line-clamp-2");
         descriptionClasses.Should().Contain("text-sm");

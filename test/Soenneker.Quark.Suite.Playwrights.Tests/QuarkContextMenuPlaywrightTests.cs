@@ -17,21 +17,21 @@ public sealed class QuarkContextMenuPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Context_menu_demo_persists_checkbox_and_radio_selection_state_across_reopen()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}context-menus",
             static p => p.GetByText("Right click for view options", new PageGetByTextOptions { Exact = true }),
             expectedTitle: "Context Menus - Quark Suite");
 
-        ILocator checkboxTrigger = page.Locator("[data-testid='context-menu-checkbox-trigger']");
+        var checkboxTrigger = page.Locator("[data-testid='context-menu-checkbox-trigger']");
         await checkboxTrigger.ScrollIntoViewIfNeededAsync();
         await Assertions.Expect(checkboxTrigger).ToBeVisibleAsync();
         await checkboxTrigger.ClickAsync(new LocatorClickOptions { Button = MouseButton.Right });
 
-        ILocator showBookmarks = page.Locator("[role='menuitemcheckbox']:visible").Filter(new LocatorFilterOptions { HasText = "Show bookmarks bar" }).First;
-        ILocator showFullUrls = page.Locator("[role='menuitemcheckbox']:visible").Filter(new LocatorFilterOptions { HasText = "Show full URLs" }).First;
+        var showBookmarks = page.Locator("[role='menuitemcheckbox']:visible").Filter(new LocatorFilterOptions { HasText = "Show bookmarks bar" }).First;
+        var showFullUrls = page.Locator("[role='menuitemcheckbox']:visible").Filter(new LocatorFilterOptions { HasText = "Show full URLs" }).First;
 
         await Assertions.Expect(showBookmarks).ToBeVisibleAsync();
         await Assertions.Expect(showFullUrls).ToBeVisibleAsync();
@@ -51,13 +51,13 @@ public sealed class QuarkContextMenuPlaywrightTests : PlaywrightUnitTest
         await page.Mouse.ClickAsync(8, 8);
         await Assertions.Expect(page.Locator("[role='menuitemcheckbox']:visible")).ToHaveCountAsync(0);
 
-        ILocator radioTrigger = page.Locator("[data-testid='context-menu-radio-trigger']");
+        var radioTrigger = page.Locator("[data-testid='context-menu-radio-trigger']");
         await radioTrigger.ScrollIntoViewIfNeededAsync();
         await Assertions.Expect(radioTrigger).ToBeVisibleAsync();
         await radioTrigger.ClickAsync(new LocatorClickOptions { Button = MouseButton.Right });
 
-        ILocator comfortable = page.Locator("[role='menuitemradio']:visible").Filter(new LocatorFilterOptions { HasText = "Comfortable" }).First;
-        ILocator compact = page.Locator("[role='menuitemradio']:visible").Filter(new LocatorFilterOptions { HasText = "Compact" }).First;
+        var comfortable = page.Locator("[role='menuitemradio']:visible").Filter(new LocatorFilterOptions { HasText = "Comfortable" }).First;
+        var compact = page.Locator("[role='menuitemradio']:visible").Filter(new LocatorFilterOptions { HasText = "Compact" }).First;
         await Assertions.Expect(comfortable).ToBeVisibleAsync();
         await Assertions.Expect(compact).ToBeVisibleAsync();
 
@@ -78,31 +78,31 @@ public sealed class QuarkContextMenuPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Context_menu_demo_supports_nested_menu_inside_modal_dialog()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}context-menus",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open context menu dialog", Exact = true }),
             expectedTitle: "Context Menus - Quark Suite");
 
-        ILocator dialogTrigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open context menu dialog", Exact = true }).First;
+        var dialogTrigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open context menu dialog", Exact = true }).First;
         await dialogTrigger.ClickAsync();
 
-        ILocator dialog = page.Locator("[data-slot='dialog-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "Context menu dialog" });
+        var dialog = page.Locator("[data-slot='dialog-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "Context menu dialog" });
         await Assertions.Expect(dialog).ToBeVisibleAsync();
         await Assertions.Expect(dialog).ToHaveAttributeAsync("role", "dialog");
 
-        ILocator contextSurface = dialog.GetByText("Right click dialog surface", new LocatorGetByTextOptions { Exact = true });
+        var contextSurface = dialog.GetByText("Right click dialog surface", new LocatorGetByTextOptions { Exact = true });
         await contextSurface.ClickAsync(new LocatorClickOptions { Button = MouseButton.Right });
 
-        ILocator menu = page.GetByRole(AriaRole.Menu).Filter(new LocatorFilterOptions { HasText = "Pin panel" });
+        var menu = page.GetByRole(AriaRole.Menu).Filter(new LocatorFilterOptions { HasText = "Pin panel" });
         await Assertions.Expect(menu).ToBeVisibleAsync();
         await Assertions.Expect(dialog).ToBeVisibleAsync();
 
         await menu.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "More actions", Exact = true }).ClickAsync();
 
-        ILocator submenu = page.GetByRole(AriaRole.Menu).Filter(new LocatorFilterOptions { HasText = "Duplicate view" });
+        var submenu = page.GetByRole(AriaRole.Menu).Filter(new LocatorFilterOptions { HasText = "Duplicate view" });
         await Assertions.Expect(submenu).ToBeVisibleAsync();
         await Assertions.Expect(submenu).ToContainTextAsync("Developer Tools");
         await Assertions.Expect(dialog).ToBeVisibleAsync();
@@ -111,8 +111,8 @@ public sealed class QuarkContextMenuPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Context_menu_demo_opens_from_right_click_and_reveals_submenu()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}context-menus",
@@ -122,7 +122,7 @@ public sealed class QuarkContextMenuPlaywrightTests : PlaywrightUnitTest
         await page.GetByText("Right click here", new PageGetByTextOptions { Exact = true })
                   .ClickAsync(new LocatorClickOptions { Button = MouseButton.Right });
 
-        ILocator menu = page.Locator("[role='menu']:visible").First;
+        var menu = page.Locator("[role='menu']:visible").First;
         await Assertions.Expect(menu).ToContainTextAsync("Back");
         await page.WaitForFunctionAsync(
             "() => {" +
@@ -133,7 +133,7 @@ public sealed class QuarkContextMenuPlaywrightTests : PlaywrightUnitTest
 
         await page.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "More Tools", Exact = true }).ClickAsync();
 
-        ILocator submenu = page.GetByRole(AriaRole.Menu).Filter(new LocatorFilterOptions { HasText = "Developer Tools" });
+        var submenu = page.GetByRole(AriaRole.Menu).Filter(new LocatorFilterOptions { HasText = "Developer Tools" });
         await Assertions.Expect(submenu).ToBeVisibleAsync();
         await Assertions.Expect(submenu).ToContainTextAsync("Developer Tools");
     }

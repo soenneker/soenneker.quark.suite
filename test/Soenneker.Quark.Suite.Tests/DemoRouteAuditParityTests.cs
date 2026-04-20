@@ -112,10 +112,10 @@ public sealed class DemoRouteAuditParityTests
             .OrderBy(static href => href, StringComparer.Ordinal)
             .ToArray()!;
 
-        string[] auditedRoutes = _shadcnBackedRoutes.Keys
-            .Concat(_intentionalQuarkOnlyRoutes)
-            .OrderBy(static route => route, StringComparer.Ordinal)
-            .ToArray();
+        var auditedRoutes = _shadcnBackedRoutes.Keys
+                                               .Concat(_intentionalQuarkOnlyRoutes)
+                                               .OrderBy(static route => route, StringComparer.Ordinal)
+                                               .ToArray();
 
         auditedRoutes.Except(publicRoutes, StringComparer.Ordinal).Should().BeEmpty();
         publicRoutes.Except(auditedRoutes, StringComparer.Ordinal).Should().BeEmpty();
@@ -124,12 +124,12 @@ public sealed class DemoRouteAuditParityTests
     [Fact]
     public void Audited_shadcn_routes_point_to_existing_crawled_examples()
     {
-        string repoRoot = GetRepoRoot();
-        string shadcnRoot = Path.Combine(repoRoot, "Shadcn", "soenneker.shadcn.ui.crawled");
+        var repoRoot = GetRepoRoot();
+        var shadcnRoot = Path.Combine(repoRoot, "Shadcn", "soenneker.shadcn.ui.crawled");
 
-        foreach ((string route, string relativePath) in _shadcnBackedRoutes.OrderBy(static pair => pair.Key, StringComparer.Ordinal))
+        foreach ((var route, var relativePath) in _shadcnBackedRoutes.OrderBy(static pair => pair.Key, StringComparer.Ordinal))
         {
-            string fullPath = Path.Combine(shadcnRoot, relativePath.Replace('/', Path.DirectorySeparatorChar));
+            var fullPath = Path.Combine(shadcnRoot, relativePath.Replace('/', Path.DirectorySeparatorChar));
 
             File.Exists(fullPath).Should().BeTrue($"route '{route}' should resolve to a crawled shadcn source");
         }
@@ -138,14 +138,14 @@ public sealed class DemoRouteAuditParityTests
     [Fact]
     public void Audited_public_routes_exist_in_the_demo_app()
     {
-        string demoPagesRoot = Path.Combine(GetSuiteRoot(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components");
+        var demoPagesRoot = Path.Combine(GetSuiteRoot(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components");
 
-        string[] discoveredRoutes = Directory.GetFiles(demoPagesRoot, "*.razor", SearchOption.AllDirectories)
-            .SelectMany(GetRoutes)
-            .Where(static route => !string.IsNullOrWhiteSpace(route))
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(static route => route, StringComparer.Ordinal)
-            .ToArray();
+        var discoveredRoutes = Directory.GetFiles(demoPagesRoot, "*.razor", SearchOption.AllDirectories)
+                                        .SelectMany(GetRoutes)
+                                        .Where(static route => !string.IsNullOrWhiteSpace(route))
+                                        .Distinct(StringComparer.Ordinal)
+                                        .OrderBy(static route => route, StringComparer.Ordinal)
+                                        .ToArray();
 
         string[] publicRoutes = DocsNavigation.ComponentLinks
             .Concat(DocsNavigation.PrimitiveLinks)
@@ -156,7 +156,7 @@ public sealed class DemoRouteAuditParityTests
             .OrderBy(static href => href, StringComparer.Ordinal)
             .ToArray()!;
 
-        foreach (string route in publicRoutes)
+        foreach (var route in publicRoutes)
         {
             discoveredRoutes.Should().Contain(route);
         }
@@ -164,20 +164,20 @@ public sealed class DemoRouteAuditParityTests
 
     private static IEnumerable<string> GetRoutes(string filePath)
     {
-        foreach (string line in File.ReadLines(filePath))
+        foreach (var line in File.ReadLines(filePath))
         {
-            string trimmed = line.Trim();
+            var trimmed = line.Trim();
 
             if (!trimmed.StartsWith("@page \"", StringComparison.Ordinal))
                 continue;
 
-            int start = "@page \"".Length;
-            int end = trimmed.IndexOf('"', start);
+            var start = "@page \"".Length;
+            var end = trimmed.IndexOf('"', start);
 
             if (end <= start)
                 continue;
 
-            string route = trimmed[start..end].TrimStart('/');
+            var route = trimmed[start..end].TrimStart('/');
 
             if (route.Length > 0)
                 yield return route;
@@ -186,9 +186,9 @@ public sealed class DemoRouteAuditParityTests
 
     private static string GetSuiteRoot()
     {
-        string directory = AppContext.BaseDirectory;
+        var directory = AppContext.BaseDirectory;
 
-        for (int i = 0; i < 6; i++)
+        for (var i = 0; i < 6; i++)
         {
             directory = Directory.GetParent(directory)!.FullName;
         }

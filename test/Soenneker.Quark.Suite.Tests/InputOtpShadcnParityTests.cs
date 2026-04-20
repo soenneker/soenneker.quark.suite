@@ -33,10 +33,10 @@ public sealed partial class RenderedShadcnParityTests
                 builder.CloseComponent();
             })));
 
-        string inputOtpClasses = inputOtp.Find("[data-slot='input-otp']").GetAttribute("class")!;
-        string inputOtpGroupClasses = inputOtp.Find("[data-slot='input-otp-group']").GetAttribute("class")!;
-        string inputOtpSlotClasses = inputOtp.Find("[data-slot='input-otp-slot']").GetAttribute("class")!;
-        string inputOtpSeparatorClasses = inputOtp.Find("[data-slot='input-otp-separator']").GetAttribute("class")!;
+        var inputOtpClasses = inputOtp.Find("[data-slot='input-otp']").GetAttribute("class")!;
+        var inputOtpGroupClasses = inputOtp.Find("[data-slot='input-otp-group']").GetAttribute("class")!;
+        var inputOtpSlotClasses = inputOtp.Find("[data-slot='input-otp-slot']").GetAttribute("class")!;
+        var inputOtpSeparatorClasses = inputOtp.Find("[data-slot='input-otp-separator']").GetAttribute("class")!;
 
         inputOtpClasses.Should().Contain("cn-input-otp");
         inputOtpClasses.Should().Contain("flex");

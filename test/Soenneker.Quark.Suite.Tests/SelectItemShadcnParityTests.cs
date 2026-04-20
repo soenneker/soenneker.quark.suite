@@ -13,7 +13,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.ItemValue, "apple")
             .Add(p => p.Text, "Apple"));
 
-        string itemClasses = item.Find("[data-slot='select-item']").GetAttribute("class")!;
+        var itemClasses = item.Find("[data-slot='select-item']").GetAttribute("class")!;
 
         itemClasses.Should().Contain("relative");
         itemClasses.Should().Contain("flex");

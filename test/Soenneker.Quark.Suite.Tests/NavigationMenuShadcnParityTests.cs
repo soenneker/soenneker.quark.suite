@@ -39,11 +39,11 @@ public sealed partial class RenderedShadcnParityTests
                 builder.CloseComponent();
             })));
 
-        string rootClasses = cut.Find("[data-slot='navigation-menu']").GetAttribute("class")!;
-        string listClasses = cut.Find("[data-slot='navigation-menu-list']").GetAttribute("class")!;
-        string itemClasses = cut.Find("[data-slot='navigation-menu-item']").GetAttribute("class")!;
-        string triggerClasses = cut.Find("[data-slot='navigation-menu-trigger']").GetAttribute("class")!;
-        string linkClasses = cut.Find("[data-slot='navigation-menu-link']").GetAttribute("class")!;
+        var rootClasses = cut.Find("[data-slot='navigation-menu']").GetAttribute("class")!;
+        var listClasses = cut.Find("[data-slot='navigation-menu-list']").GetAttribute("class")!;
+        var itemClasses = cut.Find("[data-slot='navigation-menu-item']").GetAttribute("class")!;
+        var triggerClasses = cut.Find("[data-slot='navigation-menu-trigger']").GetAttribute("class")!;
+        var linkClasses = cut.Find("[data-slot='navigation-menu-link']").GetAttribute("class")!;
 
         rootClasses.Should().Contain("group/navigation-menu");
         rootClasses.Should().Contain("relative");

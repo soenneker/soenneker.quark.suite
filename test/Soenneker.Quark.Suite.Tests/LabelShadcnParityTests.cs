@@ -13,7 +13,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.For, "terms")
             .Add(p => p.ChildContent, "Accept"));
 
-        string classes = cut.Find("[data-slot='label']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='label']").GetAttribute("class")!;
 
         classes.Should().Contain("flex");
         classes.Should().Contain("items-center");

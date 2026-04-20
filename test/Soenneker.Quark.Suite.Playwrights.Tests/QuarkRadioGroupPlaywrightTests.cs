@@ -17,23 +17,23 @@ public sealed class QuarkRadioGroupPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Radio_group_form_demo_requires_selection_and_submits_selected_value()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}radiogroups",
             static p => p.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Notification type", Exact = true }),
             expectedTitle: "Radio Group - Quark Suite");
 
-        ILocator formSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Form-style radio group with validation and submitted value preview." }).First;
-        ILocator submit = formSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Submit", Exact = true });
-        ILocator form = formSection.Locator("form");
+        var formSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Form-style radio group with validation and submitted value preview." }).First;
+        var submit = formSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Submit", Exact = true });
+        var form = formSection.Locator("form");
 
         await submit.ClickAsync();
         await Assertions.Expect(form).ToContainTextAsync("You need to select a notification type.");
 
-        ILocator notificationGroup = page.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Notification type", Exact = true });
-        ILocator nothingRadio = notificationGroup.GetByRole(AriaRole.Radio).Nth(2);
+        var notificationGroup = page.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Notification type", Exact = true });
+        var nothingRadio = notificationGroup.GetByRole(AriaRole.Radio).Nth(2);
 
         await nothingRadio.ClickAsync();
 
@@ -48,22 +48,22 @@ public sealed class QuarkRadioGroupPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Radio_form_requires_selection_and_updates_checked_state()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}radiogroups",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Submit", Exact = true }),
             expectedTitle: "Radio Group - Quark Suite");
 
-        ILocator formSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Form-style radio group with validation and submitted value preview." }).First;
-        ILocator submit = formSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Submit", Exact = true });
+        var formSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Form-style radio group with validation and submitted value preview." }).First;
+        var submit = formSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Submit", Exact = true });
 
         await submit.ClickAsync();
         await Assertions.Expect(formSection.GetByText("You need to select a notification type.", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
 
-        ILocator mentions = formSection.GetByRole(AriaRole.Radio, new LocatorGetByRoleOptions { Name = "Direct messages and mentions", Exact = true });
-        ILocator all = formSection.GetByRole(AriaRole.Radio, new LocatorGetByRoleOptions { Name = "All new messages", Exact = true });
+        var mentions = formSection.GetByRole(AriaRole.Radio, new LocatorGetByRoleOptions { Name = "Direct messages and mentions", Exact = true });
+        var all = formSection.GetByRole(AriaRole.Radio, new LocatorGetByRoleOptions { Name = "All new messages", Exact = true });
 
         await mentions.ClickAsync();
 
@@ -77,18 +77,18 @@ public sealed class QuarkRadioGroupPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Radio_group_demo_home_and_end_keys_move_selection_to_edge_options()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}radiogroups",
             static p => p.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Density options", Exact = true }),
             expectedTitle: "Radio Group - Quark Suite");
 
-        ILocator densityGroup = page.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Density options", Exact = true });
-        ILocator defaultRadio = densityGroup.GetByRole(AriaRole.Radio).Nth(0);
-        ILocator comfortableRadio = densityGroup.GetByRole(AriaRole.Radio).Nth(1);
-        ILocator compactRadio = densityGroup.GetByRole(AriaRole.Radio).Nth(2);
+        var densityGroup = page.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Density options", Exact = true });
+        var defaultRadio = densityGroup.GetByRole(AriaRole.Radio).Nth(0);
+        var comfortableRadio = densityGroup.GetByRole(AriaRole.Radio).Nth(1);
+        var compactRadio = densityGroup.GetByRole(AriaRole.Radio).Nth(2);
 
         await Assertions.Expect(comfortableRadio).ToHaveAttributeAsync("aria-checked", "true");
 
@@ -107,10 +107,10 @@ public sealed class QuarkRadioGroupPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(defaultRadio).ToHaveAttributeAsync("aria-checked", "false");
         await Assertions.Expect(compactRadio).ToHaveAttributeAsync("aria-checked", "false");
 
-        ILocator disabledGroup = page.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Disabled radio options", Exact = true });
-        ILocator disabledOption = disabledGroup.GetByRole(AriaRole.Radio).Nth(0);
-        ILocator option2 = disabledGroup.GetByRole(AriaRole.Radio).Nth(1);
-        ILocator option3 = disabledGroup.GetByRole(AriaRole.Radio).Nth(2);
+        var disabledGroup = page.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Disabled radio options", Exact = true });
+        var disabledOption = disabledGroup.GetByRole(AriaRole.Radio).Nth(0);
+        var option2 = disabledGroup.GetByRole(AriaRole.Radio).Nth(1);
+        var option3 = disabledGroup.GetByRole(AriaRole.Radio).Nth(2);
 
         await option2.FocusAsync();
         await page.Keyboard.PressAsync("Home");
@@ -129,18 +129,18 @@ public sealed class QuarkRadioGroupPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Radio_group_demo_disabled_item_stays_unchecked_while_enabled_option_changes()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}radiogroups",
             static p => p.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Disabled radio options", Exact = true }),
             expectedTitle: "Radio Group - Quark Suite");
 
-        ILocator disabledGroup = page.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Disabled radio options", Exact = true });
-        ILocator disabledOption = disabledGroup.GetByRole(AriaRole.Radio).Nth(0);
-        ILocator option2 = disabledGroup.GetByRole(AriaRole.Radio).Nth(1);
-        ILocator option3 = disabledGroup.GetByRole(AriaRole.Radio).Nth(2);
+        var disabledGroup = page.GetByRole(AriaRole.Radiogroup, new PageGetByRoleOptions { Name = "Disabled radio options", Exact = true });
+        var disabledOption = disabledGroup.GetByRole(AriaRole.Radio).Nth(0);
+        var option2 = disabledGroup.GetByRole(AriaRole.Radio).Nth(1);
+        var option3 = disabledGroup.GetByRole(AriaRole.Radio).Nth(2);
 
         await Assertions.Expect(disabledOption).ToHaveAttributeAsync("disabled", "");
         await Assertions.Expect(option2).ToHaveAttributeAsync("aria-checked", "true");

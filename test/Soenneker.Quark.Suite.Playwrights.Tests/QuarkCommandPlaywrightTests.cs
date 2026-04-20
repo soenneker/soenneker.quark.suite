@@ -17,21 +17,21 @@ public sealed class QuarkCommandPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Command_dialog_demo_selects_item_and_closes_overlay()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}commands",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open command palette", Exact = true }),
             expectedTitle: "Command - Quark Suite");
 
-        ILocator trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open command palette", Exact = true });
+        var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open command palette", Exact = true });
         await trigger.ClickAsync();
 
-        ILocator dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Workspace actions", Exact = true });
+        var dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Workspace actions", Exact = true });
         await Assertions.Expect(dialog).ToBeVisibleAsync();
 
-        ILocator input = dialog.GetByRole(AriaRole.Combobox);
+        var input = dialog.GetByRole(AriaRole.Combobox);
         await input.FillAsync("bill");
 
         await dialog.GetByText("Billing", new LocatorGetByTextOptions { Exact = true }).ClickAsync();
@@ -43,23 +43,23 @@ public sealed class QuarkCommandPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Command_demo_filters_items_and_preserves_disabled_state()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}commands",
             static p => p.GetByRole(AriaRole.Combobox).First,
             expectedTitle: "Command - Quark Suite");
 
-        ILocator command = page.Locator("[data-slot='command']").First;
-        ILocator input = command.GetByRole(AriaRole.Combobox);
+        var command = page.Locator("[data-slot='command']").First;
+        var input = command.GetByRole(AriaRole.Combobox);
         await input.FillAsync("zzzz");
 
         await Assertions.Expect(command.GetByText("No results found.", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
 
         await input.FillAsync(string.Empty);
 
-        ILocator calculator = command.GetByRole(AriaRole.Option, new LocatorGetByRoleOptions { Name = "Calculator", Exact = false });
+        var calculator = command.GetByRole(AriaRole.Option, new LocatorGetByRoleOptions { Name = "Calculator", Exact = false });
         await Assertions.Expect(calculator).ToHaveAttributeAsync("data-disabled", "true");
         await Assertions.Expect(calculator).ToHaveAttributeAsync("aria-disabled", "true");
     }

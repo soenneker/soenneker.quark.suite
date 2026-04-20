@@ -24,7 +24,7 @@ public sealed partial class RenderedShadcnParityTests
             })));
 
         var content = cut.Find("[data-slot='tooltip-content']");
-        string contentClasses = content.GetAttribute("class")!;
+        var contentClasses = content.GetAttribute("class")!;
 
         contentClasses.Should().Contain("inline-flex");
         contentClasses.Should().Contain("w-fit");

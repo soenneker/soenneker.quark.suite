@@ -17,29 +17,29 @@ public sealed class QuarkFieldPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Field_demo_renders_a_full_width_payment_form_without_collapsing()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}fields",
             static p => p.GetByRole(AriaRole.Textbox, new PageGetByRoleOptions { Name = "Name on Card", Exact = true }),
             expectedTitle: "Fields - Quark Suite");
 
-        ILocator demoSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Multi-section payment form with field sets, selects, and horizontal actions." }).First;
-        ILocator form = page.Locator("form").First;
-        ILocator cardName = page.GetByRole(AriaRole.Textbox, new PageGetByRoleOptions { Name = "Name on Card", Exact = true });
-        ILocator cardNumber = page.GetByRole(AriaRole.Textbox, new PageGetByRoleOptions { Name = "Card Number", Exact = true });
-        ILocator comments = page.GetByRole(AriaRole.Textbox, new PageGetByRoleOptions { Name = "Comments", Exact = true });
+        var demoSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Multi-section payment form with field sets, selects, and horizontal actions." }).First;
+        var form = page.Locator("form").First;
+        var cardName = page.GetByRole(AriaRole.Textbox, new PageGetByRoleOptions { Name = "Name on Card", Exact = true });
+        var cardNumber = page.GetByRole(AriaRole.Textbox, new PageGetByRoleOptions { Name = "Card Number", Exact = true });
+        var comments = page.GetByRole(AriaRole.Textbox, new PageGetByRoleOptions { Name = "Comments", Exact = true });
 
         await Assertions.Expect(cardName).ToBeVisibleAsync();
         await Assertions.Expect(cardNumber).ToBeVisibleAsync();
         await Assertions.Expect(comments).ToBeVisibleAsync();
 
-        LocatorBoundingBoxResult? sectionBox = await demoSection.BoundingBoxAsync();
-        LocatorBoundingBoxResult? formBox = await form.BoundingBoxAsync();
-        LocatorBoundingBoxResult? cardNameBox = await cardName.BoundingBoxAsync();
-        LocatorBoundingBoxResult? cardNumberBox = await cardNumber.BoundingBoxAsync();
-        LocatorBoundingBoxResult? commentsBox = await comments.BoundingBoxAsync();
+        var sectionBox = await demoSection.BoundingBoxAsync();
+        var formBox = await form.BoundingBoxAsync();
+        var cardNameBox = await cardName.BoundingBoxAsync();
+        var cardNumberBox = await cardNumber.BoundingBoxAsync();
+        var commentsBox = await comments.BoundingBoxAsync();
 
         Assert.NotNull(sectionBox);
         Assert.NotNull(formBox);

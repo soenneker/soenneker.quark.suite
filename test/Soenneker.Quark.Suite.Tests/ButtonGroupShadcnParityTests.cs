@@ -22,7 +22,7 @@ public sealed partial class RenderedShadcnParityTests
                 builder.CloseComponent();
             })));
 
-        string classes = cut.Find("[data-slot='button-group']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='button-group']").GetAttribute("class")!;
 
         classes.Should().Contain("group/button-group");
         classes.Should().Contain("flex");

@@ -14,8 +14,8 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.CultureName, "en-US"));
 
         var calendar = cut.Find("[data-slot='calendar']");
-        string calendarClasses = calendar.GetAttribute("class")!;
-        string calendarMode = calendar.GetAttribute("data-mode")!;
+        var calendarClasses = calendar.GetAttribute("class")!;
+        var calendarMode = calendar.GetAttribute("data-mode")!;
 
         calendarClasses.Should().Contain("w-fit");
         calendarClasses.Should().Contain("rdp-root");

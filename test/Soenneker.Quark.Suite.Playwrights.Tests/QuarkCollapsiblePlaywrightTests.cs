@@ -17,17 +17,17 @@ public sealed class QuarkCollapsiblePlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Collapsible_demo_toggles_content_and_disabled_trigger_stays_closed()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}collapsibles",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Toggle", Exact = true }),
             expectedTitle: "Collapsible - Quark Suite");
 
-        ILocator demoSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Compact starred-repositories example with a small toggle trigger." }).First;
-        ILocator toggle = demoSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Toggle", Exact = true });
-        ILocator colors = demoSection.GetByText("@radix-ui/colors", new LocatorGetByTextOptions { Exact = true });
+        var demoSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Compact starred-repositories example with a small toggle trigger." }).First;
+        var toggle = demoSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Toggle", Exact = true });
+        var colors = demoSection.GetByText("@radix-ui/colors", new LocatorGetByTextOptions { Exact = true });
 
         await Assertions.Expect(toggle).ToHaveAttributeAsync("aria-expanded", "false");
         await Assertions.Expect(colors).Not.ToBeVisibleAsync();
@@ -42,8 +42,8 @@ public sealed class QuarkCollapsiblePlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(toggle).ToHaveAttributeAsync("aria-expanded", "false");
         await Assertions.Expect(colors).Not.ToBeVisibleAsync();
 
-        ILocator disabledSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Disable the whole collapsible when a panel should stay locked." }).First;
-        ILocator locked = disabledSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Production deployment Locked", Exact = false });
+        var disabledSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Disable the whole collapsible when a panel should stay locked." }).First;
+        var locked = disabledSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Production deployment Locked", Exact = false });
 
         await Assertions.Expect(locked).ToHaveAttributeAsync("data-disabled", "true");
         await Assertions.Expect(locked).ToHaveAttributeAsync("aria-expanded", "true");

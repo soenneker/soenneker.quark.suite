@@ -22,7 +22,7 @@ public sealed class QuarkComponentPlaywrightTests : PlaywrightUnitTest
         Logger.LogInformation("Initially loaded");
         await using var session = await CreateSession(new PlaywrightSessionOptions {ReuseBrowserContextAcrossSessions = true, ReusePageAcrossSessions = true}, cancellationToken: CancellationToken);
         var page = session.Page;
-        ILocator main = page.GetByRole(AriaRole.Main).First;
+        var main = page.GetByRole(AriaRole.Main).First;
 
         await page.GotoAndWaitForReady(
             BaseUrl,
@@ -41,7 +41,7 @@ public sealed class QuarkComponentPlaywrightTests : PlaywrightUnitTest
 
         await using var session = await CreateSession(new PlaywrightSessionOptions { ReuseBrowserContextAcrossSessions = true, ReusePageAcrossSessions = true }, cancellationToken: CancellationToken);
         var page = session.Page;
-        ILocator main = page.GetByRole(AriaRole.Main).First;
+        var main = page.GetByRole(AriaRole.Main).First;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}{route.TrimStart('/')}",

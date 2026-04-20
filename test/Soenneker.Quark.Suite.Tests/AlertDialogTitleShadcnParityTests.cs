@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<AlertDialogTitle>(parameters => parameters
             .Add(p => p.ChildContent, "Delete item"));
 
-        string classes = cut.Find("[data-slot='alert-dialog-title']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='alert-dialog-title']").GetAttribute("class")!;
 
         classes.Should().Contain("cn-font-heading");
         classes.Should().Contain("text-base");

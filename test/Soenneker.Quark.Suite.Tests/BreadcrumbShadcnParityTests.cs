@@ -13,8 +13,8 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.Composed, false)
             .Add(p => p.ChildContent, "Trail"));
 
-        string breadcrumbClasses = breadcrumb.Find("[data-slot='breadcrumb']").GetAttribute("class") ?? string.Empty;
-        string listClasses = breadcrumb.Find("[data-slot='breadcrumb-list']").GetAttribute("class")!;
+        var breadcrumbClasses = breadcrumb.Find("[data-slot='breadcrumb']").GetAttribute("class") ?? string.Empty;
+        var listClasses = breadcrumb.Find("[data-slot='breadcrumb-list']").GetAttribute("class")!;
 
         breadcrumbClasses.Should().BeEmpty();
 

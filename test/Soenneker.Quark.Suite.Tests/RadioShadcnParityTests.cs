@@ -13,7 +13,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.Checked, true)
             .Add(p => p.Value, "kubernetes"));
 
-        string classes = cut.Find("[data-slot='radio-group-item']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='radio-group-item']").GetAttribute("class")!;
 
         classes.Should().Contain("group/radio-group-item");
         classes.Should().Contain("rounded-full");

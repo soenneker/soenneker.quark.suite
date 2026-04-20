@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var description = Render<SheetDescription>(parameters => parameters
             .Add(p => p.ChildContent, "Description"));
 
-        string descriptionClasses = description.Find("[data-slot='sheet-description']").GetAttribute("class")!;
+        var descriptionClasses = description.Find("[data-slot='sheet-description']").GetAttribute("class")!;
 
         descriptionClasses.Should().Contain("text-sm");
         descriptionClasses.Should().Contain("text-muted-foreground");

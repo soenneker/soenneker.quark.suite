@@ -14,7 +14,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.Value, "calendar")
             .Add(p => p.ChildContent, (RenderFragment)(builder => builder.AddContent(0, "Calendar"))));
 
-        string classes = cut.Find("[data-slot='combobox-item']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='combobox-item']").GetAttribute("class")!;
 
         classes.Should().Contain("relative");
         classes.Should().Contain("flex");

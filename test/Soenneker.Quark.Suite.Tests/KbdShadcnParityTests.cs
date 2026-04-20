@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var kbd = Render<Kbd>(parameters => parameters
             .Add(p => p.ChildContent, "Ctrl"));
 
-        string kbdClasses = kbd.Find("[data-slot='kbd']").GetAttribute("class")!;
+        var kbdClasses = kbd.Find("[data-slot='kbd']").GetAttribute("class")!;
 
         kbdClasses.Should().Contain("pointer-events-none");
         kbdClasses.Should().Contain("inline-flex");

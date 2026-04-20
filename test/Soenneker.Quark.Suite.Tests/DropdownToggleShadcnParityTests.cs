@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<DropdownToggle>(parameters => parameters
             .Add(p => p.ChildContent, "Open"));
 
-        string classes = cut.Find("[data-slot='dropdown-menu-trigger']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='dropdown-menu-trigger']").GetAttribute("class")!;
 
         classes.Should().Contain("group/button");
         classes.Should().Contain("inline-flex");
@@ -40,7 +40,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.IsSplit, true)
             .Add(p => p.ChildContent, "More"));
 
-        string classes = cut.Find("[data-slot='dropdown-menu-trigger']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='dropdown-menu-trigger']").GetAttribute("class")!;
 
         classes.Should().Contain("rounded-lg");
         classes.Should().Contain("border");

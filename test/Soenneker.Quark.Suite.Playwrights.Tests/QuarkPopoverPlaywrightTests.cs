@@ -18,9 +18,9 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Popover_smoke_aschild_trigger_closes_default_open_popover_without_runtime_error()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
-        bool sawRuntimeError = false;
+        await using var session = await CreateSession();
+        var page = session.Page;
+        var sawRuntimeError = false;
 
         page.Console += (_, message) =>
         {
@@ -35,7 +35,7 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open popover", Exact = true }),
             expectedTitle: "Popover Smoke - Quark Suite");
 
-        ILocator trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open popover", Exact = true });
+        var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open popover", Exact = true });
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");
 
         await trigger.ClickAsync();
@@ -47,14 +47,14 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Popover_demo_preserves_explicit_content_role_over_dialog_default()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}popovers",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open custom listbox", Exact = true }));
 
-        ILocator trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open custom listbox", Exact = true });
+        var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open custom listbox", Exact = true });
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");
 
         var popupState = await page.EvaluateAsync<PopoverRoleProbe>(
@@ -81,25 +81,25 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Popover_demo_supports_nested_popover_inside_dialog()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}popovers",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open Dialog", Exact = true }));
 
-        ILocator section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A popover opened from content inside a modal dialog." });
-        ILocator dialogTrigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open Dialog", Exact = true });
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A popover opened from content inside a modal dialog." });
+        var dialogTrigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open Dialog", Exact = true });
 
         await dialogTrigger.ClickAsync();
 
-        ILocator dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Popover Example", Exact = true });
+        var dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Popover Example", Exact = true });
         await Assertions.Expect(dialog).ToBeVisibleAsync();
 
-        ILocator popoverTrigger = dialog.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open Popover", Exact = true });
+        var popoverTrigger = dialog.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open Popover", Exact = true });
         await popoverTrigger.ClickAsync();
 
-        ILocator popover = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Popover in Dialog", Exact = true });
+        var popover = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Popover in Dialog", Exact = true });
         await Assertions.Expect(popoverTrigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(popover).ToBeVisibleAsync();
 
@@ -118,21 +118,21 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Popover_demo_closes_from_escape_after_opening_from_trigger()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}popovers",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open popover", Exact = true }),
             expectedTitle: "Popovers - Quark Suite");
 
-        ILocator section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Default popover with a trigger and dimension fields in the content." }).First;
-        ILocator trigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open popover", Exact = true });
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Default popover with a trigger and dimension fields in the content." }).First;
+        var trigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open popover", Exact = true });
         await trigger.ClickAsync();
 
-        ILocator content = page.Locator("[data-slot='popover-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "Set the dimensions for the layer." });
-        ILocator title = content.GetByText("Dimensions", new LocatorGetByTextOptions { Exact = true });
-        ILocator widthInput = page.Locator("#popover-width");
+        var content = page.Locator("[data-slot='popover-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "Set the dimensions for the layer." });
+        var title = content.GetByText("Dimensions", new LocatorGetByTextOptions { Exact = true });
+        var widthInput = page.Locator("#popover-width");
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(title).ToBeVisibleAsync();
         await Assertions.Expect(widthInput).ToBeFocusedAsync();
@@ -146,26 +146,26 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Popover_demo_opens_and_dismisses_on_outside_click()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}popovers",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open popover", Exact = true }),
             expectedTitle: "Popovers - Quark Suite");
 
-        ILocator customRoleSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Popover content can expose a non-dialog role when the surface behaves like a picker or listbox." }).First;
-        ILocator customRoleTrigger = customRoleSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open custom listbox", Exact = true });
+        var customRoleSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Popover content can expose a non-dialog role when the surface behaves like a picker or listbox." }).First;
+        var customRoleTrigger = customRoleSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open custom listbox", Exact = true });
         await Assertions.Expect(customRoleTrigger).ToHaveAttributeAsync("aria-expanded", "true");
         await customRoleTrigger.ClickAsync();
         await Assertions.Expect(customRoleTrigger).ToHaveAttributeAsync("aria-expanded", "false");
 
-        ILocator section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Default popover with a trigger and dimension fields in the content." }).First;
-        ILocator trigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open popover", Exact = true });
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Default popover with a trigger and dimension fields in the content." }).First;
+        var trigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open popover", Exact = true });
         await trigger.ClickAsync();
 
-        ILocator content = page.Locator("[data-slot='popover-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "Set the dimensions for the layer." });
-        ILocator title = content.GetByText("Dimensions", new LocatorGetByTextOptions { Exact = true });
+        var content = page.Locator("[data-slot='popover-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "Set the dimensions for the layer." });
+        var title = content.GetByText("Dimensions", new LocatorGetByTextOptions { Exact = true });
         await Assertions.Expect(title).ToBeVisibleAsync();
 
         await page.Locator("h1").First.ClickAsync();
@@ -176,22 +176,22 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Popover_demo_controlled_open_state_stays_in_sync_with_external_toggle_and_outside_dismissal()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}popovers",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Toggle popover", Exact = true }));
 
-        ILocator toggle = page.Locator("#popover-controlled-toggle");
-        ILocator openState = page.Locator("#popover-controlled-state");
+        var toggle = page.Locator("#popover-controlled-toggle");
+        var openState = page.Locator("#popover-controlled-state");
 
         await toggle.ClickAsync();
 
-        ILocator content = page.Locator("[data-slot='popover-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "Update the values below and save them back to the current layer." });
-        string? contentId = await content.GetAttributeAsync("id");
+        var content = page.Locator("[data-slot='popover-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "Update the values below and save them back to the current layer." });
+        var contentId = await content.GetAttributeAsync("id");
         Assert.False(string.IsNullOrWhiteSpace(contentId));
-        ILocator trigger = page.Locator($"button[aria-controls='{contentId}']");
+        var trigger = page.Locator($"button[aria-controls='{contentId}']");
         await Assertions.Expect(openState).ToContainTextAsync("Open: true");
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(content).ToBeVisibleAsync();

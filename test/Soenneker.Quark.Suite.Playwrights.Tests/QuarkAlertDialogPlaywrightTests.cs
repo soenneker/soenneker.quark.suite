@@ -17,8 +17,8 @@ public sealed class QuarkAlertDialogPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Alert_dialog_demo_stays_open_on_outside_click_and_escape()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}alert-dialogs",
@@ -27,7 +27,7 @@ public sealed class QuarkAlertDialogPlaywrightTests : PlaywrightUnitTest
 
         await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Show Dialog", Exact = true }).ClickAsync();
 
-        ILocator dialog = page.GetByRole(AriaRole.Alertdialog, new PageGetByRoleOptions { Name = "Are you absolutely sure?", Exact = true });
+        var dialog = page.GetByRole(AriaRole.Alertdialog, new PageGetByRoleOptions { Name = "Are you absolutely sure?", Exact = true });
         await Assertions.Expect(dialog).ToBeVisibleAsync();
         await Assertions.Expect(dialog).ToHaveAttributeAsync("aria-modal", "true");
         await Assertions.Expect(dialog).ToHaveAttributeAsync("data-state", "open");
@@ -44,20 +44,20 @@ public sealed class QuarkAlertDialogPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Alert_dialog_demo_cancel_closes()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}alert-dialogs",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Show Dialog", Exact = true }),
             expectedTitle: "Alert Dialogs - Quark Suite");
 
-        ILocator trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Show Dialog", Exact = true });
+        var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Show Dialog", Exact = true });
         await trigger.ClickAsync();
 
-        ILocator dialog = page.GetByRole(AriaRole.Alertdialog, new PageGetByRoleOptions { Name = "Are you absolutely sure?", Exact = true });
-        ILocator cancel = dialog.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Cancel", Exact = true });
-        ILocator action = dialog.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Continue", Exact = true });
+        var dialog = page.GetByRole(AriaRole.Alertdialog, new PageGetByRoleOptions { Name = "Are you absolutely sure?", Exact = true });
+        var cancel = dialog.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Cancel", Exact = true });
+        var action = dialog.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Continue", Exact = true });
         await Assertions.Expect(dialog).ToBeVisibleAsync();
         await Assertions.Expect(cancel).ToBeFocusedAsync();
 
@@ -76,18 +76,18 @@ public sealed class QuarkAlertDialogPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Alert_dialog_destructive_demo_closes_from_action()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}alert-dialogs",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Delete project", Exact = true }),
             expectedTitle: "Alert Dialogs - Quark Suite");
 
-        ILocator trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Delete project", Exact = true });
+        var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Delete project", Exact = true });
         await trigger.ClickAsync();
 
-        ILocator dialog = page.GetByRole(AriaRole.Alertdialog, new PageGetByRoleOptions { Name = "Delete this project?", Exact = true });
+        var dialog = page.GetByRole(AriaRole.Alertdialog, new PageGetByRoleOptions { Name = "Delete this project?", Exact = true });
         await Assertions.Expect(dialog).ToBeVisibleAsync();
 
         await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Delete", Exact = true }).ClickAsync();
@@ -98,18 +98,18 @@ public sealed class QuarkAlertDialogPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Alert_dialog_demo_action_closes_and_restores_trigger_focus()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}alert-dialogs",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Show Dialog", Exact = true }),
             expectedTitle: "Alert Dialogs - Quark Suite");
 
-        ILocator trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Show Dialog", Exact = true });
+        var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Show Dialog", Exact = true });
         await trigger.ClickAsync();
 
-        ILocator dialog = page.GetByRole(AriaRole.Alertdialog, new PageGetByRoleOptions { Name = "Are you absolutely sure?", Exact = true });
+        var dialog = page.GetByRole(AriaRole.Alertdialog, new PageGetByRoleOptions { Name = "Are you absolutely sure?", Exact = true });
         await Assertions.Expect(dialog).ToBeVisibleAsync();
 
         await dialog.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Continue", Exact = true }).ClickAsync();
@@ -121,8 +121,8 @@ public sealed class QuarkAlertDialogPlaywrightTests : PlaywrightUnitTest
     {
         var box = await locator.BoundingBoxAsync();
         Assert.NotNull(box);
-        float x = box.X > 40 ? box.X - 20 : box.X + box.Width + 20;
-        float y = box.Y > 40 ? box.Y - 20 : box.Y + 20;
+        var x = box.X > 40 ? box.X - 20 : box.X + box.Width + 20;
+        var y = box.Y > 40 ? box.Y - 20 : box.Y + 20;
         await page.Mouse.ClickAsync(x, y);
     }
 }

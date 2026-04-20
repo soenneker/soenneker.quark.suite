@@ -24,8 +24,8 @@ public sealed partial class RenderedShadcnParityTests
             })));
 
         var root = cut.Find("[data-slot='collapsible']");
-        string triggerClasses = cut.Find("[data-slot='collapsible-trigger']").GetAttribute("class")!;
-        string contentClasses = cut.Find("[data-slot='collapsible-content']").GetAttribute("class")!;
+        var triggerClasses = cut.Find("[data-slot='collapsible-trigger']").GetAttribute("class")!;
+        var contentClasses = cut.Find("[data-slot='collapsible-content']").GetAttribute("class")!;
 
         root.HasAttribute("data-slot").Should().BeTrue();
         triggerClasses.Should().Contain("flex");

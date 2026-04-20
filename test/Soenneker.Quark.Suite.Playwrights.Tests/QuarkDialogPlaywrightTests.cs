@@ -18,20 +18,20 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
     [Fact]
     public async ValueTask Dialog_demo_traps_focus_and_restores_trigger_focus_after_escape()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}dialogs",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open Dialog", Exact = true }),
             expectedTitle: "Dialog - Quark Suite");
 
-        ILocator trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open Dialog", Exact = true });
+        var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open Dialog", Exact = true });
 
         await trigger.ClickAsync();
 
-        ILocator dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Edit profile", Exact = true });
-        ILocator overlay = page.Locator("[data-slot='dialog-overlay'][data-state='open']");
+        var dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Edit profile", Exact = true });
+        var overlay = page.Locator("[data-slot='dialog-overlay'][data-state='open']");
 
         await Assertions.Expect(dialog).ToBeVisibleAsync();
         await Assertions.Expect(dialog).ToHaveAttributeAsync("aria-modal", "true");
@@ -39,7 +39,7 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(overlay).ToHaveAttributeAsync("data-state", "open");
         Assert.True(await WaitForDialogTabBoundaryAsync(dialog, first: true));
 
-        bool renderedOutsideMain = await page.EvaluateAsync<bool>(
+        var renderedOutsideMain = await page.EvaluateAsync<bool>(
             "() => {" +
             "const dialog = document.querySelector('[data-slot=\"dialog-content\"][data-state=\"open\"]');" +
             "const main = document.querySelector('main');" +
@@ -63,19 +63,19 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
     [Fact]
     public async ValueTask Dialog_demo_respects_backdrop_dismiss_configuration()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}dialogs",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open Dialog", Exact = true }),
             expectedTitle: "Dialog - Quark Suite");
 
-        ILocator trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open Dialog", Exact = true });
+        var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open Dialog", Exact = true });
         await trigger.ClickAsync();
 
-        ILocator dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Edit profile", Exact = true });
-        ILocator overlay = page.Locator("[data-slot='dialog-overlay'][data-state='open']").First;
+        var dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Edit profile", Exact = true });
+        var overlay = page.Locator("[data-slot='dialog-overlay'][data-state='open']").First;
         await Assertions.Expect(dialog).ToBeVisibleAsync();
         await Assertions.Expect(overlay).ToBeVisibleAsync();
 
@@ -83,11 +83,11 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
 
         await Assertions.Expect(dialog).Not.ToBeVisibleAsync();
 
-        ILocator guardedTrigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open guarded dialog", Exact = true });
+        var guardedTrigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open guarded dialog", Exact = true });
         await guardedTrigger.ClickAsync();
 
-        ILocator guardedDialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Delete environment", Exact = true });
-        ILocator guardedOverlay = page.Locator("[data-slot='dialog-overlay'][data-state='open']").First;
+        var guardedDialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Delete environment", Exact = true });
+        var guardedOverlay = page.Locator("[data-slot='dialog-overlay'][data-state='open']").First;
         await Assertions.Expect(guardedDialog).ToBeVisibleAsync();
         await Assertions.Expect(guardedOverlay).ToBeVisibleAsync();
 
@@ -102,28 +102,28 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
     [Fact]
     public async ValueTask Dialog_demo_supports_select_nested_inside_modal_dialog()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}dialogs",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Chat Settings", Exact = true }),
             expectedTitle: "Dialog - Quark Suite");
 
-        ILocator trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Chat Settings", Exact = true });
+        var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Chat Settings", Exact = true });
         await trigger.ClickAsync();
 
-        ILocator dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Chat Settings", Exact = true });
+        var dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Chat Settings", Exact = true });
         await Assertions.Expect(dialog).ToBeVisibleAsync();
 
-        ILocator selectTrigger = dialog.GetByRole(AriaRole.Combobox, new LocatorGetByRoleOptions { Name = "Theme", Exact = true });
+        var selectTrigger = dialog.GetByRole(AriaRole.Combobox, new LocatorGetByRoleOptions { Name = "Theme", Exact = true });
         await selectTrigger.ClickAsync();
 
-        ILocator listbox = page.GetByRole(AriaRole.Listbox);
+        var listbox = page.GetByRole(AriaRole.Listbox);
         await Assertions.Expect(selectTrigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(listbox).ToBeVisibleAsync();
 
-        ILocator dark = listbox.GetByRole(AriaRole.Option, new LocatorGetByRoleOptions { Name = "Dark", Exact = true });
+        var dark = listbox.GetByRole(AriaRole.Option, new LocatorGetByRoleOptions { Name = "Dark", Exact = true });
         await dark.ClickAsync();
 
         await Assertions.Expect(dialog).ToBeVisibleAsync();
@@ -203,33 +203,33 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
 
     private static async Task<string> ClickBackdropAsync(IPage page, ILocator dialog)
     {
-        string rectJson = await dialog.EvaluateAsync<string>(
+        var rectJson = await dialog.EvaluateAsync<string>(
             "element => {" +
             "const rect = element.getBoundingClientRect();" +
             "return JSON.stringify({ x: rect.x, y: rect.y, width: rect.width, height: rect.height });" +
             "}");
 
-        using JsonDocument document = JsonDocument.Parse(rectJson);
-        JsonElement rect = document.RootElement;
+        using var document = JsonDocument.Parse(rectJson);
+        var rect = document.RootElement;
 
-        float x = rect.GetProperty("x").GetSingle();
-        float y = rect.GetProperty("y").GetSingle();
-        float width = rect.GetProperty("width").GetSingle();
+        var x = rect.GetProperty("x").GetSingle();
+        var y = rect.GetProperty("y").GetSingle();
+        var width = rect.GetProperty("width").GetSingle();
 
-        int viewportWidth = page.ViewportSize?.Width ?? 1280;
+        var viewportWidth = page.ViewportSize?.Width ?? 1280;
 
-        float clickX = x > 40 ? x - 20 : x + width + 20;
+        var clickX = x > 40 ? x - 20 : x + width + 20;
         if (clickX < 8)
             clickX = 8;
         else if (clickX > viewportWidth - 8)
             clickX = viewportWidth - 8;
 
-        float clickY = y > 40 ? y - 20 : y + 20;
+        var clickY = y > 40 ? y - 20 : y + 20;
         if (clickY < 8)
             clickY = 8;
 
-        string pointJson = JsonSerializer.Serialize(new { x = clickX, y = clickY });
-        string targetDebug = await page.EvaluateAsync<string>(
+        var pointJson = JsonSerializer.Serialize(new { x = clickX, y = clickY });
+        var targetDebug = await page.EvaluateAsync<string>(
             "(json) => {" +
             "const point = JSON.parse(json);" +
             "const element = document.elementFromPoint(point.x, point.y);" +

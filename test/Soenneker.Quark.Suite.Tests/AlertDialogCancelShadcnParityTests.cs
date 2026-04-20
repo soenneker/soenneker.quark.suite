@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<AlertDialogCancel>(parameters => parameters
             .Add(p => p.ChildContent, "Cancel"));
 
-        string classes = cut.Find("[data-slot='alert-dialog-cancel']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='alert-dialog-cancel']").GetAttribute("class")!;
 
         classes.Should().Contain("inline-flex");
         classes.Should().Contain("rounded-lg");

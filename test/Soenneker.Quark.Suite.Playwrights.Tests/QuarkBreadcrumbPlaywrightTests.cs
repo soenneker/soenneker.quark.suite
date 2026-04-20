@@ -17,27 +17,27 @@ public sealed class QuarkBreadcrumbPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Breadcrumb_page_and_rtl_examples_expose_current_page_and_navigation_semantics()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}breadcrumbs",
             static p => p.GetByRole(AriaRole.Navigation, new PageGetByRoleOptions { Name = "breadcrumb", Exact = true }).First,
             expectedTitle: "Breadcrumbs - Quark Suite");
 
-        ILocator linkSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "BreadcrumbLink can pass its styling into a child Quark link with AsChild." }).First;
-        ILocator navigation = linkSection.Locator("[data-slot='breadcrumb']").First;
-        ILocator homeLink = navigation.Locator("[data-slot='breadcrumb-link']").Nth(0);
-        ILocator componentsLink = navigation.Locator("[data-slot='breadcrumb-link']").Nth(1);
-        ILocator currentPage = navigation.Locator("[data-slot='breadcrumb-page']").First;
+        var linkSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "BreadcrumbLink can pass its styling into a child Quark link with AsChild." }).First;
+        var navigation = linkSection.Locator("[data-slot='breadcrumb']").First;
+        var homeLink = navigation.Locator("[data-slot='breadcrumb-link']").Nth(0);
+        var componentsLink = navigation.Locator("[data-slot='breadcrumb-link']").Nth(1);
+        var currentPage = navigation.Locator("[data-slot='breadcrumb-page']").First;
 
         await Assertions.Expect(homeLink).ToHaveAttributeAsync("href", "/");
         await Assertions.Expect(componentsLink).ToHaveAttributeAsync("href", "/components");
         await Assertions.Expect(currentPage).ToHaveAttributeAsync("aria-current", "page");
         await Assertions.Expect(currentPage).ToHaveAttributeAsync("aria-disabled", "true");
 
-        ILocator rtlSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Breadcrumb separators and item flow render correctly in right-to-left layouts." }).First;
-        ILocator rtlNavigation = rtlSection.GetByRole(AriaRole.Navigation, new LocatorGetByRoleOptions { Name = "breadcrumb", Exact = true });
+        var rtlSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Breadcrumb separators and item flow render correctly in right-to-left layouts." }).First;
+        var rtlNavigation = rtlSection.GetByRole(AriaRole.Navigation, new LocatorGetByRoleOptions { Name = "breadcrumb", Exact = true });
 
         await Assertions.Expect(rtlNavigation).ToHaveAttributeAsync("dir", "rtl");
         await Assertions.Expect(rtlNavigation.GetByText("الرئيسية", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
@@ -47,20 +47,20 @@ public sealed class QuarkBreadcrumbPlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Breadcrumb_demo_overflow_menu_opens_from_collapsed_item_and_closes_after_selection()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}breadcrumbs",
             static p => p.GetByRole(AriaRole.Navigation, new PageGetByRoleOptions { Name = "breadcrumb", Exact = true }).First,
             expectedTitle: "Breadcrumbs - Quark Suite");
 
-        ILocator section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Collapsed breadcrumb trail with an overflow menu in the middle." }).First;
-        ILocator trigger = section.Locator("[data-slot='dropdown-menu-trigger']").First;
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Collapsed breadcrumb trail with an overflow menu in the middle." }).First;
+        var trigger = section.Locator("[data-slot='dropdown-menu-trigger']").First;
 
         await trigger.ClickAsync();
 
-        ILocator menu = page.GetByRole(AriaRole.Menu).Filter(new LocatorFilterOptions { HasText = "Documentation" });
+        var menu = page.GetByRole(AriaRole.Menu).Filter(new LocatorFilterOptions { HasText = "Documentation" });
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-haspopup", "menu");
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(menu).ToBeVisibleAsync();

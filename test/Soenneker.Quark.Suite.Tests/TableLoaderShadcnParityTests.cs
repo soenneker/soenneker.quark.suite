@@ -15,7 +15,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.Value, true)
             .AddChildContent<TableLoader>());
 
-        string classes = cut.Find("[data-slot='table-loader-content']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='table-loader-content']").GetAttribute("class")!;
 
         classes.Should().Contain("rounded-lg");
         classes.Should().Contain("border");

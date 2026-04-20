@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var input = Render<Input>(parameters => parameters.Add(p => p.Placeholder, "Enter text"));
 
-        string inputClasses = input.Find("[data-slot='input']").GetAttribute("class")!;
+        var inputClasses = input.Find("[data-slot='input']").GetAttribute("class")!;
 
         inputClasses.Should().Contain("h-8");
         inputClasses.Should().Contain("rounded-lg");

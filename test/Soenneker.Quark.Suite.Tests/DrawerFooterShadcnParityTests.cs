@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var cut = Render<DrawerFooter>(parameters => parameters.Add(p => p.ChildContent, "Actions"));
 
-        string classes = cut.Find("[data-slot='drawer-footer']").GetAttribute("class")!;
+        var classes = cut.Find("[data-slot='drawer-footer']").GetAttribute("class")!;
 
         classes.Should().Contain("mt-auto");
         classes.Should().Contain("flex");

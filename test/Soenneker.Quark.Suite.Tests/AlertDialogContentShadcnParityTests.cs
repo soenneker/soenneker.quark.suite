@@ -49,8 +49,8 @@ public sealed partial class RenderedShadcnParityTests
         var overlay = cut.Find("[data-slot='alert-dialog-overlay']");
         var content = cut.Find("[data-slot='alert-dialog-content']");
 
-        string overlayClasses = overlay.GetAttribute("class")!;
-        string contentClasses = content.GetAttribute("class")!;
+        var overlayClasses = overlay.GetAttribute("class")!;
+        var contentClasses = content.GetAttribute("class")!;
 
         overlayClasses.Should().Contain("fixed");
         overlayClasses.Should().Contain("inset-0");

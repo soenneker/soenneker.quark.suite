@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var sub = Render<MenubarSub>(parameters => parameters.Add(p => p.ChildContent, "Sub"));
 
-        string subClasses = sub.Find("[data-slot='menubar-sub']").GetAttribute("class")!;
+        var subClasses = sub.Find("[data-slot='menubar-sub']").GetAttribute("class")!;
 
         subClasses.Should().Contain("relative");
         subClasses.Should().NotContain("q-menubar-sub");

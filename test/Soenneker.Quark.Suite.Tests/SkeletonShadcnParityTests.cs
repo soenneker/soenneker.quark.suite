@@ -12,7 +12,7 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<Skeleton>();
 
         var root = cut.Find("[data-slot='skeleton']");
-        string classes = root.GetAttribute("class")!;
+        var classes = root.GetAttribute("class")!;
 
         classes.Should().Contain("animate-pulse");
         classes.Should().Contain("rounded-md");

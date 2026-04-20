@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var tbody = Render<Tbody>(parameters => parameters.Add(p => p.ChildContent, "Body"));
 
-        string tbodyClasses = tbody.Find("[data-slot='table-body']").GetAttribute("class")!;
+        var tbodyClasses = tbody.Find("[data-slot='table-body']").GetAttribute("class")!;
 
         tbodyClasses.Should().Contain("[&_tr:last-child]:border-0");
         tbodyClasses.Should().NotContain("q-table-tbody");

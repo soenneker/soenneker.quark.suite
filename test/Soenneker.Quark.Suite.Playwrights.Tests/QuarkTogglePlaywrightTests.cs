@@ -17,15 +17,15 @@ public sealed class QuarkTogglePlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Toggle_demo_updates_pressed_state_and_bound_label()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}toggles",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Additional examples" }).GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Toggle bookmark", Exact = true }),
             expectedTitle: "Toggle - Quark Suite");
 
-        ILocator bookmarkToggle = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Additional examples" }).GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Toggle bookmark", Exact = true });
+        var bookmarkToggle = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Additional examples" }).GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Toggle bookmark", Exact = true });
 
         await Assertions.Expect(bookmarkToggle).ToHaveAttributeAsync("aria-pressed", "false");
         await Assertions.Expect(bookmarkToggle).ToContainTextAsync("Bookmark");
@@ -44,16 +44,16 @@ public sealed class QuarkTogglePlaywrightTests : PlaywrightUnitTest
 [Fact]
     public async ValueTask Toggle_demo_disabled_and_controlled_examples_stay_in_sync()
     {
-        await using BrowserSession session = await CreateSession();
-        IPage page = session.Page;
+        await using var session = await CreateSession();
+        var page = session.Page;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}toggles",
             static p => p.Locator("[data-testid='toggle-controlled-demo']"),
             expectedTitle: "Toggle - Quark Suite");
 
-        ILocator disabledSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Disabled" }).First;
-        ILocator disabledToggle = disabledSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Toggle disabled", Exact = true }).First;
+        var disabledSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Disabled" }).First;
+        var disabledToggle = disabledSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Toggle disabled", Exact = true }).First;
 
         await Assertions.Expect(disabledToggle).ToHaveAttributeAsync("disabled", "");
         await Assertions.Expect(disabledToggle).ToHaveAttributeAsync("aria-pressed", "false");
@@ -62,11 +62,11 @@ public sealed class QuarkTogglePlaywrightTests : PlaywrightUnitTest
 
         await Assertions.Expect(disabledToggle).ToHaveAttributeAsync("aria-pressed", "false");
 
-        ILocator controlledDemo = page.Locator("[data-testid='toggle-controlled-demo']");
-        ILocator controlledToggle = controlledDemo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Toggle notifications", Exact = true });
-        ILocator state = controlledDemo.Locator("#toggle-controlled-state");
-        ILocator setOn = controlledDemo.Locator("#toggle-controlled-on");
-        ILocator setOff = controlledDemo.Locator("#toggle-controlled-off");
+        var controlledDemo = page.Locator("[data-testid='toggle-controlled-demo']");
+        var controlledToggle = controlledDemo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Toggle notifications", Exact = true });
+        var state = controlledDemo.Locator("#toggle-controlled-state");
+        var setOn = controlledDemo.Locator("#toggle-controlled-on");
+        var setOff = controlledDemo.Locator("#toggle-controlled-off");
 
         await Assertions.Expect(controlledToggle).ToHaveAttributeAsync("aria-pressed", "true");
         await Assertions.Expect(state).ToContainTextAsync("Pressed: true");

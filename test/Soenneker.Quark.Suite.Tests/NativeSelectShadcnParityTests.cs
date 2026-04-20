@@ -19,8 +19,8 @@ public sealed partial class RenderedShadcnParityTests
                 builder.CloseElement();
             })));
 
-        string nativeSelectClasses = nativeSelect.Find("[data-slot='native-select']").GetAttribute("class")!;
-        string nativeSelectIconClasses = nativeSelect.Find("[data-slot='native-select-icon']").GetAttribute("class")!;
+        var nativeSelectClasses = nativeSelect.Find("[data-slot='native-select']").GetAttribute("class")!;
+        var nativeSelectIconClasses = nativeSelect.Find("[data-slot='native-select-icon']").GetAttribute("class")!;
 
         nativeSelectClasses.Should().Contain("h-8");
         nativeSelectClasses.Should().Contain("rounded-lg");

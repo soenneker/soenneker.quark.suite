@@ -14,7 +14,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.ChildContent, "Open"));
 
         var trigger = cut.Find("[data-slot='sheet-trigger']");
-        string triggerClasses = trigger.GetAttribute("class")!;
+        var triggerClasses = trigger.GetAttribute("class")!;
 
         triggerClasses.Should().Contain("group/button");
         triggerClasses.Should().Contain("inline-flex");

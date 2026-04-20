@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
     {
         var tr = Render<Tr>(parameters => parameters.Add(p => p.ChildContent, "Row"));
 
-        string trClasses = tr.Find("[data-slot='table-row']").GetAttribute("class")!;
+        var trClasses = tr.Find("[data-slot='table-row']").GetAttribute("class")!;
 
         trClasses.Should().Contain("hover:bg-muted/50");
         trClasses.Should().Contain("data-[state=selected]:bg-muted");
