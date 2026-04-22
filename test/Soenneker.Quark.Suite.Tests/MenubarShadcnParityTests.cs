@@ -1,12 +1,12 @@
 using AwesomeAssertions;
 using Bunit;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void Menubar_slots_match_shadcn_base_classes()
     {
         var sub = Render<MenubarSub>(parameters => parameters.Add(p => p.ChildContent, "Sub"));

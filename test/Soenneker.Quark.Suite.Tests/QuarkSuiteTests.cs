@@ -1,23 +1,20 @@
-using Soenneker.Tests.FixturedUnit;
 using AwesomeAssertions;
-using Xunit;
+using Soenneker.TestHosts.Unit;
+using Soenneker.Tests.HostedUnit;
 
 namespace Soenneker.Quark.Suite.Tests;
 
-[Collection("Collection")]
-public sealed class QuarkSuiteTests : FixturedUnitTest
+[ClassDataSource<UnitTestHost>(Shared = SharedType.PerTestSession)]
+public sealed class QuarkSuiteTests(UnitTestHost host) : HostedUnitTest(host)
 {
-    public QuarkSuiteTests(Fixture fixture, ITestOutputHelper output) : base(fixture, output)
-    {
-    }
 
-    [Fact]
+    [Test]
     public void Default()
     {
 
     }
 
-    [Fact]
+    [Test]
     public void Accordion_contract_exposes_collapsible()
     {
         var property = typeof(IAccordion).GetProperty(nameof(IAccordion.Collapsible));

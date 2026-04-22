@@ -1,13 +1,13 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void Popover_slots_match_shadcn_default_component_contract()
     {
         var cut = Render<Popover>(parameters => parameters

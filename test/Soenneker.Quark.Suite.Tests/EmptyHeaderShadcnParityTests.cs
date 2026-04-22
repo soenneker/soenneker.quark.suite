@@ -1,12 +1,12 @@
 using AwesomeAssertions;
 using Bunit;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void EmptyHeader_matches_shadcn_base_classes()
     {
         var cut = Render<EmptyHeader>(parameters => parameters

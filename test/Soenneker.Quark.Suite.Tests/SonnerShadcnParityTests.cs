@@ -2,13 +2,13 @@ using AwesomeAssertions;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public async Task Sonner_matches_shadcn_toaster_shell()
     {
         var cut = Render<Sonner>();

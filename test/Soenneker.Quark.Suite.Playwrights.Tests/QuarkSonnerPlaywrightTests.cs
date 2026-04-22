@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkSonnerPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkSonnerPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkSonnerPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Sonner_demo_action_button_dismisses_the_rendered_toast()
     {
         await using var session = await CreateSession();
@@ -36,7 +35,7 @@ public sealed class QuarkSonnerPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(toast).Not.ToBeVisibleAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Sonner_action_demo_runs_callback_and_shows_follow_up_toast()
     {
         await using var session = await CreateSession();
@@ -59,7 +58,7 @@ public sealed class QuarkSonnerPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page.Locator("[data-sonner-toast]").Filter(new LocatorFilterOptions { HasText = "Archive undone" }).First).ToBeVisibleAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Sonner_promise_demo_replaces_loading_state_with_success_result()
     {
         await using var session = await CreateSession();

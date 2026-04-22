@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkTimelinePlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkTimelinePlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkTimelinePlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Timeline_expandable_items_preserve_collapsible_state_across_parent_rerenders()
     {
         await using var session = await CreateSession();

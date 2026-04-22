@@ -2,13 +2,13 @@ using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
 using AspectRatioComponent = Soenneker.Quark.Components.Layout.AspectRatio;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void AspectRatio_matches_shadcn_base_classes()
     {
         var cut = Render<AspectRatioComponent>(parameters => parameters

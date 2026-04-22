@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Soenneker.Extensions.String;
+using Soenneker.Quark.Base;
 
 namespace Soenneker.Quark;
 

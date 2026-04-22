@@ -4,18 +4,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkTreeViewPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkTreeViewPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkTreeViewPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Treeview_async_demo_loads_children_on_expand_and_updates_selection()
     {
         await using var session = await CreateSession();
@@ -45,7 +44,7 @@ public sealed class QuarkTreeViewPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(asyncSection).ToContainTextAsync("Selected node: API");
     }
 
-[Fact]
+[Test]
     public async ValueTask Treeview_single_selection_expands_parent_and_updates_selected_summary()
     {
         await using var session = await CreateSession();
@@ -73,7 +72,7 @@ public sealed class QuarkTreeViewPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(singleSection).ToContainTextAsync("Selected node: C:\\");
     }
 
-[Fact]
+[Test]
     public async ValueTask Treeview_multiple_selection_and_disabled_nodes_behave_correctly()
     {
         await using var session = await CreateSession();

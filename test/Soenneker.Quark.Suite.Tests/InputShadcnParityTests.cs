@@ -1,12 +1,12 @@
 using AwesomeAssertions;
 using Bunit;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void Input_matches_shadcn_base_classes()
     {
         var input = Render<Input>(parameters => parameters.Add(p => p.Placeholder, "Enter text"));

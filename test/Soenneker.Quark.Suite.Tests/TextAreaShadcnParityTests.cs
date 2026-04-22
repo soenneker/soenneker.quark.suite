@@ -1,12 +1,12 @@
 using AwesomeAssertions;
 using Bunit;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void Textarea_matches_shadcn_base_classes()
     {
         var textarea = Render<TextArea>(parameters => parameters.Add(p => p.Placeholder, "Type your message here."));

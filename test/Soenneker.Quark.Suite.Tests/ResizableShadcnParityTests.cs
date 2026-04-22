@@ -1,13 +1,13 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void Resizable_components_match_shadcn_default_component_contract()
     {
         var cut = Render<ResizablePanelGroup>(parameters => parameters

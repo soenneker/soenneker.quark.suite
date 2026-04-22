@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkComboboxCarouselPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkComboboxCarouselPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Combobox_input_demo_filters_and_selects_framework()
     {
         await using var session = await CreateSession();
@@ -49,7 +48,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page.GetByText("Selected value:", new PageGetByTextOptions { Exact = false })).ToContainTextAsync("Nuxt.js");
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Combobox_demo_positions_the_listbox_beneath_the_trigger_when_opened()
     {
         await using var session = await CreateSession();
@@ -83,7 +82,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
         Assert.True(listboxBox.Width >= 180, $"Expected listbox width to be measurable, but was {listboxBox.Width}.");
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Combobox_multiple_demo_adds_and_removes_chip_selection()
     {
         await using var session = await CreateSession();
@@ -120,7 +119,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(selectedFrameworks).Not.ToContainTextAsync("Astro");
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Combobox_disabled_demo_does_not_open_results()
     {
         await using var session = await CreateSession();
@@ -142,7 +141,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(section.Locator("[role='listbox'][data-state='open']")).ToHaveCountAsync(0);
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Combobox_in_dialog_filters_and_selects_without_closing_dialog()
     {
         await using var session = await CreateSession();
@@ -175,7 +174,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(input).ToHaveValueAsync("Remix");
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Carousel_demo_advances_and_disables_navigation_at_bounds()
     {
         await using var session = await CreateSession();
@@ -205,7 +204,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(track).ToHaveAttributeAsync("style", "transform: translateX(-80%); transition: transform 300ms ease-in-out");
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Carousel_loop_demo_wraps_from_last_slide_back_to_first()
     {
         await using var session = await CreateSession();

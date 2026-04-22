@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkHeaderPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkHeaderPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkHeaderPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Header_sidebar_shell_demo_preserves_sidebar_and_inset_layout()
     {
         await using var session = await CreateSession();

@@ -1,12 +1,8 @@
-@using Soenneker.Bradix
-
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements ISeparator
 
-<BradixSeparator Orientation="@ResolvedOrientation"
-                 Decorative="@Decorative"
-                 AdditionalAttributes="@SeparatorAttributes" />
+<div @attributes="SeparatorAttributes"></div>
 
 @code {
     /// <summary>
@@ -21,18 +17,23 @@
     [Parameter]
     public bool Decorative { get; set; } = true;
 
-    private BradixOrientation ResolvedOrientation =>
-        Orientation == SeparatorOrientation.Vertical ? BradixOrientation.Vertical : BradixOrientation.Horizontal;
-
     private IReadOnlyDictionary<string, object> SeparatorAttributes => BuildSeparatorAttributes();
 
     private IReadOnlyDictionary<string, object> BuildSeparatorAttributes()
     {
         Dictionary<string, object> attributes = new(BuildAttributes());
-        attributes.Remove("role");
-        attributes.Remove("aria-hidden");
-        attributes.Remove("aria-orientation");
-        attributes.Remove("data-orientation");
+        if (Decorative)
+        {
+            attributes["role"] = "none";
+            attributes["aria-hidden"] = "true";
+        }
+        else
+        {
+            attributes["role"] = "separator";
+            if (Orientation == SeparatorOrientation.Vertical)
+                attributes["aria-orientation"] = "vertical";
+        }
+
         return attributes;
     }
 

@@ -17,6 +17,8 @@
 *:[a]:hover:text-foreground
 *:[a]:underline
 *:[a]:underline-offset-3
+*:[img:first-child]:rounded-t-xl
+*:[img:last-child]:rounded-b-xl
 *:[span]:last:flex
 *:[span]:last:gap-2
 *:[span]:last:items-center
@@ -170,6 +172,7 @@ HandleRailClick
 HandleRemoveClick
 HandleSearch
 HandleSelect
+HandleSidebarTriggerClick
 HandleSingleValueChanged
 HandleTriggerClick
 HandleValueChanged
@@ -202,6 +205,7 @@ M9
 MMMM
 Max
 Maximum
+Menu
 Min
 Minimum
 Minute
@@ -284,6 +288,7 @@ Scheduling
 Search
 SelectedDate
 Sending
+SeparatorAttributes
 Set
 ShouldShowInvalid
 ShowCode
@@ -405,6 +410,7 @@ accordion-trigger
 accordion-trigger-icon
 active
 active:bg-sidebar-accent
+active:bg-transparent
 active:not-aria-[haspopup]:translate-y-px
 active:ring-3
 active:text-sidebar-accent-foreground
@@ -735,6 +741,7 @@ dark:bg-transparent
 dark:border-destructive/50
 dark:border-input
 dark:data-[active=true]:aria-invalid:ring-destructive/40
+dark:data-[state=checked]:bg-primary
 dark:data-[state=checked]:bg-primary-foreground
 dark:data-[state=unchecked]:bg-foreground
 dark:data-[variant=destructive]:focus:bg-destructive/20
@@ -748,16 +755,21 @@ dark:disabled:bg-transparent
 dark:focus-visible:ring-destructive/40
 dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent
 dark:group-data-[variant=line]/tabs-list:data-active:border-transparent
+dark:has-[>[data-slot=checkbox][data-state=checked]]:bg-primary/10
+dark:has-[>[data-slot=checkbox][data-state=checked]]:border-primary/20
+dark:has-[>[data-slot=radio-group-item][data-state=checked]]:bg-primary/10
+dark:has-[>[data-slot=radio-group-item][data-state=checked]]:border-primary/20
 dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40
 dark:has-aria-invalid:border-destructive/50
 dark:has-aria-invalid:ring-destructive/40
-dark:has-data-checked:bg-primary/10
-dark:has-data-checked:border-primary/20
+dark:has-data-[state=checked]:bg-primary/10
+dark:has-data-[state=checked]:border-primary/20
 dark:has-disabled:bg-input/80
 dark:hover:bg-accent/50
 dark:hover:bg-destructive/30
 dark:hover:bg-input/50
 dark:hover:bg-muted/50
+dark:hover:bg-transparent
 dark:hover:bg-white/10
 dark:hover:text-foreground
 dark:in-data-[slot=tooltip-content]:bg-background/10
@@ -863,13 +875,19 @@ data-[size=default]:max-w-xs
 data-[size=default]:sm:max-w-sm
 data-[size=default]:w-[32px]
 data-[size=lg]:size-10
+data-[size=sm]:gap-3
 data-[size=sm]:h-7
 data-[size=sm]:h-[14px]
+data-[size=sm]:has-data-[slot=card-footer]:pb-0
 data-[size=sm]:max-w-xs
 data-[size=sm]:py-0.5
+data-[size=sm]:py-3
 data-[size=sm]:rounded-[min(var(--radius-md),10px)]
 data-[size=sm]:size-6
 data-[size=sm]:w-[24px]
+data-[state=checked]:bg-primary
+data-[state=checked]:border-primary
+data-[state=checked]:text-primary-foreground
 data-[state=closed]:animate-out
 data-[state=closed]:duration-300
 data-[state=closed]:fade-out-0
@@ -947,6 +965,7 @@ data-disabled:pointer-events-none
 data-empty
 data-ending-style:h-0
 data-highlighted
+data-horizontal
 data-horizontal:border-t
 data-horizontal:border-t-transparent
 data-horizontal:flex-col
@@ -1008,6 +1027,7 @@ data-unchecked
 data-unchecked:bg-input
 data-value
 data-variant
+data-vertical
 data-vertical:border-l
 data-vertical:border-l-transparent
 data-vertical:flex-col
@@ -1101,6 +1121,7 @@ error
 error:
 excludes
 expanded
+extend-touch-target
 fade-in-0
 false
 fetchpriority
@@ -1139,6 +1160,7 @@ flex-basis:auto
 flex-col
 flex-col-reverse
 flex-grow:0
+flex-none
 flex-row
 flex-row-reverse
 flex-shrink:0
@@ -1148,6 +1170,7 @@ float
 floating
 fmt
 focus-visible:after:border-ring
+focus-visible:bg-transparent
 focus-visible:border-destructive/40
 focus-visible:border-ring
 focus-visible:outline-1
@@ -1203,6 +1226,8 @@ gap-4
 gap-6
 gap-[--spacing(var(--gap))]
 gap-y-6
+ghost
+grayscale
 grid
 grid-cols-7
 grid-cols-[1fr_auto]
@@ -1337,6 +1362,8 @@ group-has-data-[size=lg]/avatar-group:size-10
 group-has-data-[size=sm]/avatar-group:[&>svg]:size-3
 group-has-data-[size=sm]/avatar-group:size-6
 group-has-data-[slot=combobox-clear]/input-group:hidden
+group-has-data-[slot=designer]/layout:fixed:max-w-none
+group-has-data-[slot=designer]/layout:max-w-none
 group-has-data-horizontal/field:text-balance
 group-has-disabled/field:opacity-50
 group-hover/menu-item:opacity-100
@@ -1350,6 +1377,7 @@ group/badge
 group/button
 group/button-group
 group/calendar
+group/card
 group/card-header
 group/command-item
 group/day
@@ -1382,6 +1410,7 @@ grow
 grow-0
 h-(--cell-size)
 h-(--radix-accordion-content-height)
+h-0.5
 h-1
 h-1.5
 h-10
@@ -1425,6 +1454,8 @@ has-[>[data-align=inline-start]]:[&>input]:pl-1.5
 has-[>[data-align=inline-start]]:[&>input]:pl-2
 has-[>[data-slot=button-group]]:gap-2
 has-[>[data-slot=checkbox-group]]:gap-3
+has-[>[data-slot=checkbox][data-state=checked]]:bg-primary/5
+has-[>[data-slot=checkbox][data-state=checked]]:border-primary/30
 has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px
 has-[>[data-slot=field-content]]:items-start
 has-[>[data-slot=field]]:border
@@ -1433,12 +1464,15 @@ has-[>[data-slot=field]]:rounded-lg
 has-[>[data-slot=field]]:w-full
 has-[>[data-slot=form-control]]:[&>[role=checkbox],[role=radio]]:mt-px
 has-[>[data-slot=form-control]]:items-start
+has-[>[data-slot=radio-group-item][data-state=checked]]:bg-primary/5
+has-[>[data-slot=radio-group-item][data-state=checked]]:border-primary/30
 has-[>[data-slot=radio-group]]:gap-3
 has-[>[role=checkbox]]:gap-3
 has-[>[role=radio]]:gap-3
 has-[>button]:ml-[-0.3rem]
 has-[>button]:ml-[-0.45rem]
 has-[>button]:mr-[-0.45rem]
+has-[>img:first-child]:pt-0
 has-[>kbd]:ml-[-0.15rem]
 has-[>kbd]:ml-[-0.35rem]
 has-[>kbd]:mr-[-0.35rem]
@@ -1446,6 +1480,7 @@ has-[>svg]:gap-x-2
 has-[>svg]:grid-cols-[auto_1fr]
 has-[>svg]:p-0
 has-[>svg]:px-2.5
+has-[>svg]:px-3
 has-[>textarea]:h-auto
 has-[[data-slot=input-group-control]:focus-visible]:border-ring
 has-[[data-slot=input-group-control]:focus-visible]:ring-3
@@ -1468,11 +1503,12 @@ has-data-[slot=alert-dialog-media]:gap-x-4
 has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr]
 has-data-[slot=card-action]:grid-cols-[1fr_auto]
 has-data-[slot=card-description]:grid-rows-[auto_auto]
+has-data-[slot=card-footer]:pb-0
 has-data-[slot=combobox-chip-remove]:pr-0
 has-data-[slot=combobox-chip]:px-1
 has-data-[slot=kbd]:pr-1.5
-has-data-checked:bg-primary/5
-has-data-checked:border-primary/30
+has-data-[state=checked]:bg-primary/5
+has-data-[state=checked]:border-primary/30
 has-disabled:bg-input/50
 has-disabled:cursor-not-allowed
 has-disabled:opacity-50
@@ -1497,6 +1533,7 @@ hover:bg-muted/50
 hover:bg-primary
 hover:bg-secondary/80
 hover:bg-sidebar-accent
+hover:bg-transparent
 hover:group-data-[collapsible=offcanvas]:bg-sidebar
 hover:ring-3
 hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]
@@ -1597,7 +1634,6 @@ lazy
 lazy-load
 lazy-reload
 lead
-leading-1
 leading-none
 leading-normal
 leading-snug
@@ -1662,9 +1698,11 @@ md:absolute
 md:after:hidden
 md:block
 md:flex
+md:flex-1
 md:flex-row
 md:gap-1.5
 md:hidden
+md:justify-end
 md:opacity-0
 md:peer-data-[variant=inset]:m-2
 md:peer-data-[variant=inset]:ml-0
@@ -1773,7 +1811,6 @@ nth-last-2:-mt-1
 null
 number
 numeric
-object-contain
 object-cover
 of
 off
@@ -1839,6 +1876,7 @@ overflow-x-auto
 overflow-x-hidden
 overflow-y-auto
 p-0
+p-0!
 p-0.5
 p-1
 p-10
@@ -1926,12 +1964,14 @@ px-1.5
 px-2
 px-2.5
 px-3
+px-3!
 px-4
 px-6
 px-[0.3rem]
 py-0.5
 py-1
 py-1.5
+py-1.5!
 py-12
 py-2
 py-2.5
@@ -2180,14 +2220,11 @@ sm
 sm:block
 sm:flex
 sm:flex-row
-sm:gap-2
-sm:gap-4
 sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2
 sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr]
 sm:group-data-[size=default]/alert-dialog-content:place-items-start
 sm:group-data-[size=default]/alert-dialog-content:row-span-2
 sm:group-data-[size=default]/alert-dialog-content:text-left
-sm:inline
 sm:justify-end
 sm:max-w-2xl
 sm:max-w-4xl
@@ -2196,9 +2233,6 @@ sm:max-w-none
 sm:max-w-sm
 sm:pl-2.5
 sm:pr-2.5
-sm:px-6
-sm:py-1.5
-sm:text-sm
 small
 sortable-handle
 sortable-item
@@ -2269,7 +2303,6 @@ term:
 text
 text-2xl
 text-[0.8rem]
-text-[1.05rem]
 text-accent
 text-accent-foreground
 text-align:
@@ -2282,8 +2315,8 @@ text-destructive
 text-destructive-foreground
 text-foreground
 text-foreground/60
-text-foreground/70
 text-left
+text-lg
 text-muted-foreground
 text-popover-foreground
 text-primary
@@ -2294,6 +2327,7 @@ text-secondary-foreground
 text-sidebar-accent-foreground
 text-sidebar-foreground
 text-sm
+text-sm/relaxed
 text-start
 text-white
 text-xl
@@ -2332,10 +2366,12 @@ tooltip-content
 tooltip-trigger
 top
 top-0
+top-1
 top-1.5
 top-1/2
 top-12
 top-2
+top-2.5
 top-3
 top-3.5
 top-4
@@ -2359,7 +2395,6 @@ transition-[width]
 transition-all
 transition-colors
 transition-none
-transition-opacity
 transition-transform
 transition:
 translate-x-px
@@ -2375,7 +2410,6 @@ tree-view-toggle
 trigger
 trigger-{value}
 true
-truncate
 tt
 type
 ui

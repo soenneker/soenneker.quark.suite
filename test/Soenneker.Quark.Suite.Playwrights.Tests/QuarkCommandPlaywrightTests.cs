@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkCommandPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkCommandPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkCommandPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Command_dialog_demo_selects_item_and_closes_overlay()
     {
         await using var session = await CreateSession();
@@ -40,7 +39,7 @@ public sealed class QuarkCommandPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page.GetByText("Dialog selection:", new PageGetByTextOptions { Exact = false })).ToContainTextAsync("Billing");
     }
 
-[Fact]
+[Test]
     public async ValueTask Command_demo_filters_items_and_preserves_disabled_state()
     {
         await using var session = await CreateSession();

@@ -1,13 +1,13 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void Select_slots_match_shadcn_base_classes()
     {
         var triggerCut = Render<Select<string>>(parameters => parameters
@@ -57,5 +57,28 @@ public sealed partial class RenderedShadcnParityTests
         valueClasses.Should().BeNullOrEmpty();
         valueClasses.Should().NotContain("q-select-value");
         valueClasses.Should().NotContain("text-left");
+    }
+
+    [Test]
+    public void SelectTrigger_inside_field_defaults_to_full_width()
+    {
+        var cut = Render<Field>(parameters => parameters
+            .AddChildContent<FieldLabel>(child => child.AddChildContent("Month"))
+            .AddChildContent<Select<string>>(child => child
+                .Add(p => p.DefaultItemText, "MM")
+                .Add(p => p.ChildContent, (RenderFragment)(builder =>
+                {
+                    builder.OpenComponent<SelectTrigger>(0);
+                    builder.AddAttribute(1, "ChildContent", (RenderFragment)(triggerBuilder =>
+                    {
+                        triggerBuilder.OpenComponent<SelectValue>(0);
+                        triggerBuilder.CloseComponent();
+                    }));
+                    builder.CloseComponent();
+                }))));
+
+        var triggerClasses = cut.Find("[data-slot='select-trigger']").GetAttribute("class")!;
+
+        triggerClasses.Should().Contain("w-full");
     }
 }

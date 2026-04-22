@@ -1,13 +1,13 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void Sidebar_matches_shadcn_base_classes()
     {
         var sidebar = Render<Sidebar>(parameters => parameters

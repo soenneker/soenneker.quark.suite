@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkTogglePlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkTogglePlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkTogglePlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Toggle_demo_updates_pressed_state_and_bound_label()
     {
         await using var session = await CreateSession();
@@ -41,7 +40,7 @@ public sealed class QuarkTogglePlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(bookmarkToggle).ToContainTextAsync("Bookmark");
     }
 
-[Fact]
+[Test]
     public async ValueTask Toggle_demo_disabled_and_controlled_examples_stay_in_sync()
     {
         await using var session = await CreateSession();

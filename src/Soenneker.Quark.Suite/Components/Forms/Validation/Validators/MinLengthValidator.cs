@@ -1,3 +1,5 @@
+using Soenneker.Quark.Base;
+
 namespace Soenneker.Quark;
 
 /// <summary>

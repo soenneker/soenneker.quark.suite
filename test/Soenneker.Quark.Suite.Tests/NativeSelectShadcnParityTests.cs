@@ -1,13 +1,13 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void NativeSelect_matches_shadcn_base_classes()
     {
         var nativeSelect = Render<NativeSelect>(parameters => parameters

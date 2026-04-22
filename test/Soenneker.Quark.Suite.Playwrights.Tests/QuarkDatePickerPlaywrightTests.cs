@@ -4,18 +4,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkDatePickerPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkDatePickerPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkDatePickerPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Date_of_birth_picker_updates_trigger_and_closes_after_selection()
     {
         await using var session = await CreateSession();
@@ -41,7 +40,7 @@ public sealed class QuarkDatePickerPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page.Locator("[data-slot='calendar']")).ToHaveCountAsync(0);
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Dropdown_date_picker_closes_after_selecting_a_new_date()
     {
         await using var session = await CreateSession();
@@ -72,7 +71,7 @@ public sealed class QuarkDatePickerPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page.Locator("[data-slot='calendar']")).ToHaveCountAsync(0);
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Date_time_picker_updates_value_and_dismisses_on_outside_click()
     {
         await using var session = await CreateSession();
@@ -109,7 +108,7 @@ public sealed class QuarkDatePickerPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page.Locator(".q-calendar-panel")).ToHaveCountAsync(0);
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Reusable_date_picker_reopens_on_the_month_of_a_selected_value()
     {
         await using var session = await CreateSession();
@@ -142,7 +141,7 @@ public sealed class QuarkDatePickerPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(calendar.Locator("[data-day='2024-04-24'][data-selected-single='true']")).ToBeVisibleAsync();
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Reusable_date_picker_tracks_external_value_changes_and_clear_actions()
     {
         await using var session = await CreateSession();

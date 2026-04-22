@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkToggleGroupPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkToggleGroupPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkToggleGroupPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Toggle_group_demo_vertical_keyboard_navigation_and_disabled_items_behave_correctly()
     {
         await using var session = await CreateSession();
@@ -84,7 +83,7 @@ public sealed class QuarkToggleGroupPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(rtlRight).ToHaveAttributeAsync("aria-checked", "false");
     }
 
-[Fact]
+[Test]
     public async ValueTask Toggle_group_demo_enforces_single_selection_and_preserves_multiple_selection()
     {
         await using var session = await CreateSession();

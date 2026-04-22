@@ -1,4 +1,5 @@
 @namespace Soenneker.Quark
+@using Soenneker.Quark.Dtos
 @inherits Soenneker.Quark.Element
 
 <button @onclick="HandleTriggerClick" @attributes="BuildAttributes()">
@@ -35,6 +36,18 @@
 
 @code {
     [Parameter]
+    public bool Unstyled { get; set; }
+
+    [Parameter]
+    public string? UnstyledDataSlot { get; set; }
+
+    [Parameter]
+    public string? UnstyledAriaHasPopup { get; set; }
+
+    [Parameter]
+    public string? UnstyledAriaControls { get; set; }
+
+    [Parameter]
     public RenderFragment? OpenContent { get; set; }
 
     [Parameter]
@@ -70,14 +83,39 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-        attributes["data-slot"] = "sidebar-trigger";
-        attributes["data-sidebar"] = "trigger";
+
+        if (Unstyled)
+        {
+            attributes["data-slot"] = UnstyledDataSlot ?? "popover-trigger";
+            attributes["data-variant"] = "ghost";
+            attributes["data-size"] = "default";
+        }
+        else
+        {
+            attributes["data-slot"] = "sidebar-trigger";
+            attributes["data-sidebar"] = "trigger";
+        }
+
         attributes["type"] = "button";
         var isExpanded = State?.IsMobile == true ? State?.OpenMobile == true : State?.Open == true;
         attributes["aria-expanded"] = isExpanded ? "true" : "false";
 
+        if (Unstyled)
+        {
+            attributes["data-state"] = isExpanded ? "open" : "closed";
+
+            if (!string.IsNullOrWhiteSpace(UnstyledAriaHasPopup))
+                attributes["aria-haspopup"] = UnstyledAriaHasPopup;
+
+            if (!string.IsNullOrWhiteSpace(UnstyledAriaControls))
+                attributes["aria-controls"] = UnstyledAriaControls;
+        }
+
         BuildClassAttribute(attributes, (ref cls) =>
         {
+            if (Unstyled)
+                return;
+
             AppendClass(ref cls, "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none");
             AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50");
             AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
@@ -92,6 +130,10 @@
         hc.Add(State?.IsMobile);
         hc.Add(State?.Open);
         hc.Add(State?.OpenMobile);
+        hc.Add(Unstyled);
+        hc.Add(UnstyledDataSlot);
+        hc.Add(UnstyledAriaHasPopup);
+        hc.Add(UnstyledAriaControls);
         hc.Add(OpenContent is not null);
         hc.Add(ClosedContent is not null);
     }

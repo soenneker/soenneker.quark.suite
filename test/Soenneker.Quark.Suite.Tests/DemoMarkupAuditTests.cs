@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -13,7 +13,7 @@ public sealed class DemoMarkupAuditTests
         @"<(div|span|nav|footer|img|input|textarea|blockquote|table|code|pre|ul|li|h4)\b",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    [Fact]
+    [Test]
     public void Demo_component_pages_do_not_use_disallowed_raw_markup_primitives()
     {
         var demoPagesRoot = Path.Combine(GetSuiteRoot(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components");

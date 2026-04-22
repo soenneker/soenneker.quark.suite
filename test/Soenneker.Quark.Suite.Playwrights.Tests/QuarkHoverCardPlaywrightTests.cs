@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkHoverCardPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkHoverCardPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkHoverCardPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Hover_card_demo_hides_profile_details_after_pointer_leaves_trigger_and_content()
     {
         await using var session = await CreateSession();
@@ -38,7 +37,7 @@ public sealed class QuarkHoverCardPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(details).Not.ToBeVisibleAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Hover_card_demo_shows_profile_details_on_hover()
     {
         await using var session = await CreateSession();
@@ -55,7 +54,7 @@ public sealed class QuarkHoverCardPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page.GetByText("Joined December 2021", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Hover_card_demo_supports_nested_hover_card_inside_modal_dialog()
     {
         await using var session = await CreateSession();

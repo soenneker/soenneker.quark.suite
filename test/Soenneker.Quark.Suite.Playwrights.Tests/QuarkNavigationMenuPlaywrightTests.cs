@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkNavigationMenuPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkNavigationMenuPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Navigation_menu_demo_home_and_end_keys_move_focus_between_edge_links_inside_open_content()
     {
         await using var session = await CreateSession();
@@ -50,7 +49,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(quarkSuite).ToBeFocusedAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Navigation_menu_demo_closes_from_single_outside_click()
     {
         await using var session = await CreateSession();
@@ -76,7 +75,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(content).Not.ToBeVisibleAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Navigation_menu_demo_uses_shared_viewport_by_default()
     {
         await using var session = await CreateSession();
@@ -107,7 +106,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
         Assert.True(viewportBox.Height >= 120, $"Expected the shared navigation viewport to show full content, but measured height {viewportBox.Height}.");
     }
 
-[Fact]
+[Test]
     public async ValueTask Navigation_menu_demo_home_and_end_keys_move_focus_to_first_and_last_items()
     {
         await using var session = await CreateSession();
@@ -137,7 +136,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(gettingStarted).ToBeFocusedAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Navigation_menu_demo_marks_active_link_and_direct_docs_link_does_not_open_viewport()
     {
         await using var session = await CreateSession();
@@ -167,7 +166,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(activeLink).ToBeVisibleAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Navigation_menu_demo_switches_visible_content_between_triggers()
     {
         await using var session = await CreateSession();
@@ -192,7 +191,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page.Locator("main")).ToContainTextAsync("Dialogs");
     }
 
-[Fact]
+[Test]
     public async ValueTask Navigation_menu_rtl_demo_inherits_rtl_direction_and_renders_viewport_content()
     {
         await using var session = await CreateSession();

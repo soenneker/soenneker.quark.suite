@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkNativeSelectPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkNativeSelectPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkNativeSelectPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Native_select_demo_updates_bound_value_and_preserves_optgroup_structure()
     {
         await using var session = await CreateSession();
@@ -44,7 +43,7 @@ public sealed class QuarkNativeSelectPlaywrightTests : PlaywrightUnitTest
         Assert.Equal("Mammals,Birds", groupLabels);
     }
 
-[Fact]
+[Test]
     public async ValueTask Native_select_disabled_demo_keeps_disabled_control_inert_while_small_variant_changes()
     {
         await using var session = await CreateSession();

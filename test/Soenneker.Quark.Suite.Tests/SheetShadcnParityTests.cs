@@ -1,13 +1,13 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void Sheet_trigger_matches_shadcn_default_component_contract()
     {
         var cut = Render<SheetTrigger>(parameters => parameters
@@ -28,7 +28,7 @@ public sealed partial class RenderedShadcnParityTests
         triggerClasses.Should().Contain("px-2.5");
     }
 
-    [Fact]
+    [Test]
     public void Sheet_trigger_aschild_preserves_sheet_trigger_slot_on_child_button()
     {
         var cut = Render<SheetTrigger>(parameters => parameters

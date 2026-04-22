@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -100,7 +100,7 @@ public sealed class DemoRouteAuditParityTests
         "validation-demo"
     };
 
-    [Fact]
+    [Test]
     public void Public_demo_routes_are_all_explicitly_audited()
     {
         string[] publicRoutes = DocsNavigation.ComponentLinks
@@ -121,7 +121,7 @@ public sealed class DemoRouteAuditParityTests
         publicRoutes.Except(auditedRoutes, StringComparer.Ordinal).Should().BeEmpty();
     }
 
-    [Fact]
+    [Test]
     public void Audited_shadcn_routes_point_to_existing_crawled_examples()
     {
         var repoRoot = GetRepoRoot();
@@ -135,7 +135,7 @@ public sealed class DemoRouteAuditParityTests
         }
     }
 
-    [Fact]
+    [Test]
     public void Audited_public_routes_exist_in_the_demo_app()
     {
         var demoPagesRoot = Path.Combine(GetSuiteRoot(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components");

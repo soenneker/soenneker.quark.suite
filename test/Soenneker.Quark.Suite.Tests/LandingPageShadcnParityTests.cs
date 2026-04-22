@@ -1,13 +1,13 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void Landing_layout_matches_shadcn_root_contract()
     {
         var layout = Render<global::Soenneker.Quark.Suite.Demo.LandingLayout>(parameters => parameters
@@ -26,7 +26,7 @@ public sealed partial class RenderedShadcnParityTests
         layout.Find("#layout-body-probe");
     }
 
-    [Fact]
+    [Test]
     public void Index_matches_shadcn_page_contracts()
     {
         var page = Render<global::Soenneker.Quark.Suite.Demo.Pages.Index>();

@@ -1,4 +1,4 @@
-namespace Soenneker.Quark.Components.Surface.Interactive.Buttons.Abstract;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a button group component for grouping related buttons together.

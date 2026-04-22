@@ -1,12 +1,12 @@
 using AwesomeAssertions;
 using Bunit;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void H3_matches_shadcn_base_classes()
     {
         var h3 = Render<H3>(parameters => parameters.Add(p => p.ChildContent, "The joke tax"));

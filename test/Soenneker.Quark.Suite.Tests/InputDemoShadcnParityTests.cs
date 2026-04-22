@@ -1,13 +1,13 @@
 using AwesomeAssertions;
 using Bunit;
 using System.Linq;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void Input_demo_page_uses_shadcn_preview_overrides()
     {
         var cut = Render<global::Soenneker.Quark.Suite.Demo.Pages.Components.InputDemo>();

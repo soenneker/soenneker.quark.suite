@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkRadioGroupPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkRadioGroupPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkRadioGroupPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Radio_group_form_demo_requires_selection_and_submits_selected_value()
     {
         await using var session = await CreateSession();
@@ -45,7 +44,7 @@ public sealed class QuarkRadioGroupPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(formSection.Locator("pre")).ToContainTextAsync("\"type\": \"none\"");
     }
 
-[Fact]
+[Test]
     public async ValueTask Radio_form_requires_selection_and_updates_checked_state()
     {
         await using var session = await CreateSession();
@@ -74,7 +73,7 @@ public sealed class QuarkRadioGroupPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(formSection.Locator("pre").First).ToContainTextAsync("\"type\": \"mentions\"");
     }
 
-[Fact]
+[Test]
     public async ValueTask Radio_group_demo_home_and_end_keys_move_selection_to_edge_options()
     {
         await using var session = await CreateSession();
@@ -126,7 +125,7 @@ public sealed class QuarkRadioGroupPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(option3).ToHaveAttributeAsync("aria-checked", "false");
     }
 
-[Fact]
+[Test]
     public async ValueTask Radio_group_demo_disabled_item_stays_unchecked_while_enabled_option_changes()
     {
         await using var session = await CreateSession();

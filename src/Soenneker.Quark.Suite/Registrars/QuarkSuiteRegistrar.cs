@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Soenneker.Blazor.Utils.ResourceLoader.Registrars;
 using Soenneker.Bradix;
-using Soenneker.Quark.Registrars;
 
 namespace Soenneker.Quark;
 

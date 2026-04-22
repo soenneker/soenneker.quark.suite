@@ -1,18 +1,18 @@
-using Xunit;
+using AwesomeAssertions;
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed class SizeBuilderShadcnTests
 {
-    [Fact]
+    [Test]
     public void Size_is5_maps_to_tailwind_size_5()
     {
-        Assert.Equal("size-5", Size.Is5.ToClass());
+        Size.Is5.ToClass().Should().Be("size-5");
     }
 
-    [Fact]
+    [Test]
     public void Size_builder_is5_maps_to_tailwind_size_5()
     {
-        Assert.Equal("size-5", Size.Token("5").ToClass());
+        Size.Token("5").ToClass().Should().Be("size-5");
     }
 }

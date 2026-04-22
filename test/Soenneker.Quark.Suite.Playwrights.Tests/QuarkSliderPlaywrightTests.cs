@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkSliderPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkSliderPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Slider_demo_horizontal_track_click_updates_value_and_step_demo_snaps_to_increment()
     {
         await using var session = await CreateSession();
@@ -76,7 +75,7 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page.GetByText("Step 5; current value: 60.", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Slider_demo_home_and_end_keys_jump_to_minimum_and_maximum_values()
     {
         await using var session = await CreateSession();
@@ -104,7 +103,7 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(demoSection).ToContainTextAsync("Current: 100.");
     }
 
-[Fact]
+[Test]
     public async ValueTask Slider_range_and_multiple_thumb_demos_expose_named_thumbs_and_update_section_state()
     {
         await using var session = await CreateSession();
@@ -147,7 +146,7 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(multipleSection).ToContainTextAsync("Values: 10, 30, 70.");
     }
 
-[Fact]
+[Test]
     public async ValueTask Slider_demo_thumb_interaction_updates_value_and_disabled_slider_does_not_move()
     {
         await using var session = await CreateSession();
@@ -176,7 +175,7 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(disabledSlider).ToHaveAttributeAsync("aria-valuenow", "50");
     }
 
-[Fact]
+[Test]
     public async ValueTask Slider_vertical_demo_and_rtl_demo_follow_radix_orientation_and_direction_behavior()
     {
         await using var session = await CreateSession();

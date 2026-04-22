@@ -268,7 +268,7 @@ else
     }
 
     private const string _shadcnRadioItemBase =
-        "group/radio-group-item peer relative flex aspect-square shrink-0 rounded-full border border-input outline-none after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary";
+        "group/radio-group-item peer relative flex aspect-square shrink-0 rounded-full border border-input outline-none after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary";
 
     private Dictionary<string, object> BuildLabelAttributes()
     {
@@ -360,7 +360,20 @@ else
 
     private Dictionary<string, object> BuildGroupedItemAttributes()
     {
-        var attributes = new Dictionary<string, object>(BuildIndicatorAttributes());
+        var attributes = new Dictionary<string, object>
+        {
+            ["data-slot"] = "radio-group-item"
+        };
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, _shadcnRadioItemBase);
+            var sizeClass = GetSizeClass();
+            AppendClass(ref cls, sizeClass ?? "size-4");
+            var validationClass = GetValidationClass();
+            if (validationClass != null)
+                AppendClass(ref cls, validationClass);
+        });
 
         if (Attributes is not null)
         {

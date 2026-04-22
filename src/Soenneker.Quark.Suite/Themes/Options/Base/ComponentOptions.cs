@@ -164,6 +164,26 @@ public class ComponentOptions
     public CssValue<FlexBuilder>? Flex { get; set; }
 
     /// <summary>
+    /// Gets or sets the CSS flex-direction configuration.
+    /// </summary>
+    public CssValue<FlexDirectionBuilder>? FlexDirection { get; set; }
+
+    /// <summary>
+    /// Gets or sets the CSS flex-wrap configuration.
+    /// </summary>
+    public CssValue<FlexWrapBuilder>? FlexWrap { get; set; }
+
+    /// <summary>
+    /// Gets or sets the CSS flex-grow configuration.
+    /// </summary>
+    public CssValue<GrowBuilder>? Grow { get; set; }
+
+    /// <summary>
+    /// Gets or sets the CSS flex-shrink configuration.
+    /// </summary>
+    public CssValue<ShrinkBuilder>? Shrink { get; set; }
+
+    /// <summary>
     /// Gets or sets the CSS gap configuration.
     /// </summary>
     public CssValue<GapBuilder>? Gap { get; set; }
@@ -432,6 +452,10 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, TextAlign, "text-align");
         AddRules(buffer, baseSelector, TextColor, "color");
         AddRules(buffer, baseSelector, Flex, "flex");
+        AddRules(buffer, baseSelector, FlexDirection, "flex-direction");
+        AddRules(buffer, baseSelector, FlexWrap, "flex-wrap");
+        AddRules(buffer, baseSelector, Grow, "flex-grow");
+        AddRules(buffer, baseSelector, Shrink, "flex-shrink");
         AddRules(buffer, baseSelector, Gap, "gap");
         AddRules(buffer, baseSelector, Space, null);
         AddRules(buffer, baseSelector, Divide, null);
@@ -528,22 +552,103 @@ public class ComponentOptions
     private static IEnumerable<string>? TryConvertClassOnlyDeclarations<TBuilder>(string rawValue, string fallbackProperty)
         where TBuilder : class, ICssBuilder
     {
-        if (typeof(TBuilder) != typeof(DecorationLineBuilder))
-            return null;
+        var resolved = rawValue.Trim();
 
-        if (!fallbackProperty.Equals("text-decoration", System.StringComparison.Ordinal))
-            return null;
-
-        var resolved = rawValue.Trim() switch
+        if (typeof(TBuilder) == typeof(DecorationLineBuilder) &&
+            fallbackProperty.Equals("text-decoration", System.StringComparison.Ordinal))
         {
-            "no-underline" => "none",
-            "underline" => "underline",
-            "line-through" => "line-through",
-            "overline" => "overline",
-            _ => null
-        };
+            var decoration = resolved switch
+            {
+                "no-underline" => "none",
+                "underline" => "underline",
+                "line-through" => "line-through",
+                "overline" => "overline",
+                _ => null
+            };
 
-        return resolved is null ? null : [$"{fallbackProperty}: {resolved}"];
+            return decoration is null ? null : [$"{fallbackProperty}: {decoration}"];
+        }
+
+        if (typeof(TBuilder) == typeof(FlexDirectionBuilder) &&
+            fallbackProperty.Equals("flex-direction", System.StringComparison.Ordinal))
+        {
+            return TryConvertFlexComposite(resolved, fallbackProperty, static token => token switch
+            {
+                "flex-row" => "row",
+                "flex-row-reverse" => "row-reverse",
+                "flex-col" => "column",
+                "flex-col-reverse" => "column-reverse",
+                _ => null
+            });
+        }
+
+        if (typeof(TBuilder) == typeof(FlexWrapBuilder) &&
+            fallbackProperty.Equals("flex-wrap", System.StringComparison.Ordinal))
+        {
+            return TryConvertFlexComposite(resolved, fallbackProperty, static token => token switch
+            {
+                "flex-wrap" => "wrap",
+                "flex-wrap-reverse" => "wrap-reverse",
+                "flex-nowrap" => "nowrap",
+                _ => null
+            });
+        }
+
+        if (typeof(TBuilder) == typeof(GrowBuilder) &&
+            fallbackProperty.Equals("flex-grow", System.StringComparison.Ordinal))
+        {
+            var grow = resolved switch
+            {
+                "grow" => "1",
+                "grow-0" => "0",
+                _ => null
+            };
+
+            return grow is null ? null : [$"{fallbackProperty}: {grow}"];
+        }
+
+        if (typeof(TBuilder) == typeof(ShrinkBuilder) &&
+            fallbackProperty.Equals("flex-shrink", System.StringComparison.Ordinal))
+        {
+            var shrink = resolved switch
+            {
+                "shrink" => "1",
+                "shrink-0" => "0",
+                _ => null
+            };
+
+            return shrink is null ? null : [$"{fallbackProperty}: {shrink}"];
+        }
+
+        return null;
+    }
+
+    private static IEnumerable<string>? TryConvertFlexComposite(string rawValue, string fallbackProperty, System.Func<string, string?> converter)
+    {
+        var tokens = rawValue.Split(' ', System.StringSplitOptions.RemoveEmptyEntries | System.StringSplitOptions.TrimEntries);
+        var hasFlexDisplay = false;
+        string? resolvedValue = null;
+
+        foreach (var token in tokens)
+        {
+            if (token.Contains(':'))
+                return null;
+
+            if (token.Equals("flex", System.StringComparison.Ordinal))
+            {
+                hasFlexDisplay = true;
+                continue;
+            }
+
+            var converted = converter(token);
+            if (converted is not null)
+                resolvedValue = converted;
+        }
+
+        if (!hasFlexDisplay || resolvedValue is null)
+            return null;
+
+        return ["display: flex", $"{fallbackProperty}: {resolvedValue}"];
     }
 
     private static IEnumerable<string> SplitDeclarations(string value)

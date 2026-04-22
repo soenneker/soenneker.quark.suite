@@ -5,18 +5,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkResizablePlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkResizablePlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Resizable_handle_demo_supports_keyboard_resize()
     {
         await using var session = await CreateSession();
@@ -45,7 +44,7 @@ public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
         Assert.True(rightAfter < rightBefore);
     }
 
-[Fact]
+[Test]
     public async ValueTask Resizable_examples_resize_with_pointer_in_horizontal_vertical_and_rtl_layouts()
     {
         await using var session = await CreateSession();
@@ -118,7 +117,7 @@ public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
         Assert.True(rtlSecondaryAfter < rtlSecondaryBefore);
     }
 
-[Fact]
+[Test]
     public async ValueTask Resizable_handle_demo_renders_visible_grip_and_supports_pointer_resize()
     {
         await using var session = await CreateSession();

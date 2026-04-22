@@ -5,7 +5,7 @@ using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -17,38 +17,38 @@ public sealed class BuilderRuntimeContractTests : BunitContext
         Services.AddDefaultQuarkOptionsAsScoped();
     }
 
-    [Fact]
+    [Test]
     public void Cursor_default_maps_to_cursor_default()
     {
-        Assert.Equal("cursor-default", Cursor.Default.ToClass());
+        Cursor.Default.ToClass().Should().Be("cursor-default");
     }
 
-    [Fact]
+    [Test]
     public void Overflow_axis_builders_emit_axis_specific_classes()
     {
-        Assert.Equal("overflow-x-hidden", Overflow.X.Hidden.ToClass());
-        Assert.Equal("overflow-y-auto", Overflow.Y.Auto.ToClass());
+        Overflow.X.Hidden.ToClass().Should().Be("overflow-x-hidden");
+        Overflow.Y.Auto.ToClass().Should().Be("overflow-y-auto");
     }
 
-    [Fact]
+    [Test]
     public void Padding_builder_supports_axis_specific_arbitrary_spacing_tokens()
     {
-        Assert.Equal("px-2 py-1.5", Padding.Is2.OnX.Token("1.5").OnY.ToClass());
+        Padding.Is2.OnX.Token("1.5").OnY.ToClass().Should().Be("px-2 py-1.5");
     }
 
-    [Fact]
+    [Test]
     public void Physical_side_builders_use_left_and_right_tokens_instead_of_inline_start_end()
     {
-        Assert.Equal("pr-8 pl-2 py-1.5", Padding.Token("8").FromRight.Is2.FromLeft.Token("1.5").OnY.ToClass());
-        Assert.Equal("border", Border.Is1.ToClass());
-        Assert.Equal("border-b", Border.Is1.FromBottom.ToClass());
-        Assert.Equal("border-l-4", Border.Is4.FromLeft.ToClass());
-        Assert.Equal("mr-3", Margin.Is3.FromRight.ToClass());
-        Assert.Equal("-mx-1", Margin.Token("-1").OnX.ToClass());
-        Assert.Equal("mt-1.5", Margin.Token("1.5").FromTop.ToClass());
+        Padding.Token("8").FromRight.Is2.FromLeft.Token("1.5").OnY.ToClass().Should().Be("pr-8 pl-2 py-1.5");
+        Border.Is1.ToClass().Should().Be("border");
+        Border.Is1.FromBottom.ToClass().Should().Be("border-b");
+        Border.Is4.FromLeft.ToClass().Should().Be("border-l-4");
+        Margin.Is3.FromRight.ToClass().Should().Be("mr-3");
+        Margin.Token("-1").OnX.ToClass().Should().Be("-mx-1");
+        Margin.Token("1.5").FromTop.ToClass().Should().Be("mt-1.5");
     }
 
-    [Fact]
+    [Test]
     public void MaxHeight_accepts_height_builder_token_and_emits_max_height_utility()
     {
         var cut = Render<TestRenderBox>(parameters => parameters
@@ -64,7 +64,7 @@ public sealed class BuilderRuntimeContractTests : BunitContext
         style.Should().BeNull();
     }
 
-    [Fact]
+    [Test]
     public void Component_cursor_and_axis_overflow_properties_use_builder_output()
     {
         var cut = Render<TestRenderBox>(parameters => parameters
@@ -83,7 +83,42 @@ public sealed class BuilderRuntimeContractTests : BunitContext
         classes.Should().Contain("py-1.5");
     }
 
-    [Fact]
+    [Test]
+    public void Component_shrink_property_uses_builder_output()
+    {
+        var cut = Render<TestRenderBox>(parameters => parameters
+            .Add(p => p.Shrink, Shrink.Is0.OnMd.Is1));
+
+        var box = cut.Find("[data-slot='test-box']");
+        var classes = box.GetAttribute("class")!;
+
+        classes.Should().Contain("shrink-0");
+        classes.Should().Contain("md:shrink");
+    }
+
+    [Test]
+    public void Component_flex_direction_wrap_and_grow_properties_use_builder_output()
+    {
+        var cut = Render<TestRenderBox>(parameters => parameters
+            .Add(p => p.FlexDirection, FlexDirection.Col.OnMd.Row)
+            .Add(p => p.FlexWrap, FlexWrap.Wrap.OnLg.NoWrap)
+            .Add(p => p.Grow, Grow.Is0.OnSm.Is1));
+
+        var box = cut.Find("[data-slot='test-box']");
+        var classes = box.GetAttribute("class")!;
+
+        classes.Should().Contain("flex");
+        classes.Should().Contain("flex-col");
+        classes.Should().Contain("md:flex");
+        classes.Should().Contain("md:flex-row");
+        classes.Should().Contain("flex-wrap");
+        classes.Should().Contain("lg:flex");
+        classes.Should().Contain("lg:flex-nowrap");
+        classes.Should().Contain("grow-0");
+        classes.Should().Contain("sm:grow");
+    }
+
+    [Test]
     public void Class_merging_deduplicates_identical_tokens()
     {
         CssValue<FlexBuilder> flex = "flex flex-col";
@@ -101,7 +136,7 @@ public sealed class BuilderRuntimeContractTests : BunitContext
         tokens.Count(token => token == "flex-col").Should().Be(1);
     }
 
-    [Fact]
+    [Test]
     public void Section_has_no_default_padding_class()
     {
         var cut = Render<Section>();

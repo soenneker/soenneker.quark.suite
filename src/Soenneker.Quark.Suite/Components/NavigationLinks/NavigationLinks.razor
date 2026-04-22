@@ -1,4 +1,4 @@
-@namespace Soenneker.Quark
+@namespace Soenneker.Quark.NavigationLinks
 
 @if (Mode == NavigationLinksMode.Header)
 {
@@ -6,17 +6,24 @@
     {
         @if (item.Href is not null)
         {
-            <Anchor To="@item.Href" class="@GetHeaderItemClass(item)">
+            <Anchor To="@item.Href"
+                    data-slot="button"
+                    data-variant="ghost"
+                    data-size="sm"
+                    data-active="@IsItemActive(item).ToString().ToLowerInvariant()"
+                    data-new="@item.IsNew.ToString().ToLowerInvariant()"
+                    class="@GetHeaderItemClass(item)">
                 @item.Title
-                @if (item.IsNew)
-                {
-                    <Span BoxSize="Size.Is2" class="rounded-full bg-blue-500"></Span>
-                }
             </Anchor>
         }
         else
         {
-            <Span class="@($"{GetHeaderItemClass(item)} opacity-75")">
+            <Span data-slot="button"
+                  data-variant="ghost"
+                  data-size="sm"
+                  data-active="false"
+                  data-new="@item.IsNew.ToString().ToLowerInvariant()"
+                  class="@($"{GetHeaderItemClass(item)} opacity-75")">
                 @item.Title
             </Span>
         }
@@ -121,11 +128,11 @@ else
 
     private string GetHeaderItemClass(NavigationItem item)
     {
-        const string baseClass = "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent bg-clip-padding px-2.5 text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 h-8 has-[>svg]:px-2.5 relative";
+        const string baseClass = "inline-flex shrink-0 items-center justify-center text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 h-8 gap-1.5 rounded-md has-[>svg]:px-2.5 px-2.5 relative items-center";
 
         return IsItemActive(item)
-            ? $"{baseClass} text-foreground bg-accent dark:bg-accent/50"
-            : $"{baseClass} text-foreground/70 hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50";
+            ? $"{baseClass} bg-accent text-accent-foreground dark:bg-accent/50"
+            : baseClass;
     }
 
     private string GetStackItemClass(NavigationItem item)

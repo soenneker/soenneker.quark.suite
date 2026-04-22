@@ -1,12 +1,12 @@
 using AwesomeAssertions;
 using Bunit;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void BreadcrumbItem_matches_shadcn_base_classes()
     {
         var item = Render<BreadcrumbItem>(parameters => parameters

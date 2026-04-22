@@ -1,13 +1,13 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void DemoSection_preview_shell_matches_shadcn_docs_structure_more_closely()
     {
         var cut = Render<Soenneker.Quark.Components.DemoSection>(parameters => parameters

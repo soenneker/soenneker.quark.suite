@@ -1,11 +1,11 @@
 using AwesomeAssertions;
 using Bunit;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests{
-    [Fact]
+    [Test]
     public void Button_default_matches_shadcn_base_classes_exactly()
     {
         var cut = Render<Button>(parameters => parameters
@@ -42,7 +42,7 @@ public sealed partial class RenderedShadcnParityTests{
     }
 
 
-    [Fact]
+    [Test]
     public void Button_outline_icon_matches_shadcn_base_classes_exactly()
     {
         var cut = Render<Button>(parameters => parameters

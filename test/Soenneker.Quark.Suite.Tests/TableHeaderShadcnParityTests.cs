@@ -1,12 +1,12 @@
 using AwesomeAssertions;
 using Bunit;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void Thead_matches_shadcn_base_classes()
     {
         var thead = Render<Thead>(parameters => parameters.Add(p => p.ChildContent, "Head"));

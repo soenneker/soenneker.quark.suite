@@ -1,54 +1,54 @@
-using Xunit;
+using AwesomeAssertions;
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed class ColorBuilderShadcnTests
 {
-    [Fact]
+    [Test]
     public void TextColor_destructive_maps_to_text_destructive()
     {
-        Assert.Equal("text-destructive", TextColor.Destructive.ToClass());
+        TextColor.Destructive.ToClass().Should().Be("text-destructive");
     }
 
-    [Fact]
+    [Test]
     public void TextColor_primary_foreground_maps_to_text_primary_foreground()
     {
-        Assert.Equal("text-primary-foreground", TextColor.PrimaryForeground.ToClass());
+        TextColor.PrimaryForeground.ToClass().Should().Be("text-primary-foreground");
     }
 
-    [Fact]
+    [Test]
     public void BackgroundColor_card_maps_to_bg_card()
     {
-        Assert.Equal("bg-card", BackgroundColor.Card.ToClass());
+        BackgroundColor.Card.ToClass().Should().Be("bg-card");
     }
 
-    [Fact]
+    [Test]
     public void BackgroundColor_danger_alias_maps_to_bg_destructive()
     {
-        Assert.Equal("bg-destructive", BackgroundColor.Destructive.ToClass());
+        BackgroundColor.Destructive.ToClass().Should().Be("bg-destructive");
     }
 
-    [Fact]
+    [Test]
     public void BorderColor_input_maps_to_border_input()
     {
-        Assert.Equal("border-input", BorderColor.Input.ToClass());
+        BorderColor.Input.ToClass().Should().Be("border-input");
     }
 
-    [Fact]
+    [Test]
     public void RingColor_destructive_maps_to_ring_destructive()
     {
-        Assert.Equal("ring-destructive", RingColor.Destructive.ToClass());
+        RingColor.Destructive.ToClass().Should().Be("ring-destructive");
     }
 
-    [Fact]
+    [Test]
     public void BackgroundColor_token_maps_to_raw_blue_500_suffix()
     {
-        Assert.Equal("blue-500", BackgroundColor.Token("blue-500").ToClass());
+        BackgroundColor.Token("blue-500").ToClass().Should().Be("blue-500");
     }
 
-    [Fact]
+    [Test]
     public void BackgroundColor_utility_passthrough_maps_directly()
     {
-        Assert.Equal("bg-primary/20", BackgroundColor.Utility("bg-primary/20").ToClass());
+        BackgroundColor.Utility("bg-primary/20").ToClass().Should().Be("bg-primary/20");
     }
 }

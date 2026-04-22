@@ -3,29 +3,28 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkBreadcrumbPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkBreadcrumbPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkBreadcrumbPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+    [Test]
     public async ValueTask Breadcrumb_page_and_rtl_examples_expose_current_page_and_navigation_semantics()
     {
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady(
-            $"{BaseUrl}breadcrumbs",
+        await page.GotoAndWaitForReady($"{BaseUrl}breadcrumbs",
             static p => p.GetByRole(AriaRole.Navigation, new PageGetByRoleOptions { Name = "breadcrumb", Exact = true }).First,
             expectedTitle: "Breadcrumbs - Quark Suite");
 
-        var linkSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "BreadcrumbLink can pass its styling into a child Quark link with AsChild." }).First;
+        var linkSection = page.Locator("section").Filter(new LocatorFilterOptions
+            { HasText = "BreadcrumbLink can pass its styling into a child Quark link with AsChild." }).First;
         var navigation = linkSection.Locator("[data-slot='breadcrumb']").First;
         var homeLink = navigation.Locator("[data-slot='breadcrumb-link']").Nth(0);
         var componentsLink = navigation.Locator("[data-slot='breadcrumb-link']").Nth(1);
@@ -36,7 +35,8 @@ public sealed class QuarkBreadcrumbPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(currentPage).ToHaveAttributeAsync("aria-current", "page");
         await Assertions.Expect(currentPage).ToHaveAttributeAsync("aria-disabled", "true");
 
-        var rtlSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Breadcrumb separators and item flow render correctly in right-to-left layouts." }).First;
+        var rtlSection = page.Locator("section").Filter(new LocatorFilterOptions
+            { HasText = "Breadcrumb separators and item flow render correctly in right-to-left layouts." }).First;
         var rtlNavigation = rtlSection.GetByRole(AriaRole.Navigation, new LocatorGetByRoleOptions { Name = "breadcrumb", Exact = true });
 
         await Assertions.Expect(rtlNavigation).ToHaveAttributeAsync("dir", "rtl");
@@ -44,18 +44,18 @@ public sealed class QuarkBreadcrumbPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(rtlNavigation.Locator("[data-slot='breadcrumb-separator']")).ToHaveCountAsync(2);
     }
 
-[Fact]
+    [Test]
     public async ValueTask Breadcrumb_demo_overflow_menu_opens_from_collapsed_item_and_closes_after_selection()
     {
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady(
-            $"{BaseUrl}breadcrumbs",
+        await page.GotoAndWaitForReady($"{BaseUrl}breadcrumbs",
             static p => p.GetByRole(AriaRole.Navigation, new PageGetByRoleOptions { Name = "breadcrumb", Exact = true }).First,
             expectedTitle: "Breadcrumbs - Quark Suite");
 
-        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Collapsed breadcrumb trail with an overflow menu in the middle." }).First;
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Collapsed breadcrumb trail with an overflow menu in the middle." })
+                          .First;
         var trigger = section.Locator("[data-slot='dropdown-menu-trigger']").First;
 
         await trigger.ClickAsync();

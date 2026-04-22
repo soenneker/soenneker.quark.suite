@@ -1,13 +1,13 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void AlertDialogTrigger_matches_shadcn_default_component_contract()
     {
         var cut = Render<AlertDialogTrigger>(parameters => parameters
@@ -29,7 +29,7 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().Contain("px-2.5");
     }
 
-    [Fact]
+    [Test]
     public void AlertDialogTrigger_aschild_preserves_alert_dialog_trigger_slot_on_child_button()
     {
         var cut = Render<AlertDialogTrigger>(parameters => parameters

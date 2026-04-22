@@ -1,4 +1,4 @@
-namespace Soenneker.Quark;
+namespace Soenneker.Quark.Dtos;
 
 /// <summary>
 /// Represents computed sidebar state shared through cascading parameters.

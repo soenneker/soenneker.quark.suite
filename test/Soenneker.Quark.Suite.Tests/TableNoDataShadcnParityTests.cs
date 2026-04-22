@@ -2,13 +2,13 @@ using System.Reflection;
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void TableNoData_matches_empty_shell_contract()
     {
         var table = new Table();

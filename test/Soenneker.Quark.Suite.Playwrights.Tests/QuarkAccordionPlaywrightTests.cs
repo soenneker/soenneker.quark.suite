@@ -4,18 +4,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkAccordionPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkAccordionPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkAccordionPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Accordion_demo_supports_vertical_keyboard_navigation_and_skips_disabled_items()
     {
         await using var session = await CreateSession();
@@ -54,7 +53,7 @@ public sealed class QuarkAccordionPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page.GetByText("Upgrade your plan to access this content.", new PageGetByTextOptions { Exact = true })).Not.ToBeVisibleAsync();
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Accordion_multiple_demo_keeps_multiple_items_open()
     {
         await using var session = await CreateSession();
@@ -76,7 +75,7 @@ public sealed class QuarkAccordionPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page.GetByText("Control your privacy settings and security preferences. Enable two-factor authentication, manage connected devices, review active sessions, and configure data sharing preferences. You can also download your data or delete your account.", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Accordion_basic_demo_only_keeps_one_item_open_and_allows_collapse()
     {
         await using var session = await CreateSession();
@@ -117,7 +116,7 @@ public sealed class QuarkAccordionPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(secondContent).ToHaveCountAsync(0);
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Accordion_demo_preserves_container_width_when_switching_open_items()
     {
         await using var session = await CreateSession();
@@ -162,7 +161,7 @@ public sealed class QuarkAccordionPlaywrightTests : PlaywrightUnitTest
         Assert.True(returnsContentBox.Height >= 40, $"Expected the newly opened accordion panel to render full content height, but measured {returnsContentBox.Height}.");
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Accordion_rtl_demo_preserves_single_open_state_and_rtl_keyboard_navigation()
     {
         await using var session = await CreateSession();
@@ -190,7 +189,7 @@ public sealed class QuarkAccordionPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(secondTrigger).ToHaveAttributeAsync("aria-expanded", "true");
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Accordion_force_mount_demo_keeps_closed_content_mounted_with_closed_state_metadata()
     {
         await using var session = await CreateSession();

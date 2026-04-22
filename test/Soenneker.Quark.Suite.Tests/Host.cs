@@ -1,20 +1,19 @@
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using Soenneker.Fixtures.Unit;
+using Soenneker.TestHosts.Unit;
 using Soenneker.Utils.Test;
-using Soenneker.Blazor.MockJsRuntime.Registrars;
 
 namespace Soenneker.Quark.Suite.Tests;
 
-public sealed class Fixture : UnitFixture
+public sealed class Host : UnitTestHost
 {
-    public override System.Threading.Tasks.ValueTask InitializeAsync()
+    public override ValueTask Initialize()
     {
         SetupIoC(Services);
 
-        Services.AddMockJsRuntimeAsScoped();
-
-        return base.InitializeAsync();
+        return base.Initialize();
     }
 
     private static void SetupIoC(IServiceCollection services)
@@ -24,7 +23,7 @@ public sealed class Fixture : UnitFixture
             builder.AddSerilog(dispose: false);
         });
 
-        var config = TestUtil.BuildConfig();
+        IConfiguration config = TestUtil.BuildConfig();
         services.AddSingleton(config);
     }
 }

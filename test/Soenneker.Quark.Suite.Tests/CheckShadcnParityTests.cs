@@ -1,12 +1,12 @@
 using AwesomeAssertions;
 using Bunit;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void Check_matches_shadcn_checkbox_component_contract()
     {
         var cut = Render<Check>(parameters => parameters
@@ -73,5 +73,26 @@ public sealed partial class RenderedShadcnParityTests
         indicatorClasses.Should().Contain("items-center");
         indicatorClasses.Should().Contain("justify-center");
         indicatorClasses.Should().Contain("text-current");
+    }
+
+    [Test]
+    public void Check_inside_field_preserves_explicit_id_and_renders_without_wrapper()
+    {
+        var cut = Render<Field>(parameters => parameters
+            .Add(p => p.Horizontal, true)
+            .AddChildContent<Check>(child => child
+                .Add(p => p.Id, "idx-terms")
+                .Add(p => p.Checked, true))
+            .AddChildContent<FieldLabel>(child => child
+                .Add(p => p.For, "idx-terms")
+                .Add(p => p.ChildContent, "I agree to the terms and conditions")));
+
+        var field = cut.Find("[data-slot='field']");
+        var checkbox = field.Children[0];
+        var label = cut.Find("[data-slot='field-label']");
+
+        checkbox.GetAttribute("data-slot").Should().Be("checkbox");
+        checkbox.GetAttribute("id").Should().Be("idx-terms");
+        label.GetAttribute("for").Should().Be("idx-terms");
     }
 }

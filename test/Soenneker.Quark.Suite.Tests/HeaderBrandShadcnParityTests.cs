@@ -1,15 +1,16 @@
 using AwesomeAssertions;
 using Bunit;
-using Xunit;
+using HeaderBrandComponent = Soenneker.Quark.Header.HeaderBrand;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void HeaderBrand_matches_docs_shell_link_contract()
     {
-        var cut = Render<HeaderBrand>(parameters => parameters
+        var cut = Render<HeaderBrandComponent>(parameters => parameters
             .Add(p => p.Title, "Soenneker Quark Suite")
             .Add(p => p.Subtitle, "Blazor components for .NET"));
 

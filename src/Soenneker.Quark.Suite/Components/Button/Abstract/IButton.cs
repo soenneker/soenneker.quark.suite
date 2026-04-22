@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace Soenneker.Quark.Components.Surface.Interactive.Buttons.Abstract;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Represents a button component with support for different types, colors, sizes, and states.

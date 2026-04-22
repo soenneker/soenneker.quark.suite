@@ -1,10 +1,10 @@
-using Soenneker.Playwrights.Fixtures;
+using Soenneker.Playwrights.TestHosts;
 using System.IO;
 using Soenneker.Playwrights.TestEnvironment.Options;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-public sealed class QuarkPlaywrightFixture : PlaywrightFixture
+public sealed class QuarkPlaywrightHost : PlaywrightHostedTestHost
 {
     protected override PlaywrightFixtureOptions CreateOptions()
     {

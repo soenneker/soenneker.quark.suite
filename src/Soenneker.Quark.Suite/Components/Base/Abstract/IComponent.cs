@@ -53,6 +53,10 @@ public interface IComponent : ICoreComponent
     CssValue<OverflowBuilder>? OverflowY { get; set; }
     CssValue<OverscrollBuilder>? Overscroll { get; set; }
     CssValue<FlexBuilder>? Flex { get; set; }
+    CssValue<FlexDirectionBuilder>? FlexDirection { get; set; }
+    CssValue<FlexWrapBuilder>? FlexWrap { get; set; }
+    CssValue<GrowBuilder>? Grow { get; set; }
+    CssValue<ShrinkBuilder>? Shrink { get; set; }
     CssValue<GapBuilder>? Gap { get; set; }
     CssValue<SpaceBuilder>? Space { get; set; }
     CssValue<DivideBuilder>? Divide { get; set; }

@@ -1,4 +1,4 @@
-namespace Soenneker.Quark.Themes.Options.Content;
+namespace Soenneker.Quark;
 
 public sealed class CollapseOptions : ComponentOptions
 {

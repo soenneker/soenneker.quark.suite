@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkDrawerPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkDrawerPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkDrawerPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Drawer_demo_updates_goal_state_and_cancel_restores_trigger_focus()
     {
         await using var session = await CreateSession();
@@ -46,7 +45,7 @@ public sealed class QuarkDrawerPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(trigger).ToBeFocusedAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Drawer_sides_and_rtl_examples_emit_expected_direction_attributes_and_close_from_cancel()
     {
         await using var session = await CreateSession();

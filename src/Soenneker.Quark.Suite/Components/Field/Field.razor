@@ -32,6 +32,13 @@
     [Parameter]
     public bool IsInvalid { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the field should render with selectable card/chip styling
+    /// that responds to nested checkbox or radio checked state.
+    /// </summary>
+    [Parameter]
+    public bool Selectable { get; set; }
+
     private readonly FieldContext _fieldContext = new();
 
     protected override void OnInitialized()
@@ -79,6 +86,15 @@
                 AppendClass(ref cls, "flex-row items-center");
                 AppendClass(ref cls, "*:data-[slot=field-label]:flex-auto");
                 AppendClass(ref cls, "has-[>[data-slot=field-content]]:items-start has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px");
+
+                if (Selectable)
+                {
+                    AppendClass(ref cls, "overflow-hidden rounded-lg border px-3! py-1.5! transition-all duration-100 ease-linear");
+                    AppendClass(ref cls, "has-[>[data-slot=checkbox][data-state=checked]]:border-primary/30 has-[>[data-slot=checkbox][data-state=checked]]:bg-primary/5");
+                    AppendClass(ref cls, "dark:has-[>[data-slot=checkbox][data-state=checked]]:border-primary/20 dark:has-[>[data-slot=checkbox][data-state=checked]]:bg-primary/10");
+                    AppendClass(ref cls, "has-[>[data-slot=radio-group-item][data-state=checked]]:border-primary/30 has-[>[data-slot=radio-group-item][data-state=checked]]:bg-primary/5");
+                    AppendClass(ref cls, "dark:has-[>[data-slot=radio-group-item][data-state=checked]]:border-primary/20 dark:has-[>[data-slot=radio-group-item][data-state=checked]]:bg-primary/10");
+                }
             }
             else
             {
@@ -92,6 +108,7 @@
         hc.Add(Horizontal);
         hc.Add(Disabled);
         hc.Add(IsInvalid);
+        hc.Add(Selectable);
         hc.Add(_fieldContext.IsInvalid);
     }
 

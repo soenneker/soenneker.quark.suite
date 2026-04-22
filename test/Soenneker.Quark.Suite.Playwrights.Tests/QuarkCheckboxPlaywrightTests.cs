@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkCheckboxPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkCheckboxPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkCheckboxPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Check_demo_indeterminate_parent_and_children_stay_in_sync()
     {
         await using var session = await CreateSession();
@@ -50,7 +49,7 @@ public sealed class QuarkCheckboxPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(execute).ToHaveAttributeAsync("aria-checked", "false");
     }
 
-[Fact]
+[Test]
     public async ValueTask Checkbox_indeterminate_demo_select_all_and_child_updates_state()
     {
         await using var session = await CreateSession();
@@ -81,7 +80,7 @@ public sealed class QuarkCheckboxPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(selectAll).ToHaveAttributeAsync("aria-checked", "mixed");
     }
 
-[Fact]
+[Test]
     public async ValueTask Check_table_demo_select_all_and_row_selection_update_header_state()
     {
         await using var session = await CreateSession();
@@ -118,7 +117,7 @@ public sealed class QuarkCheckboxPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(row2Tr).Not.ToHaveAttributeAsync("data-state", "selected");
     }
 
-[Fact]
+[Test]
     public async ValueTask Checkbox_form_multiple_requires_one_selection_and_submits_checked_items()
     {
         await using var session = await CreateSession();

@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Soenneker.Quark;
+namespace Soenneker.Quark.Base;
 
 /// <summary>
 /// Base implementation of IQuarkValidator that provides common validation functionality.

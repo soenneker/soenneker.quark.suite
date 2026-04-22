@@ -4,18 +4,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkPopoverPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkPopoverPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Popover_smoke_aschild_trigger_closes_default_open_popover_without_runtime_error()
     {
         await using var session = await CreateSession();
@@ -44,7 +43,7 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
         Assert.False(sawRuntimeError);
     }
 
-[Fact]
+[Test]
     public async ValueTask Popover_demo_preserves_explicit_content_role_over_dialog_default()
     {
         await using var session = await CreateSession();
@@ -78,7 +77,7 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page.GetByRole(AriaRole.Dialog)).ToHaveCountAsync(0);
     }
 
-[Fact]
+[Test]
     public async ValueTask Popover_demo_supports_nested_popover_inside_dialog()
     {
         await using var session = await CreateSession();
@@ -115,7 +114,7 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(dialogTrigger).ToBeFocusedAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Popover_demo_closes_from_escape_after_opening_from_trigger()
     {
         await using var session = await CreateSession();
@@ -143,7 +142,7 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(content).Not.ToBeVisibleAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Popover_demo_opens_and_dismisses_on_outside_click()
     {
         await using var session = await CreateSession();
@@ -173,7 +172,7 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(content).Not.ToBeVisibleAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Popover_demo_controlled_open_state_stays_in_sync_with_external_toggle_and_outside_dismissal()
     {
         await using var session = await CreateSession();

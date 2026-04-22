@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkInputOtpPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkInputOtpPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkInputOtpPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Input_otp_digits_only_demo_distributes_pasted_digits_and_filters_non_numeric_characters()
     {
         await using var session = await CreateSession();
@@ -39,7 +38,7 @@ public sealed class QuarkInputOtpPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(slots.Nth(5)).ToHaveValueAsync(string.Empty);
     }
 
-[Fact]
+[Test]
     public async ValueTask Input_otp_seeded_examples_render_initial_bound_values()
     {
         await using var session = await CreateSession();
@@ -68,7 +67,7 @@ public sealed class QuarkInputOtpPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(alphaSlots.Nth(2)).ToHaveValueAsync(string.Empty);
     }
 
-[Fact]
+[Test]
     public async ValueTask Input_otp_disabled_demo_preserves_existing_value_and_blocks_edits()
     {
         await using var session = await CreateSession();
@@ -102,7 +101,7 @@ public sealed class QuarkInputOtpPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(slots.Nth(5)).ToHaveValueAsync("6");
     }
 
-[Fact]
+[Test]
     public async ValueTask Input_otp_controlled_demo_buttons_keep_slots_in_sync()
     {
         await using var session = await CreateSession();
@@ -142,7 +141,7 @@ public sealed class QuarkInputOtpPlaywrightTests : PlaywrightUnitTest
         }
     }
 
-[Fact]
+[Test]
     public async ValueTask Input_otp_seeded_demo_home_and_end_keys_move_focus_to_first_and_last_filled_slots()
     {
         await using var session = await CreateSession();
@@ -166,7 +165,7 @@ public sealed class QuarkInputOtpPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(first).ToBeFocusedAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Input_otp_default_value_demo_restores_uncontrolled_digits_on_form_reset()
     {
         await using var session = await CreateSession();

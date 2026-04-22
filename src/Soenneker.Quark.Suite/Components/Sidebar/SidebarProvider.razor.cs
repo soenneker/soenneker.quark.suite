@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
+using Soenneker.Quark.Dtos;
 
 namespace Soenneker.Quark;
 

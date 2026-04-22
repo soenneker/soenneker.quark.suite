@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkSelectPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkSelectPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Select_form_demo_requires_selection_before_submit()
     {
         await using var session = await CreateSession();
@@ -31,7 +30,7 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page.GetByText("Please select an email to display.", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Select_demo_portals_content_and_dismisses_on_outside_click()
     {
         await using var session = await CreateSession();
@@ -71,7 +70,7 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(listbox).Not.ToBeVisibleAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Select_demo_home_and_end_keys_move_focus_to_first_and_last_enabled_options()
     {
         await using var session = await CreateSession();
@@ -102,7 +101,7 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(apple).ToHaveAttributeAsync("data-highlighted", string.Empty);
     }
 
-[Fact]
+[Test]
     public async ValueTask Select_native_form_demo_requires_selection_and_submits_selected_value()
     {
         await using var session = await CreateSession();
@@ -140,7 +139,7 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(result).ToContainTextAsync("framework=astro");
     }
 
-[Fact]
+[Test]
     public async ValueTask Select_demo_updates_selection_and_closes_listbox()
     {
         await using var session = await CreateSession();
@@ -168,7 +167,7 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(trigger).ToBeFocusedAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Select_demo_reopen_marks_selected_option_as_checked()
     {
         await using var session = await CreateSession();
@@ -191,7 +190,7 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(selectedOption).ToHaveAttributeAsync("aria-selected", "true");
     }
 
-[Fact]
+[Test]
     public async ValueTask Select_demo_typeahead_moves_focus_to_matching_enabled_option()
     {
         await using var session = await CreateSession();
@@ -218,7 +217,7 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
         Assert.True(await highlightedGrapes.CountAsync() > 0, "Expected a highlighted Grapes option after typeahead.");
     }
 
-[Fact]
+[Test]
     public async ValueTask Select_demo_typeahead_skips_disabled_matching_option()
     {
         await using var session = await CreateSession();

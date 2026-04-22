@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Soenneker.Quark;
+namespace Soenneker.Quark.Tokens;
 
 /// <summary>
 /// Strongly typed semantic and Tailwind theme tokens that can be authored in C# and emitted to CSS at build time.

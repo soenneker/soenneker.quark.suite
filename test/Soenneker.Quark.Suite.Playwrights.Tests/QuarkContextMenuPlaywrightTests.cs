@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkContextMenuPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkContextMenuPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkContextMenuPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Context_menu_demo_persists_checkbox_and_radio_selection_state_across_reopen()
     {
         await using var session = await CreateSession();
@@ -75,7 +74,7 @@ public sealed class QuarkContextMenuPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(comfortable).ToHaveAttributeAsync("aria-checked", "false");
     }
 
-[Fact]
+[Test]
     public async ValueTask Context_menu_demo_supports_nested_menu_inside_modal_dialog()
     {
         await using var session = await CreateSession();
@@ -108,7 +107,7 @@ public sealed class QuarkContextMenuPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(dialog).ToBeVisibleAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Context_menu_demo_opens_from_right_click_and_reveals_submenu()
     {
         await using var session = await CreateSession();

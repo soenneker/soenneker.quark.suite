@@ -1,12 +1,12 @@
 using AwesomeAssertions;
 using Bunit;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void DropdownToggle_default_mode_matches_current_outline_trigger_shell()
     {
         var cut = Render<DropdownToggle>(parameters => parameters
@@ -33,7 +33,7 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().NotContain("py-2");
     }
 
-    [Fact]
+    [Test]
     public void DropdownToggle_split_mode_matches_current_button_shell()
     {
         var cut = Render<DropdownToggle>(parameters => parameters

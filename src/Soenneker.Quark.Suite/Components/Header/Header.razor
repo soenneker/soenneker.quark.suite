@@ -1,44 +1,44 @@
-@namespace Soenneker.Quark
+@namespace Soenneker.Quark.Header
+@using Soenneker.Quark.Dtos
 @inherits Soenneker.Quark.Element
 
 <header @attributes="BuildAttributes()">
     <div class="@ContainerClassValue">
-        <div class="@InnerClassValue" style="min-height: var(--header-height);">
+        <div class="@InnerClassValue">
             @if (ShowSidebarTrigger)
             {
-                <SidebarTrigger Class="@SidebarTriggerClass"
-                                aria-label="@SidebarTriggerLabel">
-                    <OpenContent>
-                        @if (SidebarTriggerOpenContent is not null)
-                        {
-                            @SidebarTriggerOpenContent
-                        }
-                        else
-                        {
-                            <svg class="size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                <path d="M18 6 6 18" />
-                                <path d="m6 6 12 12" />
-                            </svg>
-                        }
-                    </OpenContent>
-                    <ClosedContent>
-                        @if (SidebarTriggerClosedContent is not null)
-                        {
-                            @SidebarTriggerClosedContent
-                        }
-                        else
-                        {
-                            <svg class="size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                <path d="M4 7h16" />
-                                <path d="M4 12h16" />
-                                <path d="M4 17h16" />
-                            </svg>
-                        }
-                    </ClosedContent>
-                    <ChildContent>
-                        <Span class="sr-only">@SidebarTriggerLabel</Span>
-                    </ChildContent>
-                </SidebarTrigger>
+                <button type="button"
+                        data-slot="popover-trigger"
+                        data-variant="ghost"
+                        data-size="default"
+                        aria-label="@SidebarTriggerLabel"
+                        aria-haspopup="dialog"
+                        aria-expanded="@(SidebarIsExpanded ? "true" : "false")"
+                        aria-controls="@SidebarTriggerControls"
+                        data-state="@(SidebarIsExpanded ? "open" : "closed")"
+                        class="@SidebarTriggerClass"
+                        @onclick="HandleSidebarTriggerClick">
+                    @if (SidebarIsExpanded && SidebarTriggerOpenContent is not null)
+                    {
+                        @SidebarTriggerOpenContent
+                    }
+                    else if (SidebarTriggerClosedContent is not null)
+                    {
+                        @SidebarTriggerClosedContent
+                    }
+                    else
+                    {
+                        <div class="relative flex h-8 w-4 items-center justify-center">
+                            <div class="relative size-4">
+                                <span class="absolute left-0 block h-0.5 w-4 bg-foreground transition-all duration-100 top-1"></span>
+                                <span class="absolute left-0 block h-0.5 w-4 bg-foreground transition-all duration-100 top-2.5"></span>
+                            </div>
+                            <span class="sr-only">@SidebarTriggerLabel</span>
+                        </div>
+                    }
+
+                    <span class="flex h-8 items-center text-lg leading-none font-medium">@SidebarTriggerText</span>
+                </button>
             }
 
             @if (BrandContent is not null)
@@ -48,9 +48,9 @@
 
             @if (NavigationContent is not null)
             {
-                <div class="@NavigationClassValue">
+                <nav class="@NavigationClassValue">
                     @NavigationContent
-                </div>
+                </nav>
             }
 
             @if (ActionsContent is not null)
@@ -64,26 +64,38 @@
 </header>
 
 @code {
+    [CascadingParameter(Name = "SidebarProvider")]
+    public SidebarProvider? SidebarProvider { get; set; }
+
+    [CascadingParameter(Name = "SidebarContextState")]
+    public SidebarContextState? SidebarState { get; set; }
+
     [Parameter]
     public bool ShowSidebarTrigger { get; set; }
 
     [Parameter]
-    public string SidebarTriggerLabel { get; set; } = "Toggle navigation";
+    public string SidebarTriggerLabel { get; set; } = "Toggle Menu";
 
     [Parameter]
-    public string ContainerClass { get; set; } = "container-wrapper px-4 sm:px-6";
+    public string SidebarTriggerText { get; set; } = "Menu";
 
     [Parameter]
-    public string InnerClass { get; set; } = "flex items-center gap-3.5 sm:gap-4";
+    public string? SidebarTriggerControls { get; set; }
 
     [Parameter]
-    public string SidebarTriggerClass { get; set; } = "size-8 lg:hidden";
+    public string ContainerClass { get; set; } = "container-wrapper px-6 group-has-data-[slot=designer]/layout:max-w-none 3xl:fixed:px-0";
 
     [Parameter]
-    public string NavigationClass { get; set; } = "hidden items-center gap-1 lg:flex";
+    public string InnerClass { get; set; } = "flex h-(--header-height) items-center **:data-[slot=separator]:h-4! group-has-data-[slot=designer]/layout:fixed:max-w-none 3xl:fixed:container";
 
     [Parameter]
-    public string ActionsClass { get; set; } = "ml-auto flex shrink-0 items-center gap-2 sm:gap-2";
+    public string SidebarTriggerClass { get; set; } = "shrink-0 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 hover:text-accent-foreground px-4 py-2 has-[>svg]:px-3 extend-touch-target h-8 touch-manipulation items-center justify-start gap-2.5 p-0! hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 active:bg-transparent dark:hover:bg-transparent flex lg:hidden";
+
+    [Parameter]
+    public string NavigationClass { get; set; } = "hidden items-center gap-0 lg:flex";
+
+    [Parameter]
+    public string ActionsClass { get; set; } = "ml-auto flex items-center gap-2 md:flex-1 md:justify-end";
 
     [Parameter]
     public RenderFragment? BrandContent { get; set; }
@@ -104,6 +116,13 @@
     private string InnerClassValue => ClassNames.Combine(InnerClass);
     private string NavigationClassValue => ClassNames.Combine(NavigationClass);
     private string ActionsClassValue => ClassNames.Combine(ActionsClass);
+    private bool SidebarIsExpanded => SidebarState?.IsMobile == true ? SidebarState?.OpenMobile == true : SidebarState?.Open == true;
+
+    private async Task HandleSidebarTriggerClick()
+    {
+        if (SidebarProvider is not null)
+            await SidebarProvider.ToggleSidebar();
+    }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
@@ -113,7 +132,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "sticky top-0 z-50 w-full shrink-0 border-b bg-background");
+            AppendClass(ref cls, "sticky top-0 z-50 w-full bg-background");
         });
     }
 
@@ -122,6 +141,9 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(ShowSidebarTrigger);
         hc.Add(SidebarTriggerLabel);
+        hc.Add(SidebarTriggerText);
+        hc.Add(SidebarTriggerControls);
+        hc.Add(SidebarIsExpanded);
         hc.Add(ContainerClass);
         hc.Add(InnerClass);
         hc.Add(SidebarTriggerClass);

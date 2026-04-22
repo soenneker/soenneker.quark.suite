@@ -1,13 +1,13 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void Drawer_content_and_overlay_match_shadcn_default_component_contract()
     {
         var cut = Render<Drawer>(parameters => parameters
@@ -67,7 +67,7 @@ public sealed partial class RenderedShadcnParityTests
         contentClasses.Should().Contain("data-[state=open]:slide-in-from-bottom");
     }
 
-    [Fact]
+    [Test]
     public void Drawer_trigger_aschild_preserves_drawer_trigger_slot_on_child_button()
     {
         var cut = Render<DrawerTrigger>(parameters => parameters

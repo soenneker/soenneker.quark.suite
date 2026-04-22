@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkSidebarPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkSidebarPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkSidebarPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Sidebar_mobile_demo_opens_full_screen_sheet_and_closes_from_internal_trigger()
     {
         await using var session = await CreateSession();
@@ -50,7 +49,7 @@ public sealed class QuarkSidebarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(sheetContent).ToHaveCountAsync(0);
     }
 
-[Fact]
+[Test]
     public async ValueTask Sidebar_controlled_demo_tracks_parent_buttons_and_trigger_state()
     {
         await using var session = await CreateSession();

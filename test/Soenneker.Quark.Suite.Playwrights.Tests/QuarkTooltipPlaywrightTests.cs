@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkTooltipPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkTooltipPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkTooltipPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Tooltip_demo_hides_basic_content_after_pointer_leaves_trigger_and_content()
     {
         await using var session = await CreateSession();
@@ -38,7 +37,7 @@ public sealed class QuarkTooltipPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(basicTooltip).ToHaveCountAsync(0);
     }
 
-[Fact]
+[Test]
     public async ValueTask Tooltip_demo_reveals_basic_content_on_hover()
     {
         await using var session = await CreateSession();
@@ -59,7 +58,7 @@ public sealed class QuarkTooltipPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(basicTrigger).ToHaveAttributeAsync("aria-describedby", new System.Text.RegularExpressions.Regex(".+"));
     }
 
-[Fact]
+[Test]
     public async ValueTask Tooltip_demo_transfers_open_state_between_sibling_triggers()
     {
         await using var session = await CreateSession();
@@ -93,7 +92,7 @@ public sealed class QuarkTooltipPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(openTopTooltip).Not.ToBeVisibleAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Tooltip_demo_supports_nested_tooltip_inside_modal_dialog()
     {
         await using var session = await CreateSession();

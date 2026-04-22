@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkSheetPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkSheetPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkSheetPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Sheet_demo_uses_portal_and_closes_on_outside_click()
     {
         await using var session = await CreateSession();
@@ -47,7 +46,7 @@ public sealed class QuarkSheetPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(trigger).ToBeFocusedAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Sheet_scrollable_demo_respects_bound_visibility_and_close_button_dismiss()
     {
         await using var session = await CreateSession();

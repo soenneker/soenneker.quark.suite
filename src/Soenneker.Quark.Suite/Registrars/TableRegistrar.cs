@@ -1,8 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-
-namespace Soenneker.Quark.Registrars;
+namespace Soenneker.Quark;
 
 /// <summary>
 /// Service registrar for Quark.Table

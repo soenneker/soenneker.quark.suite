@@ -3,27 +3,25 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkAspectRatioPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkAspectRatioPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkAspectRatioPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+    [Test]
     public async ValueTask Aspect_ratio_examples_preserve_landscape_square_and_portrait_frames()
     {
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady(
-            $"{BaseUrl}aspect-ratios",
-            static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Portrait ratios work well for mobile previews and editorial imagery." }).First,
-            expectedTitle: "Aspect Ratio - Quark Suite");
+        await page.GotoAndWaitForReady($"{BaseUrl}aspect-ratios",
+            static p => p.Locator("section").Filter(new LocatorFilterOptions
+                { HasText = "Portrait ratios work well for mobile previews and editorial imagery." }).First, expectedTitle: "Aspect Ratio - Quark Suite");
 
         var landscapeFrame = page.Locator("#aspect-ratio-landscape-demo [data-radix-aspect-ratio-wrapper]");
         var squareFrame = page.Locator("#aspect-ratio-square-demo [data-radix-aspect-ratio-wrapper]");

@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkMenubarPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkMenubarPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Menubar_demo_end_key_moves_focus_to_last_top_level_trigger()
     {
         await using var session = await CreateSession();
@@ -39,7 +38,7 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(file).ToBeFocusedAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Menubar_demo_closes_from_single_outside_click()
     {
         await using var session = await CreateSession();
@@ -62,7 +61,7 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page.Locator("[role='menu']:visible")).ToHaveCountAsync(0);
     }
 
-[Fact]
+[Test]
     public async ValueTask Menubar_rtl_demo_inverts_horizontal_arrow_navigation()
     {
         await using var session = await CreateSession();
@@ -86,7 +85,7 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(file).ToBeFocusedAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Menubar_demo_escape_closes_submenu_before_parent_menu()
     {
         await using var session = await CreateSession();
@@ -134,7 +133,7 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(fileTrigger).ToBeFocusedAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Menubar_demo_roves_focus_across_top_level_triggers_and_opens_adjacent_menu_with_arrow_keys()
     {
         await using var session = await CreateSession();
@@ -171,7 +170,7 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page.Locator("[role='menu']:visible").First).ToContainTextAsync("New Tab");
     }
 
-[Fact]
+[Test]
     public async ValueTask Menubar_demo_persists_radio_and_checkbox_item_state_across_reopen()
     {
         await using var session = await CreateSession();

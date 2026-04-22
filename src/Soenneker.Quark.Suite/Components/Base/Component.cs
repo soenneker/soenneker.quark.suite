@@ -150,6 +150,18 @@ public abstract class Component : RenderComponent, IComponent
     public CssValue<FlexBuilder>? Flex { get; set; }
 
     [Parameter]
+    public CssValue<FlexDirectionBuilder>? FlexDirection { get; set; }
+
+    [Parameter]
+    public CssValue<FlexWrapBuilder>? FlexWrap { get; set; }
+
+    [Parameter]
+    public CssValue<GrowBuilder>? Grow { get; set; }
+
+    [Parameter]
+    public CssValue<ShrinkBuilder>? Shrink { get; set; }
+
+    [Parameter]
     public CssValue<GapBuilder>? Gap { get; set; }
 
     [Parameter]
@@ -300,6 +312,10 @@ public abstract class Component : RenderComponent, IComponent
         AddCss(ref sty, ref cls, OverflowY);
         AddCss(ref sty, ref cls, Overscroll);
         AddCss(ref sty, ref cls, Flex);
+        AddCss(ref sty, ref cls, FlexDirection);
+        AddCss(ref sty, ref cls, FlexWrap);
+        AddCss(ref sty, ref cls, Grow);
+        AddCss(ref sty, ref cls, Shrink);
         AddCss(ref sty, ref cls, Gap);
         AddCss(ref sty, ref cls, Space);
         AddCss(ref sty, ref cls, Divide);
@@ -431,6 +447,10 @@ public abstract class Component : RenderComponent, IComponent
         AddIf(ref hc, OverflowY);
         AddIf(ref hc, Overscroll);
         AddIf(ref hc, Flex);
+        AddIf(ref hc, FlexDirection);
+        AddIf(ref hc, FlexWrap);
+        AddIf(ref hc, Grow);
+        AddIf(ref hc, Shrink);
         AddIf(ref hc, Gap);
         AddIf(ref hc, Space);
         AddIf(ref hc, Divide);

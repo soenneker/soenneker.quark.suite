@@ -389,6 +389,25 @@
 		};
 	}
 
+	private double GetThumbSizeInPixels()
+	{
+		var sizeValue = Size?.ToString();
+
+		return sizeValue?.ToLowerInvariant() switch
+		{
+			"lg" => 16d,
+			_ => 12d
+		};
+	}
+
+	private double GetThumbInBoundsOffset(double percent)
+	{
+		var thumbSize = GetThumbSizeInPixels();
+		var halfThumb = thumbSize / 2d;
+
+		return halfThumb - ((percent / 100d) * thumbSize);
+	}
+
 	private Dictionary<string, object> BuildWrapperAttributes()
 	{
 		var attributes = new Dictionary<string, object>();
@@ -421,6 +440,7 @@
 		attributes["data-js-ready"] = _sliderBridgeRegistered ? "true" : "false";
 		attributes["dir"] = ResolveIsRtl() ? "rtl" : "ltr";
 		attributes["aria-disabled"] = Disabled ? "true" : "false";
+		AppendOrientationDataAttributes(attributes);
 
 		if (CurrentFieldContext is not null && !attributes.ContainsKey("id"))
 			attributes["id"] = CurrentFieldContext.ControlId;
@@ -462,6 +482,7 @@
 			["data-slot"] = "slider-track",
 			["data-orientation"] = OrientationValue
 		};
+		AppendOrientationDataAttributes(attributes);
 
 		BuildClassAttribute(attributes, (ref cls) =>
 		{
@@ -476,6 +497,7 @@
 	{
 		var percent = ValueToPercent(value);
 		var percentText = percent.ToString("F2", CultureInfo.InvariantCulture) + "%";
+		var offset = GetThumbInBoundsOffset(percent);
 
 		var attributes = new Dictionary<string, object>();
 
@@ -493,9 +515,9 @@
 				AppendStyleDecl(ref sty, "position: absolute");
 
 				if (IsHorizontalRtl)
-					AppendStyleDecl(ref sty, $"right: calc({percentText} - 3.6px)");
+					AppendStyleDecl(ref sty, $"right: calc({percentText} {(offset < 0d ? "-" : "+")} {Math.Abs(offset).ToString("0.0###", CultureInfo.InvariantCulture)}px)");
 				else
-					AppendStyleDecl(ref sty, $"left: calc({percentText} + 3.6px)");
+					AppendStyleDecl(ref sty, $"left: calc({percentText} {(offset < 0d ? "-" : "+")} {Math.Abs(offset).ToString("0.0###", CultureInfo.InvariantCulture)}px)");
 			}
 		});
 
@@ -513,6 +535,7 @@
 			["data-slot"] = "slider-range",
 			["data-orientation"] = OrientationValue
 		};
+		AppendOrientationDataAttributes(attributes);
 
 		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
 		{
@@ -558,6 +581,7 @@
 			["aria-orientation"] = OrientationValue,
 			["data-radix-collection-item"] = ""
 		};
+		AppendOrientationDataAttributes(attributes);
 
 		if (thumbLabel is not null)
 			attributes["aria-label"] = thumbLabel;
@@ -607,6 +631,14 @@
 		});
 
 		return attributes;
+	}
+
+	private void AppendOrientationDataAttributes(IDictionary<string, object> attributes)
+	{
+		if (IsVertical)
+			attributes["data-vertical"] = string.Empty;
+		else
+			attributes["data-horizontal"] = string.Empty;
 	}
 
 	private string? ResolveThumbLabel(int index, int totalValues)

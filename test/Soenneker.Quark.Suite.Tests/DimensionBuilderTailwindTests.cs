@@ -1,42 +1,42 @@
-using Xunit;
+using AwesomeAssertions;
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed class DimensionBuilderTailwindTests
 {
-    [Fact]
+    [Test]
     public void Width_percent_alias_maps_to_tailwind_fraction()
     {
-        Assert.Equal("w-1/4", Width.Is25.ToClass());
+        Width.Is25.ToClass().Should().Be("w-1/4");
     }
 
-    [Fact]
+    [Test]
     public void Width_screen_maps_to_tailwind_width_screen()
     {
-        Assert.Equal("w-screen", Width.IsScreen.ToClass());
+        Width.IsScreen.ToClass().Should().Be("w-screen");
     }
 
-    [Fact]
+    [Test]
     public void Width_custom_token_maps_to_tailwind_width_utility()
     {
-        Assert.Equal("w-72", Width.Token("72").ToClass());
+        Width.Token("72").ToClass().Should().Be("w-72");
     }
 
-    [Fact]
+    [Test]
     public void Height_percent_alias_maps_to_tailwind_fraction()
     {
-        Assert.Equal("h-1/2", Height.Is50.ToClass());
+        Height.Is50.ToClass().Should().Be("h-1/2");
     }
 
-    [Fact]
+    [Test]
     public void Height_screen_maps_to_tailwind_height_screen()
     {
-        Assert.Equal("h-screen", Height.IsScreen.ToClass());
+        Height.IsScreen.ToClass().Should().Be("h-screen");
     }
 
-    [Fact]
+    [Test]
     public void Height_custom_token_maps_to_tailwind_height_utility()
     {
-        Assert.Equal("h-72", Height.Token("72").ToClass());
+        Height.Token("72").ToClass().Should().Be("h-72");
     }
 }

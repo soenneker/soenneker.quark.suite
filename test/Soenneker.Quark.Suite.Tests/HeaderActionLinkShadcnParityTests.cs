@@ -1,15 +1,16 @@
 using AwesomeAssertions;
 using Bunit;
-using Xunit;
+using HeaderActionLinkComponent = Soenneker.Quark.Header.HeaderActionLink;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void HeaderActionLink_matches_docs_header_button_contract()
     {
-        var cut = Render<Soenneker.Quark.HeaderActionLink>(parameters => parameters
+        var cut = Render<HeaderActionLinkComponent>(parameters => parameters
             .Add(p => p.To, "https://example.com")
             .Add(p => p.Label, "GitHub")
             .Add(p => p.AriaLabel, "View GitHub"));

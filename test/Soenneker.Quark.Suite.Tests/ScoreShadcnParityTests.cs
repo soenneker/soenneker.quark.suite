@@ -1,12 +1,12 @@
 using AwesomeAssertions;
 using Bunit;
-using Xunit;
+
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
-    [Fact]
+    [Test]
     public void Score_slots_use_data_slot_hooks_instead_of_legacy_q_classes()
     {
         var cut = Render<Score>(parameters => parameters

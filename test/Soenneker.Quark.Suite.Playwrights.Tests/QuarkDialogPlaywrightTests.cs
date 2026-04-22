@@ -4,18 +4,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkDialogPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkDialogPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Dialog_demo_traps_focus_and_restores_trigger_focus_after_escape()
     {
         await using var session = await CreateSession();
@@ -60,7 +59,7 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(trigger).ToBeFocusedAsync();
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Dialog_demo_respects_backdrop_dismiss_configuration()
     {
         await using var session = await CreateSession();
@@ -99,7 +98,7 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(guardedDialog).Not.ToBeVisibleAsync();
     }
 
-    [Fact]
+    [Test]
     public async ValueTask Dialog_demo_supports_select_nested_inside_modal_dialog()
     {
         await using var session = await CreateSession();

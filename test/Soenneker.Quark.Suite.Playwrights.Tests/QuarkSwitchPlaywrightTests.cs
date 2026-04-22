@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkSwitchPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkSwitchPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkSwitchPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Switch_inline_content_demo_label_clicks_toggle_wrapped_switches()
     {
         await using var session = await CreateSession();
@@ -39,7 +38,7 @@ public sealed class QuarkSwitchPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(darkMode).ToHaveAttributeAsync("aria-checked", "true");
     }
 
-[Fact]
+[Test]
     public async ValueTask Switch_form_toggles_marketing_and_preserves_disabled_security_value()
     {
         await using var session = await CreateSession();

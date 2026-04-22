@@ -3,18 +3,17 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkDropdownMenuPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkDropdownMenuPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkDropdownMenuPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+[Test]
     public async ValueTask Dropdown_demo_action_item_opens_dialog_after_menu_selection()
     {
         await using var session = await CreateSession();
@@ -42,7 +41,7 @@ public sealed class QuarkDropdownMenuPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(dialog.GetByLabel("Email Address")).ToBeVisibleAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Dropdown_demo_exposes_disabled_item_state()
     {
         await using var session = await CreateSession();
@@ -64,7 +63,7 @@ public sealed class QuarkDropdownMenuPlaywrightTests : PlaywrightUnitTest
 
     }
 
-[Fact]
+[Test]
     public async ValueTask Dropdown_submenu_home_and_end_keys_move_focus_to_first_and_last_items()
     {
         await using var session = await CreateSession();
@@ -100,7 +99,7 @@ public sealed class QuarkDropdownMenuPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(calendar).ToBeFocusedAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Dropdown_demo_positions_menu_below_trigger_and_above_surrounding_content()
     {
         await using var session = await CreateSession();
@@ -137,7 +136,7 @@ public sealed class QuarkDropdownMenuPlaywrightTests : PlaywrightUnitTest
         Assert.Equal("menu", topElementRole);
     }
 
-[Fact]
+[Test]
     public async ValueTask Dropdown_demo_supports_nested_menu_inside_dialog()
     {
         await using var session = await CreateSession();
@@ -177,7 +176,7 @@ public sealed class QuarkDropdownMenuPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(dialog).ToBeVisibleAsync();
     }
 
-[Fact]
+[Test]
     public async ValueTask Dropdown_demo_keeps_complex_checkbox_and_radio_selection_menu_open()
     {
         await using var session = await CreateSession();
@@ -216,7 +215,7 @@ public sealed class QuarkDropdownMenuPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(editor).ToHaveAttributeAsync("aria-checked", "false");
     }
 
-[Fact]
+[Test]
     public async ValueTask Dropdown_demo_home_and_end_keys_move_focus_to_first_and_last_items()
     {
         await using var session = await CreateSession();

@@ -3,25 +3,23 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
-[Collection("Collection")]
+[ClassDataSource<QuarkPlaywrightHost>(Shared = SharedType.PerTestSession)]
 public sealed class QuarkAlertDialogPlaywrightTests : PlaywrightUnitTest
 {
-    public QuarkAlertDialogPlaywrightTests(QuarkPlaywrightFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public QuarkAlertDialogPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
     }
 
-[Fact]
+    [Test]
     public async ValueTask Alert_dialog_demo_stays_open_on_outside_click_and_escape()
     {
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady(
-            $"{BaseUrl}alert-dialogs",
+        await page.GotoAndWaitForReady($"{BaseUrl}alert-dialogs",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Show Dialog", Exact = true }),
             expectedTitle: "Alert Dialogs - Quark Suite");
 
@@ -41,14 +39,13 @@ public sealed class QuarkAlertDialogPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(dialog).ToHaveAttributeAsync("data-state", "open");
     }
 
-[Fact]
+    [Test]
     public async ValueTask Alert_dialog_demo_cancel_closes()
     {
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady(
-            $"{BaseUrl}alert-dialogs",
+        await page.GotoAndWaitForReady($"{BaseUrl}alert-dialogs",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Show Dialog", Exact = true }),
             expectedTitle: "Alert Dialogs - Quark Suite");
 
@@ -73,14 +70,13 @@ public sealed class QuarkAlertDialogPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(trigger).ToBeFocusedAsync();
     }
 
-[Fact]
+    [Test]
     public async ValueTask Alert_dialog_destructive_demo_closes_from_action()
     {
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady(
-            $"{BaseUrl}alert-dialogs",
+        await page.GotoAndWaitForReady($"{BaseUrl}alert-dialogs",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Delete project", Exact = true }),
             expectedTitle: "Alert Dialogs - Quark Suite");
 
@@ -95,14 +91,13 @@ public sealed class QuarkAlertDialogPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(dialog).Not.ToBeVisibleAsync();
     }
 
-[Fact]
+    [Test]
     public async ValueTask Alert_dialog_demo_action_closes_and_restores_trigger_focus()
     {
         await using var session = await CreateSession();
         var page = session.Page;
 
-        await page.GotoAndWaitForReady(
-            $"{BaseUrl}alert-dialogs",
+        await page.GotoAndWaitForReady($"{BaseUrl}alert-dialogs",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Show Dialog", Exact = true }),
             expectedTitle: "Alert Dialogs - Quark Suite");
 
@@ -117,6 +112,7 @@ public sealed class QuarkAlertDialogPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(dialog).Not.ToBeVisibleAsync();
         await Assertions.Expect(trigger).ToBeFocusedAsync();
     }
+
     private static async Task ClickJustOutsideAsync(IPage page, ILocator locator)
     {
         var box = await locator.BoundingBoxAsync();

@@ -1,15 +1,16 @@
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Blazor.Utils.Ids
 @using Soenneker.Bradix
+@using BradixCheckboxCheckedState = Soenneker.Bradix.Enums.BradixCheckboxCheckedState
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.ToggleElement
 @implements Soenneker.Quark.IValidationInput
 @implements ICheck
 
-<div @attributes="BuildWrapperAttributes()">
-    @if (HasInlineLabel)
-    {
+@if (HasInlineLabel)
+{
+    <div @attributes="BuildWrapperAttributes()">
         <label @attributes="BuildLabelAttributes()">
             <BradixCheckbox Checked="@CurrentCheckedState"
                             Required="@Required"
@@ -38,29 +39,29 @@
                 @Label
             }
         </label>
-    }
-    else
-    {
-        <BradixCheckbox Checked="@CurrentCheckedState"
-                        Required="@Required"
-                        Disabled="@Disabled"
-                        Name="@Name"
-                        Value="@ResolvedCheckboxValue"
-                        CheckedChanged="HandleCheckedStateChanged"
-                        AdditionalAttributes="@BuildControlAttributes()">
-            <BradixCheckboxIndicator AdditionalAttributes="@BuildIndicatorAttributes()">
-                @if (Indeterminate)
-                {
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M5 12h14"/></svg>
-                }
-                else
-                {
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M20 6 9 17 4 12"/></svg>
-                }
-            </BradixCheckboxIndicator>
-        </BradixCheckbox>
-    }
-</div>
+    </div>
+}
+else
+{
+    <BradixCheckbox Checked="@CurrentCheckedState"
+                    Required="@Required"
+                    Disabled="@Disabled"
+                    Name="@Name"
+                    Value="@ResolvedCheckboxValue"
+                    CheckedChanged="HandleCheckedStateChanged"
+                    AdditionalAttributes="@BuildControlAttributes()">
+        <BradixCheckboxIndicator AdditionalAttributes="@BuildIndicatorAttributes()">
+            @if (Indeterminate)
+            {
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M5 12h14"/></svg>
+            }
+            else
+            {
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0"><path d="M20 6 9 17 4 12"/></svg>
+            }
+        </BradixCheckboxIndicator>
+    </BradixCheckbox>
+}
 
 @code {
     public override string? Id { get; set; } = BlazorIdGenerator.New("quark-check");
@@ -98,7 +99,7 @@
     public object? ValidationValue => Checked;
 
     private bool HasInlineLabel => ChildContent is not null || Label.HasContent();
-    private string ControlId => CurrentFieldContext?.ControlId ?? Id!;
+    private string ControlId => Id ?? CurrentFieldContext?.ControlId ?? string.Empty;
     private string ResolvedCheckboxValue => Value.HasContent() ? Value! : "on";
     private BradixCheckboxCheckedState CurrentCheckedState => Indeterminate
         ? BradixCheckboxCheckedState.Indeterminate
