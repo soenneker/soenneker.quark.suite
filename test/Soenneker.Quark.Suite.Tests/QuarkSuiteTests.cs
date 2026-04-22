@@ -1,13 +1,10 @@
 using AwesomeAssertions;
-using Soenneker.TestHosts.Unit;
-using Soenneker.Tests.HostedUnit;
+using Soenneker.Tests.Unit;
 
 namespace Soenneker.Quark.Suite.Tests;
 
-[ClassDataSource<UnitTestHost>(Shared = SharedType.PerTestSession)]
-public sealed class QuarkSuiteTests(UnitTestHost host) : HostedUnitTest(host)
+public sealed class QuarkSuiteTests : UnitTest
 {
-
     [Test]
     public void Default()
     {
