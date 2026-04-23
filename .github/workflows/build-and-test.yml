@@ -31,14 +31,14 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: Restore tests
-        run: dotnet restore test/Soenneker.Quark.Suite.Demo/Soenneker.Quark.Suite.Demo.csproj --verbosity minimal
+      - name: Restore
+        run: dotnet restore Soenneker.Quark.Suite.slnx --verbosity minimal
 
-      - name: Build tests
-        run: dotnet build test/Soenneker.Quark.Suite.Demo/Soenneker.Quark.Suite.Demo.csproj --configuration Release --no-restore --verbosity minimal
+      - name: Build
+        run: dotnet build Soenneker.Quark.Suite.slnx --configuration Release --no-restore --verbosity minimal
 
       - name: Test
-        run: dotnet test --project test/Soenneker.Quark.Suite.Demo/Soenneker.Quark.Suite.Demo.csproj --configuration Release --no-build --no-restore --verbosity minimal
+        run: dotnet test --project test/Soenneker.Quark.Suite.Tests/Soenneker.Quark.Suite.Tests.csproj --configuration Release --no-build --no-restore --verbosity minimal
 
       - name: Pack
         run: dotnet pack src/Soenneker.Quark.Suite/Soenneker.Quark.Suite.csproj --configuration Release --no-build --no-restore --output . --verbosity minimal
