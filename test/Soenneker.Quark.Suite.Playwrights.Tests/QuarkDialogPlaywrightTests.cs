@@ -2,9 +2,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
-using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
+using AwesomeAssertions;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -37,7 +36,7 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(dialog).ToHaveAttributeAsync("aria-modal", "true");
         await Assertions.Expect(dialog).ToHaveAttributeAsync("data-state", "open");
         await Assertions.Expect(overlay).ToHaveAttributeAsync("data-state", "open");
-        Xunit.Assert.True(await WaitForDialogTabBoundaryAsync(dialog, first: true));
+        (await WaitForDialogTabBoundaryAsync(dialog, first: true)).Should().BeTrue();
 
         var renderedOutsideMain = await page.EvaluateAsync<bool>(
             "() => {" +
@@ -46,13 +45,13 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
             "return !!dialog && document.body.contains(dialog) && !!main && !main.contains(dialog);" +
             "}");
 
-        Xunit.Assert.True(renderedOutsideMain);
+        (renderedOutsideMain).Should().BeTrue();
 
         await page.Keyboard.PressAsync("Shift+Tab");
-        Xunit.Assert.True(await WaitForDialogTabBoundaryAsync(dialog, first: false));
+        (await WaitForDialogTabBoundaryAsync(dialog, first: false)).Should().BeTrue();
 
         await page.Keyboard.PressAsync("Tab");
-        Xunit.Assert.True(await WaitForDialogTabBoundaryAsync(dialog, first: true));
+        (await WaitForDialogTabBoundaryAsync(dialog, first: true)).Should().BeTrue();
 
         await page.Keyboard.PressAsync("Escape");
 

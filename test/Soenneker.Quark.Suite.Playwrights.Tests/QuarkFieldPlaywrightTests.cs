@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
-using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
+using AwesomeAssertions;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -41,16 +40,16 @@ public sealed class QuarkFieldPlaywrightTests : PlaywrightUnitTest
         var cardNumberBox = await cardNumber.BoundingBoxAsync();
         var commentsBox = await comments.BoundingBoxAsync();
 
-        Xunit.Assert.NotNull(sectionBox);
-        Xunit.Assert.NotNull(formBox);
-        Xunit.Assert.NotNull(cardNameBox);
-        Xunit.Assert.NotNull(cardNumberBox);
-        Xunit.Assert.NotNull(commentsBox);
+        (sectionBox).Should().NotBeNull();
+        (formBox).Should().NotBeNull();
+        (cardNameBox).Should().NotBeNull();
+        (cardNumberBox).Should().NotBeNull();
+        (commentsBox).Should().NotBeNull();
 
-        Xunit.Assert.InRange(formBox.Width, 400, 520);
-        Xunit.Assert.True(formBox.Width < sectionBox.Width, $"Expected the payment form to remain medium-width inside the preview, but measured form={formBox.Width} section={sectionBox.Width}.");
-        Xunit.Assert.True(cardNameBox.Width >= 300, $"Expected the card name input to render at usable width, but measured {cardNameBox.Width}.");
-        Xunit.Assert.True(cardNumberBox.Width >= 300, $"Expected the card number input to render at usable width, but measured {cardNumberBox.Width}.");
-        Xunit.Assert.True(commentsBox.Width >= 300, $"Expected the comments textarea to render at usable width, but measured {commentsBox.Width}.");
+        (formBox.Width).Should().BeInRange(400, 520);
+        (formBox.Width < sectionBox.Width).Should().BeTrue();
+        (cardNameBox.Width >= 300).Should().BeTrue();
+        (cardNumberBox.Width >= 300).Should().BeTrue();
+        (commentsBox.Width >= 300).Should().BeTrue();
     }
 }

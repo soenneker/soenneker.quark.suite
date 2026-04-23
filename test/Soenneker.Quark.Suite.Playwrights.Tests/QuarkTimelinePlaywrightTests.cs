@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
-using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;

@@ -2,9 +2,8 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
-using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
+using AwesomeAssertions;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -93,8 +92,8 @@ public sealed class QuarkAccordionPlaywrightTests : PlaywrightUnitTest
         var firstPanelId = await firstTrigger.GetAttributeAsync("aria-controls");
         var secondPanelId = await secondTrigger.GetAttributeAsync("aria-controls");
 
-        Xunit.Assert.False(string.IsNullOrWhiteSpace(firstPanelId));
-        Xunit.Assert.False(string.IsNullOrWhiteSpace(secondPanelId));
+        (string.IsNullOrWhiteSpace(firstPanelId)).Should().BeFalse();
+        (string.IsNullOrWhiteSpace(secondPanelId)).Should().BeFalse();
 
         var firstContent = page.Locator($"#{firstPanelId}");
         var secondContent = page.Locator($"#{secondPanelId}");
@@ -136,30 +135,30 @@ public sealed class QuarkAccordionPlaywrightTests : PlaywrightUnitTest
         var returnsTrigger = demoSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "What is your return policy?", Exact = true });
 
         var shippingPanelId = await shippingTrigger.GetAttributeAsync("aria-controls");
-        Xunit.Assert.False(string.IsNullOrWhiteSpace(shippingPanelId));
+        (string.IsNullOrWhiteSpace(shippingPanelId)).Should().BeFalse();
 
         var shippingContent = page.Locator($"#{shippingPanelId}");
         var initialBox = await accordionContainer.BoundingBoxAsync();
-        Xunit.Assert.NotNull(initialBox);
-        Xunit.Assert.InRange(initialBox.Width, 300, 420);
+        (initialBox).Should().NotBeNull();
+        (initialBox.Width).Should().BeInRange(300, 420);
 
         var shippingContentBox = await shippingContent.BoundingBoxAsync();
-        Xunit.Assert.NotNull(shippingContentBox);
-        Xunit.Assert.True(shippingContentBox.Height >= 40, $"Expected the initially open accordion panel to render full content height, but measured {shippingContentBox.Height}.");
+        (shippingContentBox).Should().NotBeNull();
+        (shippingContentBox.Height >= 40).Should().BeTrue();
 
         await returnsTrigger.ClickAsync();
 
         var afterSwitchBox = await accordionContainer.BoundingBoxAsync();
-        Xunit.Assert.NotNull(afterSwitchBox);
-        Xunit.Assert.InRange(Math.Abs(afterSwitchBox.Width - initialBox.Width), 0, 2);
+        (afterSwitchBox).Should().NotBeNull();
+        (Math.Abs(afterSwitchBox.Width - initialBox.Width)).Should().BeInRange(0, 2);
 
         var returnsPanelId = await returnsTrigger.GetAttributeAsync("aria-controls");
-        Xunit.Assert.False(string.IsNullOrWhiteSpace(returnsPanelId));
+        (string.IsNullOrWhiteSpace(returnsPanelId)).Should().BeFalse();
 
         var returnsContent = page.Locator($"#{returnsPanelId}");
         var returnsContentBox = await returnsContent.BoundingBoxAsync();
-        Xunit.Assert.NotNull(returnsContentBox);
-        Xunit.Assert.True(returnsContentBox.Height >= 40, $"Expected the newly opened accordion panel to render full content height, but measured {returnsContentBox.Height}.");
+        (returnsContentBox).Should().NotBeNull();
+        (returnsContentBox.Height >= 40).Should().BeTrue();
     }
 
     [Test]
@@ -219,7 +218,7 @@ public sealed class QuarkAccordionPlaywrightTests : PlaywrightUnitTest
     private static async Task ExpectActiveElementAsync(IPage page, ILocator locator)
     {
         var id = await locator.GetAttributeAsync("id");
-        Xunit.Assert.False(string.IsNullOrWhiteSpace(id));
+        (string.IsNullOrWhiteSpace(id)).Should().BeFalse();
 
         await page.WaitForFunctionAsync(
             "(expectedId) => document.activeElement?.id === expectedId",

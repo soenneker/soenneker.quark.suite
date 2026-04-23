@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
-using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
+using AwesomeAssertions;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -102,9 +101,9 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(viewport).ToContainTextAsync("Installation");
 
         var viewportBox = await viewport.BoundingBoxAsync();
-        Xunit.Assert.NotNull(viewportBox);
-        Xunit.Assert.True(viewportBox.Width >= 320, $"Expected the shared navigation viewport to expand beyond a sliver, but measured width {viewportBox.Width}.");
-        Xunit.Assert.True(viewportBox.Height >= 120, $"Expected the shared navigation viewport to show full content, but measured height {viewportBox.Height}.");
+        (viewportBox).Should().NotBeNull();
+        (viewportBox.Width >= 320).Should().BeTrue();
+        (viewportBox.Height >= 120).Should().BeTrue();
     }
 
 [Test]
@@ -158,7 +157,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(gettingStarted).ToHaveAttributeAsync("aria-expanded", "false");
         await Assertions.Expect(guides).ToHaveAttributeAsync("aria-expanded", "false");
         await Assertions.Expect(section.Locator("[data-slot='navigation-menu-content'][data-state='open']")).ToHaveCountAsync(0);
-        Xunit.Assert.Null(await docs.GetAttributeAsync("aria-expanded"));
+        (await docs.GetAttributeAsync("aria-expanded")).Should().BeNull();
 
         await gettingStarted.ClickAsync();
 

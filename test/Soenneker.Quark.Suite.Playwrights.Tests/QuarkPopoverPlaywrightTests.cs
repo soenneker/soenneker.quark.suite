@@ -2,9 +2,8 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
-using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
+using AwesomeAssertions;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -41,7 +40,7 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
         await trigger.ClickAsync();
 
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
-        Xunit.Assert.False(sawRuntimeError);
+        (sawRuntimeError).Should().BeFalse();
     }
 
 [Test]
@@ -70,11 +69,11 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
                 };
             }");
 
-        Xunit.Assert.NotNull(popupState);
-        Xunit.Assert.Equal("listbox", popupState.role);
-        Xunit.Assert.Equal("Framework choices", popupState.ariaLabel);
-        Xunit.Assert.Equal("open", popupState.dataState);
-        Xunit.Assert.Equal("Astro", popupState.selectedText);
+        (popupState).Should().NotBeNull();
+        (popupState.role).Should().Be("listbox");
+        (popupState.ariaLabel).Should().Be("Framework choices");
+        (popupState.dataState).Should().Be("open");
+        (popupState.selectedText).Should().Be("Astro");
         await Assertions.Expect(page.GetByRole(AriaRole.Dialog)).ToHaveCountAsync(0);
     }
 
@@ -190,7 +189,7 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
 
         var content = page.Locator("[data-slot='popover-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "Update the values below and save them back to the current layer." });
         var contentId = await content.GetAttributeAsync("id");
-        Xunit.Assert.False(string.IsNullOrWhiteSpace(contentId));
+        (string.IsNullOrWhiteSpace(contentId)).Should().BeFalse();
         var trigger = page.Locator($"button[aria-controls='{contentId}']");
         await Assertions.Expect(openState).ToContainTextAsync("Open: true");
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");

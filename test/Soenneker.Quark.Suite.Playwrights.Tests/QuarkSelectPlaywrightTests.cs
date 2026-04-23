@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
-using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
+using AwesomeAssertions;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -63,7 +62,7 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
             "return !!listbox && document.body.contains(listbox) && !!main && !main.contains(listbox);" +
             "}");
 
-        Xunit.Assert.True(renderedOutsideMain);
+        (renderedOutsideMain).Should().BeTrue();
 
         await ClickJustOutsideAsync(page, listbox);
 
@@ -120,7 +119,7 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(result).ToContainTextAsync("No submission yet.");
         await Assertions.Expect(hiddenSelect).ToHaveAttributeAsync("required", string.Empty);
         var isInitiallyValid = await hiddenSelect.EvaluateAsync<bool>("element => element.checkValidity()");
-        Xunit.Assert.False(isInitiallyValid);
+        (isInitiallyValid).Should().BeFalse();
 
         var trigger = form.GetByRole(AriaRole.Combobox).First;
         await trigger.ClickAsync();
@@ -134,7 +133,7 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(trigger).ToContainTextAsync("Astro");
         await Assertions.Expect(hiddenSelect).ToHaveValueAsync("astro");
         var isValidAfterSelection = await hiddenSelect.EvaluateAsync<bool>("element => element.checkValidity()");
-        Xunit.Assert.True(isValidAfterSelection);
+        (isValidAfterSelection).Should().BeTrue();
 
         await form.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Submit native form", Exact = true }).ClickAsync();
         await Assertions.Expect(result).ToContainTextAsync("framework=astro");
@@ -206,7 +205,7 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
         await trigger.ClickAsync();
 
         var contentId = await trigger.GetAttributeAsync("aria-controls");
-        Xunit.Assert.False(string.IsNullOrWhiteSpace(contentId));
+        (string.IsNullOrWhiteSpace(contentId)).Should().BeFalse();
 
         var content = page.Locator($"#{contentId}");
         var apple = content.Locator("[role='option']").Filter(new LocatorFilterOptions { HasText = "Apple" }).First;
@@ -215,7 +214,7 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(apple).ToBeFocusedAsync();
         await page.Keyboard.PressAsync("g");
 
-        Xunit.Assert.True(await highlightedGrapes.CountAsync() > 0, "Expected a highlighted Grapes option after typeahead.");
+        (await highlightedGrapes.CountAsync() > 0).Should().BeTrue();
     }
 
 [Test]
@@ -234,7 +233,7 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
         await trigger.ClickAsync();
 
         var contentId = await trigger.GetAttributeAsync("aria-controls");
-        Xunit.Assert.False(string.IsNullOrWhiteSpace(contentId));
+        (string.IsNullOrWhiteSpace(contentId)).Should().BeFalse();
 
         var content = page.Locator($"#{contentId}");
         var apple = content.Locator("[role='option']").Filter(new LocatorFilterOptions { HasText = "Apple" }).First;
@@ -247,13 +246,13 @@ public sealed class QuarkSelectPlaywrightTests : PlaywrightUnitTest
         await page.Keyboard.PressAsync("c");
 
         var highlightedTexts = await content.Locator("[role='option'][data-highlighted]").AllTextContentsAsync();
-        Xunit.Assert.True(await highlightedCourgette.CountAsync() > 0, $"Expected a highlighted Courgette option after typeahead. Highlighted options: {string.Join(" | ", highlightedTexts)}");
+        (await highlightedCourgette.CountAsync() > 0).Should().BeTrue();
         await Assertions.Expect(carrot).Not.ToHaveAttributeAsync("data-highlighted", string.Empty);
     }
     private static async Task ClickJustOutsideAsync(IPage page, ILocator locator)
     {
         var box = await locator.BoundingBoxAsync();
-        Xunit.Assert.NotNull(box);
+        (box).Should().NotBeNull();
         var x = box.X > 40 ? box.X - 20 : box.X + box.Width + 20;
         var y = box.Y > 40 ? box.Y - 20 : box.Y + 20;
         await page.Mouse.ClickAsync(x, y);

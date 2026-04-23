@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
-using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
+using AwesomeAssertions;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -123,9 +122,9 @@ public sealed class QuarkDropdownMenuPlaywrightTests : PlaywrightUnitTest
         var triggerBox = await trigger.BoundingBoxAsync();
         var menuBox = await menu.BoundingBoxAsync();
 
-        Xunit.Assert.NotNull(triggerBox);
-        Xunit.Assert.NotNull(menuBox);
-        Xunit.Assert.True(menuBox.Y >= triggerBox.Y + triggerBox.Height - 2, $"Expected dropdown menu to open below the trigger, but trigger bottom was {triggerBox.Y + triggerBox.Height} and menu top was {menuBox.Y}.");
+        (triggerBox).Should().NotBeNull();
+        (menuBox).Should().NotBeNull();
+        (menuBox.Y >= triggerBox.Y + triggerBox.Height - 2).Should().BeTrue();
 
         var topElementRole = await menu.EvaluateAsync<string>(
             @"element => {
@@ -134,7 +133,7 @@ public sealed class QuarkDropdownMenuPlaywrightTests : PlaywrightUnitTest
                 return target?.closest('[role]')?.getAttribute('role') ?? '';
             }");
 
-        Xunit.Assert.Equal("menu", topElementRole);
+        (topElementRole).Should().Be("menu");
     }
 
 [Test]

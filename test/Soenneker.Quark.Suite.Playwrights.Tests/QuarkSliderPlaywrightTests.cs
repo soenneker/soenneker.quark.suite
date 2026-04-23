@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
-using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
+using AwesomeAssertions;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -34,9 +33,9 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
                 const rect = element.getBoundingClientRect();
                 return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
             }");
-        Xunit.Assert.NotNull(demoRootBox);
-        Xunit.Assert.True(demoRootBox!.Width > 0);
-        Xunit.Assert.True(demoRootBox.Height > 0);
+        (demoRootBox).Should().NotBeNull();
+        (demoRootBox!.Width > 0).Should().BeTrue();
+        (demoRootBox.Height > 0).Should().BeTrue();
 
         await demoRoot.ClickAsync(new LocatorClickOptions
         {
@@ -59,9 +58,9 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
                 const rect = element.getBoundingClientRect();
                 return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
             }");
-        Xunit.Assert.NotNull(stepRootBox);
-        Xunit.Assert.True(stepRootBox!.Width > 0);
-        Xunit.Assert.True(stepRootBox.Height > 0);
+        (stepRootBox).Should().NotBeNull();
+        (stepRootBox!.Width > 0).Should().BeTrue();
+        (stepRootBox.Height > 0).Should().BeTrue();
 
         await stepRoot.ClickAsync(new LocatorClickOptions
         {

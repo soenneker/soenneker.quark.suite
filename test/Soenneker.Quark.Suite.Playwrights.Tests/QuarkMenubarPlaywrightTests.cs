@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
-using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
+using AwesomeAssertions;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -103,7 +102,7 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await fileTrigger.ClickAsync();
 
         var menuId = await fileTrigger.GetAttributeAsync("aria-controls");
-        Xunit.Assert.False(string.IsNullOrWhiteSpace(menuId));
+        (string.IsNullOrWhiteSpace(menuId)).Should().BeFalse();
 
         var menu = page.Locator($"#{menuId}");
         await Assertions.Expect(menu).ToContainTextAsync("New Tab");
@@ -111,7 +110,7 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await submenuTrigger.ClickAsync();
 
         var submenuId = await submenuTrigger.GetAttributeAsync("aria-controls");
-        Xunit.Assert.False(string.IsNullOrWhiteSpace(submenuId));
+        (string.IsNullOrWhiteSpace(submenuId)).Should().BeFalse();
 
         var submenu = page.Locator($"#{submenuId}");
         await Assertions.Expect(submenu).ToContainTextAsync("Email link");
@@ -222,7 +221,7 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(viewTrigger).ToHaveAttributeAsync("aria-expanded", "true");
 
         var checkboxMenuId = await viewTrigger.GetAttributeAsync("aria-controls");
-        Xunit.Assert.False(string.IsNullOrWhiteSpace(checkboxMenuId));
+        (string.IsNullOrWhiteSpace(checkboxMenuId)).Should().BeFalse();
 
         var checkboxMenu = page.Locator($"#{checkboxMenuId}");
         var bookmarks = checkboxMenu.GetByRole(AriaRole.Menuitemcheckbox, new LocatorGetByRoleOptions { Name = "Always Show Bookmarks Bar", Exact = true });

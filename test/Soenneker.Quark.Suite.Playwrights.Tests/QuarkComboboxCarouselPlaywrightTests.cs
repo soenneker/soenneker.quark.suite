@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
-using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
+using AwesomeAssertions;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -31,7 +30,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
         await input.FillAsync("nuxt");
 
         var listboxId = await input.GetAttributeAsync("aria-controls");
-        Xunit.Assert.False(string.IsNullOrWhiteSpace(listboxId));
+        (string.IsNullOrWhiteSpace(listboxId)).Should().BeFalse();
         var listbox = page.Locator($"#{listboxId}");
         var nuxt = listbox.Locator("[data-slot='combobox-item']").Filter(new LocatorFilterOptions { HasText = "Nuxt.js" }).First;
 
@@ -64,7 +63,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
         await trigger.ClickAsync();
 
         var listboxId = await trigger.GetAttributeAsync("aria-controls");
-        Xunit.Assert.False(string.IsNullOrWhiteSpace(listboxId));
+        (string.IsNullOrWhiteSpace(listboxId)).Should().BeFalse();
 
         var listbox = page.Locator($"#{listboxId}");
         await Assertions.Expect(listbox).ToBeVisibleAsync();
@@ -75,12 +74,11 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
         var triggerBox = await trigger.BoundingBoxAsync();
         var listboxBox = await listbox.BoundingBoxAsync();
 
-        Xunit.Assert.NotNull(triggerBox);
-        Xunit.Assert.NotNull(listboxBox);
-        Xunit.Assert.True(listboxBox.Y > 0, $"Expected listbox top ({listboxBox.Y}) to remain inside the viewport.");
-        Xunit.Assert.True(System.Math.Abs(listboxBox.X - triggerBox.X) <= 220,
-            $"Expected listbox X ({listboxBox.X}) to stay anchored near the trigger X ({triggerBox.X}).");
-        Xunit.Assert.True(listboxBox.Width >= 180, $"Expected listbox width to be measurable, but was {listboxBox.Width}.");
+        (triggerBox).Should().NotBeNull();
+        (listboxBox).Should().NotBeNull();
+        (listboxBox.Y > 0).Should().BeTrue();
+        (System.Math.Abs(listboxBox.X - triggerBox.X) <= 220).Should().BeTrue();
+        (listboxBox.Width >= 180).Should().BeTrue();
     }
 
     [Test]
@@ -100,7 +98,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
         await input.FillAsync("astro");
 
         var listboxId = await input.GetAttributeAsync("aria-controls");
-        Xunit.Assert.False(string.IsNullOrWhiteSpace(listboxId));
+        (string.IsNullOrWhiteSpace(listboxId)).Should().BeFalse();
         var listbox = page.Locator($"#{listboxId}");
         var astro = listbox.Locator("[data-slot='combobox-item']").Filter(new LocatorFilterOptions { HasText = "Astro" }).First;
         await Assertions.Expect(listbox).ToHaveAttributeAsync("data-state", "open");
@@ -163,7 +161,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
         await input.ClickAsync();
         await input.FillAsync("remix");
         var listboxId = await input.GetAttributeAsync("aria-controls");
-        Xunit.Assert.False(string.IsNullOrWhiteSpace(listboxId));
+        (string.IsNullOrWhiteSpace(listboxId)).Should().BeFalse();
         var listbox = page.Locator($"#{listboxId}");
         var remix = listbox.Locator("[data-slot='combobox-item']").Filter(new LocatorFilterOptions { HasText = "Remix" }).First;
         await Assertions.Expect(listbox).ToHaveAttributeAsync("data-state", "open");

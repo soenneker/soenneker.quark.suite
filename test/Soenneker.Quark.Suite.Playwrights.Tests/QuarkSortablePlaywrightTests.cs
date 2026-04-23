@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
-using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
+using AwesomeAssertions;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -38,7 +37,7 @@ public sealed class QuarkSortablePlaywrightTests : PlaywrightUnitTest
         await DragSortableItemToTargetAsync(page, auditLog, usageAnalytics);
 
         await Assertions.Expect(basicOrder).ToContainTextAsync("Audit log filters -> Usage analytics dashboard -> Billing export retry policy -> Empty state polish");
-        Xunit.Assert.Equal(["audit-log", "usage-analytics", "billing-export", "empty-state"], await GetSortableItemOrderAsync(basicList));
+        (await GetSortableItemOrderAsync(basicList)).Should().Equal(["audit-log", "usage-analytics", "billing-export", "empty-state"]);
 
         var handleDemo = page.Locator("#sortable-handle-demo");
         var handleList = handleDemo.Locator("#sortable-handle-list");
@@ -52,27 +51,27 @@ public sealed class QuarkSortablePlaywrightTests : PlaywrightUnitTest
 
         await DragSortableItemToTargetAsync(page, announceRow, promoteRow);
         await Assertions.Expect(handleState).ToContainTextAsync("No changes yet.");
-        Xunit.Assert.Equal(["build", "smoke", "promote", "announce"], await GetSortableItemOrderAsync(handleList));
+        (await GetSortableItemOrderAsync(handleList)).Should().Equal(["build", "smoke", "promote", "announce"]);
 
         var announceHandle = announceRow.Locator("[data-slot='sortable-handle']").First;
         await DragSortableItemToTargetAsync(page, announceHandle, promoteRow);
 
         await Assertions.Expect(handleState).ToContainTextAsync("announce moved from 4 to 3.");
-        Xunit.Assert.Equal(["build", "smoke", "announce", "promote"], await GetSortableItemOrderAsync(handleList));
+        (await GetSortableItemOrderAsync(handleList)).Should().Equal(["build", "smoke", "announce", "promote"]);
 
         var disabledDemo = page.Locator("#sortable-disabled-demo");
         var disabledList = disabledDemo.Locator("#sortable-disabled-list");
         await WaitForSortableReadyAsync(page, disabledList);
 
         await Assertions.Expect(disabledList).ToHaveAttributeAsync("aria-disabled", "true");
-        Xunit.Assert.Equal(["contract", "dns", "handoff"], await GetSortableItemOrderAsync(disabledList));
+        (await GetSortableItemOrderAsync(disabledList)).Should().Equal(["contract", "dns", "handoff"]);
 
         var handoff = disabledList.Locator("[data-sortable-id='handoff']").First;
         var contract = disabledList.Locator("[data-sortable-id='contract']").First;
 
         await DragSortableItemToTargetAsync(page, handoff, contract);
 
-        Xunit.Assert.Equal(["contract", "dns", "handoff"], await GetSortableItemOrderAsync(disabledList));
+        (await GetSortableItemOrderAsync(disabledList)).Should().Equal(["contract", "dns", "handoff"]);
     }
     private static async Task DragSortableItemToTargetAsync(IPage page, ILocator source, ILocator target)
     {
@@ -91,14 +90,14 @@ public sealed class QuarkSortablePlaywrightTests : PlaywrightUnitTest
                 return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
             }");
 
-        Xunit.Assert.NotNull(sourceRect);
-        Xunit.Assert.NotNull(targetRect);
+        (sourceRect).Should().NotBeNull();
+        (targetRect).Should().NotBeNull();
 
         var sourceHandle = await source.ElementHandleAsync();
         var targetHandle = await target.ElementHandleAsync();
 
-        Xunit.Assert.NotNull(sourceHandle);
-        Xunit.Assert.NotNull(targetHandle);
+        (sourceHandle).Should().NotBeNull();
+        (targetHandle).Should().NotBeNull();
 
         await page.EvaluateAsync(
             @"async ({ sourceElement, targetElement }) => {
@@ -173,7 +172,7 @@ public sealed class QuarkSortablePlaywrightTests : PlaywrightUnitTest
             });
 
         var initializationError = await list.GetAttributeAsync("data-sortable-init-error");
-        Xunit.Assert.Null(initializationError);
+        (initializationError).Should().BeNull();
     }
 
     private sealed class DomRect

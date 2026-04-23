@@ -2,9 +2,8 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
-using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
-using Xunit;
+using AwesomeAssertions;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -101,8 +100,8 @@ public sealed class QuarkDatePickerPlaywrightTests : PlaywrightUnitTest
         var updatedValue = await input.InputValueAsync();
         var updatedValueChip = await valueChip.InnerTextAsync();
 
-        Xunit.Assert.NotEqual(initialValue, updatedValue);
-        Xunit.Assert.NotEqual(initialValueChip, updatedValueChip);
+        (updatedValue).Should().NotBe(initialValue);
+        (updatedValueChip).Should().NotBe(initialValueChip);
 
         await page.Mouse.ClickAsync(10, 10);
 
