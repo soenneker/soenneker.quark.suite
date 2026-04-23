@@ -3,6 +3,7 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
+using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -73,8 +74,8 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
             expectedTitle: "Menubar - Quark Suite");
 
         var demo = page.Locator("[data-testid='quark-menubar-rtl-demo']");
-        var file = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "ملف", Exact = true });
-        var view = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "عرض", Exact = true });
+        var file = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Ù…Ù„Ù", Exact = true });
+        var view = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Ø¹Ø±Ø¶", Exact = true });
 
         await file.FocusAsync();
         await file.PressAsync("ArrowRight");
@@ -102,7 +103,7 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await fileTrigger.ClickAsync();
 
         var menuId = await fileTrigger.GetAttributeAsync("aria-controls");
-        Assert.False(string.IsNullOrWhiteSpace(menuId));
+        Xunit.Assert.False(string.IsNullOrWhiteSpace(menuId));
 
         var menu = page.Locator($"#{menuId}");
         await Assertions.Expect(menu).ToContainTextAsync("New Tab");
@@ -110,7 +111,7 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await submenuTrigger.ClickAsync();
 
         var submenuId = await submenuTrigger.GetAttributeAsync("aria-controls");
-        Assert.False(string.IsNullOrWhiteSpace(submenuId));
+        Xunit.Assert.False(string.IsNullOrWhiteSpace(submenuId));
 
         var submenu = page.Locator($"#{submenuId}");
         await Assertions.Expect(submenu).ToContainTextAsync("Email link");
@@ -221,7 +222,7 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(viewTrigger).ToHaveAttributeAsync("aria-expanded", "true");
 
         var checkboxMenuId = await viewTrigger.GetAttributeAsync("aria-controls");
-        Assert.False(string.IsNullOrWhiteSpace(checkboxMenuId));
+        Xunit.Assert.False(string.IsNullOrWhiteSpace(checkboxMenuId));
 
         var checkboxMenu = page.Locator($"#{checkboxMenuId}");
         var bookmarks = checkboxMenu.GetByRole(AriaRole.Menuitemcheckbox, new LocatorGetByRoleOptions { Name = "Always Show Bookmarks Bar", Exact = true });

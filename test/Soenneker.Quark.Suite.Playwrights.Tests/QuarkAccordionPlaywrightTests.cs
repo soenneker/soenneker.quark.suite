@@ -4,6 +4,7 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
+using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -92,8 +93,8 @@ public sealed class QuarkAccordionPlaywrightTests : PlaywrightUnitTest
         var firstPanelId = await firstTrigger.GetAttributeAsync("aria-controls");
         var secondPanelId = await secondTrigger.GetAttributeAsync("aria-controls");
 
-        Assert.False(string.IsNullOrWhiteSpace(firstPanelId));
-        Assert.False(string.IsNullOrWhiteSpace(secondPanelId));
+        Xunit.Assert.False(string.IsNullOrWhiteSpace(firstPanelId));
+        Xunit.Assert.False(string.IsNullOrWhiteSpace(secondPanelId));
 
         var firstContent = page.Locator($"#{firstPanelId}");
         var secondContent = page.Locator($"#{secondPanelId}");
@@ -135,30 +136,30 @@ public sealed class QuarkAccordionPlaywrightTests : PlaywrightUnitTest
         var returnsTrigger = demoSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "What is your return policy?", Exact = true });
 
         var shippingPanelId = await shippingTrigger.GetAttributeAsync("aria-controls");
-        Assert.False(string.IsNullOrWhiteSpace(shippingPanelId));
+        Xunit.Assert.False(string.IsNullOrWhiteSpace(shippingPanelId));
 
         var shippingContent = page.Locator($"#{shippingPanelId}");
         var initialBox = await accordionContainer.BoundingBoxAsync();
-        Assert.NotNull(initialBox);
-        Assert.InRange(initialBox.Width, 300, 420);
+        Xunit.Assert.NotNull(initialBox);
+        Xunit.Assert.InRange(initialBox.Width, 300, 420);
 
         var shippingContentBox = await shippingContent.BoundingBoxAsync();
-        Assert.NotNull(shippingContentBox);
-        Assert.True(shippingContentBox.Height >= 40, $"Expected the initially open accordion panel to render full content height, but measured {shippingContentBox.Height}.");
+        Xunit.Assert.NotNull(shippingContentBox);
+        Xunit.Assert.True(shippingContentBox.Height >= 40, $"Expected the initially open accordion panel to render full content height, but measured {shippingContentBox.Height}.");
 
         await returnsTrigger.ClickAsync();
 
         var afterSwitchBox = await accordionContainer.BoundingBoxAsync();
-        Assert.NotNull(afterSwitchBox);
-        Assert.InRange(Math.Abs(afterSwitchBox.Width - initialBox.Width), 0, 2);
+        Xunit.Assert.NotNull(afterSwitchBox);
+        Xunit.Assert.InRange(Math.Abs(afterSwitchBox.Width - initialBox.Width), 0, 2);
 
         var returnsPanelId = await returnsTrigger.GetAttributeAsync("aria-controls");
-        Assert.False(string.IsNullOrWhiteSpace(returnsPanelId));
+        Xunit.Assert.False(string.IsNullOrWhiteSpace(returnsPanelId));
 
         var returnsContent = page.Locator($"#{returnsPanelId}");
         var returnsContentBox = await returnsContent.BoundingBoxAsync();
-        Assert.NotNull(returnsContentBox);
-        Assert.True(returnsContentBox.Height >= 40, $"Expected the newly opened accordion panel to render full content height, but measured {returnsContentBox.Height}.");
+        Xunit.Assert.NotNull(returnsContentBox);
+        Xunit.Assert.True(returnsContentBox.Height >= 40, $"Expected the newly opened accordion panel to render full content height, but measured {returnsContentBox.Height}.");
     }
 
     [Test]
@@ -169,13 +170,13 @@ public sealed class QuarkAccordionPlaywrightTests : PlaywrightUnitTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}accordions",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "كيف يمكنني إعادة تعيين كلمة المرور؟", Exact = true }),
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "ÙƒÙŠÙ ÙŠÙ…ÙƒÙ†Ù†ÙŠ Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±ØŸ", Exact = true }),
             expectedTitle: "Accordion - Quark Suite");
 
         var rtlSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Official shadcn RTL example." }).First;
-        var firstTrigger = rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "كيف يمكنني إعادة تعيين كلمة المرور؟", Exact = true });
-        var secondTrigger = rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "هل يمكنني تغيير خطة الاشتراك الخاصة بي؟", Exact = true });
-        var thirdTrigger = rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "ما هي طرق الدفع التي تقبلونها؟", Exact = true });
+        var firstTrigger = rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "ÙƒÙŠÙ ÙŠÙ…ÙƒÙ†Ù†ÙŠ Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±ØŸ", Exact = true });
+        var secondTrigger = rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Ù‡Ù„ ÙŠÙ…ÙƒÙ†Ù†ÙŠ ØªØºÙŠÙŠØ± Ø®Ø·Ø© Ø§Ù„Ø§Ø´ØªØ±Ø§Ùƒ Ø§Ù„Ø®Ø§ØµØ© Ø¨ÙŠØŸ", Exact = true });
+        var thirdTrigger = rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Ù…Ø§ Ù‡ÙŠ Ø·Ø±Ù‚ Ø§Ù„Ø¯ÙØ¹ Ø§Ù„ØªÙŠ ØªÙ‚Ø¨Ù„ÙˆÙ†Ù‡Ø§ØŸ", Exact = true });
 
         await firstTrigger.PressAsync("ArrowDown");
         await ExpectActiveElementAsync(page, secondTrigger);
@@ -218,7 +219,7 @@ public sealed class QuarkAccordionPlaywrightTests : PlaywrightUnitTest
     private static async Task ExpectActiveElementAsync(IPage page, ILocator locator)
     {
         var id = await locator.GetAttributeAsync("id");
-        Assert.False(string.IsNullOrWhiteSpace(id));
+        Xunit.Assert.False(string.IsNullOrWhiteSpace(id));
 
         await page.WaitForFunctionAsync(
             "(expectedId) => document.activeElement?.id === expectedId",

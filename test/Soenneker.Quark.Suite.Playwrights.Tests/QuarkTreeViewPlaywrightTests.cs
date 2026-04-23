@@ -4,6 +4,7 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
+using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -115,6 +116,6 @@ public sealed class QuarkTreeViewPlaywrightTests : PlaywrightUnitTest
         await featureBDisabled.ClickAsync(new LocatorClickOptions { Force = true });
 
         await Assertions.Expect(disabledSection.GetByText("Sub-feature 1", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
-        Assert.DoesNotContain("background-color: var(--primary)", disabledStyle ?? string.Empty, StringComparison.OrdinalIgnoreCase);
+        Xunit.Assert.DoesNotContain("background-color: var(--primary)", disabledStyle ?? string.Empty, StringComparison.OrdinalIgnoreCase);
     }
 }

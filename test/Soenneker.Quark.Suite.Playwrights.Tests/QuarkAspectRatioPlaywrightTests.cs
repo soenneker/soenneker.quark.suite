@@ -3,6 +3,7 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
+using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -38,20 +39,20 @@ public sealed class QuarkAspectRatioPlaywrightTests : PlaywrightUnitTest
         var squareBox = await squareHost.BoundingBoxAsync();
         var portraitBox = await portraitHost.BoundingBoxAsync();
 
-        Assert.NotNull(landscapeBox);
-        Assert.NotNull(squareBox);
-        Assert.NotNull(portraitBox);
+        Xunit.Assert.NotNull(landscapeBox);
+        Xunit.Assert.NotNull(squareBox);
+        Xunit.Assert.NotNull(portraitBox);
 
-        Assert.True(landscapeBox.Width >= 320, $"Expected the landscape aspect ratio host to render with width, but measured {landscapeBox.Width}.");
-        Assert.True(squareBox.Width >= 160, $"Expected the square aspect ratio host to render with width, but measured {squareBox.Width}.");
-        Assert.True(portraitBox.Width >= 160, $"Expected the portrait aspect ratio host to render with width, but measured {portraitBox.Width}.");
+        Xunit.Assert.True(landscapeBox.Width >= 320, $"Expected the landscape aspect ratio host to render with width, but measured {landscapeBox.Width}.");
+        Xunit.Assert.True(squareBox.Width >= 160, $"Expected the square aspect ratio host to render with width, but measured {squareBox.Width}.");
+        Xunit.Assert.True(portraitBox.Width >= 160, $"Expected the portrait aspect ratio host to render with width, but measured {portraitBox.Width}.");
 
         double landscapeRatio = landscapeBox.Width / landscapeBox.Height;
         double squareRatio = squareBox.Width / squareBox.Height;
         double portraitRatio = portraitBox.Width / portraitBox.Height;
 
-        Assert.InRange(landscapeRatio, 1.70, 1.85);
-        Assert.InRange(squareRatio, 0.95, 1.05);
-        Assert.InRange(portraitRatio, 0.50, 0.62);
+        Xunit.Assert.InRange(landscapeRatio, 1.70, 1.85);
+        Xunit.Assert.InRange(squareRatio, 0.95, 1.05);
+        Xunit.Assert.InRange(portraitRatio, 0.50, 0.62);
     }
 }

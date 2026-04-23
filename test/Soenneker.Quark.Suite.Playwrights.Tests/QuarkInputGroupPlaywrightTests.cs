@@ -3,6 +3,7 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
+using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -51,13 +52,13 @@ public sealed class QuarkInputGroupPlaywrightTests : PlaywrightUnitTest
                 };
             }");
 
-        Assert.NotNull(borderProbe);
-        Assert.Equal("1px", borderProbe.groupBorderTop);
-        Assert.Equal("1px", borderProbe.groupBorderRight);
-        Assert.Equal("0px", borderProbe.inputBorderTop);
-        Assert.Equal("0px", borderProbe.inputBorderRight);
-        Assert.True(borderProbe.groupWidth >= 200, $"Expected the input group wrapper to render with width, but measured {borderProbe.groupWidth}.");
-        Assert.True(borderProbe.addonWidth >= 16, $"Expected the trailing addon to remain visible, but measured {borderProbe.addonWidth}.");
+        Xunit.Assert.NotNull(borderProbe);
+        Xunit.Assert.Equal("1px", borderProbe.groupBorderTop);
+        Xunit.Assert.Equal("1px", borderProbe.groupBorderRight);
+        Xunit.Assert.Equal("0px", borderProbe.inputBorderTop);
+        Xunit.Assert.Equal("0px", borderProbe.inputBorderRight);
+        Xunit.Assert.True(borderProbe.groupWidth >= 200, $"Expected the input group wrapper to render with width, but measured {borderProbe.groupWidth}.");
+        Xunit.Assert.True(borderProbe.addonWidth >= 16, $"Expected the trailing addon to remain visible, but measured {borderProbe.addonWidth}.");
     }
     private sealed class InputGroupBorderProbe
     {

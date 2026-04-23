@@ -3,6 +3,7 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
+using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -39,12 +40,12 @@ public sealed class QuarkHeaderPlaywrightTests : PlaywrightUnitTest
         var sidebarBox = await sidebar.BoundingBoxAsync();
         var insetBox = await inset.BoundingBoxAsync();
 
-        Assert.NotNull(headerBox);
-        Assert.NotNull(sidebarBox);
-        Assert.NotNull(insetBox);
+        Xunit.Assert.NotNull(headerBox);
+        Xunit.Assert.NotNull(sidebarBox);
+        Xunit.Assert.NotNull(insetBox);
 
-        Assert.True(headerBox.Height >= 48, $"Expected the header shell to keep a usable height, but measured {headerBox.Height}.");
-        Assert.True(sidebarBox.Width >= 200, $"Expected the sidebar to remain visible beside the content, but measured {sidebarBox.Width}.");
-        Assert.True(insetBox.Width >= 200, $"Expected the sidebar inset content to remain visible, but measured {insetBox.Width}.");
+        Xunit.Assert.True(headerBox.Height >= 48, $"Expected the header shell to keep a usable height, but measured {headerBox.Height}.");
+        Xunit.Assert.True(sidebarBox.Width >= 200, $"Expected the sidebar to remain visible beside the content, but measured {sidebarBox.Width}.");
+        Xunit.Assert.True(insetBox.Width >= 200, $"Expected the sidebar inset content to remain visible, but measured {insetBox.Width}.");
     }
 }

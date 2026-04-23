@@ -3,6 +3,7 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
+using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -101,9 +102,9 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(viewport).ToContainTextAsync("Installation");
 
         var viewportBox = await viewport.BoundingBoxAsync();
-        Assert.NotNull(viewportBox);
-        Assert.True(viewportBox.Width >= 320, $"Expected the shared navigation viewport to expand beyond a sliver, but measured width {viewportBox.Width}.");
-        Assert.True(viewportBox.Height >= 120, $"Expected the shared navigation viewport to show full content, but measured height {viewportBox.Height}.");
+        Xunit.Assert.NotNull(viewportBox);
+        Xunit.Assert.True(viewportBox.Width >= 320, $"Expected the shared navigation viewport to expand beyond a sliver, but measured width {viewportBox.Width}.");
+        Xunit.Assert.True(viewportBox.Height >= 120, $"Expected the shared navigation viewport to show full content, but measured height {viewportBox.Height}.");
     }
 
 [Test]
@@ -157,7 +158,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(gettingStarted).ToHaveAttributeAsync("aria-expanded", "false");
         await Assertions.Expect(guides).ToHaveAttributeAsync("aria-expanded", "false");
         await Assertions.Expect(section.Locator("[data-slot='navigation-menu-content'][data-state='open']")).ToHaveCountAsync(0);
-        Assert.Null(await docs.GetAttributeAsync("aria-expanded"));
+        Xunit.Assert.Null(await docs.GetAttributeAsync("aria-expanded"));
 
         await gettingStarted.ClickAsync();
 
@@ -199,12 +200,12 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}navigation-menu",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "البدء", Exact = true }),
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Ø§Ù„Ø¨Ø¯Ø¡", Exact = true }),
             expectedTitle: "Navigation Menu - Quark Suite");
 
         var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Navigation menu content and viewport positioning respect right-to-left layouts." }).First;
         var root = section.Locator("[data-slot='navigation-menu']").First;
-        var trigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "البدء", Exact = true });
+        var trigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Ø§Ù„Ø¨Ø¯Ø¡", Exact = true });
 
         await Assertions.Expect(root).ToHaveAttributeAsync("dir", "rtl");
         await Assertions.Expect(root).ToHaveAttributeAsync("data-viewport", "true");
@@ -214,11 +215,11 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
         var viewport = section.Locator("[data-slot='navigation-menu-viewport']").First;
         var activeLink = viewport.Locator("[data-slot='navigation-menu-link'][aria-current='page']").Filter(new LocatorFilterOptions
         {
-            HasText = "المكونات"
+            HasText = "Ø§Ù„Ù…ÙƒÙˆÙ†Ø§Øª"
         }).First;
         await Assertions.Expect(viewport).ToBeVisibleAsync();
-        await Assertions.Expect(viewport).ToContainTextAsync("المكونات");
-        await Assertions.Expect(viewport).ToContainTextAsync("الأزرار");
+        await Assertions.Expect(viewport).ToContainTextAsync("Ø§Ù„Ù…ÙƒÙˆÙ†Ø§Øª");
+        await Assertions.Expect(viewport).ToContainTextAsync("Ø§Ù„Ø£Ø²Ø±Ø§Ø±");
         await Assertions.Expect(activeLink).ToHaveAttributeAsync("aria-current", "page");
         await Assertions.Expect(activeLink).ToHaveAttributeAsync("data-active", string.Empty);
     }

@@ -19,7 +19,7 @@ public sealed class QuarkComponentPlaywrightTests : PlaywrightUnitTest
     public async ValueTask Landing_page_loads()
     {
         Logger.LogInformation("Initially loaded");
-        await using var session = await CreateSession(new PlaywrightSessionOptions {ReuseBrowserContextAcrossSessions = true, ReusePageAcrossSessions = true}, cancellationToken: TestContext.Current.CancellationToken);
+        await using var session = await CreateSession(new PlaywrightSessionOptions {ReuseBrowserContextAcrossSessions = true, ReusePageAcrossSessions = true}, cancellationToken: System.Threading.CancellationToken.None);
         var page = session.Page;
         var main = page.GetByRole(AriaRole.Main).First;
 
@@ -32,13 +32,13 @@ public sealed class QuarkComponentPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page).ToHaveTitleAsync("The Foundation for your Design System - Quark Suite");
     }
 
-  //  [Theory]
+  //  [Test]
    // [MemberData(nameof(QuarkComponentSpecs.All), MemberType = typeof(QuarkComponentSpecs))]
     public async ValueTask Component_demo_page_loads(string componentName, string route, string expectedTitle)
     {
         Logger.LogInformation("Loading {ComponentName} demo route {Route}", componentName, route);
 
-        await using var session = await CreateSession(new PlaywrightSessionOptions { ReuseBrowserContextAcrossSessions = true, ReusePageAcrossSessions = true }, cancellationToken: TestContext.Current.CancellationToken);
+        await using var session = await CreateSession(new PlaywrightSessionOptions { ReuseBrowserContextAcrossSessions = true, ReusePageAcrossSessions = true }, cancellationToken: System.Threading.CancellationToken.None);
         var page = session.Page;
         var main = page.GetByRole(AriaRole.Main).First;
 
@@ -51,3 +51,5 @@ public sealed class QuarkComponentPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page).ToHaveTitleAsync(expectedTitle);
     }
 }
+
+

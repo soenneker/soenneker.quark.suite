@@ -3,6 +3,7 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
+using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -40,7 +41,7 @@ public sealed class QuarkNativeSelectPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(animalSelect).ToHaveValueAsync("eagle");
         var groupLabels = await animalSelect.EvaluateAsync<string>(
             "element => Array.from(element.querySelectorAll('optgroup')).map(group => group.label).join(',')");
-        Assert.Equal("Mammals,Birds", groupLabels);
+        Xunit.Assert.Equal("Mammals,Birds", groupLabels);
     }
 
 [Test]

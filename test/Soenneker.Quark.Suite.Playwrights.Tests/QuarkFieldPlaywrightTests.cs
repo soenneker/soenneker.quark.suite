@@ -3,6 +3,7 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
+using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -40,16 +41,16 @@ public sealed class QuarkFieldPlaywrightTests : PlaywrightUnitTest
         var cardNumberBox = await cardNumber.BoundingBoxAsync();
         var commentsBox = await comments.BoundingBoxAsync();
 
-        Assert.NotNull(sectionBox);
-        Assert.NotNull(formBox);
-        Assert.NotNull(cardNameBox);
-        Assert.NotNull(cardNumberBox);
-        Assert.NotNull(commentsBox);
+        Xunit.Assert.NotNull(sectionBox);
+        Xunit.Assert.NotNull(formBox);
+        Xunit.Assert.NotNull(cardNameBox);
+        Xunit.Assert.NotNull(cardNumberBox);
+        Xunit.Assert.NotNull(commentsBox);
 
-        Assert.InRange(formBox.Width, 400, 520);
-        Assert.True(formBox.Width < sectionBox.Width, $"Expected the payment form to remain medium-width inside the preview, but measured form={formBox.Width} section={sectionBox.Width}.");
-        Assert.True(cardNameBox.Width >= 300, $"Expected the card name input to render at usable width, but measured {cardNameBox.Width}.");
-        Assert.True(cardNumberBox.Width >= 300, $"Expected the card number input to render at usable width, but measured {cardNumberBox.Width}.");
-        Assert.True(commentsBox.Width >= 300, $"Expected the comments textarea to render at usable width, but measured {commentsBox.Width}.");
+        Xunit.Assert.InRange(formBox.Width, 400, 520);
+        Xunit.Assert.True(formBox.Width < sectionBox.Width, $"Expected the payment form to remain medium-width inside the preview, but measured form={formBox.Width} section={sectionBox.Width}.");
+        Xunit.Assert.True(cardNameBox.Width >= 300, $"Expected the card name input to render at usable width, but measured {cardNameBox.Width}.");
+        Xunit.Assert.True(cardNumberBox.Width >= 300, $"Expected the card number input to render at usable width, but measured {cardNumberBox.Width}.");
+        Xunit.Assert.True(commentsBox.Width >= 300, $"Expected the comments textarea to render at usable width, but measured {commentsBox.Width}.");
     }
 }

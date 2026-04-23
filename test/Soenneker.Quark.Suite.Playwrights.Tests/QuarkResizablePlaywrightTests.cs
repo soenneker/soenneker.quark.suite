@@ -5,6 +5,7 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
+using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -40,8 +41,8 @@ public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(handle).Not.ToHaveAttributeAsync("aria-valuenow", "50");
         var leftAfter = await GetPanelSizeAsync(panels.Nth(0));
         var rightAfter = await GetPanelSizeAsync(panels.Nth(1));
-        Assert.True(leftAfter > leftBefore);
-        Assert.True(rightAfter < rightBefore);
+        Xunit.Assert.True(leftAfter > leftBefore);
+        Xunit.Assert.True(rightAfter < rightBefore);
     }
 
 [Test]
@@ -70,8 +71,8 @@ public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(basicHandle).Not.ToHaveAttributeAsync("aria-valuenow", "50");
         var basicLeftAfter = await GetPanelSizeAsync(basicPanels.Nth(0));
         var basicRightAfter = await GetPanelSizeAsync(basicPanels.Nth(1));
-        Assert.True(basicLeftAfter > basicLeftBefore);
-        Assert.True(basicRightAfter < basicRightBefore);
+        Xunit.Assert.True(basicLeftAfter > basicLeftBefore);
+        Xunit.Assert.True(basicRightAfter < basicRightBefore);
         await Assertions.Expect(basicHandle).ToHaveAttributeAsync("data-resizable-dotnet", "ok");
         await Assertions.Expect(basicHandle).Not.ToHaveAttributeAsync("data-resizable-last-percentage", "50");
 
@@ -93,8 +94,8 @@ public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
         var verticalBottomAfter = await WaitForPanelSizeConditionAsync(verticalPanels.Nth(1), size => size < verticalBottomBefore);
         var verticalValueNow = await verticalHandle.GetAttributeAsync("aria-valuenow");
         var verticalLastPercentage = await verticalHandle.GetAttributeAsync("data-resizable-last-percentage");
-        Assert.True(verticalTopAfter > verticalTopBefore, $"Vertical top panel did not grow. before={verticalTopBefore}, after={verticalTopAfter}, aria-valuenow={verticalValueNow}, last={verticalLastPercentage}");
-        Assert.True(verticalBottomAfter < verticalBottomBefore, $"Vertical bottom panel did not shrink. before={verticalBottomBefore}, after={verticalBottomAfter}, aria-valuenow={verticalValueNow}, last={verticalLastPercentage}");
+        Xunit.Assert.True(verticalTopAfter > verticalTopBefore, $"Vertical top panel did not grow. before={verticalTopBefore}, after={verticalTopAfter}, aria-valuenow={verticalValueNow}, last={verticalLastPercentage}");
+        Xunit.Assert.True(verticalBottomAfter < verticalBottomBefore, $"Vertical bottom panel did not shrink. before={verticalBottomBefore}, after={verticalBottomAfter}, aria-valuenow={verticalValueNow}, last={verticalLastPercentage}");
 
         var rtlHandle = page.Locator("#resizable-rtl-demo [data-slot='resizable-handle']").First;
         var rtlPanels = page.Locator("#resizable-rtl-demo [data-slot='resizable-panel']");
@@ -103,7 +104,7 @@ public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
 
         await Assertions.Expect(rtlHandle).ToHaveAttributeAsync("data-resizable-ready", "true");
         await Assertions.Expect(rtlHandle).ToHaveAttributeAsync("aria-valuenow", "50");
-        Assert.Equal("rtl", await page.Locator("#resizable-rtl-demo [data-slot='resizable-panel-group']").First.EvaluateAsync<string>(
+        Xunit.Assert.Equal("rtl", await page.Locator("#resizable-rtl-demo [data-slot='resizable-panel-group']").First.EvaluateAsync<string>(
             "element => getComputedStyle(element).direction"));
 
         await DragHandleAsync(page, rtlHandle, -80, 0);
@@ -113,8 +114,8 @@ public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(rtlHandle).Not.ToHaveAttributeAsync("data-resizable-last-percentage", "50");
         var rtlPrimaryAfter = await WaitForPanelSizeConditionAsync(rtlPanels.Nth(0), size => size > rtlPrimaryBefore);
         var rtlSecondaryAfter = await WaitForPanelSizeConditionAsync(rtlPanels.Nth(1), size => size < rtlSecondaryBefore);
-        Assert.True(rtlPrimaryAfter > rtlPrimaryBefore);
-        Assert.True(rtlSecondaryAfter < rtlSecondaryBefore);
+        Xunit.Assert.True(rtlPrimaryAfter > rtlPrimaryBefore);
+        Xunit.Assert.True(rtlSecondaryAfter < rtlSecondaryBefore);
     }
 
 [Test]
@@ -146,23 +147,23 @@ public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(handle).Not.ToHaveAttributeAsync("aria-valuenow", "50");
         var leftAfter = await GetPanelSizeAsync(panels.Nth(0));
         var rightAfter = await GetPanelSizeAsync(panels.Nth(1));
-        Assert.True(leftAfter > leftBefore);
-        Assert.True(rightAfter < rightBefore);
+        Xunit.Assert.True(leftAfter > leftBefore);
+        Xunit.Assert.True(rightAfter < rightBefore);
         await Assertions.Expect(handle).ToHaveAttributeAsync("data-resizable-dotnet", "ok");
         await Assertions.Expect(handle).Not.ToHaveAttributeAsync("data-resizable-last-percentage", "50");
     }
     private static async Task<double> GetPanelSizeAsync(ILocator panel)
     {
         var style = await panel.GetAttributeAsync("style");
-        Assert.NotNull(style);
+        Xunit.Assert.NotNull(style);
 
         const string marker = "flex: 0 0 ";
         var start = style!.IndexOf(marker, StringComparison.Ordinal);
-        Assert.True(start >= 0);
+        Xunit.Assert.True(start >= 0);
 
         start += marker.Length;
         var end = style.IndexOf('%', start);
-        Assert.True(end > start);
+        Xunit.Assert.True(end > start);
 
         var value = style[start..end];
         return double.Parse(value, CultureInfo.InvariantCulture);
@@ -192,11 +193,11 @@ public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
             @"element => element.scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' })");
 
         var rect = await handle.BoundingBoxAsync();
-        Assert.NotNull(rect);
-        Assert.True(float.IsFinite(rect!.X));
-        Assert.True(float.IsFinite(rect.Y));
-        Assert.True(float.IsFinite(rect.Width));
-        Assert.True(float.IsFinite(rect.Height));
+        Xunit.Assert.NotNull(rect);
+        Xunit.Assert.True(float.IsFinite(rect!.X));
+        Xunit.Assert.True(float.IsFinite(rect.Y));
+        Xunit.Assert.True(float.IsFinite(rect.Width));
+        Xunit.Assert.True(float.IsFinite(rect.Height));
 
         var dragStart = await handle.EvaluateAsync<DragStartMetrics>(
             @"element => {
@@ -224,9 +225,9 @@ public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
                 return { startX, startY };
             }");
 
-        Assert.NotNull(dragStart);
-        Assert.True(double.IsFinite(dragStart!.StartX));
-        Assert.True(double.IsFinite(dragStart.StartY));
+        Xunit.Assert.NotNull(dragStart);
+        Xunit.Assert.True(double.IsFinite(dragStart!.StartX));
+        Xunit.Assert.True(double.IsFinite(dragStart.StartY));
 
         var startX = dragStart.StartX;
         var startY = dragStart.StartY;

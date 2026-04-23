@@ -4,6 +4,7 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
+using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -40,7 +41,7 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
         await trigger.ClickAsync();
 
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
-        Assert.False(sawRuntimeError);
+        Xunit.Assert.False(sawRuntimeError);
     }
 
 [Test]
@@ -69,11 +70,11 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
                 };
             }");
 
-        Assert.NotNull(popupState);
-        Assert.Equal("listbox", popupState.role);
-        Assert.Equal("Framework choices", popupState.ariaLabel);
-        Assert.Equal("open", popupState.dataState);
-        Assert.Equal("Astro", popupState.selectedText);
+        Xunit.Assert.NotNull(popupState);
+        Xunit.Assert.Equal("listbox", popupState.role);
+        Xunit.Assert.Equal("Framework choices", popupState.ariaLabel);
+        Xunit.Assert.Equal("open", popupState.dataState);
+        Xunit.Assert.Equal("Astro", popupState.selectedText);
         await Assertions.Expect(page.GetByRole(AriaRole.Dialog)).ToHaveCountAsync(0);
     }
 
@@ -189,7 +190,7 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
 
         var content = page.Locator("[data-slot='popover-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "Update the values below and save them back to the current layer." });
         var contentId = await content.GetAttributeAsync("id");
-        Assert.False(string.IsNullOrWhiteSpace(contentId));
+        Xunit.Assert.False(string.IsNullOrWhiteSpace(contentId));
         var trigger = page.Locator($"button[aria-controls='{contentId}']");
         await Assertions.Expect(openState).ToContainTextAsync("Open: true");
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");

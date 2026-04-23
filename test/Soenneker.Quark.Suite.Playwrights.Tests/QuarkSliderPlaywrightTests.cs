@@ -3,6 +3,7 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
+using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -33,9 +34,9 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
                 const rect = element.getBoundingClientRect();
                 return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
             }");
-        Assert.NotNull(demoRootBox);
-        Assert.True(demoRootBox!.Width > 0);
-        Assert.True(demoRootBox.Height > 0);
+        Xunit.Assert.NotNull(demoRootBox);
+        Xunit.Assert.True(demoRootBox!.Width > 0);
+        Xunit.Assert.True(demoRootBox.Height > 0);
 
         await demoRoot.ClickAsync(new LocatorClickOptions
         {
@@ -58,9 +59,9 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
                 const rect = element.getBoundingClientRect();
                 return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
             }");
-        Assert.NotNull(stepRootBox);
-        Assert.True(stepRootBox!.Width > 0);
-        Assert.True(stepRootBox.Height > 0);
+        Xunit.Assert.NotNull(stepRootBox);
+        Xunit.Assert.True(stepRootBox!.Width > 0);
+        Xunit.Assert.True(stepRootBox.Height > 0);
 
         await stepRoot.ClickAsync(new LocatorClickOptions
         {
@@ -128,7 +129,7 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
 
         await Assertions.Expect(minimum).ToHaveAttributeAsync("aria-valuenow", "30");
         await Assertions.Expect(maximum).ToHaveAttributeAsync("aria-valuenow", "55");
-        await Assertions.Expect(rangeSection).ToContainTextAsync("Current: 30 – 55.");
+        await Assertions.Expect(rangeSection).ToContainTextAsync("Current: 30 â€“ 55.");
 
         var multipleSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Several thumbs on one track." }).First;
         var first = multipleSection.GetByRole(AriaRole.Slider, new LocatorGetByRoleOptions { Name = "Value 1 of 3", Exact = true });

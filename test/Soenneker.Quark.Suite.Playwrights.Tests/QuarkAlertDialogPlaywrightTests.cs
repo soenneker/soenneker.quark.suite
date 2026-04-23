@@ -3,6 +3,7 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
+using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -116,7 +117,7 @@ public sealed class QuarkAlertDialogPlaywrightTests : PlaywrightUnitTest
     private static async Task ClickJustOutsideAsync(IPage page, ILocator locator)
     {
         var box = await locator.BoundingBoxAsync();
-        Assert.NotNull(box);
+        Xunit.Assert.NotNull(box);
         var x = box.X > 40 ? box.X - 20 : box.X + box.Width + 20;
         var y = box.Y > 40 ? box.Y - 20 : box.Y + 20;
         await page.Mouse.ClickAsync(x, y);

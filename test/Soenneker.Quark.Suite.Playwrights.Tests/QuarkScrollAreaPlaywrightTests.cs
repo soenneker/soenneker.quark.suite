@@ -3,6 +3,7 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Session;
 using Soenneker.Playwrights.Tests.Unit;
+using Xunit;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -30,17 +31,17 @@ public sealed class QuarkScrollAreaPlaywrightTests : PlaywrightUnitTest
 
         var verticalScrollTop = await verticalSection.Locator("[data-slot='scroll-area-viewport']").First.EvaluateAsync<int>(
             "element => { element.scrollTop = 240; return element.scrollTop; }");
-        Assert.True(verticalScrollTop > 0);
+        Xunit.Assert.True(verticalScrollTop > 0);
 
         var horizontalScrollLeft = await horizontalSection.Locator("[data-slot='scroll-area-viewport']").First.EvaluateAsync<int>(
             "element => { element.scrollLeft = 220; return element.scrollLeft; }");
-        Assert.True(horizontalScrollLeft > 0);
+        Xunit.Assert.True(horizontalScrollLeft > 0);
 
         var rtlRoot = rtlSection.Locator("[data-slot='scroll-area']").First;
         await Assertions.Expect(rtlRoot).ToHaveAttributeAsync("dir", "rtl");
 
         var rtlScrollTop = await rtlSection.Locator("[data-slot='scroll-area-viewport']").First.EvaluateAsync<int>(
             "element => { element.scrollTop = 160; return element.scrollTop; }");
-        Assert.True(rtlScrollTop > 0);
+        Xunit.Assert.True(rtlScrollTop > 0);
     }
 }
