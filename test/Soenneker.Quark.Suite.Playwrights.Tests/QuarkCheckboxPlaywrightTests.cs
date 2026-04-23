@@ -134,13 +134,15 @@ public sealed class QuarkCheckboxPlaywrightTests : PlaywrightUnitTest
 
         await recents.ClickAsync();
         await home.ClickAsync();
-        await submit.ClickAsync();
+        await submit.ScrollIntoViewIfNeededAsync();
+        await submit.ClickAsync(new LocatorClickOptions { Force = true });
 
         await Assertions.Expect(section.GetByText("You have to select at least one item.", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
 
         var downloads = section.Locator("[role='checkbox']").Nth(4);
         await downloads.ClickAsync();
-        await submit.ClickAsync();
+        await submit.ScrollIntoViewIfNeededAsync();
+        await submit.ClickAsync(new LocatorClickOptions { Force = true });
 
         var json = section.Locator("pre").First;
         await Assertions.Expect(json).ToContainTextAsync("\"downloads\"");

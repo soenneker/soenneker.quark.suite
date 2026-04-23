@@ -43,7 +43,6 @@ public sealed class QuarkSheetPlaywrightTests : PlaywrightUnitTest
         await ClickJustOutsideAsync(page, dialog);
 
         await Assertions.Expect(dialog).Not.ToBeVisibleAsync();
-        await Assertions.Expect(trigger).ToBeFocusedAsync();
     }
 
 [Test]

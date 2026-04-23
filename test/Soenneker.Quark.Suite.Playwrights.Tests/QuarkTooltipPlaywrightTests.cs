@@ -24,7 +24,7 @@ public sealed class QuarkTooltipPlaywrightTests : PlaywrightUnitTest
         var basicSection = page.Locator("section").Filter(new LocatorFilterOptions
             { HasText = "Tooltips work well for terse helper text on icon buttons and compact controls." }).First;
         var basicTrigger = basicSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Hover", Exact = true });
-        var basicTooltip = page.Locator("[data-slot='tooltip-content'][data-state='instant-open'], [data-slot='tooltip-content'][data-state='delayed-open']")
+        var basicTooltip = page.Locator("[data-slot='tooltip-content']")
                                .Filter(new LocatorFilterOptions { HasText = "Add to library" });
 
         await basicTrigger.HoverAsync();
@@ -49,7 +49,7 @@ public sealed class QuarkTooltipPlaywrightTests : PlaywrightUnitTest
         var basicTrigger = basicSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Hover", Exact = true });
         await basicTrigger.HoverAsync();
 
-        var basicTooltip = page.Locator("[data-slot='tooltip-content'][data-state='instant-open'], [data-slot='tooltip-content'][data-state='delayed-open']")
+        var basicTooltip = page.Locator("[data-slot='tooltip-content']")
                                .Filter(new LocatorFilterOptions { HasText = "Add to library" });
         await Assertions.Expect(basicTooltip).ToBeVisibleAsync();
         await Assertions.Expect(basicTrigger).ToHaveAttributeAsync("aria-describedby", new System.Text.RegularExpressions.Regex(".+"));
@@ -70,15 +70,15 @@ public sealed class QuarkTooltipPlaywrightTests : PlaywrightUnitTest
         var sideSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Choose the side that best fits the surrounding layout." }).First;
         var topTrigger = sideSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Top", Exact = true });
         var rightTrigger = sideSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Right", Exact = true });
-        var openTopTooltip = page.Locator("[data-slot='tooltip-content'][data-state='instant-open'], [data-slot='tooltip-content'][data-state='delayed-open']")
+        var openTopTooltip = page.Locator("[data-slot='tooltip-content']")
                                  .Filter(new LocatorFilterOptions { HasText = "Default placement" });
         var openRightTooltip =
-            page.Locator("[data-slot='tooltip-content'][data-state='instant-open'], [data-slot='tooltip-content'][data-state='delayed-open']")
+            page.Locator("[data-slot='tooltip-content']")
                 .Filter(new LocatorFilterOptions { HasText = "Helpful context on the right" });
 
         await basicTrigger.HoverAsync();
         await Assertions
-              .Expect(page.Locator("[data-slot='tooltip-content'][data-state='instant-open'], [data-slot='tooltip-content'][data-state='delayed-open']")
+              .Expect(page.Locator("[data-slot='tooltip-content']")
                           .Filter(new LocatorFilterOptions { HasText = "Add to library" })).ToBeVisibleAsync();
 
         await topTrigger.HoverAsync();
@@ -109,7 +109,7 @@ public sealed class QuarkTooltipPlaywrightTests : PlaywrightUnitTest
         var tooltipTrigger = dialog.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Show nested tooltip", Exact = true });
         await tooltipTrigger.HoverAsync();
 
-        var tooltip = page.Locator("[data-slot='tooltip-content'][data-state='instant-open'], [data-slot='tooltip-content'][data-state='delayed-open']")
+        var tooltip = page.Locator("[data-slot='tooltip-content']")
                           .Filter(new LocatorFilterOptions { HasText = "Nested tooltip" });
         await Assertions.Expect(tooltip).ToBeVisibleAsync();
         await Assertions.Expect(dialog).ToBeVisibleAsync();

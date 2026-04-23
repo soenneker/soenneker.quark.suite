@@ -23,7 +23,7 @@ public sealed class QuarkLabelPlaywrightTests : PlaywrightUnitTest
             static p => p.GetByText("Accept terms and conditions", new PageGetByTextOptions { Exact = true }),
             expectedTitle: "Label - Quark Suite");
 
-        var terms = page.Locator("#label-terms");
+        var terms = page.Locator("#terms");
         await Assertions.Expect(terms).Not.ToBeCheckedAsync();
 
         await page.GetByText("Accept terms and conditions", new PageGetByTextOptions { Exact = true }).ClickAsync();
@@ -31,8 +31,8 @@ public sealed class QuarkLabelPlaywrightTests : PlaywrightUnitTest
 
         var controlSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Label as caption for checkbox or radio controls." }).First;
         var rememberMe = controlSection.Locator("#label-remember-me");
-        var option1 = controlSection.Locator("#label-option1");
-        var option2 = controlSection.Locator("#label-option2");
+        var option1 = controlSection.GetByRole(AriaRole.Radio, new LocatorGetByRoleOptions { Name = "Option 1", Exact = true });
+        var option2 = controlSection.GetByRole(AriaRole.Radio, new LocatorGetByRoleOptions { Name = "Option 2", Exact = true });
 
         await Assertions.Expect(rememberMe).Not.ToBeCheckedAsync();
         await Assertions.Expect(option1).Not.ToBeCheckedAsync();

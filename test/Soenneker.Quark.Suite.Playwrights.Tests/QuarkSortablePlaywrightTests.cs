@@ -111,7 +111,7 @@ public sealed class QuarkSortablePlaywrightTests : PlaywrightUnitTest
                 const startX = sourceRect.left + (sourceRect.width / 2);
                 const startY = sourceRect.top + (sourceRect.height / 2);
                 const targetX = targetRect.left + (targetRect.width / 2);
-                const targetY = targetRect.top + 1;
+                const targetY = targetRect.top - 4;
                 const pointerId = 1;
 
                 const dispatchPointer = (eventTarget, type, clientX, clientY, buttons) => {
@@ -140,6 +140,7 @@ public sealed class QuarkSortablePlaywrightTests : PlaywrightUnitTest
                     await new Promise(resolve => setTimeout(resolve, 8));
                 }
 
+                dispatchPointer(targetElement, 'pointermove', targetX, targetY, 1);
                 dispatchPointer(document, 'pointerup', targetX, targetY, 0);
             }",
             new

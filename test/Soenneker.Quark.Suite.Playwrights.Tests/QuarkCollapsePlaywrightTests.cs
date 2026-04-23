@@ -38,9 +38,8 @@ public sealed class QuarkCollapsePlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(firstCollapse).Not.ToHaveClassAsync(new System.Text.RegularExpressions.Regex("max-h-0"));
         await Assertions.Expect(secondCollapse).Not.ToHaveClassAsync(new System.Text.RegularExpressions.Regex("max-h-0"));
 
-        var programmaticSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "State: Collapsed" }).First;
         var showButton = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Show", Exact = true }).First;
-        var programmaticCollapse = programmaticSection.Locator("[data-slot='collapse']").First;
+        var programmaticCollapse = page.Locator("[data-slot='collapse']").Last;
 
         await Assertions.Expect(page.GetByText("State: Collapsed", new PageGetByTextOptions { Exact = false }).First).ToBeVisibleAsync();
         await Assertions.Expect(programmaticCollapse).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("max-h-0"));

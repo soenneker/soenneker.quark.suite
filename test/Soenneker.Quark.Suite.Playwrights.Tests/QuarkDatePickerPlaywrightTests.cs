@@ -52,7 +52,9 @@ public sealed class QuarkDatePickerPlaywrightTests : PlaywrightUnitTest
             expectedTitle: "Date Pickers - Quark Suite");
 
         var initialDate = DateOnly.FromDateTime(DateTime.Today.AddDays(21));
-        DateOnly targetDate = new(initialDate.AddMonths(1).Year, initialDate.AddMonths(1).Month, 1);
+        var targetDate = initialDate.Day == 1
+            ? initialDate.AddDays(1)
+            : new DateOnly(initialDate.Year, initialDate.Month, 1);
         var expectedLabel = FormatDatePickerLabel(targetDate);
 
         var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "With Dropdowns" }).First;
@@ -64,7 +66,6 @@ public sealed class QuarkDatePickerPlaywrightTests : PlaywrightUnitTest
         var calendar = page.Locator("[data-slot='calendar']").Last;
         await Assertions.Expect(calendar).ToBeVisibleAsync();
 
-        await calendar.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Next month", Exact = true }).ClickAsync();
         await calendar.Locator($"[data-day='{targetDate:yyyy-MM-dd}']").ClickAsync();
 
         await Assertions.Expect(trigger).ToContainTextAsync(expectedLabel);
@@ -83,16 +84,16 @@ public sealed class QuarkDatePickerPlaywrightTests : PlaywrightUnitTest
             expectedTitle: "Date Pickers - Quark Suite");
 
         var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Date and time" }).First;
-        var input = section.Locator("input[type='text']").First;
+        var input = section.Locator("input[type='text'][aria-controls]").First;
         var valueChip = section.GetByText("Value:", new LocatorGetByTextOptions { Exact = false }).First;
 
         var initialValue = await input.InputValueAsync();
         var initialValueChip = await valueChip.InnerTextAsync();
 
         await section.ScrollIntoViewIfNeededAsync();
-        await input.ClickAsync();
+        await input.ClickAsync(new LocatorClickOptions { Force = true });
 
-        var panel = page.Locator("[data-slot='date-time-picker-panel']").Last;
+        var panel = page.Locator("[data-slot='popover-content']").Filter(new LocatorFilterOptions { Has = page.Locator("input[aria-label='Hour']") }).Last;
         await Assertions.Expect(panel).ToBeVisibleAsync();
 
         await panel.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "+", Exact = true }).Nth(1).ClickAsync();
@@ -105,7 +106,7 @@ public sealed class QuarkDatePickerPlaywrightTests : PlaywrightUnitTest
 
         await page.Mouse.ClickAsync(10, 10);
 
-        await Assertions.Expect(page.Locator("[data-slot='date-time-picker-panel']")).ToHaveCountAsync(0);
+        await Assertions.Expect(page.Locator("[data-slot='popover-content']").Filter(new LocatorFilterOptions { Has = page.Locator("input[aria-label='Hour']") })).ToHaveCountAsync(0);
     }
 
     [Test]

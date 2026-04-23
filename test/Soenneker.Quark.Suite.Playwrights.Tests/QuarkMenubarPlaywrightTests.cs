@@ -73,8 +73,8 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
             expectedTitle: "Menubar - Quark Suite");
 
         var demo = page.Locator("[data-testid='quark-menubar-rtl-demo']");
-        var file = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Ù…Ù„Ù", Exact = true });
-        var view = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Ø¹Ø±Ø¶", Exact = true });
+        var file = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "ملف", Exact = true });
+        var view = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "عرض", Exact = true });
 
         await file.FocusAsync();
         await file.PressAsync("ArrowRight");

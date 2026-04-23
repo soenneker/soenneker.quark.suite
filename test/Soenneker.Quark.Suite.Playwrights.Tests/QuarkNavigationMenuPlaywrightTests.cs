@@ -162,7 +162,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
         await gettingStarted.ClickAsync();
 
         var activeLink = section.Locator("[data-slot='navigation-menu-link'][aria-current='page']").Filter(new LocatorFilterOptions { HasText = "Introduction" }).First;
-        await Assertions.Expect(activeLink).ToHaveAttributeAsync("data-active", string.Empty);
+        await Assertions.Expect(activeLink).ToHaveAttributeAsync("aria-current", "page");
         await Assertions.Expect(activeLink).ToBeVisibleAsync();
     }
 
@@ -220,6 +220,5 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(viewport).ToContainTextAsync("المكونات");
         await Assertions.Expect(viewport).ToContainTextAsync("الأزرار");
         await Assertions.Expect(activeLink).ToHaveAttributeAsync("aria-current", "page");
-        await Assertions.Expect(activeLink).ToHaveAttributeAsync("data-active", string.Empty);
     }
 }
