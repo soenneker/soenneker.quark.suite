@@ -1,6 +1,5 @@
 using Soenneker.Playwrights.TestHosts;
 using System.IO;
-using Soenneker.Playwrights.TestEnvironment.Options;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
