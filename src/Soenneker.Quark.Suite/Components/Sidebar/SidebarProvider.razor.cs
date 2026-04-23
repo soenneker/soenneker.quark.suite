@@ -213,7 +213,7 @@ public partial class SidebarProvider
 
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
-            AppendClass(ref cls, "group/sidebar-wrapper min-h-svh has-data-[variant=inset]:bg-sidebar");
+            AppendClass(ref cls, "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar");
             AppendStyleDecl(ref sty, $"--sidebar-width: {SidebarWidth}");
             AppendStyleDecl(ref sty, $"--sidebar-width-icon: {SidebarWidthIcon}");
             AppendStyleDecl(ref sty, $"--sidebar-width-mobile: {SidebarWidthMobile}");

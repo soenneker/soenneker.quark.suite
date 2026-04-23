@@ -17,8 +17,8 @@
                      Code="@UsageCode"
                      CodeLanguage="razor">
             <Div Width="Width.IsFull" Overflow="Overflow.Hidden" Rounded="Rounded.Xl" Border="Border.Is1" BorderColor="BorderColor.Border" BackgroundColor="BackgroundColor.Background">
-                <SidebarProvider Open="_usageSidebarOpen" OpenChanged="OnUsageSidebarOpenChanged" Class="h-[24rem]">
-                    <Sidebar>
+                    <SidebarProvider Open="_usageSidebarOpen" OpenChanged="OnUsageSidebarOpenChanged" Class="h-[24rem]">
+                    <Sidebar Collapsible="SidebarCollapsible.None">
                         <SidebarHeader>
                             <Paragraph Padding="Padding.Is2.OnX" TextSize="TextSize.Sm" FontWeight="FontWeight.Semibold">Acme Inc.</Paragraph>
                         </SidebarHeader>
@@ -106,7 +106,7 @@
                      CodeLanguage="razor">
             <Div Width="Width.IsFull" Overflow="Overflow.Hidden" Rounded="Rounded.Xl" Border="Border.Is1" BorderColor="BorderColor.Border" BackgroundColor="BackgroundColor.Background">
                 <SidebarProvider Open="_composedSidebarOpen" OpenChanged="OnComposedSidebarOpenChanged" Class="h-[31rem]">
-                    <Sidebar Collapsible="SidebarCollapsible.Icon">
+                    <Sidebar Collapsible="SidebarCollapsible.None">
                         <SidebarHeader>
                             <Paragraph Padding="Padding.Is2.OnX" TextSize="TextSize.Sm" FontWeight="FontWeight.Semibold">Workspace</Paragraph>
                             <SidebarInput Placeholder="Search..." Type="search" />
@@ -313,15 +313,10 @@
                      Description="Use `Open` and `OpenChanged` on `SidebarProvider` when the parent owns the expanded state."
                      Code="@ControlledCode"
                      CodeLanguage="razor">
-            <Div id="sidebar-controlled-demo" Width="Width.IsFull" Space="Space.Y.Is4">
-                <Div class="relative z-10 flex flex-wrap gap-2">
-                    <Button id="sidebar-controlled-open" Class="relative z-50" Size="ButtonSize.Sm" OnClick="OpenControlledSidebar">Open</Button>
-                    <Button id="sidebar-controlled-close" Class="relative z-50" Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="CloseControlledSidebar">Close</Button>
-                </Div>
-
+            <div id="sidebar-controlled-demo" class="w-full space-y-4">
                 <Div Overflow="Overflow.Hidden" Rounded="Rounded.Xl" Border="Border.Is1" BorderColor="BorderColor.Border" BackgroundColor="BackgroundColor.Background">
                     <SidebarProvider Open="_controlledSidebarOpen" OpenChanged="OnControlledSidebarOpenChanged" Class="h-[20rem]">
-                        <Sidebar>
+                        <Sidebar Collapsible="SidebarCollapsible.None">
                             <SidebarContent>
                                 <SidebarGroup>
                                     <SidebarGroupLabel>State</SidebarGroupLabel>
@@ -344,6 +339,20 @@
                             <Div Display="Display.Flex" Height='Height.Token("14")' ItemsAlign="Items.Center" Gap="Gap.Is3" Border="Border.Is1.FromBottom" BackgroundColor="BackgroundColor.Background" Padding="Padding.Is4.OnX">
                                 <SidebarTrigger id="sidebar-controlled-trigger" Class="relative z-50" />
                                 <Paragraph id="sidebar-controlled-state" TextSize="TextSize.Sm" FontWeight="FontWeight.Medium">Current state: @(_controlledSidebarOpen ? "open" : "closed")</Paragraph>
+                                <div class="ml-auto flex flex-wrap gap-2">
+                                    <button id="sidebar-controlled-open"
+                                            type="button"
+                                            class="inline-flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent bg-primary px-3 text-sm font-medium whitespace-nowrap text-primary-foreground transition-all outline-none hover:bg-primary/90 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
+                                            @onclick="OpenControlledSidebar">
+                                        Open
+                                    </button>
+                                    <button id="sidebar-controlled-close"
+                                            type="button"
+                                            class="inline-flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-md border border-input bg-background px-3 text-sm font-medium whitespace-nowrap transition-all outline-none hover:bg-accent hover:text-accent-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
+                                            @onclick="CloseControlledSidebar">
+                                        Close
+                                    </button>
+                                </div>
                             </Div>
                             <Div Padding="Padding.Is6" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
                                 This example is controlled entirely by the parent page and mirrors the standard `open` plus `onOpenChange` pattern.
@@ -351,7 +360,7 @@
                         </SidebarInset>
                     </SidebarProvider>
                 </Div>
-            </Div>
+            </div>
         </DemoSection>
     </Section>
 
@@ -485,7 +494,7 @@
     private const string UsageCode =
         """
         <SidebarProvider Open="_usageSidebarOpen" OpenChanged="OnUsageSidebarOpenChanged">
-            <Sidebar>
+            <Sidebar Collapsible="SidebarCollapsible.None">
                 <SidebarHeader>
                     <Paragraph Padding="Padding.Is2.OnX" TextSize="TextSize.Sm" FontWeight="FontWeight.Semibold">Acme Inc.</Paragraph>
                 </SidebarHeader>
@@ -541,7 +550,7 @@
     private const string ComposedMenuCode =
         """
         <SidebarProvider Open="_composedSidebarOpen" OpenChanged="OnComposedSidebarOpenChanged">
-            <Sidebar Collapsible="SidebarCollapsible.Icon">
+            <Sidebar Collapsible="SidebarCollapsible.None">
                 <SidebarHeader>
                     <Paragraph Padding="Padding.Is2.OnX" TextSize="TextSize.Sm" FontWeight="FontWeight.Semibold">Workspace</Paragraph>
                     <SidebarInput Placeholder="Search..." Type="search" />
@@ -697,7 +706,7 @@
         <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="CloseControlledSidebar">Close</Button>
 
         <SidebarProvider Open="_controlledSidebarOpen" OpenChanged="OnControlledSidebarOpenChanged">
-            <Sidebar>
+            <Sidebar Collapsible="SidebarCollapsible.None">
                 <SidebarContent>
                     <SidebarGroup>
                         <SidebarGroupLabel>State</SidebarGroupLabel>

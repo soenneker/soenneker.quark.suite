@@ -23,8 +23,9 @@
 
     protected virtual Dictionary<string, object> BuildPreAttributes()
     {
-        var attributes = new Dictionary<string, object>();
+        var attributes = new Dictionary<string, object>(BuildAttributes());
         attributes["data-slot"] = "pre-code";
+
         if (!Class.HasContent())
         {
             var baseClasses = "p-3 rounded";
@@ -43,7 +44,7 @@
         }
         else
         {
-            var currentClass = Class;
+            var currentClass = attributes.TryGetValue("class", out var classValue) ? classValue?.ToString() ?? Class : Class;
             
             if (Scrollable && !currentClass.Contains("overflow-auto"))
             {

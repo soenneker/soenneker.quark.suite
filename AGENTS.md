@@ -11,7 +11,7 @@ dotnet test --filter ...
 Use:
 
 ```bash
-dotnet test -- --treenode-filter "<filter>"
+dotnet test --treenode-filter "<filter>"
 ```
 
 Format:
@@ -23,6 +23,6 @@ Format:
 Examples:
 
 ```bash
-dotnet test -- --treenode-filter "/*/*/*/MyTest"
-dotnet test -- --treenode-filter "/*/*/MyTestClass/*"
+dotnet test --treenode-filter "/*/*/*/MyTest"
+dotnet test --treenode-filter "/*/*/MyTestClass/*"
 ```
