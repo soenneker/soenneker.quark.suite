@@ -120,23 +120,7 @@
 
     private static string FormatDisplay(DateOnly value)
     {
-        return string.Create(CultureInfo.InvariantCulture, $"{value:MMM} {value.Day}{GetOrdinalSuffix(value.Day)}, {value:yyyy}");
-    }
-
-    private static string GetOrdinalSuffix(int day)
-    {
-        var remainder = day % 100;
-
-        if (remainder is >= 11 and <= 13)
-            return "th";
-
-        return (day % 10) switch
-        {
-            1 => "st",
-            2 => "nd",
-            3 => "rd",
-            _ => "th"
-        };
+        return value.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture);
     }
 
     private string GetPlaceholderText()
@@ -151,7 +135,7 @@
 
     private string GetTriggerClass()
     {
-        var baseClass = "w-[212px] justify-between text-left font-normal data-[empty=true]:text-muted-foreground";
+        var baseClass = "w-[212px] justify-between rounded-lg text-left font-normal data-[empty=true]:text-muted-foreground";
         return Class.HasContent() ? AppendToClass(Class, baseClass) : baseClass;
     }
 

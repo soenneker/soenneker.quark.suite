@@ -111,7 +111,7 @@ public sealed class QuarkSortablePlaywrightTests : PlaywrightUnitTest
                 const startX = sourceRect.left + (sourceRect.width / 2);
                 const startY = sourceRect.top + (sourceRect.height / 2);
                 const targetX = targetRect.left + (targetRect.width / 2);
-                const targetY = targetRect.top + 8;
+                const targetY = targetRect.top + 1;
                 const pointerId = 1;
 
                 const dispatchPointer = (eventTarget, type, clientX, clientY, buttons) => {

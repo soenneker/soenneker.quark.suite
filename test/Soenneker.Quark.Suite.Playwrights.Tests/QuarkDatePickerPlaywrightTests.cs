@@ -36,7 +36,7 @@ public sealed class QuarkDatePickerPlaywrightTests : PlaywrightUnitTest
 
         await calendar.Locator("[data-day='1995-07-10']").ClickAsync();
 
-        await Assertions.Expect(trigger).ToContainTextAsync("Jul 10th, 1995");
+        await Assertions.Expect(trigger).ToContainTextAsync("Jul 10, 1995");
         await Assertions.Expect(page.Locator("[data-slot='calendar']")).ToHaveCountAsync(0);
     }
 
@@ -92,7 +92,7 @@ public sealed class QuarkDatePickerPlaywrightTests : PlaywrightUnitTest
         await section.ScrollIntoViewIfNeededAsync();
         await input.ClickAsync();
 
-        var panel = page.Locator(".q-calendar-panel").Last;
+        var panel = page.Locator("[data-slot='date-time-picker-panel']").Last;
         await Assertions.Expect(panel).ToBeVisibleAsync();
 
         await panel.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "+", Exact = true }).Nth(1).ClickAsync();
@@ -105,7 +105,7 @@ public sealed class QuarkDatePickerPlaywrightTests : PlaywrightUnitTest
 
         await page.Mouse.ClickAsync(10, 10);
 
-        await Assertions.Expect(page.Locator(".q-calendar-panel")).ToHaveCountAsync(0);
+        await Assertions.Expect(page.Locator("[data-slot='date-time-picker-panel']")).ToHaveCountAsync(0);
     }
 
     [Test]
@@ -132,7 +132,7 @@ public sealed class QuarkDatePickerPlaywrightTests : PlaywrightUnitTest
         await calendar.Locator("[data-day='2024-04-24']").ClickAsync();
 
         await Assertions.Expect(valueChip).ToContainTextAsync("2024-04-24");
-        await Assertions.Expect(trigger).ToContainTextAsync("Apr 24th, 2024");
+        await Assertions.Expect(trigger).ToContainTextAsync("Apr 24, 2024");
 
         await trigger.ClickAsync();
 
@@ -161,7 +161,7 @@ public sealed class QuarkDatePickerPlaywrightTests : PlaywrightUnitTest
         await section.ScrollIntoViewIfNeededAsync();
         await launchButton.ClickAsync();
 
-        await Assertions.Expect(trigger).ToContainTextAsync("Jan 15th, 2030");
+        await Assertions.Expect(trigger).ToContainTextAsync("Jan 15, 2030");
         await Assertions.Expect(valueChip).ToContainTextAsync("2030-01-15");
 
         await trigger.ClickAsync();
@@ -180,22 +180,6 @@ public sealed class QuarkDatePickerPlaywrightTests : PlaywrightUnitTest
 
     private static string FormatDatePickerLabel(DateOnly value)
     {
-        return $"{value:MMM} {GetOrdinalDayLabel(value.Day)}, {value:yyyy}";
-    }
-
-    private static string GetOrdinalDayLabel(int day)
-    {
-        var remainder = day % 100;
-
-        if (remainder is >= 11 and <= 13)
-            return $"{day}th";
-
-        return (day % 10) switch
-        {
-            1 => $"{day}st",
-            2 => $"{day}nd",
-            3 => $"{day}rd",
-            _ => $"{day}th"
-        };
+        return value.ToString("MMM dd, yyyy");
     }
 }

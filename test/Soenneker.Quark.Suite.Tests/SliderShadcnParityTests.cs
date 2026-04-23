@@ -109,7 +109,7 @@ public sealed partial class RenderedShadcnParityTests
         root.HasAttribute("data-horizontal").Should().BeTrue();
         range.HasAttribute("data-horizontal").Should().BeTrue();
         root.GetAttribute("style")!.Should().Contain("--radix-slider-thumb-transform: translateX(-50%)");
-        root.GetAttribute("data-js-ready")!.Should().Be("false");
+        root.GetAttribute("data-js-ready")!.Should().Be("true");
 
         range.GetAttribute("style")!.Should().Contain("left: 20.00%");
         range.GetAttribute("style")!.Should().Contain("right: 20.00%");

@@ -128,7 +128,7 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
 
         await Assertions.Expect(minimum).ToHaveAttributeAsync("aria-valuenow", "30");
         await Assertions.Expect(maximum).ToHaveAttributeAsync("aria-valuenow", "55");
-        await Assertions.Expect(rangeSection).ToContainTextAsync("Current: 30 â€“ 55.");
+        await Assertions.Expect(rangeSection).ToContainTextAsync("Current: 30 – 55.");
 
         var multipleSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Several thumbs on one track." }).First;
         var first = multipleSection.GetByRole(AriaRole.Slider, new LocatorGetByRoleOptions { Name = "Value 1 of 3", Exact = true });

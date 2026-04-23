@@ -169,13 +169,13 @@ public sealed class QuarkAccordionPlaywrightTests : PlaywrightUnitTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}accordions",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "ÙƒÙŠÙ ÙŠÙ…ÙƒÙ†Ù†ÙŠ Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±ØŸ", Exact = true }),
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "كيف يمكنني إعادة تعيين كلمة المرور؟", Exact = true }),
             expectedTitle: "Accordion - Quark Suite");
 
         var rtlSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Official shadcn RTL example." }).First;
-        var firstTrigger = rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "ÙƒÙŠÙ ÙŠÙ…ÙƒÙ†Ù†ÙŠ Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±ØŸ", Exact = true });
-        var secondTrigger = rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Ù‡Ù„ ÙŠÙ…ÙƒÙ†Ù†ÙŠ ØªØºÙŠÙŠØ± Ø®Ø·Ø© Ø§Ù„Ø§Ø´ØªØ±Ø§Ùƒ Ø§Ù„Ø®Ø§ØµØ© Ø¨ÙŠØŸ", Exact = true });
-        var thirdTrigger = rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Ù…Ø§ Ù‡ÙŠ Ø·Ø±Ù‚ Ø§Ù„Ø¯ÙØ¹ Ø§Ù„ØªÙŠ ØªÙ‚Ø¨Ù„ÙˆÙ†Ù‡Ø§ØŸ", Exact = true });
+        var firstTrigger = rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "كيف يمكنني إعادة تعيين كلمة المرور؟", Exact = true });
+        var secondTrigger = rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "هل يمكنني تغيير خطة الاشتراك الخاصة بي؟", Exact = true });
+        var thirdTrigger = rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "ما هي طرق الدفع التي تقبلونها؟", Exact = true });
 
         await firstTrigger.PressAsync("ArrowDown");
         await ExpectActiveElementAsync(page, secondTrigger);

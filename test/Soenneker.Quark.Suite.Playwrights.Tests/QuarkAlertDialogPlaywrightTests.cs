@@ -66,7 +66,7 @@ public sealed class QuarkAlertDialogPlaywrightTests : PlaywrightUnitTest
 
         await cancel.ClickAsync();
 
-        await Assertions.Expect(dialog).ToHaveAttributeAsync("data-state", "closed");
+        await Assertions.Expect(dialog).Not.ToBeVisibleAsync();
         await Assertions.Expect(trigger).ToBeFocusedAsync();
     }
 

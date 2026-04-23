@@ -65,7 +65,7 @@ public sealed class QuarkSheetPlaywrightTests : PlaywrightUnitTest
 
         await dialog.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Close", Exact = true }).ClickAsync();
 
-        await Assertions.Expect(dialog).ToHaveAttributeAsync("data-state", "closed");
+        await Assertions.Expect(dialog).Not.ToBeVisibleAsync();
     }
     private static async Task ClickJustOutsideAsync(IPage page, ILocator locator)
     {
