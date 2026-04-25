@@ -45,12 +45,14 @@ else
     {
         base.ApplyDefaultParameters();
 
-        Display ??= Quark.Display.Flex;
-        FlexDirection ??= Quark.FlexDirection.Col;
-        Gap ??= Quark.Gap.Is1;
-        Rounded ??= Quark.Rounded.Sm;
+        Display ??= Quark.Display.InlineFlex;
+        ItemsAlign ??= Items.Center;
+        Justify ??= Quark.Justify.Center;
+        Gap ??= Quark.Gap.Is2;
+        Rounded ??= Quark.Rounded.Lg;
         Padding ??= Quark.Padding.Is2;
         TextSize ??= Quark.TextSize.Sm;
+        FontWeight ??= Quark.FontWeight.Medium;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -71,12 +73,12 @@ else
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "transition-all outline-none");
-            AppendClass(ref cls, "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground");
-            AppendClass(ref cls, "focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1");
-            AppendClass(ref cls, "data-[active=true]:bg-accent/50 data-[active=true]:text-accent-foreground data-[active=true]:hover:bg-accent data-[active=true]:focus:bg-accent");
+            AppendClass(ref cls, "in-data-[slot=navigation-menu-content]:rounded-md transition-all outline-none");
+            AppendClass(ref cls, "hover:bg-muted focus:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-1");
+            AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
+            AppendClass(ref cls, "data-active:bg-muted/50 data-active:hover:bg-muted data-active:focus:bg-muted");
+            AppendClass(ref cls, "data-popup-open:bg-muted/50 data-popup-open:hover:bg-muted data-open:bg-muted/50 data-open:hover:bg-muted data-open:focus:bg-muted");
             AppendClass(ref cls, "[&_svg:not([class*='size-'])]:size-4");
-            AppendClass(ref cls, "[&_svg:not([class*='text-'])]:text-muted-foreground");
         });
     }
 

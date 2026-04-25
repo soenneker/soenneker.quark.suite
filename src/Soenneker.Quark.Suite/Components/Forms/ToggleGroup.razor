@@ -102,15 +102,15 @@
             attributes["data-variant"] = Variant?.Value ?? ToggleVariant.Default.Value;
             attributes["data-size"] = GetToggleSizeDataAttribute(Size);
             attributes["data-orientation"] = Orientation?.Value ?? ToggleGroupOrientation.Horizontal.Value;
+            attributes[Orientation == ToggleGroupOrientation.Vertical ? "data-vertical" : "data-horizontal"] = string.Empty;
             attributes["data-spacing"] = Spacing.ToString();
 
             AppendStyleDeclAttr(attributes, $"--gap:{Spacing}");
 
             BuildClassAttribute(attributes, (ref cls) =>
             {
-                AppendClass(ref cls, "group/toggle-group flex w-fit items-center gap-[--spacing(var(--gap))] rounded-md");
-                AppendClass(ref cls, "data-[spacing=default]:data-[variant=outline]:shadow-xs");
-                AppendClass(ref cls, "data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-stretch");
+                AppendClass(ref cls, "group/toggle-group flex w-fit flex-row items-center gap-[--spacing(var(--gap))] rounded-lg data-[size=sm]:rounded-[min(var(--radius-md),10px)]");
+                AppendClass(ref cls, "data-vertical:flex-col data-vertical:items-stretch");
                 AppendClass(ref cls, Toggle.GetToggleGroupVariantClass(Variant?.Value));
             });
 

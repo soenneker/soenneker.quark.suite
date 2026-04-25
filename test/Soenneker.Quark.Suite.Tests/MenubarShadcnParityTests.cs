@@ -16,14 +16,14 @@ public sealed partial class RenderedShadcnParityTests
         var rootClasses = root.Find("[data-slot='menubar']").GetAttribute("class")!;
 
         rootClasses.Should().Contain("flex");
-        rootClasses.Should().Contain("h-9");
+        rootClasses.Should().Contain("h-8");
         rootClasses.Should().Contain("items-center");
-        rootClasses.Should().Contain("gap-1");
-        rootClasses.Should().Contain("rounded-md");
+        rootClasses.Should().Contain("gap-0.5");
+        rootClasses.Should().Contain("rounded-lg");
         rootClasses.Should().Contain("border");
-        rootClasses.Should().Contain("bg-background");
-        rootClasses.Should().Contain("p-1");
-        rootClasses.Should().Contain("shadow-xs");
+        rootClasses.Should().Contain("p-[3px]");
+        rootClasses.Should().NotContain("bg-background");
+        rootClasses.Should().NotContain("shadow-xs");
 
         var source = ReadMenubarSource("MenubarTrigger.razor");
         var rootSource = ReadMenubarSource("Menubar.razor");

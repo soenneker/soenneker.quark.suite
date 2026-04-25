@@ -24,17 +24,22 @@ public sealed partial class RenderedShadcnParityTests
         itemClasses.Should().Contain("duration-100");
         itemClasses.Should().Contain("focus-visible:ring-[3px]");
         itemClasses.Should().Contain("[a]:transition-colors");
-        itemClasses.Should().Contain("[a]:hover:bg-accent/50");
+        itemClasses.Should().Contain("[a]:hover:bg-muted");
         itemClasses.Should().Contain("border-border");
-        itemClasses.Should().Contain("gap-4");
-        itemClasses.Should().Contain("p-4");
+        itemClasses.Should().Contain("gap-2.5");
+        itemClasses.Should().Contain("px-3");
+        itemClasses.Should().Contain("py-2.5");
         itemClasses.Should().Contain("flex");
         itemClasses.Should().Contain("flex-wrap");
         itemClasses.Should().Contain("items-center");
-        itemClasses.Should().Contain("rounded-md");
+        itemClasses.Should().Contain("rounded-lg");
         itemClasses.Should().Contain("border");
         itemClasses.Should().Contain("text-sm");
         itemClasses.Should().Contain("transition-colors");
+        itemClasses.Should().NotContain("[a]:hover:bg-accent/50");
+        itemClasses.Should().NotContain("gap-4");
+        itemClasses.Should().NotContain("p-4");
+        itemClasses.Should().NotContain("rounded-md");
         itemClasses.Should().NotContain("w-full");
         itemClasses.Should().NotContain("border-1");
         itemClasses.Should().NotContain("q-item");
@@ -62,8 +67,10 @@ public sealed partial class RenderedShadcnParityTests
         item.GetAttribute("data-size").Should().Be("sm");
         classes.Should().Contain("bg-muted/50");
         classes.Should().Contain("gap-2.5");
-        classes.Should().Contain("px-4");
-        classes.Should().Contain("py-3");
+        classes.Should().Contain("px-3");
+        classes.Should().Contain("py-2.5");
+        classes.Should().NotContain("px-4");
+        classes.Should().NotContain("py-3");
     }
 
     [Test]

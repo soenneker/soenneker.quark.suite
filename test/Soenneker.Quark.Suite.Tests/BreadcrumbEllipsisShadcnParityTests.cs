@@ -14,10 +14,11 @@ public sealed partial class RenderedShadcnParityTests
         var classes = cut.Find("[data-slot='breadcrumb-ellipsis']").GetAttribute("class")!;
 
         classes.Should().Contain("flex");
-        classes.Should().Contain("size-9");
+        classes.Should().Contain("size-5");
         classes.Should().Contain("items-center");
         classes.Should().Contain("justify-center");
         classes.Should().Contain("[&>svg]:size-4");
+        classes.Should().NotContain("size-9");
         classes.Should().NotContain("q-breadcrumb-ellipsis");
     }
 }

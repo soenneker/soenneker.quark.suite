@@ -21,10 +21,12 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().Contain("shrink-0");
         classes.Should().Contain("items-center");
         classes.Should().Contain("justify-center");
-        classes.Should().Contain("size-10");
+        classes.Should().Contain("size-8");
         classes.Should().Contain("rounded-lg");
         classes.Should().Contain("bg-muted");
         classes.Should().Contain("text-foreground");
-        classes.Should().Contain("[&_svg:not([class*='size-'])]:size-6");
+        classes.Should().Contain("[&_svg:not([class*='size-'])]:size-4");
+        classes.Should().NotContain("size-10");
+        classes.Should().NotContain("[&_svg:not([class*='size-'])]:size-6");
     }
 }

@@ -22,9 +22,11 @@ public sealed partial class RenderedShadcnParityTests
         calendarClasses.Should().Contain("rdp-root");
         calendarClasses.Should().Contain("group/calendar");
         calendarClasses.Should().Contain("bg-background");
-        calendarClasses.Should().Contain("p-3");
+        calendarClasses.Should().Contain("p-2");
         calendarClasses.Should().Contain("[--cell-radius:var(--radius-md)]");
-        calendarClasses.Should().Contain("[--cell-size:--spacing(8)]");
+        calendarClasses.Should().Contain("[--cell-size:--spacing(7)]");
+        calendarClasses.Should().NotContain("p-3");
+        calendarClasses.Should().NotContain("[--cell-size:--spacing(8)]");
         calendarClasses.Should().NotContain("rounded-lg");
         calendarClasses.Should().NotContain("border");
         calendarMode.Should().Be("single");

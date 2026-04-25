@@ -23,11 +23,11 @@ public sealed partial class RenderedShadcnParityTests
         listClasses.Should().Contain("items-center");
         listClasses.Should().Contain("gap-1.5");
         listClasses.Should().Contain("text-sm");
-        listClasses.Should().Contain("break-words");
+        listClasses.Should().Contain("wrap-break-word");
         listClasses.Should().Contain("text-muted-foreground");
-        listClasses.Should().Contain("sm:gap-2.5");
+        listClasses.Should().NotContain("break-words");
+        listClasses.Should().NotContain("sm:gap-2.5");
         listClasses.Should().NotContain("q-breadcrumb-list");
-        listClasses.Should().NotContain("wrap-break-word");
     }
 }
 

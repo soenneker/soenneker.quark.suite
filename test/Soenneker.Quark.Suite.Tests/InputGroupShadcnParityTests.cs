@@ -18,17 +18,22 @@ public sealed partial class RenderedShadcnParityTests
         groupClasses.Should().Contain("group/input-group");
         groupClasses.Should().Contain("relative");
         groupClasses.Should().Contain("flex");
+        groupClasses.Should().Contain("h-8");
         groupClasses.Should().Contain("w-full");
+        groupClasses.Should().Contain("min-w-0");
         groupClasses.Should().Contain("items-center");
-        groupClasses.Should().Contain("rounded-md");
+        groupClasses.Should().Contain("rounded-lg");
         groupClasses.Should().Contain("border");
         groupClasses.Should().Contain("border-input");
-        groupClasses.Should().Contain("shadow-xs");
-        groupClasses.Should().Contain("transition-[color,box-shadow]");
-        groupClasses.Should().Contain("h-9");
-        groupClasses.Should().Contain("min-w-0");
-        groupClasses.Should().Contain("has-[[data-slot=input-group-control]:focus-visible]:ring-[3px]");
+        groupClasses.Should().Contain("transition-colors");
+        groupClasses.Should().Contain("has-[[data-slot=input-group-control]:focus-visible]:ring-3");
         groupClasses.Should().Contain("has-[[data-slot][aria-invalid=true]]:border-destructive");
+        groupClasses.Should().Contain("has-[[data-slot][aria-invalid=true]]:ring-3");
+        groupClasses.Should().NotContain("rounded-md");
+        groupClasses.Should().NotContain("shadow-xs");
+        groupClasses.Should().NotContain("transition-[color,box-shadow]");
+        groupClasses.Should().NotContain("h-9");
+        groupClasses.Should().NotContain("has-[[data-slot=input-group-control]:focus-visible]:ring-[3px]");
         groupClasses.Should().NotContain("q-input-group");
     }
 

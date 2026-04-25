@@ -21,7 +21,7 @@
     public AlertVariant Variant { get; set; } = AlertVariant.Default;
 
     /// <summary>
-    /// Gets or sets whether to show a thick left accent border in the variant's color.
+    /// Legacy alert accent option retained for source compatibility. shadcn Alert only supports default and destructive variants.
     /// </summary>
     [Parameter]
     public bool AccentBorder { get; set; }
@@ -43,12 +43,11 @@
         base.ApplyDefaultParameters();
 
         Display ??= Quark.Display.Grid;
-        ItemsAlign ??= Items.Start;
         Position ??= Quark.Position.Relative;
         Width ??= Quark.Width.IsFull;
         Rounded ??= Quark.Rounded.Lg;
         Border ??= Quark.Border.Default;
-        Padding ??= Quark.Padding.Is3.OnY.Is4.OnX;
+        Padding ??= Quark.Padding.Token("2.5").OnX.Is2.OnY;
         TextSize ??= Quark.TextSize.Sm;
 
         if (Variant == AlertVariant.Default)
@@ -65,24 +64,15 @@
         attributes["role"] = "alert";
 
         // Build alert classes (and any alert-specific style) during attribute construction.
-        BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
+        BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/alert");
-            AppendClass(ref cls, "has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18");
-            AppendClass(ref cls, "grid-cols-[0_1fr] gap-y-0.5 has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] has-[>svg]:gap-x-3");
-            AppendClass(ref cls, "[&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current");
+            AppendClass(ref cls, "group/alert gap-0.5 text-left has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18");
+            AppendClass(ref cls, "has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2");
+            AppendClass(ref cls, "*:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4");
 
             if (IsDestructiveVariant())
-                AppendClass(ref cls, "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90");
-            else if (Variant != AlertVariant.Default)
-                AppendClass(ref cls, AlertVariantClasses.GetVariantClasses(Variant, AccentBorder));
-
-            ApplyAlertBackgroundColor(ref sty, ref cls);
+                AppendClass(ref cls, "bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current");
         });
-    }
-
-    protected override void ApplyBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
-    {
     }
 
     protected override void ApplyTextColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls, CssValue<TextColorBuilder>? value)
@@ -91,36 +81,6 @@
             return;
 
         base.ApplyTextColor(ref sty, ref cls, value);
-    }
-
-    protected virtual void ApplyAlertBackgroundColor(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
-    {
-        if (BackgroundColor is null || BackgroundColor.Value.IsEmpty)
-            return;
-
-        var v = BackgroundColor.Value.ToString();
-        if (v.Length == 0)
-            return;
-
-        string? token = null;
-        if (BackgroundColor.Value.TryGetThemeToken(out token) && token is not null)
-        {
-            if (token.Equals("danger", StringComparison.OrdinalIgnoreCase))
-                AppendClass(ref cls, "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90");
-            return;
-        }
-
-        if (BackgroundColor.Value.IsCssClass && v.StartsWith("alert-", StringComparison.Ordinal))
-        {
-            var sub = v.Length > 6 ? v.Substring(6) : null;
-            if (sub is not null && sub.Equals("danger", StringComparison.OrdinalIgnoreCase))
-                AppendClass(ref cls, "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90");
-            return;
-        }
-
-        AppendStyleDecl(ref sty, "border-color: ");
-        sty.Append(v);
-        AppendStyleDecl(ref sty, "color: white");
     }
 
     private LucideIcon GetDefaultIcon() => Variant?.Value switch

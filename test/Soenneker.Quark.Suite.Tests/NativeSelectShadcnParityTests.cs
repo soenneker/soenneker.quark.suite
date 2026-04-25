@@ -27,22 +27,40 @@ public sealed partial class RenderedShadcnParityTests
         nativeSelectWrapperClasses.Should().Contain("w-fit");
         nativeSelectWrapperClasses.Should().Contain("has-[select:disabled]:opacity-50");
 
-        nativeSelectClasses.Should().Contain("h-9");
-        nativeSelectClasses.Should().Contain("rounded-md");
+        nativeSelectClasses.Should().Contain("h-8");
+        nativeSelectClasses.Should().Contain("w-full");
+        nativeSelectClasses.Should().Contain("min-w-0");
+        nativeSelectClasses.Should().Contain("appearance-none");
+        nativeSelectClasses.Should().Contain("rounded-lg");
         nativeSelectClasses.Should().Contain("border-input");
-        nativeSelectClasses.Should().Contain("px-3");
-        nativeSelectClasses.Should().Contain("py-2");
-        nativeSelectClasses.Should().Contain("pr-9");
-        nativeSelectClasses.Should().Contain("shadow-xs");
-        nativeSelectClasses.Should().Contain("transition-[color,box-shadow]");
+        nativeSelectClasses.Should().Contain("bg-transparent");
+        nativeSelectClasses.Should().Contain("py-1");
+        nativeSelectClasses.Should().Contain("pr-8");
+        nativeSelectClasses.Should().Contain("pl-2.5");
+        nativeSelectClasses.Should().Contain("transition-colors");
         nativeSelectClasses.Should().Contain("select-none");
-        nativeSelectClasses.Should().Contain("focus-visible:ring-[3px]");
+        nativeSelectClasses.Should().Contain("focus-visible:ring-3");
+        nativeSelectClasses.Should().Contain("data-[size=sm]:h-7");
+        nativeSelectClasses.Should().Contain("data-[size=sm]:rounded-[min(var(--radius-md),10px)]");
+        nativeSelectClasses.Should().Contain("data-[size=sm]:py-0.5");
+        nativeSelectClasses.Should().Contain("dark:bg-input/30");
+        nativeSelectClasses.Should().Contain("dark:hover:bg-input/50");
+        nativeSelectClasses.Should().NotContain("h-9");
+        nativeSelectClasses.Should().NotContain("rounded-md");
+        nativeSelectClasses.Should().NotContain("px-3");
+        nativeSelectClasses.Should().NotContain("py-2");
+        nativeSelectClasses.Should().NotContain("pr-9");
+        nativeSelectClasses.Should().NotContain("shadow-xs");
+        nativeSelectClasses.Should().NotContain("transition-[color,box-shadow]");
+        nativeSelectClasses.Should().NotContain("focus-visible:ring-[3px]");
         nativeSelectClasses.Should().NotContain("q-native-select");
 
-        nativeSelectIconClasses.Should().Contain("right-3.5");
+        nativeSelectIconClasses.Should().Contain("right-2.5");
         nativeSelectIconClasses.Should().Contain("size-4");
         nativeSelectIconClasses.Should().Contain("text-muted-foreground");
-        nativeSelectIconClasses.Should().Contain("opacity-50");
+        nativeSelectIconClasses.Should().Contain("select-none");
+        nativeSelectIconClasses.Should().NotContain("right-3.5");
+        nativeSelectIconClasses.Should().NotContain("opacity-50");
     }
 
     [Test]

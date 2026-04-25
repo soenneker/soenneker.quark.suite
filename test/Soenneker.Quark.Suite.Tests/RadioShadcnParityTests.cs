@@ -17,21 +17,31 @@ public sealed partial class RenderedShadcnParityTests
         var indicatorClasses = cut.Find("[data-slot='radio-group-indicator']").GetAttribute("class")!;
         var iconClasses = cut.Find("[data-slot='icon']").GetAttribute("class")!;
 
+        classes.Should().Contain("group/radio-group-item");
+        classes.Should().Contain("peer");
+        classes.Should().Contain("relative");
+        classes.Should().Contain("flex");
         classes.Should().Contain("aspect-square");
         classes.Should().Contain("size-4");
         classes.Should().Contain("shrink-0");
         classes.Should().Contain("rounded-full");
         classes.Should().Contain("border");
         classes.Should().Contain("border-input");
-        classes.Should().Contain("text-primary");
-        classes.Should().Contain("shadow-xs");
-        classes.Should().Contain("transition-[color,box-shadow]");
         classes.Should().Contain("outline-none");
-        classes.Should().Contain("focus-visible:ring-[3px]");
+        classes.Should().Contain("after:absolute");
+        classes.Should().Contain("after:-inset-x-3");
+        classes.Should().Contain("after:-inset-y-2");
+        classes.Should().Contain("focus-visible:border-ring");
+        classes.Should().Contain("focus-visible:ring-3");
         classes.Should().Contain("aria-invalid:ring-destructive/20");
+        classes.Should().Contain("aria-invalid:aria-checked:border-primary");
         classes.Should().Contain("dark:bg-input/30");
-        classes.Should().NotContain("group/radio-group-item");
-        classes.Should().NotContain("data-[state=checked]:bg-primary");
+        classes.Should().Contain("data-checked:border-primary");
+        classes.Should().Contain("data-checked:bg-primary");
+        classes.Should().Contain("data-checked:text-primary-foreground");
+        classes.Should().NotContain("shadow-xs");
+        classes.Should().NotContain("transition-[color,box-shadow]");
+        classes.Should().NotContain("focus-visible:ring-[3px]");
 
         indicatorClasses.Should().Contain("relative");
         indicatorClasses.Should().Contain("flex");

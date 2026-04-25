@@ -17,8 +17,10 @@ public sealed partial class RenderedShadcnParityTests
         inputClasses.Should().Contain("rounded-lg");
         inputClasses.Should().Contain("border-input");
         inputClasses.Should().Contain("file:h-6");
-        inputClasses.Should().Contain("focus-visible:ring-[3px]");
-        inputClasses.Should().Contain("aria-invalid:ring-[3px]");
+        inputClasses.Should().Contain("focus-visible:ring-3");
+        inputClasses.Should().Contain("aria-invalid:ring-3");
+        inputClasses.Should().NotContain("focus-visible:ring-[3px]");
+        inputClasses.Should().NotContain("aria-invalid:ring-[3px]");
         inputClasses.Should().NotContain("q-input");
     }
 }

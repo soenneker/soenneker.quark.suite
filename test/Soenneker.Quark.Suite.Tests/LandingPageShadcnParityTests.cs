@@ -31,7 +31,7 @@ public sealed partial class RenderedShadcnParityTests
 
         page.Find("div.flex.flex-1.flex-col");
         page.Find("section.border-grid");
-        page.Find("div.container-wrapper.flex-1.pb-6");
+        page.Find("div.mx-auto.w-full.flex-1.pb-6");
         page.Markup.Should().Contain("heard about us.");
     }
 }

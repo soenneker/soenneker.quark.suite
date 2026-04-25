@@ -62,37 +62,44 @@ public sealed partial class RenderedShadcnParityTests
         commandClasses.Should().Contain("w-full");
         commandClasses.Should().Contain("flex-col");
         commandClasses.Should().Contain("overflow-hidden");
-        commandClasses.Should().Contain("rounded-md");
+        commandClasses.Should().Contain("rounded-xl!");
         commandClasses.Should().Contain("bg-popover");
+        commandClasses.Should().Contain("p-1");
         commandClasses.Should().Contain("text-popover-foreground");
-        commandClasses.Should().NotContain("rounded-xl!");
+        commandClasses.Should().NotContain("rounded-md");
+        commandClasses.Should().NotContain("size-full");
         commandClasses.Should().NotContain("max-w-sm");
         commandClasses.Should().NotContain("border");
         commandClasses.Should().NotContain("q-command");
 
-        wrapperClasses.Should().Contain("flex");
-        wrapperClasses.Should().Contain("h-9");
-        wrapperClasses.Should().Contain("items-center");
-        wrapperClasses.Should().Contain("gap-2");
-        wrapperClasses.Should().Contain("border-b");
-        wrapperClasses.Should().Contain("px-3");
-        wrapperClasses.Should().NotContain("input-group");
+        wrapperClasses.Should().Contain("p-1");
+        wrapperClasses.Should().Contain("pb-0");
+        wrapperClasses.Should().NotContain("border-b");
+        wrapperClasses.Should().NotContain("px-3");
 
-        var searchIconClasses = cut.Find("[data-slot='command-input-wrapper'] [data-slot='icon']").GetAttribute("class")!;
+        var inputGroupClasses = cut.Find("[data-slot='input-group']").GetAttribute("class")!;
+        inputGroupClasses.Should().Contain("group/input-group");
+        inputGroupClasses.Should().Contain("h-8!");
+        inputGroupClasses.Should().Contain("rounded-lg!");
+        inputGroupClasses.Should().Contain("border-input/30");
+        inputGroupClasses.Should().Contain("bg-input/30");
+        inputGroupClasses.Should().Contain("shadow-none!");
+
+        var searchIconClasses = cut.Find("[data-slot='input-group-addon'] [data-slot='icon']").GetAttribute("class")!;
         searchIconClasses.Should().Contain("size-4");
-        searchIconClasses.Should().Contain("shrink-0");
-        searchIconClasses.Should().Contain("opacity-50");
+        searchIconClasses.Should().NotContain("opacity-50");
 
-        inputClasses.Should().Contain("flex");
-        inputClasses.Should().Contain("h-10");
         inputClasses.Should().Contain("w-full");
-        inputClasses.Should().Contain("rounded-md");
-        inputClasses.Should().Contain("bg-transparent");
-        inputClasses.Should().Contain("py-3");
         inputClasses.Should().Contain("text-sm");
         inputClasses.Should().Contain("outline-hidden");
-        inputClasses.Should().Contain("placeholder:text-muted-foreground");
         inputClasses.Should().Contain("disabled:cursor-not-allowed");
+        inputClasses.Should().Contain("disabled:opacity-50");
+        inputClasses.Should().NotContain("flex");
+        inputClasses.Should().NotContain("bg-transparent");
+        inputClasses.Should().NotContain("placeholder:text-muted-foreground");
+        inputClasses.Should().NotContain("h-10");
+        inputClasses.Should().NotContain("rounded-md");
+        inputClasses.Should().NotContain("py-3");
         inputClasses.Should().NotContain("q-command-input");
 
         listClasses.Should().Contain("max-h-[300px]");
@@ -114,6 +121,7 @@ public sealed partial class RenderedShadcnParityTests
         groupClasses.Should().NotContain("q-command-group");
 
         itemClasses.Should().Contain("relative");
+        itemClasses.Should().Contain("group/command-item");
         itemClasses.Should().Contain("flex");
         itemClasses.Should().Contain("cursor-default");
         itemClasses.Should().Contain("items-center");
@@ -124,12 +132,12 @@ public sealed partial class RenderedShadcnParityTests
         itemClasses.Should().Contain("text-sm");
         itemClasses.Should().Contain("outline-hidden");
         itemClasses.Should().Contain("select-none");
-        itemClasses.Should().Contain("data-[selected=true]:bg-accent");
-        itemClasses.Should().Contain("data-[selected=true]:text-accent-foreground");
+        itemClasses.Should().Contain("data-[selected=true]:bg-muted");
+        itemClasses.Should().Contain("data-[selected=true]:text-foreground");
+        itemClasses.Should().NotContain("data-[selected=true]:bg-accent");
+        itemClasses.Should().NotContain("data-[selected=true]:text-accent-foreground");
         itemClasses.Should().Contain("[&_svg]:pointer-events-none");
-        itemClasses.Should().Contain("[&_svg:not([class*='text-'])]:text-muted-foreground");
-        itemClasses.Should().NotContain("group/command-item");
-        itemClasses.Should().NotContain("data-selected:bg-muted");
+        itemClasses.Should().Contain("data-selected:*:[svg]:text-foreground");
         itemClasses.Should().NotContain("q-command-item");
 
         shortcutClasses.Should().Contain("ml-auto");
@@ -154,10 +162,11 @@ public sealed partial class RenderedShadcnParityTests
 
         input.Should().Contain("attrs[\"data-slot\"] = \"command-input-wrapper\"");
         input.Should().Contain("LucideIcon.Search");
-        input.Should().NotContain("data-slot=\"input-group\"");
+        input.Should().Contain("attrs[\"data-slot\"] = \"input-group\"");
 
         item.Should().Contain("data-selected");
-        item.Should().Contain("data-[selected=true]:bg-accent");
+        item.Should().Contain("data-[selected=true]:bg-muted");
+        item.Should().Contain("group/command-item");
         item.Should().Contain("data-[disabled=true]:pointer-events-none");
 
         dialog.Should().Contain("DialogContent ShowCloseButton=\"@ShowCloseButton\" Class=\"overflow-hidden p-0\"");

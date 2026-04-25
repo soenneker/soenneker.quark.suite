@@ -21,7 +21,7 @@ public sealed partial class RenderedShadcnParityTests
         descriptionClasses.Should().Contain("text-balance");
         descriptionClasses.Should().Contain("text-muted-foreground");
         descriptionClasses.Should().Contain("[&>a]:underline-offset-4");
-        descriptionClasses.Should().NotContain("group-data-[size=xs]/item:text-xs");
+        descriptionClasses.Should().Contain("group-data-[size=xs]/item:text-xs");
         descriptionClasses.Should().NotContain("q-item-description");
     }
 }

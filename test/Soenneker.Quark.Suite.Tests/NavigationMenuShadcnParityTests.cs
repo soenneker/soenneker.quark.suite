@@ -62,33 +62,30 @@ public sealed partial class RenderedShadcnParityTests
         itemClasses.Should().Contain("relative");
         itemClasses.Should().NotContain("q-navigation-menu-item");
 
-        triggerClasses.Should().Contain("group");
-        triggerClasses.Should().Contain("rounded-md");
-        triggerClasses.Should().Contain("bg-background");
-        triggerClasses.Should().Contain("px-4");
-        triggerClasses.Should().Contain("py-2");
-        triggerClasses.Should().Contain("transition-[color,box-shadow]");
-        triggerClasses.Should().Contain("hover:bg-accent");
-        triggerClasses.Should().Contain("hover:text-accent-foreground");
-        triggerClasses.Should().Contain("focus-visible:ring-[3px]");
-        triggerClasses.Should().Contain("data-[state=open]:bg-accent/50");
-        triggerClasses.Should().Contain("data-[state=open]:hover:bg-accent");
-        triggerClasses.Should().NotContain("hover:bg-muted");
-        triggerClasses.Should().NotContain("data-popup-open:bg-muted/50");
+        triggerClasses.Should().Contain("group/navigation-menu-trigger");
+        triggerClasses.Should().Contain("rounded-lg");
+        triggerClasses.Should().Contain("px-2.5");
+        triggerClasses.Should().Contain("py-1.5");
+        triggerClasses.Should().Contain("transition-all");
+        triggerClasses.Should().Contain("hover:bg-muted");
+        triggerClasses.Should().Contain("focus-visible:ring-3");
+        triggerClasses.Should().Contain("data-popup-open:bg-muted/50");
+        triggerClasses.Should().Contain("data-open:bg-muted/50");
+        triggerClasses.Should().NotContain("bg-background");
+        triggerClasses.Should().NotContain("hover:bg-accent");
         triggerClasses.Should().NotContain("q-navigation-menu-trigger");
 
-        linkClasses.Should().Contain("flex");
-        linkClasses.Should().Contain("flex-col");
-        linkClasses.Should().Contain("gap-1");
-        linkClasses.Should().Contain("rounded-sm");
+        linkClasses.Should().Contain("inline-flex");
+        linkClasses.Should().Contain("gap-2");
+        linkClasses.Should().Contain("rounded-lg");
         linkClasses.Should().Contain("p-2");
         linkClasses.Should().Contain("transition-all");
-        linkClasses.Should().Contain("hover:bg-accent");
-        linkClasses.Should().Contain("focus-visible:ring-[3px]");
-        linkClasses.Should().Contain("data-[active=true]:bg-accent/50");
-        linkClasses.Should().Contain("[&_svg:not([class*='text-'])]:text-muted-foreground");
-        linkClasses.Should().NotContain("group/navigation-menu-trigger");
-        linkClasses.Should().NotContain("data-active:bg-muted/50");
+        linkClasses.Should().Contain("hover:bg-muted");
+        linkClasses.Should().Contain("focus-visible:ring-3");
+        linkClasses.Should().Contain("data-active:bg-muted/50");
+        linkClasses.Should().Contain("data-open:bg-muted/50");
+        linkClasses.Should().NotContain("[&_svg:not([class*='text-'])]:text-muted-foreground");
+        linkClasses.Should().NotContain("hover:bg-accent");
         linkClasses.Should().NotContain("q-navigation-menu-link");
     }
 
@@ -105,8 +102,8 @@ public sealed partial class RenderedShadcnParityTests
 
         trigger.Should().Contain("group-data-[state=open]:rotate-180");
         trigger.Should().Contain("aria-hidden=\"true\"");
-        trigger.Should().Contain("Padding.Is4.OnX.Is2.OnY");
-        trigger.Should().Contain("BackgroundColor.Background");
+        trigger.Should().Contain("Padding.Token(\"2.5\").OnX.Token(\"1.5\").OnY");
+        trigger.Should().NotContain("BackgroundColor.Background");
 
         content.Should().Contain("group-data-[viewport=false]/navigation-menu:overflow-hidden");
         content.Should().Contain("group-data-[viewport=false]/navigation-menu:rounded-md");

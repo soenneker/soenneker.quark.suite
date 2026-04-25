@@ -7,7 +7,9 @@
 <BradixProgress Value="@ResolvedBradixValue"
                 Max="@Max"
                 AdditionalAttributes="@BuildAttributes()">
-    <BradixProgressIndicator AdditionalAttributes="@IndicatorAttributes" />
+    <div data-slot="progress-track" class="relative flex h-1 w-full items-center overflow-x-hidden rounded-full bg-muted">
+        <BradixProgressIndicator AdditionalAttributes="@IndicatorAttributes" />
+    </div>
 </BradixProgress>
 
 @code {
@@ -70,20 +72,15 @@
     private string GetIndicatorStyle()
     {
         if (Indeterminate)
-            return "transform: translateX(0%);";
+            return "inset-inline-start: 0; height: inherit; width: 100%;";
 
         var pct = GetClampedValue() * 100.0 / EffectiveMax;
-        var offset = 100 - pct;
-        if (Math.Abs(offset) < 0.0001)
-            offset = 0;
-
-        var translate = offset == 0 ? 0 : IsRtl() ? offset : -offset;
-        return $"transform: translateX({translate:F0}%);";
+        return $"inset-inline-start: 0; height: inherit; width: {pct:F0}%;";
     }
 
     private string GetIndicatorClass()
     {
-        return "h-full w-full flex-1 bg-primary transition-all";
+        return "h-full bg-primary transition-all";
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -96,7 +93,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "relative h-2 w-full overflow-hidden rounded-full bg-primary/20");
+            AppendClass(ref cls, "flex flex-wrap gap-3");
         });
 
     }

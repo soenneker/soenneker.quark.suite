@@ -18,7 +18,7 @@ public sealed partial class RenderedShadcnParityTests
         var previewCard = cut.Find("[data-slot='component-preview']");
         var preview = cut.Find("[data-slot='preview']");
         var previewInner = preview.FirstElementChild!;
-        var contentInner = previewInner.QuerySelector(".w-full");
+        var contentInner = previewInner.QuerySelector(".mx-auto");
         var previewCardClasses = previewCard.GetAttribute("class")!;
         var previewClasses = previewInner.GetAttribute("class")!;
 
@@ -39,5 +39,7 @@ public sealed partial class RenderedShadcnParityTests
         previewClasses.Should().Contain("p-10");
         previewClasses.Should().Contain("data-[align=start]:items-start");
         contentInner.Should().NotBeNull();
+        contentInner!.GetAttribute("class")!.Should().Contain("items-center");
+        contentInner.GetAttribute("class")!.Should().Contain("justify-center");
     }
 }

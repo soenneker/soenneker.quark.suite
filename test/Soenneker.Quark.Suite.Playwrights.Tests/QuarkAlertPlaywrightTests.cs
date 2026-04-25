@@ -46,10 +46,18 @@ public sealed class QuarkAlertPlaywrightTests : PlaywrightUnitTest
         firstClasses.Should().Contain("grid-cols-[0_1fr]");
         firstClasses.Should().Contain("has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr]");
         firstClasses.Should().Contain("[&>svg]:size-4");
+        firstClasses.Should().Contain("bg-card");
+        firstClasses.Should().Contain("text-card-foreground");
+        firstClasses.Should().NotContain("group/alert");
+        firstClasses.Should().NotContain("has-data-[slot=alert-action]:pr-18");
+        (await firstAlert.GetAttributeAsync("style") ?? "").Should().NotContain("border-color");
 
         string? destructiveClasses = await destructive.GetAttributeAsync("class");
+        destructiveClasses.Should().Contain("bg-card");
         destructiveClasses.Should().Contain("text-destructive");
         destructiveClasses.Should().Contain("*:data-[slot=alert-description]:text-destructive/90");
+        destructiveClasses.Should().NotContain("bg-alert-danger-bg");
+        (await destructive.GetAttributeAsync("style") ?? "").Should().NotContain("color: white");
 
         var title = firstAlert.Locator("[data-slot='alert-title']").First;
         var description = firstAlert.Locator("[data-slot='alert-description']").First;

@@ -17,10 +17,13 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().Contain("w-full");
         classes.Should().Contain("max-w-sm");
         classes.Should().Contain("min-w-0");
-        classes.Should().Contain("flex-col");
+        classes.Should().Contain("flex-row");
         classes.Should().Contain("items-center");
-        classes.Should().Contain("gap-4");
+        classes.Should().Contain("justify-center");
+        classes.Should().Contain("gap-2");
         classes.Should().Contain("text-sm");
         classes.Should().Contain("text-balance");
+        classes.Should().NotContain("flex-col");
+        classes.Should().NotContain("gap-4");
     }
 }
