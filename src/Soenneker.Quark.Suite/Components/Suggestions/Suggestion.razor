@@ -1,15 +1,21 @@
 @namespace Soenneker.Quark
 
-<Button Variant="@Variant" Size="@Size" OnClick="@OnClick" @attributes="BuildAttributes()">
+<Button Variant="ButtonVariant.Ghost" Size="@Size" OnClick="@HandleClickAsync" @attributes="BuildAttributes()">
     @ChildContent
 </Button>
 
 @code {
+    [CascadingParameter]
+    internal Suggestions? ParentSuggestions { get; set; }
+
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
     [Parameter]
-    public ButtonVariant Variant { get; set; } = ButtonVariant.Outline;
+    public string Variant { get; set; } = "filled";
+
+    [Parameter]
+    public string? Value { get; set; }
 
     [Parameter]
     public CssValue<ButtonSizeBuilder>? Size { get; set; } = ButtonSize.Sm;
@@ -26,9 +32,27 @@
         attributes["data-slot"] = "suggestion";
         attributes["class"] = string.Join(" ", new[]
         {
-            "rounded-full border-border/80 bg-card text-muted-foreground hover:bg-muted hover:text-foreground",
+            GetVariantClass(),
             attributes.TryGetValue("class", out var cls) ? cls?.ToString() : null
         }.Where(x => !string.IsNullOrWhiteSpace(x)));
         return attributes;
+    }
+
+    private async Task HandleClickAsync(MouseEventArgs args)
+    {
+        await OnClick.InvokeAsync(args);
+        await (ParentSuggestions?.SelectAsync(Value) ?? Task.CompletedTask);
+    }
+
+    private string GetVariantClass()
+    {
+        const string baseClass = "h-8 gap-1.5 rounded-full px-4 text-sm font-normal shadow-none outline-0 transition-all duration-150 focus-visible:ring-2 focus-visible:ring-ring active:scale-[.99]";
+
+        return Variant.ToLowerInvariant() switch
+        {
+            "outline" => $"{baseClass} border border-input bg-transparent text-primary hover:bg-muted",
+            "ghost" => $"{baseClass} border-none bg-transparent text-muted-foreground hover:bg-muted hover:text-primary",
+            _ => $"{baseClass} border-none bg-muted text-primary hover:bg-border"
+        };
     }
 }

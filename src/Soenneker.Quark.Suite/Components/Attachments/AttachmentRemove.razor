@@ -1,13 +1,16 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<Button Type="@Type"
-        Size="@Size"
-        Variant="@Variant"
-        Disabled="@Disabled"
-        @attributes="BuildAttributes()">
-    @ChildContent
-</Button>
+<button type="@Type.Value" disabled="@Disabled" @attributes="BuildAttributes()">
+    @if (ChildContent is not null)
+    {
+        @ChildContent
+    }
+    else
+    {
+        <Icon Name="LucideIcon.X" Class="size-3" aria-hidden="true" />
+    }
+</button>
 
 @code {
     [Parameter]
@@ -26,6 +29,12 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "attachment-remove";
+        attributes.TryAdd("aria-label", "Remove attachment");
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "absolute top-1 right-1 z-10 flex size-4.5 cursor-pointer items-center justify-center rounded-full bg-secondary text-muted-foreground opacity-100 transition-all hover:bg-border hover:text-primary active:scale-[.97] disabled:pointer-events-none disabled:opacity-50 sm:opacity-0 group-hover:opacity-100");
+        });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

@@ -1,17 +1,29 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<div @attributes="BuildAttributes()">@ChildContent</div>
+<CascadingValue Value="this" IsFixed="true">
+    <div @attributes="BuildAttributes()">@ChildContent</div>
+</CascadingValue>
 
 @code {
+    [Parameter]
+    public EventCallback<string> OnSelect { get; set; }
+
+    internal Task SelectAsync(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? Task.CompletedTask : OnSelect.InvokeAsync(value);
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "suggestions";
+        attributes["role"] = "group";
+        attributes["aria-label"] = "Suggestions";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "flex flex-wrap items-center gap-2");
+            AppendClass(ref cls, "flex flex-col gap-2");
         });
     }
 }

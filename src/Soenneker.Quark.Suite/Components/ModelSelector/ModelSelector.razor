@@ -17,48 +17,45 @@
     <Popover Open="@_open" OpenChanged="HandleOpenChanged">
         <PopoverTrigger AsChild="true">
             <Button Id="@_triggerId"
-                    Variant="ButtonVariant.Outline"
-                    Role="combobox"
+                    Variant="ButtonVariant.Ghost"
+                    Role="button"
                     AriaLabel="@AriaLabel"
-                    Class="@Class">
-                <span class="truncate">@SelectedLabel</span>
-                <Icon Name="LucideIcon.ChevronsUpDown" Class="text-muted-foreground" />
+                    Class="@GetTriggerClass()">
+                <span data-slot="model-selector-trigger-content" class="flex min-w-0 items-center gap-1">
+                    <span data-slot="model-selector-trigger-title" class="truncate text-sm">@SelectedLabel</span>
+                </span>
+                <span data-slot="model-selector-trigger-chevron" class="transition-transform duration-200 data-[state=open]:rotate-180">
+                    <Icon Name="LucideIcon.ChevronDown" Class="size-4 shrink-0" />
+                </span>
             </Button>
         </PopoverTrigger>
-        <PopoverContent PlacementAlign="end" Class="@MenuClass">
-            <HoverCard Open="@(_peekedOption is not null)" OpenDelay="0">
-                <HoverCardContent Side="left" PlacementAlign="start" ForceMount="true" Class="min-h-[180px]">
-                    <Div Display="Display.Grid" Gap="Gap.Is2">
-                        <H4 Class="leading-none font-medium">@PeekedLabel</H4>
-                        @if (PeekedDescription.HasContent())
-                        {
-                            <Div TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">@PeekedDescription</Div>
-                        }
-                    </Div>
-                </HoverCardContent>
-                <Command>
-                    <CommandList Class="h-(--cmdk-list-height) max-h-[400px]">
-                        <CommandInput Placeholder="@SearchPlaceholder" />
-                        <CommandEmpty>@EmptyText</CommandEmpty>
-                        <HoverCardTrigger />
-                        @foreach (IGrouping<string, ModelSelectorOption> group in GroupedOptions)
-                        {
-                            <CommandGroup Heading="@group.Key">
-                                @foreach (ModelSelectorOption option in group)
+        <PopoverContent PlacementAlign="start" Class="@MenuClass">
+            <div data-slot="model-selector-group">
+                <div data-slot="model-selector-label" class="px-3 py-2 text-xs font-medium text-muted-foreground">Select model</div>
+                <div data-slot="model-selector-radio-group">
+                    @foreach (ModelSelectorOption option in Options)
+                    {
+                        <button type="button"
+                                data-slot="model-selector-radio-item"
+                                class="relative flex min-h-9 w-full cursor-pointer items-center gap-2 rounded-md py-2 pr-9 pl-3 text-left text-sm outline-hidden transition-colors duration-0 select-none hover:bg-accent focus:bg-accent focus:text-accent-foreground"
+                                @onclick="@(() => SelectOption(option))">
+                            <span data-slot="model-selector-item-icon" class="flex shrink-0 items-center justify-center">
+                                <Icon Name="@GetModelIcon(option)" Class="size-4" />
+                            </span>
+                            <span data-slot="model-selector-radio-item-content" class="flex min-w-0 flex-1 flex-col gap-0.25">
+                                <span data-slot="model-selector-item-title" class="truncate text-sm font-normal">@option.Label</span>
+                                @if (option.Description.HasContent())
                                 {
-                                    <CommandItem SearchValue="@option.Label"
-                                                 Keywords="@BuildKeywords(option)"
-                                                 OnSelect="@(() => SelectOption(option))"
-                                                 Class="data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground">
-                                        <span class="truncate">@option.Label</span>
-                                        <Icon Name="LucideIcon.Check" Class="@GetCheckClass(option)" />
-                                    </CommandItem>
+                                    <span data-slot="model-selector-item-description" class="truncate text-xs font-light text-muted-foreground">@option.Description</span>
                                 }
-                            </CommandGroup>
-                        }
-                    </CommandList>
-                </Command>
-            </HoverCard>
+                            </span>
+                            <span data-slot="model-selector-item-indicator" class="@GetCheckClass(option)">
+                                <Icon Name="LucideIcon.Check" Class="size-4" />
+                            </span>
+                        </button>
+                    }
+                </div>
+            </div>
         </PopoverContent>
     </Popover>
 </Div>
@@ -77,9 +74,10 @@
     [Parameter]
     public IReadOnlyList<ModelSelectorOption> Options { get; set; } =
     [
-        new("gpt-5.5", "GPT-5.5", "OpenAI", "Most capable"),
-        new("gpt-5.4", "GPT-5.4", "OpenAI", "Balanced"),
-        new("gpt-5.4-mini", "GPT-5.4 Mini", "OpenAI", "Fast")
+        new("gpt-4", "GPT-4", "OpenAI", "Most capable, best for complex tasks"),
+        new("gpt-4o-mini", "GPT-4o Mini", "OpenAI", "Fast and affordable"),
+        new("claude-3.5", "Claude 3.5", "Anthropic", "Strong reasoning and analysis"),
+        new("gemini-1.5-flash", "Gemini 1.5 Flash", "Google", "Fast and versatile")
     ];
 
     [Parameter]
@@ -100,7 +98,7 @@
         "The model which will generate the completion. Some models are suitable for natural language tasks, others specialize in code.";
 
     [Parameter]
-    public bool ShowLabel { get; set; } = true;
+    public bool ShowLabel { get; set; }
 
     [Parameter]
     public string SearchPlaceholder { get; set; } = "Search Models...";
@@ -112,18 +110,15 @@
     public string? AriaLabel { get; set; } = "Select a model";
 
     [Parameter]
-    public string Class { get; set; } = "w-full justify-between";
+    public string Class { get; set; } = "";
 
     [Parameter]
-    public string MenuClass { get; set; } = "w-[250px] p-0";
+    public string MenuClass { get; set; } = "w-[264px] p-1";
 
     [Parameter]
     public bool RightAligned { get; set; } = true;
 
-    private IEnumerable<IGrouping<string, ModelSelectorOption>> GroupedOptions =>
-        Options.Concat(SubmenuOptions).GroupBy(option => option.Group ?? "Models");
-
-    private ModelSelectorOption? SelectedOption => Options.Concat(SubmenuOptions).FirstOrDefault(IsSelected);
+    private ModelSelectorOption? SelectedOption => Options.FirstOrDefault(IsSelected);
 
     private string SelectedLabel => SelectedOption?.Label ?? Placeholder;
 
@@ -133,7 +128,7 @@
 
     protected override void OnParametersSet()
     {
-        _peekedOption ??= SelectedOption ?? Options.Concat(SubmenuOptions).FirstOrDefault();
+        _peekedOption ??= SelectedOption ?? Options.FirstOrDefault();
         base.OnParametersSet();
     }
 
@@ -142,7 +137,7 @@
         _open = open;
 
         if (open)
-            _peekedOption = SelectedOption ?? Options.Concat(SubmenuOptions).FirstOrDefault();
+            _peekedOption = SelectedOption ?? Options.FirstOrDefault();
 
         return Task.CompletedTask;
     }
@@ -161,18 +156,24 @@
         await ValueChanged.InvokeAsync(option.Value);
     }
 
-    private string[] BuildKeywords(ModelSelectorOption option)
+    private string GetTriggerClass()
     {
-        var keywords = new List<string>();
-
-        if (option.Group.HasContent())
-            keywords.Add(option.Group!);
-
-        if (option.Description.HasContent())
-            keywords.Add(option.Description!);
-
-        return keywords.ToArray();
+        const string triggerClass = "inline-flex h-8 cursor-pointer items-center gap-1 rounded-full bg-muted px-3 text-sm font-normal text-primary shadow-none transition-all duration-200 ease-out hover:bg-border";
+        return string.IsNullOrWhiteSpace(Class) ? triggerClass : $"{triggerClass} {Class}";
     }
 
-    private string GetCheckClass(ModelSelectorOption option) => IsSelected(option) ? "ml-auto opacity-100" : "ml-auto opacity-0";
+    private string GetCheckClass(ModelSelectorOption option) =>
+        IsSelected(option)
+            ? "pointer-events-none absolute right-3 flex size-4 items-center justify-center opacity-100"
+            : "pointer-events-none absolute right-3 flex size-4 items-center justify-center opacity-0";
+
+    private static LucideIcon GetModelIcon(ModelSelectorOption option)
+    {
+        return option.Group switch
+        {
+            "Anthropic" => LucideIcon.Bot,
+            "Google" => LucideIcon.Sparkles,
+            _ => LucideIcon.Circle
+        };
+    }
 }

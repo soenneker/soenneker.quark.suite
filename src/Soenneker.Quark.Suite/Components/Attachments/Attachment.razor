@@ -2,24 +2,34 @@
 @inherits Soenneker.Quark.Element
 
 <div @attributes="BuildAttributes()">
-    @if (Icon is not null)
+    @if (Variant == "compact")
     {
         <AttachmentPreview>
-            @Icon
+            @PreviewContent
         </AttachmentPreview>
+        @if (!ReadOnly)
+        {
+            <AttachmentRemove />
+        }
     }
-    <AttachmentInfo>
-        <AttachmentName>@Name</AttachmentName>
-        @if (Description.HasContent())
-        {
-            <AttachmentDescription>@Description</AttachmentDescription>
-        }
-        @if (Progress is not null)
-        {
-            <AttachmentProgress Value="@ClampedProgress" />
-        }
-    </AttachmentInfo>
-    @ChildContent
+    else
+    {
+        <AttachmentPreview>
+            @PreviewContent
+        </AttachmentPreview>
+        <AttachmentInfo>
+            <AttachmentName>@Name</AttachmentName>
+            @if (Description.HasContent())
+            {
+                <AttachmentDescription>@Description</AttachmentDescription>
+            }
+        </AttachmentInfo>
+        @ChildContent
+    }
+    @if (Progress is not null && Variant != "pasted")
+    {
+        <AttachmentProgress Value="@ClampedProgress" />
+    }
 </div>
 
 @code {
@@ -38,6 +48,9 @@
     [Parameter]
     public string Variant { get; set; } = "default";
 
+    [Parameter]
+    public bool ReadOnly { get; set; }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -46,10 +59,12 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "flex min-w-0 items-center gap-3 rounded-2xl border border-border bg-card px-3 py-2 text-sm");
-            AppendClass(ref cls, "data-[variant=inline]:w-fit data-[variant=inline]:rounded-full data-[variant=inline]:py-1.5");
-            AppendClass(ref cls, "data-[variant=detailed]:items-start data-[variant=detailed]:p-4");
-            AppendClass(ref cls, "data-[variant=pasted]:border-dashed data-[variant=pasted]:bg-muted/40 data-[variant=pasted]:text-muted-foreground");
+            AppendClass(ref cls, "group relative cursor-default overflow-hidden rounded-[6px] border border-muted bg-secondary text-muted-foreground");
+            AppendClass(ref cls, "data-[variant=compact]:relative data-[variant=compact]:flex data-[variant=compact]:size-15 data-[variant=compact]:shrink-0 data-[variant=compact]:items-center data-[variant=compact]:justify-center");
+            AppendClass(ref cls, "data-[variant=default]:relative data-[variant=default]:flex data-[variant=default]:size-15 data-[variant=default]:shrink-0 data-[variant=default]:items-center data-[variant=default]:justify-center");
+            AppendClass(ref cls, "data-[variant=inline]:relative data-[variant=inline]:flex data-[variant=inline]:h-8 data-[variant=inline]:w-auto data-[variant=inline]:min-w-0 data-[variant=inline]:max-w-[200px] data-[variant=inline]:shrink-0 data-[variant=inline]:items-center data-[variant=inline]:justify-start data-[variant=inline]:p-1 data-[variant=inline]:pr-2");
+            AppendClass(ref cls, "data-[variant=detailed]:relative data-[variant=detailed]:flex data-[variant=detailed]:h-15 data-[variant=detailed]:w-auto data-[variant=detailed]:min-w-[200px] data-[variant=detailed]:max-w-[250px] data-[variant=detailed]:shrink-0 data-[variant=detailed]:items-center data-[variant=detailed]:justify-start data-[variant=detailed]:p-2 data-[variant=detailed]:pr-3");
+            AppendClass(ref cls, "data-[variant=pasted]:relative data-[variant=pasted]:flex data-[variant=pasted]:h-[144px] data-[variant=pasted]:w-[156px] data-[variant=pasted]:shrink-0 data-[variant=pasted]:flex-col data-[variant=pasted]:items-center data-[variant=pasted]:justify-center data-[variant=pasted]:gap-2 data-[variant=pasted]:p-2");
         });
     }
 
@@ -60,6 +75,33 @@
         hc.Add(Description);
         hc.Add(Progress);
         hc.Add(Variant);
+        hc.Add(ReadOnly);
     }
+
+    private RenderFragment PreviewContent => builder =>
+    {
+        builder.OpenComponent<Icon>(0);
+        builder.AddAttribute(1, "Name", GetPreviewIcon());
+        builder.AddAttribute(2, "Class", Variant == "inline" ? "size-5" : "size-7");
+        builder.AddAttribute(3, "aria-hidden", "true");
+        builder.CloseComponent();
+    };
+
+    private LucideIcon GetPreviewIcon()
+    {
+        var lower = Name.ToLowerInvariant();
+
+        if (lower.EndsWith(".jpg") || lower.EndsWith(".jpeg") || lower.EndsWith(".png") || lower.EndsWith(".gif") || lower.EndsWith(".webp"))
+            return LucideIcon.Image;
+
+        if (lower.EndsWith(".mp4") || lower.EndsWith(".mov") || lower.EndsWith(".webm"))
+            return LucideIcon.Video;
+
+        if (lower.EndsWith(".mp3") || lower.EndsWith(".wav") || lower.EndsWith(".m4a"))
+            return LucideIcon.Music;
+
+        return LucideIcon.File;
+    }
+
     private int ClampedProgress => Progress is null ? 0 : Math.Clamp(Progress.Value, 0, 100);
 }

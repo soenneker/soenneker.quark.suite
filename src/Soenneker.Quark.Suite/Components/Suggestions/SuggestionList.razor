@@ -1,0 +1,25 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">@ChildContent</div>
+
+@code {
+    [Parameter]
+    public string Orientation { get; set; } = "horizontal";
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "suggestion-list";
+        attributes["role"] = "group";
+        attributes["aria-label"] = "Suggestions";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "flex animate-in gap-2 duration-150 fade-in-0");
+            AppendClass(ref cls, string.Equals(Orientation, "vertical", StringComparison.OrdinalIgnoreCase)
+                ? "flex-col items-start"
+                : "flex-row flex-wrap items-center justify-center");
+        });
+    }
+}
