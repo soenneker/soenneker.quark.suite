@@ -19,6 +19,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.ActionsContent, (RenderFragment)(builder => builder.AddMarkupContent(0, "<button type=\"button\">Action</button>"))));
 
         var headerClasses = cut.Find("header").GetAttribute("class")!;
+        var containerClasses = cut.Find("header > div").GetAttribute("class")!;
         var triggerClasses = cut.Find("[data-slot='sidebar-trigger']").GetAttribute("class")!;
         var nav = cut.Find("nav");
         var actions = cut.FindAll("div").First(div => (div.GetAttribute("class") ?? string.Empty).Contains("ml-auto"));
@@ -29,6 +30,13 @@ public sealed partial class RenderedShadcnParityTests
         headerClasses.Should().Contain("w-full");
         headerClasses.Should().Contain("bg-background");
         headerClasses.Should().NotContain("border-b");
+
+        containerClasses.Should().Contain("mx-auto");
+        containerClasses.Should().Contain("w-full");
+        containerClasses.Should().Contain("max-w-[1400px]");
+        containerClasses.Should().Contain("px-2");
+        containerClasses.Should().Contain("px-6");
+        containerClasses.Should().Contain("container-wrapper");
 
         triggerClasses.Should().Contain("touch-manipulation");
         triggerClasses.Should().Contain("hover:bg-transparent");

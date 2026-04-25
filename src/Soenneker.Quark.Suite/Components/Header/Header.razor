@@ -3,7 +3,7 @@
 @inherits Soenneker.Quark.Element
 
 <header @attributes="BuildAttributes()">
-    <div class="@ContainerClassValue">
+    <Div Presets="@ContainerPresets" Class="@ContainerClassValue">
         <div class="@InnerClassValue">
             @if (ShowSidebarTrigger)
             {
@@ -60,10 +60,12 @@
                 </div>
             }
         </div>
-    </div>
+    </Div>
 </header>
 
 @code {
+    private static readonly IReadOnlyList<QuarkPresetToken> DefaultContainerPresets = [QuarkPresets.ContainerWrapper];
+
     [CascadingParameter(Name = "SidebarProvider")]
     public SidebarProvider? SidebarProvider { get; set; }
 
@@ -83,7 +85,10 @@
     public string? SidebarTriggerControls { get; set; }
 
     [Parameter]
-    public string ContainerClass { get; set; } = "container-wrapper px-6 group-has-data-[slot=designer]/layout:max-w-none 3xl:fixed:px-0";
+    public IReadOnlyList<QuarkPresetToken>? ContainerPresets { get; set; } = DefaultContainerPresets;
+
+    [Parameter]
+    public string ContainerClass { get; set; } = "px-6 group-has-data-[slot=designer]/layout:max-w-none 3xl:fixed:px-0";
 
     [Parameter]
     public string InnerClass { get; set; } = "flex min-h-12 h-(--header-height) items-center **:data-[slot=separator]:h-4! group-has-data-[slot=designer]/layout:fixed:max-w-none 3xl:fixed:container";
@@ -144,6 +149,13 @@
         hc.Add(SidebarTriggerText);
         hc.Add(SidebarTriggerControls);
         hc.Add(SidebarIsExpanded);
+        if (ContainerPresets is { Count: > 0 })
+        {
+            for (var i = 0; i < ContainerPresets.Count; i++)
+            {
+                hc.Add(ContainerPresets[i]);
+            }
+        }
         hc.Add(ContainerClass);
         hc.Add(InnerClass);
         hc.Add(SidebarTriggerClass);

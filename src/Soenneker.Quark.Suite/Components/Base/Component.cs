@@ -352,6 +352,9 @@ public abstract class Component : RenderComponent, IComponent
         if (Container)
             AppendClass(ref cls, "container");
 
+        if (preset?.Class.HasContent() == true)
+            AppendClass(ref cls, preset.Class!);
+
         if (Class.HasContent())
             AppendClass(ref cls, Class!);
     }

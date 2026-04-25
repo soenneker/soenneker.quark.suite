@@ -2,6 +2,7 @@ namespace Soenneker.Quark;
 
 public sealed class QuarkPresetContext
 {
+    public string? Class { get; set; }
     public CssValue<InsetBuilder>? Inset { get; set; }
     public CssValue<DisplayBuilder>? Display { get; set; }
     public CssValue<VisibilityBuilder>? Visibility { get; set; }

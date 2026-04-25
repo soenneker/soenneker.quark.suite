@@ -13,7 +13,9 @@ public sealed partial class RenderedShadcnParityTests
 
         cut.Markup.Should().Contain("mx-auto");
         cut.Markup.Should().Contain("w-full");
+        cut.Markup.Should().Contain("max-w-[1400px]");
         cut.Markup.Should().Contain("px-2");
+        cut.Markup.Should().Contain("container-wrapper");
     }
 
     [Test]
@@ -27,6 +29,7 @@ public sealed partial class RenderedShadcnParityTests
 
         className.Should().Contain("w-fit");
         className.Should().NotContain("w-full");
+        className.Should().Contain("max-w-[1400px]");
     }
 
     [Test]
@@ -42,7 +45,9 @@ public sealed partial class RenderedShadcnParityTests
         className.Should().Contain("grid");
         className.Should().Contain("mx-auto");
         className.Should().Contain("w-full");
+        className.Should().Contain("max-w-[1400px]");
         className.Should().Contain("px-2");
+        className.Should().Contain("container-wrapper");
     }
 
     [Test]
@@ -76,12 +81,12 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public void Preset_name_is_not_emitted_as_class()
+    public void Container_wrapper_preset_emits_shadcn_class()
     {
         IRenderedComponent<Div> cut = Render<Div>(parameters => parameters
             .Add(component => component.Presets, new[] { QuarkPresets.ContainerWrapper }));
 
-        cut.Find("div").GetAttribute("class")!.Should().NotContain("container-wrapper");
+        cut.Find("div").GetAttribute("class")!.Should().Contain("container-wrapper");
     }
 
     [Test]
@@ -94,6 +99,7 @@ public sealed partial class RenderedShadcnParityTests
         string className = cut.Find("div").GetAttribute("class")!;
 
         className.Should().Contain("mx-auto");
+        className.Should().Contain("container-wrapper");
         className.Should().Contain("custom-class");
     }
 }
