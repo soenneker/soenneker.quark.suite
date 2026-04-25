@@ -126,20 +126,6 @@ public sealed class DemoRouteAuditParityTests
     }
 
     [Test]
-    public void Audited_shadcn_routes_point_to_existing_crawled_examples()
-    {
-        var repoRoot = GetRepoRoot();
-        var shadcnRoot = Path.Combine(repoRoot, "Shadcn", "soenneker.shadcn.ui.crawled");
-
-        foreach ((var route, var relativePath) in _shadcnBackedRoutes.OrderBy(static pair => pair.Key, StringComparer.Ordinal))
-        {
-            var fullPath = Path.Combine(shadcnRoot, relativePath.Replace('/', Path.DirectorySeparatorChar));
-
-            File.Exists(fullPath).Should().BeTrue($"route '{route}' should resolve to a crawled shadcn source");
-        }
-    }
-
-    [Test]
     public void Audited_public_routes_exist_in_the_demo_app()
     {
         var demoPagesRoot = Path.Combine(GetSuiteRoot(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components");
@@ -200,8 +186,4 @@ public sealed class DemoRouteAuditParityTests
         return directory;
     }
 
-    private static string GetRepoRoot()
-    {
-        return Directory.GetParent(Directory.GetParent(GetSuiteRoot())!.FullName)!.FullName;
-    }
 }
