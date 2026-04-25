@@ -1,4 +1,6 @@
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Tests.Unit;
@@ -17,6 +19,15 @@ public sealed class QuarkBreadcrumbPlaywrightTests : PlaywrightUnitTest
     {
         await using var session = await CreateSession();
         var page = session.Page;
+        var consoleErrors = new List<string>();
+        var sawPageError = false;
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+        page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady($"{BaseUrl}breadcrumbs",
             static p => p.GetByRole(AriaRole.Navigation, new PageGetByRoleOptions { Name = "breadcrumb", Exact = true }).First,
@@ -33,6 +44,7 @@ public sealed class QuarkBreadcrumbPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(componentsLink).ToHaveAttributeAsync("href", "/components");
         await Assertions.Expect(currentPage).ToHaveAttributeAsync("aria-current", "page");
         await Assertions.Expect(currentPage).ToHaveAttributeAsync("aria-disabled", "true");
+        (await navigation.Locator("[data-slot='breadcrumb-list']").First.GetAttributeAsync("class")).Should().Contain("sm:gap-2.5");
 
         var rtlSection = page.Locator("section").Filter(new LocatorFilterOptions
             { HasText = "Breadcrumb separators and item flow render correctly in right-to-left layouts." }).First;
@@ -41,6 +53,9 @@ public sealed class QuarkBreadcrumbPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(rtlNavigation).ToHaveAttributeAsync("dir", "rtl");
         await Assertions.Expect(rtlNavigation.GetByText("الرئيسية", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
         await Assertions.Expect(rtlNavigation.Locator("[data-slot='breadcrumb-separator']")).ToHaveCountAsync(2);
+
+        consoleErrors.Should().BeEmpty();
+        sawPageError.Should().BeFalse();
     }
 
     [Test]
@@ -48,6 +63,15 @@ public sealed class QuarkBreadcrumbPlaywrightTests : PlaywrightUnitTest
     {
         await using var session = await CreateSession();
         var page = session.Page;
+        var consoleErrors = new List<string>();
+        var sawPageError = false;
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+        page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady($"{BaseUrl}breadcrumbs",
             static p => p.GetByRole(AriaRole.Navigation, new PageGetByRoleOptions { Name = "breadcrumb", Exact = true }).First,
@@ -69,5 +93,8 @@ public sealed class QuarkBreadcrumbPlaywrightTests : PlaywrightUnitTest
 
         await Assertions.Expect(page.Locator("[role='menu']:visible")).ToHaveCountAsync(0);
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
+
+        consoleErrors.Should().BeEmpty();
+        sawPageError.Should().BeFalse();
     }
 }

@@ -174,25 +174,11 @@
 	private string GetCurrentValue()
 	{
 		if (Date.HasValue)
-		{
-			return InputModeValue switch
-			{
-				"date" => Date.Value.ToString("yyyy-MM-dd"),
-				"datetime-local" => Date.Value.ToString("yyyy-MM-ddTHH:mm"),
-				"month" => Date.Value.ToString("yyyy-MM"),
-				_ => Date.Value.ToString("yyyy-MM-dd")
-			};
-		}
-		else if (DateOnly.HasValue)
-		{
-			return InputModeValue switch
-			{
-				"date" => DateOnly.Value.ToString("yyyy-MM-dd"),
-				"datetime-local" => DateOnly.Value.ToString("yyyy-MM-ddTHH:mm"),
-				"month" => DateOnly.Value.ToString("yyyy-MM"),
-				_ => DateOnly.Value.ToString("yyyy-MM-dd")
-			};
-		}
+            return FormatDateValue(Date.Value, InputModeValue);
+
+		if (DateOnly.HasValue)
+            return FormatDateOnlyValue(DateOnly.Value, InputModeValue);
+
 		return string.Empty;
 	}
 
@@ -292,52 +278,42 @@
 
 	private Dictionary<string, object> BuildInputAttributes()
 	{
-		var attributes = new Dictionary<string, object>();
+		var attributes = new Dictionary<string, object>(Attributes?.Count ?? 0, StringComparer.OrdinalIgnoreCase);
+
+        if (Attributes is not null)
+        {
+            foreach (var pair in Attributes)
+            {
+                if (pair.Key.Equals("oninput", StringComparison.OrdinalIgnoreCase) ||
+                    pair.Key.Equals("onchange", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                attributes[pair.Key] = pair.Value;
+            }
+        }
 
 		// Add DateInput-specific attributes
 		if (Min != default)
 		{
-			var minString = InputModeValue switch
-			{
-				"date" => Min.ToString("yyyy-MM-dd"),
-				"datetime-local" => Min.ToString("yyyy-MM-ddTHH:mm"),
-				"month" => Min.ToString("yyyy-MM"),
-				_ => Min.ToString("yyyy-MM-dd")
-			};
+			var minString = FormatDateValue(Min, InputModeValue);
 			attributes["min"] = minString;
 		}
 		else if (MinDateOnly != default)
 		{
-			var minString = InputModeValue switch
-			{
-				"date" => MinDateOnly.ToString("yyyy-MM-dd"),
-				"datetime-local" => MinDateOnly.ToString("yyyy-MM-ddTHH:mm"),
-				"month" => MinDateOnly.ToString("yyyy-MM"),
-				_ => MinDateOnly.ToString("yyyy-MM-dd")
-			};
+			var minString = FormatDateOnlyValue(MinDateOnly, InputModeValue);
 			attributes["min"] = minString;
 		}
 
 		if (Max != default)
 		{
-			var maxString = InputModeValue switch
-			{
-				"date" => Max.ToString("yyyy-MM-dd"),
-				"datetime-local" => Max.ToString("yyyy-MM-ddTHH:mm"),
-				"month" => Max.ToString("yyyy-MM"),
-				_ => Max.ToString("yyyy-MM-dd")
-			};
+			var maxString = FormatDateValue(Max, InputModeValue);
 			attributes["max"] = maxString;
 		}
 		else if (MaxDateOnly != default)
 		{
-			var maxString = InputModeValue switch
-			{
-				"date" => MaxDateOnly.ToString("yyyy-MM-dd"),
-				"datetime-local" => MaxDateOnly.ToString("yyyy-MM-ddTHH:mm"),
-				"month" => MaxDateOnly.ToString("yyyy-MM"),
-				_ => MaxDateOnly.ToString("yyyy-MM-dd")
-			};
+			var maxString = FormatDateOnlyValue(MaxDateOnly, InputModeValue);
 			attributes["max"] = maxString;
 		}
 
@@ -346,6 +322,28 @@
 
 		return attributes;
 	}
+
+    private static string FormatDateValue(DateTime value, string inputModeValue)
+    {
+        return inputModeValue switch
+        {
+            "date" => value.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+            "datetime-local" => value.ToString("yyyy-MM-ddTHH:mm", System.Globalization.CultureInfo.InvariantCulture),
+            "month" => value.ToString("yyyy-MM", System.Globalization.CultureInfo.InvariantCulture),
+            _ => value.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)
+        };
+    }
+
+    private static string FormatDateOnlyValue(DateOnly value, string inputModeValue)
+    {
+        return inputModeValue switch
+        {
+            "date" => value.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+            "datetime-local" => value.ToDateTime(TimeOnly.MinValue).ToString("yyyy-MM-ddTHH:mm", System.Globalization.CultureInfo.InvariantCulture),
+            "month" => value.ToString("yyyy-MM", System.Globalization.CultureInfo.InvariantCulture),
+            _ => value.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)
+        };
+    }
 
 	protected override void ComputeRenderKeyCore(ref HashCode hc)
 	{

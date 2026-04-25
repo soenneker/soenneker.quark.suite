@@ -16,11 +16,15 @@ public sealed partial class RenderedShadcnParityTests
             .AddChildContent<TableLoader>());
 
         var classes = cut.Find("[data-slot='table-loader-content']").GetAttribute("class")!;
+        var loader = cut.Find("[data-slot='table-loader-content']");
 
         classes.Should().Contain("rounded-lg");
         classes.Should().Contain("border");
         classes.Should().Contain("bg-card");
         classes.Should().Contain("shadow-sm");
         classes.Should().NotContain("rounded-md");
+        loader.GetAttribute("role").Should().Be("status");
+        loader.GetAttribute("aria-live").Should().Be("polite");
+        loader.GetAttribute("aria-label").Should().Be("Loading table data");
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
@@ -19,6 +20,14 @@ public sealed class QuarkTreeViewPlaywrightTests : PlaywrightUnitTest
     {
         await using var session = await CreateSession();
         var page = session.Page;
+        var consoleErrors = new List<string>();
+        var pageErrors = new List<string>();
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+        page.PageError += (_, error) => pageErrors.Add(error);
 
         await page.GotoAndWaitForReady($"{BaseUrl}treeview", static p => p.Locator("#treeview-async-demo"), expectedTitle: "TreeView - Quark Suite");
 
@@ -39,6 +48,73 @@ public sealed class QuarkTreeViewPlaywrightTests : PlaywrightUnitTest
 
         await Assertions.Expect(routes).ToBeVisibleAsync();
         await Assertions.Expect(asyncSection).ToContainTextAsync("Selected node: API");
+        consoleErrors.Should().BeEmpty();
+        pageErrors.Should().BeEmpty();
+    }
+
+    [Test]
+    public async ValueTask Treeview_exposes_treeitem_state_and_keyboard_expand_collapse()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+        var consoleErrors = new List<string>();
+        var pageErrors = new List<string>();
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+        page.PageError += (_, error) => pageErrors.Add(error);
+
+        await page.GotoAndWaitForReady($"{BaseUrl}treeview", static p => p.GetByRole(AriaRole.Tree).First,
+            expectedTitle: "TreeView - Quark Suite");
+
+        var tree = page.GetByRole(AriaRole.Tree).First;
+        var documents = tree.GetByRole(AriaRole.Treeitem, new LocatorGetByRoleOptions { Name = "Documents", Exact = true });
+        var work = tree.GetByRole(AriaRole.Treeitem, new LocatorGetByRoleOptions { Name = "Work", Exact = true });
+        var personal = tree.GetByRole(AriaRole.Treeitem, new LocatorGetByRoleOptions { Name = "Personal", Exact = true });
+        var applications = tree.GetByRole(AriaRole.Treeitem, new LocatorGetByRoleOptions { Name = "Applications", Exact = true });
+
+        await Assertions.Expect(tree).ToHaveAttributeAsync("aria-label", "Tree view");
+        await Assertions.Expect(documents).ToHaveAttributeAsync("aria-expanded", "false");
+        await Assertions.Expect(documents).ToHaveAttributeAsync("aria-selected", "false");
+        await Assertions.Expect(documents).ToHaveAttributeAsync("tabindex", "0");
+        await Assertions.Expect(applications).ToHaveAttributeAsync("tabindex", "-1");
+
+        await documents.PressAsync("ArrowRight");
+
+        await Assertions.Expect(documents).ToHaveAttributeAsync("aria-expanded", "true");
+        await Assertions.Expect(work).ToBeVisibleAsync();
+        await Assertions.Expect(work).ToHaveAttributeAsync("tabindex", "-1");
+        await Assertions.Expect(personal).ToHaveAttributeAsync("tabindex", "-1");
+
+        await documents.PressAsync("ArrowDown");
+
+        await Assertions.Expect(work).ToBeFocusedAsync();
+        await Assertions.Expect(work).ToHaveAttributeAsync("tabindex", "0");
+        await Assertions.Expect(documents).ToHaveAttributeAsync("tabindex", "-1");
+
+        await work.PressAsync("p");
+
+        await Assertions.Expect(personal).ToBeFocusedAsync();
+        await Assertions.Expect(personal).ToHaveAttributeAsync("tabindex", "0");
+
+        await page.WaitForTimeoutAsync(1100);
+        await personal.PressAsync("w");
+
+        await Assertions.Expect(work).ToBeFocusedAsync();
+
+        await work.PressAsync("ArrowLeft");
+
+        await Assertions.Expect(documents).ToBeFocusedAsync();
+
+        await documents.PressAsync("ArrowLeft");
+
+        await Assertions.Expect(documents).ToHaveAttributeAsync("aria-expanded", "false");
+        await Assertions.Expect(work).Not.ToBeVisibleAsync();
+
+        consoleErrors.Should().BeEmpty();
+        pageErrors.Should().BeEmpty();
     }
 
     [Test]

@@ -1,3 +1,4 @@
+@using System.Collections.Generic
 @using Soenneker.Bradix
 
 @namespace Soenneker.Quark
@@ -5,9 +6,18 @@
 
 <BradixSelectPortal>
     <BradixSelectContent Position="@ResolvedPosition"
+                         ForceMount="@ForceMount"
                          Side="@ResolvedSide"
                          SideOffset="@SideOffset"
                          Align="@ResolvedAlign"
+                         AlignOffset="@AlignOffset"
+                         ArrowPadding="@ArrowPadding"
+                         AvoidCollisions="@AvoidCollisions"
+                         CollisionPadding="@CollisionPadding"
+                         CollisionBoundarySelector="@CollisionBoundarySelector"
+                         CollisionBoundarySelectors="@CollisionBoundarySelectors"
+                         Sticky="@Sticky"
+                         HideWhenDetached="@HideWhenDetached"
                          AdditionalAttributes="@ContentAttributes">
         <BradixSelectViewport Class="@ViewportClass">
             @ChildContent
@@ -20,7 +30,34 @@
     public string Side { get; set; } = "bottom";
 
     [Parameter]
-    public int SideOffset { get; set; } = 6;
+    public bool ForceMount { get; set; }
+
+    [Parameter]
+    public int SideOffset { get; set; }
+
+    [Parameter]
+    public double AlignOffset { get; set; }
+
+    [Parameter]
+    public double ArrowPadding { get; set; }
+
+    [Parameter]
+    public bool AvoidCollisions { get; set; } = true;
+
+    [Parameter]
+    public double CollisionPadding { get; set; }
+
+    [Parameter]
+    public string? CollisionBoundarySelector { get; set; }
+
+    [Parameter]
+    public IReadOnlyList<string>? CollisionBoundarySelectors { get; set; }
+
+    [Parameter]
+    public string Sticky { get; set; } = "partial";
+
+    [Parameter]
+    public bool HideWhenDetached { get; set; }
 
     [Parameter]
     public string PlacementAlign { get; set; } = "center";
@@ -28,7 +65,7 @@
     [Parameter]
     public string ContentPosition { get; set; } = "item-aligned";
 
-    private BradixSelectPosition ResolvedPosition =>
+    private string ResolvedPosition =>
         string.Equals(ContentPosition, "popper", StringComparison.OrdinalIgnoreCase)
             ? BradixSelectPosition.Popper
             : BradixSelectPosition.ItemAligned;
@@ -53,7 +90,7 @@
     private IReadOnlyDictionary<string, object> ContentAttributes => BuildAttributes();
 
     private string ViewportClass =>
-        ResolvedPosition == BradixSelectPosition.Popper
+        string.Equals(ResolvedPosition, BradixSelectPosition.Popper, StringComparison.OrdinalIgnoreCase)
             ? "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] scroll-my-1 p-1"
             : "p-1";
 
@@ -92,7 +129,20 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Side);
         hc.Add(SideOffset);
+        hc.Add(AlignOffset);
+        hc.Add(ArrowPadding);
+        hc.Add(AvoidCollisions);
+        hc.Add(CollisionPadding);
+        hc.Add(CollisionBoundarySelector);
+        if (CollisionBoundarySelectors is not null)
+        {
+            foreach (string selector in CollisionBoundarySelectors)
+                hc.Add(selector);
+        }
+        hc.Add(Sticky);
+        hc.Add(HideWhenDetached);
         hc.Add(PlacementAlign);
         hc.Add(ContentPosition);
+        hc.Add(ForceMount);
     }
 }

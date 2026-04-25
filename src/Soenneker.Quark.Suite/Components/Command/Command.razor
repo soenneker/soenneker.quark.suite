@@ -2,7 +2,7 @@
 @using Soenneker.Blazor.Utils.Ids
 @inherits Soenneker.Quark.Element
 
-<CascadingValue Name="ParentCommand" Value="@this" IsFixed="true">
+<CascadingValue Name="ParentCommand" Value="@this">
     <div @attributes="BuildAttributes()">
         @ChildContent
     </div>
@@ -109,7 +109,6 @@
         var nextEntry = visibleEntries[nextIndex];
         _activeItem = nextEntry.Item;
         await RefreshOffThread();
-        await nextEntry.FocusAsync();
     }
 
     internal async Task SelectActiveItemAsync()
@@ -130,11 +129,9 @@
         base.ApplyDefaultParameters();
 
         Display ??= Quark.Display.Flex;
-        BoxSize ??= Quark.Size.Token("full");
-        MaxWidth ??= Quark.MaxWidth.IsSm;
-        Padding ??= Quark.Padding.Is1;
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Default;
+        Height ??= Quark.Height.IsFull;
+        Width ??= Quark.Width.IsFull;
+        Rounded ??= Quark.Rounded.Md;
         BackgroundColor ??= Quark.BackgroundColor.Popover;
         TextColor ??= Quark.TextColor.PopoverForeground;
     }
@@ -147,7 +144,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "flex-col overflow-hidden rounded-xl!");
+            AppendClass(ref cls, "flex-col overflow-hidden");
         });
     }
 

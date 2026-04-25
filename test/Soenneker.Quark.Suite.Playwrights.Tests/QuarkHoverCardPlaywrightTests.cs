@@ -1,3 +1,5 @@
+using AwesomeAssertions;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
@@ -12,7 +14,7 @@ public sealed class QuarkHoverCardPlaywrightTests : PlaywrightUnitTest
     {
     }
 
-[Test]
+    [Test]
     public async ValueTask Hover_card_demo_hides_profile_details_after_pointer_leaves_trigger_and_content()
     {
         await using var session = await CreateSession();
@@ -36,7 +38,7 @@ public sealed class QuarkHoverCardPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(details).Not.ToBeVisibleAsync();
     }
 
-[Test]
+    [Test]
     public async ValueTask Hover_card_demo_shows_profile_details_on_hover()
     {
         await using var session = await CreateSession();
@@ -53,7 +55,7 @@ public sealed class QuarkHoverCardPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page.GetByText("Joined December 2021", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
     }
 
-[Test]
+    [Test]
     public async ValueTask Hover_card_demo_supports_nested_hover_card_inside_modal_dialog()
     {
         await using var session = await CreateSession();
@@ -76,5 +78,43 @@ public sealed class QuarkHoverCardPlaywrightTests : PlaywrightUnitTest
         var hoverCard = page.GetByText("Hover card content inside dialog", new PageGetByTextOptions { Exact = true });
         await Assertions.Expect(hoverCard).ToBeVisibleAsync();
         await Assertions.Expect(dialog).ToBeVisibleAsync();
+    }
+
+    [Test]
+    public async ValueTask Hover_card_demo_portals_above_page_and_has_no_console_errors()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+        List<string> consoleErrors = [];
+        var sawPageError = false;
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+
+        page.PageError += (_, _) => sawPageError = true;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}hover-cards",
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "nextjs", Exact = true }),
+            expectedTitle: "Hover Cards - Quark Suite");
+
+        await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "nextjs", Exact = true }).HoverAsync();
+
+        var content = page.Locator("[data-slot='hover-card-content'][data-state='open']:visible").First;
+        await Assertions.Expect(content).ToBeVisibleAsync();
+
+        await page.WaitForFunctionAsync(
+            "() => {" +
+            "const content = document.querySelector('[data-slot=\"hover-card-content\"][data-state=\"open\"]');" +
+            "const main = document.querySelector('main');" +
+            "if (!content || !main || main.contains(content)) return false;" +
+            "return Number.parseInt(getComputedStyle(content).zIndex, 10) >= 50;" +
+            "}");
+
+        sawPageError.Should().BeFalse();
+        consoleErrors.Should().BeEmpty();
     }
 }

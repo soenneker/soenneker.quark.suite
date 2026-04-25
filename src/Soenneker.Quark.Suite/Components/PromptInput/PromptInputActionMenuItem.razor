@@ -1,0 +1,30 @@
+@namespace Soenneker.Quark
+
+<DropdownItem Disabled="@Disabled"
+              Clicked="@Clicked"
+              CloseOnSelect="@CloseOnSelect"
+              Variant="@Variant"
+              data-slot="prompt-input-action-menu-item"
+              @attributes="Attributes">
+    @ChildContent
+</DropdownItem>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public bool CloseOnSelect { get; set; } = true;
+
+    [Parameter]
+    public string Variant { get; set; } = "default";
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> Clicked { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+}

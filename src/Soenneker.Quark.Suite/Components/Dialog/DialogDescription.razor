@@ -13,16 +13,18 @@
 
     private IReadOnlyDictionary<string, object> DescriptionAttributes => BuildAttributes();
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextSize ??= Quark.TextSize.Sm;
+        TextColor ??= Quark.TextColor.MutedForeground;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "dialog-description";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "text-sm text-muted-foreground");
-            AppendClass(ref cls, "*:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground");
-        });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

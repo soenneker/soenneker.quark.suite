@@ -1,6 +1,8 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
+using System;
+using System.IO;
 
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -54,26 +56,84 @@ public sealed partial class RenderedShadcnParityTests
         listClasses.Should().Contain("group");
         listClasses.Should().Contain("flex");
         listClasses.Should().Contain("list-none");
-        listClasses.Should().Contain("gap-0");
+        listClasses.Should().Contain("gap-1");
         listClasses.Should().NotContain("q-navigation-menu-list");
 
         itemClasses.Should().Contain("relative");
         itemClasses.Should().NotContain("q-navigation-menu-item");
 
-        triggerClasses.Should().Contain("group/navigation-menu-trigger");
-        triggerClasses.Should().Contain("rounded-lg");
-        triggerClasses.Should().Contain("px-2.5");
-        triggerClasses.Should().Contain("py-1.5");
-        triggerClasses.Should().Contain("hover:bg-muted");
-        triggerClasses.Should().Contain("data-popup-open:bg-muted/50");
-        triggerClasses.Should().Contain("data-open:bg-muted/50");
+        triggerClasses.Should().Contain("group");
+        triggerClasses.Should().Contain("rounded-md");
+        triggerClasses.Should().Contain("bg-background");
+        triggerClasses.Should().Contain("px-4");
+        triggerClasses.Should().Contain("py-2");
+        triggerClasses.Should().Contain("transition-[color,box-shadow]");
+        triggerClasses.Should().Contain("hover:bg-accent");
+        triggerClasses.Should().Contain("hover:text-accent-foreground");
+        triggerClasses.Should().Contain("focus-visible:ring-[3px]");
+        triggerClasses.Should().Contain("data-[state=open]:bg-accent/50");
+        triggerClasses.Should().Contain("data-[state=open]:hover:bg-accent");
+        triggerClasses.Should().NotContain("hover:bg-muted");
+        triggerClasses.Should().NotContain("data-popup-open:bg-muted/50");
         triggerClasses.Should().NotContain("q-navigation-menu-trigger");
 
-        linkClasses.Should().Contain("group/navigation-menu-trigger");
-        linkClasses.Should().Contain("gap-2");
+        linkClasses.Should().Contain("flex");
+        linkClasses.Should().Contain("flex-col");
+        linkClasses.Should().Contain("gap-1");
+        linkClasses.Should().Contain("rounded-sm");
         linkClasses.Should().Contain("p-2");
-        linkClasses.Should().Contain("in-data-[slot=navigation-menu-content]:rounded-md");
-        linkClasses.Should().Contain("data-active:bg-muted/50");
+        linkClasses.Should().Contain("transition-all");
+        linkClasses.Should().Contain("hover:bg-accent");
+        linkClasses.Should().Contain("focus-visible:ring-[3px]");
+        linkClasses.Should().Contain("data-[active=true]:bg-accent/50");
+        linkClasses.Should().Contain("[&_svg:not([class*='text-'])]:text-muted-foreground");
+        linkClasses.Should().NotContain("group/navigation-menu-trigger");
+        linkClasses.Should().NotContain("data-active:bg-muted/50");
         linkClasses.Should().NotContain("q-navigation-menu-link");
+    }
+
+    [Test]
+    public void NavigationMenu_content_viewport_and_trigger_source_match_shadcn_v4()
+    {
+        var root = ReadNavigationMenuSource("NavigationMenu.razor");
+        var trigger = ReadNavigationMenuSource("NavigationMenuTrigger.razor");
+        var content = ReadNavigationMenuSource("NavigationMenuContent.razor");
+        var viewport = ReadNavigationMenuSource("NavigationMenuViewport.razor");
+
+        root.Should().Contain("@ChildContent");
+        root.IndexOf("@ChildContent", StringComparison.Ordinal).Should().BeLessThan(root.IndexOf("<NavigationMenuViewport />", StringComparison.Ordinal));
+
+        trigger.Should().Contain("group-data-[state=open]:rotate-180");
+        trigger.Should().Contain("aria-hidden=\"true\"");
+        trigger.Should().Contain("Padding.Is4.OnX.Is2.OnY");
+        trigger.Should().Contain("BackgroundColor.Background");
+
+        content.Should().Contain("group-data-[viewport=false]/navigation-menu:overflow-hidden");
+        content.Should().Contain("group-data-[viewport=false]/navigation-menu:rounded-md");
+        content.Should().Contain("**:data-[slot=navigation-menu-link]:focus:ring-0");
+        content.Should().NotContain("data-[state=closed]:hidden");
+        content.Should().NotContain("rtl:data-[motion");
+
+        viewport.Should().Contain("absolute top-full left-0 isolate z-50 flex justify-center");
+        viewport.Should().Contain("overflow-hidden");
+        viewport.Should().Contain("md:w-[var(--radix-navigation-menu-viewport-width)]");
+        viewport.Should().NotContain("rtl:left-auto");
+    }
+
+    private static string ReadNavigationMenuSource(string fileName)
+    {
+        return File.ReadAllText(Path.Combine(GetSuiteRootForNavigationMenu(), "src", "Soenneker.Quark.Suite", "Components", "NavigationMenu", fileName));
+    }
+
+    private static string GetSuiteRootForNavigationMenu()
+    {
+        var directory = AppContext.BaseDirectory;
+
+        for (var i = 0; i < 6; i++)
+        {
+            directory = Directory.GetParent(directory)!.FullName;
+        }
+
+        return directory;
     }
 }

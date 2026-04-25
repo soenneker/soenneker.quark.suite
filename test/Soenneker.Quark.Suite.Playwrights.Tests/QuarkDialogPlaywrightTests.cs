@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Tests.Unit;
@@ -103,6 +104,16 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
     {
         await using var session = await CreateSession();
         var page = session.Page;
+        List<string> consoleErrors = [];
+        var sawPageError = false;
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type is "error")
+                consoleErrors.Add(message.Text);
+        };
+
+        page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}dialogs",
@@ -114,6 +125,8 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
 
         var dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Chat Settings", Exact = true });
         await Assertions.Expect(dialog).ToBeVisibleAsync();
+        await WaitForBodyScrollLockAsync(page, expectedLocked: true);
+        await AssertPinchZoomRemainsAllowedAsync(page);
 
         var selectTrigger = dialog.GetByRole(AriaRole.Combobox, new LocatorGetByRoleOptions { Name = "Theme", Exact = true });
         await selectTrigger.ClickAsync();
@@ -121,12 +134,44 @@ public sealed class QuarkDialogPlaywrightTests : PlaywrightUnitTest
         var listbox = page.GetByRole(AriaRole.Listbox);
         await Assertions.Expect(selectTrigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(listbox).ToBeVisibleAsync();
+        await WaitForBodyScrollLockAsync(page, expectedLocked: true);
+        await AssertPinchZoomRemainsAllowedAsync(page);
 
         var dark = listbox.GetByRole(AriaRole.Option, new LocatorGetByRoleOptions { Name = "Dark", Exact = true });
         await dark.ClickAsync();
 
         await Assertions.Expect(dialog).ToBeVisibleAsync();
         await Assertions.Expect(selectTrigger).ToContainTextAsync("Dark");
+        await WaitForBodyScrollLockAsync(page, expectedLocked: true);
+
+        await page.Keyboard.PressAsync("Escape");
+
+        await Assertions.Expect(dialog).Not.ToBeVisibleAsync();
+        await WaitForBodyScrollLockAsync(page, expectedLocked: false);
+
+        sawPageError.Should().BeFalse();
+        consoleErrors.Should().BeEmpty();
+    }
+
+    private static async Task WaitForBodyScrollLockAsync(IPage page, bool expectedLocked)
+    {
+        var predicate = expectedLocked
+            ? "() => document.body.style.overflow === 'hidden'"
+            : "() => document.body.style.overflow !== 'hidden'";
+
+        await page.WaitForFunctionAsync(predicate);
+        var overflow = await page.EvaluateAsync<string>("() => document.body.style.overflow || ''");
+
+        if (expectedLocked)
+            overflow.Should().Be("hidden");
+        else
+            overflow.Should().BeEmpty();
+    }
+
+    private static async Task AssertPinchZoomRemainsAllowedAsync(IPage page)
+    {
+        var touchAction = await page.EvaluateAsync<string>("() => document.documentElement.style.touchAction || ''");
+        touchAction.Should().NotBe("none");
     }
 
     private static Task<bool> FocusIsWithinAsync(ILocator dialog)

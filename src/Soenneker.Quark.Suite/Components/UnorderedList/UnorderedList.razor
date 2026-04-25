@@ -23,7 +23,14 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attrs)
     {
         base.BuildAttributesCore(attrs);
-        
+        attrs["data-slot"] = "unordered-list";
+
+        if (ListVariant is null or { IsEmpty: true })
+            AppendClassAttribute(attrs, "my-6 ml-6 [&>li]:mt-2");
+
+        if ((ListVariant is null or { IsEmpty: true }) && (ListStyleType is null or { IsEmpty: true }))
+            AppendClassAttribute(attrs, "list-disc");
+
         if (ListVariant is { IsEmpty: false })
         {
             var cls = ListVariant.Value.ToString();
@@ -35,12 +42,26 @@
         
         if (ListStyleType is { IsEmpty: false })
         {
-            var styleStr = ListStyleType.Value.ToString();
-            if (styleStr.Length > 0)
+            var cls = ListStyleType.Value.ToString();
+            if (cls.Length > 0)
             {
-                AppendStyleDeclAttr(attrs, styleStr);
+                AppendListStyleType(attrs, cls);
             }
         }
+    }
+
+    private static void AppendListStyleType(Dictionary<string, object> attrs, string value)
+    {
+        const string arbitraryPrefix = "list-[";
+
+        if (value.StartsWith(arbitraryPrefix, StringComparison.Ordinal) && value.EndsWith(']'))
+        {
+            var listStyleType = value[arbitraryPrefix.Length..^1];
+            AppendStyleDeclAttr(attrs, $"list-style-type: {listStyleType}");
+            return;
+        }
+
+        AppendClassAttribute(attrs, value);
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

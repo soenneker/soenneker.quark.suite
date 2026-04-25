@@ -1,6 +1,6 @@
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 @using Soenneker.Blazor.Extensions.EventCallback
-@typeparam TNode
+@typeparam TNode where TNode : notnull
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
@@ -56,6 +56,7 @@
     [Parameter] public bool ContextMenuPreventDefault { get; set; }
 
     [CascadingParameter(Name = nameof(ParentTreeView))] public TreeView<TNode>? ParentTreeView { get; set; }
+    [CascadingParameter(Name = nameof(ParentTreeViewState))] public TreeViewState<TNode> ParentTreeViewState { get; set; } = null!;
 
     protected override void ApplyDefaultParameters()
     {
@@ -72,6 +73,9 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "tree-view-node";
+
+        if (Nested)
+            attributes["role"] = "group";
     }
 
     protected override async Task OnInitializedAsync()
@@ -127,7 +131,13 @@
 
     private RenderFragment NodeFragment(TreeViewNodeState<TNode> nodeState) => __builder =>
     {
-        <div @key="nodeState.Node">
+        <div @key="nodeState.Node"
+             role="treeitem"
+             aria-expanded="@(nodeState.HasChildren ? nodeState.Expanded.ToString().ToLowerInvariant() : null)"
+             aria-selected="@GetAriaSelected(nodeState)"
+             aria-disabled="@(nodeState.Disabled ? "true" : null)"
+             tabindex="@(nodeState.Disabled ? -1 : 0)"
+             @onkeydown="e => OnNodeKeyDown(nodeState, e)">
             <div data-slot="tree-view-row"
                  class="flex items-center gap-1"
                  @oncontextmenu="e => OnContextMenuHandler(nodeState, e)"
@@ -291,8 +301,48 @@
         return Task.CompletedTask;
     }
 
+    private string GetAriaSelected(TreeViewNodeState<TNode> nodeState)
+    {
+        if (SelectionMode == TreeViewSelectionMode.Multiple)
+            return ParentTreeViewState.SelectedNodes?.Contains(nodeState.Node) == true ? "true" : "false";
+
+        return ParentTreeViewState.SelectedNode is not null && EqualityComparer<TNode>.Default.Equals(ParentTreeViewState.SelectedNode, nodeState.Node)
+            ? "true"
+            : "false";
+    }
+
+    private async Task OnNodeKeyDown(TreeViewNodeState<TNode> nodeState, KeyboardEventArgs e)
+    {
+        if (nodeState.Disabled)
+            return;
+
+        switch (e.Key)
+        {
+            case "ArrowRight":
+                if (nodeState.HasChildren && !nodeState.Expanded)
+                    await ToggleNode(nodeState, refresh: true);
+                break;
+
+            case "ArrowLeft":
+                if (nodeState.HasChildren && nodeState.Expanded)
+                    await ToggleNode(nodeState, refresh: true);
+                break;
+
+            case "Enter":
+            case " ":
+            case "Spacebar":
+                if (SelectionMode == TreeViewSelectionMode.Multiple && ParentTreeView is not null)
+                    await ParentTreeView.ToggleCheckNode(nodeState.Node);
+                else
+                    await OnTitleClicked(nodeState);
+                break;
+        }
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
+
         // Structural inputs
         hc.Add(NodeContent);
         hc.Add(SelectionMode);
@@ -339,5 +389,10 @@
 
         if (ExpandedNodes is not null)
             hc.Add(ExpandedNodes.Count);
+
+        hc.Add(ParentTreeViewState.SelectedNode);
+
+        if (ParentTreeViewState.SelectedNodes is not null)
+            hc.Add(ParentTreeViewState.SelectedNodes.Count);
     }
 }

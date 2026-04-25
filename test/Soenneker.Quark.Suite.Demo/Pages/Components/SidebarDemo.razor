@@ -313,17 +313,17 @@
                      Description="Use `Open` and `OpenChanged` on `SidebarProvider` when the parent owns the expanded state."
                      Code="@ControlledCode"
                      CodeLanguage="razor">
-            <div id="sidebar-controlled-demo" class="w-full space-y-4">
+            <Div id="sidebar-controlled-demo" Width="Width.IsFull" Space="Space.Y.Is4">
                 <Div Overflow="Overflow.Hidden" Rounded="Rounded.Xl" Border="Border.Is1" BorderColor="BorderColor.Border" BackgroundColor="BackgroundColor.Background">
                     <SidebarProvider Open="_controlledSidebarOpen" OpenChanged="OnControlledSidebarOpenChanged" Class="h-[20rem]">
-                        <Sidebar Collapsible="SidebarCollapsible.None">
+                        <Sidebar Collapsible="SidebarCollapsible.Icon">
                             <SidebarContent>
                                 <SidebarGroup>
                                     <SidebarGroupLabel>State</SidebarGroupLabel>
                                     <SidebarGroupContent>
                                         <SidebarMenu>
                                             <SidebarMenuItem>
-                                                <SidebarMenuButton>
+                                                <SidebarMenuButton Tooltip="Dashboard state">
                                                     <Icon Name="LucideIcon.House" BoxSize="Size.Is4" />
                                                     <Span>@(_controlledSidebarOpen ? "Expanded" : "Collapsed")</Span>
                                                 </SidebarMenuButton>
@@ -339,20 +339,21 @@
                             <Div Display="Display.Flex" Height='Height.Token("14")' ItemsAlign="Items.Center" Gap="Gap.Is3" Border="Border.Is1.FromBottom" BackgroundColor="BackgroundColor.Background" Padding="Padding.Is4.OnX">
                                 <SidebarTrigger id="sidebar-controlled-trigger" Class="relative z-50" />
                                 <Paragraph id="sidebar-controlled-state" TextSize="TextSize.Sm" FontWeight="FontWeight.Medium">Current state: @(_controlledSidebarOpen ? "open" : "closed")</Paragraph>
-                                <div class="ml-auto flex flex-wrap gap-2">
-                                    <button id="sidebar-controlled-open"
-                                            type="button"
-                                            class="inline-flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent bg-primary px-3 text-sm font-medium whitespace-nowrap text-primary-foreground transition-all outline-none hover:bg-primary/90 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
-                                            @onclick="OpenControlledSidebar">
+                                <Div Margin="Margin.Auto.FromStart" Display="Display.Flex" Flex="Flex.Wrap" Gap="Gap.Is2">
+                                    <Button id="sidebar-controlled-open"
+                                            Type="ButtonType.Button"
+                                            Size="ButtonSize.Sm"
+                                            OnClick="OpenControlledSidebar">
                                         Open
-                                    </button>
-                                    <button id="sidebar-controlled-close"
-                                            type="button"
-                                            class="inline-flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-md border border-input bg-background px-3 text-sm font-medium whitespace-nowrap transition-all outline-none hover:bg-accent hover:text-accent-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
-                                            @onclick="CloseControlledSidebar">
+                                    </Button>
+                                    <Button id="sidebar-controlled-close"
+                                            Type="ButtonType.Button"
+                                            Variant="ButtonVariant.Outline"
+                                            Size="ButtonSize.Sm"
+                                            OnClick="CloseControlledSidebar">
                                         Close
-                                    </button>
-                                </div>
+                                    </Button>
+                                </Div>
                             </Div>
                             <Div Padding="Padding.Is6" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
                                 This example is controlled entirely by the parent page and mirrors the standard `open` plus `onOpenChange` pattern.
@@ -360,7 +361,7 @@
                         </SidebarInset>
                     </SidebarProvider>
                 </Div>
-            </div>
+            </Div>
         </DemoSection>
     </Section>
 
@@ -706,14 +707,14 @@
         <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm" OnClick="CloseControlledSidebar">Close</Button>
 
         <SidebarProvider Open="_controlledSidebarOpen" OpenChanged="OnControlledSidebarOpenChanged">
-            <Sidebar Collapsible="SidebarCollapsible.None">
+            <Sidebar Collapsible="SidebarCollapsible.Icon">
                 <SidebarContent>
                     <SidebarGroup>
                         <SidebarGroupLabel>State</SidebarGroupLabel>
                         <SidebarGroupContent>
                             <SidebarMenu>
                                 <SidebarMenuItem>
-                                    <SidebarMenuButton>
+                                    <SidebarMenuButton Tooltip="Dashboard state">
                                         <Icon Name="LucideIcon.House" BoxSize="Size.Is4" />
                                         <Span>@(_controlledSidebarOpen ? "Expanded" : "Collapsed")</Span>
                                     </SidebarMenuButton>

@@ -20,6 +20,9 @@
         attributes["data-slot"] = "sortable-item";
         attributes["data-sortable-item"] = string.Empty;
 
+        if (!attributes.ContainsKey("role"))
+            attributes["role"] = Role ?? "listitem";
+
         if (ItemId.HasContent())
         {
             attributes["data-sortable-id"] = ItemId!;
@@ -28,6 +31,7 @@
         if (Disabled)
         {
             attributes["data-disabled"] = "true";
+            attributes["aria-disabled"] = "true";
         }
 
         BuildClassAttribute(attributes, (ref cls) =>

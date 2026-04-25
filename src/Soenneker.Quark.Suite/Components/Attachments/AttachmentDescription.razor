@@ -1,0 +1,27 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.TypographyElement
+
+<div @attributes="BuildAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        TextSize ??= Quark.TextSize.Xs;
+        TextColor ??= Quark.TextColor.MutedForeground;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "attachment-description";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "truncate text-xs text-muted-foreground");
+        });
+    }
+}

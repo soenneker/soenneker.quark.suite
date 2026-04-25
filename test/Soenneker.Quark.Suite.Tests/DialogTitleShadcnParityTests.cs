@@ -14,9 +14,9 @@ public sealed partial class RenderedShadcnParityTests
 
         var titleClasses = title.Find("[data-slot='dialog-title']").GetAttribute("class")!;
 
-        titleClasses.Should().Contain("cn-font-heading");
-        titleClasses.Should().Contain("text-base");
+        titleClasses.Should().Contain("text-lg");
         titleClasses.Should().Contain("leading-none");
-        titleClasses.Should().Contain("font-medium");
+        titleClasses.Should().Contain("font-semibold");
+        titleClasses.Should().NotContain("cn-font-heading");
     }
 }

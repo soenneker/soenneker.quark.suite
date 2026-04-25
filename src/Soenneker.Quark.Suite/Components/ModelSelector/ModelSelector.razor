@@ -1,0 +1,178 @@
+@namespace Soenneker.Quark
+@using Soenneker.Blazor.Utils.Ids
+
+<Div Display="Display.Grid" Gap="Gap.Is3">
+    @if (ShowLabel)
+    {
+        <HoverCard OpenDelay="200">
+            <HoverCardTrigger AsChild="true">
+                <Label For="@_triggerId">@Label</Label>
+            </HoverCardTrigger>
+            <HoverCardContent Side="left" PlacementAlign="start" Class="w-[260px] text-sm">
+                @Description
+            </HoverCardContent>
+        </HoverCard>
+    }
+
+    <Popover Open="@_open" OpenChanged="HandleOpenChanged">
+        <PopoverTrigger AsChild="true">
+            <Button Id="@_triggerId"
+                    Variant="ButtonVariant.Outline"
+                    Role="combobox"
+                    AriaLabel="@AriaLabel"
+                    Class="@Class">
+                <span class="truncate">@SelectedLabel</span>
+                <Icon Name="LucideIcon.ChevronsUpDown" Class="text-muted-foreground" />
+            </Button>
+        </PopoverTrigger>
+        <PopoverContent PlacementAlign="end" Class="@MenuClass">
+            <HoverCard Open="@(_peekedOption is not null)" OpenDelay="0">
+                <HoverCardContent Side="left" PlacementAlign="start" ForceMount="true" Class="min-h-[180px]">
+                    <Div Display="Display.Grid" Gap="Gap.Is2">
+                        <H4 Class="leading-none font-medium">@PeekedLabel</H4>
+                        @if (PeekedDescription.HasContent())
+                        {
+                            <Div TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">@PeekedDescription</Div>
+                        }
+                    </Div>
+                </HoverCardContent>
+                <Command>
+                    <CommandList Class="h-(--cmdk-list-height) max-h-[400px]">
+                        <CommandInput Placeholder="@SearchPlaceholder" />
+                        <CommandEmpty>@EmptyText</CommandEmpty>
+                        <HoverCardTrigger />
+                        @foreach (IGrouping<string, ModelSelectorOption> group in GroupedOptions)
+                        {
+                            <CommandGroup Heading="@group.Key">
+                                @foreach (ModelSelectorOption option in group)
+                                {
+                                    <CommandItem SearchValue="@option.Label"
+                                                 Keywords="@BuildKeywords(option)"
+                                                 OnSelect="@(() => SelectOption(option))"
+                                                 Class="data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground">
+                                        <span class="truncate">@option.Label</span>
+                                        <Icon Name="LucideIcon.Check" Class="@GetCheckClass(option)" />
+                                    </CommandItem>
+                                }
+                            </CommandGroup>
+                        }
+                    </CommandList>
+                </Command>
+            </HoverCard>
+        </PopoverContent>
+    </Popover>
+</Div>
+
+@code {
+    private readonly string _triggerId = BlazorIdGenerator.New("model-selector");
+    private bool _open;
+    private ModelSelectorOption? _peekedOption;
+
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    [Parameter]
+    public IReadOnlyList<ModelSelectorOption> Options { get; set; } =
+    [
+        new("gpt-5.5", "GPT-5.5", "OpenAI", "Most capable"),
+        new("gpt-5.4", "GPT-5.4", "OpenAI", "Balanced"),
+        new("gpt-5.4-mini", "GPT-5.4 Mini", "OpenAI", "Fast")
+    ];
+
+    [Parameter]
+    public IReadOnlyList<ModelSelectorOption> SubmenuOptions { get; set; } =
+    [
+        new("claude-opus-4.1", "Claude Opus 4.1", "Anthropic"),
+        new("gemini-2.5-pro", "Gemini 2.5 Pro", "Google")
+    ];
+
+    [Parameter]
+    public string Placeholder { get; set; } = "Select a model...";
+
+    [Parameter]
+    public string Label { get; set; } = "Model";
+
+    [Parameter]
+    public string Description { get; set; } =
+        "The model which will generate the completion. Some models are suitable for natural language tasks, others specialize in code.";
+
+    [Parameter]
+    public bool ShowLabel { get; set; } = true;
+
+    [Parameter]
+    public string SearchPlaceholder { get; set; } = "Search Models...";
+
+    [Parameter]
+    public string EmptyText { get; set; } = "No Models found.";
+
+    [Parameter]
+    public string? AriaLabel { get; set; } = "Select a model";
+
+    [Parameter]
+    public string Class { get; set; } = "w-full justify-between";
+
+    [Parameter]
+    public string MenuClass { get; set; } = "w-[250px] p-0";
+
+    [Parameter]
+    public bool RightAligned { get; set; } = true;
+
+    private IEnumerable<IGrouping<string, ModelSelectorOption>> GroupedOptions =>
+        Options.Concat(SubmenuOptions).GroupBy(option => option.Group ?? "Models");
+
+    private ModelSelectorOption? SelectedOption => Options.Concat(SubmenuOptions).FirstOrDefault(IsSelected);
+
+    private string SelectedLabel => SelectedOption?.Label ?? Placeholder;
+
+    private string PeekedLabel => _peekedOption?.Label ?? SelectedOption?.Label ?? Placeholder;
+
+    private string? PeekedDescription => _peekedOption?.Description ?? SelectedOption?.Description;
+
+    protected override void OnParametersSet()
+    {
+        _peekedOption ??= SelectedOption ?? Options.Concat(SubmenuOptions).FirstOrDefault();
+        base.OnParametersSet();
+    }
+
+    private Task HandleOpenChanged(bool open)
+    {
+        _open = open;
+
+        if (open)
+            _peekedOption = SelectedOption ?? Options.Concat(SubmenuOptions).FirstOrDefault();
+
+        return Task.CompletedTask;
+    }
+
+    private bool IsSelected(ModelSelectorOption option) => string.Equals(Value, option.Value, StringComparison.Ordinal);
+
+    private async Task SelectOption(ModelSelectorOption option)
+    {
+        _peekedOption = option;
+        _open = false;
+
+        if (string.Equals(Value, option.Value, StringComparison.Ordinal))
+            return;
+
+        Value = option.Value;
+        await ValueChanged.InvokeAsync(option.Value);
+    }
+
+    private string[] BuildKeywords(ModelSelectorOption option)
+    {
+        var keywords = new List<string>();
+
+        if (option.Group.HasContent())
+            keywords.Add(option.Group!);
+
+        if (option.Description.HasContent())
+            keywords.Add(option.Description!);
+
+        return keywords.ToArray();
+    }
+
+    private string GetCheckClass(ModelSelectorOption option) => IsSelected(option) ? "ml-auto opacity-100" : "ml-auto opacity-0";
+}

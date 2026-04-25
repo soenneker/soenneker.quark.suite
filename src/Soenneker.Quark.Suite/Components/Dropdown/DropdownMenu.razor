@@ -1,5 +1,6 @@
 
 @using Soenneker.Bradix
+@using System.Collections.Generic
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.OverlayElement
@@ -8,7 +9,15 @@
 <BradixDropdownMenuPortal>
     <BradixDropdownMenuContent Side="@ResolvedSide"
                                Align="@ResolvedAlign"
-                               SideOffset="4"
+                               SideOffset="@SideOffset"
+                               AlignOffset="@AlignOffset"
+                               ArrowPadding="@ArrowPadding"
+                               AvoidCollisions="@AvoidCollisions"
+                               CollisionPadding="@CollisionPadding"
+                               CollisionBoundarySelector="@CollisionBoundarySelector"
+                               CollisionBoundarySelectors="@CollisionBoundarySelectors"
+                               Sticky="@Sticky"
+                               HideWhenDetached="@HideWhenDetached"
                                AdditionalAttributes="@ContentAttributes">
         @ChildContent
     </BradixDropdownMenuContent>
@@ -26,6 +35,33 @@
     /// </summary>
     [Parameter]
     public Direction Direction { get; set; } = Direction.Default;
+
+    [Parameter]
+    public double SideOffset { get; set; } = 4;
+
+    [Parameter]
+    public double AlignOffset { get; set; }
+
+    [Parameter]
+    public double ArrowPadding { get; set; }
+
+    [Parameter]
+    public bool AvoidCollisions { get; set; } = true;
+
+    [Parameter]
+    public double CollisionPadding { get; set; }
+
+    [Parameter]
+    public string? CollisionBoundarySelector { get; set; }
+
+    [Parameter]
+    public IReadOnlyList<string>? CollisionBoundarySelectors { get; set; }
+
+    [Parameter]
+    public string Sticky { get; set; } = "partial";
+
+    [Parameter]
+    public bool HideWhenDetached { get; set; }
 
     [CascadingParameter(Name = nameof(ParentDropdown))]
     public Dropdown? ParentDropdown { get; set; }
@@ -70,10 +106,10 @@
 
             var directionClass = ResolvedDirection?.Value switch
             {
-                Direction.UpValue => "data-[state=open]:slide-in-from-bottom-2",
-                Direction.EndValue => "data-[state=open]:slide-in-from-left-2 rtl:data-[state=open]:slide-in-from-right-2",
-                Direction.StartValue => "data-[state=open]:slide-in-from-right-2 rtl:data-[state=open]:slide-in-from-left-2",
-                _ => "data-[state=open]:slide-in-from-top-2",
+                Direction.UpValue => "data-[side=top]:slide-in-from-bottom-2",
+                Direction.EndValue => "data-[side=right]:slide-in-from-left-2",
+                Direction.StartValue => "data-[side=left]:slide-in-from-right-2",
+                _ => "data-[side=bottom]:slide-in-from-top-2",
             };
             if (directionClass != null)
                 AppendClass(ref cls, directionClass);
@@ -96,5 +132,18 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(ResolvedRightAligned);
         hc.Add(ResolvedDirection);
+        hc.Add(SideOffset);
+        hc.Add(AlignOffset);
+        hc.Add(ArrowPadding);
+        hc.Add(AvoidCollisions);
+        hc.Add(CollisionPadding);
+        hc.Add(CollisionBoundarySelector);
+        if (CollisionBoundarySelectors is not null)
+        {
+            foreach (string selector in CollisionBoundarySelectors)
+                hc.Add(selector);
+        }
+        hc.Add(Sticky);
+        hc.Add(HideWhenDetached);
     }
 }

@@ -1,12 +1,22 @@
 @using Soenneker.Bradix
+@using System.Collections.Generic
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
 <BradixMenubarPortal>
-    <BradixMenubarContent AdditionalAttributes="@ContentAttributes"
+    <BradixMenubarContent ForceMount="@ForceMount"
+                          AdditionalAttributes="@ContentAttributes"
                           Align="@ResolvedAlign"
-                          SideOffset="4">
+                          AlignOffset="@AlignOffset"
+                          SideOffset="@SideOffset"
+                          ArrowPadding="@ArrowPadding"
+                          AvoidCollisions="@AvoidCollisions"
+                          CollisionPadding="@CollisionPadding"
+                          CollisionBoundarySelector="@CollisionBoundarySelector"
+                          CollisionBoundarySelectors="@CollisionBoundarySelectors"
+                          Sticky="@Sticky"
+                          HideWhenDetached="@HideWhenDetached">
         @ChildContent
     </BradixMenubarContent>
 </BradixMenubarPortal>
@@ -16,10 +26,40 @@
     public bool Open { get; set; }
 
     [Parameter]
+    public bool ForceMount { get; set; }
+
+    [Parameter]
     public string Side { get; set; } = "bottom";
 
     [Parameter]
     public bool DisableAutoOpen { get; set; }
+
+    [Parameter]
+    public double SideOffset { get; set; } = 8;
+
+    [Parameter]
+    public double AlignOffset { get; set; } = -4;
+
+    [Parameter]
+    public double ArrowPadding { get; set; }
+
+    [Parameter]
+    public bool AvoidCollisions { get; set; } = true;
+
+    [Parameter]
+    public double CollisionPadding { get; set; }
+
+    [Parameter]
+    public string? CollisionBoundarySelector { get; set; }
+
+    [Parameter]
+    public IReadOnlyList<string>? CollisionBoundarySelectors { get; set; }
+
+    [Parameter]
+    public string Sticky { get; set; } = "partial";
+
+    [Parameter]
+    public bool HideWhenDetached { get; set; }
 
     private BradixAlignment ResolvedAlign => Side == "right" ? BradixAlignment.End : BradixAlignment.Start;
 
@@ -48,7 +88,9 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-(--radix-menubar-content-available-height) min-w-[12rem] origin-(--radix-menubar-content-transform-origin) shadow-md");
+            AppendClass(ref cls, "z-50 min-w-[12rem] origin-(--radix-menubar-content-transform-origin) shadow-md");
+            AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
+            AppendClass(ref cls, "data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
         });
     }
 
@@ -68,7 +110,21 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Open);
+        hc.Add(ForceMount);
         hc.Add(Side);
         hc.Add(DisableAutoOpen);
+        hc.Add(SideOffset);
+        hc.Add(AlignOffset);
+        hc.Add(ArrowPadding);
+        hc.Add(AvoidCollisions);
+        hc.Add(CollisionPadding);
+        hc.Add(CollisionBoundarySelector);
+        if (CollisionBoundarySelectors is not null)
+        {
+            foreach (string selector in CollisionBoundarySelectors)
+                hc.Add(selector);
+        }
+        hc.Add(Sticky);
+        hc.Add(HideWhenDetached);
     }
 }

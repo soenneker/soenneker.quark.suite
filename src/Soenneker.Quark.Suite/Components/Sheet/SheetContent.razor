@@ -72,9 +72,7 @@
         Position ??= Quark.Position.Fixed;
         Display ??= Quark.Display.Flex;
         Gap ??= Quark.Gap.Is4;
-        BackgroundColor ??= Quark.BackgroundColor.Popover;
-        TextSize ??= Quark.TextSize.Sm;
-        TextColor ??= Quark.TextColor.PopoverForeground;
+        BackgroundColor ??= Quark.BackgroundColor.Background;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -91,16 +89,11 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "z-50 flex-col bg-clip-padding shadow-lg transition duration-200 ease-in-out");
-            AppendClass(ref cls, "data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t");
-            AppendClass(ref cls, "data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r");
-            AppendClass(ref cls, "data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:border-l");
-            AppendClass(ref cls, "data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b");
-            AppendClass(ref cls, "data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm");
-            AppendClass(ref cls, "data-open:animate-in data-open:fade-in-0");
-            AppendClass(ref cls, "data-[side=bottom]:data-open:slide-in-from-bottom-10 data-[side=left]:data-open:slide-in-from-left-10 data-[side=right]:data-open:slide-in-from-right-10 data-[side=top]:data-open:slide-in-from-top-10");
-            AppendClass(ref cls, "data-closed:animate-out data-closed:fade-out-0");
-            AppendClass(ref cls, "data-[side=bottom]:data-closed:slide-out-to-bottom-10 data-[side=left]:data-closed:slide-out-to-left-10 data-[side=right]:data-closed:slide-out-to-right-10 data-[side=top]:data-closed:slide-out-to-top-10");
+            AppendClass(ref cls, "z-50 flex-col shadow-lg transition ease-in-out data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:animate-in data-[state=open]:duration-500");
+            AppendClass(ref cls, "data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:border-l data-[side=right]:data-[state=closed]:slide-out-to-right data-[side=right]:data-[state=open]:slide-in-from-right data-[side=right]:sm:max-w-sm");
+            AppendClass(ref cls, "data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r data-[side=left]:data-[state=closed]:slide-out-to-left data-[side=left]:data-[state=open]:slide-in-from-left data-[side=left]:sm:max-w-sm");
+            AppendClass(ref cls, "data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b data-[side=top]:data-[state=closed]:slide-out-to-top data-[side=top]:data-[state=open]:slide-in-from-top");
+            AppendClass(ref cls, "data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t data-[side=bottom]:data-[state=closed]:slide-out-to-bottom data-[side=bottom]:data-[state=open]:slide-in-from-bottom");
         });
 
         attributes["data-slot"] = "sheet-content";
@@ -113,7 +106,7 @@
 
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
-            AppendClass(ref cls, "fixed inset-0 z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0");
+            AppendClass(ref cls, "fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0");
 
             if (!string.IsNullOrWhiteSpace(OverlayClass))
                 AppendClass(ref cls, OverlayClass!);

@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Tests.Unit;
@@ -17,6 +19,16 @@ public sealed class QuarkProgressPlaywrightTests : PlaywrightUnitTest
     {
         await using var session = await CreateSession();
         var page = session.Page;
+        List<string> consoleErrors = [];
+        var sawPageError = false;
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+
+        page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}progresses",
@@ -26,6 +38,7 @@ public sealed class QuarkProgressPlaywrightTests : PlaywrightUnitTest
         var labelledSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Associate the bar with a label using matching id and for values." }).First;
         var labelledProgress = labelledSection.GetByRole(AriaRole.Progressbar, new LocatorGetByRoleOptions { Name = "Upload progress 66%", Exact = true });
         await Assertions.Expect(labelledProgress).ToHaveAttributeAsync("aria-valuenow", "66");
+        await Assertions.Expect(labelledProgress).ToHaveAttributeAsync("data-state", "loading");
         await Assertions.Expect(labelledProgress).ToHaveAttributeAsync("aria-labelledby", "progress-upload-label");
 
         var controlledSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use a slider to drive the bar." }).First;
@@ -45,5 +58,8 @@ public sealed class QuarkProgressPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(indeterminateProgress).ToHaveAttributeAsync("data-state", "indeterminate");
         await Assertions.Expect(indeterminateProgress).Not.ToHaveAttributeAsync("aria-valuenow", new System.Text.RegularExpressions.Regex(".+"));
         await Assertions.Expect(indeterminateProgress).ToHaveAttributeAsync("aria-valuetext", "Preparing assets");
+
+        sawPageError.Should().BeFalse();
+        consoleErrors.Should().BeEmpty();
     }
 }

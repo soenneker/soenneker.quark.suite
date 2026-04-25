@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Tests.Unit;
@@ -13,7 +14,7 @@ public sealed class QuarkFieldPlaywrightTests : PlaywrightUnitTest
     {
     }
 
-[Test]
+    [Test]
     public async ValueTask Field_demo_renders_a_full_width_payment_form_without_collapsing()
     {
         await using var session = await CreateSession();
@@ -51,5 +52,57 @@ public sealed class QuarkFieldPlaywrightTests : PlaywrightUnitTest
         (cardNameBox.Width >= 300).Should().BeTrue();
         (cardNumberBox.Width >= 300).Should().BeTrue();
         (commentsBox.Width >= 300).Should().BeTrue();
+    }
+
+    [Test]
+    public async ValueTask Form_item_demo_wires_generated_accessible_relationships()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+        var consoleErrors = new List<string>();
+        var sawPageError = false;
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+        page.PageError += (_, _) => sawPageError = true;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}fields",
+            static p => p.GetByRole(AriaRole.Textbox, new PageGetByRoleOptions { Name = "Email", Exact = true }),
+            expectedTitle: "Fields - Quark Suite");
+
+        var demoSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "shadcn-style form item with generated label" }).First;
+        var label = demoSection.Locator("[data-slot='form-label']");
+        var input = demoSection.GetByRole(AriaRole.Textbox, new LocatorGetByRoleOptions { Name = "Email", Exact = true });
+        var description = demoSection.Locator("[data-slot='form-description']");
+        var message = demoSection.Locator("[data-slot='form-message']");
+
+        await Assertions.Expect(input).ToBeVisibleAsync();
+        await Assertions.Expect(input).ToHaveAttributeAsync("aria-invalid", "true");
+        await Assertions.Expect(label).ToHaveAttributeAsync("data-error", "true");
+        await Assertions.Expect(message).ToHaveTextAsync("Email is required.");
+
+        string? inputId = await input.GetAttributeAsync("id");
+        string? labelFor = await label.GetAttributeAsync("for");
+        string? descriptionId = await description.GetAttributeAsync("id");
+        string? messageId = await message.GetAttributeAsync("id");
+        string? describedBy = await input.GetAttributeAsync("aria-describedby");
+
+        inputId.Should().NotBeNullOrWhiteSpace();
+        labelFor.Should().Be(inputId);
+        describedBy.Should().Contain(descriptionId);
+        describedBy.Should().Contain(messageId);
+
+        await demoSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Toggle invalid state", Exact = true }).ClickAsync();
+
+        await Assertions.Expect(label).ToHaveAttributeAsync("data-error", "false");
+        (await input.GetAttributeAsync("aria-invalid")).Should().BeNull();
+        (await input.GetAttributeAsync("aria-describedby")).Should().Contain(descriptionId).And.NotContain(messageId);
+
+        consoleErrors.Should().BeEmpty();
+        sawPageError.Should().BeFalse();
     }
 }

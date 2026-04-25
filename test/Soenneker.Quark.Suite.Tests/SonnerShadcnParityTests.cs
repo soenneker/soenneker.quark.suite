@@ -1,6 +1,8 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.IO;
 using System.Threading.Tasks;
 
 
@@ -34,5 +36,26 @@ public sealed partial class RenderedShadcnParityTests
             toast.GetAttribute("data-rich-colors").Should().Be("false");
             toast.TextContent.Should().Contain("Saved");
         });
+    }
+
+    [Test]
+    public void Sonner_interop_uses_dom_rect_height_like_upstream_sonner()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForSonner(), "src", "Soenneker.Quark.Suite", "wwwroot", "js", "sonnerinterop.js"));
+
+        source.Should().Contain("toast.getBoundingClientRect().height");
+        source.Should().NotContain("heights[id] = toast.offsetHeight");
+    }
+
+    private static string GetSuiteRootForSonner()
+    {
+        var directory = AppContext.BaseDirectory;
+
+        for (var i = 0; i < 6; i++)
+        {
+            directory = Directory.GetParent(directory)!.FullName;
+        }
+
+        return directory;
     }
 }

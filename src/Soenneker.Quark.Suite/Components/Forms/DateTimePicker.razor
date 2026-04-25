@@ -289,6 +289,7 @@
         if (ParentValidation?.Status == ValidationStatus.Error)
             attributes["aria-invalid"] = "true";
 
+        attributes["data-slot"] = "date-time-picker-input";
         attributes["aria-expanded"] = _open ? "true" : "false";
         attributes["aria-controls"] = _panelId;
 
@@ -305,9 +306,10 @@
     private static Dictionary<string, object> GetContainerAttributes()
     {
         var attrs = new Dictionary<string, object>(2);
+        attrs["data-slot"] = "date-time-picker";
         RenderComponent.BuildClassAttribute(attrs, (ref cls) =>
         {
-            AppendClass(ref cls, "relative w-full");
+            AppendClass(ref cls, "q-date-time-picker relative w-full");
         });
         return attrs;
     }
@@ -503,6 +505,13 @@
         hc.Add(Required);
         hc.Add(Min);
         hc.Add(Max);
+        hc.Add(_open);
+        hc.Add(_panelId);
+        hc.Add(_displayMonth);
+        hc.Add(_pendingDate);
+        hc.Add(_hour);
+        hc.Add(_minute);
+        hc.Add(_isAm);
         AddIf(ref hc, Size);
     }
 }

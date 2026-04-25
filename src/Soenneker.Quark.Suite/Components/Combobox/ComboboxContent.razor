@@ -5,6 +5,11 @@
                 SideOffset="@SideOffset"
                 Align="@PlacementAlign"
                 Id="@ResolvedContentId"
+                Width='Quark.Width.Token("(--anchor-width)")'
+                MaxWidth='Quark.MaxWidth.Token("(--available-width)")'
+                Rounded="Quark.Rounded.Md"
+                Border="Quark.Border.Is0"
+                Padding="Quark.Padding.Is0"
                 @attributes="ContentAttributes">
     @ChildContent
 </PopoverContent>
@@ -35,13 +40,19 @@
             {
                 ["data-slot"] = "combobox-content",
                 ["data-state"] = ParentCombobox?.Open == true ? "open" : "closed",
+                ["data-chips"] = ParentCombobox?.Multiple == true ? "true" : "false",
                 ["role"] = "listbox",
                 ["tabindex"] = -1,
                 ["aria-hidden"] = ParentCombobox?.Open == true ? "false" : "true"
             };
 
+            if (ParentCombobox?.Open == true)
+                attributes["data-open"] = string.Empty;
+            else
+                attributes["data-closed"] = string.Empty;
+
             attributes["style"] =
-                "min-width: var(--radix-popper-anchor-width); max-height: min(24rem, var(--radix-popper-available-height));" +
+                "min-width: var(--radix-popper-anchor-width); max-width: var(--radix-popper-available-width); max-height: min(24rem, var(--radix-popper-available-height));" +
                 (AlignOffset == 0 ? string.Empty : $" margin-left: {AlignOffset}px;");
 
             if (ParentCombobox?.Multiple == true)
@@ -56,11 +67,11 @@
         base.ApplyDefaultParameters();
 
         MaxHeight ??= Quark.Height.Token("96");
-        Overflow ??= Quark.Overflow.Auto;
-        Rounded ??= Quark.Rounded.Lg;
-        Border ??= Quark.Border.Default;
+        Overflow ??= Quark.Overflow.Hidden;
+        Rounded ??= Quark.Rounded.Md;
+        Border ??= Quark.Border.Is0;
         BackgroundColor ??= Quark.BackgroundColor.Popover;
-        Padding ??= Quark.Padding.Is1;
+        Padding ??= Quark.Padding.Is0;
         TextColor ??= Quark.TextColor.PopoverForeground;
     }
 
@@ -70,8 +81,10 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "z-50 min-w-[8rem] shadow-md");
-            AppendClass(ref cls, "animate-in fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2");
+            AppendClass(ref cls, "group/combobox-content relative max-h-96 w-(--anchor-width) max-w-(--available-width) min-w-[calc(var(--anchor-width)+--spacing(7))] origin-(--radix-popover-content-transform-origin) overflow-hidden rounded-md bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100");
+            AppendClass(ref cls, "data-[chips=true]:min-w-(--anchor-width) data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
+            AppendClass(ref cls, "*:data-[slot=input-group]:m-1 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-8 *:data-[slot=input-group]:border-input/30 *:data-[slot=input-group]:bg-input/30 *:data-[slot=input-group]:shadow-none");
+            AppendClass(ref cls, "data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95");
         });
     }
 

@@ -1,22 +1,16 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TypographyElement
 
-@if (ShowErrorMessages && ParentValidation?.Status == ValidationStatus.Error && ParentValidation.Messages?.Any() == true)
+@if (ShowErrorMessages && ParentValidation?.ShouldShowInvalid == true && ParentValidation.Messages?.Any() == true)
 {
 	<div @attributes="BuildAttributes()">
-		@foreach (var message in ParentValidation.Messages)
-		{
-			<div>@message</div>
-		}
+		@RenderMessages(ParentValidation.Messages)
 	</div>
 }
 else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (_messages?.Any() ?? false) && ParentValidation == null)
 {
 	<div @attributes="BuildAttributes()">
-		@foreach (var message in _messages!)
-		{
-			<div>@message</div>
-		}
+		@RenderMessages(_messages!)
 	</div>
 }
 
@@ -99,6 +93,35 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (
             attributes["id"] = FieldContext.ErrorId;
 
         attributes.TryAdd("role", "alert");
+    }
+
+    private static RenderFragment RenderMessages(IEnumerable<string> messages)
+    {
+        return builder =>
+        {
+            var list = messages.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.Ordinal).ToArray();
+
+            if (list.Length == 0)
+                return;
+
+            if (list.Length == 1)
+            {
+                builder.AddContent(0, list[0]);
+                return;
+            }
+
+            builder.OpenElement(1, "ul");
+            builder.AddAttribute(2, "class", "ml-4 flex list-disc flex-col gap-1");
+
+            for (var i = 0; i < list.Length; i++)
+            {
+                builder.OpenElement(3 + i * 2, "li");
+                builder.AddContent(4 + i * 2, list[i]);
+                builder.CloseElement();
+            }
+
+            builder.CloseElement();
+        };
     }
 
     public override void Dispose()

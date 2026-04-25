@@ -17,7 +17,9 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().Contain("flex-col");
         classes.Should().Contain("gap-0.5");
         classes.Should().Contain("p-4");
-        classes.Should().Contain("group-data-[direction=bottom]/drawer-content:text-center");
+        classes.Should().Contain("group-data-[vaul-drawer-direction=bottom]/drawer-content:text-center");
+        classes.Should().Contain("group-data-[vaul-drawer-direction=top]/drawer-content:text-center");
         classes.Should().Contain("md:text-left");
+        classes.Should().NotContain("group-data-[direction=bottom]/drawer-content:text-center");
     }
 }

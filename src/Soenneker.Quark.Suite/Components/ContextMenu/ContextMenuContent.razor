@@ -1,15 +1,56 @@
 @using Soenneker.Bradix
+@using System.Collections.Generic
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
 <BradixContextMenuPortal>
-    <BradixContextMenuContent AdditionalAttributes="@ContentAttributes">
+    <BradixContextMenuContent ForceMount="@ForceMount"
+                              SideOffset="@SideOffset"
+                              AlignOffset="@AlignOffset"
+                              ArrowPadding="@ArrowPadding"
+                              AvoidCollisions="@AvoidCollisions"
+                              CollisionPadding="@CollisionPadding"
+                              CollisionBoundarySelector="@CollisionBoundarySelector"
+                              CollisionBoundarySelectors="@CollisionBoundarySelectors"
+                              Sticky="@Sticky"
+                              HideWhenDetached="@HideWhenDetached"
+                              AdditionalAttributes="@ContentAttributes">
         @ChildContent
     </BradixContextMenuContent>
 </BradixContextMenuPortal>
 
 @code {
+    [Parameter]
+    public bool ForceMount { get; set; }
+
+    [Parameter]
+    public double SideOffset { get; set; } = 2;
+
+    [Parameter]
+    public double AlignOffset { get; set; }
+
+    [Parameter]
+    public double ArrowPadding { get; set; }
+
+    [Parameter]
+    public bool AvoidCollisions { get; set; } = true;
+
+    [Parameter]
+    public double CollisionPadding { get; set; }
+
+    [Parameter]
+    public string? CollisionBoundarySelector { get; set; }
+
+    [Parameter]
+    public IReadOnlyList<string>? CollisionBoundarySelectors { get; set; }
+
+    [Parameter]
+    public string Sticky { get; set; } = "partial";
+
+    [Parameter]
+    public bool HideWhenDetached { get; set; }
+
     private IReadOnlyDictionary<string, object> ContentAttributes => BuildAttributes();
 
     protected override void ApplyDefaultParameters()

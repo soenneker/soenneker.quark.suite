@@ -4,12 +4,27 @@
 @inherits Soenneker.Quark.Element
 
 <div @attributes="BuildAttributes()">
-    <BradixContextMenuSub>
+    <BradixContextMenuSub Open="@Open"
+                           DefaultOpen="@DefaultOpen"
+                           OpenChanged="@OpenChanged"
+                           OnOpenChange="@OnOpenChange">
         @ChildContent
     </BradixContextMenuSub>
 </div>
 
 @code {
+    [Parameter]
+    public bool? Open { get; set; }
+
+    [Parameter]
+    public bool DefaultOpen { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OpenChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnOpenChange { get; set; }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -19,4 +34,5 @@
             AppendClass(ref cls, "relative");
         });
     }
+
 }

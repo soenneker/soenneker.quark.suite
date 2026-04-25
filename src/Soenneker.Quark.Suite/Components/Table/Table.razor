@@ -7,7 +7,7 @@
 @inherits CancellableElement
 @implements ITable
 
-<CascadingValue Name="Table" Value="this" IsFixed="true" >
+<CascadingValue Name="Table" Value="this">
     <CascadingValue Value="@_isLoading" Name="IsLoading" >
 		@if (Visible)
 		{
@@ -228,6 +228,24 @@
 
         if (OnGoToPage.HasDelegate)
             await OnGoToPage.InvokeAsync(page);
+    }
+
+    public async ValueTask HandlePageSizeChanged(int pageSize)
+    {
+        if (pageSize <= 0 || pageSize == PageSize)
+            return;
+
+        PageSize = pageSize;
+        CurrentPage = 1;
+        TotalPages = Math.Max(1, (int) Math.Ceiling((double) TotalRecordsCount / PageSize));
+        _continuationTokenPaging.Reset();
+        _continuationToken = null;
+
+        await RefreshOffThread();
+        await OnInteractionInternal();
+
+        if (OnPageSizeChanged.HasDelegate)
+            await OnPageSizeChanged.InvokeAsync(pageSize);
     }
 
     public ValueTask GoToPage(int page)

@@ -44,7 +44,7 @@
 }
 
 @code {
-	[CascadingParameter(Name = nameof(Table))]
+	[CascadingParameter(Name = "Table")]
 	private ITable? Table { get; set; }
 
 	[Parameter]
@@ -81,8 +81,8 @@
 	public EventCallback OnLastPage { get; set; }
 
 	// Computed properties that use Table values When available
-	private int ComputedCurrentPage => Table?.CurrentPage ?? CurrentPage;
-	private int ComputedTotalPages => Table?.TotalPages ?? TotalPages;
+	private int ComputedCurrentPage => Math.Max(1, Table?.CurrentPage ?? CurrentPage);
+	private int ComputedTotalPages => Math.Max(1, Table?.TotalPages ?? TotalPages);
 	private int ComputedTotalRecords => Table?.TotalRecordsCount ?? TotalRecords;
 	private int ComputedPageSize => Table?.PageSize ?? PageSize;
 	private int ComputedMaxPageButtons => MaxPageButtons;

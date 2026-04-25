@@ -1,0 +1,34 @@
+@namespace Soenneker.Quark
+
+<Button Variant="@Variant" Size="@Size" OnClick="@OnClick" @attributes="BuildAttributes()">
+    @ChildContent
+</Button>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public ButtonVariant Variant { get; set; } = ButtonVariant.Outline;
+
+    [Parameter]
+    public CssValue<ButtonSizeBuilder>? Size { get; set; } = ButtonSize.Sm;
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+
+    private IReadOnlyDictionary<string, object> BuildAttributes()
+    {
+        var attributes = Attributes is null ? new Dictionary<string, object>() : new Dictionary<string, object>(Attributes);
+        attributes["data-slot"] = "suggestion";
+        attributes["class"] = string.Join(" ", new[]
+        {
+            "rounded-full border-border/80 bg-card text-muted-foreground hover:bg-muted hover:text-foreground",
+            attributes.TryGetValue("class", out var cls) ? cls?.ToString() : null
+        }.Where(x => !string.IsNullOrWhiteSpace(x)));
+        return attributes;
+    }
+}

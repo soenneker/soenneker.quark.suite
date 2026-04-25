@@ -27,16 +27,16 @@ else
         => (variant?.Value ?? ItemVariant.DefaultValue) switch
         {
             ItemVariant.OutlineValue => "border-border",
-            ItemVariant.MutedValue => "border-transparent bg-muted/50",
-            _ => "border-transparent"
+            ItemVariant.MutedValue => "bg-muted/50",
+            _ => "bg-transparent"
         };
 
     private static string GetSizeClass(ItemSize? size)
         => (size?.Value ?? ItemSize.DefaultValue) switch
         {
             ItemSize.ExtraSmallValue => "gap-2 px-2.5 py-2 in-data-[slot=dropdown-menu-content]:p-0",
-            ItemSize.SmallValue => "gap-2.5 px-3 py-2.5",
-            _ => "gap-2.5 px-3 py-2.5"
+            ItemSize.SmallValue => "gap-2.5 px-4 py-3",
+            _ => "gap-4 p-4"
         };
 
     protected override void ApplyDefaultParameters()
@@ -44,10 +44,9 @@ else
         base.ApplyDefaultParameters();
 
         Display ??= Quark.Display.Flex;
-        Width ??= Quark.Width.IsFull;
-        Flex ??= "flex-wrap";
+        FlexWrap ??= Quark.FlexWrap.Wrap;
         ItemsAlign ??= Items.Center;
-        Rounded ??= Quark.Rounded.Lg;
+        Rounded ??= Quark.Rounded.Md;
         Border ??= Quark.Border.Default;
         TextSize ??= Quark.TextSize.Sm;
         Transition ??= Quark.Transition.Colors;
@@ -73,7 +72,7 @@ else
         // shadcn/ui item base - exact copy from new-york-v4 ui/item.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/item duration-100 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors [a]:hover:bg-muted");
+            AppendClass(ref cls, "group/item duration-100 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors [a]:hover:bg-accent/50");
             AppendClass(ref cls, GetVariantClass(Variant));
             AppendClass(ref cls, GetSizeClass(Size));
         });

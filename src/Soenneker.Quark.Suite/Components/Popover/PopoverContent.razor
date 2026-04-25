@@ -1,4 +1,5 @@
 @using Soenneker.Bradix
+@using System.Collections.Generic
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
@@ -7,6 +8,14 @@
                           Side="@ResolvedSide"
                           Align="@ResolvedAlign"
                           SideOffset="@SideOffset"
+                          AlignOffset="@AlignOffset"
+                          ArrowPadding="@ArrowPadding"
+                          AvoidCollisions="@AvoidCollisions"
+                          CollisionPadding="@CollisionPadding"
+                          CollisionBoundarySelector="@CollisionBoundarySelector"
+                          CollisionBoundarySelectors="@CollisionBoundarySelectors"
+                          Sticky="@Sticky"
+                          HideWhenDetached="@HideWhenDetached"
                           CloseOnEscapeKeyDown="@CloseOnEscape"
                           AdditionalAttributes="@ContentAttributes">
         @ChildContent
@@ -37,6 +46,30 @@
 
     [Parameter]
     public int SideOffset { get; set; } = 4;
+
+    [Parameter]
+    public double AlignOffset { get; set; }
+
+    [Parameter]
+    public double ArrowPadding { get; set; }
+
+    [Parameter]
+    public bool AvoidCollisions { get; set; } = true;
+
+    [Parameter]
+    public double CollisionPadding { get; set; }
+
+    [Parameter]
+    public string? CollisionBoundarySelector { get; set; }
+
+    [Parameter]
+    public IReadOnlyList<string>? CollisionBoundarySelectors { get; set; }
+
+    [Parameter]
+    public string Sticky { get; set; } = "partial";
+
+    [Parameter]
+    public bool HideWhenDetached { get; set; }
 
     private string? ResolvedContentId => string.IsNullOrWhiteSpace(Id) ? BradixPopover?.ContentId : Id;
 
@@ -103,7 +136,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-[80] origin-(--radix-popover-content-transform-origin) shadow-md outline-hidden");
+            AppendClass(ref cls, "z-50 origin-(--radix-popover-content-transform-origin) shadow-md outline-hidden data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
         });
     }
 
@@ -114,6 +147,18 @@
         hc.Add(Side);
         hc.Add(PlacementAlign);
         hc.Add(SideOffset);
+        hc.Add(AlignOffset);
+        hc.Add(ArrowPadding);
+        hc.Add(AvoidCollisions);
+        hc.Add(CollisionPadding);
+        hc.Add(CollisionBoundarySelector);
+        if (CollisionBoundarySelectors is not null)
+        {
+            foreach (string selector in CollisionBoundarySelectors)
+                hc.Add(selector);
+        }
+        hc.Add(Sticky);
+        hc.Add(HideWhenDetached);
         hc.Add(DisableAutoOpen);
         hc.Add(CloseOnEscape);
         hc.Add(Context?.Modal ?? false);

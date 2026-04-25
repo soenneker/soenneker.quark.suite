@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Tests.Unit;
@@ -18,6 +19,16 @@ public sealed class QuarkScrollAreaPlaywrightTests : PlaywrightUnitTest
     {
         await using var session = await CreateSession();
         var page = session.Page;
+        List<string> consoleErrors = [];
+        var sawPageError = false;
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+
+        page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady($"{BaseUrl}scroll-area",
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Fixed-height tag list with separators between items." })
@@ -33,10 +44,20 @@ public sealed class QuarkScrollAreaPlaywrightTests : PlaywrightUnitTest
         var verticalScrollTop = await verticalSection.Locator("[data-slot='scroll-area-viewport']").First
                                                      .EvaluateAsync<int>("element => { element.scrollTop = 240; return element.scrollTop; }");
         (verticalScrollTop > 0).Should().BeTrue();
+        var verticalRoot = verticalSection.Locator("[data-slot='scroll-area']").First;
+        await verticalRoot.HoverAsync();
+        await Assertions.Expect(verticalRoot).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("relative"));
+        await Assertions.Expect(verticalSection.Locator("[data-slot='scroll-area-viewport']").First).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("focus-visible:ring-\\[3px\\]"));
+        var verticalScrollbar = verticalSection.Locator("[data-slot='scroll-area-scrollbar'][data-orientation='vertical']").First;
+        await Assertions.Expect(verticalScrollbar).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("data-\\[orientation=vertical\\]:w-2\\.5"));
+        await Assertions.Expect(verticalScrollbar.Locator("[data-slot='scroll-area-thumb']").First).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("bg-border"));
 
         var horizontalScrollLeft = await horizontalSection.Locator("[data-slot='scroll-area-viewport']").First
                                                           .EvaluateAsync<int>("element => { element.scrollLeft = 220; return element.scrollLeft; }");
         (horizontalScrollLeft > 0).Should().BeTrue();
+        await horizontalSection.Locator("[data-slot='scroll-area']").First.HoverAsync();
+        await Assertions.Expect(horizontalSection.Locator("[data-slot='scroll-area-scrollbar'][data-orientation='horizontal']").First)
+                        .ToHaveClassAsync(new System.Text.RegularExpressions.Regex("data-\\[orientation=horizontal\\]:h-2\\.5"));
 
         var rtlRoot = rtlSection.Locator("[data-slot='scroll-area']").First;
         await Assertions.Expect(rtlRoot).ToHaveAttributeAsync("dir", "rtl");
@@ -44,5 +65,7 @@ public sealed class QuarkScrollAreaPlaywrightTests : PlaywrightUnitTest
         var rtlScrollTop = await rtlSection.Locator("[data-slot='scroll-area-viewport']").First
                                            .EvaluateAsync<int>("element => { element.scrollTop = 160; return element.scrollTop; }");
         (rtlScrollTop > 0).Should().BeTrue();
+        sawPageError.Should().BeFalse();
+        consoleErrors.Should().BeEmpty();
     }
 }

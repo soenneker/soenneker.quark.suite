@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
@@ -174,10 +175,64 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
     }
 
     [Test]
+    public async ValueTask Combobox_demo_portals_listbox_above_page_and_has_no_console_errors()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+        List<string> consoleErrors = [];
+        var sawPageError = false;
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+
+        page.PageError += (_, _) => sawPageError = true;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}comboboxes",
+            static p => p.GetByPlaceholder("Select framework...").First,
+            expectedTitle: "Combobox - Quark Suite");
+
+        var input = page.GetByPlaceholder("Select framework...").First;
+        await input.ClickAsync();
+
+        var listboxId = await input.GetAttributeAsync("aria-controls");
+        (string.IsNullOrWhiteSpace(listboxId)).Should().BeFalse();
+
+        var listbox = page.Locator($"#{listboxId}");
+        await Assertions.Expect(listbox).ToBeVisibleAsync();
+
+        await page.WaitForFunctionAsync(
+            "id => {" +
+            "const listbox = document.getElementById(id);" +
+            "const main = document.querySelector('main');" +
+            "if (!listbox || !main || main.contains(listbox)) return false;" +
+            "const positioned = listbox.closest('[data-radix-popper-content-wrapper]') || listbox;" +
+            "return Number.parseInt(getComputedStyle(positioned).zIndex, 10) >= 50;" +
+            "}",
+            listboxId);
+
+        sawPageError.Should().BeFalse();
+        consoleErrors.Should().BeEmpty();
+    }
+
+    [Test]
     public async ValueTask Carousel_demo_advances_and_disables_navigation_at_bounds()
     {
         await using var session = await CreateSession();
         var page = session.Page;
+        List<string> consoleErrors = [];
+        var sawPageError = false;
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+
+        page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}carousels",
@@ -201,6 +256,68 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
 
         await Assertions.Expect(next).ToBeDisabledAsync();
         await Assertions.Expect(track).ToHaveAttributeAsync("style", "transform: translateX(-80%); transition: transform 300ms ease-in-out");
+
+        sawPageError.Should().BeFalse();
+        consoleErrors.Should().BeEmpty();
+    }
+
+    [Test]
+    public async ValueTask Carousel_demo_matches_shadcn_markup_and_keyboard_axis_behavior()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+        List<string> consoleErrors = [];
+        var sawPageError = false;
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+
+        page.PageError += (_, _) => sawPageError = true;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}carousels",
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Next slide", Exact = true }).First,
+            expectedTitle: "Carousel - Quark Suite");
+
+        var defaultSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "The default numbered-card carousel." }).First;
+        var carousel = defaultSection.Locator("[data-slot='carousel']").First;
+        var item = defaultSection.Locator("[data-slot='carousel-item']").First;
+        var next = defaultSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Next slide", Exact = true });
+        var track = defaultSection.Locator("[data-slot='carousel-content'] > div").First;
+
+        await Assertions.Expect(carousel).ToHaveAttributeAsync("role", "region");
+        await Assertions.Expect(carousel).ToHaveAttributeAsync("aria-roledescription", "carousel");
+        await Assertions.Expect(item).ToHaveAttributeAsync("role", "group");
+        await Assertions.Expect(item).ToHaveAttributeAsync("aria-roledescription", "slide");
+
+        await next.FocusAsync();
+        await page.Keyboard.PressAsync("ArrowRight");
+        await Assertions.Expect(track).ToHaveAttributeAsync("style", "transform: translateX(-20%); transition: transform 300ms ease-in-out");
+
+        var spacingSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Adjust `CarouselContent` and `CarouselItem` spacing" }).First;
+        var spacingViewport = spacingSection.Locator("[data-slot='carousel-content']").First;
+        var spacingTrack = spacingSection.Locator("[data-slot='carousel-content'] > div").First;
+
+        await Assertions.Expect(spacingViewport).ToHaveClassAsync("overflow-hidden");
+        await Assertions.Expect(spacingTrack).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)flex(\s|$)"));
+        await Assertions.Expect(spacingTrack).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)-ml-4(\s|$)"));
+        await Assertions.Expect(spacingTrack).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)-ml-1(\s|$)"));
+
+        var verticalSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Switch the orientation to vertical for stacked slide layouts." }).First;
+        var verticalCarousel = verticalSection.Locator("[data-slot='carousel']").First;
+        var verticalTrack = verticalSection.Locator("[data-slot='carousel-content'] > div").First;
+        var verticalNext = verticalSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Next slide", Exact = true });
+
+        await Assertions.Expect(verticalCarousel).ToHaveAttributeAsync("data-orientation", "vertical");
+        await Assertions.Expect(verticalTrack).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)flex-col(\s|$)"));
+        await verticalNext.ClickAsync();
+        await Assertions.Expect(verticalTrack).ToHaveAttributeAsync("style", "transform: translateY(-20%); transition: transform 300ms ease-in-out");
+
+        sawPageError.Should().BeFalse();
+        consoleErrors.Should().BeEmpty();
     }
 
     [Test]
@@ -229,5 +346,45 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
 
         await Assertions.Expect(loopTrack).ToHaveAttributeAsync("style", "transform: translateX(-0%); transition: transform 300ms ease-in-out");
         await Assertions.Expect(loopNext).ToBeEnabledAsync();
+    }
+
+    [Test]
+    public async ValueTask Carousel_viewport_drag_advances_horizontal_and_vertical_slides()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}carousels",
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Next slide", Exact = true }).First,
+            expectedTitle: "Carousel - Quark Suite");
+
+        var defaultSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "The default numbered-card carousel." }).First;
+        var defaultViewport = defaultSection.Locator("[data-slot='carousel-content']").First;
+        var defaultTrack = defaultSection.Locator("[data-slot='carousel-content'] > div").First;
+        await defaultViewport.ScrollIntoViewIfNeededAsync();
+        LocatorBoundingBoxResult? defaultBox = await defaultViewport.BoundingBoxAsync();
+        defaultBox.Should().NotBeNull();
+
+        await page.Mouse.MoveAsync((float)(defaultBox!.X + defaultBox.Width * 0.75), (float)(defaultBox.Y + defaultBox.Height / 2));
+        await page.Mouse.DownAsync();
+        await page.Mouse.MoveAsync((float)(defaultBox.X + defaultBox.Width * 0.25), (float)(defaultBox.Y + defaultBox.Height / 2));
+        await page.Mouse.UpAsync();
+
+        await Assertions.Expect(defaultTrack).ToHaveAttributeAsync("style", "transform: translateX(-20%); transition: transform 300ms ease-in-out");
+
+        var verticalSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Switch the orientation to vertical for stacked slide layouts." }).First;
+        var verticalViewport = verticalSection.Locator("[data-slot='carousel-content']").First;
+        var verticalTrack = verticalSection.Locator("[data-slot='carousel-content'] > div").First;
+        await verticalViewport.ScrollIntoViewIfNeededAsync();
+        LocatorBoundingBoxResult? verticalBox = await verticalViewport.BoundingBoxAsync();
+        verticalBox.Should().NotBeNull();
+
+        await page.Mouse.MoveAsync((float)(verticalBox!.X + verticalBox.Width / 2), (float)(verticalBox.Y + verticalBox.Height * 0.75));
+        await page.Mouse.DownAsync();
+        await page.Mouse.MoveAsync((float)(verticalBox.X + verticalBox.Width / 2), (float)(verticalBox.Y + verticalBox.Height * 0.25));
+        await page.Mouse.UpAsync();
+
+        await Assertions.Expect(verticalTrack).ToHaveAttributeAsync("style", "transform: translateY(-20%); transition: transform 300ms ease-in-out");
     }
 }

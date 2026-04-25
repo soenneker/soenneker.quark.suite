@@ -19,7 +19,9 @@ public sealed partial class RenderedShadcnParityTests
         tableContainerClasses.Should().Contain("overflow-x-auto");
         tableContainerClasses.Should().NotContain("q-table-container");
 
+        tableClasses.Should().Contain("w-full");
         tableClasses.Should().Contain("caption-bottom");
+        tableClasses.Should().Contain("text-sm");
         tableClasses.Should().NotContain("q-table");
     }
 }

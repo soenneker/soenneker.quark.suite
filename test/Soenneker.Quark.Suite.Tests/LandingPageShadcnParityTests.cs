@@ -21,8 +21,6 @@ public sealed partial class RenderedShadcnParityTests
         var root = layout.Find("[data-slot='layout']");
         root.GetAttribute("class")!.Should().ContainAll("group/layout", "relative", "z-10", "flex", "min-h-svh", "flex-col", "bg-background");
 
-        layout.Markup.Should().NotContain("data-slot=\"div\"");
-        layout.Markup.Should().NotContain("data-slot=\"span\"");
         layout.Find("#layout-body-probe");
     }
 
@@ -35,7 +33,5 @@ public sealed partial class RenderedShadcnParityTests
         page.Find("section.border-grid");
         page.Find("div.container-wrapper.flex-1.pb-6");
         page.Markup.Should().Contain("heard about us.");
-        page.Markup.Should().NotContain("data-slot=\"div\"");
-        page.Markup.Should().NotContain("data-slot=\"span\"");
     }
 }

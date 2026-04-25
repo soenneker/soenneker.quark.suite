@@ -1,0 +1,44 @@
+@namespace Soenneker.Quark
+@typeparam TValue
+
+<div data-slot="prompt-input-select" @attributes="Attributes">
+    <Select TValue="TValue"
+            SelectedValue="@SelectedValue"
+            SelectedValueChanged="@SelectedValueChanged"
+            DefaultItemText="@DefaultItemText"
+            DefaultItemValue="@DefaultItemValue"
+            Disabled="@Disabled"
+            Required="@Required"
+            Size="@Size">
+        @ChildContent
+    </Select>
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public TValue? SelectedValue { get; set; }
+
+    [Parameter]
+    public EventCallback<TValue?> SelectedValueChanged { get; set; }
+
+    [Parameter]
+    public string? DefaultItemText { get; set; }
+
+    [Parameter]
+    public TValue? DefaultItemValue { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public bool Required { get; set; }
+
+    [Parameter]
+    public CssValue<SelectSizeBuilder>? Size { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+}

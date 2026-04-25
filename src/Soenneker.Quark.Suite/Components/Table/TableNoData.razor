@@ -4,13 +4,13 @@
 
 @if (Table?.HasLoadedOnce == true)
 {
-    @if (ChildContent != null)
-    {
-        @ChildContent
-    }
-    else
-    {
-        <div @attributes="BuildAttributes()">
+    <div @attributes="BuildAttributes()">
+        @if (ChildContent != null)
+        {
+            @ChildContent
+        }
+        else
+        {
             <div class="flex max-w-md flex-col items-center gap-4 text-center" data-slot="table-empty-content">
                 <div class="text-muted-foreground opacity-60" data-slot="table-empty-icon">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -22,12 +22,12 @@
                     <Paragraph>There are no records to display at this time.</Paragraph>
                 </div>
             </div>
-        </div>
-    }
+        }
+    </div>
 }
 
 @code {
-    [CascadingParameter(Name = nameof(Table))]
+    [CascadingParameter(Name = "Table")]
     public ITable? Table { get; set; }
 
     // shadcn Empty state - new-york-v4 ui/empty.tsx

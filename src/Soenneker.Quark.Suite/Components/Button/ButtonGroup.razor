@@ -24,7 +24,7 @@
         ItemsAlign ??= Items.Stretch;
 
         if (Vertical)
-            Flex ??= "flex flex-col";
+            FlexDirection ??= Quark.FlexDirection.Col;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -44,19 +44,16 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/button-group");
-            AppendClass(ref cls, "*:focus-visible:relative *:focus-visible:z-10 has-[>[data-slot=button-group]]:gap-2");
-            AppendClass(ref cls, "has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-lg");
+            AppendClass(ref cls, "has-[>[data-slot=button-group]]:gap-2 [&>*]:focus-visible:relative [&>*]:focus-visible:z-10");
+            AppendClass(ref cls, "has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-md");
             AppendClass(ref cls, "[&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1");
-            AppendClass(ref cls, "[&>[data-slot]:not(:has(~[data-slot]))]:rounded-r-lg!");
 
             if (Vertical)
             {
                 AppendClass(ref cls,
                     "[&>*:not(:first-child)]:rounded-t-none " +
                     "[&>*:not(:first-child)]:border-t-0 " +
-                    "[&>*:not(:last-child)]:rounded-b-none " +
-                    "[&>[data-slot]:not(:has(~[data-slot]))]:rounded-b-lg!");
+                    "[&>*:not(:last-child)]:rounded-b-none");
             }
             else
             {

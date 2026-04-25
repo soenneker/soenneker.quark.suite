@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
@@ -15,11 +16,12 @@ public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
     {
     }
 
-[Test]
+    [Test]
     public async ValueTask Resizable_handle_demo_supports_keyboard_resize()
     {
         await using var session = await CreateSession();
         var page = session.Page;
+        var runtimeErrors = CaptureRuntimeErrors(page);
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}resizable",
@@ -34,6 +36,7 @@ public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
         var rightBefore = await GetPanelSizeAsync(panels.Nth(1));
 
         await Assertions.Expect(handle).ToHaveAttributeAsync("data-resizable-ready", "true");
+        await Assertions.Expect(handle).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bfocus-visible:ring-offset-1\b"));
         await handle.FocusAsync();
         await handle.PressAsync("ArrowRight");
 
@@ -42,13 +45,20 @@ public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
         var rightAfter = await GetPanelSizeAsync(panels.Nth(1));
         (leftAfter > leftBefore).Should().BeTrue();
         (rightAfter < rightBefore).Should().BeTrue();
+
+        await handle.PressAsync("Tab");
+        var handleStillFocused = await handle.EvaluateAsync<bool>("element => document.activeElement === element");
+        handleStillFocused.Should().BeFalse();
+        runtimeErrors.ConsoleErrors.Should().BeEmpty();
+        runtimeErrors.PageErrors.Should().BeEmpty();
     }
 
-[Test]
+    [Test]
     public async ValueTask Resizable_examples_resize_with_pointer_in_horizontal_vertical_and_rtl_layouts()
     {
         await using var session = await CreateSession();
         var page = session.Page;
+        var runtimeErrors = CaptureRuntimeErrors(page);
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}resizable",
@@ -64,6 +74,7 @@ public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(basicHandle).ToHaveAttributeAsync("aria-orientation", "vertical");
         await Assertions.Expect(basicHandle).ToHaveAttributeAsync("aria-valuenow", "50");
         await Assertions.Expect(basicHandle).ToHaveAttributeAsync("tabindex", "0");
+        await Assertions.Expect(page.Locator("#resizable-basic-demo [data-slot='resizable-panel-group']").First).ToHaveAttributeAsync("aria-orientation", "horizontal");
 
         await DragHandleAsync(page, basicHandle, 80, 0);
 
@@ -83,6 +94,7 @@ public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(verticalHandle).ToHaveAttributeAsync("data-resizable-ready", "true");
         await Assertions.Expect(verticalHandle).ToHaveAttributeAsync("aria-orientation", "horizontal");
         await Assertions.Expect(verticalHandle).ToHaveAttributeAsync("aria-valuenow", "33.33");
+        await Assertions.Expect(page.Locator("#resizable-vertical-demo [data-slot='resizable-panel-group']").First).ToHaveAttributeAsync("aria-orientation", "vertical");
 
         await DragHandleAsync(page, verticalHandle, 0, 60);
 
@@ -115,13 +127,16 @@ public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
         var rtlSecondaryAfter = await WaitForPanelSizeConditionAsync(rtlPanels.Nth(1), size => size < rtlSecondaryBefore);
         (rtlPrimaryAfter > rtlPrimaryBefore).Should().BeTrue();
         (rtlSecondaryAfter < rtlSecondaryBefore).Should().BeTrue();
+        runtimeErrors.ConsoleErrors.Should().BeEmpty();
+        runtimeErrors.PageErrors.Should().BeEmpty();
     }
 
-[Test]
+    [Test]
     public async ValueTask Resizable_handle_demo_renders_visible_grip_and_supports_pointer_resize()
     {
         await using var session = await CreateSession();
         var page = session.Page;
+        var runtimeErrors = CaptureRuntimeErrors(page);
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}resizable",
@@ -137,6 +152,8 @@ public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
         var rightBefore = await GetPanelSizeAsync(panels.Nth(1));
 
         await Assertions.Expect(grip).ToBeVisibleAsync();
+        await Assertions.Expect(handle.Locator("div").First).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bh-4\b.*\bw-3\b.*\brounded-xs\b.*\bborder\b"));
+        await Assertions.Expect(grip).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bsize-2\.5\b"));
         await Assertions.Expect(handle).ToHaveAttributeAsync("data-resizable-ready", "true");
         await Assertions.Expect(handle).ToHaveAttributeAsync("aria-valuenow", "50");
         await Assertions.Expect(handle).ToHaveAttributeAsync("tabindex", "0");
@@ -150,7 +167,25 @@ public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
         (rightAfter < rightBefore).Should().BeTrue();
         await Assertions.Expect(handle).ToHaveAttributeAsync("data-resizable-dotnet", "ok");
         await Assertions.Expect(handle).Not.ToHaveAttributeAsync("data-resizable-last-percentage", "50");
+        runtimeErrors.ConsoleErrors.Should().BeEmpty();
+        runtimeErrors.PageErrors.Should().BeEmpty();
     }
+
+    private static RuntimeErrors CaptureRuntimeErrors(IPage page)
+    {
+        var consoleErrors = new List<string>();
+        var pageErrors = new List<string>();
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+        page.PageError += (_, exception) => pageErrors.Add(exception);
+
+        return new RuntimeErrors(consoleErrors, pageErrors);
+    }
+
     private static async Task<double> GetPanelSizeAsync(ILocator panel)
     {
         var style = await panel.GetAttributeAsync("style");
@@ -285,4 +320,6 @@ public sealed class QuarkResizablePlaywrightTests : PlaywrightUnitTest
         public double StartX { get; set; }
         public double StartY { get; set; }
     }
+
+    private sealed record RuntimeErrors(List<string> ConsoleErrors, List<string> PageErrors);
 }

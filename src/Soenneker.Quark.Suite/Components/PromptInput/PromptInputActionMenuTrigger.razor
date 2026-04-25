@@ -1,0 +1,43 @@
+@namespace Soenneker.Quark
+
+<DropdownToggle AsChild>
+    <Button Type="ButtonType.Button"
+            Size="@Size"
+            Variant="@Variant"
+            Disabled="@Disabled"
+            aria-label="@Label"
+            data-slot="prompt-input-action-menu-trigger"
+            @attributes="Attributes">
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+        else
+        {
+            <Icon Name="@IconName" />
+        }
+    </Button>
+</DropdownToggle>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string Label { get; set; } = "More actions";
+
+    [Parameter]
+    public LucideIcon IconName { get; set; } = LucideIcon.Plus;
+
+    [Parameter]
+    public CssValue<ButtonSizeBuilder>? Size { get; set; } = ButtonSize.IconSm;
+
+    [Parameter]
+    public ButtonVariant Variant { get; set; } = ButtonVariant.Ghost;
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+}

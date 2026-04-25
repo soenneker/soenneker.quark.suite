@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Tests.Unit;
@@ -17,6 +18,14 @@ public sealed class QuarkSeparatorPlaywrightTests : PlaywrightUnitTest
     {
         await using var session = await CreateSession();
         var page = session.Page;
+        var consoleErrors = new System.Collections.Generic.List<string>();
+        var sawPageError = false;
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+        page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}separators",
@@ -38,5 +47,8 @@ public sealed class QuarkSeparatorPlaywrightTests : PlaywrightUnitTest
 
         await Assertions.Expect(semanticHorizontal).Not.ToHaveAttributeAsync("aria-orientation", new System.Text.RegularExpressions.Regex(".+"));
         await Assertions.Expect(semanticVertical).ToHaveAttributeAsync("aria-orientation", "vertical");
+
+        consoleErrors.Should().BeEmpty();
+        sawPageError.Should().BeFalse();
     }
 }

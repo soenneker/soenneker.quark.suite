@@ -1,7 +1,7 @@
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TypographyElement
 
-@if (_visible && _status == ValidationStatus.Success)
+@if (IsVisible && HasContent)
 {
     <div @attributes="BuildAttributes()">
         @if (ChildContent is not null)
@@ -16,6 +16,9 @@
 }
 
 @code {
+    [CascadingParameter(Name = nameof(ParentValidation))]
+    public Validation? ParentValidation { get; set; }
+
     [CascadingParameter(Name = nameof(ParentValidations))]
     public Validations? ParentValidations { get; set; }
 
@@ -27,6 +30,10 @@
 
     private bool _visible;
     private ValidationStatus _status = ValidationStatus.None;
+    private Validation? _subscribedValidation;
+
+    private bool IsVisible => ParentValidation?.Status == ValidationStatus.Success || (_visible && _status == ValidationStatus.Success);
+    private bool HasContent => ChildContent is not null || SuccessText.HasContent();
 
     protected override void ApplyDefaultParameters()
     {
@@ -44,6 +51,27 @@
             ParentValidations._statusChanged += OnStatusChanged;
             ParentValidations.ClearingAll += OnClearingAll;
         }
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (!ReferenceEquals(_subscribedValidation, ParentValidation))
+        {
+            if (_subscribedValidation is not null)
+                _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+
+            _subscribedValidation = ParentValidation;
+
+            if (_subscribedValidation is not null)
+                _subscribedValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
+        }
+    }
+
+    private async void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
+    {
+        await RefreshOffThread();
     }
 
     private async void OnStatusChanged(ValidationsStatusChangedEventArgs args)
@@ -71,6 +99,9 @@
 
     public override void Dispose()
     {
+        if (_subscribedValidation is not null)
+            _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+
         if (ParentValidations is not null)
         {
             ParentValidations._statusChanged -= OnStatusChanged;
@@ -82,7 +113,9 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(SuccessText);
-        hc.Add(_visible);
+        hc.Add(HasContent);
+        hc.Add(IsVisible);
         hc.Add(_status);
+        hc.Add(ParentValidation?.Status);
     }
 }

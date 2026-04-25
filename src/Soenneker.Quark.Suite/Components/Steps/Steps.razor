@@ -30,6 +30,7 @@
 
     private readonly List<string> _stepItems = [];
     private readonly List<string> _stepPanels = [];
+    private readonly HashSet<string> _disabledSteps = [];
     private bool _navigationSubscribed;
 
     protected override void OnInitialized()
@@ -81,7 +82,7 @@
         base.ApplyDefaultParameters();
 
         Display ??= Quark.Display.Flex;
-        Flex ??= "flex-wrap";
+        FlexWrap ??= Quark.FlexWrap.Wrap;
         ItemsAlign ??= Quark.Items.Start;
         Margin ??= Quark.Margin.Is0;
         Padding ??= Quark.Padding.Is0;
@@ -116,6 +117,12 @@
     public Func<StepNavigationContext, bool>? NavigationAllowed { get; set; }
 
     /// <summary>
+    /// Gets or sets whether successful step navigation updates the current URL fragment.
+    /// </summary>
+    [Parameter]
+    public bool UpdateUrlFragment { get; set; } = true;
+
+    /// <summary>
     /// Gets or sets the render fragment for step items.
     /// </summary>
     [Parameter]
@@ -125,8 +132,14 @@
     /// Notifies that a step has been initialized.
     /// </summary>
     /// <param name="name">The name of the step.</param>
-    internal void NotifyStepInitialized(string name)
+    /// <param name="disabled">Whether the step is disabled.</param>
+    internal void NotifyStepInitialized(string name, bool disabled = false)
     {
+        if (disabled)
+            _disabledSteps.Add(name);
+        else
+            _disabledSteps.Remove(name);
+
         if (!_stepItems.Contains(name))
         {
             _stepItems.Add(name);
@@ -135,7 +148,7 @@
             if (string.IsNullOrEmpty(_state.SelectedStep))
             {
                 var fragment = GetFragment();
-                var initial = fragment.HasContent() && _stepItems.Contains(fragment) ? fragment : name;
+                var initial = fragment.HasContent() && _stepItems.Contains(fragment) && IsStepEnabled(fragment) ? fragment : GetFirstEnabledStep() ?? name;
                 if (TryUpdateSelectedStepState(initial))
                     Refresh();
             }
@@ -150,6 +163,8 @@
     {
         if (_stepItems.Contains(name))
             _stepItems.Remove(name);
+
+        _disabledSteps.Remove(name);
     }
 
     /// <summary>
@@ -168,14 +183,10 @@
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task NextStep()
     {
-        var selectedStepIndex = _stepItems.IndexOf(_state.SelectedStep);
-
-        if (selectedStepIndex == -1 || selectedStepIndex == _stepItems.Count - 1)
-        {
+        var nextStep = GetAdjacentEnabledStep(_state.SelectedStep, 1, wrap: false);
+        if (!nextStep.HasContent())
             return Task.CompletedTask;
-        }
 
-        var nextStep = _stepItems[selectedStepIndex + 1];
         return SetSelectedStepAsync(nextStep, notifyChanged: true);
     }
 
@@ -185,14 +196,11 @@
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task PreviousStep()
     {
-        var selectedStepIndex = _stepItems.IndexOf(_state.SelectedStep);
-
-        if (selectedStepIndex <= 0)
-        {
+        var previousStep = GetAdjacentEnabledStep(_state.SelectedStep, -1, wrap: false);
+        if (!previousStep.HasContent())
             return Task.CompletedTask;
-        }
 
-        return SetSelectedStepAsync(_stepItems[selectedStepIndex - 1], notifyChanged: true);
+        return SetSelectedStepAsync(previousStep, notifyChanged: true);
     }
 
     /// <summary>
@@ -203,6 +211,29 @@
     public int IndexOfStep(string name)
     {
         return _stepItems.IndexOf(name) + 1;
+    }
+
+    internal int StepCount => _stepItems.Count;
+
+    internal async Task HandleStepKeyDown(string currentName, KeyboardEventArgs args)
+    {
+        if (_stepItems.Count == 0 || string.IsNullOrWhiteSpace(currentName))
+            return;
+
+        string? next = args.Key switch
+        {
+            "ArrowRight" or "ArrowDown" => GetAdjacentEnabledStep(currentName, 1),
+            "ArrowLeft" or "ArrowUp" => GetAdjacentEnabledStep(currentName, -1),
+            "Home" => GetFirstEnabledStep(),
+            "End" => GetLastEnabledStep(),
+            _ => null
+        };
+
+        if (!next.HasContent() || next == _state.SelectedStep)
+            return;
+
+        await SetSelectedStepAsync(next, notifyChanged: true);
+        await StepsInterop.FocusById(GetStepTabId(next));
     }
 
     /// <summary>
@@ -243,8 +274,6 @@
         });
     }
 
-    
-
     private async void HandleLocationChanged(object? sender, LocationChangedEventArgs args)
     {
         var fragment = GetFragment(args.Location);
@@ -264,12 +293,66 @@
         {
             var u = new Uri(current);
             var frag = u.Fragment;
-            return string.IsNullOrEmpty(frag) ? string.Empty : frag.TrimStart('#');
+            return string.IsNullOrEmpty(frag) ? string.Empty : Uri.UnescapeDataString(frag.TrimStart('#'));
         }
         catch
         {
             return string.Empty;
         }
+    }
+
+    private string GetStepTabId(string name)
+    {
+        return BlazorIdGenerator.Child(_state.RootId.HasContent() ? _state.RootId : _rootId, $"tab-{name}");
+    }
+
+    private string? GetFirstEnabledStep()
+    {
+        return _stepItems.FirstOrDefault(IsStepEnabled);
+    }
+
+    private string? GetLastEnabledStep()
+    {
+        for (var i = _stepItems.Count - 1; i >= 0; i--)
+        {
+            if (IsStepEnabled(_stepItems[i]))
+                return _stepItems[i];
+        }
+
+        return null;
+    }
+
+    private string? GetAdjacentEnabledStep(string currentName, int direction, bool wrap = true)
+    {
+        var currentIndex = _stepItems.IndexOf(currentName);
+        if (currentIndex < 0)
+            return null;
+
+        for (var offset = 1; offset < _stepItems.Count; offset++)
+        {
+            var nextIndex = currentIndex + (offset * direction);
+            if (wrap)
+            {
+                nextIndex %= _stepItems.Count;
+                if (nextIndex < 0)
+                    nextIndex += _stepItems.Count;
+            }
+            else if (nextIndex < 0 || nextIndex >= _stepItems.Count)
+            {
+                return null;
+            }
+
+            var candidate = _stepItems[nextIndex];
+            if (IsStepEnabled(candidate))
+                return candidate;
+        }
+
+        return null;
+    }
+
+    private bool IsStepEnabled(string name)
+    {
+        return _disabledSteps.Contains(name) == false;
     }
 
     public override void Dispose()
@@ -289,12 +372,16 @@
         hc.Add(AriaDescribedBy);
         hc.Add(SelectedStep);
         hc.Add(RenderMode);
+        hc.Add(UpdateUrlFragment);
         hc.Add(Items is not null);
     }
 
     private bool TryUpdateSelectedStepState(string value)
     {
         if (value == _state.SelectedStep)
+            return false;
+
+        if (!IsStepEnabled(value))
             return false;
 
         var allowNavigation = NavigationAllowed?.Invoke(new StepNavigationContext
@@ -325,6 +412,17 @@
         if (notifyChanged)
             await SelectedStepChanged.InvokeIfHasDelegate(_state.SelectedStep);
 
+        UpdateFragment(value);
         await RefreshOffThread();
+    }
+
+    private void UpdateFragment(string value)
+    {
+        if (!UpdateUrlFragment || !value.HasContent() || GetFragment() == value)
+            return;
+
+        var current = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var next = $"{current.GetLeftPart(UriPartial.Path)}{current.Query}#{Uri.EscapeDataString(value)}";
+        Navigation.NavigateTo(next);
     }
 }

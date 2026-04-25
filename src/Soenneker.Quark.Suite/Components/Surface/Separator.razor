@@ -1,8 +1,12 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements ISeparator
 
-<div @attributes="SeparatorAttributes"></div>
+<BradixSeparator Orientation="@ResolvedOrientation"
+                 Decorative="@Decorative"
+                 AdditionalAttributes="@SeparatorAttributes" />
 
 @code {
     /// <summary>
@@ -17,44 +21,25 @@
     [Parameter]
     public bool Decorative { get; set; } = true;
 
+    private BradixOrientation ResolvedOrientation =>
+        Orientation == SeparatorOrientation.Vertical ? BradixOrientation.Vertical : BradixOrientation.Horizontal;
+
     private IReadOnlyDictionary<string, object> SeparatorAttributes => BuildSeparatorAttributes();
 
     private IReadOnlyDictionary<string, object> BuildSeparatorAttributes()
     {
-        Dictionary<string, object> attributes = new(BuildAttributes());
-        if (Decorative)
-        {
-            attributes["role"] = "none";
-            attributes["aria-hidden"] = "true";
-        }
-        else
-        {
-            attributes["role"] = "separator";
-            if (Orientation == SeparatorOrientation.Vertical)
-                attributes["aria-orientation"] = "vertical";
-        }
-
-        return attributes;
+        return BuildAttributes();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        var orientation = Orientation == SeparatorOrientation.Vertical ? "vertical" : "horizontal";
-
         attributes["data-slot"] = "separator";
-        attributes["data-orientation"] = orientation;
-
-        if (Orientation == SeparatorOrientation.Vertical)
-            attributes["data-vertical"] = string.Empty;
-        else
-            attributes["data-horizontal"] = string.Empty;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "shrink-0 bg-border data-horizontal:h-px data-horizontal:w-full data-vertical:h-full data-vertical:w-px data-vertical:self-stretch");
-            AppendClass(ref cls, "data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px");
+            AppendClass(ref cls, "shrink-0 bg-border data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px");
         });
     }
 

@@ -14,16 +14,12 @@ public sealed partial class RenderedShadcnParityTests
 
         var footerClasses = footer.Find("[data-slot='dialog-footer']").GetAttribute("class")!;
 
-        footerClasses.Should().Contain("-mx-4");
-        footerClasses.Should().Contain("-mb-4");
         footerClasses.Should().Contain("flex");
         footerClasses.Should().Contain("flex-col-reverse");
         footerClasses.Should().Contain("gap-2");
-        footerClasses.Should().Contain("rounded-b-xl");
-        footerClasses.Should().Contain("border-t");
-        footerClasses.Should().Contain("bg-muted/50");
-        footerClasses.Should().Contain("p-4");
         footerClasses.Should().Contain("sm:flex-row");
         footerClasses.Should().Contain("sm:justify-end");
+        footerClasses.Should().NotContain("-mx-4");
+        footerClasses.Should().NotContain("rounded-b-xl");
     }
 }

@@ -2,17 +2,13 @@
 
 @inherits Soenneker.Quark.Element
 @implements IProgress
+@using Soenneker.Bradix
 
-<div @attributes="BuildAttributes()"
-     role="progressbar"
-     aria-valuemin="0"
-     aria-valuemax="@Max"
-     aria-valuenow="@GetAriaValueNow()"
-     aria-valuetext="@GetAriaValueText()">
-    <div data-slot="progress-indicator"
-         class="@GetIndicatorClass()"
-         style="@GetIndicatorStyle()"></div>
-</div>
+<BradixProgress Value="@ResolvedBradixValue"
+                Max="@Max"
+                AdditionalAttributes="@BuildAttributes()">
+    <BradixProgressIndicator AdditionalAttributes="@IndicatorAttributes" />
+</BradixProgress>
 
 @code {
     [CascadingParameter(Name = "DirectionProviderDir")]
@@ -42,11 +38,17 @@
     [Parameter]
     public int Max { get; set; } = 100;
 
+    private int EffectiveMax => Max > 0 ? Max : 100;
+
+    private double? ResolvedBradixValue => Indeterminate ? null : GetClampedValue();
+
+    private IReadOnlyDictionary<string, object> IndicatorAttributes => BuildIndicatorAttributes();
+
     private int GetClampedValue()
     {
         var val = ProgressValue;
         if (val < 0) val = 0;
-        if (val > Max) val = Max;
+        if (val > EffectiveMax) val = EffectiveMax;
         return val;
     }
 
@@ -70,42 +72,45 @@
         if (Indeterminate)
             return "transform: translateX(0%);";
 
-        var pct = Max > 0 ? (GetClampedValue() * 100.0 / Max) : 0;
+        var pct = GetClampedValue() * 100.0 / EffectiveMax;
         var offset = 100 - pct;
-        var translate = IsRtl() ? offset : -offset;
+        if (Math.Abs(offset) < 0.0001)
+            offset = 0;
+
+        var translate = offset == 0 ? 0 : IsRtl() ? offset : -offset;
         return $"transform: translateX({translate:F0}%);";
     }
 
     private string GetIndicatorClass()
     {
-        return "size-full flex-1 bg-primary transition-all";
-    }
-
-    private string? GetAriaValueNow()
-    {
-        return Indeterminate ? null : GetClampedValue().ToString();
-    }
-
-    private string? GetAriaValueText()
-    {
-        if (!Indeterminate)
-            return null;
-
-        return AriaValueText.HasContent() ? AriaValueText : "Loading";
+        return "h-full w-full flex-1 bg-primary transition-all";
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "progress";
-        attributes["data-state"] = Indeterminate ? "indeterminate" : "determinate";
-        attributes["data-max"] = Max;
+
+        if (Indeterminate && AriaValueText.HasContent() && !attributes.ContainsKey("aria-valuetext"))
+            attributes["aria-valuetext"] = AriaValueText!;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "relative flex h-1 items-center overflow-x-hidden rounded-full bg-muted");
+            AppendClass(ref cls, "relative h-2 w-full overflow-hidden rounded-full bg-primary/20");
         });
 
+    }
+
+    private IReadOnlyDictionary<string, object> BuildIndicatorAttributes()
+    {
+        var attributes = new Dictionary<string, object>
+        {
+            ["data-slot"] = "progress-indicator",
+            ["class"] = GetIndicatorClass(),
+            ["style"] = GetIndicatorStyle()
+        };
+
+        return attributes;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

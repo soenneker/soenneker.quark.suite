@@ -1,3 +1,5 @@
+using AwesomeAssertions;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
@@ -12,7 +14,7 @@ public sealed class QuarkContextMenuPlaywrightTests : PlaywrightUnitTest
     {
     }
 
-[Test]
+    [Test]
     public async ValueTask Context_menu_demo_persists_checkbox_and_radio_selection_state_across_reopen()
     {
         await using var session = await CreateSession();
@@ -73,7 +75,7 @@ public sealed class QuarkContextMenuPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(comfortable).ToHaveAttributeAsync("aria-checked", "false");
     }
 
-[Test]
+    [Test]
     public async ValueTask Context_menu_demo_supports_nested_menu_inside_modal_dialog()
     {
         await using var session = await CreateSession();
@@ -106,7 +108,7 @@ public sealed class QuarkContextMenuPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(dialog).ToBeVisibleAsync();
     }
 
-[Test]
+    [Test]
     public async ValueTask Context_menu_demo_opens_from_right_click_and_reveals_submenu()
     {
         await using var session = await CreateSession();
@@ -134,5 +136,48 @@ public sealed class QuarkContextMenuPlaywrightTests : PlaywrightUnitTest
         var submenu = page.GetByRole(AriaRole.Menu).Filter(new LocatorFilterOptions { HasText = "Developer Tools" });
         await Assertions.Expect(submenu).ToBeVisibleAsync();
         await Assertions.Expect(submenu).ToContainTextAsync("Developer Tools");
+    }
+
+    [Test]
+    public async ValueTask Context_menu_escape_portal_layer_and_console_behavior_match_radix()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+        List<string> consoleErrors = [];
+        var sawPageError = false;
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+
+        page.PageError += (_, _) => sawPageError = true;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}context-menus",
+            static p => p.GetByText("Right click here", new PageGetByTextOptions { Exact = true }),
+            expectedTitle: "Context Menus - Quark Suite");
+
+        await page.GetByText("Right click here", new PageGetByTextOptions { Exact = true })
+                  .ClickAsync(new LocatorClickOptions { Button = MouseButton.Right });
+
+        var menu = page.Locator("[role='menu'][data-state='open']:visible").First;
+        await Assertions.Expect(menu).ToBeVisibleAsync();
+        await Assertions.Expect(menu).ToHaveAttributeAsync("data-slot", "context-menu-content");
+
+        await page.WaitForFunctionAsync(
+            "() => {" +
+            "const menu = document.querySelector('[role=\"menu\"][data-state=\"open\"]');" +
+            "const main = document.querySelector('main');" +
+            "if (!menu || !main || main.contains(menu)) return false;" +
+            "return Number.parseInt(getComputedStyle(menu).zIndex, 10) >= 50;" +
+            "}");
+
+        await page.Keyboard.PressAsync("Escape");
+        await Assertions.Expect(page.Locator("[role='menu'][data-state='open']:visible")).ToHaveCountAsync(0);
+
+        sawPageError.Should().BeFalse();
+        consoleErrors.Should().BeEmpty();
     }
 }

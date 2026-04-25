@@ -81,6 +81,7 @@ public sealed class DemoRouteAuditParityTests
     {
         "br-demo",
         "container",
+        "attachments",
         "currency-inputs",
         "divs",
         "fieldsets-demo",
@@ -89,13 +90,16 @@ public sealed class DemoRouteAuditParityTests
         "header",
         "icons",
         "margin-demo",
+        "model-selectors",
         "padding-demo",
+        "prompt-inputs",
         "section-demo",
         "semantic-html",
         "sortables",
         "span-demo",
         "stack",
         "stepsdemo",
+        "suggestions",
         "timelines",
         "validation-demo"
     };

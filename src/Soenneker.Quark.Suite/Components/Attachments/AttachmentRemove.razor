@@ -1,0 +1,39 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<Button Type="@Type"
+        Size="@Size"
+        Variant="@Variant"
+        Disabled="@Disabled"
+        @attributes="BuildAttributes()">
+    @ChildContent
+</Button>
+
+@code {
+    [Parameter]
+    public ButtonType Type { get; set; } = ButtonType.Button;
+
+    [Parameter]
+    public CssValue<ButtonSizeBuilder>? Size { get; set; } = ButtonSize.Sm;
+
+    [Parameter]
+    public ButtonVariant Variant { get; set; } = ButtonVariant.Ghost;
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "attachment-remove";
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Type);
+        hc.Add(Size);
+        hc.Add(Variant);
+        hc.Add(Disabled);
+    }
+}

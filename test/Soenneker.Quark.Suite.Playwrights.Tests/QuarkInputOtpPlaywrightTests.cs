@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Tests.Unit;
@@ -10,6 +12,58 @@ public sealed class QuarkInputOtpPlaywrightTests : PlaywrightUnitTest
 {
     public QuarkInputOtpPlaywrightTests(QuarkPlaywrightHost host) : base(host)
     {
+    }
+
+[Test]
+    public async ValueTask Input_otp_demo_matches_shadcn_slot_accessibility_focus_and_has_no_console_errors()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+        List<string> consoleErrors = [];
+        var sawPageError = false;
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+
+        page.PageError += (_, _) => sawPageError = true;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}input-otp",
+            static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Simple" }).Locator("[data-slot='input-otp-slot']").First,
+            expectedTitle: "Input OTP - Quark Suite");
+
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Simple" }).First;
+        var root = section.Locator("[data-slot='input-otp']").First;
+        var slots = section.Locator("[data-slot='input-otp-slot']");
+        var firstSlot = slots.Nth(0);
+        var secondSlot = slots.Nth(1);
+
+        await Assertions.Expect(root).ToHaveAttributeAsync("role", "group");
+        await Assertions.Expect(root).ToHaveAttributeAsync("data-orientation", "horizontal");
+        await Assertions.Expect(section.Locator("[data-slot='input-otp-separator']")).ToHaveAttributeAsync("role", "separator");
+        await Assertions.Expect(firstSlot).ToHaveAttributeAsync("aria-label", "Character 1 of 6");
+        await Assertions.Expect(firstSlot).ToHaveAttributeAsync("autocomplete", "one-time-code");
+        await Assertions.Expect(secondSlot).ToHaveAttributeAsync("autocomplete", "off");
+
+        (await firstSlot.EvaluateAsync<double>("element => element.getBoundingClientRect().width")).Should().BeApproximately(36, 0.5);
+        (await firstSlot.EvaluateAsync<double>("element => element.getBoundingClientRect().height")).Should().BeApproximately(36, 0.5);
+        (await firstSlot.EvaluateAsync<string>("element => getComputedStyle(element).textAlign")).Should().Be("center");
+
+        await firstSlot.ClickAsync();
+        await page.Keyboard.TypeAsync("12");
+
+        await Assertions.Expect(slots.Nth(0)).ToHaveValueAsync("1");
+        await Assertions.Expect(slots.Nth(1)).ToHaveValueAsync("2");
+        await Assertions.Expect(slots.Nth(2)).ToBeFocusedAsync();
+        await Assertions.Expect(slots.Nth(2)).ToHaveAttributeAsync("data-active", "true");
+        await Assertions.Expect(slots.Nth(0)).ToHaveAttributeAsync("tabindex", "-1");
+        await Assertions.Expect(slots.Nth(2)).ToHaveAttributeAsync("tabindex", "0");
+
+        sawPageError.Should().BeFalse();
+        consoleErrors.Should().BeEmpty();
     }
 
 [Test]

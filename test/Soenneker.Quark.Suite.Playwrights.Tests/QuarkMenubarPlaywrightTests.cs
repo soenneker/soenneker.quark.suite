@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
@@ -13,7 +14,7 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
     {
     }
 
-[Test]
+    [Test]
     public async ValueTask Menubar_demo_end_key_moves_focus_to_last_top_level_trigger()
     {
         await using var session = await CreateSession();
@@ -38,7 +39,7 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(file).ToBeFocusedAsync();
     }
 
-[Test]
+    [Test]
     public async ValueTask Menubar_demo_closes_from_single_outside_click()
     {
         await using var session = await CreateSession();
@@ -61,7 +62,7 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page.Locator("[role='menu']:visible")).ToHaveCountAsync(0);
     }
 
-[Test]
+    [Test]
     public async ValueTask Menubar_rtl_demo_inverts_horizontal_arrow_navigation()
     {
         await using var session = await CreateSession();
@@ -85,8 +86,8 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(file).ToBeFocusedAsync();
     }
 
-[Test]
-    public async ValueTask Menubar_demo_escape_closes_submenu_before_parent_menu()
+    [Test]
+    public async ValueTask Menubar_demo_escape_from_submenu_closes_root_menu()
     {
         await using var session = await CreateSession();
         var page = session.Page;
@@ -121,19 +122,11 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await emailLink.PressAsync("Escape");
 
         await Assertions.Expect(submenu).Not.ToBeVisibleAsync();
-        var reopenedMenu = page.Locator("[role='menu']:visible").Filter(new LocatorFilterOptions { HasText = "New Tab" }).First;
-        await Assertions.Expect(reopenedMenu).ToBeVisibleAsync();
-
-        var reopenedSubmenuTrigger = reopenedMenu.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "Share", Exact = true });
-        await Assertions.Expect(reopenedSubmenuTrigger).ToBeFocusedAsync();
-
-        await reopenedSubmenuTrigger.PressAsync("Escape");
-
-        await Assertions.Expect(reopenedMenu).Not.ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator("[role='menu']:visible")).ToHaveCountAsync(0);
         await Assertions.Expect(fileTrigger).ToBeFocusedAsync();
     }
 
-[Test]
+    [Test]
     public async ValueTask Menubar_demo_roves_focus_across_top_level_triggers_and_opens_adjacent_menu_with_arrow_keys()
     {
         await using var session = await CreateSession();
@@ -170,7 +163,7 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(page.Locator("[role='menu']:visible").First).ToContainTextAsync("New Tab");
     }
 
-[Test]
+    [Test]
     public async ValueTask Menubar_demo_persists_radio_and_checkbox_item_state_across_reopen()
     {
         await using var session = await CreateSession();
@@ -204,7 +197,7 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(luis).ToHaveAttributeAsync("aria-checked", "true");
         await Assertions.Expect(benoit).ToHaveAttributeAsync("aria-checked", "false");
 
-        await profilesTrigger.ClickAsync();
+        await page.Keyboard.PressAsync("Escape");
         await Assertions.Expect(profilesTrigger).ToHaveAttributeAsync("aria-expanded", "false");
 
         await profilesTrigger.ClickAsync();
@@ -213,6 +206,11 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(luis).ToBeVisibleAsync();
         await Assertions.Expect(luis).ToHaveAttributeAsync("aria-checked", "true");
         await Assertions.Expect(benoit).ToHaveAttributeAsync("aria-checked", "false");
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}menubar",
+            static p => p.Locator("[data-testid='quark-menubar-checkbox-demo']"),
+            expectedTitle: "Menubar - Quark Suite");
 
         var viewTrigger = page.Locator("[data-testid='menubar-checkbox-trigger']");
         await Assertions.Expect(viewTrigger).ToBeVisibleAsync();
@@ -237,7 +235,7 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(bookmarks).ToHaveAttributeAsync("aria-checked", "true");
         await Assertions.Expect(fullUrls).ToHaveAttributeAsync("aria-checked", "true");
 
-        await viewTrigger.ClickAsync();
+        await page.Keyboard.PressAsync("Escape");
         await Assertions.Expect(viewTrigger).ToHaveAttributeAsync("aria-expanded", "false");
 
         await viewTrigger.ClickAsync();
@@ -245,5 +243,51 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(bookmarks).ToBeVisibleAsync();
         await Assertions.Expect(fullUrls).ToBeVisibleAsync();
         await Assertions.Expect(bookmarks).ToHaveAttributeAsync("aria-checked", "true");
+    }
+
+    [Test]
+    public async ValueTask Menubar_demo_portals_above_page_and_has_no_console_errors()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+        List<string> consoleErrors = [];
+        var sawPageError = false;
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+
+        page.PageError += (_, _) => sawPageError = true;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}menubar",
+            static p => p.Locator("[data-testid='quark-menubar-main-demo']"),
+            expectedTitle: "Menubar - Quark Suite");
+
+        var demo = page.Locator("[data-testid='quark-menubar-main-demo']");
+        var fileTrigger = demo.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "File", Exact = true });
+
+        await fileTrigger.ClickAsync();
+
+        var menu = page.Locator("[role='menu'][data-state='open']:visible").First;
+        await Assertions.Expect(menu).ToBeVisibleAsync();
+        await Assertions.Expect(menu).ToHaveAttributeAsync("data-slot", "menubar-content");
+
+        await page.WaitForFunctionAsync(
+            "() => {" +
+            "const menu = document.querySelector('[role=\"menu\"][data-state=\"open\"]');" +
+            "const main = document.querySelector('main');" +
+            "if (!menu || !main || main.contains(menu)) return false;" +
+            "return Number.parseInt(getComputedStyle(menu).zIndex, 10) >= 50;" +
+            "}");
+
+        await page.Keyboard.PressAsync("Escape");
+        await Assertions.Expect(page.Locator("[role='menu'][data-state='open']:visible")).ToHaveCountAsync(0);
+        await Assertions.Expect(fileTrigger).ToBeFocusedAsync();
+
+        sawPageError.Should().BeFalse();
+        consoleErrors.Should().BeEmpty();
     }
 }

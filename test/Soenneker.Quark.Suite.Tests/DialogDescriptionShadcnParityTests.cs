@@ -16,8 +16,6 @@ public sealed partial class RenderedShadcnParityTests
 
         classes.Should().Contain("text-sm");
         classes.Should().Contain("text-muted-foreground");
-        classes.Should().Contain("*:[a]:underline");
-        classes.Should().Contain("*:[a]:underline-offset-3");
-        classes.Should().Contain("*:[a]:hover:text-foreground");
+        classes.Should().NotContain("*:[a]:underline");
     }
 }

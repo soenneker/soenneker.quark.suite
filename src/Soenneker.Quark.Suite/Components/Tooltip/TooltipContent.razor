@@ -1,11 +1,22 @@
 @using Soenneker.Bradix
+@using System.Collections.Generic
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
-<BradixTooltipPortal>
-    <BradixTooltipContent Side="@ResolvedSide"
+<BradixTooltipPortal ForceMount="@ForceMount">
+    <BradixTooltipContent ForceMount="@ForceMount"
+                          Side="@ResolvedSide"
+                          Align="@ResolvedAlign"
                           SideOffset="@SideOffset"
+                          AlignOffset="@AlignOffset"
+                          ArrowPadding="@ArrowPadding"
+                          AvoidCollisions="@AvoidCollisions"
+                          CollisionPadding="@CollisionPadding"
+                          CollisionBoundarySelector="@CollisionBoundarySelector"
+                          CollisionBoundarySelectors="@CollisionBoundarySelectors"
+                          Sticky="@Sticky"
+                          HideWhenDetached="@HideWhenDetached"
                           AdditionalAttributes="@ContentAttributes">
         @ChildContent
         @if (ShowArrow)
@@ -22,11 +33,20 @@
     [Parameter]
     public bool Open { get; set; }
 
+    [Parameter]
+    public bool ForceMount { get; set; }
+
     /// <summary>
     /// Gets or sets side placement: top, right, bottom, or left.
     /// </summary>
     [Parameter]
     public string Side { get; set; } = "top";
+
+    /// <summary>
+    /// Gets or sets alignment along the placement axis: start, center, or end.
+    /// </summary>
+    [Parameter]
+    public string PlacementAlign { get; set; } = "center";
 
     /// <summary>
     /// Gets or sets whether hover/focus should auto-open the tooltip.
@@ -46,6 +66,30 @@
     [Parameter]
     public int SideOffset { get; set; }
 
+    [Parameter]
+    public double AlignOffset { get; set; }
+
+    [Parameter]
+    public double ArrowPadding { get; set; }
+
+    [Parameter]
+    public bool AvoidCollisions { get; set; } = true;
+
+    [Parameter]
+    public double CollisionPadding { get; set; }
+
+    [Parameter]
+    public string? CollisionBoundarySelector { get; set; }
+
+    [Parameter]
+    public IReadOnlyList<string>? CollisionBoundarySelectors { get; set; }
+
+    [Parameter]
+    public string Sticky { get; set; } = "partial";
+
+    [Parameter]
+    public bool HideWhenDetached { get; set; }
+
     private bool IsOpen => Tooltip?.CurrentOpen ?? Open;
     private BradixSide ResolvedSide => Side switch
     {
@@ -53,6 +97,12 @@
         "left" => BradixSide.Left,
         "right" => BradixSide.Right,
         _ => BradixSide.Top
+    };
+    private BradixAlignment ResolvedAlign => PlacementAlign switch
+    {
+        "start" => BradixAlignment.Start,
+        "end" => BradixAlignment.End,
+        _ => BradixAlignment.Center
     };
     private IReadOnlyDictionary<string, object> ContentAttributes => BuildContentAttributes();
 
@@ -73,10 +123,7 @@
     {
         base.ApplyDefaultParameters();
 
-        Display ??= Quark.Display.InlineFlex;
         Width ??= Quark.Width.IsFit;
-        ItemsAlign ??= Items.Center;
-        Gap ??= Quark.Gap.Token("1.5");
         Rounded ??= Quark.Rounded.Md;
         BackgroundColor ??= Quark.BackgroundColor.Utility("bg-foreground");
         Padding ??= Quark.Padding.Token("3").OnX.Token("1.5").OnY;
@@ -94,12 +141,9 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "z-[80] max-w-xs origin-(--radix-tooltip-content-transform-origin) has-data-[slot=kbd]:pr-1.5");
+            AppendClass(ref cls, "z-50 origin-(--radix-tooltip-content-transform-origin) animate-in text-balance fade-in-0 zoom-in-95");
             AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
-            AppendClass(ref cls, "**:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm");
-            AppendClass(ref cls, "data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95");
-            AppendClass(ref cls, "data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95");
-            AppendClass(ref cls, "data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95");
+            AppendClass(ref cls, "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95");
         });
     }
 
@@ -107,8 +151,22 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(IsOpen);
+        hc.Add(ForceMount);
         hc.Add(Side);
+        hc.Add(PlacementAlign);
         hc.Add(SideOffset);
+        hc.Add(AlignOffset);
+        hc.Add(ArrowPadding);
+        hc.Add(AvoidCollisions);
+        hc.Add(CollisionPadding);
+        hc.Add(CollisionBoundarySelector);
+        if (CollisionBoundarySelectors is not null)
+        {
+            foreach (string selector in CollisionBoundarySelectors)
+                hc.Add(selector);
+        }
+        hc.Add(Sticky);
+        hc.Add(HideWhenDetached);
         hc.Add(DisableAutoOpen);
         hc.Add(ShowArrow);
     }

@@ -1,6 +1,8 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
+using System;
+using System.IO;
 
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -48,7 +50,6 @@ public sealed partial class RenderedShadcnParityTests
 
         var commandClasses = cut.Find("[data-slot='command']").GetAttribute("class")!;
         var wrapperClasses = cut.Find("[data-slot='command-input-wrapper']").GetAttribute("class")!;
-        var inputGroupClasses = cut.Find("[data-slot='input-group']").GetAttribute("class")!;
         var inputClasses = cut.Find("[data-slot='command-input']").GetAttribute("class")!;
         var listClasses = cut.Find("[data-slot='command-list']").GetAttribute("class")!;
         var groupClasses = cut.Find("[data-slot='command-group']").GetAttribute("class")!;
@@ -57,67 +58,61 @@ public sealed partial class RenderedShadcnParityTests
         var separatorClasses = cut.Find("[data-slot='command-separator']").GetAttribute("class")!;
 
         commandClasses.Should().Contain("flex");
-        commandClasses.Should().Contain("size-full");
+        commandClasses.Should().Contain("h-full");
+        commandClasses.Should().Contain("w-full");
         commandClasses.Should().Contain("flex-col");
         commandClasses.Should().Contain("overflow-hidden");
-        commandClasses.Should().Contain("rounded-xl!");
-        commandClasses.Should().Contain("max-w-sm");
-        commandClasses.Should().Contain("rounded-lg");
-        commandClasses.Should().Contain("border");
+        commandClasses.Should().Contain("rounded-md");
         commandClasses.Should().Contain("bg-popover");
-        commandClasses.Should().Contain("p-1");
         commandClasses.Should().Contain("text-popover-foreground");
+        commandClasses.Should().NotContain("rounded-xl!");
+        commandClasses.Should().NotContain("max-w-sm");
+        commandClasses.Should().NotContain("border");
         commandClasses.Should().NotContain("q-command");
 
-        wrapperClasses.Should().Contain("p-1");
-        wrapperClasses.Should().Contain("pb-0");
+        wrapperClasses.Should().Contain("flex");
+        wrapperClasses.Should().Contain("h-9");
+        wrapperClasses.Should().Contain("items-center");
+        wrapperClasses.Should().Contain("gap-2");
+        wrapperClasses.Should().Contain("border-b");
+        wrapperClasses.Should().Contain("px-3");
+        wrapperClasses.Should().NotContain("input-group");
 
-        inputGroupClasses.Should().Contain("group/input-group");
-        inputGroupClasses.Should().Contain("relative");
-        inputGroupClasses.Should().Contain("flex");
-        inputGroupClasses.Should().Contain("h-8");
-        inputGroupClasses.Should().Contain("w-full");
-        inputGroupClasses.Should().Contain("min-w-0");
-        inputGroupClasses.Should().Contain("items-center");
-        inputGroupClasses.Should().Contain("rounded-lg");
-        inputGroupClasses.Should().Contain("border");
-        inputGroupClasses.Should().Contain("border-input/30");
-        inputGroupClasses.Should().Contain("bg-input/30");
-        inputGroupClasses.Should().Contain("in-data-[slot=combobox-content]:focus-within:border-inherit");
-        inputGroupClasses.Should().Contain("has-disabled:bg-input/50");
-        inputGroupClasses.Should().Contain("has-[[data-slot=input-group-control]:focus-visible]:ring-3");
-        inputGroupClasses.Should().Contain("*:data-[slot=input-group-addon]:pl-2!");
+        var searchIconClasses = cut.Find("[data-slot='command-input-wrapper'] [data-slot='icon']").GetAttribute("class")!;
+        searchIconClasses.Should().Contain("size-4");
+        searchIconClasses.Should().Contain("shrink-0");
+        searchIconClasses.Should().Contain("opacity-50");
 
+        inputClasses.Should().Contain("flex");
+        inputClasses.Should().Contain("h-10");
         inputClasses.Should().Contain("w-full");
+        inputClasses.Should().Contain("rounded-md");
+        inputClasses.Should().Contain("bg-transparent");
+        inputClasses.Should().Contain("py-3");
         inputClasses.Should().Contain("text-sm");
         inputClasses.Should().Contain("outline-hidden");
+        inputClasses.Should().Contain("placeholder:text-muted-foreground");
         inputClasses.Should().Contain("disabled:cursor-not-allowed");
-        inputClasses.Should().NotContain("bg-transparent");
-        inputClasses.Should().NotContain("placeholder:text-muted-foreground");
         inputClasses.Should().NotContain("q-command-input");
 
-        cut.Find("[data-slot='input-group-addon']").GetAttribute("class")!.Should().Contain("group-data-[disabled=true]/input-group:opacity-50");
-        cut.Find("[data-slot='input-group-addon']").GetAttribute("class")!.Should().Contain("has-[>button]:ml-[-0.3rem]");
-
-        listClasses.Should().Contain("no-scrollbar");
-        listClasses.Should().Contain("max-h-72");
+        listClasses.Should().Contain("max-h-[300px]");
         listClasses.Should().Contain("scroll-py-1");
         listClasses.Should().Contain("overflow-x-hidden");
         listClasses.Should().Contain("overflow-y-auto");
-        listClasses.Should().Contain("outline-none");
+        listClasses.Should().NotContain("no-scrollbar");
         listClasses.Should().NotContain("q-command-list");
 
         groupClasses.Should().Contain("overflow-hidden");
         groupClasses.Should().Contain("p-1");
         groupClasses.Should().Contain("text-foreground");
-        groupClasses.Should().Contain("**:[[cmdk-group-heading]]:px-2");
-        groupClasses.Should().Contain("**:[[cmdk-group-heading]]:py-1.5");
-        groupClasses.Should().Contain("**:[[cmdk-group-heading]]:text-xs");
-        groupClasses.Should().Contain("**:[[cmdk-group-heading]]:font-medium");
-        groupClasses.Should().Contain("**:[[cmdk-group-heading]]:text-muted-foreground");
+        groupClasses.Should().Contain("[&_[cmdk-group-heading]]:px-2");
+        groupClasses.Should().Contain("[&_[cmdk-group-heading]]:py-1.5");
+        groupClasses.Should().Contain("[&_[cmdk-group-heading]]:text-xs");
+        groupClasses.Should().Contain("[&_[cmdk-group-heading]]:font-medium");
+        groupClasses.Should().Contain("[&_[cmdk-group-heading]]:text-muted-foreground");
+        cut.Find("[cmdk-group-heading]").TextContent.Should().Be("Suggestions");
         groupClasses.Should().NotContain("q-command-group");
 
-        itemClasses.Should().Contain("group/command-item");
         itemClasses.Should().Contain("relative");
         itemClasses.Should().Contain("flex");
         itemClasses.Should().Contain("cursor-default");
@@ -129,22 +124,63 @@ public sealed partial class RenderedShadcnParityTests
         itemClasses.Should().Contain("text-sm");
         itemClasses.Should().Contain("outline-hidden");
         itemClasses.Should().Contain("select-none");
-        itemClasses.Should().Contain("data-selected:bg-muted");
-        itemClasses.Should().Contain("data-selected:text-foreground");
+        itemClasses.Should().Contain("data-[selected=true]:bg-accent");
+        itemClasses.Should().Contain("data-[selected=true]:text-accent-foreground");
         itemClasses.Should().Contain("[&_svg]:pointer-events-none");
-        itemClasses.Should().Contain("data-selected:*:[svg]:text-foreground");
+        itemClasses.Should().Contain("[&_svg:not([class*='text-'])]:text-muted-foreground");
+        itemClasses.Should().NotContain("group/command-item");
+        itemClasses.Should().NotContain("data-selected:bg-muted");
         itemClasses.Should().NotContain("q-command-item");
 
         shortcutClasses.Should().Contain("ml-auto");
         shortcutClasses.Should().Contain("text-xs");
         shortcutClasses.Should().Contain("tracking-widest");
         shortcutClasses.Should().Contain("text-muted-foreground");
-        shortcutClasses.Should().Contain("group-data-selected/command-item:text-foreground");
+        shortcutClasses.Should().NotContain("group-data-selected/command-item:text-foreground");
         shortcutClasses.Should().NotContain("q-command-shortcut");
 
         separatorClasses.Should().Contain("-mx-1");
         separatorClasses.Should().Contain("h-px");
         separatorClasses.Should().Contain("bg-border");
         separatorClasses.Should().NotContain("q-command-separator");
+    }
+
+    [Test]
+    public void Command_source_matches_shadcn_v4_contract()
+    {
+        var input = ReadCommandSource("CommandInput.razor");
+        var item = ReadCommandSource("CommandItem.razor");
+        var dialog = ReadCommandSource("CommandDialog.razor");
+
+        input.Should().Contain("attrs[\"data-slot\"] = \"command-input-wrapper\"");
+        input.Should().Contain("LucideIcon.Search");
+        input.Should().NotContain("data-slot=\"input-group\"");
+
+        item.Should().Contain("data-selected");
+        item.Should().Contain("data-[selected=true]:bg-accent");
+        item.Should().Contain("data-[disabled=true]:pointer-events-none");
+
+        dialog.Should().Contain("DialogContent ShowCloseButton=\"@ShowCloseButton\" Class=\"overflow-hidden p-0\"");
+        dialog.Should().Contain("[&_[data-slot=command-input-wrapper]]:h-12");
+        dialog.Should().Contain("DialogTitle Class=\"sr-only\"");
+        dialog.Should().Contain("DialogDescription Class=\"sr-only\"");
+        dialog.Should().NotContain("DialogBody Class=\"overflow-hidden p-0\"");
+    }
+
+    private static string ReadCommandSource(string fileName)
+    {
+        return File.ReadAllText(Path.Combine(GetSuiteRootForCommand(), "src", "Soenneker.Quark.Suite", "Components", "Command", fileName));
+    }
+
+    private static string GetSuiteRootForCommand()
+    {
+        var directory = AppContext.BaseDirectory;
+
+        for (var i = 0; i < 6; i++)
+        {
+            directory = Directory.GetParent(directory)!.FullName;
+        }
+
+        return directory;
     }
 }

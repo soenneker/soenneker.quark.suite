@@ -1,0 +1,46 @@
+@namespace Soenneker.Quark
+
+@if (PromptInput is not null && PromptInput.Attachments.Count > 0)
+{
+    <Attachments Variant="@Variant" @attributes="Attributes">
+        @foreach (PromptInputAttachmentInfo attachment in PromptInput.Attachments)
+        {
+            if (AttachmentTemplate is not null)
+            {
+                @AttachmentTemplate(attachment)
+            }
+            else
+            {
+                <Attachment Name="@attachment.Name" Description="@attachment.Description" Variant="@AttachmentVariant">
+                    <Button Type="ButtonType.Button"
+                            Size="ButtonSize.IconXs"
+                            Variant="ButtonVariant.Ghost"
+                            aria-label="@($"Remove {attachment.Name}")"
+                            OnClick="@(() => PromptInput.RemoveAttachment(attachment.Id))">
+                        <Icon Name="LucideIcon.X" />
+                    </Button>
+                </Attachment>
+            }
+        }
+    </Attachments>
+}
+
+@code {
+    [CascadingParameter]
+    public PromptInput? PromptInput { get; set; }
+
+    [CascadingParameter(Name = "PromptInputAttachmentsVersion")]
+    public int AttachmentsVersion { get; set; }
+
+    [Parameter]
+    public string Variant { get; set; } = "inline";
+
+    [Parameter]
+    public string AttachmentVariant { get; set; } = "inline";
+
+    [Parameter]
+    public RenderFragment<PromptInputAttachmentInfo>? AttachmentTemplate { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+}

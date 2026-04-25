@@ -126,18 +126,7 @@ public class EmployeeService
 
     public async Task<List<Employee>> GetFilteredEmployees(DataTableServerSideRequest serverSideRequest, CancellationToken cancellationToken = default)
     {
-        var filteredData = _employees.AsEnumerable();
-
-        // Apply search
-        if (serverSideRequest.Search?.Value.HasContent() == true)
-        {
-            var searchTerm = serverSideRequest.Search.Value;
-            filteredData = filteredData.Where(e => 
-                e.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                e.Department.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                e.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                e.Status.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
-        }
+        var filteredData = ApplySearch(_employees, serverSideRequest.Search?.Value);
 
         // Apply sorting
         if (serverSideRequest.Order != null && serverSideRequest.Order.Count > 0)
@@ -178,6 +167,11 @@ public class EmployeeService
     public int GetTotalCount()
     {
         return _employees.Count;
+    }
+
+    public int GetFilteredCount(DataTableServerSideRequest serverSideRequest)
+    {
+        return ApplySearch(_employees, serverSideRequest.Search?.Value).Count();
     }
 
     public List<Employee> GetAllEmployees()
@@ -271,5 +265,17 @@ public class EmployeeService
             6 => employee.Id,
             _ => employee.Name // Default to name for unknown columns
         };
+    }
+
+    private static IEnumerable<Employee> ApplySearch(IEnumerable<Employee> employees, string? searchTerm)
+    {
+        if (!searchTerm.HasContent())
+            return employees;
+
+        return employees.Where(e =>
+            e.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+            e.Department.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+            e.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+            e.Status.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
     }
 } 

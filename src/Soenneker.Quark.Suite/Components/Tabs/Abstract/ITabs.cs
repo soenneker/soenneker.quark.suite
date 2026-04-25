@@ -8,7 +8,7 @@ namespace Soenneker.Quark;
 public interface ITabs : IElement
 {
     /// <summary>
-    /// Gets or sets whether the tabs should be styled as pills instead of tabs.
+    /// Legacy compatibility alias for the shadcn default tab-list style. shadcn v4 exposes <see cref="TabsListVariant.Default"/> and <see cref="TabsListVariant.Line"/>, not a separate pills variant.
     /// </summary>
     bool Pills { get; set; }
 

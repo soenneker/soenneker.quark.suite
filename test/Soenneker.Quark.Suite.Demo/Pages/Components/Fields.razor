@@ -1,4 +1,5 @@
 @page "/fields"
+@using Soenneker.Quark.Forms
 <PageTitle>Fields - Quark Suite</PageTitle>
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
@@ -107,6 +108,28 @@
         </Section>
 
         <Section Space="Space.Y.Is4">
+            <DemoSection Title="Form Item"
+                         Description="shadcn-style form item with generated label, description, and message relationships."
+                         Code="@FormItemCode"
+                         CodeLanguage="razor">
+                <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
+                    <FormItem IsInvalid="_formItemInvalid">
+                        <FormLabel>Email</FormLabel>
+                        <Input Type="email"
+                               Placeholder="name@example.com"
+                               Required="true"
+                               @bind-Value="_formItemEmail" />
+                        <FormDescription>Use your work email for notifications.</FormDescription>
+                        <FormMessage>Email is required.</FormMessage>
+                        <Button Type="ButtonType.Button" Variant="ButtonVariant.Outline" @onclick="ToggleFormItemInvalid">
+                            Toggle invalid state
+                        </Button>
+                    </FormItem>
+                </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
             <Div Space="Space.Y.Is2">
                 <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
                 <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
@@ -170,6 +193,14 @@
 </Div>
 
 @code {
+    private bool _formItemInvalid = true;
+    private string? _formItemEmail;
+
+    private void ToggleFormItemInvalid()
+    {
+        _formItemInvalid = !_formItemInvalid;
+    }
+
     private const string BasicCode =
 @"<Div Class=""w-full max-w-md"">
     <form>
@@ -260,6 +291,20 @@
         </Field>
     </FieldGroup>
 </FieldSet>";
+
+    private const string FormItemCode =
+@"<FormItem IsInvalid=""_formItemInvalid"">
+    <FormLabel>Email</FormLabel>
+    <Input Type=""email""
+           Placeholder=""name@example.com""
+           Required=""true""
+           @bind-Value=""_formItemEmail"" />
+    <FormDescription>Use your work email for notifications.</FormDescription>
+    <FormMessage>Email is required.</FormMessage>
+    <Button Type=""ButtonType.Button"" Variant=""ButtonVariant.Outline"" @onclick=""ToggleFormItemInvalid"">
+        Toggle invalid state
+    </Button>
+</FormItem>";
 
     private const string SettingsGroupCode =
 @"<FieldSet>

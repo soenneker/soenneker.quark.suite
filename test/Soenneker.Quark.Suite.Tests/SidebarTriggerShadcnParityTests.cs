@@ -15,12 +15,12 @@ public sealed partial class RenderedShadcnParityTests
 
         classes.Should().Contain("inline-flex");
         classes.Should().Contain("rounded-md");
-        classes.Should().Contain("size-8");
+        classes.Should().Contain("size-7");
         classes.Should().Contain("hover:bg-accent");
         classes.Should().Contain("hover:text-accent-foreground");
         classes.Should().Contain("dark:hover:bg-accent/50");
         classes.Should().NotContain("group/button");
-        classes.Should().NotContain("size-7");
+        classes.Should().NotContain("size-8");
         classes.Should().NotContain("hover:bg-muted");
         classes.Should().NotContain("q-sidebar-trigger");
     }

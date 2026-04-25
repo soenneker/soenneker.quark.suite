@@ -14,7 +14,7 @@
     private static string GetVariantClass(EmptyMediaVariant? variant)
         => (variant?.Value ?? EmptyMediaVariant.DefaultValue) switch
         {
-            EmptyMediaVariant.IconValue => "bg-muted text-foreground size-10 rounded-lg [&_svg:not([class*='size-'])]:size-6",
+            EmptyMediaVariant.IconValue => "flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground [&_svg:not([class*='size-'])]:size-6",
             _ => "bg-transparent"
         };
 
@@ -23,7 +23,7 @@
         base.ApplyDefaultParameters();
 
         Display ??= Quark.Display.Flex;
-        Flex ??= Quark.Flex.None;
+        Shrink ??= Quark.Shrink.Is0;
         ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
         Margin ??= Quark.Margin.Is2.FromBottom;
@@ -36,7 +36,6 @@
         attributes["data-slot"] = "empty-icon";
         attributes["data-variant"] = Variant?.Value ?? EmptyMediaVariant.Default.Value;
 
-        // shadcn/ui empty-icon base - exact copy from new-york-v4 ui/empty.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0");

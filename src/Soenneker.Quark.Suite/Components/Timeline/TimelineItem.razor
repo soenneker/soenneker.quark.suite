@@ -104,6 +104,10 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "timeline-item";
+        attributes["data-status"] = Status?.Value ?? TimelineStatus.Completed.Value;
+
+        if (Status == TimelineStatus.InProgress)
+            attributes["aria-current"] = "step";
     }
 
     protected override void ApplyDefaultParameters()
@@ -140,9 +144,9 @@
 
     private string ContentGridClass => TimelineAlignment?.Value switch
     {
-        TimelineAlign.LeftValue => $"grid grid-cols-[auto_1fr] gap-4 items-start{(Status == TimelineStatus.InProgress ? " aria-current-step" : null)}",
-        TimelineAlign.RightValue => $"grid grid-cols-[1fr_auto] gap-4 items-start{(Status == TimelineStatus.InProgress ? " aria-current-step" : null)}",
-        _ => $"grid grid-cols-[1fr_auto_1fr] gap-4 items-start{(Status == TimelineStatus.InProgress ? " aria-current-step" : null)}"
+        TimelineAlign.LeftValue => "grid grid-cols-[auto_1fr] gap-4 items-start",
+        TimelineAlign.RightValue => "grid grid-cols-[1fr_auto] gap-4 items-start",
+        _ => "grid grid-cols-[1fr_auto_1fr] gap-4 items-start"
     };
 
     private string IconMinHeightClass => Size?.Value switch

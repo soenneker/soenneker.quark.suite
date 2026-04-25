@@ -15,4 +15,9 @@ public interface IStepsInterop : IAsyncDisposable
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Awaitable task.</returns>
     ValueTask Initialize(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Focuses a step tab by id after keyboard navigation changes selection.
+    /// </summary>
+    ValueTask FocusById(string id, CancellationToken cancellationToken = default);
 }

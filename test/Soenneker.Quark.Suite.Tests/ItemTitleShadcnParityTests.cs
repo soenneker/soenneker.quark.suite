@@ -14,7 +14,6 @@ public sealed partial class RenderedShadcnParityTests
 
         var titleClasses = title.Find("[data-slot='item-title']").GetAttribute("class")!;
 
-        titleClasses.Should().Contain("line-clamp-1");
         titleClasses.Should().Contain("flex");
         titleClasses.Should().Contain("w-fit");
         titleClasses.Should().Contain("items-center");
@@ -22,6 +21,7 @@ public sealed partial class RenderedShadcnParityTests
         titleClasses.Should().Contain("text-sm");
         titleClasses.Should().Contain("leading-snug");
         titleClasses.Should().Contain("font-medium");
-        titleClasses.Should().Contain("underline-offset-4");
+        titleClasses.Should().NotContain("line-clamp-1");
+        titleClasses.Should().NotContain("underline-offset-4");
     }
 }

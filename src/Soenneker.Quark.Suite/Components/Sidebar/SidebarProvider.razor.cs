@@ -214,14 +214,34 @@ public partial class SidebarProvider
         BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
         {
             AppendClass(ref cls, "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar");
+
+            if (!HasExplicitHeight())
+                AppendClass(ref cls, "min-h-svh");
+
             AppendStyleDecl(ref sty, $"--sidebar-width: {SidebarWidth}");
             AppendStyleDecl(ref sty, $"--sidebar-width-icon: {SidebarWidthIcon}");
             AppendStyleDecl(ref sty, $"--sidebar-width-mobile: {SidebarWidthMobile}");
         });
     }
 
+    private bool HasExplicitHeight()
+    {
+        if (Height is not null || MinHeight is not null)
+            return true;
+
+        if (!string.IsNullOrWhiteSpace(Class) &&
+            (Class.Contains("h-", StringComparison.Ordinal) || Class.Contains("min-h-", StringComparison.Ordinal)))
+        {
+            return true;
+        }
+
+        return !string.IsNullOrWhiteSpace(Style) &&
+               (Style.Contains("height", StringComparison.OrdinalIgnoreCase) || Style.Contains("min-height", StringComparison.OrdinalIgnoreCase));
+    }
+
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
+        base.ComputeRenderKeyCore(ref hc);
         hc.Add(DefaultOpen);
         hc.Add(Open);
         hc.Add(OpenMobile);

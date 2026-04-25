@@ -34,6 +34,11 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         module.SetupVoid("registerSelectBubbleInput", _ => true).SetVoidResult();
         module.SetupVoid("unregisterSelectBubbleInput", _ => true).SetVoidResult();
         module.SetupVoid("syncSelectBubbleInputValue", _ => true).SetVoidResult();
+        module.SetupVoid("registerSelectViewport", _ => true).SetVoidResult();
+        module.SetupVoid("unregisterSelectViewport", _ => true).SetVoidResult();
+        module.SetupVoid("scrollSelectViewportByItem", _ => true).SetVoidResult();
+        module.SetupVoid("registerSelectContentPointerTracker", _ => true).SetVoidResult();
+        module.SetupVoid("unregisterSelectContentPointerTracker", _ => true).SetVoidResult();
         module.SetupVoid("registerMenubarDocumentDismiss", _ => true).SetVoidResult();
         module.SetupVoid("unregisterMenubarDocumentDismiss", _ => true).SetVoidResult();
         module.SetupVoid("registerNavigationMenuTriggerInteraction", _ => true).SetVoidResult();
@@ -53,6 +58,8 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         module.SetupVoid("unregisterScrollAreaViewport", _ => true).SetVoidResult();
         module.SetupVoid("registerScrollAreaRoot", _ => true).SetVoidResult();
         module.SetupVoid("unregisterScrollAreaRoot", _ => true).SetVoidResult();
+        module.SetupVoid("registerScrollAreaScrollbar", _ => true).SetVoidResult();
+        module.SetupVoid("unregisterScrollAreaScrollbar", _ => true).SetVoidResult();
         module.SetupVoid("registerDismissableLayer", _ => true).SetVoidResult();
         module.SetupVoid("unregisterDismissableLayer", _ => true).SetVoidResult();
         module.SetupVoid("updateFocusScope", _ => true).SetVoidResult();
@@ -72,17 +79,49 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         module.SetupVoid("registerHoverCardSelectionContainment", _ => true).SetVoidResult();
         module.SetupVoid("unregisterHoverCardSelectionContainment", _ => true).SetVoidResult();
         module.SetupVoid("registerPopperContent", _ => true).SetVoidResult();
+        module.SetupVoid("registerPopperContentBySelector", _ => true).SetVoidResult();
         module.SetupVoid("unregisterPopperContent", _ => true).SetVoidResult();
         module.SetupVoid("updatePopperContent", _ => true).SetVoidResult();
         module.Setup<string>("getTextContent", _ => true).SetResult(string.Empty);
         module.Setup<bool>("isFormControl", _ => true).SetResult(false);
         module.Setup<bool>("isDirectionRtl", _ => true).SetResult(false);
+        module.Setup<bool>("isKeyboardInteractionMode", _ => true).SetResult(false);
+
+        var resourceLoaderModule = JSInterop.SetupModule("./_content/Soenneker.Blazor.Utils.ResourceLoader/js/resourceloader.js");
+        resourceLoaderModule.SetupVoid("loadScript", _ => true).SetVoidResult();
+        resourceLoaderModule.SetupVoid("loadStyle", _ => true).SetVoidResult();
+
+        var jsVariableModule = JSInterop.SetupModule("./_content/Soenneker.Blazor.Utils.JsVariable/js/jsvariableinterop.js");
+        jsVariableModule.Setup<bool>("isVariableAvailable", _ => true).SetResult(true);
+        jsVariableModule.SetupVoid("waitForVariable", _ => true).SetVoidResult();
+        jsVariableModule.SetupVoid("cancelWaitForVariable", _ => true).SetVoidResult();
+
+        var sidebarModule = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/sidebarinterop.js");
+        sidebarModule.Setup<System.Text.Json.JsonElement>("getSidebarState", _ => true).SetResult(default);
+        sidebarModule.SetupVoid("initializeSidebar", _ => true).SetVoidResult();
+        sidebarModule.SetupVoid("saveSidebarState", _ => true).SetVoidResult();
+        sidebarModule.SetupVoid("cleanup", _ => true).SetVoidResult();
+
+        var promptInputModule = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/promptinputinterop.js");
+        promptInputModule.SetupVoid("registerTextarea", _ => true).SetVoidResult();
+        promptInputModule.SetupVoid("unregisterTextarea", _ => true).SetVoidResult();
+        promptInputModule.SetupVoid("registerAttachments", _ => true).SetVoidResult();
+        promptInputModule.SetupVoid("unregisterAttachments", _ => true).SetVoidResult();
+        promptInputModule.SetupVoid("openFileDialog", _ => true).SetVoidResult();
+        promptInputModule.SetupVoid("registerAttachmentsById", _ => true).SetVoidResult();
+        promptInputModule.SetupVoid("unregisterAttachmentsById", _ => true).SetVoidResult();
+        promptInputModule.SetupVoid("openFileDialogById", _ => true).SetVoidResult();
 
         JSInterop.SetupVoid("registerDismissableLayerBranch", _ => true).SetVoidResult();
         JSInterop.SetupVoid("unregisterDismissableLayerBranch", _ => true).SetVoidResult();
         JSInterop.SetupVoid("registerSelectBubbleInput", _ => true).SetVoidResult();
         JSInterop.SetupVoid("unregisterSelectBubbleInput", _ => true).SetVoidResult();
         JSInterop.SetupVoid("syncSelectBubbleInputValue", _ => true).SetVoidResult();
+        JSInterop.SetupVoid("registerSelectViewport", _ => true).SetVoidResult();
+        JSInterop.SetupVoid("unregisterSelectViewport", _ => true).SetVoidResult();
+        JSInterop.SetupVoid("scrollSelectViewportByItem", _ => true).SetVoidResult();
+        JSInterop.SetupVoid("registerSelectContentPointerTracker", _ => true).SetVoidResult();
+        JSInterop.SetupVoid("unregisterSelectContentPointerTracker", _ => true).SetVoidResult();
         JSInterop.SetupVoid("registerMenubarDocumentDismiss", _ => true).SetVoidResult();
         JSInterop.SetupVoid("unregisterMenubarDocumentDismiss", _ => true).SetVoidResult();
         JSInterop.SetupVoid("registerNavigationMenuTriggerInteraction", _ => true).SetVoidResult();
@@ -102,6 +141,8 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         JSInterop.SetupVoid("unregisterScrollAreaViewport", _ => true).SetVoidResult();
         JSInterop.SetupVoid("registerScrollAreaRoot", _ => true).SetVoidResult();
         JSInterop.SetupVoid("unregisterScrollAreaRoot", _ => true).SetVoidResult();
+        JSInterop.SetupVoid("registerScrollAreaScrollbar", _ => true).SetVoidResult();
+        JSInterop.SetupVoid("unregisterScrollAreaScrollbar", _ => true).SetVoidResult();
         JSInterop.SetupVoid("registerDismissableLayer", _ => true).SetVoidResult();
         JSInterop.SetupVoid("unregisterDismissableLayer", _ => true).SetVoidResult();
         JSInterop.SetupVoid("updateFocusScope", _ => true).SetVoidResult();
@@ -121,11 +162,13 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         JSInterop.SetupVoid("registerHoverCardSelectionContainment", _ => true).SetVoidResult();
         JSInterop.SetupVoid("unregisterHoverCardSelectionContainment", _ => true).SetVoidResult();
         JSInterop.SetupVoid("registerPopperContent", _ => true).SetVoidResult();
+        JSInterop.SetupVoid("registerPopperContentBySelector", _ => true).SetVoidResult();
         JSInterop.SetupVoid("unregisterPopperContent", _ => true).SetVoidResult();
         JSInterop.SetupVoid("updatePopperContent", _ => true).SetVoidResult();
         JSInterop.Setup<string>("getTextContent", _ => true).SetResult(string.Empty);
         JSInterop.Setup<bool>("isFormControl", _ => true).SetResult(false);
         JSInterop.Setup<bool>("isDirectionRtl", _ => true).SetResult(false);
+        JSInterop.Setup<bool>("isKeyboardInteractionMode", _ => true).SetResult(false);
 
         Services.AddMockJsRuntimeAsScoped();
         Services.AddBradixSuiteAsScoped();
@@ -134,6 +177,8 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddScoped<ICollapseCoordinator, CollapseCoordinator>();
         Services.AddScoped<IScoreInterop, FakeScoreInterop>();
         Services.AddScoped<ITreeViewInterop, FakeTreeViewInterop>();
+        Services.AddScoped<IStepsInterop, FakeStepsInterop>();
+        Services.AddScoped<ISortableInterop, FakeSortableInterop>();
         Services.AddScoped<IResizableInterop, FakeResizableInterop>();
         Services.AddScoped<IOverlayInterop, FakeOverlayInterop>();
         Services.AddScoped<IThemeInterop, FakeThemeInterop>();
@@ -162,6 +207,32 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
     private sealed class FakeTreeViewInterop : ITreeViewInterop
     {
         public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask InitializeTree(ElementReference tree, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask DestroyTree(ElementReference tree, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    }
+
+    private sealed class FakeSortableInterop : ISortableInterop
+    {
+        public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask InitializeList(ElementReference element, bool disabled, bool sort, int animation, bool forceFallback, string itemSelector, string? handleSelector,
+            string? filterSelector, string? group, DotNetObjectReference<SortableList> callbackReference,
+            System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask Destroy(ElementReference element, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    }
+
+    private sealed class FakeStepsInterop : IStepsInterop
+    {
+        public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask FocusById(string id, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
@@ -245,6 +316,17 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
     private sealed class FakeSonnerInterop : ISonnerInterop
     {
         public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask RegisterHotkey(ElementReference section, IReadOnlyList<string>? hotkey, System.Threading.CancellationToken cancellationToken = default)
+            => ValueTask.CompletedTask;
+
+        public ValueTask UnregisterHotkey(ElementReference section, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask RegisterSwipeHandlers(ElementReference section, DotNetObjectReference<Sonner> callbackReference,
+            System.Threading.CancellationToken cancellationToken = default)
+            => ValueTask.CompletedTask;
+
+        public ValueTask UnregisterSwipeHandlers(ElementReference section, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask<Dictionary<string, double>> MeasureToastHeights(ElementReference section, System.Threading.CancellationToken cancellationToken = default)
             => ValueTask.FromResult(new Dictionary<string, double>());

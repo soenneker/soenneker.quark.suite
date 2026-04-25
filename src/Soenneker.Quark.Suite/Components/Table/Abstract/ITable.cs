@@ -80,6 +80,12 @@ public interface ITable : ICancellableElement
     ValueTask HandleGoToPage(int page);
 
     /// <summary>
+    /// Handles changing the number of records requested per page.
+    /// </summary>
+    /// <param name="pageSize">The number of records to request per page</param>
+    ValueTask HandlePageSizeChanged(int pageSize);
+
+    /// <summary>
     /// Navigates to a specific page
     /// </summary>
     /// <param name="page">The page number to navigate to</param>

@@ -21,13 +21,17 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().Contain("cursor-default");
         classes.Should().Contain("select-none");
         classes.Should().Contain("items-center");
+        classes.Should().Contain("gap-2");
         classes.Should().Contain("rounded-sm");
-        classes.Should().Contain("px-2");
+        classes.Should().Contain("pl-2");
+        classes.Should().Contain("pr-8");
         classes.Should().Contain("py-1.5");
         classes.Should().Contain("text-sm");
-        classes.Should().Contain("outline-none");
-        classes.Should().Contain("hover:bg-accent");
+        classes.Should().Contain("outline-hidden");
         classes.Should().Contain("data-[highlighted]:bg-accent");
+        classes.Should().Contain("data-[disabled]:pointer-events-none");
+        classes.Should().Contain("[&_svg:not([class*='size-'])]:size-4");
+        classes.Should().NotContain("hover:bg-accent");
         classes.Should().NotContain("q-combobox-item");
     }
 }

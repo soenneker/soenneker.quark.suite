@@ -1,0 +1,35 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">@ChildContent</div>
+
+@code {
+    [Parameter]
+    public string Variant { get; set; } = "list";
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "attachments";
+        attributes["data-variant"] = Variant;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "w-full");
+            AppendClass(ref cls, "data-[variant=list]:flex data-[variant=list]:flex-col data-[variant=list]:gap-2");
+            AppendClass(ref cls, "data-[variant=inline]:flex data-[variant=inline]:flex-wrap data-[variant=inline]:gap-2");
+            AppendClass(ref cls, "data-[variant=grid]:grid data-[variant=grid]:grid-cols-2 data-[variant=grid]:gap-2");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Variant);
+    }
+}

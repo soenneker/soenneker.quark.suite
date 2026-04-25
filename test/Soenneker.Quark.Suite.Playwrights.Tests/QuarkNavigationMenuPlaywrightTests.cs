@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
@@ -220,5 +221,46 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(viewport).ToContainTextAsync("المكونات");
         await Assertions.Expect(viewport).ToContainTextAsync("الأزرار");
         await Assertions.Expect(activeLink).ToHaveAttributeAsync("aria-current", "page");
+    }
+
+    [Test]
+    public async ValueTask Navigation_menu_demo_layers_viewport_and_has_no_console_errors()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+        List<string> consoleErrors = [];
+        var sawPageError = false;
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+
+        page.PageError += (_, _) => sawPageError = true;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}navigation-menu",
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Getting started", Exact = true }),
+            expectedTitle: "Navigation Menu - Quark Suite");
+
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Navigation menu with grouped list content, a direct docs link, shared indicator, and viewport." }).First;
+        var trigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Getting started", Exact = true });
+
+        await trigger.ClickAsync();
+
+        var viewport = section.Locator("[data-slot='navigation-menu-viewport']").First;
+        await Assertions.Expect(viewport).ToBeVisibleAsync();
+
+        await page.WaitForFunctionAsync(
+            "() => {" +
+            "const viewport = document.querySelector('[data-slot=\"navigation-menu-viewport\"]');" +
+            "const wrapper = viewport?.parentElement;" +
+            "if (!viewport || !wrapper) return false;" +
+            "return Number.parseInt(getComputedStyle(wrapper).zIndex, 10) >= 50;" +
+            "}");
+
+        sawPageError.Should().BeFalse();
+        consoleErrors.Should().BeEmpty();
     }
 }

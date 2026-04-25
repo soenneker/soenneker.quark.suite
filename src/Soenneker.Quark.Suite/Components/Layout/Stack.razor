@@ -18,16 +18,13 @@
         base.ApplyDefaultParameters();
 
         Display ??= Inline ? Quark.Display.InlineFlex : Quark.Display.Flex;
+        FlexDirection ??= Orientation == StackOrientation.Horizontal ? Quark.FlexDirection.Row : Quark.FlexDirection.Col;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, Orientation == StackOrientation.Horizontal ? "flex-row" : "flex-col");
-        });
+        attributes["data-slot"] = "stack";
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

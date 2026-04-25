@@ -1,0 +1,95 @@
+@namespace Soenneker.Quark
+@using System.Linq
+@using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+
+<textarea @ref="_element"
+          @attributes="TextareaAttributes"
+          value="@Value"
+          placeholder="@Placeholder"
+          rows="@Rows"
+          @oninput="HandleInput"
+          @onkeydown="HandleKeyDown"></textarea>
+
+@code {
+    private const string _modulePath = "./_content/Soenneker.Quark.Suite/js/promptinputinterop.js";
+    private ElementReference _element;
+    private IJSObjectReference? _module;
+
+    [CascadingParameter]
+    public PromptInput? PromptInput { get; set; }
+
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    [Parameter]
+    public string Placeholder { get; set; } = "How can I help you today?";
+
+    [Parameter]
+    public int? Rows { get; set; } = 2;
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+
+    private IReadOnlyDictionary<string, object> TextareaAttributes
+    {
+        get
+        {
+            var attributes = Attributes is null ? new Dictionary<string, object>() : new Dictionary<string, object>(Attributes);
+            attributes["aria-label"] = "Message input";
+            attributes["data-slot"] = "prompt-input-textarea";
+            attributes["class"] = string.Join(" ", new[]
+            {
+                "field-sizing-content min-h-14 max-h-40 w-full resize-none border-0 bg-transparent px-4 py-4 text-sm leading-6 font-normal text-primary shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-transparent",
+                Class
+            }.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+            return attributes;
+        }
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter" && !args.ShiftKey && PromptInput is not null)
+            await PromptInput.Submit(Value);
+    }
+
+    private async Task HandleInput(ChangeEventArgs args)
+    {
+        var value = args.Value?.ToString();
+        Value = value;
+        PromptInput?.SetValue(value);
+        await ValueChanged.InvokeAsync(value);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        _module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", _modulePath);
+        await _module.InvokeVoidAsync("registerTextarea", _element);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is null)
+            return;
+
+        try
+        {
+            await _module.InvokeVoidAsync("unregisterTextarea", _element);
+            await _module.DisposeAsync();
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
+}

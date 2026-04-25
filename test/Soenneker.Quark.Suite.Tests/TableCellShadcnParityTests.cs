@@ -16,6 +16,8 @@ public sealed partial class RenderedShadcnParityTests
         tdClasses.Should().Contain("p-2");
         tdClasses.Should().Contain("align-middle");
         tdClasses.Should().Contain("whitespace-nowrap");
+        tdClasses.Should().Contain("[&:has([role=checkbox])]:pr-0");
+        tdClasses.Should().Contain("[&>[role=checkbox]]:translate-y-[2px]");
         tdClasses.Should().NotContain("q-table-td");
     }
 }

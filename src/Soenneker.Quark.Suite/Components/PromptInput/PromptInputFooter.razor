@@ -1,0 +1,19 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">@ChildContent</div>
+
+@code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "prompt-input-footer";
+        attributes["role"] = "group";
+        attributes["aria-label"] = "Input actions";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "flex w-full shrink-0 items-center justify-between px-2 py-2");
+        });
+    }
+}

@@ -23,11 +23,13 @@ public sealed class QuarkDropdownMenuPlaywrightTests : PlaywrightUnitTest
             $"{BaseUrl}dropdowns",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open menu", Exact = true }).First,
             expectedTitle: "Dropdowns - Quark Suite");
+        await WaitForInteractiveAsync(page);
 
         var dialogSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Menu items can launch alert and share flows" });
         var trigger = dialogSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open menu", Exact = true });
 
         await trigger.ClickAsync();
+        await WaitForFloatingUiAsync(page);
 
         var menu = page.Locator("[role='menu']:visible").Filter(new LocatorFilterOptions { HasText = "File Actions" });
         await Assertions.Expect(menu).ToContainTextAsync("Share...");
@@ -51,8 +53,10 @@ public sealed class QuarkDropdownMenuPlaywrightTests : PlaywrightUnitTest
             $"{BaseUrl}dropdowns",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open", Exact = true }).First,
             expectedTitle: "Dropdowns - Quark Suite");
+        await WaitForInteractiveAsync(page);
 
         await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open", Exact = true }).First.ClickAsync();
+        await WaitForFloatingUiAsync(page);
 
         var menu = page.Locator("[role='menu']:visible").First;
         await Assertions.Expect(menu).ToContainTextAsync("My Account");
@@ -73,11 +77,13 @@ public sealed class QuarkDropdownMenuPlaywrightTests : PlaywrightUnitTest
             $"{BaseUrl}dropdowns",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Invite users", Exact = true }),
             expectedTitle: "Dropdowns - Quark Suite");
+        await WaitForInteractiveAsync(page);
 
         var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use nested dropdown submenu primitives to expose secondary actions." }).First;
         var trigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Invite users", Exact = true });
 
         await trigger.ClickAsync();
+        await WaitForFloatingUiAsync(page);
         var menu = page.Locator("[role='menu']:visible").First;
         await menu.GetByRole(AriaRole.Menuitem, new LocatorGetByRoleOptions { Name = "More...", Exact = true }).ClickAsync();
 
@@ -110,11 +116,13 @@ public sealed class QuarkDropdownMenuPlaywrightTests : PlaywrightUnitTest
             $"{BaseUrl}dropdowns",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open", Exact = true }).First,
             expectedTitle: "Dropdowns - Quark Suite");
+        await WaitForInteractiveAsync(page);
 
         var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Standard grouped menu with labels, separators, and account actions." }).First;
         var trigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open", Exact = true });
 
         await trigger.ClickAsync();
+        await WaitForFloatingUiAsync(page);
 
         var menu = page.Locator("[role='menu']:visible").Filter(new LocatorFilterOptions { HasText = "My Account" }).First;
         await Assertions.Expect(menu).ToBeVisibleAsync();
@@ -146,6 +154,7 @@ public sealed class QuarkDropdownMenuPlaywrightTests : PlaywrightUnitTest
             $"{BaseUrl}dropdowns",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open dialog", Exact = true }),
             expectedTitle: "Dropdowns - Quark Suite");
+        await WaitForInteractiveAsync(page);
 
         var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Nested overlays should still work when the dropdown is opened from inside a dialog." });
         var dialogTrigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open dialog", Exact = true });
@@ -157,6 +166,7 @@ public sealed class QuarkDropdownMenuPlaywrightTests : PlaywrightUnitTest
 
         var menuTrigger = dialog.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open menu", Exact = true });
         await menuTrigger.ClickAsync();
+        await WaitForFloatingUiAsync(page);
 
         var menu = page.GetByRole(AriaRole.Menu).Filter(new LocatorFilterOptions { HasText = "More options" });
         await Assertions.Expect(menuTrigger).ToHaveAttributeAsync("aria-expanded", "true");
@@ -186,11 +196,13 @@ public sealed class QuarkDropdownMenuPlaywrightTests : PlaywrightUnitTest
             $"{BaseUrl}dropdowns",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open menu", Exact = true }).First,
             expectedTitle: "Dropdowns - Quark Suite");
+        await WaitForInteractiveAsync(page);
 
         var complexSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Complex" });
         var trigger = complexSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open menu", Exact = true });
 
         await trigger.ClickAsync();
+        await WaitForFloatingUiAsync(page);
 
         var menu = page.Locator("[role='menu']:visible").First;
         var showSidebar = page.GetByRole(AriaRole.Menuitemcheckbox, new PageGetByRoleOptions { Name = "Show sidebar", Exact = true });
@@ -225,11 +237,13 @@ public sealed class QuarkDropdownMenuPlaywrightTests : PlaywrightUnitTest
             $"{BaseUrl}dropdowns",
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open", Exact = true }).First,
             expectedTitle: "Dropdowns - Quark Suite");
+        await WaitForInteractiveAsync(page);
 
         var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Standard grouped menu with labels, separators, and account actions." }).First;
         var trigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open", Exact = true });
 
         await trigger.ClickAsync();
+        await WaitForFloatingUiAsync(page);
 
         var menu = page.Locator("[role='menu']:visible").First;
         var profile = menu.Locator("[role='menuitem']").Filter(new LocatorFilterOptions { HasText = "Profile" }).First;
@@ -248,5 +262,16 @@ public sealed class QuarkDropdownMenuPlaywrightTests : PlaywrightUnitTest
         await logout.PressAsync("Home");
 
         await Assertions.Expect(profile).ToBeFocusedAsync();
+    }
+
+    private static async Task WaitForInteractiveAsync(IPage page)
+    {
+        await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+        await page.WaitForFunctionAsync("() => typeof window.getDotnetRuntime === 'function'");
+    }
+
+    private static async Task WaitForFloatingUiAsync(IPage page)
+    {
+        await page.WaitForFunctionAsync("() => !!window.FloatingUIDOM", new PageWaitForFunctionOptions { Timeout = 15000 });
     }
 }

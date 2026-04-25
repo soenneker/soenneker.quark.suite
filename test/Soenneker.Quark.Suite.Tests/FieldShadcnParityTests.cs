@@ -15,10 +15,10 @@ public sealed partial class RenderedShadcnParityTests
         var classes = cut.Find("[data-slot='field-separator']").GetAttribute("class")!;
 
         classes.Should().Contain("relative");
+        classes.Should().Contain("-my-2");
         classes.Should().Contain("h-5");
         classes.Should().Contain("text-sm");
         classes.Should().Contain("group-data-[variant=outline]/field-group:-mb-2");
-        classes.Should().NotContain("-my-2");
     }
 
     [Test]
@@ -30,15 +30,15 @@ public sealed partial class RenderedShadcnParityTests
 
         var classes = cut.Find("[data-slot='field-label']").GetAttribute("class")!;
 
-        classes.Should().Contain("items-center");
         classes.Should().Contain("group/field-label");
         classes.Should().Contain("peer/field-label");
-        classes.Should().Contain("has-data-[state=checked]:border-primary/30");
-        classes.Should().Contain("has-[>[data-slot=field]]:rounded-lg");
-        classes.Should().Contain("*:data-[slot=field]:p-2.5");
+        classes.Should().Contain("leading-snug");
+        classes.Should().Contain("has-data-[state=checked]:border-primary");
+        classes.Should().Contain("has-[>[data-slot=field]]:rounded-md");
+        classes.Should().Contain("[&>*]:data-[slot=field]:p-4");
         classes.Should().NotContain("has-data-checked");
-        classes.Should().NotContain("rounded-md");
-        classes.Should().NotContain("p-4");
+        classes.Should().NotContain("rounded-lg");
+        classes.Should().NotContain("p-2.5");
     }
 
     [Test]
@@ -71,6 +71,7 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().Contain("font-normal");
         classes.Should().Contain("leading-normal");
         classes.Should().Contain("text-muted-foreground");
+        classes.Should().Contain("group-has-[[data-orientation=horizontal]]/field:text-balance");
         classes.Should().NotContain("text-start");
     }
 
@@ -98,6 +99,28 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().Contain("ease-linear");
         classes.Should().Contain("has-[>[data-slot=checkbox][data-state=checked]]:border-primary/30");
         classes.Should().Contain("has-[>[data-slot=checkbox][data-state=checked]]:bg-primary/5");
+    }
+
+    [Test]
+    public void Field_orientation_responsive_matches_shadcn_contract()
+    {
+        var cut = Render<Field>(parameters => parameters
+            .Add(p => p.Orientation, "responsive")
+            .AddChildContent<FieldLabel>(label => label.AddChildContent("Notifications"))
+            .AddChildContent<FieldContent>(content => content
+                .AddChildContent<FieldDescription>(description => description.AddChildContent("Choose how updates are delivered."))));
+
+        var field = cut.Find("[data-slot='field']");
+        var classes = field.GetAttribute("class")!;
+
+        field.GetAttribute("data-orientation").Should().Be("responsive");
+        classes.Should().Contain("flex-col");
+        classes.Should().Contain("@md/field-group:flex-row");
+        classes.Should().Contain("@md/field-group:items-center");
+        classes.Should().Contain("[&>*]:w-full");
+        classes.Should().Contain("@md/field-group:[&>*]:w-auto");
+        classes.Should().Contain("@md/field-group:[&>[data-slot=field-label]]:flex-auto");
+        classes.Should().Contain("@md/field-group:has-[>[data-slot=field-content]]:items-start");
     }
 
     [Test]

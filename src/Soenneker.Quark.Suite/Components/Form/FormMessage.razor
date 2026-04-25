@@ -4,27 +4,27 @@
 
 @if (HasChildContent)
 {
-    <div @attributes="BuildAttributes()" role="alert">
+    <p @attributes="BuildAttributes()">
         @ChildContent
-    </div>
+    </p>
 }
 else if (ShowErrorMessages && ParentValidation?.Status == ValidationStatus.Error && ParentValidation.Messages?.Any() == true)
 {
-    <div @attributes="BuildAttributes()" role="alert">
+    <p @attributes="BuildAttributes()">
         @foreach (var message in ParentValidation.Messages)
         {
-            <div>@message</div>
+            <span>@message</span>
         }
-    </div>
+    </p>
 }
 else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (_messages?.Any() ?? false) && ParentValidation == null)
 {
-    <div @attributes="BuildAttributes()" role="alert">
+    <p @attributes="BuildAttributes()">
         @foreach (var message in _messages!)
         {
-            <div>@message</div>
+            <span>@message</span>
         }
-    </div>
+    </p>
 }
 
 @code {
@@ -106,7 +106,7 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "text-destructive");
+            AppendClass(ref cls, "text-sm text-destructive");
         });
     }
 

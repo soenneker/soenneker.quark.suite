@@ -14,17 +14,31 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.Value, "kubernetes"));
 
         var classes = cut.Find("[data-slot='radio-group-item']").GetAttribute("class")!;
+        var indicatorClasses = cut.Find("[data-slot='radio-group-indicator']").GetAttribute("class")!;
+        var iconClasses = cut.Find("[data-slot='icon']").GetAttribute("class")!;
 
-        classes.Should().Contain("group/radio-group-item");
+        classes.Should().Contain("aspect-square");
+        classes.Should().Contain("size-4");
+        classes.Should().Contain("shrink-0");
         classes.Should().Contain("rounded-full");
         classes.Should().Contain("border");
         classes.Should().Contain("border-input");
-        classes.Should().Contain("aria-invalid:ring-3");
-        classes.Should().Contain("data-[state=checked]:border-primary");
-        classes.Should().Contain("data-[state=checked]:bg-primary");
-        classes.Should().Contain("data-[state=checked]:text-primary-foreground");
-        classes.Should().Contain("dark:data-[state=checked]:bg-primary");
-        classes.Should().NotContain("shadow-xs");
-        classes.Should().NotContain(" transition-[color,box-shadow] ");
+        classes.Should().Contain("text-primary");
+        classes.Should().Contain("shadow-xs");
+        classes.Should().Contain("transition-[color,box-shadow]");
+        classes.Should().Contain("outline-none");
+        classes.Should().Contain("focus-visible:ring-[3px]");
+        classes.Should().Contain("aria-invalid:ring-destructive/20");
+        classes.Should().Contain("dark:bg-input/30");
+        classes.Should().NotContain("group/radio-group-item");
+        classes.Should().NotContain("data-[state=checked]:bg-primary");
+
+        indicatorClasses.Should().Contain("relative");
+        indicatorClasses.Should().Contain("flex");
+        indicatorClasses.Should().Contain("items-center");
+        indicatorClasses.Should().Contain("justify-center");
+        iconClasses.Should().Contain("absolute");
+        iconClasses.Should().Contain("size-2");
+        iconClasses.Should().Contain("fill-primary");
     }
 }

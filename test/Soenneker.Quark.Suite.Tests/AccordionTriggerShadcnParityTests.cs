@@ -8,7 +8,7 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
-    public void AccordionTrigger_uses_logical_text_alignment_for_rtl_parity()
+    public void AccordionTrigger_matches_shadcn_text_alignment()
     {
         var cut = Render<Accordion>(parameters => parameters
             .Add(p => p.DefaultValue, "shipping")
@@ -31,7 +31,7 @@ public sealed partial class RenderedShadcnParityTests
 
         var classes = cut.Find("[data-slot='accordion-trigger']").GetAttribute("class")!;
 
-        classes.Should().Contain("text-start");
-        classes.Should().NotContain("text-left");
+        classes.Should().Contain("text-left");
+        classes.Should().NotContain("text-start");
     }
 }

@@ -2,8 +2,11 @@
 @inherits Soenneker.Quark.Element
 @implements IDisposable
 
-<div @attributes="BuildAttributes()">
-    <div @attributes="BuildInnerAttributes()">
+<div @attributes="BuildViewportAttributes()"
+     @onpointerdown="HandlePointerDown"
+     @onpointerup="HandlePointerUp"
+     @onpointercancel="HandlePointerCancel">
+    <div @attributes="BuildAttributes()">
         @ChildContent
     </div>
 </div>
@@ -30,39 +33,53 @@
             _subscribedCarousel.StateChanged += OnCarouselStateChanged;
     }
 
+    private static Dictionary<string, object> BuildViewportAttributes()
+    {
+        return new Dictionary<string, object>
+        {
+            ["data-slot"] = "carousel-content",
+            ["class"] = "overflow-hidden"
+        };
+    }
+
+    private void HandlePointerDown(PointerEventArgs args)
+    {
+        ParentCarousel?.BeginPointerDrag(args);
+    }
+
+    private void HandlePointerUp(PointerEventArgs args)
+    {
+        ParentCarousel?.CompletePointerDrag(args);
+    }
+
+    private void HandlePointerCancel(PointerEventArgs _)
+    {
+        ParentCarousel?.CancelPointerDrag();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
-        attributes["data-slot"] = "carousel-content";
-
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "overflow-hidden");
-        });
-    }
-
-    private Dictionary<string, object> BuildInnerAttributes()
-    {
-        var attrs = new Dictionary<string, object>();
-        var horizontal = ParentCarousel?.Orientation != "vertical";
-        BuildClassAttribute(attrs, (ref cls) =>
-        {
+            var horizontal = ParentCarousel?.Orientation != "vertical";
             AppendClass(ref cls, "flex");
             if (horizontal)
                 AppendClass(ref cls, "-ml-4");
             else
                 AppendClass(ref cls, "-mt-4 flex-col");
         });
-        BuildStyleAttribute(attrs, (ref sty) =>
+
+        BuildStyleAttribute(attributes, (ref sty) =>
         {
+            var horizontal = ParentCarousel?.Orientation != "vertical";
             var index = ParentCarousel?.CurrentIndex ?? 0;
             var count = ParentCarousel?.ItemCount ?? 0;
             var axis = horizontal ? "X" : "Y";
             var step = count > 0 ? 100.0 / count : 0;
             AppendStyleDecl(ref sty, $"transform: translate{axis}(-{index * step}%); transition: transform 300ms ease-in-out");
         });
-        return attrs;
     }
 
     private async void OnCarouselStateChanged()

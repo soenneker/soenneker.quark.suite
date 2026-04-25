@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
@@ -13,11 +14,19 @@ public sealed class QuarkHeaderPlaywrightTests : PlaywrightUnitTest
     {
     }
 
-[Test]
+    [Test]
     public async ValueTask Header_sidebar_shell_demo_preserves_sidebar_and_inset_layout()
     {
         await using var session = await CreateSession();
         var page = session.Page;
+        var consoleErrors = new List<string>();
+        var pageErrors = new List<string>();
+        page.Console += (_, msg) =>
+        {
+            if (msg.Type == "error")
+                consoleErrors.Add(msg.Text);
+        };
+        page.PageError += (_, exception) => pageErrors.Add(exception);
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}header",
@@ -46,5 +55,51 @@ public sealed class QuarkHeaderPlaywrightTests : PlaywrightUnitTest
         (headerBox.Height >= 48).Should().BeTrue();
         (sidebarBox.Width >= 200).Should().BeTrue();
         (insetBox.Width >= 200).Should().BeTrue();
+        consoleErrors.Should().BeEmpty();
+        pageErrors.Should().BeEmpty();
+    }
+
+    [Test]
+    public async ValueTask ThemeToggleButton_matches_shadcn_mode_switcher_shell_and_toggles_theme()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+        var consoleErrors = new List<string>();
+        var pageErrors = new List<string>();
+        page.Console += (_, msg) =>
+        {
+            if (msg.Type == "error")
+                consoleErrors.Add(msg.Text);
+        };
+        page.PageError += (_, exception) => pageErrors.Add(exception);
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}header",
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Toggle theme", Exact = true }).First,
+            expectedTitle: "Header - Quark Suite");
+
+        var toggle = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Toggle theme", Exact = true }).First;
+        var html = page.Locator("html");
+
+        await Assertions.Expect(toggle).ToHaveAttributeAsync("type", "button");
+        await Assertions.Expect(toggle).ToHaveAttributeAsync("data-slot", "button");
+        await Assertions.Expect(toggle).ToHaveAttributeAsync("data-variant", "ghost");
+        await Assertions.Expect(toggle).ToHaveAttributeAsync("data-size", "icon");
+        await Assertions.Expect(toggle).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bgroup/toggle\b"));
+        await Assertions.Expect(toggle).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bextend-touch-target\b"));
+        await Assertions.Expect(toggle).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bsize-8\b"));
+        await Assertions.Expect(toggle.Locator("svg")).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bsize-4\.5\b"));
+        await Assertions.Expect(toggle.Locator(".sr-only")).ToHaveTextAsync("Toggle theme");
+
+        var wasDark = await html.EvaluateAsync<bool>("element => element.classList.contains('dark')");
+
+        await toggle.ClickAsync();
+
+        await Assertions.Expect(html).ToHaveClassAsync(wasDark
+            ? new System.Text.RegularExpressions.Regex(@"^(?!.*(?:^|\s)dark(?:\s|$)).*$")
+            : new System.Text.RegularExpressions.Regex(@"(^|\s)dark(\s|$)"));
+
+        consoleErrors.Should().BeEmpty();
+        pageErrors.Should().BeEmpty();
     }
 }

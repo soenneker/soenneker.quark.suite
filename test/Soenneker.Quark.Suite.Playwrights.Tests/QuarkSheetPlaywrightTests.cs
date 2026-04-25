@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Tests.Unit;
@@ -66,6 +67,48 @@ public sealed class QuarkSheetPlaywrightTests : PlaywrightUnitTest
 
         await Assertions.Expect(dialog).Not.ToBeVisibleAsync();
     }
+
+    [Test]
+    public async ValueTask Sheet_demo_escape_restores_focus_layers_above_page_and_has_no_console_errors()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+        List<string> consoleErrors = [];
+        var sawPageError = false;
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+
+        page.PageError += (_, _) => sawPageError = true;
+
+        await page.GotoAndWaitForReady(
+            $"{BaseUrl}sheets",
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open", Exact = true }).First,
+            expectedTitle: "Sheet - Quark Suite");
+
+        var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open", Exact = true }).First;
+        await trigger.ClickAsync();
+
+        var dialog = page.GetByRole(AriaRole.Dialog, new PageGetByRoleOptions { Name = "Edit profile", Exact = true }).First;
+        var content = page.Locator("[data-slot='sheet-content'][data-state='open']").First;
+        var overlay = page.Locator("[data-slot='sheet-overlay'][data-state='open']").First;
+
+        await Assertions.Expect(dialog).ToBeVisibleAsync();
+        await Assertions.Expect(content).ToHaveAttributeAsync("data-side", "right");
+        (await content.EvaluateAsync<int>("element => Number(getComputedStyle(element).zIndex)")).Should().BeGreaterThanOrEqualTo(50);
+        (await overlay.EvaluateAsync<int>("element => Number(getComputedStyle(element).zIndex)")).Should().BeGreaterThanOrEqualTo(50);
+
+        await page.Keyboard.PressAsync("Escape");
+
+        await Assertions.Expect(dialog).Not.ToBeVisibleAsync();
+        await Assertions.Expect(trigger).ToBeFocusedAsync();
+        sawPageError.Should().BeFalse();
+        consoleErrors.Should().BeEmpty();
+    }
+
     private static async Task ClickJustOutsideAsync(IPage page, ILocator locator)
     {
         var box = await locator.BoundingBoxAsync();

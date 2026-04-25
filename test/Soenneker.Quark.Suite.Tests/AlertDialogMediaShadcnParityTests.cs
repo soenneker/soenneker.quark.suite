@@ -16,12 +16,12 @@ public sealed partial class RenderedShadcnParityTests
 
         classes.Should().Contain("mb-2");
         classes.Should().Contain("inline-flex");
-        classes.Should().Contain("size-10");
+        classes.Should().Contain("size-16");
         classes.Should().Contain("items-center");
         classes.Should().Contain("justify-center");
         classes.Should().Contain("rounded-md");
         classes.Should().Contain("bg-muted");
         classes.Should().Contain("sm:group-data-[size=default]/alert-dialog-content:row-span-2");
-        classes.Should().Contain("*:[svg:not([class*='size-'])]:size-6");
+        classes.Should().Contain("*:[svg:not([class*='size-'])]:size-8");
     }
 }

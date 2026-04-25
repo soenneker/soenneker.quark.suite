@@ -18,10 +18,14 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().Contain("rounded-lg");
         classes.Should().Contain("border-border");
         classes.Should().Contain("bg-background");
-        classes.Should().Contain("hover:bg-muted");
-        classes.Should().Contain("h-8");
-        classes.Should().Contain("gap-1.5");
-        classes.Should().Contain("px-2.5");
+        classes.Should().Contain("shadow-xs");
+        classes.Should().Contain("hover:bg-accent");
+        classes.Should().Contain("hover:text-accent-foreground");
+        classes.Should().Contain("h-9");
+        classes.Should().Contain("gap-2");
+        classes.Should().Contain("px-4");
+        classes.Should().Contain("py-2");
+        classes.Should().Contain("focus-visible:ring-[3px]");
         classes.Should().NotContain("q-button");
     }
 }

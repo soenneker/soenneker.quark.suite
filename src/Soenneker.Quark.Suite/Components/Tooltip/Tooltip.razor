@@ -25,23 +25,11 @@
     public int? DelayDuration { get; set; }
     private IReadOnlyDictionary<string, object> RootAttributes => BuildAttributes();
 
-    protected override void ApplyDefaultParameters()
-    {
-        base.ApplyDefaultParameters();
-
-        Position ??= Quark.Position.Relative;
-    }
-
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "tooltip";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "group/tooltip");
-        });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

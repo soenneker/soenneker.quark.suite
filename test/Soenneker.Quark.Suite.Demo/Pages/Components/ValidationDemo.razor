@@ -260,7 +260,7 @@ CodeLanguage="razor">
                                 <Validation Action="@ValidateWithSuccess">
                                     <TextInput Id="successField" Placeholder="Type 'success' for success message" @bind-Value="_successModel.SuccessField" />
                                     <ValidationError />
-                                    <ValidationSuccess />
+                                    <ValidationSuccess SuccessText="Looks good." />
                                 </Validation>
                             </FieldBody>
                         </Field>
@@ -308,7 +308,7 @@ CodeLanguage="razor">
                                              @bind-Value="_realtimeModel.RealtimeField"
                                              @oninput="HandleRealtimeInput" />
                                     <ValidationError />
-                                    <ValidationSuccess />
+                                    <ValidationSuccess SuccessText="Looks good." />
                                 </Validation>
                             </FieldBody>
                         </Field>
@@ -387,20 +387,15 @@ CodeLanguage="razor">
     private void ValidatePhone(ValidatorEventArgs e)
     {
         var phone = e.Value?.ToString();
-        // Temporarily always show error for debugging
-        e.Status = ValidationStatus.Error;
-        e.ErrorText = "Please enter a valid phone number.";
-        
-        // Original logic (commented out for debugging)
-        // if (!string.IsNullOrWhiteSpace(phone) && !System.Text.RegularExpressions.Regex.IsMatch(phone, @"^[\d\s\-\(\)\+]+$"))
-        // {
-        //     e.Status = ValidationStatus.Error;
-        //     e.ErrorText = "Please enter a valid phone number.";
-        // }
-        // else
-        // {
-        //     e.Status = ValidationStatus.Success;
-        // }
+        if (!string.IsNullOrWhiteSpace(phone) && !System.Text.RegularExpressions.Regex.IsMatch(phone, @"^[\d\s\-\(\)\+]+$"))
+        {
+            e.Status = ValidationStatus.Error;
+            e.ErrorText = "Please enter a valid phone number.";
+        }
+        else
+        {
+            e.Status = ValidationStatus.Success;
+        }
     }
 
     private void ValidateAge(ValidatorEventArgs e)

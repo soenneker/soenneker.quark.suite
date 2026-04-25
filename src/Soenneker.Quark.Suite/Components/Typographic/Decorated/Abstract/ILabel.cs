@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+
 namespace Soenneker.Quark;
 
 /// <summary>
@@ -10,4 +13,5 @@ public interface ILabel : IElement
     /// </summary>
     string? For { get; set; }
 
+    EventCallback<MouseEventArgs> OnMouseDown { get; set; }
 }

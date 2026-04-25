@@ -61,7 +61,7 @@ CodeLanguage="razor">
             </StepContent>
         </Steps>
 
-        <Div Class="flex flex-wrap gap-2 items-center mt-4">
+        <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" Gap="Gap.Is2" ItemsAlign="Items.Center" Margin="Margin.Is4.FromTop">
             <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" OnClick="PreviousStep">Previous</Button>
             <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" OnClick="NextStep">Next</Button>
             <Text TextColor="TextColor.MutedForeground" Margin="Margin.Is0">Current Step: @_currentStep</Text>
@@ -117,7 +117,7 @@ CodeLanguage="razor">
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Steps with validation" Description="Personal → Contact → Review with form fields." Code="@(@"<Steps @ref=""_validationStepsRef"" @bind-SelectedStep=""_currentValidationStep"">
+            <DemoSection Title="Steps with validation" Description="Personal → Contact → Review with form fields." Code="@(@"<Steps @ref=""_validationStepsRef"" @bind-SelectedStep=""_currentValidationStep"" NavigationAllowed=""CanNavigateValidationStep"">
     <Step Name=""personal""><StepMarker><Span>1</Span></StepMarker><StepCaption>Personal</StepCaption></Step>
     <Step Name=""contact""><StepMarker><Span>2</Span></StepMarker><StepCaption>Contact</StepCaption></Step>
     <Step Name=""review""><StepMarker><Span>3</Span></StepMarker><StepCaption>Review</StepCaption></Step>
@@ -128,7 +128,8 @@ CodeLanguage="razor">
     </StepContent>
 </Steps>")"
 CodeLanguage="razor">
-        <Steps @ref="_validationStepsRef" @bind-SelectedStep="_currentValidationStep">
+        <Div id="steps-validation-demo" Space="Space.Y.Is4">
+        <Steps @ref="_validationStepsRef" @bind-SelectedStep="_currentValidationStep" NavigationAllowed="CanNavigateValidationStep">
             <Step Name="personal">
                 <StepMarker>
                     <Span>1</Span>
@@ -202,9 +203,11 @@ CodeLanguage="razor">
             </StepContent>
         </Steps>
 
-        <Div Class="flex gap-2 mt-4">
-            <Button BackgroundColor="BackgroundColor.Secondary" TextColor="TextColor.SecondaryForeground" OnClick="PreviousValidationStep">Previous</Button>
-            <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" OnClick="NextValidationStep">Next</Button>
+        <Div Display="Display.Flex" Gap="Gap.Is2" Margin="Margin.Is4.FromTop">
+            <Button id="steps-validation-previous" BackgroundColor="BackgroundColor.Secondary" TextColor="TextColor.SecondaryForeground" OnClick="PreviousValidationStep">Previous</Button>
+            <Button id="steps-validation-next" BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" OnClick="NextValidationStep">Next</Button>
+        </Div>
+        <Text id="steps-validation-current" TextColor="TextColor.MutedForeground" Margin="Margin.Is0">Current Step: @_currentValidationStep</Text>
         </Div>
             </DemoSection>
         </Section>
@@ -288,7 +291,7 @@ CodeLanguage="razor">
             </StepContent>
         </Steps>
 
-        <Div Class="flex flex-wrap gap-2 items-center mt-4">
+        <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" Gap="Gap.Is2" ItemsAlign="Items.Center" Margin="Margin.Is4.FromTop">
             <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" OnClick="PreviousStyledStep">Previous</Button>
             <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" OnClick="NextStyledStep">Next</Button>
             <Text TextColor="TextColor.MutedForeground" Margin="Margin.Is0">Current Phase: @_currentStyledStep</Text>
@@ -389,7 +392,7 @@ CodeLanguage="razor">
             </StepContent>
         </Steps>
 
-        <Div Display="Display.Flex" Flex=@("flex-wrap") Gap="Gap.Is2" Margin="Margin.Is4.FromTop">
+        <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" Gap="Gap.Is2" Margin="Margin.Is4.FromTop">
             <Button BackgroundColor="BackgroundColor.Secondary" TextColor="TextColor.SecondaryForeground" OnClick="PreviousNavigationStep">Previous</Button>
             <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" OnClick="NextNavigationStep">Next</Button>
             <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" OnClick="CompleteSetup">Complete Setup</Button>
@@ -484,6 +487,20 @@ CodeLanguage="razor">
         {
             await _validationStepsRef.NextStep();
         }
+    }
+
+    private bool CanNavigateValidationStep(StepNavigationContext context)
+    {
+        if (context.NextStepIndex <= context.CurrentStepIndex)
+            return true;
+
+        if ((context.NextStepName == "contact" || context.NextStepName == "review") &&
+            (string.IsNullOrWhiteSpace(_personalInfo.FirstName) || string.IsNullOrWhiteSpace(_personalInfo.LastName)))
+        {
+            return false;
+        }
+
+        return context.NextStepName != "review" || string.IsNullOrWhiteSpace(_personalInfo.Email) == false;
     }
 
     private async Task PreviousValidationStep(MouseEventArgs e)

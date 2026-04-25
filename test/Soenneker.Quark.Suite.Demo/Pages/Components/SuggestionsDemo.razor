@@ -1,0 +1,40 @@
+@page "/suggestions"
+
+<PageTitle>Suggestions - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Demo"
+                     Description="Prompt suggestion chips for guiding user input."
+                     Code="@BasicCode"
+                     CodeLanguage="razor">
+            <Div Space="Space.Y.Is3">
+                <Suggestions>
+                    <Suggestion OnClick="@(() => Select("Summarize this conversation"))">Summarize this conversation</Suggestion>
+                    <Suggestion OnClick="@(() => Select("Draft a follow-up"))">Draft a follow-up</Suggestion>
+                    <Suggestion OnClick="@(() => Select("Extract action items"))">Extract action items</Suggestion>
+                </Suggestions>
+                @if (!string.IsNullOrWhiteSpace(_selected))
+                {
+                    <Paragraph Margin="Margin.Is0" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Selected: @_selected</Paragraph>
+                }
+            </Div>
+        </DemoSection>
+    </Section>
+</Div>
+
+@code {
+    private string? _selected;
+
+    private void Select(string value)
+    {
+        _selected = value;
+    }
+
+    private const string BasicCode =
+@"<Suggestions>
+    <Suggestion>Summarize this conversation</Suggestion>
+    <Suggestion>Draft a follow-up</Suggestion>
+    <Suggestion>Extract action items</Suggestion>
+</Suggestions>";
+}

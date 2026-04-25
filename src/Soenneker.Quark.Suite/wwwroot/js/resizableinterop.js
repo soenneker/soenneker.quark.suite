@@ -161,6 +161,7 @@ function disposeHandleRegistration(handleElement) {
 
   handleElement.removeEventListener("pointerdown", registration.onPointerDown);
   handleElement.removeEventListener("mousedown", registration.onMouseDown);
+  handleElement.removeEventListener("keydown", registration.onKeyDown);
   delete handleElement.dataset.resizableReady;
   delete handleElement.dataset.resizableLastPercentage;
   delete handleElement.dataset.resizableDotnet;
@@ -203,13 +204,26 @@ export function registerHandle(handleElement, groupElement, orientation, dotNetR
     beginDrag(handleElement, groupElement, orientation, dotNetRef, handleIndex, null, event.clientX, event.clientY);
   };
 
+  const onKeyDown = (event) => {
+    if (
+      event.key === "ArrowLeft" ||
+      event.key === "ArrowRight" ||
+      event.key === "ArrowUp" ||
+      event.key === "ArrowDown"
+    ) {
+      event.preventDefault();
+    }
+  };
+
   handleElement.addEventListener("pointerdown", onPointerDown);
   handleElement.addEventListener("mousedown", onMouseDown);
+  handleElement.addEventListener("keydown", onKeyDown);
   handleElement.dataset.resizableReady = "true";
 
   handleRegistrations.set(handleElement, {
     onPointerDown,
     onMouseDown,
+    onKeyDown,
   });
 }
 

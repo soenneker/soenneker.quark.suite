@@ -2,18 +2,20 @@
 @inherits Element
 
 <div @attributes="BuildAttributes()">
-	<label class="text-muted-foreground text-sm">Show</label>
-	<select value="@PageSize" @onchange="OnPageSizeChangedHandler" class="h-8 rounded-lg border border-input bg-transparent py-1 pr-8 pl-2.5 text-sm transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]" >
+	<label for="@_selectId" class="text-muted-foreground text-sm">Show</label>
+	<select id="@_selectId" data-slot="table-page-size-select" value="@ComputedPageSize" @onchange="OnPageSizeChangedHandler" class="h-8 rounded-lg border border-input bg-transparent py-1 pr-8 pl-2.5 text-sm transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]" >
 		@for (var i = 0; i < PageSizeOptions.Length; i++)
 		{
 			var size = PageSizeOptions[i];
-			<option value="@size" selected="@(size == PageSize)" >@size</option>
+			<option value="@size" selected="@(size == ComputedPageSize)" >@size</option>
 		}
 	</select>
 	<Span class="text-muted-foreground text-sm">entries per page</Span>
 </div>
 
 @code {
+	private readonly string _selectId = $"table-page-size-{Guid.NewGuid():N}";
+
 	// shadcn Select in table toolbar - new-york-v4 ui/select.tsx
 	protected override void ApplyDefaultParameters()
 	{
@@ -27,9 +29,10 @@
 	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
 	{
 		base.BuildAttributesCore(attributes);
+		attributes["data-slot"] = "table-page-size-selector";
 	}
 
-	[CascadingParameter(Name = nameof(Table))]
+	[CascadingParameter(Name = "Table")]
 	private ITable? Table { get; set; }
 
 	[Parameter]
@@ -41,25 +44,19 @@
 	[Parameter]
 	public int[] PageSizeOptions { get; set; } = [10, 25, 50, 100];
 
+	private int ComputedPageSize => Table?.PageSize ?? PageSize;
+
 	private async Task OnPageSizeChangedHandler(ChangeEventArgs e)
 	{
-		if (int.TryParse(e.Value?.ToString(), out var size) && size != PageSize)
+		if (int.TryParse(e.Value?.ToString(), out var size) && size != ComputedPageSize)
 		{
-			// Update PageSize for binding
 			PageSize = size;
 
-			// First, try to use the Table if available
 			if (Table != null)
-			{
-				// The Table will handle the page size change internally
-				// We just need to trigger a manual request
-				await Table.HandleGoToPage(1); // Reset to first page
-			}
+				await Table.HandlePageSizeChanged(size);
 			
 			if (PageSizeChanged.HasDelegate)
-			{
 				await PageSizeChanged.InvokeAsync(size);
-			}
 		}
 	}
 
@@ -67,6 +64,7 @@
 	{
 		base.ComputeRenderKeyCore(ref hc);
 		hc.Add(PageSize);
+		hc.Add(ComputedPageSize);
 		if (PageSizeOptions is not null)
 		{
 			hc.Add(PageSizeOptions.Length);

@@ -30,7 +30,7 @@ await Toasts.Info(""Be at the area 10 minutes before the event time"");
 await Toasts.Warning(""Event start time cannot be earlier than 8am"");
 await Toasts.Error(""Event has not been created"");")"
 CodeLanguage="razor">
-                <Div Display="Display.Flex" Flex=@("flex-wrap") Gap="Gap.Is2">
+                <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" Gap="Gap.Is2">
                     <Button Variant="ButtonVariant.Outline" @onclick="ShowBasic">Default</Button>
                     <Button Variant="ButtonVariant.Outline" @onclick="ShowSuccess">Success</Button>
                     <Button Variant="ButtonVariant.Outline" @onclick="ShowInfo">Info</Button>
@@ -58,7 +58,7 @@ CodeLanguage="razor">
     options.Action = () => ValueTask.CompletedTask;
 });")"
 CodeLanguage="razor">
-                <Div Display="Display.Flex" Flex=@("flex-wrap") Gap="Gap.Is2">
+                <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" Gap="Gap.Is2">
                     <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="ShowWithDescription">With description</Button>
                     <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="ShowWithAction">With action</Button>
                 </Div>
@@ -73,7 +73,7 @@ CodeLanguage="razor">
     Error = ""Save failed""
 });")"
 CodeLanguage="razor">
-                <Div Display="Display.Flex" Flex=@("flex-wrap") Gap="Gap.Is2">
+                <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" Gap="Gap.Is2">
                     <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="ShowPromiseSuccess">Promise success</Button>
                     <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="ShowPromiseFailure">Promise failure</Button>
                 </Div>
@@ -86,14 +86,14 @@ CodeLanguage="razor">
     options.Position = SonnerPosition.TopRight;
 });")"
 CodeLanguage="razor">
-                <Div Class="grid max-w-md grid-cols-2 gap-2">
+                <Grid Columns="GridCols.Is2" Gap="Gap.Is2" MaxWidth="MaxWidth.IsMd">
                     <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="@(() => ShowPosition(SonnerPosition.TopLeft))" Size="ButtonSize.Sm">Top Left</Button>
                     <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="@(() => ShowPosition(SonnerPosition.TopCenter))" Size="ButtonSize.Sm">Top Center</Button>
                     <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="@(() => ShowPosition(SonnerPosition.TopRight))" Size="ButtonSize.Sm">Top Right</Button>
                     <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="@(() => ShowPosition(SonnerPosition.BottomLeft))" Size="ButtonSize.Sm">Bottom Left</Button>
                     <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="@(() => ShowPosition(SonnerPosition.BottomCenter))" Size="ButtonSize.Sm">Bottom Center</Button>
                     <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="@(() => ShowPosition(SonnerPosition.BottomRight))" Size="ButtonSize.Sm">Bottom Right</Button>
-                </Div>
+                </Grid>
             </DemoSection>
         </Section>
 
@@ -103,10 +103,38 @@ CodeLanguage="razor">
     // custom content
 }, options => options.Duration = 0);")"
 CodeLanguage="razor">
-                <Div Display="Display.Flex" Flex=@("flex-wrap") Gap="Gap.Is2">
+                <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" Gap="Gap.Is2">
                     <Button BackgroundColor="BackgroundColor.Primary" TextColor="TextColor.PrimaryForeground" @onclick="ShowCustomContent">Custom content</Button>
                     <Button BackgroundColor="BackgroundColor.Secondary" TextColor="TextColor.SecondaryForeground" @onclick="DismissAll">Dismiss all</Button>
                 </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="Duration" Description="Auto-dismiss timers pause while the toast is hovered or focused." Code="@(@"await Toasts.Toast(""Paused timer"", options =>
+{
+    options.Description = ""Hovering keeps this toast open."";
+    options.Duration = 800;
+});")"
+CodeLanguage="razor">
+                <Button BackgroundColor="BackgroundColor.Primary"
+                        TextColor="TextColor.PrimaryForeground"
+                        @onclick="ShowShortDuration">
+                    Short duration
+                </Button>
+            </DemoSection>
+
+            <DemoSection Title="Swipe" Description="Dismiss a toast by dragging it horizontally." Code="@(@"await Toasts.Toast(""Swipe me away"", options =>
+{
+    options.Description = ""Drag this toast horizontally to dismiss it."";
+    options.Duration = 10000;
+});")"
+CodeLanguage="razor">
+                <Button BackgroundColor="BackgroundColor.Primary"
+                        TextColor="TextColor.PrimaryForeground"
+                        @onclick="ShowSwipeToast">
+                    Swipe toast
+                </Button>
             </DemoSection>
         </Section>
     </Div>
@@ -224,6 +252,24 @@ CodeLanguage="razor">
             {
                 await Toasts.Dismiss();
             };
+        });
+    }
+
+    private async Task ShowShortDuration()
+    {
+        _ = await Toasts.Toast("Paused timer", options =>
+        {
+            options.Description = "Hovering keeps this toast open.";
+            options.Duration = 800;
+        });
+    }
+
+    private async Task ShowSwipeToast()
+    {
+        _ = await Toasts.Toast("Swipe me away", options =>
+        {
+            options.Description = "Drag this toast horizontally to dismiss it.";
+            options.Duration = 10000;
         });
     }
 

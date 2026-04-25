@@ -398,7 +398,7 @@ public sealed class SonnerService : ISonnerService
             if (cancellationToken.IsCancellationRequested || _disposed)
                 return;
 
-            await DismissCore(id, invokeAutoClose: true, cancellationToken);
+            await DismissCore(id, invokeAutoClose: true);
         }
         catch (TaskCanceledException)
         {

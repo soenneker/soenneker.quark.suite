@@ -53,10 +53,6 @@ else
         base.ApplyDefaultParameters();
 
         Position ??= Quark.Position.Absolute;
-        Display ??= Quark.Display.InlineFlex;
-        BoxSize ??= Quark.Size.Is7;
-        Rounded ??= Quark.Rounded.Lg;
-        BackgroundColor ??= Quark.BackgroundColor.Transparent;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -65,14 +61,10 @@ else
         // shadcn Dialog close button - new-york-v4 ui/dialog.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/button shrink-0 items-center justify-center bg-clip-padding font-medium whitespace-nowrap transition-all outline-none select-none");
-            AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50");
-            AppendClass(ref cls, "active:not-aria-[haspopup]:translate-y-px");
+            AppendClass(ref cls, "top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden");
             AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
-            AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
+            AppendClass(ref cls, "data-[state=open]:bg-accent data-[state=open]:text-muted-foreground");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
-            AppendClass(ref cls, "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50");
-            AppendClass(ref cls, "border border-transparent top-2 right-2 rtl:right-auto rtl:left-2");
         });
         attributes["data-slot"] = "dialog-close";
         attributes["data-state"] = BradixDialog?.CurrentOpen == true ? "open" : "closed";

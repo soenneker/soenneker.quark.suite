@@ -12,6 +12,7 @@
                     data-size="sm"
                     data-active="@IsItemActive(item).ToString().ToLowerInvariant()"
                     data-new="@item.IsNew.ToString().ToLowerInvariant()"
+                    aria-current="@(IsItemActive(item) ? "page" : null)"
                     class="@GetHeaderItemClass(item)">
                 @item.Title
             </Anchor>
@@ -42,7 +43,7 @@ else if (Mode == NavigationLinksMode.Stack)
             {
                 @if (item.Href is not null)
                 {
-                    <Anchor To="@item.Href" class="@GetStackItemClass(item)">
+                    <Anchor To="@item.Href" aria-current="@(IsItemActive(item) ? "page" : null)" class="@GetStackItemClass(item)">
                         @item.Title
                         @if (item.IsNew)
                         {
@@ -77,6 +78,7 @@ else
                         {
                             <SidebarMenuButton To="@item.Href"
                                                Active="@IsItemActive(item)"
+                                               aria-current="@(IsItemActive(item) ? "page" : null)"
                                                Variant="SidebarMenuButtonVariant.Navigation">
                                 <Span>@item.Title</Span>
                                 @if (item.IsNew)

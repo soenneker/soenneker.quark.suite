@@ -1,0 +1,65 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    @if (Icon is not null)
+    {
+        <AttachmentPreview>
+            @Icon
+        </AttachmentPreview>
+    }
+    <AttachmentInfo>
+        <AttachmentName>@Name</AttachmentName>
+        @if (Description.HasContent())
+        {
+            <AttachmentDescription>@Description</AttachmentDescription>
+        }
+        @if (Progress is not null)
+        {
+            <AttachmentProgress Value="@ClampedProgress" />
+        }
+    </AttachmentInfo>
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public string Name { get; set; } = "Attachment";
+
+    [Parameter]
+    public string? Description { get; set; }
+
+    [Parameter]
+    public RenderFragment? Icon { get; set; }
+
+    [Parameter]
+    public int? Progress { get; set; }
+
+    [Parameter]
+    public string Variant { get; set; } = "default";
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "attachment";
+        attributes["data-variant"] = Variant;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "flex min-w-0 items-center gap-3 rounded-2xl border border-border bg-card px-3 py-2 text-sm");
+            AppendClass(ref cls, "data-[variant=inline]:w-fit data-[variant=inline]:rounded-full data-[variant=inline]:py-1.5");
+            AppendClass(ref cls, "data-[variant=detailed]:items-start data-[variant=detailed]:p-4");
+            AppendClass(ref cls, "data-[variant=pasted]:border-dashed data-[variant=pasted]:bg-muted/40 data-[variant=pasted]:text-muted-foreground");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Name);
+        hc.Add(Description);
+        hc.Add(Progress);
+        hc.Add(Variant);
+    }
+    private int ClampedProgress => Progress is null ? 0 : Math.Clamp(Progress.Value, 0, 100);
+}

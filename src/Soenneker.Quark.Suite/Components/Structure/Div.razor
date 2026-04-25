@@ -2,9 +2,16 @@
 @inherits Soenneker.Quark.Element
 @implements IDiv
 
-<div @attributes="BuildAttributes()" >
+<div @attributes="BuildAttributes()">
 	@ChildContent
 </div>
 
 @code {
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        if (!attributes.ContainsKey("data-slot"))
+            attributes["data-slot"] = "div";
+    }
 }

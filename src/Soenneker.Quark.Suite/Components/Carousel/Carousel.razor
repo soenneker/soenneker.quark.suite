@@ -24,6 +24,8 @@
     internal event Action? StateChanged;
     private readonly CarouselApi _api = new();
     private Action<CarouselApi>? _lastSetApi;
+    private double? _pointerStart;
+    private bool _pointerDragStarted;
 
     internal int CurrentIndex { get; private set; }
     internal int ItemCount { get; private set; }
@@ -90,6 +92,40 @@
         GoTo(CurrentIndex + 1);
     }
 
+    internal void BeginPointerDrag(PointerEventArgs args)
+    {
+        if (ItemCount <= 1 || args.Button != 0)
+            return;
+
+        _pointerStart = GetAxisCoordinate(args);
+        _pointerDragStarted = true;
+    }
+
+    internal void CompletePointerDrag(PointerEventArgs args)
+    {
+        if (!_pointerDragStarted || _pointerStart is null)
+            return;
+
+        var delta = GetAxisCoordinate(args) - _pointerStart.Value;
+        _pointerStart = null;
+        _pointerDragStarted = false;
+
+        const double threshold = 40;
+        if (Math.Abs(delta) < threshold)
+            return;
+
+        if (delta < 0)
+            Next();
+        else
+            Previous();
+    }
+
+    internal void CancelPointerDrag()
+    {
+        _pointerStart = null;
+        _pointerDragStarted = false;
+    }
+
     private Task HandleKeyDown(KeyboardEventArgs e)
     {
         if (e.Key == "ArrowLeft")
@@ -123,6 +159,11 @@
     {
         _api.NotifySelect();
         StateChanged?.Invoke();
+    }
+
+    private double GetAxisCoordinate(PointerEventArgs args)
+    {
+        return Orientation == "vertical" ? args.ClientY : args.ClientX;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

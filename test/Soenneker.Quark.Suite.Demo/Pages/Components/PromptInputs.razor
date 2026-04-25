@@ -1,0 +1,150 @@
+@page "/prompt-inputs"
+
+<PageTitle>Prompt Input - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Demo"
+                     Description="Composable chat input with textarea and action slots."
+                     Code="@BasicCode"
+                     CodeLanguage="razor"
+                     PreviewClass="preview relative flex min-h-[28rem] w-full justify-center p-10 data-[align=center]:items-start">
+            <Div MaxWidth="MaxWidth.Is2xl">
+                <PromptInput OnSubmit="SubmitPrompt" OnSubmitMessage="SubmitPromptMessage" Multiple GlobalDrop>
+                    <PromptInputHeader>
+                        <PromptInputAttachments />
+                    </PromptInputHeader>
+                    <PromptInputBody>
+                        <PromptInputTextarea @bind-Value="_prompt" />
+                    </PromptInputBody>
+                    <PromptInputFooter>
+                        <PromptInputTools>
+                            <PromptInputActionAddAttachments ShowLabel />
+                            <PromptInputActionMenu>
+                                <PromptInputActionMenuTrigger />
+                                <PromptInputActionMenuContent>
+                                    <PromptInputActionAddScreenshot Clicked="AddScreenshot" />
+                                </PromptInputActionMenuContent>
+                            </PromptInputActionMenu>
+                            <PromptInputButton>
+                                <Button Type="ButtonType.Button"
+                                        Size="ButtonSize.Sm"
+                                        Variant="@(_useWebSearch ? ButtonVariant.Default : ButtonVariant.Ghost)"
+                                        aria-pressed="@(_useWebSearch ? "true" : "false")"
+                                        OnClick="ToggleWebSearch">
+                                    <Icon Name="LucideIcon.Globe" />
+                                    <span>Search</span>
+                                </Button>
+                            </PromptInputButton>
+                            <PromptInputSelect TValue="string" @bind-SelectedValue="_model">
+                                <PromptInputSelectTrigger aria-label="Model">
+                                    <PromptInputSelectValue />
+                                </PromptInputSelectTrigger>
+                                <PromptInputSelectContent>
+                                    @foreach (var model in _models)
+                                    {
+                                        <PromptInputSelectItem TValue="string" ItemValue="@model.Id" Text="@model.Name">@model.Name</PromptInputSelectItem>
+                                    }
+                                </PromptInputSelectContent>
+                            </PromptInputSelect>
+                        </PromptInputTools>
+                        <PromptInputTools>
+                            <PromptInputSubmit Label="Send" Size="ButtonSize.Sm">Send</PromptInputSubmit>
+                        </PromptInputTools>
+                    </PromptInputFooter>
+                </PromptInput>
+                @if (!string.IsNullOrWhiteSpace(_submitted))
+                {
+                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Submitted: @_submitted</Paragraph>
+                }
+                @if (_submittedFiles.Count > 0)
+                {
+                    <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Submitted files: @string.Join(", ", _submittedFiles)</Paragraph>
+                }
+                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Model: @_model</Paragraph>
+                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Web search: @(_useWebSearch ? "on" : "off")</Paragraph>
+                <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">Screenshots: @_screenshots</Paragraph>
+            </Div>
+        </DemoSection>
+    </Section>
+</Div>
+
+@code {
+    private sealed record DemoModel(string Id, string Name);
+
+    private readonly DemoModel[] _models =
+    [
+        new("gpt-4o", "GPT-4o"),
+        new("claude-opus-4-20250514", "Claude 4 Opus")
+    ];
+
+    private string? _prompt;
+    private string? _submitted;
+    private IReadOnlyList<string> _submittedFiles = [];
+    private string _model = "gpt-4o";
+    private bool _useWebSearch;
+    private int _screenshots;
+
+    private Task SubmitPrompt(string? value)
+    {
+        _submitted = value;
+        return Task.CompletedTask;
+    }
+
+    private Task SubmitPromptMessage(PromptInputMessage message)
+    {
+        _submittedFiles = message.Files.Select(file => file.Name).ToArray();
+        return Task.CompletedTask;
+    }
+
+    private Task ToggleWebSearch()
+    {
+        _useWebSearch = !_useWebSearch;
+        return Task.CompletedTask;
+    }
+
+    private Task AddScreenshot(MouseEventArgs args)
+    {
+        _screenshots++;
+        return Task.CompletedTask;
+    }
+
+    private const string BasicCode =
+@"<PromptInput OnSubmit=""SubmitPrompt"" OnSubmitMessage=""SubmitPromptMessage"" Multiple GlobalDrop>
+    <PromptInputHeader>
+        <PromptInputAttachments />
+    </PromptInputHeader>
+    <PromptInputBody>
+        <PromptInputTextarea @bind-Value=""_prompt"" />
+    </PromptInputBody>
+    <PromptInputFooter>
+        <PromptInputTools>
+            <PromptInputActionAddAttachments ShowLabel />
+            <PromptInputActionMenu>
+                <PromptInputActionMenuTrigger />
+                <PromptInputActionMenuContent>
+                    <PromptInputActionAddScreenshot />
+                </PromptInputActionMenuContent>
+            </PromptInputActionMenu>
+            <PromptInputButton>
+                <Button Type=""ButtonType.Button"" Size=""ButtonSize.Sm"" Variant=""ButtonVariant.Ghost"">
+                    <Icon Name=""LucideIcon.Globe"" />
+                    <span>Search</span>
+                </Button>
+            </PromptInputButton>
+            <PromptInputSelect TValue=""string"" @bind-SelectedValue=""_model"">
+                <PromptInputSelectTrigger aria-label=""Model"">
+                    <PromptInputSelectValue />
+                </PromptInputSelectTrigger>
+                <PromptInputSelectContent>
+                    <PromptInputSelectItem TValue=""string"" ItemValue=""gpt-4o"">GPT-4o</PromptInputSelectItem>
+                    <PromptInputSelectItem TValue=""string"" ItemValue=""claude-opus-4-20250514"">Claude 4 Opus</PromptInputSelectItem>
+                </PromptInputSelectContent>
+            </PromptInputSelect>
+        </PromptInputTools>
+        <PromptInputTools>
+            <PromptInputSubmit Label=""Send"" Size=""ButtonSize.Sm"">Send</PromptInputSubmit>
+        </PromptInputTools>
+    </PromptInputFooter>
+</PromptInput>";
+}

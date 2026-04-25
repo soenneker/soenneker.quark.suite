@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using AwesomeAssertions;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Tests.Unit;
@@ -77,9 +79,13 @@ public sealed class QuarkTooltipPlaywrightTests : PlaywrightUnitTest
                 .Filter(new LocatorFilterOptions { HasText = "Helpful context on the right" });
 
         await basicTrigger.HoverAsync();
-        await Assertions
-              .Expect(page.Locator("[data-slot='tooltip-content']")
-                          .Filter(new LocatorFilterOptions { HasText = "Add to library" })).ToBeVisibleAsync();
+        var basicTooltip = page.Locator("[data-slot='tooltip-content']")
+                               .Filter(new LocatorFilterOptions { HasText = "Add to library" });
+        await Assertions.Expect(basicTooltip).ToBeVisibleAsync();
+
+        await page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Additional examples", Exact = true }).HoverAsync();
+        await Assertions.Expect(basicTooltip).ToHaveCountAsync(0);
+        await page.WaitForTimeoutAsync(350);
 
         await topTrigger.HoverAsync();
         await Assertions.Expect(openTopTooltip).ToBeVisibleAsync();
@@ -113,5 +119,46 @@ public sealed class QuarkTooltipPlaywrightTests : PlaywrightUnitTest
                           .Filter(new LocatorFilterOptions { HasText = "Nested tooltip" });
         await Assertions.Expect(tooltip).ToBeVisibleAsync();
         await Assertions.Expect(dialog).ToBeVisibleAsync();
+    }
+
+    [Test]
+    public async ValueTask Tooltip_demo_portals_above_page_and_has_no_console_errors()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+        List<string> consoleErrors = [];
+        var sawPageError = false;
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+
+        page.PageError += (_, _) => sawPageError = true;
+
+        await page.GotoAndWaitForReady($"{BaseUrl}tooltips",
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Hover", Exact = true }),
+            expectedTitle: "Tooltips - Quark Suite");
+
+        var basicSection = page.Locator("section").Filter(new LocatorFilterOptions
+            { HasText = "Tooltips work well for terse helper text on icon buttons and compact controls." }).First;
+        var basicTrigger = basicSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Hover", Exact = true });
+
+        await basicTrigger.HoverAsync();
+
+        var tooltip = page.Locator("[data-slot='tooltip-content']").Filter(new LocatorFilterOptions { HasText = "Add to library" }).First;
+        await Assertions.Expect(tooltip).ToBeVisibleAsync();
+
+        await page.WaitForFunctionAsync(
+            "() => {" +
+            "const tooltip = document.querySelector('[data-slot=\"tooltip-content\"]');" +
+            "const main = document.querySelector('main');" +
+            "if (!tooltip || !main || main.contains(tooltip)) return false;" +
+            "return Number.parseInt(getComputedStyle(tooltip).zIndex, 10) >= 50;" +
+            "}");
+
+        sawPageError.Should().BeFalse();
+        consoleErrors.Should().BeEmpty();
     }
 }

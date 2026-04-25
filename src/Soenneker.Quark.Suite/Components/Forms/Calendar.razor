@@ -31,7 +31,7 @@
                     @if (CaptionLayout == "dropdown")
                     {
                         <div class="flex h-(--cell-size) w-full items-center justify-center gap-1.5 text-sm font-medium rdp-dropdowns">
-                            <div class="cn-calendar-dropdown-root relative rounded-(--cell-radius) rdp-dropdown_root">
+                            <div class="cn-calendar-dropdown-root relative rounded-(--cell-radius) border border-input shadow-xs has-focus:border-ring has-focus:ring-[3px] has-focus:ring-ring/50 rdp-dropdown_root">
                                 <select class="absolute inset-0 bg-popover opacity-0 rdp-dropdown rdp-months_dropdown"
                                         aria-label="Choose the Month"
                                         value="@month.Month"
@@ -41,13 +41,13 @@
                                         <option value="@optionMonth">@GetMonthDropdownLabel(optionMonth)</option>
                                     }
                                 </select>
-                                <div class="font-medium select-none cn-calendar-caption-label flex items-center gap-1 rounded-(--cell-radius) text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label"
+                                <div class="font-medium select-none cn-calendar-caption-label flex h-8 items-center gap-1 rounded-(--cell-radius) pr-1 pl-2 text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label"
                                      aria-hidden="true">
                                     <span>@GetMonthDropdownLabel(month.Month)</span>
                                     <Icon Name="LucideIcon.ChevronDown" Class="size-4 rdp-chevron" />
                                 </div>
                             </div>
-                            <div class="cn-calendar-dropdown-root relative rounded-(--cell-radius) rdp-dropdown_root">
+                            <div class="cn-calendar-dropdown-root relative rounded-(--cell-radius) border border-input shadow-xs has-focus:border-ring has-focus:ring-[3px] has-focus:ring-ring/50 rdp-dropdown_root">
                                 <select class="absolute inset-0 bg-popover opacity-0 rdp-dropdown rdp-years_dropdown"
                                         aria-label="Choose the Year"
                                         value="@month.Year"
@@ -57,7 +57,7 @@
                                         <option value="@year">@year</option>
                                     }
                                 </select>
-                                <div class="font-medium select-none cn-calendar-caption-label flex items-center gap-1 rounded-(--cell-radius) text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label"
+                                <div class="font-medium select-none cn-calendar-caption-label flex h-8 items-center gap-1 rounded-(--cell-radius) pr-1 pl-2 text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground rdp-caption_label"
                                      aria-hidden="true">
                                     <span>@month.Year</span>
                                     <Icon Name="LucideIcon.ChevronDown" Class="size-4 rdp-chevron" />
@@ -86,25 +86,30 @@
                     }
                 </div>
 
-                <div class="flex rdp-weekdays">
+                <div class="flex rdp-weekdays" role="row">
                     @if (ShowWeekNumber)
                     {
-                        <div class="flex size-(--cell-size) items-center justify-center text-center text-[0.8rem] text-muted-foreground select-none">Wk</div>
+                        <div class="flex size-(--cell-size) items-center justify-center text-center text-[0.8rem] text-muted-foreground select-none"
+                             role="columnheader"
+                             aria-label="Week number">Wk</div>
                     }
 
                     @foreach (var dow in _dayNames)
                     {
-                        <div class="flex-1 rounded-(--cell-radius) text-center text-[0.8rem] font-normal text-muted-foreground select-none rdp-weekday">@dow</div>
+                        <div class="flex-1 rounded-(--cell-radius) text-center text-[0.8rem] font-normal text-muted-foreground select-none rdp-weekday"
+                             role="columnheader">@dow</div>
                     }
                 </div>
 
-                <div class="w-full border-collapse">
+                <div class="w-full border-collapse rdp-table" role="grid" aria-label="@month.ToString("MMMM yyyy", ResolveCulture())">
                     @foreach (var week in weeks)
                     {
-                        <div class="mt-2 flex w-full rdp-week">
+                        <div class="mt-2 flex w-full rdp-week" role="row">
                             @if (ShowWeekNumber)
                             {
-                                <div class="flex size-(--cell-size) items-center justify-center text-center text-[0.8rem] text-muted-foreground select-none">
+                                <div class="flex size-(--cell-size) items-center justify-center text-center text-[0.8rem] text-muted-foreground select-none"
+                                     role="gridcell"
+                                     aria-label="@($"Week {GetWeekNumber(week[0].Date)}")">
                                     @GetWeekNumber(week[0].Date)
                                 </div>
                             }
@@ -116,6 +121,8 @@
                                 var buttonCss = GetDayButtonClass(dayContext, day);
 
                                 <div class="@cellCss"
+                                     role="gridcell"
+                                     aria-selected="@GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle)"
                                      data-selected="@(GetDataBoolean(dayContext.IsSelected || dayContext.IsRangeStart || dayContext.IsRangeEnd || dayContext.IsRangeMiddle))"
                                      data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))"
                                      data-range-end="@(GetDataBoolean(dayContext.IsRangeEnd))"
@@ -123,6 +130,8 @@
                                     <button type="button"
                                             class="@buttonCss"
                                             disabled="@day.Disabled"
+                                            aria-label="@day.Date.ToString("D", ResolveCulture())"
+                                            aria-disabled="@GetDataBoolean(day.Disabled)"
                                             data-day="@day.Date.ToString("yyyy-MM-dd")"
                                             data-selected-single="@(GetDataBoolean(dayContext.IsSelected && !dayContext.IsRangeStart && !dayContext.IsRangeEnd && !dayContext.IsRangeMiddle))"
                                             data-range-start="@(GetDataBoolean(dayContext.IsRangeStart))"
@@ -515,9 +524,9 @@
         css += " [&:last-child[data-selected=true]_button]:rounded-r-(--cell-radius)";
 
         if (dayContext.IsRangeStart)
-            css += " rounded-(--cell-radius) bg-muted text-foreground data-[selected=true]:rounded-none";
+            css += " rounded-l-(--cell-radius) bg-accent data-[selected=true]:rounded-none";
         if (dayContext.IsRangeEnd)
-            css += " rounded-(--cell-radius) bg-muted text-foreground data-[selected=true]:rounded-none";
+            css += " rounded-r-(--cell-radius) bg-accent data-[selected=true]:rounded-none";
 
         if (!ShowOutsideDays && !day.InMonth)
             css += " invisible";
@@ -526,7 +535,7 @@
             css += " text-muted-foreground aria-selected:text-muted-foreground rdp-outside";
 
         if (dayContext.IsToday)
-            css += " rounded-(--cell-radius) bg-muted text-foreground data-[selected=true]:rounded-none rdp-today";
+            css += " rounded-(--cell-radius) bg-accent text-accent-foreground data-[selected=true]:rounded-none rdp-today";
 
         css = AppendModifierClasses(css, dayContext.Modifiers);
 
@@ -545,10 +554,10 @@
         css += " group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50";
         css += " data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-r-(--cell-radius)";
         css += " data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground";
-        css += " data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground";
+        css += " data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-accent data-[range-middle=true]:text-accent-foreground";
         css += " data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-l-(--cell-radius)";
         css += " data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground";
-        css += " data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground dark:hover:text-foreground";
+        css += " data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground dark:hover:text-accent-foreground";
         css += " [&>span]:text-xs [&>span]:opacity-70 rdp-day rdp-day_button";
 
         if (day.Disabled)
@@ -586,9 +595,9 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "w-fit rdp-root group/calendar bg-background p-2 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(7)]");
+            AppendClass(ref cls, "w-fit rdp-root group/calendar bg-background p-3 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(8)]");
             AppendClass(ref cls, "in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent");
-            AppendClass(ref cls, "rtl:**:[.rdp-button_next>svg]:rotate-180 rtl:**:[.rdp-button_previous>svg]:rotate-180 rounded-lg border");
+            AppendClass(ref cls, "rtl:**:[.rdp-button_next>svg]:rotate-180 rtl:**:[.rdp-button_previous>svg]:rotate-180");
         });
     }
 

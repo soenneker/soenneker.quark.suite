@@ -14,8 +14,10 @@ public sealed partial class RenderedShadcnParityTests
         var trClasses = tr.Find("[data-slot='table-row']").GetAttribute("class")!;
 
         trClasses.Should().Contain("hover:bg-muted/50");
+        trClasses.Should().Contain("has-aria-expanded:bg-muted/50");
         trClasses.Should().Contain("data-[state=selected]:bg-muted");
         trClasses.Should().Contain("border-b");
+        trClasses.Should().Contain("transition-colors");
         trClasses.Should().NotContain("q-table-tr");
     }
 }

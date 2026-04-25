@@ -41,8 +41,6 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "form-item";
-        attributes.TryAdd("role", "group");
-        attributes["data-orientation"] = Horizontal ? "horizontal" : "vertical";
 
         if (Disabled)
         {
@@ -55,17 +53,13 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/form-item flex w-full gap-2 data-[invalid=true]:text-destructive");
+            AppendClass(ref cls, "group/form-item grid gap-2 data-[invalid=true]:text-destructive");
 
             if (Horizontal)
             {
-                AppendClass(ref cls, "flex-row items-center");
+                AppendClass(ref cls, "grid-cols-[auto_1fr] items-center");
                 AppendClass(ref cls, "*:data-[slot=form-label]:flex-auto");
                 AppendClass(ref cls, "has-[>[data-slot=form-control]]:items-start has-[>[data-slot=form-control]]:[&>[role=checkbox],[role=radio]]:mt-px");
-            }
-            else
-            {
-                AppendClass(ref cls, "flex-col [&>*]:w-full [&>.sr-only]:w-auto");
             }
         });
     }

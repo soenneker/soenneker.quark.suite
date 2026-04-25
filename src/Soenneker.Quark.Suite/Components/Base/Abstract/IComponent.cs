@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -10,6 +11,7 @@ namespace Soenneker.Quark;
 public interface IComponent : ICoreComponent
 {
     bool Container { get; set; }
+    IReadOnlyList<QuarkPresetToken>? Presets { get; set; }
     string? Class { get; set; }
     string? Style { get; set; }
     string? Title { get; set; }

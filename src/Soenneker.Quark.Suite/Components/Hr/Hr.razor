@@ -24,29 +24,19 @@
 
     private IReadOnlyDictionary<string, object> BuildSeparatorAttributes()
     {
-        Dictionary<string, object> attributes = new(BuildAttributes());
-        attributes.Remove("role");
-        attributes.Remove("aria-orientation");
-        attributes.Remove("data-orientation");
-        return attributes;
+        return BuildAttributes();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
-        var orientation = Orientation?.Value ?? SeparatorOrientation.Horizontal.Value;
-        attributes["data-slot"] = "separator";
-        attributes["data-orientation"] = orientation;
+        base.BuildAttributesCore(attributes);
 
-        if (Orientation == SeparatorOrientation.Vertical)
-            attributes["data-vertical"] = string.Empty;
-        else
-            attributes["data-horizontal"] = string.Empty;
+        attributes["data-slot"] = "separator";
 
         // shadcn Separator - new-york-v4 ui/separator.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "bg-border shrink-0 data-horizontal:h-px data-horizontal:w-full data-vertical:w-px data-vertical:self-stretch");
-            AppendClass(ref cls, "data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-px data-[orientation=vertical]:self-stretch");
+            AppendClass(ref cls, "shrink-0 bg-border data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px");
         });
     }
 

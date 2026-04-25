@@ -21,7 +21,7 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().Contain("text-sm");
         classes.Should().Contain("break-words");
         classes.Should().Contain("text-muted-foreground");
+        classes.Should().Contain("sm:gap-2.5");
         classes.Should().NotContain("q-breadcrumb-list");
-        classes.Should().NotContain("sm:gap-2.5");
     }
 }

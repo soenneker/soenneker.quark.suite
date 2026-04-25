@@ -5,7 +5,7 @@
 @implements IStep
 
 <li @attributes="BuildAttributes()">
-    <Anchor To="@GetHref()" OnClick="HandleAnchorClick" @attributes="BuildAnchorAttributes()">
+    <Anchor To="@GetHref()" PreventDefault="true" OnClick="HandleAnchorClick" @onkeydown="HandleKeyDown" @attributes="BuildAnchorAttributes()">
         @ChildContent
     </Anchor>
 </li>
@@ -82,6 +82,7 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "step";
+        attributes["role"] = "presentation";
     }
 
     private Dictionary<string, object> BuildAnchorAttributes()
@@ -97,6 +98,8 @@
         attributes["id"] = StepId;
         attributes["aria-selected"] = Active ? "true" : "false";
         attributes["aria-disabled"] = Disabled ? "true" : "false";
+        attributes["aria-posinset"] = CalculatedIndex;
+        attributes["aria-setsize"] = ParentSteps?.StepCount ?? 1;
         attributes["tabindex"] = Active ? 0 : -1;
         if (PanelId is not null)
             attributes["aria-controls"] = PanelId;
@@ -119,6 +122,14 @@
         return IsClickable && Name.HasContent() ? $"#{Name}" : null;
     }
 
+    private Task HandleKeyDown(KeyboardEventArgs args)
+    {
+        if (ParentSteps is null || Disabled || !Name.HasContent())
+            return Task.CompletedTask;
+
+        return ParentSteps.HandleStepKeyDown(Name!, args);
+    }
+
     private async Task HandleStepClick(MouseEventArgs args)
     {
         await OnClick.InvokeAsync(args);
@@ -131,8 +142,14 @@
 
     protected override void OnInitialized()
     {
-        ParentSteps?.NotifyStepInitialized(Name ?? string.Empty);
+        ParentSteps?.NotifyStepInitialized(Name ?? string.Empty, Disabled);
         base.OnInitialized();
+    }
+
+    protected override void OnParametersSet()
+    {
+        ParentSteps?.NotifyStepInitialized(Name ?? string.Empty, Disabled);
+        base.OnParametersSet();
     }
 
     public override void Dispose()

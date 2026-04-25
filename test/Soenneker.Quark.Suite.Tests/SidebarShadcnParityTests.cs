@@ -8,6 +8,27 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    public void SidebarProvider_matches_shadcn_wrapper_contract()
+    {
+        var provider = Render<SidebarProvider>(parameters => parameters
+            .Add(p => p.PersistState, false)
+            .Add(p => p.ChildContent, (RenderFragment)(builder => builder.AddContent(0, "Content"))));
+
+        var wrapper = provider.Find("[data-slot='sidebar-wrapper']");
+        var classes = wrapper.GetAttribute("class")!;
+        var style = wrapper.GetAttribute("style")!;
+
+        classes.Should().Contain("group/sidebar-wrapper");
+        classes.Should().Contain("flex");
+        classes.Should().Contain("min-h-svh");
+        classes.Should().Contain("w-full");
+        classes.Should().Contain("has-data-[variant=inset]:bg-sidebar");
+        style.Should().Contain("--sidebar-width: 16rem");
+        style.Should().Contain("--sidebar-width-icon: 3rem");
+        style.Should().Contain("--sidebar-width-mobile: 18rem");
+    }
+
+    [Test]
     public void Sidebar_matches_shadcn_base_classes()
     {
         var sidebar = Render<Sidebar>(parameters => parameters
@@ -84,5 +105,51 @@ public sealed partial class RenderedShadcnParityTests
         innerClasses.Should().Contain("h-full");
         innerClasses.Should().Contain("w-full");
         innerClasses.Should().Contain("bg-sidebar");
+    }
+
+    [Test]
+    public void Sidebar_right_floating_and_inset_variants_match_shadcn_contract()
+    {
+        var right = Render<Sidebar>(parameters => parameters
+            .Add(p => p.Side, SidebarSide.Right)
+            .Add(p => p.ChildContent, (RenderFragment)(builder => builder.AddContent(0, "Right"))));
+
+        var rightRoot = right.Find("[data-slot='sidebar']");
+        var rightContainerClasses = right.Find("[data-slot='sidebar-container']").GetAttribute("class")!;
+
+        rightRoot.GetAttribute("data-side").Should().Be("right");
+        rightContainerClasses.Should().Contain("right-0");
+        rightContainerClasses.Should().Contain("group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]");
+        rightContainerClasses.Should().NotContain("left-0");
+
+        var floating = Render<Sidebar>(parameters => parameters
+            .Add(p => p.Variant, SidebarVariant.Floating)
+            .Add(p => p.Collapsible, SidebarCollapsible.Icon)
+            .Add(p => p.ChildContent, (RenderFragment)(builder => builder.AddContent(0, "Floating"))));
+
+        var floatingRoot = floating.Find("[data-slot='sidebar']");
+        var floatingGapClasses = floating.Find("[data-slot='sidebar-gap']").GetAttribute("class")!;
+        var floatingContainerClasses = floating.Find("[data-slot='sidebar-container']").GetAttribute("class")!;
+        var floatingInnerClasses = floating.Find("[data-slot='sidebar-inner']").GetAttribute("class")!;
+
+        floatingRoot.GetAttribute("data-variant").Should().Be("floating");
+        floatingGapClasses.Should().Contain("group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]");
+        floatingContainerClasses.Should().Contain("p-2");
+        floatingContainerClasses.Should().Contain("group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]");
+        floatingInnerClasses.Should().Contain("group-data-[variant=floating]:rounded-lg");
+        floatingInnerClasses.Should().Contain("group-data-[variant=floating]:border");
+        floatingInnerClasses.Should().Contain("group-data-[variant=floating]:shadow-sm");
+
+        var inset = Render<Sidebar>(parameters => parameters
+            .Add(p => p.Variant, SidebarVariant.Inset)
+            .Add(p => p.Collapsible, SidebarCollapsible.Icon)
+            .Add(p => p.ChildContent, (RenderFragment)(builder => builder.AddContent(0, "Inset"))));
+
+        var insetRoot = inset.Find("[data-slot='sidebar']");
+        var insetContainerClasses = inset.Find("[data-slot='sidebar-container']").GetAttribute("class")!;
+
+        insetRoot.GetAttribute("data-variant").Should().Be("inset");
+        insetContainerClasses.Should().Contain("p-2");
+        insetContainerClasses.Should().Contain("group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]");
     }
 }

@@ -44,4 +44,32 @@ public sealed partial class RenderedShadcnParityTests
         contentClasses.Should().Contain("overflow-hidden");
         contentClasses.Should().NotContain("q-collapsible-content");
     }
+
+    [Test]
+    public void Collapsible_controlled_open_does_not_self_mutate_when_owner_ignores_change()
+    {
+        var requestedOpen = false;
+        var cut = Render<Collapsible>(parameters => parameters
+            .Add(p => p.Open, false)
+            .Add(p => p.OpenChanged, open => requestedOpen = open)
+            .Add(p => p.ChildContent, (RenderFragment)(builder =>
+            {
+                builder.OpenComponent<CollapsibleTrigger>(0);
+                builder.AddAttribute(1, "ChildContent", (RenderFragment)(contentBuilder => contentBuilder.AddContent(0, "Toggle")));
+                builder.CloseComponent();
+
+                builder.OpenComponent<CollapsibleContent>(2);
+                builder.AddAttribute(3, "ForceMount", true);
+                builder.AddAttribute(4, "ChildContent", (RenderFragment)(contentBuilder => contentBuilder.AddContent(0, "Controlled content")));
+                builder.CloseComponent();
+            })));
+
+        var trigger = cut.Find("[data-slot='collapsible-trigger']");
+        trigger.GetAttribute("aria-expanded").Should().Be("false");
+
+        trigger.Click();
+
+        requestedOpen.Should().BeTrue();
+        cut.Find("[data-slot='collapsible-trigger']").GetAttribute("aria-expanded").Should().Be("false");
+    }
 }

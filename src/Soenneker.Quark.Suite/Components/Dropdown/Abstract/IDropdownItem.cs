@@ -19,6 +19,11 @@ public interface IDropdownItem : IElement
     bool Disabled { get; set; }
 
     /// <summary>
+    /// Gets or sets whether selecting the item should close the owning menu.
+    /// </summary>
+    bool CloseOnSelect { get; set; }
+
+    /// <summary>
     /// Gets or sets whether the item should be rendered as a link (anchor tag) or button.
     /// </summary>
     bool IsLink { get; set; }

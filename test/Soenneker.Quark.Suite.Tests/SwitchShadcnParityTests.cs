@@ -20,24 +20,27 @@ public sealed partial class RenderedShadcnParityTests
 
         rootClasses.Should().Contain("peer");
         rootClasses.Should().Contain("group/switch");
-        rootClasses.Should().Contain("relative");
-        rootClasses.Should().Contain("after:-inset-x-3");
-        rootClasses.Should().Contain("after:-inset-y-2");
-        rootClasses.Should().Contain("data-[size=default]:h-[18.4px]");
-        rootClasses.Should().Contain("data-[size=default]:w-[32px]");
-        rootClasses.Should().Contain("data-[size=sm]:h-[14px]");
-        rootClasses.Should().Contain("data-[size=sm]:w-[24px]");
-        rootClasses.Should().Contain("data-checked:bg-primary");
-        rootClasses.Should().Contain("data-unchecked:bg-input");
-        rootClasses.Should().Contain("data-disabled:cursor-not-allowed");
-        rootClasses.Should().NotContain("shadow-xs");
+        rootClasses.Should().Contain("inline-flex");
+        rootClasses.Should().Contain("items-center");
+        rootClasses.Should().Contain("rounded-full");
+        rootClasses.Should().Contain("border-transparent");
+        rootClasses.Should().Contain("shadow-xs");
+        rootClasses.Should().Contain("transition-all");
+        rootClasses.Should().Contain("focus-visible:ring-[3px]");
+        rootClasses.Should().Contain("disabled:cursor-not-allowed");
+        rootClasses.Should().Contain("data-[size=default]:h-[1.15rem]");
+        rootClasses.Should().Contain("data-[size=default]:w-8");
+        rootClasses.Should().Contain("data-[size=sm]:h-3.5");
+        rootClasses.Should().Contain("data-[size=sm]:w-6");
+        rootClasses.Should().Contain("data-[state=checked]:bg-primary");
+        rootClasses.Should().Contain("data-[state=unchecked]:bg-input");
+        rootClasses.Should().NotContain("after:-inset-x-3");
+        rootClasses.Should().NotContain("data-checked:bg-primary");
 
         thumbClasses.Should().Contain("group-data-[size=default]/switch:size-4");
         thumbClasses.Should().Contain("group-data-[size=sm]/switch:size-3");
-        thumbClasses.Should().Contain("group-data-[size=default]/switch:data-checked:translate-x-[calc(100%-2px)]");
-        thumbClasses.Should().Contain("group-data-[size=sm]/switch:data-checked:translate-x-[calc(100%-2px)]");
-        thumbClasses.Should().Contain("group-data-[size=default]/switch:data-unchecked:translate-x-0");
-        thumbClasses.Should().Contain("group-data-[size=sm]/switch:data-unchecked:translate-x-0");
-        thumbClasses.Should().NotContain("data-[state=checked]:translate-x");
+        thumbClasses.Should().Contain("data-[state=checked]:translate-x-[calc(100%-2px)]");
+        thumbClasses.Should().Contain("data-[state=unchecked]:translate-x-0");
+        thumbClasses.Should().NotContain("group-data-[size=default]/switch:data-checked");
     }
 }

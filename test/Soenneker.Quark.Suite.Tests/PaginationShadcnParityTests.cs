@@ -43,6 +43,7 @@ public sealed partial class RenderedShadcnParityTests
         var linkClasses = pagination.Find("[data-slot='pagination-link']").GetAttribute("class")!;
         var ellipsisClasses = pagination.Find("[data-slot='pagination-ellipsis']").GetAttribute("class")!;
         var ariaCurrent = pagination.Find("[data-slot='pagination-link']").GetAttribute("aria-current");
+        var ellipsisAriaHidden = pagination.Find("[data-slot='pagination-ellipsis']").GetAttribute("aria-hidden");
 
         paginationClasses.Should().Contain("mx-auto");
         paginationClasses.Should().Contain("flex");
@@ -51,6 +52,7 @@ public sealed partial class RenderedShadcnParityTests
         paginationClasses.Should().NotContain("q-pagination");
 
         contentClasses.Should().Contain("flex");
+        contentClasses.Should().Contain("flex-row");
         contentClasses.Should().Contain("items-center");
         contentClasses.Should().Contain("gap-1");
         contentClasses.Should().NotContain("q-pagination-content");
@@ -61,7 +63,7 @@ public sealed partial class RenderedShadcnParityTests
 
         linkClasses.Should().Contain("inline-flex");
         linkClasses.Should().Contain("rounded-md");
-        linkClasses.Should().Contain("size-8");
+        linkClasses.Should().Contain("size-9");
         linkClasses.Should().Contain("border-border");
         linkClasses.Should().Contain("bg-background");
         linkClasses.Should().NotContain("q-pagination-link");
@@ -72,5 +74,33 @@ public sealed partial class RenderedShadcnParityTests
         ellipsisClasses.Should().Contain("items-center");
         ellipsisClasses.Should().Contain("justify-center");
         ellipsisClasses.Should().NotContain("q-pagination-ellipsis");
+        ellipsisAriaHidden.Should().Be("true");
+    }
+
+    [Test]
+    public void Pagination_previous_and_next_match_shadcn_labels_and_spacing()
+    {
+        var previous = Render<PaginationPrevious>(parameters => parameters.Add(p => p.Text, "Previous"));
+        var next = Render<PaginationNext>(parameters => parameters.Add(p => p.Text, "Next"));
+
+        var previousLink = previous.Find("[data-slot='pagination-link']");
+        var nextLink = next.Find("[data-slot='pagination-link']");
+        var previousClasses = previousLink.GetAttribute("class")!;
+        var nextClasses = nextLink.GetAttribute("class")!;
+
+        previousLink.GetAttribute("aria-label").Should().Be("Go to previous page");
+        nextLink.GetAttribute("aria-label").Should().Be("Go to next page");
+
+        previousClasses.Should().Contain("gap-1");
+        previousClasses.Should().Contain("px-2.5");
+        previousClasses.Should().Contain("sm:pl-2.5");
+        previousClasses.Should().Contain("h-9");
+        previous.Find("svg").GetAttribute("class")!.Should().Contain("rtl:rotate-180");
+
+        nextClasses.Should().Contain("gap-1");
+        nextClasses.Should().Contain("px-2.5");
+        nextClasses.Should().Contain("sm:pr-2.5");
+        nextClasses.Should().Contain("h-9");
+        next.Find("svg").GetAttribute("class")!.Should().Contain("rtl:rotate-180");
     }
 }

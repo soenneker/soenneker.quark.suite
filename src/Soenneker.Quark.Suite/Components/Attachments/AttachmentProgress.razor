@@ -1,0 +1,34 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    <div class="h-full rounded-full bg-primary" style="width:@ClampedValue%"></div>
+</div>
+
+@code {
+    [Parameter]
+    public int Value { get; set; }
+
+    private int ClampedValue => Math.Clamp(Value, 0, 100);
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "attachment-progress";
+        attributes.TryAdd("role", "progressbar");
+        attributes["aria-valuemin"] = "0";
+        attributes["aria-valuemax"] = "100";
+        attributes["aria-valuenow"] = ClampedValue;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "mt-2 h-1.5 overflow-hidden rounded-full bg-muted");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Value);
+    }
+}

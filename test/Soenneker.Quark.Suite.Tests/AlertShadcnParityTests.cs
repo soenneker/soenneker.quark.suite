@@ -19,16 +19,16 @@ public sealed partial class RenderedShadcnParityTests
         alertClasses.Should().Contain("relative");
         alertClasses.Should().Contain("grid");
         alertClasses.Should().Contain("w-full");
-        alertClasses.Should().Contain("gap-0.5");
-        alertClasses.Should().Contain("text-start");
+        alertClasses.Should().Contain("grid-cols-[0_1fr]");
+        alertClasses.Should().Contain("gap-y-0.5");
         alertClasses.Should().Contain("has-data-[slot=alert-action]:relative");
         alertClasses.Should().Contain("has-data-[slot=alert-action]:pr-18");
-        alertClasses.Should().Contain("has-[>svg]:grid-cols-[auto_1fr]");
-        alertClasses.Should().Contain("has-[>svg]:gap-x-2");
-        alertClasses.Should().Contain("*:[svg]:row-span-2");
-        alertClasses.Should().Contain("*:[svg]:translate-y-0.5");
-        alertClasses.Should().Contain("*:[svg]:text-current");
-        alertClasses.Should().Contain("*:[svg:not([class*='size-'])]:size-4");
+        alertClasses.Should().Contain("has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr]");
+        alertClasses.Should().Contain("has-[>svg]:gap-x-3");
+        alertClasses.Should().Contain("[&>svg]:size-4");
+        alertClasses.Should().Contain("[&>svg]:translate-y-0.5");
+        alertClasses.Should().Contain("[&>svg]:text-current");
+        alertClasses.Should().NotContain("gap-0.5");
         alertClasses.Should().NotContain("q-alert");
     }
 }

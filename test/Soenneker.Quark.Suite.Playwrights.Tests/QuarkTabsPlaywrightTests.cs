@@ -1,3 +1,5 @@
+using AwesomeAssertions;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
@@ -200,5 +202,32 @@ public sealed class QuarkTabsPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(accountPanel).ToHaveCountAsync(0);
         await Assertions.Expect(passwordPanel).ToBeVisibleAsync();
         await Assertions.Expect(demoSection.GetByLabel("New password", new LocatorGetByLabelOptions { Exact = true })).ToBeVisibleAsync();
+    }
+
+    [Test]
+    public async ValueTask Tabs_demo_has_no_console_or_page_errors()
+    {
+        await using var session = await CreateSession();
+        var page = session.Page;
+        List<string> consoleErrors = [];
+        var sawPageError = false;
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+
+        page.PageError += (_, _) => sawPageError = true;
+
+        await page.GotoAndWaitForReady($"{BaseUrl}tabs",
+            static p => p.GetByRole(AriaRole.Tablist).First,
+            expectedTitle: "Tabs - Quark Suite");
+
+        await page.GetByRole(AriaRole.Tab, new PageGetByRoleOptions { Name = "Password", Exact = true }).First.ClickAsync();
+        await Assertions.Expect(page.GetByLabel("New password", new PageGetByLabelOptions { Exact = true })).ToBeVisibleAsync();
+
+        sawPageError.Should().BeFalse();
+        consoleErrors.Should().BeEmpty();
     }
 }

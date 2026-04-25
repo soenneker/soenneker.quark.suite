@@ -11,12 +11,12 @@
 
     @if (ShowVerticalScrollBar)
     {
-        <ScrollBar />
+        <ScrollBar ForceMount="@ForceMountScrollBars" />
     }
 
     @if (ShowHorizontalScrollBar)
     {
-        <ScrollBar Orientation="horizontal" />
+        <ScrollBar Orientation="horizontal" ForceMount="@ForceMountScrollBars" />
     }
 
     @if (ShowVerticalScrollBar && ShowHorizontalScrollBar)
@@ -31,6 +31,12 @@
 
     [Parameter]
     public bool ShowHorizontalScrollBar { get; set; }
+
+    /// <summary>
+    /// Forces built-in scrollbars and thumbs to remain mounted, matching Radix ScrollAreaScrollbar forceMount.
+    /// </summary>
+    [Parameter]
+    public bool ForceMountScrollBars { get; set; }
 
     [CascadingParameter(Name = "DirectionProviderDir")]
     private string? DirectionProviderDir { get; set; }
@@ -98,6 +104,7 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(ShowVerticalScrollBar);
         hc.Add(ShowHorizontalScrollBar);
+        hc.Add(ForceMountScrollBars);
         hc.Add(DirectionProviderDir);
         hc.Add(ResolvedDir);
     }

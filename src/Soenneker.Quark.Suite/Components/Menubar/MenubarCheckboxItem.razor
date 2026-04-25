@@ -9,10 +9,11 @@
                            Disabled="@Disabled"
                            CloseOnSelect="@CloseOnSelect"
                            AdditionalAttributes="@CheckboxAttributes">
-    <span class="pointer-events-none absolute left-1.5 flex size-4 items-center justify-center [&_svg:not([class*='size-'])]:size-4">
-        <BradixMenuItemIndicator>
-            <Icon Name="LucideIcon.Check" />
-        </BradixMenuItemIndicator>
+    <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"
+          data-slot="menubar-checkbox-item-indicator">
+        <BradixMenubarItemIndicator>
+            <Icon Name="LucideIcon.Check" Class="size-4" />
+        </BradixMenubarItemIndicator>
     </span>
     @ChildContent
 </BradixMenubarCheckboxItem>
@@ -37,7 +38,8 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "outline-hidden");
-            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:pl-7 data-disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0");
+            AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50");
+            AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
         });
     }
 
@@ -49,8 +51,8 @@
         Display ??= Quark.Display.Flex;
         ItemsAlign ??= Items.Center;
         Gap ??= Quark.Gap.Is1.Token("1.5");
-        Rounded ??= Quark.Rounded.Md;
-        Padding ??= Quark.Padding.Is2.OnY.FromLeft.Token("7").FromRight.Token("1.5");
+        Rounded ??= Quark.Rounded.Token("xs");
+        Padding ??= Quark.Padding.Is2.FromRight.Token("8").FromLeft.Token("1.5").OnY;
         TextSize ??= Quark.TextSize.Sm;
         UserSelect ??= Quark.UserSelect.None;
         Cursor ??= Quark.Cursor.Default;
@@ -60,6 +62,7 @@
     {
         Dictionary<string, object> attributes = new(BuildAttributes());
         attributes.Remove("role");
+        attributes.Remove("aria-checked");
         attributes.Remove("tabindex");
         attributes.Remove("data-disabled");
         attributes.Remove("aria-disabled");

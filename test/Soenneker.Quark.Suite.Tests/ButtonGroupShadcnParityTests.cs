@@ -24,14 +24,36 @@ public sealed partial class RenderedShadcnParityTests
 
         var classes = cut.Find("[data-slot='button-group']").GetAttribute("class")!;
 
-        classes.Should().Contain("group/button-group");
         classes.Should().Contain("flex");
         classes.Should().Contain("w-fit");
-        classes.Should().Contain("*:focus-visible:relative");
-        classes.Should().Contain("*:focus-visible:z-10");
+        classes.Should().Contain("[&>*]:focus-visible:relative");
+        classes.Should().Contain("[&>*]:focus-visible:z-10");
         classes.Should().Contain("[&>*:not(:first-child)]:rounded-l-none");
         classes.Should().Contain("[&>*:not(:first-child)]:border-l-0");
         classes.Should().Contain("[&>*:not(:last-child)]:rounded-r-none");
+        classes.Should().NotContain("group/button-group");
         classes.Should().NotContain("q-button-group");
+    }
+
+    [Test]
+    public void ButtonGroupText_matches_shadcn_base_classes()
+    {
+        var cut = Render<ButtonGroupText>(parameters => parameters
+            .Add(p => p.ChildContent, (RenderFragment)(builder => builder.AddContent(0, "Text"))));
+
+        var classes = cut.Find("[data-slot='button-group-text']").GetAttribute("class")!;
+
+        classes.Should().Contain("flex");
+        classes.Should().Contain("items-center");
+        classes.Should().Contain("gap-2");
+        classes.Should().Contain("rounded-md");
+        classes.Should().Contain("border");
+        classes.Should().Contain("bg-muted");
+        classes.Should().Contain("px-4");
+        classes.Should().Contain("text-sm");
+        classes.Should().Contain("font-medium");
+        classes.Should().Contain("shadow-xs");
+        classes.Should().Contain("[&_svg]:pointer-events-none");
+        classes.Should().Contain("[&_svg:not([class*='size-'])]:size-4");
     }
 }

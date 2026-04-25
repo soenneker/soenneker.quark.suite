@@ -4,8 +4,9 @@
 @inherits Soenneker.Quark.Element
 
 <BradixScrollAreaScrollbar Orientation="@ResolvedOrientation"
+                          ForceMount="@ForceMount"
                           AdditionalAttributes="@ScrollbarAttributes">
-    <BradixScrollAreaThumb AdditionalAttributes="@ThumbAttributes" />
+    <BradixScrollAreaThumb ForceMount="@ForceMount" AdditionalAttributes="@ThumbAttributes" />
 </BradixScrollAreaScrollbar>
 
 @code {
@@ -14,6 +15,12 @@
     /// </summary>
     [Parameter]
     public string Orientation { get; set; } = "vertical";
+
+    /// <summary>
+    /// Forces the scrollbar and thumb to remain mounted, matching Radix ScrollAreaScrollbar forceMount.
+    /// </summary>
+    [Parameter]
+    public bool ForceMount { get; set; }
 
     private BradixOrientation ResolvedOrientation =>
         Orientation == "horizontal" ? BradixOrientation.Horizontal : BradixOrientation.Vertical;
@@ -40,7 +47,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "touch-none data-horizontal:h-2.5 data-horizontal:flex-col data-horizontal:border-t data-horizontal:border-t-transparent data-vertical:h-full data-vertical:w-2.5 data-vertical:border-l data-vertical:border-l-transparent");
+            AppendClass(ref cls, "touch-none data-[orientation=horizontal]:h-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:border-t data-[orientation=horizontal]:border-t-transparent data-[orientation=vertical]:h-full data-[orientation=vertical]:w-2.5 data-[orientation=vertical]:border-l data-[orientation=vertical]:border-l-transparent");
         });
     }
 
@@ -65,5 +72,6 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Orientation);
+        hc.Add(ForceMount);
     }
 }

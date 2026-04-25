@@ -4,6 +4,7 @@
 @inject ISonnerService SonnerService
 @inject ISonnerInterop SonnerInterop
 @using System.Linq
+@using Microsoft.JSInterop
 
 @{
     var groups = _groups;
@@ -49,7 +50,7 @@
                         data-styled="true"
                         data-mounted="@GetBoolString(toast.Mounted)"
                         data-promise="@GetBoolString(toast.Promise)"
-                        data-swiped="false"
+                        data-swiped="@GetBoolString(IsSwipeDismissed(toast.Id))"
                         data-removed="@GetBoolString(toast.Removed)"
                         data-visible="@GetBoolString(isVisible)"
                         data-y-position="@GetYPosition(group.Position)"
@@ -59,7 +60,7 @@
                         data-swiping="false"
                         data-dismissible="@GetBoolString(toast.Dismissible)"
                         data-type="@GetDataType(toast)"
-                        data-swipe-out="false"
+                        data-swipe-out="@GetBoolString(IsSwipeDismissed(toast.Id))"
                         data-expanded="@GetBoolString(expanded)"
                         style="@GetToastStyle(group.Toasts, i)">
                         @if (HasIcon(toast))
@@ -123,6 +124,8 @@
     private const int DesktopOffset = 24;
     private const int MobileOffset = 16;
     private const string DefaultToasterId = "";
+    private static readonly IReadOnlyList<string> DefaultHotkey = ["altKey", "KeyT"];
+
     [Parameter]
     public string? ToasterId { get; set; }
 
@@ -150,14 +153,22 @@
     [Parameter]
     public string HotkeyLabel { get; set; } = "alt+T";
 
+    [Parameter]
+    public IReadOnlyList<string>? Hotkey { get; set; } = DefaultHotkey;
+
     private ElementReference _sectionRef;
     private Dictionary<string, double> _heights = new(StringComparer.Ordinal);
     private readonly HashSet<SonnerPosition> _expandedPositions = [];
     private readonly HashSet<SonnerPosition> _interactingPositions = [];
     private readonly HashSet<SonnerPosition> _focusedPositions = [];
+    private readonly HashSet<string> _swipeDismissedToastIds = new(StringComparer.Ordinal);
     private IReadOnlyList<ToastGroup> _groups = [];
     private bool _shouldMeasureHeights = true;
     private string _registeredToasterId = DefaultToasterId;
+    private string? _registeredHotkey;
+    private DotNetObjectReference<Sonner>? _dotNetReference;
+    private bool _hotkeyRegistered;
+    private bool _swipeHandlersRegistered;
     private bool _toasterRegistered;
     private bool _disposed;
 
@@ -188,6 +199,9 @@
                 return;
             }
         }
+
+        await SyncHotkeyRegistration();
+        await SyncSwipeHandlers();
 
         if (!_shouldMeasureHeights)
             return;
@@ -225,6 +239,8 @@
                        .OrderBy(group => GetPositionOrder(group.Key))
                        .Select(group => new ToastGroup(group.Key, group.ToList()))
                        .ToList();
+
+        CleanupSwipeDismissedIds();
     }
 
     private static int GetPositionOrder(SonnerPosition position) => position?.Value switch
@@ -258,6 +274,11 @@
     private static string GetActionButtonClass() => string.Empty;
 
     private static string GetCloseButtonClass() => string.Empty;
+
+    private bool IsSwipeDismissed(string toastId)
+    {
+        return _swipeDismissedToastIds.Contains(toastId);
+    }
 
     private string GetToasterStyle(IReadOnlyList<SonnerToast> toasts)
     {
@@ -331,7 +352,7 @@
                 break;
             case SonnerToastType.ErrorValue:
                 builder.OpenComponent<Icon>(0);
-                builder.AddAttribute(1, "Name", LucideIcon.CircleX);
+                builder.AddAttribute(1, "Name", LucideIcon.OctagonX);
                 builder.AddAttribute(2, "Class", "size-4");
                 builder.CloseComponent();
                 break;
@@ -355,6 +376,76 @@
             await toast.Action();
 
         await SonnerService.Dismiss(toast.Id, CancellationToken);
+    }
+
+    private async Task SyncHotkeyRegistration()
+    {
+        var hotkeyKey = GetHotkeyKey(Hotkey);
+
+        if (_groups.Count == 0 || hotkeyKey is null)
+        {
+            await UnregisterHotkey();
+            return;
+        }
+
+        if (_hotkeyRegistered && string.Equals(_registeredHotkey, hotkeyKey, StringComparison.Ordinal))
+            return;
+
+        await UnregisterHotkey();
+        await SonnerInterop.RegisterHotkey(_sectionRef, Hotkey, CancellationToken);
+        _registeredHotkey = hotkeyKey;
+        _hotkeyRegistered = true;
+    }
+
+    private async Task UnregisterHotkey()
+    {
+        if (!_hotkeyRegistered)
+            return;
+
+        await SonnerInterop.UnregisterHotkey(_sectionRef, CancellationToken);
+        _registeredHotkey = null;
+        _hotkeyRegistered = false;
+    }
+
+    private async Task SyncSwipeHandlers()
+    {
+        if (_groups.Count == 0)
+        {
+            await UnregisterSwipeHandlers();
+            return;
+        }
+
+        if (_swipeHandlersRegistered)
+            return;
+
+        _dotNetReference ??= DotNetObjectReference.Create(this);
+        await SonnerInterop.RegisterSwipeHandlers(_sectionRef, _dotNetReference, CancellationToken);
+        _swipeHandlersRegistered = true;
+    }
+
+    private async Task UnregisterSwipeHandlers()
+    {
+        if (!_swipeHandlersRegistered)
+            return;
+
+        await SonnerInterop.UnregisterSwipeHandlers(_sectionRef, CancellationToken);
+        _swipeHandlersRegistered = false;
+    }
+
+    [JSInvokable]
+    public async Task DismissToastFromSwipe(string id)
+    {
+        if (_disposed || !id.HasContent())
+            return;
+
+        _swipeDismissedToastIds.Add(id);
+        await SonnerService.Dismiss(id, CancellationToken);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private static string? GetHotkeyKey(IReadOnlyList<string>? hotkey)
+    {
+        return hotkey is null || hotkey.Count == 0 ? null : string.Join("+", hotkey);
     }
 
     private void OnStateChanged()
@@ -440,9 +531,24 @@
         return false;
     }
 
+    private void CleanupSwipeDismissedIds()
+    {
+        if (_swipeDismissedToastIds.Count == 0)
+            return;
+
+        var currentIds = _groups.SelectMany(group => group.Toasts)
+                                .Select(toast => toast.Id)
+                                .ToHashSet(StringComparer.Ordinal);
+
+        _swipeDismissedToastIds.RemoveWhere(id => !currentIds.Contains(id));
+    }
+
     protected override async ValueTask OnDisposeAsync()
     {
         _disposed = true;
+
+        await UnregisterSwipeHandlers();
+        await UnregisterHotkey();
 
         foreach (var position in GetActivePositions())
         {
@@ -453,6 +559,7 @@
             await SonnerService.UnregisterToaster(_registeredToasterId, CancellationToken);
 
         SonnerService.StateChanged -= OnStateChanged;
+        _dotNetReference?.Dispose();
     }
 
     private async Task RegisterToaster()

@@ -14,8 +14,8 @@ public sealed partial class RenderedShadcnParityTests
         var radioGroupClasses = radioGroup.Find("[data-slot='radio-group']").GetAttribute("class")!;
 
         radioGroupClasses.Should().Contain("grid");
-        radioGroupClasses.Should().Contain("gap-2");
-        radioGroupClasses.Should().Contain("w-fit");
+        radioGroupClasses.Should().Contain("gap-3");
+        radioGroupClasses.Should().NotContain("w-fit");
         radioGroupClasses.Should().NotContain("q-radio-group");
     }
 }

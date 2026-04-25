@@ -5,6 +5,7 @@
 @implements ILabel
 
 <BradixLabel For="@For"
+             OnMouseDown="@OnMouseDown"
              AdditionalAttributes="@LabelAttributes">
     @ChildContent
 </BradixLabel>
@@ -18,6 +19,9 @@
     /// </summary>
     [Parameter]
     public string? For { get; set; }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnMouseDown { get; set; }
 
     private IReadOnlyDictionary<string, object> LabelAttributes => BuildLabelAttributes();
 
@@ -54,6 +58,7 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(For);
+        hc.Add(OnMouseDown.HasDelegate);
         hc.Add(SlotAttributeOverrides?.Count ?? 0);
     }
 }

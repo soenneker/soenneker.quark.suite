@@ -147,7 +147,7 @@
                         </Div>
                     </CardHeader>
                     <CardBody Padding="Padding.Is0">
-                        <Div Padding="Padding.Is6">
+                        <Div Padding="Padding.Is6" data-testid="server-table-demo">
                             <Table @ref="_basicTable"
                                    OnInteraction="OnInteraction"
                                    OnOrder="HandleOrder"
@@ -196,7 +196,10 @@
                                 </TableElement>
 
                                 <TableBottomBar>
-                                    <TableInfo />
+                                    <Div Display="Display.Flex" FlexWrap="FlexWrap.Wrap" ItemsAlign="Items.Center" Gap="Gap.Is4">
+                                        <TableInfo />
+                                        <TablePageSizeSelector />
+                                    </Div>
                                     <TablePagination />
                                 </TableBottomBar>
                             </Table>
@@ -373,8 +376,7 @@ TableSearch, sortable Th, TableBottomBar, TableInfo, TablePagination, TableNoDat
             // Update the current employees list
             _currentEmployees = employees;
 
-            // Update the total records count
-            _totalRecords = EmployeeService.GetTotalCount();
+            _totalRecords = EmployeeService.GetFilteredCount(serverSideRequest);
 
             // Trigger UI update
             StateHasChanged();
@@ -433,7 +435,10 @@ TableSearch, sortable Th, TableBottomBar, TableInfo, TablePagination, TableNoDat
     </TableElement>
 
     <TableBottomBar>
-        <TableInfo />
+        <Div Display=""Display.Flex"" FlexWrap=""FlexWrap.Wrap"" ItemsAlign=""Items.Center"" Gap=""Gap.Is4"">
+            <TableInfo />
+            <TablePageSizeSelector />
+        </Div>
         <TablePagination />
     </TableBottomBar>
 </Table>";

@@ -1,0 +1,21 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<div @attributes="BuildAttributes()">
+    <CascadingValue Value="@PromptInput" IsFixed="false">
+        <Dropdown>
+            @ChildContent
+        </Dropdown>
+    </CascadingValue>
+</div>
+
+@code {
+    [CascadingParameter]
+    public PromptInput? PromptInput { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "prompt-input-action-menu";
+    }
+}

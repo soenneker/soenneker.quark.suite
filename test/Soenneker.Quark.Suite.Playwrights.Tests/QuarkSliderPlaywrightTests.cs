@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Tests.Unit;
@@ -18,6 +19,16 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
     {
         await using var session = await CreateSession();
         var page = session.Page;
+        List<string> consoleErrors = [];
+        var sawPageError = false;
+
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+
+        page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}sliders",
@@ -26,7 +37,15 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
 
         var demoSection = page.Locator("[data-slot='preview'] [data-testid='slider-demo-primary']").First;
         var demoRoot = demoSection.Locator("[data-js-ready='true']").First;
+        var demoTrack = demoSection.Locator("[data-slot='slider-track']").First;
+        var demoThumb = demoSection.Locator("[data-slot='slider-thumb']").First;
         var demoSlider = demoSection.Locator("[role='slider']:visible").First;
+        await Assertions.Expect(demoRoot).ToHaveAttributeAsync("data-orientation", "horizontal");
+        await Assertions.Expect(demoRoot).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("data-\\[orientation=vertical\\]:min-h-44"));
+        await Assertions.Expect(demoTrack).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("data-\\[orientation=horizontal\\]:h-1\\.5"));
+        await Assertions.Expect(demoThumb).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("size-4"));
+        await Assertions.Expect(demoThumb).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("border-primary"));
+        await Assertions.Expect(demoThumb).ToHaveClassAsync(new System.Text.RegularExpressions.Regex("shadow-sm"));
         await Assertions.Expect(demoSlider).ToHaveAttributeAsync("aria-valuenow", "50");
         var demoRootBox = await demoRoot.EvaluateAsync<SliderRect>(
             @"element => {
@@ -73,6 +92,8 @@ public sealed class QuarkSliderPlaywrightTests : PlaywrightUnitTest
 
         await Assertions.Expect(stepSlider).ToHaveAttributeAsync("aria-valuenow", "60");
         await Assertions.Expect(page.GetByText("Step 5; current value: 60.", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
+        sawPageError.Should().BeFalse();
+        consoleErrors.Should().BeEmpty();
     }
 
 [Test]

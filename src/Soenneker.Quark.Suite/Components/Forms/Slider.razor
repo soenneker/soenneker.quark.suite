@@ -139,8 +139,8 @@
 		return sizeValue?.ToLowerInvariant() switch
 		{
 			"default" => null,
-			"sm" => "h-6",
-			"lg" => "h-10",
+			"sm" => "h-5",
+			"lg" => "h-8",
 			_ => null
 		};
 	}
@@ -369,10 +369,10 @@
 
 		return sizeValue?.ToLowerInvariant() switch
 		{
-			null or "" or "default" => IsVertical ? "w-1" : "h-1",
+			null or "" or "default" => IsVertical ? "w-1.5" : "h-1.5",
 			"sm" => IsVertical ? "w-1" : "h-1",
 			"lg" => IsVertical ? "w-2" : "h-2",
-			_ => IsVertical ? "w-1" : "h-1"
+			_ => IsVertical ? "w-1.5" : "h-1.5"
 		};
 	}
 
@@ -382,10 +382,10 @@
 
 		return sizeValue?.ToLowerInvariant() switch
 		{
-			null or "" or "default" => "size-3",
+			null or "" or "default" => "size-4",
 			"sm" => "size-3",
-			"lg" => "size-4",
-			_ => "size-3"
+			"lg" => "size-5",
+			_ => "size-4"
 		};
 	}
 
@@ -395,8 +395,9 @@
 
 		return sizeValue?.ToLowerInvariant() switch
 		{
-			"lg" => 16d,
-			_ => 12d
+			"sm" => 12d,
+			"lg" => 20d,
+			_ => 16d
 		};
 	}
 
@@ -424,7 +425,7 @@
 		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
 		{
 			BuildOwnedClassAndStyle(ref sty, ref cls);
-			AppendClass(ref cls, "relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col");
+			AppendClass(ref cls, "relative flex w-full touch-none items-center select-none data-[disabled]:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col");
 
 			var sizeClass = GetSizeClass();
 
@@ -486,7 +487,7 @@
 
 		BuildClassAttribute(attributes, (ref cls) =>
 		{
-			AppendClass(ref cls, "relative grow overflow-hidden rounded-full bg-muted data-horizontal:h-1 data-horizontal:w-full data-vertical:h-full data-vertical:w-1");
+			AppendClass(ref cls, "relative grow overflow-hidden rounded-full bg-muted data-[orientation=horizontal]:h-1.5 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1.5");
 			AppendClass(ref cls, GetTrackThicknessClass());
 		});
 
@@ -507,7 +508,7 @@
 			{
 				AppendStyleDecl(ref sty, "transform: translateY(50%)");
 				AppendStyleDecl(ref sty, "position: absolute");
-				AppendStyleDecl(ref sty, $"bottom: calc({percentText} - 3.6px)");
+				AppendStyleDecl(ref sty, $"bottom: calc({percentText} {(offset < 0d ? "-" : "+")} {Math.Abs(offset).ToString("0.0###", CultureInfo.InvariantCulture)}px)");
 			}
 			else
 			{
@@ -539,7 +540,7 @@
 
 		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
 		{
-			AppendClass(ref cls, "absolute bg-primary select-none data-horizontal:h-full data-vertical:w-full");
+			AppendClass(ref cls, "absolute bg-primary data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full");
 
 			if (IsVertical)
 			{
@@ -623,11 +624,11 @@
 
 		BuildClassAndStyleAttributes(attributes, (ref cls, ref sty) =>
 		{
-			AppendClass(ref cls, "relative block shrink-0 rounded-full border border-ring bg-white ring-ring/50 transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 disabled:pointer-events-none disabled:opacity-50");
+			AppendClass(ref cls, "block shrink-0 rounded-full border border-primary bg-white shadow-sm ring-ring/50 transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50");
 			AppendClass(ref cls, GetThumbSizeClass());
 
 			if (isActive)
-				AppendClass(ref cls, "ring-3");
+				AppendClass(ref cls, "ring-4");
 		});
 
 		return attributes;

@@ -18,7 +18,8 @@
     {
         base.ApplyDefaultParameters();
 
-        Flex ??= "flex flex-col";
+        Display ??= Quark.Display.Flex;
+        FlexDirection ??= Quark.FlexDirection.Col;
         Gap ??= Quark.Gap.Token("6");
         Rounded ??= Quark.Rounded.Xl;
         Border ??= Quark.Border.Default;
@@ -31,14 +32,9 @@
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "card";
-        attributes["data-size"] = Size.Value;
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/card overflow-hidden text-sm ring-1 ring-foreground/10");
-            AppendClass(ref cls, "has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0");
-            AppendClass(ref cls, "data-[size=sm]:gap-3 data-[size=sm]:py-3 data-[size=sm]:has-data-[slot=card-footer]:pb-0");
-            AppendClass(ref cls, "*:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl");
         });
     }
 

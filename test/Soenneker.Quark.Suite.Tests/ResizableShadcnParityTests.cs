@@ -38,6 +38,7 @@ public sealed partial class RenderedShadcnParityTests
         groupClasses.Should().Contain("h-full");
         groupClasses.Should().Contain("w-full");
         groupClasses.Should().Contain("aria-[orientation=vertical]:flex-col");
+        group.GetAttribute("aria-orientation").Should().Be("horizontal");
 
         handleClasses.Should().Contain("relative");
         handleClasses.Should().Contain("flex");
@@ -45,7 +46,6 @@ public sealed partial class RenderedShadcnParityTests
         handleClasses.Should().Contain("items-center");
         handleClasses.Should().Contain("justify-center");
         handleClasses.Should().Contain("bg-border");
-        handleClasses.Should().Contain("ring-offset-background");
         handleClasses.Should().Contain("after:absolute");
         handleClasses.Should().Contain("after:inset-y-0");
         handleClasses.Should().Contain("after:left-1/2");
@@ -53,16 +53,19 @@ public sealed partial class RenderedShadcnParityTests
         handleClasses.Should().Contain("after:-translate-x-1/2");
         handleClasses.Should().Contain("focus-visible:ring-1");
         handleClasses.Should().Contain("focus-visible:ring-ring");
+        handleClasses.Should().Contain("focus-visible:ring-offset-1");
         handleClasses.Should().Contain("focus-visible:outline-hidden");
         handleClasses.Should().Contain("aria-[orientation=horizontal]:h-px");
         handleClasses.Should().Contain("aria-[orientation=horizontal]:w-full");
         handleClasses.Should().Contain("[&[aria-orientation=horizontal]>div]:rotate-90");
+        handleClasses.Should().NotContain("ring-offset-background");
         handleClasses.Should().NotContain("bg-transparent");
         handleClasses.Should().NotContain("cursor-col-resize");
         handleClasses.Should().NotContain("cursor-row-resize");
 
         handleGrip.Should().NotBeNull();
-        handleGrip!.GetAttribute("class")!.Should().Contain("z-10 flex h-6 w-1 shrink-0 rounded-lg bg-border");
+        handleGrip!.GetAttribute("class")!.Should().Contain("z-10 flex h-4 w-3 items-center justify-center rounded-xs border bg-border");
+        handle.QuerySelector("svg")!.GetAttribute("class")!.Should().Contain("size-2.5");
 
         panels.Should().HaveCount(2);
         foreach (var panel in panels)

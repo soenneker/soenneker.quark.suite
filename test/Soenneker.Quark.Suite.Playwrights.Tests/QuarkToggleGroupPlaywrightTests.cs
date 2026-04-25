@@ -24,7 +24,7 @@ public sealed class QuarkToggleGroupPlaywrightTests : PlaywrightUnitTest
             expectedTitle: "Toggle Group - Quark Suite");
 
         var verticalSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use a vertical orientation when grouped actions need to fit into narrow side rails or inspector panels." }).First;
-        var verticalGroup = verticalSection.GetByRole(AriaRole.Radiogroup).First;
+        var verticalGroup = verticalSection.GetByRole(AriaRole.Group).First;
         var top = verticalGroup.Locator("button[role='radio'][data-value='top']").First;
         var middle = verticalGroup.Locator("button[role='radio'][data-value='middle']").First;
         var bottom = verticalGroup.Locator("button[role='radio'][data-value='bottom']").First;
@@ -39,7 +39,7 @@ public sealed class QuarkToggleGroupPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(middle).ToHaveAttributeAsync("tabindex", "-1");
 
         var disabledSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Disable the entire group or individual items when a formatting choice is unavailable." }).First;
-        var disabledGroups = disabledSection.GetByRole(AriaRole.Radiogroup);
+        var disabledGroups = disabledSection.GetByRole(AriaRole.Group);
         var disabledGroup = disabledGroups.Nth(0);
         var disabledItemGroup = disabledGroups.Nth(1);
         var disabledGroupLeft = disabledGroup.Locator("button[role='radio'][data-value='left']").First;
@@ -62,7 +62,7 @@ public sealed class QuarkToggleGroupPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(disabledItemCenter).ToHaveAttributeAsync("aria-checked", "false");
 
         var rtlSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Toggle groups should preserve selection flow in right-to-left layouts." }).First;
-        var rtlGroup = rtlSection.Locator("[dir='rtl'] [role='radiogroup']").First;
+        var rtlGroup = rtlSection.Locator("[dir='rtl'] [role='group']").First;
         var rtlRight = rtlGroup.Locator("button[role='radio'][data-value='right']").First;
         var rtlCenter = rtlGroup.Locator("button[role='radio'][data-value='center']").First;
         var rtlLeft = rtlGroup.Locator("button[role='radio'][data-value='left']").First;

@@ -40,10 +40,12 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "form-label";
+        attributes["data-error"] = FieldContext?.IsInvalid == true ? "true" : "false";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "group/form-label peer/form-label items-center");
+            AppendClass(ref cls, "data-[error=true]:text-destructive");
             AppendClass(ref cls, "group-data-[disabled=true]/form-item:pointer-events-none group-data-[disabled=true]/form-item:opacity-50");
             AppendClass(ref cls, "group-data-[invalid=true]/form-item:text-destructive");
         });
@@ -61,5 +63,6 @@
         hc.Add(RequiredIndicator);
         hc.Add(FormHorizontal);
         hc.Add(FieldContext?.ControlId);
+        hc.Add(FieldContext?.IsInvalid);
     }
 }

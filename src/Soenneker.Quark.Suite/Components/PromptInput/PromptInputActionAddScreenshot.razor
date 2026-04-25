@@ -1,0 +1,30 @@
+@namespace Soenneker.Quark
+
+<PromptInputActionMenuItem Disabled="@Disabled" Clicked="@Clicked">
+    @if (ChildContent is not null)
+    {
+        @ChildContent
+    }
+    else
+    {
+        <Icon Name="@IconName" />
+        <span>@Label</span>
+    }
+</PromptInputActionMenuItem>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string Label { get; set; } = "Add screenshot";
+
+    [Parameter]
+    public LucideIcon IconName { get; set; } = LucideIcon.Camera;
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> Clicked { get; set; }
+}

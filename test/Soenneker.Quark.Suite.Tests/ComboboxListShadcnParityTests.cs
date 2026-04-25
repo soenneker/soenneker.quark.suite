@@ -15,8 +15,12 @@ public sealed partial class RenderedShadcnParityTests
 
         var classes = cut.Find("[data-slot='combobox-list']").GetAttribute("class")!;
 
-        classes.Should().Contain("flex");
-        classes.Should().Contain("flex-col");
+        classes.Should().Contain("max-h-[min(calc(--spacing(96)---spacing(9)),calc(var(--radix-popper-available-height)---spacing(9)))]");
+        classes.Should().Contain("scroll-py-1");
+        classes.Should().Contain("overflow-y-auto");
+        classes.Should().Contain("p-1");
+        classes.Should().Contain("data-empty:p-0");
+        classes.Should().NotContain("flex-col");
         classes.Should().NotContain("q-combobox-list");
     }
 }

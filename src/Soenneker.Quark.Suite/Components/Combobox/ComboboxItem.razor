@@ -6,8 +6,8 @@
     @ChildContent
     @if (IsSelected)
     {
-        <span class="ml-auto rtl:ml-0 rtl:mr-auto inline-flex items-center">
-            <Icon Name="LucideIcon.Check" Class="size-4" />
+        <span data-slot="combobox-item-indicator" class="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
+            <Icon Name="LucideIcon.Check" Class="pointer-events-none size-4 pointer-coarse:size-5" />
         </span>
     }
 </div>
@@ -26,11 +26,13 @@
 
         Position ??= Quark.Position.Relative;
         Display ??= Quark.Display.Flex;
+        Width ??= Quark.Width.IsFull;
         Cursor ??= Quark.Cursor.Default;
         UserSelect ??= Quark.UserSelect.None;
         ItemsAlign ??= Items.Center;
+        Gap ??= Quark.Gap.Is2;
         Rounded ??= Quark.Rounded.Sm;
-        Padding ??= Quark.Padding.Is2.OnX.Token("1.5").OnY;
+        Padding ??= Quark.Padding.Is2.FromLeft.Token("8").FromRight.Token("1.5").OnY;
         TextSize ??= Quark.TextSize.Sm;
     }
 
@@ -84,11 +86,11 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "outline-none");
-            AppendClass(ref cls, "data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground");
+            AppendClass(ref cls, "outline-hidden");
             AppendClass(ref cls, "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground");
-            AppendClass(ref cls, "hover:bg-accent hover:text-accent-foreground");
+            AppendClass(ref cls, "data-[disabled]:pointer-events-none data-[disabled]:opacity-50");
             AppendClass(ref cls, "data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50");
+            AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
         });
     }
 

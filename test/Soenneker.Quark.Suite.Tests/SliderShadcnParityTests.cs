@@ -21,7 +21,8 @@ public sealed partial class RenderedShadcnParityTests
         sliderClasses.Should().Contain("relative");
         sliderClasses.Should().Contain("flex");
         sliderClasses.Should().Contain("touch-none");
-        sliderClasses.Should().Contain("data-disabled:opacity-50");
+        sliderClasses.Should().Contain("data-[disabled]:opacity-50");
+        sliderClasses.Should().Contain("data-[orientation=vertical]:min-h-44");
         sliderClasses.Should().NotContain("q-slider");
         slider.Find("[data-slot='slider']").GetAttribute("aria-label")!.Should().Be("Volume");
 
@@ -29,21 +30,21 @@ public sealed partial class RenderedShadcnParityTests
         sliderTrackClasses.Should().Contain("grow");
         sliderTrackClasses.Should().Contain("rounded-full");
         sliderTrackClasses.Should().Contain("bg-muted");
-        sliderTrackClasses.Should().Contain("data-horizontal:h-1");
+        sliderTrackClasses.Should().Contain("data-[orientation=horizontal]:h-1.5");
 
         sliderRangeClasses.Should().Contain("absolute");
         sliderRangeClasses.Should().Contain("bg-primary");
-        sliderRangeClasses.Should().Contain("select-none");
-        sliderRangeClasses.Should().Contain("data-horizontal:h-full");
+        sliderRangeClasses.Should().Contain("data-[orientation=horizontal]:h-full");
 
-        sliderThumbClasses.Should().Contain("relative");
         sliderThumbClasses.Should().Contain("block");
-        sliderThumbClasses.Should().Contain("size-3");
+        sliderThumbClasses.Should().Contain("size-4");
         sliderThumbClasses.Should().Contain("rounded-full");
         sliderThumbClasses.Should().Contain("border");
-        sliderThumbClasses.Should().Contain("border-ring");
+        sliderThumbClasses.Should().Contain("border-primary");
         sliderThumbClasses.Should().Contain("bg-white");
-        sliderThumbClasses.Should().Contain("focus-visible:ring-3");
+        sliderThumbClasses.Should().Contain("shadow-sm");
+        sliderThumbClasses.Should().Contain("hover:ring-4");
+        sliderThumbClasses.Should().Contain("focus-visible:ring-4");
         sliderThumbClasses.Should().NotContain("q-slider");
         slider.Find("[data-slot='slider-thumb']").HasAttribute("aria-label").Should().BeFalse();
     }
@@ -64,11 +65,11 @@ public sealed partial class RenderedShadcnParityTests
         minimumWrapper.Should().NotBeNull();
         minimumWrapper!.TagName.Should().Be("SPAN");
         minimumWrapper.GetAttribute("style").Should().Contain("position: absolute");
-        minimumWrapper.GetAttribute("style").Should().Contain("left: calc(20.00% + 3.6px)");
+        minimumWrapper.GetAttribute("style").Should().Contain("left: calc(20.00% + 4.8px)");
         minimumWrapper.GetAttribute("style").Should().Contain("transform: var(--radix-slider-thumb-transform)");
 
         maximumWrapper.Should().NotBeNull();
-        maximumWrapper!.GetAttribute("style").Should().Contain("left: calc(80.00% - 3.6px)");
+        maximumWrapper!.GetAttribute("style").Should().Contain("left: calc(80.00% - 4.8px)");
         maximumWrapper.GetAttribute("style").Should().Contain("transform: var(--radix-slider-thumb-transform)");
 
         thumbs[0].GetAttribute("style").Should().BeNull();

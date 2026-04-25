@@ -29,4 +29,20 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().Contain("py-12");
         classes.Should().NotContain("rounded-md");
     }
+
+    [Test]
+    public void TableNoData_preserves_empty_shell_around_custom_content()
+    {
+        var table = new Table();
+
+        var backingField = typeof(Table).GetField("<HasLoadedOnce>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        backingField.SetValue(table, true);
+
+        var cut = Render<CascadingValue<ITable>>(parameters => parameters
+            .Add(p => p.Name, nameof(TableNoData.Table))
+            .Add(p => p.Value, table)
+            .AddChildContent<TableNoData>(child => child.AddChildContent("<p>No employees found</p>")));
+
+        cut.Find("[data-slot='table-empty']").TextContent.Should().Contain("No employees found");
+    }
 }

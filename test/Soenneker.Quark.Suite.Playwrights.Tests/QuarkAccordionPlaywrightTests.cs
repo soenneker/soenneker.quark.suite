@@ -156,6 +156,10 @@ public sealed class QuarkAccordionPlaywrightTests : PlaywrightUnitTest
         (string.IsNullOrWhiteSpace(returnsPanelId)).Should().BeFalse();
 
         var returnsContent = page.Locator($"#{returnsPanelId}");
+        await page.WaitForFunctionAsync(
+            "(panelId) => document.getElementById(panelId)?.getBoundingClientRect().height >= 40",
+            returnsPanelId);
+
         var returnsContentBox = await returnsContent.BoundingBoxAsync();
         (returnsContentBox).Should().NotBeNull();
         (returnsContentBox.Height >= 40).Should().BeTrue();

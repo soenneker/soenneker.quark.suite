@@ -1,0 +1,148 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+
+<CascadingValue Value="@this" IsFixed="true">
+    <CascadingValue Name="PromptInputAttachmentsVersion" Value="@_attachmentsVersion" IsFixed="false">
+        <form @ref="ElementRef" @onclick="HandleClick" @onsubmit="HandleSubmit" @onsubmit:preventDefault @attributes="BuildAttributes()">
+            @ChildContent
+        </form>
+    </CascadingValue>
+</CascadingValue>
+
+@code {
+    private string? _value;
+    private readonly List<PromptInputAttachmentInfo> _attachments = [];
+    private int _attachmentsVersion;
+
+    [Parameter]
+    public EventCallback<string?> OnSubmit { get; set; }
+
+    [Parameter]
+    public EventCallback<PromptInputMessage> OnSubmitMessage { get; set; }
+
+    [Parameter]
+    public EventCallback<IReadOnlyList<PromptInputAttachmentInfo>> AttachmentsChanged { get; set; }
+
+    [Parameter]
+    public bool Multiple { get; set; }
+
+    [Parameter]
+    public string? Accept { get; set; }
+
+    [Parameter]
+    public bool GlobalDrop { get; set; }
+
+    internal IReadOnlyList<PromptInputAttachmentInfo> Attachments => _attachments;
+
+    internal void SetValue(string? value)
+    {
+        _value = value;
+    }
+
+    internal async Task Submit(string? value)
+    {
+        if (OnSubmit.HasDelegate)
+            await OnSubmit.InvokeAsync(value);
+
+        if (OnSubmitMessage.HasDelegate)
+            await OnSubmitMessage.InvokeAsync(new PromptInputMessage
+            {
+                Text = value,
+                Files = _attachments.ToArray()
+            });
+    }
+
+    internal async Task AddAttachments(IReadOnlyList<PromptInputAttachmentInfo> attachments)
+    {
+        if (attachments.Count == 0)
+            return;
+
+        if (!Multiple)
+            _attachments.Clear();
+
+        foreach (PromptInputAttachmentInfo attachment in attachments)
+        {
+            if (_attachments.All(x => !IsSameAttachment(x, attachment)))
+                _attachments.Add(attachment);
+        }
+
+        await NotifyAttachmentsChanged();
+    }
+
+    internal async Task RemoveAttachment(string id)
+    {
+        if (_attachments.RemoveAll(x => string.Equals(x.Id, id, StringComparison.Ordinal)) == 0)
+            return;
+
+        await NotifyAttachmentsChanged();
+    }
+
+    internal async Task ClearAttachments()
+    {
+        if (_attachments.Count == 0)
+            return;
+
+        _attachments.Clear();
+        await NotifyAttachmentsChanged();
+    }
+
+    private async Task NotifyAttachmentsChanged()
+    {
+        if (AttachmentsChanged.HasDelegate)
+            await AttachmentsChanged.InvokeAsync(_attachments.ToArray());
+
+        _attachmentsVersion++;
+        StateHasChanged();
+    }
+
+    private static bool IsSameAttachment(PromptInputAttachmentInfo left, PromptInputAttachmentInfo right)
+    {
+        return string.Equals(left.Id, right.Id, StringComparison.Ordinal) ||
+               (string.Equals(left.Name, right.Name, StringComparison.Ordinal) &&
+                left.Size == right.Size &&
+                string.Equals(left.Type, right.Type, StringComparison.Ordinal));
+    }
+
+    private Task HandleSubmit()
+    {
+        return Submit(_value);
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Relative;
+        Display ??= Quark.Display.Flex;
+        FlexDirection ??= Quark.FlexDirection.Col;
+        Width ??= Quark.Width.IsFull;
+        Overflow ??= Quark.Overflow.Hidden;
+        Border ??= Quark.Border.Default;
+        BorderColor ??= Quark.BorderColor.Border;
+        BackgroundColor ??= Quark.BackgroundColor.Card;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+
+        attributes["data-slot"] = "prompt-input";
+        attributes["role"] = "group";
+        attributes["aria-label"] = "Chat input";
+        attributes["data-global-drop"] = GlobalDrop ? "true" : "false";
+        attributes["data-multiple"] = Multiple ? "true" : "false";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "h-auto cursor-text gap-0 rounded-[24px] dark:border-border/50 dark:bg-input/30");
+        });
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Multiple);
+        hc.Add(Accept);
+        hc.Add(GlobalDrop);
+    }
+}

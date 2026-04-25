@@ -3,6 +3,7 @@ using Microsoft.Playwright;
 using Soenneker.Playwrights.Extensions.TestPages;
 using Soenneker.Playwrights.Tests.Unit;
 using AwesomeAssertions;
+using System.Collections.Generic;
 
 namespace Soenneker.Quark.Suite.Playwrights.Tests;
 
@@ -13,11 +14,19 @@ public sealed class QuarkNativeSelectPlaywrightTests : PlaywrightUnitTest
     {
     }
 
-[Test]
+    [Test]
     public async ValueTask Native_select_demo_updates_bound_value_and_preserves_optgroup_structure()
     {
         await using var session = await CreateSession();
         var page = session.Page;
+        var consoleErrors = new List<string>();
+        var pageErrors = new List<string>();
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+        page.PageError += (_, exception) => pageErrors.Add(exception);
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}native-selects",
@@ -41,13 +50,45 @@ public sealed class QuarkNativeSelectPlaywrightTests : PlaywrightUnitTest
         var groupLabels = await animalSelect.EvaluateAsync<string>(
             "element => Array.from(element.querySelectorAll('optgroup')).map(group => group.label).join(',')");
         (groupLabels).Should().Be("Mammals,Birds");
+
+        var styleProbe = await fruitSelect.EvaluateAsync<NativeSelectStyleProbe>(
+            @"element => {
+                const wrapper = element.closest('[data-slot=""native-select-wrapper""]');
+                const icon = wrapper.querySelector('[data-slot=""native-select-icon""]');
+                const style = getComputedStyle(element);
+                const wrapperStyle = getComputedStyle(wrapper);
+                const iconStyle = getComputedStyle(icon);
+                return {
+                    height: style.height,
+                    borderRadius: style.borderRadius,
+                    boxShadow: style.boxShadow,
+                    wrapperDisplay: wrapperStyle.display,
+                    iconOpacity: iconStyle.opacity
+                };
+            }");
+
+        styleProbe.height.Should().Be("36px");
+        styleProbe.wrapperDisplay.Should().Be("block");
+        styleProbe.iconOpacity.Should().Be("0.5");
+        styleProbe.boxShadow.Should().NotBe("none");
+
+        consoleErrors.Should().BeEmpty();
+        pageErrors.Should().BeEmpty();
     }
 
-[Test]
+    [Test]
     public async ValueTask Native_select_disabled_demo_keeps_disabled_control_inert_while_small_variant_changes()
     {
         await using var session = await CreateSession();
         var page = session.Page;
+        var consoleErrors = new List<string>();
+        var pageErrors = new List<string>();
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error")
+                consoleErrors.Add(message.Text);
+        };
+        page.PageError += (_, exception) => pageErrors.Add(exception);
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}native-selects",
@@ -66,5 +107,35 @@ public sealed class QuarkNativeSelectPlaywrightTests : PlaywrightUnitTest
 
         await Assertions.Expect(smallSelect).ToHaveValueAsync("one");
         await Assertions.Expect(disabledSelect).ToHaveValueAsync(string.Empty);
+
+        var smallProbe = await smallSelect.EvaluateAsync<NativeSelectStyleProbe>(
+            @"element => {
+                const style = getComputedStyle(element);
+                return {
+                    height: style.height,
+                    borderRadius: style.borderRadius,
+                    boxShadow: style.boxShadow,
+                    wrapperDisplay: '',
+                    iconOpacity: ''
+                };
+            }");
+
+        smallProbe.height.Should().Be("32px");
+
+        var invalidSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use a destructive border and supporting copy" }).First;
+        var invalidSelect = invalidSection.Locator("select").First;
+        await Assertions.Expect(invalidSelect).ToHaveAttributeAsync("aria-invalid", "true");
+
+        consoleErrors.Should().BeEmpty();
+        pageErrors.Should().BeEmpty();
+    }
+
+    private sealed class NativeSelectStyleProbe
+    {
+        public string? height { get; set; }
+        public string? borderRadius { get; set; }
+        public string? boxShadow { get; set; }
+        public string? wrapperDisplay { get; set; }
+        public string? iconOpacity { get; set; }
     }
 }

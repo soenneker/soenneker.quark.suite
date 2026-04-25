@@ -2,9 +2,9 @@
 @inherits Soenneker.Quark.Element
 @implements ISortableHandle
 
-<div @attributes="BuildAttributes()">
+<button type="button" @onclick="HandleClick" @attributes="BuildAttributes()">
     @ChildContent
-</div>
+</button>
 
 @code {
     protected override void ApplyDefaultParameters()
@@ -23,6 +23,7 @@
 
         attributes["data-slot"] = "sortable-handle";
         attributes["data-sortable-handle"] = string.Empty;
+        attributes.TryAdd("aria-keyshortcuts", "Space Enter ArrowUp ArrowDown Home End");
 
         if (!attributes.ContainsKey("aria-label") && AriaLabel is null)
         {
