@@ -88,8 +88,7 @@
 
         OverflowX ??= Quark.Overflow.X.Hidden;
         OverflowY ??= Quark.Overflow.Y.Auto;
-        Rounded ??= Quark.Rounded.Md;
-        Border ??= Quark.Border.Default;
+        Rounded ??= Quark.Rounded.Lg;
         BackgroundColor ??= Quark.BackgroundColor.Popover;
         Padding ??= Quark.Padding.Is1;
         TextColor ??= Quark.TextColor.PopoverForeground;
@@ -101,18 +100,9 @@
         attributes["data-slot"] = "dropdown-menu-content";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-[8rem] origin-(--radix-dropdown-menu-content-transform-origin) shadow-md");
-            AppendClass(ref cls, "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
-
-            var directionClass = ResolvedDirection?.Value switch
-            {
-                Direction.UpValue => "data-[side=top]:slide-in-from-bottom-2",
-                Direction.EndValue => "data-[side=right]:slide-in-from-left-2",
-                Direction.StartValue => "data-[side=left]:slide-in-from-right-2",
-                _ => "data-[side=bottom]:slide-in-from-top-2",
-            };
-            if (directionClass != null)
-                AppendClass(ref cls, directionClass);
+            AppendClass(ref cls, "z-50 max-h-(--radix-dropdown-menu-content-available-height) w-(--radix-dropdown-menu-trigger-width) min-w-32 origin-(--radix-dropdown-menu-content-transform-origin) shadow-md ring-1 ring-foreground/10 duration-100 outline-none");
+            AppendClass(ref cls, "data-[state=closed]:animate-out data-[state=closed]:overflow-hidden data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
+            AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
         });
     }
 

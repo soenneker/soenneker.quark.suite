@@ -22,7 +22,7 @@
     public bool Multiple { get; set; }
 
     [Parameter]
-    public BradixSelectionMode Type { get; set; }
+    public BradixSelectionMode Type { get; set; } = BradixSelectionMode.Single;
 
     [Parameter]
     public bool Collapsible { get; set; }
@@ -53,7 +53,7 @@
     [Parameter]
     public EventCallback<IReadOnlyCollection<string>> ValuesChanged { get; set; }
 
-    private BradixSelectionMode ResolvedType => Type ?? (Multiple ? BradixSelectionMode.Multiple : BradixSelectionMode.Single);
+    private BradixSelectionMode ResolvedType => Multiple ? BradixSelectionMode.Multiple : Type;
 
     protected override void ApplyDefaultParameters()
     {

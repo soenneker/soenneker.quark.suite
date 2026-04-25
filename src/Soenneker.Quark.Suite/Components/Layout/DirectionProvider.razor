@@ -1,10 +1,14 @@
+@using Soenneker.Bradix
+
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Name="DirectionProviderDir" Value="@DirValue">
-    <div @attributes="BuildAttributes()">
-        @ChildContent
-    </div>
+    <BradixDirectionProvider Dir="@DirValue">
+        <div @attributes="BuildAttributes()">
+            @ChildContent
+        </div>
+    </BradixDirectionProvider>
 </CascadingValue>
 
 @code {
@@ -28,6 +32,11 @@
 
         attributes["data-slot"] = "direction-provider";
         attributes["dir"] = DirValue;
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "contents");
+        });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

@@ -167,6 +167,8 @@ else
     {
         base.BuildAttributesCore(attributes);
 
+        attributes.Remove("onclick");
+
         var isLink = RenderAsLink;
         var isDisabled = Disabled || Loading || TriggerContext?.ParentDisabled == true || attributes.ContainsKey("disabled");
 
@@ -325,7 +327,36 @@ else
         else if (Attributes is not null && Attributes.TryGetValue("data-toggle", out var dataToggleObj) && string.Equals(dataToggleObj?.ToString(), "collapse", StringComparison.OrdinalIgnoreCase) && Attributes.TryGetValue("data-target", out var dataTargetObj))
             await CollapseCoordinator.ToggleTargets(dataTargetObj?.ToString());
 
+        await InvokeCapturedClick(args);
         await base.HandleClick(args);
+    }
+
+    private async Task InvokeCapturedClick(MouseEventArgs args)
+    {
+        if (Attributes is null || !Attributes.TryGetValue("onclick", out var callback) || callback is null)
+            return;
+
+        switch (callback)
+        {
+            case EventCallback<MouseEventArgs> eventCallback when eventCallback.HasDelegate:
+                await eventCallback.InvokeAsync(args);
+                break;
+            case EventCallback eventCallback when eventCallback.HasDelegate:
+                await eventCallback.InvokeAsync(args);
+                break;
+            case Func<MouseEventArgs, Task> func:
+                await func(args);
+                break;
+            case Func<Task> func:
+                await func();
+                break;
+            case Action<MouseEventArgs> action:
+                action(args);
+                break;
+            case Action action:
+                action();
+                break;
+        }
     }
 
     private Task HandleTriggerMouseEnter(MouseEventArgs args)

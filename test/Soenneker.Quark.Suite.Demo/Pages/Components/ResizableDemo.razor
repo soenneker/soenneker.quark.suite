@@ -6,23 +6,35 @@
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Demo"
-                         Description="A basic horizontal resizable layout."
+                         Description="Accessible resizable panel groups and layouts with keyboard support."
                          Code="@BasicCode"
                          CodeLanguage="razor">
                 <Div Id="resizable-basic-demo" MaxWidth="MaxWidth.Is3xl">
-                    <ResizablePanelGroup Orientation="horizontal" Class="min-h-[220px] rounded-xl border">
-                        <ResizablePanel DefaultSize="1">
-                            <Div Display="Display.Flex" Height="Height.IsFull" ItemsAlign="Items.Center" Justify="Justify.Center" BackgroundColor="BackgroundColor.Card" Padding="Padding.Is6">
+                    <ResizablePanelGroup Orientation="horizontal" Class="max-w-md rounded-lg border md:min-w-[450px]">
+                        <ResizablePanel DefaultSize="50">
+                            <Div Display="Display.Flex" Class="h-[200px]" ItemsAlign="Items.Center" Justify="Justify.Center" Padding="Padding.Is6">
                                 <Span FontWeight="FontWeight.Semibold">One</Span>
                             </Div>
                         </ResizablePanel>
 
                         <ResizableHandle />
 
-                        <ResizablePanel DefaultSize="1">
-                            <Div Display="Display.Flex" Height="Height.IsFull" ItemsAlign="Items.Center" Justify="Justify.Center" BackgroundColor='BackgroundColor.Token("muted/30")' Padding="Padding.Is6">
-                                <Span FontWeight="FontWeight.Semibold">Two</Span>
-                            </Div>
+                        <ResizablePanel DefaultSize="50">
+                            <ResizablePanelGroup Orientation="vertical">
+                                <ResizablePanel DefaultSize="25">
+                                    <Div Display="Display.Flex" Height="Height.IsFull" ItemsAlign="Items.Center" Justify="Justify.Center" Padding="Padding.Is6">
+                                        <Span FontWeight="FontWeight.Semibold">Two</Span>
+                                    </Div>
+                                </ResizablePanel>
+
+                                <ResizableHandle />
+
+                                <ResizablePanel DefaultSize="75">
+                                    <Div Display="Display.Flex" Height="Height.IsFull" ItemsAlign="Items.Center" Justify="Justify.Center" Padding="Padding.Is6">
+                                        <Span FontWeight="FontWeight.Semibold">Three</Span>
+                                    </Div>
+                                </ResizablePanel>
+                            </ResizablePanelGroup>
                         </ResizablePanel>
                     </ResizablePanelGroup>
                 </Div>
@@ -119,10 +131,28 @@
 
 @code {
     private const string BasicCode =
-@"<ResizablePanelGroup Orientation=""horizontal"">
-    <ResizablePanel>One</ResizablePanel>
+@"<ResizablePanelGroup Orientation=""horizontal"" Class=""max-w-md rounded-lg border md:min-w-[450px]"">
+    <ResizablePanel DefaultSize=""50"">
+        <Div Class=""flex h-[200px] items-center justify-center p-6"">
+            <Span Class=""font-semibold"">One</Span>
+        </Div>
+    </ResizablePanel>
     <ResizableHandle />
-    <ResizablePanel>Two</ResizablePanel>
+    <ResizablePanel DefaultSize=""50"">
+        <ResizablePanelGroup Orientation=""vertical"">
+            <ResizablePanel DefaultSize=""25"">
+                <Div Class=""flex h-full items-center justify-center p-6"">
+                    <Span Class=""font-semibold"">Two</Span>
+                </Div>
+            </ResizablePanel>
+            <ResizableHandle />
+            <ResizablePanel DefaultSize=""75"">
+                <Div Class=""flex h-full items-center justify-center p-6"">
+                    <Span Class=""font-semibold"">Three</Span>
+                </Div>
+            </ResizablePanel>
+        </ResizablePanelGroup>
+    </ResizablePanel>
 </ResizablePanelGroup>";
 
     private const string VerticalCode =

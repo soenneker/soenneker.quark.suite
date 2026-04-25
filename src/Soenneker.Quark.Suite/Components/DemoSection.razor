@@ -29,23 +29,6 @@
 
         @if (Code != null)
         {
-            @if (ShouldShowCollapsedCodeOverlay)
-            {
-                <div class="flex justify-center border-t border-border bg-muted/10 px-4 py-4 md:hidden">
-                    <button data-slot="button"
-                            type="button"
-                            class="inline-flex h-8 items-center justify-center rounded-lg border border-input bg-background px-3 text-sm font-medium text-foreground shadow-none transition-all hover:bg-muted"
-                            @onclick="ShowCode"
-                            @onkeydown="@(e =>
-                                        {
-                                            if (e.Key == "Enter" || e.Key == " ")
-                                                ShowCode();
-                                        })">
-                        View Code
-                    </button>
-                </div>
-            }
-
             <div data-slot="code"
                  data-mobile-code-visible="@_showCodeCss"
                  class="@GetCodeSectionClass()">
@@ -78,7 +61,7 @@
 
                     @if (ShouldShowCollapsedCodeOverlay)
                     {
-                        <div class="pointer-events-none absolute inset-0 hidden items-center justify-center pb-4 md:flex">
+                        <div class="pointer-events-none absolute inset-0 flex items-center justify-center pb-4">
                             <div class="absolute inset-0 bg-gradient-to-t from-background via-background/90 via-35% to-background/10 backdrop-blur-[1px]"></div>
                             <button data-slot="button"
                                     type="button"
@@ -150,10 +133,10 @@
     private int CodeEditorMinLines => ShouldShowCollapsedCodeOverlay ? 3 : 1;
     private int? CodeEditorMaxLines => ShouldShowCollapsedCodeOverlay ? 3 : null;
     private string ResolvedPreviewClass => string.IsNullOrWhiteSpace(PreviewClass)
-        ? "preview relative flex h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0"
+        ? "preview relative flex min-h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0"
         : PreviewClass;
     private string ResolvedPreviewInnerClass => string.IsNullOrWhiteSpace(PreviewInnerClass)
-        ? "mx-auto flex max-w-full flex-col items-center justify-center [&>*]:max-w-full [&_img]:mx-auto [&_img]:block [&_img]:max-h-72 [&_img]:max-w-full [&_img]:object-contain"
+        ? "mx-auto flex w-full max-w-full flex-col items-center justify-center [&_img]:mx-auto [&_img]:block [&_img]:max-h-72 [&_img]:max-w-full [&_img]:object-contain"
         : PreviewInnerClass;
 
     private string GetCodeSectionClass()
@@ -161,7 +144,7 @@
         const string baseClass = "relative overflow-hidden border-t border-border **:data-[slot=copy-button]:right-4 **:data-[slot=copy-button]:hidden data-[mobile-code-visible=true]:**:data-[slot=copy-button]:flex [&_pre]:max-h-72";
 
         if (ShouldShowCollapsedCodeOverlay)
-            return $"{baseClass} pointer-events-none hidden md:block";
+            return $"{baseClass} pointer-events-none block";
 
         return baseClass;
     }

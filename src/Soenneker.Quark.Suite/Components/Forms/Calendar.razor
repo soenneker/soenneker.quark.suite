@@ -31,7 +31,7 @@
                     @if (CaptionLayout == "dropdown")
                     {
                         <div class="flex h-(--cell-size) w-full items-center justify-center gap-1.5 text-sm font-medium rdp-dropdowns">
-                            <div class="cn-calendar-dropdown-root relative rounded-(--cell-radius) border border-input shadow-xs has-focus:border-ring has-focus:ring-[3px] has-focus:ring-ring/50 rdp-dropdown_root">
+                            <div class="cn-calendar-dropdown-root relative rounded-(--cell-radius) rdp-dropdown_root">
                                 <select class="absolute inset-0 bg-popover opacity-0 rdp-dropdown rdp-months_dropdown"
                                         aria-label="Choose the Month"
                                         value="@month.Month"
@@ -47,7 +47,7 @@
                                     <Icon Name="LucideIcon.ChevronDown" Class="size-4 rdp-chevron" />
                                 </div>
                             </div>
-                            <div class="cn-calendar-dropdown-root relative rounded-(--cell-radius) border border-input shadow-xs has-focus:border-ring has-focus:ring-[3px] has-focus:ring-ring/50 rdp-dropdown_root">
+                            <div class="cn-calendar-dropdown-root relative rounded-(--cell-radius) rdp-dropdown_root">
                                 <select class="absolute inset-0 bg-popover opacity-0 rdp-dropdown rdp-years_dropdown"
                                         aria-label="Choose the Year"
                                         value="@month.Year"
@@ -219,7 +219,7 @@
     public bool ShowWeekNumber { get; set; }
 
     [Parameter]
-    public bool FixedWeeks { get; set; } = true;
+    public bool FixedWeeks { get; set; }
 
     [Parameter]
     public string CaptionLayout { get; set; } = "label";
@@ -286,7 +286,11 @@
         var culture = ResolveCulture();
         var first = culture.DateTimeFormat.FirstDayOfWeek;
         var names = culture.DateTimeFormat.AbbreviatedDayNames;
-        _dayNames = Enumerable.Range(0, 7).Select(i => names[((int)first + i) % 7]).ToArray();
+        _dayNames = Enumerable.Range(0, 7).Select(i =>
+        {
+            var name = names[((int)first + i) % 7];
+            return name.Length > 2 ? name[..2] : name;
+        }).ToArray();
     }
 
     private record Cell(DateOnly Date, bool InMonth, bool Disabled);
@@ -435,8 +439,9 @@
 
     private IEnumerable<int> GetSelectableYears()
     {
-        var minYear = Min?.Year ?? (_displayMonth.Year - 10);
-        var maxYear = Max?.Year ?? (_displayMonth.Year + 10);
+        var currentYear = DateTime.Today.Year;
+        var minYear = Min?.Year ?? (currentYear - 100);
+        var maxYear = Max?.Year ?? currentYear;
 
         return Enumerable.Range(minYear, maxYear - minYear + 1);
     }
@@ -524,9 +529,9 @@
         css += " [&:last-child[data-selected=true]_button]:rounded-r-(--cell-radius)";
 
         if (dayContext.IsRangeStart)
-            css += " rounded-l-(--cell-radius) bg-accent data-[selected=true]:rounded-none";
+            css += " rounded-l-(--cell-radius) bg-muted data-[selected=true]:rounded-none";
         if (dayContext.IsRangeEnd)
-            css += " rounded-r-(--cell-radius) bg-accent data-[selected=true]:rounded-none";
+            css += " rounded-r-(--cell-radius) bg-muted data-[selected=true]:rounded-none";
 
         if (!ShowOutsideDays && !day.InMonth)
             css += " invisible";
@@ -535,7 +540,7 @@
             css += " text-muted-foreground aria-selected:text-muted-foreground rdp-outside";
 
         if (dayContext.IsToday)
-            css += " rounded-(--cell-radius) bg-accent text-accent-foreground data-[selected=true]:rounded-none rdp-today";
+            css += " rounded-(--cell-radius) bg-muted text-foreground data-[selected=true]:rounded-none rdp-today";
 
         css = AppendModifierClasses(css, dayContext.Modifiers);
 
@@ -549,15 +554,15 @@
         css += " disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20";
         css += " dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4";
         css += " hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50";
-        css += " relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 border-0 leading-none font-normal";
+        css += " relative isolate z-10 flex aspect-square size-auto w-full min-w-7 flex-col gap-1 border-0 leading-none font-normal";
         css += " group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring";
         css += " group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50";
         css += " data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-r-(--cell-radius)";
         css += " data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground";
-        css += " data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-accent data-[range-middle=true]:text-accent-foreground";
+        css += " data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground";
         css += " data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-l-(--cell-radius)";
         css += " data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground";
-        css += " data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground dark:hover:text-accent-foreground";
+        css += " data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground dark:hover:text-foreground";
         css += " [&>span]:text-xs [&>span]:opacity-70 rdp-day rdp-day_button";
 
         if (day.Disabled)
@@ -595,7 +600,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "w-fit rdp-root group/calendar bg-background p-2 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(7)]");
+            AppendClass(ref cls, "w-fit rdp-root group/calendar bg-background p-3 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(7)]");
             AppendClass(ref cls, "in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent");
             AppendClass(ref cls, "rtl:**:[.rdp-button_next>svg]:rotate-180 rtl:**:[.rdp-button_previous>svg]:rotate-180");
         });

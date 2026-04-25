@@ -27,8 +27,8 @@ else
         => (variant?.Value ?? ItemVariant.DefaultValue) switch
         {
             ItemVariant.OutlineValue => "border-border",
-            ItemVariant.MutedValue => "bg-muted/50",
-            _ => "border-border"
+            ItemVariant.MutedValue => "border-transparent bg-muted/50",
+            _ => "border-transparent"
         };
 
     private static string GetSizeClass(ItemSize? size)
@@ -51,7 +51,7 @@ else
         TextSize ??= Quark.TextSize.Sm;
         Transition ??= Quark.Transition.Colors;
 
-        BorderColor ??= Quark.BorderColor.Border;
+        BorderColor ??= Quark.BorderColor.Transparent;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -69,7 +69,7 @@ else
         // shadcn/ui item base - exact copy from new-york-v4 ui/item.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/item duration-100 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors [a]:hover:bg-muted");
+            AppendClass(ref cls, "group/item w-full duration-100 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors [a]:hover:bg-muted");
             AppendClass(ref cls, GetVariantClass(Variant));
             AppendClass(ref cls, GetSizeClass(Size));
         });

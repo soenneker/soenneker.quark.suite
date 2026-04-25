@@ -6,12 +6,12 @@
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Demo"
-                         Description="Compose a date picker from `Popover` and `Calendar` when you want a trigger-and-panel pattern."
+                         Description="A date picker component with range and presets."
                          Code="@(@"<Popover>
     <PopoverTrigger AsChild=""true"">
-        <Button Variant=""ButtonVariant.Outline"" Class=""w-[240px] justify-start text-left font-normal"">
-            <Icon Name=""LucideIcon.Calendar"" />
+        <Button Variant=""ButtonVariant.Outline"" Class=""w-[240px] justify-between text-left font-normal"">
             @FormatDate(_dateOnly)
+            <Icon Name=""LucideIcon.ChevronDown"" Class=""ml-auto size-4 opacity-50"" />
         </Button>
     </PopoverTrigger>
     <PopoverContent Class=""w-auto p-0"" PlacementAlign=""start"">
@@ -22,9 +22,9 @@ CodeLanguage="razor">
                 <Div Display="Display.Flex" Width="Width.IsFull" Justify="Justify.Center">
                     <Popover>
                         <PopoverTrigger AsChild="true">
-                            <Button Variant="ButtonVariant.Outline" Class="@($"w-[240px] justify-start text-left font-normal{(_dateOnly is null ? " text-muted-foreground" : "")}")">
-                                <Icon Name="LucideIcon.Calendar" />
+                            <Button Variant="ButtonVariant.Outline" Class="@($"w-[240px] justify-between text-left font-normal{(_dateOnly is null ? " text-muted-foreground" : "")}")">
                                 @FormatDate(_dateOnly)
+                                <Icon Name="LucideIcon.ChevronDown" Class="ml-auto size-4 opacity-50" />
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent Width="Width.Auto" Padding="Padding.Is0" PlacementAlign="start">
@@ -41,8 +41,8 @@ CodeLanguage="razor">
                          Code="@(@"<Popover>
     <PopoverTrigger AsChild=""true"">
         <Button Variant=""ButtonVariant.Outline"" Class=""w-[300px] justify-start text-left font-normal"" Id=""date"">
-            <Icon Name=""LucideIcon.Calendar"" />
             @FormatRange(_rangeDate)
+            <Icon Name=""LucideIcon.ChevronDown"" Class=""ml-auto size-4 opacity-50"" />
         </Button>
     </PopoverTrigger>
     <PopoverContent Class=""w-auto p-0"" PlacementAlign=""start"">
@@ -53,9 +53,9 @@ CodeLanguage="razor">
                 <Div Display="Display.Grid" Gap="Gap.Is2" Justify="Justify.Center">
                     <Popover>
                         <PopoverTrigger AsChild="true">
-                            <Button Id="date" Variant="ButtonVariant.Outline" Class="@($"w-[300px] justify-start text-left font-normal{(_rangeDate?.From is null ? " text-muted-foreground" : "")}")">
-                                <Icon Name="LucideIcon.Calendar" />
+                            <Button Id="date" Variant="ButtonVariant.Outline" Class="@($"w-[300px] justify-between text-left font-normal{(_rangeDate?.From is null ? " text-muted-foreground" : "")}")">
                                 @FormatRange(_rangeDate)
+                                <Icon Name="LucideIcon.ChevronDown" Class="ml-auto size-4 opacity-50" />
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent Width="Width.Auto" Padding="Padding.Is0" PlacementAlign="start">
@@ -240,7 +240,7 @@ CodeLanguage="razor">
     private DateOnly? _componentDate = new(2024, 4, 18);
     private bool _dropdownPickerOpen;
     private bool _birthdayCalendarOpen;
-    private CalendarDateRange? _rangeDate = new(new DateOnly(2022, 1, 20), new DateOnly(2022, 2, 9));
+    private CalendarDateRange? _rangeDate = new(new DateOnly(2026, 1, 20), new DateOnly(2026, 2, 9));
 
     private DateTime? _dateTime = DateTime.Now;
     private readonly DateTime _minDateTime = DateTime.Today.AddHours(9);

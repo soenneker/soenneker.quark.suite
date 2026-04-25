@@ -12,7 +12,7 @@
         {
             <Icon Name="LucideIcon.ChevronDown"
                   data-slot="accordion-trigger-icon"
-                  Class="pointer-events-none size-4 shrink-0 translate-y-0.5 text-muted-foreground transition-transform duration-200" />
+                  Class="pointer-events-none ml-auto size-4 shrink-0 text-muted-foreground transition-transform duration-200" />
         }
     </BradixAccordionTrigger>
 </BradixAccordionHeader>
@@ -36,7 +36,8 @@
         {
             Dictionary<string, object> attributes = new()
             {
-                ["data-slot"] = "accordion-header"
+                ["data-slot"] = "accordion-header",
+                ["class"] = "flex"
             };
 
             if (Disabled)
@@ -65,9 +66,9 @@
 
             BuildClassAttribute(attributes, (ref cls) =>
             {
-                AppendClass(ref cls, "flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline");
+                AppendClass(ref cls, "group/accordion-trigger relative flex flex-1 items-start justify-between rounded-lg border border-transparent py-2.5 text-left text-sm font-medium transition-all outline-none hover:underline");
                 AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50");
-                AppendClass(ref cls, "[&[data-state=open]>svg]:rotate-180");
+                AppendClass(ref cls, "[&[data-state=open]>[data-slot=accordion-trigger-icon]]:rotate-180");
             });
 
             return attributes;

@@ -5,84 +5,145 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Demo"
-                         Description="DirectionProvider lets you preview left-to-right and right-to-left flows side by side."
-                         Code="@DirectionCode"
-                         CodeLanguage="razor">
-                <Div Display="Display.Grid" Gap='Gap.Token("6")' Class="md:grid-cols-2">
-                    <DirectionProvider Dir="ltr">
-                        <Div Class="space-y-4 rounded-xl border bg-card p-5 text-left">
-                            <Div Class="flex items-center justify-between">
-                                <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Semibold">Left to right</Paragraph>
-                                <Span Rounded="Rounded.Full" Border="Border.Is1" BorderColor="BorderColor.Border" Padding='Padding.Is2.OnX.Is1.OnY' TextSize="TextSize.Xs" TextColor="TextColor.MutedForeground">LTR</Span>
-                            </Div>
+            <Paragraph>
+                The <Code>DirectionProvider</Code> component is used to set the text direction (<Code>ltr</Code> or <Code>rtl</Code>) for your application. This is essential for supporting right-to-left languages like Arabic, Hebrew, and Persian.
+            </Paragraph>
+            <Paragraph>
+                Here's a preview of the component in RTL mode. Use the language selector to switch the language. To see more examples, look for the RTL section on components pages.
+            </Paragraph>
 
-                            <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                                Ship changes, review feedback, and coordinate release work in the default left-to-right flow.
-                            </Paragraph>
+            <DemoSection PreviewClass="preview relative flex h-auto w-full flex-col p-0"
+                         PreviewInnerClass="w-full">
+                <Div Class="flex h-16 items-center border-b px-4">
+                    <Select TValue="string" Size="SelectSizes.Sm" SelectedValue="@_language" SelectedValueChanged="HandleLanguageChanged">
+                        <SelectTrigger Class="w-36" dir="ltr" data-name="language-selector">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent Class="data-[state=open]:animate-none data-[state=closed]:animate-none" dir="ltr">
+                            <SelectGroup>
+                                <SelectItem TValue="string" ItemValue="@("ar")" Text="Arabic (العربية)" />
+                                <SelectItem TValue="string" ItemValue="@("en")" Text="English" />
+                                <SelectItem TValue="string" ItemValue="@("he")" Text="Hebrew (עברית)" />
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                </Div>
 
-                            <Div Display="Display.Flex" Flex=@("flex-wrap") Gap="Gap.Is2">
-                                <Button Variant="ButtonVariant.Default">Deploy</Button>
-                                <Button Variant="ButtonVariant.Outline">Preview</Button>
-                            </Div>
-                        </Div>
-                    </DirectionProvider>
-
-                    <DirectionProvider Dir="rtl">
-                        <Div Class="space-y-4 rounded-xl border bg-card p-5 text-right">
-                            <Div Class="flex items-center justify-between">
-                                <Span Rounded="Rounded.Full" Border="Border.Is1" BorderColor="BorderColor.Border" Padding='Padding.Is2.OnX.Is1.OnY' TextSize="TextSize.Xs" TextColor="TextColor.MutedForeground">RTL</Span>
-                                <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Semibold">من اليمين إلى اليسار</Paragraph>
-                            </Div>
-
-                            <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                                استخدم موفر الاتجاه لمعاينة الواجهات العربية أو العبرية مع نفس مكونات كوارك.
-                            </Paragraph>
-
-                            <Div Class="flex flex-wrap justify-end gap-2">
-                                <Button Variant="ButtonVariant.Default">نشر</Button>
-                                <Button Variant="ButtonVariant.Outline">معاينة</Button>
-                            </Div>
-                        </Div>
+                <Div Class="flex justify-center p-10">
+                    <DirectionProvider Dir="@CurrentDirection">
+                        <Card Class="w-full max-w-sm" dir="@CurrentDirection">
+                            <CardHeader>
+                                <CardTitle>@CurrentText.Title</CardTitle>
+                                <CardDescription>@CurrentText.Description</CardDescription>
+                                <CardAction>
+                                    <Button Variant="ButtonVariant.Link">@CurrentText.SignUp</Button>
+                                </CardAction>
+                            </CardHeader>
+                            <CardContent>
+                                <form>
+                                    <Div Class="flex flex-col gap-6">
+                                        <Div Class="grid gap-2">
+                                            <Label For="email-rtl">@CurrentText.Email</Label>
+                                            <Input Id="email-rtl" Type="email" placeholder="@CurrentText.EmailPlaceholder" required />
+                                        </Div>
+                                        <Div Class="grid gap-2">
+                                            <Div Class="flex items-center">
+                                                <Label For="password-rtl">@CurrentText.Password</Label>
+                                                <a href="#" class="ms-auto inline-block text-sm underline-offset-4 hover:underline">@CurrentText.ForgotPassword</a>
+                                            </Div>
+                                            <Input Id="password-rtl" Type="password" required />
+                                        </Div>
+                                    </Div>
+                                </form>
+                            </CardContent>
+                            <CardFooter Class="flex-col gap-2">
+                                <Button Type="ButtonType.Submit" Class="w-full">@CurrentText.Login</Button>
+                                <Button Variant="ButtonVariant.Outline" Class="w-full">@CurrentText.LoginWithGoogle</Button>
+                            </CardFooter>
+                        </Card>
                     </DirectionProvider>
                 </Div>
             </DemoSection>
         </Section>
 
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Content blocks"
-                         Description="Direction can also scope smaller regions instead of the whole app."
-                         Code="@DirectionBlocksCode"
-                         CodeLanguage="razor">
-                <Div Display="Display.Grid" Gap="Gap.Is4">
-                    <DirectionProvider Dir="ltr">
-                        <Div Class="rounded-xl border border-dashed border-border bg-background p-4">
-                            <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Medium">Billing summary</Paragraph>
-                            <Paragraph class="mt-1 text-sm text-muted-foreground">Direction can be applied to just the components that need it.</Paragraph>
-                        </Div>
-                    </DirectionProvider>
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Installation</H2>
+            <PreCode Text="npx shadcn@latest add direction" />
+        </Section>
 
-                    <DirectionProvider Dir="rtl">
-                        <Div Class="rounded-xl border border-dashed border-border bg-background p-4 text-right">
-                            <Paragraph TextSize="TextSize.Sm" FontWeight="FontWeight.Medium">ملخص الفوترة</Paragraph>
-                            <Paragraph class="mt-1 text-sm text-muted-foreground">يمكنك تطبيق الاتجاه على قسم واحد فقط دون تغيير بقية الصفحة.</Paragraph>
-                        </Div>
-                    </DirectionProvider>
-                </Div>
-            </DemoSection>
+        <Section Space="Space.Y.Is4">
+            <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Usage</H2>
+            <PreCode Text="@UsageCode" />
         </Section>
     </Div>
 </Div>
 
 @code {
-    private const string DirectionCode =
-@"<DirectionProvider Dir=""rtl"">
-    <Div Class=""rounded-xl border bg-card p-5 text-right"">
-        <Paragraph>RTL content preview</Paragraph>
-    </Div>
-</DirectionProvider>";
+    private string _language = "ar";
 
-    private const string DirectionBlocksCode =
-@"<DirectionProvider Dir=""ltr""><Div>...</Div></DirectionProvider>
-<DirectionProvider Dir=""rtl""><Div Class=""text-right"">...</Div></DirectionProvider>";
+    private DirectionText CurrentText => _language switch
+    {
+        "en" => new DirectionText(
+            "ltr",
+            "Login to your account",
+            "Enter your email below to login to your account",
+            "Sign Up",
+            "Email",
+            "m@example.com",
+            "Password",
+            "Forgot your password?",
+            "Login",
+            "Login with Google"),
+        "he" => new DirectionText(
+            "rtl",
+            "התחבר לחשבון שלך",
+            "הזן את האימייל שלך למטה כדי להתחבר לחשבון שלך",
+            "הירשם",
+            "אימייל",
+            "m@example.com",
+            "סיסמה",
+            "שכחת את הסיסמה?",
+            "התחבר",
+            "התחבר עם Google"),
+        _ => new DirectionText(
+            "rtl",
+            "تسجيل الدخول إلى حسابك",
+            "أدخل بريدك الإلكتروني أدناه لتسجيل الدخول إلى حسابك",
+            "إنشاء حساب",
+            "البريد الإلكتروني",
+            "m@example.com",
+            "كلمة المرور",
+            "نسيت كلمة المرور؟",
+            "تسجيل الدخول",
+            "تسجيل الدخول باستخدام Google")
+    };
+
+    private string CurrentDirection => CurrentText.Direction;
+
+    private Task HandleLanguageChanged(string? value)
+    {
+        _language = string.IsNullOrWhiteSpace(value) ? "ar" : value;
+        return Task.CompletedTask;
+    }
+
+    private const string UsageCode =
+@"<html dir=""rtl"">
+  <body>
+    <DirectionProvider Dir=""rtl"">
+      @* Your app content *@
+    </DirectionProvider>
+  </body>
+</html>";
+
+    private sealed record DirectionText(
+        string Direction,
+        string Title,
+        string Description,
+        string SignUp,
+        string Email,
+        string EmailPlaceholder,
+        string Password,
+        string ForgotPassword,
+        string Login,
+        string LoginWithGoogle);
 }

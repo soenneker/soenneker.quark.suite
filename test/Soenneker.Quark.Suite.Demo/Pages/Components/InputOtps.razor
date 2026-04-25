@@ -5,57 +5,21 @@
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
-            <DemoSection Title="Form"
-                         Description="Verification card matching the shadcn form example with a labeled OTP field and supporting actions."
-                         Code="@FormCode"
-                         PreviewClass="preview relative flex w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:h-auto data-[chromeless=true]:p-0 h-[30rem]"
+            <DemoSection Title="Demo"
+                         Description="Accessible one-time password component with copy-paste functionality."
+                         Code="@DemoCode"
                          CodeLanguage="razor">
-                <Card Class="mx-auto max-w-md">
-                    <CardHeader>
-                        <CardTitle>Verify your login</CardTitle>
-                        <CardDescription>
-                            Enter the verification code we sent to your email address:
-                            <Span FontWeight="FontWeight.Medium">m@example.com</Span>.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardBody>
-                        <Field>
-                            <Div Class="flex items-center justify-between">
-                                <FieldLabel For="otp-verification">Verification code</FieldLabel>
-                                <Button Variant="ButtonVariant.Outline" Size="ButtonSize.Sm">
-                                    <Icon Name="LucideIcon.RefreshCw" class="mr-2 size-4" />
-                                    Resend Code
-                                </Button>
-                            </Div>
-
-                            <InputOtp Id="otp-verification" OtpValue="@_formOtpValue" OtpValueChanged="OnFormOtpChanged" Length="6" Pattern="@DigitsOnlyPattern" InputMode="numeric" Required="true">
-                                <InputOtpInput />
-                                <InputOtpGroup Class="*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl">
-                                    <InputOtpSlot Index="0" />
-                                    <InputOtpSlot Index="1" />
-                                    <InputOtpSlot Index="2" />
-                                </InputOtpGroup>
-                                <InputOtpSeparator />
-                                <InputOtpGroup Class="*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl">
-                                    <InputOtpSlot Index="3" />
-                                    <InputOtpSlot Index="4" />
-                                    <InputOtpSlot Index="5" />
-                                </InputOtpGroup>
-                            </InputOtp>
-
-                            <FieldDescription>
-                                <Anchor To="#">I no longer have access to this email address.</Anchor>
-                            </FieldDescription>
-                        </Field>
-                    </CardBody>
-                    <CardFooter Class="flex-col gap-2">
-                        <Button Width="Width.IsFull">Verify</Button>
-                        <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                            Having trouble signing in?
-                            <Anchor To="#" Class="underline underline-offset-4 hover:text-primary">Contact support</Anchor>
-                        </Paragraph>
-                    </CardFooter>
-                </Card>
+                <InputOtp DefaultOtpValue="123456" Length="6">
+                    <InputOtpInput />
+                    <InputOtpGroup>
+                        <InputOtpSlot Index="0" />
+                        <InputOtpSlot Index="1" />
+                        <InputOtpSlot Index="2" />
+                        <InputOtpSlot Index="3" />
+                        <InputOtpSlot Index="4" />
+                        <InputOtpSlot Index="5" />
+                    </InputOtpGroup>
+                </InputOtp>
             </DemoSection>
         </Section>
 
@@ -369,6 +333,19 @@
         _controlledValue = "";
         return Task.CompletedTask;
     }
+
+    private const string DemoCode =
+@"<InputOtp DefaultOtpValue=""123456"" Length=""6"">
+    <InputOtpInput />
+    <InputOtpGroup>
+        <InputOtpSlot Index=""0"" />
+        <InputOtpSlot Index=""1"" />
+        <InputOtpSlot Index=""2"" />
+        <InputOtpSlot Index=""3"" />
+        <InputOtpSlot Index=""4"" />
+        <InputOtpSlot Index=""5"" />
+    </InputOtpGroup>
+</InputOtp>";
 
     private const string FormCode =
 @"<Card Class=""mx-auto max-w-md"">

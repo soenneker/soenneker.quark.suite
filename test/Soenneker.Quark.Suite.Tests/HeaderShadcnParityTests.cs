@@ -2,6 +2,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Components;
 using AwesomeAssertions;
 using Bunit;
+using System;
+using System.IO;
 using HeaderComponent = Soenneker.Quark.Header.Header;
 
 
@@ -46,6 +48,28 @@ public sealed partial class RenderedShadcnParityTests
 
         nav.GetAttribute("class")!.Should().Contain("gap-0");
         actions.GetAttribute("class")!.Should().Contain("md:justify-end");
+        triggerClasses.Should().Contain("gap-2.5");
         cut.Markup.Should().Contain(">Menu<");
+    }
+
+    [Test]
+    public void Main_layout_mobile_trigger_uses_shadcn_menu_label()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForHeader(), "test", "Soenneker.Quark.Suite.Demo", "MainLayout.razor"));
+
+        source.Should().NotContain("SidebarTriggerText=\"Navigation\"");
+        source.Should().Contain("<Header ShowSidebarTrigger=\"@ShowSidebarTrigger\">");
+    }
+
+    private static string GetSuiteRootForHeader()
+    {
+        var directory = AppContext.BaseDirectory;
+
+        for (var i = 0; i < 6; i++)
+        {
+            directory = Directory.GetParent(directory)!.FullName;
+        }
+
+        return directory;
     }
 }

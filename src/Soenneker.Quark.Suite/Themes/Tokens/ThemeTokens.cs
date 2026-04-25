@@ -84,7 +84,7 @@ public sealed class ThemeTokenScheme
             Radius = "0.625rem",
             Chart = new ThemeChartTokens
             {
-                First = "oklch(0.646 0.222 41.116)",
+                First = "oklch(0.809 0.105 251.813)",
                 Second = "oklch(0.6 0.118 184.704)",
                 Third = "oklch(0.398 0.07 227.392)",
                 Fourth = "oklch(0.828 0.189 84.429)",
@@ -130,7 +130,7 @@ public sealed class ThemeTokenScheme
             Radius = "0.625rem",
             Chart = new ThemeChartTokens
             {
-                First = "oklch(0.488 0.243 264.376)",
+                First = "oklch(0.809 0.105 251.813)",
                 Second = "oklch(0.696 0.17 162.48)",
                 Third = "oklch(0.769 0.188 70.08)",
                 Fourth = "oklch(0.627 0.265 303.9)",

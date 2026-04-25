@@ -6,12 +6,12 @@
     <Div Space="Space.Y.Is6">
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Demo"
-                         Description="Use a 16:9 frame for wide content."
+                         Description="Displays content within a desired ratio."
                          Code="@LandscapeCode"
                          CodeLanguage="razor">
-                <Div Id="aspect-ratio-landscape-demo" Width="Width.IsFull" MaxWidth="MaxWidth.Is3xl">
+                <Div Id="aspect-ratio-landscape-demo" Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
                     <Soenneker.Quark.Components.Layout.AspectRatio Ratio="16.0 / 9.0" Class="rounded-lg bg-muted">
-                        <Image Source="https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=1200&amp;q=80"
+                        <Image Source="https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=800&amp;dpr=2&amp;q=80"
                                Alt="Photo by Drew Beamer"
                                Width="Width.IsFull"
                                Height="Height.IsFull"
@@ -26,24 +26,25 @@
             <Div Space="Space.Y.Is2">
                 <H2 TextSize="TextSize.Xl" FontWeight="FontWeight.Semibold">Additional examples</H2>
                 <Paragraph TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
-                    Alternative square and portrait ratios beyond the shadcn-equivalent reference demo.
+                    Square, portrait, and RTL aspect-ratio examples from shadcn.
                 </Paragraph>
             </Div>
         </Section>
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Square"
-                         Description="Use a 1:1 ratio for avatars, cards, and gallery thumbnails."
+                         Description="A square aspect ratio component using the ratio={1 / 1} prop. This is useful for displaying images in a square format."
                          Code="@SquareCode"
                          CodeLanguage="razor">
-                <Div Width="Width.IsFull" MaxWidth="MaxWidth.IsXs">
+                <Div Width="Width.IsFull" MaxWidth='MaxWidth.Token("[12rem]")'>
                     <Div Id="aspect-ratio-square-demo" Width="Width.IsFull">
-                        <Soenneker.Quark.Components.Layout.AspectRatio Ratio="1" Class="overflow-hidden rounded-xl border bg-muted">
-                            <Image Source="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&amp;q=80"
-                                   Alt="Square sample"
+                        <Soenneker.Quark.Components.Layout.AspectRatio Ratio="1" Class="rounded-lg bg-muted">
+                            <Image Source="https://avatar.vercel.sh/shadcn1"
+                                   Alt="Photo"
                                    Width="Width.IsFull"
                                    Height="Height.IsFull"
-                                   Class="object-cover" />
+                                   Rounded="Rounded.Lg"
+                                   Class="object-cover grayscale dark:brightness-20" />
                         </Soenneker.Quark.Components.Layout.AspectRatio>
                     </Div>
                 </Div>
@@ -52,20 +53,44 @@
 
         <Section Space="Space.Y.Is4">
             <DemoSection Title="Portrait"
-                         Description="Portrait ratios work well for mobile previews and editorial imagery."
+                         Description="A portrait aspect ratio component using the ratio={9 / 16} prop. This is useful for displaying images in a portrait format."
                          Code="@PortraitCode"
                          CodeLanguage="razor">
-                <Div Width="Width.IsFull" MaxWidth='MaxWidth.Token("[18rem]")'>
+                <Div Width="Width.IsFull" MaxWidth='MaxWidth.Token("[10rem]")'>
                     <Div Id="aspect-ratio-portrait-demo" Width="Width.IsFull">
-                        <Soenneker.Quark.Components.Layout.AspectRatio Ratio="9.0 / 16.0" Class="overflow-hidden rounded-xl border bg-muted">
-                            <Image Source="https://images.unsplash.com/photo-1494526585095-c41746248156?w=900&amp;q=80"
-                                   Alt="Portrait sample"
+                        <Soenneker.Quark.Components.Layout.AspectRatio Ratio="9.0 / 16.0" Class="rounded-lg bg-muted">
+                            <Image Source="https://avatar.vercel.sh/shadcn1"
+                                   Alt="Photo"
                                    Width="Width.IsFull"
                                    Height="Height.IsFull"
-                                   Class="object-cover" />
+                                   Rounded="Rounded.Lg"
+                                   Class="object-cover grayscale dark:brightness-20" />
                         </Soenneker.Quark.Components.Layout.AspectRatio>
                     </Div>
                 </Div>
+            </DemoSection>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <DemoSection Title="RTL"
+                         Description="Aspect ratio preserves layout in right-to-left direction."
+                         Code="@RtlCode"
+                         CodeLanguage="razor">
+                <DirectionProvider Dir="rtl">
+                    <Figure Width="Width.IsFull" MaxWidth="MaxWidth.IsSm">
+                        <Soenneker.Quark.Components.Layout.AspectRatio Ratio="16.0 / 9.0" Class="rounded-lg bg-muted">
+                            <Image Source="https://avatar.vercel.sh/shadcn1"
+                                   Alt="Photo"
+                                   Width="Width.IsFull"
+                                   Height="Height.IsFull"
+                                   Rounded="Rounded.Lg"
+                                   Class="object-cover grayscale dark:brightness-20" />
+                        </Soenneker.Quark.Components.Layout.AspectRatio>
+                        <Figcaption Margin="Margin.Is2.FromTop" TextAlign="TextAlign.Center" TextSize="TextSize.Sm" TextColor="TextColor.MutedForeground">
+                            منظر طبيعي جميل
+                        </Figcaption>
+                    </Figure>
+                </DirectionProvider>
             </DemoSection>
         </Section>
     </Div>
@@ -74,16 +99,32 @@
 @code {
     private const string LandscapeCode =
 @"<Soenneker.Quark.Components.Layout.AspectRatio Ratio=""16.0 / 9.0"" Class=""rounded-lg bg-muted"">
-    <Image Source=""https://images.unsplash.com/..."" Alt=""Photo by Drew Beamer"" Width=""Width.IsFull"" Height=""Height.IsFull"" Rounded=""Rounded.Lg"" Class=""object-cover dark:brightness-[0.2] dark:grayscale"" />
+    <Image Source=""https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=800&dpr=2&q=80"" Alt=""Photo by Drew Beamer"" Width=""Width.IsFull"" Height=""Height.IsFull"" Rounded=""Rounded.Lg"" Class=""object-cover dark:brightness-[0.2] dark:grayscale"" />
 </Soenneker.Quark.Components.Layout.AspectRatio>";
 
     private const string SquareCode =
-@"<Soenneker.Quark.Components.Layout.AspectRatio Ratio=""1"" Class=""overflow-hidden rounded-xl border bg-muted"">
-    <Image Source=""..."" Alt=""Square"" Width=""Width.IsFull"" Height=""Height.IsFull"" Class=""object-cover"" />
-</Soenneker.Quark.Components.Layout.AspectRatio>";
+@"<Div Width=""Width.IsFull"" MaxWidth='MaxWidth.Token(""[12rem]"")'>
+    <Soenneker.Quark.Components.Layout.AspectRatio Ratio=""1"" Class=""rounded-lg bg-muted"">
+        <Image Source=""https://avatar.vercel.sh/shadcn1"" Alt=""Photo"" Width=""Width.IsFull"" Height=""Height.IsFull"" Rounded=""Rounded.Lg"" Class=""object-cover grayscale dark:brightness-20"" />
+    </Soenneker.Quark.Components.Layout.AspectRatio>
+</Div>";
 
     private const string PortraitCode =
-@"<Soenneker.Quark.Components.Layout.AspectRatio Ratio=""9.0 / 16.0"" Class=""overflow-hidden rounded-xl border bg-muted"">
-    <Image Source=""..."" Alt=""Portrait"" Width=""Width.IsFull"" Height=""Height.IsFull"" Class=""object-cover"" />
-</Soenneker.Quark.Components.Layout.AspectRatio>";
+@"<Div Width=""Width.IsFull"" MaxWidth='MaxWidth.Token(""[10rem]"")'>
+    <Soenneker.Quark.Components.Layout.AspectRatio Ratio=""9.0 / 16.0"" Class=""rounded-lg bg-muted"">
+        <Image Source=""https://avatar.vercel.sh/shadcn1"" Alt=""Photo"" Width=""Width.IsFull"" Height=""Height.IsFull"" Rounded=""Rounded.Lg"" Class=""object-cover grayscale dark:brightness-20"" />
+    </Soenneker.Quark.Components.Layout.AspectRatio>
+</Div>";
+
+    private const string RtlCode =
+@"<DirectionProvider Dir=""rtl"">
+    <Figure Width=""Width.IsFull"" MaxWidth=""MaxWidth.IsSm"">
+        <Soenneker.Quark.Components.Layout.AspectRatio Ratio=""16.0 / 9.0"" Class=""rounded-lg bg-muted"">
+            <Image Source=""https://avatar.vercel.sh/shadcn1"" Alt=""Photo"" Width=""Width.IsFull"" Height=""Height.IsFull"" Rounded=""Rounded.Lg"" Class=""object-cover grayscale dark:brightness-20"" />
+        </Soenneker.Quark.Components.Layout.AspectRatio>
+        <Figcaption Margin=""Margin.Is2.FromTop"" TextAlign=""TextAlign.Center"" TextSize=""TextSize.Sm"" TextColor=""TextColor.MutedForeground"">
+            منظر طبيعي جميل
+        </Figcaption>
+    </Figure>
+</DirectionProvider>";
 }
