@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
+
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
@@ -6,55 +7,140 @@
         <RootNamespace>Soenneker.Quark</RootNamespace>
         <GenerateDefaultNamespace>false</GenerateDefaultNamespace>
         <NoWarn>$(NoWarn);1591;IDE0130</NoWarn>
+        <LangVersion>latest</LangVersion>
+
         <LucideIncludeSvgProvider>false</LucideIncludeSvgProvider>
         <LucideIncludeServiceCollectionExtensions>false</LucideIncludeServiceCollectionExtensions>
     </PropertyGroup>
 
     <PropertyGroup>
-        <Description>The entire suite of Quark elements, all in one library.</Description>
-        <Version Condition="'$(BUILD_VERSION)' == ''">4.0.0</Version>
-        <Version Condition="'$(BUILD_VERSION)' != ''">$(BUILD_VERSION)</Version>
         <AssemblyName>Soenneker.Quark.Suite</AssemblyName>
         <PackageId>Soenneker.Quark.Suite</PackageId>
-        <PackageTags>quark suite html elements blazor ui wrapper css quarksuite blazorlibrary csharp dotnet c# .net</PackageTags>
-        <Copyright>Copyright © 2025-2026 Jake Soenneker</Copyright>
+        <Description>The entire suite of Quark elements, all in one library.</Description>
+
         <Authors>Jake Soenneker</Authors>
         <Company>https://soenneker.com</Company>
+        <Copyright>Copyright © 2025-2026 Jake Soenneker</Copyright>
+        <PackageTags>quark suite html elements blazor ui wrapper css quarksuite blazorlibrary csharp dotnet c# .net</PackageTags>
+
+        <Version Condition="'$(BUILD_VERSION)' == ''">4.0.0</Version>
+        <Version Condition="'$(BUILD_VERSION)' != ''">$(BUILD_VERSION)</Version>
+
+        <IsPackable>true</IsPackable>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/soenneker/soenneker.quark.suite</PackageProjectUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+
+        <RepositoryUrl>https://github.com/soenneker/soenneker.quark.suite</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryBranch>main</RepositoryBranch>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+        <PackageReleaseNotes Condition="'$(PACKAGE_RELEASE_NOTES)' != ''">
+            $(PACKAGE_RELEASE_NOTES)
+        </PackageReleaseNotes>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <IsPackable>true</IsPackable>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageProjectUrl>https://github.com/soenneker/soenneker.quark.suite</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/soenneker/soenneker.quark.suite</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <RepositoryBranch>main</RepositoryBranch>
-        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <LangVersion>latest</LangVersion>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageIcon>icon.png</PackageIcon>
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-        <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackGeneratedTailwindManifest</TargetsForTfmSpecificContentInPackage>
-        <UseLocalProjects Condition="'$(UseLocalProjects)' == ''">true</UseLocalProjects>
-        <LocalBradixProject Condition="'$(LocalBradixProject)' == ''">$([System.IO.Path]::GetFullPath($([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '..', '..', '..', '..', 'Bradix', 'soenneker.bradix.suite', 'src', 'Soenneker.Bradix.Suite', 'Soenneker.Bradix.Suite.csproj'))))</LocalBradixProject>
-        <LocalQuarkBuildersProject Condition="'$(LocalQuarkBuildersProject)' == ''">$([System.IO.Path]::GetFullPath($([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '..', '..', '..', 'soenneker.quark.builders', 'src', 'Soenneker.Quark.Builders', 'Soenneker.Quark.Builders.csproj'))))</LocalQuarkBuildersProject>
-        <LocalQuarkGenPresetsProject Condition="'$(LocalQuarkGenPresetsProject)' == ''">$([System.IO.Path]::GetFullPath($([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '..', '..', '..', 'soenneker.quark.gen.presets', 'src', 'Soenneker.Quark.Gen.Presets', 'Soenneker.Quark.Gen.Presets.csproj'))))</LocalQuarkGenPresetsProject>
-        <PackageReleaseNotes Condition="'$(PACKAGE_RELEASE_NOTES)' != ''">
-            $(PACKAGE_RELEASE_NOTES)
-        </PackageReleaseNotes>
-        <_GeneratedTailwindManifestPath>$([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', 'tailwind', 'quark-suite-tailwind-manifest.txt'))</_GeneratedTailwindManifestPath>
     </PropertyGroup>
 
+    <!-- Local project control -->
+    <PropertyGroup>
+        <UseLocalProjects Condition="'$(UseLocalProjects)' == ''">true</UseLocalProjects>
+
+        <LocalBradixProject Condition="'$(LocalBradixProject)' == ''">
+            ..\..\..\..\Bradix\soenneker.bradix.suite\src\Soenneker.Bradix.Suite\Soenneker.Bradix.Suite.csproj
+        </LocalBradixProject>
+
+        <LocalQuarkBuildersProject Condition="'$(LocalQuarkBuildersProject)' == ''">
+            ..\..\..\soenneker.quark.builders\src\Soenneker.Quark.Builders\Soenneker.Quark.Builders.csproj
+        </LocalQuarkBuildersProject>
+
+        <LocalQuarkGenPresetsProject Condition="'$(LocalQuarkGenPresetsProject)' == ''">
+            ..\..\..\soenneker.quark.gen.presets\src\Soenneker.Quark.Gen.Presets\Soenneker.Quark.Gen.Presets.csproj
+        </LocalQuarkGenPresetsProject>
+    </PropertyGroup>
+
+    <!-- Tailwind manifest packaging -->
+    <PropertyGroup>
+        <TargetsForTfmSpecificContentInPackage>
+            $(TargetsForTfmSpecificContentInPackage);PackGeneratedTailwindManifest
+        </TargetsForTfmSpecificContentInPackage>
+
+        <_GeneratedTailwindManifestPath>
+            $([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', 'tailwind', 'quark-suite-tailwind-manifest.txt'))
+        </_GeneratedTailwindManifestPath>
+    </PropertyGroup>
+
+    <!-- Package assets -->
     <ItemGroup>
         <None Include="..\..\README.md" Pack="true" PackagePath="\" />
         <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
         <None Include="..\..\icon.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 
+    <!-- Always-on dependencies -->
+    <ItemGroup>
+        <PackageReference Include="Soenneker.Asyncs.Initializers" Version="4.0.49" />
+        <PackageReference Include="Soenneker.Blazor.Utils.Ids" Version="4.0.7" />
+        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1659" />
+        <PackageReference Include="Soenneker.DataTables.Dtos.Column" Version="4.0.20" />
+        <PackageReference Include="Soenneker.DataTables.Dtos.ServerResponse" Version="4.0.16" />
+        <PackageReference Include="Soenneker.DataTables.Dtos.ServerSideRequest" Version="4.0.19" />
+        <PackageReference Include="Soenneker.Lucide.Enums.Icons" Version="4.0.108" />
+        <PackageReference Include="Soenneker.Lucide.Icons" Version="4.0.126" />
+        <PackageReference Include="Soenneker.Quark.Components.Core.Cancellable" Version="4.0.70" />
+        <PackageReference Include="Soenneker.Quark.Gen.Lucide.Abstractions" Version="4.0.12" />
+        <PackageReference Include="Soenneker.Utils.Debounce" Version="4.0.48" />
+        <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2530" />
+    </ItemGroup>
+
+    <!-- Switch: NuGet -->
+    <ItemGroup Condition="'$(UseLocalProjects)' != 'true'">
+        <PackageReference Include="Soenneker.Bradix.Suite" Version="4.0.66" />
+        <PackageReference Include="Soenneker.Quark.Builders" Version="4.0.45" />
+
+        <PackageReference Include="Soenneker.Quark.Gen.Presets" Version="4.0.2">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Soenneker.Quark.Gen.Lucide" Version="4.0.110">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+
+        <PackageReference Include="Soenneker.Quark.Gen.Tailwind.Manifest.Suite" Version="4.0.30">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <!-- Switch: Local -->
+    <ItemGroup Condition="'$(UseLocalProjects)' == 'true'">
+        <ProjectReference Include="$(LocalBradixProject)" />
+        <ProjectReference Include="$(LocalQuarkBuildersProject)" />
+
+        <ProjectReference Include="$(LocalQuarkGenPresetsProject)"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false"
+                          PrivateAssets="all" />
+    </ItemGroup>
+
+    <!-- Tailwind manifest pack -->
     <Target Name="PackGeneratedTailwindManifest">
-        <Error Condition="!Exists('$(_GeneratedTailwindManifestPath)')" Text="Generated Tailwind manifest not found at '$(_GeneratedTailwindManifestPath)'. Build the Suite project before packing." />
+        <Error Condition="!Exists('$(_GeneratedTailwindManifestPath)')"
+               Text="Generated Tailwind manifest not found. Build before packing." />
+
         <ItemGroup>
             <TfmSpecificPackageFile Include="$(_GeneratedTailwindManifestPath)">
                 <PackagePath>tailwind/</PackagePath>
@@ -63,38 +149,4 @@
         </ItemGroup>
     </Target>
 
-    <ItemGroup>
-        <PackageReference Include="Soenneker.Asyncs.Initializers" Version="4.0.49" />
-        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1659" />
-        <PackageReference Include="Soenneker.Bradix.Suite" Version="4.0.66" Condition="'$(UseLocalProjects)' != 'true' or !Exists('$(LocalBradixProject)')" />
-        <PackageReference Include="Soenneker.Lucide.Enums.Icons" Version="4.0.108" />
-        <PackageReference Include="Soenneker.Lucide.Icons" Version="4.0.126" />
-        <PackageReference Include="Soenneker.Quark.Builders" Version="4.0.45" Condition="'$(UseLocalProjects)' != 'true' or !Exists('$(LocalQuarkBuildersProject)')" />
-        <PackageReference Include="Soenneker.Quark.Components.Core.Cancellable" Version="4.0.70" />
-        <PackageReference Include="Soenneker.Quark.Gen.Lucide" Version="4.0.110">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Soenneker.Quark.Gen.Lucide.Abstractions" Version="4.0.12" />
-        <PackageReference Include="Soenneker.Quark.Gen.Presets" Version="4.0.2" Condition="'$(UseLocalProjects)' != 'true' or !Exists('$(LocalQuarkGenPresetsProject)')">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Soenneker.Quark.Gen.Tailwind.Manifest.Suite" Version="4.0.30">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Soenneker.Blazor.Utils.Ids" Version="4.0.7" />
-        <PackageReference Include="Soenneker.DataTables.Dtos.ServerResponse" Version="4.0.16" />
-        <PackageReference Include="Soenneker.DataTables.Dtos.ServerSideRequest" Version="4.0.19" />
-        <PackageReference Include="Soenneker.DataTables.Dtos.Column" Version="4.0.20" />
-        <PackageReference Include="Soenneker.Utils.Debounce" Version="4.0.48" />
-        <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2530" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="$(LocalBradixProject)" Condition="'$(UseLocalProjects)' == 'true' and Exists('$(LocalBradixProject)')" />
-        <ProjectReference Include="$(LocalQuarkBuildersProject)" Condition="'$(UseLocalProjects)' == 'true' and Exists('$(LocalQuarkBuildersProject)')" />
-        <ProjectReference Include="$(LocalQuarkGenPresetsProject)" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" Condition="'$(UseLocalProjects)' == 'true' and Exists('$(LocalQuarkGenPresetsProject)')" />
-    </ItemGroup>
 </Project>
