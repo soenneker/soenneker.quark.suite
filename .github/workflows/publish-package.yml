@@ -19,6 +19,7 @@ permissions:
 env:
   PipelineEnvironment: true
   NUGET_XMLDOC_MODE: skip
+  UseLocalProjects: false
 
 jobs:
   publish-package:
@@ -49,21 +50,29 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: Restore
-        run: dotnet restore Soenneker.Quark.Suite.slnx --verbosity minimal
+      - name: Restore library
+        run: dotnet restore src/Soenneker.Quark.Suite/Soenneker.Quark.Suite.csproj --verbosity minimal
 
-      - name: Build
-        run: dotnet build Soenneker.Quark.Suite.slnx --configuration Release --no-restore --verbosity minimal
+      - name: Restore tests
+        run: dotnet restore test/Soenneker.Quark.Suite.Tests/Soenneker.Quark.Suite.Tests.csproj --verbosity minimal
+
+      # - name: Restore Playwright tests
+      #   run: dotnet restore test/Soenneker.Quark.Suite.Playwrights.Tests/Soenneker.Quark.Suite.Playwrights.Tests.csproj --verbosity minimal
+
+      - name: Build library
+        run: dotnet build src/Soenneker.Quark.Suite/Soenneker.Quark.Suite.csproj --configuration Release --no-restore --verbosity minimal
+
+      - name: Build tests
+        run: dotnet build test/Soenneker.Quark.Suite.Tests/Soenneker.Quark.Suite.Tests.csproj --configuration Release --no-restore --verbosity minimal
+
+      # - name: Build Playwright tests
+      #   run: dotnet build test/Soenneker.Quark.Suite.Playwrights.Tests/Soenneker.Quark.Suite.Playwrights.Tests.csproj --configuration Release --no-restore --verbosity minimal
 
       - name: Test
         run: dotnet test --project test/Soenneker.Quark.Suite.Tests/Soenneker.Quark.Suite.Tests.csproj --configuration Release --no-build --no-restore --verbosity normal
 
-
-      - name: Restore library
-        run: dotnet restore src/Soenneker.Quark.Suite/Soenneker.Quark.Suite.csproj --verbosity minimal
-
-      - name: Build library
-        run: dotnet build src/Soenneker.Quark.Suite/Soenneker.Quark.Suite.csproj --configuration Release --no-restore --verbosity minimal
+      # - name: Playwright tests
+      #   run: dotnet test --project test/Soenneker.Quark.Suite.Playwrights.Tests/Soenneker.Quark.Suite.Playwrights.Tests.csproj --configuration Release --no-build --no-restore --verbosity normal
 
       - name: Pack
         shell: bash

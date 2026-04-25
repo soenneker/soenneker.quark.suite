@@ -37,9 +37,10 @@
         <PackageIcon>icon.png</PackageIcon>
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
         <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackGeneratedTailwindManifest</TargetsForTfmSpecificContentInPackage>
-        <_LocalBradixProject>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\..\..\Bradix\soenneker.bradix.suite\src\Soenneker.Bradix.Suite\Soenneker.Bradix.Suite.csproj'))</_LocalBradixProject>
-        <_LocalQuarkBuildersProject>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\..\soenneker.quark.builders\src\Soenneker.Quark.Builders\Soenneker.Quark.Builders.csproj'))</_LocalQuarkBuildersProject>
-        <_LocalQuarkGenPresetsProject>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\..\soenneker.quark.gen.presets\src\Soenneker.Quark.Gen.Presets\Soenneker.Quark.Gen.Presets.csproj'))</_LocalQuarkGenPresetsProject>
+        <UseLocalProjects Condition="'$(UseLocalProjects)' == ''">true</UseLocalProjects>
+        <LocalBradixProject Condition="'$(LocalBradixProject)' == ''">$([System.IO.Path]::GetFullPath($([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '..', '..', '..', '..', 'Bradix', 'soenneker.bradix.suite', 'src', 'Soenneker.Bradix.Suite', 'Soenneker.Bradix.Suite.csproj'))))</LocalBradixProject>
+        <LocalQuarkBuildersProject Condition="'$(LocalQuarkBuildersProject)' == ''">$([System.IO.Path]::GetFullPath($([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '..', '..', '..', 'soenneker.quark.builders', 'src', 'Soenneker.Quark.Builders', 'Soenneker.Quark.Builders.csproj'))))</LocalQuarkBuildersProject>
+        <LocalQuarkGenPresetsProject Condition="'$(LocalQuarkGenPresetsProject)' == ''">$([System.IO.Path]::GetFullPath($([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '..', '..', '..', 'soenneker.quark.gen.presets', 'src', 'Soenneker.Quark.Gen.Presets', 'Soenneker.Quark.Gen.Presets.csproj'))))</LocalQuarkGenPresetsProject>
         <PackageReleaseNotes Condition="'$(PACKAGE_RELEASE_NOTES)' != ''">
             $(PACKAGE_RELEASE_NOTES)
         </PackageReleaseNotes>
@@ -64,20 +65,22 @@
 
     <ItemGroup>
         <PackageReference Include="Soenneker.Asyncs.Initializers" Version="4.0.49" />
+        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1659" />
+        <PackageReference Include="Soenneker.Bradix.Suite" Version="4.0.66" Condition="'$(UseLocalProjects)' != 'true' or !Exists('$(LocalBradixProject)')" />
         <PackageReference Include="Soenneker.Lucide.Enums.Icons" Version="4.0.108" />
         <PackageReference Include="Soenneker.Lucide.Icons" Version="4.0.126" />
-        <PackageReference Include="Soenneker.Quark.Builders" Version="4.0.5" Condition="!Exists('$(_LocalQuarkBuildersProject)')" />
+        <PackageReference Include="Soenneker.Quark.Builders" Version="4.0.45" Condition="'$(UseLocalProjects)' != 'true' or !Exists('$(LocalQuarkBuildersProject)')" />
         <PackageReference Include="Soenneker.Quark.Components.Core.Cancellable" Version="4.0.70" />
         <PackageReference Include="Soenneker.Quark.Gen.Lucide" Version="4.0.110">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Soenneker.Quark.Gen.Lucide.Abstractions" Version="4.0.12" />
-        <PackageReference Include="Soenneker.Quark.Gen.Presets" Version="4.0.0" Condition="!Exists('$(_LocalQuarkGenPresetsProject)')">
+        <PackageReference Include="Soenneker.Quark.Gen.Presets" Version="4.0.2" Condition="'$(UseLocalProjects)' != 'true' or !Exists('$(LocalQuarkGenPresetsProject)')">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Soenneker.Quark.Gen.Tailwind.Manifest.Suite" Version="4.0.28">
+        <PackageReference Include="Soenneker.Quark.Gen.Tailwind.Manifest.Suite" Version="4.0.30">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -90,8 +93,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\..\Bradix\soenneker.bradix.suite\src\Soenneker.Bradix.Suite\Soenneker.Bradix.Suite.csproj" />
-        <ProjectReference Include="$(_LocalQuarkBuildersProject)" Condition="Exists('$(_LocalQuarkBuildersProject)')" />
-        <ProjectReference Include="$(_LocalQuarkGenPresetsProject)" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" Condition="Exists('$(_LocalQuarkGenPresetsProject)')" />
+        <ProjectReference Include="$(LocalBradixProject)" Condition="'$(UseLocalProjects)' == 'true' and Exists('$(LocalBradixProject)')" />
+        <ProjectReference Include="$(LocalQuarkBuildersProject)" Condition="'$(UseLocalProjects)' == 'true' and Exists('$(LocalQuarkBuildersProject)')" />
+        <ProjectReference Include="$(LocalQuarkGenPresetsProject)" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" Condition="'$(UseLocalProjects)' == 'true' and Exists('$(LocalQuarkGenPresetsProject)')" />
     </ItemGroup>
 </Project>
