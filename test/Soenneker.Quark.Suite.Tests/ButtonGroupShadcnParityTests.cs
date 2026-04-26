@@ -28,10 +28,10 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().Contain("w-fit");
         classes.Should().Contain("*:focus-visible:relative");
         classes.Should().Contain("*:focus-visible:z-10");
-        classes.Should().Contain("*:data-slot:rounded-r-none");
+        classes.Should().Contain("[&>*:not(:first-child)]:rounded-l-none");
+        classes.Should().Contain("[&>*:not(:first-child)]:border-l-0");
+        classes.Should().Contain("[&>*:not(:last-child)]:rounded-r-none");
         classes.Should().Contain("[&>[data-slot]:not(:has(~[data-slot]))]:rounded-r-lg!");
-        classes.Should().Contain("[&>[data-slot]~[data-slot]]:rounded-l-none");
-        classes.Should().Contain("[&>[data-slot]~[data-slot]]:border-l-0");
         classes.Should().NotContain("group/button-group");
         classes.Should().NotContain("q-button-group");
     }

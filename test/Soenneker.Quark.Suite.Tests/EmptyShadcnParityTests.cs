@@ -15,7 +15,7 @@ public sealed partial class RenderedShadcnParityTests
         var classes = cut.Find("[data-slot='empty']").GetAttribute("class")!;
 
         classes.Should().Contain("flex");
-        classes.Should().Contain("flex-1");
+        classes.Should().NotContain("flex-1");
         classes.Should().Contain("min-w-0");
         classes.Should().Contain("flex-col");
         classes.Should().Contain("items-center");
