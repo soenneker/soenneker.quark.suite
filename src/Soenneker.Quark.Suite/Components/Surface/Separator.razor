@@ -31,6 +31,14 @@
         return BuildAttributes();
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        Shrink ??= Quark.Shrink.Is0;
+        BackgroundColor ??= Quark.BackgroundColor.Utility("bg-border");
+
+        base.ApplyDefaultParameters();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -40,7 +48,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "shrink-0 bg-border data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px");
+            AppendClass(ref cls, "data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px");
         });
     }
 

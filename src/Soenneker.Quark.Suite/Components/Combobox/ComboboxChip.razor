@@ -29,6 +29,25 @@
         await ParentCombobox.RemoveValueAsync(Value);
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        Display ??= Quark.Display.Flex;
+        Height ??= Quark.Height.Token("[calc(--spacing(5.25))]");
+        Width ??= Quark.Width.IsFit;
+        ItemsAlign ??= Quark.Items.Center;
+        Justify ??= Quark.Justify.Center;
+        Gap ??= Quark.Gap.Is1;
+        Rounded ??= Quark.Rounded.Sm;
+        BackgroundColor ??= Quark.BackgroundColor.Muted;
+        Padding ??= Quark.Padding.Token("1.5").OnX;
+        TextSize ??= Quark.TextSize.Xs;
+        FontWeight ??= Quark.FontWeight.Medium;
+        Whitespace ??= Quark.Whitespace.Nowrap;
+        TextColor ??= Quark.TextColor.Foreground;
+
+        base.ApplyDefaultParameters();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -38,7 +57,6 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "flex h-[calc(--spacing(5.25))] w-fit items-center justify-center gap-1 rounded-sm bg-muted px-1.5 text-xs font-medium whitespace-nowrap text-foreground");
             AppendClass(ref cls, "has-data-[slot=combobox-chip-remove]:pr-0");
 
             if (ParentCombobox?.Disabled == true)

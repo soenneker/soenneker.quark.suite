@@ -4,10 +4,18 @@
 <h3 @attributes="BuildAttributes()">@ChildContent</h3>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        TextSize ??= Quark.TextSize.Sm;
+        FontWeight ??= Quark.FontWeight.Medium;
+
+        base.ApplyDefaultParameters();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "prompt-input-tab-label";
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "text-sm font-medium"));
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, string.Empty));
     }
 }

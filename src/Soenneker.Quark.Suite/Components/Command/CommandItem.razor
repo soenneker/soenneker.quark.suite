@@ -33,8 +33,6 @@
 
     protected override void ApplyDefaultParameters()
     {
-        base.ApplyDefaultParameters();
-
         Position ??= Quark.Position.Relative;
         Display ??= Quark.Display.Flex;
         ItemsAlign ??= Items.Center;
@@ -42,8 +40,11 @@
         Rounded ??= Quark.Rounded.Sm;
         Padding ??= Quark.Padding.Is2.OnX.Token("1.5").OnY;
         TextSize ??= Quark.TextSize.Sm;
+        OutlineStyle ??= "outline-hidden";
         UserSelect ??= Quark.UserSelect.None;
         Cursor ??= Quark.Cursor.Default;
+
+        base.ApplyDefaultParameters();
     }
 
     protected override void OnInitialized()
@@ -95,7 +96,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/command-item outline-hidden");
+            AppendClass(ref cls, "group/command-item");
             AppendClass(ref cls, "data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50");
             AppendClass(ref cls, "in-data-[slot=dialog-content]:rounded-lg! data-selected:bg-muted data-selected:text-foreground data-[selected=true]:bg-muted data-[selected=true]:text-foreground");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");

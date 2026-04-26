@@ -67,6 +67,15 @@
             _stepPanels.Remove(name);
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Margin ??= Quark.Margin.Is4.FromTop;
+        Flex ??= Quark.Flex.None;
+        Width ??= Quark.Width.IsFull;
+    }
+
     /// <summary>
     /// Selects the specified panel.
     /// </summary>
@@ -83,8 +92,7 @@
         attributes["data-slot"] = "step-content";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "mt-4");
-            AppendClass(ref cls, "basis-full flex-none w-full");
+            AppendClass(ref cls, "basis-full");
         });
     }
 

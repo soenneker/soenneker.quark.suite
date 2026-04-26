@@ -25,6 +25,23 @@
     [Parameter]
     public bool Disabled { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        Position ??= Quark.Position.Absolute;
+        Display ??= Quark.Display.Flex;
+        BoxSize ??= Quark.Size.Token("4.5");
+        Cursor ??= Quark.Cursor.Pointer;
+        ItemsAlign ??= Quark.Items.Center;
+        Justify ??= Quark.Justify.Center;
+        Rounded ??= Quark.Rounded.Full;
+        BackgroundColor ??= Quark.BackgroundColor.Secondary;
+        TextColor ??= Quark.TextColor.MutedForeground;
+        Opacity ??= Quark.Opacity.Is100;
+        Transition ??= Quark.Transition.All;
+
+        base.ApplyDefaultParameters();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -33,7 +50,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "absolute top-1 right-1 z-10 flex size-4.5 cursor-pointer items-center justify-center rounded-full bg-secondary text-muted-foreground opacity-100 transition-all hover:bg-border hover:text-primary active:scale-[.97] disabled:pointer-events-none disabled:opacity-50 sm:opacity-0 group-hover:opacity-100");
+            AppendClass(ref cls, "top-1 right-1 z-10 hover:bg-border hover:text-primary active:scale-[.97] disabled:pointer-events-none disabled:opacity-50 sm:opacity-0 group-hover:opacity-100");
         });
     }
 

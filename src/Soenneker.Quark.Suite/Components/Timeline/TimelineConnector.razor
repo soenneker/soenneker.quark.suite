@@ -13,6 +13,26 @@
     [Parameter]
     public TimelineConnectorStyle ConnectorStyle { get; set; } = TimelineConnectorStyle.Solid;
 
+    protected override void ApplyDefaultParameters()
+    {
+        Width ??= Quark.Width.Token("0.5");
+
+        if (ConnectorStyle == TimelineConnectorStyle.Solid)
+        {
+            BackgroundColorBuilder? backgroundColor = ResolveBackgroundColor();
+
+            if (backgroundColor is not null)
+                BackgroundColor ??= backgroundColor;
+        }
+        else
+        {
+            Border ??= Quark.Border.Is2.FromLeft;
+            BorderColor ??= ResolveBorderColor();
+        }
+
+        base.ApplyDefaultParameters();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -20,11 +40,8 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "w-0.5");
-
             if (ConnectorStyle != TimelineConnectorStyle.Solid)
             {
-                AppendClass(ref cls, "border-l-2");
                 var borderStyleClass = ConnectorStyle?.Value switch
                 {
                     TimelineConnectorStyle.DashedValue => "border-dashed",
@@ -36,43 +53,44 @@
                     AppendClass(ref cls, borderStyleClass);
             }
 
-            if (ConnectorStyle == TimelineConnectorStyle.Solid)
-            {
-                AppendClass(ref cls, Color?.Value switch
-                {
-                    TimelineColor.PrimaryValue => "bg-primary",
-                    TimelineColor.SecondaryValue => "bg-secondary",
-                    TimelineColor.MutedValue => "bg-muted",
-                    TimelineColor.AccentValue => "bg-accent",
-                    TimelineColor.DestructiveValue => "bg-destructive",
-                    _ => Status?.Value switch
-                    {
-                        TimelineStatus.CompletedValue => "bg-primary",
-                        TimelineStatus.InProgressValue => "bg-linear-to-b from-primary to-muted",
-                        TimelineStatus.PendingValue => "bg-muted",
-                        _ => "bg-primary"
-                    }
-                });
-            }
-            else
-            {
-                AppendClass(ref cls, Color?.Value switch
-                {
-                    TimelineColor.PrimaryValue => "border-primary",
-                    TimelineColor.SecondaryValue => "border-secondary",
-                    TimelineColor.MutedValue => "border-muted",
-                    TimelineColor.AccentValue => "border-accent",
-                    TimelineColor.DestructiveValue => "border-destructive",
-                    _ => Status?.Value switch
-                    {
-                        TimelineStatus.CompletedValue => "border-primary",
-                        TimelineStatus.InProgressValue => "border-primary",
-                        TimelineStatus.PendingValue => "border-muted",
-                        _ => "border-primary"
-                    }
-                });
-            }
+            if (ConnectorStyle == TimelineConnectorStyle.Solid && Color is null && Status?.Value == TimelineStatus.InProgressValue)
+                AppendClass(ref cls, "bg-linear-to-b from-primary to-muted");
         });
+    }
+
+    private BackgroundColorBuilder? ResolveBackgroundColor()
+    {
+        return Color?.Value switch
+        {
+            TimelineColor.PrimaryValue => Quark.BackgroundColor.Primary,
+            TimelineColor.SecondaryValue => Quark.BackgroundColor.Secondary,
+            TimelineColor.MutedValue => Quark.BackgroundColor.Muted,
+            TimelineColor.AccentValue => Quark.BackgroundColor.Accent,
+            TimelineColor.DestructiveValue => Quark.BackgroundColor.Destructive,
+            _ => Status?.Value switch
+            {
+                TimelineStatus.InProgressValue => null,
+                TimelineStatus.PendingValue => Quark.BackgroundColor.Muted,
+                _ => Quark.BackgroundColor.Primary
+            }
+        };
+    }
+
+    private BorderColorBuilder ResolveBorderColor()
+    {
+        return Color?.Value switch
+        {
+            TimelineColor.PrimaryValue => Quark.BorderColor.Primary,
+            TimelineColor.SecondaryValue => Quark.BorderColor.Secondary,
+            TimelineColor.MutedValue => Quark.BorderColor.Muted,
+            TimelineColor.AccentValue => Quark.BorderColor.Accent,
+            TimelineColor.DestructiveValue => Quark.BorderColor.Destructive,
+            _ => Status?.Value switch
+            {
+                TimelineStatus.PendingValue => Quark.BorderColor.Muted,
+                _ => Quark.BorderColor.Primary
+            }
+        };
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

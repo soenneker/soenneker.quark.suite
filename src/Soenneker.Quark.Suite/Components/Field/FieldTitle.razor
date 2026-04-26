@@ -8,13 +8,15 @@
 @code {
     protected override void ApplyDefaultParameters()
     {
-        base.ApplyDefaultParameters();
-
-        TextSize ??= Quark.TextSize.Sm;
-        FontWeight ??= Quark.FontWeight.Medium;
         Display ??= Quark.Display.Flex;
         Width ??= Quark.Width.IsFit;
+        ItemsAlign ??= Quark.Items.Center;
+        Gap ??= Quark.Gap.Is2;
+        TextSize ??= Quark.TextSize.Sm;
+        FontWeight ??= Quark.FontWeight.Medium;
         Leading ??= Quark.Leading.Snug;
+
+        base.ApplyDefaultParameters();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -23,7 +25,7 @@
         attributes["data-slot"] = "field-label";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "flex w-fit items-center gap-2 text-sm font-medium leading-snug group-data-[disabled=true]/field:opacity-50");
+            AppendClass(ref cls, "group-data-[disabled=true]/field:opacity-50");
         });
     }
 }

@@ -8,22 +8,38 @@
     [Parameter]
     public ItemMediaVariant Variant { get; set; } = ItemMediaVariant.Default;
 
-    private static string GetVariantClass(ItemMediaVariant? variant)
-        => (variant?.Value ?? ItemMediaVariant.DefaultValue) switch
-        {
-            ItemMediaVariant.IconValue => "size-8 rounded-sm border bg-muted [&_svg:not([class*='size-'])]:size-4",
-            ItemMediaVariant.ImageValue => "size-10 rounded-sm overflow-hidden [&_img]:size-full [&_img]:object-cover",
-            _ => "bg-transparent"
-        };
-
     protected override void ApplyDefaultParameters()
     {
-        base.ApplyDefaultParameters();
-
         Display ??= Quark.Display.Flex;
+        Shrink ??= Quark.Shrink.Is0;
         ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
         Gap ??= Quark.Gap.Is2;
+
+        ApplyVariantDefaults();
+
+        base.ApplyDefaultParameters();
+    }
+
+    private void ApplyVariantDefaults()
+    {
+        switch (Variant?.Value ?? ItemMediaVariant.DefaultValue)
+        {
+            case ItemMediaVariant.IconValue:
+                BoxSize ??= Quark.Size.Is8;
+                Rounded ??= Quark.Rounded.Sm;
+                Border ??= Quark.Border.Default;
+                BackgroundColor ??= Quark.BackgroundColor.Muted;
+                break;
+            case ItemMediaVariant.ImageValue:
+                BoxSize ??= Quark.Size.Is10;
+                Rounded ??= Quark.Rounded.Sm;
+                Overflow ??= Quark.Overflow.Hidden;
+                break;
+            default:
+                BackgroundColor ??= Quark.BackgroundColor.Transparent;
+                break;
+        }
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -35,8 +51,12 @@
         // shadcn/ui item-media base - exact copy from new-york-v4 ui/item.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "shrink-0 group-has-[[data-slot=item-description]]/item:translate-y-0.5 group-has-[[data-slot=item-description]]/item:self-start [&_svg]:pointer-events-none");
-            AppendClass(ref cls, GetVariantClass(Variant));
+            AppendClass(ref cls, "group-has-[[data-slot=item-description]]/item:translate-y-0.5 group-has-[[data-slot=item-description]]/item:self-start [&_svg]:pointer-events-none");
+
+            if (Variant?.Value == ItemMediaVariant.IconValue)
+                AppendClass(ref cls, "[&_svg:not([class*='size-'])]:size-4");
+            else if (Variant?.Value == ItemMediaVariant.ImageValue)
+                AppendClass(ref cls, "[&_img]:size-full [&_img]:object-cover");
         });
     }
 

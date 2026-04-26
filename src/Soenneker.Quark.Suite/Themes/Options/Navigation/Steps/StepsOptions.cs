@@ -193,30 +193,30 @@ public sealed class StepsOptions : ComponentOptions
 
     private static void CollectStepStateRules(List<ComponentCssRule> buffer, string selector, StepStateOptions options)
     {
-        if (options.MarkerBackgroundColor.HasContent())
+        if (options.MarkerBg.HasContent())
         {
-            buffer.Add(new ComponentCssRule($"{selector} [data-slot='step-marker']", $"background-color: {options.MarkerBackgroundColor} !important"));
+            buffer.Add(new ComponentCssRule($"{selector} [data-slot='step-marker']", $"background-color: {options.MarkerBg} !important"));
         }
 
-        if (options.MarkerBorderColor.HasContent())
+        if (options.MarkerBorder.HasContent())
         {
-            buffer.Add(new ComponentCssRule($"{selector} [data-slot='step-marker']", $"border-color: {options.MarkerBorderColor} !important"));
+            buffer.Add(new ComponentCssRule($"{selector} [data-slot='step-marker']", $"border-color: {options.MarkerBorder} !important"));
         }
 
-        if (options.MarkerTextColor.HasContent())
+        if (options.MarkerText.HasContent())
         {
-            buffer.Add(new ComponentCssRule($"{selector} [data-slot='step-marker']", $"color: {options.MarkerTextColor} !important"));
+            buffer.Add(new ComponentCssRule($"{selector} [data-slot='step-marker']", $"color: {options.MarkerText} !important"));
         }
 
-        if (options.TextColor.HasContent())
+        if (options.Text.HasContent())
         {
-            buffer.Add(new ComponentCssRule(selector, $"color: {options.TextColor} !important"));
-            buffer.Add(new ComponentCssRule($"{selector} [data-slot='step-caption'], {selector} .step-title", $"color: {options.TextColor} !important"));
+            buffer.Add(new ComponentCssRule(selector, $"color: {options.Text} !important"));
+            buffer.Add(new ComponentCssRule($"{selector} [data-slot='step-caption'], {selector} .step-title", $"color: {options.Text} !important"));
         }
 
-        if (options.BackgroundColor.HasContent())
+        if (options.Bg.HasContent())
         {
-            buffer.Add(new ComponentCssRule(selector, $"background-color: {options.BackgroundColor} !important"));
+            buffer.Add(new ComponentCssRule(selector, $"background-color: {options.Bg} !important"));
         }
     }
 }

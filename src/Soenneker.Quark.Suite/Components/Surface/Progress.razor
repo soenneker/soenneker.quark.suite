@@ -81,6 +81,17 @@
         return "h-full w-full flex-1 bg-primary transition-all";
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        Position ??= Quark.Position.Relative;
+        Height ??= Quark.Height.Token("2");
+        Overflow ??= Quark.Overflow.Hidden;
+        Rounded ??= Quark.Rounded.Full;
+        BackgroundColor ??= Quark.BackgroundColor.Utility("bg-primary/20");
+
+        base.ApplyDefaultParameters();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -91,7 +102,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "relative h-2 overflow-hidden rounded-full bg-primary/20");
+            AppendClass(ref cls, string.Empty);
         });
 
     }

@@ -7,11 +7,12 @@
 @code {
     protected override void ApplyDefaultParameters()
     {
-        base.ApplyDefaultParameters();
-
         Display ??= Quark.Display.Flex;
-        Flex ??= Quark.Flex.Col;
+        Flex ??= Quark.Flex.Is1;
+        FlexDirection ??= Quark.FlexDirection.Col;
         Gap ??= Quark.Gap.Is1;
+
+        base.ApplyDefaultParameters();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -20,7 +21,7 @@
         attributes["data-slot"] = "item-content";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "flex-1 [&+[data-slot=item-content]]:flex-none");
+            AppendClass(ref cls, "[&+[data-slot=item-content]]:flex-none");
         });
     }
 }

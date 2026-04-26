@@ -83,6 +83,26 @@
         await base.HandleKeyDown(e);
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        Height ??= Quark.Height.Is8;
+        Width ??= Quark.Width.IsFull;
+        MinWidth ??= Quark.MinWidth.Is0;
+        Flex ??= Quark.Flex.Is1;
+        Rounded ??= Quark.Rounded.None;
+        Border ??= Quark.Border.Is0;
+        BorderColor ??= Quark.BorderColor.Input;
+        BackgroundColor ??= Quark.BackgroundColor.Transparent;
+        Padding ??= Quark.Padding.Token("2.5").OnX.Is1.OnY;
+        TextSize ??= Quark.TextSize.Base.OnMd.Sm;
+        Transition ??= Quark.Transition.Colors;
+        OutlineStyle ??= Quark.OutlineStyle.None;
+        BoxShadow ??= Quark.BoxShadow.None;
+        Ring ??= Quark.Ring.None;
+
+        base.ApplyDefaultParameters();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -103,13 +123,11 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "h-8 w-full min-w-0 border-input px-2.5 py-1 text-base transition-colors outline-none");
             AppendClass(ref cls, "file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground");
             AppendClass(ref cls, "placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50");
             AppendClass(ref cls, "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50");
             AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm");
             AppendClass(ref cls, "dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
-            AppendClass(ref cls, "flex-1 rounded-none border-0 bg-transparent shadow-none ring-0 focus-visible:ring-0");
             AppendClass(ref cls, "disabled:bg-transparent aria-invalid:ring-0 dark:bg-transparent dark:disabled:bg-transparent");
         });
     }

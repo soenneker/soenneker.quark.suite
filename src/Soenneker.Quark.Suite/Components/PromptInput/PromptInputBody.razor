@@ -4,6 +4,15 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        Display ??= Quark.Display.Flex;
+        Width ??= Quark.Width.IsFull;
+        FlexDirection ??= Quark.FlexDirection.Col;
+
+        base.ApplyDefaultParameters();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -11,7 +20,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "flex w-full flex-col");
+            AppendClass(ref cls, string.Empty);
         });
     }
 }

@@ -87,8 +87,8 @@ else
     {
         return variant?.Value switch
         {
-            SidebarMenuButtonVariant.OutlineValue => "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
-            SidebarMenuButtonVariant.NavigationValue => "relative h-[30px] w-fit overflow-visible border border-transparent text-[0.8rem] font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48",
+            SidebarMenuButtonVariant.OutlineValue => "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
+            SidebarMenuButtonVariant.NavigationValue => "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[active=true]:border-accent data-[active=true]:bg-accent 3xl:fixed:w-full 3xl:fixed:max-w-48",
             _ => "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
         };
     }
@@ -97,9 +97,8 @@ else
     {
         return size?.Value switch
         {
-            SidebarMenuButtonSize.SmValue => "h-7 text-xs",
-            SidebarMenuButtonSize.LgValue => "h-12 text-sm group-data-[collapsible=icon]:p-0!",
-            _ => "h-8 text-sm"
+            SidebarMenuButtonSize.LgValue => "group-data-[collapsible=icon]:p-0!",
+            _ => ""
         };
     }
 
@@ -122,6 +121,46 @@ else
         Gap ??= Quark.Gap.Is2;
         Rounded ??= Quark.Rounded.Md;
         Padding ??= Quark.Padding.Is2;
+        Width ??= Quark.Width.IsFull;
+        Overflow ??= Quark.Overflow.Hidden;
+        TextAlign ??= Quark.TextAlign.Token("left");
+        RingColor ??= "ring-sidebar-ring";
+        OutlineStyle ??= "outline-hidden";
+        Transition ??= "transition-[width,height,padding]";
+
+        switch (Size?.Value)
+        {
+            case SidebarMenuButtonSize.SmValue:
+                Height ??= Quark.Height.Token("7");
+                TextSize ??= Quark.TextSize.Xs;
+                break;
+            case SidebarMenuButtonSize.LgValue:
+                Height ??= Quark.Height.Token("12");
+                TextSize ??= Quark.TextSize.Sm;
+                break;
+            default:
+                Height ??= Quark.Height.Is8;
+                TextSize ??= Quark.TextSize.Sm;
+                break;
+        }
+
+        switch (Variant?.Value)
+        {
+            case SidebarMenuButtonVariant.OutlineValue:
+                BackgroundColor ??= Quark.BackgroundColor.Background;
+                BoxShadow ??= "shadow-[0_0_0_1px_hsl(var(--sidebar-border))]";
+                break;
+            case SidebarMenuButtonVariant.NavigationValue:
+                Position ??= Quark.Position.Relative;
+                Height ??= Quark.Height.Token("[30px]");
+                Width ??= Quark.Width.IsFit;
+                Overflow ??= Quark.Overflow.Visible;
+                Border ??= Quark.Border.Default;
+                BorderColor ??= Quark.BorderColor.Transparent;
+                TextSize ??= Quark.TextSize.Token("[0.8rem]");
+                FontWeight ??= Quark.FontWeight.Medium;
+                break;
+        }
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -142,7 +181,7 @@ else
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "peer/menu-button w-full overflow-hidden text-left ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0");
+            AppendClass(ref cls, "peer/menu-button group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0");
             AppendClass(ref cls, GetSizeClass(Size));
             AppendClass(ref cls, GetVariantClass(Variant));
         });

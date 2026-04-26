@@ -21,6 +21,19 @@
     [Parameter]
     public int? Rows { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        Flex ??= Quark.Flex.Is1;
+        Resize ??= Quark.Resize.None;
+        Rounded ??= Quark.Rounded.None;
+        Border ??= Quark.Border.Is0;
+        BackgroundColor ??= Quark.BackgroundColor.Transparent;
+        Padding ??= Quark.Padding.Is3.OnY;
+        BoxShadow ??= Quark.BoxShadow.None;
+
+        base.ApplyDefaultParameters();
+    }
+
     private async Task HandleValueChanged(string? value)
     {
         Value = value;
@@ -34,7 +47,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "flex-1 resize-none rounded-none border-0 bg-transparent py-3 shadow-none focus-visible:ring-0 dark:bg-transparent");
+            AppendClass(ref cls, "focus-visible:ring-0 dark:bg-transparent");
         });
 
         return attributes;

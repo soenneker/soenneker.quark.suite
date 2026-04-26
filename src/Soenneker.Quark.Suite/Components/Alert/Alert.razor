@@ -40,8 +40,6 @@
 
     protected override void ApplyDefaultParameters()
     {
-        base.ApplyDefaultParameters();
-
         Display ??= Quark.Display.Grid;
         Position ??= Quark.Position.Relative;
         Width ??= Quark.Width.IsFull;
@@ -49,12 +47,16 @@
         Border ??= Quark.Border.Default;
         Padding ??= Quark.Padding.Token("2.5").OnX.Is2.OnY;
         TextSize ??= Quark.TextSize.Sm;
+        TextAlign ??= Quark.TextAlign.Token("left");
+        Gap ??= Quark.Gap.Token("0.5");
 
         if (Variant == AlertVariant.Default)
         {
             BackgroundColor ??= Quark.BackgroundColor.Card;
             TextColor ??= Quark.TextColor.CardForeground;
         }
+
+        base.ApplyDefaultParameters();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -66,7 +68,7 @@
         // Build alert classes (and any alert-specific style) during attribute construction.
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/alert gap-0.5 text-left has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18");
+            AppendClass(ref cls, "group/alert has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18");
             AppendClass(ref cls, "has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2");
             AppendClass(ref cls, "*:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4");
 

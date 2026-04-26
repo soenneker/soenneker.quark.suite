@@ -60,7 +60,7 @@ public sealed class QuarkNativeSelectPlaywrightTests : PlaywrightUnitTest
                 return {
                     height: style.height,
                     borderRadius: style.borderRadius,
-                    boxShadow: style.boxShadow,
+                    Shadow: style.Shadow,
                     wrapperDisplay: wrapperStyle.display,
                     iconOpacity: iconStyle.opacity
                 };
@@ -69,7 +69,7 @@ public sealed class QuarkNativeSelectPlaywrightTests : PlaywrightUnitTest
         styleProbe.height.Should().Be("36px");
         styleProbe.wrapperDisplay.Should().Be("block");
         styleProbe.iconOpacity.Should().Be("0.5");
-        styleProbe.boxShadow.Should().NotBe("none");
+        styleProbe.Shadow.Should().NotBe("none");
 
         consoleErrors.Should().BeEmpty();
         pageErrors.Should().BeEmpty();
@@ -113,7 +113,7 @@ public sealed class QuarkNativeSelectPlaywrightTests : PlaywrightUnitTest
                 return {
                     height: style.height,
                     borderRadius: style.borderRadius,
-                    boxShadow: style.boxShadow,
+                    Shadow: style.Shadow,
                     wrapperDisplay: '',
                     iconOpacity: ''
                 };
@@ -133,7 +133,7 @@ public sealed class QuarkNativeSelectPlaywrightTests : PlaywrightUnitTest
     {
         public string? height { get; set; }
         public string? borderRadius { get; set; }
-        public string? boxShadow { get; set; }
+        public string? Shadow { get; set; }
         public string? wrapperDisplay { get; set; }
         public string? iconOpacity { get; set; }
     }

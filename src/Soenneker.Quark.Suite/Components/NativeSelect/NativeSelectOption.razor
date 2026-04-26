@@ -1,4 +1,4 @@
-﻿@namespace Soenneker.Quark
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
 @implements INativeSelectOption
 
@@ -14,7 +14,7 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "native-select-option";
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "bg-[Canvas] text-[CanvasText]"));
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, string.Empty));
 
         if (!string.IsNullOrWhiteSpace(Value))
             attributes["value"] = Value!;
@@ -28,5 +28,13 @@
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Value);
         hc.Add(Disabled);
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        BackgroundColor ??= Quark.BackgroundColor.Token("[Canvas]");
+        TextColor ??= Quark.TextColor.Token("[CanvasText]");
+
+        base.ApplyDefaultParameters();
     }
 }

@@ -61,11 +61,11 @@ public sealed class QuarkPresetContext
     public CssValue<CursorBuilder>? Cursor { get; set; }
     public CssValue<ScreenReaderBuilder>? ScreenReader { get; set; }
     public CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
-    public CssValue<BorderBuilder>? Border { get; set; }
     public CssValue<BorderColorBuilder>? BorderColor { get; set; }
+    public CssValue<BorderBuilder>? Border { get; set; }
     public CssValue<RoundedBuilder>? Rounded { get; set; }
-    public CssValue<RingBuilder>? Ring { get; set; }
     public CssValue<RingColorBuilder>? RingColor { get; set; }
+    public CssValue<RingBuilder>? Ring { get; set; }
     public CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
     public CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
     public CssValue<FilterBuilder>? Filter { get; set; }

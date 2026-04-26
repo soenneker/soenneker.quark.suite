@@ -12,6 +12,16 @@
 </div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Relative;
+        Margin ??= Quark.Margin.Token("-2").OnY;
+        Height ??= Quark.Height.Token("5");
+        TextSize ??= Quark.TextSize.Sm;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -19,7 +29,7 @@
         attributes["data-content"] = ChildContent != null ? "true" : "false";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "relative -my-2 h-5 text-sm group-data-[variant=outline]/field-group:-mb-2");
+            AppendClass(ref cls, "group-data-[variant=outline]/field-group:-mb-2");
         });
     }
 }

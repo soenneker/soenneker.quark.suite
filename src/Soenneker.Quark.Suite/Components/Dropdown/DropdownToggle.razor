@@ -48,17 +48,25 @@ else
 
     protected override void ApplyDefaultParameters()
     {
-        base.ApplyDefaultParameters();
-
         Display ??= Quark.Display.InlineFlex;
         ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
-        Gap ??= Quark.Gap.Is2;
-        Rounded ??= Quark.Rounded.Md;
+        Shrink ??= Quark.Shrink.Is0;
+        Height ??= Quark.Height.Is8;
+        Gap ??= Quark.Gap.Token("1.5");
+        Rounded ??= Quark.Rounded.Lg;
+        Border ??= Quark.Border.Default;
+        BorderColor ??= IsSplit ? Quark.BorderColor.Input : Quark.BorderColor.Border;
+        BackgroundColor ??= Quark.BackgroundColor.Background;
+        Padding ??= Quark.Padding.Token("2.5").OnX;
         TextSize ??= Quark.TextSize.Sm;
         FontWeight ??= Quark.FontWeight.Medium;
         Whitespace ??= Quark.Whitespace.Nowrap;
         Transition ??= Quark.Transition.All;
+        OutlineStyle ??= Quark.OutlineStyle.None;
+        UserSelect ??= Quark.UserSelect.None;
+
+        base.ApplyDefaultParameters();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -69,7 +77,7 @@ else
         attributes["aria-haspopup"] = "menu";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/button inline-flex shrink-0 items-center justify-center rounded-lg bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none");
+            AppendClass(ref cls, "group/button bg-clip-padding");
             AppendClass(ref cls, "cursor-pointer focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50");
             AppendClass(ref cls, "active:not-aria-[haspopup]:translate-y-px");
             AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
@@ -77,9 +85,9 @@ else
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
 
             if (IsSplit)
-                AppendClass(ref cls, "border border-input bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2");
+                AppendClass(ref cls, "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2");
             else
-                AppendClass(ref cls, "border border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2");
+                AppendClass(ref cls, "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2");
 
             if (Disabled)
                 AppendClass(ref cls, "pointer-events-none opacity-50");

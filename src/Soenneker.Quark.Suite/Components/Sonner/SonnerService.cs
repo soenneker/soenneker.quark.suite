@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Soenneker.Asyncs.Locks;
+using Soenneker.Atomics.ValueBools;
 using Soenneker.Blazor.Utils.Ids;
 using Soenneker.Extensions.String;
 
@@ -22,7 +23,7 @@ public sealed class SonnerService : ISonnerService
     private readonly Dictionary<string, ToasterRegistration> _toasters = new(StringComparer.Ordinal);
     private readonly HashSet<(string ToasterId, SonnerPosition Position)> _pausedToasters = [];
     private string _activeToasterId = _defaultToasterId;
-    private bool _disposed;
+    private ValueAtomicBool _disposed = new(false);
 
     public event Action? StateChanged;
 
@@ -148,7 +149,7 @@ public sealed class SonnerService : ISonnerService
 
     public async ValueTask Pause(string? toasterId, SonnerPosition position, CancellationToken cancellationToken = default)
     {
-        if (_disposed)
+        if (_disposed.Value)
             return;
 
         List<CancellationTokenSource> timersToCancel = [];
@@ -189,7 +190,7 @@ public sealed class SonnerService : ISonnerService
 
     public async ValueTask Resume(string? toasterId, SonnerPosition position, CancellationToken cancellationToken = default)
     {
-        if (_disposed)
+        if (_disposed.Value)
             return;
 
         List<(string Id, int RemainingMs, CancellationTokenSource TokenSource)> timersToStart = [];
@@ -240,7 +241,7 @@ public sealed class SonnerService : ISonnerService
 
     public async ValueTask Dismiss(string? id = null, CancellationToken cancellationToken = default)
     {
-        if (_disposed)
+        if (_disposed.Value)
             return;
 
         if (id.HasContent())
@@ -262,7 +263,7 @@ public sealed class SonnerService : ISonnerService
 
     private async ValueTask<string> CreateOrUpdate(string? title, RenderFragment? content, SonnerToastType type, Action<SonnerToastOptions>? configure, CancellationToken cancellationToken)
     {
-        if (_disposed)
+        if (_disposed.Value)
             return string.Empty;
 
         var options = new SonnerToastOptions();
@@ -331,14 +332,14 @@ public sealed class SonnerService : ISonnerService
         {
             await Task.Delay(_mountDelayMs);
 
-            if (_disposed)
+            if (_disposed.Value)
                 return;
 
             bool shouldNotify;
 
             using (await _sync.Lock())
             {
-                if (_disposed)
+                if (_disposed.Value)
                     return;
 
                 var toast = _toasts.FirstOrDefault(item => item.Id == id);
@@ -395,7 +396,7 @@ public sealed class SonnerService : ISonnerService
         {
             await Task.Delay(duration, cancellationToken);
 
-            if (cancellationToken.IsCancellationRequested || _disposed)
+            if (cancellationToken.IsCancellationRequested || _disposed.Value)
                 return;
 
             await DismissCore(id, invokeAutoClose: true);
@@ -411,7 +412,7 @@ public sealed class SonnerService : ISonnerService
 
         using (await _sync.Lock(cancellationToken))
         {
-            if (_disposed)
+            if (_disposed.Value)
                 return;
 
             toast = _toasts.FirstOrDefault(item => item.Id == id);
@@ -488,12 +489,11 @@ public sealed class SonnerService : ISonnerService
     {
         string[] ids;
 
+        if (!_disposed.TrySetTrue())
+            return;
+
         using (await _sync.Lock())
         {
-            if (_disposed)
-                return;
-
-            _disposed = true;
             ids = _timers.Keys.ToArray();
             _toasts.Clear();
         }

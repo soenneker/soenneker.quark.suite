@@ -39,7 +39,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/button bg-clip-padding outline-none select-none");
+            AppendClass(ref cls, "group/button bg-clip-padding");
             AppendClass(ref cls, Variant?.Value == ButtonVariant.DestructiveValue ? "focus-visible:ring-3" : "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50");
             AppendClass(ref cls, "active:not-aria-[haspopup]:translate-y-px");
             AppendClass(ref cls, "disabled:pointer-events-none disabled:opacity-50");
@@ -60,8 +60,6 @@
 
     protected override void ApplyDefaultParameters()
     {
-        base.ApplyDefaultParameters();
-
         Display ??= Quark.Display.InlineFlex;
         ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
@@ -71,12 +69,15 @@
         FontWeight ??= Quark.FontWeight.Medium;
         Whitespace ??= Quark.Whitespace.Nowrap;
         Transition ??= Quark.Transition.All;
+        OutlineStyle ??= Quark.OutlineStyle.None;
+        UserSelect ??= Quark.UserSelect.None;
 
         if (ReferenceEquals(Variant, ButtonVariant.Destructive))
         {
             BorderColor ??= Quark.BorderColor.Transparent;
             BackgroundColor ??= Quark.BackgroundColor.Utility("bg-destructive/10");
             TextColor ??= Quark.TextColor.Destructive;
+            base.ApplyDefaultParameters();
             return;
         }
 
@@ -84,6 +85,7 @@
         {
             BorderColor ??= Quark.BorderColor.Border;
             BackgroundColor ??= Quark.BackgroundColor.Background;
+            base.ApplyDefaultParameters();
             return;
         }
 
@@ -92,12 +94,14 @@
             BorderColor ??= Quark.BorderColor.Transparent;
             BackgroundColor ??= Quark.BackgroundColor.Secondary;
             TextColor ??= Quark.TextColor.SecondaryForeground;
+            base.ApplyDefaultParameters();
             return;
         }
 
         if (ReferenceEquals(Variant, ButtonVariant.Ghost))
         {
             BorderColor ??= Quark.BorderColor.Transparent;
+            base.ApplyDefaultParameters();
             return;
         }
 
@@ -105,12 +109,15 @@
         {
             BorderColor ??= Quark.BorderColor.Transparent;
             TextColor ??= Quark.TextColor.Primary;
+            base.ApplyDefaultParameters();
             return;
         }
 
         BorderColor ??= Quark.BorderColor.Transparent;
         BackgroundColor ??= Quark.BackgroundColor.Primary;
         TextColor ??= Quark.TextColor.PrimaryForeground;
+
+        base.ApplyDefaultParameters();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

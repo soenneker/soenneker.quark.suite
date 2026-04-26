@@ -10,9 +10,9 @@
         }
         else
         {
-            <ol @attributes="BuildListAttributes()">
+            <BreadcrumbList>
                 @ChildContent
-            </ol>
+            </BreadcrumbList>
         }
     </nav>
 </CascadingValue>
@@ -104,24 +104,6 @@
 
         if (!attributes.ContainsKey("aria-label"))
             attributes["aria-label"] = AriaLabel.HasContent() ? AriaLabel! : "breadcrumb";
-    }
-
-    private Dictionary<string, object> BuildListAttributes()
-    {
-        var attributes = new Dictionary<string, object>();
-
-        attributes["data-slot"] = "breadcrumb-list";
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "flex flex-wrap items-center gap-1.5 text-sm wrap-break-word text-muted-foreground");
-            if (Large)
-                AppendClass(ref cls, "text-base");
-            if (Small)
-                AppendClass(ref cls, "text-xs");
-        });
-
-        return attributes;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

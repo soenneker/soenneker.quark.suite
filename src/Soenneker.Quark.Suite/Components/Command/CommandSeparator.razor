@@ -4,6 +4,15 @@
 <div @attributes="BuildAttributes()"></div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Margin ??= Quark.Margin.Token("-1").OnX;
+        Height ??= Quark.Height.Token("px");
+        BackgroundColor ??= Quark.BackgroundColor.Token("border");
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -12,7 +21,6 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "-mx-1 h-px bg-border");
         });
     }
 }

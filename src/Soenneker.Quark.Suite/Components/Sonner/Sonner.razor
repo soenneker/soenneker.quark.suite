@@ -5,6 +5,7 @@
 @inject ISonnerInterop SonnerInterop
 @using System.Linq
 @using Microsoft.JSInterop
+@using Soenneker.Atomics.ValueBools
 
 @{
     var groups = _groups;
@@ -170,7 +171,7 @@
     private bool _hotkeyRegistered;
     private bool _swipeHandlersRegistered;
     private bool _toasterRegistered;
-    private bool _disposed;
+    private ValueAtomicBool _disposed = new(false);
 
     protected override async Task OnInitializedAsync()
     {
@@ -224,7 +225,7 @@
 
     private async Task RefreshToastGroups()
     {
-        if (_disposed)
+        if (_disposed.Value)
             return;
 
         var query = (await SonnerService.GetToasts(CancellationToken))
@@ -435,7 +436,7 @@
     [JSInvokable]
     public async Task DismissToastFromSwipe(string id)
     {
-        if (_disposed || !id.HasContent())
+        if (_disposed.Value || !id.HasContent())
             return;
 
         _swipeDismissedToastIds.Add(id);
@@ -455,7 +456,7 @@
 
     private async Task HandleStateChanged()
     {
-        if (_disposed)
+        if (_disposed.Value)
             return;
 
         _shouldMeasureHeights = true;
@@ -545,7 +546,7 @@
 
     protected override async ValueTask OnDisposeAsync()
     {
-        _disposed = true;
+        _disposed.Value = true;
 
         await UnregisterSwipeHandlers();
         await UnregisterHotkey();

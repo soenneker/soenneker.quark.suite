@@ -87,14 +87,29 @@
 		};
 	}
 
+	protected override void ApplyDefaultParameters()
+	{
+		Height ??= Quark.Height.Token("10");
+		Padding ??= Quark.Padding.Is2.OnX;
+		TextAlign ??= Quark.TextAlign.Start;
+		VerticalAlign ??= Quark.VerticalAlign.Middle;
+		FontWeight ??= Quark.FontWeight.Medium;
+		Whitespace ??= Quark.Whitespace.Nowrap;
+		TextColor ??= Quark.TextColor.Foreground;
+
+		base.ApplyDefaultParameters();
+	}
+
 	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
 	{
+		base.BuildAttributesCore(attributes);
+
 		attributes["data-slot"] = "table-head";
 		attributes["scope"] = "col";
 
 		BuildClassAttribute(attributes, (ref cls) =>
 		{
-			AppendClass(ref cls, "h-10 px-2 text-left align-middle font-medium whitespace-nowrap text-foreground [&:has([role=checkbox])]:pr-0");
+			AppendClass(ref cls, "[&:has([role=checkbox])]:pr-0");
 			if (Sortable)
 			{
 				var sortClass = GetSortClass();

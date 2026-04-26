@@ -8,25 +8,25 @@ public sealed class StepStateOptions
     /// <summary>
     /// Gets or sets the background color for the step marker.
     /// </summary>
-    public string? MarkerBackgroundColor { get; set; }
+    public string? MarkerBg { get; set; }
 
     /// <summary>
     /// Gets or sets the border color for the step marker.
     /// </summary>
-    public string? MarkerBorderColor { get; set; }
+    public string? MarkerBorder { get; set; }
 
     /// <summary>
     /// Gets or sets the text color for the step marker.
     /// </summary>
-    public string? MarkerTextColor { get; set; }
+    public string? MarkerText { get; set; }
 
     /// <summary>
     /// Gets or sets the text color for the step link and captions.
     /// </summary>
-    public string? TextColor { get; set; }
+    public string? Text { get; set; }
 
     /// <summary>
     /// Gets or sets the background color for the step link.
     /// </summary>
-    public string? BackgroundColor { get; set; }
+    public string? Bg { get; set; }
 }

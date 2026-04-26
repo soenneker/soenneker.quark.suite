@@ -39,9 +39,8 @@ else
 
     protected override void ApplyDefaultParameters()
     {
-        base.ApplyDefaultParameters();
-
         Display ??= Quark.Display.InlineFlex;
+        Shrink ??= Quark.Shrink.Is0;
         ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
         Height ??= Quark.Height.Is8;
@@ -54,7 +53,10 @@ else
         FontWeight ??= Quark.FontWeight.Medium;
         Whitespace ??= Quark.Whitespace.Nowrap;
         Transition ??= Quark.Transition.All;
+        OutlineStyle ??= Quark.OutlineStyle.None;
         UserSelect ??= Quark.UserSelect.None;
+
+        base.ApplyDefaultParameters();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -74,7 +76,7 @@ else
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/button shrink-0 bg-clip-padding outline-none");
+            AppendClass(ref cls, "group/button bg-clip-padding");
             AppendClass(ref cls, "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50");
             AppendClass(ref cls, "active:not-aria-[haspopup]:translate-y-px");
             AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");

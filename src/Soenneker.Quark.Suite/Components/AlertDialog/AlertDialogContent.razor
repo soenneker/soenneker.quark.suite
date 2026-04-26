@@ -32,16 +32,20 @@
 
     protected override void ApplyDefaultParameters()
     {
-        base.ApplyDefaultParameters();
-
         Position ??= Quark.Position.Fixed;
         Display ??= Quark.Display.Grid;
+        ZIndex ??= "z-50";
         Width ??= Quark.Width.IsFull;
         Gap ??= Quark.Gap.Is4;
         Rounded ??= Quark.Rounded.Xl;
         BackgroundColor ??= Quark.BackgroundColor.Popover;
         TextColor ??= Quark.TextColor.PopoverForeground;
         Padding ??= Quark.Padding.Is4;
+        Ring ??= Quark.Ring.One;
+        RingColor ??= "ring-foreground/10";
+        OutlineStyle ??= Quark.OutlineStyle.None;
+
+        base.ApplyDefaultParameters();
     }
 
     private IReadOnlyDictionary<string, object> ContentAttributes => BuildAttributes();
@@ -60,7 +64,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/alert-dialog-content top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 ring-1 ring-foreground/10 duration-100 outline-none data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-sm data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
+            AppendClass(ref cls, "group/alert-dialog-content top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 duration-100 data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-sm data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
         });
 
         attributes["data-slot"] = "alert-dialog-content";

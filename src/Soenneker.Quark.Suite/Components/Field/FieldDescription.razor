@@ -33,13 +33,13 @@
 
     protected override void ApplyDefaultParameters()
     {
-        base.ApplyDefaultParameters();
-
         TextSize ??= Quark.TextSize.Sm;
         FontWeight ??= Quark.FontWeight.Normal;
         TextColor ??= Quark.TextColor.MutedForeground;
         Leading ??= Quark.Leading.Normal;
-        TextAlign ??= Quark.TextAlign.Token("left");
+        TextAlign ??= Quark.TextAlign.Start;
+
+        base.ApplyDefaultParameters();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -50,7 +50,6 @@
             attributes["id"] = FieldContext.DescriptionId;
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "text-left text-sm font-normal leading-normal text-muted-foreground");
             AppendClass(ref cls, "group-has-[[data-orientation=horizontal]]/field:text-balance");
             AppendClass(ref cls, "last:mt-0 nth-last-2:-mt-1 [[data-variant=legend]+&]:-mt-1.5");
             AppendClass(ref cls, "[&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary");

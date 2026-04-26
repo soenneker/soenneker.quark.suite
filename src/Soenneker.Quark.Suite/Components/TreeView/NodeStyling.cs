@@ -11,7 +11,7 @@ public sealed class NodeStyling
     public CssValue<BackgroundColorBuilder> Background { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the text color for the node.
+    /// Gets or sets the TextColor color for the node.
     /// </summary>
     public CssValue<TextColorBuilder> TextColor { get; set; } = string.Empty;
 

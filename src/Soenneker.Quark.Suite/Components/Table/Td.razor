@@ -12,13 +12,23 @@
     [Parameter]
     public int Colspan { get; set; } = 1;
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Padding ??= Quark.Padding.Is2;
+        VerticalAlign ??= Quark.VerticalAlign.Middle;
+        Whitespace ??= Quark.Whitespace.Nowrap;
+    }
+
 	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
 	{
+        base.BuildAttributesCore(attributes);
 		attributes["data-slot"] = "table-cell";
 
 		BuildClassAttribute(attributes, (ref cls) =>
 		{
-			AppendClass(ref cls, "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0");
+			AppendClass(ref cls, "[&:has([role=checkbox])]:pr-0");
 		});
 	}
 

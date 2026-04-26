@@ -4,24 +4,61 @@
 @inherits CancellableElement
 
 <div @attributes="BuildAttributes()">
-	<input type="text"
-	       data-slot="table-search-input"
-	       aria-label="@(AriaLabel ?? "Search table")"
-	       value="@SearchTerm"
-	       @oninput="OnSearchInputHandler"
-	       placeholder="@Placeholder"
-	       class="flex h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]" />
+	<Input Type="text"
+	       Value="@SearchTerm"
+	       OnInput="OnSearchInputHandler"
+	       Placeholder="@Placeholder"
+	       Height="Quark.Height.Is8"
+	       Width="Quark.Width.IsFull"
+	       MinWidth="Quark.MinWidth.Is0"
+	       Rounded="Quark.Rounded.Lg"
+	       Border="Quark.Border.Default"
+	       BorderColor="Quark.BorderColor.Input"
+	       BackgroundColor="Quark.BackgroundColor.Transparent"
+	       Padding='Quark.Padding.Token("2.5").OnX.Is1.OnY'
+	       TextSize="Quark.TextSize.Base.OnMd.Sm"
+	       Transition="Quark.Transition.Colors"
+	       OutlineStyle="Quark.OutlineStyle.None"
+	       Attributes="BuildInputAttributes()" />
 </div>
 
 @code {
 	// shadcn input in table toolbar - new-york-v4 ui/input.tsx
+	protected override void ApplyDefaultParameters()
+	{
+		Display ??= Quark.Display.Flex;
+		Width ??= Quark.Width.IsFull;
+		ItemsAlign ??= Items.Center;
+		Gap ??= Quark.Gap.Is2;
+
+		base.ApplyDefaultParameters();
+	}
+
 	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
 	{
+		base.BuildAttributesCore(attributes);
+
 		attributes["data-slot"] = "table-search";
 		BuildClassAttribute(attributes, (ref cls) =>
 		{
-			AppendClass(ref cls, "flex w-full items-center gap-2 sm:max-w-sm");
+			AppendClass(ref cls, "sm:max-w-sm");
 		});
+	}
+
+	private Dictionary<string, object> BuildInputAttributes()
+	{
+		var attributes = new Dictionary<string, object>
+		{
+			["data-slot"] = "table-search-input",
+			["aria-label"] = AriaLabel ?? "Search table"
+		};
+
+		BuildClassAttribute(attributes, (ref cls) =>
+		{
+			AppendClass(ref cls, "placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]");
+		});
+
+		return attributes;
 	}
 
 	[CascadingParameter(Name = "Table")]

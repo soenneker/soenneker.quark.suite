@@ -36,6 +36,26 @@
         base.OnParametersSet();
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        Width ??= Quark.Width.IsFull;
+        Gap ??= Quark.Gap.Is2;
+        TextColor ??= _fieldContext.IsInvalid ? Quark.TextColor.Destructive : TextColor;
+
+        if (Horizontal)
+        {
+            FlexDirection ??= Quark.FlexDirection.Row;
+            ItemsAlign ??= Quark.Items.Center;
+        }
+        else
+        {
+            FlexDirection ??= Quark.FlexDirection.Col;
+        }
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -55,17 +75,16 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/form-item flex w-full gap-2 data-[invalid=true]:text-destructive");
+            AppendClass(ref cls, "group/form-item");
 
             if (Horizontal)
             {
-                AppendClass(ref cls, "flex-row items-center");
                 AppendClass(ref cls, "*:data-[slot=form-label]:flex-auto");
                 AppendClass(ref cls, "has-[>[data-slot=form-control]]:items-start has-[>[data-slot=form-control]]:[&>[role=checkbox],[role=radio]]:mt-px");
             }
             else
             {
-                AppendClass(ref cls, "flex-col [&>*]:w-full [&>.sr-only]:w-auto");
+                AppendClass(ref cls, "[&>*]:w-full [&>.sr-only]:w-auto");
             }
         });
     }

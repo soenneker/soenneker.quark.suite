@@ -4,6 +4,16 @@
 <div role="separator" @attributes="BuildAttributes()"></div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Margin ??= Quark.Margin.Is2.OnX;
+        Height ??= Quark.Height.Token("px");
+        Width ??= Quark.Width.Auto;
+        BackgroundColor ??= Quark.BackgroundColor.Token("sidebar-border");
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -13,7 +23,6 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "bg-sidebar-border mx-2 h-px w-auto");
         });
     }
 }

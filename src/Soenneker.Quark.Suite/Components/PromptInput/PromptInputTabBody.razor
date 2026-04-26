@@ -4,10 +4,18 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        TextSize ??= Quark.TextSize.Sm;
+        TextColor ??= Quark.TextColor.MutedForeground;
+
+        base.ApplyDefaultParameters();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "prompt-input-tab-body";
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "text-sm text-muted-foreground"));
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, string.Empty));
     }
 }

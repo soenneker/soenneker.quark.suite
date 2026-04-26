@@ -4,10 +4,23 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        Display ??= Quark.Display.Flex;
+        FlexDirection ??= Quark.FlexDirection.Col;
+        Gap ??= Quark.Gap.Is2;
+        Rounded ??= Quark.Rounded.Md;
+        Border ??= Quark.Border.Default;
+        BorderColor ??= Quark.BorderColor.Border;
+        Padding ??= Quark.Padding.Is3;
+
+        base.ApplyDefaultParameters();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "prompt-input-tab";
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "flex flex-col gap-2 rounded-md border border-border p-3"));
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, string.Empty));
     }
 }

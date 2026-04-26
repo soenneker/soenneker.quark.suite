@@ -18,8 +18,42 @@
     {
         base.ApplyDefaultParameters();
 
+        Display ??= Quark.Display.Flex;
+        Height ??= Quark.Height.Auto;
+        Cursor ??= Quark.Cursor.Text;
+        ItemsAlign ??= Quark.Items.Center;
+        Justify ??= Quark.Justify.Center;
+        Gap ??= Quark.Gap.Is2;
+        Padding ??= Quark.Padding.Token("1.5").OnY;
         TextSize ??= Quark.TextSize.Sm;
         FontWeight ??= Quark.FontWeight.Medium;
+        TextColor ??= Quark.TextColor.MutedForeground;
+        UserSelect ??= Quark.UserSelect.None;
+
+        ApplyAlignDefaults();
+    }
+
+    private void ApplyAlignDefaults()
+    {
+        switch (AddonAlign?.Value)
+        {
+            case InputGroupAddonAlign.InlineEndValue:
+                Padding ??= Quark.Padding.Token("1.5").OnY.Is3.FromRight;
+                break;
+            case InputGroupAddonAlign.BlockStartValue:
+                Width ??= Quark.Width.IsFull;
+                Justify ??= Quark.Justify.Start;
+                Padding ??= Quark.Padding.Is3.OnX.Is3.FromTop;
+                break;
+            case InputGroupAddonAlign.BlockEndValue:
+                Width ??= Quark.Width.IsFull;
+                Justify ??= Quark.Justify.Start;
+                Padding ??= Quark.Padding.Is3.OnX.Is3.FromBottom;
+                break;
+            default:
+                Padding ??= Quark.Padding.Token("1.5").OnY.Is3.FromLeft;
+                break;
+        }
     }
 
     private static string GetAlignValue(InputGroupAddonAlign align)
@@ -34,10 +68,10 @@
     private static string GetAlignClass(InputGroupAddonAlign align)
         => align?.Value switch
         {
-            InputGroupAddonAlign.InlineEndValue => "order-last pr-3 has-[>button]:mr-[-0.45rem] has-[>kbd]:mr-[-0.35rem]",
-            InputGroupAddonAlign.BlockStartValue => "order-first w-full justify-start px-3 pt-3 group-has-[>input]/input-group:pt-2.5 [.border-b]:pb-3",
-            InputGroupAddonAlign.BlockEndValue => "order-last w-full justify-start px-3 pb-3 group-has-[>input]/input-group:pb-2.5 [.border-t]:pt-3",
-            _ => "order-first pl-3 has-[>button]:ml-[-0.45rem] has-[>kbd]:ml-[-0.35rem]"
+            InputGroupAddonAlign.InlineEndValue => "order-last has-[>button]:mr-[-0.45rem] has-[>kbd]:mr-[-0.35rem]",
+            InputGroupAddonAlign.BlockStartValue => "order-first group-has-[>input]/input-group:pt-2.5 [.border-b]:pb-3",
+            InputGroupAddonAlign.BlockEndValue => "order-last group-has-[>input]/input-group:pb-2.5 [.border-t]:pt-3",
+            _ => "order-first has-[>button]:ml-[-0.45rem] has-[>kbd]:ml-[-0.35rem]"
         };
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -50,7 +84,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "flex h-auto cursor-text items-center justify-center gap-2 py-1.5 text-sm font-medium text-muted-foreground select-none group-data-[disabled=true]/input-group:opacity-50 [&>kbd]:rounded-[calc(var(--radius)-5px)] [&>svg:not([class*='size-'])]:size-4");
+            AppendClass(ref cls, "group-data-[disabled=true]/input-group:opacity-50 [&>kbd]:rounded-[calc(var(--radius)-5px)] [&>svg:not([class*='size-'])]:size-4");
             AppendClass(ref cls, GetAlignClass(AddonAlign));
         });
     }

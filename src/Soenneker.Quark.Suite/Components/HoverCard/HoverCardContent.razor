@@ -110,11 +110,17 @@
     {
         base.ApplyDefaultParameters();
 
+        ZIndex ??= "z-50";
         Width ??= Quark.Width.Token("64");
         Rounded ??= Quark.Rounded.Lg;
         BackgroundColor ??= Quark.BackgroundColor.Popover;
         Padding ??= Quark.Padding.Token("2.5");
+        TextSize ??= Quark.TextSize.Sm;
         TextColor ??= Quark.TextColor.PopoverForeground;
+        Ring ??= Quark.Ring.One;
+        RingColor ??= "ring-foreground/10";
+        OutlineStyle ??= "outline-hidden";
+        BoxShadow ??= Quark.BoxShadow.Md;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -128,7 +134,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "z-50 origin-(--radix-hover-card-content-transform-origin) text-sm shadow-md ring-1 ring-foreground/10 outline-hidden duration-100");
+            AppendClass(ref cls, "origin-(--radix-hover-card-content-transform-origin) duration-100");
             AppendClass(ref cls, "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2");
             AppendClass(ref cls, "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95");
         });

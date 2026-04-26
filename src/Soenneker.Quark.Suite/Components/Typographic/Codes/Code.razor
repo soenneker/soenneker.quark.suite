@@ -38,6 +38,8 @@
 
         BackgroundColor ??= Quark.BackgroundColor.Muted;
         Rounded ??= Quark.Rounded.Default;
+        Position ??= Quark.Position.Relative;
+        Padding ??= Quark.Padding.Token("[0.3rem]").OnX.Token("[0.2rem]").OnY;
         FontFamily ??= Quark.FontFamily.Mono;
         TextSize ??= Quark.TextSize.Sm;
         FontWeight ??= Quark.FontWeight.Semibold;
@@ -51,17 +53,7 @@
         if (Language.HasContent())
             attributes["data-language"] = Language;
 
-        // Add default styling if no custom class
-        if (!Class.HasContent())
-        {
-            BuildClassAttribute(attributes, (ref cls) =>
-            {
-                if (Inline)
-                {
-                    AppendClass(ref cls, "relative px-[0.3rem] py-[0.2rem]");
-                }
-            });
-        }
+        BuildClassAttribute(attributes, (ref cls) => { });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

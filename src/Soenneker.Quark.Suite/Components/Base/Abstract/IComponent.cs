@@ -75,11 +75,12 @@ public interface IComponent : ICoreComponent
     CssValue<CursorBuilder>? Cursor { get; set; }
     CssValue<ScreenReaderBuilder>? ScreenReader { get; set; }
     CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
-    CssValue<BorderBuilder>? Border { get; set; }
     CssValue<BorderColorBuilder>? BorderColor { get; set; }
+    CssValue<BorderBuilder>? Border { get; set; }
     CssValue<RoundedBuilder>? Rounded { get; set; }
-    CssValue<RingBuilder>? Ring { get; set; }
     CssValue<RingColorBuilder>? RingColor { get; set; }
+    CssValue<RingBuilder>? Ring { get; set; }
+    CssValue<OutlineStyleBuilder>? OutlineStyle { get; set; }
     CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
     CssValue<BackdropFilterBuilder>? BackdropFilter { get; set; }
     CssValue<FilterBuilder>? Filter { get; set; }

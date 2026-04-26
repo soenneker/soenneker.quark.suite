@@ -13,6 +13,18 @@
     [Parameter]
     public bool Disabled { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        Position ??= Quark.Position.Relative;
+
+        if (Disabled)
+        {
+            PointerEvents ??= Quark.PointerEvents.None;
+        }
+
+        base.ApplyDefaultParameters();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -36,12 +48,10 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "relative");
+            AppendClass(ref cls, string.Empty);
 
             if (Disabled)
-            {
-                AppendClass(ref cls, "pointer-events-none opacity-60");
-            }
+                AppendClass(ref cls, "opacity-60");
         });
     }
 

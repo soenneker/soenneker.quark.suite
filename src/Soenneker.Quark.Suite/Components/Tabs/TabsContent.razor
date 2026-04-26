@@ -41,6 +41,10 @@
         base.ApplyDefaultParameters();
 
         Flex ??= Quark.Flex.Is1;
+        TextSize ??= Quark.TextSize.Sm;
+        OutlineStyle ??= Quark.OutlineStyle.None;
+        if (ParentTabs?.Vertical == true)
+            MinWidth ??= Quark.MinWidth.Is0;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -50,12 +54,7 @@
         attributes["data-slot"] = "tabs-content";
         attributes[ParentTabs?.Vertical == true ? "data-vertical" : "data-horizontal"] = string.Empty;
 
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "flex-1 text-sm outline-none");
-            if (ParentTabs?.Vertical == true)
-                AppendClass(ref cls, "min-w-0");
-        });
+        BuildClassAttribute(attributes, (ref cls) => { });
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

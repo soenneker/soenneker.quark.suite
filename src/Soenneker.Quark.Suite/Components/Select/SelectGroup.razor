@@ -22,6 +22,13 @@
 
     private IReadOnlyDictionary<string, object> GroupAttributes => BuildAttributes();
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Padding ??= Quark.Padding.Is1;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -29,7 +36,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "p-1");
+            AppendClass(ref cls, "");
         });
 
         if (Disabled)

@@ -51,6 +51,20 @@
     [Parameter]
     public bool ReadOnly { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        Position ??= Quark.Position.Relative;
+        Cursor ??= Quark.Cursor.Default;
+        Overflow ??= Quark.Overflow.Hidden;
+        Rounded ??= Quark.Rounded.Token("[6px]");
+        Border ??= Quark.Border.Default;
+        BorderColor ??= Quark.BorderColor.Muted;
+        BackgroundColor ??= Quark.BackgroundColor.Secondary;
+        TextColor ??= Quark.TextColor.MutedForeground;
+
+        base.ApplyDefaultParameters();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -59,12 +73,12 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group relative cursor-default overflow-hidden rounded-[6px] border border-muted bg-secondary text-muted-foreground");
-            AppendClass(ref cls, "data-[variant=compact]:relative data-[variant=compact]:flex data-[variant=compact]:size-15 data-[variant=compact]:shrink-0 data-[variant=compact]:items-center data-[variant=compact]:justify-center");
-            AppendClass(ref cls, "data-[variant=default]:relative data-[variant=default]:flex data-[variant=default]:size-15 data-[variant=default]:shrink-0 data-[variant=default]:items-center data-[variant=default]:justify-center");
-            AppendClass(ref cls, "data-[variant=inline]:relative data-[variant=inline]:flex data-[variant=inline]:h-8 data-[variant=inline]:w-auto data-[variant=inline]:min-w-0 data-[variant=inline]:max-w-[200px] data-[variant=inline]:shrink-0 data-[variant=inline]:items-center data-[variant=inline]:justify-start data-[variant=inline]:p-1 data-[variant=inline]:pr-2");
-            AppendClass(ref cls, "data-[variant=detailed]:relative data-[variant=detailed]:flex data-[variant=detailed]:h-15 data-[variant=detailed]:w-auto data-[variant=detailed]:min-w-[200px] data-[variant=detailed]:max-w-[250px] data-[variant=detailed]:shrink-0 data-[variant=detailed]:items-center data-[variant=detailed]:justify-start data-[variant=detailed]:p-2 data-[variant=detailed]:pr-3");
-            AppendClass(ref cls, "data-[variant=pasted]:relative data-[variant=pasted]:flex data-[variant=pasted]:h-[144px] data-[variant=pasted]:w-[156px] data-[variant=pasted]:shrink-0 data-[variant=pasted]:flex-col data-[variant=pasted]:items-center data-[variant=pasted]:justify-center data-[variant=pasted]:gap-2 data-[variant=pasted]:p-2");
+            AppendClass(ref cls, "group");
+            AppendClass(ref cls, "data-[variant=compact]:flex data-[variant=compact]:size-15 data-[variant=compact]:shrink-0 data-[variant=compact]:items-center data-[variant=compact]:justify-center");
+            AppendClass(ref cls, "data-[variant=default]:flex data-[variant=default]:size-15 data-[variant=default]:shrink-0 data-[variant=default]:items-center data-[variant=default]:justify-center");
+            AppendClass(ref cls, "data-[variant=inline]:flex data-[variant=inline]:h-8 data-[variant=inline]:w-auto data-[variant=inline]:min-w-0 data-[variant=inline]:max-w-[200px] data-[variant=inline]:shrink-0 data-[variant=inline]:items-center data-[variant=inline]:justify-start data-[variant=inline]:p-1 data-[variant=inline]:pr-2");
+            AppendClass(ref cls, "data-[variant=detailed]:flex data-[variant=detailed]:h-15 data-[variant=detailed]:w-auto data-[variant=detailed]:min-w-[200px] data-[variant=detailed]:max-w-[250px] data-[variant=detailed]:shrink-0 data-[variant=detailed]:items-center data-[variant=detailed]:justify-start data-[variant=detailed]:p-2 data-[variant=detailed]:pr-3");
+            AppendClass(ref cls, "data-[variant=pasted]:flex data-[variant=pasted]:h-[144px] data-[variant=pasted]:w-[156px] data-[variant=pasted]:shrink-0 data-[variant=pasted]:flex-col data-[variant=pasted]:items-center data-[variant=pasted]:justify-center data-[variant=pasted]:gap-2 data-[variant=pasted]:p-2");
         });
     }
 

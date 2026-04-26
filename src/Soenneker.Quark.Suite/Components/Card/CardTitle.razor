@@ -9,8 +9,11 @@
 @code {
     protected override void ApplyDefaultParameters()
     {
-        base.ApplyDefaultParameters();
+        TextSize ??= Quark.TextSize.Base;
+        Leading ??= Quark.Leading.Snug;
+        FontWeight ??= Quark.FontWeight.Medium;
 
+        base.ApplyDefaultParameters();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -19,7 +22,7 @@
         attributes["data-slot"] = "card-title";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "cn-font-heading text-base leading-snug font-medium group-data-[size=sm]/card:text-sm");
+            AppendClass(ref cls, "cn-font-heading group-data-[size=sm]/card:text-sm");
         });
     }
 }

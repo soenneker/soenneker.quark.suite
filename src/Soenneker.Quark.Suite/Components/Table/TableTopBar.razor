@@ -2,11 +2,11 @@
 @namespace Soenneker.Quark
 @inherits Element
 
-<div @attributes="BuildWrapperAttributes()">
+<Div Width="@Quark.Width.IsFull">
     <div @attributes="BuildAttributes()">
         @ChildContent
     </div>
-</div>
+</Div>
 
 @code {
     [Parameter]
@@ -14,8 +14,6 @@
 
     protected override void ApplyDefaultParameters()
     {
-        base.ApplyDefaultParameters();
-
         Display ??= Quark.Display.Flex;
         ItemsAlign ??= Items.Center;
         Gap ??= Quark.Gap.Is3;
@@ -24,6 +22,8 @@
         Border ??= Quark.Border.Is1;
         BackgroundColor ??= Quark.BackgroundColor.Card;
         Padding ??= Quark.Padding.Is2.OnY.Is3.OnX;
+
+        base.ApplyDefaultParameters();
     }
 
     // shadcn table toolbar - new-york-v4 ui/table.tsx
@@ -36,13 +36,6 @@
             if (LayoutClass.HasContent())
                 AppendClass(ref cls, LayoutClass);
         });
-    }
-
-    private Dictionary<string, object> BuildWrapperAttributes()
-    {
-        var attributes = new Dictionary<string, object>();
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "w-full"));
-        return attributes;
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

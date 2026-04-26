@@ -39,6 +39,14 @@
         await CollapseCoordinator.Register(this);
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        Overflow ??= Quark.Overflow.Hidden;
+        Transition ??= Quark.Transition.All;
+
+        base.ApplyDefaultParameters();
+    }
+
     public async Task Toggle()
     {
         Expanded = !Expanded;
@@ -83,7 +91,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "overflow-hidden transition-all duration-200 ease-in-out");
+            AppendClass(ref cls, "duration-200 ease-in-out");
             if (!Expanded)
                 AppendClass(ref cls, Horizontal ? "max-w-0" : "max-h-0");
         });

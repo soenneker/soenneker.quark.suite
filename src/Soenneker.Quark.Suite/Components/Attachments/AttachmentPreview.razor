@@ -6,6 +6,24 @@
 </div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        Position ??= Quark.Position.Absolute;
+        Inset ??= Quark.Inset.Is0;
+        Display ??= Quark.Display.Flex;
+        BoxSize ??= Quark.Size.Token("full");
+        Shrink ??= Quark.Shrink.Is0;
+        ItemsAlign ??= Quark.Items.Center;
+        Justify ??= Quark.Justify.Center;
+        Overflow ??= Quark.Overflow.Hidden;
+        Rounded ??= Quark.Rounded.Token("[inherit]");
+        Border ??= Quark.Border.Is0;
+        BackgroundColor ??= Quark.BackgroundColor.Transparent;
+        TextColor ??= Quark.TextColor.MutedForeground;
+
+        base.ApplyDefaultParameters();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -13,7 +31,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "absolute inset-0 flex size-full shrink-0 items-center justify-center overflow-hidden rounded-[inherit] border-0 bg-transparent text-muted-foreground");
+            AppendClass(ref cls, string.Empty);
         });
     }
 }

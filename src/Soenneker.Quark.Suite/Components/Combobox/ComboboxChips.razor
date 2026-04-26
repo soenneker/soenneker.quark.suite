@@ -19,6 +19,24 @@
         ParentCombobox?.SetTriggerElement(_wrapperRef);
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        MinHeight ??= Quark.Height.Token("8");
+        FlexWrap ??= Quark.FlexWrap.Wrap;
+        ItemsAlign ??= Quark.Items.Center;
+        Gap ??= Quark.Gap.Is1;
+        Rounded ??= Quark.Rounded.Lg;
+        Border ??= Quark.Border.Default;
+        BorderColor ??= Quark.BorderColor.Input;
+        BackgroundColor ??= Quark.BackgroundColor.Transparent;
+        Padding ??= Quark.Padding.Token("2.5").OnX.Is1.OnY;
+        TextSize ??= Quark.TextSize.Sm;
+        Transition ??= Quark.Transition.Colors;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -28,7 +46,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "flex min-h-8 flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-colors");
+            AppendClass(ref cls, "bg-clip-padding");
             AppendClass(ref cls, "focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50");
             AppendClass(ref cls, "has-aria-invalid:border-destructive has-aria-invalid:ring-3 has-aria-invalid:ring-destructive/20");
             AppendClass(ref cls, "has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50 dark:has-aria-invalid:ring-destructive/40");

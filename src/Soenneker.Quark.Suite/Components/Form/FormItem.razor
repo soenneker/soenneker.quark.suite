@@ -36,6 +36,20 @@
         base.OnParametersSet();
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Grid;
+        Gap ??= Quark.Gap.Is2;
+        TextColor ??= _fieldContext.IsInvalid ? Quark.TextColor.Destructive : TextColor;
+
+        if (Horizontal)
+        {
+            ItemsAlign ??= Quark.Items.Center;
+        }
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -53,11 +67,11 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/form-item grid gap-2 data-[invalid=true]:text-destructive");
+            AppendClass(ref cls, "group/form-item");
 
             if (Horizontal)
             {
-                AppendClass(ref cls, "grid-cols-[auto_1fr] items-center");
+                AppendClass(ref cls, "grid-cols-[auto_1fr]");
                 AppendClass(ref cls, "*:data-[slot=form-label]:flex-auto");
                 AppendClass(ref cls, "has-[>[data-slot=form-control]]:items-start has-[>[data-slot=form-control]]:[&>[role=checkbox],[role=radio]]:mt-px");
             }

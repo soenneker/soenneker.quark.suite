@@ -49,12 +49,12 @@ public class ComponentOptions
     public CssValue<VerticalAlignBuilder>? VerticalAlign { get; set; }
 
     /// <summary>
-    /// Gets or sets the CSS text-overflow configuration.
+    /// Gets or sets the CSS TextColor-overflow configuration.
     /// </summary>
     public CssValue<TextOverflowBuilder>? TextOverflow { get; set; }
 
     /// <summary>
-    /// Gets or sets the CSS box-shadow configuration.
+    /// Gets or sets the CSS box-BoxShadow configuration.
     /// </summary>
     public CssValue<BoxShadowBuilder>? BoxShadow { get; set; }
 
@@ -84,7 +84,7 @@ public class ComponentOptions
     public CssValue<ScrollMarginBuilder>? ScrollMargin { get; set; }
 
     /// <summary>
-    /// Gets or sets the CSS text size (font-size) configuration.
+    /// Gets or sets the CSS TextColor size (font-size) configuration.
     /// </summary>
     public CssValue<TextSizeBuilder>? TextSize { get; set; }
 
@@ -149,12 +149,12 @@ public class ComponentOptions
     public CssValue<ObjectFitBuilder>? ObjectFit { get; set; }
 
     /// <summary>
-    /// Gets or sets the CSS text alignment configuration.
+    /// Gets or sets the CSS TextColor alignment configuration.
     /// </summary>
     public CssValue<TextAlignBuilder>? TextAlign { get; set; }
 
     /// <summary>
-    /// Gets or sets the CSS text color configuration.
+    /// Gets or sets the CSS TextColor color configuration.
     /// </summary>
     public CssValue<TextColorBuilder>? TextColor { get; set; }
 
@@ -214,12 +214,12 @@ public class ComponentOptions
     public CssValue<StrokeBuilder>? Stroke { get; set; }
 
     /// <summary>
-    /// Gets or sets gradient utility classes (bg-gradient-to/from/via/to).
+    /// Gets or sets gradient utility classes (BackgroundColor-gradient-to/from/via/to).
     /// </summary>
     public CssValue<GradientBuilder>? Gradient { get; set; }
 
     /// <summary>
-    /// Gets or sets text decoration line utility classes (underline, overline, line-through, no-underline).
+    /// Gets or sets TextColor decoration line utility classes (underline, overline, line-through, no-underline).
     /// </summary>
     public CssValue<DecorationLineBuilder>? DecorationLine { get; set; }
 
@@ -284,7 +284,7 @@ public class ComponentOptions
     public CssValue<UserSelectBuilder>? UserSelect { get; set; }
 
     /// <summary>
-    /// Gets or sets the CSS text-transform configuration.
+    /// Gets or sets the CSS TextColor-transform configuration.
     /// </summary>
     public CssValue<TextTransformBuilder>? TextTransform { get; set; }
 
@@ -314,12 +314,12 @@ public class ComponentOptions
     public CssValue<WhitespaceBuilder>? Whitespace { get; set; }
 
     /// <summary>
-    /// Gets or sets the CSS text-wrap configuration.
+    /// Gets or sets the CSS TextColor-wrap configuration.
     /// </summary>
     public CssValue<TextWrapBuilder>? TextWrap { get; set; }
 
     /// <summary>
-    /// Gets or sets the CSS text-break (word-break) configuration.
+    /// Gets or sets the CSS TextColor-break (word-break) configuration.
     /// </summary>
     public CssValue<TextBreakBuilder>? TextBreak { get; set; }
 
@@ -429,8 +429,8 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Visibility, "visibility");
         AddRules(buffer, baseSelector, Float, "float");
         AddRules(buffer, baseSelector, VerticalAlign, "vertical-align");
-        AddRules(buffer, baseSelector, TextOverflow, "text-overflow");
-        AddRules(buffer, baseSelector, BoxShadow, "box-shadow");
+        AddRules(buffer, baseSelector, TextOverflow, "TextColor-overflow");
+        AddRules(buffer, baseSelector, BoxShadow, "box-BoxShadow");
         AddRules(buffer, baseSelector, Margin, "margin");
         AddRules(buffer, baseSelector, Padding, "padding");
         AddRules(buffer, baseSelector, Inset, null);
@@ -449,7 +449,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, OverflowY, "overflow-y");
         AddRules(buffer, baseSelector, Overscroll, null);
         AddRules(buffer, baseSelector, ObjectFit, "object-fit");
-        AddRules(buffer, baseSelector, TextAlign, "text-align");
+        AddRules(buffer, baseSelector, TextAlign, "TextColor-align");
         AddRules(buffer, baseSelector, TextColor, "color");
         AddRules(buffer, baseSelector, Flex, "flex");
         AddRules(buffer, baseSelector, FlexDirection, "flex-direction");
@@ -463,7 +463,7 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, Fill, null);
         AddRules(buffer, baseSelector, Stroke, null);
         AddRules(buffer, baseSelector, Gradient, null);
-        AddRules(buffer, baseSelector, DecorationLine, "text-decoration");
+        AddRules(buffer, baseSelector, DecorationLine, "TextColor-decoration");
         AddRules(buffer, baseSelector, Tracking, null);
         AddRules(buffer, baseSelector, ContentAlign, null);
         AddRules(buffer, baseSelector, ItemsAlign, null);
@@ -476,22 +476,22 @@ public class ComponentOptions
         AddRules(buffer, baseSelector, ZIndex, "z-index");
         AddRules(buffer, baseSelector, PointerEvents, "pointer-events");
         AddRules(buffer, baseSelector, UserSelect, "user-select");
-        AddRules(buffer, baseSelector, TextTransform, "text-transform");
+        AddRules(buffer, baseSelector, TextTransform, "TextColor-transform");
         AddRules(buffer, baseSelector, FontFamily, "font-family");
         AddRules(buffer, baseSelector, FontWeight, "font-weight");
         AddRules(buffer, baseSelector, FontStyle, "font-style");
         AddRules(buffer, baseSelector, Leading, "line-height");
         AddRules(buffer, baseSelector, Whitespace, "white-space");
-        AddRules(buffer, baseSelector, TextWrap, "text-wrap");
+        AddRules(buffer, baseSelector, TextWrap, "TextColor-wrap");
         AddRules(buffer, baseSelector, TextBreak, "word-break");
-        AddRules(buffer, baseSelector, BorderColor, "border-color");
+        AddRules(buffer, baseSelector, Border, "border-color");
         AddRules(buffer, baseSelector, BackgroundColor, "background-color");
         AddRules(buffer, baseSelector, Animation, "animation");
         AddRules(buffer, baseSelector, AspectRatio, "aspect-ratio");
         AddRules(buffer, baseSelector, BackdropFilter, "backdrop-filter");
         AddRules(buffer, baseSelector, Rounded, "border-radius");
         AddRules(buffer, baseSelector, Ring, null);
-        AddRules(buffer, baseSelector, RingColor, null);
+        AddRules(buffer, baseSelector, Ring, null);
         AddRules(buffer, baseSelector, ClipPath, "clip-path");
         AddRules(buffer, baseSelector, Cursor, "cursor");
         AddRules(buffer, baseSelector, Filter, "filter");
@@ -555,7 +555,7 @@ public class ComponentOptions
         var resolved = rawValue.Trim();
 
         if (typeof(TBuilder) == typeof(DecorationLineBuilder) &&
-            fallbackProperty.Equals("text-decoration", System.StringComparison.Ordinal))
+            fallbackProperty.Equals("TextColor-decoration", System.StringComparison.Ordinal))
         {
             var decoration = resolved switch
             {

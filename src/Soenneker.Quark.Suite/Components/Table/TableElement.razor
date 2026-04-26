@@ -1,23 +1,28 @@
 @namespace Soenneker.Quark
 @inherits Element
 
-<div @attributes="BuildContainerAttributes()">
+<Div data-slot="table-container"
+     Position="@Quark.Position.Relative"
+     Width="@Quark.Width.IsFull"
+     OverflowX="@Quark.Overflow.Auto">
     <table @attributes="BuildAttributes()">
         @ChildContent
     </table>
-</div>
+</Div>
 
 @code {
     protected override void ApplyDefaultParameters()
     {
-        base.ApplyDefaultParameters();
-
         Width ??= Quark.Width.IsFull;
         TextSize ??= Quark.TextSize.Sm;
+
+        base.ApplyDefaultParameters();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
+        base.BuildAttributesCore(attributes);
+
         attributes["data-slot"] = "table";
 
         BuildClassAttribute(attributes, (ref cls) =>
@@ -26,18 +31,4 @@
         });
     }
 
-    private Dictionary<string, object> BuildContainerAttributes()
-    {
-        var attributes = new Dictionary<string, object>
-        {
-            ["data-slot"] = "table-container"
-        };
-
-        BuildClassAttribute(attributes, (ref cls) =>
-        {
-            AppendClass(ref cls, "relative w-full overflow-x-auto");
-        });
-
-        return attributes;
-    }
 } 

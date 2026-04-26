@@ -12,13 +12,23 @@
     [Parameter]
     public object? Key { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        Border ??= Quark.Border.Default.FromBottom;
+        Transition ??= Quark.Transition.Colors;
+
+        base.ApplyDefaultParameters();
+    }
+
 	protected override void BuildAttributesCore(Dictionary<string, object> attributes)
 	{
+		base.BuildAttributesCore(attributes);
+
 		attributes["data-slot"] = "table-row";
 
 		BuildClassAttribute(attributes, (ref cls) =>
 		{
-			AppendClass(ref cls, "border-b transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted");
+			AppendClass(ref cls, "hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted");
 		});
 	}
 

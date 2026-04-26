@@ -30,6 +30,14 @@
         return attributes;
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Width ??= Quark.Width.IsFull;
+        Padding ??= Quark.Padding.Is2.Token("2.5").FromRight;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -38,7 +46,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "top-0 left-0 w-full p-2 pr-2.5 md:absolute md:w-auto");
+            AppendClass(ref cls, "top-0 left-0 md:absolute md:w-auto");
             AppendClass(ref cls, "data-[motion^=from-]:animate-in data-[motion^=to-]:animate-out data-[motion^=from-]:fade-in data-[motion^=to-]:fade-out");
             AppendClass(ref cls, "data-[motion=from-end]:slide-in-from-right-52 data-[motion=from-start]:slide-in-from-left-52 data-[motion=to-end]:slide-out-to-right-52 data-[motion=to-start]:slide-out-to-left-52");
             AppendClass(ref cls, "group-data-[viewport=false]/navigation-menu:bg-popover group-data-[viewport=false]/navigation-menu:text-popover-foreground");

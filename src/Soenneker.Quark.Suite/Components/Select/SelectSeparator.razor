@@ -8,6 +8,16 @@
 @code {
     private IReadOnlyDictionary<string, object> SeparatorAttributes => BuildAttributes();
 
+    protected override void ApplyDefaultParameters()
+    {
+        PointerEvents ??= Quark.PointerEvents.None;
+        Margin ??= Quark.Margin.Token("-1").OnX.Is1.OnY;
+        Height ??= Quark.Height.IsPx;
+        BackgroundColor ??= Quark.BackgroundColor.Utility("bg-border");
+
+        base.ApplyDefaultParameters();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -16,7 +26,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "pointer-events-none -mx-1 my-1 h-px bg-border");
+            AppendClass(ref cls, string.Empty);
         });
     }
 }

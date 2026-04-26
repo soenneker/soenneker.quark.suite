@@ -14,6 +14,14 @@
 </svg>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        BoxSize ??= Quark.Size.Is4;
+        Animation ??= Quark.Animation.Spin;
+
+        base.ApplyDefaultParameters();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -21,10 +29,9 @@
         attributes["role"] = "status";
         attributes["aria-label"] = "Loading";
 
-        // shadcn/ui spinner base - exact copy from new-york-v4 ui/spinner.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "size-4 animate-spin");
+            AppendClass(ref cls, string.Empty);
         });
     }
 }

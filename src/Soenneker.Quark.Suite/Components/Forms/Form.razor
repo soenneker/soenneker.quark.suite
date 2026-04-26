@@ -39,6 +39,15 @@
             await OnInvalidSubmit.InvokeAsync();
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        Display ??= Quark.Display.Flex;
+        FlexDirection ??= Quark.FlexDirection.Col;
+        Gap ??= Quark.Gap.Token("6");
+
+        base.ApplyDefaultParameters();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -47,7 +56,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "flex flex-col gap-6");
+            AppendClass(ref cls, string.Empty);
         });
     }
 

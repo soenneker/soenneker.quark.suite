@@ -5,6 +5,14 @@
 <div @attributes="BuildAttributes()">@ChildContent</div>
 
 @code {
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Flex;
+        FlexDirection ??= Quark.FlexDirection.Col;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -12,7 +20,7 @@
         attributes["data-slot"] = "item-group";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/item-group flex flex-col");
+            AppendClass(ref cls, "group/item-group");
         });
     }
 }

@@ -59,6 +59,14 @@
             _name = BlazorIdGenerator.New("quark-radiogroup");
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Display ??= Quark.Display.Grid;
+        Gap ??= Quark.Gap.Is3;
+    }
+
     /// <summary>
     /// Called by child Radio when selected. Sets Value and invokes ValueChanged.
     /// </summary>
@@ -92,7 +100,6 @@
 
             BuildClassAttribute(attributes, (ref cls) =>
             {
-                AppendClass(ref cls, "grid gap-3");
                 if (OrientationValue == "horizontal")
                     AppendClass(ref cls, "grid-flow-col auto-cols-max");
             });

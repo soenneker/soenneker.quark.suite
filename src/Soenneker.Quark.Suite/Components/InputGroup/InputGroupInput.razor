@@ -1,4 +1,4 @@
-﻿@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Blazor.Extensions.EventCallback
 
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.FormControlElement
@@ -23,9 +23,14 @@
 
     protected override void ApplyDefaultParameters()
     {
-        base.ApplyDefaultParameters();
-
+        Flex ??= Quark.Flex.Is1;
+        Rounded ??= Quark.Rounded.None;
+        Border ??= Quark.Border.Is0;
+        BackgroundColor ??= Quark.BackgroundColor.Transparent;
         BoxShadow ??= Quark.BoxShadow.None;
+        Ring ??= Quark.Ring.None;
+
+        base.ApplyDefaultParameters();
     }
 
     private async Task HandleValueChanged(string? value)
@@ -41,7 +46,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "flex-1 rounded-none border-0 bg-transparent shadow-none ring-0 focus-visible:ring-0 disabled:bg-transparent aria-invalid:ring-0 dark:bg-transparent dark:disabled:bg-transparent");
+            AppendClass(ref cls, "focus-visible:ring-0 disabled:bg-transparent aria-invalid:ring-0 dark:bg-transparent dark:disabled:bg-transparent");
         });
 
         return attributes;

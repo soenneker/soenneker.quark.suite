@@ -8,6 +8,15 @@
 @code {
     private IReadOnlyDictionary<string, object> SeparatorAttributes => BuildAttributes();
 
+    protected override void ApplyDefaultParameters()
+    {
+        BackgroundColor ??= Quark.BackgroundColor.Utility("bg-border");
+        Margin ??= Quark.Margin.Token("-1").OnX.Is1.OnY;
+        Height ??= Quark.Height.IsPx;
+
+        base.ApplyDefaultParameters();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -16,7 +25,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "bg-border -mx-1 my-1 h-px");
+            AppendClass(ref cls, string.Empty);
         });
     }
 }

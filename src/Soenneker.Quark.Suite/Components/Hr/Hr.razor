@@ -27,6 +27,14 @@
         return BuildAttributes();
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        BackgroundColor ??= Quark.BackgroundColor.Utility("bg-border");
+        Shrink ??= Quark.Shrink.Is0;
+
+        base.ApplyDefaultParameters();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -36,7 +44,7 @@
         // shadcn Separator - new-york-v4 ui/separator.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "shrink-0 bg-border data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px");
+            AppendClass(ref cls, "data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px");
         });
     }
 

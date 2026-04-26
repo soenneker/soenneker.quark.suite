@@ -8,18 +8,22 @@
 @code {
     protected override void ApplyDefaultParameters()
     {
-        base.ApplyDefaultParameters();
-
+        BackgroundColor ??= Quark.BackgroundColor.Token("muted/50");
+        Border ??= Quark.Border.Default.FromTop;
         FontWeight ??= Quark.FontWeight.Medium;
+
+        base.ApplyDefaultParameters();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
+        base.BuildAttributesCore(attributes);
+
         attributes["data-slot"] = "table-footer";
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "bg-muted/50 border-t [&>tr]:last:border-b-0");
+            AppendClass(ref cls, "[&>tr]:last:border-b-0");
         });
     }
 }

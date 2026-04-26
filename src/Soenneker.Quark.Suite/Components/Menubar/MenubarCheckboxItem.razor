@@ -37,7 +37,6 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "outline-hidden");
             AppendClass(ref cls, "focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50");
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4");
         });
@@ -45,8 +44,6 @@
 
     protected override void ApplyDefaultParameters()
     {
-        base.ApplyDefaultParameters();
-
         Position ??= Quark.Position.Relative;
         Display ??= Quark.Display.Flex;
         ItemsAlign ??= Items.Center;
@@ -54,8 +51,11 @@
         Rounded ??= Quark.Rounded.Token("xs");
         Padding ??= Quark.Padding.Is2.FromRight.Token("8").FromLeft.Token("1.5").OnY;
         TextSize ??= Quark.TextSize.Sm;
+        OutlineStyle ??= "outline-hidden";
         UserSelect ??= Quark.UserSelect.None;
         Cursor ??= Quark.Cursor.Default;
+
+        base.ApplyDefaultParameters();
     }
 
     private IReadOnlyDictionary<string, object> BuildCheckboxAttributes()

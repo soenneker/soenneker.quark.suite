@@ -16,7 +16,7 @@
         base.BuildAttributesCore(attributes);
 
         attributes["data-slot"] = "native-select-optgroup";
-        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, "bg-[Canvas] text-[CanvasText]"));
+        BuildClassAttribute(attributes, (ref cls) => AppendClass(ref cls, string.Empty));
 
         if (!string.IsNullOrWhiteSpace(Label))
             attributes["label"] = Label!;
@@ -26,5 +26,13 @@
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(Label);
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        BackgroundColor ??= Quark.BackgroundColor.Token("[Canvas]");
+        TextColor ??= Quark.TextColor.Token("[CanvasText]");
+
+        base.ApplyDefaultParameters();
     }
 }

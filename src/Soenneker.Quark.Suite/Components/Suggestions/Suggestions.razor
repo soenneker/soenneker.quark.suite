@@ -14,6 +14,15 @@
         return string.IsNullOrWhiteSpace(value) ? Task.CompletedTask : OnSelect.InvokeAsync(value);
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        Display ??= Quark.Display.Flex;
+        FlexDirection ??= Quark.FlexDirection.Col;
+        Gap ??= Quark.Gap.Is2;
+
+        base.ApplyDefaultParameters();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -23,7 +32,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "flex flex-col gap-2");
+            AppendClass(ref cls, string.Empty);
         });
     }
 }

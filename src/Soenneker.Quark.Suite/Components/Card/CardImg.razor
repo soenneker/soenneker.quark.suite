@@ -17,14 +17,25 @@
     [Parameter]
     public bool Bottom { get; set; }
 
+    protected override void ApplyDefaultParameters()
+    {
+        Width ??= Quark.Width.IsFull;
+
+        if (Top)
+            Rounded ??= Quark.Rounded.Top.Xl;
+        else if (Bottom)
+            Rounded ??= Quark.Rounded.Bottom.Xl;
+
+        base.ApplyDefaultParameters();
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
         attributes["data-slot"] = "card-img";
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            var imgClass = Top ? "w-full rounded-t-xl object-cover" : Bottom ? "w-full rounded-b-xl object-cover" : "w-full object-cover";
-            AppendClass(ref cls, imgClass);
+            AppendClass(ref cls, "object-cover");
         });
 
         if (Source.HasContent())

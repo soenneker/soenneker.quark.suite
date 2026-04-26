@@ -19,6 +19,18 @@
         return attributes;
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        ZIndex ??= "z-[1]";
+        Display ??= Quark.Display.Flex;
+        Height ??= Quark.Height.Token("1.5");
+        ItemsAlign ??= Quark.Items.End;
+        Justify ??= Quark.Justify.Center;
+        Overflow ??= Quark.Overflow.Hidden;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -28,7 +40,7 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "data-[state=visible]:animate-in data-[state=hidden]:animate-out data-[state=hidden]:fade-out data-[state=visible]:fade-in");
-            AppendClass(ref cls, "top-full z-[1] flex h-1.5 items-end justify-center overflow-hidden");
+            AppendClass(ref cls, "top-full");
         });
     }
 

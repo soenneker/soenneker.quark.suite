@@ -23,26 +23,8 @@ else
     [Parameter]
     public bool AsChild { get; set; }
 
-    private static string GetVariantClass(ItemVariant? variant)
-        => (variant?.Value ?? ItemVariant.DefaultValue) switch
-        {
-            ItemVariant.OutlineValue => "border-border",
-            ItemVariant.MutedValue => "border-transparent bg-muted/50",
-            _ => "border-transparent"
-        };
-
-    private static string GetSizeClass(ItemSize? size)
-        => (size?.Value ?? ItemSize.DefaultValue) switch
-        {
-            ItemSize.ExtraSmallValue => "gap-2 px-2.5 py-2 in-data-[slot=dropdown-menu-content]:p-0",
-            ItemSize.SmallValue => "gap-2.5 px-3 py-2.5",
-            _ => "gap-2.5 px-3 py-2.5"
-        };
-
     protected override void ApplyDefaultParameters()
     {
-        base.ApplyDefaultParameters();
-
         Display ??= Quark.Display.Flex;
         FlexWrap ??= Quark.FlexWrap.Wrap;
         ItemsAlign ??= Items.Center;
@@ -50,8 +32,45 @@ else
         Border ??= Quark.Border.Default;
         TextSize ??= Quark.TextSize.Sm;
         Transition ??= Quark.Transition.Colors;
+        Width ??= Quark.Width.IsFull;
+        OutlineStyle ??= Quark.OutlineStyle.None;
 
-        BorderColor ??= Quark.BorderColor.Transparent;
+        ApplyVariantDefaults();
+        ApplySizeDefaults();
+
+        base.ApplyDefaultParameters();
+    }
+
+    private void ApplyVariantDefaults()
+    {
+        switch (Variant?.Value ?? ItemVariant.DefaultValue)
+        {
+            case ItemVariant.OutlineValue:
+                BorderColor ??= Quark.BorderColor.Border;
+                break;
+            case ItemVariant.MutedValue:
+                BorderColor ??= Quark.BorderColor.Transparent;
+                BackgroundColor ??= Quark.BackgroundColor.Token("muted/50");
+                break;
+            default:
+                BorderColor ??= Quark.BorderColor.Transparent;
+                break;
+        }
+    }
+
+    private void ApplySizeDefaults()
+    {
+        switch (Size?.Value ?? ItemSize.DefaultValue)
+        {
+            case ItemSize.ExtraSmallValue:
+                Gap ??= Quark.Gap.Is2;
+                Padding ??= Quark.Padding.Token("2.5").OnX.Is2.OnY;
+                break;
+            default:
+                Gap ??= Quark.Gap.Token("2.5");
+                Padding ??= Quark.Padding.Is3.OnX.Token("2.5").OnY;
+                break;
+        }
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -69,9 +88,10 @@ else
         // shadcn/ui item base - exact copy from new-york-v4 ui/item.tsx
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/item w-full duration-100 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors [a]:hover:bg-muted");
-            AppendClass(ref cls, GetVariantClass(Variant));
-            AppendClass(ref cls, GetSizeClass(Size));
+            AppendClass(ref cls, "group/item duration-100 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors [a]:hover:bg-muted");
+
+            if (Size?.Value == ItemSize.ExtraSmallValue)
+                AppendClass(ref cls, "in-data-[slot=dropdown-menu-content]:p-0");
         });
     }
 

@@ -28,6 +28,9 @@
 
         Display ??= Quark.Display.InlineFlex;
         Width ??= Quark.Width.IsFit;
+        ItemsAlign ??= Quark.Items.Center;
+        Justify ??= Quark.Justify.Center;
+        Padding ??= Quark.Padding.Token("[3px]");
         TextColor ??= Quark.TextColor.MutedForeground;
 
         if (ParentTabs?.TabsListVariant == TabsListVariant.Line)
@@ -37,6 +40,15 @@
 
         if (ParentTabs?.TabsListVariant == TabsListVariant.Default)
             BackgroundColor ??= Quark.BackgroundColor.Muted;
+
+        if (ParentTabs?.TabsListVariant != TabsListVariant.Default)
+        {
+            Gap ??= Quark.Gap.Is1;
+            BackgroundColor ??= Quark.BackgroundColor.Transparent;
+        }
+
+        if (ParentTabs?.Justified == true)
+            Width ??= Quark.Width.IsFull;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -51,15 +63,11 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "group/tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground data-[variant=line]:rounded-none");
+            AppendClass(ref cls, "group/tabs-list data-[variant=line]:rounded-none");
             AppendClass(ref cls, "group-data-horizontal/tabs:h-8 group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col");
-            if (ParentTabs?.TabsListVariant == TabsListVariant.Default)
-                AppendClass(ref cls, "bg-muted");
-            if (ParentTabs?.TabsListVariant != TabsListVariant.Default)
-                AppendClass(ref cls, "gap-1 bg-transparent");
 
             if (ParentTabs?.Justified == true)
-                AppendClass(ref cls, "w-full [&>[data-slot=tabs-trigger]]:flex-1");
+                AppendClass(ref cls, "[&>[data-slot=tabs-trigger]]:flex-1");
         });
     }
 

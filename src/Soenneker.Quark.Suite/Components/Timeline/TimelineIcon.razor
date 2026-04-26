@@ -2,18 +2,16 @@
 @inherits Soenneker.Quark.Element
 
 <div @attributes="BuildAttributes()">
-    <div class="@IconClass">
-        @if (ChildContent != null)
-        {
-            <div class="@IconInnerClass">
-                @ChildContent
-            </div>
-        }
-        else
-        {
-            <div class="@DotClass"></div>
-        }
-    </div>
+    @if (ChildContent != null)
+    {
+        <div class="@IconInnerClass">
+            @ChildContent
+        </div>
+    }
+    else
+    {
+        <div class="@DotClass"></div>
+    }
 </div>
 
 @code {
@@ -41,18 +39,11 @@
 
     private bool IsConnected => ParentTimeline?.ConnectorFit == TimelineConnectorFit.Connected;
 
-    private string IconClass => ComputedSize?.Value switch
-    {
-        TimelineSize.SmallValue => $"{IconColorClass} h-8 w-8",
-        TimelineSize.LargeValue => $"{IconColorClass} h-12 w-12",
-        _ => $"{IconColorClass} h-10 w-10"
-    };
-
     private string IconInnerClass => ComputedSize?.Value switch
     {
-        TimelineSize.SmallValue => "flex h-4 w-4 items-center justify-center",
-        TimelineSize.LargeValue => "flex h-6 w-6 items-center justify-center",
-        _ => "flex h-5 w-5 items-center justify-center"
+        TimelineSize.SmallValue => "h-4 w-4",
+        TimelineSize.LargeValue => "h-6 w-6",
+        _ => "h-5 w-5"
     };
 
     private string DotClass => ComputedSize?.Value switch
@@ -62,33 +53,81 @@
         _ => "h-5 w-5 rounded-full"
     };
 
-    private string IconColorClass => Variant?.Value == TimelineIconVariant.OutlineValue
-        ? EffectiveColor?.Value switch
-        {
-            TimelineColor.PrimaryValue => "flex items-center justify-center rounded-full bg-background border-2 border-primary text-primary",
-            TimelineColor.SecondaryValue => "flex items-center justify-center rounded-full bg-background border-2 border-secondary text-secondary",
-            TimelineColor.MutedValue => "flex items-center justify-center rounded-full bg-background border-2 border-muted text-muted-foreground",
-            TimelineColor.AccentValue => "flex items-center justify-center rounded-full bg-background border-2 border-accent text-accent",
-            TimelineColor.DestructiveValue => "flex items-center justify-center rounded-full bg-background border-2 border-destructive text-destructive",
-            _ => "flex items-center justify-center rounded-full bg-background border-2 border-primary text-primary"
-        }
-        : EffectiveColor?.Value switch
-        {
-            TimelineColor.PrimaryValue => "flex items-center justify-center rounded-full bg-primary text-primary-foreground",
-            TimelineColor.SecondaryValue => "flex items-center justify-center rounded-full bg-secondary text-secondary-foreground",
-            TimelineColor.MutedValue => "flex items-center justify-center rounded-full bg-muted text-muted-foreground",
-            TimelineColor.AccentValue => "flex items-center justify-center rounded-full bg-accent text-accent-foreground",
-            TimelineColor.DestructiveValue => "flex items-center justify-center rounded-full bg-destructive text-destructive-foreground",
-            _ => "flex items-center justify-center rounded-full bg-primary text-primary-foreground"
-        };
-
     protected override void ApplyDefaultParameters()
     {
-        base.ApplyDefaultParameters();
-
         Position ??= Quark.Position.Relative;
+        Display ??= Quark.Display.Flex;
+        BoxSize ??= ComputedSize?.Value switch
+        {
+            TimelineSize.SmallValue => Quark.Size.Is8,
+            TimelineSize.LargeValue => Quark.Size.Token("12"),
+            _ => Quark.Size.Token("10")
+        };
+        ItemsAlign ??= Quark.Items.Center;
+        Justify ??= Quark.Justify.Center;
         Rounded ??= Quark.Rounded.Full;
+        BackgroundColor ??= ResolveBackgroundColor();
+        TextColor ??= ResolveTextColor();
         BoxShadow ??= Quark.BoxShadow.Sm;
+
+        if (Variant?.Value == TimelineIconVariant.OutlineValue)
+        {
+            Border ??= Quark.Border.Is2;
+            BorderColor ??= ResolveBorderColor();
+        }
+
+        base.ApplyDefaultParameters();
+    }
+
+    private BackgroundColorBuilder ResolveBackgroundColor()
+    {
+        if (Variant?.Value == TimelineIconVariant.OutlineValue)
+            return Quark.BackgroundColor.Background;
+
+        return EffectiveColor?.Value switch
+        {
+            TimelineColor.SecondaryValue => Quark.BackgroundColor.Secondary,
+            TimelineColor.MutedValue => Quark.BackgroundColor.Muted,
+            TimelineColor.AccentValue => Quark.BackgroundColor.Accent,
+            TimelineColor.DestructiveValue => Quark.BackgroundColor.Destructive,
+            _ => Quark.BackgroundColor.Primary
+        };
+    }
+
+    private TextColorBuilder ResolveTextColor()
+    {
+        if (Variant?.Value == TimelineIconVariant.OutlineValue)
+        {
+            return EffectiveColor?.Value switch
+            {
+                TimelineColor.SecondaryValue => Quark.TextColor.Secondary,
+                TimelineColor.MutedValue => Quark.TextColor.MutedForeground,
+                TimelineColor.AccentValue => Quark.TextColor.Accent,
+                TimelineColor.DestructiveValue => Quark.TextColor.Destructive,
+                _ => Quark.TextColor.Primary
+            };
+        }
+
+        return EffectiveColor?.Value switch
+        {
+            TimelineColor.SecondaryValue => Quark.TextColor.SecondaryForeground,
+            TimelineColor.MutedValue => Quark.TextColor.MutedForeground,
+            TimelineColor.AccentValue => Quark.TextColor.AccentForeground,
+            TimelineColor.DestructiveValue => Quark.TextColor.DestructiveForeground,
+            _ => Quark.TextColor.PrimaryForeground
+        };
+    }
+
+    private BorderColorBuilder ResolveBorderColor()
+    {
+        return EffectiveColor?.Value switch
+        {
+            TimelineColor.SecondaryValue => Quark.BorderColor.Secondary,
+            TimelineColor.MutedValue => Quark.BorderColor.Muted,
+            TimelineColor.AccentValue => Quark.BorderColor.Accent,
+            TimelineColor.DestructiveValue => Quark.BorderColor.Destructive,
+            _ => Quark.BorderColor.Primary
+        };
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

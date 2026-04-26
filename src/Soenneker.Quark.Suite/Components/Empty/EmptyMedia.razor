@@ -11,22 +11,27 @@
     [Parameter]
     public EmptyMediaVariant Variant { get; set; } = EmptyMediaVariant.Default;
 
-    private static string GetVariantClass(EmptyMediaVariant? variant)
-        => (variant?.Value ?? EmptyMediaVariant.DefaultValue) switch
-        {
-            EmptyMediaVariant.IconValue => "flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground [&_svg:not([class*='size-'])]:size-4",
-            _ => "bg-transparent"
-        };
-
     protected override void ApplyDefaultParameters()
     {
-        base.ApplyDefaultParameters();
-
         Display ??= Quark.Display.Flex;
         Shrink ??= Quark.Shrink.Is0;
         ItemsAlign ??= Items.Center;
         Justify ??= Quark.Justify.Center;
         Margin ??= Quark.Margin.Is2.FromBottom;
+
+        if (Variant?.Value == EmptyMediaVariant.IconValue)
+        {
+            BoxSize ??= Quark.Size.Is8;
+            Rounded ??= Quark.Rounded.Lg;
+            BackgroundColor ??= Quark.BackgroundColor.Muted;
+            TextColor ??= Quark.TextColor.Foreground;
+        }
+        else
+        {
+            BackgroundColor ??= Quark.BackgroundColor.Transparent;
+        }
+
+        base.ApplyDefaultParameters();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -39,7 +44,9 @@
         BuildClassAttribute(attributes, (ref cls) =>
         {
             AppendClass(ref cls, "[&_svg]:pointer-events-none [&_svg]:shrink-0");
-            AppendClass(ref cls, GetVariantClass(Variant));
+
+            if (Variant?.Value == EmptyMediaVariant.IconValue)
+                AppendClass(ref cls, "[&_svg:not([class*='size-'])]:size-4");
         });
     }
 

@@ -16,6 +16,18 @@
         ParentCarousel?.RegisterItem();
     }
 
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        MinWidth ??= Quark.MinWidth.Is0;
+        Shrink ??= Quark.Shrink.Is0;
+        Grow ??= Quark.Grow.Is0;
+        Padding ??= ParentCarousel?.Orientation != "vertical"
+            ? Quark.Padding.Is4.FromLeft
+            : Quark.Padding.Is4.FromTop;
+    }
+
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -26,11 +38,7 @@
 
         BuildClassAttribute(attributes, (ref cls) =>
         {
-            AppendClass(ref cls, "min-w-0 shrink-0 grow-0 basis-full");
-            if (horizontal)
-                AppendClass(ref cls, "pl-4");
-            else
-                AppendClass(ref cls, "pt-4");
+            AppendClass(ref cls, "basis-full");
         });
     }
 
