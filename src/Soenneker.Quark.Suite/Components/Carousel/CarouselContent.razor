@@ -5,7 +5,10 @@
 <div @attributes="BuildViewportAttributes()"
      @onpointerdown="HandlePointerDown"
      @onpointerup="HandlePointerUp"
-     @onpointercancel="HandlePointerCancel">
+     @onpointercancel="HandlePointerCancel"
+     @ontouchstart="HandleTouchStart"
+     @ontouchend="HandleTouchEnd"
+     @ontouchcancel="HandleTouchCancel">
     <div @attributes="BuildAttributes()">
         @ChildContent
     </div>
@@ -33,12 +36,14 @@
             _subscribedCarousel.StateChanged += OnCarouselStateChanged;
     }
 
-    private static Dictionary<string, object> BuildViewportAttributes()
+    private Dictionary<string, object> BuildViewportAttributes()
     {
+        var horizontal = ParentCarousel?.Orientation != "vertical";
+
         return new Dictionary<string, object>
         {
             ["data-slot"] = "carousel-content",
-            ["class"] = "overflow-hidden"
+            ["class"] = horizontal ? "overflow-hidden touch-pan-y" : "overflow-hidden touch-pan-x"
         };
     }
 
@@ -53,6 +58,21 @@
     }
 
     private void HandlePointerCancel(PointerEventArgs _)
+    {
+        ParentCarousel?.CancelPointerDrag();
+    }
+
+    private void HandleTouchStart(TouchEventArgs args)
+    {
+        ParentCarousel?.BeginTouchDrag(args);
+    }
+
+    private void HandleTouchEnd(TouchEventArgs args)
+    {
+        ParentCarousel?.CompleteTouchDrag(args);
+    }
+
+    private void HandleTouchCancel(TouchEventArgs _)
     {
         ParentCarousel?.CancelPointerDrag();
     }

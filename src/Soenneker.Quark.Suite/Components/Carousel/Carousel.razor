@@ -94,7 +94,7 @@
 
     internal void BeginPointerDrag(PointerEventArgs args)
     {
-        if (ItemCount <= 1 || args.Button != 0)
+        if (ItemCount <= 1 || (args.PointerType != "touch" && args.Button != 0))
             return;
 
         _pointerStart = GetAxisCoordinate(args);
@@ -106,7 +106,32 @@
         if (!_pointerDragStarted || _pointerStart is null)
             return;
 
-        var delta = GetAxisCoordinate(args) - _pointerStart.Value;
+        CompleteDrag(GetAxisCoordinate(args));
+    }
+
+    internal void BeginTouchDrag(TouchEventArgs args)
+    {
+        if (ItemCount <= 1 || !TryGetTouchAxisCoordinate(args, out var coordinate))
+            return;
+
+        _pointerStart = coordinate;
+        _pointerDragStarted = true;
+    }
+
+    internal void CompleteTouchDrag(TouchEventArgs args)
+    {
+        if (!_pointerDragStarted || _pointerStart is null || !TryGetTouchAxisCoordinate(args, out var coordinate))
+            return;
+
+        CompleteDrag(coordinate);
+    }
+
+    private void CompleteDrag(double endCoordinate)
+    {
+        if (!_pointerDragStarted || _pointerStart is null)
+            return;
+
+        var delta = endCoordinate - _pointerStart.Value;
         _pointerStart = null;
         _pointerDragStarted = false;
 
@@ -164,6 +189,24 @@
     private double GetAxisCoordinate(PointerEventArgs args)
     {
         return Orientation == "vertical" ? args.ClientY : args.ClientX;
+    }
+
+    private bool TryGetTouchAxisCoordinate(TouchEventArgs args, out double coordinate)
+    {
+        var point = args.ChangedTouches.Length > 0
+            ? args.ChangedTouches[0]
+            : args.Touches.Length > 0
+                ? args.Touches[0]
+                : null;
+
+        if (point is null)
+        {
+            coordinate = 0;
+            return false;
+        }
+
+        coordinate = Orientation == "vertical" ? point.ClientY : point.ClientX;
+        return true;
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

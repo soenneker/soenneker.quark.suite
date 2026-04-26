@@ -128,13 +128,21 @@
         {
             _items.Add(item);
             EnsureActiveItem();
+            InvalidateRender();
+            Refresh();
         }
     }
 
     internal void UnregisterItem(ComboboxItem item)
     {
-        if (_items.Remove(item) && item.IsActiveItem)
+        if (!_items.Remove(item))
+            return;
+
+        if (item.IsActiveItem)
             EnsureActiveItem();
+
+        InvalidateRender();
+        Refresh();
     }
 
     internal void SetActiveItem(ComboboxItem item)

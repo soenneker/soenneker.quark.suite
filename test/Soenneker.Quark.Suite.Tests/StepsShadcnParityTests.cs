@@ -49,6 +49,9 @@ public sealed partial class RenderedShadcnParityTests
         tablist.GetAttribute("class")!.Should().Contain("flex-wrap");
         tablist.GetAttribute("class")!.Should().Contain("list-none");
         content.GetAttribute("class")!.Should().Contain("mt-4");
+        content.GetAttribute("class")!.Should().Contain("basis-full");
+        content.GetAttribute("class")!.Should().Contain("flex-none");
+        content.GetAttribute("class")!.Should().Contain("w-full");
 
         tabs[0].GetAttribute("aria-selected").Should().Be("true");
         tabs[0].GetAttribute("aria-current").Should().Be("step");

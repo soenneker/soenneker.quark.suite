@@ -1,6 +1,8 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
+using System;
+using System.IO;
 
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -40,6 +42,7 @@ public sealed partial class RenderedShadcnParityTests
         rootClasses.Should().NotContain("q-carousel");
 
         contentClasses.Should().Contain("overflow-hidden");
+        contentClasses.Should().Contain("touch-pan-y");
         contentClasses.Should().NotContain("-ml-4");
         contentClasses.Should().NotContain("q-carousel-content");
 
@@ -88,9 +91,35 @@ public sealed partial class RenderedShadcnParityTests
         var viewportClasses = cut.Find("[data-slot='carousel-content']").GetAttribute("class")!;
         var trackClasses = cut.Find("[data-slot='carousel-content'] > div").GetAttribute("class")!;
 
-        viewportClasses.Should().Be("overflow-hidden");
+        viewportClasses.Should().Be("overflow-hidden touch-pan-y");
         trackClasses.Should().Contain("flex");
         trackClasses.Should().Contain("-ml-4");
         trackClasses.Should().Contain("-ml-1");
+    }
+
+    [Test]
+    public void Carousel_content_wires_mobile_touch_swipe_to_shared_carousel_state()
+    {
+        var contentSource = File.ReadAllText(Path.Combine(GetSuiteRootForCarousel(), "src", "Soenneker.Quark.Suite", "Components", "Carousel", "CarouselContent.razor"));
+        var carouselSource = File.ReadAllText(Path.Combine(GetSuiteRootForCarousel(), "src", "Soenneker.Quark.Suite", "Components", "Carousel", "Carousel.razor"));
+
+        contentSource.Should().Contain("@ontouchstart=\"HandleTouchStart\"");
+        contentSource.Should().Contain("@ontouchend=\"HandleTouchEnd\"");
+        contentSource.Should().Contain("@ontouchcancel=\"HandleTouchCancel\"");
+        contentSource.Should().Contain("\"overflow-hidden touch-pan-y\"");
+        contentSource.Should().Contain("\"overflow-hidden touch-pan-x\"");
+        carouselSource.Should().Contain("BeginTouchDrag(TouchEventArgs args)");
+        carouselSource.Should().Contain("CompleteTouchDrag(TouchEventArgs args)");
+        carouselSource.Should().Contain("args.PointerType != \"touch\" && args.Button != 0");
+    }
+
+    private static string GetSuiteRootForCarousel()
+    {
+        var directory = AppContext.BaseDirectory;
+
+        while (!File.Exists(Path.Combine(directory, "Soenneker.Quark.Suite.slnx")))
+            directory = Directory.GetParent(directory)!.FullName;
+
+        return directory;
     }
 }
