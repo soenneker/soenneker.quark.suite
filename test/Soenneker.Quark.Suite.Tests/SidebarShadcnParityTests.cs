@@ -1,6 +1,8 @@
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
+using System;
+using System.IO;
 
 
 namespace Soenneker.Quark.Suite.Tests;
@@ -151,5 +153,26 @@ public sealed partial class RenderedShadcnParityTests
         insetRoot.GetAttribute("data-variant").Should().Be("inset");
         insetContainerClasses.Should().Contain("p-2");
         insetContainerClasses.Should().Contain("group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]");
+    }
+
+    [Test]
+    public void Sidebar_full_screen_mobile_mode_overrides_sheet_side_width()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForSidebar(), "src", "Soenneker.Quark.Suite", "Components", "Sidebar", "Sidebar.razor"));
+
+        source.Should().Contain("w-screen!");
+        source.Should().Contain("max-w-none!");
+        source.Should().Contain("sm:max-w-none!");
+        source.Should().NotContain("w-screen max-w-none rounded-none border-0 sm:max-w-none");
+    }
+
+    private static string GetSuiteRootForSidebar()
+    {
+        var directory = AppContext.BaseDirectory;
+
+        while (!File.Exists(Path.Combine(directory, "Soenneker.Quark.Suite.slnx")))
+            directory = Directory.GetParent(directory)!.FullName;
+
+        return directory;
     }
 }
