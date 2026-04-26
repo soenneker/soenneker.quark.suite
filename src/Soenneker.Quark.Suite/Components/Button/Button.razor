@@ -23,7 +23,7 @@ else if (RenderAsLink)
         }
         else
         {
-            @ChildContent
+            @RenderChildContent()
         }
     </a>
 }
@@ -40,7 +40,7 @@ else
         }
         else
         {
-            @ChildContent
+            @RenderChildContent()
         }
     </button>
 }
@@ -61,6 +61,8 @@ else
         Disabled || Loading || CollapseTarget.HasContent() || TriggerContext?.Toggle is not null || (To.HasContent() && !To!.StartsWith("#", StringComparison.Ordinal));
 
     private bool StopTriggerClickPropagation => TriggerContext?.Toggle is not null;
+
+    private static readonly TriggerContext? NoTriggerContext = null;
 
     /// <summary>
     /// Gets or sets the size of the button (shadcn: default, xs, sm, lg, icon, icon-xs, icon-sm, icon-lg).
@@ -305,6 +307,16 @@ else
         attributes.Remove("value");
 
         return attributes;
+    }
+
+    private RenderFragment? RenderChildContent()
+    {
+        if (TriggerContext is null || ChildContent is null)
+            return ChildContent;
+
+        return @<CascadingValue Name="TriggerContext" Value="@NoTriggerContext" IsFixed="true">
+                   @ChildContent
+               </CascadingValue>;
     }
 
     protected override async Task HandleClick(MouseEventArgs args)
