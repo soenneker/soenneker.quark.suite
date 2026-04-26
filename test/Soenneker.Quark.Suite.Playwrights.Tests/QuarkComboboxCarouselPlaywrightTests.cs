@@ -28,7 +28,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
         var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Input combobox" }).First;
         var input = section.GetByPlaceholder("Select framework...");
         await input.ClickAsync();
-        await input.FillAsync("nuxt");
+        await input.PressSequentiallyAsync("nuxt");
 
         var listboxId = await input.GetAttributeAsync("aria-controls");
         (string.IsNullOrWhiteSpace(listboxId)).Should().BeFalse();
@@ -302,7 +302,8 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : PlaywrightUnitTest
         var spacingViewport = spacingSection.Locator("[data-slot='carousel-content']").First;
         var spacingTrack = spacingSection.Locator("[data-slot='carousel-content'] > div").First;
 
-        await Assertions.Expect(spacingViewport).ToHaveClassAsync("overflow-hidden");
+        await Assertions.Expect(spacingViewport).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)overflow-hidden(\s|$)"));
+        await Assertions.Expect(spacingViewport).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)touch-pan-y(\s|$)"));
         await Assertions.Expect(spacingTrack).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)flex(\s|$)"));
         await Assertions.Expect(spacingTrack).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)-ml-4(\s|$)"));
         await Assertions.Expect(spacingTrack).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)-ml-1(\s|$)"));

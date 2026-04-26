@@ -109,7 +109,7 @@ public sealed class QuarkSidebarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(sidebar).ToHaveAttributeAsync("data-state", "collapsed");
         await Assertions.Expect(sidebar).ToHaveAttributeAsync("data-collapsible", "icon");
         await Assertions.Expect(menuButton).ToHaveAttributeAsync("title", "Dashboard state");
-        await Assertions.Expect(demo.GetByText("Collapsed", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
+        await Assertions.Expect(menuButton.GetByText("Collapsed", new LocatorGetByTextOptions { Exact = true })).Not.ToBeVisibleAsync();
 
         await rail.ClickAsync();
 

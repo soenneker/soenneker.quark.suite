@@ -79,20 +79,20 @@ else if (ShowErrorMessages && _visible && _status == ValidationStatus.Error && (
         FontWeight ??= Quark.FontWeight.Normal;
     }
 
-    private async void OnStatusChanged(ValidationsStatusChangedEventArgs args)
+    private void OnStatusChanged(ValidationsStatusChangedEventArgs args)
     {
         _status = args.Status;
         _messages = args.Messages;
         _visible = args.Status != ValidationStatus.None;
-        await RefreshOffThread();
+        _ = RefreshOffThread();
     }
 
-    private async void OnClearingAll()
+    private void OnClearingAll()
     {
         _visible = false;
         _status = ValidationStatus.None;
         _messages = null;
-        await RefreshOffThread();
+        _ = RefreshOffThread();
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)

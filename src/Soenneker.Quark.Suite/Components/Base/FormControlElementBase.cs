@@ -111,9 +111,9 @@ public abstract class FormControlElementBase : InteractiveElement
         return RefreshOffThread();
     }
 
-    private async void OnFieldContextStateChanged()
+    private void OnFieldContextStateChanged()
     {
-        await HandleFieldContextChanged();
+        _ = HandleFieldContextChanged();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)

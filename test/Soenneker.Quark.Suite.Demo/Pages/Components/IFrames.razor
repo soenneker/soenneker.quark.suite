@@ -49,12 +49,12 @@
                 </Div>
                 <Div Class="surface-body">
                     <Div>
-                            <Paragraph>IFrame with sandbox security restrictions. This example allows scripts and same-origin access.</Paragraph>
+                            <Paragraph>IFrame with sandbox security restrictions and inline content.</Paragraph>
                             <IFrame 
-                                Source="https://www.openstreetmap.org" 
-                                Title="OpenStreetMap"
+                                SrcDoc="@_sandboxedHtmlContent" 
+                                Title="Sandboxed Inline Content"
                                 Style="width: 100%; height: 400px;"
-                                Sandbox="allow-scripts allow-same-origin"
+                                Sandbox="allow-scripts"
                                 Border="Border.Is1" Rounded="Rounded.Default"
                             />
                     </Div>
@@ -187,6 +187,28 @@
             <body>
                 <H1>Hello from srcdoc!</H1>
                 <Paragraph>This is inline HTML content rendered directly in the iframe without a separate URL.</Paragraph>
+            </body>
+        </html>
+    ";
+
+    private string _sandboxedHtmlContent = @"
+        <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 20px;
+                        background: #f8fafc;
+                        color: #0f172a;
+                    }
+                    code { background: #e2e8f0; padding: 2px 6px; border-radius: 4px; }
+                </style>
+            </head>
+            <body>
+                <h1>Sandboxed content</h1>
+                <p>This inline document runs inside a sandboxed frame without depending on a third-party site that may block embedding.</p>
+                <p>sandbox=&quot;allow-scripts&quot;</p>
             </body>
         </html>
     ";

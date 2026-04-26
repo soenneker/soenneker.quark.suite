@@ -11,6 +11,7 @@
 
 @code {
     private readonly List<IValidation> _validations = [];
+    private EditContext? _ownedEditContext;
 
     /// <summary>
     /// Gets or sets the validation mode.
@@ -76,14 +77,22 @@
 
     protected override void OnParametersSet()
     {
-        // Check if EditContext was explicitly set by checking if it's not null and different from what we would create from Model
-        var editContextExplicitlySet = EditContext is not null && (Model is null || !ReferenceEquals(Model, EditContext.Model));
-        
-        if (editContextExplicitlySet && Model is not null)
+        var hasExternalEditContext = EditContext is not null && !ReferenceEquals(EditContext, _ownedEditContext);
+
+        if (hasExternalEditContext && Model is not null)
             throw new InvalidOperationException("Validations requires a Model parameter, or an EditContext parameter, but not both.");
 
-        if (Model is not null && !ReferenceEquals(Model, EditContext?.Model))
-            EditContext = new EditContext(Model);
+        if (Model is not null)
+        {
+            if (_ownedEditContext is null || !ReferenceEquals(Model, _ownedEditContext.Model))
+                _ownedEditContext = new EditContext(Model);
+
+            EditContext = _ownedEditContext;
+        }
+        else if (hasExternalEditContext)
+        {
+            _ownedEditContext = null;
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

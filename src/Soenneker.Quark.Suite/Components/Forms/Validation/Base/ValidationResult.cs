@@ -49,9 +49,9 @@ public abstract class ValidationResultComponent : ComponentBase, IDisposable
     /// </summary>
     /// <param name="sender">The sender.</param>
     /// <param name="e">The event arguments.</param>
-    protected virtual async void OnValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
+    protected virtual void OnValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
     {
-        await InvokeAsync(StateHasChanged);
+        _ = InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()
