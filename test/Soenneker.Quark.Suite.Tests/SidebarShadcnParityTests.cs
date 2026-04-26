@@ -166,6 +166,18 @@ public sealed partial class RenderedShadcnParityTests
         source.Should().NotContain("w-screen max-w-none rounded-none border-0 sm:max-w-none");
     }
 
+    [Test]
+    public void Sidebar_mobile_sheet_does_not_trap_header_trigger_when_backdrop_is_disabled()
+    {
+        var source = File.ReadAllText(Path.Combine(GetSuiteRootForSidebar(), "src", "Soenneker.Quark.Suite", "Components", "Sidebar", "Sidebar.razor"));
+
+        source.Should().Contain("TrapFocus=\"@ResolvedMobileTrapFocus\"");
+        source.Should().Contain("CloseOnBackdropClick=\"@ResolvedMobileCloseOnBackdropClick\"");
+        source.Should().Contain("public bool? MobileTrapFocus { get; set; }");
+        source.Should().Contain("private bool ResolvedMobileTrapFocus => MobileTrapFocus ?? MobileShowBackdrop;");
+        source.Should().Contain("private bool ResolvedMobileCloseOnBackdropClick => MobileShowBackdrop && MobileCloseOnBackdropClick;");
+    }
+
     private static string GetSuiteRootForSidebar()
     {
         var directory = AppContext.BaseDirectory;

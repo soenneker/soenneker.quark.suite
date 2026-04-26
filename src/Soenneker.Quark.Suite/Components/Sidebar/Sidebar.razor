@@ -7,9 +7,10 @@
     <Sheet Visible="State?.OpenMobile == true"
            VisibleChanged="OnMobileVisibleChanged"
            ShowBackdrop="MobileShowBackdrop"
-           CloseOnBackdropClick="MobileCloseOnBackdropClick"
+           CloseOnBackdropClick="@ResolvedMobileCloseOnBackdropClick"
            CloseOnEscape="MobileCloseOnEscape"
-           LockScroll="MobileLockScroll">
+           LockScroll="MobileLockScroll"
+           TrapFocus="@ResolvedMobileTrapFocus">
         <SheetContent Side="@ToDataSide(Side)"
                       ShowCloseButton="MobileShowCloseButton"
                       ContainerClass="@GetMobileContainerClass()"
@@ -97,6 +98,9 @@ else
 
     [Parameter]
     public bool MobileShowCloseButton { get; set; }
+
+    [Parameter]
+    public bool? MobileTrapFocus { get; set; }
 
     [Parameter]
     public string? MobileClass { get; set; }
@@ -191,6 +195,10 @@ else
     }
 
     private bool ShouldRenderMobileSidebar => State?.IsMobile == true && !IsHiddenMobileMode(ResolvedMobileMode);
+
+    private bool ResolvedMobileTrapFocus => MobileTrapFocus ?? MobileShowBackdrop;
+
+    private bool ResolvedMobileCloseOnBackdropClick => MobileShowBackdrop && MobileCloseOnBackdropClick;
 
     private Task OnMobileVisibleChanged(bool visible)
     {
@@ -457,6 +465,7 @@ else
         hc.Add(MobileCloseOnEscape);
         hc.Add(MobileLockScroll);
         hc.Add(MobileShowCloseButton);
+        hc.Add(MobileTrapFocus);
         hc.Add(MobileClass);
         hc.Add(MobileStyle);
         hc.Add(MobileOffsetTop);
