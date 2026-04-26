@@ -1,12 +1,19 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Component
 
 <span data-slot="prompt-input-command-input">
-    <CommandInput Value="@Value" ValueChanged="@ValueChanged" Placeholder="@Placeholder" @attributes="Attributes" />
+    <CommandInput Value="@Value" ValueChanged="@ValueChanged" Placeholder="@Placeholder" @attributes="BuildAttributes()" />
 </span>
 
 @code {
     [Parameter] public string? Value { get; set; }
     [Parameter] public EventCallback<string?> ValueChanged { get; set; }
     [Parameter] public string? Placeholder { get; set; }
-    [Parameter(CaptureUnmatchedValues = true)] public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Value);
+        hc.Add(Placeholder);
+    }
 }

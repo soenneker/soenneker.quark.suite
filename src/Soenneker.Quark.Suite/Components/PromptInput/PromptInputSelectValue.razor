@@ -1,18 +1,19 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
 
 <span data-slot="prompt-input-select-value">
-    <SelectValue Placeholder="@Placeholder" @attributes="Attributes">
+    <SelectValue Placeholder="@Placeholder" @attributes="BuildAttributes()">
         @ChildContent
     </SelectValue>
 </span>
 
 @code {
     [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-
-    [Parameter]
     public string? Placeholder { get; set; }
 
-    [Parameter(CaptureUnmatchedValues = true)]
-    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Placeholder);
+    }
 }

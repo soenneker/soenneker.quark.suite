@@ -1,4 +1,5 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
 
 <DropdownToggle AsChild>
     <Button Type="ButtonType.Button"
@@ -6,8 +7,7 @@
             Variant="@Variant"
             Disabled="@Disabled"
             aria-label="@Label"
-            data-slot="prompt-input-action-menu-trigger"
-            @attributes="Attributes">
+            @attributes="BuildAttributes()">
         @if (ChildContent is not null)
         {
             @ChildContent
@@ -20,9 +20,6 @@
 </DropdownToggle>
 
 @code {
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-
     [Parameter]
     public string Label { get; set; } = "More actions";
 
@@ -38,6 +35,19 @@
     [Parameter]
     public bool Disabled { get; set; }
 
-    [Parameter(CaptureUnmatchedValues = true)]
-    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "prompt-input-action-menu-trigger";
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Label);
+        hc.Add(IconName);
+        AddIf(ref hc, Size);
+        hc.Add(Variant);
+        hc.Add(Disabled);
+    }
 }

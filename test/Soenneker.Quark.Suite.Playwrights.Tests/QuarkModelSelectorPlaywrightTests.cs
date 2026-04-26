@@ -16,7 +16,7 @@ public sealed class QuarkModelSelectorPlaywrightTests : PlaywrightUnitTest
     }
 
     [Test]
-    public async ValueTask ModelSelector_uses_popover_command_search_and_updates_value()
+    public async ValueTask ModelSelector_uses_popover_radio_list_and_updates_value()
     {
         await using var session = await CreateSession();
         var page = session.Page;
@@ -30,28 +30,26 @@ public sealed class QuarkModelSelectorPlaywrightTests : PlaywrightUnitTest
         page.PageError += (_, error) => pageErrors.Add(error);
 
         await page.GotoAndWaitForReady($"{BaseUrl}model-selectors",
-            static p => p.GetByRole(AriaRole.Combobox, new PageGetByRoleOptions { Name = "Select a model", Exact = true }),
+            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Select a model", Exact = true }),
             expectedTitle: "Model Selector - Quark Suite");
 
-        var trigger = page.GetByRole(AriaRole.Combobox, new PageGetByRoleOptions { Name = "Select a model", Exact = true });
-        await Assertions.Expect(trigger).ToHaveTextAsync(new Regex("GPT-5.5"));
+        var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Select a model", Exact = true });
+        await Assertions.Expect(trigger).ToHaveTextAsync(new Regex("GPT-4"));
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
 
         await trigger.ClickAsync();
 
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "true");
-        await Assertions.Expect(page.GetByRole(AriaRole.Combobox, new PageGetByRoleOptions { Name = "Search Models..." })).ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator("[data-slot='model-selector-label']")).ToHaveTextAsync("Select model");
+        await Assertions.Expect(page.Locator("[data-slot='model-selector-radio-item']")).ToHaveCountAsync(4);
 
-        var input = page.GetByRole(AriaRole.Combobox, new PageGetByRoleOptions { Name = "Search Models..." });
-        await input.FillAsync("gemini");
-
-        var gemini = page.GetByRole(AriaRole.Option, new PageGetByRoleOptions { Name = "Gemini 2.5 Pro", Exact = true });
+        var gemini = page.Locator("[data-slot='model-selector-radio-item']").Filter(new LocatorFilterOptions { HasText = "Gemini 1.5 Flash" });
         await Assertions.Expect(gemini).ToBeVisibleAsync();
         await gemini.ClickAsync();
 
         await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
-        await Assertions.Expect(trigger).ToHaveTextAsync(new Regex("Gemini 2.5 Pro"));
-        await Assertions.Expect(page.GetByText("Selected: gemini-2.5-pro")).ToBeVisibleAsync();
+        await Assertions.Expect(trigger).ToHaveTextAsync(new Regex("Gemini 1.5 Flash"));
+        await Assertions.Expect(page.GetByText("Selected: gemini-1.5-flash")).ToBeVisibleAsync();
 
         consoleErrors.Should().BeEmpty();
         pageErrors.Should().BeEmpty();

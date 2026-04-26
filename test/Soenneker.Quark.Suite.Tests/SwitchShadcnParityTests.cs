@@ -26,9 +26,9 @@ public sealed partial class RenderedShadcnParityTests
         rootClasses.Should().Contain("rounded-full");
         rootClasses.Should().Contain("border-transparent");
         rootClasses.Should().Contain("transition-all");
-        rootClasses.Should().Contain("after:absolute");
-        rootClasses.Should().Contain("after:-inset-x-3");
-        rootClasses.Should().Contain("after:-inset-y-2");
+        rootClasses.Should().NotContain("after:absolute");
+        rootClasses.Should().NotContain("after:-inset-x-3");
+        rootClasses.Should().NotContain("after:-inset-y-2");
         rootClasses.Should().Contain("focus-visible:border-ring");
         rootClasses.Should().Contain("focus-visible:ring-3");
         rootClasses.Should().Contain("disabled:cursor-not-allowed");
@@ -40,7 +40,7 @@ public sealed partial class RenderedShadcnParityTests
         rootClasses.Should().Contain("data-unchecked:bg-input");
         rootClasses.Should().Contain("data-[state=checked]:bg-primary");
         rootClasses.Should().Contain("data-[state=unchecked]:bg-input");
-        rootClasses.Should().NotContain("shadow-xs");
+        rootClasses.Should().Contain("shadow-xs");
         rootClasses.Should().NotContain("focus-visible:ring-[3px]");
         rootClasses.Should().NotContain("data-[size=default]:h-[1.15rem]");
         rootClasses.Should().NotContain("data-[size=default]:w-8");

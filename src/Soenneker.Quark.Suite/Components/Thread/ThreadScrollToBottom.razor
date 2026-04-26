@@ -1,0 +1,70 @@
+@namespace Soenneker.Quark
+@using System.Linq
+
+@if (ShouldRenderControl)
+{
+    <button @onclick="HandleClick" @attributes="BuildAttributes()">
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+        else
+        {
+            <Icon Name="LucideIcon.ArrowDown" Class="size-4.5" />
+        }
+    </button>
+}
+
+@code {
+    [CascadingParameter]
+    internal Thread? ParentThread { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public string? Title { get; set; } = "Scroll to bottom";
+
+    [Parameter]
+    public bool HideWhenAtBottom { get; set; } = true;
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+
+    private bool ShouldRenderControl => ParentThread is null || !HideWhenAtBottom || !ParentThread.IsAtBottom;
+
+    private IReadOnlyDictionary<string, object> BuildAttributes()
+    {
+        var attributes = Attributes is null ? new Dictionary<string, object>() : new Dictionary<string, object>(Attributes);
+        attributes["data-slot"] = "thread-scroll-to-bottom";
+        attributes["type"] = "button";
+        attributes["aria-label"] = Title ?? "Scroll to bottom";
+
+        if (!string.IsNullOrWhiteSpace(Title))
+            attributes["title"] = Title!;
+
+        attributes["class"] = string.Join(" ", new[]
+        {
+            "absolute bottom-6 left-[50%] flex size-8 translate-x-[-50%] cursor-pointer items-center justify-center rounded-full border border-border bg-secondary text-muted-foreground shadow-sm transition-all hover:bg-border active:scale-95",
+            Class,
+            attributes.TryGetValue("class", out var cls) ? cls?.ToString() : null
+        }.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+        return attributes;
+    }
+
+    private async Task HandleClick(MouseEventArgs args)
+    {
+        if (ParentThread is not null)
+            await ParentThread.ScrollToBottom();
+
+        if (OnClick.HasDelegate)
+            await OnClick.InvokeAsync(args);
+    }
+}

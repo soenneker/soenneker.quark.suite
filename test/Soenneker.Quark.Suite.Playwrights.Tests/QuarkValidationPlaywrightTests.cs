@@ -52,7 +52,7 @@ public sealed class QuarkValidationPlaywrightTests : PlaywrightUnitTest
 
         await page.Locator("#zipCode").FillAsync("abc");
         await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Validate Patterns" }).ClickAsync();
-        await Assertions.Expect(page.GetByText("Please enter a valid US ZIP code")).ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator("[data-slot='field-error']").Filter(new LocatorFilterOptions { HasText = "Please enter a valid US ZIP code" })).ToBeVisibleAsync();
 
         await page.Locator("#successField").FillAsync("success");
         await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Validate Success" }).ClickAsync();

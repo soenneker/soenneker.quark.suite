@@ -48,12 +48,13 @@ public sealed partial class RenderedShadcnParityTests
         overlayClasses.Should().Contain("fixed");
         overlayClasses.Should().Contain("inset-0");
         overlayClasses.Should().Contain("z-50");
-        overlayClasses.Should().Contain("bg-black/50");
+        overlayClasses.Should().Contain("bg-black/10");
         overlayClasses.Should().Contain("data-[state=open]:animate-in");
         overlayClasses.Should().Contain("data-[state=open]:fade-in-0");
 
         contentClasses.Should().Contain("group/drawer-content");
-        contentClasses.Should().Contain("bg-background");
+        contentClasses.Should().Contain("bg-popover");
+        contentClasses.Should().Contain("text-popover-foreground");
         contentClasses.Should().Contain("fixed");
         contentClasses.Should().Contain("z-50");
         contentClasses.Should().Contain("flex");
@@ -63,7 +64,7 @@ public sealed partial class RenderedShadcnParityTests
         contentClasses.Should().Contain("data-[vaul-drawer-direction=bottom]:bottom-0");
         contentClasses.Should().Contain("data-[vaul-drawer-direction=bottom]:mt-24");
         contentClasses.Should().Contain("data-[vaul-drawer-direction=bottom]:max-h-[80vh]");
-        contentClasses.Should().Contain("data-[vaul-drawer-direction=bottom]:rounded-t-lg");
+        contentClasses.Should().Contain("data-[vaul-drawer-direction=bottom]:rounded-t-xl");
         contentClasses.Should().Contain("data-[vaul-drawer-direction=bottom]:border-t");
         contentClasses.Should().Contain("data-[vaul-drawer-direction=right]:sm:max-w-sm");
         contentClasses.Should().Contain("data-[vaul-drawer-direction=bottom]:data-[state=open]:slide-in-from-bottom");

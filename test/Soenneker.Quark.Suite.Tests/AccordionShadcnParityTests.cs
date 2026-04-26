@@ -40,8 +40,9 @@ public sealed partial class RenderedShadcnParityTests
         accordionClasses.Should().Contain("flex-col");
         accordionClasses.Should().NotContain("q-accordion");
 
-        itemClasses.Should().Contain("not-last:border-b");
-        itemClasses.Should().NotContain("last:border-b-0");
+        itemClasses.Should().Contain("border-b");
+        itemClasses.Should().Contain("last:border-b-0");
+        itemClasses.Should().NotContain("not-last:border-b");
         itemClasses.Should().NotContain("q-accordion-item");
 
         triggerClasses.Should().Contain("group/accordion-trigger");
@@ -51,7 +52,6 @@ public sealed partial class RenderedShadcnParityTests
         triggerClasses.Should().Contain("items-start");
         triggerClasses.Should().Contain("justify-between");
         triggerClasses.Should().Contain("rounded-lg");
-        triggerClasses.Should().Contain("border");
         triggerClasses.Should().Contain("border-transparent");
         triggerClasses.Should().Contain("py-2.5");
         triggerClasses.Should().Contain("text-left");
@@ -61,26 +61,24 @@ public sealed partial class RenderedShadcnParityTests
         triggerClasses.Should().Contain("outline-none");
         triggerClasses.Should().Contain("hover:underline");
         triggerClasses.Should().Contain("focus-visible:border-ring");
-        triggerClasses.Should().Contain("focus-visible:ring-3");
+        triggerClasses.Should().Contain("focus-visible:ring-[3px]");
         triggerClasses.Should().Contain("focus-visible:ring-ring/50");
-        triggerClasses.Should().Contain("focus-visible:after:border-ring");
+        triggerClasses.Should().NotContain("focus-visible:after:border-ring");
         triggerClasses.Should().Contain("aria-disabled:pointer-events-none");
         triggerClasses.Should().Contain("aria-disabled:opacity-50");
-        triggerClasses.Should().Contain("**:data-[slot=accordion-trigger-icon]:ml-auto");
+        triggerClasses.Should().NotContain("**:data-[slot=accordion-trigger-icon]:ml-auto");
         triggerClasses.Should().NotContain("gap-4");
-        triggerClasses.Should().NotContain("rounded-md");
-        triggerClasses.Should().NotContain("py-4");
-        triggerClasses.Should().NotContain("focus-visible:ring-[3px]");
-        triggerClasses.Should().NotContain("[&[data-state=open]>svg]:rotate-180");
+        triggerClasses.Should().NotContain("focus-visible:ring-3");
+        triggerClasses.Should().Contain("[&[data-state=open]>[data-slot=accordion-trigger-icon]]:rotate-180");
         triggerClasses.Should().NotContain("q-accordion-trigger");
         triggerClasses.Should().NotContain("text-start");
 
         contentClasses.Should().Contain("overflow-hidden");
         contentClasses.Should().Contain("text-sm");
-        contentClasses.Should().Contain("data-open:animate-accordion-down");
-        contentClasses.Should().Contain("data-closed:animate-accordion-up");
-        contentClasses.Should().NotContain("data-[state=open]:animate-accordion-down");
-        contentClasses.Should().NotContain("data-[state=closed]:animate-accordion-up");
+        contentClasses.Should().Contain("data-[state=open]:animate-accordion-down");
+        contentClasses.Should().Contain("data-[state=closed]:animate-accordion-up");
+        contentClasses.Should().NotContain("data-open:animate-accordion-down");
+        contentClasses.Should().NotContain("data-closed:animate-accordion-up");
         contentClasses.Should().NotContain("q-accordion-content");
 
         innerClasses.Should().Contain("pt-0");

@@ -31,10 +31,10 @@ public sealed class QuarkScrollAreaPlaywrightTests : PlaywrightUnitTest
         page.PageError += (_, _) => sawPageError = true;
 
         await page.GotoAndWaitForReady($"{BaseUrl}scroll-area",
-            static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Fixed-height tag list with separators between items." })
+            static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Augments native scroll functionality for custom, cross-browser styling." })
                          .Locator("[data-slot='scroll-area-viewport']").First, expectedTitle: "Scroll Area - Quark Suite");
 
-        var verticalSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Fixed-height tag list with separators between items." })
+        var verticalSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Augments native scroll functionality for custom, cross-browser styling." })
                                   .First;
         var horizontalSection = page.Locator("section").Filter(new LocatorFilterOptions
             { HasText = "Horizontal scroll areas help showcase collections without forcing every item into a narrow grid." }).First;

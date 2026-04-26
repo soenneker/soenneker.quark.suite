@@ -34,60 +34,28 @@ public sealed class QuarkPromptInputSuggestionsPlaywrightTests : PlaywrightUnitT
 
         var prompt = page.Locator("[data-slot='prompt-input']");
         await Assertions.Expect(prompt).ToHaveAttributeAsync("role", "group");
-        await Assertions.Expect(prompt).ToHaveAttributeAsync("data-global-drop", "true");
-        await Assertions.Expect(prompt).ToHaveAttributeAsync("data-multiple", "true");
+        await Assertions.Expect(prompt).ToHaveAttributeAsync("data-global-drop", "false");
+        await Assertions.Expect(prompt).ToHaveAttributeAsync("data-multiple", "false");
 
         var input = page.Locator("[data-slot='prompt-input-textarea']");
-        var fileInput = page.Locator("[data-slot='prompt-input-file-input']");
-        await Assertions.Expect(fileInput).ToHaveAttributeAsync("type", "file");
-        await page.WaitForFunctionAsync("() => document.querySelector('[data-slot=\"prompt-input-file-input\"]')?.__quarkPromptInputAttachmentsRegistered === true");
+        var addAttachment = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Add attachment", Exact = true });
+        var send = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Send message", Exact = true });
 
-        await fileInput.SetInputFilesAsync(new[]
-        {
-            new FilePayload
-            {
-                Name = "notes.md",
-                MimeType = "text/markdown",
-                Buffer = System.Text.Encoding.UTF8.GetBytes("# Notes")
-            }
-        });
-        await Assertions.Expect(page.Locator("[data-slot='attachment-name']").Filter(new LocatorFilterOptions { HasText = "notes.md" })).ToHaveCountAsync(1);
-        await Assertions.Expect(page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Remove notes.md", Exact = true })).ToBeVisibleAsync();
-
-        await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Search", Exact = true }).ClickAsync();
-        await Assertions.Expect(page.GetByText("Web search: on", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
-
-        await page.GetByRole(AriaRole.Combobox, new PageGetByRoleOptions { Name = "Model", Exact = true }).ClickAsync();
-        await page.GetByRole(AriaRole.Option, new PageGetByRoleOptions { Name = "Claude 4 Opus", Exact = true }).ClickAsync();
-        await Assertions.Expect(page.GetByText("Model: claude-opus-4-20250514", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
-
-        await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "More actions", Exact = true }).ClickAsync();
-        await page.GetByRole(AriaRole.Menuitem, new PageGetByRoleOptions { Name = "Add screenshot", Exact = true }).ClickAsync();
-        await Assertions.Expect(page.GetByText("Screenshots: 1", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
+        await Assertions.Expect(addAttachment).ToBeVisibleAsync();
+        await Assertions.Expect(send).ToBeDisabledAsync();
 
         await input.FillAsync("Summarize this page");
         await input.PressAsync("Enter");
-        await Assertions.Expect(page.GetByText("Submitted: Summarize this page")).ToBeVisibleAsync();
-        await Assertions.Expect(page.GetByText("Submitted files: notes.md", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
-        (await input.InputValueAsync()).Should().Be("Summarize this page");
-
-        await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Remove notes.md", Exact = true }).ClickAsync();
-        await Assertions.Expect(page.GetByText("notes.md", new PageGetByTextOptions { Exact = true })).Not.ToBeVisibleAsync();
-        await page.WaitForFunctionAsync("() => document.querySelector('[data-slot=\"prompt-input-file-input\"]')?.__quarkPromptInputAttachmentsRegistered === true && document.querySelector('[data-slot=\"prompt-input-file-input\"]')?.__quarkPromptInputGlobalDrop === true");
+        await Assertions.Expect(input).ToBeDisabledAsync();
+        await Assertions.Expect(input).ToHaveValueAsync(string.Empty, new LocatorAssertionsToHaveValueOptions { Timeout = 7000 });
 
         await input.FillAsync("Line one");
         await input.PressAsync("Shift+Enter");
         await input.PressSequentiallyAsync("Line two");
-        await Assertions.Expect(page.GetByText("Submitted: Line one Line two", new PageGetByTextOptions { Exact = true })).Not.ToBeVisibleAsync();
         (await input.InputValueAsync()).Should().Be("Line one\nLine two");
 
         await input.PressAsync("Enter");
-        await Assertions.Expect(page.GetByText("Submitted: Line one Line two", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
-        (await input.InputValueAsync()).Should().Be("Line one\nLine two");
-
-        await input.FillAsync("Send with button");
-        await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Send", Exact = true }).ClickAsync();
-        await Assertions.Expect(page.GetByText("Submitted: Send with button")).ToBeVisibleAsync();
+        await Assertions.Expect(input).ToBeDisabledAsync();
 
         consoleErrors.Should().BeEmpty();
         pageErrors.Should().BeEmpty();
@@ -111,9 +79,10 @@ public sealed class QuarkPromptInputSuggestionsPlaywrightTests : PlaywrightUnitT
             static p => p.Locator("[data-slot='suggestions']"),
             expectedTitle: "Suggestions - Quark Suite");
 
-        await Assertions.Expect(page.Locator("[data-slot='suggestion']")).ToHaveCountAsync(3);
-        await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Extract action items", Exact = true }).ClickAsync();
-        await Assertions.Expect(page.GetByText("Selected: Extract action items")).ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator("[data-slot='suggestion']")).ToHaveCountAsync(5);
+        await Assertions.Expect(page.Locator("[data-slot='suggestion-list']")).ToBeVisibleAsync();
+        await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "How to learn React?", Exact = true }).ClickAsync();
+        await Assertions.Expect(page.GetByText("Selected: How to learn React?")).ToBeVisibleAsync();
 
         consoleErrors.Should().BeEmpty();
         pageErrors.Should().BeEmpty();

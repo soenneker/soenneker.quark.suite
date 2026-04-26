@@ -125,7 +125,7 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Open popover", Exact = true }),
             expectedTitle: "Popovers - Quark Suite");
 
-        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Default popover with a trigger and dimension fields in the content." }).First;
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Displays rich content in a portal, triggered by a button." }).First;
         var trigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open popover", Exact = true });
         await trigger.ClickAsync();
 
@@ -159,7 +159,7 @@ public sealed class QuarkPopoverPlaywrightTests : PlaywrightUnitTest
         await customRoleTrigger.ClickAsync();
         await Assertions.Expect(customRoleTrigger).ToHaveAttributeAsync("aria-expanded", "false");
 
-        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Default popover with a trigger and dimension fields in the content." }).First;
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Displays rich content in a portal, triggered by a button." }).First;
         var trigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Open popover", Exact = true });
         await trigger.ClickAsync();
 

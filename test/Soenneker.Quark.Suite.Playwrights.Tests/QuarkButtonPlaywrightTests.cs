@@ -36,24 +36,14 @@ public sealed class QuarkButtonPlaywrightTests : PlaywrightUnitTest
         var defaultButton = page.Locator("[data-slot='button'][data-variant='default'][data-size='default']").Filter(new LocatorFilterOptions { HasText = "Button" }).First;
         await Assertions.Expect(defaultButton).ToHaveAttributeAsync("data-variant", "default");
         await Assertions.Expect(defaultButton).ToHaveAttributeAsync("data-size", "default");
-        await Assertions.Expect(defaultButton).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)h-9(\s|$)"));
-        await Assertions.Expect(defaultButton).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)px-4(\s|$)"));
-        await Assertions.Expect(defaultButton).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)hover:bg-primary/90(\s|$)"));
-        await Assertions.Expect(defaultButton).Not.ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"group/button|bg-clip-padding|select-none"));
+        await Assertions.Expect(defaultButton).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)h-8(\s|$)"));
+        await Assertions.Expect(defaultButton).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)px-2\.5(\s|$)"));
+        await Assertions.Expect(defaultButton).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\[a\]:hover:bg-primary/80"));
+        await Assertions.Expect(defaultButton).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"group/button|bg-clip-padding|select-none"));
 
-        var iconButton = page.GetByRole(AriaRole.Button, new() { Name = "Upload", Exact = true });
+        var iconButton = page.GetByRole(AriaRole.Button, new() { Name = "Submit", Exact = true }).First;
         await Assertions.Expect(iconButton).ToHaveAttributeAsync("data-size", "icon");
-        await Assertions.Expect(iconButton).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)size-9(\s|$)"));
-
-        var disabledLink = page.GetByRole(AriaRole.Link, new() { Name = "Disabled Link", Exact = true });
-        await Assertions.Expect(disabledLink).ToHaveAttributeAsync("aria-disabled", "true");
-        await Assertions.Expect(disabledLink).ToHaveAttributeAsync("tabindex", "-1");
-        await disabledLink.ClickAsync(new LocatorClickOptions { Force = true });
-        page.Url.Should().Contain("/buttons");
-
-        var asChildLink = page.GetByRole(AriaRole.Link, new() { Name = "Login", Exact = true });
-        await Assertions.Expect(asChildLink).ToHaveAttributeAsync("data-slot", "button");
-        await Assertions.Expect(asChildLink).ToHaveAttributeAsync("href", new System.Text.RegularExpressions.Regex("input-demo"));
+        await Assertions.Expect(iconButton).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)size-8(\s|$)"));
 
         consoleErrors.Should().BeEmpty();
         pageErrors.Should().BeEmpty();

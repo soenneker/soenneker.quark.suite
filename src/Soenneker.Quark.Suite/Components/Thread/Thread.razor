@@ -1,0 +1,92 @@
+@namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
+@implements IAsyncDisposable
+@using Microsoft.JSInterop
+@inject IThreadsInterop ThreadsInterop
+
+<CascadingValue Value="this" IsFixed="false">
+    <div @ref="ElementRef" @attributes="BuildAttributes()">@ChildContent</div>
+</CascadingValue>
+
+@code {
+    private DotNetObjectReference<Thread>? _dotNetRef;
+    private bool _initialized;
+
+    internal bool IsAtBottom { get; private set; } = true;
+
+    [Parameter]
+    public string Initial { get; set; } = "smooth";
+
+    [Parameter]
+    public string ResizeBehavior { get; set; } = "smooth";
+
+    [Parameter]
+    public bool StickToBottom { get; set; } = true;
+
+    internal async Task ScrollToBottom()
+    {
+        await ThreadsInterop.ScrollToBottom(ElementRef, Initial);
+    }
+
+    [JSInvokable]
+    public void SetIsAtBottom(bool isAtBottom)
+    {
+        if (IsAtBottom == isAtBottom)
+            return;
+
+        IsAtBottom = isAtBottom;
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+
+        Position ??= Quark.Position.Relative;
+        Width ??= Quark.Width.IsFull;
+        Height ??= Quark.Height.IsFull;
+        OverflowY ??= Quark.Overflow.Auto;
+    }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "thread";
+        attributes["data-at-bottom"] = IsAtBottom ? "true" : "false";
+        attributes["data-stick-to-bottom"] = StickToBottom ? "true" : "false";
+
+        BuildClassAttribute(attributes, (ref cls) =>
+        {
+            AppendClass(ref cls, "relative w-full h-full");
+        });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!firstRender || _initialized)
+            return;
+
+        _initialized = true;
+        _dotNetRef = DotNetObjectReference.Create(this);
+        await ThreadsInterop.InitializeThread(ElementRef, _dotNetRef, Initial, ResizeBehavior, StickToBottom);
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Initial);
+        hc.Add(ResizeBehavior);
+        hc.Add(StickToBottom);
+        hc.Add(IsAtBottom);
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        await ThreadsInterop.Destroy(ElementRef);
+
+        _dotNetRef?.Dispose();
+        await base.DisposeAsync();
+    }
+}

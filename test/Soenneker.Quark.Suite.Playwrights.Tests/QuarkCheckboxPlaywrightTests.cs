@@ -175,13 +175,13 @@ public sealed class QuarkCheckboxPlaywrightTests : PlaywrightUnitTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}checks",
-            static p => p.Locator("#terms"),
+            static p => p.Locator("#terms-checkbox"),
             expectedTitle: "Checkbox Component - Quark Suite");
         await WaitForInteractiveAsync(page);
-        await WaitForCheckboxRootAsync(page, "#terms");
+        await WaitForCheckboxRootAsync(page, "#terms-checkbox");
 
-        var checkbox = page.Locator("#terms");
-        var disabled = page.Locator("#toggle");
+        var checkbox = page.Locator("#terms-checkbox");
+        var disabled = page.Locator("#toggle-checkbox");
 
         await Assertions.Expect(checkbox).ToHaveAttributeAsync("role", "checkbox");
         await Assertions.Expect(checkbox).ToHaveAttributeAsync("aria-checked", "false");
@@ -212,10 +212,10 @@ public sealed class QuarkCheckboxPlaywrightTests : PlaywrightUnitTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}checks",
-            static p => p.Locator("#terms"),
+            static p => p.Locator("#terms-checkbox"),
             expectedTitle: "Checkbox Component - Quark Suite");
         await WaitForInteractiveAsync(page);
-        await WaitForCheckboxRootAsync(page, "#terms");
+        await WaitForCheckboxRootAsync(page, "#terms-checkbox");
         await WaitForCheckboxRootAsync(page, "#select-all-checkbox");
 
         bool bubbleInputsMatchRoots = await page.EvaluateAsync<bool>(

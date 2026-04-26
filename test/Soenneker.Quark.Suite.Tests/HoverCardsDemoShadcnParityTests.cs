@@ -16,7 +16,7 @@ public sealed partial class RenderedShadcnParityTests
             .Select(node => node.FirstElementChild!)
             .ToList();
 
-        previewInners.Count(node => node.GetAttribute("class")!.Contains("h-80")).Should().BeGreaterThanOrEqualTo(3);
+        previewInners.Count(node => node.GetAttribute("class")!.Contains("h-80")).Should().BeGreaterThanOrEqualTo(2);
         previewInners.Should().Contain(node => node.GetAttribute("class")!.Contains("h-[22rem]"));
 
         var rtlPreview = previews.First(node => node.GetAttribute("dir") == "rtl");

@@ -1,21 +1,34 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
 
 <HoverCard Open="@Open"
            OpenChanged="@OpenChanged"
            DefaultOpen="@DefaultOpen"
            OpenDelay="@OpenDelay"
            CloseDelay="@CloseDelay"
-           data-slot="prompt-input-hover-card"
-           @attributes="Attributes">
+           @attributes="BuildAttributes()">
     @ChildContent
 </HoverCard>
 
 @code {
-    [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public bool Open { get; set; }
     [Parameter] public EventCallback<bool> OpenChanged { get; set; }
     [Parameter] public bool DefaultOpen { get; set; }
     [Parameter] public int OpenDelay { get; set; } = 700;
     [Parameter] public int CloseDelay { get; set; } = 300;
-    [Parameter(CaptureUnmatchedValues = true)] public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "prompt-input-hover-card";
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Open);
+        hc.Add(DefaultOpen);
+        hc.Add(OpenDelay);
+        hc.Add(CloseDelay);
+    }
 }

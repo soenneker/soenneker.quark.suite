@@ -1,9 +1,20 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
 
-<CommandGroup Heading="@Heading" data-slot="prompt-input-command-group" @attributes="Attributes">@ChildContent</CommandGroup>
+<CommandGroup Heading="@Heading" @attributes="BuildAttributes()">@ChildContent</CommandGroup>
 
 @code {
-    [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public string? Heading { get; set; }
-    [Parameter(CaptureUnmatchedValues = true)] public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "prompt-input-command-group";
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Heading);
+    }
 }

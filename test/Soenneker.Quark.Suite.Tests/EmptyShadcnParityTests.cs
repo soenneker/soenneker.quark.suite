@@ -31,7 +31,7 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().NotContain("md:p-12");
         classes.Should().NotContain("q-empty");
         classes.Should().NotContain("flex-none");
-        classes.Should().NotContain("w-full");
+        classes.Should().Contain("w-full");
         classes.Should().NotContain("border ");
     }
 }

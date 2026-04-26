@@ -43,13 +43,14 @@ public sealed class QuarkAlertPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(actionAlert.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Enable", Exact = true })).ToBeVisibleAsync();
 
         string? firstClasses = await firstAlert.GetAttributeAsync("class");
-        firstClasses.Should().Contain("grid-cols-[0_1fr]");
-        firstClasses.Should().Contain("has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr]");
-        firstClasses.Should().Contain("[&>svg]:size-4");
+        firstClasses.Should().Contain("group/alert");
+        firstClasses.Should().Contain("has-[>svg]:grid-cols-[auto_1fr]");
+        firstClasses.Should().Contain("has-[>svg]:gap-x-2");
         firstClasses.Should().Contain("bg-card");
         firstClasses.Should().Contain("text-card-foreground");
-        firstClasses.Should().NotContain("group/alert");
-        firstClasses.Should().NotContain("has-data-[slot=alert-action]:pr-18");
+        firstClasses.Should().Contain("rounded-lg");
+        firstClasses.Should().Contain("px-2.5");
+        firstClasses.Should().Contain("py-2");
         (await firstAlert.GetAttributeAsync("style") ?? "").Should().NotContain("border-color");
 
         string? destructiveClasses = await destructive.GetAttributeAsync("class");
@@ -62,8 +63,8 @@ public sealed class QuarkAlertPlaywrightTests : PlaywrightUnitTest
         var title = firstAlert.Locator("[data-slot='alert-title']").First;
         var description = firstAlert.Locator("[data-slot='alert-description']").First;
 
-        (await title.GetAttributeAsync("class")).Should().Contain("line-clamp-1");
-        (await description.GetAttributeAsync("class")).Should().Contain("[&_p]:leading-relaxed");
+        (await title.GetAttributeAsync("class")).Should().Contain("font-medium");
+        (await description.GetAttributeAsync("class")).Should().Contain("text-muted-foreground");
 
         consoleErrors.Should().BeEmpty();
         sawPageError.Should().BeFalse();

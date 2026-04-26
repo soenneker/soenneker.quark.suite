@@ -1,7 +1,8 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
 
 <div data-slot="prompt-input-button">
-    <Button Type="ButtonType.Submit" Size="@Size" Variant="@Variant" Disabled="@Disabled" Loading="@Loading" aria-label="@Label" data-slot="prompt-input-submit" @attributes="Attributes">
+    <Button Type="ButtonType.Submit" Size="@Size" Variant="@Variant" Disabled="@Disabled" Loading="@Loading" aria-label="@Label" @attributes="BuildAttributes()">
         @if (ChildContent is not null)
         {
             @ChildContent
@@ -14,9 +15,6 @@
 </div>
 
 @code {
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-
     [Parameter]
     public string Label { get; set; } = "Send message";
 
@@ -35,6 +33,20 @@
     [Parameter]
     public bool Loading { get; set; }
 
-    [Parameter(CaptureUnmatchedValues = true)]
-    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "prompt-input-submit";
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Label);
+        hc.Add(IconName);
+        AddIf(ref hc, Size);
+        hc.Add(Variant);
+        hc.Add(Disabled);
+        hc.Add(Loading);
+    }
 }

@@ -14,7 +14,7 @@ public sealed partial class RenderedShadcnParityTests
         var textareaClasses = textarea.Find("[data-slot='textarea']").GetAttribute("class")!;
 
         textareaClasses.Should().Contain("min-h-16");
-        textareaClasses.Should().Contain("rounded-lg");
+        textareaClasses.Should().Contain("rounded-md");
         textareaClasses.Should().Contain("text-base");
         textareaClasses.Should().Contain("md:text-sm");
         textareaClasses.Should().Contain("aria-invalid:ring-3");

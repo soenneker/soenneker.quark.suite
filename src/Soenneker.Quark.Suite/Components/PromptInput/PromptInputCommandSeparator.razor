@@ -1,7 +1,12 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Component
 
-<CommandSeparator data-slot="prompt-input-command-separator" @attributes="Attributes" />
+<CommandSeparator @attributes="BuildAttributes()" />
 
 @code {
-    [Parameter(CaptureUnmatchedValues = true)] public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "prompt-input-command-separator";
+    }
 }

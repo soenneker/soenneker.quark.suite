@@ -14,9 +14,9 @@ public sealed partial class RenderedShadcnParityTests
 
         var classes = cut.Find("[data-slot='alert-dialog-title']").GetAttribute("class")!;
 
-        classes.Should().Contain("text-lg");
-        classes.Should().Contain("font-semibold");
+        classes.Should().Contain("text-base");
+        classes.Should().Contain("font-medium");
         classes.Should().Contain("sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2");
-        classes.Should().NotContain("cn-font-heading");
+        classes.Should().Contain("cn-font-heading");
     }
 }

@@ -1,6 +1,7 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
 
-<PromptInputActionMenuItem Disabled="@Disabled" Clicked="@Clicked">
+<PromptInputActionMenuItem Disabled="@Disabled" Clicked="@Clicked" @attributes="BuildAttributes()">
     @if (ChildContent is not null)
     {
         @ChildContent
@@ -14,9 +15,6 @@
 
 @code {
     [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-
-    [Parameter]
     public string Label { get; set; } = "Add screenshot";
 
     [Parameter]
@@ -27,4 +25,12 @@
 
     [Parameter]
     public EventCallback<MouseEventArgs> Clicked { get; set; }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Label);
+        hc.Add(IconName);
+        hc.Add(Disabled);
+    }
 }

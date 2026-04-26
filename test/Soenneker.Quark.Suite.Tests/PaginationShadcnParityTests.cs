@@ -63,20 +63,20 @@ public sealed partial class RenderedShadcnParityTests
         itemClasses.Should().NotContain("q-pagination-item-active");
 
         linkClasses.Should().Contain("inline-flex");
-        linkClasses.Should().Contain("rounded-lg");
+        linkClasses.Should().Contain("rounded-md");
         linkClasses.Should().Contain("size-8");
         linkClasses.Should().Contain("border-border");
         linkClasses.Should().Contain("bg-background");
-        linkClasses.Should().NotContain("rounded-md");
+        linkClasses.Should().NotContain("rounded-lg");
         linkClasses.Should().NotContain("size-9");
         linkClasses.Should().NotContain("q-pagination-link");
         ariaCurrent.Should().Be("page");
 
         ellipsisClasses.Should().Contain("flex");
-        ellipsisClasses.Should().Contain("size-8");
+        ellipsisClasses.Should().Contain("size-9");
         ellipsisClasses.Should().Contain("items-center");
         ellipsisClasses.Should().Contain("justify-center");
-        ellipsisClasses.Should().NotContain("size-9");
+        ellipsisClasses.Should().NotContain("size-8");
         ellipsisClasses.Should().NotContain("q-pagination-ellipsis");
         ellipsisAriaHidden.Should().Be("true");
     }
@@ -97,17 +97,17 @@ public sealed partial class RenderedShadcnParityTests
 
         previousClasses.Should().Contain("gap-1.5");
         previousClasses.Should().Contain("px-2.5");
-        previousClasses.Should().Contain("pl-1.5!");
+        previousClasses.Should().Contain("sm:pl-2.5!");
         previousClasses.Should().Contain("h-8");
-        previousClasses.Should().NotContain("sm:pl-2.5");
+        previousClasses.Should().NotContain("pl-1.5!");
         previousClasses.Should().NotContain("h-9");
         previous.Find("svg").GetAttribute("class")!.Should().Contain("rtl:rotate-180");
 
         nextClasses.Should().Contain("gap-1.5");
         nextClasses.Should().Contain("px-2.5");
-        nextClasses.Should().Contain("pr-1.5!");
+        nextClasses.Should().Contain("sm:pr-2.5!");
         nextClasses.Should().Contain("h-8");
-        nextClasses.Should().NotContain("sm:pr-2.5");
+        nextClasses.Should().NotContain("pr-1.5!");
         nextClasses.Should().NotContain("h-9");
         next.Find("svg").GetAttribute("class")!.Should().Contain("rtl:rotate-180");
     }

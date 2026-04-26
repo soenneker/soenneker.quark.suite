@@ -25,7 +25,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Getting started", Exact = true }),
             expectedTitle: "Navigation Menu - Quark Suite");
 
-        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Navigation menu with grouped list content, a direct docs link, shared indicator, and viewport." }).First;
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A collection of links for navigating websites." }).First;
         var gettingStarted = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Getting started", Exact = true });
         await gettingStarted.ClickAsync();
 
@@ -61,7 +61,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Getting started", Exact = true }),
             expectedTitle: "Navigation Menu - Quark Suite");
 
-        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Navigation menu with grouped list content, a direct docs link, shared indicator, and viewport." }).First;
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A collection of links for navigating websites." }).First;
         var gettingStarted = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Getting started", Exact = true });
         var content = page.Locator("[data-slot='navigation-menu-content'][data-state='open']").Filter(new LocatorFilterOptions { HasText = "Introduction" });
 
@@ -88,7 +88,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Getting started", Exact = true }),
             expectedTitle: "Navigation Menu - Quark Suite");
 
-        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Navigation menu with grouped list content, a direct docs link, shared indicator, and viewport." }).First;
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A collection of links for navigating websites." }).First;
         var root = section.Locator("[data-slot='navigation-menu']").First;
         var trigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Getting started", Exact = true });
 
@@ -118,13 +118,12 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Getting started", Exact = true }),
             expectedTitle: "Navigation Menu - Quark Suite");
 
-        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Navigation menu with grouped list content, a direct docs link, shared indicator, and viewport." }).First;
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A collection of links for navigating websites." }).First;
         var gettingStarted = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Getting started", Exact = true });
-        var components = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Components", Exact = true });
         var docs = section.GetByRole(AriaRole.Link, new LocatorGetByRoleOptions { Name = "Docs", Exact = true });
 
-        await components.FocusAsync();
-        await components.PressAsync("Home");
+        await docs.FocusAsync();
+        await docs.PressAsync("Home");
 
         await Assertions.Expect(gettingStarted).ToBeFocusedAsync();
 
@@ -148,15 +147,13 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Getting started", Exact = true }),
             expectedTitle: "Navigation Menu - Quark Suite");
 
-        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Navigation menu with grouped list content, a direct docs link, shared indicator, and viewport." }).First;
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A collection of links for navigating websites." }).First;
         var gettingStarted = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Getting started", Exact = true });
-        var components = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Components", Exact = true });
         var docs = section.GetByRole(AriaRole.Link, new LocatorGetByRoleOptions { Name = "Docs", Exact = true });
 
         await docs.HoverAsync();
 
         await Assertions.Expect(gettingStarted).ToHaveAttributeAsync("aria-expanded", "false");
-        await Assertions.Expect(components).ToHaveAttributeAsync("aria-expanded", "false");
         await Assertions.Expect(section.Locator("[data-slot='navigation-menu-content'][data-state='open']")).ToHaveCountAsync(0);
         (await docs.GetAttributeAsync("aria-expanded")).Should().BeNull();
 
@@ -178,18 +175,17 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Getting started", Exact = true }),
             expectedTitle: "Navigation Menu - Quark Suite");
 
-        var gettingStarted = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Getting started", Exact = true });
-        var components = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Components", Exact = true });
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A collection of links for navigating websites." }).First;
+        var gettingStarted = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Getting started", Exact = true });
+        var docs = section.GetByRole(AriaRole.Link, new LocatorGetByRoleOptions { Name = "Docs", Exact = true });
 
         await gettingStarted.ClickAsync();
         await Assertions.Expect(page.Locator("main")).ToContainTextAsync("Introduction");
 
-        await components.HoverAsync();
+        await docs.HoverAsync();
 
-        await Assertions.Expect(components).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(gettingStarted).ToHaveAttributeAsync("aria-expanded", "false");
-        await Assertions.Expect(page.Locator("main")).ToContainTextAsync("Alert Dialog");
-        await Assertions.Expect(page.Locator("main")).ToContainTextAsync("Hover Card");
+        await Assertions.Expect(section.Locator("[data-slot='navigation-menu-content'][data-state='open']")).ToHaveCountAsync(0);
     }
 
 [Test]
@@ -244,7 +240,7 @@ public sealed class QuarkNavigationMenuPlaywrightTests : PlaywrightUnitTest
             static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Getting started", Exact = true }),
             expectedTitle: "Navigation Menu - Quark Suite");
 
-        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Navigation menu with grouped list content, a direct docs link, shared indicator, and viewport." }).First;
+        var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A collection of links for navigating websites." }).First;
         var trigger = section.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Getting started", Exact = true });
 
         await trigger.ClickAsync();

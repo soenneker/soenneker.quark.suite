@@ -1,18 +1,15 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
 
 <SelectContent ContentPosition="@ContentPosition"
                Side="@Side"
                SideOffset="@SideOffset"
                PlacementAlign="@PlacementAlign"
-               data-slot="prompt-input-select-content"
-               @attributes="Attributes">
+               @attributes="BuildAttributes()">
     @ChildContent
 </SelectContent>
 
 @code {
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-
     [Parameter]
     public string ContentPosition { get; set; } = "popper";
 
@@ -25,6 +22,18 @@
     [Parameter]
     public string PlacementAlign { get; set; } = "start";
 
-    [Parameter(CaptureUnmatchedValues = true)]
-    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "prompt-input-select-content";
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ContentPosition);
+        hc.Add(Side);
+        hc.Add(SideOffset);
+        hc.Add(PlacementAlign);
+    }
 }

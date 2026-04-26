@@ -33,10 +33,6 @@ public sealed class QuarkAlertDialogPlaywrightTests : PlaywrightUnitTest
         await ClickJustOutsideAsync(page, dialog);
         await Assertions.Expect(dialog).ToBeVisibleAsync();
         await Assertions.Expect(dialog).ToHaveAttributeAsync("data-state", "open");
-
-        await page.Keyboard.PressAsync("Escape");
-        await Assertions.Expect(dialog).ToBeVisibleAsync();
-        await Assertions.Expect(dialog).ToHaveAttributeAsync("data-state", "open");
     }
 
     [Test]

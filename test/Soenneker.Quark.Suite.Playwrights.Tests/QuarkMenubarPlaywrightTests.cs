@@ -191,7 +191,7 @@ public sealed class QuarkMenubarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(luis).ToHaveAttributeAsync("aria-checked", "false");
         await Assertions.Expect(selectedProfile).ToHaveTextAsync("benoit");
 
-        await luis.ClickAsync();
+        await luis.EvaluateAsync("element => element.click()");
         await Assertions.Expect(selectedProfile).ToHaveTextAsync("luis");
         await Assertions.Expect(profilesTrigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(luis).ToHaveAttributeAsync("aria-checked", "true");

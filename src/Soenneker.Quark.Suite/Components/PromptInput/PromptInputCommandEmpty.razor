@@ -1,8 +1,12 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
 
-<CommandEmpty data-slot="prompt-input-command-empty" @attributes="Attributes">@ChildContent</CommandEmpty>
+<CommandEmpty @attributes="BuildAttributes()">@ChildContent</CommandEmpty>
 
 @code {
-    [Parameter] public RenderFragment? ChildContent { get; set; }
-    [Parameter(CaptureUnmatchedValues = true)] public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "prompt-input-command-empty";
+    }
 }

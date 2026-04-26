@@ -1,6 +1,7 @@
 @namespace Soenneker.Quark
 @using System.Linq
 @using Microsoft.JSInterop
+@inherits Soenneker.Quark.Component
 @implements IAsyncDisposable
 @inject IJSRuntime JSRuntime
 
@@ -32,23 +33,18 @@
     [Parameter]
     public int? Rows { get; set; } = 2;
 
-    [Parameter]
-    public string? Class { get; set; }
-
-    [Parameter(CaptureUnmatchedValues = true)]
-    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
-
     private IReadOnlyDictionary<string, object> TextareaAttributes
     {
         get
         {
-            var attributes = Attributes is null ? new Dictionary<string, object>() : new Dictionary<string, object>(Attributes);
+            var attributes = new Dictionary<string, object>(BuildAttributes());
+            attributes.TryGetValue("class", out object? existingClass);
             attributes["aria-label"] = "Message input";
             attributes["data-slot"] = "prompt-input-textarea";
             attributes["class"] = string.Join(" ", new[]
             {
                 "field-sizing-content min-h-14 max-h-40 w-full resize-none border-0 bg-transparent px-4 py-4 text-sm leading-6 font-normal text-primary shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-transparent",
-                Class
+                existingClass?.ToString()
             }.Where(x => !string.IsNullOrWhiteSpace(x)));
 
             return attributes;
@@ -71,6 +67,8 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        await base.OnAfterRenderAsync(firstRender);
+
         if (!firstRender)
             return;
 
@@ -78,7 +76,15 @@
         await _module.InvokeVoidAsync("registerTextarea", _element);
     }
 
-    public async ValueTask DisposeAsync()
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Value);
+        hc.Add(Placeholder);
+        hc.Add(Rows);
+    }
+
+    protected override async ValueTask OnDisposeAsync()
     {
         if (_module is null)
             return;

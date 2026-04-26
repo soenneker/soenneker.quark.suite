@@ -53,7 +53,7 @@
 
     <!-- Local project control -->
     <PropertyGroup>
-        <UseLocalProjects Condition="'$(UseLocalProjects)' == ''">true</UseLocalProjects>
+        <UseLocalProjects Condition="'$(UseLocalProjects)' == ''">false</UseLocalProjects>
 
         <LocalBradixProject Condition="'$(LocalBradixProject)' == ''">
             ..\..\..\..\Bradix\soenneker.bradix.suite\src\Soenneker.Bradix.Suite\Soenneker.Bradix.Suite.csproj
@@ -94,7 +94,7 @@
         <PackageReference Include="Soenneker.DataTables.Dtos.Column" Version="4.0.20" />
         <PackageReference Include="Soenneker.DataTables.Dtos.ServerResponse" Version="4.0.16" />
         <PackageReference Include="Soenneker.DataTables.Dtos.ServerSideRequest" Version="4.0.19" />
-        <PackageReference Include="Soenneker.Lucide.Enums.Icons" Version="4.0.108" />
+        <PackageReference Include="Soenneker.Lucide.Enums.Icons" Version="4.0.109" />
         <PackageReference Include="Soenneker.Lucide.Icons" Version="4.0.126" />
         <PackageReference Include="Soenneker.Quark.Components.Core.Cancellable" Version="4.0.70" />
         <PackageReference Include="Soenneker.Quark.Gen.Lucide.Abstractions" Version="4.0.12" />
@@ -104,10 +104,10 @@
 
     <!-- Switch: NuGet -->
     <ItemGroup Condition="'$(UseLocalProjects)' != 'true'">
-        <PackageReference Include="Soenneker.Bradix.Suite" Version="4.0.66" />
-        <PackageReference Include="Soenneker.Quark.Builders" Version="4.0.45" />
+        <PackageReference Include="Soenneker.Bradix.Suite" Version="4.0.67" />
+        <PackageReference Include="Soenneker.Quark.Builders" Version="4.0.46" />
 
-        <PackageReference Include="Soenneker.Quark.Gen.Presets" Version="4.0.2">
+        <PackageReference Include="Soenneker.Quark.Gen.Presets" Version="4.0.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -130,16 +130,12 @@
         <ProjectReference Include="$(LocalBradixProject)" />
         <ProjectReference Include="$(LocalQuarkBuildersProject)" />
 
-        <ProjectReference Include="$(LocalQuarkGenPresetsProject)"
-                          OutputItemType="Analyzer"
-                          ReferenceOutputAssembly="false"
-                          PrivateAssets="all" />
+        <ProjectReference Include="$(LocalQuarkGenPresetsProject)" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
     </ItemGroup>
 
     <!-- Tailwind manifest pack -->
     <Target Name="PackGeneratedTailwindManifest">
-        <Error Condition="!Exists('$(_GeneratedTailwindManifestPath)')"
-               Text="Generated Tailwind manifest not found. Build before packing." />
+        <Error Condition="!Exists('$(_GeneratedTailwindManifestPath)')" Text="Generated Tailwind manifest not found. Build before packing." />
 
         <ItemGroup>
             <TfmSpecificPackageFile Include="$(_GeneratedTailwindManifestPath)">

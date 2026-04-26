@@ -1,0 +1,74 @@
+@page "/threads"
+
+<PageTitle>Thread - Quark Suite</PageTitle>
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <Section Space="Space.Y.Is4">
+        <DemoSection Title="Demo"
+                     Description="A bottom-sticking conversation viewport for stacked message turns."
+                     Code="@BasicCode"
+                     CodeLanguage="razor">
+            <Div Class="h-[28rem] max-w-2xl overflow-hidden rounded-lg border border-border bg-card">
+                <Thread>
+                    <ThreadContent>
+                        @foreach (var turn in _turns)
+                        {
+                            @if (turn.From == "user")
+                            {
+                                <Div Class="flex w-full justify-end">
+                                    <Div Class="max-w-[80%] rounded-lg bg-primary px-4 py-2 text-primary-foreground">
+                                        <Paragraph Margin="Margin.Is0" TextSize="TextSize.Sm" Class="whitespace-pre-line">@turn.Text</Paragraph>
+                                    </Div>
+                                </Div>
+                            }
+                            else
+                            {
+                                <Div Class="flex w-full justify-start">
+                                    <Div Class="max-w-[80%] rounded-lg bg-muted px-4 py-2 text-foreground">
+                                        <Paragraph Margin="Margin.Is0" TextSize="TextSize.Sm" Class="whitespace-pre-line">@turn.Text</Paragraph>
+                                    </Div>
+                                </Div>
+                            }
+                        }
+                    </ThreadContent>
+                    <ThreadScrollToBottom />
+                </Thread>
+            </Div>
+        </DemoSection>
+    </Section>
+</Div>
+
+@code {
+    private readonly ChatTurn[] _turns =
+    [
+        new("user", "I'm visiting Chicago for a long weekend. What's worth doing if I've never been?"),
+        new("assistant", "Start with the lakefront and Millennium Park for an easy first day.\n\nIf the weather stays calm, a short architecture boat tour is a nice add-on. Weekend departures fill up, so book a day ahead if you care about the time slot."),
+        new("user", "I'm into food more than landmarks. Where should I eat?"),
+        new("assistant", "Reserve one night for classic deep dish, then keep lunches casual in whatever neighborhood you're exploring."),
+        new("user", "Is public transit enough, or should I rent a car?"),
+        new("assistant", "The L trains and buses cover most visitor routes without much hassle.\n\nRent a car only if you plan to leave the city every day. Downtown parking and hotel garages add up, so defaulting to transit usually saves money."),
+        new("user", "Any packing tip for April weather?"),
+        new("assistant", "Pack layers and a light rain jacket; spring weather can swing between chilly mornings and warm afternoons."),
+        new("user", "Perfect. I'll draft a loose plan and see what fits."),
+        new("assistant", "Have a great trip!")
+    ];
+
+    private sealed record ChatTurn(string From, string Text);
+
+    private const string BasicCode =
+@"<Thread Class=""h-[28rem]"">
+    <ThreadContent>
+        @foreach (var turn in turns)
+        {
+            <Div Class=""flex w-full justify-end"">
+                <Div Class=""max-w-[80%] rounded-lg bg-primary px-4 py-2 text-primary-foreground"">
+                    <Paragraph Margin=""Margin.Is0"" TextSize=""TextSize.Sm"">
+                        @turn.Text
+                    </Paragraph>
+                </Div>
+            </Div>
+        }
+    </ThreadContent>
+    <ThreadScrollToBottom />
+</Thread>";
+}

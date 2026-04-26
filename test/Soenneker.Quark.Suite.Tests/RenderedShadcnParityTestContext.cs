@@ -112,6 +112,11 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         promptInputModule.SetupVoid("unregisterAttachmentsById", _ => true).SetVoidResult();
         promptInputModule.SetupVoid("openFileDialogById", _ => true).SetVoidResult();
 
+        var threadModule = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/threadinterop.js");
+        threadModule.SetupVoid("initialize", _ => true).SetVoidResult();
+        threadModule.SetupVoid("scrollToBottom", _ => true).SetVoidResult();
+        threadModule.SetupVoid("dispose", _ => true).SetVoidResult();
+
         JSInterop.SetupVoid("registerDismissableLayerBranch", _ => true).SetVoidResult();
         JSInterop.SetupVoid("unregisterDismissableLayerBranch", _ => true).SetVoidResult();
         JSInterop.SetupVoid("registerSelectBubbleInput", _ => true).SetVoidResult();
@@ -178,6 +183,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddScoped<IScoreInterop, FakeScoreInterop>();
         Services.AddScoped<ITreeViewInterop, FakeTreeViewInterop>();
         Services.AddScoped<IStepsInterop, FakeStepsInterop>();
+        Services.AddScoped<IThreadsInterop, FakeThreadsInterop>();
         Services.AddScoped<ISortableInterop, FakeSortableInterop>();
         Services.AddScoped<IResizableInterop, FakeResizableInterop>();
         Services.AddScoped<IOverlayInterop, FakeOverlayInterop>();
@@ -233,6 +239,20 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask FocusById(string id, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    }
+
+    private sealed class FakeThreadsInterop : IThreadsInterop
+    {
+        public ValueTask Initialize(System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask InitializeThread(ElementReference element, DotNetObjectReference<Thread> callbackReference, string initial, string resizeBehavior,
+            bool stickToBottom, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask ScrollToBottom(ElementReference element, string behavior, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask Destroy(ElementReference element, System.Threading.CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }

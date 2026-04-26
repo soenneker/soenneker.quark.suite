@@ -50,7 +50,7 @@ public sealed class QuarkInputOtpPlaywrightTests : PlaywrightUnitTest
 
         (await firstSlot.EvaluateAsync<double>("element => element.getBoundingClientRect().width")).Should().BeApproximately(36, 0.5);
         (await firstSlot.EvaluateAsync<double>("element => element.getBoundingClientRect().height")).Should().BeApproximately(36, 0.5);
-        (await firstSlot.EvaluateAsync<string>("element => getComputedStyle(element).textAlign")).Should().Be("center");
+        (await firstSlot.EvaluateAsync<string>("element => getComputedStyle(element).textAlign")).Should().Be("start");
 
         await firstSlot.ClickAsync();
         await page.Keyboard.TypeAsync("12");

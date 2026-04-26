@@ -1,19 +1,16 @@
 @namespace Soenneker.Quark
 @typeparam TValue
+@inherits Soenneker.Quark.Element
 
 <SelectItem TValue="TValue"
             ItemValue="@ItemValue"
             Text="@Text"
             Disabled="@Disabled"
-            data-slot="prompt-input-select-item"
-            @attributes="Attributes">
+            @attributes="BuildAttributes()">
     @ChildContent
 </SelectItem>
 
 @code {
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-
     [Parameter]
     public TValue? ItemValue { get; set; }
 
@@ -23,6 +20,17 @@
     [Parameter]
     public bool Disabled { get; set; }
 
-    [Parameter(CaptureUnmatchedValues = true)]
-    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "prompt-input-select-item";
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(ItemValue);
+        hc.Add(Text);
+        hc.Add(Disabled);
+    }
 }

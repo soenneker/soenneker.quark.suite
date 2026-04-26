@@ -21,7 +21,7 @@ public sealed partial class RenderedShadcnParityTests
         titleClasses.Should().Contain("text-sm");
         titleClasses.Should().Contain("leading-snug");
         titleClasses.Should().Contain("font-medium");
-        titleClasses.Should().Contain("line-clamp-1");
-        titleClasses.Should().Contain("underline-offset-4");
+        titleClasses.Should().NotContain("line-clamp-1");
+        titleClasses.Should().NotContain("underline-offset-4");
     }
 }

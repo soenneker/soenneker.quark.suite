@@ -22,11 +22,11 @@ public sealed class QuarkHoverCardPlaywrightTests : PlaywrightUnitTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}hover-cards",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "nextjs", Exact = true }),
+            static p => p.Locator("[data-slot='hover-card-trigger']").First,
             expectedTitle: "Hover Cards - Quark Suite");
 
-        var trigger = page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "nextjs", Exact = true });
-        var details = page.GetByText("The React framework for production applications.", new PageGetByTextOptions { Exact = true });
+        var trigger = page.Locator("[data-slot='hover-card-trigger']").First;
+        var details = page.Locator("[data-slot='hover-card-content']").Filter(new LocatorFilterOptions { HasText = "The React Framework" });
 
         await trigger.HoverAsync();
         await Assertions.Expect(details).ToBeVisibleAsync();
@@ -46,12 +46,12 @@ public sealed class QuarkHoverCardPlaywrightTests : PlaywrightUnitTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}hover-cards",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "nextjs", Exact = true }),
+            static p => p.Locator("[data-slot='hover-card-trigger']").First,
             expectedTitle: "Hover Cards - Quark Suite");
 
-        await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "nextjs", Exact = true }).HoverAsync();
+        await page.Locator("[data-slot='hover-card-trigger']").First.HoverAsync();
 
-        await Assertions.Expect(page.GetByText("The React framework for production applications.", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator("[data-slot='hover-card-content']").Filter(new LocatorFilterOptions { HasText = "The React Framework" })).ToBeVisibleAsync();
         await Assertions.Expect(page.GetByText("Joined December 2021", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
     }
 
@@ -98,10 +98,10 @@ public sealed class QuarkHoverCardPlaywrightTests : PlaywrightUnitTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}hover-cards",
-            static p => p.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "nextjs", Exact = true }),
+            static p => p.Locator("[data-slot='hover-card-trigger']").First,
             expectedTitle: "Hover Cards - Quark Suite");
 
-        await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "nextjs", Exact = true }).HoverAsync();
+        await page.Locator("[data-slot='hover-card-trigger']").First.HoverAsync();
 
         var content = page.Locator("[data-slot='hover-card-content'][data-state='open']:visible").First;
         await Assertions.Expect(content).ToBeVisibleAsync();

@@ -20,8 +20,7 @@ public sealed class QuarkAspectRatioPlaywrightTests : PlaywrightUnitTest
         var page = session.Page;
 
         await page.GotoAndWaitForReady($"{BaseUrl}aspect-ratios",
-            static p => p.Locator("section").Filter(new LocatorFilterOptions
-                { HasText = "Portrait ratios work well for mobile previews and editorial imagery." }).First, expectedTitle: "Aspect Ratio - Quark Suite");
+            static p => p.Locator("#aspect-ratio-portrait-demo"), expectedTitle: "Aspect Ratio - Quark Suite");
 
         var landscapeFrame = page.Locator("#aspect-ratio-landscape-demo [data-radix-aspect-ratio-wrapper]");
         var squareFrame = page.Locator("#aspect-ratio-square-demo [data-radix-aspect-ratio-wrapper]");

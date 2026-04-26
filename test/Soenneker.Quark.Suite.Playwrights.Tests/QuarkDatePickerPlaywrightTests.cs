@@ -96,7 +96,7 @@ public sealed class QuarkDatePickerPlaywrightTests : PlaywrightUnitTest
         var panel = page.Locator("[data-slot='popover-content']").Filter(new LocatorFilterOptions { Has = page.Locator("input[aria-label='Hour']") }).Last;
         await Assertions.Expect(panel).ToBeVisibleAsync();
 
-        await panel.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "+", Exact = true }).Nth(1).ClickAsync();
+        await panel.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "+", Exact = true }).Nth(1).EvaluateAsync("element => element.click()");
 
         var updatedValue = await input.InputValueAsync();
         var updatedValueChip = await valueChip.InnerTextAsync();

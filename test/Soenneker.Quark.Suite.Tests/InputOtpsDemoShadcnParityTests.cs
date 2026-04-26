@@ -14,6 +14,6 @@ public sealed partial class RenderedShadcnParityTests
 
         cut.FindAll("[data-slot='preview']")
             .Select(node => node.FirstElementChild!.GetAttribute("class")!)
-            .Should().Contain(cls => cls.Contains("h-[30rem]"));
+            .Should().OnlyContain(cls => cls.Contains("min-h-72"));
     }
 }

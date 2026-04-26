@@ -35,14 +35,12 @@ public sealed class QuarkAttachmentsPlaywrightTests : PlaywrightUnitTest
         var attachments = page.Locator("[data-slot='attachments']");
         await Assertions.Expect(attachments).ToHaveAttributeAsync("data-variant", "list");
         await Assertions.Expect(page.Locator("[data-slot='attachment']")).ToHaveCountAsync(4);
-        await Assertions.Expect(page.Locator("[data-slot='attachment-name']").Filter(new LocatorFilterOptions { HasText = "screenshot.png" })).ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator("[data-slot='attachment'][data-variant='compact']")).ToHaveCountAsync(4);
+        await Assertions.Expect(page.Locator("[data-slot='attachment-preview']")).ToHaveCountAsync(4);
+        await Assertions.Expect(page.Locator("[data-slot='attachment-progress']")).ToHaveCountAsync(0);
 
-        var progress = page.Locator("[data-slot='attachment-progress']");
-        await Assertions.Expect(progress).ToHaveAttributeAsync("role", "progressbar");
-        await Assertions.Expect(progress).ToHaveAttributeAsync("aria-valuenow", "64");
-
-        await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Remove", Exact = true }).First.FocusAsync();
-        await Assertions.Expect(page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Remove", Exact = true }).First).ToBeFocusedAsync();
+        await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Remove attachment", Exact = true }).First.FocusAsync();
+        await Assertions.Expect(page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Remove attachment", Exact = true }).First).ToBeFocusedAsync();
 
         consoleErrors.Should().BeEmpty();
         pageErrors.Should().BeEmpty();

@@ -22,10 +22,10 @@ public sealed partial class RenderedShadcnParityTests
         calendarClasses.Should().Contain("rdp-root");
         calendarClasses.Should().Contain("group/calendar");
         calendarClasses.Should().Contain("bg-background");
-        calendarClasses.Should().Contain("p-2");
+        calendarClasses.Should().Contain("p-3");
         calendarClasses.Should().Contain("[--cell-radius:var(--radius-md)]");
         calendarClasses.Should().Contain("[--cell-size:--spacing(7)]");
-        calendarClasses.Should().NotContain("p-3");
+        calendarClasses.Should().NotContain("p-2");
         calendarClasses.Should().NotContain("[--cell-size:--spacing(8)]");
         calendarClasses.Should().NotContain("rounded-lg");
         calendarClasses.Should().NotContain("border");
@@ -47,9 +47,9 @@ public sealed partial class RenderedShadcnParityTests
         yearDropdown.GetAttribute("class")!.Should().Contain("rdp-dropdown");
         yearDropdown.GetAttribute("aria-label")!.Should().Be("Choose the Year");
         dropdownRoot.GetAttribute("class")!.Should().Contain("rdp-dropdown_root");
-        dropdownRoot.GetAttribute("class")!.Should().Contain("border-input");
-        dropdownRoot.GetAttribute("class")!.Should().Contain("shadow-xs");
-        dropdownRoot.GetAttribute("class")!.Should().Contain("has-focus:ring-[3px]");
+        dropdownRoot.GetAttribute("class")!.Should().Contain("rounded-(--cell-radius)");
+        dropdownRoot.GetAttribute("class")!.Should().NotContain("shadow-xs");
+        dropdownRoot.GetAttribute("class")!.Should().NotContain("has-focus:ring-[3px]");
         captionLabel.GetAttribute("class")!.Should().Contain("rdp-caption_label");
         captionLabel.GetAttribute("class")!.Should().Contain("h-8");
         captionLabel.GetAttribute("class")!.Should().Contain("pr-1");
@@ -59,7 +59,7 @@ public sealed partial class RenderedShadcnParityTests
         dayButton.GetAttribute("class")!.Should().Contain("group/button");
         dayButton.GetAttribute("class")!.Should().Contain("rdp-day_button");
         dayButton.GetAttribute("class")!.Should().Contain("data-[selected-single=true]:bg-primary");
-        dayButton.GetAttribute("class")!.Should().Contain("data-[range-middle=true]:bg-accent");
+        dayButton.GetAttribute("class")!.Should().Contain("data-[range-middle=true]:bg-muted");
         previousButton.GetAttribute("aria-label")!.Should().Be("Go to the Previous Month");
         previousButton.GetAttribute("class")!.Should().Contain("size-(--cell-size)");
         nextButton.GetAttribute("aria-label")!.Should().Be("Go to the Next Month");

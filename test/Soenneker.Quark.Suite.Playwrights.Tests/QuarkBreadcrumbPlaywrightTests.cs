@@ -40,11 +40,11 @@ public sealed class QuarkBreadcrumbPlaywrightTests : PlaywrightUnitTest
         var componentsLink = navigation.Locator("[data-slot='breadcrumb-link']").Nth(1);
         var currentPage = navigation.Locator("[data-slot='breadcrumb-page']").First;
 
-        await Assertions.Expect(homeLink).ToHaveAttributeAsync("href", "/");
-        await Assertions.Expect(componentsLink).ToHaveAttributeAsync("href", "/components");
+        await Assertions.Expect(homeLink).ToHaveAttributeAsync("href", "#");
+        await Assertions.Expect(componentsLink).ToHaveAttributeAsync("href", "#");
         await Assertions.Expect(currentPage).ToHaveAttributeAsync("aria-current", "page");
         await Assertions.Expect(currentPage).ToHaveAttributeAsync("aria-disabled", "true");
-        (await navigation.Locator("[data-slot='breadcrumb-list']").First.GetAttributeAsync("class")).Should().Contain("sm:gap-2.5");
+        (await navigation.Locator("[data-slot='breadcrumb-list']").First.GetAttributeAsync("class")).Should().Contain("gap-1.5");
 
         var rtlSection = page.Locator("section").Filter(new LocatorFilterOptions
             { HasText = "Breadcrumb separators and item flow render correctly in right-to-left layouts." }).First;

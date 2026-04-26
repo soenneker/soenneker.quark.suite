@@ -20,6 +20,6 @@ public sealed partial class RenderedShadcnParityTests
         classes.Should().Contain("gap-1.5");
         classes.Should().Contain("text-center");
         classes.Should().Contain("has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr]");
-        classes.Should().Contain("has-data-[slot=alert-dialog-media]:gap-x-6");
+        classes.Should().Contain("has-data-[slot=alert-dialog-media]:gap-x-4");
     }
 }

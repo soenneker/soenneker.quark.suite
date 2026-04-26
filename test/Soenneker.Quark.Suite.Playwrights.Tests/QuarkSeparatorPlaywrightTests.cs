@@ -32,9 +32,10 @@ public sealed class QuarkSeparatorPlaywrightTests : PlaywrightUnitTest
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Non-decorative separators stay in the accessibility tree with the expected orientation metadata." }).First,
             expectedTitle: "Separator - Quark Suite");
 
-        var demoSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "The shadcn separator layout with a horizontal rule above inline vertical dividers." }).First;
+        var demoSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Visually or semantically separates content." }).First;
         var decorativeHorizontal = demoSection.Locator("[data-slot='separator'][data-orientation='horizontal']").First;
-        var decorativeVerticals = demoSection.Locator("[data-slot='separator'][data-orientation='vertical']");
+        var menuSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Vertical separators between labeled sections." }).First;
+        var decorativeVerticals = menuSection.Locator("[data-slot='separator'][data-orientation='vertical']");
 
         await Assertions.Expect(decorativeHorizontal).ToHaveAttributeAsync("role", "none");
         await Assertions.Expect(decorativeHorizontal).Not.ToHaveAttributeAsync("aria-orientation", new System.Text.RegularExpressions.Regex(".+"));

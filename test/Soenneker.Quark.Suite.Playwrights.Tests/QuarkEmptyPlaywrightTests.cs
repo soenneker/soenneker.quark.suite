@@ -32,40 +32,34 @@ public sealed class QuarkEmptyPlaywrightTests : PlaywrightUnitTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}empties",
-            static p => p.GetByText("No data", new PageGetByTextOptions { Exact = true }).First,
+            static p => p.GetByText("No Projects Yet", new PageGetByTextOptions { Exact = true }).First,
             expectedTitle: "Empty - Quark Suite");
 
-        var demo = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "The default empty-state composition uses icon media" }).First;
+        var demo = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "No Projects Yet" }).First;
         var empty = demo.Locator("[data-slot='empty']").First;
         var header = demo.Locator("[data-slot='empty-header']").First;
         var media = demo.Locator("[data-slot='empty-icon']").First;
         var title = demo.Locator("[data-slot='empty-title']").First;
         var description = demo.Locator("[data-slot='empty-description']").First;
         var content = demo.Locator("[data-slot='empty-content']").First;
-        var action = demo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Add data", Exact = true });
+        var action = demo.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Create Project", Exact = true });
 
-        await Assertions.Expect(empty).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)gap-6(\s|$)"));
-        await Assertions.Expect(empty).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)rounded-lg(\s|$)"));
-        await Assertions.Expect(empty).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)md:p-12(\s|$)"));
+        await Assertions.Expect(empty).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)gap-4(\s|$)"));
+        await Assertions.Expect(empty).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)rounded-xl(\s|$)"));
+        await Assertions.Expect(empty).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)p-6(\s|$)"));
         await Assertions.Expect(header).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)max-w-sm(\s|$)"));
         await Assertions.Expect(media).ToHaveAttributeAsync("data-variant", "icon");
-        await Assertions.Expect(media).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)size-10(\s|$)"));
-        await Assertions.Expect(title).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)text-lg(\s|$)"));
-        await Assertions.Expect(description).ToHaveTextAsync("No data found");
-        await Assertions.Expect(content).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)gap-4(\s|$)"));
+        await Assertions.Expect(media).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)size-8(\s|$)"));
+        await Assertions.Expect(title).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)text-sm(\s|$)"));
+        await Assertions.Expect(description).ToHaveTextAsync("You haven't created any projects yet. Get started by creating your first project.");
+        await Assertions.Expect(content).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)gap-2(\s|$)"));
 
         await action.FocusAsync();
         await Assertions.Expect(action).ToBeFocusedAsync();
 
-        var inputGroupSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "An inline input group is useful" }).First;
-        var domainInput = inputGroupSection.GetByPlaceholder("acme.dev");
-        await domainInput.FillAsync("example.com");
-        await Assertions.Expect(domainInput).ToHaveValueAsync("example.com");
-        await Assertions.Expect(inputGroupSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Connect domain", Exact = true })).ToBeVisibleAsync();
-
         var rtlSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Empty states also support right-to-left copy" }).First;
-        await Assertions.Expect(rtlSection.GetByText("لا توجد بيانات", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
-        await Assertions.Expect(rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "إضافة عنصر", Exact = true })).ToBeVisibleAsync();
+        await Assertions.Expect(rtlSection.GetByText("لا توجد مشاريع بعد", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
+        await Assertions.Expect(rtlSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "إنشاء مشروع", Exact = true })).ToBeVisibleAsync();
 
         sawPageError.Should().BeFalse();
         consoleErrors.Should().BeEmpty();

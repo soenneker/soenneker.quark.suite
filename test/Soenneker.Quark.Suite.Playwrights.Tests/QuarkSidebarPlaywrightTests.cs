@@ -41,7 +41,7 @@ public sealed class QuarkSidebarPlaywrightTests : PlaywrightUnitTest
         await Assertions.Expect(state).ToContainTextAsync("open");
         await Assertions.Expect(openTrigger).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(sheetContent).ToBeVisibleAsync();
-        await Assertions.Expect(page.GetByText("Menu", new PageGetByTextOptions { Exact = true })).ToBeVisibleAsync();
+        await Assertions.Expect(sheetContent.GetByText("Menu", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
         await Assertions.Expect(sheetContent.GetByText("Introduction", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
         await Assertions.Expect(sheetContent.GetByText("Validation", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
 

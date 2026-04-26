@@ -46,10 +46,10 @@ public sealed partial class RenderedShadcnParityTests
         contentClasses.Should().Contain("z-50");
         contentClasses.Should().Contain("w-64");
         contentClasses.Should().Contain("origin-(--radix-hover-card-content-transform-origin)");
-        contentClasses.Should().Contain("rounded-md");
-        contentClasses.Should().Contain("border");
+        contentClasses.Should().Contain("rounded-lg");
+        contentClasses.Should().Contain("ring-1");
         contentClasses.Should().Contain("bg-popover");
-        contentClasses.Should().Contain("p-4");
+        contentClasses.Should().Contain("p-2.5");
         contentClasses.Should().Contain("text-popover-foreground");
         contentClasses.Should().Contain("shadow-md");
         contentClasses.Should().Contain("outline-hidden");
@@ -60,8 +60,8 @@ public sealed partial class RenderedShadcnParityTests
         contentClasses.Should().Contain("data-[state=closed]:fade-out-0");
         contentClasses.Should().Contain("data-[state=closed]:zoom-out-95");
         contentClasses.Should().NotContain("z-[80]");
-        contentClasses.Should().NotContain("ring-1");
-        contentClasses.Should().NotContain("duration-100");
+        contentClasses.Should().Contain("ring-1");
+        contentClasses.Should().Contain("duration-100");
         contentClasses.Should().NotContain("data-open:");
         contentClasses.Should().NotContain("data-closed:");
         contentClasses.Should().NotContain("data-[state=closed]:hidden");

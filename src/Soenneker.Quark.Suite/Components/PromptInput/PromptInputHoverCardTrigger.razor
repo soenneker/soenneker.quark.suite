@@ -1,13 +1,24 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Element
 
-<span data-slot="prompt-input-hover-card-trigger">
-    <HoverCardTrigger AsChild="@AsChild" @attributes="Attributes">
+<span @attributes="BuildAttributes()">
+    <HoverCardTrigger AsChild="@AsChild">
         @ChildContent
     </HoverCardTrigger>
 </span>
 
 @code {
-    [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public bool AsChild { get; set; }
-    [Parameter(CaptureUnmatchedValues = true)] public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "prompt-input-hover-card-trigger";
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AsChild);
+    }
 }

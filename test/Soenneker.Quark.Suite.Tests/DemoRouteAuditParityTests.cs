@@ -100,6 +100,7 @@ public sealed class DemoRouteAuditParityTests
         "stack",
         "stepsdemo",
         "suggestions",
+        "threads",
         "timelines",
         "validation-demo"
     };

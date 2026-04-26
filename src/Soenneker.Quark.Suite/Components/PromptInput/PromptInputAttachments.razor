@@ -1,8 +1,9 @@
 @namespace Soenneker.Quark
+@inherits Soenneker.Quark.Component
 
 @if (PromptInput is not null && PromptInput.Attachments.Count > 0)
 {
-    <Attachments Variant="@Variant" @attributes="Attributes">
+    <Attachments Variant="@Variant" @attributes="BuildAttributes()">
         @foreach (PromptInputAttachmentInfo attachment in PromptInput.Attachments)
         {
             if (AttachmentTemplate is not null)
@@ -41,6 +42,12 @@
     [Parameter]
     public RenderFragment<PromptInputAttachmentInfo>? AttachmentTemplate { get; set; }
 
-    [Parameter(CaptureUnmatchedValues = true)]
-    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AttachmentsVersion);
+        hc.Add(Variant);
+        hc.Add(AttachmentVariant);
+        hc.Add(PromptInput?.Attachments.Count);
+    }
 }

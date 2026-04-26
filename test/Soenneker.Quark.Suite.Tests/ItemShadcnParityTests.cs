@@ -40,7 +40,7 @@ public sealed partial class RenderedShadcnParityTests
         itemClasses.Should().NotContain("gap-4");
         itemClasses.Should().NotContain("p-4");
         itemClasses.Should().NotContain("rounded-md");
-        itemClasses.Should().NotContain("w-full");
+        itemClasses.Should().Contain("w-full");
         itemClasses.Should().NotContain("border-1");
         itemClasses.Should().NotContain("q-item");
 

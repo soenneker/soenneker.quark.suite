@@ -1,7 +1,8 @@
 @namespace Soenneker.Quark
 @typeparam TValue
+@inherits Soenneker.Quark.Element
 
-<div data-slot="prompt-input-select" @attributes="Attributes">
+<div @attributes="BuildAttributes()">
     <Select TValue="TValue"
             SelectedValue="@SelectedValue"
             SelectedValueChanged="@SelectedValueChanged"
@@ -15,9 +16,6 @@
 </div>
 
 @code {
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-
     [Parameter]
     public TValue? SelectedValue { get; set; }
 
@@ -39,6 +37,20 @@
     [Parameter]
     public CssValue<SelectSizeBuilder>? Size { get; set; }
 
-    [Parameter(CaptureUnmatchedValues = true)]
-    public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    {
+        base.BuildAttributesCore(attributes);
+        attributes["data-slot"] = "prompt-input-select";
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(SelectedValue);
+        hc.Add(DefaultItemText);
+        hc.Add(DefaultItemValue);
+        hc.Add(Disabled);
+        hc.Add(Required);
+        AddIf(ref hc, Size);
+    }
 }

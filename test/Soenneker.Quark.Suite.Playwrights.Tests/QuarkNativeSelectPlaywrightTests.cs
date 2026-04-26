@@ -33,13 +33,12 @@ public sealed class QuarkNativeSelectPlaywrightTests : PlaywrightUnitTest
             static p => p.Locator("select").First,
             expectedTitle: "Native Select - Quark Suite");
 
-        var basicSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Simple native select control with binding." }).First;
-        var fruitSelect = basicSection.Locator("select");
+        var basicSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "A styled native HTML select element with consistent design system integration." }).First;
+        var statusSelect = basicSection.Locator("select");
 
-        await fruitSelect.SelectOptionAsync(new[] { "banana" });
+        await statusSelect.SelectOptionAsync(new[] { "done" });
 
-        await Assertions.Expect(fruitSelect).ToHaveValueAsync("banana");
-        await Assertions.Expect(basicSection).ToContainTextAsync("Selected: banana");
+        await Assertions.Expect(statusSelect).ToHaveValueAsync("done");
 
         var groupsSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use option groups to organize long lists." }).First;
         var animalSelect = groupsSection.Locator("select");
@@ -51,7 +50,7 @@ public sealed class QuarkNativeSelectPlaywrightTests : PlaywrightUnitTest
             "element => Array.from(element.querySelectorAll('optgroup')).map(group => group.label).join(',')");
         (groupLabels).Should().Be("Mammals,Birds");
 
-        var styleProbe = await fruitSelect.EvaluateAsync<NativeSelectStyleProbe>(
+        var styleProbe = await statusSelect.EvaluateAsync<NativeSelectStyleProbe>(
             @"element => {
                 const wrapper = element.closest('[data-slot=""native-select-wrapper""]');
                 const icon = wrapper.querySelector('[data-slot=""native-select-icon""]');

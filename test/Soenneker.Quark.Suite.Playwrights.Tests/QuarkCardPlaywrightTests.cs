@@ -36,13 +36,13 @@ public sealed class QuarkCardPlaywrightTests : PlaywrightUnitTest
         var card = page.Locator("[data-slot='card']").First;
         await Assertions.Expect(card).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bflex\b"));
         await Assertions.Expect(card).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bflex-col\b"));
-        await Assertions.Expect(card).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bgap-6\b"));
+        await Assertions.Expect(card).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bgap-4\b"));
         await Assertions.Expect(card).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\brounded-xl\b"));
         await Assertions.Expect(card).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bbg-card\b"));
-        await Assertions.Expect(card).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bpy-6\b"));
-        await Assertions.Expect(card).Not.ToHaveAttributeAsync("data-size", new System.Text.RegularExpressions.Regex(".+"));
+        await Assertions.Expect(card).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bpy-4\b"));
+        await Assertions.Expect(card).ToHaveAttributeAsync("data-size", "default");
 
-        await Assertions.Expect(card.Locator("[data-slot='card-header']").First).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"(^|\s)grid-rows-\[auto_auto\](\s|$)"));
+        await Assertions.Expect(card.Locator("[data-slot='card-header']").First).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"has-data-\[slot=card-description\]:grid-rows-\[auto_auto\]"));
         await Assertions.Expect(card.Locator("[data-slot='card-title']").First).ToContainTextAsync("Login to your account");
         await Assertions.Expect(card.Locator("[data-slot='card-description']").First).ToContainTextAsync("Enter your email");
         await Assertions.Expect(card.Locator("[data-slot='card-action']").First).ToBeVisibleAsync();

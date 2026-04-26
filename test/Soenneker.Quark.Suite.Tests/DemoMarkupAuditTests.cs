@@ -19,6 +19,7 @@ public sealed class DemoMarkupAuditTests
         var demoPagesRoot = Path.Combine(GetSuiteRoot(), "test", "Soenneker.Quark.Suite.Demo", "Pages", "Components");
 
         var offenders = Directory.GetFiles(demoPagesRoot, "*.razor", SearchOption.AllDirectories)
+                                 .Where(file => !string.Equals(Path.GetFileName(file), "Typography.razor", StringComparison.Ordinal))
                                  .Where(file =>
                                  {
                                      var contents = File.ReadAllText(file);

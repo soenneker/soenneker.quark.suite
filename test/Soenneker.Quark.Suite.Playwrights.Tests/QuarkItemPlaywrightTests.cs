@@ -35,7 +35,7 @@ public sealed class QuarkItemPlaywrightTests : PlaywrightUnitTest
 
         var firstItem = page.Locator("[data-slot='item']").First;
         await Assertions.Expect(firstItem).ToBeVisibleAsync();
-        await Assertions.Expect(firstItem).ToHaveAttributeAsync("data-variant", "default");
+        await Assertions.Expect(firstItem).ToHaveAttributeAsync("data-variant", "outline");
         await Assertions.Expect(firstItem).ToHaveAttributeAsync("data-size", "default");
 
         var classProbe = await firstItem.EvaluateAsync<ItemClassProbe>(
@@ -52,8 +52,8 @@ public sealed class QuarkItemPlaywrightTests : PlaywrightUnitTest
 
         classProbe.display.Should().Be("flex");
         classProbe.flexWrap.Should().Be("wrap");
-        classProbe.paddingTop.Should().Be("16px");
-        classProbe.columnGap.Should().Be("16px");
+        classProbe.paddingTop.Should().Be("10px");
+        classProbe.columnGap.Should().Be("10px");
 
         var itemGroup = page.Locator("[data-slot='item-group']").First;
         await Assertions.Expect(itemGroup).ToHaveAttributeAsync("role", "list");
