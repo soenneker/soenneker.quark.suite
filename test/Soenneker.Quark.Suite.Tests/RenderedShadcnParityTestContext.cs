@@ -170,6 +170,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         JSInterop.SetupVoid("registerPopperContentBySelector", _ => true).SetVoidResult();
         JSInterop.SetupVoid("unregisterPopperContent", _ => true).SetVoidResult();
         JSInterop.SetupVoid("updatePopperContent", _ => true).SetVoidResult();
+        JSInterop.SetupVoid("quarkDemo.scrollElementToTop", _ => true).SetVoidResult();
         JSInterop.Setup<string>("getTextContent", _ => true).SetResult(string.Empty);
         JSInterop.Setup<bool>("isFormControl", _ => true).SetResult(false);
         JSInterop.Setup<bool>("isDirectionRtl", _ => true).SetResult(false);
