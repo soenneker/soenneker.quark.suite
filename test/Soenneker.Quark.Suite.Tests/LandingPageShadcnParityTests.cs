@@ -55,6 +55,19 @@ public sealed partial class RenderedShadcnParityTests
         source.Should().NotContain("MobileOffsetTop=\"var(--header-height)\"");
     }
 
+    [Test]
+    public void Demo_host_uses_local_base_href_and_publish_rewrites_it_for_github_pages()
+    {
+        var root = GetSuiteRootForLandingPage();
+        var index = System.IO.File.ReadAllText(System.IO.Path.Combine(root, "test", "Soenneker.Quark.Suite.Demo", "wwwroot", "index.html"));
+        var deployWorkflow = System.IO.File.ReadAllText(System.IO.Path.Combine(root, ".github", "workflows", "deploy-demo.yml"));
+
+        index.Should().Contain("<base href=\"/\" />");
+        index.Should().NotContain("%BASE_URL%");
+        deployWorkflow.Should().Contain("s|<base href=\"/\" />|<base href=\"/${{ github.event.repository.name }}/\" />|g");
+        deployWorkflow.Should().NotContain("%BASE_URL%");
+    }
+
     private static string GetSuiteRootForLandingPage()
     {
         var directory = System.AppContext.BaseDirectory;
